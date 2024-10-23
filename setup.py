@@ -35,6 +35,8 @@ setup(
     python_requires=">=3.10",
     install_requires=[
         "django>=5.1.2",
+        "django-glue>=0.7.8",
+        "dandy>=0.2.0",
     ]
 )
 
