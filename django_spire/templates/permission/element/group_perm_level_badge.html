@@ -1,0 +1,11 @@
+{% if permission_level|lower == 'view' %}
+    {% include 'core/badge/primary_badge.html' with badge_text=permission_level %}
+{% elif permission_level|lower == 'add' %}
+    {% include 'core/badge/primary_badge.html' with badge_text=permission_level %}
+{% elif permission_level|lower == 'change' %}
+    {% include 'core/badge/success_badge.html' with badge_text=permission_level %}
+{% elif permission_level|lower == 'delete' %}
+    {% include 'core/badge/danger_badge.html' with badge_text=permission_level %}
+{% else %}
+    {% include 'core/badge/secondary_badge.html' with badge_text=permission_level %}
+{% endif %}

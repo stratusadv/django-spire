@@ -1,0 +1,15 @@
+{% extends 'core/item/item.html' %}
+
+{% block item_title_col %} d-none{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-12">
+        <div @click="select_group(group)" class="cursor-pointer">
+            <span :class="{
+                    'bi bi-check text-success me-1': is_linked_group(group.name),
+                    'bi bi-trash me-1': !is_linked_group(group.name)
+                }"
+            ></span> <span x-text="group.name"></span>
+        </div>
+    </div>
+{% endblock %}

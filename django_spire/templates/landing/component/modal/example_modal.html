@@ -1,0 +1,11 @@
+{% url 'landing:component:modal_content' as modal_content_url %}
+
+<div
+    x-data="{
+        open_recipe() {
+            dispatch_modal_view('{{ modal_content_url }}')
+        }
+    }"
+>
+    {% include 'core/button/primary_button.html' with button_text='Open Recipe' x_button_click="open_recipe()" %}
+</div>

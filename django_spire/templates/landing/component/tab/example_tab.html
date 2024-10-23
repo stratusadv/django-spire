@@ -1,0 +1,15 @@
+{% extends 'core/tab/tab.html' %}
+
+{% block tab_triggers %}
+    {% include 'core/tab/element/tab_trigger_element.html' with trigger_text="Tab 1" %}
+    {% include 'core/tab/element/tab_trigger_element.html' with trigger_text="Tab 2" %}
+    {% include 'core/tab/element/tab_trigger_element.html' with trigger_text="Tab 3" %}
+{% endblock %}
+
+{% block tab_function_area %}{% endblock %}
+
+{% block tab_sections %}
+    {% include 'landing/component/tab/tab_one.html' %}
+    {% include 'landing/component/tab/tab_two.html' %}
+    {% include 'landing/component/tab/tab_three.html' %}
+{% endblock %}

@@ -1,0 +1,76 @@
+{% load static %}
+
+<div class="row justify-content-between align-items-center p-1 p-md-2 bg-white mb-3 border-bottom shadow-sm">
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <span class="fs-5 fs-md-1 fw-bold d-none d-lg-block float-start">
+                    Django Skeleton
+                </span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                {% include 'core/element/breadcrumb_element.html' %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-auto d-flex">
+        <div class="dropdown">
+            <i
+                class="bi bi bi-gear-fill fs-2 mx-2 cursor-pointer"
+                id="dropdownMenuButton1"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+            </i>
+        </div>
+
+        <div class="dropdown">
+            <i
+                class="bi bi-person-circle fs-2 mx-2 cursor-pointer"
+                id="dropdownMenuButton1"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+            </i>
+            <ul
+                class="dropdown-menu py-0"
+                aria-labelledby="dropdownMenuButton1"
+            >
+                {% if request.user.is_superuser %}
+                    <li>
+                        <a
+                            class="dropdown-item fs--1"
+                            href="{% url 'admin:index' %}"
+                            target="_blank"
+                        >
+                            Admin Panel
+                        </a>
+                    </li>
+                {% endif %}
+                <li>
+                    <a
+                        class="dropdown-item fs--1"
+                        href="{% url 'user_account:authentication:admin:password_change' %}"
+                    >
+                        Change Password
+                    </a>
+                </li>
+                <li>
+                    <a
+                        class="dropdown-item fs--1"
+                        href="{% url 'user_account:authentication:redirect:logout' %}"
+                    >
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-auto d-lg-none">
+            {% include 'core/navigation/mobile_navigation.html' %}
+        </div>
+    </div>
+</div>

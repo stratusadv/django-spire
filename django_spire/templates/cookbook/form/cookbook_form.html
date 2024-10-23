@@ -1,0 +1,20 @@
+<div
+    x-data="{
+        async init() {
+            await this.cookbook.get()
+        },
+        cookbook: new GlueModelObject('cookbook')
+    }"
+>
+    {% include 'core/element/divider_element.html' with divider_title='Details' %}
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='cookbook.name' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_glue/form/glue_field/text_field.html' with glue_model_field='cookbook.description' %}
+        </div>
+    </div>
+</div>
+
+{% include 'core/form/button/form_submit_button.html' %}

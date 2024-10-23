@@ -1,0 +1,17 @@
+{% extends 'core/item/item.html' %}
+
+{% block item_title %}
+    {% url 'config_registration:detail' pk=user.pk as detail_url %}
+    {% include 'core/element/attribute_element.html' with attribute_type='User' attribute_value=user.get_full_name attribute_href=detail_url %}
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col">
+        {% include 'core/element/attribute_element.html' with attribute_type='Email' attribute_value=user.email %}
+    </div>
+
+    <div class="col">
+        {% include 'core/element/attribute_element.html' with attribute_type='Status' %}
+        {% include 'user_account/element/is_active_badge.html' with is_active=user.is_active %}
+    </div>
+{% endblock %}

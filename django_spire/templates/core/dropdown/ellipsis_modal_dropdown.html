@@ -1,0 +1,25 @@
+{% extends 'core/dropdown/dropdown.html' %}
+
+{% block dropdown_position %}end-0 top-100{% endblock %}
+
+{% block dropdown_trigger %}
+    <span
+        class="bi bi-three-dots-vertical {% block ellipsis_class %}{% endblock %}"
+        x-bind="trigger"
+    >
+    </span>
+{% endblock %}
+
+{% block dropdown_content %}
+    {% if view_url %}
+        {% include 'core/dropdown/element/ellipsis_dropdown_modal_link_element.html' with modal_title='View Work Order Task' view_url=view_url link_text='View' %}
+    {% endif %}
+
+    {% if edit_url %}
+        {% include 'core/dropdown/element/ellipsis_dropdown_modal_link_element.html' with modal_title='Edit Work Order Task' view_url=edit_url link_text='Edit' %}
+    {% endif %}
+
+    {% if delete_url %}
+        {% include 'core/dropdown/element/ellipsis_dropdown_modal_link_element.html' with modal_title='Delete Work Order Task' view_url=delete_url link_text='Delete' link_css='text-app-danger' %}
+    {% endif %}
+{% endblock %}

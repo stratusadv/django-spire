@@ -1,0 +1,8 @@
+<section
+    x-show="is_selected($id('tab', which_tab($el, $el.parentElement)))"
+    x-cloak
+    role="tabpanel"
+>
+    {% block tab_section_content %}
+    {% endblock %}
+</section>

@@ -1,0 +1,20 @@
+{% extends 'core/card/title_card.html' %}
+
+{% block card_title %}
+	Cookbooks
+{% endblock %}
+
+{% block card_button %}
+    {% url 'cookbook:page:form' pk=0 as new_cookbook_url %}
+	{% include 'core/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_cookbook_url %}
+{% endblock %}
+
+{% block card_title_content %}
+	{% if cookbooks %}
+		{% for cookbook in cookbooks %}
+			{% include 'cookbook/item/cookbook_item.html' %}
+		{% endfor %}
+    {% else %}
+        {% include 'core/item/no_data_item.html' %}
+	{% endif %}
+{% endblock %}

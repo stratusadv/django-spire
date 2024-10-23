@@ -1,0 +1,14 @@
+{% extends 'core/item/item.html' %}
+
+{% block item_title %}
+	{% include 'core/element/attribute_element.html' with attribute_title='Name' attribute_value=ingredient.name %}
+{% endblock %}
+
+{% block item_row_content %}
+	<div class="col-sm-4 col-12">
+    	{% include 'core/element/attribute_element.html' with attribute_title='Quantity' attribute_value=ingredient.quantity %}
+    </div>
+    <div class="col-sm-8 col-12">
+    	{% include 'core/element/attribute_element.html' with attribute_title='Directions' attribute_value=ingredient.directions %}
+    </div>
+{% endblock %}

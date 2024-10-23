@@ -1,0 +1,15 @@
+{% extends 'core/container/container.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block container_title %}
+    {% if form_title %}
+        {{ form_title }}
+    {% elif page_title %}
+        {{ page_title }}
+    {% endif %}
+{% endblock %}
+
+{% block container_content %}
+    {% include 'core/card/form_card.html' %}
+{% endblock %}

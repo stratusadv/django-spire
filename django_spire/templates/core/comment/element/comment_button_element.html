@@ -1,0 +1,165 @@
+{% if comment_permission %}
+    <div x-data="{
+                init(){
+                    this.user_list = [
+                        {
+                            'username': 'Austin_Sauer'
+                        },
+                        {
+                            'username': 'John_Doe'
+                        },
+                        {
+                            'username': 'Test_User'
+                        },
+                        {
+                            'username': 'Jane_Doe'
+                        }
+                    ]
+                },
+                user_list: [],
+                comment_user_list: [],
+                comment_text: '',
+                comment_element: null,
+                show_user_list_dropdown: false,
+                show_comment_dropdown: false,
+
+                word_at_index(index){
+                    var word = []
+                    for(let i = index; i >= 0; i-- ){
+                        if(!this.char_is_space(this.comment_text.charAt(i)) && this.comment_text.charAt(i+1) != null){
+                                word.push(this.comment_text.charAt(i))
+                            }
+
+                        else{
+                            break;
+                        }
+                    }
+                    return word.reverse().join('')
+                },
+
+                word_at_cursor_index(){
+                    return this.word_at_index(this.comment_element.selectionStart - 1)
+                },
+
+                first_character_of_word_at_cursor_index(){
+                    return this.word_at_cursor_index().charAt(0)
+                },
+
+                set_current_comment_element(comment_element){
+                    this.comment_element = comment_element
+                    this.word_at_cursor_index()
+                },
+
+                char_is_space(char){
+                    return /\s/.test(char);
+                },
+
+                user_dropdown_toggle(comment_element){
+                    this.set_current_comment_element(comment_element)
+
+                    if(this.char_is_space(this.comment_text.charAt(this.comment_element.selectionStart)) ||
+                        this.comment_element.selectionStart == this.comment_text.length){
+                            if(this.first_character_of_word_at_cursor_index() == '@'){
+                               this.show_user_list_dropdown = true;
+                            }
+                            else{
+                                this.show_user_list_dropdown = false;
+                            }
+                    }
+
+                    else {
+                         this.show_user_list_dropdown = false;
+                    }
+                    return this.show_user_list_dropdown
+                },
+
+                find_word_start_index(current_index){
+                    if (current_index !==0){
+                        current_index -= 1
+                    }
+
+                    for(let i = current_index; i >= 0; i-- ){
+                        if(this.char_is_space(this.comment_text.charAt(i))){
+                            return i;
+                        }
+                    }
+                   return 0;
+                },
+
+                add_user_to_comment(user){
+                    let end_index = this.comment_element.selectionStart;
+                    let start_index = this.find_word_start_index(end_index)
+
+                    if (start_index !== 0){
+                        start_index += 1
+                    }
+                    this.comment_text = this.comment_text.substring(0, start_index) + '@' + user.username + ' ' + this.comment_text.slice(end_index);
+                    this.show_user_list_dropdown = false;
+                },
+
+                toggle_show_comment_dropdown(){
+                    this.show_comment_dropdown = !this.show_comment_dropdown
+                },
+
+                get filtered_users(){
+                    return this.user_list.filter(
+                        user => user.username.toLowerCase().includes(this.word_at_cursor_index().substring(1).toLowerCase())
+                    )
+                },
+                get return_value() {return JSON.stringify(this.user_list)}
+           }">
+
+        <div class="btn-group">
+            {% if button_icon %}
+                <button @click="toggle_show_comment_dropdown()" class="btn btn-container btn-sm px-2"
+                        type="button" data-display="static"
+                        aria-haspopup="true" aria-expanded="false">
+
+                    <span class="{{ button_icon }}" data-fa-transform="shrink-3"></span>
+
+                    {{ button_text }}
+                </button>
+
+            {% elif button_text %}
+                <button @click="toggle_show_comment_dropdown()"
+                        class="btn bg-white text-business-base-blue rounded border-1 border-business-base-blue btn-sm px-2"
+                        type="button" data-display="static"
+                        aria-haspopup="true" aria-expanded="false">
+                    {{ button_text }}
+                </button>
+            {% endif %}
+
+            <div x-show="show_comment_dropdown" @click.outside="show_comment_dropdown = false" x-transition
+                 class="position-absolute top-100 end-100 z-index-1 py-0">
+                <div class="card shadow-none border position-relative" style="width: 20rem;">
+                    <div class="card-body p-1">
+                        <form method="post" action={{ button_url }}>
+                            {% csrf_token %}
+                            <textarea x-model="comment_text" @keyup="user_dropdown_toggle($el)"
+                                      rows="7" type="text" name="comment" autocomplete="off" size="26"
+                                      class="input form-control px-2 fs--1"
+                                      maxlength="250" placeholder="Type Comment Here...">
+                            </textarea>
+
+                            <div style="max-height: 100px; overflow-x: hidden; overflow-y: auto"
+                                 x-show="show_user_list_dropdown" @click.outside="show_user_list_dropdown = false"
+                                 class="text-business-base-blue bg-white fs-0 w-75 ms-3 border rounded position-absolute top-25 start-0">
+                                <template x-for="(user, index) in filtered_users" :key="user.username">
+                                    <a class="text-decoration-none text-business-base-blue" href="#">
+                                        <li @click="add_user_to_comment(user)"
+                                            class="list-unstyled text-start item-hover px-3 py-1"
+                                            x-text="user.username"></li>
+                                    </a>
+                                </template>
+                            </div>
+
+                            <button @click="$store.page_state.toggle_page_loading_state()" class="btn btn-primary btn-sm w-100 mt-1"
+                                    type="submit">Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

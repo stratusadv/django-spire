@@ -1,0 +1,12 @@
+<div
+    x-data="{
+        async init() {
+            await this.group.get()
+        },
+        group: new GlueModelObject('group')
+    }"
+    class="row">
+        <div class="col-12">
+            {% include 'django_glue/form/field/char_field.html' with glue_field='group.fields.name' x_model_value='group.name' %}
+        </div>
+</div>

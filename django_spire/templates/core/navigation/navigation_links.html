@@ -1,0 +1,19 @@
+{% url 'home:home' as home_url %}
+{% include 'core/navigation/elements/nav_link.html' with link_text='Home' link_icon='bi bi-house' link_url=home_url %}
+
+{% url 'cookbook:page:list' as cookbook_url %}
+{% include 'core/navigation/accordion/cookbook_accordion.html' %}
+
+{% if  perms.permission.view_portalgroup or perms.permission.view_portaluser %}
+    {% include 'core/navigation/elements/nav_title_divider.html' with divider_text='Settings' %}
+{% endif %}
+
+{% if perms.permission.view_portalgroup %}
+    {% url 'permission:group_list' as group_list_url %}
+    {% include 'core/navigation/elements/nav_link.html' with link_text='Groups' link_icon='bi bi-people' link_url=group_list_url %}
+{% endif %}
+
+{% if perms.permission.view_portaluser %}
+    {% url 'user_account:profile:page:list' as user_list_url %}
+    {% include 'core/navigation/elements/nav_link.html' with link_text='Users' link_icon='bi bi-person-badge' link_url=user_list_url %}
+{% endif %}

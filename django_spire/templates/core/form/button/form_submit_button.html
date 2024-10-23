@@ -1,0 +1,46 @@
+<div x-data="{
+    loading: false,
+    init() {
+        this.loading = false
+    },
+    async submit (form) {
+        // The validate_form function must be on the parent element and handles any additional client side validation.
+        // This logic checks for a validate function and calls it if it exists
+        if (form.checkValidity() && ('validate_form' in this && await validate_form(form) || !('validate_form' in this))) {
+            this.loading = true
+            toggle_loading_overlay()
+            form.submit()
+        }
+        else {
+            form.reportValidity()
+        }
+    }
+ }">
+    <button
+        class="btn btn-app-primary {{ button_class }}"
+        id="form-submit-button"
+        x-show="loading === false"
+        @click.prevent="await submit($el.form)"
+    >
+        {% if button_text %}
+            {{ button_text }}
+        {% elif x_button_text %}
+            <span x-text="{{ x_button_text }}"></span>
+        {% else %}
+            Submit
+        {% endif %}
+    </button>
+    <div
+        class="btn btn-app-primary"
+        x-show="loading"
+        x-cloak
+    >
+        <div
+            class="spinner-border text-white spinner-border-sm"
+            role="status"
+            x-transition
+        >
+        </div>
+        <span>Loading...</span>
+    </div>
+</div>

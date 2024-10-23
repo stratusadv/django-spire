@@ -1,0 +1,34 @@
+<div class="fs-7 text-light-primary">
+    {% block attribute_title %}
+        {% if attribute_title %}
+            {{ attribute_title_prefix }}{{ attribute_title }}{{ attribute_title_postfix }}
+        {% elif x_attribute_title %}
+            <span x-text="{{ x_attribute_title_prefix }}"></span>
+            <span x-text="{{ x_attribute_title }}"></span>
+            <span x-text="{{ x_attribute_title_postfix }}"></span>
+        {% endif %}
+    {% endblock %}
+</div>
+
+{% if attribute_href %}
+    <a class="text-decoration-none" href="{{ attribute_href }}" target="{{ target }}">
+{% else %}
+    <div class="fs-6">
+{% endif %}
+
+{% block attribute_value %}
+    {% if attribute_value %}
+        {{ attribute_value_prefix }}{{ attribute_value }}{{ attribute_value_postfix }}
+    {% elif x_attribute_value %}
+        <span x-text="{{ x_attribute_value_prefix }}"></span>
+        <span x-text="{{ x_attribute_value }}"></span>
+        <span x-text="{{ x_attribute_value_postfix }}"></span>
+    {% endif %}
+{% endblock %}
+
+{% if attribute_href %}
+    </a>
+{% else %}
+    </div>
+{% endif %}
+

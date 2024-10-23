@@ -1,0 +1,17 @@
+{% extends 'core/page/full_page.html' %}
+
+{% block page_content %}
+    <div class="row g-3 mb-3">
+        <div class="col">
+            {% include 'user_account/card/user_detail_title_card.html' %}
+        </div>
+    </div>
+    <div class="row g-3">
+        <div class="col-lg-8 col-12">
+            {% include 'user_account/card/user_group_list_card.html' %}
+        </div>
+        <div class="col-lg-4 col-12">
+            {% include 'history/card/activity_list_card.html' %}
+        </div>
+    </div>
+{% endblock %}

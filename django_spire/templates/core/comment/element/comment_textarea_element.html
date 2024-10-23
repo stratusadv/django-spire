@@ -1,0 +1,120 @@
+{% load core_tags %}
+
+<div x-data="{
+                async init(){
+                    await this.set_user_list()
+                },
+                comment: '',
+                parent_id:'{{ comment.id }}',
+                id: $id('comment-textarea'),
+                show_user_list: false,
+                user_list: [],
+                add_user_to_comment(user){
+                    let end_index = this.word_end_index()
+                    let start_index = this.word_start_index()
+                    this.comment = this.comment.substring(0, start_index) + '@' + user.full_name + this.comment.slice(end_index)
+                    this.show_user_list = false;
+                    document.getElementById(this.id).focus()
+                },
+                char_is_space(char){
+                    return /\s/.test(char);
+                },
+                get filtered_users(){
+                    return this.user_list.filter(
+                        user => user.full_name.toLowerCase().includes(this.word_at_cursor().substring(1).toLowerCase())
+                    )
+                },
+                get parse_users(){
+                    // Returns a list of users who have been tagged in the comment.
+                    var re = /(?:^|\W)@(\w+)(?!\w)/g, match, matches = [];
+                    while (match = re.exec(this.comment)) {
+                        matches.push(match[1].toLowerCase());
+                    }
+                    return this.user_list.filter( user => matches.indexOf(user.full_name.toLowerCase()) > -1)
+                },
+                get user_id_list(){
+                    let id_list = []
+                    this.parse_users.forEach(user => id_list.push(user['id']))
+                    return id_list
+                 },
+                async set_user_list(){
+                    let response = await ajax_request(
+                        'GET',
+                        '{% content_type_url "comment:user_list" obj %}'
+                    )
+                    if(response.status === 200) {
+                        this.user_list = response.data.user_list
+                    }
+                },
+                user_dropdown_toggle(){
+                    if(this.user_list.some(user => user.full_name === (this.word_at_cursor().substring(1)))){
+                        // Does not toggle if the correct full_name is attached to an @
+                        this.show_user_list = false
+                    } else {
+                        // Toggles if first character is @
+                        this.show_user_list = this.word_at_cursor().charAt(0) === '@';
+                    }
+                },
+                word_at_cursor(){
+                    const cursor_position = document.getElementById(this.id).selectionStart
+                    const string_start = this.comment.substring(0, cursor_position).match(/[a-zA-Z0-9-_@]+$/)
+                    const string_end = this.comment.substring(cursor_position).match(/^[a-zA-Z0-9-_@]+/)
+                    if(!string_start && !string_end) return ''
+                    return (string_start || '') + (string_end || '')
+                },
+                word_end_index(){
+                    let current_index = document.getElementById(this.id).selectionStart
+                    for(let i = current_index; i <= this.comment.length; i++ ){
+                        if(this.char_is_space(this.comment.charAt(i))){
+                            // Works forward to find a space and returns that index
+                            return i;
+                        }
+                    }
+                   return current_index;
+                },
+                word_start_index(){
+                    let current_index = document.getElementById(this.id).selectionStart
+                    if(this.char_is_space(this.comment.charAt(current_index))){
+                        // Subtract one to get the word before the cursor
+                        current_index -= 1
+                    }
+                    for(let i = current_index; i >= 0; i-- ){
+                       if(this.char_is_space(this.comment.charAt(i))){
+                           // Once we find a space we need to return the spot after it.
+                           return i + 1;
+                       }
+                    }
+                    // Return the start if there are no spaces
+                    return 0;
+                }
+           }">
+
+    <div class="position-relative">
+        <form action="{% content_type_url 'comment:form' obj comment_pk=0 obj_pk=obj.pk return_url=request.get_full_path %}" method="POST">
+            {% csrf_token %}
+            <input name="user_list" type="hidden" x-model=user_id_list />
+            <div class="border border-1 rounded p-1">
+                <textarea required :id="id" x-model="comment" @keyup="user_dropdown_toggle" rows="6" type="text" name="comment"
+                          autocomplete="off" size="26" class="w-100 fs--1" placeholder="Type your comment here..."></textarea>
+            </div>
+            <button class="btn-app-primary btn w-100">Submit</button>
+        </form>
+
+        <div style="max-height: 125px; z-index: 2; overflow-x: hidden; overflow-y: auto" x-show="show_user_list" @click.outside="show_user_list=false" x-transition
+             class="bg-white text-900 w-100 shadow border rounded position-absolute top-50 start-0">
+            <template x-if="filtered_users.length > 0">
+                <template x-for="user in filtered_users" :key="user.id">
+                        <div @click="add_user_to_comment(user)"
+                         class="text-start fs-0 item-hover px-2 py-1 cursor-pointer border-bottom">
+                            <span x-text="user.display_name"></span>
+                            <span class="fs--1" x-text="user.full_name"></span>
+                        </div>
+                </template>
+            </template>
+            <template x-if="filtered_users.length === 0">
+                <div class="text-start fs-0 px-2 py-1">No matches found.</div>
+            </template>
+        </div>
+    </div>
+</div>
+

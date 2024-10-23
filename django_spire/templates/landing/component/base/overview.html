@@ -1,0 +1,13 @@
+<nav id="this-page" class="col-md-2 d-none d-md-block bg-light">
+    <div class="sticky-top">
+        <div class="p-3">
+            <h6>This Page</h6>
+
+            <ul class="nav flex-column">
+                {% include 'landing/component/base/sidebar_item.html' with href='#definition' text='Definition' %}
+                {% include 'landing/component/base/sidebar_item.html' with href='#example' text='Example' %}
+                {% include 'landing/component/base/sidebar_item.html' with href='#gallery' text='Gallery' %}
+            </ul>
+        </div>
+    </div>
+</nav>

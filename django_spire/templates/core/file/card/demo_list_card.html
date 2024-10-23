@@ -1,0 +1,20 @@
+{% extends 'core/card/title_card.html' %}
+
+{% block card_title %}
+    Demo List
+{% endblock %}
+
+{% block card_button %}
+    {% url 'core_file:demo_form' pk=0 as new_demo_url %}
+    {% include 'core/button/primary_button.html' with button_href=new_demo_url button_text='New' button_logo_left='bi bi-plus' %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% if queryset %}
+        {% for demo in demo_list %}
+            {% include 'core/file/item/demo_item.html' %}
+        {% endfor %}
+    {% else %}
+        {% include 'core/item/no_data_item.html' %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+<ol style="--bs-breadcrumb-divider: '>';" class="breadcrumb small d-none d-lg-flex mb-0">
+    {% for breadcrumb in breadcrumb_list %}
+        <li class="breadcrumb-item">
+            {% if breadcrumb.href  and forloop.counter != breadcrumb_list|length %}
+                <a class="text-decoration-none text-app-secondary" href="{{ breadcrumb.href }}">{{ breadcrumb.name }}</a>
+            {% else %}
+                <span>{{ breadcrumb.name }}</span>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ol>

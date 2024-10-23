@@ -1,0 +1,7 @@
+{% extends 'landing/component/subsection/gallery.html' %}
+
+{% block subsection_content %}
+    {% for key, content in gallery.items %}
+        {% include 'landing/component/base/gallery_item.html' with key=key content=content %}
+    {% endfor %}
+{% endblock %}

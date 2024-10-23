@@ -1,0 +1,17 @@
+{% load static %}
+
+<div class="bg-app-side-bar d-block">
+    <div class="text-center mt-2">
+        <a
+            class="text-decoration-none mx-auto"
+            href="/django_spire/static"
+        >
+            <div class="text-center d-flex justify-content-center">
+                <img src="{% static 'core/img/logo/icon/django_skeleton_icon_body_small.png' %}" height="100" alt="">
+            </div>
+        </a>
+    </div>
+    <ul class="nav nav-pills flex-column mt-2 mx-1 p-2">
+        {% include 'core/navigation/navigation_links.html' %}
+    </ul>
+</div>

@@ -1,0 +1,39 @@
+{% load static %}
+
+<div x-data="{ show_mobile_nav: false }">
+    <span
+        class="bi bi-list text-app-primary fs-2 d-lg-none cursor-pointer mx-2"
+        @click="show_mobile_nav = true"
+    >
+    </span>
+    <div class="col-auto d-lg-none">
+        <div
+            class="sidebar bg-app-side-bar px-2"
+            style="display: none; width: 200px"
+            x-show="show_mobile_nav"
+            :class="{'show': show_mobile_nav}"
+            @click.away="show_mobile_nav = false"
+        >
+            <div class="text-center mt-2">
+                <a
+                    class="text-decoration-none mx-auto"
+                    href="/django_spire/static"
+                >
+                    <div class="text-center d-flex justify-content-center">
+                        <img src="{% static 'core/img/logo/icon/django_skeleton_icon_body_small.png' %}" height="100" alt="">
+                    </div>
+                </a>
+            </div>
+            {# Close Button #}
+            <i
+                class="bi bi-x-lg text-white position-absolute top-0 end-0 m-2"
+                type="button"
+                @click="show_mobile_nav = false"
+            >
+            </i>
+            <ul class="nav nav-pills flex-column mt-2 mx-1 p-2">
+                {% include 'core/navigation/navigation_links.html' %}
+            </ul>
+        </div>
+    </div>
+</div>

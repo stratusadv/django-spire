@@ -1,0 +1,15 @@
+{% extends 'core/page/full_page.html' %}
+
+{% block page_content %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-10">
+                {% include 'user_account/card/register_user_detail_form_card.html' %}
+            </div>
+{#            <div class="col-4">#}
+{#                {% include 'config/permission/card/permission_user_groups_form_card.html' %}#}
+{#            </div>#}
+        </div>
+    </form>
+{% endblock %}

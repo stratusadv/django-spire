@@ -1,0 +1,13 @@
+{% extends 'core/card/title_card.html' %}
+
+{% block card_padding_class %}p-0{% endblock %}
+
+{% block card_title %}
+    Permissions
+{% endblock %}
+
+{% block card_title_content %}
+    {% for perm_data in permission_data %}
+        {% include 'permission/item/group_perm_item.html' %}
+    {% endfor %}
+{% endblock %}

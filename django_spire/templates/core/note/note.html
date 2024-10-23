@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="col-12 {% block note_class%}bg-app-layer-two border-app-primary{% endblock %} border-start">
+        <p class="pt-3">
+            <strong>
+                {% block note_type %}
+                    {{ note_type }}
+                {% endblock %}:
+            </strong>
+            {% block note_content %}
+                {{ note_text }}
+            {% endblock %}
+        </p>
+    </div>
+</div>

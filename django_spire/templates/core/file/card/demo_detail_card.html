@@ -1,0 +1,9 @@
+{% extends 'core/card/title_card.html' %}
+
+{% block card_title %}
+    {{ demo.name }}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'core/element/attribute_element.html' with attribute_type='Description' attribute_value=demo.description %}
+{% endblock %}

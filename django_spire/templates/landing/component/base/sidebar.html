@@ -1,0 +1,63 @@
+<nav id="sidebar" class="col-md-2 d-none d-md-block bg-light">
+    <div class="sticky-top">
+        <div class="p-3">
+            <h6>Navigation</h6>
+
+            <ul class="nav flex-column">
+                {% url 'landing:component:home' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Home' %}
+
+                {% url 'landing:component:accordion' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Accordion' %}
+
+                {% url 'landing:component:badge' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Badge' %}
+
+                {% url 'landing:component:button' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Button' %}
+
+                {% url 'landing:component:card' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Card' %}
+
+                {% url 'landing:component:comment' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Comment' %}
+
+                {% url 'landing:component:container' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Container' %}
+
+                {% url 'landing:component:dropdown' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Dropdown' %}
+
+                {% url 'landing:component:element' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Element' %}
+
+                {% url 'landing:component:file' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='File' %}
+
+                {% url 'landing:component:form' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Form' %}
+
+                {% url 'landing:component:help' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Help' %}
+
+                {% url 'landing:component:item' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Item' %}
+
+                {% url 'landing:component:modal' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Modal' %}
+
+                {% url 'landing:component:navigation' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Navigation' %}
+
+                {% url 'landing:component:notification' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Notification' %}
+
+                {% url 'landing:component:page' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Page' %}
+
+                {% url 'landing:component:tab' as href %}
+                {% include 'landing/component/base/sidebar_item.html' with href=href text='Tab' %}
+            </ul>
+        </div>
+    </div>
+</nav>

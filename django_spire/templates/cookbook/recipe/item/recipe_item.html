@@ -1,0 +1,26 @@
+{% extends 'core/item/item.html' %}
+
+{% block item_title %}
+    {% url 'cookbook:recipe:page:detail' pk=recipe.pk as recipe_detail_url %}
+	{% include 'core/element/attribute_element.html' with attribute_title='Name' attribute_value=recipe.name attribute_href=recipe_detail_url %}
+{% endblock %}
+
+{% block item_row_content %}
+	<div class="col-sm-4 col-6">
+    	{% include 'core/element/attribute_element.html' with attribute_title='Prep Time' attribute_value=recipe.prep_time %}
+    </div>
+    <div class="col-sm-4 col-6">
+    	{% include 'core/element/attribute_element.html' with attribute_title='Cook Time' attribute_value=recipe.cook_time %}
+    </div>
+    <div class="col-sm-4 col-6">
+    	{% include 'core/element/attribute_element.html' with attribute_title='Servings' attribute_value=recipe.servings %}
+    </div>
+{% endblock %}
+
+{% block item_button %}
+    {% url 'cookbook:recipe:page:detail' pk=recipe.pk as recipe_detail_url %}
+    {% url 'cookbook:recipe:page:form' pk=recipe.pk as recipe_edit_url %}
+    {% url 'cookbook:recipe:page:delete' pk=recipe.pk as recipe_delete_url %}
+
+	{% include 'core/dropdown/ellipsis_dropdown.html' with view_url=recipe_detail_url edit_url=recipe_edit_url delete_url=recipe_delete_url %}
+{% endblock %}

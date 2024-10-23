@@ -1,0 +1,8 @@
+<span
+    class="badge rounded-pill mb-0 fw-normal
+        {% block badge_class %}{% endblock %}
+        {{ badge_class|default:'fs--1' }}
+    "
+>
+    {{ badge_text }}
+</span>

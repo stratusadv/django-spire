@@ -1,0 +1,21 @@
+{% extends 'core/container/container.html' %}
+
+{% block container_title %}
+    Comments
+{% endblock %}
+
+{% block container_content %}
+    {% with model.active_comments as comment_list %}
+        {% if has_comment_permission %}
+            {% include 'core/comment/card/comment_textarea_card.html' %}
+        {% endif %}
+
+        {% for comment in comment_list %}
+            {% include 'core/comment/item/comment_item.html' %}
+        {% endfor %}
+
+        {% if not comment_list and not has_comment_permission %}
+            {% include 'core/item/no_data_item.html' %}
+        {% endif %}
+    {% endwith %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'core/page/form_full_page.html' %}
+
+{% block page_content %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-8">
+                {% include 'cookbook/card/cookbook_form_card.html' %}
+            </div>
+            <div class="col-4">
+                {% include 'cookbook/card/cookbook_link_recipes_form_card.html' %}
+            </div>
+        </div>
+    </form>
+{% endblock %}

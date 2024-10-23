@@ -1,0 +1,67 @@
+<div
+    x-data="{
+        init() {
+            let query_tab = '{{ request.GET.tab|default:''|escapejs }}';
+
+            query_tab = parseInt(query_tab, 10);
+
+            if (!isNaN(query_tab)) {
+                this.$nextTick(() => this.select(this.$id('tab', query_tab)));
+            } else {
+                this.$nextTick(() => this.select(this.$id('tab', 1)));
+            }
+        },
+        selected_id: null,
+        select(id) {
+            this.selected_id = id;
+            this.update_url(id);
+            this.update_cookie(id);
+        },
+        is_selected(id) {
+            return this.selected_id === id;
+        },
+        which_tab(el, parent) {
+            return Array.from(parent.children).indexOf(el) + 1;
+        },
+        update_url(id) {
+            let tab_id = id.split('-').pop();
+            tab_id = parseInt(tab_id, 10);
+
+            if (!isNaN(tab_id)) {
+                let url = new URL(window.location);
+                url.searchParams.set('tab', tab_id);
+                window.history.replaceState({}, '', url);
+            }
+        },
+        update_cookie(id) {
+            let tab_id = id.split('-').pop();
+            document.cookie = `tab=${tab_id}; path=/; SameSite=None; Secure`;
+        }
+    }"
+    x-id="['tab']"
+>
+    {# Tab List #}
+    <ul
+        @keydown.right.prevent.stop="$focus.wrap().next()"
+        @keydown.home.prevent.stop="$focus.first()"
+        @keydown.page-up.prevent.stop="$focus.first()"
+        @keydown.left.prevent.stop="$focus.wrap().prev()"
+        @keydown.end.prevent.stop="$focus.last()"
+        @keydown.page-down.prevent.stop="$focus.last()"
+        class="d-flex list-unstyled border-bottom border-1"
+        x-ref="tablist"
+        role="tablist"
+    >
+        {% block tab_triggers %}
+        {% endblock %}
+    </ul>
+
+    {% block tab_function_area %}
+    {% endblock %}
+
+    {# Section #}
+    <div>
+        {% block tab_sections %}
+        {% endblock %}
+    </div>
+</div>

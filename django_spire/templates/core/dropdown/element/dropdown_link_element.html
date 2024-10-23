@@ -1,0 +1,15 @@
+<a
+    class="fs--1 p-0 cursor-pointer bg-white bg-app-layer-one-hover text-decoration-none text-app-secondary-dark text-app-primary-hover border-bottom"
+    {% if link_url %}href="{{ link_url }}"{% endif %}
+    @click="toggle_dropdown()"
+>
+    {% block link_content %}
+        <div class="px-3 py-1 text-nowrap {{ link_css }}">
+            {% if link_text %}
+                {{ link_text }}
+            {% elif x_link_text %}
+                <span x-text="{{ x_link_text }}"></span>
+            {% endif %}
+        </div>
+    {% endblock %}
+</a>

@@ -1,0 +1,43 @@
+{% load static %}
+
+<div class="row justify-content-between align-items-center px-3 py-2 bg-white border-bottom shadow-sm">
+    <div class="col-auto">
+        <a class="ps-0 fs-4" href="/django_spire/static">
+            <img
+                src="{% static 'core/img/logo/icon/django_skeleton_icon_body_medium.png' %}"
+                alt="Skullybot"
+                height="55"
+                class="d-inline-block align-text-bottom"
+            >
+            <span style="font-family: Merriweather">Django Skeleton</span>
+            </span>
+        </a>
+    </div>
+    <div class="col d-none d-lg-block">
+        <ul class="d-flex my-auto justify-content-end align-items-center">
+            {% url 'landing:boneyard' as boneyard_url %}
+            {% include 'landing/navigation/elements/nav_link.html' with url=boneyard_url text='Boneyard' %}
+
+            {% url 'landing:crypt' as crypt_url %}
+            {% include 'landing/navigation/elements/nav_link.html' with url=crypt_url text='Crypt' %}
+
+            {% url 'landing:asylum' as asylum_url %}
+            {% include 'landing/navigation/elements/nav_link.html' with url=asylum_url text='Asylum' %}
+
+            {% url 'landing:wasteland' as wasteland_url %}
+            {% include 'landing/navigation/elements/nav_link.html' with url=wasteland_url text='Wasteland' %}
+
+            {% url 'landing:component:home' as component_url %}
+            {% include 'landing/navigation/elements/nav_link.html' with url=component_url text='Component' %}
+
+            {% url 'landing:contact_us' as contact_us_url %}
+            {% include 'core/button/primary_button.html' with button_text='Contact Us' button_class='me-4 text-nowrap' button_href=contact_us_url %}
+
+            {% url 'user_account:authentication:admin:login' as login_url %}
+            {% include 'core/button/primary_outlined_button.html' with button_text='Login' button_class='text-nowrap' button_href=login_url %}
+        </ul>
+    </div>
+    <div class="col-auto d-lg-none">
+        {% include 'landing/navigation/mobile_navigation.html' %}
+    </div>
+</div>

@@ -1,0 +1,44 @@
+{% include 'core/element/divider_element.html' with divider_title='Ingredients' %}
+
+<div
+  x-data="{
+    async init() {
+        toggle_loading_overlay()
+        await this.get_glue()
+        this.set_fields()
+        toggle_loading_overlay()
+     },
+    ingredient_template: new GlueModelObject('ingredient_template'),
+    ingredient_queryset: new GlueQuerySet('ingredient_queryset'),
+    ingredients: [],
+    add_ingredient() {
+        this.ingredients.push(this.ingredient_template.duplicate())
+    },
+    async get_glue() {
+        this.ingredients = await this.ingredient_queryset.all()
+        await this.ingredient_template.get()
+    },
+    remove_ingredient(index){
+        this.ingredients.splice(index, 1);
+    },
+    get return_value() {
+        return JSON.stringify(this.ingredients)
+    },
+    set_fields() {
+        this.ingredient_template.fields.id.hidden = true
+        if (this.ingredients.length === 0) { this.add_ingredient() }
+    }
+}"
+>
+    <input type="text" hidden x-model="return_value" name="ingredients">
+    
+    <template x-for="(ingredient, index) in ingredients" :key="index">
+        {% include 'cookbook/recipe/item/ingredient_form_item.html' %}
+    </template>
+    
+    <div class="row justify-content-center mt-3">
+        <div class="col-auto">
+            <span @click="add_ingredient()">{% include 'core/button/secondary_outlined_button.html' with button_text='Add Ingredient' button_icon='bi bi-plus' %}</span>
+        </div>
+    </div>
+</div>

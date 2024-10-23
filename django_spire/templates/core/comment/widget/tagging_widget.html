@@ -1,0 +1,130 @@
+{% load core_tags %}
+
+<div x-data="{
+                async init(){
+                    // Set the user list.
+                    this.user_list = JSON.parse('{{ user_list }}')
+                    this.set_information('{{ widget.value }}')
+                },
+                // Instead of information it should be information. This can work for all text area fields.
+                information: '',
+                id: $id('information-textarea'),
+                show_user_list: false,
+                user_list: [],
+                add_user_to_comment(user){
+                    let end_index = this.word_end_index()
+                    let start_index = this.word_start_index()
+                    this.information = this.information.substring(0, start_index) + '@' + user.full_name + this.information.slice(end_index)
+                    this.show_user_list = false;
+                    document.getElementById(this.id).focus()
+                },
+                char_is_space(char){
+                    return /\s/.test(char);
+                },
+                get filtered_users(){
+                    return this.user_list.filter(
+                        user => user.full_name.toLowerCase().includes(this.word_at_cursor().substring(1).toLowerCase())
+                    )
+                },
+                get parse_users(){
+                    // Returns a list of users who have been tagged in the information.
+                    var re = /(?:^|\W)@(\w+)(?!\w)/g, match, matches = [];
+                    while (match = re.exec(this.information)) {
+                        matches.push(match[1].toLowerCase());
+                    }
+                    return this.user_list.filter( user => matches.indexOf(user.full_name.toLowerCase()) > -1)
+                },
+                get user_id_list(){
+                    let id_list = []
+                    this.parse_users.forEach(user => id_list.push(user['id']))
+                    return id_list
+                 },
+                 set_information(initial_value) {
+                    if (initial_value !== 'None') {
+                        this.information = initial_value
+                    }
+                 },
+                user_dropdown_toggle(){
+                    if(this.user_list.some(user => user.full_name === (this.word_at_cursor().substring(1)))){
+                        // Does not toggle if the correct full_name is attached to an @
+                        this.show_user_list = false
+                    } else {
+                        // Toggles if first character is @
+                        this.show_user_list = this.word_at_cursor().charAt(0) === '@';
+                    }
+                },
+                word_at_cursor(){
+                    const cursor_position = document.getElementById(this.id).selectionStart
+                    const string_start = this.information.substring(0, cursor_position).match(/[a-zA-Z0-9-_@]+$/)
+                    const string_end = this.information.substring(cursor_position).match(/^[a-zA-Z0-9-_@]+/)
+                    if(!string_start && !string_end) return ''
+                    return (string_start || '') + (string_end || '')
+                },
+                word_end_index(){
+                    let current_index = document.getElementById(this.id).selectionStart
+                    for(let i = current_index; i <= this.information.length; i++ ){
+                        if(this.char_is_space(this.information.charAt(i))){
+                            // Works forward to find a space and returns that index
+                            return i;
+                        }
+                    }
+                   return current_index;
+                },
+                word_start_index(){
+                    let current_index = document.getElementById(this.id).selectionStart
+                    if(this.char_is_space(this.information.charAt(current_index))){
+                        // Subtract one to get the word before the cursor
+                        current_index -= 1
+                    }
+                    for(let i = current_index; i >= 0; i-- ){
+                       if(this.char_is_space(this.information.charAt(i))){
+                           // Once we find a space we need to return the spot after it.
+                           return i + 1;
+                       }
+                    }
+                    // Return the start if there are no spaces
+                    return 0;
+                },
+                get return_value(){
+                    return JSON.stringify({
+                        'user_id_list': this.user_id_list,
+                        'information': this.information
+                    })
+                }
+           }">
+
+
+    <input type="hidden" class="form-control" id="id_{{ widget.name }}" name="{{ widget.name }}" x-model="return_value"  value="{{ widget.value }}"/>
+    <div class="position-relative">
+            <input name="user_list" type="hidden" x-model=user_id_list />
+            <div class="border border-1 rounded p-1">
+                <textarea required :id="id" x-model="information" @keyup="user_dropdown_toggle" rows="6" type="text" name="information"
+                          autocomplete="off" size="26" class="w-100" placeholder="Type your information here..."></textarea>
+            </div>
+        <div style="max-height: 200px; z-index: 2; overflow-x: hidden; overflow-y: auto" x-show="show_user_list" @click.outside="show_user_list=false" x-transition
+             @keydown.right.prevent.stop="$focus.wrap().next()"
+             @keydown.down.prevent.stop="$focus.wrap().next()"
+             @keydown.left.prevent.stop="$focus.wrap().prev()"
+             @keydown.up.prevent.stop="$focus.wrap().prev()"
+             @keydown.tab.prevent.stop="$focus.wrap().next()"
+             @keydown.esc.prevent.stop="document.getElementById(id).focus()"
+             class="bg-white w-100 shadow border border-1 rounded position-absolute top-100 start-0 mt-1">
+            <template x-if="filtered_users.length > 0">
+                <template x-for="user in filtered_users" :key="user.id">
+                        <button
+                            @keydown.enter.prevent.stop="add_user_to_comment(user)"
+                            @click="add_user_to_comment(user)"
+                            class="text-start text-app-primary-hover bg-app-primary-soft-hover d-block w-100 fs-0 px-2 py-2 cursor-pointer border-app-none border-bottom bg-transparent">
+                            <span x-text="user.display_name"></span>
+                            <span x-text="user.full_name"></span>
+                        </button>
+
+                </template>
+            </template>
+            <template x-if="filtered_users.length === 0">
+                <div class="text-start fs-0 px-2 py-1">No matches found.</div>
+            </template>
+        </div>
+    </div>
+</div>
+
