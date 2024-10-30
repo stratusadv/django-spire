@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit
 
 from django import forms
-from django_spire.core.file.fields import SingleFileField, MultipleFileField
+from django_spire.core.file.fields import MultipleFileField
 
 
 class FileForm(forms.Form):

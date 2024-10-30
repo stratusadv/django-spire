@@ -1,0 +1,11 @@
+.venv/
+venv/
+__pycache__/
+.idea
+inspectionProfiles/
+.python-version
+.env
+.python-version
+*.bat
+*.db
+*.sql

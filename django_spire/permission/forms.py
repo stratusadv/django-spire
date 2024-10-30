@@ -1,11 +1,10 @@
 import json
 
 from django import forms
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit
-
-from django.contrib.auth.models import User
 
 from django_spire.permission.factories import bulk_create_groups_from_names
 

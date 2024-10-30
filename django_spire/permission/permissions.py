@@ -6,8 +6,15 @@ from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
 
-from django_spire.permission.constants import PERMISSION_MODELS_DICT, VALID_PERMISSION_LEVELS, PERMISSIONS_LEVEL_CHOICES
-from django_spire.permission.utils import codename_to_perm_level, codename_list_to_perm_level, perm_level_to_string
+from django_spire.permission.constants import (
+    PERMISSION_MODELS_DICT,
+    VALID_PERMISSION_LEVELS
+)
+from django_spire.permission.utils import (
+    codename_list_to_perm_level,
+    codename_to_perm_level,
+    perm_level_to_string
+)
 
 
 class ModelPermissions:

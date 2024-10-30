@@ -2,7 +2,10 @@ from typing import Union
 
 from django.contrib.auth.models import Group, User
 
-from django_spire.permission.constants import PERMISSIONS_LEVEL_CHOICES, VALID_PERMISSION_LEVELS
+from django_spire.permission.constants import (
+    PERMISSIONS_LEVEL_CHOICES,
+    VALID_PERMISSION_LEVELS
+)
 
 
 def add_users_to_group(group: Group, user_list: list[User]):

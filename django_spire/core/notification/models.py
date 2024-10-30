@@ -1,8 +1,5 @@
-from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
-
-from django.contrib.sites.models import Site
 
 from django_spire.core.notification.enums import NotificationTypeChoices, NotificationSenderEnum
 

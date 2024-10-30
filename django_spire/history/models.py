@@ -1,7 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from django.utils.timezone import localtime
 
 from django_spire.history.querysets import ActivityQuerySet
@@ -56,8 +56,8 @@ class ActivityLog(models.Model):
         )
 
     class Meta:
-        verbose_name = "Activities"
-        verbose_name_plural = "Activities"
+        verbose_name = 'Activities'
+        verbose_name_plural = 'Activities'
         ordering = ['-created_datetime']
 
 
@@ -96,8 +96,8 @@ class EventHistory(models.Model):
         return f'{self.content_object} - {self.event_verbose}'
 
     class Meta:
-        verbose_name = "Event History"
-        verbose_name_plural = "Event History"
+        verbose_name = 'Event History'
+        verbose_name_plural = 'Event History'
 
     @property
     def event_verbose(self) -> str:
@@ -123,5 +123,5 @@ class View(models.Model):
         return f'{self.user} viewed {self.content_object} at {self.created_datetime}'
 
     class Meta:
-        verbose_name = "View"
-        verbose_name_plural = "Views"
+        verbose_name = 'View'
+        verbose_name_plural = 'Views'

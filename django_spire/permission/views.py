@@ -1,6 +1,5 @@
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from django_spire.permission.models import PortalUser
@@ -13,7 +12,11 @@ from django_spire.permission.constants import PERMISSION_MODELS_DICT
 from django_spire.permission.decorators import permission_required
 from django_spire.permission import forms, models
 from django_spire.permission.permissions import generate_group_perm_data, GroupPermissions
-from django_spire.permission.utils import add_users_to_group, perm_level_to_int, perm_level_to_django_permission
+from django_spire.permission.utils import (
+    add_users_to_group,
+    perm_level_to_int,
+    perm_level_to_django_permission
+)
 
 
 @permission_required('permission.view_portalgroup')
@@ -36,6 +39,7 @@ def group_detail_view(request, pk):
 @permission_required('permission.view_portalgroup')
 def group_list_view(request):
     group_list = models.PortalGroup.objects.all().prefetch_related('permissions')
+
     context_data = {
         'group_list': group_list,
         'group_list_permission_data': [generate_group_perm_data(group) for group in group_list]
@@ -52,6 +56,7 @@ def group_list_view(request):
 @permission_required('permission.change_portalgroup')
 def group_form_view(request, pk):
     group = get_object_or_null_obj(models.PortalGroup, pk=pk)
+
     if request.method == 'POST':
         form = forms.GroupForm(request.POST, instance=group)
         if form.is_valid():
@@ -181,14 +186,15 @@ def group_permission_form_ajax(request, pk, app_name):
 @require_POST
 @permission_required('permission.change_portalgroup')
 def group_special_role_form_ajax(request, pk, app_name):
-
     if request.method == 'POST':
         error_message = 'App Does Not Exist.'
+
         if app_name.lower() in PERMISSION_MODELS_DICT:
             body = process_request_body(request)
             grant_special_role_access = body.get('grant_special_role_access')
             codename = body.get('codename')
             error_message = 'models.PortalUser does not have permission.'
+
             if request.user.has_perm('permission.change_portalgroup'):
                 group = get_object_or_404(models.PortalGroup, pk=pk)
                 group_perm_helper = GroupPermissions(group, model_key=app_name)
@@ -197,6 +203,7 @@ def group_special_role_form_ajax(request, pk, app_name):
                     group_perm_helper.add_special_role(codename)
                 else:
                     group_perm_helper.remove_special_role(codename)
+
                 return JsonResponse({'message': 'Updated Successfully!', 'status': 200})
 
         return JsonResponse({'message': error_message, 'status': 400})

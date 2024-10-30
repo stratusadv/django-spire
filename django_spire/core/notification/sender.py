@@ -13,7 +13,6 @@ class NotificationSender(ABC):
 
 
 class EmailNotificationSender(NotificationSender):
-
     def send(self):
         template_data = {
             'title': self.notification.title,

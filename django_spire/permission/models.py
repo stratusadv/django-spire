@@ -15,6 +15,7 @@ class PortalGroup(Group, ActivityLogMixin):
     def breadcrumbs(self) -> Breadcrumbs:
         crumbs = Breadcrumbs()
         crumbs.add_base_breadcrumb(self._meta.model)
+
         if self.pk:
             crumbs.add_breadcrumb(name=self.name, href=reverse('permission:group_detail', kwargs={'pk': self.pk}))
             
@@ -36,11 +37,13 @@ class PortalUser(User, ActivityLogMixin):
     def breadcrumbs(self) -> Breadcrumbs:
         crumbs = Breadcrumbs()
         crumbs.add_breadcrumb('User')
+
         if self.pk:
             crumbs.add_breadcrumb(
                 name=self.get_full_name(),
                 href=reverse('user_account:profile:page:detail', kwargs={'pk': self.pk})
             )
+
         return crumbs
 
     class Meta:

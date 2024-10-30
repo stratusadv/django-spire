@@ -3,5 +3,5 @@ from django.apps import AppConfig
 
 class HelpConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app.core.help'
-    label = 'core_help'
+    label = 'spire_core_help'
+    name = 'django_spire.core.help'

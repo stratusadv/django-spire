@@ -10,6 +10,7 @@ from django_spire.core.breadcrumbs import Breadcrumbs
 def home_view(request):
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb(name='Home', href=reverse('home:home'))
+
     return portal_views.template_view(
         request,
         page_title='Home',

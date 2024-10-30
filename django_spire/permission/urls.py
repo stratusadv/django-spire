@@ -1,5 +1,7 @@
 from django.urls import path
+
 from django_spire.permission import views
+
 
 app_name = 'permission'
 

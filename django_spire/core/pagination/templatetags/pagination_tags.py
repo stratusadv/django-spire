@@ -8,7 +8,7 @@ register = template.Library()
 def pagination_url(context, page_number,  page_name='page',  **kwargs):
     updated_context = context.request.GET.copy()
     updated_context[page_name] = page_number
-    query_string = f'?'
+    query_string = '?'
     for index, query_param in enumerate(updated_context):
         query_param_value = updated_context[query_param]
         if isinstance(query_param_value, str):

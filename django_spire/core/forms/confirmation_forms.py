@@ -2,6 +2,7 @@ from typing import Callable
 
 from django import forms
 from django.contrib.auth.models import User
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 
@@ -36,8 +37,6 @@ class DeleteConfirmationForm(forms.Form):
                 verb=verbs[1],
                 information=f'{user.get_full_name()} {verbs[1].lower()} {self.obj._meta.verbose_name} "{self.obj}".'
             )
-
-
 
 
 class ConfirmationForm(forms.Form):

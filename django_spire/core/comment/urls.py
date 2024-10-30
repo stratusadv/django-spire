@@ -1,7 +1,10 @@
 from django.urls import path
+
 from django_spire.core.comment import views
 
+
 app_name = 'comment'
+
 urlpatterns = [
     path('<int:comment_pk>/<int:obj_pk>/<str:app_label>/<str:model_name>/form/content/',
          views.comment_modal_form_content,

@@ -3,4 +3,5 @@ from django.apps import AppConfig
 
 class CoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app.core'
+    label = 'spire_permission'
+    name = 'django_spire.core'

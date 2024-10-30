@@ -1,5 +1,7 @@
 from django.urls import path
+
 from django_spire.core.file import views
+
 
 app_name = 'core_file'
 

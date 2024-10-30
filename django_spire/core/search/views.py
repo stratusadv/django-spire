@@ -1,9 +1,6 @@
 from django.template.response import TemplateResponse
-from django.urls import reverse
 
-from django_spire.core.breadcrumbs import Breadcrumbs
 from django_spire.core.utils import reverse_generic_relation
-from django_spire.core.views import portal_views
 
 
 def search_view(request, **kwargs):

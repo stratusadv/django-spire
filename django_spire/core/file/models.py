@@ -2,10 +2,7 @@ import json
 
 from django.contrib.contenttypes.models import ContentType
 
-from django_spire.core.comment.mixins import CommentModelMixin
-
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from django_spire.core.file.queryset import FileQuerySet
@@ -40,10 +37,10 @@ class File(HistoryModelMixin):
         return json.dumps(self.to_dict())
 
     class Meta:
-        db_table = 'core_file'
+        db_table = 'spire_core_file'
         verbose_name = 'File'
         verbose_name_plural = 'Files'
         indexes = [
-            models.Index(fields=["content_type", "object_id"]),
+            models.Index(fields=['content_type', 'object_id']),
         ]
 

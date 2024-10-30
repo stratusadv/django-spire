@@ -3,5 +3,5 @@ from django.apps import AppConfig
 
 class FileConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'app.core.file'
-    label = 'core_file'
+    label = 'spire_core_file'
+    name = 'django_spire.core.file'

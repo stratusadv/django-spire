@@ -1,7 +1,11 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
+
 
 app_name = 'core'
+
 urlpatterns = [
-    path('comment/', include('app.core.comment.urls', namespace='comment')),
+    path(
+        'comment/',
+        include('app.core.comment.urls', namespace='comment')
+    ),
 ]

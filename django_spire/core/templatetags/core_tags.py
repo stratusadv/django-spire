@@ -47,7 +47,7 @@ def not_in_list(value, arg):
 
 @register.simple_tag()
 def query_param_url(context, url_name, **kwargs):
-    query_string = f'?'
+    query_string = '?'
 
     for index, query_param in enumerate(context.request.GET):
         if index == 0:

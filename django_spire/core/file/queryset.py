@@ -1,4 +1,4 @@
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet
 
 
 class FileQuerySet(QuerySet):

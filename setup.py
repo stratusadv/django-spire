@@ -24,7 +24,7 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords=["glue", "django", "backend", "frontend", "javascript", "active server pages"],
+    keywords=["spire", "django", "backend", "frontend", "javascript", "active server pages"],
     author="Brayden Carlson, Nathan Johnson, Austin Sauer & Wesley Howery",
     author_email="info@stratusadv.com",
     url="https://github.com/stratusadv/django-spire",
