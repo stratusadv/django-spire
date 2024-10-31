@@ -25,7 +25,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords=["spire", "django", "backend", "frontend", "javascript", "active server pages"],
-    author="Brayden Carlson, Nathan Johnson, Austin Sauer & Wesley Howery",
+    author="Austin Sauer, Brayden Carlson, Nathan Johnson & Wesley Howery",
     author_email="info@stratusadv.com",
     url="https://github.com/stratusadv/django-spire",
     license="MIT",
