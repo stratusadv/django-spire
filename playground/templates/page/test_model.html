@@ -8,5 +8,17 @@
                 <li>{{ key }}: {{ value }}</li>
             {% endfor %}
         </ul>
+
+        <h3>Activity</h3>
+        {% for activity in activities %}
+            <li>
+                <strong>User:</strong> {{ activity.user.username }}<br>
+                <strong>Action:</strong> {{ activity.verb }}<br>
+                <strong>Info:</strong> {{ activity.information }}<br>
+                <strong>Date:</strong> {{ activity.date_time_entered }}
+            </li>
+        {% empty %}
+            <p>No activities logged.</p>
+        {% endfor %}
     </div>
 {% endblock %}
