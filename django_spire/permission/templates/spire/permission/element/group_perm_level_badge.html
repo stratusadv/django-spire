@@ -1,11 +1,11 @@
 {% if permission_level|lower == 'view' %}
-    {% include 'spire/core/badge/primary_badge.html' with badge_text=permission_level %}
+    {% include 'spire/badge/primary_badge.html' with badge_text=permission_level %}
 {% elif permission_level|lower == 'add' %}
-    {% include 'spire/core/badge/primary_badge.html' with badge_text=permission_level %}
+    {% include 'spire/badge/primary_badge.html' with badge_text=permission_level %}
 {% elif permission_level|lower == 'change' %}
-    {% include 'spire/core/badge/success_badge.html' with badge_text=permission_level %}
+    {% include 'spire/badge/success_badge.html' with badge_text=permission_level %}
 {% elif permission_level|lower == 'delete' %}
-    {% include 'spire/core/badge/danger_badge.html' with badge_text=permission_level %}
+    {% include 'spire/badge/danger_badge.html' with badge_text=permission_level %}
 {% else %}
-    {% include 'spire/core/badge/secondary_badge.html' with badge_text=permission_level %}
+    {% include 'spire/badge/secondary_badge.html' with badge_text=permission_level %}
 {% endif %}

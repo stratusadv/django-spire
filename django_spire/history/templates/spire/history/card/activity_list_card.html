@@ -1,4 +1,4 @@
-{% extends 'spire/core/card/title_card.html' %}
+{% extends 'spire/card/title_card.html' %}
 
 {% block card_title_content_style %}max-height: 400px; overflow-y: auto; overflow-x: hidden;{% endblock %}
 
@@ -12,6 +12,6 @@
             {% include 'spire/history/item/activity_item.html' %}
         {% endfor %}
     {% else %}
-        {% include 'spire/core/item/no_data_item.html' %}
+        {% include 'spire/item/no_data_item.html' %}
     {% endif %}
 {% endblock %}

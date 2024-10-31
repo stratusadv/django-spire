@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.core.views import portal_views
-from django_spire.core.breadcrumbs import Breadcrumbs
+from django_spire.views import portal_views
+from django_spire.breadcrumbs import Breadcrumbs
 
 
 def home_view(request):

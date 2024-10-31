@@ -1,0 +1,11 @@
+{% extends 'spire/item/item.html' %}
+
+{% block item_title_col %}{% endblock %}
+
+{% block item_title_class %}d-none{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-12">
+        {% include 'spire/element/attribute_element.html' with attribute_title='Message' attribute_value='No data to display' %}
+    </div>
+{% endblock %}

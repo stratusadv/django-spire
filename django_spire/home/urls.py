@@ -2,6 +2,7 @@ from django.urls import path
 
 from django_spire.home import views
 
+
 app_name = 'home'
 
 urlpatterns = [

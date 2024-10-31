@@ -1,4 +1,4 @@
-{% extends 'spire/core/card/title_card.html' %}
+{% extends 'spire/card/title_card.html' %}
 
 {% block card_title %}
     Permissions
@@ -6,7 +6,7 @@
 
 
 {% block card_title_content %}
-    {% include 'spire/core/element/divider_element.html' with divider_title='Groups' %}
+    {% include 'spire/element/divider_element.html' with divider_title='Groups' %}
     <div class="fs--1 text-muted">Adding a user to a group will assign them permissions allocated to this group.</div>
 
     <div
@@ -66,11 +66,11 @@
 
        <div class="row g-3 pt-2">
            <div class="col-12">
-               {% include 'spire/core/element/divider_element.html' with divider_title='Add Group' %}
+               {% include 'spire/element/divider_element.html' with divider_title='Add Group' %}
                {% include 'django_glue/form/glue_field/char_field.html' with label='Group Name' x_model_value='group.name' %}
            </div>
            <div class="col-12">
-               <span @click="add_group()">{% include 'spire/core/button/secondary_outlined_button.html' with button_text='Add Group' %}</span>
+               <span @click="add_group()">{% include 'spire/button/secondary_outlined_button.html' with button_text='Add Group' %}</span>
            </div>
        </div>
     </div>

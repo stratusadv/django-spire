@@ -1,0 +1,17 @@
+{% extends 'spire/modal/title_modal.html' %}
+{% load crispy_forms_tags %}
+{% load comment_tags %}
+
+{% block modal_trigger %}
+    <div class="px-4 p-1">Edit</div>
+{% endblock %}
+
+{% block modal_title %}
+    Edit Comment
+{% endblock %}
+
+{% block modal_title_content %}
+    {% comment_form related_obj request.get_full_path request.user comment=comment user_list=comment_user_list as comment_form %}
+    <div class="h6">Edit</div>
+    {% crispy comment_form %}
+{% endblock %}

@@ -2,6 +2,7 @@ import os
 import logging
 import sys
 
+
 logging.basicConfig(
     format='[%(asctime)-15s] Django Spire: "%(message)s"',
     datefmt='%d/%b/%Y %H:%M:%S'
@@ -16,6 +17,14 @@ WSGI_APPLICATION = 'playground.wsgi.application'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
+# Email Settings
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+SENDGRID_TEMPLATE_ID = False
+DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
@@ -23,7 +32,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.staticfiles',
-    'django_spire.core',
+    'django.contrib.sites',
+    'django_glue',
+    'django_spire',
+    'django_spire.authentication',
+    'django_spire.breadcrumbs',
+    'django_spire.comment',
+    'django_spire.file',
+    'django_spire.forms',
+    'django_spire.gamification',
+    'django_spire.help',
+    'django_spire.history',
+    'django_spire.maintenance',
+    'django_spire.notification',
+    'django_spire.options',
+    'django_spire.pagination',
+    'django_spire.permission',
+    'django_spire.search',
+    'django_spire.user_account',
     'playground',
 ]
 
@@ -35,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_glue.middleware.GlueMiddleware'
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
@@ -66,6 +93,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django_glue.context_processors.glue'
             ],
             'builtins': [
             ],

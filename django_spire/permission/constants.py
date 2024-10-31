@@ -2,7 +2,6 @@ from typing import Literal
 
 from django_spire.permission.models import PortalGroup
 from django_spire.permission.models import PortalUser
-from django_spire.cookbook.models import Cookbook
 
 
 PERMISSIONS_LEVEL_CHOICES = (
@@ -25,9 +24,5 @@ PERMISSION_MODELS_DICT = {
     'user': {
         'model': PortalUser,
         'is_proxy_model': True
-    },
-    'cookbook': {
-        'model': Cookbook,
-        'is_proxy_model': False
-    },
+    }
 }

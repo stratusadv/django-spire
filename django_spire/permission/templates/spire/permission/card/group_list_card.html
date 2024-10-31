@@ -1,4 +1,4 @@
-{% extends 'spire/core/card/title_card.html' %}
+{% extends 'spire/card/title_card.html' %}
 
 {% block card_padding_class %}p-0{% endblock %}
 
@@ -11,7 +11,7 @@
 {% block card_button %}
     {% if perms.permission.change_portalgroup %}
         {% url 'permission:group_form' pk=0 as add_group_url %}
-        {% include 'spire/core/button/primary_dark_button.html' with button_href=add_group_url button_text='Add' button_icon='bi bi-plus' %}
+        {% include 'spire/button/primary_dark_button.html' with button_href=add_group_url button_text='Add' button_icon='bi bi-plus' %}
     {% endif %}
 {% endblock %}
 
@@ -21,6 +21,6 @@
             {% include 'spire/permission/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}
         {% endfor %}
     {% else %}
-        {% include 'spire/core/item/no_data_item.html' %}
+        {% include 'spire/item/no_data_item.html' %}
     {% endif %}
 {% endblock %}

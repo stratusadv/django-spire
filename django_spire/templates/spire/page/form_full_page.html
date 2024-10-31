@@ -1,0 +1,15 @@
+{% extends 'spire/page/full_page.html' %}
+
+{% load static %}
+
+{% block css_include %}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block js_include_top %}
+    {{ form.media.js }}
+{% endblock %}
+
+{% block page_content %}
+    {% include 'spire/card/form_card.html' %}
+{% endblock %}

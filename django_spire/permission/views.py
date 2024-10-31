@@ -3,10 +3,10 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
 from django_spire.permission.models import PortalUser
-from django_spire.core.views import portal_views
-from django_spire.core.forms import DeleteConfirmationForm
-from django_spire.core.shortcuts import get_object_or_null_obj, process_request_body
-from django_spire.core.redirect import safe_redirect_url
+from django_spire.views import portal_views
+from django_spire.forms import DeleteConfirmationForm
+from django_spire.shortcuts import get_object_or_null_obj, process_request_body
+from django_spire.redirect import safe_redirect_url
 from django_spire.history.utils import add_form_activity
 from django_spire.permission.constants import PERMISSION_MODELS_DICT
 from django_spire.permission.decorators import permission_required
