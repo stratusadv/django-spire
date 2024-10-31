@@ -1,9 +1,0 @@
-
-     {% with comment.children.all as comment_list %}
-        {% if comment_list %}
-            {% for comment in comment_list %}
-                {% include 'core/comment/item/comment_reply_item.html' %}
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-

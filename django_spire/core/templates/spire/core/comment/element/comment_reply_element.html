@@ -1,0 +1,8 @@
+<div x-data="{show_reply: false}" class="col-12 pe-0 text-end fs--2 text-700">
+    <template x-if="!show_reply">
+        <span @click="show_reply = true" class="cursor-pointer">Reply</span>
+    </template>
+    <div x-show="show_reply" x-transition>
+        {% include 'spire/core/comment/element/comment_textarea_element.html' %}
+    </div>
+</div>

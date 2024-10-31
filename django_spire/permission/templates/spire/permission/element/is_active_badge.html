@@ -1,0 +1,5 @@
+{% if is_active %}
+    {% include 'spire/core/badge/success_badge.html' with badge_text='Active' %}
+{% else %}
+    {% include 'spire/core/badge/danger_badge.html' with badge_text='Inactive' %}
+{% endif %}

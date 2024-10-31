@@ -1,0 +1,20 @@
+{% extends 'spire/core/navigation/accordion/nav_accordion.html' %}
+
+{% block nav_title %}
+    Cookbook
+{% endblock %}
+
+{% block nav_icon %}bi bi-book{% endblock %}
+
+{% block accordion_links %}
+    {% if perms.cookbook.view_cookbook %}
+        {% url 'cookbook:page:list' as cookbook_list_url %}
+        {% include 'spire/core/navigation/elements/nav_link.html' with link_text='Cookbooks' link_url=cookbook_list_url %}
+    {% endif %}
+
+    {% if perms.cookbook_recipe.view_recipe %}
+        {% url 'cookbook:recipe:page:list' as recipe_list_url %}
+        {% include 'spire/core/navigation/elements/nav_link.html' with link_text='Recipes' link_url=recipe_list_url %}
+    {% endif %}
+
+{% endblock %}

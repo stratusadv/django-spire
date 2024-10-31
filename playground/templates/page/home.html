@@ -1,1 +1,63 @@
-<h1>Hello, World!</h1>
+{% load static %}
+
+<head>
+    <title>Django Spire</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Google Font(s) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'spire/core/css/bootstrap.css' %}?v={{ software.version }}">
+    <link rel="stylesheet" href="{% static 'spire/core/css/app.css' %}?v={{ software.version }}">
+    <link rel="stylesheet" href="{% static 'spire/core/css/bootstrap-override.css' %}?v={{ software.version }}">
+    <link rel="stylesheet" href="{% static 'spire/core/css/bootstrap-extension.css' %}?v={{ software.version }}">
+    <link rel="stylesheet" href="{% static 'spire/core/css/base.css' %}?v={{ software.version }}">
+
+    <!-- Vendor CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Vendor Script(s) -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
+
+    <!-- Core Script(s) -->
+    <script type="application/javascript" src="{% static 'spire/core/js/base.js' %}?v={{ software.version }}"></script>
+    <script type="application/javascript" src="{% static 'spire/core/js/csrf.js' %}?v={{ software.version }}"></script>
+    <script type="application/javascript" src="{% static 'spire/core/js/ajax.js' %}?v={{ software.version }}"></script>
+    <script type="application/javascript" src="{% static 'spire/core/js/axios.min.js' %}?v={{ software.version }}"></script>
+    <script type="application/javascript" src="{% static 'spire/core/js/dispatch_modal.js' %}?v={{ software.version }}"></script>
+
+    <!-- Alpine.js Plugin(s) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body>
+    <h1>Hello, World!</h1>
+
+    {% include 'spire/core/button/primary_dark_button.html' with button_text='View' %}
+</body>
+
+<!-- Core Script(s) -->
+<script type="application/javascript" src="{% static 'spire/core/js/csrf.js' %}?v={{ software.version }}"></script>
+<script type="application/javascript" src="{% static 'spire/core/js/ajax.js' %}?v={{ software.version }}"></script>
+<script type="application/javascript" src="{% static 'spire/core/js/axios.min.js' %}?v={{ software.version }}"></script>
+
+<!-- External CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<!-- Additional Script(s) -->
+<script defer src="{% static 'spire/core/js/alpine-plugins.min.js' %}?v={{ software.version }}"></script>
+<script defer src="{% static 'spire/core/js/alpine.min.js' %}?v={{ software.version }}"></script>

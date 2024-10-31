@@ -1,0 +1,15 @@
+{% extends 'spire/core/item/item.html' %}
+
+{% block item_title_col %}d-none{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-12`">
+        {% include 'spire/core/element/attribute_element.html' with attribute_title='User' attribute_value=activity.user.get_full_name %}
+    </div>
+    <div class="col-12`">
+        {% include 'spire/core/element/attribute_element.html' with attribute_title='Date' attribute_value=activity.created_datetime %}
+    </div>
+    <div class="col-12">
+        {% include 'spire/core/element/attribute_element.html' with attribute_title='Information' attribute_value=activity.information|linebreaksbr %}
+    </div>
+{% endblock %}

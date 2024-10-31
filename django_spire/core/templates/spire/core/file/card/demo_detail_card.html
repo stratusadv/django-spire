@@ -1,0 +1,9 @@
+{% extends 'spire/core/card/title_card.html' %}
+
+{% block card_title %}
+    {{ demo.name }}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'spire/core/element/attribute_element.html' with attribute_type='Description' attribute_value=demo.description %}
+{% endblock %}

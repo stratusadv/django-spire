@@ -1,0 +1,24 @@
+{% extends 'spire/core/item/item.html' %}
+
+{% load core_tags %}
+
+{% block item_title_col %} d-none{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-8">
+        {% include 'spire/core/element/attribute_element.html' with attribute_title='Name' attribute_value=user.get_full_name %}
+    </div>
+    <div class="col-4">
+        {% include 'spire/core/element/attribute_element.html' with attribute_title='Status' %}
+        {% include 'spire/permission/element/is_active_badge.html' with is_active=user.is_active %}
+    </div>
+{% endblock %}
+
+{% block item_button %}
+    {% if perms.permission.delete_portalgroup %}
+        {% url 'permission:group_user_remove_form' group_pk=group.pk pk=user.pk as delete_url %}
+    {% endif %}
+    {% if perms.permission.change_portalgroup %}
+        {% include 'spire/core/dropdown/ellipsis_dropdown.html' with delete_url_name='Remove' delete_url=delete_url %}
+    {% endif %}
+{% endblock %}

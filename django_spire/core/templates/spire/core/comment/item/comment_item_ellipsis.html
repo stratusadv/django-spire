@@ -1,0 +1,22 @@
+{% extends 'spire/core/dropdown/ellipsis_dropdown.html' %}
+{% load core_tags %}
+
+{% block dropdown_content %}
+{#    {% include 'spire/core/comment/element/comment_edit_link.html' %}#}
+{#    {% if not is_child %}#}
+{#        {% include 'spire/core/comment/element/comment_reply_link.html' %}#}
+{#    {% endif %}#}
+
+    {#    {% url 'comment:delete_form' pk=comment.pk as delete_url %}#}
+    {% if comment.user_id == user.id %}
+        {% url 'core:comment:form_content' comment_pk=comment.pk obj_pk=obj.pk app_label=app_label model_name=model_name as edit_url %}
+        {% include 'spire/core/dropdown/element/ellipsis_dropdown_modal_link_element.html' with link_text='Edit' view_url=edit_url %}
+    {% endif %}
+    {% if comment.user_id == user.id %}
+        {% url 'core:comment:delete_form' comment_pk=comment.pk obj_pk=obj.pk app_label=app_label model_name=model_name as delete_url %}
+        {% include 'spire/core/dropdown/element/ellipsis_dropdown_modal_link_element.html' with link_text='Delete' link_css='text-danger' view_url=delete_url %}
+    {% endif %}
+{#    {% if comment.user_id == user.id %}#}
+{#        {% include 'spire/core/dropdown/element/dropdown_link_element.html' with link_text='Delete' link_css='text-danger' link_href=delete_url %}#}
+{#    {% endif %}#}
+{% endblock %}
