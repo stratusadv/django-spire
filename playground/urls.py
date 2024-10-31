@@ -6,6 +6,7 @@ from playground import views
 
 urlpatterns = [
     path('', views.home_page_view, name='home'),
+    path('test_model_view', views.test_model_view, name='test_model'),
 ]
 
 urlpatterns += [

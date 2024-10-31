@@ -14,6 +14,6 @@ def test_model_view(request):
 
     return TemplateResponse(
         request,
-        context_data={'model': model},
-        template='page/home.html'
+        context={'model': model},
+        template='page/test_model.html'
     )

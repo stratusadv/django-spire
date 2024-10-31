@@ -1,7 +1,10 @@
-{% extends 'spire/page/full_page.html' %}
+{% extends 'spire/base/base.html' %}
 
-{% block page_content %}
-    <h1>Hello, World!</h1>
+{% block base_content %}
+    <div class="container-fluid">
+        <h1>Hello, World!</h1>
 
-    {% include 'spire/button/primary_dark_button.html' with button_text='View' %}
+        {% url 'test_model' as button_href %}
+        {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Test Model' %}
+    </div>
 {% endblock %}
