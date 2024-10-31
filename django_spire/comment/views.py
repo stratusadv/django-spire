@@ -83,7 +83,7 @@ def comment_modal_delete_form_view(request, comment_pk: int, obj_pk: int, app_la
     return_url = safe_redirect_url(request)
 
     if comment.user != request.user:
-        messages.warning(request, "You can only delete your comments.")
+        messages.warning(request, 'You can only delete your comments.')
         return HttpResponseRedirect(return_url)
 
     form_action = reverse('core:comment:delete_form', kwargs={

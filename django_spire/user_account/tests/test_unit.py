@@ -5,7 +5,7 @@ from django_spire.user_account.tests.factories import create_user
 
 class UserProfileTestCase(BaseTestCase):
     def setUp(self):
-        self.user = create_user(username="Wesley", password="goat_99")
+        self.user = create_user(username='Wesley', password='goat_99')
 
     def test_user_profile_receiver(self):
         profile = self.user.profile
