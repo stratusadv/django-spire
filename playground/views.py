@@ -12,8 +12,13 @@ def home_page_view(request):
 def test_model_view(request):
     model = generate_test_model()
 
+    fields = {
+        field.name: getattr(model, field.name)
+        for field in model._meta.fields
+    }
+
     return TemplateResponse(
         request,
-        context={'model': model},
+        context={'fields': fields},
         template='page/test_model.html'
     )

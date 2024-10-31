@@ -2,7 +2,11 @@
 
 {% block base_content %}
     <div class="container-fluid">
-        {{ model }}
+        <h3>Model Fields and Values</h3>
+        <ul>
+            {% for key, value in fields.items %}
+                <li>{{ key }}: {{ value }}</li>
+            {% endfor %}
+        </ul>
     </div>
 {% endblock %}
-
