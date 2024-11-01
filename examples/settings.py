@@ -36,10 +36,10 @@ INSTALLED_APPS = [
     'django_glue',
     'django_spire',
     'django_spire.authentication',
-    'django_spire.breadcrumbs',
+    'django_spire.breadcrumb',
     'django_spire.comment',
     'django_spire.file',
-    'django_spire.forms',
+    'django_spire.form',
     'django_spire.gamification',
     'django_spire.help',
     'django_spire.history',
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_spire.search',
     'django_spire.user_account',
     'examples',
+    'examples.component',
 ]
 
 MIDDLEWARE = [

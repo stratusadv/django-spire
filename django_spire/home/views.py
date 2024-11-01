@@ -4,7 +4,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.views import portal_views
-from django_spire.breadcrumbs import Breadcrumbs
+from django_spire.breadcrumb.models import Breadcrumbs
 
 
 def home_view(request):

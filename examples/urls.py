@@ -15,3 +15,7 @@ urlpatterns += [
     path('user_account/', include('django_spire.user_account.urls', namespace='user_account')),
     path('test_model', views.test_model_view, name='test_model'),
 ]
+
+urlpatterns += [
+    path('component/', include('examples.component.urls', namespace='component')),
+]

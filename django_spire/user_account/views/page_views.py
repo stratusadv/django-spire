@@ -4,8 +4,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
-from django_spire.breadcrumbs import Breadcrumbs
-from django_spire.forms import show_form_errors
+from django_spire.breadcrumb import Breadcrumbs
+from django_spire.form import show_form_errors
 from django_spire.views import portal_views
 from django_spire.history.utils import add_form_activity
 from django_spire.permission.models import PortalUser

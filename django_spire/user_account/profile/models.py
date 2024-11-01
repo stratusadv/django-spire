@@ -5,9 +5,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.timezone import localtime
 
-from django_spire.user_account.mixins import UserOptionsModelMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.permission.models import PortalUser
+from django_spire.user_account.mixins import UserOptionsModelMixin
 
 
 class UserProfile(HistoryModelMixin, UserOptionsModelMixin):
@@ -33,7 +33,7 @@ class UserProfile(HistoryModelMixin, UserOptionsModelMixin):
     class Meta:
         verbose_name = 'User Profile'
         verbose_name_plural = 'User Profiles'
-        db_table = 'user_account_profile'
+        db_table = 'spire_user_account_profile'
 
 
 @receiver(post_save, sender=PortalUser)

@@ -1,0 +1,15 @@
+{% extends 'spire/tab/tab.html' %}
+
+{% block tab_triggers %}
+    {% include 'spire/tab/element/tab_trigger_element.html' with trigger_text="Tab 1" %}
+    {% include 'spire/tab/element/tab_trigger_element.html' with trigger_text="Tab 2" %}
+    {% include 'spire/tab/element/tab_trigger_element.html' with trigger_text="Tab 3" %}
+{% endblock %}
+
+{% block tab_function_area %}{% endblock %}
+
+{% block tab_sections %}
+    {% include 'component/tab/tab_one.html' %}
+    {% include 'component/tab/tab_two.html' %}
+    {% include 'component/tab/tab_three.html' %}
+{% endblock %}

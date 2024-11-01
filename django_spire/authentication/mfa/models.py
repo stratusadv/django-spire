@@ -55,4 +55,4 @@ class MfaCode(models.Model):
         )
 
     class Meta:
-        db_table = 'authentication_mfa_code'
+        db_table = 'spire_authentication_mfa_code'

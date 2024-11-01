@@ -2,8 +2,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from django_spire.breadcrumbs.models import Breadcrumbs
-from django_spire.forms.confirmation_forms import DeleteConfirmationForm, ConfirmationForm
+from django_spire.breadcrumb.models import Breadcrumbs
+from django_spire.form.confirmation_forms import DeleteConfirmationForm, ConfirmationForm
 from django_spire.pagination.pagination import paginate_list
 from django_spire.core.redirect import safe_redirect_url
 from django_spire.history.utils import add_form_activity

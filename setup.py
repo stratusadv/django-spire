@@ -2,11 +2,19 @@ from setuptools import find_packages, setup
 
 from django_spire import __version__
 
+
+with open('LICENSE.md', encoding="utf-8") as license_handle:
+    license_file = license_handle.read()
+
+with open('README.md', encoding="utf-8") as readme_handle:
+    readme_file = readme_handle.read()
+
 setup(
     name="django-spire",
     version=__version__,
     description="Django framework for high observability web applications",
-    long_description=open("README.md").read(),
+    license=license_file,
+    long_description=readme_file,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
@@ -24,12 +32,20 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords=["spire", "django", "backend", "frontend", "javascript", "active server pages"],
+    keywords=[
+        "spire",
+        "django",
+        "backend",
+        "frontend",
+        "javascript",
+        "active server pages"
+    ],
     author="Austin Sauer, Brayden Carlson, Nathan Johnson & Wesley Howery",
     author_email="info@stratusadv.com",
     url="https://github.com/stratusadv/django-spire",
-    license="MIT",
-    packages=find_packages(exclude=["docs"]),
+    packages=find_packages(
+        exclude=["docs", "examples", "examples.*", "tests", "tests.*"]
+    ),
     include_package_data=True,
     zip_safe=False,
     python_requires=">=3.10",
@@ -37,6 +53,21 @@ setup(
         "django>=5.1.2",
         "django-glue>=0.7.8",
         "dandy>=0.2.0",
-    ]
+    ],
+    package_data={
+        "": ["README.md", "LICENSE.md", "CHANGELOG.md", "CONTRIBUTORS.md"],
+        "django_spire": [
+            "**/*.html",
+            "**/*.css",
+            "**/*.js",
+            "**/*.png",
+            "**/*.jpg"
+        ],
+    },
+    exclude_package_data={
+        "": ["*.db"],
+        "examples": ["*"],
+        "tests": ["*"],
+    },
 )
 

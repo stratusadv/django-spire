@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
 
-from django_spire.breadcrumbs.models import Breadcrumbs
+from django_spire.breadcrumb.models import Breadcrumbs
 from django_spire.history.mixins import ActivityLogMixin
 
 

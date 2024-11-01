@@ -10,6 +10,11 @@ def home_page_view(request):
     )
 
 
+def component_view(request):
+    template = 'page/component.html'
+    return TemplateResponse(request, template)
+
+
 def test_model_view(request):
     model = generate_test_model()
 

@@ -1,0 +1,70 @@
+<style>
+    .copy-notification {
+        position: absolute;
+        top: -30px;
+        right: 10px;
+        background-color: #28a745;
+        color: white;
+        padding: 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+    .show {
+        opacity: 1;
+    }
+</style>
+
+<div class="row justify-content-center mb-4">
+    <div class="col-12 col-md-8 position-relative">
+        {% if example.html is not none %}
+            <div class="position-relative">
+                <pre id="{{ example.key }}" class="bg-dark text-light px-3 border rounded mb-3">
+                    <code>{{ example.html|escape }}</code>
+                </pre>
+
+                <button class="btn btn-light position-absolute top-0 end-0 m-2 opacity-90" onclick="copy_to_clipboard('{{ example.key }}')">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+
+                <div class="copy-notification" id="notification-{{ example.key }}">Copied!</div>
+            </div>
+        {% endif %}
+
+        {% if example.template is not none %}
+            <h6>Output:</h6>
+            <div class="bg-dark text-light p-3 border rounded">
+                {{ example.template|safe }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function copy_to_clipboard(element_id) {
+        const text = document.getElementById(element_id).innerText;
+        const trimmed = text.trim();
+
+        navigator.clipboard.writeText(trimmed)
+            .then(() => {
+                const notification = document.getElementById(`notification-${element_id}`);
+                notification.style.display = 'inline';
+
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 500);
+                }, 1500);
+            })
+            .catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+    }
+</script>

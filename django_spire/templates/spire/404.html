@@ -1,4 +1,4 @@
-{% extends 'spire/landing/page/full_page.html' %}
+{% extends 'spire/page/full_page.html' %}
 
 {% load static %}
 
@@ -24,16 +24,7 @@
                         {{ subheading }}
                     </div>
                     <div class="text-center text-appear-second position-relative">
-                        {% if button == 'contact_us' %}
-                            {% url 'landing:contact_us' as contact_us_url %}
-                            <a href="{{ contact_us_url }}"
-                               class="btn btn-app-primary btn-app-primary-hover fs-6 text-white btn-hover text-nowrap">Contact
-                                Us</a>
 
-                        {% elif button == 'home' %}
-                            {% url 'landing:home' as home_url %}
-                            {% include 'spire/landing/button/button.html' with button_text='Back to Home' button_href=home_url %}
-                        {% endif %}
                     </div>
                 </div>
             </div>

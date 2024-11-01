@@ -3,8 +3,8 @@ from typing import Optional, Callable
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 
-from django_spire.breadcrumbs.models import Breadcrumbs
-from django_spire.forms.confirmation_forms import DeleteConfirmationForm
+from django_spire.breadcrumb.models import Breadcrumbs
+from django_spire.form.confirmation_forms import DeleteConfirmationForm
 
 
 # Takes breadcrumb as parameter and returns None

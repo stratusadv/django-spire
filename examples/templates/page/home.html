@@ -1,10 +1,15 @@
-{% extends 'spire/base/base.html' %}
+{% extends 'base/base.html' %}
+
+{% load static %}
 
 {% block base_content %}
     <div class="container-fluid">
-        <h1>Hello, World!</h1>
+        <h1>Django Spire</h1>
 
         {% url 'test_model' as button_href %}
         {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Test Model' %}
+
+        {% url 'component:home' as button_href %}
+        {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Component' %}
     </div>
 {% endblock %}

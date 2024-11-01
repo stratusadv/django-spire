@@ -2,6 +2,8 @@
 venv/
 __pycache__/
 .idea
+build/
+django_spire.egg-info/
 inspectionProfiles/
 .python-version
 .env
