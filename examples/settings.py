@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django_spire.authentication',
     'django_spire.breadcrumb',
     'django_spire.comment',
+    'django_spire.core',
     'django_spire.file',
     'django_spire.form',
     'django_spire.gamification',
@@ -94,7 +95,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django_glue.context_processors.glue'
+                'django_glue.context_processors.glue',
+                'django_spire.context_processors.spire'
             ],
             'builtins': [
             ],

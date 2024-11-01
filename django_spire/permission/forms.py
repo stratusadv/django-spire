@@ -28,6 +28,7 @@ class GroupNamesForm(forms.Form):
 class GroupForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.helper = FormHelper(self)
         self.helper.include_media = False
         self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-primary'))
