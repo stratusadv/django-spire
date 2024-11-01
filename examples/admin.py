@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from playground import models
+from examples import models
 
 
 admin.site.register(models.TestModel)

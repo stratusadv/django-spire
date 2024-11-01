@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
-from playground.utils import generate_test_model
+from examples.utils import generate_test_model
 
 
 def home_page_view(request):

@@ -12,7 +12,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
-WSGI_APPLICATION = 'playground.wsgi.application'
+WSGI_APPLICATION = 'examples.wsgi.application'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'django_spire.permission',
     'django_spire.search',
     'django_spire.user_account',
-    'playground',
+    'examples',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +73,7 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = 'playground.urls'
+ROOT_URLCONF = 'examples.urls'
 
 SECRET_KEY = 'django_spire_secret_key_of_secrets'
 
@@ -84,7 +84,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'playground/templates'),
+            os.path.join(BASE_DIR, 'examples/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

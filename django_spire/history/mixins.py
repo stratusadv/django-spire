@@ -5,7 +5,12 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.utils.timezone import localtime
 
-from django_spire.history.models import EventHistory, ActivityLog, ActivitySubscriber, View
+from django_spire.history.models import (
+    ActivityLog,
+    ActivitySubscriber,
+    EventHistory,
+    View
+)
 
 
 class ActivityLogMixin(models.Model):

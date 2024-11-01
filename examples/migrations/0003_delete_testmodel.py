@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('playground', '0002_testmodel_created_datetime_testmodel_is_active_and_more'),
+        ('examples', '0002_testmodel_created_datetime_testmodel_is_active_and_more'),
     ]
 
     operations = [

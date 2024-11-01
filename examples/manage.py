@@ -5,7 +5,7 @@ from settings import BASE_DIR
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'playground.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'examples.settings')
     sys.path.append(BASE_DIR)
 
     try:

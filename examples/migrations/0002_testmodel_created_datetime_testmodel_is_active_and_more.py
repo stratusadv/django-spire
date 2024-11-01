@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('playground', '0001_initial'),
+        ('examples', '0001_initial'),
     ]
 
     operations = [

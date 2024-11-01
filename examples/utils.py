@@ -3,7 +3,7 @@ import random
 
 from django.utils.timezone import localdate, now
 
-from playground.models import TestModel
+from examples.models import TestModel
 
 
 def generate_test_model() -> TestModel:
