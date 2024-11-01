@@ -34,4 +34,4 @@ jobs:
         env:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
         run: |
-          python -m unittest discover -v --top-level .
+          python manage.py test

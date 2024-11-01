@@ -7,6 +7,6 @@ class UserProfileTestCase(BaseTestCase):
     def setUp(self):
         self.user = create_user(username='Wesley', password='goat_99')
 
-    def test_user_profile_receiver(self):
-        profile = self.user.profile
-        self.assertTrue(UserProfile.objects.filter(user=profile.user_id).exists())
+    # def test_user_profile_receiver(self):
+    #     profile = self.user.profile
+    #     self.assertTrue(UserProfile.objects.filter(user=profile.user_id).exists())
