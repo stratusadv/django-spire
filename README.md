@@ -1,3 +1,3 @@
 # django-spire
 
-![django_spire](https://imgur.com/twNiNaf)
+![django_spire](https://i.imgur.com/twNiNaf.png)
