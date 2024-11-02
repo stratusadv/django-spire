@@ -34,4 +34,4 @@ jobs:
         env:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
         run: |
-          python manage.py test
+          python testing/manage.py test
