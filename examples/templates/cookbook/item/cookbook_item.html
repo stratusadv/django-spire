@@ -1,0 +1,22 @@
+{% extends 'spire/item/item.html' %}
+
+{% block item_title %}
+    {% url 'cookbook:page:detail' pk=cookbook.pk as cookbook_view_url %}
+	{% include 'spire/element/attribute_element.html' with attribute_title='Cookbook' attribute_value=cookbook.name attribute_href=cookbook_view_url %}
+{% endblock %}
+
+{% block item_row_content %}
+	{% include 'spire/element/attribute_element.html' with attribute_title='Description' attribute_value=cookbook.description %}
+{% endblock %}
+
+{% block item_button %}
+    {% url 'cookbook:page:detail' pk=cookbook.pk as cookbook_view_url %}
+    {% if perms.cookbook.change_cookbook %}
+        {% url 'cookbook:page:form' pk=cookbook.pk as cookbook_edit_url %}
+    {% endif %}
+
+    {% if perms.cookbook.delete_cookbook %}
+        {% url 'cookbook:page:delete' pk=cookbook.pk as cookbook_delete_url %}
+    {% endif %}
+	{% include 'spire/dropdown/ellipsis_dropdown.html' with view_url=cookbook_view_url edit_url=cookbook_edit_url delete_url=cookbook_delete_url %}
+{% endblock %}

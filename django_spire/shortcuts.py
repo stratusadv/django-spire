@@ -1,7 +1,5 @@
 import json
 
-from typing import Optional
-
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 
@@ -25,7 +23,7 @@ def process_request_body(request):
     return json.loads(body_unicode)['data']
 
 
-def model_object_from_app_label(app_label, model_name, object_pk) -> Optional[Model]:
+def model_object_from_app_label(app_label, model_name, object_pk) -> Model | None:
     try:
         content_type = ContentType.objects.get(app_label=app_label, model=model_name)
     except ContentType.DoesNotExist:

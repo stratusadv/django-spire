@@ -11,5 +11,8 @@
 
         {% url 'component:home' as button_href %}
         {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Component' %}
+
+        {% url 'cookbook:list' as button_href %}
+        {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Cookbook' %}
     </div>
 {% endblock %}

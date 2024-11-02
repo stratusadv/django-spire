@@ -1,0 +1,60 @@
+<div
+    x-data="{
+        async init() {
+            toggle_loading_overlay()
+            await this.get_glue()
+            toggle_loading_overlay()
+            this.search.prevent_submit()
+        },
+        cookbook: new GlueModelObject('cookbook'),
+        recipe_queryset: new GlueQuerySet('recipe_queryset'),
+        search: new GlueCharField('search'),
+        linked_recipes: [],
+        recipes: [],
+        get filtered_recipes() {
+            return this.recipes.filter(obj => obj.name.toLowerCase().includes(this.search.value.toLowerCase()))
+        },
+        async get_glue() {
+            await this.cookbook.get()
+            const [linked_recipes, recipes] = await Promise.all([
+                this.recipe_queryset.filter({'cookbook_recipe__cookbook_id': this.cookbook.id }),
+                this.recipe_queryset.all()
+            ]);
+            this.linked_recipes = linked_recipes;
+            this.recipes = recipes;
+        },
+        is_linked_recipe(recipe_id) {
+            return this.linked_recipes.some(obj => obj.id === recipe_id)
+        },
+        update_recipe(recipe) {
+            if(this.is_linked_recipe(recipe.id)) {                                                               
+                this.linked_recipes.splice(this.linked_recipes.findIndex(obj => obj.id === recipe.id), 1);                
+            } else {
+                this.linked_recipes.push(recipe)
+            }
+        },
+        get return_value() {            
+            return JSON.stringify(this.linked_recipes.map(obj => obj.id))            
+        }
+    }"
+>
+    <input type="text" hidden x-model="return_value" name="linked_recipes">
+
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_field='search' %}
+        </div>
+        <div class="col-12">
+            {% include 'spire/element/divider_element.html' with divider_title='Recipes' %}
+            <template x-for="(recipe, index) in filtered_recipes" :key="index">
+                <div @click="update_recipe(recipe)" class="cursor-pointer">
+                    <span :class="{
+                            'bi bi-check text-success me-1': is_linked_recipe(recipe.id),
+                            'bi bi-trash me-1': !is_linked_recipe(recipe.id)
+                        }"
+                    ></span> <span x-text="recipe.name"></span>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>

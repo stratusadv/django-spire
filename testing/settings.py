@@ -1,5 +1,6 @@
-import django
-import os
+import secrets
+
+from pathlib import Path
 
 
 INSTALLED_APPS = [
@@ -28,14 +29,19 @@ INSTALLED_APPS = [
     'django_spire.permission',
     'django_spire.search',
     'django_spire.user_account',
-    'django_spire.user_account.profile'
+    'django_spire.user_account.profile',
+
+    'examples',
+    'examples.component',
+    'examples.cookbook',
+    'examples.cookbook.recipe',
 ]
 
 
 DEBUG = True
-SECRET_KEY = 'test-key'
+SECRET_KEY = secrets.token_urlsafe(50)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 SENDGRID_TEMPLATE_ID = False
 
 
@@ -63,7 +69,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'examples/templates'),
+            str(BASE_DIR / 'examples/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -80,5 +86,3 @@ TEMPLATES = [
         },
     },
 ]
-
-django.setup()

@@ -1,13 +1,11 @@
 import functools
 
-from typing import Union
-
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 
-def permission_required(permissions: Union[str, tuple[str]]):
+def permission_required(permissions: str | tuple[str]):
     def decorator(method):
         @functools.wraps(method)
         def wrapper(request, *args, **kwargs):
@@ -18,11 +16,11 @@ def permission_required(permissions: Union[str, tuple[str]]):
                     perms = permissions
 
                 if not request.user.has_perms(perms):
-                    raise PermissionDenied()
+                    raise PermissionDenied
 
                 return method(request, *args, **kwargs)
-            else:
-                return HttpResponseRedirect(reverse('config_registration:login_redirect'))
+
+            return HttpResponseRedirect(reverse('config_registration:login_redirect'))
 
         return wrapper
 
