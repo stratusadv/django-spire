@@ -2,7 +2,7 @@
 
 ![django_spire](https://i.imgur.com/NsiXyOX.png)
 
-The `django_spire` project is a modular framework designed to enhance observability and improve the development of Django web applications.
+`django_spire` is a modular framework designed to enhance observability and improve the development of Django web applications.
 
 
 ## Features
