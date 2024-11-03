@@ -1,6 +1,6 @@
 # django-spire
 
-![django_spire](https://i.imgur.com/3y1yGG4.png)
+![django_spire](https://i.imgur.com/NsiXyOX.png)
 
 The `django_spire` project is a modular framework designed to enhance observability and improve the development of Django web applications.
 
