@@ -3,7 +3,9 @@ from django.template.response import TemplateResponse
 from django_glue.glue import glue_model
 
 from django_spire.shortcuts import get_object_or_null_obj
+
 from examples.component.utils import from_directory, from_file
+from examples.cookbook.models import Cookbook
 
 
 def home_view(request):
@@ -50,29 +52,27 @@ def base_view(request):
 
 
 def button_view(request):
-    pass
+    cookbook = get_object_or_null_obj(Cookbook, pk=1)
+    glue_model(request, 'cookbook', cookbook)
 
-    # cookbook = get_object_or_null_obj(models.Cookbook, pk=1)
-    # glue_model(request, 'cookbook', cookbook)
+    exclude_template = ['base_button']
 
-    # exclude_template = ['base_button']
+    example = from_file('examples/templates/component/button/example_button.html')
 
-    # example = from_file('examples/templates/component/button/example_button.html')
+    gallery = from_directory(
+        'django_spire/templates/spire/button/',
+        button_text='Sample Text',
+        exclude_template=exclude_template
+    )
 
-    # gallery = from_directory(
-    #     'django_spire/templates/spire/button/',
-    #     button_text='Sample Text',
-    #     exclude_template=exclude_template
-    # )
+    context = {
+        'cookbook': cookbook,
+        'example': example,
+        'gallery': gallery,
+    }
 
-    # context = {
-    #     'cookbook': cookbook,
-    #     'example': example,
-    #     'gallery': gallery,
-    # }
-
-    # template = 'component/button/button.html'
-    # return TemplateResponse(request, template, context)
+    template = 'component/button/button.html'
+    return TemplateResponse(request, template, context)
 
 
 def card_view(request):

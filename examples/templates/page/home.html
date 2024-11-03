@@ -3,16 +3,24 @@
 {% load static %}
 
 {% block base_content %}
-    <div class="container-fluid">
-        <h1>Django Spire</h1>
+    <div class="container-fluid my-4">
+        <div class="text-center mb-5">
+            <a href="/" class="d-block mb-3">
+                <img src="{% static 'img/django_spire.svg' %}" width="125" alt="Django Spire Logo">
+            </a>
+        </div>
+    </div>
 
-        {% url 'test_model' as button_href %}
-        {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Test Model' %}
+    <div class="container my-5">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            {% url 'test_model' as url %}
+            {% include 'card/home_card.html' with title="Test Model" icon_class="bi bi-database" url=url %}
 
-        {% url 'component:home' as button_href %}
-        {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Component' %}
+            {% url 'component:home' as url %}
+            {% include 'card/home_card.html' with title="Component" icon_class="bi bi-puzzle" url=url %}
 
-        {% url 'cookbook:list' as button_href %}
-        {% include 'spire/button/primary_button.html' with button_href=button_href button_text='Cookbook' %}
+            {% url 'cookbook:list' as url %}
+            {% include 'card/home_card.html' with title="Cookbook" icon_class="bi bi-journal" url=url %}
+        </div>
     </div>
 {% endblock %}

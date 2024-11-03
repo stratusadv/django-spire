@@ -1,15 +1,9 @@
-{% include 'spire/base/base.html' %}
-
-{% load static %}
+{% include 'base/base.html' %}
 
 {% block base_content %}
-    <div class="container-fluid">
-        <div class="row mb-3">
-            <div class="col-12">
-                {% include 'spire/navigation/top_navigation.html' %}
-            </div>
-        </div>
+    {% include 'navigation/top_navigation.html' with title='Component Dashboard' %}
 
+    <div class="container-fluid">
         <div class="row mt-3">
             {% include 'component/base/sidebar.html' %}
 
