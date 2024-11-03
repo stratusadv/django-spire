@@ -1,4 +1,6 @@
-from typing import Optional, Callable
+from __future__ import annotations
+
+from typing_extensions import Callable
 
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -14,8 +16,8 @@ BreadCrumbCallable = Callable[[Breadcrumbs], None]
 def detail_view(
         request,
         *,
-        context_data: Optional[dict] = None,
-        breadcrumbs_func: Optional[BreadCrumbCallable] = None,
+        context_data: dict | None = None,
+        breadcrumbs_func: BreadCrumbCallable | None = None,
         obj,
         template: str
 ):
@@ -47,13 +49,14 @@ def detail_view(
 def delete_form_view(
         request,
         *,
-        context_data: Optional[dict] = None,
+        context_data: dict | None = None,
         obj,
-        activity_func: Optional[Callable] = None,
+        activity_func: Callable | None = None,
         auto_add_activity: bool = True,
-        breadcrumbs_func: Optional[BreadCrumbCallable] = None,
-        delete_func: Optional[Callable] = None,
-        verbs: tuple[str, str] = ('delete', 'deleted'),  # Present and past tense of verb
+        breadcrumbs_func: BreadCrumbCallable | None = None,
+        delete_func: Callable | None = None,
+        # Present and past tense of verb
+        verbs: tuple[str, str] = ('delete', 'deleted'),
         return_url: str,
         template: str = 'spire/page/form_full_page.html'
 ):
@@ -79,11 +82,13 @@ def delete_form_view(
                     device=request.device,
                     information=f'{request.user.get_full_name()} {verbs[1].lower()} {model_name} "{obj}".'
                 )
+
             return HttpResponseRedirect(return_url)
     else:
         form = DeleteConfirmationForm()
 
     breadcrumbs = Breadcrumbs()
+
     if breadcrumbs_func is None:
         breadcrumbs.add_obj_breadcrumbs(obj)
         breadcrumbs.add_breadcrumb(name=verbs[0].title())
@@ -111,8 +116,8 @@ def delete_form_view(
 def list_view(
         request,
         *,
-        context_data: Optional[dict] = None,
-        breadcrumbs_func: Optional[BreadCrumbCallable] = None,
+        context_data: dict | None = None,
+        breadcrumbs_func: BreadCrumbCallable | None = None,
         model,
         template: str
 ):
@@ -121,6 +126,7 @@ def list_view(
         context_data = {}
 
     breadcrumbs = Breadcrumbs()
+
     if breadcrumbs_func is None:
         breadcrumbs.add_breadcrumb(name=f'{model._meta.verbose_name} List')
     else:
@@ -145,10 +151,10 @@ def form_view(
         request,
         *,
         form,
-        context_data: Optional[dict] = None,
+        context_data: dict | None = None,
         obj,
-        breadcrumbs_func: Optional[BreadCrumbCallable] = None,
-        verb: Optional['str'] = None,
+        breadcrumbs_func: BreadCrumbCallable | None = None,
+        verb: str | None = None,
         template: str = 'spire/page/form_full_page.html'
 ):
 
@@ -158,6 +164,7 @@ def form_view(
     model = obj._meta.model
 
     breadcrumbs = Breadcrumbs()
+
     if breadcrumbs_func is None:
         breadcrumbs.add_form_breadcrumbs(obj=obj)
     else:
@@ -191,10 +198,10 @@ def model_form_view(
         request,
         *,
         form,
-        context_data: Optional[dict] = None,
+        context_data: dict | None = None,
         obj,
-        breadcrumbs_func: Optional[BreadCrumbCallable] = None,
-        verb: Optional['str'] = None,
+        breadcrumbs_func: BreadCrumbCallable | None = None,
+        verb: str | None = None,
         template: str = 'spire/page/form_full_page.html'
 ):
 
@@ -222,7 +229,7 @@ def template_view(
         page_description: str,
         breadcrumbs: Breadcrumbs,
         template: str,
-        context_data: Optional[dict] = None,
+        context_data: dict | None = None,
 ):
     if context_data is None:
         context_data = {}

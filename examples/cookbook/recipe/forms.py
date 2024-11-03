@@ -4,7 +4,7 @@ import json
 
 from django import forms
 
-from examples.cookbook.recipe import models, factories
+from examples.cookbook.recipe import factories, models
 
 
 class IngredientsField(forms.CharField):

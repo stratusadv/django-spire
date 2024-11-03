@@ -1,4 +1,6 @@
-from typing import Literal
+from __future__ import annotations
+
+from typing_extensions import Literal
 
 from django_spire.permission.models import PortalGroup
 from django_spire.permission.models import PortalUser

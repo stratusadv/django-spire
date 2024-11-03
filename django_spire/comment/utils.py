@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def find_user_list_from_content_type(app_label, model_name):
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import Permission, Group, User

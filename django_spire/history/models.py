@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -50,7 +52,7 @@ class ActivityLog(models.Model):
     def __str__(self):
         return f'{self.user} - {self.verb}'
 
-    def add_subscriber(self, subscriber: User):
+    def add_subscriber(self, subscriber: User) -> None:
         self.subscribers.create(
             user=subscriber
         )

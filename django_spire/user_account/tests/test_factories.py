@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.tests.test_cases import BaseTestCase
 from django_spire.user_account import factories
 

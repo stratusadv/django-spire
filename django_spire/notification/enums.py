@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 
 from django.db import models
@@ -10,7 +12,7 @@ class NotificationTypeChoices(models.TextChoices):
     # SMS = 'sms'
     # PUSH = 'push'
 
-    def send(self):
+    def send(self) -> None:
         sender_class = NotificationSenderEnum(self.value).value
         sender = sender_class(self)
         sender.send()

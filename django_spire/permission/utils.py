@@ -1,4 +1,6 @@
-from typing import Union
+from __future__ import annotations
+
+from typing_extensions import Union
 
 from django.contrib.auth.models import Group, User
 

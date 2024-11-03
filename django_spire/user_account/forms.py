@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Field, Submit
 from django import forms
@@ -8,9 +10,9 @@ from django_spire.user_account.factories import register_new_user
 
 
 class UserForm(forms.ModelForm):
-    def save(self, commit=True):
+    def save(self, commit: bool = True):
         self.instance.username = self.cleaned_data['email']
-        return super(UserForm, self).save(commit=commit)
+        return super().save(commit=commit)
 
     class Meta:
         model = PortalUser
@@ -19,7 +21,8 @@ class UserForm(forms.ModelForm):
 
 class AddUserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(AddUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.helper = FormHelper(self)
         self.helper.include_media = False
 
@@ -51,7 +54,8 @@ class UserGroupForm(forms.Form):
     def __init__(self, *args, **kwargs):
         from django.contrib.auth.models import Group
         self.user = kwargs.pop('user')
-        super(UserGroupForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.helper = FormHelper(self)
         self.helper.include_media = False
 
@@ -74,7 +78,8 @@ class UserGroupForm(forms.Form):
 
 class EditUserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(EditUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
         self.fields['email'].required = True
@@ -85,14 +90,16 @@ class EditUserForm(forms.ModelForm):
 
 
 class RegisterUserForm(forms.ModelForm):
-    def clean_password(self):
+    def clean_password(self) -> str:
         password = self.cleaned_data.get('password')
+
         if len(password) < 8:
-            raise forms.ValidationError('Must be at least 8 characters long.')
+            message = 'Must be at least 8 characters long.'
+            raise forms.ValidationError(message)
 
         return password
 
-    def save(self, commit=False):
+    def save(self, commit: bool = False):
         return register_new_user(**self.cleaned_data)
 
     class Meta:

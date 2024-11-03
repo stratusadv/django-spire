@@ -1,11 +1,12 @@
-from typing import Union
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 
 
 @dataclass
 class Option:
     key: str
-    value: Union[str, bool, int]
+    value: str | bool | int
 
 
 @dataclass
@@ -24,12 +25,15 @@ class OptionSection:
             if option.key.lower() == option_key.lower():
                 return option
 
-        raise KeyError(f"Option '{option_key}' not found")
+        message = f'Option "{option_key}" not found'
+        raise KeyError(message)
 
     def to_dict(self):
         section_dict = {}
+
         for option in self.options:
             section_dict[option.key.lower()] = option.value
+
         return section_dict
 
 
@@ -62,16 +66,21 @@ class Options:
             if section.name.lower() == section_name.lower():
                 return section
 
-        raise KeyError(f"Section '{section_name}' not found")
+        message = f'Section "{section_name}" not found'
+        raise KeyError(message)
 
     @classmethod
     def load_dict(cls, options_dict: dict):
         sections = []
+
         for section_name, section_options in options_dict.items():
             options = []
+
             for option_key, option_value in section_options.items():
                 options.append(Option(key=option_key, value=option_value))
+
             sections.append(OptionSection(name=section_name, options=options))
+
         return cls(sections=sections)
 
     def get_setting(self, section_name: str, option_key: str):
@@ -95,11 +104,13 @@ class Options:
 
         self.sections = new_sections
 
-    def update_setting(self, section_name: str, option_key: str, value: Union[str, bool]):
+    def update_setting(self, section_name: str, option_key: str, value: str | bool):
         self[section_name][option_key].value = value
 
     def to_dict(self):
         options_dict = {}
+
         for section in self.sections:
             options_dict[section.name.lower()] = section.to_dict()
+
         return options_dict

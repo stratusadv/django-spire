@@ -1,6 +1,11 @@
-from django.contrib.auth.models import User
+from __future__ import annotations
+
+from typing_extensions import TYPE_CHECKING
 
 from django_spire.authentication.mfa.models import MfaCode
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 def get_or_generate_user_mfa_code(user: User) -> MfaCode:
@@ -8,5 +13,5 @@ def get_or_generate_user_mfa_code(user: User) -> MfaCode:
 
     if mfa_code:
         return mfa_code
-    else:
-        return MfaCode.generate_code(user)
+
+    return MfaCode.generate_code(user)

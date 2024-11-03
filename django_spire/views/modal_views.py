@@ -1,4 +1,6 @@
-from typing import Optional, Callable
+from __future__ import annotations
+
+from typing_extensions import Callable
 
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -13,12 +15,13 @@ def dispatch_modal_delete_form_content(
         *,
         obj,
         form_action: str,
-        context_data: Optional[dict] = None,
-        activity_func: Optional[Callable] = None,
+        context_data: dict | None = None,
+        activity_func: Callable | None = None,
         auto_add_activity: bool = True,
-        delete_func: Optional[Callable] = None,
-        verbs: tuple[str, str] = ('delete', 'deleted'),  # Present and past tense of verb
-        return_url: Optional[str] = None,
+        delete_func: Callable | None = None,
+        # Present and past tense of verb
+        verbs: tuple[str, str] = ('delete', 'deleted'),
+        return_url: str | None = None,
         template: str = 'spire/modal/content/dispatch_modal_delete_confirmation_content.html'
 ):
     if context_data is None:

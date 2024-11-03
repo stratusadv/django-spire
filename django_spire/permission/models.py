@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.contrib.auth.models import Group, User
 from django.urls import reverse
 
@@ -17,8 +19,14 @@ class PortalGroup(Group, ActivityLogMixin):
         crumbs.add_base_breadcrumb(self._meta.model)
 
         if self.pk:
-            crumbs.add_breadcrumb(name=self.name, href=reverse('permission:group_detail', kwargs={'pk': self.pk}))
-            
+            crumbs.add_breadcrumb(
+                name=self.name,
+                href=reverse(
+                    'permission:group_detail',
+                    kwargs={'pk': self.pk}
+                )
+            )
+
         return crumbs
 
     class Meta:

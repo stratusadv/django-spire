@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from django.core.serializers.json import DjangoJSONEncoder
@@ -21,14 +23,19 @@ def register_user_form_view(request):
     if request.method == 'POST':
         user_form = forms.RegisterUserForm(request.POST)
 
-        if user_form.is_valid():  # Checks to see if all forms are valid.
-            user = user_form.save()  # Save each form...
-            add_form_activity(user, 0, request.user)  # Add form activity. This needs to be improved.
-            return HttpResponseRedirect(reverse('user_account:profile:page:list'))  # Redirect to new view.
-        else:
-            show_form_errors(request, user_form)
+        # Checks to see if all forms are valid.
+        if user_form.is_valid():
+            user = user_form.save()
+
+            # Add form activity. This needs to be improved.
+            add_form_activity(user, 0, request.user)
+
+            return HttpResponseRedirect(reverse('user_account:profile:page:list'))
+
+        show_form_errors(request, user_form)
     else:
-        user_form = forms.RegisterUserForm()  # If the form has an initial it will override the defaults.
+        # If the form has an initial it will override the defaults.
+        user_form = forms.RegisterUserForm()
 
     context_data = {
         # Todo: Function that takes in all of the forms and dumps the data here?

@@ -1,17 +1,16 @@
-from abc import ABC
-from typing import Union
+from __future__ import annotations
 
 from django.conf import settings
 from django.core.mail import EmailMessage
 
 
-class EmailHelper(ABC):
+class EmailHelper:
     def __init__(
-            self,
-            to: Union[list, str],
-            cc: Union[list, None] = None,
-            bcc: Union[list, None] = None,
-            fail_silently: bool = False
+        self,
+        to: list | str,
+        cc: list | None = None,
+        bcc: list | None = None,
+        fail_silently: bool = False
     ):
         if isinstance(to, str):
             self.to = [to]
@@ -26,19 +25,20 @@ class EmailHelper(ABC):
 
 class SendGridEmailHelper(EmailHelper):
     def __init__(
-            self,
-            to: Union[list, str],
-            template_data: dict,
-            template_id: str = settings.SENDGRID_TEMPLATE_ID,
-            cc: Union[list, None] = None,
-            bcc: Union[list, None] = None,
-            fail_silently: bool = False
+        self,
+        to: list | str,
+        template_data: dict,
+        template_id: str = settings.SENDGRID_TEMPLATE_ID,
+        cc: list | None = None,
+        bcc: list | None = None,
+        fail_silently: bool = False
     ):
-        super(EmailHelper, self).__init__(to, cc, bcc, fail_silently)
+        super().__init__(to, cc, bcc, fail_silently)
+
         self.template_id = template_id
         self.template_data = template_data
 
-    def send(self):
+    def send(self) -> None:
         msg = EmailMessage(
             from_email=self.from_email,
             to=self.to,

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import random
 
 from dateutil import relativedelta
@@ -22,15 +24,16 @@ class MfaCode(models.Model):
     def __str__(self):
         return f'{self.expiration_datetime} - {self.code}'
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         return self.expiration_datetime > localtime()
 
-    def set_expired(self):
+    def set_expired(self) -> None:
         self.expiration_datetime = localtime()
         self.save()
 
     def send_notification(self):
         user = self.user
+
         context_data = {
             'title': 'Authentication Code',
             'body': f"Here is your multifactor authentication code: </br> <h3>{self.code}</h3>",

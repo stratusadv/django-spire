@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import random
 import string
 
@@ -8,7 +10,7 @@ register = template.Library()
 
 
 @register.filter
-def add_str(str1, str2):
+def add_str(str1: str, str2: str) -> str:
     return f'{str1}{str2}'
 
 

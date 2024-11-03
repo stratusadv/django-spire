@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 from examples.utils import generate_test_model

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.options.mixins import OptionsModelMixin
 from django_spire.options.options import (
     Option,

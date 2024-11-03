@@ -1,4 +1,9 @@
-from examples.cookbook.models import Cookbook, CookbookRecipe
+from __future__ import annotations
+
+from typing_extensions import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from examples.cookbook.models import Cookbook, CookbookRecipe
 
 
 def link_cookbook_recipes(

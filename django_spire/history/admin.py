@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from django.contrib import admin
+
 from django_spire.history import models
 
 

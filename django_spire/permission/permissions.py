@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing_extensions import TYPE_CHECKING
 
 from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import QuerySet
 
 from django_spire.permission.constants import (
     PERMISSION_MODELS_DICT,
@@ -16,11 +15,15 @@ from django_spire.permission.utils import (
     perm_level_to_string
 )
 
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+
 
 class ModelPermissions:
     def __init__(self, model_key: str):
         if model_key not in PERMISSION_MODELS_DICT:
-            raise KeyError(f'Model key {model_key} not in permission models dict.')
+            message = f'Model key {model_key} not in permission models dict.'
+            raise KeyError(message)
 
         self.model = PERMISSION_MODELS_DICT[model_key]['model']
         self.is_proxy_model = PERMISSION_MODELS_DICT[model_key]['is_proxy_model']
@@ -37,7 +40,10 @@ class ModelPermissions:
     def model_name(self) -> str:
         return self.model._meta.model_name
 
-    def find_permissions_by_level(self, perm_level: Optional[VALID_PERMISSION_LEVELS]) -> list[Permission]:
+    def find_permissions_by_level(
+        self,
+        perm_level: VALID_PERMISSION_LEVELS | None
+    ) -> list[Permission]:
         permission_list = []
 
         for perm in self.permissions:
@@ -46,18 +52,27 @@ class ModelPermissions:
 
         return permission_list
 
-    def get_special_role(self, codename: str) -> Optional[Permission]:
+    def get_special_role(self, codename: str) -> Permission | None:
         for perm in self.permissions:
             if perm.codename == codename:
                 return perm
+
         return None
 
     def _set_model_perms(self) -> QuerySet[Permission]:
-        content_type = ContentType.objects.get_for_model(self.model(), for_concrete_model=not self.is_proxy_model)
+        content_type = ContentType.objects.get_for_model(
+            self.model(),
+            for_concrete_model=not self.is_proxy_model
+        )
+
         return Permission.objects.filter(content_type=content_type)
 
     def special_role_list(self) -> list[Permission]:
-        return [perm for perm in self.permissions if perm.codename.startswith('can')]
+        return [
+            perm
+            for perm in self.permissions
+            if perm.codename.startswith('can')
+        ]
 
 
 class GroupPermissions:
@@ -85,6 +100,7 @@ class GroupPermissions:
 
     def perm_level(self) -> VALID_PERMISSION_LEVELS:
         codename_list = []
+
         for perm in self.group_perms:
             if perm.codename.split('_')[-1] == self.model_permissions.model_name:
                 codename_list.append(perm.codename)
@@ -152,6 +168,7 @@ class UserPermissionHelper:
 
     def perm_level(self) -> VALID_PERMISSION_LEVELS:
         codename_list = []
+
         for perm in self.user_perms:
             if perm.codename.split('_')[-1] == self.model_permissions.model_name:
                 codename_list.append(perm.codename)
@@ -164,19 +181,22 @@ class UserPermissionHelper:
 
 def generate_user_perm_data(user: User) -> list[dict]:
     perm_data = []
-    for key, value in PERMISSION_MODELS_DICT.items():
+
+    for key in PERMISSION_MODELS_DICT:
         user_permissions = UserPermissionHelper(user, key)
+
         perm_data.append({
             'app_name': key.capitalize(),
             'level_verbose': user_permissions.perm_level_verbose()
         })
+
     return perm_data
 
 
 def generate_group_perm_data(group: Group, with_special_role: bool = False) -> list[dict]:
     from django_spire.permission.constants import PERMISSION_MODELS_DICT
     perm_data = []
-    for key, value in PERMISSION_MODELS_DICT.items():
+    for key in PERMISSION_MODELS_DICT:
         group_permissions = GroupPermissions(group=group, model_key=key)
 
         perm_information_dic = {

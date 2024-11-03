@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from django_spire.options.mixins import OptionsModelMixin
-from django_spire.options.options import Options, Option, OptionSection  # Adjust the import as necessary
+from django_spire.options.options import Options, Option, OptionSection
 from django_spire.user_account.tests.factories import create_user
 
 

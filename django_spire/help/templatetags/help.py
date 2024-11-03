@@ -1,4 +1,5 @@
-import json
+from __future__ import annotations
+
 import uuid
 
 from django import template
@@ -8,8 +9,9 @@ register = template.Library()
 
 
 @register.simple_tag()
-def help_button(help_template, help_title=None):
+def help_button(help_template, help_title: str | None = None):
     help_id = f'help-{uuid.uuid4()}'
+
     rendered_help_button = render_to_string(
         'spire/help/help_button.html',
         {
@@ -17,6 +19,7 @@ def help_button(help_template, help_title=None):
             'help_title': help_title,
         }
     )
+
     rendered_help_template = render_to_string(
         'spire/help/help_modal.html',
         {

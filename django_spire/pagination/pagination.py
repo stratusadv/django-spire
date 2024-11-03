@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.core.paginator import Paginator, Page
 
 

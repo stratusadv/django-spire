@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from examples.cookbook.recipe import models
 
 

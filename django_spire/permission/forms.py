@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from django import forms
@@ -14,8 +16,7 @@ class GroupNamesField(forms.CharField):
         Receives a list of group names as a json string
     """
     def clean(self, value) -> list[str]:
-        groups = json.loads(value)
-        return groups
+        return json.loads(value)
 
 
 class GroupNamesForm(forms.Form):
@@ -42,7 +43,8 @@ class GroupForm(forms.ModelForm):
 class GroupUserForm(forms.Form):
     def __init__(self, *args, **kwargs):
         group = kwargs.pop('group')
-        super(GroupUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.helper = FormHelper(self)
         self.helper.include_media = False
         self.fields['available_users'] = forms.ModelMultipleChoiceField(

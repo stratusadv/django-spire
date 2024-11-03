@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit
 
@@ -9,7 +11,8 @@ class FileForm(forms.Form):
     files = MultipleFileField()
 
     def __init__(self, *args, **kwargs):
-        super(FileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.helper = FormHelper(self)
         self.helper.include_media = False
         self.helper.form_enctype = 'multipart/form-data'

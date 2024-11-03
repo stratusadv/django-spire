@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.tests.test_cases import BaseTestCase
 from django_spire.user_account.profile.models import UserProfile
 from django_spire.user_account.tests.factories import create_user

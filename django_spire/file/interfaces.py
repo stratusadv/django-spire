@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
+from typing_extensions import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.files.uploadedfile import InMemoryUploadedFile
 
-from django_spire.file.mixins import FileModelMixin
 from django_spire.file.models import File
+
+if TYPE_CHECKING:
+    from django.core.files.uploadedfile import InMemoryUploadedFile
+    from django_spire.file.mixins import FileModelMixin
 
 
 @dataclass
@@ -54,6 +58,7 @@ class FileFormatter:
         else:
             value = ''
             ext = '>1.00 Tb'
+
         return str(value) + ext
 
 
@@ -79,7 +84,7 @@ class FileContentObjectFormatter(FileFormatter):
 
 @dataclass
 class FileUploader(ABC):
-    related_field: Optional[str]
+    related_field: str | None
 
     def null_file_obj(self, file):
         formatted_file = FileFormatter(file, self.related_field)
@@ -87,11 +92,11 @@ class FileUploader(ABC):
 
     @abstractmethod
     def upload(self, *args, **kwargs):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def upload_from_form_field(self, *args, **kwargs):
-        pass
+        raise NotImplementedError
 
 
 @dataclass
@@ -103,9 +108,11 @@ class SingleFileUploader(FileUploader):
 
     def delete_old_files(self, content_object: FileModelMixin):
         old_files = content_object.files.active().related_field(self.related_field)
+
         for file in old_files:
             file.is_deleted = True
             file.is_active = False
+
         File.objects.bulk_update(old_files, ['is_active', 'is_deleted'])
 
     def upload_from_form_field(self, form_data, content_object: FileModelMixin) -> File:
@@ -122,7 +129,6 @@ class SingleFileUploader(FileUploader):
 
 @dataclass
 class MultiFileUploader(FileUploader):
-
     def upload(self, files: list[InMemoryUploadedFile]):
         files_to_upload = [self.null_file_obj(file) for file in files]
         return File.objects.bulk_create(files_to_upload)

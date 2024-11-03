@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.test import Client, TestCase
 
 from django_spire.user_account.tests.factories import create_super_user

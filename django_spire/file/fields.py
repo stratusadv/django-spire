@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import json
-from typing import Optional, Union
+
+from typing_extensions import TYPE_CHECKING
 
 from django import forms
 
 from django_spire.file import widgets
-from django_spire.file.models import File
 from django_spire.file.queryset import FileQuerySet
+
+if TYPE_CHECKING:
+    from django_spire.file.models import File
 
 
 class MultipleFileField(forms.FileField):
@@ -13,7 +18,7 @@ class MultipleFileField(forms.FileField):
         super().__init__(*args, **kwargs)
         self.widget = widgets.MultipleWidget()
 
-    def prepare_value(self, value: Optional[list[File]]):
+    def prepare_value(self, value: list[File] | None):
         if value is not None:
             return json.dumps([file.to_dict() for file in value])
         else:
@@ -28,14 +33,14 @@ class SingleFileField(forms.FileField):
         super().__init__(*args, **kwargs)
         self.widget = widgets.SingleFileWidget()
 
-    def prepare_value(self, value: Union[File, FileQuerySet, None]) -> Optional[str]:
+    def prepare_value(self, value: File | FileQuerySet | None) -> str | None:
         if isinstance(value, FileQuerySet):
             value =  value.first()
 
         if value is not None:
             return value.to_json()
-        else:
-            return json.dumps(None)
+
+        return json.dumps(None)
 
     def clean(self, data, initial=None) -> dict:
         return data

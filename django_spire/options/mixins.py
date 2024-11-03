@@ -1,4 +1,4 @@
-from typing import Union
+from __future__ import annotations
 
 from django.db import models
 from django_spire.options.options import Options
@@ -30,7 +30,7 @@ class OptionsModelMixin(models.Model):
             self,
             section_name: str,
             option_key: str,
-            value: Union[str, bool, int],
+            value: str | bool | int,
             commit=True
     ):
         self._sync_options()

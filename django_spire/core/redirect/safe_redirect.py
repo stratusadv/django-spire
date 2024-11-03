@@ -1,20 +1,24 @@
-from typing import Set
+from __future__ import annotations
+
+from typing_extensions import TYPE_CHECKING
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
-from django.core.handlers.wsgi import WSGIRequest
 from django.urls import reverse, NoReverseMatch
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.conf import settings
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
-def resolve_url(url: str):
+
+def resolve_url(url: str) -> str:
     try:
         return reverse(url)
     except NoReverseMatch:
         return url
 
 
-def is_url_valid_and_safe(url: str, allowed_hosts: Set[str]):
+def is_url_valid_and_safe(url: str, allowed_hosts: set[str]) -> bool:
     if url and url_has_allowed_host_and_scheme(url, allowed_hosts):
         url = urlparse(url)
 
@@ -23,10 +27,10 @@ def is_url_valid_and_safe(url: str, allowed_hosts: Set[str]):
         if any(character in unquote(url.path) for character in harmful):
             return False
 
-        if any(character in unquote(url.query) for character in harmful):
-            return False
-
-        return True
+        return not any(
+            character in unquote(url.query)
+            for character in harmful
+        )
 
     return False
 

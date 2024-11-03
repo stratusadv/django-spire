@@ -1,11 +1,13 @@
-from typing import Type
+from __future__ import annotations
 
-from django.contrib.auth.models import User
+from typing_extensions import TYPE_CHECKING
 
-from django_spire.history.mixins import HistoryModelMixin
+if TYPE_CHECKING:
+    from django_spire.history.mixins import HistoryModelMixin
+    from django.contrib.auth.models import User
 
 
-def add_form_activity(obj: Type[HistoryModelMixin], pk: int, user: User,):
+def add_form_activity(obj: HistoryModelMixin, pk: int, user: User) -> None:
     verb = (
         'created'
         if pk == 0 else 'updated'

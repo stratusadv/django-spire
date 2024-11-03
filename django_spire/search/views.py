@@ -1,14 +1,16 @@
+from __future__ import annotations
+
 from django.template.response import TemplateResponse
 
 from django_spire.core.redirect.generic_redirect import reverse_generic_relation
 
 
 def search_view(request, **kwargs):
-    context_data = dict()
+    context_data = {}
 
     if 'query' in request.GET:
         search_query = request.GET['query']
-        search_item_list = list()
+        search_item_list = []
         model_info_dict = [
             {
                 'app_label': '',
@@ -34,6 +36,5 @@ def search_view(request, **kwargs):
 
         context_data['search_query'] = search_query
         context_data['search_item_list'] = search_item_list
-
 
     return TemplateResponse(request, 'spire/page/full_search_page.html', context_data)
