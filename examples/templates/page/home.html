@@ -21,6 +21,9 @@
 
             {% url 'cookbook:list' as url %}
             {% include 'card/home_card.html' with title="Cookbook" icon_class="bi bi-journal" url=url %}
+
+            {% url 'modal_example:home' as url %}
+            {% include 'card/home_card.html' with title="Modal" icon_class="bi bi-journal" url=url %}
         </div>
     </div>
 {% endblock %}

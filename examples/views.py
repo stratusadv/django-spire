@@ -17,6 +17,11 @@ def component_view(request):
     return TemplateResponse(request, template)
 
 
+def modal_view(request):
+    template = 'page/modal.html'
+    return TemplateResponse(request, template)
+
+
 def test_model_view(request):
     model = generate_test_model()
 

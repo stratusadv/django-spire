@@ -18,4 +18,5 @@ urlpatterns += [
 urlpatterns += [
     path('component/', include('examples.component.urls', namespace='component')),
     path('cookbook/', include('examples.cookbook.urls.page_urls', namespace='cookbook')),
+    path('modal/', include('examples.modal_example.urls', namespace='modal_example')),
 ]

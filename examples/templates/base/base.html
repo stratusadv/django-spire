@@ -5,16 +5,16 @@
 {% block head %}
     {{ block.super }}
 
-    <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ software.version }}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap-override.css' %}?v={{ software.version }}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap-extension.css' %}?v={{ software.version }}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ software.version }}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-override.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-extension.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+
+    <script type="application/javascript" src="{% static 'spire/js/modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 {% endblock %}
 
 {% block js_script %}
     {{ block.super }}
-
-    <script type="application/javascript" src="{% static 'spire/history/history.js' %}?v={{ software.version }}"></script>
 {% endblock %}
 
 {% block base_content %}

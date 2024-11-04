@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django_spire.help',
     'django_spire.history',
     'django_spire.maintenance',
+    'django_spire.modal',
     'django_spire.notification',
     'django_spire.options',
     'django_spire.pagination',
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     'examples.component',
     'examples.cookbook',
     'examples.cookbook.recipe',
+    'examples.modal_example',
 ]
 
 MIDDLEWARE = [
