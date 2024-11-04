@@ -1,8 +1,10 @@
 crispy-bootstrap5==2023.10
+docutils
 django>=5.1.2
 django-crispy-forms==2.1
 django-glue>=0.7.8
 dandy>=0.2.0
+Pygments
 python-dateutil==2.8.2
 setuptools
 typing_extensions

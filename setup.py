@@ -6,7 +6,7 @@ from django_spire import __version__
 with open('LICENSE.md', encoding="utf-8") as license_handle:
     license_file = license_handle.read()
 
-with open('README.md', encoding="utf-8") as readme_handle:
+with open('README.rst', encoding="utf-8") as readme_handle:
     readme_file = readme_handle.read()
 
 setup(
@@ -15,7 +15,7 @@ setup(
     description="Django framework for high observability web applications",
     license=license_file,
     long_description=readme_file,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
