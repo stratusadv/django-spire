@@ -56,7 +56,7 @@ setup(
         "dandy>=0.2.0",
     ],
     package_data={
-        "": ["README.md", "LICENSE.md", "CHANGELOG.md", "CONTRIBUTORS.md"],
+        "": ["README.rst", "LICENSE.md", "CHANGELOG.md", "CONTRIBUTORS.md"],
         "django_spire": [
             "**/*.html",
             "**/*.css",

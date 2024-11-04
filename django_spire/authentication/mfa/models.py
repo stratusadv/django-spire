@@ -41,7 +41,7 @@ class MfaCode(models.Model):
             'button_url': f'{Site.objects.get_current()}/{reverse("authentication:redirect:login_redirect")[1:]}'
         }
 
-        # Directly connecting to sendgrid to send MFA email faster
+        # Directly connecting to SendGrid to send MFA email faster
         SendGridEmailHelper(
             to=[user.email],
             template_id='d-9ae6be6be95d4f79b0daad9055f03cc9',
