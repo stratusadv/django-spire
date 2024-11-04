@@ -15,6 +15,7 @@ setup(
     description="Django framework for high observability web applications",
     license=license_file,
     long_description=readme_file,
+    long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
