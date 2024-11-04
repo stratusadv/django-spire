@@ -31,6 +31,6 @@ def mfa_form_view(request):
     return TemplateResponse(
         request,
         context=context_data,
-        template='authentication/mfa/mfa_form.html'
+        template='spire/authentication/mfa/mfa_form.html'
     )
 

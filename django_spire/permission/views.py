@@ -34,7 +34,7 @@ def group_detail_view(request, pk):
         request,
         context_data=context_data,
         obj=group,
-        template='permission/page/group_detail_page.html'
+        template='spire/permission/page/group_detail_page.html'
     )
 
 
@@ -51,7 +51,7 @@ def group_list_view(request):
         request,
         context_data=context_data,
         model=models.PortalGroup,
-        template='permission/page/group_list_page.html'
+        template='spire/permission/page/group_list_page.html'
     )
 
 

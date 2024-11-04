@@ -1,0 +1,25 @@
+{% extends "spire/page/center_card_page.html" %}
+
+{% load crispy_forms_filters %}
+
+{% load static %}
+
+{% block base_title %}
+    Login
+{% endblock %}
+
+{% block page_center_card_content %}
+    {% include 'spire/notification/notification.html' %}
+
+    {% if form_description %}
+        {% include 'spire/note/info_note.html' with note_type='Note' note_text=form_description %}
+    {% endif %}
+
+    <form method="post">
+         {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="w-100 btn btn-app-primary mt-2">Submit</button>
+    </form>
+
+    <a class="text-center text-decoration-none" href={% url 'user_account:authentication:mfa:redirect:notification' %}?resend=True>Resend Code?</a>
+{% endblock %}

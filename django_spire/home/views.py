@@ -18,7 +18,7 @@ def home_view(request):
         page_title='Home',
         page_description='Your Portal',
         breadcrumbs=crumbs,
-        template='home/page/home_page.html'
+        template='spire/home/page/home_page.html'
     )
 
 
@@ -26,4 +26,4 @@ def maintenance_mode_view(request):
     if not settings.MAINTENANCE_MODE:
         return HttpResponseRedirect(request.GET.get('next', reverse('home:home')))
     else:
-        return TemplateResponse(request, template='home/page/maintenance_mode_page.html')
+        return TemplateResponse(request, template='spire/home/page/maintenance_mode_page.html')

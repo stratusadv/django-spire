@@ -52,6 +52,6 @@ def register_user_form_view(request):
         page_title='Register',
         page_description='New User',
         breadcrumbs=crumbs,
-        template='user_account/page/register_user_form_page.html'
+        template='spire/user_account/page/register_user_form_page.html'
     )
 

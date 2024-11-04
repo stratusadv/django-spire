@@ -1,0 +1,23 @@
+{% extends 'spire/page/centered_card_page.html' %}
+
+{% load crispy_forms_filters static %}
+
+{% block page_card_content %}
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-center align-items-end my-2">
+                <img height="70px" src="" alt="Logo Here">
+                <div class="h4">Application Logout</div>
+
+            </div>
+            <hr class="mt-0">
+        </div>
+        <div class="col px-4">
+            <form method="post" action="{% url 'user_account:authentication:redirect:logout' %}">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="d-block mx-auto bg-light-primary shadow-sm text-white btn my-4 w-100">Logout</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

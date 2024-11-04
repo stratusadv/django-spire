@@ -1,28 +1,39 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from django_spire.breadcrumb.models import Breadcrumbs
-from django_spire.form.confirmation_forms import DeleteConfirmationForm, ConfirmationForm
+from django_spire.form.confirmation_forms import (
+    DeleteConfirmationForm,
+    ConfirmationForm
+)
 from django_spire.pagination.pagination import paginate_list
 from django_spire.core.redirect import safe_redirect_url
 from django_spire.history.utils import add_form_activity
 from django_spire.user_account import forms
 from django_spire.permission.models import PortalUser
 from django_spire.permission.decorators import permission_required
-from django_spire.permission.permissions import generate_group_perm_data, generate_user_perm_data
+from django_spire.permission.permissions import (
+    generate_group_perm_data,
+    generate_user_perm_data
+)
 from django_spire.views import portal_views
 
 from django_glue.glue import glue_model
 from django_glue.utils import serialize_to_json
+
+if TYPE_CHECKING:
+    from django_spire.breadcrumb.models import Breadcrumbs
 
 
 @permission_required('permission.view_portaluser')
 def user_detail_page_view(request, pk):
     user = get_object_or_404(PortalUser, pk=pk)
     group_list = user.groups.all()
+
     context_data = {
         'user': user,
         'group_list': group_list,
@@ -34,7 +45,7 @@ def user_detail_page_view(request, pk):
         request,
         context_data=context_data,
         obj=user,
-        template='user_account/page/user_detail_page.html'
+        template='spire/user_account/page/user_detail_page.html'
     )
 
 
@@ -50,7 +61,7 @@ def user_list_page_view(request):
         request,
         context_data=context_data,
         model=PortalUser,
-        template='user_account/page/user_list_page.html'
+        template='spire/user_account/page/user_list_page.html'
     )
 
 
@@ -78,7 +89,7 @@ def user_form_page_view(request, pk):
         form=form,
         obj=portal_user,
         context_data=context_data,
-        template='user_account/page/user_form_page.html'
+        template='spire/user_account/page/user_form_page.html'
     )
 
 

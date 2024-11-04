@@ -55,7 +55,8 @@ def comment_form_view(request, comment_pk: int, obj_pk: int, app_label: str, mod
     obj = model_object_from_app_label(app_label, model_name, obj_pk)
 
     if not hasattr(obj, 'add_comment'):
-        raise Exception(f'Object {obj} does not have the comment model mixin.')
+        message = f'Object {obj} does not have the comment model mixin.'
+        raise Exception(message)
 
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
@@ -88,7 +89,7 @@ def comment_modal_delete_form_view(request, comment_pk: int, obj_pk: int, app_la
         messages.warning(request, 'You can only delete your comments.')
         return HttpResponseRedirect(return_url)
 
-    form_action = reverse('core:comment:delete_form', kwargs={
+    form_action = reverse('comment:delete_form', kwargs={
         'comment_pk': comment_pk,
         'obj_pk': obj_pk,
         'app_label': app_label,

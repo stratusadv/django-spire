@@ -19,6 +19,7 @@ def login_redirect_view(request, **kwargs):
 
         return HttpResponseRedirect(reverse('home:home'))
 
+
 @login_required()
 def logout_redirect_view(request, **kwargs):
     logout(request)
