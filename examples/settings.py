@@ -31,16 +31,19 @@ DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 INSTALLED_APPS = [
+    'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.sessions',
     'django.contrib.contenttypes',
     'django.contrib.messages',
-    'django.contrib.admin',
-    'django.contrib.staticfiles',
+    'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
+
     'django_glue',
+
     'django_spire',
     'django_spire.authentication',
+    'django_spire.authentication.mfa',
     'django_spire.breadcrumb',
     'django_spire.comment',
     'django_spire.core',
@@ -57,6 +60,7 @@ INSTALLED_APPS = [
     'django_spire.permission',
     'django_spire.search',
     'django_spire.user_account',
+    'django_spire.user_account.profile',
 
     'examples',
     'examples.component',
@@ -88,9 +92,10 @@ DATABASES = {
 ROOT_URLCONF = 'examples.urls'
 
 SECRET_KEY = secrets.token_urlsafe(50)
+SITE_ID = 1
 
-USE_TZ = True
 TIME_ZONE = 'America/Edmonton'
+USE_TZ = True
 
 TEMPLATES = [
     {
