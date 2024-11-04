@@ -30,6 +30,7 @@ Add `django_spire` to your Django project’s `INSTALLED_APPS`:
     INSTALLED_APPS = [
         'django_spire',
         'django_spire.authentication',
+        'django_spire.authentication.mfa',
         'django_spire.breadcrumb',
         'django_spire.comment',
         'django_spire.core',
@@ -39,12 +40,14 @@ Add `django_spire` to your Django project’s `INSTALLED_APPS`:
         'django_spire.help',
         'django_spire.history',
         'django_spire.maintenance',
+        'django_spire.modal',
         'django_spire.notification',
         'django_spire.options',
         'django_spire.pagination',
         'django_spire.permission',
         'django_spire.search',
-        'django_spire.user_account'
+        'django_spire.user_account',
+        'django_spire.user_account.profile'
     ]
 
 Documentation
