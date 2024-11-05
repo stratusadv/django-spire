@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -17,9 +19,18 @@ from django_spire.views.modal_views import dispatch_modal_delete_form_content
 
 from django_glue.glue import glue_model
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+
 
 @login_required()
-def comment_modal_form_content(request, comment_pk: int, obj_pk: int, app_label: str, model_name: str):
+def comment_modal_form_content(
+    request: WSGIRequest,
+    comment_pk: int,
+    obj_pk: int,
+    app_label: str,
+    model_name: str
+) -> TemplateResponse:
     has_app_permission_or_404(request.user, app_label, model_name, 'change')
 
     if comment_pk == 0:
@@ -44,7 +55,13 @@ def comment_modal_form_content(request, comment_pk: int, obj_pk: int, app_label:
 
 
 @login_required()
-def comment_form_view(request, comment_pk: int, obj_pk: int, app_label: str, model_name: str):
+def comment_form_view(
+    request: WSGIRequest,
+    comment_pk: int,
+    obj_pk: int,
+    app_label: str,
+    model_name: str
+) -> HttpResponseRedirect:
     has_app_permission_or_404(request.user, app_label, model_name, 'change')
 
     if comment_pk == 0:
@@ -78,7 +95,13 @@ def comment_form_view(request, comment_pk: int, obj_pk: int, app_label: str, mod
 
 
 @login_required()
-def comment_modal_delete_form_view(request, comment_pk: int, obj_pk: int, app_label: str, model_name: str):
+def comment_modal_delete_form_view(
+    request: WSGIRequest,
+    comment_pk: int,
+    obj_pk: int,
+    app_label: str,
+    model_name: str
+) -> HttpResponseRedirect | TemplateResponse:
     has_app_permission_or_404(request.user, app_label, model_name, 'change')
 
     comment = get_object_or_404(models.Comment, pk=comment_pk)
@@ -96,7 +119,7 @@ def comment_modal_delete_form_view(request, comment_pk: int, obj_pk: int, app_la
         'model_name': model_name
     })
 
-    def add_activity():
+    def add_activity() -> None:
         obj.add_activity(
             user=request.user,
             verb='deleted',

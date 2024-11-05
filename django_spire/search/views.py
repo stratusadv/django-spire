@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django.template.response import TemplateResponse
 
 from django_spire.core.redirect.generic_redirect import reverse_generic_relation
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
-def search_view(request, **kwargs):
+
+def search_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {}
 
     if 'query' in request.GET:

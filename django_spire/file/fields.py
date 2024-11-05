@@ -21,10 +21,10 @@ class MultipleFileField(forms.FileField):
     def prepare_value(self, value: list[File] | None):
         if value is not None:
             return json.dumps([file.to_dict() for file in value])
-        else:
-            return json.dumps([])
 
-    def clean(self, data, initial=None) -> dict:
+        return json.dumps([])
+
+    def clean(self, data, initial = None) -> dict:
         return data
 
 
@@ -42,5 +42,5 @@ class SingleFileField(forms.FileField):
 
         return json.dumps(None)
 
-    def clean(self, data, initial=None) -> dict:
+    def clean(self, data, initial = None) -> dict:
         return data

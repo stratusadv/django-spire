@@ -28,7 +28,7 @@ class File(HistoryModelMixin):
     def __str__(self):
         return self.name
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, str]:
         return {
             'name': self.name,
             'url': self.file.url,

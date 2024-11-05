@@ -26,10 +26,10 @@ class UserProfile(HistoryModelMixin, UserOptionsModelMixin):
     def __str__(self):
         return self.user.username
 
-    def requires_mfa(self):
+    def requires_mfa(self) -> bool:
         return self.mfa_valid_till_datetime < localtime()
 
-    def set_mfa_grace_period(self):
+    def set_mfa_grace_period(self) -> None:
         self.mfa_valid_till_datetime = localtime() + relativedelta.relativedelta(hours=24)
         self.save()
 
@@ -40,7 +40,7 @@ class UserProfile(HistoryModelMixin, UserOptionsModelMixin):
 
 
 @receiver(post_save, sender=PortalUser)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
+def create_or_update_user_profile(sender, instance, created, **kwargs) -> None:
     from django_spire.user_account.factories import create_user_profile
 
     if created:

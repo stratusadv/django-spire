@@ -16,7 +16,8 @@ class ActivityLogAdmin(admin.ModelAdmin):
     ordering = ('-created_datetime',)
 
     def content_object_link(self, activity: models.ActivityLog) -> str:
-        url = reverse(f'admin:{activity.content_type.app_label}_{activity.content_type.model}_change',
+        url = reverse(
+            f'admin:{activity.content_type.app_label}_{activity.content_type.model}_change',
             args=[activity.object_id]
         )
 
@@ -59,7 +60,8 @@ class EventHistoryAdmin(admin.ModelAdmin):
     ordering = ('-created_datetime',)
 
     def content_object_link(self, event_history: models.EventHistory) -> str:
-        url = reverse(f'admin:{event_history.content_type.app_label}_{event_history.content_type.model}_change',
+        url = reverse(
+            f'admin:{event_history.content_type.app_label}_{event_history.content_type.model}_change',
             args=[event_history.object_id]
         )
 
@@ -78,7 +80,8 @@ class ViewAdmin(admin.ModelAdmin):
     ordering = ('-created_datetime',)
 
     def content_object_link(self, view: models.View) -> str:
-        url = reverse(f'admin:{view.content_type.app_label}_{view.content_type.model}_change',
+        url = reverse(
+            f'admin:{view.content_type.app_label}_{view.content_type.model}_change',
             args=[view.object_id]
         )
 

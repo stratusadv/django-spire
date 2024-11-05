@@ -26,14 +26,14 @@ class FileFormatter:
         self.name = self._format_name()
         self.type = self._parse_type()
 
-    def _format_name(self):
+    def _format_name(self) -> str:
         return self.file.name.rsplit('.', 1)[0]
 
-    def _parse_type(self):
+    def _parse_type(self) -> str:
         return self.file.name.rsplit('.', 1)[1]
 
     @property
-    def location(self):
+    def location(self) -> str:
         return'django-spire/' + str(self.related_field) + '/' + '/' + str(self.app_name) + '/' + random_64_char_token() + '/' + self.name
 
     def null_file_obj(self) -> File:
@@ -45,7 +45,7 @@ class FileFormatter:
             related_field=self.related_field
         )
 
-    def size_verbose(self):
+    def size_verbose(self) -> str:
         if self.file.size < 512000:
             value = round(self.file.size / 1000, 2)
             ext = ' kb'
@@ -67,7 +67,7 @@ class FileContentObjectFormatter(FileFormatter):
     content_object: FileModelMixin = ...
 
     @property
-    def location(self):
+    def location(self) -> str:
         return 'django-spire/' + '/' + str(self.content_object._meta.app_label) + '/' + random_64_char_token() + '/' + self.name
 
     def null_file_obj(self) -> File:
@@ -91,11 +91,11 @@ class FileUploader(ABC):
         return formatted_file.null_file_obj()
 
     @abstractmethod
-    def upload(self, *args, **kwargs):
+    def upload(self, *args, **kwargs) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def upload_from_form_field(self, *args, **kwargs):
+    def upload_from_form_field(self, *args, **kwargs) -> None:
         raise NotImplementedError
 
 
@@ -115,7 +115,11 @@ class SingleFileUploader(FileUploader):
 
         File.objects.bulk_update(old_files, ['is_active', 'is_deleted'])
 
-    def upload_from_form_field(self, form_data, content_object: FileModelMixin) -> File:
+    def upload_from_form_field(
+        self,
+        form_data,
+        content_object: FileModelMixin
+    ) -> File:
         try:
             return content_object.files.get(id=form_data['id'])
         except ObjectDoesNotExist:
@@ -129,15 +133,25 @@ class SingleFileUploader(FileUploader):
 
 @dataclass
 class MultiFileUploader(FileUploader):
-    def upload(self, files: list[InMemoryUploadedFile]):
+    def upload(self, files: list[InMemoryUploadedFile]) -> File:
         files_to_upload = [self.null_file_obj(file) for file in files]
         return File.objects.bulk_create(files_to_upload)
 
-    def upload_from_form_field(self, form_data: list[dict], content_object: FileModelMixin) -> list[File]:
+    def upload_from_form_field(
+        self,
+        form_data: list[dict],
+        content_object: FileModelMixin
+    ) -> list[File]:
         file_ids = [file['id'] for file in form_data]
 
         # Delete files that are no longer in the form data
-        old_files = content_object.files.active().related_field(self.related_field).exclude(id__in=file_ids)
+        old_files = (
+            content_object
+            .files
+            .active()
+            .related_field(self.related_field)
+            .exclude(id__in=file_ids)
+        )
 
         for old_file in old_files:
             old_file.is_deleted = True
@@ -153,6 +167,9 @@ class MultiFileUploader(FileUploader):
             link_file.object_id = content_object.id
             link_file.related_field = self.related_field
 
-        File.objects.bulk_update(link_files, fields=['content_type', 'object_id', 'related_field'])
+        File.objects.bulk_update(
+            link_files,
+            fields=['content_type', 'object_id', 'related_field']
+        )
 
         return content_object.files.active().related_field(self.related_field)

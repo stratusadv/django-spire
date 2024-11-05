@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing_extensions import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django_spire.history.mixins import HistoryModelMixin
     from django.contrib.auth.models import User
+    from django_spire.history.mixins import HistoryModelMixin
 
 
 def add_form_activity(obj: HistoryModelMixin, pk: int, user: User) -> None:

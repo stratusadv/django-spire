@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import Callable
+from typing_extensions import TYPE_CHECKING
 
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -9,21 +9,24 @@ from django_spire.forms.confirmation_forms import DeleteConfirmationForm
 from django_spire.core.redirect import safe_redirect_url
 from django_spire.forms.utils import show_form_errors
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+
 
 def dispatch_modal_delete_form_content(
-        request,
+        request: WSGIRequest,
         *,
         obj,
         form_action: str,
         context_data: dict | None = None,
-        activity_func: Callable | None = None,
+        activity_func: callable | None = None,
         auto_add_activity: bool = True,
-        delete_func: Callable | None = None,
+        delete_func: callable | None = None,
         # Present and past tense of verb
         verbs: tuple[str, str] = ('delete', 'deleted'),
         return_url: str | None = None,
         template: str = 'spire/modal/content/dispatch_modal_delete_confirmation_content.html'
-):
+) -> HttpResponseRedirect | TemplateResponse:
     if context_data is None:
         context_data = {}
 

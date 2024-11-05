@@ -24,12 +24,12 @@ class Notification(models.Model):
     sent_datetime = models.DateTimeField(null=True, blank=True)
     is_sent = models.BooleanField(default=False)
 
-    def mark_sent(self):
+    def mark_sent(self) -> None:
         self.is_sent = True
         self.sent_datetime = now()
         self.save()
 
-    def send(self):
+    def send(self) -> None:
         sender_class = NotificationSenderEnum(self.type).value
         sender = sender_class(self)
         sender.send()

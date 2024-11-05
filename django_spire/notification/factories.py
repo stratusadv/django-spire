@@ -9,7 +9,7 @@ def create_notification(
         body: str,
         url: str | None = None,
         name: str | None = None
-):
+) -> Notification:
     return Notification.objects.create(
         email=email,
         name=name,

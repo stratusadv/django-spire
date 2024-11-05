@@ -1,16 +1,21 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django.utils import timezone
 from datetime import datetime, timedelta
 
 from django_spire.user_account.factories import get_or_create_user_profile
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 class UserSettingsMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
-    def __call__(self, request):
+    def __call__(self, request: WSGIRequest):
         """
             Activates the user's timezone and updates the user's settings in the session every 5 minutes.
         """
@@ -27,6 +32,4 @@ class UserSettingsMiddleware:
 
             timezone.activate(profile.get_option('system', 'timezone'))
 
-        response = self.get_response(request)
-
-        return response
+        return self.get_response(request)

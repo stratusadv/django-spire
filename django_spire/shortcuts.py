@@ -44,5 +44,4 @@ def model_object_from_app_label(
         return None
 
     model_class = content_type.model_class()
-
     return get_object_or_none(model_class, pk=object_pk)

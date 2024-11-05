@@ -35,7 +35,6 @@ def is_url_valid_and_safe(url: str, allowed_hosts: set[str]) -> bool:
     return False
 
 
-
 def safe_redirect_url(request: WSGIRequest, fallback: str = '/') -> str:
     allowed_hosts = {request.get_host()}
 

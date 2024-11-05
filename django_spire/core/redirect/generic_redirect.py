@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from typing_extensions import Any
+
 from django.http import HttpResponse
 from django.urls import reverse
 
 
-def reverse_generic_relation(content_object, **kwargs):
+def reverse_generic_relation(content_object: Any, **kwargs) -> HttpResponse | None:
     from operator import attrgetter
 
     model_name = content_object.__class__.__name__.lower()

@@ -17,6 +17,7 @@ from django_spire.permission.utils import (
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
+    from typing_extensions import Any
 
 
 class ModelPermissions:
@@ -193,9 +194,14 @@ def generate_user_perm_data(user: User) -> list[dict]:
     return perm_data
 
 
-def generate_group_perm_data(group: Group, with_special_role: bool = False) -> list[dict]:
+def generate_group_perm_data(
+    group: Group,
+    with_special_role: bool = False
+) -> list[dict]:
     from django_spire.permission.constants import PERMISSION_MODELS_DICT
+
     perm_data = []
+
     for key in PERMISSION_MODELS_DICT:
         group_permissions = GroupPermissions(group=group, model_key=key)
 
@@ -212,8 +218,11 @@ def generate_group_perm_data(group: Group, with_special_role: bool = False) -> l
     return perm_data
 
 
-def generate_special_role_data(group_permissions: GroupPermissions):
+def generate_special_role_data(
+    group_permissions: GroupPermissions
+) -> list[dict[str, Any]]:
     special_role_data = []
+
     model_permissions = group_permissions.model_permissions
 
     for special_role in model_permissions.special_role_list():

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing_extensions import TYPE_CHECKING
 
-from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
+from django.db import models
 from django.utils.timezone import localtime
 
 from django_spire.history.models import (
@@ -58,9 +58,23 @@ class HistoryModelMixin(ActivityLogMixin):
     is_active = models.BooleanField(default=True, editable=False)
     is_deleted = models.BooleanField(default=False, editable=False)
 
-    activity_log = GenericRelation(ActivityLog, related_query_name='activity_log', editable=False)
-    event_history = GenericRelation(EventHistory, related_query_name='event_history', editable=False)
-    views = GenericRelation(View, related_query_name='view', editable=False)
+    activity_log = GenericRelation(
+        ActivityLog,
+        related_query_name='activity_log',
+        editable=False
+    )
+
+    event_history = GenericRelation(
+        EventHistory,
+        related_query_name='event_history',
+        editable=False
+    )
+
+    views = GenericRelation(
+        View,
+        related_query_name='view',
+        editable=False
+    )
 
     created_datetime = models.DateTimeField(default=localtime, editable=False)
 

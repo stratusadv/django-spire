@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class DeleteConfirmationForm(forms.Form):
     should_delete = forms.BooleanField(required=True)
 
-    def __init__(self, *args, obj=None, **kwargs):
+    def __init__(self, *args, obj = None, **kwargs):
         if obj is None:
             message = 'Passing an object to DeleteConfirmationForm is required.'
             raise ValueError(message)
