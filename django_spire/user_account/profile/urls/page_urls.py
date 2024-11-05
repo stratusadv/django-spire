@@ -3,7 +3,7 @@ from django.urls import path
 from django_spire.user_account.profile.views import page_views
 
 
-app_name = 'page'
+app_name = 'profile'
 
 urlpatterns = [
     path('user/<int:pk>/detail/',

@@ -6,7 +6,7 @@
 
 {% block card_content %}
     {% for user in user_list %}
-        {% url 'config_registration:form' pk=user.pk as edit_url %}
+        {% url 'user_account:profile:form' pk=user.pk as edit_url %}
         
 {#        {% if user.is_active %}#}
 {#            {% url 'user_account:profile:page:toggle_user_status' pk=user.pk as deactivate_url %}#}
@@ -14,7 +14,7 @@
 {#            {% url 'user_account:profile:page:toggle_user_status' pk=user.pk as activate_url %}#}
 {#        {% endif %} #}
 {#        #}
-{#        {% url 'config_registration:toggle_user_status' pk=user.pk as delete_url %}#}
+{#        {% url 'user_account:toggle_user_status' pk=user.pk as delete_url %}#}
         {% include 'spire/user_account/item/user_profile_item.html' with custom_url_1=activate_url custom_name_1='Activate' edit_url=edit_url delete_url=deactivate_url delete_url_name='Deactivate' %}
     {% endfor %}
-{% endblock %}tub
+{% endblock %}
