@@ -29,9 +29,12 @@ class Command(BaseCommand):
         root = settings.BASE_DIR
 
         app_name = kwargs['app_name']
+
         app_directory = root / 'django_spire/template/app'
         templates_directory = root / 'django_spire/template/templates'
+
         new_app_path = root / 'django_spire' / app_name
+        new_templates_path = root / 'django_spire' / 'templates'
 
         if not app_directory.exists() or not templates_directory.exists():
             message = (
@@ -45,14 +48,11 @@ class Command(BaseCommand):
             message = f'The app "{app_name}" already exists.'
             raise CommandError(message)
 
-        print(app_directory)
-        print(new_app_path)
-
         shutil.copytree(app_directory, new_app_path)
-        # shutil.copytree(templates_directory, root / 'templates' / app_name)
+        shutil.copytree(templates_directory, new_templates_path)
 
         self.replace_app_name(new_app_path, app_name)
-        # self.replace_app_name(root / 'templates' / app_name, app_name)
+        self.replace_app_name(new_templates_path, app_name)
 
         message = self.style.SUCCESS(f"Successfully created app '{app_name}'.")
         self.stdout.write(message)

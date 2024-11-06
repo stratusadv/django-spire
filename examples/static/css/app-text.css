@@ -26,6 +26,8 @@
     --app-text-layer-one: var(--app-layer-one);
     --app-text-layer-two: var(--app-layer-two);
     --app-text-layer-three: var(--app-layer-three);
+
+    --app-text-icon-primary: var(--app-purple);
 }
 
 .text-app-primary, .text-app-primary-hover:hover {
@@ -98,4 +100,8 @@
 
 .text-app-layer-three, .text-app-layer-three-hover:hover {
     color: var(--app-text-layer-three) !important;
+}
+
+.text-app-icon-primary, .text-app-icon-primary-hover:hover {
+    color: var(--app-text-icon-primary) !important;
 }

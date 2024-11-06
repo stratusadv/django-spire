@@ -8,7 +8,7 @@ from examples.placeholder import models
 
 
 class PlaceholderForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+    field = forms.JSONField(required=False)
 
     class Meta:
         model = models.Placeholder

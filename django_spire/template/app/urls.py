@@ -1,13 +1,13 @@
 from django.urls import path
 
-from examples.cookbook.views import page_views
+from examples.placeholder import views
 
 
-app_name = 'cookbook'
+app_name = 'placeholder'
 
 urlpatterns = [
-    path('<int:pk>/delete/form', page_views.cookbook_delete_view, name='delete'),
-    path('<int:pk>/detail', page_views.cookbook_detail_view, name='detail'),
-    path('<int:pk>/form', page_views.cookbook_form_view, name='form'),
-    path('list/', page_views.cookbook_list_view, name='list'),
+    path('<int:pk>/delete/form', views.placeholder_delete_view, name='delete'),
+    path('<int:pk>/detail', views.placeholder_detail_view, name='detail'),
+    path('<int:pk>/form', views.placeholder_form_view, name='form'),
+    path('list/', views.placeholder_list_view, name='list'),
 ]
