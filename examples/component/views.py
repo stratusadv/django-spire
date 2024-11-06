@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing_extensions import TYPE_CHECKING
+
 from django.template.response import TemplateResponse
 
 from django_glue.glue import glue_model
@@ -7,13 +11,16 @@ from django_spire.shortcuts import get_object_or_null_obj
 from examples.component.utils import from_directory, from_file
 from examples.cookbook.models import Cookbook
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
-def home_view(request):
+
+def home_view(request: WSGIRequest) -> TemplateResponse:
     template = 'page/component.html'
     return TemplateResponse(request, template)
 
 
-def accordion_view(request):
+def accordion_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['accordion']
 
     example = from_file('examples/templates/component/accordion/example_accordion.html')
@@ -29,7 +36,7 @@ def accordion_view(request):
     return TemplateResponse(request, template, context)
 
 
-def badge_view(request):
+def badge_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['base_badge']
 
     example = from_file('examples/templates/component/badge/example_badge.html')
@@ -46,12 +53,12 @@ def badge_view(request):
     return TemplateResponse(request, template, context)
 
 
-def base_view(request):
+def base_view(request: WSGIRequest) -> TemplateResponse:
     template = 'component/base/base.html'
     return TemplateResponse(request, template)
 
 
-def button_view(request):
+def button_view(request: WSGIRequest) -> TemplateResponse:
     cookbook = get_object_or_null_obj(Cookbook, pk=1)
     glue_model(request, 'cookbook', cookbook)
 
@@ -75,7 +82,7 @@ def button_view(request):
     return TemplateResponse(request, template, context)
 
 
-def card_view(request):
+def card_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         # No output/lack of context data
         'card',
@@ -96,7 +103,7 @@ def card_view(request):
     return TemplateResponse(request, template, context)
 
 
-def comment_view(request):
+def comment_view(request: WSGIRequest) -> TemplateResponse:
     # @TODO: Fix missing templates
 
     exclude_template = [
@@ -124,7 +131,7 @@ def comment_view(request):
     return TemplateResponse(request, template, context)
 
 
-def container_view(request):
+def container_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         # No output/lack of context data
         'container',
@@ -144,7 +151,7 @@ def container_view(request):
     return TemplateResponse(request, template, context)
 
 
-def dropdown_view(request):
+def dropdown_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         # No output/lack of context data
         'dropdown',
@@ -167,7 +174,7 @@ def dropdown_view(request):
     return TemplateResponse(request, template, context)
 
 
-def element_view(request):
+def element_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         # No output/lack of context data
         'attribute_element',
@@ -191,7 +198,7 @@ def element_view(request):
     return TemplateResponse(request, template, context)
 
 
-def file_view(request):
+def file_view(request: WSGIRequest) -> TemplateResponse:
     # @TODO: Fix missing templates
 
     exclude_template = [
@@ -224,7 +231,7 @@ def file_view(request):
     return TemplateResponse(request, template, context)
 
 
-def form_view(request):
+def form_view(request: WSGIRequest) -> TemplateResponse:
     # @TODO: Fix missing templates
 
     exclude_template = [
@@ -246,7 +253,7 @@ def form_view(request):
     return TemplateResponse(request, template, context)
 
 
-def help_view(request):
+def help_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['help_button', 'help_modal']
 
     gallery = from_directory(
@@ -262,7 +269,7 @@ def help_view(request):
     return TemplateResponse(request, template, context)
 
 
-def item_view(request):
+def item_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['item', 'item_ellipsis_spacer_element']
 
     example = from_file('examples/templates/component/item/example_item.html')
@@ -278,7 +285,7 @@ def item_view(request):
     return TemplateResponse(request, template, context)
 
 
-def modal_view(request):
+def modal_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         'center_modal',
         'dispatch_modal',
@@ -300,12 +307,12 @@ def modal_view(request):
     return TemplateResponse(request, template, context)
 
 
-def modal_content_view(request):
+def modal_content_view(request: WSGIRequest) -> TemplateResponse:
     template = 'component/modal/modal_content.html'
     return TemplateResponse(request, template)
 
 
-def navigation_view(request):
+def navigation_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         # Broken
         'search_bar_element',
@@ -328,7 +335,7 @@ def navigation_view(request):
     return TemplateResponse(request, template, context)
 
 
-def notification_view(request):
+def notification_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['notification', 'notification_element']
 
     example = from_file('examples/templates/component/notification/example_notification.html')
@@ -344,7 +351,7 @@ def notification_view(request):
     return TemplateResponse(request, template, context)
 
 
-def page_view(request):
+def page_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         # No output/lack of context data
         'base_page',
@@ -366,7 +373,7 @@ def page_view(request):
     return TemplateResponse(request, template, context)
 
 
-def tab_view(request):
+def tab_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = [
         # No output/lack of context data
         'tab',

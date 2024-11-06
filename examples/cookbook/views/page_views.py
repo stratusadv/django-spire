@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
@@ -14,8 +16,12 @@ from examples.cookbook.recipe.models import Recipe
 
 from django_glue.glue import glue_model, glue_query_set
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
-def cookbook_delete_view(request, pk):
+
+def cookbook_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     cookbook = get_object_or_404(models.Cookbook, pk=pk)
 
     return portal_views.delete_form_view(
@@ -25,7 +31,7 @@ def cookbook_delete_view(request, pk):
     )
 
 
-def cookbook_detail_view(request, pk):
+def cookbook_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     cookbook = get_object_or_404(models.Cookbook, pk=pk)
 
     context_data = {
@@ -41,7 +47,7 @@ def cookbook_detail_view(request, pk):
     )
 
 
-def cookbook_form_view(request, pk):
+def cookbook_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     cookbook = get_object_or_null_obj(models.Cookbook, pk=pk)
 
     glue_model(request, 'cookbook', cookbook, 'view')
@@ -68,7 +74,7 @@ def cookbook_form_view(request, pk):
     )
 
 
-def cookbook_list_view(request):
+def cookbook_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
         'cookbooks': models.Cookbook.objects.all()
     }

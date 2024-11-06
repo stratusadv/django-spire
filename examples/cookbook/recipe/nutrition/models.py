@@ -21,10 +21,10 @@ class NutritionFact(HistoryModelMixin):
 
     objects = NutritionFactQuerySet.as_manager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.type
 
-    def type_verbose(self):
+    def type_verbose(self) -> str:
         return NutritionFactType(self.type).label
 
     class Meta:

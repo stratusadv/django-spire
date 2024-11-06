@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'examples.component',
     'examples.cookbook',
     'examples.cookbook.recipe',
-    'examples.modal_example',
+    'examples.modal',
 ]
 
 MIDDLEWARE = [

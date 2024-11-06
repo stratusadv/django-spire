@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 from functools import wraps
+from typing import Any, TYPE_CHECKING
 
 from django import template
 
+if TYPE_CHECKING:
+    from django.template import Context
+
 
 register = template.Library()
+
 
 DIRECTIVES = (
     'x-bind',
@@ -41,18 +48,18 @@ MAGIC = (
 
 
 @register.filter(name='lowercase')
-def lowercase(value):
+def lowercase(value: str) -> str:
     return value.lower()
 
 
 @register.inclusion_tag('component/subsection/subheader.html')
-def title(title="Subheading"):
+def title(title: str = "Subheading") -> dict[str, str]:
     return {'title': title}
 
 
-def alpine(func):
+def alpine(func: callable) -> callable:
     @wraps(func)
-    def wrapper(context, *args, **kwargs):
+    def wrapper(context: Context, *args, **kwargs) -> Any:
         attributes = {}
 
         keys = kwargs.keys()
@@ -71,5 +78,5 @@ def alpine(func):
 
 @register.inclusion_tag('django_spire/button/brayden_base.html', takes_context=True)
 @alpine
-def button(context, **kwargs):
+def button(context: Context, **_) -> Context:
     return context

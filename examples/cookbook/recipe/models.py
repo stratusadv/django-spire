@@ -30,21 +30,27 @@ class Recipe(HistoryModelMixin):
     def __str__(self):
         return self.name
 
-    def breadcrumbs(self):
+    def breadcrumbs(self) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
         if self.pk:
-            crumbs.add_breadcrumb(str(self), reverse('cookbook:recipe:page:detail', kwargs={'pk': self.pk}))
+            crumbs.add_breadcrumb(
+                str(self),
+                reverse(
+                    'cookbook:recipe:page:detail',
+                    kwargs={'pk': self.pk}
+                )
+            )
 
         return crumbs
 
-    def choice_verbose(self):
+    def choice_verbose(self) -> str:
         return RecipeCourseChoices(self.course).label
 
     def total_time(self) -> int:
         return self.prep_time + self.cook_time
 
-    def set_deleted(self):
+    def set_deleted(self) -> None:
         for cookbook_recipe in self.cookbook_recipes.active():
             cookbook_recipe.set_deleted()
 

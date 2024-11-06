@@ -1,9 +1,9 @@
 from django.urls import path
 
-from examples.modal_example import views
+from examples.modal import views
 
 
-app_name = 'modal_example'
+app_name = 'modal'
 
 urlpatterns = [
     path('', views.modal_page_view, name='home'),

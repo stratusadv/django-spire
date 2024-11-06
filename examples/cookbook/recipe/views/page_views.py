@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
@@ -14,9 +16,14 @@ from examples.cookbook.models import Cookbook
 from examples.cookbook.recipe import models, forms
 from examples.cookbook.recipe.nutrition.models import NutritionFact
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
-def recipe_delete_view(request, pk):
+
+def recipe_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     recipe = get_object_or_404(models.Recipe, pk=pk)
+
     return portal_views.delete_form_view(
         request,
         obj=recipe,
@@ -24,12 +31,14 @@ def recipe_delete_view(request, pk):
     )
 
 
-def recipe_detail_view(request, pk):
+def recipe_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     recipe = get_object_or_404(models.Recipe, pk=pk)
+
     context_data = {
         'recipe': recipe,
         'ingredients': recipe.ingredients.active()
     }
+
     return portal_views.detail_view(
         request,
         obj=recipe,
@@ -38,7 +47,11 @@ def recipe_detail_view(request, pk):
     )
 
 
-def recipe_form_view(request, pk, cookbook_pk: int | None = None):
+def recipe_form_view(
+    request: WSGIRequest,
+    pk: int,
+    cookbook_pk: int | None = None
+) -> TemplateResponse:
     if cookbook_pk is not None:
         cookbook = get_object_or_404(Cookbook, pk=cookbook_pk)
 
@@ -53,10 +66,37 @@ def recipe_form_view(request, pk, cookbook_pk: int | None = None):
 
     glue_model(request, 'recipe', recipe, 'view')
 
-    glue_query_set(request, 'ingredient_queryset', ingredients, 'view', exclude=['recipe'])
-    glue_query_set(request, 'nutrition_facts_queryset', nutrition_facts, 'view', exclude=['recipe'])
-    glue_model(request, 'ingredient_template', models.Ingredient(), 'view', exclude=['recipe'])
-    glue_model(request, 'nutrition_fact_template', NutritionFact(), 'view', exclude=['recipe'])
+    glue_query_set(
+        request,
+        'ingredient_queryset',
+        ingredients,
+        'view',
+        exclude=['recipe']
+    )
+
+    glue_query_set(
+        request,
+        'nutrition_facts_queryset',
+        nutrition_facts,
+        'view',
+        exclude=['recipe']
+    )
+
+    glue_model(
+        request,
+        'ingredient_template',
+        models.Ingredient(),
+        'view',
+        exclude=['recipe']
+    )
+
+    glue_model(
+        request,
+        'nutrition_fact_template',
+        NutritionFact(),
+        'view',
+        exclude=['recipe']
+    )
 
     if request.method == 'POST':
         form = forms.RecipeForm(request.POST, instance=recipe)
@@ -68,7 +108,16 @@ def recipe_form_view(request, pk, cookbook_pk: int | None = None):
                 recipe.cookbook_recipes.create(cookbook=cookbook)
 
             add_form_activity(recipe, pk, request.user)
-            return redirect(request.GET.get('return_url', reverse('cookbook:recipe:page:detail', kwargs={'pk': recipe.pk})))
+
+            return redirect(
+                request.GET.get(
+                    'return_url',
+                    reverse(
+                        'cookbook:recipe:page:detail',
+                        kwargs={'pk': recipe.pk}
+                    )
+                )
+            )
 
         show_form_errors(request, form)
     else:
@@ -82,7 +131,7 @@ def recipe_form_view(request, pk, cookbook_pk: int | None = None):
     )
 
 
-def recipe_list_view(request):
+def recipe_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
         'recipes': models.Recipe.objects.active()
     }

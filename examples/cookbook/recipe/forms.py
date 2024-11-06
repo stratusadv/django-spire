@@ -10,10 +10,13 @@ from examples.cookbook.recipe import factories, models
 class IngredientsField(forms.CharField):
     def clean(self, value: str) -> list[dict]:
         cleaned_data = []
+
         if value:
             value = json.loads(value)
+
             for ingredient in value:
                 form = IngredientForm(ingredient)
+
                 if form.is_valid():
                     cleaned_data.append(form.cleaned_data)
                 else:
@@ -25,7 +28,7 @@ class IngredientsField(forms.CharField):
 class RecipeForm(forms.ModelForm):
     ingredients = IngredientsField()
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True):
         recipe = super().save(commit=commit)
         factories.update_or_create_recipe_ingredients(recipe, self.cleaned_data['ingredients'])
         return recipe
