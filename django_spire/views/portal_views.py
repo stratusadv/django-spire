@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
+from typing_extensions import Callable, TYPE_CHECKING
 
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 # Takes breadcrumb as parameter and returns None
-BreadCrumbCallable = callable[[Breadcrumbs], None]
+BreadCrumbCallable = Callable[[Breadcrumbs], None]
 
 
 def detail_view(
