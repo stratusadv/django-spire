@@ -39,13 +39,11 @@ INSTALLED_APPS = [
     'examples.cookbook.recipe',
 ]
 
-
 DEBUG = True
 SECRET_KEY = secrets.token_urlsafe(50)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SENDGRID_TEMPLATE_ID = False
-
 
 DATABASES = {
     'default': {
@@ -53,7 +51,6 @@ DATABASES = {
         'NAME': 'test.db',
     }
 }
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -65,7 +62,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_glue.middleware.GlueMiddleware'
 ]
-
 
 TEMPLATES = [
     {

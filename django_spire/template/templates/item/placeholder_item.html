@@ -1,0 +1,22 @@
+{% extends 'spire/item/item.html' %}
+
+{% block item_title %}
+    {% url 'placeholder:page:detail' pk=placeholder.pk as placeholder_view_url %}
+	{% include 'spire/element/attribute_element.html' with attribute_title='Placeholder' attribute_value=placeholder.name attribute_href=placeholder_view_url %}
+{% endblock %}
+
+{% block item_row_content %}
+	{% include 'spire/element/attribute_element.html' with attribute_title='Description' attribute_value=placeholder.description %}
+{% endblock %}
+
+{% block item_button %}
+    {% url 'placeholder:page:detail' pk=placeholder.pk as placeholder_view_url %}
+    {% if perms.placeholder.change_placeholder %}
+        {% url 'placeholder:page:form' pk=placeholder.pk as placeholder_edit_url %}
+    {% endif %}
+
+    {% if perms.placeholder.delete_placeholder %}
+        {% url 'placeholder:page:delete' pk=placeholder.pk as placeholder_delete_url %}
+    {% endif %}
+	{% include 'spire/dropdown/ellipsis_dropdown.html' with view_url=placeholder_view_url edit_url=placeholder_edit_url delete_url=placeholder_delete_url %}
+{% endblock %}
