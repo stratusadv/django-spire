@@ -33,10 +33,10 @@ INSTALLED_APPS = [
     'django_spire.user_account',
     'django_spire.user_account.profile',
 
-    'examples',
-    'examples.component',
-    'examples.cookbook',
-    'examples.cookbook.recipe',
+    'example',
+    'example.component',
+    'example.cookbook',
+    'example.cookbook.recipe',
 ]
 
 DEBUG = True
@@ -67,7 +67,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            str(BASE_DIR / 'examples/templates'),
+            str(BASE_DIR / 'example/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

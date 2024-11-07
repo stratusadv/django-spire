@@ -6,7 +6,7 @@ import sys
 import threading
 
 from pathlib import Path
-from examples.settings import BASE_DIR
+from example.settings import BASE_DIR
 
 
 if sys.platform == 'win32':
@@ -20,7 +20,7 @@ def create_superuser() -> None:
 
     command = [
         VENV,
-        'examples/manage.py',
+        'example/manage.py',
         'createsuperuser',
         '--noinput',
         '--email', 'braydenc@stratusadv.com',
@@ -42,10 +42,10 @@ def set_environment_variables(environment: str = 'local') -> None:
         raise ValueError(message)
 
     if environment == 'local':
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'examples.settings'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'example.settings'
 
     if environment == 'server':
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'examples.settings'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'example.settings'
 
     sys.path.append(BASE_DIR)
 
@@ -96,7 +96,7 @@ def start_server(is_migration: str, is_run: str) -> None:
 
         command = [
             VENV,
-            'examples/manage.py',
+            'example/manage.py',
             'spire_remove_migration'
         ]
 
@@ -106,7 +106,7 @@ def start_server(is_migration: str, is_run: str) -> None:
 
         command = [
             VENV,
-            'examples/manage.py',
+            'example/manage.py',
             'makemigrations'
         ]
 
@@ -116,7 +116,7 @@ def start_server(is_migration: str, is_run: str) -> None:
 
         command = [
             VENV,
-            'examples/manage.py',
+            'example/manage.py',
             'migrate'
         ]
 
@@ -127,7 +127,7 @@ def start_server(is_migration: str, is_run: str) -> None:
 
         command = [
             VENV,
-            'examples/manage.py',
+            'example/manage.py',
             'runserver',
             '0.0.0.0:8000',
         ]
@@ -177,6 +177,11 @@ def start_server(is_migration: str, is_run: str) -> None:
 
 
 def main() -> None:
+    os.environ.setdefault(
+        'PYTHONPATH',
+        str(BASE_DIR)
+    )
+
     parser = argparse.ArgumentParser(description='Setup and run Django server.')
     parser.add_argument('-e', '--environment', help='Determine which environment to use (e.g., local or server)')
     parser.add_argument('-m', '--migrate', action='store_true', help='Run the migration(s)')

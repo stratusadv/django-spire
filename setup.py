@@ -45,7 +45,7 @@ setup(
     author_email="info@stratusadv.com",
     url="https://github.com/stratusadv/django-spire",
     packages=find_packages(
-        exclude=["docs", "examples", "examples.*", "tests", "tests.*"]
+        exclude=["docs", "example", "example.*", "tests", "tests.*"]
     ),
     include_package_data=True,
     zip_safe=False,
@@ -67,7 +67,7 @@ setup(
     },
     exclude_package_data={
         "": ["*.db"],
-        "examples": ["*"],
+        "example": ["*"],
         "tests": ["*"],
     },
 )

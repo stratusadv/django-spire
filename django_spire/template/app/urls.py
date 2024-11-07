@@ -1,6 +1,6 @@
 from django.urls import path
 
-from examples.placeholder import views
+from example.placeholder import views
 
 
 app_name = 'placeholder'
