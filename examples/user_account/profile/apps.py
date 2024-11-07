@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class PlaceholderConfig(AppConfig):
+class UserAccountProfileConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'placeholder'
-    name = 'examples.placeholder'
+    label = 'user_account_profile'
+    name = 'examples.user_account.profile'
