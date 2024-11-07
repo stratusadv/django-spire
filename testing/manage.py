@@ -10,7 +10,7 @@ def main() -> None:
     root = str(Path(__file__).resolve().parent.parent)
     sys.path.append(root)
 
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'testing.settings')
 
     try:
         from django.core.management import execute_from_command_line
