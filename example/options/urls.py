@@ -6,6 +6,7 @@ from example.options import views
 app_name = 'options'
 
 urlpatterns = [
-    path('', views.options_list_view, name='list'),
-    path('<int:pk>/detail', views.options_detail_view, name='detail')
+    path('', views.options_home_view, name='home'),
+    path('list/', views.options_list_view, name='list'),
+    path('<int:pk>/detail/', views.options_detail_view, name='detail')
 ]

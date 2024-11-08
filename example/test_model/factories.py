@@ -5,7 +5,7 @@ import random
 
 from django.utils.timezone import localdate, now
 
-from example.models import TestModel
+from example.test_model.models import TestModel
 
 
 def generate_test_model() -> TestModel:

@@ -6,6 +6,7 @@ from example.search import views
 app_name = 'search'
 
 urlpatterns = [
-    path('', views.search_list_view, name='list'),
-    path('<int:pk>/detail', views.search_detail_view, name='detail')
+    path('', views.search_home_view, name='home'),
+    path('list/', views.search_list_view, name='list'),
+    path('<int:pk>/detail/', views.search_detail_view, name='detail')
 ]

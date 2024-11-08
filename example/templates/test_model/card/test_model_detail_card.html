@@ -1,0 +1,38 @@
+{% extends 'spire/card/title_card.html' %}
+
+{% block card_title %}
+	Test Model
+{% endblock %}
+
+{% block card_button %}
+	{% if perms.authentication.change_authentication %}
+        {% url 'authentication:page:form' pk=authentication.pk as authentication_edit_url %}
+        {% include 'spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=authentication_edit_url %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <h3>Model Fields and Values</h3>
+
+    <div class="container-fluid">
+        <div class="row g-3">
+            <ul>
+                {% for key, value in fields.items %}
+                    <li>{{ key }}: {{ value }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Activity</h3>
+            {% for activity in activities %}
+                <li>
+                    <strong>User:</strong> {{ activity.user.username }}<br>
+                    <strong>Action:</strong> {{ activity.verb }}<br>
+                    <strong>Info:</strong> {{ activity.information }}<br>
+                    <strong>Date:</strong> {{ activity.date_time_entered }}
+                </li>
+            {% empty %}
+                <p>No activities logged.</p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

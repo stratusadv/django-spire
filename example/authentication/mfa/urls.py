@@ -6,6 +6,7 @@ from example.authentication.mfa import views
 app_name = 'authentication_mfa'
 
 urlpatterns = [
-    path('', views.authentication_mfa_list_view, name='list'),
-    path('<int:pk>/detail', views.authentication_mfa_detail_view, name='detail'),
+    path('', views.authentication_mfa_home_view, name='home'),
+    path('list/', views.authentication_mfa_list_view, name='list'),
+    path('<int:pk>/detail/', views.authentication_mfa_detail_view, name='detail'),
 ]

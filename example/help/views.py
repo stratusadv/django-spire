@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing_extensions import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 
 from django_spire.views import portal_views
 
@@ -10,7 +11,6 @@ from example.help import models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 def help_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
@@ -26,6 +26,11 @@ def help_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='help/page/help_detail_page.html'
     )
+
+
+def help_home_view(request: WSGIRequest) -> TemplateResponse:
+    template = 'help/page/help_home_page.html'
+    return TemplateResponse(request, template)
 
 
 def help_list_view(request: WSGIRequest) -> TemplateResponse:

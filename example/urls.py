@@ -5,8 +5,7 @@ from example import views
 
 
 urlpatterns = [
-    path('', views.home_page_view, name='home'),
-    path('test_model', views.test_model_view, name='test_model')
+    path('', views.home_page_view, name='home')
 ]
 
 urlpatterns += [
@@ -16,7 +15,6 @@ urlpatterns += [
 
 urlpatterns += [
     path('authentication/', include('example.authentication.urls', namespace='authentication')),
-    # path('authentication_mfa/', include('example.authentication.authentication_mfa.urls', namespace='authentication_mfa')),
     path('breadcrumb/', include('example.breadcrumb.urls', namespace='breadcrumb')),
     path('comment/', include('example.comment.urls', namespace='comment')),
     path('file/', include('example.file.urls', namespace='file')),
@@ -26,6 +24,7 @@ urlpatterns += [
     path('history/', include('example.history.urls', namespace='history')),
     path('home/', include('example.home.urls', namespace='home')),
     path('maintenance/', include('example.maintenance.urls', namespace='maintenance')),
+    path('modal/', include('example.modal.urls', namespace='modal')),
     path('notification/', include('example.notification.urls', namespace='notification')),
     path('options/', include('example.options.urls', namespace='options')),
     path('pagination/', include('example.pagination.urls', namespace='pagination')),
@@ -33,8 +32,7 @@ urlpatterns += [
     path('search/', include('example.search.urls', namespace='search')),
     path('user_account/', include('example.user_account.urls', namespace='user_account')),
 
-
     path('component/', include('example.component.urls', namespace='component')),
     path('cookbook/', include('example.cookbook.urls', namespace='cookbook')),
-    path('modal/', include('example.modal.urls', namespace='modal'))
+    path('test_model/', include('example.test_model.urls', namespace='test_model'))
 ]

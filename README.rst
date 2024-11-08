@@ -17,13 +17,13 @@ Features
 Getting Started
 ---------------
 
-To install `django_spire`, run:
+To install ``django_spire``, run:
 
 .. code-block:: bash
 
     pip install django_spire
 
-Add `django_spire` to your Django project’s `INSTALLED_APPS`:
+Add ``django_spire`` to your Django project’s ``INSTALLED_APPS``:
 
 .. code-block:: python
 
