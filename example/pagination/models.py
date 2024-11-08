@@ -13,7 +13,7 @@ class PaginationExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.PaginationQuerySet().as_manager()
+    objects = querysets.PaginationExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

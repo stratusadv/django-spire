@@ -13,7 +13,7 @@ class CommentExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.CommentQuerySet().as_manager()
+    objects = querysets.CommentExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

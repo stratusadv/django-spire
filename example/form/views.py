@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def form_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    form = get_object_or_404(models.Form, pk=pk)
+    form = get_object_or_404(models.FormExample, pk=pk)
 
     context_data = {
         'form': form,

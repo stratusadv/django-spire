@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def profile_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    profile = get_object_or_404(models.UserAccountProfile, pk=pk)
+    profile = get_object_or_404(models.UserAccountProfileExample, pk=pk)
 
     context_data = {
         'profile': profile,

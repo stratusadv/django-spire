@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def authentication_mfa_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    authentication_mfa = get_object_or_404(models.AuthenticationMfa, pk=pk)
+    authentication_mfa = get_object_or_404(models.AuthenticationMfaExample, pk=pk)
 
     context_data = {
         'authentication_mfa': authentication_mfa,

@@ -13,7 +13,7 @@ class SearchExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.SearchQuerySet().as_manager()
+    objects = querysets.SearchExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

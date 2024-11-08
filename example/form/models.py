@@ -13,7 +13,7 @@ class FormExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.FormQuerySet().as_manager()
+    objects = querysets.FormExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

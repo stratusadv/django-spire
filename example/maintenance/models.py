@@ -6,14 +6,14 @@ from django.urls import reverse
 from django_spire.breadcrumb.models import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 
-from example.placeholder import querysets
+from example.maintenance import querysets
 
 
-class Placeholder(HistoryModelMixin):
+class MaintenanceExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.PlaceholderQuerySet().as_manager()
+    objects = querysets.MaintenanceExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name
@@ -23,8 +23,8 @@ class Placeholder(HistoryModelMixin):
         crumbs = Breadcrumbs()
 
         crumbs.add_breadcrumb(
-            'Placeholder',
-            reverse('placeholder:page:list')
+            'Maintenance',
+            reverse('maintenance:page:list')
         )
 
         return crumbs
@@ -37,7 +37,7 @@ class Placeholder(HistoryModelMixin):
             crumbs.add_breadcrumb(
                 str(self),
                 reverse(
-                    'placeholder:page:detail',
+                    'maintenance:page:detail',
                     kwargs={'pk': self.pk}
                 )
             )
@@ -45,6 +45,6 @@ class Placeholder(HistoryModelMixin):
         return crumbs
 
     class Meta:
-        verbose_name = 'Placeholder'
-        verbose_name_plural = 'Placeholders'
-        db_table = 'placeholder'
+        verbose_name = 'Maintenance'
+        verbose_name_plural = 'Maintenances'
+        db_table = 'maintenance'

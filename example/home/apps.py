@@ -3,5 +3,5 @@ from django.apps import AppConfig
 
 class HomeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'home'
+    label = 'example_home'
     name = 'example.home'

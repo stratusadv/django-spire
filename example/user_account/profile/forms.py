@@ -7,8 +7,8 @@ from django import forms
 from example.placeholder import models
 
 
-class UserAccountProfileForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+class UserAccountProfileExampleForm(forms.ModelForm):
+    field = forms.JSONField(required=False)
 
     class Meta:
         model = models.UserAccountProfileExample

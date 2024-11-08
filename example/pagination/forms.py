@@ -7,9 +7,9 @@ from django import forms
 from example.pagination import models
 
 
-class PaginationForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+class PaginationExampleForm(forms.ModelForm):
+    field = forms.JSONField(required=False)
 
     class Meta:
-        model = models.Pagination
+        model = models.PaginationExample
         fields: ClassVar = []

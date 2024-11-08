@@ -3,5 +3,5 @@ from django.apps import AppConfig
 
 class SearchConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'search'
+    label = 'example_search'
     name = 'example.search'

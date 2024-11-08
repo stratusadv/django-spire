@@ -63,10 +63,28 @@ INSTALLED_APPS = [
     'django_spire.user_account.profile',
 
     'example',
+    'example.authentication',
+    'example.authentication.mfa',
+    'example.breadcrumb',
+    'example.file',
+    'example.form',
+    'example.gamification',
+    'example.help',
+    'example.history',
+    'example.maintenance',
+    'example.modal',
+    'example.notification',
+    'example.options',
+    'example.pagination',
+    'example.permission',
+    'example.search',
+    'example.user_account',
+    'example.user_account.profile',
+
+    # Other
     'example.component',
     'example.cookbook',
-    'example.cookbook.recipe',
-    'example.modal',
+    'example.cookbook.recipe'
 ]
 
 MIDDLEWARE = [

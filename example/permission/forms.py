@@ -7,7 +7,7 @@ from django import forms
 from example.permission import models
 
 
-class PermissionForm(forms.ModelForm):
+class PermissionExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:

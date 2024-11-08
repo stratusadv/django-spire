@@ -7,7 +7,7 @@ from django import forms
 from example.user_account import models
 
 
-class UserAccountForm(forms.ModelForm):
+class UserAccountExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:

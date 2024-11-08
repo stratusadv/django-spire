@@ -7,7 +7,7 @@ from django import forms
 from example.search import models
 
 
-class SearchForm(forms.ModelForm):
+class SearchExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:

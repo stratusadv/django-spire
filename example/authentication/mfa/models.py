@@ -13,7 +13,7 @@ class AuthenticationMfaExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.AuthenticationMfaQuerySet().as_manager()
+    objects = querysets.AuthenticationMfaExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

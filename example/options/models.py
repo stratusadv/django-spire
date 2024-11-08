@@ -13,7 +13,7 @@ class OptionsExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.OptionsQuerySet().as_manager()
+    objects = querysets.OptionsExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

@@ -7,8 +7,8 @@ from django import forms
 from example.home import models
 
 
-class HomeForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+class HomeExampleForm(forms.ModelForm):
+    field = forms.JSONField(required=False)
 
     class Meta:
         model = models.HomeExample

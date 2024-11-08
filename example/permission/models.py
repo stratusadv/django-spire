@@ -9,11 +9,11 @@ from django_spire.history.mixins import HistoryModelMixin
 from example.permission import querysets
 
 
-class Permission(HistoryModelMixin):
+class PermissionExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.PermissionQuerySet().as_manager()
+    objects = querysets.PermissionExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

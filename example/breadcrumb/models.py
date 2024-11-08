@@ -13,7 +13,7 @@ class BreadcrumbExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.BreadcrumbQuerySet().as_manager()
+    objects = querysets.BreadcrumbExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

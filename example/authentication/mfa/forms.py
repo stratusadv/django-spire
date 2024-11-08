@@ -7,7 +7,7 @@ from django import forms
 from example.authentication.mfa import models
 
 
-class AuthenticationMfaForm(forms.ModelForm):
+class AuthenticationMfaExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:

@@ -13,7 +13,7 @@ class NotificationExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.NotificationQuerySet().as_manager()
+    objects = querysets.NotificationExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

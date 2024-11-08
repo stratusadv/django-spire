@@ -7,7 +7,7 @@ from django import forms
 from example.file import models
 
 
-class FileForm(forms.ModelForm):
+class FileExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:

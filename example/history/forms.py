@@ -7,8 +7,8 @@ from django import forms
 from example.history import models
 
 
-class HistoryForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+class HistoryExampleForm(forms.ModelForm):
+    field = forms.JSONField(required=False)
 
     class Meta:
         model = models.HistoryExample

@@ -13,7 +13,7 @@ class UserAccountProfileExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.UserAccountProfileQuerySet().as_manager()
+    objects = querysets.UserAccountProfileExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

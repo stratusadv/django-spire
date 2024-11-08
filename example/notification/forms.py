@@ -7,8 +7,8 @@ from django import forms
 from example.notification import models
 
 
-class NotificationForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+class NotificationExampleForm(forms.ModelForm):
+    field = forms.JSONField(required=False)
 
     class Meta:
         model = models.NotificationExample

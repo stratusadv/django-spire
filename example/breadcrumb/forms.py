@@ -7,7 +7,7 @@ from django import forms
 from example.breadcrumb import models
 
 
-class BreadcrumbForm(forms.ModelForm):
+class BreadcrumbExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:

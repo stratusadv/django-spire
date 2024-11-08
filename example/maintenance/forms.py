@@ -4,12 +4,12 @@ from typing_extensions import ClassVar
 
 from django import forms
 
-from example.placeholder import models
+from example.maintenance import models
 
 
-class PlaceholderForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+class MaintenanceExampleForm(forms.ModelForm):
+    field = forms.JSONField(required=False)
 
     class Meta:
-        model = models.Placeholder
+        model = models.MaintenanceExample
         fields: ClassVar = []

@@ -8,6 +8,6 @@ if TYPE_CHECKING:
     from django.db.models import QuerySet
 
 
-class PlaceholderQuerySet(HistoryQuerySet):
+class CommentExampleQuerySet(HistoryQuerySet):
     def active(self) -> QuerySet:
         return self.filter(is_active=True, is_deleted=False)

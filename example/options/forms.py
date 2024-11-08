@@ -7,8 +7,8 @@ from django import forms
 from example.options import models
 
 
-class OptionsForm(forms.ModelForm):
-    linked_recipes = forms.JSONField(required=False)
+class OptionsExampleForm(forms.ModelForm):
+    field = forms.JSONField(required=False)
 
     class Meta:
         model = models.OptionsExample

@@ -13,7 +13,7 @@ class FileExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.FileQuerySet().as_manager()
+    objects = querysets.FileExampleQuerySet().as_manager()
 
     def __str__(self):
         return self.name

@@ -7,7 +7,7 @@ from django import forms
 from example.comment import models
 
 
-class CommentForm(forms.ModelForm):
+class CommentExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:

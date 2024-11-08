@@ -8,6 +8,6 @@ if TYPE_CHECKING:
     from django.db.models import QuerySet
 
 
-class HelpQuerySet(HistoryQuerySet):
+class HelpExampleQuerySet(HistoryQuerySet):
     def active(self) -> QuerySet:
         return self.filter(is_active=True, is_deleted=False)

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def user_account_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    user_account = get_object_or_404(models.UserAccount, pk=pk)
+    user_account = get_object_or_404(models.UserAccountExample, pk=pk)
 
     context_data = {
         'user_account': user_account,

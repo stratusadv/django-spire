@@ -7,7 +7,7 @@ from django import forms
 from example.gamification import models
 
 
-class GamificationForm(forms.ModelForm):
+class GamificationExampleForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:
