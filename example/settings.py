@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import logging
-import secrets
 import sys
 
 from pathlib import Path
@@ -109,7 +108,8 @@ DATABASES = {
 
 ROOT_URLCONF = 'example.urls'
 
-SECRET_KEY = secrets.token_urlsafe(50)
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'secret')
+
 SITE_ID = 1
 
 TIME_ZONE = 'America/Edmonton'

@@ -18,22 +18,42 @@ else:
 def create_superuser() -> None:
     print('Creating superuser...')
 
+    django_superuser_email = os.getenv('DJANGO_SUPERUSER_EMAIL')
+    django_superuser_username = os.getenv('DJANGO_SUPERUSER_USERNAME')
+
     command = [
         VENV,
         'example/manage.py',
         'createsuperuser',
         '--noinput',
-        '--email', 'braydenc@stratusadv.com',
-        '--username', 'braydenc@stratusadv.com'
+        '--email', django_superuser_email,
+        '--username', django_superuser_username
     ]
-
-    os.environ['DJANGO_SUPERUSER_PASSWORD'] = 'brayden'
 
     try:
         subprocess.run(command, check=True)
-        print('Superuser created successfully')
     except subprocess.CalledProcessError as exception:
         print(f"Error creating superuser: {exception}")
+
+
+def load_secret(path: Path | str = '.env') -> None:
+    path = Path(path)
+
+    if not path.exists():
+        message = f"The .env file at '{path}' was not found."
+        raise FileNotFoundError(message)
+
+    with open(path, 'r', encoding='utf-8') as handle:
+        for line in handle:
+            line = line.strip()
+
+            if line and not line.startswith('#'):
+                key, value = line.split('=', 1)
+
+                key = key.strip()
+                value = value.strip()
+
+                os.environ[key] = value.strip()
 
 
 def set_environment_variables(environment: str = 'local') -> None:
@@ -48,6 +68,8 @@ def set_environment_variables(environment: str = 'local') -> None:
         os.environ['DJANGO_SETTINGS_MODULE'] = 'example.settings'
 
     sys.path.append(BASE_DIR)
+
+    load_secret('.env')
 
 
 def setup_virtual_environment() -> None:
@@ -137,7 +159,6 @@ def start_server(is_migration: str, is_run: str) -> None:
             ip = socket.gethostbyname(host)
 
             env = os.environ.copy()
-            env['PYTHONUNBUFFERED'] = '1'
 
             process = subprocess.Popen(
                 command,
