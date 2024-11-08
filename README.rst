@@ -5,7 +5,7 @@ django-spire
    :alt: Django Spire Logo
    :align: center
 
-`django_spire` is a modular framework designed to enhance observability and improve the development of Django web applications.
+``django_spire`` is a modular framework designed to enhance observability and improve the development of Django web applications.
 
 Features
 --------
