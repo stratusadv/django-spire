@@ -47,4 +47,4 @@ class SearchExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Search'
         verbose_name_plural = 'Searches'
-        db_table = 'search'
+        db_table = 'example_search'

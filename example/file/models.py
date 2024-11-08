@@ -47,4 +47,4 @@ class FileExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'File'
         verbose_name_plural = 'Files'
-        db_table = 'file'
+        db_table = 'example_file'

@@ -3,13 +3,10 @@
 {% block page_content %}
     <form method="post">
         {% csrf_token %}
-        <div class="row g-3">
-            <div class="col-8">
-                {% include 'placeholder/card/placeholder_form_card.html' %}
-            </div>
 
-            <div class="col-4">
-                {% include 'placeholder/card/placeholder_link_recipes_form_card.html' %}
+        <div class="row g-3">
+            <div class="col-12">
+                {% include 'placeholder/card/placeholder_form_card.html' %}
             </div>
         </div>
     </form>

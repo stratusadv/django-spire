@@ -47,4 +47,4 @@ class BreadcrumbExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Breadcrumb'
         verbose_name_plural = 'Breadcrumbs'
-        db_table = 'breadcrumb'
+        db_table = 'example_breadcrumb'

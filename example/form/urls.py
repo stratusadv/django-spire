@@ -1,10 +1,11 @@
 from django.urls import path
 
-from example.file import views
+from example.form import views
 
 
-app_name = 'file'
+app_name = 'form'
 
 urlpatterns = [
-    path('<int:pk>/detail', views.file_detail_view, name='detail')
+    path('', views.form_list_view, name='list'),
+    path('<int:pk>/detail', views.form_detail_view, name='detail')
 ]

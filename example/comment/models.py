@@ -47,4 +47,4 @@ class CommentExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
-        db_table = 'comment'
+        db_table = 'example_comment'

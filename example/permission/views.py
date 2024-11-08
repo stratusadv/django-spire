@@ -26,3 +26,16 @@ def permission_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='permission/page/permission_detail_page.html'
     )
+
+
+def permission_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'permissions': models.PermissionExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.PermissionExample,
+        context_data=context_data,
+        template='permission/page/permission_list_page.html'
+    )

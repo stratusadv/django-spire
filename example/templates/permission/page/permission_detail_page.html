@@ -1,0 +1,13 @@
+{% extends 'spire/page/full_page.html' %}
+
+{% block page_content %}
+	<div class="row g-3">
+        <div class="col-12">
+            {% include 'permission/card/permission_detail_card.html' %}
+        </div>
+
+        <div class="col-4">
+            {% include 'spire/history/card/activity_list_card.html' with activity_log=permission.activity_log.prefetch_user %}
+        </div>
+    </div>
+{% endblock %}

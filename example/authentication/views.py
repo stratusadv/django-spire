@@ -27,3 +27,16 @@ def authentication_detail_view(request: WSGIRequest, pk: int) -> TemplateRespons
         context_data=context_data,
         template='authentication/page/authentication_detail_page.html'
     )
+
+
+def authentication_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'authentication': models.AuthenticationExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.AuthenticationExample,
+        context_data=context_data,
+        template='authentication/page/authentication_list_page.html'
+    )

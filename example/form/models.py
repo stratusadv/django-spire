@@ -47,4 +47,4 @@ class FormExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Form'
         verbose_name_plural = 'Forms'
-        db_table = 'form'
+        db_table = 'example_form'

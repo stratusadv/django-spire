@@ -47,4 +47,4 @@ class HelpExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Help'
         verbose_name_plural = 'Helps'
-        db_table = 'help'
+        db_table = 'example_help'

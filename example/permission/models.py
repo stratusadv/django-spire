@@ -47,4 +47,4 @@ class PermissionExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Permission'
         verbose_name_plural = 'Permissions'
-        db_table = 'permission'
+        db_table = 'example_permission'

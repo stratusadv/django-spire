@@ -24,5 +24,18 @@ def profile_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=profile,
         context_data=context_data,
-        template='profile/page/profile_detail_page.html'
+        template='user_account/profile/page/user_account_profile_detail_page.html'
+    )
+
+
+def profile_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'profiles': models.UserAccountProfileExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.UserAccountProfileExample,
+        context_data=context_data,
+        template='user_account/profile/page/user_account_profile_list_page.html'
     )

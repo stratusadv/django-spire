@@ -47,4 +47,4 @@ class GamificationExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Gamification'
         verbose_name_plural = 'Gamifications'
-        db_table = 'gamification'
+        db_table = 'example_gamification'

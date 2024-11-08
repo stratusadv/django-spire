@@ -26,3 +26,16 @@ def search_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='search/page/search_detail_page.html'
     )
+
+
+def search_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'search': models.SearchExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.SearchExample,
+        context_data=context_data,
+        template='search/page/search_list_page.html'
+    )

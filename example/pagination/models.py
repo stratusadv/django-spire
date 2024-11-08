@@ -47,4 +47,4 @@ class PaginationExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Pagination'
         verbose_name_plural = 'Paginations'
-        db_table = 'pagination'
+        db_table = 'example_pagination'

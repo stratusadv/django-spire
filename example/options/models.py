@@ -47,4 +47,4 @@ class OptionsExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Option'
         verbose_name_plural = 'Options'
-        db_table = 'options'
+        db_table = 'example_options'

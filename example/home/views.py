@@ -26,3 +26,16 @@ def home_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='home/page/home_detail_page.html'
     )
+
+
+def home_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'home': models.HomeExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.HomeExample,
+        context_data=context_data,
+        template='home/page/home_list_page.html'
+    )

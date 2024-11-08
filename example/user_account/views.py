@@ -26,3 +26,16 @@ def user_account_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='user_account/page/user_account_detail_page.html'
     )
+
+
+def user_account_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'user_accounts': models.UserAccountExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.UserAccountExample,
+        context_data=context_data,
+        template='user_account/page/user_account_list_page.html'
+    )

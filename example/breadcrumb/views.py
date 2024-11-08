@@ -26,3 +26,16 @@ def breadcrumb_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='breadcrumb/page/breadcrumb_detail_page.html'
     )
+
+
+def breadcrumb_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'breadcrumbs': models.BreadcrumbExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.BreadcrumbExample,
+        context_data=context_data,
+        template='breadcrumb/page/breadcrumb_list_page.html'
+    )

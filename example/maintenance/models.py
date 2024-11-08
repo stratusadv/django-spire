@@ -47,4 +47,4 @@ class MaintenanceExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'Maintenance'
         verbose_name_plural = 'Maintenances'
-        db_table = 'maintenance'
+        db_table = 'example_maintenance'

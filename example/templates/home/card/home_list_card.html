@@ -1,0 +1,18 @@
+{% extends 'spire/card/title_card.html' %}
+
+{% block card_title %}
+	Placeholders
+{% endblock %}
+
+{% block card_button %}
+    {% url 'placeholder:page:form' pk=0 as new_placeholder_url %}
+	{% include 'spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_placeholder_url %}
+{% endblock %}
+
+{% block card_title_content %}
+	{% for placeholder in placeholders %}
+		{% include 'placeholder/item/placeholder_item.html' %}
+    {% empty %}
+        {% include 'spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}

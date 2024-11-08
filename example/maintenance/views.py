@@ -26,3 +26,16 @@ def maintenance_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='maintenance/page/maintenance_detail_page.html'
     )
+
+
+def maintenance_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'maintenance': models.MaintenanceExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.MaintenanceExample,
+        context_data=context_data,
+        template='maintenance/page/maintenance_list_page.html'
+    )

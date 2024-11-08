@@ -26,3 +26,16 @@ def pagination_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='pagination/page/pagination_detail_page.html'
     )
+
+
+def pagination_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'paginations': models.PaginationExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.PaginationExample,
+        context_data=context_data,
+        template='pagination/page/pagination_list_page.html'
+    )

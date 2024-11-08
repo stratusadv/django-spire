@@ -9,7 +9,7 @@ from django_spire.history.mixins import HistoryModelMixin
 from example.authentication import querysets
 
 
-class Authentication(HistoryModelMixin):
+class AuthenticationExample(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
@@ -47,4 +47,4 @@ class Authentication(HistoryModelMixin):
     class Meta:
         verbose_name = 'Authentication'
         verbose_name_plural = 'Authentications'
-        db_table = 'authentication'
+        db_table = 'example_authentication'

@@ -47,4 +47,4 @@ class UserAccountExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'User Account'
         verbose_name_plural = 'User Accounts'
-        db_table = 'user_account'
+        db_table = 'example_user_account'

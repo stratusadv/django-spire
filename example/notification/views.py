@@ -26,3 +26,16 @@ def notification_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data=context_data,
         template='notification/page/notification_detail_page.html'
     )
+
+
+def notification_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'notifications': models.NotificationExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.NotificationExample,
+        context_data=context_data,
+        template='notification/page/notification_list_page.html'
+    )

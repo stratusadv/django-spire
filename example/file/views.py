@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def file_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    file = get_object_or_404(models.File, pk=pk)
+    file = get_object_or_404(models.FileExample, pk=pk)
 
     context_data = {
         'file': file,
@@ -25,4 +25,17 @@ def file_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         obj=file,
         context_data=context_data,
         template='file/page/file_detail_page.html'
+    )
+
+
+def file_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'files': models.FileExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.FileExample,
+        context_data=context_data,
+        template='file/page/file_list_page.html'
     )

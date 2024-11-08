@@ -26,3 +26,16 @@ def authentication_mfa_detail_view(request: WSGIRequest, pk: int) -> TemplateRes
         context_data=context_data,
         template='authentication/mfa/page/authentication_mfa_detail_page.html'
     )
+
+
+def authentication_mfa_list_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'mfa': models.AuthenticationMfaExample.objects.all()
+    }
+
+    return portal_views.list_view(
+        request,
+        model=models.AuthenticationMfaExample,
+        context_data=context_data,
+        template='authentication/mfa/page/authentication_mfa_list_page.html'
+    )

@@ -6,5 +6,6 @@ from example.notification import views
 app_name = 'notification'
 
 urlpatterns = [
+    path('', views.notification_list_view, name='list'),
     path('<int:pk>/detail', views.notification_detail_view, name='detail')
 ]

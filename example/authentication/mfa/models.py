@@ -47,4 +47,4 @@ class AuthenticationMfaExample(HistoryModelMixin):
     class Meta:
         verbose_name = 'AuthenticationMfa'
         verbose_name_plural = 'AuthenticationMfas'
-        db_table = 'authentication_mfa'
+        db_table = 'example_authentication_mfa'
