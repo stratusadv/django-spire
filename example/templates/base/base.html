@@ -19,6 +19,13 @@
 
 {% block base_content %}
     {{ block.super }}
+
+    {% block example_content %}
+    {% endblock %}
+
+    {% block example_footer %}
+        {% include 'core/footer/footer.html' %}
+    {% endblock %}
 {% endblock %}
 
 {% block js_include_bottom %}

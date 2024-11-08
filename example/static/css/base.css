@@ -1,5 +1,16 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 body {
     color: black;
+}
+
+body > .container.my-3 {
+    flex: 1;
 }
 
 .hover-card:hover {

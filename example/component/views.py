@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 def home_view(request: WSGIRequest) -> TemplateResponse:
-    template = 'page/component.html'
+    template = 'component/page/home.html'
     return TemplateResponse(request, template)
 
 

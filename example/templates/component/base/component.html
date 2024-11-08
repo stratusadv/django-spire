@@ -1,6 +1,6 @@
-{% include 'base/base.html' %}
+{% extends 'base/base.html' %}
 
-{% block base_content %}
+{% block example_content %}
     {% include 'navigation/top_navigation.html' with title='Component Dashboard' %}
 
     <div class="container-fluid">
@@ -18,11 +18,4 @@
 
             {% include 'component/base/overview.html' %}
         </div>
-
-        <div class="row justify-content-center border-top">
-            <div class="col-10">
-                {# {% include 'spire/footer/footer.html' %} #}
-            </div>
-        </div>
-    </div>
 {% endblock %}

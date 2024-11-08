@@ -2,16 +2,16 @@
 
 {% load static %}
 
-{% block base_content %}
-    <div class="container-fluid my-4">
+{% block example_content %}
+    <div class="container-fluid mt-4">
         <div class="text-center mb-5">
-            <a href="/" class="d-block mb-3">
+            <a href="/" class="d-block">
                 <img src="{% static 'img/django_spire.svg' %}" width="75" alt="Django Spire Logo">
             </a>
         </div>
     </div>
 
-    <div class="container my-5">
+    <div class="container my-3">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-3">
             {% for app in apps %}
                 {% include 'card/home_card.html' with title=app.title icon_class=app.icon_class url=app.url %}
