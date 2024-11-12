@@ -29,6 +29,7 @@ def get_app_context_data() -> list[dict[str, str]]:
         {'title': 'Search', 'icon_class': 'bi bi-search', 'url': reverse('search:home')},
         {'title': 'User Account', 'icon_class': 'bi bi-person', 'url': reverse('user_account:home')},
         {'title': 'User Account: Profile', 'icon_class': 'bi bi-person-circle', 'url': reverse('user_account:profile:home')},
+        {'title': 'Wizard', 'icon_class': 'bi bi-magic', 'url': reverse('wizard:home')},
 
         # Example
         {'title': 'Test Model', 'icon_class': 'bi bi-database', 'url': reverse('test_model:home')},

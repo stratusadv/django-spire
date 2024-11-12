@@ -1,0 +1,9 @@
+{% extends 'spire/wizard/wizard.html' %}
+
+{% block total_pages %}3{% endblock %}
+
+{% block pages %}
+    {% include 'modal/content/page_one.html' %}
+    {% include 'modal/content/page_two.html' %}
+    {% include 'modal/content/page_three.html' %}
+{% endblock %}

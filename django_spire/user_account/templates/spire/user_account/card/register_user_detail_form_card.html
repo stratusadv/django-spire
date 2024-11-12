@@ -25,7 +25,7 @@
         },
         validate_form() {
             if (this.user.password !== this.repeat_password.value){
-                dispatchErrorNotification('Passwords do not match.')
+                dispatch_error_notification('Passwords do not match.')
                 return false
             }
             return true

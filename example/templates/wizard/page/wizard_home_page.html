@@ -1,0 +1,13 @@
+{% extends 'base/base.html' %}
+
+{% block example_content %}
+    {% include 'navigation/top_navigation.html' with title='Wizard' %}
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                {% include 'wizard/wizard.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,42 @@
+<div
+    x-data="{
+        show_modal: false,
+
+        open_modal(event) {
+            if (event.detail && event.detail.modal_id === this.modal_id) {
+                this.show_modal = true;
+            }
+        },
+
+        close_modal() {
+            this.show_modal = false;
+        }
+    }"
+    @open-modal.window="open_modal($event)"
+    :class="{ 'show': show_modal }"
+    :style="{ display: show_modal ? 'block' : 'none' }"
+    class="modal fade"
+    tabindex="-1"
+    style="background-color: rgba(0, 0, 0, 0.5);"
+    @keydown.escape.window="close_modal()"
+>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                {% block modal_header %}
+                    <h5 class="modal-title">Modal</h5>
+                {% endblock %}
+
+                <button type="button" class="btn-close" @click="close_modal()"></button>
+            </div>
+
+            <div class="modal-body">
+                {% block modal_body %}
+                {% endblock %}
+            </div>
+
+            {% block modal_footer %}
+            {% endblock %}
+        </div>
+    </div>
+</div>

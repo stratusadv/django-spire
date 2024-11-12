@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
@@ -31,8 +32,16 @@ urlpatterns += [
     path('permission/', include('example.permission.urls', namespace='permission')),
     path('search/', include('example.search.urls', namespace='search')),
     path('user_account/', include('example.user_account.urls', namespace='user_account')),
+    path('wizard/', include('example.wizard.urls', namespace='wizard')),
 
     path('component/', include('example.component.urls', namespace='component')),
     path('cookbook/', include('example.cookbook.urls', namespace='cookbook')),
     path('test_model/', include('example.test_model.urls', namespace='test_model'))
 ]
+
+if settings.DEBUG:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+
+    urlpatterns += [
+        *debug_toolbar_urls()
+    ]

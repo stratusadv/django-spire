@@ -15,6 +15,7 @@ logging.basicConfig(
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+INTERNAL_IPS = ('127.0.0.1', '10.0.0.47')
 
 WSGI_APPLICATION = 'example.wsgi.application'
 
@@ -83,10 +84,13 @@ INSTALLED_APPS = [
     # Other
     'example.component',
     'example.cookbook',
-    'example.cookbook.recipe'
+    'example.cookbook.recipe',
+
+    'debug_toolbar'
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -94,7 +98,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_glue.middleware.GlueMiddleware'
+    'django_glue.middleware.GlueMiddleware',
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
@@ -114,6 +118,10 @@ SITE_ID = 1
 
 TIME_ZONE = 'America/Edmonton'
 USE_TZ = True
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INSERT_BEFORE': '</head>',
+}
 
 TEMPLATES = [
     {

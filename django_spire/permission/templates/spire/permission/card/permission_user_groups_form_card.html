@@ -29,7 +29,7 @@
             add_group() {
                 console.log(this.group.name)
                 if(this.group_exists(this.group.name) || this.group.name.length === 0) {
-                    dispatchErrorNotification('Group names must be unique.')
+                    dispatch_error_notification('Group names must be unique.')
                 } else {
                     console.log(this.group)
                     this.groups.push({... this.group})
