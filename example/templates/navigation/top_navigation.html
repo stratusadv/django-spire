@@ -9,8 +9,8 @@
                 </a>
 
                 <div class="d-flex flex-grow-1 justify-content-center">
-                    <a href="/" class="text-center fs-5">
-                        <span class="text-dark fw-bold">Django Spire: {% block title %}{{ title|default:"Default Title" }}{% endblock %}</span>
+                    <a href="{% block href %}{{ href|default:'/' }}{% endblock %}" class="text-center fs-5">
+                        <span class="text-dark fw-light">Django Spire: {% block title %}{{ title|default:"Default Title" }}{% endblock %}</span>
                     </a>
                 </div>
             </div>

@@ -1,9 +1,13 @@
 <div x-show="current_page === 1">
-    <h2>Wizard Page One Content</h2>
+    <h2>Page One</h2>
 
-    <p>First Name: {{ test_model.first_name }}</p>
-    <p>Last Name: {{ test_model.last_name }}</p>
+    <div class="row g-2 my-4">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.first_name' %}
+        </div>
 
-    <input type="hidden" name="first_name" value="{{ test_model.first_name }}">
-    <input type="hidden" name="last_name" value="{{ test_model.last_name }}">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.last_name' %}
+        </div>
+    </div>
 </div>

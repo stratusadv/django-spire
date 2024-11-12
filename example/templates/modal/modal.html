@@ -1,9 +1,71 @@
 {% extends 'spire/base/modal.html' %}
 
-{% block modal_header %}
-    <h5 class="modal-title">Modal</h5>
+{% block modal_title %}
+    {{ test_model.get_full_name }}
 {% endblock %}
 
 {% block modal_body %}
-    This is a standard modal.
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">First Name</label>
+                <p>{{ test_model.first_name }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Last Name</label>
+                <p>{{ test_model.last_name }}</p>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Description</label>
+                <p>{{ test_model.description }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Personality Type</label>
+                <p>{{ test_model.get_personality_type_display }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Email</label>
+                <p>{{ test_model.email|default:"N/A" }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Favorite Number</label>
+                <p>{{ test_model.favorite_number }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Anniversary Date & Time</label>
+                <p>{{ test_model.anniversary_datetime|date:"F j, Y, g:i A" }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Birth Date</label>
+                <p>{{ test_model.birth_date|date:"F j, Y" }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Weight (lbs)</label>
+                <p>{{ test_model.weight_lbs }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Best Friend</label>
+                <p>{{ test_model.best_friend }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Bed Time</label>
+                <p>{{ test_model.bed_time }}</p>
+            </div>
+
+            <div class="col-md-6 col-12">
+                <label class="form-label mb-0 pb-0 fw-bold">Likes to Party</label>
+                <p>{{ test_model.likes_to_party|yesno:"Yes,No" }}</p>
+            </div>
+        </div>
+    </div>
 {% endblock %}

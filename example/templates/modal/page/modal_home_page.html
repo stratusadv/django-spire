@@ -1,15 +1,26 @@
 {% extends 'base/base.html' %}
 
 {% block example_content %}
-    {% include 'navigation/top_navigation.html' with title='Modal' %}
+    {% url 'modal:home' as href %}
+    {% include 'navigation/top_navigation.html' with title='Modal' href=href %}
 
-    <div x-data="{ modal_id: generate_id() }">
-        {% include 'modal/modal_wizard.html' %}
-        <button type="button" class="btn btn-primary" @click="$dispatch('open-modal', { modal_id: modal_id })">Open Modal Wizard</button>
-    </div>
+    <div class="container-fluid my-4">
+        <div class="mx-auto">
+            {% block card_content %}
+                <div x-data="{ modal_id: generate_id() }">
+                    {% include 'modal/modal_wizard.html' %}
+                    <button type="button" class="btn btn-primary" @click="$dispatch('open-modal', { modal_id: modal_id })">
+                        Open Modal Wizard
+                    </button>
+                </div>
 
-    <div x-data="{ modal_id: generate_id() }">
-        {% include 'modal/modal.html' %}
-        <button type="button" class="btn btn-primary" @click="$dispatch('open-modal', { modal_id: modal_id })">Open Modal</button>
+                <div x-data="{ modal_id: generate_id() }" class="mt-3">
+                    {% include 'modal/modal.html' %}
+                    <button type="button" class="btn btn-primary" @click="$dispatch('open-modal', { modal_id: modal_id })">
+                        Open Modal
+                    </button>
+                </div>
+            {% endblock %}
+        </div>
     </div>
 {% endblock %}

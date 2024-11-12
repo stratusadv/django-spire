@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 
 {% block example_content %}
-    {% include 'navigation/top_navigation.html' with title='Home' %}
+    {% url 'home:home' as href %}
+    {% include 'navigation/top_navigation.html' with title='Home' href=href %}
 {% endblock %}

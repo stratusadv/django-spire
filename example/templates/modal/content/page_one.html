@@ -1,9 +1,11 @@
 <div x-show="current_page === 1">
-    <h2>Modal Page One Content</h2>
+    <div class="row g-2">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.first_name' %}
+        </div>
 
-    <p>First Name: {{ test_model.first_name }}</p>
-    <p>Last Name: {{ test_model.last_name }}</p>
-
-    <input type="text" name="first_name" x-model="form.first_name" value="{{ test_model.first_name }}">
-    <input type="text" name="last_name" x-model="form.last_name" value="{{ test_model.last_name }}">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.last_name' %}
+        </div>
+    </div>
 </div>

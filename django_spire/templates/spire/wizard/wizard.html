@@ -1,8 +1,8 @@
 <div
     x-data="{
-        current_page: $persist(1).as(generate_id()),
+        current_page: $persist(1).using(sessionStorage).as(generate_id()),
         total_pages: {% block total_pages %}{% endblock %},
-        form: $persist({}).as(generate_id()),
+        form: $persist({}).using(sessionStorage).as(generate_id()),
 
         initialize_persistence() {
             Array.from(this.$refs['wizard-form'].elements).forEach((element) => {
@@ -29,39 +29,18 @@
             }
         },
 
-        update_url() {
-            let url = new URL(window.location);
-            url.searchParams.set('page', this.current_page);
-            window.history.replaceState({}, '', url);
-        },
-
         submit_wizard() {
             this.clear_persistence();
             this.$refs['wizard-form'].submit();
         }
     }"
     x-init="
-        let url = new URL(window.location);
-        let page = parseInt(url.searchParams.get('page'), 10);
-
-        current_page = (
-            !isNaN(page) &&
-            page >= 1 &&
-            page <= total_pages ?
-            page : current_page
-        );
-
-        $watch('current_page', () => {
-            update_url();
-        });
-
+        current_page = Math.min(Math.max(current_page, 1), total_pages);
         initialize_persistence();
-
-        window.addEventListener('beforeunload', clear_persistence);
     "
 >
-    <div class="wizard-body">
-        <form id="wizard-form" x-ref="wizard-form" method="POST" action="">
+    <div class="wizard-body my-4">
+        <form id="wizard-form" x-ref="wizard-form" method="POST" action="{% block action %}{% endblock %}">
             {% csrf_token %}
 
             {% block pages %}
@@ -69,28 +48,34 @@
         </form>
     </div>
 
-    <div class="wizard-footer d-flex justify-content-between align-items-center">
-        <button type="button" class="btn btn-secondary" @click="previous_page()" :disabled="current_page === 1">
-            Back
-        </button>
+    {% block pagination %}
+        <div class="wizard-footer d-flex justify-content-between align-items-center pt-4">
+            <button type="button" class="btn btn-secondary" @click="previous_page()" :disabled="current_page === 1">
+                Back
+            </button>
 
-        <div class="page-indicator text-muted" style="user-select: none;">
-            Page <span x-text="current_page"></span> of <span x-text="total_pages"></span>
+            <div class="page-indicator no-select text-muted">
+                {% block page_indicator %}
+                    Page <span x-text="current_page"></span> of <span x-text="total_pages"></span>
+                {% endblock %}
+            </div>
+
+            <template x-if="current_page < total_pages">
+                <button type="button" class="btn btn-primary" @click="next_page()">Next</button>
+            </template>
+
+            <template x-if="current_page === total_pages">
+                <button type="button" class="btn btn-success" @click="submit_wizard()">Submit</button>
+            </template>
         </div>
 
-        <template x-if="current_page < total_pages">
-            <button type="button" class="btn btn-primary" @click="next_page()">Next</button>
-        </template>
-
-        <template x-if="current_page === total_pages">
-            <button type="button" class="btn btn-success" @click="submit_wizard()">Submit</button>
-        </template>
-    </div>
-
-    <div class="progress mt-2" style="height: 5px;">
-        <div
-            class="progress-bar"
-            :style="{ width: (current_page / total_pages * 100) + '%' }"
-        ></div>
-    </div>
+        {% block progress_bar %}
+            <div class="progress my-2" style="height: 5px;">
+                <div
+                    class="progress-bar"
+                    :style="{ width: (current_page / total_pages * 100) + '%' }"
+                ></div>
+            </div>
+        {% endblock %}
+    {% endblock %}
 </div>

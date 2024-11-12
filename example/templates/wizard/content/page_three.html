@@ -1,9 +1,13 @@
-<div x-show="current_page === 2">
-    <h2>Wizard Page Three Content</h2>
+<div x-show="current_page === 3">
+    <h2>Page Three</h2>
 
-    <p>Email: {{ test_model.email }}</p>
-    <p>Favorite Number: {{ test_model.favorite_number }}</p>
+    <div class="row g-2 my-4">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.email' %}
+        </div>
 
-    <input type="hidden" name="email" value="{{ test_model.email }}">
-    <input type="hidden" name="favorite_number" value="{{ test_model.favorite_number }}">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.favorite_number' %}
+        </div>
+    </div>
 </div>

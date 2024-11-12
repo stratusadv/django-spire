@@ -1,4 +1,3 @@
-
 .item-select:hover {
     background-color: var(--app-blue);
     cursor: pointer;
@@ -11,6 +10,10 @@
 .item-container:last-child {
     padding-bottom: 0 !important;
     border: none !important;
+}
+
+.no-select {
+    user-select: none;
 }
 
 .tab-item::after{

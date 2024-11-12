@@ -1,9 +1,13 @@
-<div x-show="current_page === 3">
-    <h2>Wizard Page Two Content</h2>
+<div x-show="current_page === 2">
+    <h2>Page Two</h2>
 
-    <p>Description: {{ test_model.description }}</p>
-    <p>Personality Type: {{ test_model.personality_type }}</p>
+    <div class="row g-2 my-4">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.description' %}
+        </div>
 
-    <input type="hidden" name="description" value="{{ test_model.description }}">
-    <input type="hidden" name="personality_type" value="{{ test_model.personality_type }}">
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.personality_type' %}
+        </div>
+    </div>
 </div>

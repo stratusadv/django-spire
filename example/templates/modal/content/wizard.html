@@ -2,8 +2,22 @@
 
 {% block total_pages %}3{% endblock %}
 
+{% block action %}
+    {% url 'modal:modal_form_submit' %}
+{% endblock %}
+
 {% block pages %}
-    {% include 'modal/content/page_one.html' %}
-    {% include 'modal/content/page_two.html' %}
-    {% include 'modal/content/page_three.html' %}
+    <div
+        x-data="{
+            async init() {
+                await this.test_model.get();
+            },
+
+            test_model: new GlueModelObject('test_model'),
+        }"
+    >
+        {% include 'modal/content/page_one.html' %}
+        {% include 'modal/content/page_two.html' %}
+        {% include 'modal/content/page_three.html' %}
+    </div>
 {% endblock %}
