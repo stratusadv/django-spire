@@ -1,7 +1,7 @@
 :root {
-    --app-text-primary: var(--app-blue);
-    --app-text-primary-soft: var(--app-blue-soft);
-    --app-text-primary-dark: var(--app-blue-dark);
+    --app-text-primary: var(--app-grey);
+    --app-text-primary-soft: var(--app-grey-soft);
+    --app-text-primary-dark: var(--app-grey-dark);
 
     --app-text-secondary: var(--app-grey);
     --app-text-secondary-soft: var(--app-grey-soft);

@@ -4,23 +4,39 @@
     {% url 'modal:home' as href %}
     {% include 'navigation/top_navigation.html' with title='Modal' href=href %}
 
-    <div class="container-fluid my-4">
-        <div class="mx-auto">
-            {% block card_content %}
+    <div class="container my-3">
+        <div class="row row-cols-1 row-cols-sm-2 g-4 mb-3">
+            <div class="col">
                 <div x-data="{ modal_id: generate_id() }">
+                    <a href="#" class="text-decoration-none card-link" @click.prevent="$dispatch('open-modal', { modal_id: modal_id })">
+                        <div class="card h-100 shadow-sm border-0 text-center">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <div class="mb-3">
+                                    <i class="bi bi-magic fs-1 text-app-icon-primary"></i> <!-- Icon for the modal wizard -->
+                                </div>
+                                <h5 class="card-title text-dark mb-0">Open Modal Wizard</h5>
+                            </div>
+                        </div>
+                    </a>
                     {% include 'modal/modal_wizard.html' %}
-                    <button type="button" class="btn btn-primary" @click="$dispatch('open-modal', { modal_id: modal_id })">
-                        Open Modal Wizard
-                    </button>
                 </div>
+            </div>
 
-                <div x-data="{ modal_id: generate_id() }" class="mt-3">
+            <div class="col">
+                <div x-data="{ modal_id: generate_id() }">
+                    <a href="#" class="text-decoration-none card-link" @click.prevent="$dispatch('open-modal', { modal_id: modal_id })">
+                        <div class="card h-100 shadow-sm border-0 text-center">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <div class="mb-3">
+                                    <i class="bi bi-window fs-1 text-app-icon-primary"></i> <!-- Icon for the simple modal -->
+                                </div>
+                                <h5 class="card-title text-dark mb-0">Open Modal</h5>
+                            </div>
+                        </div>
+                    </a>
                     {% include 'modal/modal.html' %}
-                    <button type="button" class="btn btn-primary" @click="$dispatch('open-modal', { modal_id: modal_id })">
-                        Open Modal
-                    </button>
                 </div>
-            {% endblock %}
+            </div>
         </div>
     </div>
 {% endblock %}

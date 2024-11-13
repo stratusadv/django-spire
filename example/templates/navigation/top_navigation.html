@@ -5,12 +5,12 @@
         <nav class="navbar navbar-light bg-app-side-bar shadow-sm">
             <div class="container-fluid justify-content-between">
                 <a href="/" class="navbar-brand">
-                    <img src="{% static 'img/django_spire.svg' %}" alt="Django Spire Logo" width="50" class="d-inline-block align-middle">
+                    <img src="{% static 'img/django_spire.svg' %}" alt="Django Spire Logo" width="150" class="d-inline-block align-middle">
                 </a>
 
                 <div class="d-flex flex-grow-1 justify-content-center">
-                    <a href="{% block href %}{{ href|default:'/' }}{% endblock %}" class="text-center fs-5">
-                        <span class="text-dark fw-light">Django Spire: {% block title %}{{ title|default:"Default Title" }}{% endblock %}</span>
+                    <a href="{% block href %}{{ href|default:'/' }}{% endblock %}" class="text-center">
+                        <h4 class="fw-normal">Django Spire: {% block title %}{{ title|default:"Default Title" }}{% endblock %}</h4>
                     </a>
                 </div>
             </div>
