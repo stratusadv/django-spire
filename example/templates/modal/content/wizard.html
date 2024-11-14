@@ -1,12 +1,8 @@
 {% extends 'spire/wizard/wizard.html' %}
 
-{% block total_pages %}3{% endblock %}
+{% block wizard_id %}modal-wizard-example{% endblock %}
 
-{% block action %}
-    {% url 'modal:modal_form_submit' %}
-{% endblock %}
-
-{% block pages %}
+{% block wizard_pages %}
     <div
         x-data="{
             async init() {

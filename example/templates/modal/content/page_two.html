@@ -1,11 +1,15 @@
-<div x-show="current_page === 2">
-    <div class="row g-2">
-        <div class="col-md-6 col-12">
-            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.description' %}
-        </div>
+{% extends 'spire/wizard/wizard_page.html' %}
 
-        <div class="col-md-6 col-12">
-            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.personality_type' %}
+{% block wizard_page %}
+    <div x-show="current_page === 2">
+        <div class="row g-2">
+            <div class="col-md-6 col-12">
+                {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.description' %}
+            </div>
+
+            <div class="col-md-6 col-12">
+                {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='test_model.personality_type' %}
+            </div>
         </div>
     </div>
-</div>
+{% endblock %}

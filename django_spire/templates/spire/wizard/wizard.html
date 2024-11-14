@@ -1,20 +1,12 @@
 <div
     x-data="{
-        current_page: $persist(1).using(sessionStorage).as(generate_id()),
-        total_pages: {% block total_pages %}{% endblock %},
-        form: $persist({}).using(sessionStorage).as(generate_id()),
+        current_page: 1,
+        total_pages: 0,
+        wizard_id: '{% block wizard_id %}{% endblock %}',
 
-        initialize_persistence() {
-            Array.from(this.$refs['wizard-form'].elements).forEach((element) => {
-                if (element.name) {
-                    this.form[element.name] = this.form[element.name] || element.value;
-                }
-            });
-        },
-
-        clear_persistence() {
-            this.current_page = 1;
-            this.form = {};
+        init() {
+            this.total_pages = this.$refs.wizard_body.querySelectorAll('.wizard-page').length;
+            this.current_page = Math.min(Math.max(this.current_page, 1), this.total_pages);
         },
 
         next_page() {
@@ -27,49 +19,42 @@
             if (this.current_page > 1) {
                 this.current_page--;
             }
-        },
-
-        submit_wizard() {
-            this.clear_persistence();
-            this.$refs['wizard-form'].submit();
         }
     }"
-    x-init="
-        current_page = Math.min(Math.max(current_page, 1), total_pages);
-        initialize_persistence();
-    "
 >
-    <div class="wizard-body my-4">
-        <form id="wizard-form" x-ref="wizard-form" method="POST" action="{% block action %}{% endblock %}">
-            {% csrf_token %}
-
-            {% block pages %}
-            {% endblock %}
-        </form>
+    <div class="wizard-body my-4" x-ref="wizard_body">
+        {% block wizard_pages %}
+        {% endblock %}
     </div>
 
-    {% block pagination %}
+    {% block wizard_pagination %}
         <div class="wizard-footer d-flex justify-content-between align-items-center pt-4">
-            <button type="button" class="btn btn-secondary" @click="previous_page()" :disabled="current_page === 1">
-                Back
-            </button>
+            {% block wizard_back_button %}
+                <button type="button" class="btn btn-secondary" @click="previous_page()" :disabled="current_page === 1">
+                    Back
+                </button>
+            {% endblock %}
 
-            <div class="page-indicator no-select text-muted">
-                {% block page_indicator %}
+            <div class="wizard-page-indicator no-select text-muted">
+                {% block wizard_page_indicator %}
                     Page <span x-text="current_page"></span> of <span x-text="total_pages"></span>
                 {% endblock %}
             </div>
 
-            <template x-if="current_page < total_pages">
-                <button type="button" class="btn btn-primary" @click="next_page()">Next</button>
-            </template>
+            {% block wizard_next_button %}
+                <template x-if="current_page < total_pages">
+                    <button type="button" class="btn btn-primary" @click="next_page()">Next</button>
+                </template>
+            {% endblock %}
 
-            <template x-if="current_page === total_pages">
-                <button type="button" class="btn btn-success" @click="submit_wizard()">Submit</button>
-            </template>
+            {% block wizard_submit_button %}
+                <template x-if="current_page === total_pages">
+                    <button type="button" class="btn btn-success">Submit</button>
+                </template>
+            {% endblock %}
         </div>
 
-        {% block progress_bar %}
+        {% block wizard_progress_bar %}
             <div class="progress my-2" style="height: 5px;">
                 <div
                     class="progress-bar"
