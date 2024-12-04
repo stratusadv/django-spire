@@ -1,13 +1,14 @@
-.venv/
-venv/
+.venv*/
+venv*/
 __pycache__/
 .idea
 build/
 django_spire.egg-info/
 inspectionProfiles/
 .python-version
-.env
+*.env
 .python-version
 *.bat
 *.db
 *.sql
+dev_tool*

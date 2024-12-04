@@ -12,10 +12,12 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S'
 )
 
-DEBUG = True
+if os.getenv('DJANGO_DEBUG', 'False') == 'True':
+    DEBUG = True
+else:
+    DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-INTERNAL_IPS = ('127.0.0.1', '10.0.0.47')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0').split(',')
 
 WSGI_APPLICATION = 'example.wsgi.application'
 
