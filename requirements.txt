@@ -6,6 +6,7 @@ django-debug-toolbar
 django-glue>=0.7.8
 dandy>=0.2.0
 Pygments
+psycopg2==2.9.10
 python-dateutil==2.8.2
 setuptools
 typing_extensions

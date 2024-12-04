@@ -3,11 +3,8 @@ from __future__ import annotations
 import os
 import sys
 
-from settings import BASE_DIR
-
 
 def main() -> None:
-    sys.path.append(str(BASE_DIR))
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'example.settings')
 
     try:
