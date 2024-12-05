@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-from django_spire import __version__
+from django_spire.constants import VERSION
 
 
 with open('LICENSE.md', encoding="utf-8") as license_handle:
@@ -11,7 +11,7 @@ with open('README.rst', encoding="utf-8") as readme_handle:
 
 setup(
     name="django-spire",
-    version=__version__,
+    version=VERSION,
     description="Django framework for high observability web applications",
     license=license_file,
     long_description=readme_file,
