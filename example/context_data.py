@@ -35,4 +35,5 @@ def get_app_context_data() -> list[dict[str, str]]:
         {'title': 'Test Model', 'icon_class': 'bi bi-database', 'url': reverse('test_model:home')},
         {'title': 'Component', 'icon_class': 'bi bi-puzzle', 'url': reverse('component:home')},
         {'title': 'Cookbook', 'icon_class': 'bi bi-book', 'url': reverse('cookbook:list')},
+        {'title': 'Tabular', 'icon_class': 'bi bi-table', 'url': reverse('tabular:home')},
     ]
