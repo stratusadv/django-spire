@@ -7,7 +7,6 @@ django_spire.egg-info/
 inspectionProfiles/
 .python-version
 *.env
-.python-version
 *.bat
 *.db
 *.sql

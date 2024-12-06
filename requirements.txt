@@ -1,6 +1,6 @@
 crispy-bootstrap5==2023.10
 docutils
-django>=5.1.2
+django==5.1.2
 django-crispy-forms==2.1
 django-debug-toolbar
 django-glue>=0.7.8

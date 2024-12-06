@@ -31,6 +31,7 @@ urlpatterns += [
     path('pagination/', include('example.pagination.urls', namespace='pagination')),
     path('permission/', include('example.permission.urls', namespace='permission')),
     path('search/', include('example.search.urls', namespace='search')),
+    path('tabular/', include('example.tabular.urls', namespace='tabular')),
     path('user_account/', include('example.user_account.urls', namespace='user_account')),
     path('wizard/', include('example.wizard.urls', namespace='wizard')),
 
