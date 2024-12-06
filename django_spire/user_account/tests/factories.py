@@ -11,8 +11,8 @@ def create_user(username: str, password: str) -> PortalUser:
 
 def create_super_user() -> PortalUser:
     user = PortalUser.objects.create_user(
-        username='Super Goat',
-        password='goatty_99'
+        username='bobert@mail.com',
+        password='12345'
     )
     user.is_superuser = True
     user.is_staff = True
