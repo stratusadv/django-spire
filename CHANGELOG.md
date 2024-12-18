@@ -1,7 +1,14 @@
-# Changelog for Django Spire
+# Changelog
 
-## 0.0.1
+## 0.1.0
 ### Features
+
+- Initial
+
 ### Changes
+
+- Initial
+
 ### Bugs
 
+- Initial

@@ -62,7 +62,6 @@ INSTALLED_APPS = [
     'django_spire.permission',
     'django_spire.search',
     'django_spire.user_account',
-    'django_spire.user_account.profile',
 
     'example',
     'example.authentication',
