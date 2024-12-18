@@ -44,7 +44,6 @@ INSTALLED_APPS = [
 
     'django_glue',
 
-    'django_spire',
     'django_spire.authentication',
     'django_spire.authentication.mfa',
     'django_spire.breadcrumb',
@@ -144,7 +143,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django_glue.context_processors.glue',
-                'django_spire.context_processors.spire'
+                'django_spire.core.context_processors.spire'
             ],
             'builtins': [
             ],

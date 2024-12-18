@@ -1,1 +1,0 @@
-SENDGRID_TEMPLATE_ID = False

@@ -1,0 +1,38 @@
+{% extends 'spire/page/page.html' %}
+
+{% block page_content %}
+    <div class="d-flex w-100">
+
+        <div class="pe-1 d-none d-lg-block w-side-navigation">
+            {% block full_page_side_navigation %}
+                {% include 'spire/navigation/side_navigation.html' %}
+            {% endblock %}
+        </div>
+
+        <div class="d-block ps-2 full-page-content">
+
+            <div class="row sticky-top">
+                <div class="col-12">
+                    {% block full_page_top_navigation %}
+                        {% include 'spire/navigation/top_navigation.html' with hide_logo=True %}
+                    {% endblock %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    {% block full_page_content %}
+                    {% endblock %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 mt-2">
+                    {% block full_page_bottom_navigation %}
+                    {% endblock %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
