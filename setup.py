@@ -69,6 +69,7 @@ setup(
         "": ["*.db"],
         "example": ["*"],
         "tests": ["*"],
+        "testing": ["*"],
     },
 )
 

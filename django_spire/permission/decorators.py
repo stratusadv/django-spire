@@ -27,7 +27,7 @@ def permission_required(permissions: str | tuple[str, ...]) -> callable:
 
                 return method(request, *args, **kwargs)
 
-            return HttpResponseRedirect(reverse('authentication:login'))
+            return HttpResponseRedirect(reverse('authentication:admin:login'))
 
         return wrapper
 

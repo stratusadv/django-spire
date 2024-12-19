@@ -14,6 +14,6 @@
 {% endif %}
 
 {% if perms.permission.view_portaluser %}
-    {% url 'user_account:profile:page:list' as user_list_url %}
+    {% url 'user_account:list' as user_list_url %}
     {% include 'spire/navigation/elements/nav_link.html' with link_text='Users' link_icon='bi bi-person-badge' link_url=user_list_url %}
 {% endif %}
