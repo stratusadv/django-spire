@@ -53,7 +53,7 @@ setup(
     install_requires=[
         "django>=5.1.2",
         "django-glue>=0.7.8",
-        "dandy>=0.4.2",
+        "dandy>=0.5.0",
     ],
     package_data={
         "": ["README.rst", "LICENSE.md", "CHANGELOG.md", "CONTRIBUTORS.md"],
