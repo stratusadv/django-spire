@@ -37,6 +37,16 @@ def modal_detail_view(request: WSGIRequest) -> TemplateResponse:
     return TemplateResponse(request, template)
 
 
+def modal_basic(request: WSGIRequest) -> HttpResponse:
+    test_model = generate_test_model()
+    glue_model(request, 'test_model', test_model)
+
+    context = {'test_model': test_model}
+
+    template = 'modal/modal.html'
+    return TemplateResponse(request, template, context=context)
+
+
 def modal_page_one(request: WSGIRequest) -> HttpResponse:
     template = 'modal/content/page_one.html'
     return TemplateResponse(request, template)

@@ -6,10 +6,10 @@ from django_spire.permission.models import PortalUser
 
 
 def register_new_user(
-        first_name: str,
-        last_name: str,
-        email: str,
-        password: str
+    first_name: str,
+    last_name: str,
+    email: str,
+    password: str
 ) -> PortalUser:
     return PortalUser.objects.create_user(
         username=email.lower(),
