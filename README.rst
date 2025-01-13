@@ -28,7 +28,7 @@ Add ``django_spire`` to your Django project’s ``INSTALLED_APPS``:
 .. code-block:: python
 
     INSTALLED_APPS = [
-        'django_spire',
+        'django_spire.core',
         'django_spire.authentication',
         'django_spire.authentication.mfa',
         'django_spire.breadcrumb',

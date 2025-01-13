@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-from django_spire.constants import VERSION
+from django_spire.consts import VERSION
 
 
 with open('LICENSE.md', encoding="utf-8") as license_handle:
@@ -51,7 +51,7 @@ setup(
     zip_safe=False,
     python_requires=">=3.10",
     install_requires=[
-        "django>=5.1.2",
+        "django>=5.1.4",
         "django-glue>=0.7.8",
         "dandy>=0.5.2",
     ],
