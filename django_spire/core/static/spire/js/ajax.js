@@ -11,3 +11,15 @@ async function ajax_request(method, url, data) {
         }
     })
 }
+
+
+async function file_request(method, url, data) {
+    return axios({
+        method: method,
+        url: url,
+        headers: {
+            'X-CSRFToken': get_cookie('csrftoken'),
+        },
+        data: data
+    })
+}

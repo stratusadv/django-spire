@@ -66,7 +66,7 @@ setup(
         ],
     },
     exclude_package_data={
-        "": ["*.db"],
+        "": ["*.db", "pyproject.toml"],
         "example": ["*"],
         "tests": ["*"],
         "testing": ["*"],

@@ -6,7 +6,7 @@ from django.template.response import TemplateResponse
 
 from django_glue.glue import glue_model
 
-from django_spire.shortcuts import get_object_or_null_obj
+from django_spire.core.shortcuts import get_object_or_null_obj
 
 from example.component.utils import from_directory, from_file
 from example.cookbook.models import Cookbook

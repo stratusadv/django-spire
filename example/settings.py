@@ -19,6 +19,7 @@ else:
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0').split(',')
 
+ASGI_APPLICATION = 'example.asgi.application'
 WSGI_APPLICATION = 'example.wsgi.application'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
 
     'django_glue',
 
+    'django_spire.ai',
     'django_spire.authentication',
     'django_spire.authentication.mfa',
     'django_spire.breadcrumb',
@@ -132,6 +134,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            str(BASE_DIR / 'core/templates'),
             str(BASE_DIR / 'example/templates'),
         ],
         'APP_DIRS': True,

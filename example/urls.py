@@ -11,10 +11,12 @@ urlpatterns = [
 
 urlpatterns += [
     path('admin/', admin.site.urls),
-    path('django_glue/', include('django_glue.urls'))
+    path('django_glue/', include('django_glue.urls')),
+    path('spire/ai/', include('django_spire.ai.urls', namespace='spire_ai')),
 ]
 
 urlpatterns += [
+    path('ai/', include('example.ai.urls', namespace='ai')),
     path('authentication/', include('example.authentication.urls', namespace='authentication')),
     path('breadcrumb/', include('example.breadcrumb.urls', namespace='breadcrumb')),
     path('comment/', include('example.comment.urls', namespace='comment')),

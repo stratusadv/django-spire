@@ -1,3 +1,19 @@
+[project]
+name = "django-spire"
+version = "0.0.1"
+description = "A project for Django Spire"
+readme = "README.md"
+authors = [
+    { name = "Brayden Carlson", email = "braydenc@stratusadv.com" },
+    { name = "Nathan Johnson", email = "nathanj@stratusadv.com" },
+]
+keywords = ["portal", "cmms"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent"
+]
+requires-python = ">=3.11.9"
+
 [tool.dev_tool]
 port = 5745
 

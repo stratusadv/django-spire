@@ -4,7 +4,7 @@ from django.test import RequestFactory
 
 from django_spire.options.options import Options, OptionSection, Option
 from django_spire.options.tests import factories
-from django_spire.tests.test_cases import BaseTestCase
+from django_spire.core.tests.test_cases import BaseTestCase
 
 
 class OptionsUnitTestCase(BaseTestCase):
