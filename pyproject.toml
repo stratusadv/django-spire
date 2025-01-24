@@ -1,22 +1,82 @@
 [project]
 name = "django-spire"
-version = "0.0.1"
 description = "A project for Django Spire"
-readme = "README.md"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+license = { file = "LICENSE.md" }
 authors = [
     { name = "Brayden Carlson", email = "braydenc@stratusadv.com" },
     { name = "Nathan Johnson", email = "nathanj@stratusadv.com" },
 ]
-keywords = ["portal", "cmms"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent"
+keywords = [
+    "portal",
+    "cmms",
+    "spire",
+    "django",
+    "backend",
+    "frontend",
+    "javascript",
+    "active server pages",
 ]
-requires-python = ">=3.11.9"
-dynamic = ["dependencies", "license"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4.0",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: JavaScript",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+requires-python = ">=3.10"
+dependencies = [
+    "crispy-bootstrap5==2023.10",
+    "docutils",
+    "django==5.1.4",
+    "django-crispy-forms==2.1",
+    "django-debug-toolbar",
+    "django-glue==0.7.8",
+    "dandy==0.7.0",
+    "Pygments",
+    "psycopg2==2.9.10",
+    "python-dateutil==2.8.2",
+    "setuptools",
+    "typing_extensions"
+]
+dynamic = ["version"]
+
+[build-system]
+requires = [
+    "setuptools>=66.0",
+    "wheel>=0.36.0"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = [
+    "example",
+    "example.*",
+    "testing",
+    "docs",
+    "tests",
+    "tests.*",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "django_spire.consts.VERSION" }
 
 [tool.dev_tool]
 port = 5745
+single_instance = true
 
 [tool.docker]
 container-size = "8g"

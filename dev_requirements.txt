@@ -1,1 +1,3 @@
+build
 openai-whisper==20240930
+twine
