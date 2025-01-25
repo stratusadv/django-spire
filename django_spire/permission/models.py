@@ -39,7 +39,7 @@ class PortalUser(User, ActivityLogMixin):
     @classmethod
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
-        crumbs.add_breadcrumb('Users', reverse('user_account:profile:page:list'))
+        crumbs.add_breadcrumb('Users', reverse('user_account:list'))
         return crumbs
 
     def breadcrumbs(self) -> Breadcrumbs:
@@ -49,7 +49,7 @@ class PortalUser(User, ActivityLogMixin):
         if self.pk:
             crumbs.add_breadcrumb(
                 name=self.get_full_name(),
-                href=reverse('user_account:profile:page:detail', kwargs={'pk': self.pk})
+                href=reverse('user_account:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs

@@ -1,7 +1,7 @@
 {% extends 'spire/item/item.html' %}
 
 {% block item_title %}
-    {% url 'user_account:profile:detail' pk=user.pk as detail_url %}
+    {% url 'user_account:detail' pk=user.pk as detail_url %}
     {% include 'spire/element/attribute_element.html' with attribute_type='User' attribute_value=user.get_full_name attribute_href=detail_url %}
 {% endblock %}
 

@@ -28,6 +28,7 @@
             method="post"
         >
             {% csrf_token %}
+
             <div class="row g-2 mb-3">
                 <div class="col-6">
                     {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='user.first_name' %}
@@ -42,6 +43,7 @@
                     {% include 'django_glue/form/glue_field/select_field.html' with glue_model_field='user.is_active' %}
                 </div>
             </div>
+
             {% include 'spire/form/button/form_submit_button.html' %}
         </form>
     {% endblock %}

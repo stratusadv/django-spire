@@ -4,20 +4,19 @@ from typing_extensions import TYPE_CHECKING
 
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from django_spire.permission.models import PortalUser
-from django_spire.views import portal_views
-from django_spire.forms import DeleteConfirmationForm
+from django_spire.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.core.shortcuts import (
     get_object_or_null_obj,
     process_request_body
 )
-from django_spire.redirect import safe_redirect_url
 from django_spire.history.utils import add_form_activity
+from django_spire.permission import forms, models
 from django_spire.permission.constants import PERMISSION_MODELS_DICT
 from django_spire.permission.decorators import permission_required
-from django_spire.permission import forms, models
 from django_spire.permission.permissions import (
     generate_group_perm_data,
     GroupPermissions
@@ -27,6 +26,7 @@ from django_spire.permission.utils import (
     perm_level_to_int,
     perm_level_to_django_permission
 )
+from django_spire.views import portal_views
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -81,7 +81,8 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         if form.is_valid():
             group = form.save()
             add_form_activity(group, pk, request.user)
-            return_url = safe_redirect_url(request)
+
+            return_url = reverse('permission:group_list')
             return HttpResponseRedirect(return_url)
 
     form = forms.GroupForm(instance=group)
@@ -106,12 +107,14 @@ def group_user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         if form.is_valid():
             user_list = form.cleaned_data.get('available_users')
             add_users_to_group(group, user_list)
+
             group.add_activity(
                 user=request.user,
                 verb='added',
                 information=f'{request.user.get_full_name()} added {len(user_list)} users to the group "{group.name}".'
             )
-            return_url = safe_redirect_url(request)
+
+            return_url = reverse('permission:group_detail', kwargs={'pk': pk})
             return HttpResponseRedirect(return_url)
 
     form = forms.GroupUserForm(group=group)
@@ -133,7 +136,7 @@ def group_user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('permission.delete_portalgroup')
 def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.PortalGroup, pk=pk)
-    return_url = safe_redirect_url(request)
+    return_url = reverse('permission:group_list')
 
     return portal_views.delete_form_view(
         request,
@@ -153,18 +156,21 @@ def group_remove_user_form_view(
     user = get_object_or_404(PortalUser, pk=pk)
 
     if request.method == 'POST':
-        form = DeleteConfirmationForm(request.POST)
+        form = DeleteConfirmationForm(request.POST, obj=user)
+
         if form.is_valid():
             user.groups.remove(group)
+
             group.add_activity(
                 user=request.user,
                 verb='removed',
                 information=f'{request.user.get_full_name()} removed {user.get_full_name()} from the group "{group.name}".'
             )
-            return_url = safe_redirect_url(request)
+
+            return_url = reverse('permission:group_detail', kwargs={'pk': group_pk})
             return HttpResponseRedirect(return_url)
 
-    form = DeleteConfirmationForm()
+    form = DeleteConfirmationForm(request.GET, obj=user)
 
     def get_breadcrumbs(breadcrumbs) -> None:
         breadcrumbs = group.breadcrumbs()

@@ -11,7 +11,7 @@ from django.urls import reverse
 
 from django_spire.comment import models
 from django_spire.comment.forms import CommentForm
-from django_spire.forms import show_form_errors
+from django_spire.forms.utils import show_form_errors
 from django_spire.core.redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj, model_object_from_app_label
 from django_spire.permission.utils import has_app_permission_or_404

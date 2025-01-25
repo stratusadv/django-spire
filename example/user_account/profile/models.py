@@ -24,7 +24,7 @@ class UserAccountProfileExample(HistoryModelMixin):
 
         crumbs.add_breadcrumb(
             'UserAccount Profile',
-            reverse('user_account:profile:page:list')
+            reverse('user_account:list')
         )
 
         return crumbs
@@ -37,7 +37,7 @@ class UserAccountProfileExample(HistoryModelMixin):
             crumbs.add_breadcrumb(
                 str(self),
                 reverse(
-                    'user_account:profile:page:detail',
+                    'user_account:detail',
                     kwargs={'pk': self.pk}
                 )
             )

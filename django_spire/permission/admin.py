@@ -38,7 +38,7 @@ class PortalUserAdmin(admin.ModelAdmin):
     full_name.short_description = 'Full Name'
 
     def view_user_profile_link(self, user: models.PortalUser) -> str:
-        url = reverse('user_account:profile:page:detail', kwargs={'pk': user.pk})
+        url = reverse('user_account:detail', kwargs={'pk': user.pk})
         return format_html(f'<a href="{url}">Profile</a>')
 
     view_user_profile_link.short_description = 'Profile Link'

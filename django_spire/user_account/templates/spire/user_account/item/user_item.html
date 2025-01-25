@@ -3,7 +3,7 @@
 {% load core_tags %}
 
 {% block item_title %}
-    {% url 'user_account:profile:page:detail' pk=user.pk as detail_url %}
+    {% url 'user_account:detail' pk=user.pk as detail_url %}
     {% include 'spire/element/attribute_element.html' with attribute_title='User' attribute_value=user.get_full_name attribute_href=detail_url %}
 {% endblock %}
 
@@ -15,10 +15,10 @@
 {% endblock %}
 
 {% block item_button %}
-    {% url 'user_account:profile:page:detail' pk=user.pk as detail_url %}
+    {% url 'user_account:detail' pk=user.pk as detail_url %}
     
     {% if perms.permission.change_portaluser %}
-        {% url 'user_account:profile:page:form' pk=user.pk as edit_url %}
+        {% url 'user_account:form' pk=user.pk as edit_url %}
     {% endif %}
     
     {% include 'spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=edit_url %}

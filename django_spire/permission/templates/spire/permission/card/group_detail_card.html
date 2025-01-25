@@ -19,7 +19,7 @@
             {% include 'spire/element/attribute_element.html' with attribute_title='Name' attribute_value=group.name %}
         </div>
         <div class="col">
-            {% include 'spire/element/attribute_element.html' with attribute_title='Number of Users' attribute_value=group.user_set.count %}
+            {% include 'spire/element/attribute_element.html' with attribute_title='Number of Users' attribute_value=group.user_set.count|default:'0' %}
         </div>
     </div>
 {% endblock %}

@@ -16,6 +16,7 @@
 {% block card_title_content %}
     {% if group_list %}
         {% include 'spire/user_account/item/user_master_perm_item.html' %}
+
         {% for group in group_list %}
             {% include 'spire/permission/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='user' delete_url_name='Remove' %}
         {% endfor %}

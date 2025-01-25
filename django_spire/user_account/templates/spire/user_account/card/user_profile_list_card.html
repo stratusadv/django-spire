@@ -6,12 +6,12 @@
 
 {% block card_content %}
     {% for user in user_list %}
-        {% url 'user_account:profile:form' pk=user.pk as edit_url %}
+        {% url 'user_account:form' pk=user.pk as edit_url %}
         
 {#        {% if user.is_active %}#}
-{#            {% url 'user_account:profile:page:toggle_user_status' pk=user.pk as deactivate_url %}#}
+{#            {% url 'user_account:toggle_user_status' pk=user.pk as deactivate_url %}#}
 {#        {% else %}#}
-{#            {% url 'user_account:profile:page:toggle_user_status' pk=user.pk as activate_url %}#}
+{#            {% url 'user_account:toggle_user_status' pk=user.pk as activate_url %}#}
 {#        {% endif %} #}
 {#        #}
 {#        {% url 'user_account:toggle_user_status' pk=user.pk as delete_url %}#}

@@ -1,6 +1,6 @@
 {% extends 'spire/page/full_page.html' %}
 
-{% block page_content %}
+{% block full_page_content %}
     <div class="row mb-3">
         <div class="col">
             {% include 'spire/permission/card/group_detail_card.html' %}
@@ -15,6 +15,7 @@
             <div class="mb-3">
                 {% include 'spire/permission/card/group_user_list_card.html' with queryset=user_list %}
             </div>
+
             {% include 'spire/history/card/activity_list_card.html' with queryset=group.activity_log.all %}
         </div>
     </div>

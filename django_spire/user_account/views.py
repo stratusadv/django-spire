@@ -8,9 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django_glue.glue import glue_model
 from django_glue.utils import serialize_to_json
-from typing_extensions import TYPE_CHECKING
 
 from django_spire.core.redirect import safe_redirect_url
+from django_spire.breadcrumb.models import Breadcrumbs
 from django_spire.form.confirmation_forms import (
     DeleteConfirmationForm,
     ConfirmationForm
@@ -27,10 +27,6 @@ from django_spire.permission.permissions import (
 from django_spire.user_account import forms
 from django_spire.views import portal_views
 
-if TYPE_CHECKING:
-    from django_spire.breadcrumb.models import Breadcrumbs
-
-
 
 def register_user_form_view(request):
     # Is this the best way to initialize a null object in glue?
@@ -46,7 +42,7 @@ def register_user_form_view(request):
             # Add form activity. This needs to be improved.
             add_form_activity(user, 0, request.user)
 
-            return HttpResponseRedirect(reverse('user_account:profile:page:list'))
+            return HttpResponseRedirect(reverse('user_account:list'))
 
         show_form_errors(request, user_form)
     else:
@@ -59,7 +55,7 @@ def register_user_form_view(request):
     }
 
     crumbs = Breadcrumbs()
-    crumbs.add_breadcrumb(name='Users', href=reverse('user_account:profile:page:list'))
+    crumbs.add_breadcrumb(name='Users', href=reverse('user_account:list'))
     crumbs.add_breadcrumb(name='Register New User')
 
     return portal_views.template_view(
@@ -115,10 +111,12 @@ def user_form_page_view(request, pk):
 
     if request.method == 'POST':
         form = forms.UserForm(request.POST, instance=portal_user)
+
         if form.is_valid():
             portal_user = form.save()
             add_form_activity(portal_user, pk, request.user)
-            return HttpResponseRedirect(reverse('user_account:profile:page:list'))
+
+            return HttpResponseRedirect(reverse('user_account:list'))
     else:
         form = forms.UserForm(instance=portal_user)
 
@@ -144,16 +142,19 @@ def user_status_form_page_view(request, pk):
 
     if request.method == 'POST':
         form = form_class(request.POST)
-        if form.is_valid():
 
+        if form.is_valid():
             user.is_active = not user.is_active
-            toggle_verb = 'activated' if user.is_active else 'deactivated'
             user.save()
+
+            toggle_verb = 'activated' if user.is_active else 'deactivated'
+
             user.add_activity(
                 user=request.user,
                 verb=toggle_verb,
                 information=f'{request.user.get_full_name()} {toggle_verb} user "{user.get_full_name()}".'
             )
+
             return_url = safe_redirect_url(request)
             return HttpResponseRedirect(return_url)
 
