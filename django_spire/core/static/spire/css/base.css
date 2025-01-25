@@ -26,6 +26,38 @@
     user-select: none;
 }
 
+.skeleton {
+    background-color: rgba(200, 200, 200, 1);
+    animation: pulse 1.5s infinite ease-in-out;
+    border-radius: 0.375rem;
+}
+
+.skeleton-text {
+    height: 1em;
+    width: 100%;
+}
+
+.skeleton-rounded {
+    border-radius: 50%;
+}
+
+.skeleton-img {
+    height: 200px;
+    width: 100%;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 .tab-item::after{
     content: "";
     position: absolute;
