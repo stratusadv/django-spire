@@ -14,11 +14,9 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% if user_list %}
-        {% for user in user_list %}
-            {% include 'spire/permission/item/group_user_item.html' with small_view=True %}
-        {% endfor %}
-    {% else %}
+    {% for user in user_list %}
+        {% include 'spire/permission/item/group_user_item.html' with small_view=True %}
+    {% empty %}
         {% include 'spire/item/no_data_item.html' %}
-    {% endif %}
+    {% endfor %}
 {% endblock %}
