@@ -42,7 +42,7 @@ dependencies = [
     "django-crispy-forms==2.1",
     "django-debug-toolbar",
     "django-glue==0.7.8",
-    "dandy==0.8.1",
+    "dandy>=0.6.1",
     "Pygments",
     "psycopg2==2.9.10",
     "python-dateutil==2.8.2",
