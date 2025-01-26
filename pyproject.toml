@@ -77,9 +77,7 @@ exclude = [
     "example.*",
     "testing",
     "docs*",
-    "tests*",
     "*.docs*",
-    "*.tests*"
 ]
 
 [tool.setuptools.dynamic]
