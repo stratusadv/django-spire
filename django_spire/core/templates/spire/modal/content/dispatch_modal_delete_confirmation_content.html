@@ -1,0 +1,30 @@
+{% extends 'spire/modal/content/modal_title_content.html' %}
+
+{% block modal_content_title %}
+	{{ form_title }}
+{% endblock %}
+
+{% block modal_content_content %}
+    <form
+        action="{{ form_action }}"
+        method="post"
+        x-data="{
+            should_delete: new GlueCharField('should_delete', {
+                value: true,
+                hidden: true
+            })
+        }"
+    >
+        {% csrf_token %}
+        {{ form_description }}
+
+        {% include 'django_glue/form/glue_field/input_field.html' with glue_field='should_delete' %}
+
+        <div class="d-flex mt-3">
+            {% include 'spire/form/button/form_submit_button.html' with button_text='Delete' button_class='btn-danger btn-sm' %}
+            <span class="ms-2" @click="close_modal()" >
+                {% include 'spire/button/secondary_button.html' with button_text='Cancel' %}
+            </span>
+        </div>
+    </form>
+{% endblock %}

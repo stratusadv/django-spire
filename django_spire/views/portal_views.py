@@ -17,12 +17,12 @@ BreadCrumbCallable = Callable[[Breadcrumbs], None]
 
 
 def detail_view(
-        request: WSGIRequest,
-        *,
-        context_data: dict | None = None,
-        breadcrumbs_func: BreadCrumbCallable | None = None,
-        obj,
-        template: str
+    request: WSGIRequest,
+    *,
+    context_data: dict | None = None,
+    breadcrumbs_func: BreadCrumbCallable | None = None,
+    obj,
+    template: str
 ) -> TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -50,18 +50,18 @@ def detail_view(
 
 
 def delete_form_view(
-        request: WSGIRequest,
-        *,
-        context_data: dict | None = None,
-        obj,
-        activity_func: callable | None = None,
-        auto_add_activity: bool = True,
-        breadcrumbs_func: BreadCrumbCallable | None = None,
-        delete_func: callable | None = None,
-        # Present and past tense of verb
-        verbs: tuple[str, str] = ('delete', 'deleted'),
-        return_url: str,
-        template: str = 'spire/page/form_full_page.html'
+    request: WSGIRequest,
+    *,
+    context_data: dict | None = None,
+    obj,
+    activity_func: callable | None = None,
+    auto_add_activity: bool = True,
+    breadcrumbs_func: BreadCrumbCallable | None = None,
+    delete_func: callable | None = None,
+    # Present and past tense of verb
+    verbs: tuple[str, str] = ('delete', 'deleted'),
+    return_url: str,
+    template: str = 'spire/page/form_full_page.html'
 ) -> HttpResponseRedirect | TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -117,12 +117,12 @@ def delete_form_view(
 
 
 def list_view(
-        request: WSGIRequest,
-        *,
-        context_data: dict | None = None,
-        breadcrumbs_func: BreadCrumbCallable | None = None,
-        model,
-        template: str
+    request: WSGIRequest,
+    *,
+    context_data: dict | None = None,
+    breadcrumbs_func: BreadCrumbCallable | None = None,
+    model,
+    template: str
 ) -> TemplateResponse:
 
     if context_data is None:
@@ -151,14 +151,14 @@ def list_view(
 
 
 def form_view(
-        request: WSGIRequest,
-        *,
-        form,
-        context_data: dict | None = None,
-        obj,
-        breadcrumbs_func: BreadCrumbCallable | None = None,
-        verb: str | None = None,
-        template: str = 'spire/page/form_full_page.html'
+    request: WSGIRequest,
+    *,
+    form,
+    context_data: dict | None = None,
+    obj,
+    breadcrumbs_func: BreadCrumbCallable | None = None,
+    verb: str | None = None,
+    template: str = 'spire/page/form_full_page.html'
 ) -> TemplateResponse:
 
     if context_data is None:
@@ -198,14 +198,14 @@ def form_view(
 
 
 def model_form_view(
-        request: WSGIRequest,
-        *,
-        form,
-        context_data: dict | None = None,
-        obj,
-        breadcrumbs_func: BreadCrumbCallable | None = None,
-        verb: str | None = None,
-        template: str = 'spire/page/form_full_page.html'
+    request: WSGIRequest,
+    *,
+    form,
+    context_data: dict | None = None,
+    obj,
+    breadcrumbs_func: BreadCrumbCallable | None = None,
+    verb: str | None = None,
+    template: str = 'spire/page/form_full_page.html'
 ) -> TemplateResponse:
     if breadcrumbs_func is None:
         def breadcrumbs_func(crumbs: Breadcrumbs) -> None:
