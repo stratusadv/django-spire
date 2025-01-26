@@ -61,14 +61,25 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 include-package-data = true
 
+[tool.setuptools.package-data]
+django_spire = [
+    "**/*.html",
+    "**/*.css",
+    "**/*.js",
+    "**/*.png",
+    "**/*.jpg"
+]
+
 [tool.setuptools.packages.find]
 exclude = [
+    "*.db",
     "example",
     "example.*",
     "testing",
-    "docs",
-    "tests",
-    "tests.*",
+    "docs*",
+    "tests*",
+    "*.docs*",
+    "*.tests*"
 ]
 
 [tool.setuptools.dynamic]

@@ -3,7 +3,9 @@
 *.env
 *.db
 *.sql
+*.tar.gz
 *.wav
+*.whl
 dev_tool*
 pyproject.toml
 
