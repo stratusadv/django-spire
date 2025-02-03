@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 import whisper
 
 from enum import Enum
@@ -8,6 +9,9 @@ from pathlib import Path
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_protect
+
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 class WhisperModel(Enum):

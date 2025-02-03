@@ -6,7 +6,7 @@ from django.urls import reverse
 from django_spire.breadcrumb.models import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 
-from example.placeholder import querysets
+from app.parent.placeholder import querysets
 
 
 class Placeholder(HistoryModelMixin):

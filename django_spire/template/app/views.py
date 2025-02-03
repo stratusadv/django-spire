@@ -10,7 +10,7 @@ from django_spire.views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.utils import add_form_activity
 
-from example.placeholder import forms, models
+from app.parent.placeholder import forms, models
 
 from django_glue.glue import glue_model
 
@@ -22,13 +22,15 @@ if TYPE_CHECKING:
 def placeholder_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     placeholder = get_object_or_404(models.Placeholder, pk=pk)
 
+    return_url = request.GET.get(
+        'return_url',
+        reverse('placeholder:page:list')
+    )
+
     return portal_views.delete_form_view(
         request,
         obj=placeholder,
-        return_url=request.GET.get(
-            'return_url',
-            reverse('placeholder:page:list')
-        )
+        return_url=return_url
     )
 
 
