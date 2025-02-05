@@ -4,7 +4,7 @@ from typing_extensions import ClassVar
 
 from django import forms
 
-from app.parent.placeholder import models
+from module import models
 
 
 class PlaceholderForm(forms.ModelForm):

@@ -21,7 +21,7 @@ class AppManager:
             if '.' in app and app.split('.')[0] != 'django'
         }
 
-    def validate_root_apps(self, components: list[str]):
+    def is_valid_root_apps(self, components: list[str]):
         valid = self.get_valid_root_apps()
         root = components[0]
 
@@ -93,22 +93,23 @@ class AppManager:
             ignore=shutil.ignore_patterns('__pycache__', '*.pyc')
         )
 
-        processor.replace_app_name(destination, components[-1])
+        processor.replace_app_name(destination, components)
         reporter.report_app_creation_success(app)
 
 
 class TemplateProcessor:
-    def replace_app_name(self, directory: Path, app: str):
-        components = app.split('.')
-        parent = components[0] if len(components) > 1 else app
+    def replace_app_name(self, directory: Path, components: str):
+        app = components[-1]
+        parent = components[-2] if len(components) > 1 else app
+        module = '.'.join(components)
 
         for path in directory.rglob('*'):
             if path.is_file():
-                self.replace_content(path, components[-1], parent)
-                self.rename_file(path, components[-1], parent)
+                self.replace_content(path, app, parent, module)
+                self.rename_file(path, app, parent, module)
 
-    def replace_content(self, path: Path, app: str, parent: str):
-        replacements = self.generate_replacement(app, parent)
+    def replace_content(self, path: Path, app: str, parent: str, module: str):
+        replacements = self.generate_replacement(app, parent, module)
 
         with open(path, 'r', encoding='utf-8') as handle:
             content = handle.read()
@@ -118,8 +119,8 @@ class TemplateProcessor:
         with open(path, 'w', encoding='utf-8') as file:
             file.write(updated_content)
 
-    def rename_file(self, path: Path, app: str, parent: str):
-        replacements = self.generate_replacement(app, parent)
+    def rename_file(self, path: Path, app: str, parent: str, module: str):
+        replacements = self.generate_replacement(app, parent, module)
         new_name = self.apply_replacement(path.name, replacements)
 
         if new_name != path.name:
@@ -127,8 +128,13 @@ class TemplateProcessor:
             path.rename(new_path)
 
     @staticmethod
-    def generate_replacement(app: str, parent: str) -> dict[str, str]:
+    def generate_replacement(
+        app: str,
+        parent: str,
+        module: str
+    ) -> dict[str, str]:
         return {
+            'module': module,
             'Placeholder': app.capitalize(),
             'Placeholders': app.capitalize() + 's',
             'placeholder': app.lower(),
@@ -136,7 +142,7 @@ class TemplateProcessor:
             'Parent': parent.capitalize(),
             'Parents': parent.capitalize() + 's',
             'parent': parent.lower(),
-            'parents': parent.lower() + 's',
+            'parents': parent.lower() + 's'
         }
 
     @staticmethod
@@ -163,7 +169,7 @@ class Reporter:
         self.command.stdout.write(self.command.style.SUCCESS(f'Successfully created app: {app}'))
 
     def report_app_exists(self, app: str, destination: Path):
-        self.command.stdout.write(self.command.style.WARNING(f'App "{app}" already exists at {destination}'))
+        self.command.stdout.write(self.command.style.WARNING(f'The app "{app}" already exists at {destination}'))
 
     def report_creating_app(self, app: str, destination: Path):
         self.command.stdout.write(self.command.style.NOTICE(f'Creating app "{app}" at {destination}'))
@@ -238,7 +244,7 @@ class Command(BaseCommand):
         self.manager.validate_app_name_format(app)
 
         components = self.manager.parse_app_name(app)
-        self.manager.validate_root_apps(components)
+        self.manager.is_valid_root_apps(components)
 
         registered_apps = self.get_app_names()
 
@@ -249,7 +255,6 @@ class Command(BaseCommand):
         if missing_components:
             self.reporter.report_missing_components(missing_components)
             self.reporter.report_tree_structure(self.base, components, registered_apps, self.template)
-            self.reporter.report_installed_apps_suggestion(missing_components)
 
             if not self.reporter.prompt_for_confirmation('\nProceed with app creation? (y/n): '):
                 self.stdout.write(self.style.ERROR('App creation aborted.'))
@@ -257,5 +262,7 @@ class Command(BaseCommand):
 
             for module in missing_components:
                 self.manager.create_custom_app(module, self.processor, self.reporter)
+
+            self.reporter.report_installed_apps_suggestion(missing_components)
         else:
-            self.stdout.write(self.style.SUCCESS('All components exist!'))
+            self.stdout.write(self.style.SUCCESS('All component(s) exist!'))

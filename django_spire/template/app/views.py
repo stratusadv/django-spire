@@ -10,7 +10,7 @@ from django_spire.views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.utils import add_form_activity
 
-from app.parent.placeholder import forms, models
+from module import forms, models
 
 from django_glue.glue import glue_model
 
