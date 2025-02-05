@@ -157,6 +157,9 @@ class Reporter:
     def __init__(self, command: BaseCommand):
         self.command = command
 
+    def prompt_for_confirmation(self, message: str) -> bool:
+        return input(message).strip().lower() == 'y'
+
     def report_missing_components(self, missing_components: list[str]):
         self.command.stdout.write(self.command.style.WARNING('The following are not registered apps:'))
         self.command.stdout.write('\n'.join(f' - {app}' for app in missing_components))
@@ -189,9 +192,6 @@ class Reporter:
 
             if app not in registered_apps and template.exists():
                 self.show_tree_from_template(template, indent=indent + INDENT)
-
-    def prompt_for_confirmation(self, message: str) -> bool:
-        return input(message).strip().lower() == 'y'
 
     def show_tree_from_template(self, template_dir: Path, indent: str = ''):
         ignore = {'__init__.py', '__pycache__'}
