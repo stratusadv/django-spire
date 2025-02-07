@@ -3,25 +3,41 @@ from __future__ import annotations
 from django_spire.permission.models import PortalUser
 
 
-def create_user(username: str, password: str) -> PortalUser:
-    user = PortalUser.objects.create_user(username=username, password=password)
-    user.save()
+def create_user(
+    username: str,
+    password: str,
+    **kwargs
+) -> PortalUser:
+    user, created = PortalUser.objects.get_or_create(
+        username=username,
+        defaults={
+            'password': password,
+            **kwargs
+        }
+    )
+
+    if created:
+        user.set_password(password)
+        user.save()
 
     return user
 
 
-def create_super_user() -> PortalUser:
-    user = PortalUser.objects.create_user(
+def create_super_user(password: str = 'bobert', **kwargs) -> PortalUser:
+    user, created = PortalUser.objects.get_or_create(
         username='bobert@stratusadv.com',
-        password='bobert'
+        defaults={
+            'email': 'bobert@stratusadv.com',
+            'first_name': 'Bob',
+            'last_name': 'Robertson',
+            'is_superuser': True,
+            'is_staff': True,
+            **kwargs
+        }
     )
 
-    user.is_superuser = True
-    user.is_staff = True
-    user.first_name = 'Bob'
-    user.last_name = 'Robertson'
-    user.email = 'bobert@stratusadv.com'
-
-    user.save()
+    if created:
+        user.set_password(password)
+        user.save()
 
     return user
