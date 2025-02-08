@@ -1,4 +1,5 @@
-build==1.2.2.post1
+build
 openai-whisper==20240930
-twine==6.1.0
+setuptools
+twine
 vulture==2.14

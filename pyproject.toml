@@ -35,34 +35,21 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 requires-python = ">=3.10"
-dependencies = [
-    "crispy-bootstrap5",
-    "docutils",
-    "django",
-    "django-crispy-forms",
-    "django-debug-toolbar",
-    "django-glue",
-    "dandy",
-    "Pygments",
-    "psycopg2",
-    "python-dateutil",
-    "setuptools",
-    "typing_extensions"
-]
-dynamic = ["version"]
+dynamic = ["dependencies", "version"]
 
 [build-system]
 requires = [
-    "setuptools>=66.0",
-    "wheel>=0.36.0"
+    "setuptools",
+    "wheel"
 ]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-include-package-data = true
+packages = ["django_spire"]
 
 [tool.setuptools.package-data]
 django_spire = [
+    "**/*.py",
     "**/*.html",
     "**/*.css",
     "**/*.js",
@@ -70,18 +57,9 @@ django_spire = [
     "**/*.jpg"
 ]
 
-[tool.setuptools.packages.find]
-exclude = [
-    "*.db",
-    "example",
-    "example.*",
-    "testing",
-    "docs*",
-    "*.docs*",
-]
-
 [tool.setuptools.dynamic]
 version = { attr = "django_spire.consts.VERSION" }
+dependencies = { file = "requirements.txt" }
 
 [tool.dev_tool]
 port = 5745

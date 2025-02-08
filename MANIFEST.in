@@ -1,0 +1,9 @@
+exclude *.bat
+exclude *.db
+exclude *.exe
+prune .dev
+prune .github
+prune .venv
+prune docs
+prune example
+prune testing
