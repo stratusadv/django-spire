@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django_spire.pagination',
     'django_spire.permission',
     'django_spire.search',
+    'django_spire.seeding',
     'django_spire.user_account',
 
     'example',
