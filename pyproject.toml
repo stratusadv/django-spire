@@ -91,12 +91,12 @@ failfast = false
 nobrowser = false
 noerase = false
 nohtml = false
-settings = "system.testing.settings"
+settings = "testing.settings"
 verbosity = 1
 
 [tool.unittest]
 apps = ["."]
 failfast = false
 keepdb = true
-settings = "system.testing.settings"
+settings = "testing.settings"
 verbosity = 1

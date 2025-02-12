@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.11', '3.12', '3.13']
 
     steps:
       - uses: actions/checkout@v4
@@ -36,4 +36,4 @@ jobs:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
           PYTHONPATH: ${{ env.PYTHONPATH }}
         run: |
-          python testing/manage.py test
+          python manage.py test --settings=testing.settings

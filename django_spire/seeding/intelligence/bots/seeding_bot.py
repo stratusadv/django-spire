@@ -1,11 +1,21 @@
-from dandy.bot import LlmBot
-from dandy.intel import Intel
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from dandy.llm import BaseLlmBot, LlmConfigOptions
+from dandy.intel import BaseIntel
 from dandy.llm import Prompt
 
-from django_spire.core.seeding.helper import SeedHelper
+if TYPE_CHECKING:
+    from django_spire.seeding.helper import SeedHelper
 
 
-class SeedBot(LlmBot):
+class SeedLlmBot(BaseLlmBot):
+    config = 'SEEDING_LLM_BOT'
+    config_options = LlmConfigOptions(
+        temperature=0.5
+    )
+    
     instructions_prompt = (
         Prompt()
         .title('You are a database seeding bot.')
@@ -13,7 +23,6 @@ class SeedBot(LlmBot):
         .text('Rules are specific per field and must be followed.')
         .text('Instructions have context behind the meaning of the data and how it should be created.')
     )
-    temperature = 0.5
 
     @classmethod
     def process(
@@ -22,22 +31,19 @@ class SeedBot(LlmBot):
     ):
         intel_class = seed_helper.build_intel_class()
 
-        class SeedingIntel(Intel):
+        class SeedingIntel(BaseIntel):
             seeds: list[intel_class]
 
             def __iter__(self):
                 return iter(self.seeds)
 
-        seed_prompt = (
-            Prompt()
-            .prompt(seed_helper._model_rules_prompt)
-            .divider()
-            .title('Instructions')
-            .prompt(seed_helper.instructions_prompt)
-            .text(f'Create {seed_helper.count} {seed_helper.model_class.__name__} objects.')
-        )
-
         return cls.process_prompt_to_intel(
-            prompt=seed_prompt,
+            prompt=(
+                Prompt()
+                .title('Instructions')
+                .prompt(seed_helper.seeding_prompt)
+                .line_break()
+                .text(f'Create {seed_helper.count} {seed_helper.model_class.__name__} objects.')
+            ),
             intel_class=SeedingIntel
         )

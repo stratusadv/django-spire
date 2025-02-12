@@ -4,6 +4,7 @@ import secrets
 
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -31,19 +32,19 @@ INSTALLED_APPS = [
     'django_spire.pagination',
     'django_spire.permission',
     'django_spire.search',
+    'django_spire.seeding',
     'django_spire.user_account',
 ]
 
 DEBUG = True
 SECRET_KEY = secrets.token_urlsafe(50)
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 SENDGRID_TEMPLATE_ID = False
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'test.db',
+        'NAME': Path(BASE_DIR, 'test.db')
     }
 }
 

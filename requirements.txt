@@ -4,7 +4,7 @@ django>=5.1.4
 django-crispy-forms>=2.1
 django-debug-toolbar
 django-glue>=0.7.8
-dandy>=0.7.0
+dandy>=0.9.2
 Pygments
 psycopg2>=2.9.10
 python-dateutil>=2.8.2
