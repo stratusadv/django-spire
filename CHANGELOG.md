@@ -1,6 +1,9 @@
 # Changelog
 
-## Seeding Branch
+## v0.1.23
+
+### Changes
+- Refactored seeding.
 
 ## v0.1.22
 
