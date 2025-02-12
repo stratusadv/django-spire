@@ -2,7 +2,7 @@ from dandy.bot import LlmBot
 from dandy.intel import Intel
 from dandy.llm import Prompt
 
-from workspaces.seeding.helper import SeedHelper
+from django_spire.core.seeding.helper import SeedHelper
 
 
 class SeedBot(LlmBot):

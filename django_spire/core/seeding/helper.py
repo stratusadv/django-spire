@@ -7,8 +7,8 @@ from django.db.models import Model
 from pydantic import create_model
 from pydantic.fields import FieldInfo
 
-from workspaces.seeding.enums import FIELD_TYPE_TO_TYPE_HINTING
-from workspaces.seeding.rules.factories import SeedBotRulePromptFactory
+from django_spire.core.seeding.enums import FIELD_TYPE_TO_TYPE_HINTING
+from django_spire.core.seeding.rules.factories import SeedBotRulePromptFactory
 
 
 @dataclass
