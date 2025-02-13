@@ -70,7 +70,6 @@ container-size = "8g"
 postgres-version = 14
 
 [tool.coverage]
-apps = ["."]
 exclude = [
     # Directories
     "*/.venv/*",
@@ -85,7 +84,6 @@ exclude = [
     "apps.py",
     "automation.py",
     "manage.py",
-    "run_coverage.py"
 ]
 failfast = false
 nobrowser = false
@@ -94,9 +92,31 @@ nohtml = false
 settings = "testing.settings"
 verbosity = 1
 
-[tool.unittest]
+[tool.django.coverage]
 apps = ["."]
+settings = "system.testing.settings"
+
+[tool.python.coverage]
+apps = ["tests"]
+
+[tool.unittest]
 failfast = false
 keepdb = true
-settings = "testing.settings"
 verbosity = 1
+
+[tool.django.unittest]
+apps = ["."]
+settings = "system.testing.settings"
+
+[tool.python.unittest]
+apps = ["tests"]
+
+[tool.ruff]
+extend = "ruff.toml"
+
+[tool.scripting]
+include = [
+    ".dev",
+    "workspace",
+    "workspaces",
+]
