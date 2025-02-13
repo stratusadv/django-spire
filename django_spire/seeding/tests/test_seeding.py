@@ -1,7 +1,7 @@
 from dandy.llm import Prompt
 from django.test import TestCase
 
-from django_spire.seeding.helper import SeedHelper
+from django_spire.seeding.processor import SeedHelper
 from django_spire.seeding.models import PersonSeedingModel
 
 

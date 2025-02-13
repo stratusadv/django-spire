@@ -8,11 +8,11 @@ from pydantic import create_model
 
 from django_spire.seeding.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
 from django_spire.seeding.factories import SeedIntelFieldFactory
-from django_spire.seeding.intelligence.bots.seeding_bot import SeedLlmBot
+from django_spire.seeding.intelligence.bots.seeding_bot import SeedingLlmBot
 
 
 @dataclass
-class SeedHelper:
+class SeedingProcessor:
     model_class: Type[Model]
 
     seeding_prompt: Prompt
@@ -47,23 +47,23 @@ class SeedHelper:
                 SeedIntelFieldFactory(model_field).build_field()
             )
 
-        intel_class = create_model(
+        seed_intel_class = create_model(
             f'{self.model_class.__name__}Intel',
             __base__=BaseIntel,
             **pydantic_fields
         )
 
-        return intel_class
+        return seed_intel_class
 
-    def bulk_create(self, intel_data: list[BaseIntel]):
+    def bulk_create(self, seeding_intel_data: list[BaseIntel]):
         instances = [
-            self.model_class(**intel.model_dump())
-            for intel in intel_data
+            self.model_class(**seed_intel.model_dump())
+            for seed_intel in seeding_intel_data
         ]
 
         return self.model_class.objects.bulk_create(instances)
 
     def seed(self):
         self.bulk_create(
-            SeedLlmBot.process(self)
+            SeedingLlmBot.process(self)
         )
