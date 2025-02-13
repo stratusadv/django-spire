@@ -34,10 +34,10 @@ class SeedingLlmBot(BaseLlmBot):
         seed_intel_class = seeding_processor.build_intel_class()
 
         class SeedingIntel(BaseIntel):
-            seeds: list[seed_intel_class]
+            items: list[seed_intel_class]
 
             def __iter__(self):
-                return iter(self.seeds)
+                return iter(self.items)
 
         return cls.process_prompt_to_intel(
             prompt=(

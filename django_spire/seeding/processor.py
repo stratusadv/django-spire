@@ -55,15 +55,12 @@ class SeedingProcessor:
 
         return seed_intel_class
 
-    def bulk_create(self, seeding_intel_data: list[BaseIntel]):
-        instances = [
-            self.model_class(**seed_intel.model_dump())
-            for seed_intel in seeding_intel_data
-        ]
+    def convert_seeding_intel_to_model_objects(self, seeding_intel: list[BaseIntel]):
+        return [self.model_class(**seed_intel.model_dump()) for seed_intel in seeding_intel]
 
-        return self.model_class.objects.bulk_create(instances)
-
-    def seed(self):
-        self.bulk_create(
-            SeedingLlmBot.process(self)
+    def seed_database(self):
+        return self.model_class.objects.bulk_create(
+            self.convert_seeding_intel_to_model_objects(
+                SeedingLlmBot.process(self)
+            )
         )

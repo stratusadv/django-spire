@@ -1,13 +1,13 @@
 from dandy.llm import Prompt
 from django.test import TestCase
 
-from django_spire.seeding.processor import SeedHelper
+from django_spire.seeding.processor import SeedingProcessor
 from django_spire.seeding.models import PersonSeedingModel
 
 
 class SeedingTestCase(TestCase):
     def setUp(self):
-        self.person_seed_helper = SeedHelper(
+        self.person_seed_processor = SeedingProcessor(
             model_class=PersonSeedingModel,
             seeding_prompt=(
                 Prompt()
@@ -21,6 +21,6 @@ class SeedingTestCase(TestCase):
         pass
 
     def test_seeding_helper_intel_class(self):
-        person_intel_class = self.person_seed_helper.build_intel_class()
+        person_intel_class = self.person_seed_processor.build_intel_class()
         
         print(person_intel_class.model_json_schema())
