@@ -1,0 +1,9 @@
+crispy-bootstrap5>=2023.10
+docutils
+django>=5.1.4
+django-crispy-forms>=2.1
+django-debug-toolbar
+Pygments
+psycopg2>=2.9.10
+python-dateutil>=2.8.2
+typing_extensions
