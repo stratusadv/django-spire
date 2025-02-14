@@ -1,16 +1,15 @@
 from django.db.models import Model
 
-from typing_extensions import Any, Type
+from typing_extensions import Type
 
 from dandy.llm import Prompt
 
 
 def objective_prompt(
-        model_class: Type[Model],
-        model_description: str,
-        sector_description: str,
+    model_class: Type[Model],
+    model_description: str,
+    sector_description: str,
 ) -> Prompt:
-    
     model_name = model_class._meta.verbose_name_plural.title()
 
     return (

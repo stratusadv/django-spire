@@ -1,5 +1,3 @@
-from django.db.models import Field
-
 from pydantic.fields import Field
 
 
@@ -27,7 +25,7 @@ class SeedIntelFieldFactory:
         if self.model_field.unique:
             kwargs['description'] += 'Is Unique: True '
 
-        if self.model_field.max_length:
+        if self.model_field.get_internal_type() in ['CharField', 'TextField'] and self.model_field.max_length:
             kwargs['max_length'] = int(self.model_field.max_length)
 
         return Field(**kwargs)

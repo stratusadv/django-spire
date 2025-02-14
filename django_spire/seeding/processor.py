@@ -1,14 +1,15 @@
 from dataclasses import dataclass, field
 from typing import Type
 
-from dandy.intel import BaseIntel
-from dandy.llm import Prompt
 from django.db.models import Model
 from pydantic import create_model
 
-from django_spire.seeding.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
+from dandy.intel import BaseIntel
+from dandy.llm import Prompt
+
 from django_spire.seeding.factories import SeedIntelFieldFactory
 from django_spire.seeding.intelligence.bots.seeding_bot import SeedingLlmBot
+from django_spire.seeding.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
 
 
 @dataclass
@@ -36,7 +37,6 @@ class SeedingProcessor:
         pydantic_fields = {}
 
         for model_field in self.valid_model_fields:
-
             model_field_type = MODEL_FIELD_TYPE_TO_TYPE_MAP[model_field.get_internal_type()]
 
             if model_field.null:
@@ -47,13 +47,11 @@ class SeedingProcessor:
                 SeedIntelFieldFactory(model_field).build_field()
             )
 
-        seed_intel_class = create_model(
+        return create_model(
             f'{self.model_class.__name__}Intel',
             __base__=BaseIntel,
             **pydantic_fields
         )
-
-        return seed_intel_class
 
     def convert_seeding_intel_to_model_objects(self, seeding_intel: list[BaseIntel]):
         return [self.model_class(**seed_intel.model_dump()) for seed_intel in seeding_intel]

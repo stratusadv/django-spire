@@ -3,9 +3,8 @@ from __future__ import annotations
 from django.utils.timezone import localdate
 from typing import TYPE_CHECKING
 
-from dandy.llm import BaseLlmBot, LlmConfigOptions
+from dandy.llm import BaseLlmBot, LlmConfigOptions, Prompt
 from dandy.intel import BaseIntel
-from dandy.llm import Prompt
 
 if TYPE_CHECKING:
     from django_spire.seeding.processor import SeedingProcessor
@@ -27,8 +26,8 @@ class SeedingLlmBot(BaseLlmBot):
 
     @classmethod
     def process(
-            cls,
-            seeding_processor: SeedingProcessor = None
+        cls,
+        seeding_processor: SeedingProcessor = None
     ):
         seed_intel_class = seeding_processor.build_intel_class()
 
