@@ -12,11 +12,10 @@ if TYPE_CHECKING:
 
 
 class SeedingLlmBot(BaseLlmBot):
-    config = 'SEEDING_LLM_BOT'
     config_options = LlmConfigOptions(
         temperature=0.2
     )
-    
+
     instructions_prompt = (
         Prompt()
         .title('You are a database seeding bot.')

@@ -59,17 +59,17 @@ django_spire = [
 
 [tool.setuptools.dynamic]
 version = { attr = "django_spire.consts.VERSION" }
-dependencies = { file = "requirements.txt" }
+dependencies = { file = "production_requirements.txt" }
 
 [tool.dev_tool]
 port = 5745
-single_instance = true
+single-instance = true
 
-[tool.docker]
+[tool.dev_tool.docker]
 container-size = "8g"
 postgres-version = 14
 
-[tool.coverage]
+[tool.dev_tool.coverage]
 exclude = [
     # Directories
     "*/.venv/*",
@@ -92,31 +92,31 @@ nohtml = false
 settings = "testing.settings"
 verbosity = 1
 
-[tool.django.coverage]
+[tool.dev_tool.coverage.django]
 apps = ["."]
 settings = "system.testing.settings"
 
-[tool.python.coverage]
+[tool.dev_tool.coverage.python]
 apps = ["tests"]
 
-[tool.unittest]
+[tool.dev_tool.unittest]
 failfast = false
 keepdb = true
 verbosity = 1
 
-[tool.django.unittest]
+[tool.dev_tool.unittest.django]
 apps = ["."]
 settings = "system.testing.settings"
 
-[tool.python.unittest]
+[tool.dev_tool.unittest.python]
 apps = ["tests"]
 
-[tool.ruff]
-extend = "ruff.toml"
-
-[tool.scripting]
+[tool.dev_tool.scripting]
 include = [
     ".dev",
     "workspace",
     "workspaces",
 ]
+
+[tool.ruff]
+extend = "ruff.toml"
