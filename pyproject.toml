@@ -59,7 +59,7 @@ django_spire = [
 
 [tool.setuptools.dynamic]
 version = { attr = "django_spire.consts.VERSION" }
-dependencies = { file = "production_requirements.txt" }
+dependencies = { file = "package_requirements.txt" }
 
 [tool.dev_tool]
 port = 5745
