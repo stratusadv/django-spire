@@ -1,7 +1,7 @@
 crispy-bootstrap5>=2023.10
 docutils
-django>=5.1.4
-django-crispy-forms>=2.1
+django>=5.0.2
+django-crispy-forms>=1.14.0
 django-debug-toolbar
 Pygments
 psycopg2>=2.9.10
