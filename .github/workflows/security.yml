@@ -39,7 +39,7 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
           sudo mv ./bin/trivy /usr/local/bin/trivy
 
-      - name: Run Trivy (Dependency Security Scan)
+      - name: Run Trivy
         run: trivy fs . --severity LOW,MEDIUM,HIGH,CRITICAL --format table | tee trivy_report.txt
 
       - name: Remove Trufflehog
