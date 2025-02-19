@@ -7,9 +7,9 @@ from django import forms
 from module import models
 
 
-class PlaceholderForm(forms.ModelForm):
+class SpireChildAppForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:
-        model = models.Placeholder
+        model = models.SpireChildApp
         fields: ClassVar = []

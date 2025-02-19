@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from typing_extensions import TYPE_CHECKING
 
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.form.utils import show_form_errors
-from django_spire.views import portal_views
+from django_spire.views import modal_views, portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.utils import add_form_activity
 
@@ -16,78 +19,131 @@ from django_glue.glue import glue_model
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
-def placeholder_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    placeholder = get_object_or_404(models.Placeholder, pk=pk)
+@permission_required('spireparentapp.delete_spirepermission')
+def spireparentapp_spirechildapp_delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
+
+    form_action = reverse(
+        'spireparentapp:spirechildapp:delete_form_modal',
+        kwargs={'pk': pk}
+    )
+
+    def add_activity() -> None:
+        spirechildapp.add_activity(
+            user=request.user,
+            verb='deleted',
+            device=request.device,
+            information=f'{request.user.get_full_name()} deleted a spirechildapp on "{spirechildapp.spireparentapp}".'
+        )
+
+    fallback = reverse(
+        'spireparentapp:detail',
+        kwargs={'pk': spirechildapp.spireparentapp.pk}
+    )
+
+    return_url = safe_redirect_url(request, fallback=fallback)
+
+    return modal_views.dispatch_modal_delete_form_content(
+        request,
+        obj=spirechildapp,
+        form_action=form_action,
+        activity_func=add_activity,
+        return_url=return_url,
+    )
+
+
+@permission_required('spireparentapp.delete_spirepermission')
+def spireparentapp_spirechildapp_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     return_url = request.GET.get(
         'return_url',
-        reverse('placeholder:page:list')
+        reverse('spirechildapp:page:list')
     )
 
     return portal_views.delete_form_view(
         request,
-        obj=placeholder,
+        obj=spirechildapp,
         return_url=return_url
     )
 
 
-def placeholder_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    placeholder = get_object_or_404(models.Placeholder, pk=pk)
+@permission_required('spireparentapp.view_spirepermission')
+def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     context_data = {
-        'placeholder': placeholder,
+        'spirechildapp': spirechildapp,
     }
 
     return portal_views.detail_view(
         request,
-        obj=placeholder,
+        obj=spirechildapp,
         context_data=context_data,
-        template='placeholder/page/placeholder_detail_page.html'
+        template='spirechildapp/page/spirechildapp_detail_page.html'
     )
 
 
-def placeholder_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    placeholder = get_object_or_null_obj(models.Placeholder, pk=pk)
+@permission_required('spireparentapp.change_spirepermission')
+def spireparentapp_spirechildapp_form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
-    glue_model(request, 'placeholder', placeholder, 'view')
+    glue_model(request, 'spirechildapp', spirechildapp)
+
+    context_data = {
+        'spirechildapp': spirechildapp
+    }
+
+    return TemplateResponse(
+        request,
+        context=context_data,
+        template='spirechildapp/modal/content/spirechildapp_form_modal_content.html'
+    )
+
+
+@permission_required('spireparentapp.change_spirepermission')
+def spireparentapp_spirechildapp_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    spirechildapp = get_object_or_null_obj(models.SpireChildApp, pk=pk)
+
+    glue_model(request, 'spirechildapp', spirechildapp, 'view')
 
     if request.method == 'POST':
-        form = forms.PlaceholderForm(request.POST, instance=placeholder)
+        form = forms.PlaceholderForm(request.POST, instance=spirechildapp)
 
         if form.is_valid():
-            placeholder = form.save()
-            add_form_activity(placeholder, pk, request.user)
+            spirechildapp = form.save()
+            add_form_activity(spirechildapp, pk, request.user)
 
             return redirect(
                 request.GET.get(
                     'return_url',
-                    reverse('placeholder:page:list')
+                    reverse('spirechildapp:page:list')
                 )
             )
 
         show_form_errors(request, form)
     else:
-        form = forms.PlaceholderForm(instance=placeholder)
+        form = forms.PlaceholderForm(instance=spirechildapp)
 
     return portal_views.form_view(
         request,
         form=form,
-        obj=placeholder,
-        template='placeholder/page/placeholder_form_page.html'
+        obj=spirechildapp,
+        template='spirechildapp/page/spirechildapp_form_page.html'
     )
 
 
-def placeholder_list_view(request: WSGIRequest) -> TemplateResponse:
+@permission_required('spireparentapp.view_spirepermission')
+def spireparentapp_spirechildapp_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
-        'placeholders': models.Placeholder.objects.all()
+        'spirechildapps': models.SpireChildApp.objects.all()
     }
 
     return portal_views.list_view(
         request,
-        model=models.Placeholder,
+        model=models.SpireChildApp,
         context_data=context_data,
-        template='placeholder/page/placeholder_list_page.html'
+        template='spirechildapp/page/spirechildapp_list_page.html'
     )

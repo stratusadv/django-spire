@@ -1,0 +1,18 @@
+{% extends 'spire/card/title_card.html' %}
+
+{% block card_title %}
+	SpireChildApps
+{% endblock %}
+
+{% block card_button %}
+    {% url 'spireparentapp:spirechildapp:page:form' pk=0 as new_spirechildapp_url %}
+	{% include 'spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_spirechildapp_url %}
+{% endblock %}
+
+{% block card_title_content %}
+	{% for spirechildapp in spirechildapps %}
+		{% include 'spireparentapp/spirechildapp/item/spirechildapp_item.html' %}
+    {% empty %}
+        {% include 'spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}
