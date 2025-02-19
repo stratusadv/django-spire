@@ -111,7 +111,7 @@ class HTMLTemplateManager:
         processor: HTMLTemplateProcessor,
         reporter: Reporter
     ) -> None:
-        components = app.split('.')
+        components = app.split('.')[1:]
         destination = self.base.joinpath(*components)
 
         if destination.exists() and any(destination.iterdir()):

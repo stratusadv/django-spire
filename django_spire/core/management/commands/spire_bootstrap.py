@@ -1,3 +1,4 @@
+import argparse
 import django_spire
 
 from pathlib import Path
@@ -22,19 +23,21 @@ class Command(BaseCommand):
     def __init__(self):
         super().__init__()
 
-        self.base = Path(settings.BASE_DIR)
+        self.app_base = Path(settings.BASE_DIR)
         self.app_template = Path(django_spire.__file__).parent / 'template/app'
+
+        self.template_base = self.app_base / 'templates'
         self.html_template = Path(django_spire.__file__).parent / 'template/templates'
 
-        self.app_manager = AppManager(self.base, self.app_template)
+        self.app_manager = AppManager(self.app_base, self.app_template)
         self.app_processor = AppTemplateProcessor()
 
-        self.html_manager = HTMLTemplateManager(self.base, self.html_template)
+        self.html_manager = HTMLTemplateManager(self.template_base, self.html_template)
         self.html_processor = HTMLTemplateProcessor()
 
         self.reporter = Reporter(self)
 
-    def add_arguments(self, parser) -> None:
+    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             'app_name',
             help='The name of the application to create',
@@ -64,8 +67,8 @@ class Command(BaseCommand):
 
         if missing_components:
             self.reporter.report_missing_components(missing_components)
-            self.reporter.report_app_tree_structure(self.base, components, registered_apps, self.app_template)
-            self.reporter.report_html_tree_structure(self.base, components, registered_apps, self.html_template)
+            self.reporter.report_app_tree_structure(self.app_base, components, registered_apps, self.app_template)
+            self.reporter.report_html_tree_structure(self.template_base, components, registered_apps, self.html_template)
 
             if not self.reporter.prompt_for_confirmation('\nProceed with app creation? (y/n): '):
                 self.stdout.write(self.style.ERROR('App creation aborted.'))
