@@ -1,7 +1,9 @@
-import argparse
+from __future__ import annotations
+
 import django_spire
 
 from pathlib import Path
+from typing_extensions import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -15,6 +17,9 @@ from django_spire.core.management.commands.spire_bootstrap_pkg.processor import 
         HTMLTemplateProcessor
 )
 from django_spire.core.management.commands.spire_bootstrap_pkg.reporter import Reporter
+
+if TYPE_CHECKING:
+    import argparse
 
 
 class Command(BaseCommand):
@@ -59,25 +64,28 @@ class Command(BaseCommand):
         components = self.app_manager.parse_app_name(app)
         self.app_manager.is_valid_root_apps(components)
 
-        registered_apps = self.get_app_names()
+        registry = self.get_app_names()
 
-        self.stdout.write(self.style.NOTICE(f'Checking app components: {components}\n\n'))
+        self.reporter.write(
+            f'Checking app components: {components}\n\n',
+            self.style.NOTICE
+        )
 
-        missing_components = self.app_manager.get_missing_components(components, registered_apps)
+        missing = self.app_manager.get_missing_components(components, registry)
 
-        if missing_components:
-            self.reporter.report_missing_components(missing_components)
-            self.reporter.report_app_tree_structure(self.app_base, components, registered_apps, self.app_template)
-            self.reporter.report_html_tree_structure(self.template_base, components, registered_apps, self.html_template)
+        if missing:
+            self.reporter.report_missing_components(missing)
+            self.reporter.report_app_tree_structure(self.app_base, components, registry, self.app_template)
+            self.reporter.report_html_tree_structure(self.template_base, components, registry, self.html_template)
 
             if not self.reporter.prompt_for_confirmation('\nProceed with app creation? (y/n): '):
-                self.stdout.write(self.style.ERROR('App creation aborted.'))
+                self.reporter.write('App creation aborted.', self.style.ERROR)
                 return
 
-            for module in missing_components:
+            for module in missing:
                 self.app_manager.create_custom_app(module, self.app_processor, self.reporter)
                 self.html_manager.create_custom_templates(module, self.html_processor, self.reporter)
 
-            self.reporter.report_installed_apps_suggestion(missing_components)
+            self.reporter.report_installed_apps_suggestion(missing)
         else:
-            self.stdout.write(self.style.SUCCESS('All component(s) exist!'))
+            self.reporter.write('All component(s) exist.', self.style.SUCCESS)

@@ -1,22 +1,71 @@
+from __future__ import annotations
+
 import shutil
 
-from pathlib import Path
+from typing_extensions import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.management.base import CommandError
 
-from django_spire.core.management.commands.spire_bootstrap_pkg.processor import (
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from django_spire.core.management.commands.spire_bootstrap_pkg.processor import (
         AppTemplateProcessor,
         HTMLTemplateProcessor
-)
-from django_spire.core.management.commands.spire_bootstrap_pkg.reporter import Reporter
+    )
+    from django_spire.core.management.commands.spire_bootstrap_pkg.reporter import Reporter
 
 
-class AppManager:
+class BaseTemplateManager:
     def __init__(self, base: Path, template: Path):
         self.base = base
         self.template = template
 
+    def _get_destination(self, components: list[str]) -> Path:
+        return self.base.joinpath(*components)
+
+    def _report_exists(self, app: str, destination: Path, reporter: Reporter) -> None:
+        raise NotImplementedError
+
+    def _report_creating(self, app: str, destination: Path, reporter: Reporter) -> None:
+        raise NotImplementedError
+
+    def _report_success(self, app: str, reporter: Reporter) -> None:
+        raise NotImplementedError
+
+    def _create_entity(
+        self,
+        app: str,
+        components: list[str],
+        processor_method: callable,
+        reporter: Reporter,
+        missing_template_message: str
+    ) -> None:
+        destination = self._get_destination(components)
+
+        if destination.exists() and any(destination.iterdir()):
+            self._report_exists(app, destination, reporter)
+            return
+
+        self._report_creating(app, destination, reporter)
+        destination.mkdir(parents=True, exist_ok=True)
+
+        if not self.template.exists():
+            raise CommandError(missing_template_message)
+
+        shutil.copytree(
+            self.template,
+            destination,
+            dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns('__pycache__', '*.pyc')
+        )
+
+        processor_method(destination, components)
+        self._report_success(app, reporter)
+
+
+class AppManager(BaseTemplateManager):
     def get_valid_root_apps(self) -> set[str]:
         return {
             app.split('.')[0]
@@ -51,19 +100,27 @@ class AppManager:
     def get_missing_components(
         self,
         components: list[str],
-        registered_apps: list[str]
+        registry: list[str]
     ) -> list[str]:
         missing = []
-
         total = len(components)
 
         for i in range(total):
-            app = '.'.join(components[: i + 1])
+            component = '.'.join(components[: i + 1])
 
-            if app not in registered_apps and i > 0:
-                missing.append(app)
+            if component not in registry and i > 0:
+                missing.append(component)
 
         return missing
+
+    def _report_exists(self, app: str, destination: Path, reporter: Reporter) -> None:
+        reporter.report_app_exists(app, destination)
+
+    def _report_creating(self, app: str, destination: Path, reporter: Reporter) -> None:
+        reporter.report_creating_app(app, destination)
+
+    def _report_success(self, app: str, reporter: Reporter) -> None:
+        reporter.report_app_creation_success(app)
 
     def create_custom_app(
         self,
@@ -72,38 +129,30 @@ class AppManager:
         reporter: Reporter
     ) -> None:
         components = app.split('.')
-        destination = self.base.joinpath(*components)
 
-        if destination.exists() and any(destination.iterdir()):
-            reporter.report_app_exists(app, destination)
-            return
-
-        reporter.report_creating_app(app, destination)
-        destination.mkdir(parents=True, exist_ok=True)
-
-        if not self.template.exists():
-            message = (
-                f'Template directory "{self.template}" is missing. '
-                'Ensure you have a valid app template.'
-            )
-
-            raise CommandError(message)
-
-        shutil.copytree(
-            self.template,
-            destination,
-            dirs_exist_ok=True,
-            ignore=shutil.ignore_patterns('__pycache__', '*.pyc')
+        message = (
+            f'Template directory "{self.template}" is missing. '
+            'Ensure you have a valid app template.'
         )
 
-        processor.replace_app_name(destination, components)
-        reporter.report_app_creation_success(app)
+        self._create_entity(
+            app,
+            components,
+            processor.replace_app_name,
+            reporter,
+            message
+        )
 
 
-class HTMLTemplateManager:
-    def __init__(self, base: Path, template: Path):
-        self.base = base
-        self.template = template
+class HTMLTemplateManager(BaseTemplateManager):
+    def _report_exists(self, app: str, destination: Path, reporter: Reporter) -> None:
+        reporter.report_templates_exist(app, destination)
+
+    def _report_creating(self, app: str, destination: Path, reporter: Reporter) -> None:
+        reporter.report_creating_templates(app, destination)
+
+    def _report_success(self, app: str, reporter: Reporter) -> None:
+        reporter.report_templates_creation_success(app)
 
     def create_custom_templates(
         self,
@@ -112,29 +161,16 @@ class HTMLTemplateManager:
         reporter: Reporter
     ) -> None:
         components = app.split('.')[1:]
-        destination = self.base.joinpath(*components)
 
-        if destination.exists() and any(destination.iterdir()):
-            reporter.report_templates_exist(app, destination)
-            return
-
-        reporter.report_creating_templates(app, destination)
-        destination.mkdir(parents=True, exist_ok=True)
-
-        if not self.template.exists():
-            message = (
-                f'Template directory "{self.template}" is missing. '
-                'Ensure you have a valid templates template.'
-            )
-
-            raise CommandError(message)
-
-        shutil.copytree(
-            self.template,
-            destination,
-            dirs_exist_ok=True,
-            ignore=shutil.ignore_patterns('__pycache__', '*.pyc')
+        message = (
+            f'Template directory "{self.template}" is missing. '
+            'Ensure you have a valid templates template.'
         )
 
-        processor.replace_template_names(destination, components)
-        reporter.report_templates_creation_success(app)
+        self._create_entity(
+            app,
+            components,
+            processor.replace_template_names,
+            reporter,
+            message
+        )

@@ -1,19 +1,23 @@
-from pathlib import Path
+from __future__ import annotations
+
+from typing_extensions import Callable, TYPE_CHECKING
+
+from django_spire.core.management.commands.spire_bootstrap_pkg.maps import generate_replacement_map
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
-class AppTemplateProcessor:
-    def replace_app_name(self, directory: Path, components: str) -> None:
-        app = components[-1]
-        parent = components[-2] if len(components) > 1 else app
-        module = '.'.join(components)
+class BaseTemplateProcessor:
+    @staticmethod
+    def apply_replacement(text: str, replacements: dict[str, str]) -> str:
+        for old, new in replacements.items():
+            text = text.replace(old, new)
 
-        for path in directory.rglob('*'):
-            if path.is_file():
-                self.replace_content(path, app, parent, module)
-                self.rename_file(path, app, parent, module)
+        return text
 
-    def replace_content(self, path: Path, app: str, parent: str, module: str) -> None:
-        replacements = self.generate_replacement(app, parent, module)
+    def replace_content(self, path: Path, components: list[str]) -> None:
+        replacements = generate_replacement_map(components)
 
         with open(path, 'r', encoding='utf-8') as handle:
             content = handle.read()
@@ -23,88 +27,43 @@ class AppTemplateProcessor:
         with open(path, 'w', encoding='utf-8') as file:
             file.write(updated_content)
 
-    def rename_file(self, path: Path, app: str, parent: str, module: str) -> None:
-        replacements = self.generate_replacement(app, parent, module)
+    def rename_file(self, path: Path, components: list[str]) -> None:
+        replacements = generate_replacement_map(components)
         new_name = self.apply_replacement(path.name, replacements)
 
         if new_name != path.name:
             new_path = path.parent / new_name
             path.rename(new_path)
 
-    @staticmethod
-    def generate_replacement(
-        app: str,
-        parent: str,
-        module: str
-    ) -> dict[str, str]:
-        return {
-            'module': module,
-            'spirepermission': parent.lower() + app.lower(),
-            'SpireChildApp': app.capitalize(),
-            'SpireChildApps': app.capitalize() + 's',
-            'spirechildapp': app.lower(),
-            'spirechildapps': app.lower() + 's',
-            'SpireParentApp': parent.capitalize(),
-            'SpireParentApps': parent.capitalize() + 's',
-            'spireparentapp': parent.lower(),
-            'spireparentapps': parent.lower() + 's'
-        }
+    def _process_files(
+        self,
+        directory: Path,
+        components: list[str],
+        pattern: str,
+        file_filter: Callable[[Path], bool] | None = None
+    ) -> None:
+        for path in directory.rglob(pattern):
+            if file_filter and not file_filter(path):
+                continue
 
-    @staticmethod
-    def apply_replacement(text: str, replacements: dict[str, str]) -> str:
-        for old, new in replacements.items():
-            text = text.replace(old, new)
-
-        return text
+            self.replace_content(path, components)
+            self.rename_file(path, components)
 
 
-class HTMLTemplateProcessor:
+class AppTemplateProcessor(BaseTemplateProcessor):
+    def replace_app_name(self, directory: Path, components: list[str]) -> None:
+        self._process_files(
+            directory,
+            components,
+            '*',
+            lambda path: path.is_file()
+        )
+
+
+class HTMLTemplateProcessor(BaseTemplateProcessor):
     def replace_template_names(self, directory: Path, components: list[str]) -> None:
-        app = components[-1]
-        parent = components[-2] if len(components) > 1 else app
-        module = '.'.join(components)
-
-        for path in directory.rglob('*.html'):
-            self.replace_content(path, app, parent, module)
-            self.rename_file(path, app, parent, module)
-
-    def replace_content(self, path: Path, app: str, parent: str, module: str) -> None:
-        replacements = self.generate_replacement(app, parent, module)
-
-        with open(path, 'r', encoding='utf-8') as handle:
-            content = handle.read()
-
-        updated_content = self.apply_replacement(content, replacements)
-
-        with open(path, 'w', encoding='utf-8') as file:
-            file.write(updated_content)
-
-    def rename_file(self, path: Path, app: str, parent: str, module: str) -> None:
-        replacements = self.generate_replacement(app, parent, module)
-        new_name = self.apply_replacement(path.name, replacements)
-
-        if new_name != path.name:
-            new_path = path.parent / new_name
-            path.rename(new_path)
-
-    @staticmethod
-    def generate_replacement(app: str, parent: str, module: str) -> dict[str, str]:
-        return {
-            'module': module,
-            'spirepermission': parent.lower() + app.lower(),
-            'SpireChildApp': app.capitalize(),
-            'SpireChildApps': app.capitalize() + 's',
-            'spirechildapp': app.lower(),
-            'spirechildapps': app.lower() + 's',
-            'SpireParentApp': parent.capitalize(),
-            'SpireParentApps': parent.capitalize() + 's',
-            'spireparentapp': parent.lower(),
-            'spireparentapps': parent.lower() + 's'
-        }
-
-    @staticmethod
-    def apply_replacement(text: str, replacements: dict[str, str]) -> str:
-        for old, new in replacements.items():
-            text = text.replace(old, new)
-
-        return text
+        self._process_files(
+            directory,
+            components,
+            '*.html'
+        )

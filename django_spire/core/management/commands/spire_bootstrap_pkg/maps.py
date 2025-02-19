@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def generate_replacement_map(components: list[str]) -> dict[str, str]:
     app_name = components[-1]
     parent = components[-2] if len(components) > 1 else app_name
