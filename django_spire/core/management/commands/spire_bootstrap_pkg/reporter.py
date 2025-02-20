@@ -20,8 +20,8 @@ class Reporter:
     def __init__(self, command: BaseCommand):
         self.command = command
 
-    def _apply_replacement(self, name: str, replacements: dict[str, str]) -> str:
-        for old, new in replacements.items():
+    def _apply_replacement(self, name: str, replacement: dict[str, str]) -> str:
+        for old, new in replacement.items():
             name = name.replace(old, new)
 
         return name
@@ -40,16 +40,24 @@ class Reporter:
         current = base
 
         for i, component in enumerate(components):
-            component = transformation(i, component)
+            latest = components[: i + 1]
+            replacement = generate_replacement_map(latest)
 
+            component = transformation(i, component)
             current = current / component
-            app = '.'.join(components[: i + 1])
+            app = '.'.join(latest)
             indent = INDENTATION * i
 
             self.command.stdout.write(f'{indent}{ICON_FOLDER_OPEN} {component}/')
 
             if i > 0 and app not in registry and template.exists():
-                self._show_tree_from_template(template, indent + INDENTATION, formatter)
+                local_formatter = lambda item: (
+                    item.name
+                    if item.is_dir()
+                    else self._apply_replacement(item.name, replacement)
+                )
+
+                self._show_tree_from_template(template, indent + INDENTATION, local_formatter)
 
     def _show_tree_from_template(
         self,
@@ -107,12 +115,12 @@ class Reporter:
         registry: list[str],
         template: Path
     ) -> None:
-        replacements = generate_replacement_map(components)
+        replacement = generate_replacement_map(components)
 
         formatter = lambda item: (
             item.name
             if item.is_dir()
-            else self._apply_replacement(item.name, replacements)
+            else self._apply_replacement(item.name, replacement)
         )
 
         transformation = (

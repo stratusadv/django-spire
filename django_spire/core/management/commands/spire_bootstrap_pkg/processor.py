@@ -17,19 +17,19 @@ class BaseTemplateProcessor:
         return text
 
     def replace_content(self, path: Path, components: list[str]) -> None:
-        replacements = generate_replacement_map(components)
+        replacement = generate_replacement_map(components)
 
         with open(path, 'r', encoding='utf-8') as handle:
             content = handle.read()
 
-        updated_content = self.apply_replacement(content, replacements)
+        updated_content = self.apply_replacement(content, replacement)
 
         with open(path, 'w', encoding='utf-8') as file:
             file.write(updated_content)
 
     def rename_file(self, path: Path, components: list[str]) -> None:
-        replacements = generate_replacement_map(components)
-        new_name = self.apply_replacement(path.name, replacements)
+        replacement = generate_replacement_map(components)
+        new_name = self.apply_replacement(path.name, replacement)
 
         if new_name != path.name:
             new_path = path.parent / new_name
