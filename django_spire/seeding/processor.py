@@ -8,7 +8,7 @@ from dandy.intel import BaseIntel
 from dandy.llm import Prompt
 
 from django_spire.seeding.factories import SeedIntelFieldFactory
-from django_spire.seeding.intelligence.bots.seeding_bot import SeedingLlmBot
+from django_spire.seeding.intelligence.bots import SeedingLlmBot
 from django_spire.seeding.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
 
 
