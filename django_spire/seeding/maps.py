@@ -29,7 +29,7 @@ MODEL_FIELD_TYPE_TO_TYPE_MAP = {
     models.SmallIntegerField.__name__: int,
     models.IPAddressField.__name__: str,
     models.GenericIPAddressField.__name__: str,
-    models.JSONField.__name__: dict,
+    models.JSONField.__name__: dict | list,
     models.NullBooleanField.__name__: bool | None,
     models.PositiveBigIntegerField.__name__: int,
     models.PositiveIntegerField.__name__: int,
