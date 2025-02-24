@@ -1,9 +1,6 @@
-from django.db.models import Model
-
-from typing import Type, List, Text
+from typing import List
 
 from dandy.llm import Prompt
-
 
 def model_field_choices_prompt(
         model_field: str,
