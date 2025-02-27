@@ -22,6 +22,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install build twine
 
+      - name: Create package_requirements.txt
+        run: |
+          sed '/^-r/d' production_requirements.txt > core_requirements.txt
+          cat requirements.txt >> core_requirements.txt
+          mv core_requirements.txt package_requirements.txt
+          cat package_requirements.txt
+
       - name: Build and publish
         env:
           TWINE_USERNAME: __token__

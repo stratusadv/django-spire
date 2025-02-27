@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class PlaceholderConfig(AppConfig):
+class SpireChildAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'placeholder'
-    name = 'parent_placeholder'
+    label = 'spireparentapp_spirechildapp'
+    name = 'module'

@@ -3,9 +3,8 @@ from __future__ import annotations
 from django.utils.timezone import localdate
 from typing import TYPE_CHECKING
 
-from dandy.llm import BaseLlmBot, LlmConfigOptions
+from dandy.llm import BaseLlmBot, LlmConfigOptions, Prompt
 from dandy.intel import BaseIntel
-from dandy.llm import Prompt
 
 if TYPE_CHECKING:
     from django_spire.seeding.processor import SeedingProcessor
@@ -13,10 +12,11 @@ if TYPE_CHECKING:
 
 class SeedingLlmBot(BaseLlmBot):
     config = 'SEEDING_LLM_BOT'
+
     config_options = LlmConfigOptions(
         temperature=0.2
     )
-    
+
     instructions_prompt = (
         Prompt()
         .title('You are a database seeding bot.')
@@ -28,8 +28,8 @@ class SeedingLlmBot(BaseLlmBot):
 
     @classmethod
     def process(
-            cls,
-            seeding_processor: SeedingProcessor = None
+        cls,
+        seeding_processor: SeedingProcessor = None
     ):
         seed_intel_class = seeding_processor.build_intel_class()
 

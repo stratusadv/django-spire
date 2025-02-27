@@ -4,7 +4,6 @@ from dandy.llm import Prompt
 def negation_prompt(
     negation_rules: list[str]
 ) -> Prompt:
-    
     return (
         Prompt()
         .text('This step is mission critical. Do NOT deviate from this requirement.')

@@ -1,14 +1,15 @@
-from dandy.llm import Prompt
+from typing_extensions import List, Type
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
-from typing_extensions import Type, List
+
+from dandy.llm import Prompt
 
 
 def generic_relationship_selection_prompt(
-        model_class: Type[Model],
-        related_model_classes: List[Type[Model]]
+    model_class: Type[Model],
+    related_model_classes: List[Type[Model]]
 ) -> Prompt:
-    
     related_model_classes_map = {
         related_model_class._meta.verbose_name.title(): {
             'content_type_id': ContentType.objects.get_for_model(related_model_class).id,
@@ -21,7 +22,7 @@ def generic_relationship_selection_prompt(
     related_model_class_names = list(related_model_classes_map.keys())
 
     related_model_object_id_to_content_type_id_map = {}
-    
+
     for related_model_class_map in related_model_classes_map.values():
         for related_model_object in related_model_class_map['queryset']:
             model_class_name = related_model_object._meta.verbose_name.title()

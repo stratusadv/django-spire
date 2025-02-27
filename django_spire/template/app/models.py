@@ -9,7 +9,7 @@ from django_spire.history.mixins import HistoryModelMixin
 from module import querysets
 
 
-class Placeholder(HistoryModelMixin):
+class SpireChildApp(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
@@ -24,7 +24,7 @@ class Placeholder(HistoryModelMixin):
 
         crumbs.add_breadcrumb(
             'Placeholder',
-            reverse('placeholder:page:list')
+            reverse('spireparentapp:spirechildapp:page:list')
         )
 
         return crumbs
@@ -37,7 +37,7 @@ class Placeholder(HistoryModelMixin):
             crumbs.add_breadcrumb(
                 str(self),
                 reverse(
-                    'placeholder:page:detail',
+                    'spireparentapp:spirechildapp:page:detail',
                     kwargs={'pk': self.pk}
                 )
             )
@@ -45,6 +45,6 @@ class Placeholder(HistoryModelMixin):
         return crumbs
 
     class Meta:
-        verbose_name = 'Placeholder'
-        verbose_name_plural = 'Placeholders'
-        db_table = 'placeholder'
+        verbose_name = 'SpireChildApp'
+        verbose_name_plural = 'SpireChildApps'
+        db_table = 'spireparentapp_spirechildapp'
