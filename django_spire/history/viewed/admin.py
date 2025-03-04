@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls.base import reverse
 from django.utils.html import format_html
 
-from django_spire.history.view.models import Viewed
+from django_spire.history.viewed.models import Viewed
 
 
 @admin.register(Viewed)

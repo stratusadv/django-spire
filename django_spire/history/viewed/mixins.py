@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from django_spire.history.view.models import Viewed
+from django_spire.history.viewed.models import Viewed
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
