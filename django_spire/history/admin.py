@@ -4,6 +4,8 @@ from django.utils.html import format_html
 
 from django_spire.history import models
 from django_spire.history.activity.models import ActivityLog
+from django_spire.history.view.models import Viewed
+
 
 
 @admin.register(ActivityLog)
@@ -71,7 +73,7 @@ class EventHistoryAdmin(admin.ModelAdmin):
     content_object_link.short_description = 'Content Object'
 
 
-@admin.register(models.View)
+@admin.register(Viewed)
 class ViewAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'content_object_link', 'user_link', 'created_datetime'
@@ -80,7 +82,7 @@ class ViewAdmin(admin.ModelAdmin):
     search_fields = ('id', 'user__first_name', 'user__last_name', 'content_type__model',)
     ordering = ('-created_datetime',)
 
-    def content_object_link(self, view: models.View) -> str:
+    def content_object_link(self, view: Viewed) -> str:
         url = reverse(
             f'admin:{view.content_type.app_label}_{view.content_type.model}_change',
             args=[view.object_id]
@@ -90,7 +92,7 @@ class ViewAdmin(admin.ModelAdmin):
 
     content_object_link.short_description = 'Content Object'
 
-    def user_link(self, view: models.View) -> str:
+    def user_link(self, view: Viewed) -> str:
         url = reverse('admin:auth_user_change', args=[view.user.id])
         return format_html(f'<a href="{url}">{view.user.get_full_name()}</a>')
 

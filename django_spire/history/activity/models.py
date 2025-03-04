@@ -53,7 +53,7 @@ class ActivityLog(models.Model):
 
 class ActivitySubscriber(models.Model):
     activity = models.ForeignKey(
-        'spire_history.ActivityLog',
+        'spire_history_activity.ActivityLog',
         on_delete=models.CASCADE,
         related_name='subscribers',
         related_query_name='subscriber'

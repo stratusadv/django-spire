@@ -3,15 +3,15 @@ from typing import TYPE_CHECKING
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from django_spire.history.view.models import View
+from django_spire.history.view.models import Viewed
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
-class ViewModelMixin(models.Model):
+class ViewedModelMixin(models.Model):
     views = GenericRelation(
-        View,
-        related_query_name='view',
+        Viewed,
+        related_query_name='views',
         editable=False
     )
 
