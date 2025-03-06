@@ -24,13 +24,6 @@ class HistoryModelMixin(models.Model):
 
     created_datetime = models.DateTimeField(default=localtime, editable=False)
 
-    def add_view(self, user: User) -> None:
-        self.views.create(user=user)
-
-    def is_viewed(self, user: User) -> None:
-        return self.views.filter(user=user).exists()
-
-
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
 
@@ -38,6 +31,12 @@ class HistoryModelMixin(models.Model):
             self.event_history.create(event=EventHistoryChoices.UPDATED)
         else:
             self.event_history.create(event=EventHistoryChoices.CREATED)
+
+    def add_view(self, user: User) -> None:
+        self.views.create(user=user)
+
+    def is_viewed(self, user: User) -> None:
+        return self.views.filter(user=user).exists()
 
     def set_active(self) -> None:
         self.is_active = True

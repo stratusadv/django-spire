@@ -8,7 +8,7 @@
 *.whl
 dev_tool*
 pyproject.toml
-
+*~
 __pycache__/
 .dandy*
 .idea/
