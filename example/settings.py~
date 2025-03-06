@@ -91,7 +91,6 @@ INSTALLED_APPS = [
     'example.cookbook.recipe',
 
     'debug_toolbar',
-    'notification_email.apps.NotificationEmailConfig'
 ]
 
 MIDDLEWARE = [
