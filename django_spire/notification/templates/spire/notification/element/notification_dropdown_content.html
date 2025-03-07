@@ -1,6 +1,35 @@
-<div class="p-2" x-data="{
+<div style="width: 300px !important;" class="row p-2 px-3" x-data="{
+    init(){
+        console.log(this.notification_list)
+    },
+    notification_list: [
+        {
+            'app': 'Work Order Request',
+            'description': 'This is a work order request notification. Please review it.',
+            'viewed': false
+        },
 
-
+    ]
 }">
-    <h5 class="border-dark border-bottom border-2">Notifications</h4>
+    <div class="col-12">
+        <h5 class="text-center border-dark border-bottom border-2">Notifications</h5>
+    </div>
+
+    <template x-for="(notification, index) in notification_list" :key='index'>
+        <div>
+            <div class="col">
+                {% include "spire/element/attribute_element.html" with attribute_title='App' %}
+                <div x-text="notification.app"></div>
+            </div>
+
+            <div class="col">
+                {% include "spire/element/attribute_element.html" with attribute_title='Description' %}
+                <div x-text="notification.description"></div>
+            </div>
+        </div>
+    </template>
+
+    {% include "spire/element/divider_element.html" %}
+    <div class="fs-7 text-center mt-1">View All</div>
+
 </div>

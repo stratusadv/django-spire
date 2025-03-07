@@ -10,6 +10,7 @@ class AppNotification(ViewedModelMixin):
     user = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)
     content_object = GenericForeignKey('content_type', 'object_id')
     object_id = models.PositiveIntegerField()
+    url = models.CharField(max_length=255, default='')
 
     def __str__(self):
         return f'{self.notification.title} - {self.email}'

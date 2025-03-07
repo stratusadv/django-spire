@@ -17,7 +17,8 @@ if os.getenv('DJANGO_DEBUG', 'False') == 'True':
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0').split(',')
+# ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0', '127.0.0.1,localhost'').split(',')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 ASGI_APPLICATION = 'example.asgi.application'
 WSGI_APPLICATION = 'example.wsgi.application'
@@ -56,6 +57,8 @@ INSTALLED_APPS = [
     'django_spire.gamification',
     'django_spire.help',
     'django_spire.history',
+    'django_spire.history.activity',
+    'django_spire.history.viewed',
     'django_spire.maintenance',
     'django_spire.modal',
     'django_spire.notification',
