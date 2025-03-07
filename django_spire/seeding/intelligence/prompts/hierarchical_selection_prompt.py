@@ -1,3 +1,5 @@
+from random import shuffle
+
 from django.db.models import Model
 
 from dandy.llm import Prompt
@@ -8,7 +10,12 @@ def hierarchical_selection_prompt(
     self_reference_field: str,
     constraint: list[str]
 ) -> Prompt:
-    parent_instances = model_class.objects.all()
+    # You must create/call a seeding function/prompt that
+    # generates a "parent" or a "parent" must exist before
+    # this prompt can be used.
+
+    parent_instances = list(model_class.objects.all())
+    shuffle(parent_instances)
 
     parent_constraints = []
 
@@ -40,7 +47,8 @@ def hierarchical_selection_prompt(
         .list(parent_constraints)
         .line_break()
 
-        .text(f'You may create ONE {model_name} where `parent=null`. All other rows should have a(n) {constraint_text}')
+        .text(f'Do NOT create a parent. For example, no `{model_name}` should have `parent=null`.')
+        .text(f'All rows should have a(n) {constraint_text}')
         .line_break()
 
         .text('Children MUST inherit these values from their parent. Do not modify them.')
