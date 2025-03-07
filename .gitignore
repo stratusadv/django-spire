@@ -13,6 +13,7 @@ __pycache__/
 .dandy*
 .idea/
 .venv*/
+.qodo/
 build/
 django_spire.egg-info/
 inspectionProfiles/
