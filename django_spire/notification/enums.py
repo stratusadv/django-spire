@@ -4,7 +4,7 @@ from enum import Enum
 
 from django.db import models
 
-from django_spire.notification.sender import EmailNotificationSender
+from django_spire.notification.email.sender import EmailNotificationSender
 
 
 class NotificationTypeChoices(models.TextChoices):

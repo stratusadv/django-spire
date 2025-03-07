@@ -14,7 +14,6 @@ from django_spire.notification.enums import (
 
 class Notification(HistoryModelMixin):
     type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL)
-    email = models.EmailField(default='')
     title = models.CharField(max_length=124)
     body = models.TextField(default='')
     send_datetime = models.DateTimeField(default=now)
