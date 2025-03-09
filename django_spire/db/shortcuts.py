@@ -27,7 +27,7 @@ def get_object_or_null_obj(queryset_or_model: QuerySet[T] | type[T], **kwargs) -
         return queryset.model()
 
 
-def get_object_or_none(model: type[Model], pk: int, **kwargs) -> Model:
+def get_object_or_none(model: type[T], pk: int, **kwargs) -> Model:
     try:
         return model.objects.get(pk=pk, **kwargs)
     except model.DoesNotExist:

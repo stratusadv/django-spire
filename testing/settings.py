@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import secrets
-
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+ROOT_URLCONF = 'testing.urls'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -35,11 +35,13 @@ INSTALLED_APPS = [
     'django_spire.search',
     'django_spire.seeding',
     'django_spire.user_account',
+
+    'testing.dummy'
 ]
 
 DEBUG = True
-SECRET_KEY = secrets.token_urlsafe(50)
 
+SECRET_KEY = 's80FyoHWwOFTSQqsePJMKSAoUxZLkerXrU68v8LHfZDiuIOqXw'
 SENDGRID_TEMPLATE_ID = False
 
 DATABASES = {

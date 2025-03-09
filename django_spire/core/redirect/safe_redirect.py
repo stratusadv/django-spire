@@ -47,7 +47,6 @@ def safe_redirect_url(request: WSGIRequest, fallback: str = '/') -> str:
         return resolve_url(return_url)
 
     referer = request.META.get('HTTP_REFERER')
-    print(referer)
 
     if is_url_valid_and_safe(url=referer, allowed_hosts=allowed_hosts):
         url = urlparse(referer)

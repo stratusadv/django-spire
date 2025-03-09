@@ -37,8 +37,10 @@ def index(indexable, index_value):
 @register.simple_tag()
 def generate_id():
     random_string = ''
-    for i in range(0, 8):
+
+    for _ in range(8):
         random_string = random_string + random.choice(string.ascii_letters)
+
     return random_string
 
 
@@ -53,13 +55,17 @@ def query_param_url(context, url_name, **kwargs):
 
     for index, query_param in enumerate(context.request.GET):
         if index == 0:
-            query_string = query_string + f'{query_param}={context.request.GET[query_param]}'
+            query_string = (
+                query_string +
+                f'{query_param}={context.request.GET[query_param]}'
+            )
         else:
-            query_string = query_string + f'&{query_param}={context.request.GET[query_param]}'
+            query_string = (
+                query_string +
+                f'&{query_param}={context.request.GET[query_param]}'
+            )
 
-    url = reverse(url_name, kwargs=kwargs)
-
-    return url + query_string
+    return reverse(url_name, kwargs=kwargs) + query_string
 
 
 @register.simple_tag()
