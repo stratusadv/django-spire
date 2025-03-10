@@ -4,7 +4,7 @@ from typing_extensions import TYPE_CHECKING
 
 from django.http import JsonResponse
 
-from django_spire.db.shortcuts import get_object_or_null_obj
+from django_spire.core.shortcuts import get_object_or_null_obj
 from testing.dummy import models
 
 if TYPE_CHECKING:

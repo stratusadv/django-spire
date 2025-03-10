@@ -5,7 +5,7 @@ from typing_extensions import TYPE_CHECKING
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
-from django_spire.db.shortcuts import get_object_or_null_obj
+from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.form.utils import show_form_errors
 from django_spire.history.utils import add_form_activity
 from django_spire.views import portal_views

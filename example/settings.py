@@ -6,6 +6,7 @@ import sys
 
 from pathlib import Path
 
+print('hello')
 
 logging.basicConfig(
     format='[%(asctime)-15s] Django Spire: "%(message)s"',
@@ -23,7 +24,6 @@ ASGI_APPLICATION = 'example.asgi.application'
 WSGI_APPLICATION = 'example.wsgi.application'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 sys.path.append(str(BASE_DIR))
 
 # Email Settings

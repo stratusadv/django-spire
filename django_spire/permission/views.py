@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
-from django_spire.db.shortcuts import (
+from django_spire.core.shortcuts import (
     get_object_or_null_obj,
     process_request_body
 )

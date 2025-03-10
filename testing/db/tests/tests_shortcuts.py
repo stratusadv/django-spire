@@ -5,7 +5,7 @@ import json
 from django.test import RequestFactory
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.db.shortcuts import (
+from django_spire.core.shortcuts import (
     get_object_or_none,
     get_object_or_null_obj,
     model_object_from_app_label,
