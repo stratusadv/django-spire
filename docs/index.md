@@ -11,6 +11,7 @@ Please make note when using spire to only add the modules with green check marks
 - breadcrumb ❌
 - comment ❌
 - core ✅
+- db ✅
 - file ❌
 - form ❌
 - gamification ❌
