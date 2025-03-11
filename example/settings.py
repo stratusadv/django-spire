@@ -6,8 +6,6 @@ import sys
 
 from pathlib import Path
 
-print('hello')
-
 logging.basicConfig(
     format='[%(asctime)-15s] Django Spire: "%(message)s"',
     datefmt='%d/%b/%Y %H:%M:%S'

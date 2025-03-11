@@ -2,6 +2,9 @@
 
 ## v0.1.24
 
+### Breaking 
+- 
+
 ### Features
 
 - added seeding prompts to assist with seeding django models.

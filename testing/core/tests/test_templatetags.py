@@ -95,7 +95,7 @@ class TemplateTagUnitTests(TestCase):
 class TemplateRenderingTests(TestCase):
     def test_render_add_str_filter(self) -> None:
         template_code = """
-            {% load core_tags %}
+            {% load spire_core_tags %}
 
             {{ "Hello" | add_str:" World" }}
         """
@@ -106,7 +106,7 @@ class TemplateRenderingTests(TestCase):
 
     def test_render_to_snake_case_tag(self) -> None:
         template_code = """
-            {% load core_tags %}
+            {% load spire_core_tags %}
 
             {% to_snake_case "Hello World" as snake_case %}
             {{ snake_case }}
