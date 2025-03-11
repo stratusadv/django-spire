@@ -3,6 +3,8 @@
 ## v0.1.24
 
 ### Breaking 
+- `core/templatetags/core_tags.py` has been refactored to `core/templatetags/spire_core_tags.py`
+- `db/shortcuts.py` has been refactored to `core/shortcuts.py`
 - 
 
 ### Features

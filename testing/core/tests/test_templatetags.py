@@ -7,7 +7,7 @@ from unittest.mock import patch
 from django.template import Context, RequestContext, Template
 from django.test import RequestFactory, TestCase
 
-from django_spire.core.templatetags.core_tags import (
+from django_spire.core.templatetags.spire_core_tags import (
     add_str,
     content_type_url,
     in_list,
@@ -63,7 +63,7 @@ class TemplateTagUnitTests(TestCase):
             {'app_label': 'myapp', 'model_name': 'dummy'}
         )
 
-        func = 'django_spire.core.templatetags.core_tags.reverse'
+        func = 'django_spire.core.templatetags.spire_core_tags.reverse'
         return_value = 'http://example.com/dummy'
 
         with patch(func, return_value=return_value) as mock_reverse:
@@ -80,7 +80,7 @@ class TemplateTagUnitTests(TestCase):
         request = self.factory.get('/some_path', {'foo': 'bar', 'baz': 'qux'})
         context = RequestContext(request, {})
 
-        func = 'django_spire.core.templatetags.core_tags.reverse'
+        func = 'django_spire.core.templatetags.spire_core_tags.reverse'
         return_value = 'http://example.com/dummy'
 
         with patch(func, return_value=return_value) as mock_reverse:
