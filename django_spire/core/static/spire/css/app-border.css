@@ -29,77 +29,76 @@
 }
 
 .border-app-none {
-    border: none !important;
 }
 
 .border-app-primary {
-    border: 1px solid var(--app-border-primary) !important;
+    border-color: var(--app-border-primary) !important;
 }
 
 .border-app-primary-soft {
-    border: 1px solid var(--app-border-primary-soft) !important;
+    border-color: var(--app-border-primary-soft) !important;
 }
 
 .border-app-primary-dark {
-    border: 1px solid var(--app-border-primary-dark) !important;
+    border-color: var(--app-border-primary-dark) !important;
 }
 
 .border-app-secondary {
-    border: 1px solid var(--app-border-secondary) !important;
+    border-color: var(--app-border-secondary) !important;
 }
 
 .border-app-secondary-soft {
-    border: 1px solid var(--app-border-secondary-soft) !important;
+    border-color: var(--app-border-secondary-soft) !important;
 }
 
 .border-app-secondary-dark {
-    border: 1px solid var(--app-border-secondary-dark) !important;
+    border-color: var(--app-border-secondary-dark) !important;
 }
 
 .border-app-accent {
-    border: 1px solid var(--app-border-accent) !important;
+    border-color: var(--app-border-accent) !important;
 }
 
 .border-app-accent-soft {
-    border: 1px solid var(--app-border-accent-soft) !important;
+    border-color: var(--app-border-accent-soft) !important;
 }
 
 .border-app-accent-dark {
-    border: 1px solid var(--app-border-accent-dark) !important;
+    border-color: var(--app-border-accent-dark) !important;
 }
 
 .border-app-warning {
-    border: 1px solid var(--app-border-warning) !important;
+    border-color: var(--app-border-warning) !important;
 }
 
 .border-app-warning-soft {
-    border: 1px solid var(--app-border-warning-soft) !important;
+    border-color: var(--app-border-warning-soft) !important;
 }
 
 .border-app-warning-dark {
-    border: 1px solid var(--app-border-warning-dark) !important;
+    border-color: var(--app-border-warning-dark) !important;
 }
 
 .border-app-danger {
-    border: 1px solid var(--app-border-danger) !important;
+    border-color: var(--app-border-danger) !important;
 }
 
 .border-app-danger-soft {
-    border: 1px solid var(--app-border-danger-soft) !important;
+    border-color: var(--app-border-danger-soft) !important;
 }
 
 .border-app-danger-dark {
-    border: 1px solid var(--app-border-danger-dark) !important;
+    border-color: var(--app-border-danger-dark) !important;
 }
 
 .border-app-layer-one {
-    border: 1px solid var(--app-border-layer-one) !important;
+    border-color: var(--app-border-layer-one) !important;
 }
 
 .border-app-layer-two {
-    border: 1px solid var(--app-border-layer-two) !important;
+    border-color: var(--app-border-layer-two) !important;
 }
 
 .border-app-layer-three {
-    border: 1px solid var(--app-border-layer-three) !important;
+    border-color: var(--app-border-layer-three) !important;
 }

@@ -3,19 +3,28 @@ from __future__ import annotations
 import json
 
 from django.contrib.contenttypes.models import ContentType
-from typing_extensions import TYPE_CHECKING
+from django.db.models import Model
+from typing_extensions import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
-    from django.db.models import Model
+    from django.db.models import QuerySet
     from django.http import HttpRequest
     from typing_extensions import Any
 
 
-def get_object_or_null_obj(model: type[Model], pk: int, **kwargs) -> Model:
+T = TypeVar('T', bound=Model)
+
+
+def get_object_or_null_obj(queryset_or_model: QuerySet[T] | type[T], **kwargs) -> T:
+    if not hasattr(queryset_or_model, 'get'):
+        queryset = queryset_or_model._default_manager.all()
+    else:
+        queryset = queryset_or_model
+
     try:
-        return model.objects.get(pk=pk, **kwargs)
-    except model.DoesNotExist:
-        return model()
+        return queryset.get(**kwargs)
+    except queryset.model.DoesNotExist:
+        return queryset.model()
 
 
 def get_object_or_none(model: type[Model], pk: int, **kwargs) -> Model:
