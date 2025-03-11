@@ -10,11 +10,11 @@ from django.core.management.base import CommandError
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from django_spire.core.management.commands.spire_bootstrap_pkg.processor import (
+    from django_spire.core.management.commands.spire_startapp_pkg.processor import (
         AppTemplateProcessor,
         HTMLTemplateProcessor
     )
-    from django_spire.core.management.commands.spire_bootstrap_pkg.reporter import Reporter
+    from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
 
 
 class BaseTemplateManager:
