@@ -1,5 +1,9 @@
 # Changelog
 
+## V0.1.32
+### Features
+- Added seeding prompt function to prompt Model field on specific choices
+
 ## v0.1.30
 ### Changes
 - Template tag file name to start with `spire_` to be more verbose for dependant projects `{% load spire_core_tags %}`
