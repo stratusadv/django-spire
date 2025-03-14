@@ -71,6 +71,7 @@ def delete_form_view(
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(request.POST)
+
         if form.is_valid():
             if delete_func is not None:
                 delete_func()
@@ -270,12 +271,12 @@ def model_form_view(
 
 
 def template_view(
-        request: WSGIRequest,
-        page_title: str,
-        page_description: str,
-        breadcrumbs: Breadcrumbs,
-        template: str,
-        context_data: dict | None = None,
+    request: WSGIRequest,
+    page_title: str,
+    page_description: str,
+    breadcrumbs: Breadcrumbs,
+    template: str,
+    context_data: dict | None = None
 ) -> TemplateResponse:
     if context_data is None:
         context_data = {}

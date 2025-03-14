@@ -8,10 +8,10 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
-from django_spire.form.utils import show_form_errors
-from django_spire.views import modal_views, portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.form.utils import show_form_errors
 from django_spire.history.utils import add_form_activity
+from django_spire.views import modal_views, portal_views
 
 from module import forms, models
 
