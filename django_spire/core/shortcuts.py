@@ -63,7 +63,11 @@ def process_request_body(request: HttpRequest, key='data') -> Any:
     """
 
     body_unicode = request.body.decode('utf-8')
-    return json.loads(body_unicode)['data']
+
+    if key:
+        return json.loads(body_unicode)[key]
+    else:
+        return json.loads(body_unicode)
 
 
 def model_object_from_app_label(
