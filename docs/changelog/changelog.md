@@ -1,5 +1,13 @@
 # Changelog
 
+## V0.1.33
+### Fixes
+- Fix `infinite_scroll_card.html` to work on list pages; not just cards
+
+## V0.1.32
+### Fixes
+- Fix `process_request_body` to accept a key `kwarg`
+
 ## V0.1.32
 ### Features
 - Added seeding prompt function to prompt Model field on specific choices
@@ -27,4 +35,3 @@
 ## v0.1.22
 ### Fixes
 - Correct import paths for Ai Seeding Bot.
-
