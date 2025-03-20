@@ -1,10 +1,10 @@
 # Changelog
 
-## V0.1.33
+## V0.1.34
 ### Fixes
 - Fix `infinite_scroll_card.html` to work on list pages; not just cards
 
-## V0.1.32
+## V0.1.33
 ### Fixes
 - Fix `process_request_body` to accept a key `kwarg`
 
