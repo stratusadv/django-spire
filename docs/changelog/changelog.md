@@ -1,5 +1,9 @@
 # Changelog
 
+## V0.1.35
+### Changes
+- Allow the user to use `shared_payload` for searching, filtering, etc. and add a loading indicator to  `infinite_scroll_card.html`  
+
 ## V0.1.34
 ### Fixes
 - Fix `infinite_scroll_card.html` to work on list pages; not just cards
