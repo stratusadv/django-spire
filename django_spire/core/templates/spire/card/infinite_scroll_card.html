@@ -5,6 +5,7 @@
         x-data="{
             card_title_dropdown: false,
             endpoint: '{{ endpoint }}',
+            shared_payload: {},
             page_size: parseInt('{{ page_size }}' || 10),
             current_page: parseInt('{{ current_page }}' || 1),
             has_next: {{ has_next|default:'false'|yesno:'true,false' }} || false,
@@ -21,6 +22,8 @@
                 if (this.has_next) {
                     await this.setup_observer();
                 }
+
+                this.shared_payload = JSON.parse(document.getElementById('shared_payload').textContent)
             },
 
             async setup_observer() {
@@ -60,7 +63,7 @@
                 });
 
                 let url = `${this.endpoint}?${params}`;
-                let view = new GlueView(url);
+                let view = new GlueView(url, this.shared_payload);
 
                 try {
                     await view.render_insert_adjacent(this.$refs.item_container, {}, 'beforeend')
@@ -107,6 +110,8 @@
             }
         }"
     >
+        {{ shared_payload|json_script:'shared_payload' }}
+
         <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom-secondary">
             <div class="col">
                 <div class="card-title text-uppercase text-black mb-0">{% block card_title %}{% endblock %}</div>
@@ -125,6 +130,11 @@
             {% endblock %}
 
             <div x-ref="item_container"></div>
+
+            <div x-show="is_loading" class="text-center my-3">
+                <div class="spinner-border" role="status"></div>
+            </div>
+
             <div x-ref="infinite_scroll_trigger" style="height:10px;"></div>
         </div>
     </div>
