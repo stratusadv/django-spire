@@ -1,0 +1,34 @@
+<div style="width: 350px !important;" class="row p-2 px-3" x-data="{
+    init(){
+        console.log(this.notification_list)
+    },
+    notification_list: [
+        {
+            'time': '2 hours ago',
+            'description': 'This is a work order request notification. Please review it.',
+            'viewed': false
+        },
+
+    ]
+}">
+    <div class="col-12">
+        <h5 class="text-center border-dark border-bottom border-2">Notifications</h5>
+    </div>
+
+    <template x-for="(notification, index) in notification_list" :key='index'>
+        <div>
+            <div class="col-12">
+                <span x-text="notification.description"></span>
+            </div>
+            <div class="col-12 pt-1">
+                <span class="text-app-secondary fs-7" x-text="notification.time"></span> 
+                {% include "spire/badge/primary_badge.html" with badge_text='New' %} 
+            </div>
+
+        </div>
+    </template>
+
+    {% include "spire/element/divider_element.html" %}
+    <div class="fs-7 text-center mt-1">View All</div>
+
+</div>
