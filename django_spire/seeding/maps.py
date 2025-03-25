@@ -15,7 +15,7 @@ MODEL_FIELD_TYPE_TO_TYPE_MAP = {
     models.CommaSeparatedIntegerField.__name__: int,
     models.DateField.__name__: datetime.date,
     models.DateTimeField.__name__: datetime.datetime,
-    models.DecimalField.__name__: Decimal,
+    models.DecimalField.__name__: float,
     models.DurationField.__name__: str,
     models.EmailField.__name__: str,
     models.FileField.__name__: str,
