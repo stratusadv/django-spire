@@ -3,6 +3,8 @@
 ## V0.1.36
 ### Breaking
 - Refactored to Django Glue v0.8.1 and Dandy v0.13.2. Check the repository change logs before upgrading.  
+- Django Glue Changelog: https://django-glue.stratusadv.com/changelog/changelog/
+- Dandy Changelog: https://dandy.stratusadv.com/changelog/changelog/
 
 
 ## V0.1.35
