@@ -10,10 +10,11 @@ from django_spire.form.utils import show_form_errors
 from django_spire.history.utils import add_form_activity
 from django_spire.views import portal_views
 
+import django_glue as dg
+
 from example.cookbook import factories, forms, models
 from example.cookbook.recipe.models import Recipe
 
-from django_glue.glue import glue_model, glue_query_set
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -49,8 +50,8 @@ def cookbook_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def cookbook_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     cookbook = get_object_or_null_obj(models.Cookbook, pk=pk)
 
-    glue_model(request, 'cookbook', cookbook, 'view')
-    glue_query_set(request,  'recipe_queryset', Recipe.objects.active(), 'view')
+    dg.glue_model_object(request, 'cookbook', cookbook, 'view')
+    dg.glue_query_set(request,  'recipe_queryset', Recipe.objects.active(), 'view')
 
     if request.method == 'POST':
         form = forms.CookbookForm(request.POST, instance=cookbook)
