@@ -1,5 +1,10 @@
 # Changelog
 
+## V0.1.36
+### Breaking
+- Refactored to Django Glue v0.8.1 and Dandy v0.13.2. Check the repository change logs before upgrading.  
+
+
 ## V0.1.35
 ### Changes
 - Allow the user to use `shared_payload` for searching, filtering, etc. and add a loading indicator to  `infinite_scroll_card.html`  
