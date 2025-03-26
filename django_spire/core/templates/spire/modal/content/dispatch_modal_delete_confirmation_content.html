@@ -18,7 +18,7 @@
         {% csrf_token %}
         {{ form_description }}
 
-        {% include 'django_glue/form/glue_field/input_field.html' with glue_field='should_delete' %}
+        {% include 'django_glue/form/field/input_field.html' with glue_field='should_delete' %}
 
         <div class="d-flex mt-3">
             {% include 'spire/form/button/form_submit_button.html' with button_text='Delete' button_class='btn-danger btn-sm' %}
