@@ -7,12 +7,12 @@ from django_spire.notification import models
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'type', 'processed', 'sent_datetime',
-        'sent_datetime', 'view_body_snippet', 'url_link'
+        'id', 'title', 'type', 'processed', 'processed_datetime',
+        'processed_datetime', 'view_body_snippet', 'url_link'
     )
-    list_filter = ('type', 'processed', 'sent_datetime')
+    list_filter = ('type', 'processed', 'processed_datetime')
     search_fields = ('id', 'title', 'type')
-    ordering = ('-sent_datetime',)
+    ordering = ('-processed_datetime',)
 
     def view_body_snippet(self, notification: models.Notification) -> str:
         return (

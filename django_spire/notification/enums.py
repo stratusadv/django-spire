@@ -8,9 +8,10 @@ from django_spire.notification.email.sender import EmailNotificationSender
 
 
 class NotificationTypeChoices(models.TextChoices):
+    APP = 'app'
     EMAIL = 'email'
-    # SMS = 'sms'
-    # PUSH = 'push'
+    PUSH = 'push'
+    SMS = 'sms'
 
     def send(self) -> None:
         sender_class = NotificationSenderMap(self.value).value

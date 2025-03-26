@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
-
 from django.utils.timezone import now
 
 from django_spire.history.mixins import HistoryModelMixin
@@ -15,13 +13,13 @@ class Notification(HistoryModelMixin):
     type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL)
     title = models.CharField(max_length=124)
     body = models.TextField(default='')
-    sent_datetime = models.DateTimeField(default=now)
+    processed_datetime = models.DateTimeField(blank=True, null=True)
     url = models.CharField(max_length=255, default='')
     processed = models.BooleanField(default=False)
 
-    def mark_sent(self) -> None:
-        self.is_sent = True
-        self.sent_datetime = now()
+    def mark_processed(self) -> None:
+        self.processed = True
+        self.processed_datetime = now()
         self.save()
 
     def send(self) -> None:
