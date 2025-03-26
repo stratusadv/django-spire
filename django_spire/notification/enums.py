@@ -13,12 +13,12 @@ class NotificationTypeChoices(models.TextChoices):
     # PUSH = 'push'
 
     def send(self) -> None:
-        sender_class = NotificationSenderEnum(self.value).value
+        sender_class = NotificationSenderMap(self.value).value
         sender = sender_class(self)
         sender.send()
 
 
-class NotificationSenderEnum(Enum):
+class NotificationSenderMap(Enum):
     EMAIL = EmailNotificationSender
     # SMS = EmailNotificationSender
     # PUSH = EmailNotificationSender

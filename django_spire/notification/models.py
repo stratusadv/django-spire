@@ -7,17 +7,16 @@ from django.utils.timezone import now
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.notification.enums import (
-    NotificationSenderEnum,
+    NotificationSenderMap,
     NotificationTypeChoices
 )
 
 class Notification(HistoryModelMixin):
-
     type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL)
     title = models.CharField(max_length=124)
     body = models.TextField(default='')
     sent_datetime = models.DateTimeField(default=now)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, editable=False)
+    url = models.CharField(max_length=255, default='')
     processed = models.BooleanField(default=False)
 
     def mark_sent(self) -> None:
@@ -26,7 +25,7 @@ class Notification(HistoryModelMixin):
         self.save()
 
     def send(self) -> None:
-        sender_class = NotificationSenderEnum(self.type).value
+        sender_class = NotificationSenderMap(self.type).value
         sender = sender_class(self)
         sender.send()
 
