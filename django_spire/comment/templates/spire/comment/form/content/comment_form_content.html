@@ -1,7 +1,7 @@
 <div
     class="row g-2"
     x-data="{
-            comment: new GlueModelObject('comment'),
+            comment: new ModelObjectGlue('comment'),
             async init() {
                 await this.comment.get()
             }

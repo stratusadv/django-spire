@@ -3,7 +3,7 @@
 <form
     class="row"
     x-data="{
-        recipe: new GlueModelObject('recipe'),
+        recipe: new ModelObjectGlue('recipe'),
         async init() {
             await this.recipe.get()
         }

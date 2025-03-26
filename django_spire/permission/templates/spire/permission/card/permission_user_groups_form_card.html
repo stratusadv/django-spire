@@ -16,8 +16,8 @@
                 this.groups = await this.group_queryset.all()
 
              },
-            group_queryset: new GlueQuerySet('group_queryset'),
-            group: new GlueModelObject('group'),
+            group_queryset: new QuerySetGlue('group_queryset'),
+            group: new ModelObjectGlue('group'),
             groups: [],
             selected_groups: [],
             get return_user_groups() {

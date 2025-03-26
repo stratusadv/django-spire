@@ -63,7 +63,7 @@
                 });
 
                 let url = `${this.endpoint}?${params}`;
-                let view = new GlueView(url, this.shared_payload);
+                let view = new ViewGlue(url, this.shared_payload);
 
                 try {
                     await view.render_insert_adjacent(this.$refs.item_container, {}, 'beforeend')

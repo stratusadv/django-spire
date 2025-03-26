@@ -6,7 +6,7 @@
             toggle_loading_overlay()
             console.log(this.recipe)
         },
-        recipe: new GlueModelObject('recipe'),
+        recipe: new ModelObjectGlue('recipe'),
         async get_glue() {
             await this.recipe.get()
         }

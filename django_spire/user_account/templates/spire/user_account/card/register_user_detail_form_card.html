@@ -11,7 +11,7 @@
                 this.setup_fields()
                 await this.get_glue()
             },
-            user: new GlueModelObject('portal_user'),
+            user: new ModelObjectGlue('portal_user'),
             repeat_password: new GlueCharField( 'repeat_password'),
             setup_fields() {
                 this.user.glue_fields.first_name.required = true

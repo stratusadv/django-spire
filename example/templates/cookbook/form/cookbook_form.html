@@ -3,7 +3,7 @@
         async init() {
             await this.cookbook.get()
         },
-        cookbook: new GlueModelObject('cookbook')
+        cookbook: new ModelObjectGlue('cookbook')
     }"
 >
     {% include 'spire/element/divider_element.html' with divider_title='Details' %}
