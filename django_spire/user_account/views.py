@@ -6,7 +6,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django_glue.glue import glue_model
+
+import django_glue as dg
 from django_glue.utils import serialize_to_json
 
 from django_spire.core.redirect import safe_redirect_url
@@ -30,7 +31,7 @@ from django_spire.views import portal_views
 
 def register_user_form_view(request):
     # Is this the best way to initialize a null object in glue?
-    glue_model(request, 'portal_user', PortalUser(), 'view')
+    dg.glue_model_object(request, 'portal_user', PortalUser(), 'view')
 
     if request.method == 'POST':
         user_form = forms.RegisterUserForm(request.POST)
@@ -107,7 +108,7 @@ def user_list_page_view(request):
 @permission_required('permission.change_portaluser')
 def user_form_page_view(request, pk):
     portal_user = get_object_or_404(PortalUser, pk=pk)
-    glue_model(request, 'portal_user', portal_user, 'view')
+    dg.glue_model_object(request, 'portal_user', portal_user, 'view')
 
     if request.method == 'POST':
         form = forms.UserForm(request.POST, instance=portal_user)

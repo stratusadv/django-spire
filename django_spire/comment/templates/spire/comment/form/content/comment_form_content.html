@@ -1,4 +1,4 @@
-<div 
+<div
     class="row g-2"
     x-data="{
             comment: new GlueModelObject('comment'),
@@ -8,6 +8,6 @@
         }"
 >
     <div class="col-12">
-        {% include 'django_glue/form/glue_field/text_field.html' with glue_model_field='comment.information' %}
+        {% include 'django_glue/form/field/text_field.html' with glue_model_field='comment.information' %}
     </div>
 </div>

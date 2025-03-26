@@ -4,7 +4,7 @@ from typing_extensions import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
 
-from django_glue.glue import glue_model
+import django_glue as dj
 
 from django_spire.core.shortcuts import get_object_or_null_obj
 
@@ -60,7 +60,7 @@ def base_view(request: WSGIRequest) -> TemplateResponse:
 
 def button_view(request: WSGIRequest) -> TemplateResponse:
     cookbook = get_object_or_null_obj(Cookbook, pk=1)
-    glue_model(request, 'cookbook', cookbook)
+    dj.glue_model_object(request, 'cookbook', cookbook)
 
     exclude_template = ['base_button']
 
