@@ -19,6 +19,7 @@ def reverse_generic_relation(content_object: Any, **kwargs) -> HttpResponse | No
 
     if isinstance(CONTENT_OBJECT_URL_MAP[model_name], tuple):
         url_path = CONTENT_OBJECT_URL_MAP[model_name][0]
+
         for kwarg in CONTENT_OBJECT_URL_MAP[model_name][1:]:
             if kwarg[0] == 'pk':
                 if isinstance(kwarg[1], str):

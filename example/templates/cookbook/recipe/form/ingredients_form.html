@@ -8,8 +8,8 @@
         this.set_fields()
         toggle_loading_overlay()
      },
-    ingredient_template: new GlueModelObject('ingredient_template'),
-    ingredient_queryset: new GlueQuerySet('ingredient_queryset'),
+    ingredient_template: new ModelObjectGlue('ingredient_template'),
+    ingredient_queryset: new QuerySetGlue('ingredient_queryset'),
     ingredients: [],
     add_ingredient() {
         this.ingredients.push(this.ingredient_template.duplicate())

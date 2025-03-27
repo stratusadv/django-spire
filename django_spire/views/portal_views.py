@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing_extensions import Callable, TYPE_CHECKING
+from typing_extensions import Any, Callable, TYPE_CHECKING
 
+from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 
@@ -70,6 +71,7 @@ def delete_form_view(
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(request.POST)
+
         if form.is_valid():
             if delete_func is not None:
                 delete_func()
@@ -113,6 +115,49 @@ def delete_form_view(
         request,
         template=template,
         context=context_data
+    )
+
+
+def infinite_scrolling_view(
+    request: WSGIRequest,
+    *,
+    context_data: dict[str, Any],
+    queryset: QuerySet | list,
+    queryset_name: str,
+    template: str
+) -> TemplateResponse:
+    if context_data is None:
+        context_data = {}
+
+    current_page = int(request.GET.get('page', 1))
+    page_size = int(request.GET.get('page_size', 10))
+
+    start = (current_page - 1) * page_size
+    end = start + page_size
+
+    object_list = queryset[start:end]
+
+    length = (
+        queryset.count()
+        if isinstance(queryset, QuerySet)
+        else len(queryset)
+    )
+
+    has_next = end < length
+
+    base_context_data = {
+        'current_page': current_page,
+        'has_next': has_next,
+        'page_size': page_size,
+        queryset_name: object_list
+    }
+
+    context_data.update(base_context_data)
+
+    return TemplateResponse(
+        request,
+        context=context_data,
+        template=template
     )
 
 
@@ -226,12 +271,12 @@ def model_form_view(
 
 
 def template_view(
-        request: WSGIRequest,
-        page_title: str,
-        page_description: str,
-        breadcrumbs: Breadcrumbs,
-        template: str,
-        context_data: dict | None = None,
+    request: WSGIRequest,
+    page_title: str,
+    page_description: str,
+    breadcrumbs: Breadcrumbs,
+    template: str,
+    context_data: dict | None = None
 ) -> TemplateResponse:
     if context_data is None:
         context_data = {}

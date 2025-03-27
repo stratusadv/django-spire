@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing_extensions import Callable, TYPE_CHECKING
 
-from django_spire.core.management.commands.spire_bootstrap_pkg.constants import (
+from django_spire.core.management.commands.spire_startapp_pkg.constants import (
     INDENTATION,
     ICON_FOLDER_OPEN,
     ICON_FOLDER_CLOSED,
     ICON_FILE
 )
-from django_spire.core.management.commands.spire_bootstrap_pkg.maps import generate_replacement_map
+from django_spire.core.management.commands.spire_startapp_pkg.maps import generate_replacement_map
 
 if TYPE_CHECKING:
     from pathlib import Path

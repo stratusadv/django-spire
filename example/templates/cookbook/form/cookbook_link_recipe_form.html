@@ -6,8 +6,8 @@
             toggle_loading_overlay()
             this.search.prevent_submit()
         },
-        cookbook: new GlueModelObject('cookbook'),
-        recipe_queryset: new GlueQuerySet('recipe_queryset'),
+        cookbook: new ModelObjectGlue('cookbook'),
+        recipe_queryset: new QuerySetGlue('recipe_queryset'),
         search: new GlueCharField('search'),
         linked_recipes: [],
         recipes: [],
@@ -42,7 +42,7 @@
 
     <div class="row g-3 mb-3">
         <div class="col-12">
-            {% include 'django_glue/form/glue_field/char_field.html' with glue_field='search' %}
+            {% include 'django_glue/form/field/char_field.html' with glue_field='search' %}
         </div>
         <div class="col-12">
             {% include 'spire/element/divider_element.html' with divider_title='Recipes' %}

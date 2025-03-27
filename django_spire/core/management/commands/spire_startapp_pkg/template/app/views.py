@@ -8,14 +8,15 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
-from django_spire.form.utils import show_form_errors
-from django_spire.views import modal_views, portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.form.utils import show_form_errors
 from django_spire.history.utils import add_form_activity
+from django_spire.views import modal_views, portal_views
+
+import django_glue as dg
 
 from module import forms, models
 
-from django_glue.glue import glue_model
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -90,7 +91,7 @@ def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> T
 def spireparentapp_spirechildapp_form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
-    glue_model(request, 'spirechildapp', spirechildapp)
+    dg.glue_model_object(request, 'spirechildapp', spirechildapp)
 
     context_data = {
         'spirechildapp': spirechildapp
@@ -107,7 +108,7 @@ def spireparentapp_spirechildapp_form_content_modal_view(request: WSGIRequest, p
 def spireparentapp_spirechildapp_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_null_obj(models.SpireChildApp, pk=pk)
 
-    glue_model(request, 'spirechildapp', spirechildapp, 'view')
+    dg.glue_model_object(request, 'spirechildapp', spirechildapp, 'view')
 
     if request.method == 'POST':
         form = forms.PlaceholderForm(request.POST, instance=spirechildapp)

@@ -3,16 +3,16 @@
         async init() {
             await this.cookbook.get()
         },
-        cookbook: new GlueModelObject('cookbook')
+        cookbook: new ModelObjectGlue('cookbook')
     }"
 >
     {% include 'spire/element/divider_element.html' with divider_title='Details' %}
     <div class="row g-3 mb-3">
         <div class="col-12">
-            {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='cookbook.name' %}
+            {% include 'django_glue/form/field/char_field.html' with glue_model_field='cookbook.name' %}
         </div>
         <div class="col-12">
-            {% include 'django_glue/form/glue_field/text_field.html' with glue_model_field='cookbook.description' %}
+            {% include 'django_glue/form/field/text_field.html' with glue_model_field='cookbook.description' %}
         </div>
     </div>
 </div>

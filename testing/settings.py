@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import secrets
-
 from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+ROOT_URLCONF = 'testing.urls'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -15,7 +15,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
-
     'django_spire.ai',
     'django_spire.core',
     'django_spire.authentication',
@@ -35,11 +34,13 @@ INSTALLED_APPS = [
     'django_spire.search',
     'django_spire.seeding',
     'django_spire.user_account',
+
+    'testing.dummy'
 ]
 
 DEBUG = True
-SECRET_KEY = secrets.token_urlsafe(50)
 
+SECRET_KEY = 's80FyoHWwOFTSQqsePJMKSAoUxZLkerXrU68v8LHfZDiuIOqXw'
 SENDGRID_TEMPLATE_ID = False
 
 DATABASES = {
@@ -57,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_glue.middleware.GlueMiddleware'
+    'django_glue.middleware.DjangoGlueMiddleware'
 ]
 
 TEMPLATES = [
@@ -73,7 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django_glue.context_processors.glue'
+                'django_glue.context_processors.django_glue'
             ],
             'builtins': [
             ],

@@ -16,8 +16,8 @@
                 this.groups = await this.group_queryset.all()
 
              },
-            group_queryset: new GlueQuerySet('group_queryset'),
-            group: new GlueModelObject('group'),
+            group_queryset: new QuerySetGlue('group_queryset'),
+            group: new ModelObjectGlue('group'),
             groups: [],
             selected_groups: [],
             get return_user_groups() {
@@ -67,7 +67,7 @@
        <div class="row g-3 pt-2">
            <div class="col-12">
                {% include 'spire/element/divider_element.html' with divider_title='Add Group' %}
-               {% include 'django_glue/form/glue_field/char_field.html' with label='Group Name' x_model_value='group.name' %}
+               {% include 'django_glue/form/field/char_field.html' with label='Group Name' x_model_value='group.name' %}
            </div>
            <div class="col-12">
                <span @click="add_group()">{% include 'spire/button/secondary_outlined_button.html' with button_text='Add Group' %}</span>

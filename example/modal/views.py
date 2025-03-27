@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_glue.glue import glue_model
+import django_glue as dg
 
 from example.test_model.factories import generate_test_model
 
@@ -24,7 +24,7 @@ def modal_form_submit(request: WSGIRequest) -> HttpResponse:
 
 def modal_home_view(request: WSGIRequest) -> TemplateResponse:
     test_model = generate_test_model()
-    glue_model(request, 'test_model', test_model)
+    dg.glue_model_object(request, 'test_model', test_model)
 
     context = {'test_model': test_model}
 
@@ -39,7 +39,7 @@ def modal_detail_view(request: WSGIRequest) -> TemplateResponse:
 
 def modal_basic(request: WSGIRequest) -> HttpResponse:
     test_model = generate_test_model()
-    glue_model(request, 'test_model', test_model)
+    dg.glue_model_object(request, 'test_model', test_model)
 
     context = {'test_model': test_model}
 

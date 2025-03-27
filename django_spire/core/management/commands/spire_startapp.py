@@ -29,7 +29,7 @@ class Command(BaseCommand):
         super().__init__()
 
         self.app_base = Path(settings.BASE_DIR)
-        self.app_template = Path(django_spire.__file__).parent / 'template/app'
+        self.app_template = Path(django_spire.__file__).parent / 'core/management/commands/spire_bootstrap_pkg/template/app'
 
         self.template_base = self.app_base / 'templates'
         self.html_template = Path(django_spire.__file__).parent / 'template/templates'

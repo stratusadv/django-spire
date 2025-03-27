@@ -13,7 +13,7 @@
                     toggle_loading_overlay()
                     console.log(this.user)
                 },
-                user: new GlueModelObject('portal_user'),
+                user: new ModelObjectGlue('portal_user'),
                 async get_glue() {
                     await this.user.get()
                     // this.user.set_properties('{{ initial_data }}')
@@ -31,16 +31,16 @@
 
             <div class="row g-2 mb-3">
                 <div class="col-6">
-                    {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='user.first_name' %}
+                    {% include 'django_glue/form/field/char_field.html' with glue_model_field='user.first_name' %}
                 </div>
                 <div class="col-6">
-                    {% include 'django_glue/form/glue_field/char_field.html' with glue_model_field='user.last_name' %}
+                    {% include 'django_glue/form/field/char_field.html' with glue_model_field='user.last_name' %}
                 </div>
                 <div class="col-6">
-                    {% include 'django_glue/form/glue_field/email_field.html' with glue_model_field='user.email' %}
+                    {% include 'django_glue/form/field/email_field.html' with glue_model_field='user.email' %}
                 </div>
                 <div class="col-6">
-                    {% include 'django_glue/form/glue_field/select_field.html' with glue_model_field='user.is_active' %}
+                    {% include 'django_glue/form/field/select_field.html' with glue_model_field='user.is_active' %}
                 </div>
             </div>
 
