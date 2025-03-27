@@ -1,9 +1,7 @@
 from dandy.llm import BaseLlmBot, Prompt
-from dandy.intel import BaseIntel
 from dandy.core.cache import cache_to_sqlite
 
-class AttrsIntel(BaseIntel):
-    items: list[str]
+from django_spire.seeding.intelligence.intel import AttrsIntel
 
 
 class SeedingAttrsLlmBot(BaseLlmBot):
@@ -21,4 +19,3 @@ class SeedingAttrsLlmBot(BaseLlmBot):
         )
 
         return [ attr_type(attr) for attr in attrs_intel.items ]
-
