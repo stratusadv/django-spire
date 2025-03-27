@@ -1,8 +1,8 @@
 site_name: Django Spire
-site_url: https://stratusadv.com/django_spire/
+site_url: https://django-spire.stratusadv.com
 
 repo_name: stratusadv/django-spire
-repo_url: https://github.com/stratusadv/django-spire/
+repo_url: https://github.com/stratusadv/django-spire
 
 copyright: Copyright (c) 2024 Stratus Advanced Technologies and Contributors
 
