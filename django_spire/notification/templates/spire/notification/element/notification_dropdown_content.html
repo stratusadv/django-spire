@@ -1,0 +1,64 @@
+<div style="width: 350px !important;" class="row" x-data="{
+    init(){
+        console.log(this.notification_list)
+    },
+    notification_list: [
+        {
+            'time': '2 hours ago',
+            'description': 'This is a work order request notification. Please review it.',
+            'viewed': false,
+            'icon': 'bi bi-bell-fill',
+            'url': '/test/'
+        },
+
+        {
+            'time': '4 hours ago',
+            'description': 'An engineering request has been assigned to it.',
+            'viewed': true,
+            'icon': 'bi bi-card-checklist'
+        },
+
+        {
+            'time': '4 hours ago',
+            'description': 'An engineering request has been assigned to it.',
+            'viewed': true
+        },
+
+        {
+            'time': '4 hours ago',
+            'description': 'An engineering request has been assigned to it.',
+            'viewed': true
+        },
+
+        {
+            'time': '4 hours ago',
+            'description': 'An engineering request has been assigned to it.',
+            'viewed': true
+        },
+
+        {
+            'time': '4 hours ago',
+            'description': 'An engineering request has been assigned to it.',
+            'viewed': true
+        },
+
+    ]
+}">
+    <div class="col-12 w-100">
+        <h6 class="mt-2 ms-2 text-app-secondary">Notifications</h6>
+        <hr class="m-0"></hr>
+    </div>
+
+    <div style="max-height: 300px !important; overflow-y: scroll !important;">
+        <template x-for="(notification, index) in notification_list" :key='index'>
+            {% include "spire/notification/item/notification_item.html" %}
+        </template>
+    </div>
+    <div class="col-12">
+        <hr class="m-0"></hr>
+    </div>
+    <div class="col-12 fs-7 text-center py-1">
+        <a href="" class="text-decoration-none text-app-secondary my-2">View All</a>
+    </div>
+
+</div>

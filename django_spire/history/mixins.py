@@ -1,68 +1,20 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.timezone import localtime
+from typing_extensions import TYPE_CHECKING
 
-from django_spire.history.models import (
-    ActivityLog,
-    ActivitySubscriber,
-    EventHistory,
-    View
-)
+from django_spire.history.choices import EventHistoryChoices
+from django_spire.history.models import EventHistory
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
 
-class ActivityLogMixin(models.Model):
-    activity_log = GenericRelation(
-        ActivityLog,
-        related_query_name='activity_log',
-        editable=False
-    )
-
-    def add_activity(
-            self,
-            user: User,
-            verb: str,
-            information: str,
-            recipient: User = None,
-            subscribers: list[User] | None = None
-    ) -> ActivityLog:
-
-        activity = self.activity_log.create(
-            user=user,
-            verb=verb,
-            information=information,
-            recipient=recipient
-        )
-
-        if subscribers:
-            subscriber_list = [
-                ActivitySubscriber(user=subscriber, activity=activity)
-                for subscriber in subscribers
-            ]
-
-            ActivitySubscriber.objects.bulk_create(subscriber_list)
-
-        return activity
-
-    class Meta:
-        abstract = True
-
-
-class HistoryModelMixin(ActivityLogMixin):
+class HistoryModelMixin(models.Model):
     is_active = models.BooleanField(default=True, editable=False)
     is_deleted = models.BooleanField(default=False, editable=False)
-
-    activity_log = GenericRelation(
-        ActivityLog,
-        related_query_name='activity_log',
-        editable=False
-    )
 
     event_history = GenericRelation(
         EventHistory,
@@ -70,13 +22,15 @@ class HistoryModelMixin(ActivityLogMixin):
         editable=False
     )
 
-    views = GenericRelation(
-        View,
-        related_query_name='view',
-        editable=False
-    )
-
     created_datetime = models.DateTimeField(default=localtime, editable=False)
+
+    def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
+
+        if self.pk:
+            self.event_history.create(event=EventHistoryChoices.UPDATED)
+        else:
+            self.event_history.create(event=EventHistoryChoices.CREATED)
 
     def add_view(self, user: User) -> None:
         self.views.create(user=user)
@@ -84,38 +38,25 @@ class HistoryModelMixin(ActivityLogMixin):
     def is_viewed(self, user: User) -> None:
         return self.views.filter(user=user).exists()
 
-    @property
-    def creator(self) -> User:
-        return self.activity_log.earliest('date_time_entered').user
-
-    def save(self, *args, **kwargs) -> None:
-        created = self.pk is None
-        super().save(*args, **kwargs)
-
-        if created:
-            self.event_history.create(event='crea')
-        else:
-            self.event_history.create(event='upda')
-
     def set_active(self) -> None:
         self.is_active = True
         self.save()
-        self.event_history.create(event='acti')
+        self.event_history.create(event=EventHistoryChoices.ACTIVE)
 
     def set_deleted(self) -> None:
         self.is_deleted = True
         self.save()
-        self.event_history.create(event='dele')
+        self.event_history.create(event=EventHistoryChoices.DELETED)
 
     def set_inactive(self) -> None:
         self.is_active = False
         self.save()
-        self.event_history.create(event='inac')
+        self.event_history.create(event=EventHistoryChoices.INACTIVE)
 
     def un_set_deleted(self) -> None:
         self.is_deleted = False
         self.save()
-        self.event_history.create(event='unde')
+        self.event_history.create(event=EventHistoryChoices.UNDELETED)
 
     class Meta:
         abstract = True

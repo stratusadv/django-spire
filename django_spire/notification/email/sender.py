@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing_extensions import TYPE_CHECKING
 
-from django_spire.notification.email import SendGridEmailHelper
+from django_spire.notification.email.helper import SendGridEmailHelper
 
 if TYPE_CHECKING:
     from django_spire.notification.models import Notification

@@ -1,0 +1,22 @@
+<div class="row pt-1 px-3">
+    <div class="col-12">
+        <a :href="notification.url" class="">
+            <div class="row bg-app-layer-two-hover rounded">
+                <div class="col-1 pt-2">
+                    <i x-show="notification.icon" class="fs-6 text-app-secondary" :class="notification.icon"></i>
+                </div>
+                <div class="col-11">
+                    <span class="fs-7" x-text="notification.description"></span>
+                    <div class="col-12 pt-1 pb-2">
+                        <span class="text-app-secondary fs-7" x-text="notification.time"></span> 
+                        
+                        <span x-show="notification.viewed === false">
+                            {% include "spire/badge/primary_badge.html" with badge_text='New' %} 
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <hr class="m-0 mt-1"></hr>
+</div>

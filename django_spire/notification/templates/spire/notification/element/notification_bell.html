@@ -1,0 +1,10 @@
+{% extends "spire/dropdown/dropdown.html" %}
+{% block dropdown_trigger %}
+    <i x-bind='trigger' class="bi bi bi-bell-fill fs-2 cursor-pointer"></i>
+{% endblock %}
+
+{% block dropdown_position %}top-100 end-50{% endblock %}
+
+{% block dropdown_content %}
+    {% include "spire/notification/element/notification_dropdown_content.html" %}
+{% endblock %}
