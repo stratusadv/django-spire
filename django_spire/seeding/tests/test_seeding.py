@@ -22,5 +22,4 @@ class SeedingTestCase(TestCase):
 
     def test_seeding_helper_intel_class(self):
         person_intel_class = self.person_seed_processor.build_intel_class()
-        
-        print(person_intel_class.model_json_schema())
+

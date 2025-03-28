@@ -1,4 +1,3 @@
-from datetime import date
 from math import pi
 
 from django.db.models import Field as DjangoField
