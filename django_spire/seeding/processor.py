@@ -1,62 +1,70 @@
-from dataclasses import dataclass, field
 from typing import Type
 
 from django.db.models import Model
-from pydantic import create_model
-
-from dandy.intel import BaseIntel
 from dandy.llm import Prompt
 
-from django_spire.core.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
-from django_spire.seeding.factories import SeedIntelFieldFactory
-from django_spire.seeding.intelligence.bots.seeding_bot import SeedingLlmBot
+from django_spire.seeding.seeding import LlmSeeding, FakerSeeding
 
 
-@dataclass
 class SeedingProcessor:
-    model_class: Type[Model]
 
-    seeding_prompt: Prompt
-    
-    count: int = 5
+    def __init__(
+            self,
+            model_class: Type[Model],
+            fields: dict[str, tuple],
+            prompt: Prompt = None,
+            include_fields: list[str] = None,
+            exclude_fields: list[str] = None
 
-    exclude_fields: list[str] = field(default_factory=list)
-    include_fields: list[str] = field(default_factory=list)
+    ):
+        model_class_fields_names = [field.name for field in model_class._meta.fields]
 
-    @property
-    def valid_model_fields(self):
+        # All defined fields must be a valid model field.
+        if any(field not in model_class_fields_names for field in fields.keys()):
+            raise ValueError(f'Invalid field name(s): {", ".join(fields.keys() - model_class_fields_names)}')
+
+        self.model_class = model_class
+        self.prompt = prompt
+
+        self.exclude_fields = exclude_fields or []
+        self.include_fields = include_fields or []
+
+    def faker_seed_data(self, count = 1) -> list[dict]:
+        return FakerSeeding(
+            model_class=self.model_class,
+            include_fields=self.include_fields,
+            exclude_fields=self.exclude_fields,
+            count=count
+        ).generate_data()
+
+    def llm_seed_data(self, count = 1) -> list[dict]:
+        return LlmSeeding(
+            model_class=self.model_class,
+            include_fields=self.include_fields,
+            exclude_fields=self.exclude_fields,
+            count=count
+        ).generate_data(prompt=self.prompt)
+
+    def static_seed_data(self, count = 1) -> list[dict]:
+        return [{}]
+
+    def callable_seed_data(self, count = 1) -> list[dict]:
+        return [{}]
+
+    def seed_data(self, count = 1):
+        llm_seed_data = self.llm_seed_data(count)
+        faker_seed_data = self.faker_seed_data(count)
+        static_seed_data = self.static_seed_data(count)
+        callable_seed_data = self.callable_seed_data(count)
+
         return [
-            f
-            for f in self.model_class._meta.fields
-            if (not self.include_fields or f.attname in self.include_fields)
-               and
-               (f.attname not in self.exclude_fields)
+            {**d1, **d2, **d3, **d4}
+            for d1, d2, d3, d4 in zip(llm_seed_data, faker_seed_data, static_seed_data, callable_seed_data)
         ]
 
-    def build_intel_class(self) -> Type[BaseIntel]:
-        pydantic_fields = {}
-
-        for model_field in self.valid_model_fields:
-            model_field_type = MODEL_FIELD_TYPE_TO_TYPE_MAP[model_field.get_internal_type()]
-
-            if model_field.null:
-                model_field_type = model_field_type | None
-
-            pydantic_fields[model_field.attname] = (
-                model_field_type,
-                SeedIntelFieldFactory(model_field).build_field()
-            )
-
-        return create_model(
-            f'{self.model_class.__name__}Intel',
-            __base__=BaseIntel,
-            **pydantic_fields
-        )
-
-    def to_model_objects(self):
-        seeding_intel = SeedingLlmBot.process(self)
-        return [self.model_class(**seed_intel.model_dump()) for seed_intel in seeding_intel]
+    def generate_model_objects(self, count = 1):
+        return [self.model_class(**seed_data) for seed_data in self.seed_data(count)]
 
     def seed_database(self):
-        model_objects = self.to_model_objects()
+        model_objects = self.generate_model_objects()
         return self.model_class.objects.bulk_create(model_objects)

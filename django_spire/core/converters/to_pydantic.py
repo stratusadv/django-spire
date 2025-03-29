@@ -145,14 +145,18 @@ class DjangoToPydanticFieldConverter:
             'field_name': self.model_field.name
         }
 
-        # if self.model_field.choices:
-        #     self.kwargs['json_schema_extra']['choices'] = self.model_field.choices
+        if self.model_field.choices:
+            self.kwargs['json_schema_extra']['enum'] = [choice[0] for choice in self.model_field.choices]
+            self.kwargs['description'] = f"Select a {self.model_field.name.lower()} category. Options: " + ", ".join(
+                f"{value} ({label})" for value, label in self.model_field.choices
+            ) + "."
 
     def _get_pydantic_type(self) -> Type:
         if self.model_field.choices:
             return self._build_enum_type()
 
         handler = self.field_handlers.get(self.model_field.get_internal_type())
+
         if handler:
             return handler()
 
