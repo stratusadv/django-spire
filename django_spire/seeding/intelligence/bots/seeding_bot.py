@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 from dandy.llm import BaseLlmBot, LlmConfigOptions, Prompt
 from dandy.intel import BaseIntel
 
+from django_spire.core.converters import django_to_pydantic_model
+
 if TYPE_CHECKING:
     from django_spire.seeding.processor import SeedingProcessor
 
@@ -31,7 +33,24 @@ class SeedingLlmBot(BaseLlmBot):
         cls,
         seeding_processor: SeedingProcessor = None
     ):
-        seed_intel_class = seeding_processor.build_intel_class()
+        seed_intel_class_2 = seeding_processor.build_intel_class()
+        seed_intel_class = django_to_pydantic_model(
+            model_class=seeding_processor.model_class,
+            base_class=BaseIntel,
+            include_fields=seeding_processor.include_fields,
+            exclude_fields=seeding_processor.exclude_fields
+        )
+
+        # print('CORRECT JSON SCHEMA')
+        print(seed_intel_class.model_json_schema())
+
+        print('---')
+        print()
+        # print()
+        # print('WRONG JSON SCHEMA')
+        print(seed_intel_class_2.model_json_schema())
+
+
 
         class SeedingIntel(BaseIntel):
             items: list[seed_intel_class]

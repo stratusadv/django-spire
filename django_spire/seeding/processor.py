@@ -53,12 +53,10 @@ class SeedingProcessor:
             **pydantic_fields
         )
 
-    def convert_seeding_intel_to_model_objects(self, seeding_intel: list[BaseIntel]):
+    def to_model_objects(self):
+        seeding_intel = SeedingLlmBot.process(self)
         return [self.model_class(**seed_intel.model_dump()) for seed_intel in seeding_intel]
 
     def seed_database(self):
-        return self.model_class.objects.bulk_create(
-            self.convert_seeding_intel_to_model_objects(
-                SeedingLlmBot.process(self)
-            )
-        )
+        model_objects = self.to_model_objects()
+        return self.model_class.objects.bulk_create(model_objects)

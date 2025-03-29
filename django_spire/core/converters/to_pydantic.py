@@ -1,8 +1,10 @@
-from pydantic import Field, constr, conint, condecimal, create_model
+
+from pydantic import constr, condecimal, create_model
+from pydantic.fields import Field
+
 from typing import Tuple, Type, Any, Optional
 
 from django.db import models
-
 from django.core import validators
 
 from django_spire.core.converters.to_enums import django_choices_to_enums
@@ -12,21 +14,27 @@ from django_spire.core.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
 def django_to_pydantic_model(
         model_class: Type[models.Model],
         base_class: Type | None = None,
-        include: str | list| tuple | None = None,
-        exclude: str | list | tuple | None = None
+        include_fields: str | list| tuple | None = None,
+        exclude_fields: str | list | tuple | None = None
 ):
     if not issubclass(model_class, models.Model):
         raise ValueError("model_class must be a subclass of django.db.models.Model")
+
+    if include_fields is None:
+        include_fields = []
+
+    if exclude_fields is None:
+        exclude_fields = []
 
     pydantic_fields = {}
 
     for model_field in model_class._meta.fields:
         field_name = model_field.attname
 
-        if include is not None and field_name not in include:
+        if len(include_fields) > 0 and field_name not in include_fields:
             continue
 
-        if exclude is not None and field_name in exclude:
+        if len(exclude_fields) > 0 and field_name in exclude_fields:
             continue
 
         converter = DjangoToPydanticFieldConverter(model_field)
@@ -48,6 +56,13 @@ class DjangoToPydanticFieldConverter:
         self._build_metadata()
         self.field_type = self._get_pydantic_type()
         self._wrap_nullable()
+
+    @staticmethod
+    def bool_to_json_schema(value: bool):
+        if value:
+            return "true"
+        else:
+            return "false"
 
     @property
     def field_handlers(self):
@@ -82,16 +97,13 @@ class DjangoToPydanticFieldConverter:
         return self._base_type()
 
     def _build_integer_field(self) -> Type:
-        ge, le = None, None
         for validator in self.model_field.validators:
             if isinstance(validator, validators.MinValueValidator):
-                ge = validator.limit_value
+                self.kwargs['json_schema_extra']['greater_than'] = validator.limit_value
             elif isinstance(validator, validators.MaxValueValidator):
-                le = validator.limit_value
+                self.kwargs['json_schema_extra']['less_than'] = validator.limit_value
 
-        if ge is not None or le is not None:
-            return conint(ge=ge, le=le)
-        return int
+        return self._base_type()
 
     def _build_decimal_field(self) -> Type:
         self.kwargs['json_schema_extra']['example'] = '0.00'
@@ -112,27 +124,29 @@ class DjangoToPydanticFieldConverter:
         return self.field_type, Field(**self.kwargs)
 
     def _build_metadata(self):
+
         if self.model_field.default is not models.NOT_PROVIDED:
             if callable(self.model_field.default):
                 self.kwargs['default'] = self.model_field.default()
             else:
                 self.kwargs['default'] = self.model_field.default
 
+        self.kwargs['required'] = not self.model_field.null
+
         if self.model_field.null and self.model_field.default is models.NOT_PROVIDED:
             self.kwargs['default'] = None
 
-        # Todo: Nathan said their is a description field on a django model.
         if self.model_field.help_text:
             self.kwargs['description'] = str(self.model_field.help_text)
 
         self.kwargs['json_schema_extra'] = {
-            'is_unique': self.model_field.unique,
-            'is_required': not self.model_field.null,
+            'is_unique': self.bool_to_json_schema(self.model_field.unique),
+            'is_required': self.bool_to_json_schema(not self.model_field.null),
             'field_name': self.model_field.name
         }
 
-        if self.model_field.choices:
-            self.kwargs['json_schema_extra']['choices'] = self.model_field.choices
+        # if self.model_field.choices:
+        #     self.kwargs['json_schema_extra']['choices'] = self.model_field.choices
 
     def _get_pydantic_type(self) -> Type:
         if self.model_field.choices:

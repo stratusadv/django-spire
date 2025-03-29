@@ -83,7 +83,7 @@ class TestDjangoModelToPydanticModel(TestCase):
             class Meta:
                 managed = False
 
-        PydanticModel = django_to_pydantic_model(SimpleModel, include=["id", "field1", "field3"])
+        PydanticModel = django_to_pydantic_model(SimpleModel, include_fields=["id", "field1", "field3"])
         fields = PydanticModel.__fields__
         self.assertIn("id", fields)
         self.assertIn("field1", fields)
@@ -98,7 +98,7 @@ class TestDjangoModelToPydanticModel(TestCase):
             class Meta:
                 managed = False
 
-        PydanticModel = django_to_pydantic_model(SimpleModel, exclude=["field2"])
+        PydanticModel = django_to_pydantic_model(SimpleModel, exclude_fields=["field2"])
         fields = PydanticModel.__fields__
         self.assertIn("id", fields)
         self.assertIn("field1", fields)
@@ -117,8 +117,8 @@ class TestDjangoModelToPydanticModel(TestCase):
 
         PydanticModel = django_to_pydantic_model(
             SimpleModel,
-            include=["id", "field1", "field2", "field3"],
-            exclude=["field2"]
+            include_fields=["id", "field1", "field2", "field3"],
+            exclude_fields=["field2"]
         )
         fields = PydanticModel.__fields__
         self.assertIn("id", fields)

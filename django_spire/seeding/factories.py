@@ -48,4 +48,8 @@ class SeedIntelFieldFactory:
             """
             # Below line did not work. Only made the increments of value by 0.01
             # kwargs['multipleOf'] = 10 ** (-decimal_places_length)
+            print('WORKING WAY -----------------------------------')
+            print(self.model_field.name)
+            print(kwargs)
+            print()
         return Field(**kwargs)
