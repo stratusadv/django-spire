@@ -9,50 +9,6 @@ from django_spire.core.converters.to_enums import django_choices_to_enums
 from django_spire.core.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
 
 
-# Todo: Old code to be checked to validate json schema. 
-# def django_field_to_pydantic_field(field: DjangoField) -> Field:
-#     kwargs = {
-#         'description': '',
-#     }
-#
-#     if field.null:
-#         kwargs['default'] = None
-#
-#     if field.get_internal_type() in ['DateField']:
-#         kwargs['description'] += 'Date Format: YYYY-MM-DD '
-#         kwargs['examples'] = ['2022-01-01']
-#
-#     if field.get_internal_type() in ['DateTimeField']:
-#         kwargs['description'] += 'Date Format: YYYY-MM-DD HH:MM:SS '
-#         kwargs['examples'] = ['2022-01-01 13:37:00']
-#
-#     if field.unique:
-#         kwargs['description'] += 'Is Unique: True '
-#
-#     if field.get_internal_type() in ['CharField', 'TextField'] and field.max_length:
-#         kwargs['max_length'] = int(field.max_length)
-#
-#     if field.get_internal_type() in ['DecimalField']:
-#         whole_number_length = field.max_digits - field.decimal_places
-#         decimal_places_length = field.decimal_places
-#         max_value = float('9' * whole_number_length + "." + '9' * field.decimal_places)
-#         min_value = -max_value
-#         # Using Pi as example values. Multiplied by formulas
-#         kwargs['examples'] = f"{pi * (10 ** (whole_number_length - 1)):{whole_number_length}.{decimal_places_length}f}"
-#         kwargs['lt'] = max_value
-#         kwargs['gt'] = min_value
-#         """
-#         experimental:
-#         kwargs['description'] += 'Decimal Field Format: {}.{}'.format(
-#             'X' * whole_number_length,
-#             'X' * field.decimal_places)
-#         """
-#         # Below line did not work. Only made the increments of value by 0.01
-#         # kwargs['multipleOf'] = 10 ** (-decimal_places_length)
-#     return Field(**kwargs)
-
-
-
 def django_to_pydantic_model(
         model_class: Type[models.Model],
         base_class: Type | None = None,
@@ -89,9 +45,9 @@ class DjangoToPydanticFieldConverter:
         self.model_field = model_field
         self.kwargs = {}
 
+        self._build_metadata()
         self.field_type = self._get_pydantic_type()
         self._wrap_nullable()
-        self._build_metadata()
 
     @property
     def field_handlers(self):
@@ -100,6 +56,8 @@ class DjangoToPydanticFieldConverter:
             'IntegerField': self._build_integer_field,
             'SmallIntegerField': self._build_integer_field,
             'DecimalField': self._build_decimal_field,
+            'DateField': self._build_date_field,
+            'DateTimeField': self._build_date_time_field,
         }
 
     def _base_type(self):
@@ -112,6 +70,16 @@ class DjangoToPydanticFieldConverter:
         if self.model_field.max_length:
             return constr(max_length=self.model_field.max_length)
         return str
+
+    def _build_date_field(self) -> Type:
+        self.kwargs['example'] = '2022-01-01'
+        self.kwargs['json_schema_extra']['example'] = '2022-01-01'
+        return self._base_type()
+
+    def _build_date_time_field(self) -> Type:
+        self.kwargs['example'] = '2022-01-01 13:37:00'
+        self.kwargs['json_schema_extra']['example'] = '2022-01-01 13:37:00'
+        return self._base_type()
 
     def _build_integer_field(self) -> Type:
         ge, le = None, None
@@ -126,6 +94,10 @@ class DjangoToPydanticFieldConverter:
         return int
 
     def _build_decimal_field(self) -> Type:
+        self.kwargs['json_schema_extra']['example'] = '0.00'
+        self.kwargs['json_schema_extra']['max_digits'] = self.model_field.max_digits
+        self.kwargs['json_schema_extra']['decimal_places'] = self.model_field.decimal_places
+
         return condecimal(
             max_digits=self.model_field.max_digits,
             decimal_places=self.model_field.decimal_places
@@ -141,11 +113,15 @@ class DjangoToPydanticFieldConverter:
 
     def _build_metadata(self):
         if self.model_field.default is not models.NOT_PROVIDED:
-            self.kwargs['default'] = self.model_field.default
+            if callable(self.model_field.default):
+                self.kwargs['default'] = self.model_field.default()
+            else:
+                self.kwargs['default'] = self.model_field.default
 
         if self.model_field.null and self.model_field.default is models.NOT_PROVIDED:
             self.kwargs['default'] = None
 
+        # Todo: Nathan said their is a description field on a django model.
         if self.model_field.help_text:
             self.kwargs['description'] = str(self.model_field.help_text)
 
