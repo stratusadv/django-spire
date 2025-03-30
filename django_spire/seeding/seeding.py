@@ -19,7 +19,7 @@ class ModelSeeding:
     def __init__(
             self,
             model_class: Type[Model],
-            fields: dict[str, tuple] = None,
+            fields: dict[str, tuple | str] = None,
             prompt: Prompt = None,
             include_fields: list[str] = None,
             exclude_fields: list[str] = None
@@ -29,16 +29,18 @@ class ModelSeeding:
         self.exclude_fields = exclude_fields or []
         self.include_fields = include_fields or []
 
+        if fields is None:
+            fields = {}
+
         self._validate_fields_exist(fields)
         self.fields = self._normalize_fields(fields)
         self._assign_default_llm_fields()
 
         self.cache_buster = None
 
-    def _normalize_fields(self, fields: dict | None) -> dict:
+        print(self.fields)
 
-        if fields is None:
-            fields = {}
+    def _normalize_fields(self, fields: dict) -> dict:
 
         seed_keywords = {"faker", "llm", "static", "callable", "custom"}
         normalized = {}
@@ -80,6 +82,10 @@ class ModelSeeding:
 
     def _callable_seed_data(self, count=1) -> list[dict]:
         callable_fields = self.filter_fields('callable')
+
+        if not callable_fields:
+            return []
+
         return ModelCallableSeeds(
             model_class=self.model_class,
             fields=callable_fields,
@@ -90,6 +96,10 @@ class ModelSeeding:
 
     def _faker_seed_data(self, count=1) -> list[dict]:
         faker_fields = self.filter_fields('faker')
+
+        if not faker_fields:
+            return []
+
         return ModelFakerSeeds(
             model_class=self.model_class,
             fields=faker_fields,
@@ -113,6 +123,9 @@ class ModelSeeding:
 
         llm_fields = self.filter_fields('llm')
 
+        if not llm_fields:
+            return []
+
         return ModelLlmSeeds(
             model_class=self.model_class,
             fields=llm_fields,
@@ -124,6 +137,10 @@ class ModelSeeding:
 
     def _static_seed_data(self, count=1) -> list[dict]:
         static_fields = self.filter_fields('static')
+
+        if not static_fields:
+            return []
+
         return ModelStaticSeeds(
             model_class=self.model_class,
             fields=static_fields,
@@ -134,6 +151,10 @@ class ModelSeeding:
 
     def _custom_seed_data(self, count=1) -> list[dict]:
         custom_fields = self.filter_fields('custom')
+
+        if not custom_fields:
+            return []
+
         return ModelCustomSeeds(
             model_class=self.model_class,
             fields=custom_fields,
@@ -254,7 +275,7 @@ class ModelFakerSeeds(ModelBaseSeeds):
         for i in range(self.count):
             row = {}
             for field_name, faker_config in self.fields.items():
-                faker_method = faker_config[1:] if len(faker_config) > 1 else faker_config[0]
+                faker_method = faker_config[1:] if len(faker_config) > 1 else None
                 row[field_name] = fake_model_field_value(
                     model_class=self.model_class,
                     field_name=field_name,
@@ -272,7 +293,7 @@ class ModelStaticSeeds(ModelBaseSeeds):
             cache_buster: uuid.UUID | None = None
     ) -> list[dict]:
         return [
-            {field_name: value[0] for field_name, value in self.fields.items()}
+            {field_name: value[1] for field_name, value in self.fields.items()}
             for _ in range(self.count)
         ]
 
@@ -283,6 +304,9 @@ class ModelCustomSeeds(ModelBaseSeeds):
         if index >= len(values):
             raise IndexError("Index exceeds the list length in 'in_order'")
         return values[index]
+
+    def field_default(self, field_name: str) -> any:
+        return self.model_class._meta.get_field(field_name).default
 
     # @cache_to_sqlite('seeding')
     def generate_data(

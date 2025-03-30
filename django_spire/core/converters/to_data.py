@@ -6,7 +6,11 @@ import os
 
 
 class DjangoFieldToFakerData:
-    def __init__(self, model_field: models.Field, faker_method=None):
+    def __init__(
+            self,
+            model_field: models.Field,
+            faker_method: tuple | None = None
+    ):
         if isinstance(faker_method, str):
             faker_method = (faker_method,)
         self.model_field = model_field
@@ -34,10 +38,14 @@ class DjangoFieldToFakerData:
         }
 
     def convert(self):
+        if self.faker_method:
+            result = self._use_faker_with_method()
+            if result is not None:
+                return result
+
         converter = self.field_converters.get(self.model_field.get_internal_type())
         if converter is None:
             raise Exception(f'No handler for {self.model_field.get_internal_type()}')
-
         return converter()
 
     def _get_min_max_from_validators(self):
@@ -51,9 +59,10 @@ class DjangoFieldToFakerData:
         return min_value, max_value
 
     def _use_faker_with_method(self):
-        if isinstance(self.faker_method, tuple) and len(self.faker_method) >= 1:
+        if isinstance(self.faker_method, tuple):
             method_name = self.faker_method[0]
             kwargs = self.faker_method[1] if len(self.faker_method) > 1 and isinstance(self.faker_method[1], dict) else {}
+
             method = getattr(self.faker, method_name, None)
             if callable(method):
                 return method(**kwargs)
@@ -63,14 +72,9 @@ class DjangoFieldToFakerData:
     def _char_field_data(self):
         max_length = getattr(self.model_field, 'max_length', 255)
 
-        # Use choices if available
         if self.model_field.choices:
             choices = [choice[0] for choice in self.model_field.choices]
-            return random.choice(choices)
-
-        result = self._use_faker_with_method()
-        if result:
-            return result[:max_length]
+            return self.faker.random_element(elements=choices)
 
         return self.faker.text(max_nb_chars=max_length)
 
@@ -90,15 +94,9 @@ class DjangoFieldToFakerData:
         return round(value, decimal_places)
 
     def _date_field_data(self):
-        result = self._use_faker_with_method()
-        if result:
-            return result
         return self.faker.date_between(start_date='-5y', end_date='today')
 
     def _date_time_field_data(self):
-        result = self._use_faker_with_method()
-        if result:
-            return result
         return self.faker.date_time_between(start_date='-5y', end_date='now')
 
     def _boolean_field_data(self):
