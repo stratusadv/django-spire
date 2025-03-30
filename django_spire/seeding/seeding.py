@@ -38,8 +38,6 @@ class ModelSeeding:
 
         self.cache_buster = None
 
-        print(self.fields)
-
     def _normalize_fields(self, fields: dict) -> dict:
 
         seed_keywords = {"faker", "llm", "static", "callable", "custom"}
