@@ -8,7 +8,7 @@ from typing import Type
 from dandy.llm import Prompt
 from dandy.intel import BaseIntel
 
-from django_spire.core.converters import django_to_pydantic_model
+from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
 from django_spire.seeding.intelligence.bots import LlmSeedingBot
 
 
@@ -47,7 +47,12 @@ class ModelSeeding:
         return llm_fields
 
     def _callable_seed_data(self, count=1) -> list[dict]:
-        return [{}]
+        return ModelCallableSeeds(
+            model_class=self.model_class,
+            include_fields=self.include_fields,
+            exclude_fields=self.exclude_fields,
+            count=count
+        ).generate_data()
 
     def _faker_seed_data(self, count=1) -> list[dict]:
         return ModelFakerSeeds(
@@ -81,7 +86,12 @@ class ModelSeeding:
         ).generate_data(prompt=self.prompt)
 
     def _static_seed_data(self, count=1) -> list[dict]:
-        return [{}]
+        return ModelStaticSeeds(
+            model_class=self.model_class,
+            include_fields=self.include_fields,
+            exclude_fields=self.exclude_fields,
+            count=count
+        ).generate_data()
 
     def seed_data(self, count=1) -> list[dict]:
         llm_seed_data = self._llm_seed_data(count)
@@ -94,11 +104,22 @@ class ModelSeeding:
             for d1, d2, d3, d4 in zip(llm_seed_data, faker_seed_data, static_seed_data, callable_seed_data)
         ]
 
-    def generate_model_objects(self, count=1):
+    def generate_model_objects(
+            self,
+            count: int = 1,
+            fields: dict | None = None,
+            clear_cache: bool = False
+    ):
+        # Todo: Overwrite field data.
         return [self.model_class(**seed_data) for seed_data in self.seed_data(count)]
 
-    def seed_database(self):
-        model_objects = self.generate_model_objects()
+    def seed_database(
+            self,
+            count: int = 1,
+            fields: dict | None = None,
+            clear_cache: bool = False
+    ):
+        model_objects = self.generate_model_objects(count, fields, clear_cache)
         return self.model_class.objects.bulk_create(model_objects)
 
 
@@ -157,19 +178,33 @@ class ModelLlmSeeds(ModelBaseSeeds):
 
 class ModelFakerSeeds(ModelBaseSeeds):
 
-    @property
-    def field_handlers(self):
-        return {
-            'CharField': self._char_field_data,
-            'IntegerField': self._interger_field_data,
-            'SmallIntegerField': self._interger_field_data,
-            'DecimalField': self._decimal_field_data,
-            'DateField': self._build_date_field,
-            'DateTimeField': self._build_date_time_field,
-        }
+    def generate_data(self) -> list[dict]:
+        faker_data = []
+        for _ in range(self.count):
+            model_data = {}
+
+            for field in self.include_fields:
+                model_data[field] = fake_model_field_value(
+                    model_class=self.model_class,
+                    field_name=field,
+                    faker_method=context,
+                )
+            faker_data.append(model_data)
+
+        return faker_data
 
 
+class ModelStaticSeeds(ModelBaseSeeds):
 
     def generate_data(self) -> list[dict]:
-        # Loop through fields in model class and generate fake data
-        pass
+        return [{
+            field_name: static_data
+        } for _ in range(self.count)]
+
+
+class ModelCallableSeeds(ModelBaseSeeds):
+
+    def generate_data(self) -> list[dict]:
+        return [{
+            field_name: callable()
+        } for _ in range(self.count)]
