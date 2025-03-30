@@ -11,14 +11,14 @@ def create_user(
     user, created = PortalUser.objects.get_or_create(
         username=username,
         defaults={
-            'password': password,
+            # 'password': password,
             **kwargs
         }
     )
 
-    if created:
-        user.set_password(password)
-        user.save()
+    # if created:
+    #     user.set_password(password)
+    #     user.save()
 
     return user
 
@@ -36,8 +36,8 @@ def create_super_user(password: str = 'bobert', **kwargs) -> PortalUser:
         }
     )
 
-    if created:
-        user.set_password(password)
-        user.save()
+    # if created:
+    #     user.set_password(password)
+    #     user.save()
 
     return user

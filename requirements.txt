@@ -3,6 +3,7 @@ docutils
 dandy>=0.13.2
 django>=5.0.2
 django-crispy-forms>=1.14.0
+faker==37.1.0
 Pygments
 psycopg2>=2.9.10
 python-dateutil>=2.8.2
