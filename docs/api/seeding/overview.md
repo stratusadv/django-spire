@@ -41,6 +41,5 @@ We store seed results in a local SQLite cache table — so if you’ve seeded on
 ## 📘 Next Steps
 - 🧪 [Getting Started](getting_started.md)
 - 🧪 [Using Faker and Custom Methods](faker.md)
-- 🧠 [Getting Creative with LLM Seeding](llm-seeding.md)
-- 🔁 [Rebuilding with the Cache](cache-strategy.md)
+
 
