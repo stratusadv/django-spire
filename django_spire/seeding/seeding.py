@@ -35,7 +35,7 @@ class ModelSeeding:
         self._assign_default_llm_fields()
 
     def _normalize_fields(self, fields: dict) -> dict:
-        seed_keywords = {"faker", "llm", "static", "callable"}
+        seed_keywords = {"faker", "llm", "static", "callable", "custom"}
         normalized = {}
         for k, v in fields.items():
             if isinstance(v, tuple):
@@ -116,6 +116,14 @@ class ModelSeeding:
             count=count
         ).generate_data()
 
+    def _custom_seed_data(self, count=1) -> list[dict]:
+        custom_fields = self.filter_fields('custom')
+        return ModelCustomSeeds(
+            model_class=self.model_class,
+            fields=custom_fields,
+            count=count
+        ).generate_data()
+
     def seed_data(self, count=1) -> list[dict]:
         llm_seed_data = self._llm_seed_data(count)
         faker_seed_data = self._faker_seed_data(count)
@@ -123,8 +131,8 @@ class ModelSeeding:
         callable_seed_data = self._callable_seed_data(count)
 
         return [
-            {**(d1 or {}), **(d2 or {}), **(d3 or {}), **(d4 or {})}
-            for d1, d2, d3, d4 in zip_longest(llm_seed_data, faker_seed_data, static_seed_data, callable_seed_data)
+            {**(d1 or {}), **(d2 or {}), **(d3 or {}), **(d4 or {}), **(d5 or {})}
+            for d1, d2, d3, d4, d5 in zip_longest(llm_seed_data, faker_seed_data, static_seed_data, callable_seed_data, self._custom_seed_data(count))
         ]
 
     def generate_model_objects(
@@ -214,7 +222,7 @@ class ModelFakerSeeds(ModelBaseSeeds):
 
     def generate_data(self) -> list[dict]:
         data = []
-        for _ in range(self.count):
+        for i in range(self.count):
             row = {}
             for field_name, faker_config in self.fields.items():
                 faker_method = faker_config[1:] if len(faker_config) > 1 else faker_config[0]
@@ -234,6 +242,30 @@ class ModelStaticSeeds(ModelBaseSeeds):
             {field_name: value[0] for field_name, value in self.fields.items()}
             for _ in range(self.count)
         ]
+
+
+class ModelCustomSeeds(ModelBaseSeeds):
+
+    def in_order(self, values: list, index: int) -> any:
+        if index >= len(values):
+            raise IndexError("Index exceeds the list length in 'in_order'")
+        return values[index]
+
+    def generate_data(self) -> list[dict]:
+        data = []
+        for _ in range(self.count):
+            row = {}
+            for field_name, config in self.fields.items():
+                method_name = config[1] if len(config) > 1 else field_name
+                kwargs = config[2] if len(config) > 2 else {}
+                method = getattr(self, method_name, None)
+                if not callable(method):
+                    raise ValueError(f"Custom method '{method_name}' not found for field '{field_name}'")
+                if method_name == "in_order":
+                    kwargs["index"] = i
+                row[field_name] = method(**kwargs)
+            data.append(row)
+        return data
 
 
 class ModelCallableSeeds(ModelBaseSeeds):

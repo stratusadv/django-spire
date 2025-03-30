@@ -1,4 +1,9 @@
-# Django Seeding Module
+# Getting Started
+
+Let’s make your database feel alive! 🧪
+This module helps you quickly populate Django models with meaningful, contextual data — without tedious boilerplate or repetitive scripts.
+
+---
 
 ## 🧪 Example Model
 
@@ -20,16 +25,14 @@ If you don’t define any fields, the system defaults to using LLMs for all fiel
 
 ```python
 seeder = ModelSeeding(
-    model_class=Product,    
+    model_class=Product,
     exclude_fields=["id"]
 )
 
-# 5 null objects
 products = seeder.generate_model_objects(count=5)
 
-# Inserts 5 records
-products = seeder.seed_database(count=5)
-
+# Or insert directly
+seeder.seed_database(count=5)
 ```
 
 > ✅ This is ideal for prototyping, testing, or generating rich placeholder content fast.
@@ -38,13 +41,15 @@ products = seeder.seed_database(count=5)
 
 ## 🔧 Advanced Usage (All Field Types)
 
-Use a mix of `faker`, `llm`, `static`, and `callable` seed types for full control:
+Use a mix of `faker`, `llm`, `static`, `callable`, and `custom` seed types for full control:
 
 ```python
 import random
 from django.utils import timezone
 from your_module import ModelSeeding
 from your_app.models import Product
+
+supplier_ids = [101, 102, 103, 104, 105]
 
 seeder = ModelSeeding(
     model_class=Product,
@@ -53,13 +58,14 @@ seeder = ModelSeeding(
         "name": ("faker", "word"),
         "description": ("llm", "Describe this product for a sales catalog."),
         "price": ("faker", "pydecimal", {"left_digits": 2, "right_digits": 2, "positive": True}),
-        "in_stock": ("static", True),
+        "in_stock": True,
         "created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"}),
-        "updated_at": ("callable", lambda: random.choice([None, timezone.now()])),
+        "updated_at": lambda: timezone.now(),
+        "supplier_id": ("custom", "in_order", {"values": supplier_ids})
     }
 )
 
-products = seeder.generate_model_objects(count=10)
+products = seeder.generate_model_objects(count=5)
 Product.objects.bulk_create(products)
 ```
 
@@ -79,6 +85,7 @@ seeder.generate_model_objects(
 ```
 
 This is useful for:
+
 - Creating edge-case records
 - Seeding specific rules
 - Overriding random behavior
@@ -104,12 +111,17 @@ This module supports four field types to control how data is seeded:
 Use `faker` when you want realistic-looking data like names, addresses, dates, and numbers.
 
 ```python
-"name": ("faker", "name")
+  "name": ("faker", "name")
 "created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"})
 ```
 
-- [Faker Seeding](faker.md)
-- [Faker Documentation](https://faker.readthedocs.io/en/master/)
+**Common Faker Methods**
+
+- `name`
+- `word`
+- `email`
+- `date_time_between` (with `start_date`, `end_date`)
+- `pydecimal` (with `left_digits`, `right_digits`, `positive`)
 
 ---
 
@@ -145,7 +157,7 @@ Great for controlled values like feature flags or known test conditions.
 
 ### 🧮 Callable
 
-Use `callable` for dynamic or computed values at runtime.
+Use `callable` for dynamic behavior like random logic, timestamps, or context-aware generation.
 
 ```python
 "updated_at": ("callable", lambda: timezone.now())
@@ -157,8 +169,26 @@ Or simply pass the function directly:
 "updated_at": lambda: timezone.now()
 ```
 
-This is great for timestamps, randomized logic, or values that depend on other runtime data.
 Callables are evaluated at runtime and must return the field's expected value.
+
+---
+
+### 🛠️ Custom
+
+Use `custom` when you want to reference a reusable method inside the seeding system.
+This is especially useful for indexing ordered values or setting foreign keys.
+
+```python
+"supplier_id": ("custom", "in_order", {"values": [101, 102, 103]})
+```
+
+This calls the built-in `in_order` method, which assigns values from the list one by one based on row index.
+
+#### Built-in Custom Methods
+
+| Method Name | Parameters           | Use Case                                           |
+|-------------|----------------------|----------------------------------------------------|
+| `in_order`  | `values: list`, `index` (auto-injected) | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. |
 
 ---
 

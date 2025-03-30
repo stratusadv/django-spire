@@ -10,12 +10,13 @@ Whether you're testing, demoing, or onboarding new developers — filling your d
 
 We combine different **data generators** to give you flexible and meaningful seed data:
 
-| Type     | What It Does                                           |
-|----------|--------------------------------------------------------|
-| 🧪 `faker`     | Generates realistic fake data (names, dates, etc.)   |
-| 🤖 `llm`       | Uses large language models to generate rich text    |
-| 🧊 `static`    | Uses a fixed value for consistent results            |
-| 🔁 `callable`  | Runs a function to generate custom dynamic values   |
+| Type      | What It Does                                                            |
+|-----------|-------------------------------------------------------------------------|
+| 🧪 `faker`     | Generates realistic fake data (names, dates, etc.)                 |
+| 🤖 `llm`       | Uses large language models to generate rich text                  |
+| 🧊 `static`    | Uses a fixed value for consistent results                          |
+| 🔁 `callable`  | Runs a function to generate custom dynamic values                 |
+| 🔧 `custom`    | Calls a reusable method defined in your seeding class             |
 
 ---
 
@@ -33,12 +34,13 @@ We store seed results in a local SQLite cache table — so if you’ve seeded on
 
 - 🧠 **Context-aware** data for better realism
 - ⏱️ **Cached results** = faster rebuilds
-- 🧩 **Modular generators** let you mix faker, LLMs, and functions
----
+- 🧹 **Modular generators** let you mix faker, LLMs, and functions
 
+---
 
 ## 📘 Next Steps
 - 🧪 [Getting Started](getting_started.md)
 - 🧪 [Using Faker and Custom Methods](faker.md)
 - 🧠 [Getting Creative with LLM Seeding](llm-seeding.md)
 - 🔁 [Rebuilding with the Cache](cache-strategy.md)
+
