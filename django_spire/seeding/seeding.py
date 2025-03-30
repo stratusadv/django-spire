@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from itertools import zip_longest
+import uuid
 
 from django.db.models.base import Model
 from typing import Type
@@ -10,6 +11,7 @@ from dandy.llm import Prompt
 from dandy.intel import BaseIntel
 
 from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
+from django_spire.seeding.intelligence.bots import LlmSeedingBot
 
 
 class ModelSeeding:
@@ -24,14 +26,14 @@ class ModelSeeding:
     ):
         self.model_class = model_class
         self.prompt = prompt or Prompt()
-
-        self._validate_fields_exist(fields)
-        self.fields = self._normalize_fields(fields)
-
         self.exclude_fields = exclude_fields or []
         self.include_fields = include_fields or []
 
+        self._validate_fields_exist(fields)
+        self.fields = self._normalize_fields(fields)
         self._assign_default_llm_fields()
+
+        self.cache_buster = None
 
     def _normalize_fields(self, fields: dict | None) -> dict:
 
@@ -51,16 +53,20 @@ class ModelSeeding:
                 normalized[k] = ("static", v)
         return normalized
 
+    def _set_cache_buster(self):
+        self.cache_buster = uuid.uuid4().hex
+
     def _validate_fields_exist(self, fields: dict):
         model_fields = {field.name for field in self.model_class._meta.fields}
         unknown = set(fields.keys()) - model_fields
+
         if unknown:
             raise ValueError(f"Invalid field name(s): {', '.join(unknown)}")
 
     def _assign_default_llm_fields(self):
         used_fields = set(self.fields.keys()) | set(self.exclude_fields)
-        all_field_names = [f.name for f in self.model_class._meta.fields if f.name not in used_fields]
-        llm_fields = {field_name: ('llm',) for field_name in all_field_names}
+        llm_default_fields = [f.name for f in self.model_class._meta.fields if f.name not in used_fields]
+        llm_fields = {field_name: ('llm',) for field_name in llm_default_fields}
         self.fields.update(llm_fields)
 
     def filter_fields(self, seed_type: str) -> dict:
@@ -78,7 +84,9 @@ class ModelSeeding:
             model_class=self.model_class,
             fields=callable_fields,
             count=count
-        ).generate_data()
+        ).generate_data(
+            cache_buster=self.cache_buster
+        )
 
     def _faker_seed_data(self, count=1) -> list[dict]:
         faker_fields = self.filter_fields('faker')
@@ -86,7 +94,9 @@ class ModelSeeding:
             model_class=self.model_class,
             fields=faker_fields,
             count=count
-        ).generate_data()
+        ).generate_data(
+            cache_buster=self.cache_buster
+        )
 
     def _llm_seed_data(self, count=1) -> list[dict]:
         if any(len(info) > 1 for info in self.fields.values() if info[0] == 'llm'):
@@ -108,7 +118,8 @@ class ModelSeeding:
             fields=llm_fields,
             count=count
         ).generate_data(
-            prompt=self.prompt
+            prompt=self.prompt,
+            cache_buster=self.cache_buster
         )
 
     def _static_seed_data(self, count=1) -> list[dict]:
@@ -117,7 +128,9 @@ class ModelSeeding:
             model_class=self.model_class,
             fields=static_fields,
             count=count
-        ).generate_data()
+        ).generate_data(
+            cache_buster=self.cache_buster
+        )
 
     def _custom_seed_data(self, count=1) -> list[dict]:
         custom_fields = self.filter_fields('custom')
@@ -125,7 +138,9 @@ class ModelSeeding:
             model_class=self.model_class,
             fields=custom_fields,
             count=count
-        ).generate_data()
+        ).generate_data(
+            cache_buster=self.cache_buster
+        )
 
     def seed_data(self, count=1) -> list[dict]:
         llm_seed_data = self._llm_seed_data(count)
@@ -144,7 +159,9 @@ class ModelSeeding:
             fields: dict | None = None,
             clear_cache: bool = False
     ):
-        # Todo: Need to implement caching.
+        if clear_cache:
+            self._set_cache_buster()
+
         original_fields = self.fields.copy()
 
         if fields:
@@ -163,6 +180,9 @@ class ModelSeeding:
             fields: dict | None = None,
             clear_cache: bool = False
     ):
+        if clear_cache:
+            self._set_cache_buster()
+
         model_objects = self.generate_model_objects(count, fields, clear_cache)
         return self.model_class.objects.bulk_create(model_objects)
 
@@ -189,7 +209,8 @@ class ModelLlmSeeds(ModelBaseSeeds):
     # @cache_to_sqlite('seeding')
     def generate_data(
         self,
-        prompt: Prompt = None
+        prompt: Prompt = None,
+        cache_buster: uuid.UUID | None = None
     ) -> list[dict]:
 
         include_fields = list(self.fields.keys())
@@ -214,8 +235,6 @@ class ModelLlmSeeds(ModelBaseSeeds):
 
         )
 
-        from django_spire.seeding.intelligence.bots import LlmSeedingBot
-
         intel_data = LlmSeedingBot.process(
             prompt=prompt,
             intel_class=SeedingIntel
@@ -227,7 +246,10 @@ class ModelLlmSeeds(ModelBaseSeeds):
 class ModelFakerSeeds(ModelBaseSeeds):
 
     # @cache_to_sqlite('seeding')
-    def generate_data(self) -> list[dict]:
+    def generate_data(
+            self,
+            cache_buster: uuid.UUID | None = None
+    ) -> list[dict]:
         data = []
         for i in range(self.count):
             row = {}
@@ -245,7 +267,10 @@ class ModelFakerSeeds(ModelBaseSeeds):
 class ModelStaticSeeds(ModelBaseSeeds):
 
     # @cache_to_sqlite('seeding')
-    def generate_data(self) -> list[dict]:
+    def generate_data(
+            self,
+            cache_buster: uuid.UUID | None = None
+    ) -> list[dict]:
         return [
             {field_name: value[0] for field_name, value in self.fields.items()}
             for _ in range(self.count)
@@ -260,7 +285,10 @@ class ModelCustomSeeds(ModelBaseSeeds):
         return values[index]
 
     # @cache_to_sqlite('seeding')
-    def generate_data(self) -> list[dict]:
+    def generate_data(
+            self,
+            cache_buster: uuid.UUID | None = None
+    ) -> list[dict]:
         data = []
         for i in range(self.count):
             row = {}
@@ -284,7 +312,10 @@ class ModelCustomSeeds(ModelBaseSeeds):
 class ModelCallableSeeds(ModelBaseSeeds):
 
     # @cache_to_sqlite('seeding')
-    def generate_data(self) -> list[dict]:
+    def generate_data(
+            self,
+            cache_buster: uuid.UUID | None = None
+    ) -> list[dict]:
         return [
             {field_name: func[0]() for field_name, func in self.fields.items()}
             for _ in range(self.count)
