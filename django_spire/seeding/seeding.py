@@ -157,6 +157,19 @@ class ModelLlmSeeds(ModelBaseSeeds):
 
 class ModelFakerSeeds(ModelBaseSeeds):
 
+    @property
+    def field_handlers(self):
+        return {
+            'CharField': self._char_field_data,
+            'IntegerField': self._interger_field_data,
+            'SmallIntegerField': self._interger_field_data,
+            'DecimalField': self._decimal_field_data,
+            'DateField': self._build_date_field,
+            'DateTimeField': self._build_date_time_field,
+        }
+
+
+
     def generate_data(self) -> list[dict]:
         # Loop through fields in model class and generate fake data
         pass

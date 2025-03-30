@@ -33,8 +33,10 @@ nav:
       - Core:
         - Template Tags: api/core/templatetags.md
         - Redirects: api/core/redirects.md
-      - DB:
-        - Shortcuts: api/db/shortcuts.md
+        - Shortcuts: api/core/shortcuts.md
+      - Seeding:
+        - Getting Started: api/seeding/getting_started.md
+        - Faker: api/seeding/faker.md
   - Changelog:
       - Current: changelog/changelog.md
       - Archived: changelog/archived_changelog.md

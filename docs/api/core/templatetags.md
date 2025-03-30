@@ -1,1 +1,1 @@
-::: django_spire.core.templatetags.core_tags
+::: django_spire.core.templatetags.spire_core_tags
