@@ -1,5 +1,14 @@
 # Changelog
 
+## V0.1.37
+### Feature
+- Model Seeding with llm, faker, callable, static and custom methods!
+
+### Breaking
+- SeedingProcessor is no longer a thing. View the documentation to learn about Model Seeding and refactor your code.  
+
+
+
 ## V0.1.36
 ### Breaking
 - Refactored to Django Glue v0.8.1 and Dandy v0.13.2. Check the repository change logs before upgrading.  
