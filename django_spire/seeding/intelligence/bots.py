@@ -3,16 +3,14 @@ from __future__ import annotations
 from django.utils.timezone import localdate
 
 from dandy.llm import LlmBot, BaseLlmBot, LlmConfigOptions, Prompt
-from dandy.core.cache import cache_to_sqlite
 
-from django_spire.seeding.intelligence.intel import AttrsIntel, SeedingIntel
+from django_spire.seeding.intelligence.intel import AttrsIntel
 
 
 class SeedingAttrsLlmBot(BaseLlmBot):
     config = 'SEEDING_ATTR_LLM_BOT'
 
     @classmethod
-    @cache_to_sqlite('seeding')
     def process(cls, attr_type: type, description: str, count: int) -> Any:
         attrs_intel = cls.process_prompt_to_intel(
             prompt=(
@@ -42,7 +40,6 @@ class LlmSeedingBot(LlmBot):
     )
 
     @classmethod
-    # @cache_to_sqlite('seeding')
     def process(cls, *args, **kwargs) -> list[dict]:
         intel_data = super().process(*args, **kwargs)
         return intel_data.model_dump(mode='json')['items']

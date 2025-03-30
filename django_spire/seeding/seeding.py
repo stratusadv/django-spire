@@ -10,7 +10,6 @@ from dandy.llm import Prompt
 from dandy.intel import BaseIntel
 
 from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
-from django_spire.seeding.intelligence.bots import LlmSeedingBot
 
 
 class ModelSeeding:
@@ -18,7 +17,7 @@ class ModelSeeding:
     def __init__(
             self,
             model_class: Type[Model],
-            fields: dict[str, tuple] = {},
+            fields: dict[str, tuple] = None,
             prompt: Prompt = None,
             include_fields: list[str] = None,
             exclude_fields: list[str] = None
@@ -34,7 +33,11 @@ class ModelSeeding:
 
         self._assign_default_llm_fields()
 
-    def _normalize_fields(self, fields: dict) -> dict:
+    def _normalize_fields(self, fields: dict | None) -> dict:
+
+        if fields is None:
+            fields = {}
+
         seed_keywords = {"faker", "llm", "static", "callable", "custom"}
         normalized = {}
         for k, v in fields.items():
@@ -183,6 +186,7 @@ class ModelBaseSeeds(ABC):
 
 class ModelLlmSeeds(ModelBaseSeeds):
 
+    # @cache_to_sqlite('seeding')
     def generate_data(
         self,
         prompt: Prompt = None
@@ -210,6 +214,8 @@ class ModelLlmSeeds(ModelBaseSeeds):
 
         )
 
+        from django_spire.seeding.intelligence.bots import LlmSeedingBot
+
         intel_data = LlmSeedingBot.process(
             prompt=prompt,
             intel_class=SeedingIntel
@@ -220,6 +226,7 @@ class ModelLlmSeeds(ModelBaseSeeds):
 
 class ModelFakerSeeds(ModelBaseSeeds):
 
+    # @cache_to_sqlite('seeding')
     def generate_data(self) -> list[dict]:
         data = []
         for i in range(self.count):
@@ -237,6 +244,7 @@ class ModelFakerSeeds(ModelBaseSeeds):
 
 class ModelStaticSeeds(ModelBaseSeeds):
 
+    # @cache_to_sqlite('seeding')
     def generate_data(self) -> list[dict]:
         return [
             {field_name: value[0] for field_name, value in self.fields.items()}
@@ -251,25 +259,31 @@ class ModelCustomSeeds(ModelBaseSeeds):
             raise IndexError("Index exceeds the list length in 'in_order'")
         return values[index]
 
+    # @cache_to_sqlite('seeding')
     def generate_data(self) -> list[dict]:
         data = []
-        for _ in range(self.count):
+        for i in range(self.count):
             row = {}
             for field_name, config in self.fields.items():
                 method_name = config[1] if len(config) > 1 else field_name
                 kwargs = config[2] if len(config) > 2 else {}
                 method = getattr(self, method_name, None)
+
                 if not callable(method):
                     raise ValueError(f"Custom method '{method_name}' not found for field '{field_name}'")
+
                 if method_name == "in_order":
                     kwargs["index"] = i
+
                 row[field_name] = method(**kwargs)
+
             data.append(row)
         return data
 
 
 class ModelCallableSeeds(ModelBaseSeeds):
 
+    # @cache_to_sqlite('seeding')
     def generate_data(self) -> list[dict]:
         return [
             {field_name: func[0]() for field_name, func in self.fields.items()}
