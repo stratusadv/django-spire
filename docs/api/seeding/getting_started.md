@@ -1,84 +1,150 @@
-# 🌱 Welcome to Your Django Seeding Toolkit!
+# Django Seeding Module
 
-### 🚀 Purpose: Make seeding fast, simple, and full of context!
-
-Whether you're testing, demoing, or onboarding new developers — filling your database with realistic data shouldn't be a chore. This module is designed to help you **seed Django models quickly** using a smart combo of techniques:
-
----
-
-## 🧠 How It Works
-
-We combine different **data generators** to give you flexible and meaningful seed data:
-
-| Type     | What It Does                                           |
-|----------|--------------------------------------------------------|
-| 🧪 `faker`     | Generates realistic fake data (names, dates, etc.)   |
-| 🤖 `llm`       | Uses large language models to generate rich text    |
-| 🧊 `static`    | Uses a fixed value for consistent results            |
-| 🔁 `callable`  | Runs a function to generate custom dynamic values   |
-
----
-
-## ⚡ Fast Rebuilds with Caching
-
-We store seed results in a local SQLite cache table — so if you’ve seeded once, you can rebuild your database instantly the next time. Perfect for:
-
-- Rapid development
-- Restoring known states
-- Testing edge cases
-
----
-
-## ✨ Why You'll Love It
-
-- 🧠 **Context-aware** data for better realism
-- ⏱️ **Cached results** = faster rebuilds
-- 🧩 **Modular generators** let you mix faker, LLMs, and functions
----
-
-## 📦 Example
+## 🧪 Example Model
 
 ```python
-class Recipe(HistoryModelMixin):
-    name = models.CharField(max_length=255)
-    description = models.TextField(default='')
-
-    course = models.CharField(
-        max_length=3,
-        choices=RecipeCourseChoices.choices,
-        default=RecipeCourseChoices.MAIN
-    )
-
-    prep_time = models.IntegerField(default=15)
-    cook_time = models.IntegerField(default=30)
-
-    servings = models.IntegerField(default=1)
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    in_stock = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 ```
 
+---
+
+## 🚀 Basic Usage (LLM Defaults)
+
+If you don’t define any fields, the system defaults to using LLMs for all fields (unless excluded):
+
 ```python
-recipe_seed = ModelSeeding(
-    model_class=Recipe,
-    fields = {
-        'name': 'llm',
-        'description': 'llm' ,
-        'course': ('llm', 'Choose a course that matches the name of the recipe.'),
-        'prep_time': ('faker', 'random_int', {'min': 5, 'max': 30}),
-        'cook_time': ('faker', 'random_int', {'min': 30, 'max': 120}),
-        'servings': 'faker',
-    },
-    exclude_fields=['id'],
+seeder = ModelSeeding(
+    model_class=Product,
+    fields={},  # LLM will be used for all fields
+    exclude_fields=["id"]
 )
-recipe_seed.generate_model_objects(count=10)
+
+products = seeder.generate_model_objects(count=5)
+Product.objects.bulk_create(products)
 ```
 
-This will:
+> ✅ This is ideal for prototyping, testing, or generating rich placeholder content fast.
 
-    - Generate context rich text for name, description and course.
-    - Prompt the llm to add extra details to course.
-    - User faker to generate random prep, cook times and servings
 ---
 
-## 📘 Next Steps
-- 🧪 [Using Faker and Custom Methods](faker.md)
-- 🧠 [Getting Creative with LLM Seeding](llm-seeding.md)
-- 🔁 [Rebuilding with the Cache](cache-strategy.md)
+## 🔧 Advanced Usage (All Field Types)
+
+Use a mix of `faker`, `llm`, `static`, and `callable` seed types for full control:
+
+```python
+import random
+from django.utils import timezone
+from your_module import ModelSeeding
+from your_app.models import Product
+
+seeder = ModelSeeding(
+    model_class=Product,
+    exclude_fields=["id"],
+    fields={
+        "name": ("faker", "word"),
+        "description": ("llm", "Describe this product for a sales catalog."),
+        "price": ("faker", "pydecimal", {"left_digits": 2, "right_digits": 2, "positive": True}),
+        "in_stock": ("static", True),
+        "created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"}),
+        "updated_at": ("callable", lambda: random.choice([None, timezone.now()])),
+    }
+)
+
+products = seeder.generate_model_objects(count=10)
+Product.objects.bulk_create(products)
+```
+
+> 🧩 This gives you total control over how each field is generated for testing or development environments.
+
+---
+
+## 🎯 Overriding Fields
+
+You can override fields on any call to `.generate_model_objects()` or `.seed_database()`:
+
+```python
+seeder.generate_model_objects(
+    count=1,
+    fields={"in_stock": ("static", False)}
+)
+```
+
+This is useful for:
+- Creating edge-case records
+- Seeding specific rules
+- Overriding random behavior
+
+---
+
+## 🔄 Full Database Seeding
+
+```python
+seeder.seed_database(count=100)
+```
+
+This will generate and insert 100 Product instances directly into your database.
+
+---
+
+## 🧰 Supported Field Types
+
+This module supports four field types to control how data is seeded:
+
+### 🧪 Faker
+
+Use `faker` when you want realistic-looking data like names, addresses, dates, and numbers.
+
+```python
+"name": ("faker", "name")
+"created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"})
+```
+
+- [Faker Seeding](faker.md)
+- [Faker Documentation](https://faker.readthedocs.io/en/master/)
+
+---
+
+### 🧠 LLM
+
+Use `llm` to generate rich, human-like content based on a prompt. Great for descriptions, summaries, etc.
+
+```python
+"description": ("llm", "Describe this product for a catalog.")
+```
+
+If you don’t provide a field type, the system defaults to `llm` unless excluded.
+
+---
+
+### 📌 Static
+
+Use `static` when you want the same value every time.
+
+```python
+"in_stock": ("static", True)
+```
+
+Great for controlled values like feature flags or known test conditions.
+
+---
+
+### 🧮 Callable
+
+Use `callable` for dynamic behavior like random logic, timestamps, or context-aware generation.
+
+```python
+"updated_at": ("callable", lambda: timezone.now())
+```
+
+Callables are evaluated at runtime and must return the field's expected value.
+
+---
+
+Each type works independently or combined with others. Fields not declared in `fields` default to `llm` unless excluded.
+

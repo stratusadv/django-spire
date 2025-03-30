@@ -21,75 +21,86 @@ class ModelSeeding:
             prompt: Prompt = None,
             include_fields: list[str] = None,
             exclude_fields: list[str] = None
-
     ):
-        model_class_fields_names = [field.name for field in model_class._meta.fields]
-
-        # All defined fields must be a valid model field.
-        if any(field not in model_class_fields_names for field in fields.keys()):
-            raise ValueError(f'Invalid field name(s): {", ".join(fields.keys() - model_class_fields_names)}')
-
         self.model_class = model_class
         self.prompt = prompt or Prompt()
 
-        self.fields = fields
+        self._validate_fields_exist(fields)
+        self.fields = self._normalize_fields(fields)
 
         self.exclude_fields = exclude_fields or []
         self.include_fields = include_fields or []
 
+        self._assign_default_llm_fields()
+
+    def _normalize_fields(self, fields: dict) -> dict:
+        return {k: (v,) if not isinstance(v, tuple) else v for k, v in fields.items()}
+
+    def _validate_fields_exist(self, fields: dict):
+        model_fields = {field.name for field in self.model_class._meta.fields}
+        unknown = set(fields.keys()) - model_fields
+        if unknown:
+            raise ValueError(f"Invalid field name(s): {', '.join(unknown)}")
+
+    def _assign_default_llm_fields(self):
+        used_fields = set(self.fields.keys()) | set(self.exclude_fields)
+        all_field_names = [f.name for f in self.model_class._meta.fields if f.name not in used_fields]
+        llm_fields = {field_name: ('llm',) for field_name in all_field_names}
+        self.fields.update(llm_fields)
+
     def filter_fields(self, seed_type: str) -> dict:
-        llm_fields = {}
+        matched_fields = {}
         for key, value in self.fields.items():
             if not isinstance(value, tuple):
                 value = (value,)
             if value and value[0] == seed_type:
-                llm_fields[key] = self.fields[key]
-        return llm_fields
+                matched_fields[key] = self.fields[key]
+        return matched_fields
 
     def _callable_seed_data(self, count=1) -> list[dict]:
+        callable_fields = self.filter_fields('callable')
         return ModelCallableSeeds(
             model_class=self.model_class,
-            include_fields=self.include_fields,
-            exclude_fields=self.exclude_fields,
+            fields=callable_fields,
             count=count
         ).generate_data()
 
     def _faker_seed_data(self, count=1) -> list[dict]:
+        faker_fields = self.filter_fields('faker')
         return ModelFakerSeeds(
             model_class=self.model_class,
-            include_fields=self.include_fields,
-            exclude_fields=self.exclude_fields,
+            fields=faker_fields,
             count=count
         ).generate_data()
 
     def _llm_seed_data(self, count=1) -> list[dict]:
-        llm_fields = self.filter_fields('llm')
-
-        # Add extra field info to prompt
-        if any(len(info) > 1 for info in llm_fields.values()):
+        if any(len(info) > 1 for info in self.fields.values() if info[0] == 'llm'):
             field_prompt = (
                 Prompt()
                 .heading('Fields Context Data')
                 .list([
                     f'{name}: {info[1]}'
-                    for name, info in llm_fields.items()
-                    if len(info) > 1
+                    for name, info in self.fields.items()
+                    if info[0] == 'llm' and len(info) > 1
                 ])
             )
-
             self.prompt = self.prompt.prompt(field_prompt)
+
+        llm_fields = self.filter_fields('llm')
 
         return ModelLlmSeeds(
             model_class=self.model_class,
-            include_fields=list(llm_fields.keys()),
+            fields=llm_fields,
             count=count
-        ).generate_data(prompt=self.prompt)
+        ).generate_data(
+            prompt=self.prompt
+        )
 
     def _static_seed_data(self, count=1) -> list[dict]:
+        static_fields = self.filter_fields('static')
         return ModelStaticSeeds(
             model_class=self.model_class,
-            include_fields=self.include_fields,
-            exclude_fields=self.exclude_fields,
+            fields=static_fields,
             count=count
         ).generate_data()
 
@@ -99,9 +110,10 @@ class ModelSeeding:
         static_seed_data = self._static_seed_data(count)
         callable_seed_data = self._callable_seed_data(count)
 
+        from itertools import zip_longest
         return [
-            {**d1, **d2, **d3, **d4}
-            for d1, d2, d3, d4 in zip(llm_seed_data, faker_seed_data, static_seed_data, callable_seed_data)
+            {**(d1 or {}), **(d2 or {}), **(d3 or {}), **(d4 or {})}
+            for d1, d2, d3, d4 in zip_longest(llm_seed_data, faker_seed_data, static_seed_data, callable_seed_data)
         ]
 
     def generate_model_objects(
@@ -110,8 +122,17 @@ class ModelSeeding:
             fields: dict | None = None,
             clear_cache: bool = False
     ):
-        # Todo: Overwrite field data.
-        return [self.model_class(**seed_data) for seed_data in self.seed_data(count)]
+        original_fields = self.fields.copy()
+
+        if fields:
+            self._validate_fields_exist(fields)
+            self.fields = self._normalize_fields({**original_fields, **fields})
+            self._assign_default_llm_fields()
+
+        model_objects = [self.model_class(**seed_data) for seed_data in self.seed_data(count)]
+
+        self.fields = original_fields
+        return model_objects
 
     def seed_database(
             self,
@@ -128,13 +149,11 @@ class ModelBaseSeeds(ABC):
     def __init__(
             self,
             model_class: Type[Model],
-            include_fields: list[str] = None,
-            exclude_fields: list[str] = None,
+            fields: dict,
             count: int = 1
     ):
         self.model_class = model_class
-        self.include_fields = include_fields
-        self.exclude_fields = exclude_fields
+        self.fields = fields
         self.count = count
 
     @abstractmethod
@@ -145,15 +164,16 @@ class ModelBaseSeeds(ABC):
 class ModelLlmSeeds(ModelBaseSeeds):
 
     def generate_data(
-            self,
-            prompt: Prompt = None,
+        self,
+        prompt: Prompt = None
     ) -> list[dict]:
 
+        include_fields = list(self.fields.keys())
         seed_intel_class = django_to_pydantic_model(
             model_class=self.model_class,
             base_class=BaseIntel,
-            include_fields=self.include_fields,
-            exclude_fields=self.exclude_fields
+            include_fields=include_fields,
+            exclude_fields=[]
         )
 
         class SeedingIntel(BaseIntel):
@@ -179,32 +199,33 @@ class ModelLlmSeeds(ModelBaseSeeds):
 class ModelFakerSeeds(ModelBaseSeeds):
 
     def generate_data(self) -> list[dict]:
-        faker_data = []
+        data = []
         for _ in range(self.count):
-            model_data = {}
-
-            for field in self.include_fields:
-                model_data[field] = fake_model_field_value(
+            row = {}
+            for field_name, faker_config in self.fields.items():
+                faker_method = faker_config[1:] if len(faker_config) > 1 else faker_config[0]
+                row[field_name] = fake_model_field_value(
                     model_class=self.model_class,
-                    field_name=field,
-                    faker_method=context,
+                    field_name=field_name,
+                    faker_method=faker_method
                 )
-            faker_data.append(model_data)
-
-        return faker_data
+            data.append(row)
+        return data
 
 
 class ModelStaticSeeds(ModelBaseSeeds):
 
     def generate_data(self) -> list[dict]:
-        return [{
-            field_name: static_data
-        } for _ in range(self.count)]
+        return [
+            {field_name: value[0] for field_name, value in self.fields.items()}
+            for _ in range(self.count)
+        ]
 
 
 class ModelCallableSeeds(ModelBaseSeeds):
 
     def generate_data(self) -> list[dict]:
-        return [{
-            field_name: callable()
-        } for _ in range(self.count)]
+        return [
+            {field_name: func[0]() for field_name, func in self.fields.items()}
+            for _ in range(self.count)
+        ]

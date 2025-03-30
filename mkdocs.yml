@@ -35,6 +35,7 @@ nav:
         - Redirects: api/core/redirects.md
         - Shortcuts: api/core/shortcuts.md
       - Seeding:
+        - Overview: api/seeding/overview.md
         - Getting Started: api/seeding/getting_started.md
         - Faker: api/seeding/faker.md
   - Changelog:
