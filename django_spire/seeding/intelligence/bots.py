@@ -45,5 +45,5 @@ class LlmSeedingBot(LlmBot):
     # @cache_to_sqlite('seeding')
     def process(cls, *args, **kwargs) -> list[dict]:
         intel_data = super().process(*args, **kwargs)
-        return intel_data.model_dump(mode='json')
+        return intel_data.model_dump(mode='json')['items']
 

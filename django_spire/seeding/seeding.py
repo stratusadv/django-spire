@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from itertools import zip_longest
 
 from django.db.models.base import Model
 from typing import Type
@@ -17,7 +18,7 @@ class ModelSeeding:
     def __init__(
             self,
             model_class: Type[Model],
-            fields: dict[str, tuple],
+            fields: dict[str, tuple] = {},
             prompt: Prompt = None,
             include_fields: list[str] = None,
             exclude_fields: list[str] = None
@@ -34,7 +35,18 @@ class ModelSeeding:
         self._assign_default_llm_fields()
 
     def _normalize_fields(self, fields: dict) -> dict:
-        return {k: (v,) if not isinstance(v, tuple) else v for k, v in fields.items()}
+        seed_keywords = {"faker", "llm", "static", "callable"}
+        normalized = {}
+        for k, v in fields.items():
+            if isinstance(v, tuple):
+                normalized[k] = v
+            elif callable(v):
+                normalized[k] = ("callable", v)
+            elif isinstance(v, str) and v.lower() in seed_keywords:
+                normalized[k] = (v.lower(),)
+            else:
+                normalized[k] = ("static", v)
+        return normalized
 
     def _validate_fields_exist(self, fields: dict):
         model_fields = {field.name for field in self.model_class._meta.fields}
@@ -110,7 +122,6 @@ class ModelSeeding:
         static_seed_data = self._static_seed_data(count)
         callable_seed_data = self._callable_seed_data(count)
 
-        from itertools import zip_longest
         return [
             {**(d1 or {}), **(d2 or {}), **(d3 or {}), **(d4 or {})}
             for d1, d2, d3, d4 in zip_longest(llm_seed_data, faker_seed_data, static_seed_data, callable_seed_data)
@@ -122,6 +133,7 @@ class ModelSeeding:
             fields: dict | None = None,
             clear_cache: bool = False
     ):
+        # Todo: Need to implement caching.
         original_fields = self.fields.copy()
 
         if fields:
@@ -190,10 +202,12 @@ class ModelLlmSeeds(ModelBaseSeeds):
 
         )
 
-        return LlmSeedingBot.process(
+        intel_data = LlmSeedingBot.process(
             prompt=prompt,
             intel_class=SeedingIntel
         )
+
+        return intel_data
 
 
 class ModelFakerSeeds(ModelBaseSeeds):

@@ -20,13 +20,16 @@ If you don’t define any fields, the system defaults to using LLMs for all fiel
 
 ```python
 seeder = ModelSeeding(
-    model_class=Product,
-    fields={},  # LLM will be used for all fields
+    model_class=Product,    
     exclude_fields=["id"]
 )
 
+# 5 null objects
 products = seeder.generate_model_objects(count=5)
-Product.objects.bulk_create(products)
+
+# Inserts 5 records
+products = seeder.seed_database(count=5)
+
 ```
 
 > ✅ This is ideal for prototyping, testing, or generating rich placeholder content fast.
@@ -130,18 +133,31 @@ Use `static` when you want the same value every time.
 "in_stock": ("static", True)
 ```
 
+Or simply pass the value directly:
+
+```python
+"in_stock": True
+```
+
 Great for controlled values like feature flags or known test conditions.
 
 ---
 
 ### 🧮 Callable
 
-Use `callable` for dynamic behavior like random logic, timestamps, or context-aware generation.
+Use `callable` for dynamic or computed values at runtime.
 
 ```python
 "updated_at": ("callable", lambda: timezone.now())
 ```
 
+Or simply pass the function directly:
+
+```python
+"updated_at": lambda: timezone.now()
+```
+
+This is great for timestamps, randomized logic, or values that depend on other runtime data.
 Callables are evaluated at runtime and must return the field's expected value.
 
 ---
