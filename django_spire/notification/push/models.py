@@ -4,4 +4,8 @@ from django_spire.history.mixins import HistoryModelMixin
 
 
 class PushNotification(HistoryModelMixin):
-    pass
+
+    class Meta:
+        db_table = 'spire_notification_push'
+        verbose_name = 'Push Notification'
+        verbose_name_plural = 'Push Notifications'

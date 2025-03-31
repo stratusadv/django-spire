@@ -10,7 +10,7 @@ from django_spire.notification.enums import (
 )
 
 class Notification(HistoryModelMixin):
-    type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL)
+    type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL, choices=NotificationTypeChoices.choices)
     title = models.CharField(max_length=124)
     body = models.TextField(default='')
     processed_datetime = models.DateTimeField(blank=True, null=True)

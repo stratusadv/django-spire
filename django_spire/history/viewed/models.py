@@ -24,5 +24,6 @@ class Viewed(models.Model):
         return f'{self.user} viewed {self.content_object} at {self.created_datetime}'
 
     class Meta:
-        verbose_name = 'View'
+        db_table = 'spire_history_viewed'
+        verbose_name = 'Viewed'
         verbose_name_plural = 'Views'

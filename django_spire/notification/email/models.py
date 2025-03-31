@@ -10,3 +10,7 @@ class EmailNotification(models.Model):
     def __str__(self):
         return f'{self.notification.title} - {self.email}'
 
+    class Meta:
+        db_table = 'spire_notification_email'
+        verbose_name = 'Email Notification'
+        verbose_name_plural = 'Email Notifications'

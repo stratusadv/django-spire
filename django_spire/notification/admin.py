@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from django_spire.notification import models
+from django_spire.notification.app.models import AppNotification
+from django_spire.notification.email.models import EmailNotification
 
 
 @admin.register(models.Notification)
@@ -30,3 +32,16 @@ class NotificationAdmin(admin.ModelAdmin):
         return 'No URL'
 
     url_link.short_description = 'Notification URL'
+
+
+@admin.register(AppNotification)
+class AppNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'notification', 'user', 'content_type', 'object_id'
+    )
+
+@admin.register(EmailNotification)
+class EmailNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'notification', 'subject', 'email'
+    )

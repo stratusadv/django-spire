@@ -59,7 +59,9 @@ INSTALLED_APPS = [
     'django_spire.history.viewed',
     'django_spire.maintenance',
     'django_spire.modal',
+
     'django_spire.notification',
+
     'django_spire.options',
     'django_spire.pagination',
     'django_spire.permission',

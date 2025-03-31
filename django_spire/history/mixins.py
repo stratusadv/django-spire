@@ -18,7 +18,7 @@ class HistoryModelMixin(models.Model):
 
     event_history = GenericRelation(
         EventHistory,
-        related_query_name='event_history',
+        related_query_name='spire_event_history',
         editable=False
     )
 

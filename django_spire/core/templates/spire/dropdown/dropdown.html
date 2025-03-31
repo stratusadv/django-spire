@@ -4,6 +4,7 @@
         {# Example: <span x-bind="trigger"></span> #}
     {% endblock %}
     <div
+        style="{% block dropdown_style %}{% endblock  %}"
         class="position-absolute shadow-lg card border-1 mt-1 z-3 {% block dropdown_position %}top-100{% endblock %}"
         x-bind="dialogue"
         x-cloak
