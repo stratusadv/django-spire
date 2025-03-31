@@ -32,29 +32,29 @@ class BaseNotificationFactory(ABC):
             )
 
     @abstractmethod
-    def email_factory(self, email: str) -> EmailNotification:
+    def create_email_notification(self, email: str) -> EmailNotification:
         # Abstract method for sending notification by Email
         pass
 
     @abstractmethod
-    def app_factory(self, model_object: Any[models.Model]) -> AppNotification:
+    def create_app_notification(self, model_object: Any[models.Model]) -> AppNotification:
         # Abstract method for creating in-app notification linked to a model object
         pass
 
     # TODO: Implementation & Testing
     # @abstractmethod
-    # def push_factory(self) -> PushNotification:
+    # def create_push_notification(self) -> PushNotification:
     #     # Abstract method for sending push notifications in a PWA
     #     pass
 
     # TODO: Implementation & Testing
     # @abstractmethod
-    # def sms_factory(self, phone_number: str) -> SmsNotification:
+    # def create_sms_notification(self, phone_number: str) -> SmsNotification:
     #     # Abstract method for sending SMS notifications
     #     pass
 
 class NotificationFactory(BaseNotificationFactory):
-    def email_factory(self, email: str) -> EmailNotification:
+    def create_email_notification(self, email: str) -> EmailNotification:
         notification = self.create_notification(NotificationTypeChoices.EMAIL)
 
         return EmailNotification.objects.create(
@@ -63,7 +63,7 @@ class NotificationFactory(BaseNotificationFactory):
             email=email
         )
 
-    def app_factory(
+    def create_app_notification(
         self,
         user: Any[User],
         model_object: Any[models.Model],
