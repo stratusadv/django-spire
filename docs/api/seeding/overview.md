@@ -27,7 +27,7 @@ We store seed results in a local SQLite cache table — so if you’ve seeded on
 - Rapid development
 - Restoring known states
 - Testing edge cases
-
+    
 ---
 
 ## ✨ Why You'll Love It

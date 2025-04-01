@@ -1,4 +1,3 @@
-
 from pydantic import constr, condecimal, create_model
 from pydantic.fields import Field
 
