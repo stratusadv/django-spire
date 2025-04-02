@@ -1,7 +1,8 @@
 from enum import Enum
 
 
-class SeederDefaultToEnum(str, Enum):
+class ModelSeederDefaultsEnum(str, Enum):
     LLM = "llm"
     FAKER = "faker"
     INCLUDED = "included"
+

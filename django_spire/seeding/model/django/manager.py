@@ -19,33 +19,22 @@ class DjangoModelSeederManager(BaseDjangoModelSeeder):
         DjangoModelFakerSeeder
     ]
 
-    @classmethod
-    def _llm_seed_data(cls, count=1) -> list[dict]:
-        if any(len(info) > 1 for info in cls.seeder_fields.values()):
-            field_prompt = (
-                Prompt()
-                .heading('Fields Context Data')
-                .list([
-                    f'{name}: {info[1]}' for name, info in cls.seeder_fields.items() if info[0] == 'llm' and len(info) > 1
-                ])
-            )
+    # @classmethod
+    # def _llm_seed_data(cls, count=1) -> list[dict]:
 
-            llm_prompt = cls.prompt or Prompt()
 
-            prompt = cls.prompt.prompt(field_prompt)
-
-        return DjangoModelLlmSeeder(
-            cls.model_class,
-            self.filter_fields('llm'),
-            count
-        ).generate_data(self.prompt, self.cache_buster)
+    #     return DjangoModelLlmSeeder(
+    #         cls.model_class,
+    #         self.filter_fields('llm'),
+    #         count
+    #     ).generate_data(self.prompt, self.cache_buster)
 
 
     @classmethod
     def seed_data(
             cls,
-            count=1
-            , fields: dict | None = None
+            count=1,
+            fields: dict | None = None
     ) -> list[dict]:
         original_fields = cls.fields.copy()
 
@@ -55,17 +44,16 @@ class DjangoModelSeederManager(BaseDjangoModelSeeder):
         seed_data = []
 
         # Todo: LLM Seeder Takes a prompt
-        for seeder in cls._seeders:
+        for seeder_cls in cls._seeders:
+            seeder = seeder_cls(cls.fields, cls.default_to)
 
-            class TempSeeder(seeder):
-                fields = cls.fields
-                default_to = cls.default_to
-
-            seed_data.extend(TempSeeder.seed(cls, count))
+            seed_data.extend(seeder.seed(cls, count))
 
 
         # Todo: need to combine all the seed data into a list of single dict.
         #  The list should be of length count.
+
+        # Todo: Pass seed manager to seeder. Model Instance. Model & Field Seeders
 
         cls.fields = original_fields
         return seed_data

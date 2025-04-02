@@ -1,25 +1,24 @@
-from django_spire.seeding.seeder import BaseSeeder
+from django_spire.seeding.field import FieldSeederTypesEnum
+from django_spire.seeding.field.base import BaseFieldSeeder
 
 
-class CustomSeeder(BaseSeeder):
-    keyword = "custom"
+class CustomFieldSeeder(BaseFieldSeeder):
+    keyword = FieldSeederTypesEnum.CUSTOM
 
-    @classmethod
     @staticmethod
     def in_order(values: list, index: int) -> any:
         if index >= len(values):
             raise IndexError("Index exceeds the list length in 'in_order'")
         return values[index]
 
-    @classmethod
-    def seed(cls, manager_seeder_cls, count) -> list[dict]:
+    def seed(self, manager, count) -> list[dict]:
         data = []
         for i in range(count):
             row = {}
-            for field_name, config in cls.seeder_fields().items():
+            for field_name, config in self.seeder_fields.items():
                 method_name = config[1] if len(config) > 1 else field_name
                 kwargs = config[2] if len(config) > 2 else {}
-                method = getattr(cls, method_name, None)
+                method = getattr(self, method_name, None)
 
                 if not callable(method):
                     raise ValueError(f"Custom method '{method_name}' not found for field '{field_name}'")

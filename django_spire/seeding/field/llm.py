@@ -7,10 +7,18 @@ from dandy.intel import BaseIntel
 
 class LlmSeeder(BaseSeeder):
     keyword = 'llm'
-    prompt = None
 
-    @classmethod
-    def seed(cls, count = 1) -> list[dict]:
+    def __init__(
+            self,
+            fields: dict = None,
+            default_to: str = "llm",
+            prompt: Prompt = None,
+     ):
+        super().__init__(fields, default_to)
+        self.prompt = prompt or Prompt()
+
+
+    def seed(self, manager, count = 1) -> list[dict]:
         # Todo: Need to turn fields into llm call?
         # How does that work with pydantic?
 
@@ -23,7 +31,7 @@ class LlmSeeder(BaseSeeder):
 
         prompt = (
             Prompt()
-            .prompt(cls.prompt)
+            .prompt(self.prompt)
             .heading('Seed Count')
             # .text(f'Create {count} {self.model_class.__name__}')
         )
