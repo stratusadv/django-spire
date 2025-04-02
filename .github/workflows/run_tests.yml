@@ -36,7 +36,7 @@ jobs:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
           OLLAMA_PORT: ${{ secrets.OLLAMA_PORT }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
-          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}      
+          PYTHONPATH: ${{ secrets.PYTHONPATH  }}      
           DANDY_SETTINGS_MODULE: ${{ env.DANDY_SETTINGS_MODULE }}
         run: |
           python manage.py test --settings=testing.settings
