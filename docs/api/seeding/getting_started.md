@@ -1,3 +1,5 @@
+from django_spire.seeding import DjangoModelSeeder
+
 # Getting Started
 
 Let’s make your database feel alive! 🧪
@@ -24,7 +26,9 @@ class Product(models.Model):
 By default, the system will fill any missing fields using a Large Language Model (LLM). But you can customize this behavior using the `default_to` class variable on your `ModelSeeding` subclass.
 
 ```python
-class ProductSeeder(ModelSeeding):
+from django_spire.seeding import DjangoModelSeeder
+
+class ProductSeeder(DjangoModelSeeder):
     model_class = Product
     default_to = "llm"  # Options: 'llm', 'faker', 'included'
 ```
@@ -44,15 +48,19 @@ class ProductSeeder(ModelSeeding):
 If you don’t define any fields, the system defaults to using LLMs for all fields (unless excluded):
 
 ```python
-class ProductSeeder(ModelSeeding):
+from django_spire.seeding import DjangoModelSeeder
+
+class ProductSeeder(DjangoModelSeeder):
     model_class = Product
     fields = {
         "id": "exclude"
     }
 
-products = ProductSeeder().generate_model_objects(count=5)
-# Or insert directly
-ProductSeeder().seed_database(count=5)
+ProductSeeder.seed(count=5) # Initialized model objects
+
+# or
+
+ProductSeeder.seed_database(count=5) # Insert objects into the database
 ```
 
 > ✅ This is ideal for prototyping, testing, or generating rich placeholder content fast.
@@ -82,8 +90,8 @@ class ProductSeeder(ModelSeeding):
         "supplier_id": ("custom", "in_order", {"values": supplier_ids})
     }
 
-products = ProductSeeder().generate_model_objects(count=5)
-Product.objects.bulk_create(products)
+
+ProductSeeder.seed_database(count=5)
 ```
 
 > 🧩 This gives you total control over how each field is generated for testing or development environments.
@@ -92,10 +100,10 @@ Product.objects.bulk_create(products)
 
 ## 🎯 Overriding Fields
 
-You can override fields on any call to `.generate_model_objects()` or `.seed_database()`:
+You can override fields on any call to `.seed()` or `.seed_database()`:
 
 ```python
-ProductSeeder().generate_model_objects(
+ProductSeeder.seed(
     count=1,
     fields={"in_stock": ("static", False)}
 )
@@ -112,7 +120,7 @@ This is useful for:
 ## 🔄 Full Database Seeding
 
 ```python
-ProductSeeder().seed_database(count=100)
+ProductSeeder.seed_database(count=100)
 ```
 
 This will generate and insert 100 Product instances directly into your database.
