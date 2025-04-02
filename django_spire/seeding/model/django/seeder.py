@@ -6,13 +6,10 @@ from dandy.llm import Prompt
 
 from django.db.models.base import Model
 
-from django_spire.seeding.field import (
-    CallableFieldSeeder,
-    CustomFieldSeeder,
-    StaticFieldSeeder
-)
-
+from django_spire.seeding.field.callable import CallableFieldSeeder
+from django_spire.seeding.field.custom import CustomFieldSeeder
 from django_spire.seeding.field.django.seeder import DjangoFieldFakerSeeder, DjangoFieldLlmSeeder
+from django_spire.seeding.field.static import StaticFieldSeeder
 from django_spire.seeding.model.base import BaseModelSeeder
 
 

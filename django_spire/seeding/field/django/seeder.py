@@ -30,7 +30,6 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
         prompt = (
             Prompt()
-            .prompt(model_seeder.prompt)
             .prompt(self.field_prompt)
             .heading('Seed Count')
             .text(f'Create {count} {model_seeder.model_class.__name__}')
@@ -44,7 +43,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
         return intel_data
 
     @property
-    def field_prompt(self):
+    def field_prompt(self) -> Prompt:
         if any(len(info) > 1 for info in self.seeder_fields.values()):
             field_prompt = (
                 Prompt()

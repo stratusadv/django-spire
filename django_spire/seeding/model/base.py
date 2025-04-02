@@ -8,9 +8,17 @@ class ModelSeederMeta(ABCMeta):
     def __new__(mcs, name, bases, attrs):
         cls = super().__new__(mcs, name, bases, attrs)
 
-        cls.fields = normalize_seeder_fields(attrs.get("fields", {}))
-        cls._validate_fields_exist(cls.fields)
-        cls._assign_default_fields()
+        cls._raw_fields = attrs.get("fields") or {}
+        cls._excluded_fields = {
+            k for k, v in cls._raw_fields.items()
+            if v == "exclude" or v == ("exclude",)
+        }
+
+        cls.fields = normalize_seeder_fields(cls._raw_fields)
+
+        if cls.fields:
+            cls._validate_fields_exist(cls.fields)
+            cls._assign_default_fields()
 
         return cls
 
@@ -21,16 +29,16 @@ class BaseModelSeeder(ABC, metaclass=ModelSeederMeta):
     default_to = "llm"
     _field_seeders = []
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-
-        if cls.model_class is None:
-            raise ValueError("Seeds must have a model class")
-
-        if cls.fields is None:
-            raise ValueError("Seeds must have fields")
-
-        cls._seeders = cls._field_seeders
+    # def __init_subclass__(cls, **kwargs):
+    #     super().__init_subclass__(**kwargs)
+    #
+    #     if cls.model_class is None:
+    #         raise ValueError("Seeds must have a model class")
+    #
+    #     if cls.fields is None:
+    #         raise ValueError("Seeds must have fields")
+    #
+    #     cls._seeders = cls._field_seeders
 
     @classmethod
     def __init__subclass__(cls, **kwargs):
@@ -69,7 +77,7 @@ class BaseModelSeeder(ABC, metaclass=ModelSeederMeta):
         method = cls.default_to.lower()
         default_fields = [
             name for name in cls.field_names()
-            if name not in cls.fields or cls.fields.get(name) == "exclude"
+            if name not in cls.fields and name not in cls._excluded_fields
         ]
         cls.fields.update({field_name: (method,) for field_name in default_fields})
 
@@ -87,9 +95,9 @@ class BaseModelSeeder(ABC, metaclass=ModelSeederMeta):
 
         seed_data = []
 
-        for seeder_cls in cls._seeders:
+        for seeder_cls in cls._field_seeders:
             seeder = seeder_cls(cls.fields, cls.default_to)
-            seed_data.extend(seeder.seed(cls, count))
+            seed_data.append(seeder.seed(cls, count))
 
         formatted_seed_data = [dict() for _ in range(max(len(sublist) for sublist in seed_data))]
         for sublist in seed_data:

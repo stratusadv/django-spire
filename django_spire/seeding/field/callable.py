@@ -7,6 +7,6 @@ class CallableFieldSeeder(BaseFieldSeeder):
 
     def seed(self, manager = None, count = 1) -> list[dict]:
         return [
-            {field_name: func[0]() for field_name, func in self.seeder_fields.items()}
-            for _ in range(self.count)
+            {field_name: func[1]() for field_name, func in self.seeder_fields.items()}
+            for _ in range(count)
         ]

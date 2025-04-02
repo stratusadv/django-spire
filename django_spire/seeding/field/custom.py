@@ -1,5 +1,5 @@
-from django_spire.seeding.field import FieldSeederTypesEnum
 from django_spire.seeding.field.base import BaseFieldSeeder
+from django_spire.seeding.field.enums import FieldSeederTypesEnum
 
 
 class CustomFieldSeeder(BaseFieldSeeder):
