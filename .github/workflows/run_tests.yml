@@ -34,6 +34,9 @@ jobs:
       - name: Run Tests
         env:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
-          PYTHONPATH: ${{ env.PYTHONPATH }}
+          OLLAMA_PORT: ${{ secrets.OLLAMA_PORT }}
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}      
+          DANDY_SETTINGS_MODULE: ${{ env.DANDY_SETTINGS_MODULE }}
         run: |
           python manage.py test --settings=testing.settings
