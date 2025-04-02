@@ -1,12 +1,11 @@
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
-from dandy.llm import LlmBot
-from dandy.conf import settings
 
-from django_spire.seeding.intelligence.intel import SourceIntel
-from django_spire.seeding.intelligence.prompts.generate_django_model_seeder_prompts import \
-    generate_django_model_seeder_user_prompt, generate_django_model_seeder_system_prompt
+from dandy.conf import settings
+from dandy.recorder import recorder_to_html
+
+from django_spire.seeding.intelligence.bots.seeder_generator_bot import SeederGeneratorBot
 
 
 _SEEDING_OUTPUT_PATH = Path(settings.BASE_PATH, '.seeding_generator_output')
@@ -29,6 +28,7 @@ class Command(BaseCommand):
             nargs='+',
         )
 
+    @recorder_to_html('seeding_generator')
     def handle(self, *args, **kwargs):
         if not kwargs['model_import'] or not kwargs['model_description']:
             raise CommandError('You must provide a model import path and a model description')
@@ -36,18 +36,11 @@ class Command(BaseCommand):
         model_import = kwargs['model_import']
         model_description = ' '.join(kwargs['model_description'])
 
-        source_intel = LlmBot.process(
-            prompt=generate_django_model_seeder_user_prompt(
-                model_import,
-                model_description,
-            ),
-            intel_class=SourceIntel,
-            postfix_system_prompt=generate_django_model_seeder_system_prompt()
-        )
+        source_intel = SeederGeneratorBot.process(model_import, model_description)
 
         Path(_SEEDING_OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
 
         with open(Path(_SEEDING_OUTPUT_PATH, source_intel.file_name), 'w') as f:
-            f.write(source_intel.source)
+            f.write(source_intel.python_source_code)
 
         self.stdout.write(f'Done ... saved to "{Path(_SEEDING_OUTPUT_PATH, source_intel.file_name)}"')

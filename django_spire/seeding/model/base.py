@@ -29,17 +29,6 @@ class BaseModelSeeder(ABC, metaclass=ModelSeederMeta):
     default_to = "llm"
     _field_seeders = []
 
-    # def __init_subclass__(cls, **kwargs):
-    #     super().__init_subclass__(**kwargs)
-    #
-    #     if cls.model_class is None:
-    #         raise ValueError("Seeds must have a model class")
-    #
-    #     if cls.fields is None:
-    #         raise ValueError("Seeds must have fields")
-    #
-    #     cls._seeders = cls._field_seeders
-
     @classmethod
     def __init__subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
