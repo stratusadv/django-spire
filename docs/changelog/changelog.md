@@ -1,5 +1,15 @@
 # Changelog
 
+## V0.2.0
+### Feature
+- Seeder refactored into Field Seeder and Model Seeder
+- Specific Seeder for Django Models
+- Class based usage for Model Seeding.
+
+### Breaking
+- ModelSeeder has been refactored to DjangoModelSeeder  
+
+
 ## V0.1.37
 ### Feature
 - Model Seeding with llm, faker, callable, static and custom methods!

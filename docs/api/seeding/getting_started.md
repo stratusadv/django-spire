@@ -1,3 +1,5 @@
+from django_spire.seeding import DjangoModelSeeder
+
 # Getting Started
 
 Let’s make your database feel alive! 🧪
@@ -19,20 +21,46 @@ class Product(models.Model):
 
 ---
 
+## ⚙️ Controlling Defaults with `default_to`
+
+By default, the system will fill any missing fields using a Large Language Model (LLM). But you can customize this behavior using the `default_to` class variable on your `ModelSeeding` subclass.
+
+```python
+from django_spire.seeding import DjangoModelSeeder
+
+class ProductSeeder(DjangoModelSeeder):
+    model_class = Product
+    default_to = "llm"  # Options: 'llm', 'faker', 'included'
+```
+
+### Available Options
+
+| `default_to` Value | What It Does                                                                 |
+|--------------------|------------------------------------------------------------------------------|
+| `"llm"` *(default)*     | Fills any unspecified fields using LLM-generated content                |
+| `"faker"`               | Fills unspecified fields using faker-based defaults                     |
+| `"included"`            | Only seeds the fields you explicitly define in the `fields` dictionary  |
+
+---
+
 ## 🚀 Basic Usage (LLM Defaults)
 
 If you don’t define any fields, the system defaults to using LLMs for all fields (unless excluded):
 
 ```python
-seeder = ModelSeeding(
-    model_class=Product,
-    exclude_fields=["id"]
-)
+from django_spire.seeding import DjangoModelSeeder
 
-products = seeder.generate_model_objects(count=5)
+class ProductSeeder(DjangoModelSeeder):
+    model_class = Product
+    fields = {
+        "id": "exclude"
+    }
 
-# Or insert directly
-seeder.seed_database(count=5)
+ProductSeeder.seed(count=5) # Initialized model objects
+
+# or
+
+ProductSeeder.seed_database(count=5) # Insert objects into the database
 ```
 
 > ✅ This is ideal for prototyping, testing, or generating rich placeholder content fast.
@@ -46,15 +74,13 @@ Use a mix of `faker`, `llm`, `static`, `callable`, and `custom` seed types for f
 ```python
 import random
 from django.utils import timezone
-from your_module import ModelSeeding
-from your_app.models import Product
 
 supplier_ids = [101, 102, 103, 104, 105]
 
-seeder = ModelSeeding(
-    model_class=Product,
-    exclude_fields=["id"],
-    fields={
+class ProductSeeder(ModelSeeding):
+    model_class = Product
+    fields = {
+        "id": "exclude",
         "name": ("faker", "word"),
         "description": ("llm", "Describe this product for a sales catalog."),
         "price": ("faker", "pydecimal", {"left_digits": 2, "right_digits": 2, "positive": True}),
@@ -63,10 +89,9 @@ seeder = ModelSeeding(
         "updated_at": lambda: timezone.now(),
         "supplier_id": ("custom", "in_order", {"values": supplier_ids})
     }
-)
 
-products = seeder.generate_model_objects(count=5)
-Product.objects.bulk_create(products)
+
+ProductSeeder.seed_database(count=5)
 ```
 
 > 🧩 This gives you total control over how each field is generated for testing or development environments.
@@ -75,10 +100,10 @@ Product.objects.bulk_create(products)
 
 ## 🎯 Overriding Fields
 
-You can override fields on any call to `.generate_model_objects()` or `.seed_database()`:
+You can override fields on any call to `.seed()` or `.seed_database()`:
 
 ```python
-seeder.generate_model_objects(
+ProductSeeder.seed(
     count=1,
     fields={"in_stock": ("static", False)}
 )
@@ -95,7 +120,7 @@ This is useful for:
 ## 🔄 Full Database Seeding
 
 ```python
-seeder.seed_database(count=100)
+ProductSeeder.seed_database(count=100)
 ```
 
 This will generate and insert 100 Product instances directly into your database.
@@ -104,14 +129,14 @@ This will generate and insert 100 Product instances directly into your database.
 
 ## 🧰 Supported Field Types
 
-This module supports four field types to control how data is seeded:
+This module supports five field types to control how data is seeded:
 
 ### 🧪 Faker
 
 Use `faker` when you want realistic-looking data like names, addresses, dates, and numbers.
 
 ```python
-  "name": ("faker", "name")
+"name": ("faker", "name")
 "created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"})
 ```
 
@@ -133,7 +158,7 @@ Use `llm` to generate rich, human-like content based on a prompt. Great for desc
 "description": ("llm", "Describe this product for a catalog.")
 ```
 
-If you don’t provide a field type, the system defaults to `llm` unless excluded.
+If you don’t provide a field type, the system defaults to `llm` unless excluded — unless you set `default_to = "included"`.
 
 ---
 
@@ -192,5 +217,4 @@ This calls the built-in `in_order` method, which assigns values from the list on
 
 ---
 
-Each type works independently or combined with others. Fields not declared in `fields` default to `llm` unless excluded.
-
+Each type works independently or combined with others. Fields not declared in `fields` will default to `llm` or `faker` — unless `default_to` is set to `"included"`.
