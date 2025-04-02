@@ -10,3 +10,8 @@ class SeedingIntel(BaseIntel):
 
     def __iter__(self):
         return iter(self.items)
+
+
+class SourceIntel(BaseIntel):
+    file_name: str
+    source: str
