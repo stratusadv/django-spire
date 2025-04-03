@@ -2,28 +2,10 @@ from __future__ import annotations
 
 from django.utils.timezone import localdate
 
-from dandy.llm import LlmBot, BaseLlmBot, LlmConfigOptions, Prompt
-
-from django_spire.seeding.intelligence.intel import AttrsIntel
+from dandy.llm import LlmBot, LlmConfigOptions, Prompt
 
 
-class SeedingAttrsLlmBot(BaseLlmBot):
-    config = 'SEEDING_ATTR_LLM_BOT'
-
-    @classmethod
-    def process(cls, attr_type: type, description: str, count: int) -> Any:
-        attrs_intel = cls.process_prompt_to_intel(
-            prompt=(
-                Prompt()
-                .text(f'Create {count} {description}')
-            ),
-            intel_class=AttrsIntel
-        )
-
-        return [ attr_type(attr) for attr in attrs_intel.items ]
-
-
-class LlmSeedingBot(LlmBot):
+class LlmFieldSeedingBot(LlmBot):
     config = 'SEEDING_LLM_BOT'
 
     config_options = LlmConfigOptions(

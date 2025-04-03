@@ -55,7 +55,7 @@ class ProductSeeder(DjangoModelSeeder):
     fields = {
         "id": "exclude"
     }
-
+ 
 ProductSeeder.seed(count=5) # Initialized model objects
 
 # or

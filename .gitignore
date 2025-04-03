@@ -12,8 +12,10 @@ pyproject.toml
 __pycache__/
 .dandy*
 .idea/
+.seeding_generator_output/
 .venv*/
 build/
 django_spire.egg-info/
 inspectionProfiles/
 venv*/
+

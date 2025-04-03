@@ -6,7 +6,7 @@ from dandy.intel import BaseIntel
 from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
 from django_spire.seeding.field.base import BaseFieldSeeder
 from django_spire.seeding.field.enums import FieldSeederTypesEnum
-from django_spire.seeding.intelligence.bots import LlmSeedingBot
+from django_spire.seeding.intelligence.bots.field_seeding_bots import LlmFieldSeedingBot
 
 
 class DjangoFieldLlmSeeder(BaseFieldSeeder):
@@ -30,12 +30,18 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
         prompt = (
             Prompt()
-            .prompt(self.field_prompt)
             .heading('Seed Count')
+            .text(f'Create {count} {model_seeder.model_class.__name__}')
+            .heading('General Seeding Rules')
+            .list([
+                'Create data for each field provided.'
+            ])
+            .heading('Field Rules & Context')
+            .prompt(self.field_prompt)
             .text(f'Create {count} {model_seeder.model_class.__name__}')
         )
 
-        intel_data = LlmSeedingBot.process(
+        intel_data = LlmFieldSeedingBot.process(
             prompt=prompt,
             intel_class=SeedingIntel
         )

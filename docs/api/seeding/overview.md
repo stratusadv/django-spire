@@ -4,7 +4,7 @@
 
 Whether you're testing, demoing, or onboarding new developers — filling your database with realistic data shouldn't be a chore. This module is designed to help you **seed Django models quickly** using a smart combo of techniques:
 
----
+--- 
 
 ## 🧠 How It Works
 
