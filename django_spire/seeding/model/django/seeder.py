@@ -25,6 +25,17 @@ class DjangoModelSeeder(BaseModelSeeder):
     ]
 
     @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        if cls.model_class is None:
+            raise ValueError("Seeds must have a model class")
+
+        if cls.fields is None:
+            raise ValueError("Seeds must have fields")
+
+
+    @classmethod
     def field_names(cls) -> list[str]:
         return [field.name for field in cls.model_class._meta.fields]
 
