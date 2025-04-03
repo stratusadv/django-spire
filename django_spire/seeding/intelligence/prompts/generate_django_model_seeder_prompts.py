@@ -1,4 +1,9 @@
+from pathlib import Path
+
 from dandy.llm import Prompt
+
+
+_RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent.parent.parent.parent.resolve())
 
 
 def generate_django_model_seeder_system_prompt() -> Prompt:
@@ -8,14 +13,17 @@ def generate_django_model_seeder_system_prompt() -> Prompt:
         .list(
             [
                 'Write a DjangoModelSeeder Class for each model in the given module by the user.'
-        ])
-        .text('Write Seeder classes for e the inherit DjangoModelSeeder for a given Django Model.')
+            ]
+        )
+        .text()
         .divider()
         .title('Return Format')
-        .text('Python code that contains a DjangoModelSeeder class.')
-        # .text('Here is the documentation on seeding a django model.')
-        # .file('docs/api/seeding/overview.md')
-        # .file('docs/api/seeding/getting_started.md')
+        .text('A python file that contains a DjangoModelSeeder class.')
+        .text('Here is the documentation on seeding a django model.')
+        # .file(Path(_RELATIVE_BASE_DIR, 'docs', 'api', 'seeding', 'overview.md'))
+        # .file(Path(_RELATIVE_BASE_DIR, 'docs', 'api', 'seeding', 'getting_started.md'))
+        # .file(r'C:\Users\WesleyHowery\PycharmProjects\django-spire\docs\api\seeding\overview.md')
+        # .file(r'C:\Users\WesleyHowery\PycharmProjects\django-spire\docs\api\seeding\getting_started.md')
         .title('Requirements')
         .list(
             [
@@ -25,7 +33,14 @@ def generate_django_model_seeder_system_prompt() -> Prompt:
                 'Always exclude the id field.',
             ],
         )
-        .text('Python code that contains a DjangoModelSeeder class.')
+        .title('Specific Field Requirements.')
+        .text('Follow the rules below for specific model fields.')
+        .list(
+            [
+                "CharField with Choice Options: use faker with no method call.",
+                'Foreign key: set to exclude.',
+            ]
+        )
         .divider()
         .title('Source Code')
         .text('Below is the source code for our seeder tools.')
