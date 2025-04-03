@@ -2,9 +2,13 @@
 
 ## V0.2.0
 ### Feature
+- Django seeding management command to create seeder classes for models.
+
+### Changes
 - Seeder refactored into Field Seeder and Model Seeder
 - Specific Seeder for Django Models
 - Class based usage for Model Seeding.
+
 
 ### Breaking
 - ModelSeeder has been refactored to DjangoModelSeeder  
