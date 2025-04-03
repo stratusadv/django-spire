@@ -26,7 +26,6 @@ class ModelSeederMeta(ABCMeta):
             seeder_class._validate_fields_exist(seeder_class.fields)
             seeder_class._assign_default_fields()
 
-
         return seeder_class
 
 
