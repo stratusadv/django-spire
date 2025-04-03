@@ -12,8 +12,6 @@ class ModelSeederMeta(ABCMeta):
     def __new__(cls, name, bases, dct):
         seeder_class = super().__new__(cls, name, bases, dct)
 
-        print(seeder_class.__name__)
-
         seeder_class._raw_fields = dct.get("fields") or {}
         seeder_class._excluded_fields = {
             k for k, v in seeder_class._raw_fields.items()
@@ -67,8 +65,9 @@ class BaseModelSeeder(ABC, metaclass=ModelSeederMeta):
     @classmethod
     def _assign_default_fields(cls):
         if cls.default_to not in ModelSeederDefaultsEnum._value2member_map_:
+
             raise ValueError(
-                f"Invalid default_to value '{cls.default_to}'. Must be one of: {', '.join([v.value for v in SeederDefaultToEnum])}")
+                f"Invalid default_to value '{cls.default_to}'. Must be one of: {', '.join([v.value for v in ModelSeederDefaultsEnum])}")
 
         if cls.default_to == ModelSeederDefaultsEnum.INCLUDED:
             return
