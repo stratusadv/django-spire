@@ -30,8 +30,14 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
         prompt = (
             Prompt()
-            .prompt(self.field_prompt)
             .heading('Seed Count')
+            .text(f'Create {count} {model_seeder.model_class.__name__}')
+            .heading('General Seeding Rules')
+            .list([
+                'Create data for each field provided.'
+            ])
+            .heading('Field Rules & Context')
+            .prompt(self.field_prompt)
             .text(f'Create {count} {model_seeder.model_class.__name__}')
         )
 

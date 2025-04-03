@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod, ABCMeta
 
+from dandy.recorder import recorder_to_html
+
 from django_spire.seeding.field.cleaners import normalize_seeder_fields
 from django_spire.seeding.model.enums import ModelSeederDefaultsEnum
 
@@ -71,13 +73,13 @@ class BaseModelSeeder(ABC, metaclass=ModelSeederMeta):
         cls.fields.update({field_name: (method,) for field_name in default_fields})
 
     @classmethod
+    @recorder_to_html('model_seeder')
     def seed_data(
             cls,
             count=1,
             fields: dict | None = None
     ) -> list[dict]:
         original_fields = cls.fields.copy()
-
 
         if fields:
             cls.fields = {**original_fields, **fields}
@@ -86,7 +88,9 @@ class BaseModelSeeder(ABC, metaclass=ModelSeederMeta):
 
         for seeder_cls in cls._field_seeders:
             seeder = seeder_cls(cls.fields, cls.default_to)
-            seed_data.append(seeder.seed(cls, count))
+
+            if len(seeder.seeder_fields) > 0:
+                seed_data.append(seeder.seed(cls, count))
 
         formatted_seed_data = [dict() for _ in range(max(len(sublist) for sublist in seed_data))]
         for sublist in seed_data:
