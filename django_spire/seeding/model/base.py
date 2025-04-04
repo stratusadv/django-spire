@@ -64,6 +64,7 @@ class BaseModelSeeder(ABC):
 
         field_config = cls.get_field_config().override(fields) if fields else cls.get_field_config()
 
+
         cache = SqliteCache(cache_name=cls.cache_name, limit=cls.cache_limit)
         hash_key = generate_hash_key(cls.seed_data, count=count, fields=fields)
         formatted_seed_data = cache.get(hash_key)
@@ -74,7 +75,7 @@ class BaseModelSeeder(ABC):
         seed_data = []
 
         for seeder_cls in cls._field_seeders:
-            seeder = seeder_cls(field_config.fields, field_config.default_to)
+            seeder = seeder_cls(cls.resolved_fields, field_config.default_to)
 
             if len(seeder.seeder_fields) > 0:
                 seed_data.append(seeder.seed(cls, count))

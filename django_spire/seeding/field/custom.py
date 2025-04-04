@@ -5,8 +5,7 @@ from django_spire.seeding.field.enums import FieldSeederTypesEnum
 class CustomFieldSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.CUSTOM
 
-    @staticmethod
-    def in_order(values: list, index: int) -> any:
+    def in_order(cls, values: list, index: int) -> any:
         if index >= len(values):
             raise IndexError("Index exceeds the list length in 'in_order'")
         return values[index]
