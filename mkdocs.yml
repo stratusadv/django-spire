@@ -1,5 +1,5 @@
 site_name: Django Spire
-site_url: https://stratusadv.com/django_spire/
+site_url: https://django-spire.stratusadv.com/
 
 repo_name: stratusadv/django-spire
 repo_url: https://github.com/stratusadv/django-spire/
@@ -8,6 +8,7 @@ copyright: Copyright (c) 2024 Stratus Advanced Technologies and Contributors
 
 extra_css:
   - static/css/extra.css
+  - static/css/mkdocstrings.css
 
 extra_javascript:
   - https://unpkg.com/tablesort@5.3.0/dist/tablesort.min.js
@@ -15,15 +16,17 @@ extra_javascript:
 
 
 markdown_extensions:
+  - admonition
+  - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
-  - pymdownx.snippets
+  - pymdownx.superfences:
   - tables
+  - attr_list
 
 nav:
   - Getting Started:
@@ -33,8 +36,14 @@ nav:
       - Core:
         - Template Tags: api/core/templatetags.md
         - Redirects: api/core/redirects.md
-      - DB:
-        - Shortcuts: api/db/shortcuts.md
+        - Shortcuts: api/core/shortcuts.md
+      - Notification:
+        - Notification: api/notification/notification.md
+        - App Notification: api/notification/app_notification.md
+        - Email Notification: api/notification/email_notification.md
+  - Guides:
+    - Notification:
+      - Notification Factory: guides/notification/notification_factory.md
   - Changelog:
       - Current: changelog/changelog.md
       - Archived: changelog/archived_changelog.md
@@ -42,17 +51,27 @@ nav:
       - Contributors: about/contributors.md
 
 plugins:
-  - search
   - include-markdown
-  - table-reader
   - mkdocstrings:
       handlers:
         python:
+          inventories:
+            - url: https://docs.python.org/3/objects.inv
+              domains: [py, std]
           options:
             show_source: true
+            show_if_no_docstring: True
             docstring_style: sphinx
-            show_root_full_path: false
+            docstring_section_style: list
+            members_order: source
+            merge_init_into_class: true
+            show_root_full_path: true
             show_root_heading: true
+            show_signature: false
+            show_signature_annotations: false
+            show_symbol_type_heading: true
+  - search
+  - table-reader
 
 theme:
   name: material
@@ -72,6 +91,7 @@ theme:
     - toc.follow
     - navigation.tabs
     - navigation.footer
+    - navigation.sections
   logo: 'static/img/django_spire_logo_white_256.png'
   favicon: 'favicon.png'
 

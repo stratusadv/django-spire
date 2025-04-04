@@ -49,7 +49,7 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
             'body': self.notification.body,
             'url': self.notification.url,
             'time_since_creation': self.verbose_time_since_creation,
-            'viewed': self.is_viewed(self.user)
+            # 'viewed': self.is_viewed(self.user)
         }
 
     def as_json(self) -> str:

@@ -1,1 +1,1 @@
-::: django_spire.db.shortcuts
+::: django_spire.core.shortcuts

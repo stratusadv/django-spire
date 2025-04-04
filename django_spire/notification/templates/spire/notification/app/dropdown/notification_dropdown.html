@@ -5,11 +5,11 @@
         new_notification: false,
         async init(){
             await this.check_new_notifications()
-            //setInterval(await this.check_new_notifications, 1000);
+            setInterval(await this.check_new_notifications, 30000);
         },
         
         async check_new_notifications(){
-            let url = '{% url 'spire_app_notification:ajax:check_new_notifications' %}'
+            let url = '{% url 'spire_app_notification:ajax:check_new' %}'
             let response = await django_glue_fetch(url)
             this.new_notification = response.has_new_notifications
         },
@@ -17,6 +17,12 @@
         async render_dropdown(){
             let dropdown_content = new ViewGlue('{% url "spire_app_notification:template:notification_dropdown" %}')
             await dropdown_content.render_inner($refs.spire_notification_dropdown_content)
+            await this.mark_notifications_as_viewed()
+        },
+
+        async mark_notifications_as_viewed(){
+            let response = await django_glue_fetch('{% url 'spire_app_notification:ajax:set_viewed' %}')
+            this.new_notification = false
         }
 
     }"
@@ -36,5 +42,4 @@
 
 {% block dropdown_content %}
     <div x-ref="spire_notification_dropdown_content"></div>
-    {% comment %} {% include "spire/notification/element/notification_dropdown_content.html" %} {% endcomment %}
 {% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'spire/card/title_card.html' %}
+
+{% block card_title %}
+    Notification List
+{% endblock %}
+
+{% block card_title_content %}
+    {% for notification in notification_list %}
+        {% include "spire/notification/app/item/notification_item.html" %}
+    {% endfor %}
+{% endblock %}
