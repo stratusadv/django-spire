@@ -5,6 +5,15 @@ from django_spire.seeding.model.config import FieldsConfig
 
 class DjangoModelFieldsConfig(FieldsConfig):
 
+    def _validate(self):
+        valid_field_names = set(self.field_names)
+
+        valid_field_names.update(f.attname for f in self.model_class._meta.fields)
+
+        unknown = set(self.fields.keys()) - valid_field_names
+        if unknown:
+            raise ValueError(f"Invalid field name(s): {', '.join(unknown)}")
+
     def _assign_defaults(self):
         super()._assign_defaults()
 
