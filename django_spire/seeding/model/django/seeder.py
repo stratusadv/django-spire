@@ -11,11 +11,11 @@ from django_spire.seeding.field.custom import CustomFieldSeeder
 from django_spire.seeding.field.django.seeder import DjangoFieldFakerSeeder, DjangoFieldLlmSeeder
 from django_spire.seeding.field.static import StaticFieldSeeder
 from django_spire.seeding.model.base import BaseModelSeeder
-from django_spire.seeding.model.django.field_config import DjangoModelFieldConfig
+from django_spire.seeding.model.django.config import DjangoModelFieldsConfig
 
 
 class DjangoModelSeeder(BaseModelSeeder):
-    field_config_class = DjangoModelFieldConfig
+    field_config_class = DjangoModelFieldsConfig
 
     model_class: Type[Model]
     prompt: Prompt = None
