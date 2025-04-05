@@ -34,7 +34,7 @@ class ProductSeeder(DjangoModelSeeder):
 class TestProductSeeder(unittest.TestCase):
 
     def test_assign_defaults(self):
-        self.assertIn('sku', ProductSeeder.fields)
+        self.assertIn('sku', ProductSeeder.resolved_fields)
 
     def test_seeds_three_objects(self):
         result = ProductSeeder.seed(count=3)
