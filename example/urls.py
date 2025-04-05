@@ -6,7 +6,7 @@ from example import views
 
 
 urlpatterns = [
-    path('', views.home_page_view, name='home')
+    path('', views.example_page_view, name='home')
 ]
 
 urlpatterns += [
@@ -16,7 +16,6 @@ urlpatterns += [
 ]
 
 urlpatterns += [
-    path('ai/', include('example.ai.urls', namespace='ai')),
     path('authentication/', include('example.authentication.urls', namespace='authentication')),
     path('breadcrumb/', include('example.breadcrumb.urls', namespace='breadcrumb')),
     path('comment/', include('example.comment.urls', namespace='comment')),
@@ -33,6 +32,7 @@ urlpatterns += [
     path('pagination/', include('example.pagination.urls', namespace='pagination')),
     path('permission/', include('example.permission.urls', namespace='permission')),
     path('search/', include('example.search.urls', namespace='search')),
+    path('speech_to_text/', include('example.speech_to_text.urls', namespace='speech_to_text')),
     path('tabular/', include('example.tabular.urls', namespace='tabular')),
     path('user_account/', include('example.user_account.urls', namespace='user_account')),
     path('wizard/', include('example.wizard.urls', namespace='wizard')),

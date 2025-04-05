@@ -1,6 +1,6 @@
 from django.urls import path
 
-from example.ai import views
+from example.speech_to_text import views
 
 
 app_name = 'ai'

@@ -3,5 +3,5 @@ from django.apps import AppConfig
 
 class AIConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'example.ai'
-    label = 'ai'
+    label = 'example_speech_to_text'
+    name = 'example.speech_to_text'

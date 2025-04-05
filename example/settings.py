@@ -43,7 +43,6 @@ INSTALLED_APPS = [
 
     'django_glue',
 
-    'django_spire.ai',
     'django_spire.authentication',
     'django_spire.authentication.mfa',
     'django_spire.breadcrumb',
@@ -62,6 +61,7 @@ INSTALLED_APPS = [
     'django_spire.permission',
     'django_spire.search',
     'django_spire.seeding',
+    'django_spire.speech_to_text',
     'django_spire.user_account',
 
     'example',
@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'example.pagination',
     'example.permission',
     'example.search',
+    'example.speech_to_text',
     'example.user_account',
     'example.user_account.profile',
 
