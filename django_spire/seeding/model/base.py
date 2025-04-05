@@ -15,6 +15,7 @@ class BaseModelSeeder(ABC):
 
     default_to = "llm"
 
+    cache_seed = False
     cache_name = 'model_seeder'
     cache_limit = 1000
 
@@ -65,17 +66,18 @@ class BaseModelSeeder(ABC):
         field_config = cls.get_field_config().override(fields) if fields else cls.get_field_config()
 
 
-        cache = SqliteCache(cache_name=cls.cache_name, limit=cls.cache_limit)
-        hash_key = generate_hash_key(cls.seed_data, count=count, fields=fields)
-        formatted_seed_data = cache.get(hash_key)
+        if cls.cache_seed:
+            cache = SqliteCache(cache_name=cls.cache_name, limit=cls.cache_limit)
+            hash_key = generate_hash_key(cls.seed_data, count=count, fields=fields)
+            formatted_seed_data = cache.get(hash_key)
 
-        if formatted_seed_data:
-            return formatted_seed_data
+            if formatted_seed_data:
+                return formatted_seed_data
 
         seed_data = []
 
         for seeder_cls in cls._field_seeders:
-            seeder = seeder_cls(cls.resolved_fields, field_config.default_to)
+            seeder = seeder_cls(field_config.fields, field_config.default_to)
 
             if len(seeder.seeder_fields) > 0:
                 seed_data.append(seeder.seed(cls, count))
@@ -85,7 +87,9 @@ class BaseModelSeeder(ABC):
             for i, d in enumerate(sublist):
                 formatted_seed_data[i].update(d)
 
-        cache.set(hash_key, formatted_seed_data)
+        if cls.cache_seed:
+            cache.set(hash_key, formatted_seed_data)
+
         return formatted_seed_data
 
     @classmethod
