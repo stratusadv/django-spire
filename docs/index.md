@@ -25,6 +25,7 @@ Please make note when using spire to only add the modules with green check marks
 - pagination❌
 - permission ❌
 - search ❌
+- speech_to_text ❌
 - seeding ❌
 - template ❌
 - user_account❌
