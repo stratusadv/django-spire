@@ -20,8 +20,10 @@ def generate_django_model_seeder_system_prompt() -> Prompt:
         .title('Return Format')
         .text('A python file that contains a DjangoModelSeeder class.')
         .text('Here is the documentation on seeding a django model.')
-        # .file(Path(_REL ATIVE_BASE_DIR, 'docs', 'api', 'seeding', 'overview.md'))
-        # .file(Path(_RELATIVE_BASE_DIR, 'docs', 'api', 'seeding', 'getting_started.md'))
+        .file(
+            file_path=Path(_RELATIVE_BASE_DIR, 'docs/api/seeding/getting_started.md')
+        )
+        # .file()
         # .file(r'C:\Users\WesleyHowery\PycharmProjects\django-spire\docs\api\seeding\overview.md')
         # .file(r'C:\Users\WesleyHowery\PycharmProjects\django-spire\docs\api\seeding\getting_started.md')
         .title('Requirements')
