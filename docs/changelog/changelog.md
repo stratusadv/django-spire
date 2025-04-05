@@ -2,6 +2,9 @@
 
 ## V0.2.1
 
+### Changes
+- Field config object for model seeding
+
 ### Fixes
 - Foreign key field translations removed because of overriding fields issue.
 
