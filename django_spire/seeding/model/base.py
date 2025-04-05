@@ -39,7 +39,6 @@ class BaseModelSeeder(ABC):
         return cls._field_config
 
     @classmethod
-    @property
     def resolved_fields(cls):
         return cls.get_field_config().fields
 
