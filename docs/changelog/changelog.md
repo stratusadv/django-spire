@@ -1,5 +1,11 @@
 # Changelog
 
+## V0.2.1
+
+### Fixes
+- Foreign key field translations removed because of overriding fields issue.
+
+
 ## V0.2.0
 ### Feature
 - Django seeding management command to create seeder classes for models.
