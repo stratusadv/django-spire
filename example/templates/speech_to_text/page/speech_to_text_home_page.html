@@ -1,10 +1,10 @@
 {% extends 'base/base.html' %}
 
 {% block example_content %}
-    {% url 'ai:home' as href %}
+    {% url 'speech_to_text:home' as href %}
     {% include 'navigation/top_navigation.html' with title='AI' href=href %}
 
-    {% url 'spire_ai:transcribe' as transcribe_url %}
+    {% url 'spire_speech_to_text:transcribe' as transcribe_url %}
 
     <div x-data="{
         transcribe_url: '{{ transcribe_url }}',

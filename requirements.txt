@@ -1,7 +1,7 @@
 crispy-bootstrap5>=0.6
 docutils
-dandy==0.14.2
-django>=5.0.2
+dandy==0.14.5
+django>=5.1.8
 django-crispy-forms>=1.14.0
 faker==37.1.0
 Pygments

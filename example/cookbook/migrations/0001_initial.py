@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True, editable=False)),
                 ('is_deleted', models.BooleanField(default=False, editable=False)),
                 ('created_datetime', models.DateTimeField(default=django.utils.timezone.localtime, editable=False)),
-                ('cookbook', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cookbook_recipes', related_query_name='cookbook_recipe', to='cookbook.cookbook')),
+                ('cookbook', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cookbook_recipes', related_query_name='cookbook_recipe', to='example_cookbook.cookbook')),
                 ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cookbook_recipes', related_query_name='cookbook_recipe', to='cookbook_recipe.recipe')),
             ],
             options={

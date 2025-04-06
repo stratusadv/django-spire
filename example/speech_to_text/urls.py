@@ -3,8 +3,8 @@ from django.urls import path
 from example.speech_to_text import views
 
 
-app_name = 'ai'
+app_name = 'speech_to_text'
 
 urlpatterns = [
-    path('home/', views.ai_home_view, name='home'),
+    path('home/', views.speech_to_text_home_view, name='home'),
 ]

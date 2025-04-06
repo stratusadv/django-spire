@@ -7,6 +7,6 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-def ai_home_view(request: WSGIRequest) -> TemplateResponse:
-    template = 'ai/page/ai_home_page.html'
+def speech_to_text_home_view(request: WSGIRequest) -> TemplateResponse:
+    template = 'speech_to_text/page/speech_to_text_home_page.html'
     return TemplateResponse(request, template)

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from dandy.recorder import recorder_to_html
+from dandy.recorder import recorder_to_html_file
 from dandy.cache import SqliteCache
 from dandy.cache.utils import generate_hash_key
 
@@ -55,7 +55,7 @@ class BaseModelSeeder(ABC):
         pass
 
     @classmethod
-    @recorder_to_html('model_seeder')
+    @recorder_to_html_file('model_seeder')
     def seed_data(
             cls,
             count=1,
