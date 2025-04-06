@@ -10,7 +10,6 @@ from django_spire.seeding.intelligence.bots.seeder_generator_bot import SeederGe
 
 _SEEDING_OUTPUT_PATH = Path(settings.BASE_PATH, '.seeding_generator_output')
 
-print(_SEEDING_OUTPUT_PATH)
 
 class Command(BaseCommand):
     help = 'Generate a Seeder'
