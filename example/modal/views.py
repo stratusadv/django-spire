@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 
 def modal_form_submit(request: WSGIRequest) -> HttpResponse:
     if request.method == 'POST':
-        print(request.POST)
         return HttpResponseRedirect(reverse('modal:home'))
 
     return HttpResponse('Invalid request.', status=400)

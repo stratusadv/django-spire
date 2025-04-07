@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 DEBUG = True
 
 SECRET_KEY = 'Django-Spire-Super-Secret-Key-for-Testing'
+
 SENDGRID_TEMPLATE_ID = False
 
 DATABASES = {

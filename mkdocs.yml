@@ -1,8 +1,10 @@
 site_name: Django Spire
-site_url: https://django-spire.stratusadv.com/
+
+site_url: https://django-spire.stratusadv.com
+
 
 repo_name: stratusadv/django-spire
-repo_url: https://github.com/stratusadv/django-spire/
+repo_url: https://github.com/stratusadv/django-spire
 
 copyright: Copyright (c) 2024 Stratus Advanced Technologies and Contributors
 
@@ -37,6 +39,10 @@ nav:
         - Template Tags: api/core/templatetags.md
         - Redirects: api/core/redirects.md
         - Shortcuts: api/core/shortcuts.md
+      - Seeding:
+        - Overview: api/seeding/overview.md
+        - Getting Started: api/seeding/getting_started.md
+        - Faker: api/seeding/faker.md<<<<<<< notification-refactor/base
       - Notification:
         - Notification: api/notification/notification.md
         - App Notification: api/notification/app_notification.md

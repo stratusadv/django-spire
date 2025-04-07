@@ -52,8 +52,8 @@ class Comment(HistoryModelMixin):
 
     def send_notification(self):
         print('Function Called')
-        print(self.scrape_username_list())
-        print(self.find_user_list())
+        # print(self.scrape_username_list())
+        # print(self.find_user_list())
         for user in self.find_user_list():
             print(f'Sending comment to {user.username}')
             # create(

@@ -1,5 +1,38 @@
 # Changelog
 
+## V0.2.1
+
+### Changes
+- Field config object for model seeding
+
+### Fixes
+- Foreign key field translations removed because of overriding fields issue.
+
+
+## V0.2.0
+### Feature
+- Django seeding management command to create seeder classes for models.
+- Caching model seed data values
+
+### Changes
+- Seeder refactored into Field Seeder and Model Seeder
+- Specific Seeder for Django Models
+- Class based usage for Model Seeding.
+
+
+### Breaking
+- ModelSeeder has been refactored to DjangoModelSeeder  
+
+
+## V0.1.37
+### Feature
+- Model Seeding with llm, faker, callable, static and custom methods!
+
+### Breaking
+- SeedingProcessor is no longer a thing. View the documentation to learn about Model Seeding and refactor your code.  
+
+
+
 ## V0.1.36
 ### Breaking
 - Refactored to Django Glue v0.8.1 and Dandy v0.13.2. Check the repository change logs before upgrading.  
