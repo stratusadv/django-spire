@@ -18,7 +18,7 @@ class InteractionField(forms.Textarea):
         else:
             context['interaction_dict'] = json.loads(context['widget']['value'])
             for i, event in enumerate(context['interaction_dict']['event_manager']['events']):
-                context['interaction_dict']['event_manager']['events'][i]['things'] = context['interaction_dict']['event_manager']['events'][i].pop('items')
+                context['interaction_dict']['event_manager']['events'][i]['attributes'] = context['interaction_dict']['event_manager']['events'][i].pop('items')
 
         return context
 

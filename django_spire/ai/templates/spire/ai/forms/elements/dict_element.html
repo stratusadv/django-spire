@@ -6,20 +6,17 @@
     {% with 'display_'|add:key|dashes_and_spaces_to_underscore as key_display %}
         <div x-data="{
                 {{ key_display }}: {% if open_dropdowns %}true{% elif value|is_not_dict and value|is_not_list_or_tuple %}true{% else %}false{% endif %}
-            }" class="debug-key-hover">
+            }" style="margin-left: 20px; margin-top: 5px;">
 
-            <div class="row">
-                <div @click="{{ key_display }} = ! {{ key_display }}" class="col-12 px-1 pb-1 fw-bold fs-6"
-                     style="cursor: pointer;">
+                <div @click="{{ key_display }} = ! {{ key_display }}" style="cursor: pointer;">
                     <span style="font-weight: bold">
-                        <i x-show="!{{ key_display }}" class="bi bi-plus"></i>
-                        <i x-show="{{ key_display }}" class="bi bi-dash"></i>
+                        <i x-show="!{{ key_display }}" >+</i>
+                        <i x-show="{{ key_display }}" >-</i>
                         {{ key|underscores_to_spaces|title }}
                     </span>
                 </div>
-            </div>
 
-            <div x-show="{{ key_display }}" class="row border rounded-3 shadow-sm px-2 py-1 mb-2 bg-debug">
+            <div x-show="{{ key_display }}" class="row">
                 <div class="col-12 px-3">
                     {% if value|is_dict %}
                         {% include 'spire/ai/forms/elements/dict_element.html' with dict=value %}
