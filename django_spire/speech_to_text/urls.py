@@ -3,7 +3,7 @@ from django.urls import path
 from django_spire.ai import views
 
 
-app_name = 'ai'
+app_name = 'speech_to_text'
 
 urlpatterns = [
     path(

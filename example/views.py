@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-def home_page_view(request: WSGIRequest) -> TemplateResponse:
+def example_page_view(request: WSGIRequest) -> TemplateResponse:
     apps = get_app_context_data()
     context = {'apps': apps}
 

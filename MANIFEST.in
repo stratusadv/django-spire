@@ -7,3 +7,4 @@ prune .venv
 prune docs
 prune example
 prune testing
+prune tests

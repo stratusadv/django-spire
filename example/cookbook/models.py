@@ -42,7 +42,7 @@ class Cookbook(HistoryModelMixin):
 
 class CookbookRecipe(HistoryModelMixin):
     cookbook = models.ForeignKey(
-        'cookbook.Cookbook',
+        'example_cookbook.Cookbook',
         on_delete=models.CASCADE,
         related_name='cookbook_recipes',
         related_query_name='cookbook_recipe'

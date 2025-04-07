@@ -1,0 +1,200 @@
+{% extends 'base/base.html' %}
+
+{% block example_content %}
+    {% url 'speech_to_text:home' as href %}
+    {% include 'navigation/top_navigation.html' with title='Speech to Text' href=href %}
+
+    {% url 'spire_speech_to_text:transcribe' as transcribe_url %}
+
+    <div x-data="{
+        transcribe_url: '{{ transcribe_url }}',
+        is_recording: false,
+        is_loading: false,
+        recording_status: 'Press \'Start Recording\' to record your voice.',
+        transcription_result: '',
+        media_recorder: null,
+        audio_chunks: [],
+
+        async upload_audio(event) {
+            event.preventDefault();
+            this.is_loading = true;
+            this.transcription_result = '';
+
+            let form_data = new FormData();
+            let audio_file = event.target.querySelector('#audio').files[0];
+
+            if (!audio_file) {
+                alert('Please select a file to upload.');
+                this.is_loading = false;
+                return;
+            }
+
+            form_data.append('audio', audio_file);
+
+            try {
+                let response = await file_request('POST', this.transcribe_url, form_data);
+
+                if (response.data && response.data.transcription) {
+                    this.transcription_result = response.data.transcription;
+                } else {
+                    this.transcription_result = response.data.error || 'Unexpected response from the server.';
+                }
+            } catch (error) {
+                this.transcription_result = 'An error occurred during transcription.';
+            } finally {
+                this.is_loading = false;
+            }
+        },
+
+        async toggle_recording() {
+            if (!this.is_recording) {
+                try {
+                    let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                    this.media_recorder = new MediaRecorder(stream);
+                    this.audio_chunks = [];
+
+                    this.media_recorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            this.audio_chunks.push(event.data);
+                        }
+                    };
+
+                    this.media_recorder.onstop = async () => {
+                        let audio_blob = new Blob(this.audio_chunks, { type: 'audio/webm' });
+                        let form_data = new FormData();
+
+                        form_data.append('audio', audio_blob, 'recording.webm');
+
+                        this.is_loading = true;
+                        this.transcription_result = '';
+
+                        try {
+                            let response = await file_request('POST', this.transcribe_url, form_data);
+
+                            if (response.data && response.data.transcription) {
+                                this.transcription_result = response.data.transcription;
+                            } else {
+                                this.transcription_result = response.data.error || 'Unexpected response from the server.';
+                            }
+                        } catch (error) {
+                            this.transcription_result = 'An error occurred during transcription.';
+                        } finally {
+                            this.is_loading = false;
+                        }
+
+                        this.recording_status = 'Press \'Start Recording\' to record your voice.';
+                    };
+
+                    this.media_recorder.start();
+                    this.is_recording = true;
+                    this.recording_status = 'Recording... Press \'Stop Recording\' to finish.';
+                } catch (error) {
+                    this.recording_status = 'Error accessing your microphone. Please check your permissions.';
+                }
+            } else {
+                this.media_recorder.stop();
+                this.is_recording = false;
+                this.recording_status = 'Processing the recording...';
+            }
+        }
+    }">
+
+        <div class="container mt-5">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-plum-gradient text-white text-center">
+                            <i class="bi bi-cloud-upload fs-1"></i>
+                            <h5 class="mt-2">Upload Pre-recorded Audio</h5>
+                        </div>
+                        <div class="card-body">
+                            <form @submit="upload_audio">
+                                <div class="mb-3">
+                                    <label for="audio" class="form-label">Select an audio file</label>
+                                    <input type="file" id="audio" name="audio" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-plum w-100" :disabled="is_loading">
+                                    <span x-show="!is_loading">Transcribe</span>
+                                    <span x-show="is_loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    <span x-show="is_loading"> Processing...</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-plum-gradient text-white text-center">
+                            <i class="bi bi-mic-fill fs-1"></i>
+                            <h5 class="mt-2">Live Recording</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <button class="btn btn-plum mb-3" @click="toggle_recording" x-text="is_recording ? 'Stop Recording' : 'Start Recording'"></button>
+                            <p class="text-muted" x-text="recording_status"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="transcription" class="mt-5">
+            <div class="container">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-plum-gradient text-white text-center">
+                        <i class="bi bi-card-text fs-1"></i>
+                        <h5 class="mt-2">Transcription</h5>
+                    </div>
+                    <div class="card-body">
+                        <template x-if="is_loading">
+                            <div class="breathing-effect">
+                                <div class="skeleton-line mb-2"></div>
+                                <div class="skeleton-line mb-2"></div>
+                                <div class="skeleton-line"></div>
+                            </div>
+                        </template>
+                        <template x-if="!is_loading">
+                            <p x-text="transcription_result || 'No transcription available yet.'" class="fs-5"></p>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <style>
+        .bg-plum-gradient {
+            background: linear-gradient(180deg, #673ab7, #512da8);
+        }
+
+        .btn-plum {
+            background-color: #f06292;
+            color: #fff;
+            border: none;
+        }
+        .btn-plum:hover {
+            color: #fff;
+            background-color: #ec407a;
+        }
+
+        .skeleton-line {
+            height: 16px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            animation: breathing 1.5s infinite;
+        }
+
+        @keyframes breathing {
+            0% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+{% endblock %}
