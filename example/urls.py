@@ -13,6 +13,7 @@ urlpatterns += [
     path('admin/', admin.site.urls),
     path('django_glue/', include('django_glue.urls')),
     path('spire/ai/', include('django_spire.ai.urls', namespace='spire_ai')),
+    path('spire/notification/app/', include('django_spire.notification.app.urls', namespace='spire_notification_app')),
 ]
 
 urlpatterns += [

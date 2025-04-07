@@ -10,7 +10,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.timezone import localtime
 
-from django_spire.notification.sender import SendGridEmailHelper
+from django_spire.notification.email.sender import SendGridEmailHelper
 from django_spire.authentication.mfa.querysets import MfaCodeQuerySet
 
 

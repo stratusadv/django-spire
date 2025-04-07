@@ -1,0 +1,45 @@
+{% extends "spire/dropdown/dropdown.html" %}
+
+{% block dropdown_trigger %}
+    <div x-data="{
+        new_notification: false,
+        async init(){
+            await this.check_new_notifications()
+            setInterval(await this.check_new_notifications, 30000);
+        },
+        
+        async check_new_notifications(){
+            let url = '{% url 'spire_app_notification:ajax:check_new' %}'
+            let response = await django_glue_fetch(url)
+            this.new_notification = response.has_new_notifications
+        },
+
+        async render_dropdown(){
+            let dropdown_content = new ViewGlue('{% url "spire_app_notification:template:notification_dropdown" %}')
+            await dropdown_content.render_inner($refs.spire_notification_dropdown_content)
+            await this.mark_notifications_as_viewed()
+        },
+
+        async mark_notifications_as_viewed(){
+            let response = await django_glue_fetch('{% url 'spire_app_notification:ajax:set_viewed' %}')
+            this.new_notification = false
+        }
+
+    }"
+    class="pb-4 position-relative">
+        <span @click='await render_dropdown()'>
+            {% block notification_dropdown_trigger %}
+                <i x-bind='trigger' class="bi bi-bell-fill text-white fs-4 cursor-pointer position-absolute"></i>
+                <span x-show="new_notification"  x-cloak style="width: 10; height: 10px; top: -1px; right: -24px;" class="bg-danger rounded-circle position-absolute"></span>
+            {% endblock  %}
+        </span>
+    </div>
+
+{% endblock %}
+
+{% block dropdown_style %}z-index: 100 !important;{% endblock  %}
+{% block dropdown_position %}top-100 end-50{% endblock %}
+
+{% block dropdown_content %}
+    <div x-ref="spire_notification_dropdown_content"></div>
+{% endblock %}

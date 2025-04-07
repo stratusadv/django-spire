@@ -21,7 +21,7 @@ def get_app_context_data() -> list[dict[str, str]]:
         {'title': 'Maintenance', 'icon_class': 'bi bi-tools', 'url': reverse('maintenance:home')},
         {'title': 'Modal', 'icon_class': 'bi bi-window', 'url': reverse('modal:home')},
 
-        {'title': 'Notification', 'icon_class': 'bi bi-bell', 'url': reverse('notification:home')},
+        {'title': 'Notification', 'icon_class': 'bi bi-bell', 'url': reverse('notification:page:home')},
         {'title': 'Options', 'icon_class': 'bi bi-gear', 'url': reverse('options:home')},
         {'title': 'Pagination', 'icon_class': 'bi bi-arrow-bar-right', 'url': reverse('pagination:home')},
         {'title': 'Permission', 'icon_class': 'bi bi-lock', 'url': reverse('permission:home')},

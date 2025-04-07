@@ -1,0 +1,22 @@
+<div style="width: 350px !important;" class="row">
+    <div class="col-12 w-100">
+        <h6 class="mt-2 ms-2 text-app-secondary">Notifications</h6>
+        <hr class="m-0"></hr>
+    </div>
+
+    <div style="max-height: 300px !important; overflow-y: scroll !important;">
+        {% for app_notification in app_notification_list %}
+            {% include "spire/notification/app/item/notification_item.html" %}
+        {% empty %}
+            No Notifications
+        {% endfor %}
+    </div>
+    <div class="col-12">
+        <hr class="m-0"></hr>
+    </div>
+    <div class="col-12 fs-7 text-center py-1">
+        {% url "spire_app_notification:page:list" as app_notification_list_url %}
+        <a href='{{ app_notification_list_url }}' class="text-decoration-none text-app-secondary my-2">View All</a>
+    </div>
+
+</div>

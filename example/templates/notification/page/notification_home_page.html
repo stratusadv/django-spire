@@ -3,4 +3,11 @@
 {% block example_content %}
     {% url 'notification:home' as href %}
     {% include 'navigation/top_navigation.html' with title='Notification' href=href %}
+
+    <div style="z-index: -1 !important;" class="row">
+        <div class="col-12">
+            {% include "notification/card/notification_list_card.html" %}
+        </div>
+    </div>
+
 {% endblock %}

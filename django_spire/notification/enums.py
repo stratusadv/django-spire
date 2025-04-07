@@ -4,21 +4,22 @@ from enum import Enum
 
 from django.db import models
 
-from django_spire.notification.sender import EmailNotificationSender
+from django_spire.notification.email.sender import EmailNotificationSender
 
 
 class NotificationTypeChoices(models.TextChoices):
+    APP = 'app'
     EMAIL = 'email'
-    # SMS = 'sms'
-    # PUSH = 'push'
+    PUSH = 'push'
+    SMS = 'sms'
 
     def send(self) -> None:
-        sender_class = NotificationSenderEnum(self.value).value
+        sender_class = NotificationSenderMap(self.value).value
         sender = sender_class(self)
         sender.send()
 
 
-class NotificationSenderEnum(Enum):
+class NotificationSenderMap(Enum):
     EMAIL = EmailNotificationSender
     # SMS = EmailNotificationSender
     # PUSH = EmailNotificationSender

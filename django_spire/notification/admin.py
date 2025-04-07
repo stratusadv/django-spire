@@ -2,17 +2,19 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from django_spire.notification import models
+from django_spire.notification.app.models import AppNotification
+from django_spire.notification.email.models import EmailNotification
 
 
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'email', 'name', 'title', 'type', 'is_sent', 'send_datetime',
-        'sent_datetime', 'view_body_snippet', 'url_link'
+        'id', 'title', 'type', 'processed', 'processed_datetime',
+        'processed_datetime', 'view_body_snippet', 'url_link'
     )
-    list_filter = ('type', 'is_sent', 'send_datetime')
-    search_fields = ('id', 'email', 'name', 'title', 'type')
-    ordering = ('-send_datetime',)
+    list_filter = ('type', 'processed', 'processed_datetime')
+    search_fields = ('id', 'title', 'type')
+    ordering = ('-processed_datetime',)
 
     def view_body_snippet(self, notification: models.Notification) -> str:
         return (
@@ -30,3 +32,16 @@ class NotificationAdmin(admin.ModelAdmin):
         return 'No URL'
 
     url_link.short_description = 'Notification URL'
+
+
+@admin.register(AppNotification)
+class AppNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'notification', 'user', 'content_type', 'object_id'
+    )
+
+@admin.register(EmailNotification)
+class EmailNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'notification', 'subject', 'email'
+    )

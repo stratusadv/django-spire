@@ -8,14 +8,16 @@
 *.whl
 dev_tool*
 pyproject.toml
-
+*~
 __pycache__/
 .dandy*
 .idea/
 .seeding_generator_output/
 .venv*/
+.qodo/
 build/
 django_spire.egg-info/
 inspectionProfiles/
 venv*/
+.qodo
 
