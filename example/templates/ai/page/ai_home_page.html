@@ -1,0 +1,55 @@
+{% extends 'base/base.html' %}
+
+{% block example_content %}
+    {% url 'ai:home' as href %}
+    {% include 'navigation/top_navigation.html' with title='AI' href=href %}
+
+    <div x-data="{
+
+    }">
+
+        <div class="row">
+            <div class="col-6 text-end">
+                Legal Horse Llm Interaction
+            </div>
+
+            <div class="col-6">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="text" name="legal_user_input" />
+                </form>
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-12">
+                {% if horse_intel %}
+                    <div class="alert alert-success" role="alert">
+                        {{ horse_intel }}
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger" role="alert">
+                        No Horse Intel Found
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 text-end">
+                Illegal Horse Llm Interaction
+            </div>
+
+            <div class="col-6">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="text" name="illegal_user_input" />
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

@@ -1,4 +1,5 @@
 import json
+import traceback
 import uuid
 
 from dandy.recorder import Recorder
@@ -9,7 +10,6 @@ from django_spire.ai.models import AiInteraction
 
 def log_ai_interaction_from_recorder(
         user: User,
-        app_name: str,
 ):
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -17,7 +17,8 @@ def log_ai_interaction_from_recorder(
 
             ai_interaction = AiInteraction(
                 user=user,
-                app_name=app_name,
+                module_name=func.__module__,
+                callable_name=func.__qualname__,
             )
 
             try:
@@ -25,9 +26,14 @@ def log_ai_interaction_from_recorder(
                 return func(*args, **kwargs)
 
             except Exception as e:
-                ai_interaction.raised_exception = True
+                ai_interaction.was_successful = False
                 ai_interaction.exception = str(e)
-                ai_interaction.stack_trace = str(e.__traceback__)
+
+                stack_trace = '\n'.join([
+                    ''.join(traceback.format_exception(None, e, e.__traceback__)).strip()
+                ])
+
+                ai_interaction.stack_trace = stack_trace
 
                 raise e
 

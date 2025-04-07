@@ -15,6 +15,7 @@ urlpatterns += [
 ]
 
 urlpatterns += [
+    path('ai/', include('example.ai.urls', namespace='ai')),
     path('authentication/', include('example.authentication.urls', namespace='authentication')),
     path('breadcrumb/', include('example.breadcrumb.urls', namespace='breadcrumb')),
     path('comment/', include('example.comment.urls', namespace='comment')),

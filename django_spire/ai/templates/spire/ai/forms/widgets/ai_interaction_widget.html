@@ -1,0 +1,11 @@
+{% load json %}
+
+<input type="hidden" name="{{ widget.name }}" value='{{ widget.value }}'>
+
+<script src="//unpkg.com/alpinejs" defer></script>
+
+<div class="row">
+    <div class="col-12 px-3">
+        {% include 'spire/ai/forms/elements/dict_element.html' with dict=interaction_dict open_dropdowns=False %}
+    </div>
+</div>

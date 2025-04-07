@@ -1,0 +1,12 @@
+{% load variable_types %}
+
+{% for value in list %}
+
+    {% if value|is_dict %}
+        {% include 'spire/ai/forms/elements/dict_element.html' with dict=value %}
+    {% elif value|is_list_or_tuple %}
+        {% include 'spire/ai/forms/elements/list_element.html' with list=value %}
+    {% else %}
+        {% include 'spire/ai/forms/elements/value_element.html' with value=value %}
+    {% endif %}
+{% endfor %}

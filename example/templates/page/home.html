@@ -12,9 +12,17 @@
     </div>
 
     <div class="container my-3">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-3">
+        <div class="row">
             {% for app in apps %}
-                {% include 'card/home_card.html' with title=app.title icon_class=app.icon_class url=app.url %}
+                {% if app.heading %}
+                    <div class="col-12 mb-3">
+                        <h1 class="text-center">{{ app.heading }}</h1>
+                    </div>
+                {% elif app.title %}
+                    <div class="col-12, col-md-3 mb-3">
+                        {% include 'card/home_card.html' with title=app.title icon_class=app.icon_class url=app.url %}
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

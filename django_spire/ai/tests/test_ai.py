@@ -20,6 +20,7 @@ class AiTestCase(BaseTestCase):
         @log_ai_interaction_from_recorder(self.super_user, 'horse')
         @recorder_to_html_file('horse')
         def generate_horse_intel(user_input: str) -> HorseIntel:
+
             return LlmBot.process(
                 prompt=user_input,
                 intel_class=HorseIntel,

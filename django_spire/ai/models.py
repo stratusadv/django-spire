@@ -9,10 +9,12 @@ class AiInteraction(models.Model):
     user_first_name = models.CharField(max_length=100, blank=True, null=True)
     user_last_name = models.CharField(max_length=100, blank=True, null=True)
 
-    app_name = models.CharField(max_length=100)
+    module_name = models.TextField()
+    callable_name = models.TextField()
+
     interaction = models.JSONField(blank=True, null=True)
 
-    raised_exception = models.BooleanField(default=False)
+    was_successful = models.BooleanField(default=True)
     exception = models.TextField(blank=True, null=True)
     stack_trace = models.TextField(blank=True, null=True)
 

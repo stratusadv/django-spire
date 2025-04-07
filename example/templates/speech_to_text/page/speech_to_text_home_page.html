@@ -2,7 +2,7 @@
 
 {% block example_content %}
     {% url 'speech_to_text:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='AI' href=href %}
+    {% include 'navigation/top_navigation.html' with title='Speech to Text' href=href %}
 
     {% url 'spire_speech_to_text:transcribe' as transcribe_url %}
 
