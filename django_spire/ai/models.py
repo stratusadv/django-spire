@@ -38,5 +38,6 @@ class AiInteraction(models.Model):
 
         super().save(*args, **kwargs)
 
-
+    class Meta:
+        db_table = 'spire_ai_interaction'
 
