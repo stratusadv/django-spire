@@ -1,5 +1,7 @@
 site_name: Django Spire
+
 site_url: https://django-spire.stratusadv.com
+
 
 repo_name: stratusadv/django-spire
 repo_url: https://github.com/stratusadv/django-spire
@@ -42,7 +44,14 @@ nav:
       - Seeding:
         - Overview: api/seeding/overview.md
         - Getting Started: api/seeding/getting_started.md
-        - Faker: api/seeding/faker.md
+        - Faker: api/seeding/faker.md<<<<<<< notification-refactor/base
+      - Notification:
+        - Notification: api/notification/notification.md
+        - App Notification: api/notification/app_notification.md
+        - Email Notification: api/notification/email_notification.md
+  - Guides:
+    - Notification:
+      - Notification Factory: guides/notification/notification_factory.md
   - Changelog:
       - Current: changelog/changelog.md
       - Archived: changelog/archived_changelog.md
