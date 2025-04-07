@@ -4,8 +4,12 @@
 
 <script src="//unpkg.com/alpinejs" defer></script>
 
-<div class="row">
-    <div class="col-12 px-3">
-        {% include 'spire/ai/forms/elements/dict_element.html' with dict=interaction_dict open_dropdowns=False %}
-    </div>
+<style>
+    .key-text {
+        color: #417690;
+    }
+</style>
+
+<div class="row" style="font-family: monospace;">
+    {% include 'spire/ai/forms/elements/dict_element.html' with dict=interaction_dict open_dropdowns=True %}
 </div>

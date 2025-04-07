@@ -6,7 +6,7 @@ Django Spire is a collection of tools and utilities for working with Django.
 
 Please make note when using spire to only add the modules with green check marks to your django install apps.
 
-- ai ❌
+- ai ✅
 - authentication ❌
 - breadcrumb ❌
 - comment ❌

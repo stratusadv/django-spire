@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.0
+
+### Feature
+
+- New app called `ai` that is used for tracking and debugging ai interactions inside your project.'
+
 ## V0.2.1
 
 ### Changes

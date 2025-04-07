@@ -9,14 +9,19 @@ from django_spire.ai.models import AiInteraction
 
 
 def log_ai_interaction_from_recorder(
-        user: User,
+        user: User | None = None,
+        actor: str | None = None,
 ):
+    if user is None and actor is None:
+        raise ValueError('user or actor must be provided')
+
     def decorator(func):
         def wrapper(*args, **kwargs):
-            recording_uuid = str(uuid.uuid4())
+            recording_uuid = f'Recording-{uuid.uuid4()}'
 
             ai_interaction = AiInteraction(
                 user=user,
+                actor=actor,
                 module_name=func.__module__,
                 callable_name=func.__qualname__,
             )

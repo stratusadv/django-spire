@@ -6,26 +6,29 @@
     {% with 'display_'|add:key|dashes_and_spaces_to_underscore as key_display %}
         <div x-data="{
                 {{ key_display }}: {% if open_dropdowns %}true{% elif value|is_not_dict and value|is_not_list_or_tuple %}true{% else %}false{% endif %}
-            }" style="margin-left: 20px; margin-top: 5px;">
+            }" style="margin-left: 17px; margin-top: 5px;">
 
-                <div @click="{{ key_display }} = ! {{ key_display }}" style="cursor: pointer;">
-                    <span style="font-weight: bold">
-                        <i x-show="!{{ key_display }}" >+</i>
-                        <i x-show="{{ key_display }}" >-</i>
+            <div @click="{{ key_display }} = ! {{ key_display }}" style="cursor: pointer;">
+                    <span class="key-text">
+                        <i x-show="!{{ key_display }}">+</i>
+                        <i x-show="{{ key_display }}">-</i>
                         {{ key|underscores_to_spaces|title }}
                     </span>
-                </div>
+            </div>
 
-            <div x-show="{{ key_display }}" class="row">
-                <div class="col-12 px-3">
-                    {% if value|is_dict %}
-                        {% include 'spire/ai/forms/elements/dict_element.html' with dict=value %}
-                    {% elif value|is_list_or_tuple %}
-                        {% include 'spire/ai/forms/elements/list_element.html' with list=value %}
-                    {% else %}
-                        {% include 'spire/ai/forms/elements/value_element.html' with value=value %}
-                    {% endif %}
-                </div>
+            <div x-show="{{ key_display }}" class="row"
+                 style="margin-left: 3px; border-style: solid; border-color: #ddd; border-width: 0 0 1px 1px; padding: 0 0 5px 20px;">
+                {% if value|is_dict %}
+                    <span class="key-text">{<br></span>
+                    {% include 'spire/ai/forms/elements/dict_element.html' with dict=value %}
+                    <span class="key-text">}<br></span>
+                {% elif value|is_list_or_tuple %}
+                    <span class="key-text">[<br></span>
+                    {% include 'spire/ai/forms/elements/list_element.html' with list=value %}
+                    <span class="key-text">[<br></span>
+                {% else %}
+                    {% include 'spire/ai/forms/elements/value_element.html' with value=value %}
+                {% endif %}
             </div>
 
         </div>

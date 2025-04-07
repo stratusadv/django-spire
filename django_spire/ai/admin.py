@@ -17,8 +17,6 @@ class InteractionField(forms.Textarea):
             context['interaction_dict'] = {}
         else:
             context['interaction_dict'] = json.loads(context['widget']['value'])
-            for i, event in enumerate(context['interaction_dict']['event_manager']['events']):
-                context['interaction_dict']['event_manager']['events'][i]['attributes'] = context['interaction_dict']['event_manager']['events'][i].pop('items')
 
         return context
 
@@ -33,8 +31,36 @@ class AiInteractionModelForm(forms.ModelForm):
 class AiInteractionAdmin(admin.ModelAdmin):
     form = AiInteractionModelForm
 
-    list_display = ('user_email', 'module_name', 'callable_name', 'created_datetime', 'was_successful')
+    list_display = ('actor', 'module_name', 'callable_name', 'created_datetime', 'was_successful')
     list_filter = ('module_name', 'callable_name')
-    search_fields = ('user_email', 'user_first_name', 'user_last_name', 'module_name', 'callable_name')
+    search_fields = ('actor', 'user_email', 'user_first_name', 'user_last_name', 'module_name', 'callable_name')
     ordering = ('-created_datetime',)
 
+
+    readonly_fields = [
+        'actor',
+        'created_datetime',
+        'module_name',
+        'callable_name',
+        'was_successful',
+        'user',
+        'user_email',
+        'user_first_name',
+        'user_last_name',
+        'exception',
+        'stack_trace',
+    ]
+    fields = [
+        'actor',
+        'user',
+        'created_datetime',
+        'module_name',
+        'callable_name',
+        'was_successful',
+        'interaction',
+        'user_email',
+        'user_first_name',
+        'user_last_name',
+        'exception',
+        'stack_trace',
+    ]

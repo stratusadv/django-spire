@@ -3,3 +3,47 @@
     --md-primary-fg-color--light: #4cc8ee;
     --md-primary-fg-color--dark: #4cc8ee;
 }
+
+@media only screen and (min-width: 1200px) {
+    li.md-nav__item label.md-nav__link span.md-ellipsis {
+        font-size: 0.65rem;
+        font-weight: normal;
+    }
+
+    li.md-nav__item a.md-nav__link {
+        margin-left: 10px;
+    }
+
+}
+
+.md-content .md-content__inner .result {
+    padding: 10px 0 10px 25px;
+}
+
+.md-content .md-content__inner .result .language-markdown .md-code__content {
+    padding: 0;
+    background-color: transparent;
+}
+
+.md-content .md-content__inner .result::before {
+    font-size: 0.65rem;
+    content: "Output\A";
+    white-space: pre;
+    color: #999999;
+    margin-left: -10px;
+
+}
+
+.md-header .md-header__inner .md-header__button {
+    padding: 0;
+}
+
+.md-header .md-header__inner .md-header__title {
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.md-header .md-header__inner .md-header__button img {
+    margin-left: 1.5rem;
+    height: 2.0rem;
+}
