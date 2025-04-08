@@ -11,7 +11,7 @@ Make Django application development modular, extensible, and configurable.
 
 ## Getting Started
 
-Please refer to our `website <https://django-spire.stratusadv.com>` for detailed setup, module configuration, and usage examples.
+Please refer to our [website](https://django-spire.stratusadv.com) for detailed setup, module configuration, and usage examples.
 
 <p align="center">
     <a href="https://dandysoftware.com">
