@@ -39,4 +39,4 @@ jobs:
           PYTHONPATH: ${{ env.PYTHONPATH  }}      
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
-          python manage.py test --settings=testing.settings
+          python manage.py test django_spire --settings=testing.settings 

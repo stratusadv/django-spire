@@ -81,7 +81,7 @@ INSTALLED_APPS = [
     'example.history',
     'example.maintenance',
     'example.modal',
-    # 'example.notification',
+    'example.notification',
     'example.options',
     'example.pagination',
     'example.permission',

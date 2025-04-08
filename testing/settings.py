@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django_spire.seeding',
     'django_spire.user_account',
 
-    'testing.dummy'
+    'testing.dummy',
 ]
 
 DEBUG = True

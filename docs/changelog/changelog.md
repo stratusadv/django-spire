@@ -2,9 +2,25 @@
 
 ## v0.3.0
 
+### Breaking
+
+- Seperated `django_spire.history` into `django_spire.history.activity` and `django_spire.history.viewed`
+
 ### Feature
 
-- New app called `ai` that is used for tracking and debugging ai interactions inside your project.'
+- New app called `django_spire.ai` that is used for tracking and debugging ai interactions inside your project.'
+  - Check documentation for more details.
+- New app called `django_spire.notification` that is used for sending notifications to users.
+  - this app includes email and in application notifications.
+  - Check documentation for more details.
+
+### Changes
+
+- Moved around documentation.
+
+### Fixes
+
+- Updated testing structure for the maintenance of Django Spire.
 
 ## V0.2.1
 

@@ -34,24 +34,29 @@ nav:
   - Getting Started:
       - Welcome: index.md
       - Installation: getting_started/installation.md
-  - Apps:
-      - AI: apps/ai/overview.md
+  - App Guides:
+      - AI:
+        - Overview: app_guides/ai/overview.md
+      - Core:
+        - Shortcuts: app_guides/core/shortcuts.md
+      - Notification:
+        - Notification Factory: app_guides/notification/notification_factory.md
+      - Seeding:
+        - Overview: app_guides/seeding/overview.md
+        - Getting Started: app_guides/seeding/getting_started.md
+        - Faker: app_guides/seeding/faker.md
   - API:
       - Core:
         - Template Tags: api/core/templatetags.md
         - Redirects: api/core/redirects.md
         - Shortcuts: api/core/shortcuts.md
-      - Seeding:
-        - Overview: api/seeding/overview.md
-        - Getting Started: api/seeding/getting_started.md
-        - Faker: api/seeding/faker.md<<<<<<< notification-refactor/base
       - Notification:
         - Notification: api/notification/notification.md
         - App Notification: api/notification/app_notification.md
         - Email Notification: api/notification/email_notification.md
-  - Guides:
-    - Notification:
-      - Notification Factory: guides/notification/notification_factory.md
+  - Roadmap:
+      - 2025: roadmap/2025_roadmap.md
+      - Legend: roadmap/legend.md
   - Changelog:
       - Current: changelog/changelog.md
       - Archived: changelog/archived_changelog.md

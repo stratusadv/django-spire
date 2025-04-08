@@ -1,32 +1,42 @@
-# Django in the Sky
+# Django Spire
 
-Django Spire is a collection of tools and utilities for working with Django.
+![Build](https://img.shields.io/github/actions/workflow/status/stratusadv/django-spire/run_tests.yml)
+![Python Versions](https://img.shields.io/pypi/pyversions/django-spire)
+![PyPI Version](https://img.shields.io/pypi/v/django-spire)
+![Downloads](https://img.shields.io/pypi/dm/django-spire)
 
-# Currently Working Modules
+## Purpose
+
+Make Django application development modular, extensible, and configurable.
+
+## Currently Working Modules
 
 Please make note when using spire to only add the modules with green check marks to your django install apps.
 
-- ai ✅
-- authentication ❌
-- breadcrumb ❌
-- comment ❌
-- core ✅
-- db ✅
-- file ❌
-- form ❌
-- gamification ❌
-- help ❌
-- history ❌
-- home ❌
-- maintenance❌
-- modal❌
-- notification ❌
-- options ❌
-- pagination❌
-- permission ❌
-- search ❌
-- speech_to_text ❌
-- seeding ❌
-- template ❌
-- user_account❌
-- views ❌
+  - ai ✅
+  - authentication ❌
+  - breadcrumb ❌
+  - comment ❌
+  - core ✅
+  - file ❌
+  - form ❌
+  - gamification ❌
+  - help ❌
+  - history ✅
+  - home ❌
+  - maintenance❌
+  - modal❌
+  - notification ✅
+    - email ✅
+    - in_app ✅
+    - push ❌
+    - sms ❌
+  - options ❌
+  - pagination❌
+  - permission ❌
+  - search ❌
+  - speech_to_text ❌
+  - seeding ✅
+  - template ❌
+  - user_account❌
+  - views ❌

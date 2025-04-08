@@ -45,6 +45,6 @@ class NotificationExample(HistoryModelMixin):
         return crumbs
 
     class Meta:
+        db_table = 'example_notification'
         verbose_name = 'Notification'
         verbose_name_plural = 'Notifications'
-        db_table = 'example_notification'
