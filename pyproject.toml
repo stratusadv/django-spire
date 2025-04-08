@@ -44,17 +44,12 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["django_spire"]
-
-[tool.setuptools.package-data]
-django_spire = [
-    "**/*.py",
-    "**/*.html",
-    "**/*.css",
-    "**/*.js",
-    "**/*.png",
-    "**/*.jpg"
+[tool.setuptools.packages.find]
+include = [
+    "django_spire*"
+]
+exclude = [
+    "*.tests*"
 ]
 
 [tool.setuptools.dynamic]
@@ -78,7 +73,6 @@ exclude = [
     "*/system/*",
     "*/tests/*",
     "*/venv/*",
-
     # Files
     "__init__.py",
     "apps.py",

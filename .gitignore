@@ -15,6 +15,7 @@ __pycache__/
 .seeding_generator_output/
 .venv*/
 .qodo/
+dist/
 build/
 django_spire.egg-info/
 inspectionProfiles/
