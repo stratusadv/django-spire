@@ -38,7 +38,6 @@ class CustomNotificationFactory(BaseNotificationFactory):
 ```
 
 ## Source
-
-::: django_spire.notification.factories.BaseNotificationFactory
-
-::: django_spire.notification.factories.NotificationFactory
+```python
+--8<-- "django_spire/notification/factories.py"
+```

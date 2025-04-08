@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'django_spire.gamification',
     'django_spire.help',
     'django_spire.history',
+    'django_spire.history.activity',
+    'django_spire.history.viewed',
     'django_spire.maintenance',
     'django_spire.notification',
     'django_spire.options',

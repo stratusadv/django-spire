@@ -9,10 +9,10 @@ from django_spire.notification.email.models import EmailNotification
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'type', 'processed', 'processed_datetime',
+        'id', 'title', 'type', 'is_processed', 'processed_datetime',
         'processed_datetime', 'view_body_snippet', 'url_link'
     )
-    list_filter = ('type', 'processed', 'processed_datetime')
+    list_filter = ('type', 'is_processed', 'processed_datetime')
     search_fields = ('id', 'title', 'type')
     ordering = ('-processed_datetime',)
 

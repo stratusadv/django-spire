@@ -76,14 +76,14 @@ class TestDjangoModelToPydanticModel(TestCase):
         self.assertEqual(instance.extra_field, "extra")
 
     def test_include_fields_only(self):
-        class SimpleModel(models.Model):
+        class SimpleModel1(models.Model):
             field1 = models.CharField(max_length=50, default="value1")
             field2 = models.IntegerField(default=10)
             field3 = models.BooleanField(default=True)
             class Meta:
                 managed = False
 
-        PydanticModel = django_to_pydantic_model(SimpleModel, include_fields=["id", "field1", "field3"])
+        PydanticModel = django_to_pydantic_model(SimpleModel1, include_fields=["id", "field1", "field3"])
         fields = PydanticModel.__fields__
         self.assertIn("id", fields)
         self.assertIn("field1", fields)
@@ -91,14 +91,14 @@ class TestDjangoModelToPydanticModel(TestCase):
         self.assertNotIn("field2", fields)
 
     def test_exclude_fields(self):
-        class SimpleModel(models.Model):
+        class SimpleModel2(models.Model):
             field1 = models.CharField(max_length=50, default="value1")
             field2 = models.IntegerField(default=10)
             field3 = models.BooleanField(default=True)
             class Meta:
                 managed = False
 
-        PydanticModel = django_to_pydantic_model(SimpleModel, exclude_fields=["field2"])
+        PydanticModel = django_to_pydantic_model(SimpleModel2, exclude_fields=["field2"])
         fields = PydanticModel.__fields__
         self.assertIn("id", fields)
         self.assertIn("field1", fields)
@@ -107,7 +107,7 @@ class TestDjangoModelToPydanticModel(TestCase):
 
     def test_include_and_exclude(self):
         # Define a simple model with multiple fields.
-        class SimpleModel(models.Model):
+        class SimpleModel3(models.Model):
             field1 = models.CharField(max_length=50, default="value1")
             field2 = models.IntegerField(default=10)
             field3 = models.BooleanField(default=True)
@@ -116,7 +116,7 @@ class TestDjangoModelToPydanticModel(TestCase):
                 managed = False
 
         PydanticModel = django_to_pydantic_model(
-            SimpleModel,
+            SimpleModel3,
             include_fields=["id", "field1", "field2", "field3"],
             exclude_fields=["field2"]
         )
@@ -142,13 +142,13 @@ class TestDjangoToPydanticFieldConverter(TestCase):
     #     self.assertTrue(is_optional(field_type))
 
     def test_field_with_no_default_sets_none(self):
-        class Model(models.Model):
+        class Model1(models.Model):
             char_field = models.CharField(max_length=10, null=True)
 
             class Meta:
                 managed = False
 
-        field = Model._meta.get_field('char_field')
+        field = Model1._meta.get_field('char_field')
         _, field_info = DjangoToPydanticFieldConverter(field).build_field()
 
         self.assertIsNone(field_info.default)
@@ -166,19 +166,19 @@ class TestDjangoToPydanticFieldConverter(TestCase):
     #     self.assertEqual(field_info.default, "abc")
 
     def test_help_text_becomes_description(self):
-        class Model(models.Model):
+        class Model2(models.Model):
             char_field = models.CharField(max_length=10, help_text="hello")
 
             class Meta:
                 managed = False
 
-        field = Model._meta.get_field('char_field')
+        field = Model2._meta.get_field('char_field')
         _, field_info = DjangoToPydanticFieldConverter(field).build_field()
 
         self.assertEqual(field_info.description, "hello")
 
     def test_enum_created_for_choices(self):
-        class Model(models.Model):
+        class Model3(models.Model):
             status = models.CharField(
                 max_length=10,
                 choices=[("A", "Active"), ("I", "Inactive")],
@@ -188,20 +188,20 @@ class TestDjangoToPydanticFieldConverter(TestCase):
             class Meta:
                 managed = False
 
-        field = Model._meta.get_field('status')
+        field = Model3._meta.get_field('status')
         field_type, _ = DjangoToPydanticFieldConverter(field).build_field()
 
         self.assertTrue(issubclass(field_type, enum.Enum))
         self.assertEqual(set(field_type.__members__), {"A", "I"})
 
     def test_charfield_constraints_applied(self):
-        class Model(models.Model):
+        class Model4(models.Model):
             name = models.CharField(max_length=30)
 
             class Meta:
                 managed = False
 
-        field = Model._meta.get_field('name')
+        field = Model4._meta.get_field('name')
         field_type, _ = DjangoToPydanticFieldConverter(field).build_field()
 
         self.assertIn("max_length=30", str(field_type))
@@ -210,24 +210,24 @@ class TestDjangoToPydanticFieldConverter(TestCase):
         # Todo: test needs to be corrected.
         from django.core.validators import MinValueValidator, MaxValueValidator
 
-        class Model(models.Model):
+        class Model5(models.Model):
             count = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
 
             class Meta:
                 managed = False
 
-        field = Model._meta.get_field('count')
+        field = Model5._meta.get_field('count')
         field_type, field_info = DjangoToPydanticFieldConverter(field).build_field()
         self.assertIn("int", str(field_type))
 
     def test_decimalfield_constraints_applied(self):
-        class Model(models.Model):
+        class Model6(models.Model):
             amount = models.DecimalField(max_digits=5, decimal_places=2)
 
             class Meta:
                 managed = False
 
-        field = Model._meta.get_field('amount')
+        field = Model6._meta.get_field('amount')
         field_type, _ = DjangoToPydanticFieldConverter(field).build_field()
 
         self.assertIn("max_digits=5", str(field_type))

@@ -5,7 +5,7 @@ from typing_extensions import Any, TYPE_CHECKING
 from django.contrib.contenttypes.models import ContentType
 
 from django_spire.notification.models import Notification
-from django_spire.notification.enums import NotificationTypeChoices
+from django_spire.notification.choices import NotificationTypeChoices
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.sms.models import SmsNotification
@@ -80,28 +80,6 @@ class BaseNotificationFactory(ABC):
     #     """Abstract method for sending SMS notifications"""
     #     pass
 
-# class NotificationFactory(BaseNotificationFactory):
-#     def create_email_notification(self, email: str) -> EmailNotification:
-#         return EmailNotification.objects.create(
-#             notification=self.create_notification(NotificationTypeChoices.EMAIL),
-#             subject=self.title,
-#             email=email
-#         )
-
-#     def create_app_notification(
-#         self,
-#         user: Any[User],
-#         model_object: Any[models.Model],
-#         url: str|None = None
-#     ) -> AppNotification:
-
-#         return AppNotification.objects.create(
-#             notification=self.create_notification(NotificationTypeChoices.APP),
-#             user=user,
-#             content_type=ContentType.objects.get_for_model(model_object),
-#             object_id=model_object.id,
-#             url=url
-#         )
 
 class NotificationFactory(BaseNotificationFactory):
     """

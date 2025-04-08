@@ -3,7 +3,7 @@ from django.urls import path
 from example.notification.views import page
 
 
-app_name = 'notification'
+app_name = 'page'
 
 urlpatterns = [
     path('', page.notification_home_view, name='home'),

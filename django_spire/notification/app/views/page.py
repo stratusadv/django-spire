@@ -12,27 +12,6 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.template.response import TemplateResponse
 
-
-# def notification_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-#     notification = get_object_or_404(models.NotificationExample, pk=pk)
-
-#     context_data = {
-#         'notification': notification,
-#     }
-
-#     return portal_views.detail_view(
-#         request,
-#         obj=notification,
-#         context_data=context_data,
-#         template='notification/page/notification_detail_page.html'
-#     )
-
-
-# def notification_home_view(request: WSGIRequest) -> TemplateResponse:
-#     template = 'notification/page/notification_home_page.html'
-#     return TemplateResponse(request, template)
-
-
 def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
     app_notifification_list = AppNotification.objects.by_user(request.user).order_by('-created_datetime')
 
