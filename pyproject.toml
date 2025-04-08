@@ -1,7 +1,7 @@
 [project]
 name = "django-spire"
 description = "A project for Django Spire"
-readme = { file = "README.rst", content-type = "text/x-rst" }
+readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE.md" }
 authors = [
     { name = "Brayden Carlson", email = "braydenc@stratusadv.com" },
