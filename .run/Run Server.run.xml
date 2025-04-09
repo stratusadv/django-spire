@@ -6,10 +6,9 @@
     <option name="PARENT_ENVS" value="true" />
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
-      <env name="DJANGO_SETTINGS_MODULE" value="testing.settings" />
     </envs>
     <option name="SDK_HOME" value="" />
-    <option name="SDK_NAME" value="Python 3.11 (django-spire)" />
+    <option name="SDK_NAME" value="Python 3.11 virtualenv at C:\Users\TyrellMartens\PycharmProjects\dennis-dirtworx-webapp\.venv_win" />
     <option name="WORKING_DIRECTORY" value="" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
