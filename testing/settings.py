@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+
     'django_spire.ai',
     'django_spire.core',
     'django_spire.authentication',

@@ -49,10 +49,10 @@ def log_ai_interaction_from_recorder(
                 ai_interaction.interaction = json.loads(Recorder.to_json_str(recording_uuid))
 
                 ai_usage, _ = AiUsage.objects.get_or_create(
-                    recoreded_date=now()
+                    recorded_date=now()
                 )
 
-                ai_interaction.usage = ai_usage
+                ai_interaction.ai_usage = ai_usage
 
                 ai_interaction.save()
 

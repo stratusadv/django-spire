@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class AiChatConfig(AppConfig):
+class AIConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'django_spire.ai.chat'
-    label = 'spire_ai_chat'
+    label = 'example_ai_chat'
+    name = 'example.ai.chat'

@@ -2,15 +2,67 @@ import json
 
 from django import forms
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.http import urlencode
 
 from django_spire.ai import models
 
 
 @admin.register(models.AiUsage)
 class AiUsageAdmin(admin.ModelAdmin):
-    list_display = ('recorded_date', 'compute_seconds', 'token_usage')
+    list_display = (
+        'recorded_date',
+        'token_usage',
+        'compute_seconds',
+        'view_interactions_link',
+        'view_successful_interactions_link',
+        'view_failed_interactions_link'
+    )
     search_fields = ('recorded_date',)
     ordering = ('-recorded_date',)
+
+    def view_interactions_link(
+            self,
+            ai_usage: models.AiUsage,
+            was_successful: bool | None = None,
+    ) -> str:
+        was_successful_filter = '' if was_successful is None else f'&was_successful__exact={int(was_successful)}'
+        url = (
+                reverse("admin:spire_ai_aiinteraction_changelist")
+                + "?"
+                + urlencode({"ai_usage__id": f"{ai_usage.id}"})
+                + was_successful_filter
+        )
+
+        if was_successful is None:
+            interactions_count = ai_usage.interactions.count()
+        elif was_successful:
+            interactions_count = ai_usage.interactions.filter(was_successful=True).count()
+        else:
+            interactions_count = ai_usage.interactions.filter(was_successful=False).count()
+
+        return format_html(
+            f'<a href="{url}">{interactions_count} Interactions</a>'
+        )
+
+    view_interactions_link.short_description = "All"
+
+    def view_successful_interactions_link(
+            self,
+            ai_usage: models.AiUsage,
+    ) -> str:
+        return self.view_interactions_link(ai_usage, was_successful=True)
+
+    view_successful_interactions_link.short_description = "Successful"
+
+    def view_failed_interactions_link(
+            self,
+            ai_usage: models.AiUsage,
+    ) -> str:
+        return self.view_interactions_link(ai_usage, was_successful=False)
+
+    view_failed_interactions_link.short_description = "Failed"
 
 
 class InteractionField(forms.Textarea):
@@ -40,8 +92,8 @@ class AiInteractionModelForm(forms.ModelForm):
 class AiInteractionAdmin(admin.ModelAdmin):
     form = AiInteractionModelForm
 
-    list_display = ('actor', 'module_name', 'callable_name', 'created_datetime', 'was_successful')
-    list_filter = ('module_name', 'callable_name')
+    list_display = ('actor', 'module_name', 'callable_name', 'created_datetime', 'was_successful', 'token_usage', 'compute_seconds')
+    list_filter = ('module_name', 'callable_name', 'was_successful')
     search_fields = ('actor', 'user_email', 'user_first_name', 'user_last_name', 'module_name', 'callable_name')
     ordering = ('-created_datetime',)
 

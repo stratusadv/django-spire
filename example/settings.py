@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_glue',
 
     'django_spire.ai',
+
     'django_spire.authentication',
     'django_spire.authentication.mfa',
     'django_spire.breadcrumb',
@@ -71,6 +72,7 @@ INSTALLED_APPS = [
     'django_spire.user_account',
 
     'example',
+    'example.ai',
     'example.authentication',
     'example.authentication.mfa',
     'example.breadcrumb',

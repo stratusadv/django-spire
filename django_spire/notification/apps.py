@@ -2,6 +2,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django_spire.tools import check_required_apps
 
+
 class NotificationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'django_spire.notification'

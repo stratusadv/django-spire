@@ -19,7 +19,7 @@ class AiUsage(AiComputeUsageMixin):
 
 
 class AiInteraction(AiComputeUsageMixin):
-    usage = models.ForeignKey(
+    ai_usage = models.ForeignKey(
         AiUsage,
         on_delete=models.CASCADE,
         related_name='interactions',
