@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_glue',
 
     'django_spire.ai',
+    'django_spire.ai.chat',
 
     'django_spire.authentication',
     'django_spire.authentication.mfa',
@@ -62,6 +63,8 @@ INSTALLED_APPS = [
     'django_spire.modal',
 
     'django_spire.notification',
+    'django_spire.notification.app',
+    'django_spire.notification.email',
 
     'django_spire.options',
     'django_spire.pagination',

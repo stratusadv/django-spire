@@ -14,7 +14,7 @@ class AiUsageAdmin(admin.ModelAdmin):
     list_display = (
         'recorded_date',
         'token_usage',
-        'compute_seconds',
+        'run_time_seconds',
         'view_interactions_link',
         'view_successful_interactions_link',
         'view_failed_interactions_link'
@@ -92,7 +92,7 @@ class AiInteractionModelForm(forms.ModelForm):
 class AiInteractionAdmin(admin.ModelAdmin):
     form = AiInteractionModelForm
 
-    list_display = ('actor', 'module_name', 'callable_name', 'created_datetime', 'was_successful', 'token_usage', 'compute_seconds')
+    list_display = ('actor', 'module_name', 'callable_name', 'created_datetime', 'was_successful', 'token_usage', 'run_time_seconds')
     list_filter = ('module_name', 'callable_name', 'was_successful')
     search_fields = ('actor', 'user_email', 'user_first_name', 'user_last_name', 'module_name', 'callable_name')
     ordering = ('-created_datetime',)

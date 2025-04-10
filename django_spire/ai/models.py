@@ -3,10 +3,10 @@ from django.db import models
 from django.utils.formats import localize
 from django.utils.timezone import now
 
-from django_spire.ai.mixins import AiComputeUsageMixin
+from django_spire.ai.mixins import AiUsageMixin
 
 
-class AiUsage(AiComputeUsageMixin):
+class AiUsage(AiUsageMixin):
     recorded_date = models.DateField(default=now)
 
     def __str__(self):
@@ -18,7 +18,7 @@ class AiUsage(AiComputeUsageMixin):
         verbose_name_plural = 'AI Usage'
 
 
-class AiInteraction(AiComputeUsageMixin):
+class AiInteraction(AiUsageMixin):
     ai_usage = models.ForeignKey(
         AiUsage,
         on_delete=models.CASCADE,
