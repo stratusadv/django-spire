@@ -10,7 +10,6 @@ class NotificationConfig(AppConfig):
 
 
     def ready(self) -> None:
-        # Dynamically add sub-apps to INSTALLED_APPS
         settings.INSTALLED_APPS += [
             'django_spire.notification.app',
             'django_spire.notification.email',

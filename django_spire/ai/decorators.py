@@ -4,8 +4,9 @@ import uuid
 
 from dandy.recorder import Recorder
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
-from django_spire.ai.models import AiInteraction
+from django_spire.ai.models import AiInteraction, AiUsage
 
 
 def log_ai_interaction_from_recorder(
@@ -46,6 +47,12 @@ def log_ai_interaction_from_recorder(
                 Recorder.stop_recording(recording_uuid)
 
                 ai_interaction.interaction = json.loads(Recorder.to_json_str(recording_uuid))
+
+                ai_usage, _ = AiUsage.objects.get_or_create(
+                    recoreded_date=now()
+                )
+
+                ai_interaction.usage = ai_usage
 
                 ai_interaction.save()
 
