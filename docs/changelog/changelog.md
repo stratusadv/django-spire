@@ -10,7 +10,6 @@
 - Seeding Foreign Keys requires the id value and the field name suffixed `_id`.
 
 
-
 ## v0.3.0
 
 ### Breaking
