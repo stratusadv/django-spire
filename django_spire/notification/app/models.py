@@ -1,8 +1,6 @@
 import json
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils.timezone import localtime
 
 from django_spire.history.mixins import HistoryModelMixin
@@ -13,11 +11,6 @@ from django_spire.notification.app.querysets import AppNotificationQuerySet
 class AppNotification(ViewedModelMixin, HistoryModelMixin):
     notification = models.OneToOneField(Notification, editable=False, on_delete=models.CASCADE)
     user = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)
-    url = models.CharField(max_length=255, default='')
-
-    content_object = GenericForeignKey('content_type', 'object_id')
-    content_type = models.ForeignKey(ContentType, related_name='spire_appnotification', on_delete=models.CASCADE, editable=False)
-    object_id = models.PositiveIntegerField()
 
     objects = AppNotificationQuerySet.as_manager()
 

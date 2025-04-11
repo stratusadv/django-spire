@@ -24,13 +24,15 @@ class BaseNotificationFactory(ABC):
     Subclasses should implement specific methods to create various kinds of notifications.
 
     Attributes:
+        model_object (Any[models.Model]): The model object associated with the notification.
         title (str): The title or main text of the notification.
         body (Optional[str]): Additional content or details of the notification. Defaults to None.
         url (Optional[str]): URL associated with the notification, if any. Defaults to None.
 
     """
 
-    def __init__(self, title: str, body: str | None = None, url: str | None = None):
+    def __init__(self, model_object: Any[models.Model], title: str, body: str | None = None, url: str | None = None):
+        self.model_object = model_object
         self.title = title
         self.body = body
         self.url = url
@@ -45,10 +47,12 @@ class BaseNotificationFactory(ABC):
         :return Notification: A new instance of the specified notification.
         """
         return Notification.objects.create(
+                content_type=ContentType.objects.get_for_model(self.model_object),
+                object_id=self.model_object.id,
                 title=self.title,
                 body=self.body,
                 url=self.url,
-                type=notification_type
+                type=notification_type,
             )
 
     @abstractmethod
@@ -104,22 +108,16 @@ class NotificationFactory(BaseNotificationFactory):
     def create_app_notification(
         self,
         user: Any[User],
-        model_object: Any[models.Model],
-        url: str|None = None
     ) -> AppNotification:
         """
         Creates an app notification.
 
         :param user (User): The user who will receive the notification.
         :param model_object (models.Model): The model object associated with the notification.
-        :param url (Optional[str]): URL related to the notification, if required override to url specified in factory.
 
         :return AppNotification: A new instance of an app notification.
         """
         return AppNotification.objects.create(
             notification=self.create_notification(NotificationTypeChoices.APP),
             user=user,
-            content_type=ContentType.objects.get_for_model(model_object),
-            object_id=model_object.id,
-            url=url
         )
