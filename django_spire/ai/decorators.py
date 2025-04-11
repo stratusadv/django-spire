@@ -46,13 +46,24 @@ def log_ai_interaction_from_recorder(
             finally:
                 Recorder.stop_recording(recording_uuid)
 
+                recording = Recorder.get_recording(recording_uuid)
+
                 ai_interaction.interaction = json.loads(Recorder.to_json_str(recording_uuid))
 
                 ai_usage, _ = AiUsage.objects.get_or_create(
                     recorded_date=now()
                 )
 
+                ai_usage.event_count += recording.event_count
+                ai_usage.token_usage += recording.token_usage
+                ai_usage.run_time_seconds += recording.run_time_seconds
+
+                ai_usage.save()
+
                 ai_interaction.ai_usage = ai_usage
+                ai_interaction.event_count = recording.event_count
+                ai_interaction.token_usage = recording.token_usage
+                ai_interaction.run_time_seconds = recording.run_time_seconds
 
                 ai_interaction.save()
 

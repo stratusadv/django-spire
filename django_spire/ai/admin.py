@@ -13,6 +13,7 @@ from django_spire.ai import models
 class AiUsageAdmin(admin.ModelAdmin):
     list_display = (
         'recorded_date',
+        'event_count',
         'token_usage',
         'run_time_seconds',
         'view_interactions_link',
@@ -98,6 +99,7 @@ class AiInteractionAdmin(admin.ModelAdmin):
         'callable_name',
         'created_datetime',
         'was_successful',
+        'event_count',
         'token_usage',
         'run_time_seconds'
     )
