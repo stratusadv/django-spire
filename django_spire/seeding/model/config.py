@@ -26,6 +26,7 @@ class FieldsConfig:
 
         self._validate()
         self._assign_defaults()
+        self._order_fields() # Fields need to be in order for caching hash
 
     def _validate(self):
         unknown = set(self.fields.keys()) - self.field_names
@@ -54,6 +55,9 @@ class FieldsConfig:
             default_to=self.default_to,
             model_class=self.model_class
         )
+
+    def _order_fields(self):
+        self.fields = {k: v for k, v in sorted(self.fields.items(), key=lambda x: x[0])}
 
     @property
     def excluded(self):

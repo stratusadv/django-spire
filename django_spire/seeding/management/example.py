@@ -12,6 +12,6 @@ class ProductSeeder(DjangoModelSeeder):
         'description': 'llm',
         'price': ('faker', 'pydecimal', {'left_digits': 2, 'right_digits': 2, 'positive': True}),
         'in_stock': True,
-        'created_at': ('faker', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'}),
+        'created_at': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'}),
         'updated_at': 'exclude',
     }

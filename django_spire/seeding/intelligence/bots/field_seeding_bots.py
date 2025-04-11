@@ -29,4 +29,3 @@ class LlmFieldSeedingBot(LlmBot):
             intel_class=intel_class
         )
         return intel_data.model_dump(mode='json')['items']
-
