@@ -2,12 +2,12 @@ from django_spire.seeding import DjangoModelSeeder
 
 # Getting Started
 
-Let’s make your database feel alive! 🧪
+Let’s make your database feel alive!
 This module helps you quickly populate Django models with meaningful, contextual data — without tedious boilerplate or repetitive scripts.
 
 ---
 
-## 🧪 Example Model
+## Example Model
 
 ```python
 class Product(models.Model):
@@ -21,7 +21,7 @@ class Product(models.Model):
 
 ---
 
-## ⚙️ Controlling Defaults with `default_to`
+## Controlling Defaults with `default_to`
 
 By default, the system will fill any missing fields using a Large Language Model (LLM). But you can customize this behavior using the `default_to` class variable on your `ModelSeeding` subclass.
 
@@ -43,7 +43,7 @@ class ProductSeeder(DjangoModelSeeder):
 
 ---
 
-## 🚀 Basic Usage (LLM Defaults)
+## Basic Usage (LLM Defaults)
 
 If you don’t define any fields, the system defaults to using LLMs for all fields (unless excluded):
 
@@ -63,11 +63,11 @@ ProductSeeder.seed(count=5) # Initialized model objects
 ProductSeeder.seed_database(count=5) # Insert objects into the database
 ```
 
-> ✅ This is ideal for prototyping, testing, or generating rich placeholder content fast.
+> This is ideal for prototyping, testing, or generating rich placeholder content fast.
 
 ---
 
-## 🔧 Advanced Usage (All Field Types)
+## Advanced Usage (All Field Types)
 
 Use a mix of `faker`, `llm`, `static`, `callable`, and `custom` seed types for full control:
 
@@ -94,11 +94,11 @@ class ProductSeeder(ModelSeeding):
 ProductSeeder.seed_database(count=5)
 ```
 
-> 🧩 This gives you total control over how each field is generated for testing or development environments.
+> This gives you total control over how each field is generated for testing or development environments.
 
 ---
 
-## 🎯 Overriding Fields
+## Overriding Fields
 
 You can override fields on any call to `.seed()` or `.seed_database()`:
 
@@ -117,7 +117,7 @@ This is useful for:
 
 ---
 
-## 🔄 Full Database Seeding
+## Full Database Seeding
 
 ```python
 ProductSeeder.seed_database(count=100)
@@ -127,11 +127,11 @@ This will generate and insert 100 Product instances directly into your database.
 
 ---
 
-## 🧰 Supported Field Types
+## Supported Field Types
 
 This module supports five field types to control how data is seeded:
 
-### 🧪 Faker
+### Faker
 
 Use `faker` when you want realistic-looking data like names, addresses, dates, and numbers.
 
@@ -150,7 +150,7 @@ Use `faker` when you want realistic-looking data like names, addresses, dates, a
 
 ---
 
-### 🧠 LLM
+### LLM
 
 Use `llm` to generate rich, human-like content based on a prompt. Great for descriptions, summaries, etc.
 
@@ -162,7 +162,7 @@ If you don’t provide a field type, the system defaults to `llm` unless exclude
 
 ---
 
-### 📌 Static
+### Static
 
 Use `static` when you want the same value every time.
 
@@ -180,7 +180,7 @@ Great for controlled values like feature flags or known test conditions.
 
 ---
 
-### 🧮 Callable
+### Callable
 
 Use `callable` for dynamic behavior like random logic, timestamps, or context-aware generation.
 
@@ -198,7 +198,7 @@ Callables are evaluated at runtime and must return the field's expected value.
 
 ---
 
-### 🛠️ Custom
+### Custom
 
 Use `custom` when you want to reference a reusable method inside the seeding system.
 This is especially useful for indexing ordered values or setting foreign keys.

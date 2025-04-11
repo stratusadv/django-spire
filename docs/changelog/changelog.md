@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.1
+
+### Changes
+- Ordering django model seeder fields for consistent hashing. 
+- Model seeding defaults to caching. 
+- Remove emojis from documentation. 
+- Custom datetime method for seeding aware date times.
+- Seeding Foreign Keys requires the id value and the field name suffixed `_id`.
+
+
+
 ## v0.3.0
 
 ### Breaking

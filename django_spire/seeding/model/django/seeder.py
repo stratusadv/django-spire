@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Type
 
 from dandy.llm import Prompt
+from django.db.models import ForeignKey
 
 from django.db.models.base import Model
 
@@ -39,7 +40,11 @@ class DjangoModelSeeder(BaseModelSeeder):
 
     @classmethod
     def field_names(cls) -> list[str]:
-        return [field.name for field in cls.model_class._meta.fields]
+        # All foreign keys must be _id
+        return [
+            f.attname if isinstance(f, ForeignKey) else f.name
+            for f in cls.model_class._meta.fields
+        ]
 
     @classmethod
     def seed_database(
