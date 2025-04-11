@@ -9,6 +9,10 @@
 - Custom datetime method for seeding aware date times.
 - Seeding Foreign Keys requires the id value and the field name suffixed `_id`.
 
+### Fixes
+
+- Updated importing for all apps to follow a standard INSTALLED_APPS process.
+
 ## v0.3.0
 
 ### Breaking
