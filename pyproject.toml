@@ -52,6 +52,18 @@ exclude = [
     "*.tests*"
 ]
 
+[tool.setuptools.package-data]
+django_spire = [
+    "**/*.py",
+    "**/*.html",
+    "**/*.css",
+    "**/*.js",
+    "**/*.png",
+    "**/*.gif",
+    "**/*.jpg",
+    "**/*.jpeg"
+]
+
 [tool.setuptools.dynamic]
 version = { attr = "django_spire.consts.VERSION" }
 dependencies = { file = "package_requirements.txt" }
