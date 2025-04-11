@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.2
+### Changes
+- Update version number to v0.3.2
+
 ## v0.3.1
 
 ### Changes
