@@ -1,10 +1,6 @@
 # Changelog
 
-## v0.3.2
-### Changes
-- Update version number to v0.3.2
-
-## v0.3.1
+## v0.3.3
 
 ### Changes
 - Ordering django model seeder fields for consistent hashing. 
@@ -12,7 +8,6 @@
 - Remove emojis from documentation. 
 - Custom datetime method for seeding aware date times.
 - Seeding Foreign Keys requires the id value and the field name suffixed `_id`.
-
 
 ## v0.3.0
 
