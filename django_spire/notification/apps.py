@@ -6,15 +6,7 @@ class NotificationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'django_spire.notification'
     label = 'spire_notification'
-    REQUIRED_APPS = ('spire_history', 'spire_history_viewed')
-
+    REQUIRED_APPS = ('spire_core', 'spire_history', 'spire_history_viewed')
 
     def ready(self) -> None:
-        # Dynamically add sub-apps to INSTALLED_APPS
-        settings.INSTALLED_APPS += [
-            'django_spire.notification.app',
-            'django_spire.notification.email',
-            # 'django_spire.notification.push',
-            # 'django_spire.notification.sms',
-        ]
         check_required_apps(self.label)
