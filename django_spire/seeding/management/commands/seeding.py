@@ -3,7 +3,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from dandy.conf import settings
-from dandy.recorder import recorder_to_html
+from dandy.recorder import recorder_to_html_file
 
 from django_spire.seeding.intelligence.bots.seeder_generator_bot import SeederGeneratorBot
 
@@ -28,7 +28,7 @@ class Command(BaseCommand):
             nargs='+',
         )
 
-    @recorder_to_html('seeding_generator')
+    @recorder_to_html_file('seeding_generator')
     def handle(self, *args, **kwargs):
         if not kwargs['model_import'] or not kwargs['model_description']:
             raise CommandError('You must provide a model import path and a model description')

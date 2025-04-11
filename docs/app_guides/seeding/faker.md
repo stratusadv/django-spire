@@ -4,9 +4,9 @@ This utility class generates fake data for Django model fields using the [`faker
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### 👩‍🍳 Example Django Model
+### Example Django Model
 
 ```python
 from django.db import models
@@ -20,7 +20,7 @@ class Recipe(models.Model):
 
 ---
 
-### 🔹 Simple Example (No Context)
+### Simple Example (No Context)
 
 ```python
 from django_spire.core.converters import fake_model_field_value
@@ -31,7 +31,7 @@ print(fake_name)
 
 ---
 
-### 🔸 Advanced Example (With Context)
+### Advanced Example (With Context)
 
 ```python
 # Generate a name using faker.name()
@@ -68,7 +68,7 @@ print(fake_date)
 
 ---
 
-## 📌 Notes
+## Notes
 
 - If the field has `choices`, a random choice key is used automatically.
 - If no faker_method is provided, sensible defaults are used for each field type.

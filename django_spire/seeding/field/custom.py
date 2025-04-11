@@ -1,3 +1,6 @@
+from django.utils import timezone
+from faker import Faker
+
 from django_spire.seeding.field.base import BaseFieldSeeder
 from django_spire.seeding.field.enums import FieldSeederTypesEnum
 
@@ -5,10 +8,16 @@ from django_spire.seeding.field.enums import FieldSeederTypesEnum
 class CustomFieldSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.CUSTOM
 
-    def in_order(cls, values: list, index: int) -> any:
+    def in_order(self, values: list, index: int) -> any:
         if index >= len(values):
             raise IndexError("Index exceeds the list length in 'in_order'")
         return values[index]
+
+    def date_time_between(self, start_date: str, end_date: str):
+        faker = Faker()
+        naive_dt = faker.date_time_between(start_date=start_date, end_date=end_date)
+        aware_dt = timezone.make_aware(naive_dt)
+        return aware_dt
 
     def seed(self, manager, count) -> list[dict]:
         data = []
