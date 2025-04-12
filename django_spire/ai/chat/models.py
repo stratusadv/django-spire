@@ -1,16 +1,12 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING
+import json
 
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
+from django_spire.ai.chat.messages import Message, MessageType
 from django_spire.ai.chat.query_sets import ChatQuerySet
 from django_spire.history.mixins import HistoryModelMixin
-
-if TYPE_CHECKING:
-    from django_spire.ai.chat.messages import Message
 
 
 class Chat(HistoryModelMixin):
@@ -28,6 +24,9 @@ class Chat(HistoryModelMixin):
     has_unread_messages = models.BooleanField(default=False)
 
     objects = ChatQuerySet.as_manager()
+
+    def __str__(self):
+        return self.name
 
     def add_message(self, message: Message) -> None:
         ChatMessage.objects.create(
@@ -52,6 +51,16 @@ class ChatMessage(HistoryModelMixin):
     content = models.JSONField()
     is_processed = models.BooleanField(default=False)
     is_viewed = models.BooleanField(default=False)
+
+    def to_message(self, request) -> Message:
+        content = json.loads(self.content)
+
+        return Message(
+            request=request,
+            type=MessageType(content['type']),
+            sender=content['sender'],
+            body=content['body']
+        )
 
     class Meta:
         db_table = 'spire_ai_chat_message'

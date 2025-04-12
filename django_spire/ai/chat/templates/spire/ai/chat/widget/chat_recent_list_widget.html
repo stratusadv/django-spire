@@ -4,7 +4,7 @@
             {{ recent_chat.name }}
         </div>
         <div class="col-auto">
-            <span @click="load_chat('zone', '{{ recent_chat.object_id }}')">
+            <span @click="load_chat({{ recent_chat.id }})">
                 {% include 'spire/button/primary_button.html' with button_icon='bi bi-chat-dots-fill' %}
             </span>
         </div>
