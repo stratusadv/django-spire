@@ -11,7 +11,9 @@
         <div class="row">
 
             <div class="col-6 text-end">
-                AI Chat
+                {% url 'spire_ai:chat:json:workflow_process' as ai_chat_url %}
+                {{ ai_chat_url }}
+                {% include 'spire/ai/chat/widget/chat_widget.html' with url=ai_chat_url %}
             </div>
 
         </div>

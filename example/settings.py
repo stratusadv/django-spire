@@ -33,6 +33,9 @@ SENDGRID_TEMPLATE_ID = False
 DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
+# AI Chat Config
+SPIRE_AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
