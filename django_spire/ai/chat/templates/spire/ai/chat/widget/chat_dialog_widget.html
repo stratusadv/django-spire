@@ -1,0 +1,43 @@
+<div x-data="{
+        request_message_view: new ViewGlue('{% url "spire_ai:chat:render:request_message" %}'),
+        load_messages_view: new ViewGlue('{% url "spire_ai:chat:render:load_messages" chat_id=chat.id %}'),
+        chat_id: '{{ chat.id }}',
+        message_body: '',
+        async send_chat() {
+            if(this.message_body !== '') {
+                await this.request_message_view.render_insert_adjacent(this.$refs.target_div, {
+                        message_body: this.message_body.trim(),
+                        chat_id: this.chat_id
+                    })
+                this.message_body = ''
+                this.$refs.target_div.scrollTop = this.$refs.target_div.scrollHeight
+            }
+        },
+        load_messages() {
+            this.load_messages_view.render_insert_adjacent(this.$refs.target_div, {})
+        }
+    }" class="row">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 text-center h5 py-2 border-bottom">
+                {{ chat.content_object }} Conversation
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div x-init="load_messages()" x-ref="target_div" class="col-12 overflow-auto p-4" style="height: calc(100vh - 320px {{ height_correction }});">
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 text-center">
+                <input type="text" x-init="$el.focus()" x-model="message_body" @keyup.enter="send_chat()"
+                       class="form-control" name="request_message">
+                <button class="btn btn-outline-info px-2 mt-2" @click="send_chat()">
+                    Send Message
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

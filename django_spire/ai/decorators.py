@@ -20,6 +20,10 @@ def log_ai_interaction_from_recorder(
         def wrapper(*args, **kwargs):
             recording_uuid = f'Recording-{uuid.uuid4()}'
 
+            ai_usage, _ = AiUsage.objects.get_or_create(
+                recorded_date=now()
+            )
+
             ai_interaction = AiInteraction(
                 user=user,
                 actor=actor,
@@ -32,6 +36,8 @@ def log_ai_interaction_from_recorder(
                 return func(*args, **kwargs)
 
             except Exception as e:
+                ai_usage.was_successful = False
+
                 ai_interaction.was_successful = False
                 ai_interaction.exception = str(e)
 
@@ -49,10 +55,6 @@ def log_ai_interaction_from_recorder(
                 recording = Recorder.get_recording(recording_uuid)
 
                 ai_interaction.interaction = json.loads(Recorder.to_json_str(recording_uuid))
-
-                ai_usage, _ = AiUsage.objects.get_or_create(
-                    recorded_date=now()
-                )
 
                 ai_usage.event_count += recording.event_count
                 ai_usage.token_usage += recording.token_usage

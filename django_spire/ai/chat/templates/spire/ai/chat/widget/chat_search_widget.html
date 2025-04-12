@@ -1,0 +1,39 @@
+<div x-data="{
+    search_query:'',
+    search_view: new ViewGlue('{% url "spire_ai:chat:template:search" %}'),
+
+    async submit_user_input() {
+        await this.search_view.render_inner(this.$refs.search_results, {query: this.search_query.trim()})
+    }
+}">
+    <div class="position-relative"
+         x-data="{ expanded: false }"
+         @click.away="expanded = false"
+         @keydown.escape.window="expanded = false">
+
+        <input
+                x-model="search_query"
+                type="text"
+                name="query"
+                class="form-control"
+                placeholder="Search..."
+                @input.debounce.300ms="submit_user_input"
+                @keydown.down="$focus.within($refs.search_results).first()"
+                id="searchInput"
+                x-ref="search_input"
+                @click="expanded = true"
+                autocomplete="off"
+        >
+
+        <div
+                @keydown.down="$focus.wrap().next()"
+                @keydown.up="$focus.wrap().previous()"
+                x-show="expanded && search_query.trim() !== ''"
+
+                class="position-absolute overflow-auto top-100 start-0 w-100 bg-white border border-bottom-2 rounded-bottom-1 shadow p-0 m-0"
+                style="z-index: 1100;"
+                x-ref="search_results">
+
+        </div>
+    </div>
+</div>

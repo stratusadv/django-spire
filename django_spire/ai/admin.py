@@ -7,21 +7,26 @@ from django.utils.html import format_html
 from django.utils.http import urlencode
 
 from django_spire.ai import models
+from django_spire.ai.mixins import AiUsageAdminMixin
 
 
 @admin.register(models.AiUsage)
-class AiUsageAdmin(admin.ModelAdmin):
+class AiUsageAdmin(AiUsageAdminMixin):
     list_display = (
         'recorded_date',
+        'was_successful',
         'event_count',
         'token_usage',
-        'run_time_seconds',
+        'run_time_seconds_formatted',
         'view_interactions_link',
         'view_successful_interactions_link',
         'view_failed_interactions_link'
     )
     search_fields = ('recorded_date',)
     ordering = ('-recorded_date',)
+
+    def get_readonly_fields(self, request, obj=None):
+        return [field.name for field in self.model._meta.fields]
 
     def view_interactions_link(
             self,
@@ -90,18 +95,17 @@ class AiInteractionModelForm(forms.ModelForm):
 
 
 @admin.register(models.AiInteraction)
-class AiInteractionAdmin(admin.ModelAdmin):
+class AiInteractionAdmin(AiUsageAdminMixin):
     form = AiInteractionModelForm
 
     list_display = (
         'actor',
-        'module_name',
         'callable_name',
-        'created_datetime',
         'was_successful',
         'event_count',
         'token_usage',
-        'run_time_seconds'
+        'run_time_seconds_formatted',
+        'created_datetime',
     )
     list_filter = ('module_name', 'callable_name', 'was_successful')
     search_fields = ('actor', 'user_email', 'user_first_name', 'user_last_name', 'module_name', 'callable_name')

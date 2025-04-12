@@ -1,0 +1,24 @@
+<div x-data="{
+    chat_object_id: '',
+    chat_content_type: '',
+    chat_load_ajax_view: new ViewGlue('{% url "spire_ai:chat:template:load" %}', {
+        height_correction: '{{ height_correction }}'
+    }),
+    
+    load_chat(chat_id) {
+        this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
+                chat_id: chat_id
+            }
+        )
+    },
+    init() {
+        this.load_chat(0)
+    }
+}" class="row">
+    <div class="col-4 p-2 border-end">
+        {% include 'spire/ai/chat/widget/chat_selection_widget.html' %}
+    </div>
+    <div x-ref="chat_dialog" class="col-8">
+        No Chat Loaded
+    </div>
+</div>

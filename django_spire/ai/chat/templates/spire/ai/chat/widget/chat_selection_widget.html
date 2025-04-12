@@ -1,0 +1,20 @@
+<div x-data="{
+    chat_load_recent_view:  new ViewGlue('{% url "spire_ai:chat:template:recent" %}'),
+    load_recent_chats() {
+        this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
+    }
+}" x-init="load_recent_chats()" class="row">
+    <div class="col-12">
+        <div class="row pb-2">
+            <div class="col">
+                {% include 'spire/ai/chat/widget/chat_search_widget.html' %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div x-ref="chat_recent_list" class="col-12">
+                No Recent Chats
+            </div>
+        </div>
+    </div>
+</div>

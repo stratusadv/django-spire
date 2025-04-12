@@ -43,4 +43,6 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
         else:
             horse_intel = generate_horse_intel(request.POST['legal_user_input'])
 
-    return TemplateResponse(request, template, context={'horse_intel': horse_intel.model_dump()})
+    return TemplateResponse(request, template, context={
+        'horse_intel': horse_intel.model_dump() if horse_intel else None
+    })

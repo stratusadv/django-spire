@@ -1,0 +1,12 @@
+{% for recent_chat in recent_chats %}
+    <div class="row p-2">
+        <div class="col pt-1 border-bottom">
+            {{ recent_chat.name }}
+        </div>
+        <div class="col-auto">
+            <span @click="load_chat('zone', '{{ recent_chat.object_id }}')">
+                {% include 'spire/button/primary_button.html' with button_icon='bi bi-chat-dots-fill' %}
+            </span>
+        </div>
+    </div>
+{% endfor %}
