@@ -15,12 +15,15 @@
         },
         load_messages() {
             this.load_messages_view.render_insert_adjacent(this.$refs.target_div, {})
+        },
+        init() {
+            this.$refs.target_div.scrollTop = this.$refs.target_div.scrollHeight
         }
     }" class="row">
     <div class="col-12">
-        <div class="row px-3">
-            <div class="col-12 text-center h5 pb-2">
-                {{ chat.name }}
+        <div class="row px-0">
+            <div class="col-12 text-center fw-bold pb-2">
+                {{ chat.name_shortened }}
             </div>
         </div>
         <div class="row mb-3">
@@ -34,7 +37,7 @@
                 <input type="text" x-init="$el.focus()" x-model="message_body" @keyup.enter="send_chat()"
                        class="form-control" autocomplete="off" name="request_message">
             </div>
-            <div class="col-auto text-center px-1">
+            <div class="col-auto text-center ps-1 pe-2">
                 <button class="btn btn-app-primary-outlined" @click="send_chat()">
                     <i class="bi bi-send"></i>
                 </button>

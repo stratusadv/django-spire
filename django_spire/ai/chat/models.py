@@ -40,6 +40,8 @@ class Chat(HistoryModelMixin):
             is_processed=True,
             is_viewed=True
         )
+        self.last_message_datetime = now()
+        self.save()
 
     def generate_message_history(
             self,
@@ -70,8 +72,8 @@ class Chat(HistoryModelMixin):
 
     @property
     def name_shortened(self) -> str:
-        if len(self.name) > 48:
-            return self.name[:48] + '...'
+        if len(self.name) > 24:
+            return self.name[:24] + '...'
 
         return self.name
 

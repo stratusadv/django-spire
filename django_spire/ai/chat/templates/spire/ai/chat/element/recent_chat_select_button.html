@@ -1,6 +1,6 @@
 <div class="row mb-2">
     <div class="col-12">
-        <span @click="load_chat({{ recent_chat.id }})">
+        <span @click="load_chat({{ recent_chat.id }}); close_chat_select()">
             <a class="btn shadow-sm btn-sm w-100 text-start">
                 <i class="bi bi-chat-dots-fill"></i>
                 {{ recent_chat.name }}

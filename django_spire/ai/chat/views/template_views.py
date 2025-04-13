@@ -1,6 +1,7 @@
 import json
 
 from django.template.response import TemplateResponse
+from django.utils.timezone import now
 
 from django_spire.ai.chat.models import Chat
 
@@ -15,6 +16,7 @@ def load_template_view(request):
             user=request.user
         )
         chat.name = 'New Chat'
+        chat.last_message_datetime = now()
         chat.save()
 
     else:
@@ -25,7 +27,7 @@ def load_template_view(request):
 
     return TemplateResponse(
         request,
-        'spire/ai/chat/widget/chat_dialog_widget.html',
+        'spire/ai/chat/widget/dialog_widget.html',
         {
             'chat': chat,
             'height_correction': body_data['height_correction']
@@ -41,7 +43,7 @@ def recent_template_view(request):
 
     return TemplateResponse(
         request,
-        'spire/ai/chat/widget/chat_recent_list_widget.html',
+        'spire/ai/chat/widget/recent_chat_list_widget.html',
         {
             'recent_chats': [
                 {
@@ -58,7 +60,7 @@ def search_template_view(request):
 
     return TemplateResponse(
         request,
-        'spire/ai/chat/widget/chat_search_results_widget.html',
+        'spire/ai/chat/widget/search_chat_results_widget.html',
         {
             'search_results': [
                 {
