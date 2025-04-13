@@ -1,5 +1,11 @@
 # Changelog
 
+
+## v0.3.4
+### Feature
+- Field override added to model seeder. Chain fields together for re-usability.
+
+
 ## v0.3.3
 
 ### Changes
