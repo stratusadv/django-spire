@@ -7,7 +7,7 @@ from django_spire.ai.chat import models
 
 @admin.register(models.Chat)
 class ChatAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'view_chat_messages_link', 'created_datetime')
+    list_display = ('name', 'user', 'view_chat_messages_link', 'created_datetime')
     search_fields = ('id', 'name')
     ordering = ['-id']
 
@@ -31,7 +31,7 @@ class ChatAdmin(admin.ModelAdmin):
 
 @admin.register(models.ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
-    list_display = ('chat', 'content_body', 'is_processed', 'is_viewed', 'created_datetime')
+    list_display = ('content_body', 'chat', 'chat__user','is_processed', 'is_viewed', 'created_datetime')
     search_fields = ('id', 'content')
     ordering = ['-id']
 
@@ -39,4 +39,7 @@ class ChatMessageAdmin(admin.ModelAdmin):
         return str(obj)
 
     content_body.short_description = 'Body'
+
+    def get_readonly_fields(self, request, obj=None):
+        return [field.name for field in self.model._meta.fields]
 

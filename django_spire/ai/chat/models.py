@@ -26,7 +26,10 @@ class Chat(HistoryModelMixin):
     objects = ChatQuerySet.as_manager()
 
     def __str__(self):
-        return self.name
+        if len(self.name) < 48:
+            return self.name
+
+        return self.name[:48] + '...'
 
     def add_message(self, message: Message) -> None:
         ChatMessage.objects.create(
