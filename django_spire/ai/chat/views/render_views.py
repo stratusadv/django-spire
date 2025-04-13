@@ -75,18 +75,19 @@ def response_message_render_view(request):
 
     response = chat_workflow_process(
         request,
-        body_data['message_body']
+        body_data['message_body'],
+        message_history=chat.generate_message_history(),
     )
 
-    talking_equipment_message = Message(
+    spire_message = Message(
         request=request,
         type=MessageType.RESPONSE,
         sender='Spire',
         body=response['text'],
     )
 
-    chat.add_message(talking_equipment_message)
+    chat.add_message(spire_message)
 
     return HttpResponse(
-        talking_equipment_message.render_to_html_string({'chat_id': chat.id})
+        spire_message.render_to_html_string({'chat_id': chat.id})
     )

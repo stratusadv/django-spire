@@ -1,11 +1,11 @@
 <div x-data="{
 }" x-init="load_recent_chats()" class="row">
     <div class="col-12">
-        <div class="row pb-2">
-            <div class="col">
-                {% include 'spire/ai/chat/widget/chat_search_widget.html' %}
-            </div>
-        </div>
+{#        <div class="row pb-2">#}
+{#            <div class="col">#}
+{#                {% include 'spire/ai/chat/widget/chat_search_widget.html' %}#}
+{#            </div>#}
+{#        </div>#}
 
         <div class="row">
             <div class="col-12">
@@ -16,7 +16,7 @@
         </div>
 
         <div class="row mt-2">
-            <div x-ref="chat_recent_list" class="col-12 overflow-auto" style="height: calc(100vh - 220px {{ height_correction }});">
+            <div x-ref="chat_recent_list" class="col-12 overflow-auto" style="height: calc(100vh - 180px {{ height_correction }});">
                 No Recent Chats
             </div>
         </div>

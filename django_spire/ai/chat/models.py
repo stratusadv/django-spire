@@ -1,5 +1,7 @@
 import json
 
+from dandy.llm import MessageHistory
+from dandy.llm.service.request.message import RoleLiteralStr
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
@@ -39,6 +41,29 @@ class Chat(HistoryModelMixin):
             is_viewed=True
         )
 
+    def generate_message_history(
+            self,
+            message_count: int = 20,
+            exclude_last_message: bool = True
+    ) -> MessageHistory:
+        message_history = MessageHistory()
+
+        messages = self.messages.order_by('-created_datetime')[:message_count]
+
+        if exclude_last_message:
+            messages = messages[1:]
+
+        messages = list(reversed(messages))
+
+        for message in messages:
+            print(f'{message.role}: {message.body}')
+            message_history.add_message(
+                role=message.role,
+                content=message.body
+            )
+
+        return message_history
+
     @property
     def is_empty(self) -> bool:
         return self.messages.count() == 0
@@ -76,6 +101,20 @@ class ChatMessage(HistoryModelMixin):
             return body
 
         return body[:64] + '...'
+
+    @property
+    def body(self):
+        return json.loads(self.content)['body']
+
+    @property
+    def role(self) -> RoleLiteralStr:
+        message_type = json.loads(self.content)['type']
+        if message_type == 'request':
+            return 'user'
+        elif message_type == 'response':
+            return 'assistant'
+        else:
+            return 'system'
 
     def to_message(self, request) -> Message:
         content = json.loads(self.content)

@@ -1,5 +1,5 @@
 from dandy.workflow import BaseWorkflow
-from dandy.llm import LlmBot
+from dandy.llm import LlmBot, MessageHistory
 from django.core.handlers.wsgi import WSGIRequest
 
 
@@ -9,8 +9,12 @@ class ChatWorkflow(BaseWorkflow):
             cls,
             request: WSGIRequest,
             user_input: str,
+            message_history: MessageHistory | None = None
     ):
-        response = LlmBot.process(user_input)
+        response = LlmBot.process(
+            prompt=user_input,
+            message_history=message_history,
+        )
 
         return {
             'text': response.text

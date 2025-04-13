@@ -1,5 +1,6 @@
 from importlib import import_module
 
+from dandy.llm import MessageHistory
 from dandy.workflow import BaseWorkflow
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
@@ -11,7 +12,8 @@ from django_spire.consts import AI_CHAT_WORKFLOW_CLASS_NAME
 
 def chat_workflow_process(
         request: WSGIRequest,
-        user_input: str | None = None
+        user_input: str | None = None,
+        message_history: MessageHistory | None = None,
 ) -> BaseModel:
     if user_input is None:
         raise ValueError('user_input is required')
@@ -33,6 +35,7 @@ def chat_workflow_process(
         return ChatWorkFlow.process(
             request=request,
             user_input=user_input,
+            message_history=message_history,
         )
 
     return run_workflow_process()
