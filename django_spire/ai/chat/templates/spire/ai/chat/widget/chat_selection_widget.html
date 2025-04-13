@@ -1,8 +1,4 @@
 <div x-data="{
-    chat_load_recent_view:  new ViewGlue('{% url "spire_ai:chat:template:recent" %}'),
-    load_recent_chats() {
-        this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
-    }
 }" x-init="load_recent_chats()" class="row">
     <div class="col-12">
         <div class="row pb-2">
@@ -12,7 +8,15 @@
         </div>
 
         <div class="row">
-            <div x-ref="chat_recent_list" class="col-12">
+            <div class="col-12">
+                <button x-on:click="load_chat(0)" class="btn btn-sm btn-app-primary-outlined w-100">
+                    <i class="bi bi-plus-lg"></i> Create New Chat
+                </button>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div x-ref="chat_recent_list" class="col-12 overflow-auto" style="height: calc(100vh - 220px {{ height_correction }});">
                 No Recent Chats
             </div>
         </div>

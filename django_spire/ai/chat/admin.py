@@ -5,11 +5,14 @@ from django.utils.http import urlencode
 
 from django_spire.ai.chat import models
 
-
+@admin.register(models.Chat)
 class ChatAdmin(admin.ModelAdmin):
     list_display = ('user', 'name', 'view_chat_messages_link', 'created_datetime')
     search_fields = ('id', 'name')
     ordering = ['-id']
+
+    def get_readonly_fields(self, request, obj=None):
+        return [field.name for field in self.model._meta.fields]
 
     def view_chat_messages_link(self, obj):
         count = obj.messages.count()
@@ -26,6 +29,14 @@ class ChatAdmin(admin.ModelAdmin):
         ordering = ('id', )
 
 
-admin.site.register(models.Chat, ChatAdmin)
-admin.site.register(models.ChatMessage)
+@admin.register(models.ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ('chat', 'content_body', 'is_processed', 'is_viewed', 'created_datetime')
+    search_fields = ('id', 'content')
+    ordering = ['-id']
+
+    def content_body(self, obj):
+        return str(obj)
+
+    content_body.short_description = 'Body'
 

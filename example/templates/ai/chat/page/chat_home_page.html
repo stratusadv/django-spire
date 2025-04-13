@@ -4,6 +4,9 @@
     {% url 'ai:chat:home' as href %}
     {% include 'navigation/top_navigation.html' with title='AI Chat' href=href %}
 
-    {% include 'spire/ai/chat/card/chat_view_card.html' with height_correction='- 100px' %}
-
+    <div class="row">
+        <div class="col-12">
+            {% include 'spire/ai/chat/card/chat_view_card.html' with height_correction='- 100px' %}
+        </div>
+    </div>
 {% endblock %}

@@ -8,16 +8,20 @@ from django_spire.ai.chat.models import Chat
 def load_template_view(request):
     body_data = json.loads(request.body)
 
-    print(body_data)
+    chat_id = body_data['chat_id']
 
-    chat, created = Chat.objects.get_or_create(
-        id=body_data['chat_id'] if body_data['chat_id'] != 0 else None,
-        user=request.user,
-    )
-
-    if created:
+    if chat_id == 0:
+        chat = Chat.objects.get_empty_or_create(
+            user=request.user
+        )
         chat.name = 'New Chat'
         chat.save()
+
+    else:
+        chat = Chat.objects.get(
+            id=chat_id,
+            user=request.user,
+        )
 
     return TemplateResponse(
         request,
@@ -33,7 +37,7 @@ def recent_template_view(request):
         Chat.objects
         .by_user(request.user)
         .order_by('-last_message_datetime')
-    )[:10]
+    )[:20]
 
     return TemplateResponse(
         request,
@@ -41,7 +45,7 @@ def recent_template_view(request):
         {
             'recent_chats': [
                 {
-                    'name': chat.name,
+                    'name': chat.name_shortened,
                     'id': chat.id,
                 } for chat in chats
             ]
@@ -59,6 +63,7 @@ def search_template_view(request):
             'search_results': [
                 {
                     'name': chat.name,
+                    'id': chat.id,
                 } for chat in chats
             ]
         }

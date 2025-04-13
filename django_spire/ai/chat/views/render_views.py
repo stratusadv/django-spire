@@ -33,6 +33,10 @@ def request_message_render_view(request):
         .get(id=body_data['chat_id'])
     )
 
+    if chat.is_empty:
+        chat.name = body_data['message_body']
+        chat.save()
+
     message_group = MessageGroup()
 
     user_message = Message(

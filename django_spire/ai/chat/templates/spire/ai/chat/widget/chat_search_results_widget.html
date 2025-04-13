@@ -1,6 +1,6 @@
 <div x-data="{
-    load_chat_from_search(content_type, object_id) {
-        load_chat(content_type, object_id)
+    load_chat_from_search(chat_id) {
+        load_chat(chat_id)
         load_recent_chats()
     }
 }" class="row m-0">
@@ -13,8 +13,8 @@
                     {{ search_result.name }}
                 </div>
                 <div class="col-auto">
-                    <span class="btn btn-outline-primary" @click="load_chat_from_search('zone', '{{ search_result.object_id }}')">
-                        chat
+                    <span class="btn btn-app-primary" @click="load_chat_from_search('{{ search_result.id }}')">
+                        <i class="bi bi-chat-dots-fill"></i>
                     </span>
                 </div>
             </div>

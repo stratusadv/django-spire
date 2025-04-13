@@ -32,12 +32,26 @@ class Chat(HistoryModelMixin):
         ChatMessage.objects.create(
             chat=self,
             content=message.to_json(),
+            is_processed=True,
+            is_viewed=True
         )
+
+    @property
+    def is_empty(self) -> bool:
+        return self.messages.count() == 0
+
+    @property
+    def name_shortened(self) -> str:
+        if len(self.name) > 48:
+            return self.name[:48] + '...'
+
+        return self.name
 
     class Meta:
         db_table = 'spire_ai_chat'
         verbose_name = 'Chat'
         verbose_name_plural = 'Chats'
+        ordering = ('-last_message_datetime', 'name')
 
 
 class ChatMessage(HistoryModelMixin):
@@ -51,6 +65,14 @@ class ChatMessage(HistoryModelMixin):
     content = models.JSONField()
     is_processed = models.BooleanField(default=False)
     is_viewed = models.BooleanField(default=False)
+
+    def __str__(self):
+        body = json.loads(self.content)['body']
+
+        if len(body) < 64:
+            return body
+
+        return body[:64] + '...'
 
     def to_message(self, request) -> Message:
         content = json.loads(self.content)
