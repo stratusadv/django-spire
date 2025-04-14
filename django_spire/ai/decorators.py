@@ -3,14 +3,15 @@ import traceback
 import uuid
 
 from dandy.recorder import Recorder
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser
 from django.utils.timezone import now
+from typing_extensions import Any
 
 from django_spire.ai.models import AiInteraction, AiUsage
 
 
 def log_ai_interaction_from_recorder(
-        user: User | None = None,
+        user: AbstractBaseUser | None = None,
         actor: str | None = None,
 ):
     if user is None and actor is None:

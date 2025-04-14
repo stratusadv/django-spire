@@ -4,8 +4,6 @@
 
 This app provides a easy way to create a chat for end users to interface with the project.
 
-For more information about Dandy refer to the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
-
 ## Installation
 
 Simple add the ai application to your `INSTALLED_APPS` and the workflow class with module name to your settings:
@@ -32,9 +30,19 @@ urlpatterns = [
 ]
 ```
 
+!!! warning
+
+    Properly configure Dandy install is required for more information see the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
+
 ## Usage
 
 Your AI chat will need a workflow class that will be the place that all messages are sent to be processed.
+
+The function you use will need to take 3 arguments:
+
+- `request` - the request object: `django.core.handlers.wsgiWSGIRequest`
+- `user_input` - the message from the user: `str`
+- `message_history` - the message history of the chat: `dandy.llm.MessageHistory`
 
 ```python
 --8<-- "example/ai/chat/intelligence/chat_workflow.py"

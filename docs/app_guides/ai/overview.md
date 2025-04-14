@@ -4,8 +4,6 @@
 
 This app provides the system for tracking Dandy AI interactions throughout a django project.
 
-For more information about Dandy refer to the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
-
 ## Installation
 
 Simple add the ai application to your `INSTALLED_APPS`:
@@ -17,6 +15,10 @@ INSTALLED_APPS = [
     ...
 ]
 ```
+
+!!! warning
+
+    Properly configure Dandy install is required for more information see the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
 
 ## Usage
 
