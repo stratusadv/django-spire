@@ -1,0 +1,11 @@
+{% extends 'spire/card/card.html' %}
+
+{% block card_content %}
+    <div class="row">
+        <div class="col-12" style="height: calc(100vh - 150px {{ height_correction }});">
+            {% include 'spire/ai/chat/widget/chat_widget.html' %}
+        </div>
+    </div>
+{% endblock %}
+
+

@@ -1,10 +1,24 @@
-# AI Interaction Management System
+# AI Usage & Interaction System
 
 ## Purpose
 
 This app provides the system for tracking Dandy AI interactions throughout a django project.
 
-For more information about Dandy refer to the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
+## Installation
+
+Simple add the ai application to your `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS = [
+    ...
+    'django_spire.ai',
+    ...
+]
+```
+
+!!! warning
+
+    Properly configure Dandy install is required for more information see the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
 
 ## Usage
 

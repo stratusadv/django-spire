@@ -7,6 +7,7 @@ def get_app_context_data() -> list[dict[str, str]]:
     app_context_list = [
         {'heading': 'Django Spire'},
         {'title': 'Ai Management', 'icon_class': 'bi bi-robot', 'url': reverse('ai:home')},
+        {'title': 'Ai Chat', 'icon_class': 'bi bi-chat-heart', 'url': reverse('ai:chat:home')},
         {'title': 'Authentication', 'icon_class': 'bi bi-shield-lock', 'url': reverse('authentication:home')},
         {'title': 'Authentication: MFA', 'icon_class': 'bi bi-shield-lock-fill', 'url': reverse('authentication:mfa:home')},
         {'title': 'Breadcrumb', 'icon_class': 'bi bi-list-nested', 'url': reverse('breadcrumb:home')},

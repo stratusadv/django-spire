@@ -36,24 +36,27 @@ nav:
       - Installation: getting_started/installation.md
   - App Guides:
       - AI:
-        - Overview: app_guides/ai/overview.md
+          - Usage & Interactions: app_guides/ai/overview.md
+          - Chat Assistant: app_guides/ai/chat/overview.md
       - Core:
-        - Shortcuts: app_guides/core/shortcuts.md
+          - Shortcuts: app_guides/core/shortcuts.md
       - Notification:
-        - Notification Factory: app_guides/notification/notification_factory.md
+          - Notification Factory: app_guides/notification/notification_factory.md
       - Seeding:
-        - Overview: app_guides/seeding/overview.md
-        - Getting Started: app_guides/seeding/getting_started.md
-        - Faker: app_guides/seeding/faker.md
+          - Overview: app_guides/seeding/overview.md
+          - Getting Started: app_guides/seeding/getting_started.md
+          - Faker: app_guides/seeding/faker.md
   - API:
+      - AI:
+          - Decorators: api/ai/decorators.md
       - Core:
-        - Template Tags: api/core/templatetags.md
-        - Redirects: api/core/redirects.md
-        - Shortcuts: api/core/shortcuts.md
+          - Template Tags: api/core/templatetags.md
+          - Redirects: api/core/redirects.md
+          - Shortcuts: api/core/shortcuts.md
       - Notification:
-        - Notification: api/notification/notification.md
-        - App Notification: api/notification/app_notification.md
-        - Email Notification: api/notification/email_notification.md
+          - Notification: api/notification/notification.md
+          - App Notification: api/notification/app_notification.md
+          - Email Notification: api/notification/email_notification.md
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
       - Legend: roadmap/legend.md
@@ -70,7 +73,7 @@ plugins:
         python:
           inventories:
             - url: https://docs.python.org/3/objects.inv
-              domains: [py, std]
+              domains: [ py, std ]
           options:
             show_source: true
             show_if_no_docstring: True
@@ -91,16 +94,16 @@ theme:
   name: material
   custom_dir: docs/templates
   palette:
-  - media: "(prefers-color-scheme: light)"
-    scheme: default
-    toggle:
-      icon: material/lightbulb
-      name: "Switch to dark mode"
-  - media: "(prefers-color-scheme: dark)"
-    scheme: slate
-    toggle:
-      icon: material/lightbulb-outline
-      name: "Switch to system preference"
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/lightbulb
+        name: "Switch to dark mode"
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/lightbulb-outline
+        name: "Switch to system preference"
   features:
     - toc.follow
     - navigation.tabs

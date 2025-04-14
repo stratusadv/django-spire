@@ -14,6 +14,7 @@ Make Django application development modular, extensible, and configurable.
 Please make note when using spire to only add the modules with green check marks to your django install apps.
 
   - ai ✅
+    - chat ✅
   - authentication ❌
   - breadcrumb ❌
   - comment ❌

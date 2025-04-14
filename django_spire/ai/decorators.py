@@ -3,13 +3,15 @@ import traceback
 import uuid
 
 from dandy.recorder import Recorder
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser
+from django.utils.timezone import now
+from typing_extensions import Any
 
-from django_spire.ai.models import AiInteraction
+from django_spire.ai.models import AiInteraction, AiUsage
 
 
 def log_ai_interaction_from_recorder(
-        user: User | None = None,
+        user: AbstractBaseUser | None = None,
         actor: str | None = None,
 ):
     if user is None and actor is None:
@@ -18,6 +20,10 @@ def log_ai_interaction_from_recorder(
     def decorator(func):
         def wrapper(*args, **kwargs):
             recording_uuid = f'Recording-{uuid.uuid4()}'
+
+            ai_usage, _ = AiUsage.objects.get_or_create(
+                recorded_date=now()
+            )
 
             ai_interaction = AiInteraction(
                 user=user,
@@ -31,6 +37,8 @@ def log_ai_interaction_from_recorder(
                 return func(*args, **kwargs)
 
             except Exception as e:
+                ai_usage.was_successful = False
+
                 ai_interaction.was_successful = False
                 ai_interaction.exception = str(e)
 
@@ -45,7 +53,20 @@ def log_ai_interaction_from_recorder(
             finally:
                 Recorder.stop_recording(recording_uuid)
 
+                recording = Recorder.get_recording(recording_uuid)
+
                 ai_interaction.interaction = json.loads(Recorder.to_json_str(recording_uuid))
+
+                ai_usage.event_count += recording.event_count
+                ai_usage.token_usage += recording.token_usage
+                ai_usage.run_time_seconds += recording.run_time_seconds
+
+                ai_usage.save()
+
+                ai_interaction.ai_usage = ai_usage
+                ai_interaction.event_count = recording.event_count
+                ai_interaction.token_usage = recording.token_usage
+                ai_interaction.run_time_seconds = recording.run_time_seconds
 
                 ai_interaction.save()
 

@@ -1,0 +1,24 @@
+<div x-data="{
+}" x-init="load_recent_chats()" class="row">
+    <div class="col-12">
+{#        <div class="row pb-2">#}
+{#            <div class="col">#}
+{#                {% include 'spire/ai/chat/widget/chat_search_widget.html' %}#}
+{#            </div>#}
+{#        </div>#}
+
+        <div class="row">
+            <div class="col-12">
+                <button x-on:click="load_chat(0)" class="btn btn-sm btn-app-primary-outlined w-100">
+                    <i class="bi bi-plus-lg"></i> Create New Chat
+                </button>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div x-ref="chat_recent_list" class="col-12 overflow-auto" style="height: calc(100vh - 180px {{ height_correction }});">
+                No Recent Chats
+            </div>
+        </div>
+    </div>
+</div>
