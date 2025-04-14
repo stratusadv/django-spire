@@ -1,0 +1,52 @@
+# AI Chat Assistant
+
+## Purpose
+
+This app provides a easy way to create a chat for end users to interface with the project.
+
+For more information about Dandy refer to the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
+
+## Installation
+
+Simple add the ai application to your `INSTALLED_APPS` and the workflow class with module name to your settings:
+
+```python title="settings.py"
+INSTALLED_APPS = [
+    ...
+    'django_spire.ai',
+    'django_spire.ai.chat',
+    ...
+]
+
+# this is the class and module that will handle the chat interactions
+SPIRE_AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+```
+
+You also need to add the spire ai chat to your `urls.py`:
+
+```python title="urls.py"
+from django.urls import path, include
+
+urlpatterns = [
+    path('spire/ai/', include('django_spire.ai.urls', namespace='spire_ai')),
+]
+```
+
+## Usage
+
+Your AI chat will need a workflow class that will be the place that all messages are sent to be processed.
+
+```python
+--8<-- "example/ai/chat/intelligence/chat_workflow.py"
+```
+
+Once this is setup you can simply add the chat card to your templates:
+
+```html
+{ % include 'spire/ai/chat/card/chat_card.html' % }
+```
+
+!!! tip
+
+    Since this application uses a center point to process messages make sure to fully utilize dandy.
+    This will allow you to direct people from a central point to different areas of information.
