@@ -65,7 +65,7 @@ django_spire = [
 ]
 
 [tool.setuptools.dynamic]
-version = { attr = "django_spire.consts.VERSION" }
+version = { attr = "django_spire.consts.__VERSION__" }
 dependencies = { file = "package_requirements.txt" }
 
 [tool.dev_tool]
