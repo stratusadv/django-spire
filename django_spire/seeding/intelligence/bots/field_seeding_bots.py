@@ -9,6 +9,7 @@ class LlmFieldSeedingBot(LlmBot):
     config = 'SEEDING_LLM_BOT'
 
     config_options = LlmConfigOptions(
+        randomize_seed=True,
         temperature=0.2
     )
 

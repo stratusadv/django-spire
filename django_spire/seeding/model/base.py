@@ -4,7 +4,16 @@ from dandy.recorder import recorder_to_html_file
 from dandy.cache import SqliteCache
 from dandy.cache.utils import generate_hash_key
 
+from django_spire.seeding.field.override import FieldOverride
 from django_spire.seeding.model.config import FieldsConfig
+
+
+class classproperty:
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, instance, owner):
+        return self.fget(owner)
 
 
 class BaseModelSeeder(ABC):
@@ -19,8 +28,14 @@ class BaseModelSeeder(ABC):
     cache_name = 'model_seeder'
     cache_limit = 1000
 
+    override_class = FieldOverride
+
     _field_seeders = []
     _field_config: FieldsConfig = None
+
+    @classproperty
+    def override(cls):
+        return cls.override_class(seeder_cls=cls)
 
     @classmethod
     def get_field_config(cls) -> FieldsConfig:
