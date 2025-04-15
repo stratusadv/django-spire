@@ -35,7 +35,7 @@ class BaseModelSeeder(ABC):
 
     @classproperty
     def override(cls):
-        return cls.override_class(seeder_cls=cls)
+        return cls.override_class(seeder_class=cls)
 
     @classmethod
     def get_field_config(cls) -> FieldsConfig:
