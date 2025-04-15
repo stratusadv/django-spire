@@ -28,23 +28,55 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
             def __iter__(self):
                 return iter(self.items)
 
-        prompt = (
+        # Base parts of the prompt that are common between batches
+        base_prompt = (
             Prompt()
-            .heading('Seed Count')
-            .text(f'Create {count} {model_seeder.model_class.__name__}')
             .heading('General Seeding Rules')
-            .list([
-                'Create data for each field provided.'
-            ])
+            .list(['Create data for each field provided.'])
             .heading('Field Rules & Context')
             .prompt(self.field_prompt)
-            .text(f'Create {count} {model_seeder.model_class.__name__}')
         )
 
-        intel_data = LlmFieldSeedingBot.process(
-            prompt=prompt,
-            intel_class=SeedingIntel
-        )
+        if count <= 25:
+            # Create a prompt for the full count since it's within a single batch
+            prompt = (
+                Prompt()
+                .heading('Seed Count')
+                .text(f'Create {count} {model_seeder.model_class.__name__}')
+                .prompt(base_prompt)
+            )
+
+            intel_data = LlmFieldSeedingBot.process(
+                prompt=prompt,
+                intel_class=SeedingIntel
+            )
+        else:
+            print('Processing in batches')
+            # Process in batches of 25 using futures. Seems like that is the limit for good results
+            futures = []
+            total_batches = (count + 24) // 25
+
+            for batch_index in range(total_batches):
+                batch_count = 25 if (batch_index < total_batches - 1) else count - 25 * batch_index
+                print(batch_count)
+
+                batch_prompt = (
+                    Prompt()
+                    .heading('Seed Count')
+                    .text(f'Create {batch_count} {model_seeder.model_class.__name__}')
+                    .prompt(base_prompt)
+                )
+
+                future = LlmFieldSeedingBot.process_to_future(
+                    prompt=batch_prompt,
+                    intel_class=SeedingIntel
+                )
+                futures.append(future)
+
+            intel_data = []
+
+            for future in futures:
+                intel_data.extend(future.result)
 
         return intel_data
 
