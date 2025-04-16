@@ -51,14 +51,16 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                 intel_class=SeedingIntel
             )
         else:
-            print('Processing in batches')
             # Process in batches of 25 using futures. Seems like that is the limit for good results
             futures = []
+            completed_futures = []
+            max_futures = 4
+            intel_data = []
+
             total_batches = (count + 24) // 25
 
             for batch_index in range(total_batches):
                 batch_count = 25 if (batch_index < total_batches - 1) else count - 25 * batch_index
-                print(batch_count)
 
                 batch_prompt = (
                     Prompt()
@@ -73,10 +75,14 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                 )
                 futures.append(future)
 
-            intel_data = []
+                # Only send max_futures calls at a time or when it's the last batch.
+                if len(futures) >= max_futures or batch_index == total_batches - 1:
+                    print(f'-----> Seeding batch {batch_index + 1} of {total_batches}')
+                    for future in futures:
+                        intel_data.extend(future.result)
+                        completed_futures.append(future)
 
-            for future in futures:
-                intel_data.extend(future.result)
+                    futures = []
 
         return intel_data
 
