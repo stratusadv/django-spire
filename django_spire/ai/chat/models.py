@@ -58,7 +58,6 @@ class Chat(HistoryModelMixin):
         messages = list(reversed(messages))
 
         for message in messages:
-            print(f'{message.role}: {message.body}')
             message_history.add_message(
                 role=message.role,
                 content=message.body
