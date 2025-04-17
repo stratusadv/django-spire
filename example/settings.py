@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'example.file',
     'example.form',
     'example.gamification',
+    'example.home',
     'example.help',
     'example.history',
     'example.maintenance',

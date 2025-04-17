@@ -1,6 +1,20 @@
 {% extends 'base/base.html' %}
 
+{% load accordion %}
+
 {% block example_content %}
     {% url 'home:home' as href %}
     {% include 'navigation/top_navigation.html' with title='Home' href=href %}
+    {% include 'navigation/top_navigation.html' with title='Home' href=href %}
+
+    {% accordion %}
+        {% accordion_title %}
+    {% include 'navigation/top_navigation.html' with title='Home' href=href %}
+            Here is your warning!
+        {% end_accordion_title %}
+
+        {% accordion_content %}
+            Use the “Forgot password”…
+        {% end_accordion_content %}
+    {% endaccordion %}
 {% endblock %}
