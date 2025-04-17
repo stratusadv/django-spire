@@ -10,7 +10,7 @@ class LlmFieldSeedingBot(LlmBot):
 
     config_options = LlmConfigOptions(
         randomize_seed=True,
-        temperature=0.2
+        temperature=0.5
     )
 
     instructions_prompt = (
@@ -24,7 +24,7 @@ class LlmFieldSeedingBot(LlmBot):
     )
 
     @classmethod
-    def process(cls, prompt: Prompt, intel_class) -> list[dict]:
+    def process(cls, prompt: Prompt | str, intel_class) -> list[dict]:
         intel_data = cls.process_prompt_to_intel(
             prompt=prompt,
             intel_class=intel_class

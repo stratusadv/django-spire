@@ -32,7 +32,11 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
         base_prompt = (
             Prompt()
             .heading('General Seeding Rules')
-            .list(['Create data for each field provided.'])
+            .list(
+                [
+                    'Create data for each field provided.'
+                ])
+            .random_choice([])
             .heading('Field Rules & Context')
             .prompt(self.field_prompt)
         )
@@ -54,13 +58,14 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
             # Process in batches of 25 using futures. Seems like that is the limit for good results
             futures = []
             completed_futures = []
-            max_futures = 4
+            max_futures = 3
             intel_data = []
 
-            total_batches = (count + 24) // 25
+            batch_size = 15
+            total_batches = (count + batch_size - 1) // batch_size
 
             for batch_index in range(total_batches):
-                batch_count = 25 if (batch_index < total_batches - 1) else count - 25 * batch_index
+                batch_count = batch_size if (batch_index < total_batches - 1) else count - batch_size * batch_index
 
                 batch_prompt = (
                     Prompt()
@@ -77,7 +82,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
                 # Only send max_futures calls at a time or when it's the last batch.
                 if len(futures) >= max_futures or batch_index == total_batches - 1:
-                    print(f'-----> Seeding batch {batch_index + 1} of {total_batches}')
+                    print(f'-----> Seeding count {batch_count} for batch {batch_index + 1} of {total_batches}')
                     for future in futures:
                         intel_data.extend(future.result)
                         completed_futures.append(future)
@@ -88,6 +93,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
     @property
     def field_prompt(self) -> Prompt:
+        # Todo: Add functionality here to take a prompt.
         if any(len(info) > 1 for info in self.seeder_fields.values()):
             field_prompt = (
                 Prompt()

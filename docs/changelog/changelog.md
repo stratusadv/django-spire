@@ -9,7 +9,6 @@
 - Django LLM Seeder processes to futures when the count is over 25.
 - Field Override checks seeder class when calling methods.
 
-
 ## v0.4.0
 
 ### Features
