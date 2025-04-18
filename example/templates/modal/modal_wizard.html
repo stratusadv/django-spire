@@ -1,9 +1,13 @@
-{% extends 'spire/base/modal.html' %}
+<div
+    x-data="{
+        test_model: new ModelObjectGlue('test_model'),
 
-{% block modal_title %}
-    Wizard Modal
-{% endblock %}
-
-{% block modal_body %}
-    {% include 'modal/content/wizard.html' %}
-{% endblock %}
+        async init() {
+            await this.test_model.get();
+        }
+    }"
+>
+    {% include 'modal/content/form/page_one.html' %}
+    {% include 'modal/content/form/page_two.html' %}
+    {% include 'modal/content/form/page_three.html' %}
+</div>

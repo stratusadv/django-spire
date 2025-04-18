@@ -30,4 +30,12 @@ document.addEventListener('alpine:init', () => {
             },
         },
     }))
+
+    Alpine.data('wizard', ({ id, ref = 'wizard_form' }) => ({
+        init() {
+            window.addEventListener(`wizard-submit:${id}`, () => {
+                this.$refs[ref].requestSubmit();
+            });
+        }
+    }));
 })

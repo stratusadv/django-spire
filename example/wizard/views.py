@@ -5,6 +5,7 @@ from typing_extensions import TYPE_CHECKING
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 import django_glue as dg
 
@@ -14,10 +15,11 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
+@csrf_exempt
 def wizard_form_submit(request: WSGIRequest) -> HttpResponse:
     if request.method == 'POST':
         print(request.POST)
-        return HttpResponseRedirect(reverse('wizard:home'))
+        return HttpResponseRedirect(reverse('modal:home'))
 
     return HttpResponse('Invalid request.', status=400)
 

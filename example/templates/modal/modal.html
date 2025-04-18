@@ -1,10 +1,12 @@
-{% extends 'spire/base/modal.html' %}
+<div
+    x-data="{
+        test_model: new ModelObjectGlue('test_model'),
 
-{% block modal_title %}
-    {{ test_model.get_full_name }}
-{% endblock %}
-
-{% block modal_body %}
+        async init() {
+            await this.test_model.get();
+        }
+    }"
+>
     <div class="container">
         <div class="row g-4">
             <div class="col-md-6 col-12">
@@ -68,4 +70,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
+</div>

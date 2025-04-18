@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import random
 import string
+import uuid
 
-from typing_extensions import Sequence, TYPE_CHECKING, TypeVar
+from typing_extensions import Any, Sequence, TYPE_CHECKING, TypeVar
 
 from django import template
 from django.db.models import Model
@@ -135,6 +136,45 @@ def query_param_url(context: RequestContext, url_name: str, **kwargs) -> str:
             )
 
     return reverse(url_name, kwargs=kwargs) + query_string
+
+
+@register.inclusion_tag('spire/modal/base/modal_container.html', takes_context=True)
+def spire_modal(context: RequestContext, template: str, **kwargs) -> dict[str, Any]:
+    modal_id = f"modal-{uuid.uuid4()}"
+    context['modal_id'] = modal_id
+
+    return {
+        'modal_id': modal_id,
+        'template': template,
+        **kwargs
+    }
+
+
+@register.inclusion_tag('spire/wizard/base/wizard_container.html', takes_context=True)
+def spire_wizard(context: RequestContext, template: str, **kwargs) -> dict[str, Any]:
+    wizard_id = f"wizard-{uuid.uuid4()}"
+    context['wizard_id'] = wizard_id
+
+    return {
+        'wizard_id': wizard_id,
+        'template': template,
+        **kwargs
+    }
+
+@register.inclusion_tag('spire/wizard/base/wizard_modal_container.html', takes_context=True)
+def spire_wizard_modal(context: RequestContext, template: str, **kwargs) -> dict[str, Any]:
+    modal_id = f"modal-{uuid.uuid4()}"
+    wizard_id = f"wizard-{uuid.uuid4()}"
+
+    context['modal_id'] = modal_id
+    context['wizard_id'] = wizard_id
+
+    return {
+        'modal_id': modal_id,
+        'wizard_id': wizard_id,
+        'template': template,
+        **kwargs
+    }
 
 
 @register.simple_tag()
