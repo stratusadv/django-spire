@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class ExampleConfig(AppConfig):
+class LandingConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'example'
-    name = 'example'
+    label = 'example_landing'
+    name = 'example.landing'
