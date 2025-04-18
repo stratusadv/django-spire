@@ -1,0 +1,103 @@
+<div
+    x-data="{
+        current_page: 1,
+        total_pages: {{ total_pages|default:3 }},
+        wizard_id: '{{ wizard_id|default:'wizard' }}',
+
+        next_page() {
+            if (this.current_page < this.total_pages) {
+                this.current_page++;
+            }
+        },
+
+        previous_page() {
+            if (this.current_page > 1) {
+                this.current_page--;
+            }
+        },
+
+        submit_wizard() {
+            window.dispatchEvent(
+                new CustomEvent(
+                    `wizard-submit:${this.wizard_id}`,
+                    { detail: {} }
+                )
+            )
+        }
+    }"
+    id="{{ wizard_id|default:'wizard' }}"
+>
+    <div
+        x-data="
+            wizard({
+                id: '{{ wizard_id }}',
+                ref: {% if form_action %}'{{ form_ref|default:'wizard_form' }}'{% else %}null{% endif %}
+            })
+        "
+        class="wizard-content mb-4"
+    >
+        {% if form_action %}
+            <form
+                x-ref="{{ form_ref|default:'wizard_form' }}"
+                action="{{ form_action }}"
+                method="{{ form_method|default:'post' }}"
+            >
+                {% csrf_token %}
+                {% include template %}
+            </form>
+        {% else %}
+            {% include template %}
+        {% endif %}
+    </div>
+
+    <div class="progress mb-4" style="height: 5px;">
+        <div class="progress-bar" role="progressbar"
+             :style="`width: ${(current_page / total_pages) * 100}%`"
+             :aria-valuenow="current_page"
+             aria-valuemin="1"
+             :aria-valuemax="total_pages">
+        </div>
+    </div>
+
+    <div class="wizard-navigation d-flex justify-content-between">
+        <button
+            type="button"
+            class="btn btn-outline-secondary"
+            @click="previous_page()"
+            :disabled="current_page === 1"
+        >
+            Previous
+        </button>
+
+        {% if form_action %}
+            <template x-if="current_page < total_pages">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="next_page()"
+                >
+                    Next
+                </button>
+            </template>
+
+            <template x-if="current_page === total_pages">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    @click="submit_wizard()"
+                >
+                    Submit
+                </button>
+            </template>
+        {% else %}
+            <button
+                type="button"
+                class="btn btn-secondary"
+                @click="next_page()"
+                :disabled="current_page === total_pages"
+            >
+                Next
+            </button>
+        {% endif %}
+    </div>
+</div>

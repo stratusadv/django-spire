@@ -1,0 +1,11 @@
+<div x-show="current_page === 2">
+    <div class="row g-2">
+        <div class="col-md-6 col-12">
+            {% include 'spire/element/attribute_element.html' with attribute_title='Description' attribute_value=test_model.description %}
+        </div>
+
+        <div class="col-md-6 col-12">
+            {% include 'spire/element/attribute_element.html' with attribute_title='Personality Type' attribute_value=test_model.personality_type %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,7 @@
+{% extends 'spire/modal/base/modal.html' %}
+
+{% block modal_title %}{{ modal_title }}{% endblock %}
+
+{% block modal_body %}
+    {% include 'spire/wizard/base/wizard_container.html' with wizard_id=wizard_id wizard_content=wizard_content total_pages=total_pages %}
+{% endblock %}

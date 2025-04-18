@@ -1,0 +1,9 @@
+<span x-data>
+    <button
+        type="button"
+        class="{{ button_class|default:'btn btn-primary' }}"
+        @click="$dispatch('open-modal', { modal_id: '{{ modal_id }}' });"
+    >
+        {{ text|default:'Open' }}
+    </button>
+</span>

@@ -1,0 +1,7 @@
+{% extends 'spire/modal/base/modal.html' %}
+
+{% block modal_title %}{{ modal_title }}{% endblock %}
+
+{% block modal_body %}
+    {% include template with modal_id=modal_id %}
+{% endblock %}

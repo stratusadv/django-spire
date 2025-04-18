@@ -1,0 +1,13 @@
+<div
+    x-data="{
+        test_model: new ModelObjectGlue('test_model'),
+
+        async init() {
+            await this.test_model.get();
+        }
+    }"
+>
+    {% include 'modal/content/detail/page_one.html' %}
+    {% include 'modal/content/detail/page_two.html' %}
+    {% include 'modal/content/detail/page_three.html' %}
+</div>
