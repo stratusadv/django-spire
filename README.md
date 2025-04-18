@@ -18,4 +18,3 @@ Please refer to our [website](https://django-spire.stratusadv.com) for detailed 
         <img alt="Dandy Logo" src="https://django-spire.stratusadv.com/static/img/django_spire_logo_512.png"/>
     </a>
 </p>
-
