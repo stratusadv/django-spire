@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -17,7 +18,7 @@ def login_redirect_view(request, **kwargs):
         # if profile.requires_mfa():
         #     return HttpResponseRedirect(reverse('user_account:authentication:mfa:redirect:notification'))
 
-        return HttpResponseRedirect(reverse('home:home'))
+        return HttpResponseRedirect(reverse(settings.LOGIN_REDIRECT_SUCCESS_URL))
 
 
 @login_required()

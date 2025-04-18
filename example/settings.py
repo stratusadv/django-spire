@@ -44,9 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+]
 
-    'django_glue',
-
+INSTALLED_APPS += [
     'django_spire.ai',
     'django_spire.ai.chat',
 
@@ -76,7 +76,9 @@ INSTALLED_APPS = [
     'django_spire.seeding',
     'django_spire.speech_to_text',
     'django_spire.user_account',
+]
 
+INSTALLED_APPS += [
     'example',
     'example.ai',
     'example.authentication',
@@ -98,11 +100,15 @@ INSTALLED_APPS = [
     'example.user_account',
     'example.user_account.profile',
 
-    # Other
     'example.component',
     'example.cookbook',
     'example.cookbook.recipe',
+]
 
+INSTALLED_APPS += [
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'django_glue',
     'debug_toolbar',
 ]
 
@@ -133,6 +139,11 @@ DATABASES = {
 }
 
 ROOT_URLCONF = 'example.urls'
+
+LOGIN_URL = 'authentication:admin:login'
+LOGIN_REDIRECT_SUCCESS_URL = 'example:home:home'
+LOGIN_REDIRECT_URL = 'authentication:redirect:login'
+LOGOUT_REDIRECT_URL = 'authentication:admin:login'
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'secret')
 
@@ -170,3 +181,6 @@ TEMPLATES = [
 ]
 
 STATIC_URL = '/static/'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

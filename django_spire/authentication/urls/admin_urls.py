@@ -3,7 +3,7 @@ from django.urls import path
 from django_spire.authentication.views import admin_views
 
 
-app_name = 'authentication'
+app_name = 'admin'
 
 urlpatterns = [
     path('login/',
