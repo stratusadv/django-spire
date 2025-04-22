@@ -1,6 +1,6 @@
 <div x-data="{
     search_query:'',
-    search_view: new ViewGlue('{% url "spire_ai:chat:template:search" %}'),
+    search_view: new ViewGlue('{% url "django_spire:ai:chat:template:search" %}'),
 
     async submit_user_input() {
         await this.search_view.render_inner(this.$refs.search_results, {query: this.search_query.trim()})

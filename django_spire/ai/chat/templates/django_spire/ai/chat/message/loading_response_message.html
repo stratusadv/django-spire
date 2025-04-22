@@ -2,7 +2,7 @@
         init() {
             this.response_message.render_outer($refs.loading_response_message)
         },
-        response_message: new ViewGlue('{% url "spire_ai:chat:render:response_message" %}', {
+        response_message: new ViewGlue('{% url "django_spire:ai:chat:render:response_message" %}', {
             message_body: '{{ body|escapejs }}',
             chat_id: '{{ chat_id }}'
         })
