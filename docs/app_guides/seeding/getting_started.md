@@ -26,7 +26,8 @@ class Product(models.Model):
 By default, the system will fill any missing fields using a Large Language Model (LLM). But you can customize this behavior using the `default_to` class variable on your `ModelSeeding` subclass.
 
 ```python
-from django_spire.seeding import DjangoModelSeeder
+from django_spire.contrib.seeding import DjangoModelSeeder
+
 
 class ProductSeeder(DjangoModelSeeder):
     model_class = Product
@@ -48,19 +49,21 @@ class ProductSeeder(DjangoModelSeeder):
 If you don’t define any fields, the system defaults to using LLMs for all fields (unless excluded):
 
 ```python
-from django_spire.seeding import DjangoModelSeeder
+from django_spire.contrib.seeding import DjangoModelSeeder
+
 
 class ProductSeeder(DjangoModelSeeder):
     model_class = Product
     fields = {
         "id": "exclude"
     }
- 
-ProductSeeder.seed(count=5) # Initialized model objects
+
+
+ProductSeeder.seed(count=5)  # Initialized model objects
 
 # or
 
-ProductSeeder.seed_database(count=5) # Insert objects into the database
+ProductSeeder.seed_database(count=5)  # Insert objects into the database
 ```
 
 > This is ideal for prototyping, testing, or generating rich placeholder content fast.

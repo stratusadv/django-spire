@@ -1,0 +1,18 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value='Total Permissions' %}
+{% endblock %}
+
+{% block item_row_content %}
+    {% for perm in user_perm_data %}
+        <div class="col-lg-4 col-sm-3 col-4 mb-2">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title=perm.app_name %}
+            {% include 'django_spire/permission/element/group_perm_level_badge.html' with permission_level=perm.level_verbose %}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block item_button %}
+    {% include 'django_spire/item/element/item_ellipsis_spacer_element.html' %}
+{% endblock %}

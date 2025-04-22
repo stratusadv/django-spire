@@ -28,12 +28,12 @@ class Migration(migrations.Migration):
                 ('url', models.CharField(default='', max_length=255)),
                 ('is_processed', models.BooleanField(default=False)),
                 ('object_id', models.PositiveIntegerField()),
-                ('content_type', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='spire_notification', to='contenttypes.contenttype')),
+                ('content_type', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='django_spire_notification', to='contenttypes.contenttype')),
             ],
             options={
                 'verbose_name': 'Notification',
                 'verbose_name_plural': 'Notifications',
-                'db_table': 'spire_notification',
+                'db_table': 'django_spire_notification',
             },
         ),
     ]

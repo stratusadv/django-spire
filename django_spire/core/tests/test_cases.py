@@ -4,7 +4,7 @@ import tempfile
 
 from django.test import Client, override_settings, TestCase
 
-from django_spire.user_account.tests.factories import create_super_user
+from django_spire.auth.user.tests.factories import create_super_user
 
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp()

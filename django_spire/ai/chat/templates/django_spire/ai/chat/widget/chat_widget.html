@@ -1,0 +1,62 @@
+<div x-data="{
+    chat_object_id: '',
+    chat_content_type: '',
+    select_chat_visible: false,
+    chat_dialog_visible: true,
+    chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}', {
+        top_nav_height_px: '{{ top_nav_height_px }}'
+    }),
+    chat_load_recent_view:  new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
+
+    load_recent_chats() {
+        this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
+    },
+
+    async load_chat(chat_id) {
+        await this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
+                chat_id: chat_id
+            }
+        )
+        this.load_recent_chats()
+    },
+
+    open_chat_select() {
+        this.select_chat_visible = true
+        this.chat_dialog_visible = false
+    },
+
+    close_chat_select() {
+        if(window.innerWidth < 576) {
+            this.select_chat_visible = false
+            this.chat_dialog_visible = true
+        } else {
+            this.select_chat_visible = true
+            this.chat_dialog_visible = true
+        }
+    },
+
+    init() {
+        if(window.innerWidth >= 576) {
+            this.select_chat_visible = true
+            this.chat_dialog_visible = true
+        }
+        this.load_chat(0)
+    }
+}" class="row">
+    <div class="col-auto border-end px-3" x-show="select_chat_visible">
+        <div class="row h-100">
+            <div class="col ps-0 pe-2"
+                 x-transition:enter.duration.300ms
+                 x-transition:leave.duration.0ms
+            >
+                {% include 'django_spire/ai/chat/widget/select_chat_widget.html' %}
+            </div>
+            <div class="col-auto px-0 h-100 d-block d-md-none text-app-primary" style="font-size: 1.6rem; margin-top: -0.2rem;">
+                <i x-show="select_chat_visible" @click="close_chat_select()" class="bi bi-x-lg"></i>
+            </div>
+        </div>
+    </div>
+    <div x-ref="chat_dialog" x-show="chat_dialog_visible" class="col">
+        No Chat Loaded
+    </div>
+</div>

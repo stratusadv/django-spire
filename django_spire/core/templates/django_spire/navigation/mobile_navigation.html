@@ -1,0 +1,33 @@
+{% load static %}
+
+<div x-data="{ show_mobile_nav: false }">
+    <span
+        class="bi bi-list text-app-primary fs-2 d-lg-none cursor-pointer mx-2"
+        @click="show_mobile_nav = true"
+    >
+    </span>
+
+    <div class="col-auto d-lg-none">
+        <div
+            class="sidebar bg-app-side-bar px-2 w-mobile-navigation"
+            style="display: none;"
+            x-show="show_mobile_nav"
+            :class="{'show': show_mobile_nav}"
+            @click.away="show_mobile_nav = false"
+        >
+            {# Close Button #}
+            <i
+                class="bi bi-x-lg text-white position-absolute top-0 end-0 m-2"
+                type="button"
+                @click="show_mobile_nav = false"
+            >
+            </i>
+
+            <ul class="nav nav-pills flex-column mt-2 mx-1 p-2">
+                {% block mobile_navigation_links %}
+                    {% include 'django_spire/navigation/navigation_links.html' %}
+                {% endblock %}
+            </ul>
+        </div>
+    </div>
+</div>

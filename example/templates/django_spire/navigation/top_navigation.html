@@ -1,0 +1,71 @@
+{% extends 'django_spire/navigation/top_navigation.html' %}
+
+{% load static %}
+
+{% block top_navigation_content %}
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <a href="/" class="d-block mb-3">
+                    <span class="fs-5 fs-md-1 fw-bold d-none d-lg-block float-start">
+                        Django Spire
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                {% include 'django_spire/element/breadcrumb_element.html' %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-auto d-flex">
+
+        {% include 'django_spire/notification/app/element/notification_bell.html' %}
+
+        <div class="dropdown">
+            <i
+                    class="bi bi bi-gear-fill fs-2 mx-2 cursor-pointer"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+            >
+            </i>
+        </div>
+
+        <div class="dropdown">
+            <i
+                    class="bi bi-person-circle fs-2 mx-2 cursor-pointer"
+                    id="dropdownMenuButton1"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+            >
+            </i>
+            <ul class="dropdown-menu py-0" aria-labelledby="dropdownMenuButton1">
+                {% if request.user.is_superuser %}
+                    <li>
+                        <a class="dropdown-item fs--1" href="{% url 'admin:index' %}" target="_blank">
+                            Admin Panel
+                        </a>
+                    </li>
+                {% endif %}
+                <li>
+                    <a class="dropdown-item fs--1">
+                        Change Password
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item fs--1">
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-auto d-lg-none">
+            {% include 'django_spire/navigation/mobile_navigation.html' %}
+        </div>
+    </div>
+{% endblock %}

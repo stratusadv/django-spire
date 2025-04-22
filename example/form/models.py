@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.db import models
 from django.urls import reverse
 
-from django_spire.breadcrumb.models import Breadcrumbs
+from django_spire.contrib import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 
 from example.form import querysets

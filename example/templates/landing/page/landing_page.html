@@ -1,4 +1,4 @@
-{% extends 'spire/base/base.html' %}
+{% extends 'django_spire/base/base.html' %}
 
 {% load static %}
 
@@ -9,7 +9,7 @@
                 Django Spire Example Site
             </div>
             <div class="col-6 col-lg-3 mx-auto text-end">
-                <a class="btn btn-app-primary-outlined" href="{% url 'authentication:admin:login' %}">Login</a>
+                <a class="btn btn-app-primary-outlined" href="{% url 'django_spire:auth:admin:login' %}">Login</a>
             </div>
         </div>
         <div class="row">

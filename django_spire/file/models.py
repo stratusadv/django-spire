@@ -39,7 +39,7 @@ class File(HistoryModelMixin):
         return json.dumps(self.to_dict())
 
     class Meta:
-        db_table = 'spire_file'
+        db_table = 'django_spire_file'
         verbose_name = 'File'
         verbose_name_plural = 'Files'
         indexes = [

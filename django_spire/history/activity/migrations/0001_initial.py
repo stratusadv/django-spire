@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_datetime', models.DateTimeField(default=django.utils.timezone.localtime)),
-                ('activity', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subscribers', related_query_name='subscriber', to='spire_history_activity.activitylog')),
+                ('activity', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subscribers', related_query_name='subscriber', to='django_spire_history_activity.activitylog')),
                 ('subscriber', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='activity_subscribers', related_query_name='activity_subscriber', to=settings.AUTH_USER_MODEL)),
             ],
         ),

@@ -1,4 +1,4 @@
-{% extends 'spire/card/title_card.html' %}
+{% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
 	SpireChildApp
@@ -7,18 +7,18 @@
 {% block card_button %}
 	{% if perms.spireparentapp.change_spirepermission %}
         {% url 'spireparentapp:spirechildapp:page:form' pk=spirechildapp.pk as spirechildapp_edit_url %}
-        {% include 'spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=spirechildapp_edit_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=spirechildapp_edit_url %}
     {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
 	<div class="row g-3">
         <div class="col-12">
-            {% include 'spire/element/attribute_element.html' with attribute_title='Name' attribute_value=spirechildapp.name %}
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=spirechildapp.name %}
         </div>
 
         <div class="col-12">
-            {% include 'spire/element/attribute_element.html' with attribute_title='Description' attribute_value=spirechildapp.description|linebreaksbr %}
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=spirechildapp.description|linebreaksbr %}
         </div>
     </div>
 {% endblock %}

@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'AI Usage',
                 'verbose_name_plural': 'AI Usage',
-                'db_table': 'spire_ai_usage',
+                'db_table': 'django_spire_ai_usage',
             },
         ),
         migrations.CreateModel(
@@ -49,12 +49,12 @@ class Migration(migrations.Migration):
                 ('created_datetime', models.DateTimeField(default=django.utils.timezone.now)),
                 ('interaction', models.JSONField(blank=True, null=True)),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ai_interactions', related_query_name='ai_interaction', to=settings.AUTH_USER_MODEL)),
-                ('ai_usage', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='interactions', related_query_name='interaction', to='spire_ai.aiusage')),
+                ('ai_usage', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='interactions', related_query_name='interaction', to='django_spire_ai.aiusage')),
             ],
             options={
                 'verbose_name': 'AI Interaction',
                 'verbose_name_plural': 'AI Interactions',
-                'db_table': 'spire_ai_interaction',
+                'db_table': 'django_spire_ai_interaction',
             },
         ),
     ]

@@ -1,0 +1,22 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% load spire_core_tags %}
+
+{% block item_title_col %} d-none{% endblock %}
+
+{% block item_title_padding %}{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-8">
+        {% include 'django_spire/element/attribute_element.html' with attribute_type='Name' attribute_value=file.name attribute_href=file.file.url target='_blank' %}
+    </div>
+    <div class="col-2">
+        {% include 'django_spire/element/attribute_element.html' with attribute_type='Size' attribute_value=file.size %}
+    </div>
+    <div class="col-2">
+        {% include 'django_spire/element/attribute_element.html' with attribute_type='Type' attribute_value=file.type %}
+    </div>
+{% endblock %}
+
+{% block item_button %}
+{% endblock %}

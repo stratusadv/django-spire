@@ -9,7 +9,7 @@ from django.forms import Widget
 
 class MultipleWidget(Widget):
     needs_multipart_form = True
-    template_name = 'spire/file/widget/multiple_file_widget.html'
+    template_name = 'django_spire/file/widget/multiple_file_widget.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,7 +25,7 @@ class MultipleWidget(Widget):
 
 class SingleFileWidget(Widget):
     needs_multipart_form = True
-    template_name = 'spire/file/widget/single_file_widget.html'
+    template_name = 'django_spire/file/widget/single_file_widget.html'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

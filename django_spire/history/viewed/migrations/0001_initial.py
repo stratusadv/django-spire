@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Viewed',
                 'verbose_name_plural': 'Views',
-                'db_table': 'spire_history_viewed',
+                'db_table': 'django_spire_history_viewed',
             },
         ),
     ]

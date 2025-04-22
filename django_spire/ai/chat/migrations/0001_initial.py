@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'Chat',
                 'verbose_name_plural': 'Chats',
-                'db_table': 'spire_ai_chat',
+                'db_table': 'django_spire_ai_chat',
             },
         ),
         migrations.CreateModel(
@@ -43,12 +43,12 @@ class Migration(migrations.Migration):
                 ('content', models.JSONField()),
                 ('is_processed', models.BooleanField(default=False)),
                 ('is_viewed', models.BooleanField(default=False)),
-                ('chat', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', related_query_name='message', to='spire_ai_chat.chat')),
+                ('chat', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', related_query_name='message', to='django_spire_ai_chat.chat')),
             ],
             options={
                 'verbose_name': 'Chat Message',
                 'verbose_name_plural': 'Chat Messages',
-                'db_table': 'spire_ai_chat_message',
+                'db_table': 'django_spire_ai_chat_message',
             },
         ),
     ]

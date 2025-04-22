@@ -10,8 +10,6 @@ def example(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'heading': 'Django Spire'},
             {'title': 'Ai Management', 'icon': 'bi bi-robot', 'url': reverse('ai:home')},
             {'title': 'Ai Chat', 'icon': 'bi bi-chat-heart', 'url': reverse('ai:chat:home')},
-            {'title': 'Authentication', 'icon': 'bi bi-shield-lock', 'url': reverse('authentication:home')},
-            {'title': 'Authentication: MFA', 'icon': 'bi bi-shield-lock-fill', 'url': reverse('authentication:mfa:home')},
             {'title': 'Breadcrumb', 'icon': 'bi bi-list-nested', 'url': reverse('breadcrumb:home')},
             {'title': 'Comment', 'icon': 'bi bi-chat-text', 'url': reverse('comment:home')},
             {'title': 'File', 'icon': 'bi bi-file-earmark', 'url': reverse('file:home')},
@@ -20,7 +18,6 @@ def example(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'Help', 'icon': 'bi bi-question-circle', 'url': reverse('help:home')},
             {'title': 'History', 'icon': 'bi bi-clock-history', 'url': reverse('history:home')},
             {'title': 'Home', 'icon': 'bi bi-house-door', 'url': reverse('home:page:home')},
-            {'title': 'Maintenance', 'icon': 'bi bi-tools', 'url': reverse('maintenance:home')},
             {'title': 'Modal', 'icon': 'bi bi-window', 'url': reverse('modal:home')},
             {'title': 'Notification', 'icon': 'bi bi-bell', 'url': reverse('notification:page:home')},
             {'title': 'Options', 'icon': 'bi bi-gear', 'url': reverse('options:home')},
@@ -34,7 +31,6 @@ def example(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'heading': 'Examples'},
             {'title': 'Test Model', 'icon': 'bi bi-database', 'url': reverse('test_model:home')},
             {'title': 'Component', 'icon': 'bi bi-puzzle', 'url': reverse('component:home')},
-            {'title': 'Cookbook', 'icon': 'bi bi-book', 'url': reverse('cookbook:list')},
             {'title': 'Tabular', 'icon': 'bi bi-table', 'url': reverse('tabular:home')},
         ]
     }

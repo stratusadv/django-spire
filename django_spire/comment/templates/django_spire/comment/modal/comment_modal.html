@@ -1,0 +1,17 @@
+{% extends 'django_spire/modal/title_modal.html' %}
+{% load crispy_forms_tags %}
+{% load comment_tags %}
+
+{% block modal_trigger %}
+    {% include 'django_spire/button/secondary_outlined_button.html' with button_logo_only='bi bi-plus' %}
+{% endblock %}
+
+{% block modal_title %}
+    Add Comment
+{% endblock %}
+
+{% block modal_title_content %}
+    {% comment_form related_obj request.get_full_path request.user user_list=comment_user_list as comment_form %}
+    <div class="h6">Comment*</div>
+    {% crispy comment_form %}
+{% endblock %}

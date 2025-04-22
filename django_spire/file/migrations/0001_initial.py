@@ -32,8 +32,8 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'File',
                 'verbose_name_plural': 'Files',
-                'db_table': 'spire_file',
-                'indexes': [models.Index(fields=['content_type', 'object_id'], name='spire_file_content_04cd73_idx')],
+                'db_table': 'django_spire_file',
+                'indexes': [models.Index(fields=['content_type', 'object_id'], name='django_spire_file_content_04cd73_idx')],
             },
         ),
     ]

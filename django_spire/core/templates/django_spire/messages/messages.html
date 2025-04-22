@@ -1,0 +1,28 @@
+{% load message %}
+
+{# To dispatch notification in other x-data use  $dispatch('notify', { message, type }) #}
+<div
+    class="fixed-top"
+    style="pointer-events: none"
+    @notify.window="add($event)"
+    x-data="{
+        notifications: [],
+        init() {
+            this.notifications = {% django_messages_to_json messages %}
+        },
+        add(e) {
+            this.notifications.push({
+                'id': e.timeStamp,
+                'type': e.detail.type,
+                'message': e.detail.message
+            })
+        },
+        remove(notification) {
+            this.notifications = this.notifications.filter(i => i.id !== notification.id)
+        }
+    }"
+>
+    <template x-for="notification in notifications" :key="notification.id">
+        {% include 'django_spire/messages/element/messages_element.html' %}
+    </template>
+</div>

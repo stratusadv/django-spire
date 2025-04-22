@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('spire_ai', '0001_initial'),
+        ('django_spire_ai', '0001_initial'),
     ]
 
     operations = [

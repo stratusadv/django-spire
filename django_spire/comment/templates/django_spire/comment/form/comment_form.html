@@ -1,0 +1,18 @@
+{% extends 'django_spire/modal/content/modal_title_content.html' %}
+
+{% block modal_content_title %}
+    Comment
+{% endblock %}
+
+{% block modal_content_content %}
+    <form
+        action="{% url 'comment:form' comment_pk=comment.pk|default:0 obj_pk=obj_pk app_label=app_label model_name=model_name %}"
+        method="post"
+    >
+        {% csrf_token %}
+        {% include 'django_spire/comment/form/content/comment_form_content.html' %}
+        <div class="pt-3">
+            {% include 'django_spire/form/form_submit_button.html' %}
+        </div>
+    </form>
+{% endblock %}

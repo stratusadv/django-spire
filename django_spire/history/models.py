@@ -10,7 +10,7 @@ from django_spire.history.choices import EventHistoryChoices
 
 
 class EventHistory(models.Model):
-    content_type = models.ForeignKey(ContentType, related_name='spire_eventhistory', on_delete=models.CASCADE, editable=False)
+    content_type = models.ForeignKey(ContentType, related_name='django_spire_eventhistory', on_delete=models.CASCADE, editable=False)
     object_id = models.PositiveIntegerField(editable=False)
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -22,7 +22,7 @@ class EventHistory(models.Model):
         return f'{self.content_object} - {self.event_verbose}'
 
     class Meta:
-        db_table = 'spire_history_event_history'
+        db_table = 'django_spire_history_event_history'
         verbose_name = 'Event History'
         verbose_name_plural = 'Event History'
 

@@ -1,0 +1,11 @@
+{% if permission_level|lower == 'view' %}
+    {% include 'django_spire/badge/primary_badge.html' with badge_text=permission_level %}
+{% elif permission_level|lower == 'add' %}
+    {% include 'django_spire/badge/primary_badge.html' with badge_text=permission_level %}
+{% elif permission_level|lower == 'change' %}
+    {% include 'django_spire/badge/success_badge.html' with badge_text=permission_level %}
+{% elif permission_level|lower == 'delete' %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text=permission_level %}
+{% else %}
+    {% include 'django_spire/badge/secondary_badge.html' with badge_text=permission_level %}
+{% endif %}

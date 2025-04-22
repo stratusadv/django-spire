@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('spire_ai', '0002_alter_aiinteraction_run_time_seconds_and_more'),
+        ('django_spire_ai', '0002_alter_aiinteraction_run_time_seconds_and_more'),
     ]
 
     operations = [

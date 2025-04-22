@@ -27,7 +27,7 @@ def load_template_view(request):
 
     return TemplateResponse(
         request,
-        'spire/ai/chat/widget/dialog_widget.html',
+        'django_spire/ai/chat/widget/dialog_widget.html',
         {
             'chat': chat,
             'top_nav_height_px': body_data['top_nav_height_px']
@@ -43,7 +43,7 @@ def recent_template_view(request):
 
     return TemplateResponse(
         request,
-        'spire/ai/chat/widget/recent_chat_list_widget.html',
+        'django_spire/ai/chat/widget/recent_chat_list_widget.html',
         {
             'recent_chats': [
                 {
@@ -60,7 +60,7 @@ def search_template_view(request):
 
     return TemplateResponse(
         request,
-        'spire/ai/chat/widget/search_chat_results_widget.html',
+        'django_spire/ai/chat/widget/search_chat_results_widget.html',
         {
             'search_results': [
                 {

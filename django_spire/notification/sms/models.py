@@ -11,6 +11,6 @@ class SmsNotification(models.Model):
         return f'{self.notification.title} - {self.number}'
 
     class Meta:
-        db_table = 'spire_notification_sms'
+        db_table = 'django_spire_notification_sms'
         verbose_name = 'SMS Notification'
         verbose_name_plural = 'SMS Notifications'

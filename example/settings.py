@@ -33,7 +33,10 @@ DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # AI Chat Config
-SPIRE_AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+
+# Maintenance Mode
+MAINTENANCE_MODE = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -49,46 +52,40 @@ INSTALLED_APPS += [
     'django_spire.ai',
     'django_spire.ai.chat',
 
-    'django_spire.authentication',
-    'django_spire.authentication.mfa',
-    'django_spire.breadcrumb',
+    'django_spire.auth',
+    'django_spire.auth.mfa',
+    'django_spire.auth.group',
+    'django_spire.auth.user',
+    'django_spire.contrib.breadcrumb',
     'django_spire.comment',
     'django_spire.core',
     'django_spire.file',
-    'django_spire.form',
-    'django_spire.gamification',
-    'django_spire.help',
+    'django_spire.contrib.form',
+    'django_spire.contrib.gamification',
+    'django_spire.contrib.help',
     'django_spire.history',
     'django_spire.history.activity',
     'django_spire.history.viewed',
-    'django_spire.maintenance',
-    'django_spire.modal',
 
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
 
-    'django_spire.options',
-    'django_spire.pagination',
-    'django_spire.permission',
-    'django_spire.search',
-    'django_spire.seeding',
+    'django_spire.contrib.options',
+    'django_spire.contrib.pagination',
     'django_spire.speech_to_text',
-    'django_spire.user_account',
 ]
 
 INSTALLED_APPS += [
     'example',
     'example.ai',
-    'example.authentication',
-    'example.authentication.mfa',
     'example.breadcrumb',
     'example.file',
     'example.form',
     'example.gamification',
     'example.help',
+    'example.home',
     'example.history',
-    'example.maintenance',
     'example.modal',
     'example.notification',
     'example.options',
@@ -98,10 +95,7 @@ INSTALLED_APPS += [
     'example.speech_to_text',
     'example.user_account',
     'example.user_account.profile',
-
     'example.component',
-    'example.cookbook',
-    'example.cookbook.recipe',
 ]
 
 INSTALLED_APPS += [
@@ -121,6 +115,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_glue.middleware.DjangoGlueMiddleware',
+    'django_spire.core.middleware.MaintenanceMiddleware',
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
@@ -139,10 +134,10 @@ DATABASES = {
 
 ROOT_URLCONF = 'example.example_urls'
 
-LOGIN_URL = 'authentication:admin:login'
-LOGIN_REDIRECT_SUCCESS_URL = 'example:home:page:home'
-LOGIN_REDIRECT_URL = 'authentication:redirect:login'
-LOGOUT_REDIRECT_URL = 'authentication:admin:login'
+LOGIN_URL = 'django_spire:auth:admin:login'
+LOGIN_REDIRECT_SUCCESS_URL = 'home:page:home'
+LOGIN_REDIRECT_URL = 'django_spire:auth:redirect:login'
+LOGOUT_REDIRECT_URL = 'django_spire:auth:admin:login'
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'secret')
 

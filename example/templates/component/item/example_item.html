@@ -1,25 +1,25 @@
-{% extends 'spire/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title_col %} d-none {% endblock %}
 
 {% block item_row_content %}
     <div class="col-lg-3 col-12">
-        {% include 'spire/element/attribute_element.html' with attribute_title='Recipe Name' attribute_value='Chocolate Cake' %}
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Recipe Name' attribute_value='Chocolate Cake' %}
     </div>
 
     <div class="col-lg-3 col-12">
-        {% include 'spire/element/attribute_element.html' with attribute_title='Preparation Time' attribute_value='45 minutes' %}
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Preparation Time' attribute_value='45 minutes' %}
     </div>
 
     <div class="col-lg-3 col-12">
-        {% include 'spire/element/attribute_element.html' with attribute_title='Cooking Time' attribute_value='30 minutes' %}
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Cooking Time' attribute_value='30 minutes' %}
     </div>
 
     <div class="col-lg-3 col-12">
-        {% include 'spire/element/attribute_element.html' with attribute_title='Servings' attribute_value='8' %}
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Servings' attribute_value='8' %}
     </div>
 {% endblock %}
 
 {% block item_button %}
-    {% include 'spire/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url='#' delete_url='#' %}
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url='#' delete_url='#' %}
 {% endblock %}

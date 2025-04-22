@@ -1,9 +1,9 @@
-{% extends 'spire/page/full_page.html' %}
+{% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_content %}
 
 
-    {% url 'spire_speech_to_text:transcribe' as transcribe_url %}
+    {% url 'django_spire_speech_to_text:transcribe' as transcribe_url %}
 
     <div x-data="{
         transcribe_url: '{{ transcribe_url }}',

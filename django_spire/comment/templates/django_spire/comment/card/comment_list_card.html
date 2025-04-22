@@ -1,0 +1,30 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% load permission_tags %}
+
+{% block card_title %}
+    Comments
+{% endblock %}
+
+{% block card_button %}
+        {% check_permission user app_label model_name 'change' as has_access %}
+        {% if has_access %}
+            <span
+                @click="dispatch_modal_view('{% url "comment:form_content" obj_pk=obj.pk comment_pk=0 app_label=app_label model_name=model_name %}')"
+            >
+                {% include 'button/primary_dark_button.html' with button_logo_only='bi bi-plus' %}
+            </span>
+        {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% with obj.comments.active.prefetch_user as comments %}
+        {% if comments %}
+            {% for comment in comments %}
+                {% include 'comment/item/comment_item.html' %}
+            {% endfor %}
+        {% else %}
+            {% include 'item/no_data_item.html' %}
+        {% endif %}
+    {% endwith %}
+{% endblock %}

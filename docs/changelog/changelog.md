@@ -1,14 +1,20 @@
 # Changelog
+## v0.5.0
+
+### Breaking
+
+- The word 'spire' has been replaced throughout the project with 'django_spire', this will break most existing code.
+- Most of the project has been completely refactored, and all uses of this package will need to be reviewed.
 
 ## v0.4.1
 
 ### Changes
+
 #### Django Model Seeder
 - Custom methods to seed foreign keys to solve class variables initiation issues.
 - In order custom method loops back on itself to keep seeding values.
 - Django LLM Seeder processes to futures when the count is over 25.
 - Field Override checks seeder class when calling methods.
-
 
 ## v0.4.0
 

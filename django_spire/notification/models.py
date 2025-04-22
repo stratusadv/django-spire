@@ -20,7 +20,7 @@ class Notification(HistoryModelMixin):
     is_processed = models.BooleanField(default=False)
 
     content_object = GenericForeignKey('content_type', 'object_id')
-    content_type = models.ForeignKey(ContentType, related_name='spire_notification', on_delete=models.CASCADE, editable=False)
+    content_type = models.ForeignKey(ContentType, related_name='django_spire_notification', on_delete=models.CASCADE, editable=False)
     object_id = models.PositiveIntegerField()
 
     def mark_processed(self) -> None:
@@ -34,6 +34,6 @@ class Notification(HistoryModelMixin):
         sender.send()
 
     class Meta:
-        db_table = 'spire_notification'
+        db_table = 'django_spire_notification'
         verbose_name = 'Notification'
         verbose_name_plural = 'Notifications'

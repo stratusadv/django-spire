@@ -1,4 +1,4 @@
-{% extends 'spire/card/title_card.html' %}
+{% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
     🍔 Food Card 🍕
@@ -10,7 +10,7 @@
 
 {% block card_button %}
     <div @click="toggle_card_title_dropdown()">
-        {% include 'spire/button/primary_button.html' with button_text='Toggle Food Dropdown' %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Toggle Food Dropdown' %}
     </div>
 {% endblock %}
 

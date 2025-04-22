@@ -36,11 +36,11 @@ class Message:
 
     def render_to_html_string(self, context_data: dict = None) -> str:
         if self.type == MessageType.REQUEST:
-            return self._render_template_to_html_string('spire/ai/chat/message/request_message.html', context_data)
+            return self._render_template_to_html_string('django_spire/ai/chat/message/request_message.html', context_data)
         elif self.type == MessageType.RESPONSE:
-            return self._render_template_to_html_string('spire/ai/chat/message/response_message.html', context_data)
+            return self._render_template_to_html_string('django_spire/ai/chat/message/response_message.html', context_data)
         elif self.type == MessageType.LOADING_RESPONSE:
-            return self._render_template_to_html_string('spire/ai/chat/message/loading_response_message.html', context_data)
+            return self._render_template_to_html_string('django_spire/ai/chat/message/loading_response_message.html', context_data)
 
     def to_dict(self) -> dict:
         return {
