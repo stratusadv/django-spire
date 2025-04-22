@@ -1,14 +1,9 @@
-{% extends 'base/base.html' %}
+{% extends 'spire/page/full_page.html' %}
 
-{% block example_content %}
-    <div class="container-fluid">
-        {% url 'ai:chat:home' as href %}
-        {% include 'navigation/top_navigation.html' with title='AI Chat' href=href %}
-
-        <div class="row">
-            <div class="col-12">
-                {% include 'spire/ai/chat/card/chat_card.html' with height_correction='-100px' %}
-            </div>
+{% block full_page_content %}
+    <div class="row">
+        <div class="col-12">
+            {% include 'spire/ai/chat/card/chat_card.html' with top_nav_height_px='200' %}
         </div>
     </div>
 {% endblock %}

@@ -137,10 +137,10 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = 'example.urls'
+ROOT_URLCONF = 'example.example_urls'
 
 LOGIN_URL = 'authentication:admin:login'
-LOGIN_REDIRECT_SUCCESS_URL = 'example:home:home'
+LOGIN_REDIRECT_SUCCESS_URL = 'example:home:page:home'
 LOGIN_REDIRECT_URL = 'authentication:redirect:login'
 LOGOUT_REDIRECT_URL = 'authentication:admin:login'
 
@@ -170,7 +170,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django_glue.context_processors.django_glue',
-                'django_spire.core.context_processors.spire'
+                'django_spire.core.context_processors.spire',
+                'example.core.context_processors.example',
             ],
             'builtins': [
             ],

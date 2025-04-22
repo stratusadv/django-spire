@@ -4,7 +4,7 @@
     select_chat_visible: false,
     chat_dialog_visible: true,
     chat_load_ajax_view: new ViewGlue('{% url "spire_ai:chat:template:load" %}', {
-        height_correction: '{{ height_correction }}'
+        top_nav_height_px: '{{ top_nav_height_px }}'
     }),
     chat_load_recent_view:  new ViewGlue('{% url "spire_ai:chat:template:recent" %}'),
 
@@ -43,17 +43,16 @@
         this.load_chat(0)
     }
 }" class="row">
-    <div class="col-auto border-end px-3">
+    <div class="col-auto border-end px-3" x-show="select_chat_visible">
         <div class="row h-100">
-            <div class="col ps-0 pe-2" x-show="select_chat_visible"
+            <div class="col ps-0 pe-2"
                  x-transition:enter.duration.300ms
                  x-transition:leave.duration.0ms
             >
                 {% include 'spire/ai/chat/widget/select_chat_widget.html' %}
             </div>
             <div class="col-auto px-0 h-100 d-block d-md-none text-app-primary" style="font-size: 1.6rem; margin-top: -0.2rem;">
-                <i x-show="!select_chat_visible" @click="open_chat_select()" class="bi bi-box-arrow-right"></i>
-                <i x-show="select_chat_visible" @click="close_chat_select()" class="bi bi-box-arrow-in-left"></i>
+                <i x-show="select_chat_visible" @click="close_chat_select()" class="bi bi-x-lg"></i>
             </div>
         </div>
     </div>

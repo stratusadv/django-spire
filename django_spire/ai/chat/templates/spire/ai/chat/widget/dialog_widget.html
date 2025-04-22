@@ -21,13 +21,17 @@
         }
     }" class="row">
     <div class="col-12">
-        <div class="row px-0">
-            <div class="col-12 text-center fw-bold pb-2">
+        <div class="row px-0 border-bottom">
+            <div class="col-auto ps-2 pe-0 h-100 d-block d-md-none text-app-primary" style="font-size: 1.6rem; margin-top: -0.2rem;">
+                <i x-show="!select_chat_visible" @click="open_chat_select()" class="bi bi-chat-left-text"></i>
+            </div>
+            <div class="col text-center fw-bold pb-2">
                 {{ chat.name_shortened }}
             </div>
         </div>
+
         <div class="row mb-3">
-            <div x-init="load_messages()" x-ref="target_div" class="col-12 overflow-auto p-4" style="height: calc(100vh - 240px {{ height_correction }});">
+            <div x-init="load_messages()" x-ref="target_div" class="col-12 overflow-auto p-4" style="height: calc(100vh - 90px - {{ top_nav_height_px }}px);">
 
             </div>
         </div>

@@ -1,8 +1,7 @@
-{% extends 'base/base.html' %}
+{% extends 'spire/page/full_page.html' %}
 
-{% block example_content %}
-    {% url 'speech_to_text:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='Speech to Text' href=href %}
+{% block full_page_content %}
+
 
     {% url 'spire_speech_to_text:transcribe' as transcribe_url %}
 

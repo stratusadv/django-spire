@@ -30,7 +30,7 @@ def load_template_view(request):
         'spire/ai/chat/widget/dialog_widget.html',
         {
             'chat': chat,
-            'height_correction': body_data['height_correction']
+            'top_nav_height_px': body_data['top_nav_height_px']
         }
     )
 

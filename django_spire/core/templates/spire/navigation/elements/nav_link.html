@@ -1,11 +1,4 @@
-<li class="nav-item mb-2 ms-1 dropdown-item">
-    <a
-            class="nav-link p-0 text-app-accent-hover text-white fs-0 mb-0"
-            href="{{ link_url }}"
-    >
-{#        <i class="{{ link_icon }}"></i>#}
-        <div>
-            <span class="px-2 bi bi-dot">{{ link_text }}</span>
-        </div>
-    </a>
-</li>
+<a class="nav-link p-0 ps-1 pt-1 text-app-accent-hover text-white mb-0" href="{{ link_url }}">
+    <i class="{{ link_icon }}"></i>
+    {{ link_text }}
+</a>

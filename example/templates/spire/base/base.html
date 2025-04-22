@@ -4,9 +4,6 @@
 
 {% block base_head_additional_css %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/app.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap-override.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap-extension.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
 {% endblock %}
 
@@ -18,12 +15,6 @@
 {% block base_body_content %}
     {{ block.super }}
 
-    {% block example_content %}
-    {% endblock %}
-
-    {% block example_footer %}
-        {% include 'core/footer/footer.html' %}
-    {% endblock %}
 {% endblock %}
 
 {% block base_body_additional_bottom_js %}

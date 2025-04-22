@@ -1,6 +1,5 @@
-{% extends 'base/base.html' %}
+{% extends 'spire/page/full_page.html' %}
 
-{% block example_content %}
-    {% url 'test_model:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='Test Model' href=href %}
+{% block full_page_content %}
+
 {% endblock %}

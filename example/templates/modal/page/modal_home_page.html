@@ -1,8 +1,7 @@
-{% extends 'base/base.html' %}
+{% extends 'spire/page/full_page.html' %}
 
-{% block example_content %}
-    {% url 'modal:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='Modal' href=href %}
+{% block full_page_content %}
+
 
     <div class="container my-3">
         <div class="row row-cols-1 row-cols-sm-2 g-4 mb-3">
