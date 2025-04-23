@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_URLCONF = 'testing.urls'
 
 # AI Chat Config
-SPIRE_AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
