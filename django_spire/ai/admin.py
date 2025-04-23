@@ -35,7 +35,7 @@ class AiUsageAdmin(AiUsageAdminMixin):
     ) -> str:
         was_successful_filter = '' if was_successful is None else f'&was_successful__exact={int(was_successful)}'
         url = (
-                reverse("admin:spire_ai_aiinteraction_changelist")
+                reverse("admin:django_spire_ai_aiinteraction_changelist")
                 + "?"
                 + urlencode({"ai_usage__id": f"{ai_usage.id}"})
                 + was_successful_filter

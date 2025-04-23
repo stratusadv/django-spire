@@ -17,7 +17,7 @@ class ChatAdmin(admin.ModelAdmin):
     def view_chat_messages_link(self, obj):
         count = obj.messages.count()
         url = (
-                reverse("admin:spire_ai_chat_chatmessage_changelist")
+                reverse("admin:django_spire_ai_chat_chatmessage_changelist")
                 + "?"
                 + urlencode({"chat__id": f"{obj.id}"})
         )
