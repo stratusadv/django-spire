@@ -59,3 +59,5 @@ class MfaCode(models.Model):
 
     class Meta:
         db_table = 'django_spire_authentication_mfa_code'
+        verbose_name = 'MFA Code'
+        verbose_name_plural = 'MFA Codes'

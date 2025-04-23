@@ -10,8 +10,5 @@ class NotificationAppConfig(AppConfig):
 
     REQUIRED_APPS = ('django_spire_core', 'django_spire_notification')
 
-    URLPATTERNS_INCLUDE = 'django_spire.notification.urls'
-    URLPATTERNS_NAMESPACE = 'notification'
-
     def ready(self) -> None:
         check_required_apps(self.label)

@@ -1,6 +1,6 @@
 from django.db import models
 
-class EventHistoryChoices(models.TextChoices):
+class HistoryEventChoices(models.TextChoices):
     CREATED = 'crea', 'Created'
     UPDATED = 'upda', 'Updated'
     ACTIVE = 'acti', 'Active'

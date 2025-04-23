@@ -4,10 +4,10 @@ from typing_extensions import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
-    from django_spire.history.mixins import HistoryModelMixin
+    from django_spire.history.activity.mixins import ActivityMixin
 
 
-def add_form_activity(obj: HistoryModelMixin, pk: int, user: User) -> None:
+def add_form_activity(model_object: ActivityMixin, pk: int, user: User) -> None:
     verb = (
         'created'
         if pk == 0 else 'updated'
@@ -15,10 +15,10 @@ def add_form_activity(obj: HistoryModelMixin, pk: int, user: User) -> None:
 
     information = (
         f'{user.get_full_name()} {verb} '
-        f'{obj._meta.verbose_name} "{obj}".'
+        f'{model_object._meta.verbose_name} "{model_object}".'
     )
 
-    obj.add_activity(
+    model_object.add_activity(
         user=user,
         verb=verb,
         information=information

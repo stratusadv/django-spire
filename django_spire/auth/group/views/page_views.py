@@ -12,7 +12,7 @@ from django_spire.core.shortcuts import (
     process_request_body
 )
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
-from django_spire.history.utils import add_form_activity
+from django_spire.history.activity.utils import add_form_activity
 from django_spire.auth.group import forms, models
 from django_spire.auth.group.constants import PERMISSION_MODELS_DICT
 from django_spire.auth.group.decorators import permission_required

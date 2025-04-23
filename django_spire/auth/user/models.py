@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from django_spire.contrib import Breadcrumbs
-from django_spire.history.activity.mixins import ActivityLogMixin
+from django_spire.history.activity.mixins import ActivityMixin
 
 
-class AuthUser(User, ActivityLogMixin):
+class AuthUser(User, ActivityMixin):
     @classmethod
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
@@ -21,12 +21,12 @@ class AuthUser(User, ActivityLogMixin):
         if self.pk:
             crumbs.add_breadcrumb(
                 name=self.get_full_name(),
-                href=reverse('user_account:detail', kwargs={'pk': self.pk})
+                href=reverse('django_spire:auth:user:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs
 
     class Meta:
         proxy = True
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
+        verbose_name = 'Auth User'
+        verbose_name_plural = 'Auth Users'

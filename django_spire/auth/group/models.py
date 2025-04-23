@@ -4,10 +4,10 @@ from django.contrib.auth.models import Group
 from django.urls import reverse
 
 from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
-from django_spire.history.activity.mixins import ActivityLogMixin
+from django_spire.history.activity.mixins import ActivityMixin
 
 
-class AuthGroup(Group, ActivityLogMixin):
+class AuthGroup(Group, ActivityMixin):
     @classmethod
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
@@ -31,7 +31,7 @@ class AuthGroup(Group, ActivityLogMixin):
 
     class Meta:
         proxy = True
-        verbose_name = 'Group'
-        verbose_name_plural = 'Groups'
+        verbose_name = 'Auth Group'
+        verbose_name_plural = 'Auth Groups'
 
 

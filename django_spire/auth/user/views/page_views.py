@@ -17,7 +17,7 @@ from django_spire.contrib.form.confirmation_forms import (
     ConfirmationForm
 )
 from django_spire.contrib.form.utils import show_form_errors
-from django_spire.history.utils import add_form_activity
+from django_spire.history.activity.utils import add_form_activity
 from django_spire.contrib.pagination.pagination import paginate_list
 from django_spire.auth.group.decorators import permission_required
 from django_spire.auth.user.models import AuthUser
