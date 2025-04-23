@@ -21,11 +21,14 @@ INSTALLED_APPS = [
 
     'django_spire.ai',
     'django_spire.ai.chat',
-    'django_spire.core',
+
     'django_spire.auth',
     'django_spire.auth.mfa',
+    'django_spire.auth.group',
+    'django_spire.auth.user',
     'django_spire.contrib.breadcrumb',
     'django_spire.comment',
+    'django_spire.core',
     'django_spire.file',
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
@@ -33,15 +36,15 @@ INSTALLED_APPS = [
     'django_spire.history',
     'django_spire.history.activity',
     'django_spire.history.viewed',
+
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
+
     'django_spire.contrib.options',
     'django_spire.contrib.pagination',
-    'django_spire.permission',
-    'django_spire.contrib.seeding',
-    'django_spire.auth.user',
-
+    'django_spire.speech_to_text',
+    
     'testing.dummy',
 ]
 
