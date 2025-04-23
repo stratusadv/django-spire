@@ -13,9 +13,9 @@ from django_spire.comment import models
 from django_spire.comment.forms import CommentForm
 from django_spire.core.redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj, model_object_from_app_label
-from django_spire.form.utils import show_form_errors
-from django_spire.permission.utils import has_app_permission_or_404
-from django_spire.views.modal_views import dispatch_modal_delete_form_content
+from django_spire.contrib.form.utils import show_form_errors
+from django_spire.auth.group.utils import has_app_permission_or_404
+from django_spire.contrib.generic_views import dispatch_modal_delete_form_content
 
 import django_glue as dg
 
@@ -50,7 +50,7 @@ def comment_modal_form_content(
     return TemplateResponse(
         request,
         context=context_data,
-        template='spire/comment/form/comment_form.html',
+        template='django_spire/comment/form/comment_form.html',
     )
 
 

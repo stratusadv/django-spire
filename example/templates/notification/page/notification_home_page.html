@@ -1,8 +1,7 @@
-{% extends 'base/base.html' %}
+{% extends 'django_spire/page/full_page.html' %}
 
-{% block example_content %}
-    {% url 'notification:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='Notification' href=href %}
+{% block full_page_content %}
+
 
     <div style="z-index: -1 !important;" class="row">
         <div class="col-12">

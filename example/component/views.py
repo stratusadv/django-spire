@@ -9,7 +9,6 @@ import django_glue as dj
 from django_spire.core.shortcuts import get_object_or_null_obj
 
 from example.component.utils import from_directory, from_file
-from example.cookbook.models import Cookbook
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -363,7 +362,7 @@ def page_view(request: WSGIRequest) -> TemplateResponse:
     ]
 
     gallery = from_directory(
-        'django_spire/templates/spire/page/',
+        'django_spire/templates/django_spire/page/',
         exclude_template=exclude_template
     )
 

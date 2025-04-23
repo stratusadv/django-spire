@@ -1,12 +1,12 @@
-{% extends 'spire/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
     {% url 'spireparentapp:spirechildapp:page:detail' pk=spirechildapp.pk as spirechildapp_view_url %}
-	{% include 'spire/element/attribute_element.html' with attribute_title='SpireChildApp' attribute_value=spirechildapp.name attribute_href=spirechildapp_view_url %}
+	{% include 'django_spire/element/attribute_element.html' with attribute_title='SpireChildApp' attribute_value=spirechildapp.name attribute_href=spirechildapp_view_url %}
 {% endblock %}
 
 {% block item_row_content %}
-	{% include 'spire/element/attribute_element.html' with attribute_title='Description' attribute_value=spirechildapp.description %}
+	{% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=spirechildapp.description %}
 {% endblock %}
 
 {% block item_button %}
@@ -20,5 +20,5 @@
         {% url 'spireparentapp:spirechildapp:page:delete' pk=spirechildapp.pk as spirechildapp_delete_url %}
     {% endif %}
 
-	{% include 'spire/dropdown/ellipsis_dropdown.html' with view_url=spirechildapp_view_url edit_url=spirechildapp_edit_url delete_url=spirechildapp_delete_url %}
+	{% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=spirechildapp_view_url edit_url=spirechildapp_edit_url delete_url=spirechildapp_delete_url %}
 {% endblock %}

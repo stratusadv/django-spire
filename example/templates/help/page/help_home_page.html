@@ -1,6 +1,4 @@
-{% extends 'base/base.html' %}
+{% extends 'django_spire/page/full_page.html' %}
 
-{% block example_content %}
-    {% url 'help:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='Help' href=href %}
+{% block full_page_content %}
 {% endblock %}

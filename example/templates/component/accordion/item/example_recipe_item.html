@@ -1,19 +1,19 @@
-{% extends 'spire/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title_col %}2{% endblock %}
 
 {% block item_title %}
-	{% include 'spire/element/attribute_element.html' with attribute_title='Name' attribute_value='Steak' %}
+	{% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value='Steak' %}
 {% endblock %}
 
 {% block item_row_content %}
 	<div class="col-sm-4 col-6">
-    	{% include 'spire/element/attribute_element.html' with attribute_title='Prep Time' attribute_value='15 minutes' %}
+    	{% include 'django_spire/element/attribute_element.html' with attribute_title='Prep Time' attribute_value='15 minutes' %}
     </div>
     <div class="col-sm-4 col-6">
-    	{% include 'spire/element/attribute_element.html' with attribute_title='Cook Time' attribute_value='30 minutes' %}
+    	{% include 'django_spire/element/attribute_element.html' with attribute_title='Cook Time' attribute_value='30 minutes' %}
     </div>
     <div class="col-sm-4 col-6">
-    	{% include 'spire/element/attribute_element.html' with attribute_title='Servings' attribute_value='1' %}
+    	{% include 'django_spire/element/attribute_element.html' with attribute_title='Servings' attribute_value='1' %}
     </div>
 {% endblock %}

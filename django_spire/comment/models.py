@@ -72,7 +72,7 @@ class Comment(HistoryModelMixin):
         self.save()
 
     class Meta:
-        db_table = 'spire_comment'
+        db_table = 'django_spire_comment'
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
         ordering = ['-created_datetime']

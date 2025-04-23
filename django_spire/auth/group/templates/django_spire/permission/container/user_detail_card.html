@@ -1,0 +1,51 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% block container_title %}
+    {{ ser.get_full_name }}
+{% endblock %}
+
+{% block container_button %}
+    {% if perms.permission.change_portaluser %}
+        {% url 'user_account:register_user_form' pk=user.pk  as form_url %}
+        {% include 'django_spire/button/base_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' button_href=form_url %}
+    {% endif %}
+{% endblock %}
+
+{% extends 'django_spire/card/card.html' %}
+
+{% block card_title %}
+    {{ ser.get_full_name }}
+{% endblock %}
+
+{% block card_button %}
+        {% if perms.permission.change_portaluser %}
+        {% url 'user_account:register_user_form' pk=user.pk  as form_url %}
+        {% include 'django_spire/button/base_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' button_href=form_url %}
+    {% endif %}
+{% endblock %}
+
+{% block card_content %}
+    <div class="row mb-3">
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='First Name' attribute_value=user.first_name %}
+        </div>
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Name' attribute_value=user.last_name %}
+        </div>
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Email' attribute_value=user.email %}
+        </div>
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
+            {% include 'django_spire/permission/element/../element/is_active_badge.html' with is_active=user.is_active %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Login' attribute_value=user.last_login %}
+        </div>
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Date Created' attribute_value=user.date_joined %}
+        </div>
+    </div>
+{% endblock %}

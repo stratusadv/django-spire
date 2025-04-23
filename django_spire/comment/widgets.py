@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 
 
 class TaggingWidget(Widget):
-    template_name = 'spire/comment/widget/tagging_widget.html'
+    template_name = 'django_spire/comment/widget/tagging_widget.html'
     user_list = None
     information = None
 

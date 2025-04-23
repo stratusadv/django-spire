@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/card.html' %}
+
+{% block card_content %}
+    <div class="row">
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_type='User' attribute_value=user.username %}
+        </div>
+    </div>
+{% endblock %}

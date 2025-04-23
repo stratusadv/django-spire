@@ -1,4 +1,4 @@
-{% extends 'spire/card/title_card.html' %}
+{% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
 	Test Model
@@ -7,7 +7,7 @@
 {% block card_button %}
 	{% if perms.authentication.change_authentication %}
         {% url 'authentication:page:form' pk=authentication.pk as authentication_edit_url %}
-        {% include 'spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=authentication_edit_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=authentication_edit_url %}
     {% endif %}
 {% endblock %}
 

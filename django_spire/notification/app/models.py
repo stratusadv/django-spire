@@ -49,7 +49,7 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
         return json.dumps(self.as_dict())
 
     class Meta:
-        db_table = 'spire_notification_app'
+        db_table = 'django_spire_notification_app'
         verbose_name = 'App Notification'
         verbose_name_plural = 'App Notifications'
 

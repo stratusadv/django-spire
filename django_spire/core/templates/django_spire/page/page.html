@@ -1,0 +1,18 @@
+{% extends 'django_spire/base/base.html' %}
+
+{% block base_body_content %}
+
+    <div class="container-fluid ps-0">
+
+        {% include 'django_spire/messages/messages.html' %}
+        {% include 'django_spire/element/page_loading_element.html' %}
+
+        {% block page_content %}
+        {% endblock %}
+
+        {% include 'django_spire/modal/dispatch_modal.html' %}
+
+    </div>
+
+{% endblock %}
+

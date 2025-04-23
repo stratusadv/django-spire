@@ -1,9 +1,6 @@
-{% extends 'base/base.html' %}
+{% extends 'django_spire/page/full_page.html' %}
 
-{% block example_content %}
-    {% url 'component:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='Component Dashboard' href=href %}
-
+{% block full_page_content %}
     <div class="container-fluid">
         <div class="row mt-3">
             {% include 'component/base/sidebar.html' %}
@@ -11,7 +8,7 @@
             <main class="col-md-8">
                 <div class="row justify-content-center mb-3">
                     <div class="col-12">
-                        {% block page_content %}
+                        {% block component_content %}
                         {% endblock %}
                     </div>
                 </div>
@@ -19,4 +16,5 @@
 
             {% include 'component/base/overview.html' %}
         </div>
+    </div>
 {% endblock %}

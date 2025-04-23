@@ -2,13 +2,13 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from django_spire.history.activity.models import ActivityLog, ActivitySubscriber
+from django_spire.history.activity.models import Activity, ActivitySubscriber
 
 
-class ActivityLogMixin(models.Model):
-    activity_log = GenericRelation(
-        ActivityLog,
-        related_query_name='activity_log',
+class ActivityMixin(models.Model):
+    activities = GenericRelation(
+        Activity,
+        related_query_name='activity',
         editable=False
     )
 
@@ -19,9 +19,9 @@ class ActivityLogMixin(models.Model):
             information: str,
             recipient: User = None,
             subscribers: list[User] | None = None
-    ) -> ActivityLog:
+    ) -> Activity:
 
-        activity = self.activity_log.create(
+        activity = self.activities.create(
             user=user,
             verb=verb,
             information=information,
@@ -40,7 +40,7 @@ class ActivityLogMixin(models.Model):
 
     @property
     def creator(self) -> User:
-        return self.activity_log.earliest('date_time_entered').user
+        return self.activities.earliest('date_time_entered').user
 
     class Meta:
         abstract = True

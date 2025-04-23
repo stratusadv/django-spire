@@ -42,6 +42,6 @@ class TestModel(HistoryModelMixin):
         return f'{self.first_name} {self.last_name}'
 
     class Meta:
-        db_table = 'spire_test_model'
+        db_table = 'django_spire_test_model'
         verbose_name = 'Test Model'
         verbose_name_plural = 'Test Model'

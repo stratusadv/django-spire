@@ -77,7 +77,7 @@ class Chat(HistoryModelMixin):
         return self.name
 
     class Meta:
-        db_table = 'spire_ai_chat'
+        db_table = 'django_spire_ai_chat'
         verbose_name = 'Chat'
         verbose_name_plural = 'Chats'
         ordering = ('-last_message_datetime', 'name')
@@ -128,6 +128,6 @@ class ChatMessage(HistoryModelMixin):
         )
 
     class Meta:
-        db_table = 'spire_ai_chat_message'
+        db_table = 'django_spire_ai_chat_message'
         verbose_name = 'Chat Message'
         verbose_name_plural = 'Chat Messages'

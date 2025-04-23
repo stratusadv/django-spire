@@ -1,6 +1,0 @@
-{% extends 'base/base.html' %}
-
-{% block example_content %}
-    {% url 'authentication:mfa:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='Authentication: MFA' href=href %}
-{% endblock %}

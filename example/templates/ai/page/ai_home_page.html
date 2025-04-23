@@ -1,8 +1,6 @@
-{% extends 'base/base.html' %}
+{% extends 'django_spire/page/full_page.html' %}
 
-{% block example_content %}
-    {% url 'ai:home' as href %}
-    {% include 'navigation/top_navigation.html' with title='AI' href=href %}
+{% block full_page_content %}
 
     <div x-data="{
     }">

@@ -1,0 +1,16 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% load spire_core_tags %}
+
+{% block container_title %}
+    {{ user.username }}
+{% endblock %}
+
+{% block container_button %}
+    {% url 'user_account:form' pk=project.pk as form_url %}
+    {% include 'django_spire/button/base_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' href=form_url %}
+{% endblock %}
+
+{% block container_content %}
+    {% include 'django_spire/user_account/card/../card/user_detail_card.html' %}
+{% endblock %}

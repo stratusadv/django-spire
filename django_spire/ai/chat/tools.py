@@ -7,7 +7,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from pydantic import BaseModel
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
-from django_spire.consts import AI_CHAT_WORKFLOW_CLASS_NAME
+from django_spire.consts import AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME
 
 
 def chat_workflow_process(
@@ -18,7 +18,10 @@ def chat_workflow_process(
     if user_input is None:
         raise ValueError('user_input is required')
 
-    chat_workflow_class = getattr(settings, AI_CHAT_WORKFLOW_CLASS_NAME)
+    chat_workflow_class = getattr(settings, AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME)
+    
+    if chat_workflow_class is None:
+        raise ValueError(f'"{AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME}" must be set in the django settings.')
 
     module_name = '.'.join(chat_workflow_class.split('.')[:-1])
     object_name = chat_workflow_class.split('.')[-1]

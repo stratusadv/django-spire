@@ -13,7 +13,7 @@ class AiUsage(AiUsageMixin):
         return f'"{self.recorded_date}" ai usage'
 
     class Meta:
-        db_table = 'spire_ai_usage'
+        db_table = 'django_spire_ai_usage'
         verbose_name = 'AI Usage'
         verbose_name_plural = 'AI Usage'
 
@@ -67,6 +67,6 @@ class AiInteraction(AiUsageMixin):
         super().save(*args, **kwargs)
 
     class Meta:
-        db_table = 'spire_ai_interaction'
+        db_table = 'django_spire_ai_interaction'
         verbose_name = 'AI Interaction'
         verbose_name_plural = 'AI Interactions'

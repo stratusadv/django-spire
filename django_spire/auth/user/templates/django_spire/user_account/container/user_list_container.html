@@ -1,0 +1,12 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% block container_title %}User List{% endblock %}
+
+{% block container_button %}
+    {% url 'user_account:form' pk=0 return_url=request.get_full_path as user_profile_form %}
+    {% include 'django_spire/button/base_button.html' with button_text='Add' button_icon='bi bi-plus-lg' href=user_profile_form %}
+{% endblock %}
+
+{% block container_content %}
+    {% include 'django_spire/user_account/card/../card/user_profile_list_card.html' %}
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from django_spire.ai import views
+from django_spire.speech_to_text import views
 
 
 app_name = 'speech_to_text'

@@ -1,0 +1,17 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title_content_style %}max-height: 400px; overflow-y: auto; overflow-x: hidden;{% endblock %}
+
+{% block card_title %}
+    Recent Activity
+{% endblock %}
+
+{% block card_title_content %}
+    {% if activity_log %}
+        {% for activity in activity_log %}
+            {% include 'django_spire/history/item/activity_item.html' %}
+        {% endfor %}
+    {% else %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endif %}
+{% endblock %}

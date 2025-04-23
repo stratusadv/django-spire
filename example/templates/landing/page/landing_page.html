@@ -1,0 +1,22 @@
+{% extends 'django_spire/base/base.html' %}
+
+{% load static %}
+
+{% block base_body_content %}
+    <div class="container-fluid">
+        <div class="row border-bottom bg-app-layer-two p-3 mb-3 shadow-sm">
+            <div class="col-6 col-lg-3 mx-auto text-start fs-4">
+                Django Spire Example Site
+            </div>
+            <div class="col-6 col-lg-3 mx-auto text-end">
+                <a class="btn btn-app-primary-outlined" href="{% url 'django_spire:auth:admin:login' %}">Login</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-lg-6 mx-auto text-center">
+                <img class="img-fluid" src="{% static 'img/django_spire.svg' %}">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

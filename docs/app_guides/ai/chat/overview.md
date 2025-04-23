@@ -26,7 +26,7 @@ You also need to add the spire ai chat to your `urls.py`:
 from django.urls import path, include
 
 urlpatterns = [
-    path('spire/ai/', include('django_spire.ai.urls', namespace='spire_ai')),
+    path('django_spire/ai/', include('django_spire.ai.urls', namespace='django_spire_ai')),
 ]
 ```
 
@@ -51,7 +51,7 @@ The function you use will need to take 3 arguments:
 Once this is setup you can simply add the chat card to your templates:
 
 ```html
-{ % include 'spire/ai/chat/card/chat_card.html' % }
+{ % include 'django_spire/ai/chat/card/chat_card.html' % }
 ```
 
 !!! tip

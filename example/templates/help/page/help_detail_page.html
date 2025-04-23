@@ -1,13 +1,14 @@
-{% extends 'spire/page/full_page.html' %}
+{% extends 'django_spire/page/full_page.html' %}
 
-{% block page_content %}
+{% block full_page_content %}
+
 	<div class="row g-3">
         <div class="col-12">
             {% include 'help/card/help_detail_card.html' %}
         </div>
 
         <div class="col-4">
-            {% include 'spire/history/card/activity_list_card.html' with activity_log=help.activity_log.prefetch_user %}
+            {% include 'django_spire/history/card/activity_list_card.html' with activity_log=help.activity_log.prefetch_user %}
         </div>
     </div>
 {% endblock %}

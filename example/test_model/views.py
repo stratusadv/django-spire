@@ -5,7 +5,7 @@ from typing_extensions import TYPE_CHECKING
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
-from django_spire.views import portal_views
+from django_spire.contrib.generic_views import portal_views
 
 from example.test_model.factories import generate_test_model
 

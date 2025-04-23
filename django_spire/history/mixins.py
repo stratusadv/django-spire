@@ -5,8 +5,8 @@ from django.db import models
 from django.utils.timezone import localtime
 from typing_extensions import TYPE_CHECKING
 
-from django_spire.history.choices import EventHistoryChoices
-from django_spire.history.models import EventHistory
+from django_spire.history.choices import HistoryEventChoices
+from django_spire.history.models import HistoryEvent
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -16,9 +16,9 @@ class HistoryModelMixin(models.Model):
     is_active = models.BooleanField(default=True, editable=False)
     is_deleted = models.BooleanField(default=False, editable=False)
 
-    event_history = GenericRelation(
-        EventHistory,
-        related_query_name='spire_event_history',
+    history_events = GenericRelation(
+        HistoryEvent,
+        related_query_name='history_event',
         editable=False
     )
 
@@ -28,35 +28,29 @@ class HistoryModelMixin(models.Model):
         super().save(*args, **kwargs)
 
         if self.pk:
-            self.event_history.create(event=EventHistoryChoices.UPDATED)
+            self.history_events.create(event=HistoryEventChoices.UPDATED)
         else:
-            self.event_history.create(event=EventHistoryChoices.CREATED)
-
-    def add_view(self, user: User) -> None:
-        self.views.create(user=user)
-
-    def is_viewed(self, user: User) -> None:
-        return self.views.filter(user=user).exists()
+            self.history_events.create(event=HistoryEventChoices.CREATED)
 
     def set_active(self) -> None:
         self.is_active = True
         self.save()
-        self.event_history.create(event=EventHistoryChoices.ACTIVE)
+        self.history_events.create(event=HistoryEventChoices.ACTIVE)
 
     def set_deleted(self) -> None:
         self.is_deleted = True
         self.save()
-        self.event_history.create(event=EventHistoryChoices.DELETED)
+        self.history_events.create(event=HistoryEventChoices.DELETED)
 
     def set_inactive(self) -> None:
         self.is_active = False
         self.save()
-        self.event_history.create(event=EventHistoryChoices.INACTIVE)
+        self.history_events.create(event=HistoryEventChoices.INACTIVE)
 
     def un_set_deleted(self) -> None:
         self.is_deleted = False
         self.save()
-        self.event_history.create(event=EventHistoryChoices.UNDELETED)
+        self.history_events.create(event=HistoryEventChoices.UNDELETED)
 
     class Meta:
         abstract = True

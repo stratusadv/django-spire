@@ -74,7 +74,7 @@ class AiUsageAdmin(AiUsageAdminMixin):
 class InteractionField(forms.Textarea):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.template_name = 'spire/ai/forms/widgets/ai_interaction_widget.html'
+        self.template_name = 'django_spire/ai/forms/widgets/ai_interaction_widget.html'
 
     def get_context(self, *args, **kwargs):
         context = super().get_context(*args, **kwargs)
