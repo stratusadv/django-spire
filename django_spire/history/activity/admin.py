@@ -6,7 +6,7 @@ from django_spire.history.activity.models import Activity
 
 
 @admin.register(Activity)
-class ActivityLogAdmin(admin.ModelAdmin):
+class ActivityAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'content_object_link', 'content_type', 'created_datetime',
         'verb', 'user_link', 'recipient_link', 'information_snippet'
