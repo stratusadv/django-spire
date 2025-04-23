@@ -111,7 +111,7 @@ keepdb = true
 verbosity = 1
 
 [tool.dev_tool.unittest.django]
-apps = ["."]
+apps = ["django_spire"]
 settings = "testing.settings"
 
 [tool.dev_tool.unittest.python]
