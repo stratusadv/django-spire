@@ -23,7 +23,7 @@ class MaintenanceMiddleware:
         # if maintenance_mode:
         #     return TemplateResponse(
         #         request=request,
-        #         template='django_django_spire/page/maintenance_page.html',
+        #         template='django_spire/page/maintenance_page.html',
         #     )
-
+        #
         return self.get_response(request)
