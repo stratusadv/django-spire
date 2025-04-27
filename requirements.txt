@@ -4,6 +4,7 @@ dandy==0.16.0
 django>=5.1.8
 django-crispy-forms>=1.14.0
 faker==37.1.0
+openai-whisper==20240930
 Pygments
 psycopg2>=2.9.10
 pydantic

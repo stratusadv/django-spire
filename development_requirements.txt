@@ -1,6 +1,5 @@
 build
 django-debug-toolbar
-openai-whisper==20240930
 setuptools
 twine
 

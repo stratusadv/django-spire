@@ -1,4 +1,10 @@
 # Changelog
+## v0.5.1
+
+### Breaking
+
+- Fixes for refactoring errors and import errors.
+
 ## v0.5.0
 
 ### Breaking
