@@ -19,7 +19,7 @@ class MFAForm(forms.Form):
             Row(
                 Column('mfa_code', css_class='form-group col-12'),
             ),
-            HTML("{% include 'django_spire/form/form_submit_button.html' %}")
+            HTML("{% include 'django_spire/contrib/form/form_submit_button.html' %}")
         )
 
     def clean(self) -> None:
