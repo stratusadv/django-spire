@@ -1,9 +1,12 @@
-<div x-data="{
+<div
+    x-data="{
+        show_loading: false,
         show_reading: true,
         show_typing: false,
         init() {
             this.response_message.render_outer($refs.loading_response_message)
 
+            setTimeout(() => this.show_loading = true, 100)
             setTimeout(() => this.show_reading = false, 1000)
             setTimeout(() => this.show_typing = true, 1000)
         },
@@ -14,7 +17,10 @@
                 chat_id: '{{ chat_id }}'
             }
         )
-    }">
+    }"
+    x-show="show_loading"
+    x-transition
+>
     <div x-ref="loading_response_message" x-init="$el.scrollIntoView()" class="row mt-2">
         <div class="col-auto align-self-center">
             <div class="row align-items-center">

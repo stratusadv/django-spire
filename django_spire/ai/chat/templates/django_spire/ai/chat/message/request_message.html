@@ -1,3 +1,14 @@
-<div x-init="$el.scrollIntoView()" class="row justify-content-end ps-4 ps-lg-5">
+<div
+    class="row justify-content-end ps-4 ps-lg-5"
+    x-data="{
+        show_message: false,
+        init() {
+            setTimeout(() => this.show_message = true, 100)
+        }
+    }"
+    x-init="$el.scrollIntoView()"
+    x-show="show_message"
+    x-transition
+>
     {% include 'django_spire/ai/chat/message/message.html' with sender_class="text-end" %}
 </div>
