@@ -8,12 +8,10 @@
 
             let type = response.type
             if (type === 'success') {
-                dispatch_success_notification(response.message)
                 close_modal()
                 $dispatch('deleted_chat', {{ chat.pk }})
-            } else {
-                dispatch_error_notification(response.message)
             }
+            $dispatch('notify', {'type': type, 'message': response.message})
         }
     }"
 >
