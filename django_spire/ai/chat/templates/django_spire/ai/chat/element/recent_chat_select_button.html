@@ -1,27 +1,16 @@
 <div
     class="row mb-2"
     x-data="{
-        show_recent_chat: true,
-        async delete_recent_chat() {
-            let response = await django_glue_fetch(
-                '{% url "django_spire:ai:chat:json:delete" pk=recent_chat.id %}',
-            )
-
-            let type = response.type
-            if (type === 'success') {
-                this.show_recent_chat = false
-                dispatch_success_notification(response.message)
-            } else {
-                dispatch_error_notification(response.message)
-            }
-        }
+        show_recent_chat: true
     }"
     x-show="show_recent_chat"
+    @deleted_chat.window="if (show_recent_chat) show_recent_chat = $event.detail !== {{ recent_chat.id }}"
+
 >
     <div class="col-12">
-        <div class="row justify-content-between btn shadow-sm btn-sm">
+        <div class="d-flex flex-wrap justify-content-between btn shadow-sm btn-sm w-100">
             <div
-                class="col cursor-pointer ps-0"
+                class="col cursor-pointer px-0 text-start"
                 @click="() => {
                     load_chat({{ recent_chat.id }})
                     close_chat_select()
@@ -30,9 +19,12 @@
                 <i class="bi bi-chat-dots-fill"></i>
                 {{ recent_chat.name }}
             </div>
-            <div class="col-auto pe-0 w-25">
-                {% include 'django_spire/ai/chat/dropdown/recent_chat_ellipse_dropdown.html' %}
-            </div>
+            {% if not recent_chat.is_empty %}
+                <div class="col-auto px-0 text-end">
+                    {% url 'django_spire:ai:chat:template:confirm_delete' pk=recent_chat.id as delete_url %}
+                    {% include 'django_spire/dropdown/ellipsis_modal_dropdown.html' %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
