@@ -1,5 +1,9 @@
 {% extends 'django_spire/card/card.html' %}
 
+{% block card_padding %}
+	px-3 py-2
+{% endblock %}
+
 {% block card_content %}
     <div class="row">
         <div class="col-12" style="height: calc(100vh - {{ top_nav_height_px }}px);">
@@ -7,5 +11,3 @@
         </div>
     </div>
 {% endblock %}
-
-

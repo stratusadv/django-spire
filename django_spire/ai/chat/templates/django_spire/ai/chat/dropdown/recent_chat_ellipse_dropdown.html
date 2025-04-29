@@ -1,0 +1,15 @@
+{% extends 'django_spire/dropdown/dropdown.html' %}
+
+{% block dropdown_position %}end-0 top-100{% endblock %}
+
+{% block dropdown_trigger %}
+    <span
+        class="bi bi-three-dots-vertical"
+        x-bind="trigger"
+    >
+    </span>
+{% endblock %}
+
+{% block dropdown_content %}
+    {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Delete' x_click="delete_recent_chat()" link_css='text-app-danger' %}
+{% endblock %}

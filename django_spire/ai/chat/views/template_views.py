@@ -6,7 +6,7 @@ from django.utils.timezone import now
 from django_spire.ai.chat.models import Chat
 
 
-def load_template_view(request):
+def load_chat_view(request):
     body_data = json.loads(request.body)
 
     chat_id = body_data['chat_id']
@@ -34,7 +34,8 @@ def load_template_view(request):
         }
     )
 
-def recent_template_view(request):
+
+def recent_chat_list_view(request):
     chats = (
         Chat.objects
         .by_user(request.user)
@@ -54,7 +55,8 @@ def recent_template_view(request):
         }
     )
 
-def search_template_view(request):
+
+def search_chat_view(request):
     body_data = json.loads(request.body)
     chats = Chat.objects.by_user(request.user).search(body_data['query'])
 
