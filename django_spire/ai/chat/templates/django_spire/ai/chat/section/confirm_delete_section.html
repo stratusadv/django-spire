@@ -1,0 +1,24 @@
+<div
+    class="text-center"
+    x-data="{
+        async delete_chat() {
+            let response = await django_glue_fetch(
+                '{% url "django_spire:ai:chat:json:delete" pk=chat.pk %}',
+            )
+
+            let type = response.type
+            if (type === 'success') {
+                dispatch_success_notification(response.message)
+                close_modal()
+                $dispatch('deleted_chat', {{ chat.pk }})
+            } else {
+                dispatch_error_notification(response.message)
+            }
+        }
+    }"
+>
+    Are you sure you want to delete chat {{ chat }}?<br>
+    <div class="d-inline-block mt-2">
+        {% include 'django_spire/button/danger_button.html' with button_text='Delete' x_button_click="delete_chat()" %}
+    </div>
+</div>

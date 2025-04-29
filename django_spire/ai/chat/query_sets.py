@@ -1,7 +1,9 @@
-from django.db.models import QuerySet, Q, Count
+from django.db.models import Q, Count
+
+from django_spire.history.querysets import HistoryQuerySet
 
 
-class ChatQuerySet(QuerySet):
+class ChatQuerySet(HistoryQuerySet):
     def by_user(self, user):
         return self.filter(
             user=user,

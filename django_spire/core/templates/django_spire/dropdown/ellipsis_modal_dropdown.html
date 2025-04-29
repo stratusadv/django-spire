@@ -12,14 +12,14 @@
 
 {% block dropdown_content %}
     {% if view_url %}
-        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with modal_title='View Work Order Task' view_url=view_url link_text='View' %}
+        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=view_url link_text='View' %}
     {% endif %}
 
     {% if edit_url %}
-        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with modal_title='Edit Work Order Task' view_url=edit_url link_text='Edit' %}
+        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=edit_url link_text='Edit' %}
     {% endif %}
 
     {% if delete_url %}
-        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with modal_title='Delete Work Order Task' view_url=delete_url link_text='Delete' link_css='text-app-danger' %}
+        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=delete_url link_text='Delete' link_css='text-app-danger' %}
     {% endif %}
 {% endblock %}

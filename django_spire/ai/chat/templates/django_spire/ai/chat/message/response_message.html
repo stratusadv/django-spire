@@ -1,3 +1,13 @@
-<div x-init="$el.scrollIntoView()" class="row justify-content-start pe-4 pe-lg-5">
-    {% include 'django_spire/ai/chat/message/message.html' with body_class="bg-light" %}
+<div
+    x-data="{
+        show_message: false,
+        init() {
+            setTimeout(() => {this.show_message = true; $el.scrollIntoView()}, 100)
+        }
+    }"
+    class="row justify-content-start pe-4 pe-lg-5"
+    x-show="show_message"
+    x-transition
+>
+    {% include 'django_spire/ai/chat/message/message.html' with body_class="bg-app-accent-soft bg-accent-soft bg-light" %}
 </div>

@@ -9,6 +9,7 @@ ROOT_URLCONF = 'testing.urls'
 
 # AI Chat Config
 AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -44,7 +45,7 @@ INSTALLED_APPS = [
     'django_spire.contrib.options',
     'django_spire.contrib.pagination',
     'django_spire.speech_to_text',
-    
+
     'testing.dummy',
 ]
 
