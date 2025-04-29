@@ -34,6 +34,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # AI Chat Config
 AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True
