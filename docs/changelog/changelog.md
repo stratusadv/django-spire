@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.6.0
+
+### Features
+
+- Improved the `django_spire.ai.chat` application with more standard features and refactoring of naming.
+
+### Changes
+
+- Removed `testing` and `example` projects and converted everything into `test_project`.
+
+### Breaking
+
+- Fixes for refactoring errors and import errors.
+
 ## v0.5.*
 
 ### Breaking
