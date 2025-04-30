@@ -36,7 +36,6 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                 [
                     'Create data for each field provided.'
                 ])
-            .random_choice([])
             .heading('Field Rules & Context')
             .prompt(self.field_prompt)
         )

@@ -16,6 +16,7 @@ __pycache__/
 .venv*/
 .qodo/
 dist/
+site/
 build/
 django_spire.egg-info/
 inspectionProfiles/

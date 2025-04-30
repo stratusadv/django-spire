@@ -95,12 +95,12 @@ failfast = false
 nobrowser = false
 noerase = false
 nohtml = false
-settings = "testing.settings"
+settings = "test_project.settings"
 verbosity = 1
 
 [tool.dev_tool.coverage.django]
 apps = ["."]
-settings = "testing.settings"
+settings = "test_project.settings"
 
 [tool.dev_tool.coverage.python]
 apps = ["tests"]
@@ -112,7 +112,7 @@ verbosity = 1
 
 [tool.dev_tool.unittest.django]
 apps = ["django_spire"]
-settings = "testing.settings"
+settings = "test_project.settings"
 
 [tool.dev_tool.unittest.python]
 apps = ["tests"]
