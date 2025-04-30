@@ -22,7 +22,7 @@
             if (type === 'success') {
                 this.chat_name = this.new_chat_name
             } else {
-                dispatch_error_notification(response.message)
+                $dispatch('notify', {'type': type, 'message': response.message})
             }
 
             this.can_rename_chat = false
