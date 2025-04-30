@@ -114,5 +114,4 @@ theme:
 
 watch:
   - django_spire
-  - example
-  - testing
+  - test_project
