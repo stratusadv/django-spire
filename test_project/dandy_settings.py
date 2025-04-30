@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 ALLOW_DEBUG_RECORDING = True
-BASE_PATH = Path.resolve(Path(__file__)).parent
+BASE_PATH = Path.resolve(Path(__file__)).parent.parent
 DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
 
 

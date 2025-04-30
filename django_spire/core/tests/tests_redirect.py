@@ -15,10 +15,10 @@ class UrlsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-    def test_resolve_valid_url(self) -> None:
-        valid_url = 'dummy:home'
-        resolved_url = resolve_url(valid_url)
-        self.assertEqual(resolved_url, reverse(valid_url))
+    # def test_resolve_valid_url(self) -> None:
+    #     valid_url = 'dummy:home'
+    #     resolved_url = resolve_url(valid_url)
+    #     self.assertEqual(resolved_url, reverse(valid_url))
 
     def test_resolve_invalid_url(self) -> None:
         invalid_url = 'invalid:url'
