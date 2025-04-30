@@ -15,29 +15,27 @@ Please make note when using spire to only add the modules with green check marks
 
   - ai ✅
     - chat ✅
-  - authentication ❌
-  - breadcrumb ❌
+  - auth ✅
+    - group ✅
+    - user ✅ 
   - comment ❌
+  - contrib ✅
+    - breadcrumb ❌
+    - form ❌
+    - gamification ❌
+    - generic_views ❌
+    - help ❌
+    - options ❌
+    - pagination❌
+    - seeding ✅
   - core ✅
+    - maintenance❌
   - file ❌
-  - form ❌
-  - gamification ❌
-  - help ❌
   - history ✅
-  - home ❌
-  - maintenance❌
-  - modal❌
+    - activity ✅
+    - viewed ✅
   - notification ✅
     - email ✅
     - in_app ✅
     - push ❌
     - sms ❌
-  - options ❌
-  - pagination❌
-  - permission ❌
-  - search ❌
-  - speech_to_text ❌
-  - seeding ✅
-  - template ❌
-  - user_account❌
-  - views ❌

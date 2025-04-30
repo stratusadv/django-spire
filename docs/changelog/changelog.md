@@ -2,6 +2,10 @@
 
 ## v0.6.0
 
+### Breaking
+
+- Fixes for refactoring errors and import errors.
+
 ### Features
 
 - Improved the `django_spire.ai.chat` application with more standard features and refactoring of naming.
@@ -9,10 +13,7 @@
 ### Changes
 
 - Removed `testing` and `example` projects and converted everything into `test_project`.
-
-### Breaking
-
-- Fixes for refactoring errors and import errors.
+- Adjusted `django_spire.contrib.seeding` to be more accurate and consistent.
 
 ## v0.5.*
 
