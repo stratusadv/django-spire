@@ -23,7 +23,13 @@ def load_messages_render_view(request, chat_id):
             chat_message.to_message(request)
         )
 
-    return HttpResponse(message_group.render_to_html_string({'chat_id': chat.id}))
+    return HttpResponse(
+        message_group.render_to_html_string(
+            {
+                'chat_id': chat.id,
+            }
+        )
+    )
 
 
 def request_message_render_view(request):
@@ -63,7 +69,14 @@ def request_message_render_view(request):
         )
     )
 
-    return HttpResponse(message_group.render_to_html_string({'chat_id': chat.id}))
+    return HttpResponse(
+        message_group.render_to_html_string(
+            {
+                "chat_id": chat.id,
+                "chat_workflow_name": getattr(settings, AI_CHAT_WORKFLOW_SETTINGS_NAME),
+            }
+        )
+    )
 
 
 def response_message_render_view(request):
@@ -93,6 +106,4 @@ def response_message_render_view(request):
 
     chat.add_message(llm_message)
 
-    return HttpResponse(
-        llm_message.render_to_html_string({'chat_id': chat.id})
-    )
+    return HttpResponse(llm_message.render_to_html_string({'chat_id': chat.id}))

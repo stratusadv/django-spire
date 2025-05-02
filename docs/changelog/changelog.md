@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.1
+
+### Features
+
+- AI Chat UI and UX changes to make chat seem more natural. 
+
 ## v0.6.0
 
 ### Breaking
