@@ -10,6 +10,8 @@ from django_spire.notification.choices import (
     NotificationSenderMap,
     NotificationTypeChoices
 )
+from django_spire.notification.querysets import NotificationQuerySet
+
 
 class Notification(HistoryModelMixin):
     type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL, choices=NotificationTypeChoices.choices)
@@ -23,8 +25,10 @@ class Notification(HistoryModelMixin):
     content_type = models.ForeignKey(ContentType, related_name='django_spire_notification', on_delete=models.CASCADE, editable=False)
     object_id = models.PositiveIntegerField()
 
+    objects = NotificationQuerySet.as_manager()
+
     def mark_processed(self) -> None:
-        self.processed = True
+        self.is_processed = True
         self.processed_datetime = now()
         self.save()
 
