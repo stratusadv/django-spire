@@ -1,24 +1,22 @@
 <div class="row pt-1 px-3">
     <div class="col-12">
         {% if app_notification.notification.url %}
-            <a x-if="notification.url !== ''" href="{{app_notification.notification.url}}" class="">
+            <a href="{{app_notification.notification.url}}" class="">
         {% endif %}
             <div class="row bg-app-layer-two-hover rounded">
-                <div class="col-11">
-                    <span class="fs-7">{{ app_notification.notification.title }}</span><br>
-                    <span class="fs--1">{{ app_notification.notification.body }}</span>
-                    <div class="col-12 pt-1 pb-2">
-                        <span class="text-app-secondary fs--2">{{ app_notification.verbose_time_since_creation }}</span>
-
-                        {% if not is_viewed %}
-                            {% include "django_spire/badge/primary_badge.html" with badge_text='New' %}
-                        {% endif %}
-                    </div>
+                <div {# x-show="new_notification" x-cloak #} style="width: 7px; height: 7px;" class="col-auto rounded-circle px-0 pt-2 bg-danger align-self-center">
+                </div>
+                <div class="col">
+                    <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
+                    <span class="fs--1">{{ app_notification.notification.body }}</span><br>
+                    <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_creation }}</span>
                 </div>
             </div>
         {% if app_notification.notification.url %}
             </a>
         {% endif %}
     </div>
-    <hr class="m-0 mt-1"></hr>
+    {% if not forloop.last %}
+        <hr class="m-0 mt-1">
+    {% endif %}
 </div>

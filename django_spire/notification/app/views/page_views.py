@@ -12,11 +12,12 @@ if TYPE_CHECKING:
 
 
 def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
-    app_notification_list = [
-        (app_notification, app_notification.is_viewed(request.user))
-        for app_notification
-        in AppNotification.objects.by_user(request.user).order_by('-created_datetime')
-    ]
+    app_notification_list = (
+        AppNotification.objects.by_user(request.user)
+        .active()
+        .annotate_is_viewed_by_user(request.user)
+        .order_by("-created_datetime")
+    )
 
     return portal_views.list_view(
         request,

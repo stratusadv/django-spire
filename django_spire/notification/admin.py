@@ -8,7 +8,7 @@ class NotificationAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'title', 'type', 'is_processed', 'processed_datetime',
         'processed_datetime', 'view_body_snippet', 'url_link',
-        'content_type', 'object_id'
+        'content_type', 'object_id', 'is_deleted'
     )
     list_filter = ('type', 'is_processed', 'processed_datetime')
     search_fields = ('id', 'title', 'type')

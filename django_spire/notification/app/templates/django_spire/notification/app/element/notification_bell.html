@@ -3,6 +3,6 @@
 {% block notification_dropdown_trigger %}
     <div class="dropdown">
         <i x-bind='trigger' class="bi bi-bell-fill fs-2 cursor-pointer mx-2"></i>
-        <span style="width: 10px; height: 10px; top: 8px; right: 10px; position: absolute;" class="bg-danger rounded-circle"></span>
+        <span x-show="new_notification" x-cloak style="width: 10px; height: 10px; top: 8px; right: 10px; position: absolute;" class="bg-danger rounded-circle"></span>
     </div>
 {% endblock %}

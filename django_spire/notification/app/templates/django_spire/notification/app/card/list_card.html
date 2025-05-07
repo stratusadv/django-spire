@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% for app_notification, is_viewed in notification_list %}
+    {% for app_notification in notification_list %}
         {% include "django_spire/notification/app/item/notification_item.html" %}
     {% endfor %}
 {% endblock %}

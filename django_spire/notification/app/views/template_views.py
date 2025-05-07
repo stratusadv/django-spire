@@ -8,12 +8,13 @@ from django_spire.notification.app.models import AppNotification
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
+
 def notification_dropdown_template_view(request: WSGIRequest) -> TemplateResponse:
     app_notification_list = (
         AppNotification.objects.active()
         .annotate_is_viewed_by_user(request.user)
-        .order_by('-created_datetime')
-        .select_related('notification')
+        .order_by("-created_datetime")
+        .select_related("notification")
         .distinct()
     )
 

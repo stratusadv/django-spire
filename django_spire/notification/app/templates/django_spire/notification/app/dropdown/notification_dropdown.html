@@ -7,7 +7,7 @@
             await this.check_new_notifications()
             setInterval(await this.check_new_notifications, 30000);
         },
-        
+
         async check_new_notifications(){
             let url = '{% url 'django_spire:notification:app:json:check_new' %}'
             let response = await django_glue_fetch(url)
@@ -30,7 +30,7 @@
         <span @click='await render_dropdown()'>
             {% block notification_dropdown_trigger %}
                 <i x-bind='trigger' class="bi bi-bell-fill text-white fs-4 cursor-pointer position-absolute"></i>
-                <span x-show="new_notification"  x-cloak style="width: 10; height: 10px; top: -1px; right: -24px;" class="bg-danger rounded-circle position-absolute"></span>
+                <span x-show="new_notification"  x-cloak style="width: 10px; height: 10px; top: -1px; right: -24px;" class="bg-danger rounded-circle position-absolute"></span>
             {% endblock  %}
         </span>
     </div>
