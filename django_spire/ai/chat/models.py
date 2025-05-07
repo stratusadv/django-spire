@@ -91,7 +91,8 @@ class ChatMessage(HistoryModelMixin):
         related_query_name='message'
     )
 
-    content = models.JSONField()
+    _content = models.JSONField()
+    _content_intel_class = models.CharField(max_length=64)
     is_processed = models.BooleanField(default=False)
     is_viewed = models.BooleanField(default=False)
 
@@ -106,6 +107,14 @@ class ChatMessage(HistoryModelMixin):
     @property
     def body(self):
         return json.loads(self.content)['body']
+
+    @property
+    def content(self):
+        return self._content
+
+    @content.setter
+    def content(self, value):
+        self._content = value
 
     @property
     def role(self) -> RoleLiteralStr:
