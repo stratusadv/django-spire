@@ -17,7 +17,9 @@
         <hr class="m-0">
     </div>
     <div class="col-12 fs-7 text-center py-1">
-        {% url "spire_app_notification:page:list" as app_notification_list_url %}
+        {% if not app_notification_list_url %}
+            {% url "django_spire:notification:group:page:list" as app_notification_list_url %}
+        {% endif %}
         <a href='{{ app_notification_list_url }}' class="text-decoration-none text-app-secondary my-2">View All</a>
     </div>
 

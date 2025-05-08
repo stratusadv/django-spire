@@ -8,4 +8,5 @@ urlpatterns = [
     path('form/', include('django_spire.notification.app.urls.form_urls', namespace='form')),
     path('page/', include('django_spire.notification.app.urls.page_urls', namespace='page')),
     path('template/', include('django_spire.notification.app.urls.template_urls', namespace='template')),
+    path('redirect/', include('django_spire.notification.app.urls.redirect_urls', namespace='redirect')),
 ]

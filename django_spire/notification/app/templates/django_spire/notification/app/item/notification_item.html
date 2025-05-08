@@ -1,20 +1,30 @@
 <div class="row pt-1 px-3">
     <div class="col-12">
-        {% if app_notification.notification.url %}
-            <a href="{{app_notification.notification.url}}" class="">
-        {% endif %}
-            <div class="row bg-app-layer-two-hover rounded">
-                <div {# x-show="new_notification" x-cloak #} style="width: 7px; height: 7px;" class="col-auto rounded-circle px-0 pt-2 bg-danger align-self-center">
-                </div>
-                <div class="col">
-                    <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
-                    <span class="fs--1">{{ app_notification.notification.body }}</span><br>
-                    <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_creation }}</span>
+            <div
+                x-data="{
+                    notification_id: {{ app_notification.notification.id }},
+
+                    async render_content(){
+                        await dispatch_modal_view(url='{% url "django_spire:notification:group:template:delete_notification" pk=app_notification.id %}')
+                    }
+                }"
+                class="row bg-app-layer-two-hover rounded"
+            >
+                {% if app_notification.notification.url %}
+                    <a href="{{app_notification.notification.url}}" class="col">
+                {% endif %}
+                        <div class="col">
+                            <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
+                            <span class="fs--1">{{ app_notification.notification.body }}</span><br>
+                            <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_creation }}</span>
+                        </div>
+                {% if app_notification.notification.url %}
+                    </a>
+                {% endif %}
+                <div class="col-auto align-self-center justify-content-end">
+                    <i @click="await render_content()" class="bi bi-x-circle cursor-pointer float-end"></i>
                 </div>
             </div>
-        {% if app_notification.notification.url %}
-            </a>
-        {% endif %}
     </div>
     {% if not forloop.last %}
         <hr class="m-0 mt-1">
