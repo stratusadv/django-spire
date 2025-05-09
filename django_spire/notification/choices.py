@@ -19,6 +19,12 @@ class NotificationTypeChoices(models.TextChoices):
         sender.send()
 
 
+class NotificationPriorityChoices(models.TextChoices):
+    LOW = 'low'
+    MEDIUM = 'medium'
+    HIGH = 'high'
+
+
 class NotificationSenderMap(Enum):
     EMAIL = EmailNotificationSender
     # SMS = EmailNotificationSender

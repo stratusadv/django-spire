@@ -8,7 +8,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.notification.choices import (
     NotificationSenderMap,
-    NotificationTypeChoices
+    NotificationTypeChoices, NotificationPriorityChoices
 )
 from django_spire.notification.querysets import NotificationQuerySet
 
@@ -20,6 +20,11 @@ class Notification(HistoryModelMixin):
     processed_datetime = models.DateTimeField(blank=True, null=True)
     url = models.CharField(max_length=255, default='')
     is_processed = models.BooleanField(default=False)
+    priority = models.CharField(
+        max_length=32,
+        default=NotificationPriorityChoices.LOW,
+        choices=NotificationPriorityChoices.choices
+    )
 
     content_object = GenericForeignKey('content_type', 'object_id')
     content_type = models.ForeignKey(ContentType, related_name='django_spire_notification', on_delete=models.CASCADE, editable=False)

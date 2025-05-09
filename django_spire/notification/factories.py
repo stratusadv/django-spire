@@ -5,7 +5,7 @@ from typing_extensions import Any, TYPE_CHECKING
 from django.contrib.contenttypes.models import ContentType
 
 from django_spire.notification.models import Notification
-from django_spire.notification.choices import NotificationTypeChoices
+from django_spire.notification.choices import NotificationTypeChoices, NotificationPriorityChoices
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.sms.models import SmsNotification
@@ -27,16 +27,23 @@ class BaseNotificationFactory(ABC):
         model_object (Any[models.Model]): The model object associated with the notification.
         title (str): The title or main text of the notification.
         body (Optional[str]): Additional content or details of the notification. Defaults to None.
+        priority (Optional[NotificationPriorityChoices]): The priority of the notification. Defaults to LOW.
         url (Optional[str]): URL associated with the notification, if any. Defaults to None.
-
     """
 
-    def __init__(self, model_object: Any[models.Model], title: str, body: str | None = None, url: str | None = None):
+    def __init__(
+        self,
+        model_object: Any[models.Model],
+        title: str,
+        body: str | None = None,
+        priority: NotificationPriorityChoices | None = NotificationPriorityChoices.LOW,
+        url: str | None = None,
+    ):
         self.model_object = model_object
         self.title = title
         self.body = body
         self.url = url
-
+        self.priority = priority
 
     def create_notification(self, notification_type: NotificationTypeChoices) -> Notification:
         """
@@ -47,13 +54,14 @@ class BaseNotificationFactory(ABC):
         :return Notification: A new instance of the specified notification.
         """
         return Notification.objects.create(
-                content_type=ContentType.objects.get_for_model(self.model_object),
-                object_id=self.model_object.id,
-                title=self.title,
-                body=self.body,
-                url=self.url,
-                type=notification_type,
-            )
+            content_type=ContentType.objects.get_for_model(self.model_object),
+            object_id=self.model_object.id,
+            title=self.title,
+            body=self.body,
+            priority=self.priority,
+            url=self.url,
+            type=notification_type,
+        )
 
     @abstractmethod
     def create_email_notification(self, email: str) -> EmailNotification:
