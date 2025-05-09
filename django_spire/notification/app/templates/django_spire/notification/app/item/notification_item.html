@@ -1,19 +1,10 @@
 <div class="row pt-1 px-3">
     <div class="col-12">
-            <div
-                x-data="{
-                    notification_id: {{ app_notification.notification.id }},
-
-                    async render_content(){
-                        await dispatch_modal_view(url='{% url "django_spire:notification:group:template:delete_notification" pk=app_notification.id %}')
-                    }
-                }"
-                class="row bg-app-layer-two-hover rounded"
-            >
+            <div class="row bg-app-layer-two-hover rounded">
                 {% if app_notification.notification.url %}
-                    <a href="{{app_notification.notification.url}}" class="col">
+                    <a href="{{app_notification.notification.url}}" class="col-12">
                 {% endif %}
-                        <div class="col">
+                        <div class="col-12">
                             <div>
                                 <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span>
                                 {% if not app_notification.viewed %}
@@ -26,9 +17,6 @@
                 {% if app_notification.notification.url %}
                     </a>
                 {% endif %}
-                <div class="col-auto align-self-center justify-content-end">
-                    <i @click="await render_content()" class="bi bi-x-circle cursor-pointer float-end"></i>
-                </div>
             </div>
     </div>
     {% if not forloop.last %}
