@@ -31,8 +31,9 @@ NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 50
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-SENDGRID_TEMPLATE_ID = False
-DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
+SENDGRID_TEMPLATE_ID = os.getenv('SENDGRID_TEMPLATE_ID')
+# DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
+DEFAULT_FROM_EMAIL = 'Aussie Wassie <austins@stratusadv.com>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # AI Chat Config

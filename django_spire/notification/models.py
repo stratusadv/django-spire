@@ -10,7 +10,6 @@ from django_spire.history.mixins import HistoryModelMixin
 from django_spire.notification.choices import (
     NotificationTypeChoices, NotificationPriorityChoices, NotificationStatusChoices
 )
-from django_spire.notification.maps import NotificationProcessorMap
 from django_spire.notification.querysets import NotificationQuerySet
 
 
@@ -51,16 +50,6 @@ class Notification(HistoryModelMixin):
     object_id = models.PositiveIntegerField(null=True, blank=True)
 
     objects = NotificationQuerySet.as_manager()
-
-    def mark_processed(self) -> None:
-        self.is_processed = True
-        self.processed_datetime = now()
-        self.save()
-
-    def send(self) -> None:
-        sender_class = NotificationProcessorMap(self.type).value
-        sender = sender_class(self)
-        sender.send()
 
     class Meta:
         db_table = 'django_spire_notification'

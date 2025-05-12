@@ -1,4 +1,5 @@
 crispy-bootstrap5>=0.6
+django-sendgrid-v5
 docutils
 dandy==0.16.0
 django>=5.1.8
