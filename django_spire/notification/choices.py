@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.db import models
 
-from django_spire.notification.maps import NotificationSenderMap
+from django_spire.notification.maps import NotificationProcessorMap
 
 
 class NotificationPriorityChoices(models.TextChoices):
@@ -26,8 +26,6 @@ class NotificationTypeChoices(models.TextChoices):
     SMS = 'sms'
 
     def send(self) -> None:
-        sender_class = NotificationSenderMap(self.value).value
+        sender_class = NotificationProcessorMap(self.value).value
         sender = sender_class(self)
         sender.send()
-
-

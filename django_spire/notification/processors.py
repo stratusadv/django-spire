@@ -39,7 +39,7 @@ class NotificationProcessor(BaseNotificationProcessor):
             notification: Notification
     ):
         NotificationProcessorMap(notification.type).value.process(
-            notification,
+            notification
         )
 
     def process_list(
@@ -53,19 +53,15 @@ class NotificationProcessor(BaseNotificationProcessor):
 
         for notification_type, notifications in sorted_notifications.items():
             NotificationProcessorMap(notification_type).value.process_list(
-                notifications,
+                notifications
             )
 
-    def process_all(
-            self,
-    ):
-        self.process_list(
-            Notification.objects.ready_to_send(),
-        )
+    def process_all(self):
+        self.process_list(Notification.objects.ready_to_send().active())
 
     def process_errored(
             self,
     ):
         self.process_list(
-            Notification.objects.errored(),
+            Notification.objects.errored().active()
         )

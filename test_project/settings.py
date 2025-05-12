@@ -24,6 +24,9 @@ WSGI_APPLICATION = 'test_project.wsgi.application'
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
+# Notification Settings
+NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 50
+
 # Email Settings
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')

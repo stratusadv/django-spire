@@ -10,7 +10,7 @@ from django_spire.history.mixins import HistoryModelMixin
 from django_spire.notification.choices import (
     NotificationTypeChoices, NotificationPriorityChoices, NotificationStatusChoices
 )
-from django_spire.notification.maps import NotificationSenderMap
+from django_spire.notification.maps import NotificationProcessorMap
 from django_spire.notification.querysets import NotificationQuerySet
 
 
@@ -28,7 +28,6 @@ class Notification(HistoryModelMixin):
     type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL, choices=NotificationTypeChoices.choices)
     title = models.CharField(max_length=124)
     body = models.TextField(default='')
-    processed_datetime = models.DateTimeField(blank=True, null=True)
     url = models.CharField(max_length=255, default='')
     status = models.CharField(max_length=32, default=NotificationStatusChoices.PENDING, choices=NotificationStatusChoices.choices)
     priority = models.CharField(
@@ -41,8 +40,15 @@ class Notification(HistoryModelMixin):
     sent_datetime = models.DateTimeField(blank=True, null=True)
 
     content_object = GenericForeignKey('content_type', 'object_id')
-    content_type = models.ForeignKey(ContentType, related_name='django_spire_notification', on_delete=models.CASCADE, editable=False)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(
+        ContentType,
+        related_name='django_spire_notification',
+        on_delete=models.CASCADE,
+        editable=False,
+        null=True,
+        blank=True
+    )
+    object_id = models.PositiveIntegerField(null=True, blank=True)
 
     objects = NotificationQuerySet.as_manager()
 
@@ -52,7 +58,7 @@ class Notification(HistoryModelMixin):
         self.save()
 
     def send(self) -> None:
-        sender_class = NotificationSenderMap(self.type).value
+        sender_class = NotificationProcessorMap(self.type).value
         sender = sender_class(self)
         sender.send()
 

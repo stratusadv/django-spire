@@ -6,6 +6,7 @@ from django_spire.notification.email.sender import EmailNotificationSender
 
 
 class NotificationProcessorMap(Enum):
-    EMAIL = EmailNotificationProcessor
+    pass
+    # EMAIL = EmailNotificationProcessor
     # SMS = EmailNotificationSender
     # PUSH = EmailNotificationSender
