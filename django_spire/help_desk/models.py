@@ -1,6 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-from django_spire.auth.user.models import AuthUser
 from django_spire.history.mixins import HistoryModelMixin
 
 import choices
@@ -8,7 +8,7 @@ import choices
 
 class HelpDeskTicket(HistoryModelMixin):
     created_by = models.ForeignKey(
-        AuthUser,
+        User,
         on_delete=models.PROTECT,
         related_name='created_help_desk_tickets',
         related_query_name='created_help_desk_ticket',
@@ -24,7 +24,8 @@ class HelpDeskTicket(HistoryModelMixin):
     )
     status = models.CharField(
         max_length=4,
-        choices=choices.HelpDeskTicketStatusChoices.choices
+        choices=choices.HelpDeskTicketStatusChoices.choices,
+        default=choices.HelpDeskTicketStatusChoices.READY
     )
     description = models.TextField()
 
