@@ -1,16 +1,18 @@
 import json
+
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils.timezone import localtime
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.viewed.mixins import ViewedModelMixin
-from django_spire.notification.models import Notification
 from django_spire.notification.app.querysets import AppNotificationQuerySet
+from django_spire.notification.models import Notification
+
 
 class AppNotification(ViewedModelMixin, HistoryModelMixin):
     notification = models.OneToOneField(Notification, editable=False, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)
+    template = models.TextField(default='django_spire/notification/app/item/notification_item.html')
+    context_data = models.JSONField(default=dict)
 
     objects = AppNotificationQuerySet.as_manager()
 
@@ -40,9 +42,10 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
             'id': self.id,
             'title': self.notification.title,
             'body': self.notification.body,
+            'context_data': self.context_data,
+            'priority': self.notification.priority,
             'url': self.notification.url,
             'time_since_creation': self.verbose_time_since_creation,
-            # 'viewed': self.is_viewed(self.user)
         }
 
     def as_json(self) -> str:

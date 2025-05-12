@@ -4,7 +4,7 @@ from django_spire.notification.models import Notification
 
 
 def process_notifications() -> str:
-    for notification in Notification.objects.filter(is_sent=False):
+    for notification in Notification.objects.not_processed():
         notification.send()
 
     return 'Successfully Completed'

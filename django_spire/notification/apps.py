@@ -1,5 +1,7 @@
 from django.apps import AppConfig
+from django.conf import settings
 
+from django_spire.consts import NOTIFICATION_THROTTLE_RATE_PER_MINUTE_SETTINGS_NAME
 from django_spire.utils import check_required_apps
 
 
@@ -14,4 +16,7 @@ class NotificationConfig(AppConfig):
     URLPATTERNS_NAMESPACE = 'notification'
 
     def ready(self) -> None:
+        if not isinstance(getattr(settings, NOTIFICATION_THROTTLE_RATE_PER_MINUTE_SETTINGS_NAME), str):
+            raise ValueError(f'"{NOTIFICATION_THROTTLE_RATE_PER_MINUTE_SETTINGS_NAME}" must be set in the django settings when using "{self.label}".')
+
         check_required_apps(self.label)
