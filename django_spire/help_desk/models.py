@@ -3,7 +3,7 @@ from django.db import models
 from django_spire.auth.user.models import AuthUser
 from django_spire.history.mixins import HistoryModelMixin
 
-from . import choices
+import choices
 
 
 class HelpDeskTicket(HistoryModelMixin):
