@@ -11,6 +11,7 @@ def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'Ai Management', 'icon': 'bi bi-robot', 'url': reverse('ai:home')},
             {'title': 'Ai Chat', 'icon': 'bi bi-chat-heart', 'url': reverse('ai:chat:home')},
             {'title': 'Comment', 'icon': 'bi bi-chat-text', 'url': reverse('comment:home')},
+            {'title': 'Help Desk', 'icon': 'bi bi-help', 'url': reverse('django_spire:help_desk:page:list')},
             {'title': 'History', 'icon': 'bi bi-clock-history', 'url': reverse('history:home')},
             {'title': 'Home', 'icon': 'bi bi-house-door', 'url': reverse('home:page:home')},
             {'title': 'Notification', 'icon': 'bi bi-bell', 'url': reverse('notification:page:home')},
