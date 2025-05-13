@@ -3,11 +3,25 @@
 {% block item_title_col %}d-none{% endblock %}
 
 {% block item_row_content %}
-    <div class="col-4">Ticket #{{ ticket.id }}</div>
-    <div class="col-4">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Created By' attribute_value=ticket.created_by.get_full_name %}
+    <div class="col-1">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Ticket #' attribute_value=ticket.id %}
+    </div>
+    <div class="col-1">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Purpose' attribute_value=ticket.get_purpose_display %}
+    </div>
+    <div class="col-1">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' attribute_value=ticket.get_status_display %}
+    </div>
+    <div class="col-1">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Priority' attribute_value=ticket.get_priority_display %}
     </div>
     <div class="col-4">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Created On' attribute_value=ticket.created_datetime %}
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=ticket.description|truncatechars:50 %}
+    </div>
+    <div class="col-2">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Created By' attribute_value=ticket.created_by.get_full_name %}
+    </div>
+    <div class="col-2">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Created On' attribute_value=ticket.created_datetime|date:"M d, Y" %}
     </div>
 {% endblock %}

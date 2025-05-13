@@ -1,10 +1,10 @@
 from django.utils import timezone
+from django.contrib.auth.models import User
 
-from django_spire.auth.user.models import AuthUser
 from django_spire.help_desk.models import HelpDeskTicket
 from django_spire.help_desk.choices import HelpDeskTicketPurposeChoices, HelpDeskTicketPriorityChoices
 
-user = AuthUser.objects.get(username='stratus')
+user = User.objects.get(username='stratus')
 
 HelpDeskTicket.objects.all().delete()
 

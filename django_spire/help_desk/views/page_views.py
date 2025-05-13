@@ -17,15 +17,3 @@ def ticket_list_view(request):
         template='django_spire/help_desk/page/ticket_list_page.html'
     )
 
-
-@login_required()
-def ticket_detail_view(request, pk):
-    ticket = HelpDeskTicket.objects.get(pk=pk)
-
-    return TemplateResponse(
-        request,
-        context = {
-            "ticket": ticket
-        },
-        template = 'django_spire/help_desk/page/ticket_detail_page.html'
-    )
