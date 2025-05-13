@@ -1,0 +1,15 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title_content_style %}max-height: 400px; overflow-y: auto; overflow-x: hidden;{% endblock %}
+
+{% block card_title %}
+    Help Desk - Tickets
+{% endblock %}
+
+{% block card_title_content %}
+    {% for ticket in tickets %}
+        {% include 'django_spire/help_desk/item/ticket_item.html' %}
+        {% empty %}
+            {% include 'django_spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}

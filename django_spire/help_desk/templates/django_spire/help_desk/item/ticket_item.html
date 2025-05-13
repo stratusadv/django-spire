@@ -1,0 +1,13 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title_col %}d-none{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-4">Ticket #{{ ticket.id }}</div>
+    <div class="col-4">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Created By' attribute_value=ticket.created_by.get_full_name %}
+    </div>
+    <div class="col-4">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Created On' attribute_value=ticket.created_datetime %}
+    </div>
+{% endblock %}
