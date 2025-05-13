@@ -10,7 +10,13 @@ from django_spire.notification.models import Notification
 
 
 class AppNotification(ViewedModelMixin, HistoryModelMixin):
-    notification = models.OneToOneField(Notification, editable=False, on_delete=models.CASCADE)
+    notification = models.OneToOneField(
+        Notification,
+        editable=False,
+        on_delete=models.CASCADE,
+        related_name='app',
+        related_query_name='app',
+    )
     template = models.TextField(default='django_spire/notification/app/item/notification_item.html')
     context_data = models.JSONField(default=dict)
 
