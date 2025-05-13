@@ -24,11 +24,19 @@ class Notification(HistoryModelMixin):
         related_query_name='notification'
     )
 
-    type = models.CharField(max_length=32, default=NotificationTypeChoices.EMAIL, choices=NotificationTypeChoices.choices)
+    type = models.CharField(
+        max_length=32,
+        default=NotificationTypeChoices.EMAIL,
+        choices=NotificationTypeChoices.choices
+    )
     title = models.CharField(max_length=124)
     body = models.TextField(default='')
     url = models.CharField(max_length=255, default='')
-    status = models.CharField(max_length=32, default=NotificationStatusChoices.PENDING, choices=NotificationStatusChoices.choices)
+    status = models.CharField(
+        max_length=32,
+        default=NotificationStatusChoices.PENDING,
+        choices=NotificationStatusChoices.choices
+    )
     priority = models.CharField(
         max_length=32,
         default=NotificationPriorityChoices.LOW,

@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 
 from django_spire.notification.choices import NotificationTypeChoices
-from django_spire.notification.email.processor import EmailNotificationProcessor
-from django_spire.notification.maps import NotificationProcessorMap
 from django_spire.notification.models import Notification
 
 
@@ -27,7 +25,7 @@ class BaseNotificationProcessor(ABC):
 
 class NotificationProcessor(BaseNotificationProcessor):
     def process(self, notification: Notification):
-        NotificationProcessorMap(notification.type).value.process(notification)
+        self._process_list_by_type(notification.type, [notification])
 
     def process_list(self, notifications: list[Notification]):
         sorted_notifications = defaultdict(list)
@@ -44,7 +42,16 @@ class NotificationProcessor(BaseNotificationProcessor):
         notifications: list[Notification],
     ):
         if notification_type == NotificationTypeChoices.EMAIL:
+            from django_spire.notification.email.processor import EmailNotificationProcessor
             EmailNotificationProcessor().process_list(notifications)
+        elif notification_type == NotificationTypeChoices.PUSH:
+            pass
+        elif notification_type == NotificationTypeChoices.SMS:
+            pass
+        elif notification_type == NotificationTypeChoices.APP:
+            pass
+        else:
+            raise ValueError(f'Unknown notification type: {notification_type}')
 
     def process_all(self):
         self.process_list(Notification.objects.ready_to_send().active())

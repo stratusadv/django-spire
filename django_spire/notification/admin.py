@@ -3,11 +3,12 @@ from django.utils.html import format_html
 
 from django_spire.notification import models
 
+
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'title', 'type', 'user',
-        'view_body_snippet', 'url_link',
+        'view_body_snippet', 'url_link', 'status',
         'content_type', 'object_id', 'is_deleted'
     )
     list_filter = ('type',)

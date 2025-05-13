@@ -16,8 +16,8 @@ def send_test_email_view(request):
             body='This is a test email',
             url='https://google.com'
         ),
-        email="obrienl@stratusadv.com"
+        to_email_address="obrienl@stratusadv.com"
     )
 
-    EmailNotificationProcessor().process(test)
+    EmailNotificationProcessor().process(test.notification)
     return HttpResponseRedirect(reverse('notification:page:list'))
