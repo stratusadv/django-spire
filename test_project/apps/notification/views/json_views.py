@@ -20,7 +20,10 @@ def send_test_email_view(request):
             body="This should come out about a minute later than the other one",
             url="https://google.com"
         ),
-        template="notification/item/notification_other_item.html"
+        template="notification/item/notification_other_item.html",
+        context_data={
+            'test': 'This was a success!'
+        }
     )
 
     testy = AppNotification.objects.create(
