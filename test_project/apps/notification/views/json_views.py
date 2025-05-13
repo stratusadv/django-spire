@@ -1,3 +1,7 @@
+from datetime import timedelta
+
+from django.utils.timezone import now
+
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
@@ -12,9 +16,10 @@ def send_test_email_view(request):
         notification=Notification.objects.create(
             user=request.user,
             type=NotificationTypeChoices.APP,
-            title="Test App Notification",
-            body="This is a test app notification",
+            title="This one is on hold",
+            body="This should come out about a minute later than the other one",
             url="https://google.com",
+            publish_datetime=now() + timedelta(seconds=1)
         )
     )
 
@@ -22,11 +27,12 @@ def send_test_email_view(request):
         notification=Notification.objects.create(
             user=request.user,
             type=NotificationTypeChoices.APP,
-            title="Test App Notification 2",
-            body="This is a test app notification 2",
+            title="Right now notification",
+            body="The time is now!!",
             url="https://google.com",
         )
     )
 
-    # AppNotificationProcessor().process_list([test.notification, testy.notification])
+    AppNotificationProcessor().process_all()
+
     return HttpResponseRedirect(reverse('notification:page:list'))

@@ -20,8 +20,10 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
         return f'{self.notification.title}'
 
     @property
-    def verbose_time_since_creation(self) -> str:
-        delta = localtime() - self.created_datetime
+    def verbose_time_since_delivered(self) -> str:
+        delta = localtime() - self.notification.sent_datetime
+
+        print(delta)
 
         seconds = abs(delta.total_seconds())
         minutes = seconds // 60
@@ -45,7 +47,7 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
             'context_data': self.context_data,
             'priority': self.notification.priority,
             'url': self.notification.url,
-            'time_since_creation': self.verbose_time_since_creation,
+            'time_since_creation': self.verbose_time_since_delivered,
         }
 
     def as_json(self) -> str:
@@ -55,4 +57,3 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
         db_table = 'django_spire_notification_app'
         verbose_name = 'App Notification'
         verbose_name_plural = 'App Notifications'
-

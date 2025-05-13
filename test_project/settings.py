@@ -35,6 +35,11 @@ SENDGRID_TEMPLATE_ID = os.getenv('SENDGRID_TEMPLATE_ID')
 DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
+# SMS Notification Settings
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
 # AI Chat Config
 AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.chat_workflow.ChatWorkflow'
 AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
@@ -74,6 +79,7 @@ INSTALLED_APPS += [
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
+    'django_spire.notification.sms',
 
     'django_spire.contrib.options',
     'django_spire.contrib.pagination',

@@ -22,7 +22,7 @@ class NotificationQuerySet(HistoryQuerySet):
         return self.filter(status=NotificationTypeChoices.PUSH)
 
     def ready_to_send(self):
-        return self.pending().filter(publish_datetime__lte=now)
+        return self.pending().filter(publish_datetime__lte=now())
 
     def sms_notifications(self):
         return self.filter(type=NotificationTypeChoices.SMS)

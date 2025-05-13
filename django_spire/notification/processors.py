@@ -41,15 +41,21 @@ class NotificationProcessor(BaseNotificationProcessor):
         notification_type: NotificationTypeChoices,
         notifications: list[Notification],
     ):
-        if notification_type == NotificationTypeChoices.EMAIL:
+        if notification_type == NotificationTypeChoices.APP:
+            from django_spire.notification.app.processor import AppNotificationProcessor
+            AppNotificationProcessor().process_list(notifications)
+
+        elif notification_type == NotificationTypeChoices.EMAIL:
             from django_spire.notification.email.processor import EmailNotificationProcessor
             EmailNotificationProcessor().process_list(notifications)
+
         elif notification_type == NotificationTypeChoices.PUSH:
             pass
+
         elif notification_type == NotificationTypeChoices.SMS:
-            pass
-        elif notification_type == NotificationTypeChoices.APP:
-            pass
+            from django_spire.notification.sms.processor import SMSNotificationProcessor
+            SMSNotificationProcessor().process_list(notifications)
+
         else:
             raise ValueError(f'Unknown notification type: {notification_type}')
 

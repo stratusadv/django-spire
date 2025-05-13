@@ -13,14 +13,17 @@ if TYPE_CHECKING:
 
 
 def notification_dropdown_template_view(request: WSGIRequest) -> TemplateResponse:
-    app_notification_list = (
-        AppNotification.objects
-        .active()
-        .is_sent()
-        .annotate_is_viewed_by_user(request.user)
-        .order_by("-created_datetime")
-        .select_related("notification")
-        .distinct()
+    app_notification_list = sorted(
+        (
+            AppNotification.objects
+            .active()
+            .is_sent()
+            .annotate_is_viewed_by_user(request.user)
+            .select_related("notification")
+            .distinct()
+        ),
+        key=lambda app_notification: app_notification.notification.sent_datetime,
+        reverse=True
     )
 
     body_data = json.loads(request.body.decode('utf-8'))
