@@ -8,10 +8,21 @@ from django_spire.notification.processors import BaseNotificationProcessor
 
 class AppNotificationProcessor(BaseNotificationProcessor):
     def process(self, notification: Notification):
+        errors = []
         if notification.type != NotificationTypeChoices.APP:
+            errors.append(
+                ValueError("AppNotificationProcessor only processes APP notifications")
+            )
+
+        if notification.user_id is None:
+            errors.append(
+                ValueError("AppNotifications must have a user associated with them")
+            )
+
+        if errors:
             notification.status = NotificationStatusChoices.FAILED
             notification.save()
-            raise ValueError("AppNotificationProcessor only processes APP notifications")
+            raise ExceptionGroup("AppNotificationProcessor failed", errors)
 
         notification.status = NotificationStatusChoices.SENT
         notification.sent_datetime = now()
@@ -21,6 +32,10 @@ class AppNotificationProcessor(BaseNotificationProcessor):
     def process_list(self, notifications: list):
         for notification in notifications:
             if notification.type != NotificationTypeChoices.APP:
+                notification.status = NotificationStatusChoices.FAILED
+                continue
+
+            if notification.user is None:
                 notification.status = NotificationStatusChoices.FAILED
                 continue
 
