@@ -27,7 +27,13 @@ def check_new_notifications_ajax_view(request: WSGIRequest) -> JsonResponse:
 
 
 def set_notifications_as_viewed_ajax(request: WSGIRequest) -> JsonResponse:
-    notification_list = AppNotification.objects.active().by_user(request.user).exclude_viewed_by_user(request.user)
+    notification_list = (
+        AppNotification.objects
+        .active()
+        .is_sent()
+        .by_user(request.user)
+        .exclude_viewed_by_user(request.user)
+    )
     ctype = ContentType.objects.get_for_model(AppNotification)
     viewed_model_objects = [
         Viewed(
@@ -35,7 +41,8 @@ def set_notifications_as_viewed_ajax(request: WSGIRequest) -> JsonResponse:
             object_id=notification.id,
             content_type=ctype
         )
-    for notification in notification_list]
+        for notification in notification_list
+    ]
 
     Viewed.objects.bulk_create(viewed_model_objects)
 

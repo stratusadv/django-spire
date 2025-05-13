@@ -23,8 +23,6 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
     def verbose_time_since_delivered(self) -> str:
         delta = localtime() - self.notification.sent_datetime
 
-        print(delta)
-
         seconds = abs(delta.total_seconds())
         minutes = seconds // 60
         hours = minutes // 60
@@ -47,7 +45,7 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
             'context_data': self.context_data,
             'priority': self.notification.priority,
             'url': self.notification.url,
-            'time_since_creation': self.verbose_time_since_delivered,
+            'time_since_delivered': self.verbose_time_since_delivered,
         }
 
     def as_json(self) -> str:
