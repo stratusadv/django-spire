@@ -18,9 +18,9 @@ def send_test_email_view(request):
             type=NotificationTypeChoices.APP,
             title="This one is on hold",
             body="This should come out about a minute later than the other one",
-            url="https://google.com",
-            publish_datetime=now() + timedelta(seconds=1)
-        )
+            url="https://google.com"
+        ),
+        template="notification/item/notification_other_item.html"
     )
 
     testy = AppNotification.objects.create(
