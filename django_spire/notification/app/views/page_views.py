@@ -15,6 +15,7 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
     app_notification_list = (
         AppNotification.objects.by_user(request.user)
         .active()
+        .is_sent()
         .annotate_is_viewed_by_user(request.user)
         .order_by("-created_datetime")
     )

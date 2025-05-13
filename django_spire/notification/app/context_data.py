@@ -7,6 +7,7 @@ from django_spire.notification.app.models import AppNotification
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
+
 def app_notification_dropdown_context_data(user: WSGIRequest) -> dict:
     app_notification_list = (
         AppNotification.objects.active()

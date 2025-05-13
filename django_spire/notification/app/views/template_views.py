@@ -14,7 +14,9 @@ if TYPE_CHECKING:
 
 def notification_dropdown_template_view(request: WSGIRequest) -> TemplateResponse:
     app_notification_list = (
-        AppNotification.objects.active()
+        AppNotification.objects
+        .active()
+        .is_sent()
         .annotate_is_viewed_by_user(request.user)
         .order_by("-created_datetime")
         .select_related("notification")

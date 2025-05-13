@@ -13,7 +13,12 @@ if TYPE_CHECKING:
 
 
 def check_new_notifications_ajax_view(request: WSGIRequest) -> JsonResponse:
-    notifications = AppNotification.objects.active().exclude_viewed_by_user(request.user)
+    notifications = (
+        AppNotification.objects
+        .active()
+        .is_sent()
+        .exclude_viewed_by_user(request.user)
+    )
 
     return JsonResponse({
         'status': 200,

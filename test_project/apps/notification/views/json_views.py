@@ -1,23 +1,32 @@
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
+from django_spire.notification.app.models import AppNotification
+from django_spire.notification.app.processor import AppNotificationProcessor
 from django_spire.notification.choices import NotificationTypeChoices
-from django_spire.notification.email.models import EmailNotification
-from django_spire.notification.email.processor import EmailNotificationProcessor
 from django_spire.notification.models import Notification
 
 
 def send_test_email_view(request):
-    test = EmailNotification.objects.create(
+    test = AppNotification.objects.create(
         notification=Notification.objects.create(
             user=request.user,
-            type=NotificationTypeChoices.EMAIL,
-            title='Test Email',
-            body='This is a test email',
-            url='https://google.com'
-        ),
-        to_email_address="obrienl@stratusadv.com"
+            type=NotificationTypeChoices.APP,
+            title="Test App Notification",
+            body="This is a test app notification",
+            url="https://google.com",
+        )
     )
 
-    EmailNotificationProcessor().process(test.notification)
+    testy = AppNotification.objects.create(
+        notification=Notification.objects.create(
+            user=request.user,
+            type=NotificationTypeChoices.APP,
+            title="Test App Notification 2",
+            body="This is a test app notification 2",
+            url="https://google.com",
+        )
+    )
+
+    # AppNotificationProcessor().process_list([test.notification, testy.notification])
     return HttpResponseRedirect(reverse('notification:page:list'))
