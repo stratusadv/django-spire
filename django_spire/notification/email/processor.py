@@ -53,7 +53,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
 
                 notification.status = NotificationStatusChoices.SENT
                 notification.sent_datetime = now()
-            except:
+            except Exception:
                 notification.status = NotificationStatusChoices.ERRORED
 
         Notification.objects.bulk_update(notifications, ['status', 'sent_datetime'])
