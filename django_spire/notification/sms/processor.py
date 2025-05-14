@@ -1,13 +1,13 @@
 from django.utils.timezone import now
+from django.conf import settings
 
 from twilio.rest import Client
 
 from django_spire.notification.choices import NotificationTypeChoices, \
     NotificationStatusChoices
 from django_spire.notification.models import Notification
-from django_spire.notification.processors import BaseNotificationProcessor
+from django_spire.notification.processors.processor import BaseNotificationProcessor
 from django_spire.notification.sms.helper import TwilioSMSHelper
-from test_project.settings import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
 
 
 class SMSNotificationProcessor(BaseNotificationProcessor):
@@ -15,24 +15,24 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
         if notification.type != NotificationTypeChoices.SMS:
             notification.status = NotificationStatusChoices.FAILED
             notification.save()
-            raise ValueError("SMSNotificationProcessor only processes SMS notifications")
+            raise ValueError('SMSNotificationProcessor only processes SMS notifications')
 
         notification.status = NotificationStatusChoices.PROCESSING
         notification.save()
 
         try:
-            twilio_sms_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+            twilio_sms_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             TwilioSMSHelper(notification, twilio_sms_client).send()
 
             notification.status = NotificationStatusChoices.SENT
             notification.sent_datetime = now()
-        except:
+        except Exception:
             notification.status = NotificationStatusChoices.ERRORED
 
         notification.save()
 
     def process_list(self, notifications: list):
-        twilio_sms_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        twilio_sms_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
         for notification in notifications:
             if notification.type != NotificationTypeChoices.SMS:
                 notification.status = NotificationStatusChoices.FAILED
@@ -49,7 +49,7 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
 
         Notification.objects.bulk_update(notifications, ['status', 'sent_datetime'])
 
-    def process_all(self):
+    def process_ready(self):
         self.process_list(Notification.objects.sms_notifications().ready_to_send().active())
 
     def process_errored(self):

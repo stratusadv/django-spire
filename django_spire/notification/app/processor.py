@@ -3,7 +3,7 @@ from django.utils.timezone import now
 from django_spire.notification.choices import NotificationTypeChoices, \
     NotificationStatusChoices
 from django_spire.notification.models import Notification
-from django_spire.notification.processors import BaseNotificationProcessor
+from django_spire.notification.processors.processor import BaseNotificationProcessor
 
 
 class AppNotificationProcessor(BaseNotificationProcessor):
@@ -44,7 +44,7 @@ class AppNotificationProcessor(BaseNotificationProcessor):
 
         Notification.objects.bulk_update(notifications, ['status', 'sent_datetime'])
 
-    def process_all(self):
+    def process_ready(self):
         self.process_list(Notification.objects.app_notifications().ready_to_send().active())
 
     def process_errored(self):

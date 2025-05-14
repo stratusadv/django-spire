@@ -4,7 +4,7 @@ from django_spire.notification.choices import NotificationTypeChoices, \
     NotificationStatusChoices
 from django_spire.notification.email.helper import SendGridEmailHelper
 from django_spire.notification.models import Notification
-from django_spire.notification.processors import BaseNotificationProcessor
+from django_spire.notification.processors.processor import BaseNotificationProcessor
 
 
 class EmailNotificationProcessor(BaseNotificationProcessor):
@@ -58,7 +58,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
 
         Notification.objects.bulk_update(notifications, ['status', 'sent_datetime'])
 
-    def process_all(self):
+    def process_ready(self):
         self.process_list(Notification.objects.email_notifications().ready_to_send().active())
 
     def process_errored(self):

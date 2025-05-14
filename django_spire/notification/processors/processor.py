@@ -13,7 +13,7 @@ class BaseNotificationProcessor(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def process_all(self):
+    def process_ready(self):
         raise NotImplementedError
 
     @abstractmethod
