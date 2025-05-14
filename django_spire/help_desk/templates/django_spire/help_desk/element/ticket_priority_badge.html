@@ -1,0 +1,9 @@
+{% if ticket.priority == 'low'  %}
+    {% include 'django_spire/badge/secondary_badge.html' with badge_text=ticket.get_priority_display %}
+{% elif ticket.priority == 'med' %}
+    {% include 'django_spire/badge/primary_badge.html' with badge_text=ticket.get_priority_display %}
+{% elif ticket.priority == 'high' %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text=ticket.get_priority_display %}
+{% elif ticket.priority == 'urge' %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text=ticket.get_priority_display %}
+{% endif %}

@@ -1,10 +1,36 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% block card_title_content_style %}max-height: 400px; overflow-y: auto; overflow-x: hidden;{% endblock %}
+{% block card_title_content_style %}{% endblock %}
+
+{% block card_title %}
+    <div class="row">
+        <div class="col-1" style="font-size: .75rem">
+            Ticket #
+        </div>
+        <div class="col-4" style="font-size: .75rem">
+            Description
+        </div>
+        <div class="col-2" style="font-size: .75rem">
+            Created By
+        </div>
+        <div class="col-2" style="font-size: .75rem">
+            Created On
+        </div>
+        <div class="col-1 text-center" style="font-size: .75rem">
+            Purpose
+        </div>
+        <div class="col-1 text-center" style="font-size: .75rem">
+            Status
+        </div>
+        <div class="col-1 text-center" style="font-size: .75rem">
+            Priority
+        </div>
+    </div>
+{% endblock %}
 
 {% block card_title_content %}
     {% for ticket in tickets %}
-        {% include 'django_spire/help_desk/item/ticket_item.html' %}
+        {% include 'django_spire/help_desk/item/ticket_item.html' with ticket=ticket %}
         {% empty %}
             {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}
