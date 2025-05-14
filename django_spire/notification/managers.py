@@ -1,5 +1,6 @@
 from django_spire.notification.app.processor import AppNotificationProcessor
 from django_spire.notification.email.processor import EmailNotificationProcessor
+from django_spire.notification.models import Notification
 from django_spire.notification.processors.notification import NotificationProcessor
 from django_spire.notification.sms.processor import SMSNotificationProcessor
 
@@ -22,11 +23,11 @@ class NotificationManager:
         SMSNotificationProcessor().process_errored()
 
     @staticmethod
-    def process_notification(notification):
+    def process_notification(notification: Notification):
         NotificationProcessor().process(notification)
 
     @staticmethod
-    def process_notifications(notifications: list):
+    def process_notifications(notifications: list[Notification]):
         NotificationProcessor().process_list(notifications)
 
     @staticmethod

@@ -12,16 +12,13 @@ if TYPE_CHECKING:
 
 
 def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
-    app_notification_list = sorted(
-        (
-            AppNotification.objects.active()
-            .is_sent()
-            .annotate_is_viewed_by_user(request.user)
-            .select_related("notification")
-            .distinct()
-        ),
-        key=lambda app_notification: app_notification.notification.sent_datetime,
-        reverse=True
+    app_notification_list = (
+        AppNotification.objects.active()
+        .is_sent()
+        .annotate_is_viewed_by_user(request.user)
+        .select_related("notification")
+        .distinct()
+        .order_by('-notification__sent_datetime')
     )
 
     return portal_views.list_view(
