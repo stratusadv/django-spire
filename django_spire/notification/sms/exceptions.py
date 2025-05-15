@@ -1,0 +1,2 @@
+class TwilioException(Exception):
+    pass

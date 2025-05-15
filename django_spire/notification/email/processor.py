@@ -1,4 +1,5 @@
 from django.utils.timezone import now
+from sendgrid import SendGridException
 
 from django_spire.notification.choices import NotificationTypeChoices, \
     NotificationStatusChoices
@@ -9,54 +10,65 @@ from django_spire.notification.processors.processor import BaseNotificationProce
 
 class EmailNotificationProcessor(BaseNotificationProcessor):
     def process(self, notification: Notification):
-        if notification.type != NotificationTypeChoices.EMAIL:
-            notification.status = NotificationStatusChoices.FAILED
-            notification.save()
-            raise ValueError("EmailNotificationProcessor only processes EMAIL notifications")
-
         notification.status = NotificationStatusChoices.PROCESSING
         notification.save()
 
         try:
+            self._validate_notification_type(notification, NotificationTypeChoices.EMAIL)
             SendGridEmailHelper(
                 to=notification.email.to_email_address,
                 template_data={
-                    "subject": notification.title,
-                    "body": notification.body,
-                    "link": notification.url,
+                    'subject': notification.title,
+                    'body': notification.body,
+                    'link': notification.url,
                 }
             ).send()
 
             notification.status = NotificationStatusChoices.SENT
             notification.sent_datetime = now()
-        except:
-            notification.status = NotificationStatusChoices.ERRORED
-
-        notification.save()
+        except Exception as e:
+            notification.status_message = str(e)
+            if isinstance(e, SendGridException):
+                notification.status = NotificationStatusChoices.ERRORED
+            else:
+                notification.status = NotificationStatusChoices.FAILED
+                raise e
+        finally:
+            notification.save()
 
     def process_list(self, notifications: list):
-        for notification in notifications:
-            if notification.type != NotificationTypeChoices.EMAIL:
-                notification.status = NotificationStatusChoices.FAILED
-                continue
+        self._update_notifications_to_processing(notifications)
 
-            notification.status = NotificationStatusChoices.PROCESSING
+        for notification in notifications:
             try:
+                self._validate_notification_type(notification, NotificationTypeChoices.EMAIL)
                 SendGridEmailHelper(
                     to=notification.email.to_email_address,
                     template_data={
-                        "subject": notification.title,
-                        "body": notification.body,
-                        "link": notification.url,
-                    },
+                        'subject': notification.title,
+                        'body': notification.body,
+                        'link': notification.url,
+                    }
                 ).send()
 
                 notification.status = NotificationStatusChoices.SENT
                 notification.sent_datetime = now()
-            except Exception:
-                notification.status = NotificationStatusChoices.ERRORED
+            except Exception as e:
+                notification.status_message = str(e)
+                if isinstance(e, SendGridException):
+                    notification.status = NotificationStatusChoices.ERRORED
+                else:
+                    notification.status = NotificationStatusChoices.FAILED
+                    Notification.objects.bulk_update(
+                        notifications,
+                        ['status', 'sent_datetime', 'status_message']
+                    )
+                    raise e
 
-        Notification.objects.bulk_update(notifications, ['status', 'sent_datetime'])
+        Notification.objects.bulk_update(
+            notifications,
+            ['status', 'sent_datetime', 'status_message']
+        )
 
     def process_ready(self):
         self.process_list(Notification.objects.email_notifications().ready_to_send().active())

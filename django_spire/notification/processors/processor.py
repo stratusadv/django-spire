@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 
+from django_spire.notification.choices import NotificationStatusChoices, \
+    NotificationTypeChoices
+from django_spire.notification.exceptions import NotificationException
 from django_spire.notification.models import Notification
 
 
@@ -19,3 +22,25 @@ class BaseNotificationProcessor(ABC):
     @abstractmethod
     def process_errored(self):
         raise NotImplementedError
+
+    @staticmethod
+    def _update_notifications_to_processing(notifications: list[Notification]):
+        for notification in notifications:
+            notification.status = NotificationStatusChoices.PROCESSING
+
+        Notification.objects.bulk_update(notifications, ['status'])
+
+    @staticmethod
+    def _validate_notification_type(
+        notification: Notification,
+        notification_type: NotificationTypeChoices
+    ):
+        if notification.type != notification_type:
+            exception = NotificationException(
+                f'{notification_type}NotificationProcessor only processes '
+                f'{notification_type} notifications, was provided type {notification.type}'
+            )
+            notification.status = NotificationStatusChoices.FAILED
+            notification.status_message = str(exception)
+            notification.save()
+            raise exception
