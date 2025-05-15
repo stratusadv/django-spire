@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from django_spire.help_desk.models import HelpDeskTicket
 from django_spire.contrib.generic_views import portal_views
+import django_glue as dg
 
 @login_required()
 def ticket_list_view(request):

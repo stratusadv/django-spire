@@ -14,19 +14,23 @@ class HelpDeskTicket(HistoryModelMixin):
         related_name='created_help_desk_tickets',
         related_query_name='created_help_desk_ticket',
         editable=False,
+        verbose_name='Created By'
     )
     purpose = models.CharField(
         max_length=4,
-        choices=choices.HelpDeskTicketPurposeChoices.choices
+        choices=choices.HelpDeskTicketPurposeChoices.choices,
+        verbose_name='Purpose'
     )
     priority = models.CharField(
         max_length=4,
-        choices=choices.HelpDeskTicketPriorityChoices.choices
+        choices=choices.HelpDeskTicketPriorityChoices.choices,
+        verbose_name='Priority'
     )
     status = models.CharField(
         max_length=4,
         choices=choices.HelpDeskTicketStatusChoices.choices,
-        default=choices.HelpDeskTicketStatusChoices.READY
+        default=choices.HelpDeskTicketStatusChoices.READY,
+        verbose_name='Status'
     )
     description = models.TextField()
 

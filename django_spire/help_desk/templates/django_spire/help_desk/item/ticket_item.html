@@ -4,24 +4,21 @@
 
 {% block item_row_content %}
     <div class="col-1">
-        {{ ticket.id }}
+        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.id attribute_title='Ticket #' %}
     </div>
     <div class="col-4">
-        {{ ticket.description|truncatechars:40 }}
+        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.description|truncatechars:40 attribute_title='Description' %}
     </div>
     <div class="col-2">
-        {{ ticket.created_by.get_full_name }}
+        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.created_by.get_full_name attribute_title='Created By' %}
     </div>
     <div class="col-2">
-        {{ ticket.created_datetime|date:'M d, Y' }}
+        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.created_datetime|date:'M d, Y' attribute_title='Created At' %}
     </div>
-    <div class="col-1 text-center">
+    <div class="col-3 justify-content-between">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Purpose / Priority / Status' %}
         {% include 'django_spire/help_desk/element/ticket_purpose_badge.html' with ticket=ticket %}
-    </div>
-    <div class="col-1 text-center">
         {% include 'django_spire/help_desk/element/ticket_priority_badge.html' with ticket=ticket %}
-    </div>
-    <div class="col-1 text-center">
         {% include 'django_spire/help_desk/element/ticket_status_badge.html' with status=ticket %}
     </div>
 {% endblock %}

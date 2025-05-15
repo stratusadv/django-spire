@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/card.html' %}
+
+{% block card_padding %}
+    px-3 py-2
+{% endblock %}
+
+{% block card_content %}
+    {% include 'django_spire/help_desk/form/ticket_form.html' %}
+{% endblock %}

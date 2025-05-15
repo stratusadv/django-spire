@@ -8,7 +8,7 @@ class HelpDeskTicketPurposeChoices(models.TextChoices):
 
 class HelpDeskTicketStatusChoices(models.TextChoices):
     READY = ('read', 'Ready')
-    CLOSED = ('prog', 'In Progress')
+    INPROGRESS = ('prog', 'In Progress')
     DONE = ('done', 'Done')
 
 
