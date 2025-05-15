@@ -5,6 +5,7 @@ from twilio.rest import Client
 
 from django_spire.notification.choices import NotificationTypeChoices, \
     NotificationStatusChoices
+from django_spire.notification.exceptions import NotificationException
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 from django_spire.notification.sms.exceptions import TwilioException
@@ -17,7 +18,12 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
         notification.save()
 
         try:
-            self._validate_notification_type(notification, NotificationTypeChoices.SMS)
+            if notification.type != NotificationTypeChoices.SMS:
+                raise NotificationException(
+                    f"SMSNotificationProcessor only processes "
+                    f"SMS notifications. Was provided {notification.type}"
+                )
+
             twilio_sms_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             TwilioSMSHelper(notification, twilio_sms_client).send()
 
@@ -39,7 +45,12 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
         twilio_sms_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
         for notification in notifications:
             try:
-                self._validate_notification_type(notification, NotificationTypeChoices.SMS)
+                if notification.type != NotificationTypeChoices.SMS:
+                    raise NotificationException(
+                        f"SMSNotificationProcessor only processes "
+                        f"SMS notifications. Was provided {notification.type}"
+                    )
+
                 TwilioSMSHelper(notification, twilio_sms_client).send()
 
                 notification.status = NotificationStatusChoices.SENT

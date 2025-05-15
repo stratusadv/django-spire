@@ -10,14 +10,16 @@ from django_spire.notification.sms.exceptions import TwilioException
 
 class TwilioSMSHelper:
     def __init__(self, notification: Notification, client: Client):
-        self.to_phone_number = notification.sms.to_phone_number
+        self.to_phone_number = self._format_phone_number(
+            notification.sms.to_phone_number
+        )
         self.message = f'{notification.title}: {notification.body}'
         self.client = client
 
     def _attempt_send(self) -> MessageInstance:
         try:
             return self.client.messages.create(
-                to='+' + self.to_phone_number,
+                to=self.to_phone_number,
                 from_=settings.TWILIO_PHONE_NUMBER,
                 body=self.message
             )
@@ -37,3 +39,18 @@ class TwilioSMSHelper:
                     f'Twilio Exception: code={retry_response.error_code}, '
                     f'message={retry_response.error_message}'
                 )
+
+    @staticmethod
+    def _format_phone_number(phone_number: str) -> str:
+        cleaned_number = ''.join(filter(str.isdigit, phone_number))
+
+        if len(cleaned_number) == 10:
+            formatted_number = '1' + cleaned_number
+        elif len(cleaned_number) == 11 and cleaned_number.startswith('1'):
+            formatted_number = cleaned_number
+        else:
+            raise TwilioException(
+                f'Invalid phone number format: {phone_number}.'
+            )
+
+        return '+' + formatted_number

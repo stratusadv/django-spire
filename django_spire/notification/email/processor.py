@@ -4,6 +4,7 @@ from sendgrid import SendGridException
 from django_spire.notification.choices import NotificationTypeChoices, \
     NotificationStatusChoices
 from django_spire.notification.email.helper import SendGridEmailHelper
+from django_spire.notification.exceptions import NotificationException
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 
@@ -14,7 +15,12 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
         notification.save()
 
         try:
-            self._validate_notification_type(notification, NotificationTypeChoices.EMAIL)
+            if notification.type != NotificationTypeChoices.EMAIL:
+                raise NotificationException(
+                    f"EmailNotificationProcessor only processes "
+                    f"Email notifications. Was provided {notification.type}"
+                )
+
             SendGridEmailHelper(
                 to=notification.email.to_email_address,
                 template_data={
@@ -41,7 +47,12 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
 
         for notification in notifications:
             try:
-                self._validate_notification_type(notification, NotificationTypeChoices.EMAIL)
+                if notification.type != NotificationTypeChoices.EMAIL:
+                    raise NotificationException(
+                        f"EmailNotificationProcessor only processes "
+                        f"Email notifications. Was provided {notification.type}"
+                    )
+
                 SendGridEmailHelper(
                     to=notification.email.to_email_address,
                     template_data={
