@@ -7,7 +7,7 @@ from django_spire.notification.sms.processor import SMSNotificationProcessor
 
 class NotificationManager:
     @staticmethod
-    def process_errored():
+    def process_errored_notifications():
         NotificationProcessor().process_errored()
 
     @staticmethod
@@ -43,5 +43,5 @@ class NotificationManager:
         SMSNotificationProcessor().process_ready()
 
     @staticmethod
-    def process_ready_to_send():
+    def process_ready_notifications():
         NotificationProcessor().process_ready()
