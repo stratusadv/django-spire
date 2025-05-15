@@ -21,15 +21,22 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
         notification.save()
 
         try:
+            if name == 'stupid':
+                raise TwiloException('The name is stupid')
+
             twilio_sms_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             TwilioSMSHelper(notification, twilio_sms_client).send()
 
             notification.status = NotificationStatusChoices.SENT
             notification.sent_datetime = now()
-        except Exception:
-            notification.status = NotificationStatusChoices.ERRORED
-
-        notification.save()
+        except Exception as e:
+            if isinstance(e, TwilioException):
+                notification.status = NotificationStatusChoices.ERRORED
+                notification.status_message = str(e)
+            else:
+                raise e
+        finally:
+            notification.save()
 
     def process_list(self, notifications: list):
         twilio_sms_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)

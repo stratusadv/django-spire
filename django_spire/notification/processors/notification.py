@@ -4,6 +4,7 @@ from django_spire.notification.app.processor import AppNotificationProcessor
 from django_spire.notification.choices import NotificationStatusChoices, \
     NotificationTypeChoices
 from django_spire.notification.email.processor import EmailNotificationProcessor
+from django_spire.notification.exceptions import NotificationException
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 from django_spire.notification.sms.processor import SMSNotificationProcessor
@@ -15,7 +16,7 @@ class NotificationProcessor(BaseNotificationProcessor):
         if processor is None:
             notification.status = NotificationStatusChoices.FAILED
             notification.save()
-            raise ValueError(f'Unknown notification type: {notification.type}')
+            raise NotificationException(f'Unknown notification type: {notification.type}')
 
         processor().process(notification)
 

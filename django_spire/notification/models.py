@@ -37,6 +37,7 @@ class Notification(HistoryModelMixin):
         default=NotificationStatusChoices.PENDING,
         choices=NotificationStatusChoices.choices
     )
+    status_message = models.TextField(default='')
     priority = models.CharField(
         max_length=32,
         default=NotificationPriorityChoices.LOW,
@@ -49,7 +50,7 @@ class Notification(HistoryModelMixin):
     content_object = GenericForeignKey('content_type', 'object_id')
     content_type = models.ForeignKey(
         ContentType,
-        related_name='django_spire_notification',
+        related_name='django_spire_notifications',
         on_delete=models.CASCADE,
         editable=False,
         null=True,
