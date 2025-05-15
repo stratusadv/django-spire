@@ -11,7 +11,7 @@ def ticket_list_view(request):
     return portal_views.list_view(
         request=request,
         context_data={
-            "tickets": tickets
+            'tickets': tickets
         },
         model=HelpDeskTicket,
         template='django_spire/help_desk/page/ticket_list_page.html'

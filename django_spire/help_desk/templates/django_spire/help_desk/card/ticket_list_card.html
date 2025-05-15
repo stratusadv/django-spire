@@ -3,31 +3,16 @@
 {% block card_title_content_style %}{% endblock %}
 
 {% block card_title %}
-    <div class="row">
-        <div class="col-1" style="font-size: .75rem">
-            Ticket #
+    <div class="row justify-content-between">
+        <div class="col text-start">
+            Tickets
         </div>
-        <div class="col-4" style="font-size: .75rem">
-            Description
-        </div>
-        <div class="col-2" style="font-size: .75rem">
-            Created By
-        </div>
-        <div class="col-2" style="font-size: .75rem">
-            Created On
-        </div>
-        <div class="col-1 text-center" style="font-size: .75rem">
-            Purpose
-        </div>
-        <div class="col-1 text-center" style="font-size: .75rem">
-            Status
-        </div>
-        <div class="col-1 text-center" style="font-size: .75rem">
-            Priority
+        <div class="col text-end mb-1">
+            {% url 'django_spire:help_desk:form:create' as create_url %}
+            {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
         </div>
     </div>
 {% endblock %}
-
 {% block card_title_content %}
     {% for ticket in tickets %}
         {% include 'django_spire/help_desk/item/ticket_item.html' with ticket=ticket %}
