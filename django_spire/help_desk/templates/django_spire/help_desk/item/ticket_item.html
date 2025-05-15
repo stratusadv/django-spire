@@ -3,7 +3,7 @@
 {% block item_title_col %}d-none{% endblock %}
 
 {% block item_row_content %}
-    <a class="col-5" href="{# TODO: Add detail view URL #}">
+    <a class="col-5" href="{% url 'django_spire:help_desk:page:detail' pk=ticket.pk %}">
         {% include 'django_spire/element/attribute_element.html' with attribute_title=ticket attribute_value=ticket.description|truncatechars:50 %}
     </a>
     <div class="col-2">

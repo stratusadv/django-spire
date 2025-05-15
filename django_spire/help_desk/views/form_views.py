@@ -37,4 +37,5 @@ def ticket_form_view(request, pk: int = 0):
         obj=ticket,
         template='django_spire/help_desk/page/ticket_form_page.html',
         form=form,
+        context_data={'ticket': ticket}
     )

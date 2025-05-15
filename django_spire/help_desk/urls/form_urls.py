@@ -6,5 +6,5 @@ app_name = 'form'
 
 urlpatterns = [
     path('create/', form_views.ticket_form_view, name='create'),
-    path('/<int:pk>/update/', form_views.ticket_form_view, name='update')
+    path('<int:pk>/update/', form_views.ticket_form_view, name='update')
 ]
