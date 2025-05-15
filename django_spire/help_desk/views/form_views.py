@@ -18,11 +18,6 @@ from django_spire.help_desk.models import HelpDeskTicket
 def ticket_form_view(request, pk: int = 0):
     ticket = get_object_or_null_obj(HelpDeskTicket, pk=pk)
 
-    if ticket is None:
-        action = 'create'
-    else:
-        action = 'update'
-
     dg.glue_model_object(request, 'ticket', ticket)
 
     if request.method == 'POST':
@@ -40,6 +35,6 @@ def ticket_form_view(request, pk: int = 0):
     return portal_views.model_form_view(
         request=request,
         obj=ticket,
+        template='django_spire/help_desk/page/ticket_form_page.html',
         form=form,
-        template='django_spire/help_desk/page/ticket_form_page.html'
     )

@@ -1,37 +1,28 @@
-    {% extends 'django_spire/card/title_card.html' %}
+<form
+    x-data="{
+        ticket: new ModelObjectGlue('ticket'),
+        async init () {
+            await this.ticket.get()
+        }
+    }"
+    method="post"
+>
+    {% csrf_token %}
 
-    {% block card_title %}
-        {{ form_title }}
-    {% endblock %}
-
-    {% block card_title_content %}
-        <form
-            x-data="{
-                ticket: new ModelObjectGlue('ticket'),
-                async init () {
-                    await this.ticket.get()
-                },
-            }"
-            method="post"
-        >
-            {% csrf_token %}
-
-            <div class="row">
-                <div class="col-6">
-                    {% include 'django_glue/form/field/select_field.html' with glue_model_field='ticket.purpose' %}
-                </div>
-                <div class="col-6">
-                    {% include 'django_glue/form/field/select_field.html' with glue_model_field='ticket.priority' %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12 mb-3">
-                    {% include 'django_glue/form/field/text_field.html' with glue_model_field='ticket.description' %}
-                </div>
-            </div>
-
-            <div class="row text-end">
-                {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
-            </div>
-        </form>
-    {% endblock %}
+    <div class="row mb-3">
+        <div class="col-6">
+            {% include 'django_glue/form/field/select_field.html' with glue_model_field='ticket.purpose' %}
+        </div>
+        <div class="col-6">
+            {% include 'django_glue/form/field/select_field.html' with glue_model_field='ticket.priority' %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 mb-1">
+            {% include 'django_glue/form/field/text_field.html' with glue_model_field='ticket.description' %}
+        </div>
+    </div>
+    <div class="row text-end my-2">
+        {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+    </div>
+</form>

@@ -37,7 +37,7 @@ class HelpDeskTicket(HistoryModelMixin):
     objects = HelpDeskTicketQuerySet().as_manager()
 
     def __str__(self):
-        return f'Ticket - {self.pk}'
+        return f'Ticket #{self.pk}'
 
     class Meta:
         db_table = 'django_spire_help_desk_ticket'

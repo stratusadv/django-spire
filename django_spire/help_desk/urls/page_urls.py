@@ -6,4 +6,5 @@ app_name = 'page'
 
 urlpatterns = [
     path('list/', page_views.ticket_list_view, name='list'),
+    path('<int:pk>/detail/', page_views.ticket_detail_view, name='detail'),
 ]
