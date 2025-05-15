@@ -3,22 +3,20 @@
 {% block item_title_col %}d-none{% endblock %}
 
 {% block item_row_content %}
-    <div class="col-1">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.id attribute_title='Ticket #' %}
-    </div>
-    <div class="col-4">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.description|truncatechars:40 attribute_title='Description' %}
-    </div>
+    <a class="col-5" href="{# TODO: Add detail view URL #}">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title=ticket attribute_value=ticket.description|truncatechars:50 %}
+    </a>
     <div class="col-2">
         {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.created_by.get_full_name attribute_title='Created By' %}
     </div>
     <div class="col-2">
         {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.created_datetime|date:'M d, Y' attribute_title='Created At' %}
     </div>
-    <div class="col-3 justify-content-between">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Purpose / Priority / Status' %}
+    <div class="col-3 text-center">
         {% include 'django_spire/help_desk/element/ticket_purpose_badge.html' with ticket=ticket %}
+        <br>
         {% include 'django_spire/help_desk/element/ticket_priority_badge.html' with ticket=ticket %}
+        <br>
         {% include 'django_spire/help_desk/element/ticket_status_badge.html' with status=ticket %}
     </div>
 {% endblock %}
