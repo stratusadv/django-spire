@@ -1,21 +1,25 @@
-<div style="width: 350px !important;" class="row">
+<div style="width: 350px !important;" class="container">
     <div class="col-12 w-100">
-        <h6 class="mt-2 ms-2 text-app-secondary">Notifications</h6>
-        <hr class="m-0"></hr>
+        <h6 class="mt-2 ms-2 text-app-secondary text-center">Notifications</h6>
+        <hr class="m-0">
     </div>
 
-    <div style="max-height: 300px !important; overflow-y: scroll !important;">
+    <div style="max-height: 300px !important; overflow-x: hidden !important; overflow-y: scroll !important;" class="text-start">
         {% for app_notification in app_notification_list %}
-            {% include "django_spire/notification/app/item/notification_item.html" %}
+            <div class="col-12">
+                {% include app_notification.template %}
+            </div>
         {% empty %}
             No Notifications
         {% endfor %}
     </div>
     <div class="col-12">
-        <hr class="m-0"></hr>
+        <hr class="m-0">
     </div>
     <div class="col-12 fs-7 text-center py-1">
-        {% url "spire_app_notification:page:list" as app_notification_list_url %}
+        {% if not app_notification_list_url %}
+            {% url "django_spire:notification:app:page:list" as app_notification_list_url %}
+        {% endif %}
         <a href='{{ app_notification_list_url }}' class="text-decoration-none text-app-secondary my-2">View All</a>
     </div>
 

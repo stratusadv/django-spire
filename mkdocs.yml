@@ -41,7 +41,7 @@ nav:
       - Core:
           - Shortcuts: app_guides/core/shortcuts.md
       - Notification:
-          - Notification Factory: app_guides/notification/notification_factory.md
+          - SMS Notifications: app_guides/notification/sms_notifications.md
       - Seeding:
           - Overview: app_guides/seeding/overview.md
           - Getting Started: app_guides/seeding/getting_started.md

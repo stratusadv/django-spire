@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.6.2
+
+### Features
+- App Notifications
+- Email Notifications
+  - Helper for SendGrid Email API
+- SMS Notifications
+  - Requires a Twilio Account and a phone number to be setup.
+
+### Changes
+- Moved `user` field to `Notification` model.
+- Notification templates have been updated to be more consistent across projects.
+
+### Breaking
+- Prior installations of `django-spire.notification` will be broken.
+
 ## v0.6.1
 
 ### Features

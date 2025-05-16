@@ -1,16 +1,24 @@
 import json
+
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils.timezone import localtime
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.viewed.mixins import ViewedModelMixin
-from django_spire.notification.models import Notification
 from django_spire.notification.app.querysets import AppNotificationQuerySet
+from django_spire.notification.models import Notification
+
 
 class AppNotification(ViewedModelMixin, HistoryModelMixin):
-    notification = models.OneToOneField(Notification, editable=False, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, editable=False, on_delete=models.CASCADE)
+    notification = models.OneToOneField(
+        Notification,
+        editable=False,
+        on_delete=models.CASCADE,
+        related_name='app',
+        related_query_name='app',
+    )
+    template = models.TextField(default='django_spire/notification/app/item/notification_item.html')
+    context_data = models.JSONField(default=dict)
 
     objects = AppNotificationQuerySet.as_manager()
 
@@ -18,8 +26,8 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
         return f'{self.notification.title}'
 
     @property
-    def verbose_time_since_creation(self) -> str:
-        delta = localtime() - self.created_datetime
+    def verbose_time_since_delivered(self) -> str:
+        delta = localtime() - self.notification.sent_datetime
 
         seconds = abs(delta.total_seconds())
         minutes = seconds // 60
@@ -40,9 +48,10 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
             'id': self.id,
             'title': self.notification.title,
             'body': self.notification.body,
+            'context_data': self.context_data,
+            'priority': self.notification.priority,
             'url': self.notification.url,
-            'time_since_creation': self.verbose_time_since_creation,
-            # 'viewed': self.is_viewed(self.user)
+            'time_since_delivered': self.verbose_time_since_delivered,
         }
 
     def as_json(self) -> str:
@@ -52,4 +61,3 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
         db_table = 'django_spire_notification_app'
         verbose_name = 'App Notification'
         verbose_name_plural = 'App Notifications'
-

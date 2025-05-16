@@ -14,16 +14,16 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='EmailNotification',
+            name='SmsNotification',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('to_email_address', models.EmailField(max_length=254)),
-                ('notification', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='email', related_query_name='email', to='django_spire_notification.notification')),
+                ('to_phone_number', models.CharField(blank=True, max_length=11)),
+                ('notification', models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='sms', related_query_name='sms', to='django_spire_notification.notification')),
             ],
             options={
-                'verbose_name': 'Email Notification',
-                'verbose_name_plural': 'Email Notifications',
-                'db_table': 'django_spire_notification_email',
+                'verbose_name': 'SMS Notification',
+                'verbose_name_plural': 'SMS Notifications',
+                'db_table': 'django_spire_notification_sms',
             },
         ),
     ]

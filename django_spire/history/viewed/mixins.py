@@ -21,7 +21,7 @@ class ViewedModelMixin(models.Model):
     def add_view(self, user: User) -> None:
         self.views.create(user=user)
 
-    def is_viewed(self, user: User) -> None:
+    def is_viewed(self, user: User) -> bool:
         return self.views.filter(user=user).exists()
 
     class Meta:
