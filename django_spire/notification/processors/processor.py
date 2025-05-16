@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 
-from django_spire.notification.choices import NotificationStatusChoices, \
-    NotificationTypeChoices
-from django_spire.notification.exceptions import NotificationException
+from django_spire.notification.choices import NotificationStatusChoices
 from django_spire.notification.models import Notification
 
 

@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
 # Notification Settings
-NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 50
+NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
 
 # Email Settings
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
@@ -39,6 +39,8 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+TWILIO_SMS_BATCH_SIZE = os.getenv('TWILIO_SMS_BATCH_SIZE')
+
 
 # AI Chat Config
 AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.chat_workflow.ChatWorkflow'
