@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from django_spire.ai.chat.messages import Message, MessageType
+from django_spire.ai.chat.responses import MessageResponse, MessageResponseType
 from django_spire.ai.chat.query_sets import ChatQuerySet
 from django_spire.history.mixins import HistoryModelMixin
 
@@ -33,7 +33,7 @@ class Chat(HistoryModelMixin):
 
         return self.name[:48] + '...'
 
-    def add_message(self, message: Message) -> None:
+    def add_message(self, message: MessageResponse) -> None:
         ChatMessage.objects.create(
             chat=self,
             content=message.to_json(),
@@ -126,12 +126,12 @@ class ChatMessage(HistoryModelMixin):
         else:
             return 'system'
 
-    def to_message(self, request) -> Message:
+    def to_message(self, request) -> MessageResponse:
         content = json.loads(self.content)
 
-        return Message(
+        return MessageResponse(
             request=request,
-            type=MessageType(content['type']),
+            type=MessageResponseType(content['type']),
             sender=content['sender'],
             body=content['body']
         )

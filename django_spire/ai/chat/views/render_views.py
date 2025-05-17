@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 from django.conf import settings
 
-from django_spire.ai.chat.messages import MessageGroup, Message, MessageType
+from django_spire.ai.chat.responses import MessageResponseGroup, MessageResponse, MessageResponseType
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.tools import chat_workflow_process
 from django_spire.consts import AI_CHAT_WORKFLOW_SETTINGS_NAME
@@ -16,10 +16,10 @@ def load_messages_render_view(request, chat_id):
         .get(id=chat_id)
     )
 
-    message_group = MessageGroup()
+    message_group = MessageResponseGroup()
 
-    for chat_message in chat.messages.all():
-        message_group.add_message(
+    for chat_message in chat.message_responses.all():
+        message_group.add_message_response(
             chat_message.to_message(request)
         )
 
@@ -45,25 +45,25 @@ def request_message_render_view(request):
         chat.name = body_data['message_body']
         chat.save()
 
-    message_group = MessageGroup()
+    message_group = MessageResponseGroup()
 
-    user_message = Message(
+    user_message = MessageResponse(
         request=request,
-        type=MessageType.REQUEST,
+        type=MessageResponseType.REQUEST,
         sender='You',
         body=body_data['message_body']
     )
 
-    message_group.add_message(
+    message_group.add_message_response(
         user_message
     )
 
-    chat.add_message(user_message)
+    chat.add_message_response(user_message)
 
-    message_group.add_message(
-        Message(
+    message_group.add_message_response(
+        MessageResponse(
             request=request,
-            type=MessageType.LOADING_RESPONSE,
+            type=MessageResponseType.LOADING_RESPONSE,
             sender='Spire',
             body=body_data['message_body']
         )
@@ -97,13 +97,13 @@ def response_message_render_view(request):
             f'"{AI_CHAT_WORKFLOW_SETTINGS_NAME}" must be set in the django settings.'
         )
 
-    llm_message = Message(
+    llm_message = MessageResponse(
         request=request,
-        type=MessageType.RESPONSE,
+        type=MessageResponseType.RESPONSE,
         sender=chat_workflow_name,
         body=response['text'],
     )
 
-    chat.add_message(llm_message)
+    chat.add_message_response(llm_message)
 
     return HttpResponse(llm_message.render_to_html_string({'chat_id': chat.id}))
