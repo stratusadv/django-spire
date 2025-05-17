@@ -1,13 +1,17 @@
-{% block message_body %}
+{% block message %}
     <div class="col-auto mb-3 {{ message_class }}">
         <div class="row">
             <div class="col-12 fs--1 {{ sender_class }}">
-                {{ sender }}
+                {% block message_sender %}
+                    {{ message.sender }}
+                {% endblock %}
             </div>
         </div>
         <div class="row">
             <div class="col border px-3 py-2 rounded-3 shadow-sm {{ body_class }}">
-                {{ body|linebreaksbr }}
+                {% block message_body %}
+                    {{ message.body }}
+                {% endblock %}
             </div>
         </div>
     </div>

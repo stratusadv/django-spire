@@ -1,6 +1,6 @@
 <div x-data="{
-        request_message_view: new ViewGlue('{% url "django_spire:ai:chat:render:request_message" %}'),
-        load_messages_view: new ViewGlue('{% url "django_spire:ai:chat:render:load_messages" chat_id=chat.id %}'),
+        request_message_view: new ViewGlue('{% url "django_spire:ai:chat:message:request:new" %}'),
+        load_messages_view: new ViewGlue('{% url "django_spire:ai:chat:message:load_chat" chat_id=chat.id %}'),
         chat_id: '{{ chat.id }}',
         message_body: '',
         async send_chat() {

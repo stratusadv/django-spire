@@ -6,9 +6,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from django_spire.ai.chat.responses import MessageResponse, MessageResponseType
+from django_spire.ai.chat.messages import BaseMessageIntel
+from django_spire.ai.chat.responses import MessageResponse
+from django_spire.ai.chat.choices import MessageResponseType
 from django_spire.ai.chat.query_sets import ChatQuerySet
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.utils import get_class_from_qualname_string
 
 
 class Chat(HistoryModelMixin):
@@ -33,10 +36,10 @@ class Chat(HistoryModelMixin):
 
         return self.name[:48] + '...'
 
-    def add_message(self, message: MessageResponse) -> None:
-        ChatMessage.objects.create(
-            chat=self,
-            content=message.to_json(),
+    def add_message_response(self, message_response: MessageResponse) -> None:
+        self.messages.create(
+            _intel_data=message_response.message_intel.model_dump(),
+            _intel_class_name=message_response.message_intel.__class__.__qualname__,
             is_processed=True,
             is_viewed=True
         )
@@ -60,7 +63,7 @@ class Chat(HistoryModelMixin):
         for message in messages:
             message_history.add_message(
                 role=message.role,
-                content=message.body
+                content=message.message
             )
 
         return message_history
@@ -91,13 +94,15 @@ class ChatMessage(HistoryModelMixin):
         related_query_name='message'
     )
 
-    _content = models.JSONField()
-    _content_intel_class = models.CharField(max_length=64)
+    response_type = models.CharField(max_length=32, choices=MessageResponseType)
+    sender = models.CharField(max_length=128)
+    _intel_data = models.JSONField()
+    _intel_class_name = models.TextField()
     is_processed = models.BooleanField(default=False)
     is_viewed = models.BooleanField(default=False)
 
     def __str__(self):
-        body = json.loads(self.content)['body']
+        body = json.loads(self.intel.model_dump())['body']
 
         if len(body) < 64:
             return body
@@ -105,35 +110,29 @@ class ChatMessage(HistoryModelMixin):
         return body[:64] + '...'
 
     @property
-    def body(self):
-        return json.loads(self.content)['body']
+    def intel(self):
+        intel_class: BaseMessageIntel = get_class_from_qualname_string(self._intel_class_name)
+        return intel_class.model_validate(self._intel_data)
 
-    @property
-    def content(self):
-        return self._content
-
-    @content.setter
-    def content(self, value):
-        self._content = value
+    @intel.setter
+    def intel(self, message_intel: BaseMessageIntel):
+        self._intel_class_name = message_intel.__class__.__qualname__
+        self._intel_data = message_intel.model_dump()
 
     @property
     def role(self) -> RoleLiteralStr:
-        message_type = json.loads(self.content)['type']
-        if message_type == 'request':
+        if self.response_type == 'request':
             return 'user'
-        elif message_type == 'response':
+        elif self.response_type == 'response':
             return 'assistant'
         else:
             return 'system'
 
-    def to_message(self, request) -> MessageResponse:
-        content = json.loads(self.content)
-
+    def to_message_response(self, request) -> MessageResponse:
         return MessageResponse(
-            request=request,
-            type=MessageResponseType(content['type']),
-            sender=content['sender'],
-            body=content['body']
+            type=MessageResponseType(self.response_type),
+            sender=self.sender,
+            message_intel=self.intel
         )
 
     class Meta:

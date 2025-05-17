@@ -1,31 +1,23 @@
-import json
-from dataclasses import dataclass, field, asdict
-from enum import Enum
+from dataclasses import dataclass, field
 from typing import List
 
-from django.http import HttpRequest
 from django.template.loader import render_to_string
 
-
-class MessageResponseType(Enum):
-    REQUEST = 'request'
-    RESPONSE = 'response'
-    LOADING_RESPONSE = 'loading_response'
+from django_spire.ai.chat.choices import MessageResponseType
+from django_spire.ai.chat.messages import BaseMessageIntel
 
 
 @dataclass
 class MessageResponse:
-    request: HttpRequest
     type: MessageResponseType
     sender: str
-    body: str
+    message_intel: BaseMessageIntel
 
     @property
     def context_data(self) -> dict:
         return {
             'sender': self.sender,
-            'body': self.body,
-            'request': self.request
+            'body': self.message,
         }
 
     def _render_template_to_html_string(self, template_name: str, context_data: dict = None) -> str:
@@ -52,16 +44,6 @@ class MessageResponse:
             )
         else:
             return None
-
-    def to_dict(self) -> dict:
-        return {
-            'type': self.type.value,
-            'sender': self.sender,
-            'body': self.body
-        }
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
 
 
 @dataclass
