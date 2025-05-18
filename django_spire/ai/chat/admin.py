@@ -15,7 +15,7 @@ class ChatAdmin(admin.ModelAdmin):
         return [field.name for field in self.model._meta.fields]
 
     def view_chat_messages_link(self, obj):
-        count = obj.message_responses.count()
+        count = obj.messages.count()
         url = (
                 reverse("admin:django_spire_ai_chat_chatmessage_changelist")
                 + "?"

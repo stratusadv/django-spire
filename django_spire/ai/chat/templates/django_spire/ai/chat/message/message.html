@@ -3,14 +3,14 @@
         <div class="row">
             <div class="col-12 fs--1 {{ sender_class }}">
                 {% block message_sender %}
-                    {{ message.sender }}
+                	{{ sender }}
                 {% endblock %}
             </div>
         </div>
         <div class="row">
             <div class="col border px-3 py-2 rounded-3 shadow-sm {{ body_class }}">
-                {% block message_body %}
-                    {{ message.body }}
+                {% block message_content %}
+                	{{ message_intel.text }}
                 {% endblock %}
             </div>
         </div>
