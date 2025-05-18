@@ -13,7 +13,7 @@ def load_messages_render_view(request, chat_id):
 
     message_group = MessageResponseGroup()
 
-    for chat_message in chat.messages.all():
+    for chat_message in chat.messages.newest_by_count_reversed(20):
         message_group.add_message_response(
             chat_message.to_message_response()
         )

@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from django_spire.ai.chat.messages import BaseMessageIntel
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
-from django_spire.ai.chat.query_sets import ChatQuerySet
+from django_spire.ai.chat.query_sets import ChatQuerySet, ChatMessageQuerySet
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.utils import get_class_from_string, get_class_name_from_class
 
@@ -55,7 +55,7 @@ class Chat(HistoryModelMixin):
     ) -> MessageHistory:
         message_history = MessageHistory()
 
-        messages = self.messages.order_by('-created_datetime')[:message_count]
+        messages = self.messages.newest_by_count(message_count)
 
         if exclude_last_message:
             messages = messages[1:]
@@ -102,6 +102,8 @@ class ChatMessage(HistoryModelMixin):
     _intel_class_name = models.TextField()
     is_processed = models.BooleanField(default=False)
     is_viewed = models.BooleanField(default=False)
+
+    objects = ChatMessageQuerySet.as_manager()
 
     def __str__(self):
         content = self.intel.content_to_str()
