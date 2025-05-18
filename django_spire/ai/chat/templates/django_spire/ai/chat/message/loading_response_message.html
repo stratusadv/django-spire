@@ -12,7 +12,7 @@
             setTimeout(() => {this.show_typing = true}, 4000)
         },
         response_message: new ViewGlue(
-            '{% url "django_spire:ai:chat:render:response_message" %}',
+            '{% url "django_spire:ai:chat:message:request:new" %}',
             {
                 message_body: '{{ body|escapejs }}',
                 chat_id: '{{ chat_id }}'

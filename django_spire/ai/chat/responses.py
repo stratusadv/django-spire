@@ -13,17 +13,13 @@ class MessageResponse:
     sender: str
     message_intel: BaseMessageIntel
 
-    @property
-    def context_data(self) -> dict:
-        return {
-            'sender': self.sender,
-            'body': self.message,
-        }
-
-    def _render_template_to_html_string(self, template_name: str, context_data: dict = None) -> str:
+    def _render_template_to_html_string(self, template: str, context_data: dict = None) -> str:
         return render_to_string(
-            template_name=template_name,
-            context={**self.context_data, **(context_data or {})},
+            template_name=template,
+            context={
+                'message_intel': self.message_intel.model_dump(),
+                **(context_data or {})
+            },
         )
 
     def render_to_html_string(self, context_data: dict = None) -> str | None:

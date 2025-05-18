@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from django.http import HttpResponse
 
+from django_spire.ai.chat.messages import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
@@ -31,7 +32,9 @@ def response_message_render_view(request):
     llm_message = MessageResponse(
         type=MessageResponseType.RESPONSE,
         sender=chat_workflow_name,
-        message=response['text'],
+        message_intel=DefaultMessageIntel(
+            text=response['text']
+        ),
     )
 
     chat.add_message_response(llm_message)

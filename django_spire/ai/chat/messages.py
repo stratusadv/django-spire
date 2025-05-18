@@ -4,11 +4,12 @@ from pydantic import PrivateAttr
 
 
 class BaseMessageIntel(BaseIntel):
-    _template: str = PrivateAttr(default_factory=str)
+    template: str
 
     def __init_subclass__(cls):
         super().__init_subclass__()
-        if cls._template is None or cls._template == '':
+
+        if cls.template is None or cls.template == '':
             raise ValueError(f'{cls.__name__}._template must be set')
 
     def render_to_string(self, context_data: dict | None = None):
@@ -18,6 +19,7 @@ class BaseMessageIntel(BaseIntel):
         )
 
 
+
 class DefaultMessageIntel(BaseMessageIntel):
-    _template = 'django_spire/ai/chat/messages/default_message.html'
+    template: str = 'django_spire/ai/chat/message/default_message.html'
     text: str
