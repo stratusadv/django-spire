@@ -1,0 +1,17 @@
+<div x-data="{
+    speech_synthesis: new SpeechSynthesisUtterance(),
+    speech_synthesis_text: '',
+    start_speaking(text = '') {
+        if(text) {
+            this.speech_synthesis_text = text
+        }
+
+        this.speech_synthesis.text = this.speech_synthesis_text
+        window.speechSynthesis.speak(this.speech_synthesis)
+    }
+}" class="row {{ speech_synthesis_class }}">
+    <div class="col-auto">
+        {% block speech_synthesis_content %}
+        {% endblock %}
+    </div>
+</div>

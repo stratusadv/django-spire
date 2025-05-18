@@ -29,12 +29,13 @@ def response_message_render_view(request):
         message_history=chat.generate_message_history(),
     )
 
-    llm_message = MessageResponse(
+    response_message = MessageResponse(
         type=MessageResponseType.RESPONSE,
         sender=chat_workflow_name,
         message_intel=message_intel,
+        synthesis_speech=body_data.get('synthesis_speech', False),
     )
 
-    chat.add_message_response(llm_message)
+    chat.add_message_response(response_message)
 
-    return HttpResponse(llm_message.render_to_html_string({'chat_id': chat.id}))
+    return HttpResponse(response_message.render_to_html_string({'chat_id': chat.id}))

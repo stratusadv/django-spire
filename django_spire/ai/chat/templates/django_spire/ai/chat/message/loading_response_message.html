@@ -15,7 +15,8 @@
             '{% url "django_spire:ai:chat:message:response:new" %}',
             {
                 message_body: '{{ message_intel.text }}',
-                chat_id: '{{ chat_id }}'
+                chat_id: '{{ chat_id }}',
+                synthesis_speech: '{{ synthesis_speech }}' === 'True'
             }
         )
     }"

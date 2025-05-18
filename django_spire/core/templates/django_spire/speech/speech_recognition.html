@@ -1,0 +1,24 @@
+<div x-data="{
+    speech_recognition: new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)(),
+    speech_transcript: '',
+    speech_listening: false,
+    init() {
+        this.speech_recognition.addEventListener('result', (event) => {
+           this.speech_transcript = event.results[0][0].transcript
+           this.speech_listening = false
+        })
+    },
+    start_listening() {
+        this.speech_recognition.start()
+        this.speech_listening = true
+    },
+    stop_listening() {
+        this.speech_recognition.stop()
+        this.speech_listening = false
+    }
+}" class="row {{ speech_recognition_class }}">
+    <div class="col">
+        {% block speech_recognition_content %}
+        {% endblock %}
+    </div>
+</div>

@@ -1,18 +1,38 @@
-{% block message %}
-    <div class="col-auto mb-3 {{ message_class }}">
-        <div class="row">
-            <div class="col-12 fs--1 {{ sender_class }}">
-                {% block message_sender %}
-                	{{ sender }}
-                {% endblock %}
+{% extends 'django_spire/speech/speech_synthesis.html' %}
+
+{% block speech_synthesis_content %}
+
+    {% block message %}
+        <div x-data="{
+            show_message_menu: false,
+            init() {
+                this.speech_synthesis_text = '{{ message_intel.content_to_str|escapejs }}'
+                {% if synthesis_speech %}this.start_speaking(){% endif %}
+            }
+        }" class="col-auto mb-3 {{ message_class }}">
+            <div class="row">
+                <div class="col fs--1 {{ sender_class }}">
+                    {% block message_sender %}
+                        {{ sender }}
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="row">
+                <div @click="show_message_menu = !show_message_menu"
+                     class="col border px-3 py-2 rounded-3 shadow-sm {{ content_class }}">
+                    {% block message_content %}
+                        {{ message_intel.content_to_str }}
+                    {% endblock %}
+                </div>
+            </div>
+            <div x-show="show_message_menu" class="row">
+                <div class="col">
+                    <div @click="start_speaking()" class="py-1 px-2 cursor-pointer">
+                        <i class="bi bi-soundwave"></i>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col border px-3 py-2 rounded-3 shadow-sm {{ body_class }}">
-                {% block message_content %}
-                	{{ message_intel.text }}
-                {% endblock %}
-            </div>
-        </div>
-    </div>
+    {% endblock %}
+
 {% endblock %}
