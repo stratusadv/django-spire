@@ -15,14 +15,15 @@
                         synthesis_speech: synthesis_speech_for_response
                     })
                 this.message_body = ''
-                this.$refs.target_div.scrollTop = this.$refs.target_div.scrollHeight
             }
         },
         load_messages() {
             this.load_messages_view.render_insert_adjacent(this.$refs.target_div, {})
         },
         init() {
-            this.$refs.target_div.scrollTop = this.$refs.target_div.scrollHeight
+            setTimeout(() => this.$refs.target_div.scrollTop = this.$refs.target_div.scrollHeight, 1500)
+
+
             this.speech_recognition.onresult = () => {
                 this.message_body = this.speech_transcript
                 this.send_chat(true)

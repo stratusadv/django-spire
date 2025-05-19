@@ -4,9 +4,9 @@
         show_message: false,
         init() {
             setTimeout(() => this.show_message = true, 500)
+            setTimeout(() => $el.scrollIntoView({behavior: 'smooth'}), 550)
         }
     }"
-    x-init="$el.scrollIntoView()"
     x-show="show_message"
     x-transition
 >

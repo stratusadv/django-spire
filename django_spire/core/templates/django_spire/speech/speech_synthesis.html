@@ -1,6 +1,17 @@
 <div x-data="{
-    speech_synthesis: new SpeechSynthesisUtterance(),
+    speech_synthesis: null,
     speech_synthesis_text: '',
+    init() {
+        this.speech_synthesis = new SpeechSynthesisUtterance()
+
+        window.speechSynthesis.onvoiceschanged = () =>{
+            let voices = window.speechSynthesis.getVoices();
+            let voice = voices.find(v => v.name === 'Google US English')
+            if(voice) {
+                this.speech_synthesis.voice = voice
+            }
+        }
+    },
     start_speaking(text = '') {
         if(text) {
             this.speech_synthesis_text = text
@@ -10,7 +21,7 @@
         window.speechSynthesis.speak(this.speech_synthesis)
     }
 }" class="row {{ speech_synthesis_class }}">
-    <div class="col-auto">
+    <div class="col">
         {% block speech_synthesis_content %}
         {% endblock %}
     </div>

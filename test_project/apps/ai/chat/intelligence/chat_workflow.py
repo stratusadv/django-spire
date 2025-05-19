@@ -1,3 +1,4 @@
+from dandy.recorder import recorder_to_html_file
 from dandy.workflow import BaseWorkflow
 from dandy.llm import LlmBot, MessageHistory
 from django.core.handlers.wsgi import WSGIRequest
@@ -10,6 +11,7 @@ from test_project.apps.ai.chat.messages import ClownFlyingDistanceMessageIntel, 
 
 class ChatWorkflow(BaseWorkflow):
     @classmethod
+    @recorder_to_html_file('chat_workflow')
     def process(
             cls,
             request: WSGIRequest,

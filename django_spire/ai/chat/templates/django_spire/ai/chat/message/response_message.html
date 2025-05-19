@@ -3,7 +3,7 @@
         show_message: false,
         init() {
             setTimeout(() => this.show_message = true, 300)
-            setTimeout(() => $el.scrollIntoView(), 1000)
+            setTimeout(() => $el.scrollIntoView({behavior: 'smooth'}), 350)
         }
     }"
     class="row justify-content-start pe-4 pe-lg-5"
