@@ -54,8 +54,8 @@
                     <button class="btn btn-app-primary-outlined" x-show="!speech_listening" @click="start_listening()">
                         <i class="bi bi-mic"></i>
                     </button>
-                    <button class="btn btn-app-primary-outlined" x-show="speech_listening" @click="stop_listening()">
-                        <i class="text-danger bi bi-mic-fill"></i>
+                    <button class="btn btn-app-danger" x-show="speech_listening" @click="stop_listening()">
+                        <i class="bi bi-mic-fill"></i>
                     </button>
                 </div>
                 <div class="col text-center px-1">
