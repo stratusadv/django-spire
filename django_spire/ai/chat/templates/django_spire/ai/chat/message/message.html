@@ -1,9 +1,10 @@
 {% block message %}
     <div x-data="{
             show_message_menu: false,
+            speech_synthesis_text: '',
             init() {
                 this.speech_synthesis_text = '{{ message_intel.content_to_str|escapejs }}'
-                {% if synthesis_speech %}this.start_speaking(){% endif %}
+                {% if synthesis_speech %}this.start_speaking(this.speech_synthesis_text){% endif %}
                 $el.scrollIntoView({behavior: 'smooth'})
             }
         }" class="col-auto mb-3 {{ message_class }}">
@@ -24,7 +25,7 @@
         </div>
         <div x-show="show_message_menu" class="row">
             <div class="col">
-                <div @click="start_speaking()" class="py-1 px-2 cursor-pointer">
+                <div @click="start_speaking(speech_synthesis_text)" class="py-1 px-2 cursor-pointer">
                     <i class="bi bi-soundwave"></i>
                 </div>
             </div>

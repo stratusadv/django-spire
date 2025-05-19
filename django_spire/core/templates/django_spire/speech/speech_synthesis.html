@@ -1,24 +1,26 @@
 <div x-data="{
-    speech_synthesis: null,
-    speech_synthesis_text: '',
+    voice: null,
     init() {
-        this.speech_synthesis = new SpeechSynthesisUtterance()
-
-        window.speechSynthesis.onvoiceschanged = () =>{
-            let voices = window.speechSynthesis.getVoices();
-            let voice = voices.find(v => v.name === 'Google US English')
-            if(voice) {
-                this.speech_synthesis.voice = voice
-            }
+        speechSynthesis.onvoiceschanged = () =>{
+            let voices = speechSynthesis.getVoices();
+            this.voice = voices.find(v => v.name === 'Google US English')
         }
     },
     start_speaking(text = '') {
-        if(text) {
-            this.speech_synthesis_text = text
-        }
+        speechSynthesis.cancel()
 
-        this.speech_synthesis.text = this.speech_synthesis_text
-        window.speechSynthesis.speak(this.speech_synthesis)
+        var sentences = text.split('.')
+        for (var i=0;i< sentences.length;i++)
+        {
+            let utterance = new SpeechSynthesisUtterance()
+
+            if(this.voice) {
+                utterance.voice = this.voice
+            }
+
+            utterance.text = sentences[i]
+            speechSynthesis.speak(utterance)
+        }
     }
 }" class="row {{ speech_synthesis_class }}">
     <div class="col">
