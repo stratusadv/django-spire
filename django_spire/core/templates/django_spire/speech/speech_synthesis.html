@@ -1,0 +1,30 @@
+<div x-data="{
+    voice: null,
+    init() {
+        speechSynthesis.onvoiceschanged = () =>{
+            let voices = speechSynthesis.getVoices();
+            this.voice = voices.find(v => v.name === 'Google US English')
+        }
+    },
+    start_speaking(text = '') {
+        speechSynthesis.cancel()
+
+        var sentences = text.split('.')
+        for (var i=0;i< sentences.length;i++)
+        {
+            let utterance = new SpeechSynthesisUtterance()
+
+            if(this.voice) {
+                utterance.voice = this.voice
+            }
+
+            utterance.text = sentences[i]
+            speechSynthesis.speak(utterance)
+        }
+    }
+}" class="row {{ speech_synthesis_class }}">
+    <div class="col">
+        {% block speech_synthesis_content %}
+        {% endblock %}
+    </div>
+</div>
