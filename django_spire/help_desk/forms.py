@@ -7,15 +7,12 @@ from django_spire.help_desk.models import HelpDeskTicket
 
 
 class HelpDeskTicketForm(forms.ModelForm):
-    class Meta:
-        model = HelpDeskTicket
-        exclude: ClassVar[list] = [
-            'created_by',
-            'status'
-        ]
-
     def save(self, commit: bool = True, user: User | None = None) -> HelpDeskTicket:
         if user is not None:
             self.instance.created_by = user
 
         return super().save(commit=commit)
+
+    class Meta:
+        model = HelpDeskTicket
+        exclude: ClassVar[list] = ['created_by', 'status']

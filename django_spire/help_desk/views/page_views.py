@@ -1,10 +1,9 @@
-from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 
-from django_spire.core.shortcuts import get_object_or_null_obj
-from django_spire.help_desk.models import HelpDeskTicket
 from django_spire.contrib.generic_views import portal_views
-import django_glue as dg
+from django_spire.help_desk.models import HelpDeskTicket
+
 
 @login_required()
 def ticket_list_view(request):
@@ -21,7 +20,7 @@ def ticket_list_view(request):
 
 @login_required()
 def ticket_detail_view(request, pk):
-    ticket = get_object_or_null_obj(HelpDeskTicket, pk=pk)
+    ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
     return portal_views.detail_view(
         request=request,

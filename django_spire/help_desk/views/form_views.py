@@ -13,8 +13,7 @@ from django_spire.help_desk import forms
 from django_spire.help_desk.models import HelpDeskTicket
 
 
-@permission_required('django_spire_help_desk.add_helpdeskticket')
-@require_http_methods(['GET', 'POST'])
+@permission_required('django_spire_help_desk.change_helpdeskticket')
 def ticket_form_view(request, pk: int = 0):
     ticket = get_object_or_null_obj(HelpDeskTicket, pk=pk)
 
