@@ -13,10 +13,16 @@
         {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.created_datetime|date:'M d, Y' attribute_title='Created At' %}
     </div>
     <div class="col-3 text-center">
-        {% include 'django_spire/help_desk/element/ticket_purpose_badge.html' with ticket=ticket %}
-        <br>
-        {% include 'django_spire/help_desk/element/ticket_priority_badge.html' with ticket=ticket %}
-        <br>
-        {% include 'django_spire/help_desk/element/ticket_status_badge.html' with status=ticket %}
+        <div class="row">
+            <div class="col-auto">
+                {% include 'django_spire/help_desk/element/ticket_purpose_badge.html' %}
+            </div>
+            <div class="col-auto">
+                {% include 'django_spire/help_desk/element/ticket_priority_badge.html' %}
+            </div>
+            <div class="col-auto">
+                {% include 'django_spire/help_desk/element/ticket_status_badge.html' %}
+            </div>
+        </div>
     </div>
 {% endblock %}

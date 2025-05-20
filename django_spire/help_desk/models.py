@@ -30,7 +30,7 @@ class HelpDeskTicket(HistoryModelMixin):
     )
     description = models.TextField()
 
-    objects = HelpDeskTicketQuerySet().as_manager()
+    objects = HelpDeskTicketQuerySet.as_manager()
 
     def __str__(self):
         return f'Ticket - {self.pk}'
