@@ -24,3 +24,11 @@ class ChatQuerySet(HistoryQuerySet):
         return self.filter(
             Q(name__icontains=query)
         )
+
+
+class ChatMessageQuerySet(HistoryQuerySet):
+    def newest_by_count(self, count: int = 20):
+        return self.order_by('-created_datetime')[:count]
+
+    def newest_by_count_reversed(self, count: int = 20):
+        return self.order_by('-created_datetime')[:count][::-1]

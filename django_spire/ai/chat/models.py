@@ -9,9 +9,9 @@ from django.utils.timezone import now
 from django_spire.ai.chat.messages import BaseMessageIntel
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
-from django_spire.ai.chat.query_sets import ChatQuerySet
+from django_spire.ai.chat.query_sets import ChatQuerySet, ChatMessageQuerySet
 from django_spire.history.mixins import HistoryModelMixin
-from django_spire.utils import get_class_from_qualname_string
+from django_spire.utils import get_class_from_string, get_class_name_from_class
 
 
 class Chat(HistoryModelMixin):
@@ -38,8 +38,10 @@ class Chat(HistoryModelMixin):
 
     def add_message_response(self, message_response: MessageResponse) -> None:
         self.messages.create(
+            response_type=message_response.type.value,
+            sender=message_response.sender,
             _intel_data=message_response.message_intel.model_dump(),
-            _intel_class_name=message_response.message_intel.__class__.__qualname__,
+            _intel_class_name=get_class_name_from_class(message_response.message_intel.__class__),
             is_processed=True,
             is_viewed=True
         )
@@ -53,7 +55,7 @@ class Chat(HistoryModelMixin):
     ) -> MessageHistory:
         message_history = MessageHistory()
 
-        messages = self.messages.order_by('-created_datetime')[:message_count]
+        messages = self.messages.newest_by_count(message_count)
 
         if exclude_last_message:
             messages = messages[1:]
@@ -63,7 +65,7 @@ class Chat(HistoryModelMixin):
         for message in messages:
             message_history.add_message(
                 role=message.role,
-                content=message.message
+                content=message.intel.content_to_str()
             )
 
         return message_history
@@ -101,22 +103,24 @@ class ChatMessage(HistoryModelMixin):
     is_processed = models.BooleanField(default=False)
     is_viewed = models.BooleanField(default=False)
 
+    objects = ChatMessageQuerySet.as_manager()
+
     def __str__(self):
-        body = json.loads(self.intel.model_dump())['body']
+        content = self.intel.content_to_str()
 
-        if len(body) < 64:
-            return body
+        if len(content) < 64:
+            return content
 
-        return body[:64] + '...'
+        return content[:64] + '...'
 
     @property
     def intel(self):
-        intel_class: BaseMessageIntel = get_class_from_qualname_string(self._intel_class_name)
+        intel_class: BaseMessageIntel = get_class_from_string(self._intel_class_name)
         return intel_class.model_validate(self._intel_data)
 
     @intel.setter
     def intel(self, message_intel: BaseMessageIntel):
-        self._intel_class_name = message_intel.__class__.__qualname__
+        self._intel_class_name = get_class_name_from_class(message_intel.__class__)
         self._intel_data = message_intel.model_dump()
 
     @property
@@ -128,7 +132,7 @@ class ChatMessage(HistoryModelMixin):
         else:
             return 'system'
 
-    def to_message_response(self, request) -> MessageResponse:
+    def to_message_response(self) -> MessageResponse:
         return MessageResponse(
             type=MessageResponseType(self.response_type),
             sender=self.sender,

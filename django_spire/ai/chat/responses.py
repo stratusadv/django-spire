@@ -12,17 +12,20 @@ class MessageResponse:
     type: MessageResponseType
     sender: str
     message_intel: BaseMessageIntel
+    synthesis_speech: bool = False
 
     def _render_template_to_html_string(self, template: str, context_data: dict = None) -> str:
         return render_to_string(
             template_name=template,
             context={
-                'message_intel': self.message_intel.model_dump(),
+                'sender': self.sender,
+                'message_intel': self.message_intel,
+                'synthesis_speech': self.synthesis_speech,
                 **(context_data or {})
             },
         )
 
-    def render_to_html_string(self, context_data: dict = None) -> str | None:
+    def render_to_html_string(self, context_data: dict = None) -> str:
         if self.type == MessageResponseType.REQUEST:
             return self._render_template_to_html_string(
                 'django_spire/ai/chat/message/request_message.html',
@@ -39,7 +42,7 @@ class MessageResponse:
                 context_data
             )
         else:
-            return None
+            return ''
 
 
 @dataclass

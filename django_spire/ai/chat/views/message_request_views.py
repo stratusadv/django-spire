@@ -45,7 +45,8 @@ def request_message_render_view(request):
             sender='Spire',
             message_intel=DefaultMessageIntel(
                 text=body_data['message_body']
-            )
+            ),
+            synthesis_speech=body_data.get('synthesis_speech', False),
         )
     )
 

@@ -13,7 +13,7 @@ def check_required_apps(app_label: str) -> None:
                 f"{app_label} requires {required_app_name} is be in the 'INSTALLED_APPS' list before {app_label} in the django settings module.")
 
 
-def get_class_from_qualname_string(class_string: str) -> type:
+def get_class_from_string(class_string: str) -> type:
     class_parts = class_string.split('.')
 
     if len(class_parts) < 2:
@@ -25,3 +25,7 @@ def get_class_from_qualname_string(class_string: str) -> type:
     module = __import__(module_path, fromlist=[class_name])
 
     return getattr(module, class_name)
+
+
+def get_class_name_from_class(cls: type) -> str:
+    return cls.__module__ + '.' + cls.__qualname__

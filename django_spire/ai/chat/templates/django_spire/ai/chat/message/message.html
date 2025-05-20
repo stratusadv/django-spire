@@ -1,17 +1,33 @@
 {% block message %}
-    <div class="col-auto mb-3 {{ message_class }}">
+    <div x-data="{
+            show_message_menu: false,
+            speech_synthesis_text: '',
+            init() {
+                this.speech_synthesis_text = '{{ message_intel.content_to_str|escapejs }}'
+                {% if synthesis_speech %}this.start_speaking(this.speech_synthesis_text){% endif %}
+                $el.scrollIntoView({behavior: 'smooth'})
+            }
+        }" class="col-auto mb-3 {{ message_class }}">
         <div class="row">
-            <div class="col-12 fs--1 {{ sender_class }}">
+            <div class="col fs--1 {{ sender_class }}">
                 {% block message_sender %}
-                    {{ message.sender }}
+                    {{ sender }}
                 {% endblock %}
             </div>
         </div>
         <div class="row">
-            <div class="col border px-3 py-2 rounded-3 shadow-sm {{ body_class }}">
-                {% block message_body %}
-                    {{ message.body }}
+            <div @click="show_message_menu = !show_message_menu"
+                 class="col border px-3 py-2 rounded-3 shadow-sm {{ content_class }}">
+                {% block message_content %}
+                    {{ message_intel.content_to_str|linebreaksbr }}
                 {% endblock %}
+            </div>
+        </div>
+        <div x-show="show_message_menu" class="row">
+            <div class="col">
+                <div @click="start_speaking(speech_synthesis_text)" class="py-1 px-2 cursor-pointer">
+                    <i class="bi bi-soundwave"></i>
+                </div>
             </div>
         </div>
     </div>
