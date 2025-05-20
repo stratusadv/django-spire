@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from django_spire.notification.models import Notification
+from django_spire.notification.managers import NotificationManager
 
 
 def process_notifications() -> str:
-    for notification in Notification.objects.filter(is_sent=False):
-        notification.send()
+    NotificationManager().process_ready_notifications()
 
     return 'Successfully Completed'
