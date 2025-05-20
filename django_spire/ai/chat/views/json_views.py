@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-def delete_view(request: WSGIRequest, pk: int) -> JsonResponse:
+def delete_chat_view(request: WSGIRequest, pk: int) -> JsonResponse:
     try:
         chat = Chat.objects.get(pk=pk)
     except Chat.DoesNotExist:
@@ -28,7 +28,7 @@ def delete_view(request: WSGIRequest, pk: int) -> JsonResponse:
     return JsonResponse({'type': 'success', 'message': 'Chat deleted.'})
 
 
-def rename_view(request: WSGIRequest, pk: int) -> JsonResponse:
+def rename_chat_view(request: WSGIRequest, pk: int) -> JsonResponse:
     try:
         chat = Chat.objects.get(pk=pk)
     except Chat.DoesNotExist:
@@ -50,6 +50,6 @@ def rename_view(request: WSGIRequest, pk: int) -> JsonResponse:
     return JsonResponse({'type': 'success'})
 
 
-def workflow_process_view(request: WSGIRequest) -> JsonResponse:
+def chat_workflow_process_view(request: WSGIRequest) -> JsonResponse:
     body = json.loads(request.body.decode('utf-8'))
     return JsonResponse({'response': chat_workflow_process(request, body)})

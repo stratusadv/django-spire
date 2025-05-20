@@ -15,7 +15,7 @@ def confirm_delete_view(request, pk: int) -> TemplateResponse:
     )
 
 
-def load_chat_view(request) -> TemplateResponse:
+def dialog_widget_view(request) -> TemplateResponse:
     body_data = json.loads(request.body)
 
     chat_id = body_data['chat_id']
@@ -44,7 +44,7 @@ def load_chat_view(request) -> TemplateResponse:
     )
 
 
-def recent_chat_list_view(request) -> TemplateResponse:
+def recent_chats_widget_view(request) -> TemplateResponse:
     return TemplateResponse(
         request,
         context={
@@ -59,7 +59,7 @@ def recent_chat_list_view(request) -> TemplateResponse:
     )
 
 
-def search_chat_view(request) -> TemplateResponse:
+def search_chats_results_widget_view(request) -> TemplateResponse:
     body_data = json.loads(request.body)
     chats = Chat.objects.by_user(request.user).search(body_data['query'])
 

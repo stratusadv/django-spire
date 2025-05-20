@@ -1,68 +1,36 @@
-import json
-from dataclasses import dataclass, field, asdict
-from enum import Enum
-from typing import List
+from abc import abstractmethod, ABC
 
-from django.http import HttpRequest
+from dandy.intel import BaseIntel
 from django.template.loader import render_to_string
 
 
-class MessageType(Enum):
-    REQUEST = 'request'
-    RESPONSE = 'response'
-    LOADING_RESPONSE = 'loading_response'
+class BaseMessageIntel(BaseIntel, ABC):
+    _template: str
 
+    def __init_subclass__(cls):
+        super().__init_subclass__()
 
-@dataclass
-class Message:
-    request: HttpRequest
-    type: MessageType
-    sender: str
-    body: str
+        if cls._template is None or cls._template == '':
+            raise ValueError(f'{cls.__module__}.{cls.__qualname____}._template must be set')
 
-    @property
-    def context_data(self) -> dict:
-        return {
-            'sender': self.sender,
-            'body': self.body,
-            'request': self.request
-        }
+    @abstractmethod
+    def content_to_str(self) -> str:
+        raise NotImplementedError
 
-    def _render_template_to_html_string(self, template_name: str, context_data: dict = None) -> str:
+    def render_to_string(self, context_data: dict | None = None):
         return render_to_string(
-            template_name=template_name,
-            context={**self.context_data, **(context_data or {})},
+            template_name=self._template,
+            context={**self.model_dump(), **(context_data or {})},
         )
 
-    def render_to_html_string(self, context_data: dict = None) -> str:
-        if self.type == MessageType.REQUEST:
-            return self._render_template_to_html_string('django_spire/ai/chat/message/request_message.html', context_data)
-        elif self.type == MessageType.RESPONSE:
-            return self._render_template_to_html_string('django_spire/ai/chat/message/response_message.html', context_data)
-        elif self.type == MessageType.LOADING_RESPONSE:
-            return self._render_template_to_html_string('django_spire/ai/chat/message/loading_response_message.html', context_data)
-
-    def to_dict(self) -> dict:
-        return {
-            'type': self.type.value,
-            'sender': self.sender,
-            'body': self.body
-        }
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
+    @property
+    def template(self) -> str:
+        return self._template
 
 
-@dataclass
-class MessageGroup:
-    messages: List[Message] = field(default_factory=list)
+class DefaultMessageIntel(BaseMessageIntel):
+    _template: str = 'django_spire/ai/chat/message/default_message.html'
+    text: str
 
-    def add_message(self, message: Message) -> None:
-        self.messages.append(message)
-
-    def render_to_html_string(self, context_data: dict = None) -> str:
-        html_string = ''
-        for message in self.messages:
-            html_string += message.render_to_html_string(context_data)
-
-        return html_string
+    def content_to_str(self):
+        return self.text

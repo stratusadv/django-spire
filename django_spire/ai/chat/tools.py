@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from pydantic import BaseModel
 
+from django_spire.ai.chat.messages import BaseMessageIntel
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 from django_spire.consts import AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME
 
@@ -14,7 +15,8 @@ def chat_workflow_process(
         request: WSGIRequest,
         user_input: str | None = None,
         message_history: MessageHistory | None = None,
-) -> BaseModel:
+) -> BaseMessageIntel:
+
     if user_input is None:
         raise ValueError('user_input is required')
 
@@ -41,4 +43,11 @@ def chat_workflow_process(
             message_history=message_history,
         )
 
-    return run_workflow_process()
+    output = run_workflow_process()
+
+    if not issubclass(output.__class__, BaseMessageIntel):
+        raise ValueError(
+            f'{ChatWorkFlow.__class__.__module__}.{ChatWorkFlow.__class__.__qualname__}.process must return an instance of a {BaseMessageIntel.__name__} sub class.'
+        )
+
+    return output

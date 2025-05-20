@@ -2,8 +2,8 @@
     class="row mb-2"
     x-data="{
         can_rename_chat: false,
-        chat_name: '{{ recent_chat.name }}',
-        new_chat_name: '{{ recent_chat.name }}',
+        chat_name: '{{ recent_chat.name|escapejs }}',
+        new_chat_name: '{{ recent_chat.name|escapejs }}',
         show_recent_chat: true,
 
         disable_rename_chat() {
@@ -32,7 +32,7 @@
     @deleted_chat.window="if (show_recent_chat) show_recent_chat = $event.detail !== {{ recent_chat.id }}"
 >
     <div class="col-12">
-        <div class="d-flex flex-wrap justify-content-between btn shadow-sm btn-sm w-100">
+        <div class="d-flex flex-wrap justify-content-between btn shadow-sm btn-sm w-100 text-muted">
             <div
                 x-show="!can_rename_chat"
                 class="col cursor-pointer px-0 text-start"

@@ -7,15 +7,16 @@
             this.response_message.render_outer($refs.loading_response_message)
 
             setTimeout(() => {this.show_loading = true}, 1000)
-            setTimeout(() => {$el.scrollIntoView()}, 1500)
+            setTimeout(() => {$el.scrollIntoView({behavior: 'smooth'})}, 1500)
             setTimeout(() => {this.show_reading = false}, 4000)
             setTimeout(() => {this.show_typing = true}, 4000)
         },
         response_message: new ViewGlue(
-            '{% url "django_spire:ai:chat:render:response_message" %}',
+            '{% url "django_spire:ai:chat:message:response:new" %}',
             {
-                message_body: '{{ body|escapejs }}',
-                chat_id: '{{ chat_id }}'
+                message_body: '{{ message_intel.text }}',
+                chat_id: '{{ chat_id }}',
+                synthesis_speech: '{{ synthesis_speech }}' === 'True'
             }
         )
     }"

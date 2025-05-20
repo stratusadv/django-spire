@@ -1,7 +1,7 @@
 crispy-bootstrap5>=0.6
 django-sendgrid-v5
 docutils
-dandy==0.16.0
+dandy==0.18.0
 django>=5.1.8
 django-crispy-forms>=1.14.0
 faker==37.1.0

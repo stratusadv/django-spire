@@ -1,0 +1,10 @@
+{% extends 'django_spire/ai/chat/message/message.html' %}
+
+{% block message_content %}
+    <h2>{{ message_intel.clown_name }}</h2>
+    <ul>
+    {% for distance in message_intel.distances_in_meters %}
+        <li>{{ distance }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}
