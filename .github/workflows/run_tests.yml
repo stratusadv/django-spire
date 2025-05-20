@@ -40,4 +40,4 @@ jobs:
           PYTHONPATH: ${{ env.PYTHONPATH  }}
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
-          python manage.py test . --settings=test_project.settings 
+          python manage.py test . --settings=test_project.test_settings 
