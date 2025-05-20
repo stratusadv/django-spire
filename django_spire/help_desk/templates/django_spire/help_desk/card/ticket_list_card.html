@@ -15,7 +15,7 @@
 {% endblock %}
 {% block card_title_content %}
     {% for ticket in tickets %}
-        {% include 'django_spire/help_desk/item/ticket_item.html' with ticket=ticket %}
+        {% include 'django_spire/help_desk/item/ticket_item.html' %}
         {% empty %}
             {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}
