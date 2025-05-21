@@ -7,6 +7,11 @@
 - Fixed incorrect testing database.
 - Fixed incorrect import for `TWILIO_SMS_BATCH_SIZE`.
 
+### Features
+
+- Test Project now has `django-spire.notification` installed, with the ability to create and process them.
+- Updated Documentation to include examples of notifications.
+
 ## v0.7.0
 
 ### Breaking

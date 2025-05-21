@@ -4,12 +4,46 @@ from typing_extensions import ClassVar
 
 from django import forms
 
-from test_project.apps.notification import models
+from django_spire.notification import models
+from django_spire.notification.app.models import AppNotification
+from django_spire.notification.choices import NotificationTypeChoices
+from django_spire.notification.email.models import EmailNotification
+from django_spire.notification.sms.models import SmsNotification
 
 
-class NotificationExampleForm(forms.ModelForm):
-    field = forms.JSONField(required=False)
+class NotificationForm(forms.ModelForm):
+    def save(self, commit: bool = True):
+        if self.instance.type == NotificationTypeChoices.APP:
+            try:
+                _ = self.instance.app
+            except AppNotification.DoesNotExist:
+                AppNotification.objects.create(notification=self.instance)
+
+        elif self.instance.type == NotificationTypeChoices.EMAIL:
+            try:
+                _ = self.instance.email
+            except EmailNotification.DoesNotExist:
+                EmailNotification.objects.create(
+                    notification=self.instance,
+                    to_email_address=self.data.get('email')
+                )
+        elif self.instance.type == NotificationTypeChoices.SMS:
+            try:
+                _ = self.instance.sms
+            except SmsNotification.DoesNotExist:
+                SmsNotification.objects.create(
+                    notification=self.instance,
+                    to_phone_number=self.data.get('phone_number')
+                )
+
+        elif self.instance.type == NotificationTypeChoices.PUSH:
+            pass
+
+        super().save(commit=commit)
 
     class Meta:
-        model = models.NotificationExample
-        fields: ClassVar = []
+        model = models.Notification
+        exclude: ClassVar[list] = [
+            'user', 'content_type', 'object_id', 'publish_datetime', 'content_object',
+            'status_message'
+        ]

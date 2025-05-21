@@ -38,4 +38,4 @@ Please make note when using spire to only add the modules with green check marks
     - email ✅
     - in_app ✅
     - push ❌
-    - sms ❌
+    - sms ✅

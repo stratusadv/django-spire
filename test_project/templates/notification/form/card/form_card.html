@@ -1,0 +1,71 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}{{ notification }}{% endblock %}
+
+{% block card_title_content %}
+    <form
+        x-data="{
+            notification: new ModelObjectGlue('notification'),
+            email: new GlueCharField('email'),
+            phone_number: new GlueCharField('phone_number'),
+
+            async init() {
+                await this.notification.get()
+                this.phone_number.label = 'Phone Number'
+                console.log(this.notification)
+            },
+            validate_form() {
+                return true
+            },
+            async submit() {
+                if (this.validate_form()) {
+                    await this.notification.save()
+                }
+            }
+        }"
+        method="post"
+        action="{% url 'notification:form:update' pk=notification.pk %}"
+    >
+        {% csrf_token %}
+        <div class="row g-3 mb-3">
+            <div class="col">
+                {% include 'django_glue/form/field/char_field.html' with glue_model_field='notification.title' %}
+            </div>
+            <div class="col">
+                {% include 'django_glue/form/field/select_field.html' with glue_model_field='notification.type' %}
+            </div>
+            <div class="col">
+                {% include 'django_glue/form/field/select_field.html' with glue_model_field='notification.status' %}
+            </div>
+            <div class="col">
+                {% include 'django_glue/form/field/select_field.html' with glue_model_field='notification.priority' %}
+            </div>
+        </div>
+        <div class="row g-3 mb-3">
+            <div class="col-6">
+                {% include 'django_glue/form/field/char_field.html' with glue_model_field='notification.body' %}
+            </div>
+            <div class="col-6">
+                {% include 'django_glue/form/field/char_field.html' with glue_model_field='notification.url' %}
+            </div>
+        </div>
+
+        <div x-show="notification.type === 'email'" x-cloak x-transition class="row g-3 mb-3">
+            <div class="col-12">
+                {% include 'django_glue/form/field/char_field.html' with glue_field='email' %}
+            </div>
+        </div>
+
+        <div x-show="notification.type === 'sms'" x-cloak x-transition class="row g-3 mb-3">
+            <div class="col-12">
+                {% include 'django_glue/form/field/telephone_field.html' with glue_field='phone_number' %}
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+            </div>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% if status == statuses.PENDING %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text='Pending' %}
+{% elif status == statuses.SENT %}
+    {% include 'django_spire/badge/success_badge.html' with badge_text='Sent' %}
+{% elif status == statuses.ERRORED %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text='Errored' %}
+{% elif status == statuses.FAILED %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text='Failed' %}
+{% endif %}

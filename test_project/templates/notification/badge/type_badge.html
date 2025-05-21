@@ -1,0 +1,9 @@
+{% if type == types.APP %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text='App' %}
+{% elif type == types.EMAIL %}
+    {% include 'django_spire/badge/success_badge.html' with badge_text='Email' %}
+{% elif type == types.SMS %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text='Sms' %}
+{% elif type == types.PUSH %}
+    {% include 'django_spire/badge/primary_badge.html' with badge_text='Push' %}
+{% endif %}
