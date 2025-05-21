@@ -167,8 +167,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django_glue.context_processors.django_glue',
-                'django_spire.core.context_processors.spire',
+                'django_spire.core.context_processors.django_spire',
                 'test_project.apps.core.context_processors.test_project',
+                'test_project.apps.core.context_processors.django_spire',
             ],
             'builtins': [
             ],
