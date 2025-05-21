@@ -5,12 +5,48 @@
 {% endblock %}
 
 {% block card_button %}
-	{% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' %}
+    {% url 'notification:page:form' pk=0 as new_notification_url %}
+	{% include 'django_spire/button/primary_dark_button.html' with button_href=new_notification_url button_text='Add' button_icon='bi bi-plus' %}
 {% endblock %}
 
 {% block card_title_content %}
-	{% for placeholder in placeholders %}
-		{% include 'placeholder/item/placeholder_item.html' %}
+    <div class="row align-items-center">
+        <div class="col">
+            Title
+        </div>
+        <div class="col">
+            Body
+        </div>
+        <div class="col">
+            Status
+        </div>
+        <div class="col">
+            Type
+        </div>
+        <div class="col">
+            To
+        </div>
+        <div class="col">
+            Link
+        </div>
+        <div class="col">
+            Priority
+        </div>
+        <div class="col">
+            Process
+        </div>
+        <div class="col-auto align-self-end">
+            {% include 'django_spire/dropdown/ellipsis_dropdown.html' %}
+        </div>
+    </div>
+    <hr class="m-0 mt-1">
+	{% for notification in notifications %}
+        <div class="row">
+            {% include 'notification/item/list_item.html' %}
+        </div>
+        {% if not forloop.last %}
+            <hr class="m-0 mt-1">
+        {% endif %}
     {% empty %}
         {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}
