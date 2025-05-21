@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_title %}
-    {% if 'create' in request.path %}Create{% else %}Update{% endif %} {{ ticket }}
+    {% if ticket.pk is None %}Create Ticket{% else %}Update Ticket #{{ ticket.pk }}{% endif %}
 {% endblock %}
 
 {% block card_title_content %}
