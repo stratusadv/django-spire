@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.1
+
+### Fixes
+
+- Fixed incorrect testing database.
+- Fixed incorrect import for `TWILIO_SMS_BATCH_SIZE`.
+
 ## v0.7.0
 
 ### Breaking
