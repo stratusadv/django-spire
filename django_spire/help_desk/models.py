@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from django_spire.help_desk.querysets import HelpDeskTicketQuerySet
 from django_spire.history.mixins import HistoryModelMixin
 
-import choices
+from django_spire.help_desk import choices
 
 
 class HelpDeskTicket(HistoryModelMixin):
@@ -28,6 +29,8 @@ class HelpDeskTicket(HistoryModelMixin):
         default=choices.HelpDeskTicketStatusChoices.READY
     )
     description = models.TextField()
+
+    objects = HelpDeskTicketQuerySet.as_manager()
 
     def __str__(self):
         return f'Ticket - {self.pk}'
