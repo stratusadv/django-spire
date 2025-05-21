@@ -23,7 +23,7 @@ def ticket_form_view(request, pk: int = 0):
         form = forms.HelpDeskTicketForm(request.POST, instance=ticket)
 
         if form.is_valid():
-            ticket = form.save(user=request.user)
+            form.save(user=request.user)
             return redirect(reverse('django_spire:help_desk:page:list'))
 
         show_form_errors(request, form)
