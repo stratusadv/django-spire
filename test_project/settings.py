@@ -24,13 +24,23 @@ WSGI_APPLICATION = 'test_project.wsgi.application'
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
+# Notification Settings
+NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
+
 # Email Settings
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-SENDGRID_TEMPLATE_ID = False
-DEFAULT_FROM_EMAIL = 'Stratus ADV <noreply@stratusadv.com>'
+SENDGRID_TEMPLATE_ID = os.getenv('SENDGRID_TEMPLATE_ID')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# SMS Notification Settings
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+TWILIO_SMS_BATCH_SIZE = 100
+
 
 # AI Chat Config
 AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.chat_workflow.ChatWorkflow'
@@ -72,6 +82,7 @@ INSTALLED_APPS += [
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
+    'django_spire.notification.sms',
 
     'django_spire.contrib.options',
     'django_spire.contrib.pagination',
@@ -115,8 +126,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'test_project.db',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': os.getenv('DATABASE_PORT'),
     }
 }
 

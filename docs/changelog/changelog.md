@@ -1,8 +1,30 @@
 # Changelog
 
-## v0.6.1
+## v0.7.0
+
+### Breaking
+
+- Prior installations of `django-spire.notification` will be broken.
+- Previous AI chat's and chat messages will not be compatible with the new chat system.
 
 ### Features
+
+- App Notifications
+- Email Notifications
+  - Helper for SendGrid Email API
+- SMS Notifications
+  - Requires a Twilio Account and a phone number to be setup.
+- AI Chat message rendering system.
+- AI Chat Text to Speech and Speech to Text.
+
+### Changes
+
+- Moved `user` field to `Notification` model.
+- Notification templates have been updated to be more consistent across projects.
+
+## v0.6.1
+
+### Fixes
 
 - AI Chat UI and UX changes to make chat seem more natural. 
 

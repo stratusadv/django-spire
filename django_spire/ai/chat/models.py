@@ -6,9 +6,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from django_spire.ai.chat.messages import Message, MessageType
-from django_spire.ai.chat.query_sets import ChatQuerySet
+from django_spire.ai.chat.messages import BaseMessageIntel
+from django_spire.ai.chat.responses import MessageResponse
+from django_spire.ai.chat.choices import MessageResponseType
+from django_spire.ai.chat.query_sets import ChatQuerySet, ChatMessageQuerySet
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.utils import get_class_from_string, get_class_name_from_class
 
 
 class Chat(HistoryModelMixin):
@@ -33,10 +36,12 @@ class Chat(HistoryModelMixin):
 
         return self.name[:48] + '...'
 
-    def add_message(self, message: Message) -> None:
-        ChatMessage.objects.create(
-            chat=self,
-            content=message.to_json(),
+    def add_message_response(self, message_response: MessageResponse) -> None:
+        self.messages.create(
+            response_type=message_response.type.value,
+            sender=message_response.sender,
+            _intel_data=message_response.message_intel.model_dump(),
+            _intel_class_name=get_class_name_from_class(message_response.message_intel.__class__),
             is_processed=True,
             is_viewed=True
         )
@@ -50,7 +55,7 @@ class Chat(HistoryModelMixin):
     ) -> MessageHistory:
         message_history = MessageHistory()
 
-        messages = self.messages.order_by('-created_datetime')[:message_count]
+        messages = self.messages.newest_by_count(message_count)
 
         if exclude_last_message:
             messages = messages[1:]
@@ -60,7 +65,7 @@ class Chat(HistoryModelMixin):
         for message in messages:
             message_history.add_message(
                 role=message.role,
-                content=message.body
+                content=message.intel.content_to_str()
             )
 
         return message_history
@@ -91,40 +96,47 @@ class ChatMessage(HistoryModelMixin):
         related_query_name='message'
     )
 
-    content = models.JSONField()
+    response_type = models.CharField(max_length=32, choices=MessageResponseType)
+    sender = models.CharField(max_length=128)
+    _intel_data = models.JSONField()
+    _intel_class_name = models.TextField()
     is_processed = models.BooleanField(default=False)
     is_viewed = models.BooleanField(default=False)
 
+    objects = ChatMessageQuerySet.as_manager()
+
     def __str__(self):
-        body = json.loads(self.content)['body']
+        content = self.intel.content_to_str()
 
-        if len(body) < 64:
-            return body
+        if len(content) < 64:
+            return content
 
-        return body[:64] + '...'
+        return content[:64] + '...'
 
     @property
-    def body(self):
-        return json.loads(self.content)['body']
+    def intel(self):
+        intel_class: BaseMessageIntel = get_class_from_string(self._intel_class_name)
+        return intel_class.model_validate(self._intel_data)
+
+    @intel.setter
+    def intel(self, message_intel: BaseMessageIntel):
+        self._intel_class_name = get_class_name_from_class(message_intel.__class__)
+        self._intel_data = message_intel.model_dump()
 
     @property
     def role(self) -> RoleLiteralStr:
-        message_type = json.loads(self.content)['type']
-        if message_type == 'request':
+        if self.response_type == 'request':
             return 'user'
-        elif message_type == 'response':
+        elif self.response_type == 'response':
             return 'assistant'
         else:
             return 'system'
 
-    def to_message(self, request) -> Message:
-        content = json.loads(self.content)
-
-        return Message(
-            request=request,
-            type=MessageType(content['type']),
-            sender=content['sender'],
-            body=content['body']
+    def to_message_response(self) -> MessageResponse:
+        return MessageResponse(
+            type=MessageResponseType(self.response_type),
+            sender=self.sender,
+            message_intel=self.intel
         )
 
     class Meta:
