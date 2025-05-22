@@ -1,35 +1,33 @@
-@import url('app-background.css');
-@import url('app-border.css');
-@import url('app-button.css');
-@import url('app-text.css');
-
 :root {
     --app-black: #212529;
     --app-white: #ffffff;
 
-    --app-grey: #797e7f;
-    --app-grey-soft: #b7bbbe;
-    --app-grey-dark: #313131;
+    --app-light: #f8f9fa;
+    --app-dark: #212529;
 
-    --app-blue: #385587;
-    --app-blue-soft: #6a8bb8;
-    --app-blue-dark: #0e102f;
+    --app-secondary: #6c757d;
+    --app-secondary-soft: #e2e3e5;
+    --app-secondary-dark: #41464b;
 
-    --app-green: #00c853;
-    --app-green-soft: #b9f6ca;
-    --app-green-dark: #007837;
+    --app-primary: #0d6efd;
+    --app-primary-soft: #cfe2ff;
+    --app-primary-dark: #084298;
 
-    --app-yellow: #f5dd5d;
-    --app-yellow-soft: #f5dd5d;
-    --app-yellow-dark: #f5dd5d;
+    --app-success: #198754;
+    --app-success-soft: #d1e7dd;
+    --app-success-dark: #0f5132;
 
-    --app-orange: #ff6d00;
-    --app-orange-soft: #ff9e80;
-    --app-orange-dark: #b25400;
+    --app-warning: #ffc107;
+    --app-warning-soft: #fff3cd;
+    --app-warning-dark: #664d03;
 
-    --app-red: #d50000;
-    --app-red-soft: #d50000;
-    --app-red-dark: #d50000;
+    --app-accent: #ff6d00;
+    --app-accent-soft: #ff9e80;
+    --app-accent-dark: #b25400;
+
+    --app-danger: #dc3545;
+    --app-danger-soft: #f8d7da;
+    --app-danger-dark: #842029;
 
     --app-layer-one: #f8f9fa;
     --app-layer-two: #ebebeb;
@@ -41,4 +39,3 @@
     --app-side-navigation-width: 200px;
     --app-mobile-navigation-width: 200px;
 }
-

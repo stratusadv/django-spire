@@ -1,27 +1,30 @@
 :root {
-    --app-bg-primary: var(--app-blue);
-    --app-bg-primary-soft: var(--app-blue-soft);
-    --app-bg-primary-dark: var(--app-blue-dark);
+    --app-bg-light: var(--app-light);
+    --app-bg-dark: var(--app-dark);
 
-    --app-bg-secondary: var(--app-grey);
-    --app-bg-secondary-soft: var(--app-grey-soft);
-    --app-bg-secondary-dark: var(--app-grey-dark);
+    --app-bg-primary: var(--app-primary);
+    --app-bg-primary-soft: var(--app-primary-soft);
+    --app-bg-primary-dark: var(--app-primary-dark);
 
-    --app-bg-accent: var(--app-orange);
-    --app-bg-accent-soft: var(--app-orange-soft);
-    --app-bg-accent-dark: var(--app-orange-dark);
+    --app-bg-secondary: var(--app-secondary);
+    --app-bg-secondary-soft: var(--app-secondary-soft);
+    --app-bg-secondary-dark: var(--app-secondary-dark);
 
-    --app-bg-success: var(--app-green);
-    --app-bg-success-outlined: var(--app-green-soft);
-    --app-bg-success-dark: var(--app-green-dark);
+    --app-bg-accent: var(--app-accent);
+    --app-bg-accent-soft: var(--app-accent-soft);
+    --app-bg-accent-dark: var(--app-accent-dark);
 
-    --app-bg-warning: var(--app-yellow);
-    --app-bg-warning-soft: var(--app-yellow-soft);
-    --app-bg-warning-dark: var(--app-yellow-dark);
+    --app-bg-success: var(--app-success);
+    --app-bg-success-outlined: var(--app-success-soft);
+    --app-bg-success-dark: var(--app-success-dark);
 
-    --app-bg-danger: var(--app-red);
-    --app-bg-danger-soft: var(--app-red-soft);
-    --app-bg-danger-dark: var(--app-red-dark);
+    --app-bg-warning: var(--app-warning);
+    --app-bg-warning-soft: var(--app-warning-soft);
+    --app-bg-warning-dark: var(--app-warning-dark);
+
+    --app-bg-danger: var(--app-danger);
+    --app-bg-danger-soft: var(--app-danger-soft);
+    --app-bg-danger-dark: var(--app-danger-dark);
 
     --app-bg-layer-one: var(--app-layer-one);
     --app-bg-layer-two: var(--app-layer-two);
@@ -105,4 +108,12 @@
 
 .bg-app-side-bar, .bg-app-side-bar-hover:hover {
     background-color: var(--app-bg-side-bar) !important;
+}
+
+.bg-app-light, .bg-app-light-hover:hover {
+    background-color: var(--app-bg-light) !important;
+}
+
+.bg-app-dark, .bg-app-dark-hover:hover {
+    background-color: var(--app-bg-dark) !important;
 }

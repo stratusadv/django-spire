@@ -1,27 +1,30 @@
 :root {
-    --app-text-primary: var(--app-blue);
-    --app-text-primary-soft: var(--app-blue-soft);
-    --app-text-primary-dark: var(--app-blue-dark);
+    --app-text-light: var(--app-light);
+    --app-text-dark: var(--app-dark);
 
-    --app-text-secondary: var(--app-grey);
-    --app-text-secondary-soft: var(--app-grey-soft);
-    --app-text-secondary-dark: var(--app-grey-dark);
+    --app-text-primary: var(--app-primary);
+    --app-text-primary-soft: var(--app-primary-soft);
+    --app-text-primary-dark: var(--app-primary-dark);
 
-    --app-text-accent: var(--app-orange);
-    --app-text-accent-soft: var(--app-orange-soft);
-    --app-text-accent-dark: var(--app-orange-dark);
+    --app-text-secondary: var(--app-secondary);
+    --app-text-secondary-soft: var(--app-secondary-soft);
+    --app-text-secondary-dark: var(--app-secondary-dark);
 
-    --app-text-success: var(--app-green);
-    --app-text-success-outlined: var(--app-green-soft);
-    --app-text-success-dark: var(--app-green-dark);
+    --app-text-accent: var(--app-accent);
+    --app-text-accent-soft: var(--app-accent-soft);
+    --app-text-accent-dark: var(--app-accent-dark);
 
-    --app-text-warning: var(--app-yellow);
-    --app-text-warning-soft: var(--app-yellow-soft);
-    --app-text-warning-dark: var(--app-yellow-dark);
+    --app-text-success: var(--app-success);
+    --app-text-success-outlined: var(--app-success-soft);
+    --app-text-success-dark: var(--app-success-dark);
 
-    --app-text-danger: var(--app-red);
-    --app-text-danger-soft: var(--app-red-soft);
-    --app-text-danger-dark: var(--app-red-dark);
+    --app-text-warning: var(--app-warning);
+    --app-text-warning-soft: var(--app-warning-soft);
+    --app-text-warning-dark: var(--app-warning-dark);
+
+    --app-text-danger: var(--app-danger);
+    --app-text-danger-soft: var(--app-danger-soft);
+    --app-text-danger-dark: var(--app-danger-dark);
 
     --app-text-layer-one: var(--app-layer-one);
     --app-text-layer-two: var(--app-layer-two);
@@ -98,4 +101,12 @@
 
 .text-app-layer-three, .text-app-layer-three-hover:hover {
     color: var(--app-text-layer-three) !important;
+}
+
+.text-app-light, .text-app-light-hover:hover {
+    color: var(--app-text-light) !important;
+}
+
+.text-app-dark, .text-app-dark-hover:hover {
+    color: var(--app-text-dark) !important;
 }
