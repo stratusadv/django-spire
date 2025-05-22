@@ -18,7 +18,7 @@
             {% block base_head_css %}
                 <link rel="stylesheet" href="{% static 'django_spire/css/bootstrap.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
 
-                <link rel="stylesheet" href="{% static 'django_spire/css/app.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+                <link rel="stylesheet" href="{% static 'django_spire/css/app-import.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
                 <link rel="stylesheet" href="{% static 'django_spire/css/bootstrap-override.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
                 <link rel="stylesheet" href="{% static 'django_spire/css/bootstrap-extension.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
                 <link rel="stylesheet" href="{% static 'django_spire/css/base.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
@@ -48,7 +48,7 @@
                 <script type="application/javascript"
                         src="{% static 'django_spire/js/spire_alpine.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
                 <script type="application/javascript"
-                        src="{% static 'django_spire/js/dispatch_modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+                        src="{% static 'django_spire/js/modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 
                 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
                 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>

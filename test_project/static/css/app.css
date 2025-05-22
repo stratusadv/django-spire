@@ -1,35 +1,33 @@
-@import url('app-background.css');
-@import url('app-border.css');
-@import url('app-button.css');
-@import url('app-text.css');
-
 :root {
     --app-black: #212529;
     --app-white: #ffffff;
 
-    --app-grey: #797e7f;
-    --app-grey-soft: #b7bbbe;
-    --app-grey-dark: #313131;
+    --app-light: #f8f9fa;
+    --app-dark: #212529;
 
-    --app-blue: #385587;
-    --app-blue-soft: #6a8bb8;
-    --app-blue-dark: #0e102f;
+    --app-secondary: #797e7f;
+    --app-secondary-soft: #b7bbbe;
+    --app-secondary-dark: #313131;
 
-    --app-green: #00c853;
-    --app-green-soft: #b9f6ca;
-    --app-green-dark: #007837;
+    --app-primary: #385587;
+    --app-primary-soft: #6a8bb8;
+    --app-primary-dark: #0e102f;
 
-    --app-yellow: #f5dd5d;
-    --app-yellow-soft: #f5dd5d;
-    --app-yellow-dark: #f5dd5d;
+    --app-success: #00c853;
+    --app-success-soft: #b9f6ca;
+    --app-success-dark: #007837;
 
-    --app-orange: #ff6d00;
-    --app-orange-soft: #ff9e80;
-    --app-orange-dark: #b25400;
+    --app-warning: #f5dd5d;
+    --app-warning-soft: #f5dd5d;
+    --app-warning-dark: #f5dd5d;
 
-    --app-red: #d50000;
-    --app-red-soft: #d50000;
-    --app-red-dark: #d50000;
+    --app-accent: #ff6d00;
+    --app-accent-soft: #ff9e80;
+    --app-accent-dark: #b25400;
+
+    --app-danger: #d50000;
+    --app-danger-soft: #d50000;
+    --app-danger-dark: #d50000;
 
     --app-purple: #4147BF;
 

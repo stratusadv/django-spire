@@ -1,5 +1,5 @@
 :root {
-    --app-a-primary: var(--app-blue);
+    --app-a-primary: var(--app-primary);
 }
 
 a {

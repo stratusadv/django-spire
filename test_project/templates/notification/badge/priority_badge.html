@@ -1,0 +1,7 @@
+{% if priority == priorities.LOW %}
+    {% include 'django_spire/badge/secondary_badge.html' with badge_text='Low' %}
+{% elif priority == priorities.MEDIUM %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text='Med' %}
+{% elif priority == priorities.HIGH %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text='High' %}
+{% endif %}

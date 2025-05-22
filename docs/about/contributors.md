@@ -8,6 +8,7 @@
 - Brayden Carlson
 - Nathan Johnson
 - Wesley Howery
+- O'Brien Little
 
 ## Contributors
 

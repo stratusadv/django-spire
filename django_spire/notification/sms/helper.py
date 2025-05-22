@@ -1,4 +1,3 @@
-import os
 import time
 from collections import defaultdict
 
@@ -13,8 +12,6 @@ from django_spire.notification.models import Notification
 from django_spire.notification.sms.consts import TWILIO_UNSUCCESSFUL_STATUSES
 from django_spire.notification.sms.exceptions import TwilioException, \
     TwilioAPIConcurrentException
-
-TWILIO_SMS_BATCH_SIZE = os.getenv('TWILIO_SMS_BATCH_SIZE')
 
 
 class BulkTwilioSMSHelper:
@@ -42,7 +39,7 @@ class BulkTwilioSMSHelper:
 
                 sent_segments += segments
 
-                if sent_segments >= TWILIO_SMS_BATCH_SIZE:
+                if sent_segments >= settings.TWILIO_SMS_BATCH_SIZE:
                     time.sleep(60)
                     sent_segments = 0
 

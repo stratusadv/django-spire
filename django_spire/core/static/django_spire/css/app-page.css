@@ -1,0 +1,9 @@
+.full-page-content {
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .full-page-content {
+        width: calc(100% - var(--app-side-navigation-width));
+    }
+}

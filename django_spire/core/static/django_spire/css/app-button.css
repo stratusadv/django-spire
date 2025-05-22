@@ -1,27 +1,30 @@
 :root {
-    --app-btn-primary: var(--app-blue);
-    --app-btn-primary-outlined: var(--app-blue-soft);
-    --app-btn-primary-dark: var(--app-blue-dark);
+    --app-btn-light: var(--app-light);
+    --app-btn-dark: var(--app-dark);
 
-    --app-btn-secondary: var(--app-grey);
-    --app-btn-secondary-outlined: var(--app-grey-soft);
-    --app-btn-secondary-dark: var(--app-grey-dark);
+    --app-btn-primary: var(--app-primary);
+    --app-btn-primary-outlined: var(--app-primary-soft);
+    --app-btn-primary-dark: var(--app-primary-dark);
 
-    --app-btn-accent: var(--app-orange);
-    --app-btn-accent-outlined: var(--app-orange-soft);
-    --app-btn-accent-dark: var(--app-orange-dark);
+    --app-btn-secondary: var(--app-secondary);
+    --app-btn-secondary-outlined: var(--app-secondary-soft);
+    --app-btn-secondary-dark: var(--app-secondary-dark);
 
-    --app-btn-success: var(--app-green);
-    --app-btn-success-outlined: var(--app-green-soft);
-    --app-btn-success-dark: var(--app-green-dark);
+    --app-btn-accent: var(--app-accent);
+    --app-btn-accent-outlined: var(--app-accent-soft);
+    --app-btn-accent-dark: var(--app-accent-dark);
 
-    --app-btn-warning: var(--app-yellow);
-    --app-btn-warning-outlined: var(--app-yellow-soft);
-    --app-btn-warning-dark: var(--app-yellow-dark);
+    --app-btn-success: var(--app-success);
+    --app-btn-success-outlined: var(--app-success-soft);
+    --app-btn-success-dark: var(--app-success-dark);
 
-    --app-btn-danger: var(--app-red);
-    --app-btn-danger-outlined: var(--app-red-soft);
-    --app-btn-danger-dark: var(--app-red-dark);
+    --app-btn-warning: var(--app-warning);
+    --app-btn-warning-outlined: var(--app-warning-soft);
+    --app-btn-warning-dark: var(--app-warning-dark);
+
+    --app-btn-danger: var(--app-danger);
+    --app-btn-danger-outlined: var(--app-danger-soft);
+    --app-btn-danger-dark: var(--app-danger-dark);
 
     --app-btn-layer-one: var(--app-layer-one);
     --app-btn-layer-two: var(--app-layer-two);
@@ -140,4 +143,16 @@
 .btn-app-warning-outlined {
     color: var(--app-btn-warning-dark) !important;
     border: 1px solid var(--app-btn-warning-dark) !important;
+}
+
+.btn-app-light {
+    background-color: var(--app-btn-light) !important;
+    color: var(--app-btn-dark) !important;
+    border: none;
+}
+
+.btn-app-dark {
+    background-color: var(--app-btn-dark) !important;
+    color: var(--app-btn-light) !important;
+    border: none;
 }

@@ -1,0 +1,42 @@
+{% extends 'django_spire/modal/center_modal.html' %}
+
+{% block modal_trigger %}
+    {% include 'django_spire/button/primary_dark_button.html' with button_text='Process' button_icon='bi bi-check' %}
+{% endblock %}
+
+{% block modal_content_title %}
+    Process Notification
+{% endblock %}
+
+{% block modal_content %}
+    <div class="row"
+         x-data="{
+            async process_notification() {
+                await django_glue_fetch(
+                    '{% url "notification:json:process" pk=notification.pk %}'
+                )
+
+                window.location.reload()
+            }
+         }"
+    >
+        <div class="col-12">
+            <h4>Are you sure you want to process this notification?</h4>
+            <h5>Note this will actually email/text the user if the notification type is SMS or EMAIL. Please ensure this is what you want to do.</h5>
+            <p>Notification Type: {{ notification.type }}</p>
+            <p>Send Notification To:
+                {% if notification.type == 'email' %}
+                    {{ notification.email.to_email_address }}
+                {% elif notification.type == 'sms' %}
+                    {{ notification.sms.to_phone_number }}
+                {% else %}
+                    {{ notification.user }}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="col-12">
+            {% include 'django_spire/button/danger_button.html' with button_text='Process' button_icon='bi bi-check' x_button_click='process_notification' %}
+        </div>
+    </div>
+{% endblock %}
