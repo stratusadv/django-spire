@@ -13,7 +13,7 @@ def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'Comment', 'icon': 'bi bi-chat-text', 'url': reverse('comment:home')},
             {'title': 'History', 'icon': 'bi bi-clock-history', 'url': reverse('history:home')},
             {'title': 'Home', 'icon': 'bi bi-house-door', 'url': reverse('home:page:home')},
-            {'title': 'Notification', 'icon': 'bi bi-bell', 'url': reverse('notification:page:home')},
+            {'title': 'Notification', 'icon': 'bi bi-bell', 'url': reverse('notification:page:list')},
             {'title': 'Wizard', 'icon': 'bi bi-magic', 'url': reverse('wizard:home')},
             {'heading': 'Examples'},
             {'title': 'Component', 'icon': 'bi bi-puzzle', 'url': reverse('component:home')},

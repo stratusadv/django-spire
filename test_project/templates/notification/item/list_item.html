@@ -1,0 +1,39 @@
+<div class="col-12 pt-1 px-3">
+        <div class="row align-items-center">
+            <div class="col">
+                {{ notification.title }}
+            </div>
+            <div class="col">
+                {{ notification.body|truncatechars:15 }}
+            </div>
+            <div class="col">
+                {% include 'notification/badge/status_badge.html' with status=notification.status %}
+            </div>
+            <div class="col">
+                {% include 'notification/badge/type_badge.html' with type=notification.type %}
+            </div>
+            <div class="col">
+                {% if notification.type == 'email' %}
+                    {{ notification.email.to_email_address }}
+                {% elif notification.type == 'sms' %}
+                    {{ notification.sms.to_phone_number }}
+                {% else %}
+                    {{ notification.user }}
+                {% endif %}
+            </div>
+            <a class="col" href="{{ notification.url }}">
+                Link
+            </a>
+            <div class="col">
+                {% include 'notification/badge/priority_badge.html' with priority=notification.priority %}
+            </div>
+            <div class="col">
+                {% include 'notification/modal/process_modal.html' %}
+            </div>
+            <div class="col-auto align-self-end">
+                {% url 'notification:page:form' pk=notification.pk as form_url %}
+                {% url 'notification:page:detail' pk=notification.pk as detail_url %}
+                {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=form_url delete_url='#' %}
+            </div>
+        </div>
+</div>
