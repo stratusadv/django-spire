@@ -11,6 +11,13 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S'
 )
 
+DJANGO_SPIRE_HELPDESK_DEVELOPERS = [
+    {
+        'name': 'stratus',
+        'email': 'stratus@stratus'
+    }
+]
+
 if os.getenv('DJANGO_DEBUG', 'False') == 'True':
     DEBUG = True
 else:

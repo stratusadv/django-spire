@@ -11,6 +11,13 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S'
 )
 
+DJANGO_SPIRE_HELPDESK_DEVELOPERS = [
+    {
+        'name': 'stratus',
+        'email': 'stratus@stratus'
+    }
+]
+
 if os.getenv('DJANGO_DEBUG', 'False') == 'True':
     DEBUG = True
 else:
@@ -74,6 +81,7 @@ INSTALLED_APPS += [
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
     'django_spire.contrib.help',
+    'django_spire.help_desk',
     'django_spire.history',
     'django_spire.history.activity',
     'django_spire.history.viewed',
@@ -161,7 +169,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django_glue.context_processors.django_glue',
-                'django_spire.core.context_processors.spire',
+                'django_spire.core.context_processors.django_spire',
                 'test_project.apps.core.context_processors.test_project',
             ],
             'builtins': [

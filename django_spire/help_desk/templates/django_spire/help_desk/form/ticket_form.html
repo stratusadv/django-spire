@@ -11,12 +11,17 @@
     {% csrf_token %}
 
     <div class="row mb-3">
-        <div class="col-6">
+        <div class="col">
             {% include 'django_glue/form/field/select_field.html' with glue_model_field='ticket.purpose' %}
         </div>
-        <div class="col-6">
+        <div class="col">
             {% include 'django_glue/form/field/select_field.html' with glue_model_field='ticket.priority' %}
         </div>
+        {% if ticket.pk is not None %}
+            <div class="col">
+                {% include 'django_glue/form/field/select_field.html' with glue_model_field='ticket.status' %}
+            </div>
+        {% endif %}
     </div>
     <div class="row">
         <div class="col-12 mb-1">
