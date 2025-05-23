@@ -1,0 +1,34 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title_content_style %}{% endblock %}
+
+{% block card_title %}
+    <div class="row justify-content-between mb-2 align-items-center">
+        <div class="col text-start">
+            {{ ticket }}
+        </div>
+        <div class="col text-end">
+            {% url 'django_spire:help_desk:form:update' pk=ticket.pk as edit_url %}
+            {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_href=edit_url button_icon='bi bi-pencil' %}
+        </div>
+    </div>
+{% endblock %}
+{% block card_title_content %}
+    <div class="row mb-4">
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Purpose' %}
+            {% include 'django_spire/help_desk/element/ticket_purpose_badge.html' %}
+        </div>
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Priority' %}
+            {% include 'django_spire/help_desk/element/ticket_priority_badge.html' %}
+        </div>
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
+            {% include 'django_spire/help_desk/element/ticket_status_badge.html' %}
+        </div>
+    </div>
+    <div class="row">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Ticket Description' attribute_value=ticket.description %}
+    </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_padding %}
+    px-3 py-2
+{% endblock %}
+
+{% block card_title %}
+    {% if ticket.pk is None %}Create Ticket{% else %}Update Ticket #{{ ticket.pk }}{% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'django_spire/help_desk/form/ticket_form.html' %}
+{% endblock %}
