@@ -1,0 +1,2 @@
+class HelpDeskNotificationTypeNotSupportedError(TypeError):
+    pass
