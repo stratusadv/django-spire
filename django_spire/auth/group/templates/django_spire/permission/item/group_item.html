@@ -3,7 +3,7 @@
 
 {% block item_title %}
     {% if perms.permission.view_portalgroup %}
-        {% url 'permission:group_detail' pk=group.pk as group_detail_url %}
+        {% url 'django_spire:auth:group:page:detail' pk=group.pk as group_detail_url %}
     {% endif %}
     {% include 'django_spire/element/attribute_element.html' with attribute_href=group_detail_url attribute_title='Name' attribute_value=group.name %}
 {% endblock %}
@@ -18,14 +18,14 @@
 {% endblock %}
 
 {% block item_button %}
-    {% if location == 'group' %}
+    {% if location == 'permission' %}
         {% if perms.permission.change_portalgroup %}
-            {% url 'permission:group_detail' pk=group.pk as view_url %}
-            {% url 'permission:group_form' pk=group.pk as edit_url %}
+            {% url 'django_spire:auth:group:page:detail' pk=group.pk as view_url %}
+            {% url 'django_spire:auth:group:update' pk=group.pk as update_url %}
             {% if perms.permission.delete_portalgroup %}
                 {% url 'permission:group_delete_form' pk=group.pk as delete_url %}
             {% endif %}
-            {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}
+            {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=update_url delete_url=delete_url %}
         {% endif %}
     {% else %}
         {% include 'django_spire/item/element/item_ellipsis_spacer_element.html' %}

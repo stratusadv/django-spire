@@ -42,7 +42,7 @@ class GroupForm(forms.ModelForm):
 
 class GroupUserForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        group = kwargs.pop('group')
+        group = kwargs.pop('permission')
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
@@ -54,7 +54,7 @@ class GroupUserForm(forms.Form):
         self.fields['available_users'].label_from_instance = self.user_label
         self.helper.layout = Layout(
             Row(
-                Column('available_users', css_class='form-group col-12'),
+                Column('available_users', css_class='form-permission col-12'),
             ),
         )
         self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-primary'))

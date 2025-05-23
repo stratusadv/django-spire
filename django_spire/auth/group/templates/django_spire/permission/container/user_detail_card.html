@@ -1,16 +1,3 @@
-{% extends 'django_spire/container/container.html' %}
-
-{% block container_title %}
-    {{ ser.get_full_name }}
-{% endblock %}
-
-{% block container_button %}
-    {% if perms.permission.change_portaluser %}
-        {% url 'user_account:register_user_form' pk=user.pk  as form_url %}
-        {% include 'django_spire/button/base_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' button_href=form_url %}
-    {% endif %}
-{% endblock %}
-
 {% extends 'django_spire/card/card.html' %}
 
 {% block card_title %}
@@ -19,8 +6,8 @@
 
 {% block card_button %}
         {% if perms.permission.change_portaluser %}
-        {% url 'user_account:register_user_form' pk=user.pk  as form_url %}
-        {% include 'django_spire/button/base_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' button_href=form_url %}
+        {% url 'django_spire:auth:user:form:update' pk=user.pk  as update_url %}
+        {% include 'django_spire/button/base_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' button_href=update_url %}
     {% endif %}
 {% endblock %}
 

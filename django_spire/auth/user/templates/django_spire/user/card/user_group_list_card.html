@@ -8,14 +8,14 @@
 
 {% block card_title_button %}
     {% if perms.permission.change_permission %}
-        {% url 'permission:group_user_form' pk=user.pk as add_group_url %}
+        {% url 'django_spire:auth:group:form:group_user' pk=user.pk as add_group_url %}
         {% include 'django_spire/button/primary_dark_button.html' with button_href=add_group_url button_icon='bi bi-plus-lg' %}
     {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
     {% if group_list %}
-        {% include 'django_spire/user_account/item/../item/user_master_perm_item.html' %}
+        {% include 'django_spire/user/item/user_master_perm_item.html' %}
 
         {% for group in group_list %}
             {% include 'django_spire/permission/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='user' delete_url_name='Remove' %}

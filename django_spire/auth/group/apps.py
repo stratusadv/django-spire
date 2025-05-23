@@ -3,7 +3,7 @@ from django.apps import AppConfig
 from django_spire.utils import check_required_apps
 
 
-class PermissionConfig(AppConfig):
+class GroupConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_auth_group'
     name = 'django_spire.auth.group'

@@ -9,21 +9,21 @@ class AuthUrlEndpointTestCase(BaseTestCase):
     pass
 
     # def test_login_view(self):
-    #     response = self.client.get(reverse('user_account:authentication:admin:login'))
+    #     response = self.client.get(reverse('user:authentication:admin:login'))
     #     self.assertEqual(response.status_code, 200)
 
     # def test_login_redirect_view(self):
-    #     response = self.client.get(reverse('user_account:authentication:redirect:login'))
+    #     response = self.client.get(reverse('user:authentication:redirect:login'))
     #     self.assertEqual(response.status_code, 302)
 
     # def test_logout_redirect_view(self):
-    #     response = self.client.get(reverse('user_account:authentication:redirect:logout'))
+    #     response = self.client.get(reverse('user:authentication:redirect:logout'))
     #     self.assertEqual(response.status_code, 302)
 
     # def test_password_change_view(self):
-    #     response = self.client.get(reverse('user_account:authentication:admin:password_change'))
+    #     response = self.client.get(reverse('user:authentication:admin:password_change'))
     #     self.assertEqual(response.status_code, 200)
 
     # def password_set_form_view(self):
-    #     response = self.client.get(reverse('user_account:authentication:admin:password_set_form'))
+    #     response = self.client.get(reverse('user:authentication:admin:password_set_form'))
     #     self.assertEqual(response.status_code, 200)

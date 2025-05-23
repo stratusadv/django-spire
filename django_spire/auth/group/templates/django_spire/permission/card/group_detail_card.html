@@ -8,7 +8,7 @@
 
 {% block card_button %}
     {% if perms.permission.change_portalgroup %}
-        {% url 'permission:group_form' pk=group.pk as edit_group_url %}
+        {% url 'django_spire:auth:group:form:update' pk=group.pk as edit_group_url %}
         {% include 'django_spire/button/primary_dark_button.html' with button_icon='bi bi-pencil' button_text='Edit' button_href=edit_group_url %}
     {% endif %}
 {% endblock %}

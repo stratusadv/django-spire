@@ -33,12 +33,12 @@ class AddUserForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Row(
-                Column('first_name', css_class='form-group col-md-6 col-12'),
-                Column('last_name', css_class='form-group col-md-6 col-12')
+                Column('first_name', css_class='form-permission col-md-6 col-12'),
+                Column('last_name', css_class='form-permission col-md-6 col-12')
             ),
             Row(
-                Column(Field('email', autocomplete='off'), css_class='form-group col-md-6 col-12'),
-                Column(Field('password', autocomplete='off'), css_class='form-group col-md-6 col-12'),
+                Column(Field('email', autocomplete='off'), css_class='form-permission col-md-6 col-12'),
+                Column(Field('password', autocomplete='off'), css_class='form-permission col-md-6 col-12'),
             ),
         )
         self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-blue'))
@@ -71,7 +71,7 @@ class UserGroupForm(forms.Form):
 
         self.helper.layout = Layout(
             Row(
-                Column('group_list', css_class='form-group col-12'),
+                Column('group_list', css_class='form-permission col-12'),
             ),
         )
         self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-blue'))

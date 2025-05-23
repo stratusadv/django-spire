@@ -18,7 +18,7 @@ class FileForm(forms.Form):
         self.helper.form_enctype = 'multipart/form-data'
         self.helper.layout = Layout(
             Row(
-                Column('files', css_class='form-group col-md-6'),
+                Column('files', css_class='form-permission col-md-6'),
             ),
         )
         self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
