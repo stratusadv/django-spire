@@ -15,7 +15,7 @@ class BaseService:
     @staticmethod
     def is_ready_instance(obj: Model | Type[Model]):
         from django.db.models import Model
-        return isinstance(obj, Model)
+        return isinstance(obj, Model) and obj.id is not None
 
     @staticmethod
     def is_new_instance(obj : Model | Type[Model]):

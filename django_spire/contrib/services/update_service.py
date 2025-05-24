@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any
 
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
 from django.db.models import Model
 
@@ -36,7 +36,7 @@ def update_model_fields(instance: Model, **data: Any) -> Model:
         if field not in allowed_fields:
             raise InvalidFieldError(
                 f"'{field}' is not a valid updatable field on "
-                f"model '{instance.__class__.__name__}'
+                f"model '{instance.__class__.__name__}'"
             )
 
         setattr(instance, field, value)

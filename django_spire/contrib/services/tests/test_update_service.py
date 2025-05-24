@@ -2,7 +2,6 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import FieldDoesNotExist
 from django.test import TestCase
 
-from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.mfa.models import MfaCode
 from django_spire.auth.user.tests.factories import create_super_user
 from django_spire.contrib.services.update_service import update_model_fields
