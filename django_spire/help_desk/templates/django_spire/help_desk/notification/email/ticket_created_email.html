@@ -1,0 +1,15 @@
+{% extends "django_spire/help_desk/notification/email/base_email.html" %}
+
+{% block base_body_content %}
+    <div>
+        <h2>A new help desk ticket (#{{ ticket.pk }}) has been created.</h2>
+        <p>Priority: {{ ticket.get_priority_display }}</p>
+        <p>Purpose: {{ ticket.get_purpose_display }}</p>
+        <p>Description:</p>
+        <p>{{ ticket.description }}</p>
+        <br>
+        <p>
+            <a href="{{ ticket_url }}">View Ticket</a>
+        </p>
+    </div>
+{% endblock %}
