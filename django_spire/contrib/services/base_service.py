@@ -5,6 +5,8 @@ from typing import Type
 
 from django.db.models import Model
 
+from django_spire.contrib.services.default_service import DefaultService
+
 
 class BaseService:
 
@@ -24,3 +26,7 @@ class BaseService:
     @staticmethod
     def is_class_instance(obj: Model | Type[Model]):
         return isinstance(obj, type) and issubclass(obj, Model)
+
+    @property
+    def default(self):
+        return DefaultService()
