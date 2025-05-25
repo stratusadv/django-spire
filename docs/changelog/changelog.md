@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.8.0
+
+
+### Features
+
+- Base service layer and descriptor to extend models.
+- Default service for common functionality (saving an instance).
+
+
 ## v0.7.1
 
 ### Fixes
