@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.contrib.auth.decorators import login_required
 from typing_extensions import TYPE_CHECKING
 
 from django_spire.contrib.generic_views import portal_views
@@ -11,6 +12,7 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
+@login_required()
 def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
     app_notification_list = (
         AppNotification.objects.active()
