@@ -17,9 +17,9 @@ def notification_dropdown_template_view(request: WSGIRequest) -> TemplateRespons
         AppNotification.objects.active()
         .is_sent()
         .annotate_is_viewed_by_user(request.user)
-        .select_related("notification")
+        .select_related('notification')
         .distinct()
-        .order_by("-notification__sent_datetime")
+        .order_by('-notification__sent_datetime', 'priority')
     )
 
     body_data = json.loads(request.body.decode('utf-8'))
