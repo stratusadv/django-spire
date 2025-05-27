@@ -1,7 +1,24 @@
 # Changelog
 
-## v0.8.0
+## v0.8.2
 
+### Fixes
+
+- Fixed missing login required decorator on multiple views.
+
+### Features
+
+- Added `App Notification` list view filtering to include priority.
+
+
+## v0.8.1
+
+### Fixes
+
+- Fixed missing login required decorator on `app_notification_list_view`.
+
+
+## v0.8.0
 
 ### Features
 
