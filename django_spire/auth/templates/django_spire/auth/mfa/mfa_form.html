@@ -1,7 +1,5 @@
 {% extends "django_spire/page/center_card_page.html" %}
 
-{% load crispy_forms_filters %}
-
 {% load static %}
 
 {% block base_title %}
@@ -17,7 +15,7 @@
 
     <form method="post">
          {% csrf_token %}
-        {{ form|crispy }}
+        {{ form }}
         <button type="submit" class="w-100 btn btn-app-primary mt-2">Submit</button>
     </form>
 

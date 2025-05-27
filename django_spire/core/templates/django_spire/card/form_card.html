@@ -1,7 +1,5 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% load crispy_forms_tags %}
-
 {% block card_title %}
     {% if form_title %}
         {{ form_title }}
@@ -17,5 +15,5 @@
         </div>
     {% endif %}
 
-    {% crispy form %}
+    {{ form }}
 {% endblock %}

@@ -102,8 +102,6 @@ INSTALLED_APPS += [
 ]
 
 INSTALLED_APPS += [
-    'crispy_forms',
-    'crispy_bootstrap5',
     'django_glue',
     'debug_toolbar',
 ]
@@ -180,6 +178,3 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
-
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"

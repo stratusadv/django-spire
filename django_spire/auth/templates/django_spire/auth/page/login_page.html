@@ -1,12 +1,10 @@
 {% extends 'django_spire/auth/page/auth_page.html' %}
 
-{% load crispy_forms_filters %}
-
 {% block authentication_page_content %}
 
     <form method="post" class="text-app-secondary">
         {% csrf_token %}
-        {{ form|crispy }}
+        {{ form }}
         <button type="submit" class="d-block mx-auto btn btn-app-primary-outlined my-4 w-100">Login</button>
     </form>
 

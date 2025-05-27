@@ -5,9 +5,6 @@ import json
 from django import forms
 from django.contrib.auth.models import Group, User
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Submit
-
 from django_spire.auth.group.factories import bulk_create_groups_from_names
 
 
@@ -27,12 +24,13 @@ class GroupNamesForm(forms.Form):
 
 
 class GroupForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper(self)
-        self.helper.include_media = False
-        self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-primary'))
+    pass
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     self.helper = FormHelper(self)
+    #     self.helper.include_media = False
+    #     self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-primary'))
 
     class Meta:
         model = Group
