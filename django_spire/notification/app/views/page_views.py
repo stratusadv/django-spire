@@ -21,6 +21,7 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         .select_related('notification')
         .distinct()
         .order_by('-notification__sent_datetime')
+        .ordered_by_priority()
     )
 
     return portal_views.list_view(
