@@ -90,7 +90,7 @@ def delete_form_view(
 
             return HttpResponseRedirect(return_url)
     else:
-        form = DeleteConfirmationForm()
+        form = DeleteConfirmationForm(obj=obj)
 
     breadcrumbs = Breadcrumbs()
 

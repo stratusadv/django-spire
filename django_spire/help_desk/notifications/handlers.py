@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-from django_spire.help_desk.factories import create_ticket_event_notifications
+from django_spire.help_desk.notifications.factories import create_ticket_event_notifications
 from django_spire.help_desk.models import HelpDeskTicket
 from django_spire.help_desk.enums import TicketEventType
 from django_spire.notification.choices import NotificationTypeChoices
