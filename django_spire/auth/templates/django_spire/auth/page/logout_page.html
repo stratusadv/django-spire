@@ -1,6 +1,6 @@
 {% extends 'django_spire/page/centered_card_page.html' %}
 
-{% load crispy_forms_filters static %}
+{% load static %}
 
 {% block page_card_content %}
     <div class="row">
@@ -15,7 +15,7 @@
         <div class="col px-4">
             <form method="post" action="{% url 'django_spire:auth:redirect:logout' %}">
                 {% csrf_token %}
-                {{ form|crispy }}
+                {{ form }}
                 <button type="submit" class="d-block mx-auto bg-light-primary shadow-sm text-white btn my-4 w-100">Logout</button>
             </form>
         </div>

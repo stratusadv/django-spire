@@ -97,6 +97,7 @@ INSTALLED_APPS += [
     'test_project.apps.comment',
     'test_project.apps.component',
     'test_project.apps.file',
+    'test_project.apps.help_desk',
     'test_project.apps.home',
     'test_project.apps.landing',
     'test_project.apps.history',
@@ -105,8 +106,6 @@ INSTALLED_APPS += [
 ]
 
 INSTALLED_APPS += [
-    'crispy_forms',
-    'crispy_bootstrap5',
     'django_glue',
     'debug_toolbar',
 ]
@@ -125,14 +124,6 @@ MIDDLEWARE = [
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'test_project.db',
-    }
-}
 
 ROOT_URLCONF = 'test_project.urls'
 
@@ -168,6 +159,7 @@ TEMPLATES = [
                 'django_glue.context_processors.django_glue',
                 'django_spire.core.context_processors.django_spire',
                 'test_project.apps.core.context_processors.test_project',
+                'test_project.apps.core.context_processors.django_spire',
             ],
             'builtins': [
             ],
@@ -178,6 +170,3 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
-
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"

@@ -4,28 +4,26 @@ from typing_extensions import Callable, TYPE_CHECKING
 
 from django import forms
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit
-
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
 
 class ConfirmationForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper(self)
-        self.helper.include_media = False
-        self.helper.layout = Layout()
-        self.helper.add_input(
-            Submit(
-                'submit',
-                'Confirm',
-                css_class='btn-success btn-sm mt-1 mb-0'
-            )
-        )
-
+    pass
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     self.helper = FormHelper(self)
+    #     self.helper.include_media = False
+    #     self.helper.layout = Layout()
+    #     self.helper.add_input(
+    #         Submit(
+    #             'submit',
+    #             'Confirm',
+    #             css_class='btn-success btn-sm mt-1 mb-0'
+    #         )
+    #     )
+    #
 
 class DeleteConfirmationForm(ConfirmationForm):
     should_delete = forms.BooleanField(required=True)

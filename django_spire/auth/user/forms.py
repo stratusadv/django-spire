@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Row, Column, Field, Submit
-
 from django import forms
 from django.contrib.auth.models import User
 
@@ -21,27 +18,27 @@ class UserForm(forms.ModelForm):
 
 
 class AddUserForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper(self)
-        self.helper.include_media = False
-
-        self.fields['first_name'].required = True
-        self.fields['last_name'].required = True
-        self.fields['email'].required = True
-
-        self.helper.layout = Layout(
-            Row(
-                Column('first_name', css_class='form-group col-md-6 col-12'),
-                Column('last_name', css_class='form-group col-md-6 col-12')
-            ),
-            Row(
-                Column(Field('email', autocomplete='off'), css_class='form-group col-md-6 col-12'),
-                Column(Field('password', autocomplete='off'), css_class='form-group col-md-6 col-12'),
-            ),
-        )
-        self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-blue'))
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #
+    #     self.helper = FormHelper(self)
+    #     self.helper.include_media = False
+    #
+    #     self.fields['first_name'].required = True
+    #     self.fields['last_name'].required = True
+    #     self.fields['email'].required = True
+    #
+    #     self.helper.layout = Layout(
+    #         Row(
+    #             Column('first_name', css_class='form-group col-md-6 col-12'),
+    #             Column('last_name', css_class='form-group col-md-6 col-12')
+    #         ),
+    #         Row(
+    #             Column(Field('email', autocomplete='off'), css_class='form-group col-md-6 col-12'),
+    #             Column(Field('password', autocomplete='off'), css_class='form-group col-md-6 col-12'),
+    #         ),
+    #     )
+    #     self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-blue'))
 
     class Meta:
         model = User
