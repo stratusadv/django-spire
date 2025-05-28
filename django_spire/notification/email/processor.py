@@ -21,14 +21,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
                     f"Email notifications. Was provided {notification.type}"
                 )
 
-            SendGridEmailHelper(
-                to=notification.email.to_email_address,
-                template_data={
-                    'subject': notification.title,
-                    'body': notification.body,
-                    'link': notification.url,
-                }
-            ).send()
+            SendGridEmailHelper(notification).send()
 
             notification.status = NotificationStatusChoices.SENT
             notification.sent_datetime = now()
@@ -53,14 +46,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
                         f"Email notifications. Was provided {notification.type}"
                     )
 
-                SendGridEmailHelper(
-                    to=notification.email.to_email_address,
-                    template_data={
-                        'subject': notification.title,
-                        'body': notification.body,
-                        'link': notification.url,
-                    }
-                ).send()
+                SendGridEmailHelper(notification).send()
 
                 notification.status = NotificationStatusChoices.SENT
                 notification.sent_datetime = now()
@@ -82,7 +68,19 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
         )
 
     def process_ready(self):
-        self.process_list(Notification.objects.email_notifications().ready_to_send().active())
+        self.process_list(
+            Notification.objects.
+            email_notifications()
+            .ready_to_send()
+            .active()
+            .prefetch_related('email')
+        )
 
     def process_errored(self):
-        self.process_list(Notification.objects.email_notifications().errored().active())
+        self.process_list(
+            Notification.objects
+            .email_notifications()
+            .errored()
+            .active()
+            .prefetch_related('email')
+        )
