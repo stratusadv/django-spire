@@ -24,7 +24,7 @@ jobs:
 
       - name: Create package_requirements.txt
         run: |
-          sed '/^-r/d' production_requirements.txt > core_requirements.txt
+          sed '/^-r/d' requirements.txt > core_requirements.txt
           cat requirements.txt >> core_requirements.txt
           mv core_requirements.txt package_requirements.txt
           cat package_requirements.txt
