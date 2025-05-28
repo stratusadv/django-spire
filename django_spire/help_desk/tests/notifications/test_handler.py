@@ -32,8 +32,6 @@ class TicketEventNotificationsHandlerTestCase(BaseTestCase):
 
     @override_settings(ADMINS=TEST_ADMINS)
     def test_handle_new(self):
-        settings.ADMINS = TEST_ADMINS
-
         for admin in settings.ADMINS:
             User.objects.create_user(username=admin[0], email=admin[1], password='password')
 
