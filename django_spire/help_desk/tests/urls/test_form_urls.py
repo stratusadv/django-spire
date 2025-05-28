@@ -4,7 +4,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.help_desk.tests.factories import create_helpdesk_ticket
 
 
-class HelpDeskUrlsTestCase(BaseTestCase):
+class HelpDeskFormUrlsTestCase(BaseTestCase):
     def test_helpdesk_ticket_form_create_url_path(self) -> None:
         response = self.client.get(
             path=reverse('django_spire:help_desk:form:create'),

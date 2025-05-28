@@ -49,7 +49,7 @@ def ticket_create_form_view(request):
             ticket = form.save(user=request.user)
             TicketEventNotificationHandler.handle_new(ticket)
 
-            return redirect(reverse('django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk}))
+            return redirect(reverse('django_spire:help_desk:page:list'))
 
         show_form_errors(request, form)
 
@@ -80,7 +80,7 @@ def ticket_update_form_view(request, pk: int):
         if form.is_valid():
             ticket = form.save()
 
-            return redirect(reverse('django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk}))
+            return redirect(reverse('django_spire:help_desk:page:list'))
 
         show_form_errors(request, form)
 

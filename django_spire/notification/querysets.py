@@ -16,6 +16,9 @@ class NotificationQuerySet(HistoryQuerySet):
     def by_user(self, user: User):
         return self.filter(user=user)
 
+    def by_users(self, users: list[User]):
+        return self.filter(user__in=users)
+
     def email_notifications(self):
         return self.filter(type=NotificationTypeChoices.EMAIL)
 

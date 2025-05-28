@@ -20,6 +20,9 @@ class AppNotificationQuerySet(HistoryQuerySet):
     def by_user(self, user: User) -> QuerySet:
         return self.filter(notification__user=user)
 
+    def by_users(self, users: list[User]):
+        return self.filter(notification__user__in=users)
+
     def exclude_viewed_by_user(self, user: User) -> QuerySet:
         return self.by_user(user=user).exclude(views__user=user)
 
