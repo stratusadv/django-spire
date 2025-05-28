@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.8.3
+
+### Fixes
+
+- Fixed missing login required decorator on multiple views.
+
+### Features
+
+- Added custom template_id, context_data, bcc and cc to `EmailNotification` model
+
 ## v0.8.2
 
 ### Fixes
