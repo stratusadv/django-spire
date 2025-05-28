@@ -8,6 +8,10 @@
 
 ### Features
 
+- Help Desk Prototype
+  - Ticket List
+  - Ticket Form
+  - Notifications for Ticket Creation to Developers and Managers
 - Added custom template_id, context_data, bcc and cc to `EmailNotification` model
 
 ## v0.8.2
