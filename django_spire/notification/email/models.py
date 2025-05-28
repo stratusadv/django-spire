@@ -13,10 +13,10 @@ class EmailNotification(models.Model):
         related_query_name='email',
     )
     to_email_address = models.EmailField()
-    template_id = models.CharField(max_length=32, default='')
+    template_id = models.CharField(max_length=64, default='')
     context_data = models.JSONField(default=dict)
-    cc = models.JSONField(default=dict)
-    bcc = models.JSONField(default=dict)
+    cc = models.JSONField(default=list)
+    bcc = models.JSONField(default=list)
 
     objects = EmailNotificationQuerySet.as_manager()
 
