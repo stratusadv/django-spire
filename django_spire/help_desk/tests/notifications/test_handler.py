@@ -1,3 +1,5 @@
+from typing import List
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
@@ -28,7 +30,7 @@ class TicketEventNotificationsHandlerTestCase(BaseTestCase):
             self.assertEqual(notification.notification.content_object, ticket)
             self.assertTrue(users.filter(pk=notification.notification.user.pk).exists())
 
-    @override_settings()
+    @override_settings(ADMINS=TEST_ADMINS)
     def test_handle_new(self):
         settings.ADMINS = TEST_ADMINS
 
