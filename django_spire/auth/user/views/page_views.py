@@ -6,6 +6,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 import django_glue as dg
 from django_glue.utils import serialize_to_json
@@ -29,6 +30,7 @@ from django_spire.auth.user import forms
 from django_spire.contrib.generic_views import portal_views
 
 
+@login_required()
 def register_user_form_view(request):
     # Is this the best way to initialize a null object in glue?
     dg.glue_model_object(request, 'portal_user', AuthUser(), 'view')
@@ -172,5 +174,3 @@ def user_status_form_page_view(request, pk):
         obj=user,
         breadcrumbs_func=update_breadcrumbs
     )
-
-

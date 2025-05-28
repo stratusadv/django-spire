@@ -1,5 +1,5 @@
 {% extends 'django_spire/modal/title_modal.html' %}
-{% load crispy_forms_tags %}
+
 {% load comment_tags %}
 
 {% block modal_trigger %}
@@ -18,6 +18,6 @@
     <div class="mx-4">
         {% comment_form related_obj request.get_full_path request.user parent=comment user_list=comment_user_list as comment_form %}
         <div class="h6">Reply*</div>
-        {% crispy comment_form %}
+        {{ comment_form }}
     </div>
 {% endblock %}
