@@ -21,7 +21,7 @@ class HelpDeskFormUrlsTestCase(BaseTestCase):
 
     def test_helpdesk_ticket_form_update_url_path(self) -> None:
         response = self.client.get(
-            path=reverse('django_spire:help_desk:form:update', kwargs={'pk': 1}),
+            path=reverse('django_spire:help_desk:form:update', kwargs={'pk': create_helpdesk_ticket().pk}),
         )
 
         self.assertEqual(response.status_code, 200)
