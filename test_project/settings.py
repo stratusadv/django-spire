@@ -11,10 +11,6 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S'
 )
 
-ADMINS = [
-    ('Stratus', 'stratus@stratusadv.com')
-]
-
 if os.getenv('DJANGO_DEBUG', 'False') == 'True':
     DEBUG = True
 else:
@@ -106,6 +102,8 @@ INSTALLED_APPS += [
 ]
 
 INSTALLED_APPS += [
+    'crispy_forms',
+    'crispy_bootstrap5',
     'django_glue',
     'debug_toolbar',
 ]
@@ -124,6 +122,18 @@ MIDDLEWARE = [
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': os.getenv('DATABASE_PORT'),
+    }
+}
 
 ROOT_URLCONF = 'test_project.urls'
 
@@ -170,3 +180,6 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
