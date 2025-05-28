@@ -4,7 +4,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.help_desk.tests.factories import create_helpdesk_ticket
 
 
-class HelpDeskUrlsTestCase(BaseTestCase):
+class HelpDeskPageViewsTestCase(BaseTestCase):
     def test_helpdesk_ticket_page_list_view(self) -> None:
         tickets = [create_helpdesk_ticket() for _ in range(5)]
 
