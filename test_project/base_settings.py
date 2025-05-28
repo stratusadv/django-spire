@@ -11,7 +11,7 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S'
 )
 
-ADMIN = [
+ADMINS = [
     ('Stratus', 'stratus@stratusadv.com')
 ]
 
