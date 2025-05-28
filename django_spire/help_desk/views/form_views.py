@@ -97,4 +97,3 @@ def ticket_update_form_view(request, pk: int):
             'form_action_url': reverse('django_spire:help_desk:form:update', kwargs={'pk': ticket.pk}),
         }
     )
-
