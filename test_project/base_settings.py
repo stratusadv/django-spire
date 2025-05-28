@@ -121,18 +121,6 @@ MIDDLEWARE = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT'),
-    }
-}
-
 ROOT_URLCONF = 'test_project.urls'
 
 LOGIN_URL = 'django_spire:auth:admin:login'

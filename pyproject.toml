@@ -95,12 +95,12 @@ failfast = false
 nobrowser = false
 noerase = false
 nohtml = false
-settings = "test_project.settings"
+settings = "test_project.postgres_settings"
 verbosity = 1
 
 [tool.dev_tool.coverage.django]
 apps = ["."]
-settings = "test_project.settings"
+settings = "test_project.postgres_settings"
 
 [tool.dev_tool.coverage.python]
 apps = ["tests"]
@@ -112,7 +112,7 @@ verbosity = 1
 
 [tool.dev_tool.unittest.django]
 apps = ["django_spire"]
-settings = "test_project.settings"
+settings = "test_project.postgres_settings"
 
 [tool.dev_tool.unittest.python]
 apps = ["tests"]
