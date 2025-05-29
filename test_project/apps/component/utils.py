@@ -1,9 +1,10 @@
 from pathlib import Path
 
+from django.conf import settings
 from django.template import Template, Context
 
 
-def _read_file(path: str) -> str:
+def _read_file(path: Path) -> str:
     with open(path, 'r', encoding='utf-8') as file:
         return '\n' + file.read().strip('\n')
 
@@ -46,7 +47,7 @@ def from_file(
     if exclude_html is None:
         exclude_html = []
 
-    path = Path(path)
+    path = Path(settings.BASE_DIR, path)
 
     html = (
         None

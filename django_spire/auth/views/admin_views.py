@@ -3,9 +3,15 @@ from __future__ import annotations
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
 
+from django_spire.contrib.form.utils import show_form_errors
+
 
 class LoginView(auth_views.LoginView):
     template_name = 'django_spire/auth/page/login_page.html'
+
+    def form_invalid(self, form):
+        show_form_errors(self.request, form)
+        return super().form_invalid(form)
 
 
 class PasswordChangeView(auth_views.PasswordChangeView):

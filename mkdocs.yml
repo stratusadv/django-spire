@@ -49,6 +49,24 @@ nav:
           - Overview: app_guides/seeding/overview.md
           - Getting Started: app_guides/seeding/getting_started.md
           - Faker: app_guides/seeding/faker.md
+  - Components:
+      - Accordian: components/accordian.md
+      - Badge: components/badge.md
+      - Button: components/button.md
+      - Card: components/card.md
+      - Comment: components/comment.md
+      - Container: components/container.md
+      - Dropdown: components/dropdown.md
+      - Element: components/element.md
+      - File: components/file.md
+      - Form: components/form.md
+      - Help: components/help.md
+      - Item: components/item.md
+      - Modal: components/modal.md
+      - Navigation: components/navigation.md
+      - Notification: components/notification.md
+      - Page: components/page.md
+      - Tab: components/tab.md
   - API:
       - AI:
           - Decorators: api/ai/decorators.md

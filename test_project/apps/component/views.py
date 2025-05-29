@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+from django.conf import settings
 from typing_extensions import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
@@ -22,7 +25,7 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
 def accordion_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['accordion']
 
-    example = from_file('example/templates/component/accordion/test_project_accordion.html')
+    example = from_file('test_project/templates/component/accordion/example_accordion.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/accordion/',
@@ -38,7 +41,7 @@ def accordion_view(request: WSGIRequest) -> TemplateResponse:
 def badge_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['base_badge']
 
-    example = from_file('example/templates/component/badge/test_project_badge.html')
+    example = from_file('test_project/templates/component/badge/example_badge.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/badge/',
@@ -63,7 +66,7 @@ def button_view(request: WSGIRequest) -> TemplateResponse:
 
     exclude_template = ['base_button']
 
-    example = from_file('example/templates/component/button/test_project_button.html')
+    example = from_file('test_project/templates/component/button/example_button.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/button/',
@@ -89,7 +92,7 @@ def card_view(request: WSGIRequest) -> TemplateResponse:
         'title_card'
     ]
 
-    example = from_file('example/templates/component/card/test_project_card.html')
+    example = from_file('test_project/templates/component/card/example_card.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/card/',
@@ -137,7 +140,7 @@ def container_view(request: WSGIRequest) -> TemplateResponse:
         'form_container'
     ]
 
-    example = from_file('example/templates/component/container/test_project_container.html')
+    example = from_file('test_project/templates/component/container/example_container.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/container/',
@@ -160,7 +163,7 @@ def dropdown_view(request: WSGIRequest) -> TemplateResponse:
         'ellipsis_dropdown_modal_link_element'
     ]
 
-    example = from_file('example/templates/component/dropdown/test_project_dropdown.html')
+    example = from_file('test_project/templates/component/dropdown/example_dropdown.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/dropdown/',
@@ -184,7 +187,7 @@ def element_view(request: WSGIRequest) -> TemplateResponse:
         'pagination_element'
     ]
 
-    example = from_file('example/templates/component/element/test_project_element.html')
+    example = from_file('test_project/templates/component/element/example_element.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/element/',
@@ -217,7 +220,7 @@ def file_view(request: WSGIRequest) -> TemplateResponse:
         'demo_list_page',
     ]
 
-    example = from_file('example/templates/component/file/test_project_file.html')
+    example = from_file('test_project/templates/component/file/example_file.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/file/',
@@ -239,7 +242,7 @@ def form_view(request: WSGIRequest) -> TemplateResponse:
         'search_select_form_field'
     ]
 
-    example = from_file('example/templates/component/form/test_project_form.html')
+    example = from_file('test_project/templates/component/form/example_form.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/form/',
@@ -260,7 +263,7 @@ def help_view(request: WSGIRequest) -> TemplateResponse:
         exclude_template=exclude_template
     )
 
-    example = from_file('example/templates/component/help/test_project_help.html')
+    example = from_file('test_project/templates/component/help/example_help.html')
 
     context = {'example': example, 'gallery': gallery}
 
@@ -271,7 +274,7 @@ def help_view(request: WSGIRequest) -> TemplateResponse:
 def item_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['item', 'item_ellipsis_spacer_element']
 
-    example = from_file('example/templates/component/item/test_project_item.html')
+    example = from_file('test_project/templates/component/item/example_item.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/item/',
@@ -293,7 +296,7 @@ def modal_view(request: WSGIRequest) -> TemplateResponse:
         'modal_title_content'
     ]
 
-    example = from_file('example/templates/component/modal/test_project_modal.html')
+    example = from_file('test_project/templates/component/modal/example_modal.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/modal/',
@@ -321,7 +324,7 @@ def navigation_view(request: WSGIRequest) -> TemplateResponse:
         'side_navigation'
     ]
 
-    example = from_file('example/templates/component/navigation/test_project_navigation.html')
+    example = from_file('test_project/templates/component/navigation/example_navigation.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/navigation/',
@@ -337,7 +340,7 @@ def navigation_view(request: WSGIRequest) -> TemplateResponse:
 def notification_view(request: WSGIRequest) -> TemplateResponse:
     exclude_template = ['notification', 'notification_element']
 
-    example = from_file('example/templates/component/notification/test_project_notification.html')
+    example = from_file('test_project/templates/component/notification/example_notification.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/notification/',
@@ -380,7 +383,7 @@ def tab_view(request: WSGIRequest) -> TemplateResponse:
         'tab_trigger_element'
     ]
 
-    example = from_file('example/templates/component/tab/test_project_tab.html')
+    example = from_file('test_project/templates/component/tab/example_tab.html')
 
     gallery = from_directory(
         'django_spire/templates/spire/tab/',
