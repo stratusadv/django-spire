@@ -6,7 +6,7 @@
         }
     }"
     method="post"
-    action="{% url 'django_spire:help_desk:form:update' pk=ticket.pk|default:0 %}"
+    action="{{ form_action_url }}"
 >
     {% csrf_token %}
 

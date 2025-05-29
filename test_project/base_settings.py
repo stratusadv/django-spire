@@ -11,6 +11,10 @@ logging.basicConfig(
     datefmt='%d/%b/%Y %H:%M:%S'
 )
 
+ADMINS = [
+    ('Stratus', 'stratus@stratusadv.com')
+]
+
 if os.getenv('DJANGO_DEBUG', 'False') == 'True':
     DEBUG = True
 else:

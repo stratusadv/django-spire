@@ -3,7 +3,7 @@
 {% block item_title_col %}d-none{% endblock %}
 
 {% block item_row_content %}
-    <a class="col-5" href="{% url 'django_spire:help_desk:page:detail' pk=ticket.pk %}">
+    <a class="col-4" href="{% url 'django_spire:help_desk:page:detail' pk=ticket.pk %}">
         {% include 'django_spire/element/attribute_element.html' with attribute_title=ticket attribute_value=ticket.description|truncatechars:50 %}
     </a>
     <div class="col-2">
@@ -16,5 +16,11 @@
         {% include 'django_spire/help_desk/element/ticket_purpose_badge.html' %}
         {% include 'django_spire/help_desk/element/ticket_priority_badge.html' %}
         {% include 'django_spire/help_desk/element/ticket_status_badge.html' %}
+    </div>
+    <div class="col-1 text-end">
+        {% url 'django_spire:help_desk:page:detail' pk=ticket.pk as detail_url %}
+        {% url 'django_spire:help_desk:form:update' pk=ticket.pk as update_url %}
+        {% url 'django_spire:help_desk:form:delete' pk=ticket.pk as delete_url %}
+        {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=update_url delete_url=delete_url %}
     </div>
 {% endblock %}
