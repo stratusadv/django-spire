@@ -2,10 +2,26 @@
 
 {% block authentication_page_content %}
 
-    <form method="post" class="text-app-secondary">
+    <form x-data="{
+        username: new GlueCharField('username', {required: true}),
+        password: new GlueCharField('password', {required: true})
+    }" method="post" class="text-app-secondary">
         {% csrf_token %}
-        {{ form }}
-        <button type="submit" class="d-block mx-auto btn btn-app-primary-outlined my-4 w-100">Login</button>
+        <div class="row">
+            <div class="col">
+                {% include 'django_glue/form/field/char_field.html' with glue_field='username' %}
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                {% include 'django_glue/form/field/password_field.html' with glue_field='password' %}
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <button type="submit" class="d-block mx-auto btn btn-app-primary-outlined my-4 w-100">Login</button>
+            </div>
+        </div>
     </form>
 
     <div class="text-center">

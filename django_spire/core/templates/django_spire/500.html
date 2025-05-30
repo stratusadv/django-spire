@@ -1,7 +1,5 @@
-{% extends 'django_spire/page/full_page.html' %}
+{% extends 'django_spire/base/base.html' %}
 
-{% load static %}
-
-{% block page_content %}
-    Broken
+{% block base_body_content %}
+    {% include 'django_spire/error/error.html' with error_code='500' heading='Something Went Wrong' subheading="Don't Worry, We're Already Working On It!" %}
 {% endblock %}
