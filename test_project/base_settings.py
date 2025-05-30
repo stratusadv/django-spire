@@ -95,7 +95,6 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     'test_project.apps.ai',
     'test_project.apps.comment',
-    'test_project.apps.component',
     'test_project.apps.file',
     'test_project.apps.help_desk',
     'test_project.apps.home',

@@ -1,7 +1,13 @@
-# TITLE
+# Button
 
 ## Definition
 
+
+
 ## Example
 
-## Gallery
+```html
+
+--8<-- "docs/components/templates/button.html"
+
+```

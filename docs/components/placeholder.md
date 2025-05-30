@@ -1,7 +1,0 @@
-# TITLE
-
-## Definition
-
-## Example
-
-## Gallery
