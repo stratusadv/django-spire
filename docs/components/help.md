@@ -14,6 +14,6 @@ The help modal can contain text, images, links to documentation, or even videos 
 
 ```html
 
---8<-- "docs/components/templates/"
+--8<-- "docs/components/templates/help.html"
 
 ```
