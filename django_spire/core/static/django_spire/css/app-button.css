@@ -1,4 +1,7 @@
 :root {
+    --app-btn-white: var(--app-white);
+    --app-btn-black: var(--app-black);
+
     --app-btn-light: var(--app-light);
     --app-btn-dark: var(--app-dark);
 
@@ -29,6 +32,8 @@
     --app-btn-layer-one: var(--app-layer-one);
     --app-btn-layer-two: var(--app-layer-two);
     --app-btn-layer-three: var(--app-layer-three);
+    --app-btn-layer-four: var(--app-layer-four);
+    --app-btn-layer-five: var(--app-layer-five);
 }
 
 .btn {

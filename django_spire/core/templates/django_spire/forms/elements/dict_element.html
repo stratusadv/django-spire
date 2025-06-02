@@ -16,18 +16,18 @@
                     </span>
             </div>
 
-            <div x-show="{{ key_display }}" class="row"
+            <div x-show="{{ key_display }}"
                  style="margin-left: 3px; border-style: solid; border-color: #ddd; border-width: 0 0 1px 1px; padding: 0 0 5px 20px;">
                 {% if value|is_dict %}
                     <span class="key-text">{<br></span>
-                    {% include 'django_spire/ai/forms/elements/dict_element.html' with dict=value %}
+                    {% include 'django_spire/forms/elements/dict_element.html' with dict=value %}
                     <span class="key-text">}<br></span>
                 {% elif value|is_list_or_tuple %}
                     <span class="key-text">[<br></span>
-                    {% include 'django_spire/ai/forms/elements/list_element.html' with list=value %}
+                    {% include 'django_spire/forms/elements/list_element.html' with list=value %}
                     <span class="key-text">[<br></span>
                 {% else %}
-                    {% include 'django_spire/ai/forms/elements/value_element.html' with value=value %}
+                    {% include 'django_spire/forms/elements/value_element.html' with value=value %}
                 {% endif %}
             </div>
 

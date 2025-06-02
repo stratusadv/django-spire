@@ -1,4 +1,7 @@
 :root {
+    --app-border-white: var(--app-white);
+    --app-border-black: var(--app-black);
+
     --app-border-light: var(--app-light);
     --app-border-dark: var(--app-dark);
 
@@ -29,6 +32,8 @@
     --app-border-layer-one: var(--app-layer-one);
     --app-border-layer-two: var(--app-layer-two);
     --app-border-layer-three: var(--app-layer-three);
+    --app-border-layer-four: var(--app-layer-four);
+    --app-border-layer-five: var(--app-layer-five);
 }
 
 .border-app-none {

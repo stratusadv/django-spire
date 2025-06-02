@@ -35,6 +35,6 @@
     --app-layer-two: #ebebeb;
     --app-layer-three: #000000;
 
-    --app-side-bar: #F5F5F5;
-    --app-side-bar-dark: #001720;
+    --app-side-navigation-bg-color: #F5F5F5;
+    --app-mobile-navigation-bg-color: #001720;
 }

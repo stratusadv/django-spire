@@ -7,7 +7,7 @@ from django_spire.ai.chat.messages import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.responses import MessageResponseGroup, MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
-from django_spire.consts import AI_CHAT_WORKFLOW_SETTINGS_NAME
+from django_spire.consts import AI_CHAT_WORKFLOW_SENDER_SETTINGS_NAME
 
 
 def request_message_render_view(request):
@@ -54,7 +54,7 @@ def request_message_render_view(request):
         message_response_group.render_to_html_string(
             context_data={
                 "chat_id": chat.id,
-                "chat_workflow_name": getattr(settings, AI_CHAT_WORKFLOW_SETTINGS_NAME),
+                "chat_workflow_name": getattr(settings, AI_CHAT_WORKFLOW_SENDER_SETTINGS_NAME),
             }
         )
     )
