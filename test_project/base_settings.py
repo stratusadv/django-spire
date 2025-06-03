@@ -89,6 +89,7 @@ INSTALLED_APPS += [
     'django_spire.notification.app',
     'django_spire.notification.email',
     'django_spire.notification.sms',
+    'django_spire.notification.push',
 
     'django_spire.contrib.options',
     'django_spire.contrib.pagination',
