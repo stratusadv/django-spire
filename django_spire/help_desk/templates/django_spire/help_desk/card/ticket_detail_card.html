@@ -4,10 +4,10 @@
 
 {% block card_title %}
     <div class="row justify-content-between mb-2 align-items-center">
-        <div class="col text-start">
+        <div class="col-auto text-start">
             {{ ticket }}
         </div>
-        <div class="col text-end">
+        <div class="col-auto text-end">
             {% url 'django_spire:help_desk:form:update' pk=ticket.pk as edit_url %}
             {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_href=edit_url button_icon='bi bi-pencil' %}
 
