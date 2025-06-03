@@ -1,3 +1,5 @@
+from dandy.llm import MessageHistory
+from dandy.llm.service.request.message import RoleLiteralStr
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
@@ -34,6 +36,28 @@ class SmsConversation(HistoryModelMixin):
         self.save()
 
         return message
+
+    def generate_message_history(
+            self,
+            message_count: int = 20,
+            exclude_last_message: bool = True
+    ) -> MessageHistory:
+        message_history = MessageHistory()
+
+        messages = self.messages.newest_by_count(message_count)
+
+        if exclude_last_message:
+            messages = messages[1:]
+
+        messages = list(reversed(messages))
+
+        for message in messages:
+            message_history.add_message(
+                role=message.role,
+                content=message.body
+            )
+
+        return message_history
 
     @property
     def is_empty(self) -> bool:
@@ -74,6 +98,15 @@ class SmsMessage(HistoryModelMixin):
     @property
     def is_outbound(self) -> bool:
         return not self.is_inbound
+
+    @property
+    def role(self) -> RoleLiteralStr:
+        if self.is_inbound:
+            return 'user'
+        elif self.is_outbound:
+            return 'assistant'
+        else:
+            return 'system'
 
     class Meta:
         db_table = 'django_spire_ai_sms_message'

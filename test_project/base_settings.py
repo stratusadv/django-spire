@@ -68,6 +68,7 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [
     'django_spire.ai',
     'django_spire.ai.chat',
+    'django_spire.ai.sms',
 
     'django_spire.auth',
     'django_spire.auth.mfa',

@@ -1,9 +1,8 @@
-from django.http import HttpResponse, HttpResponseForbidden
 import functools
-from twilio import twiml
-from twilio.request_validator import RequestValidator
-
 import os
+
+from django.http import HttpResponseForbidden
+from twilio.request_validator import RequestValidator
 
 
 def twilio_auth_required(func):

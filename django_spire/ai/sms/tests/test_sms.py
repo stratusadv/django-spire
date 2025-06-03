@@ -3,7 +3,7 @@ from django.urls import reverse
 from unittest.mock import patch, MagicMock
 
 from django_spire.ai.sms.models import SmsConversation, SmsMessage
-from django_spire.ai.sms.views import send_sms
+from django_spire.ai.sms.tools import send_sms
 
 
 class SmsModelTests(TestCase):

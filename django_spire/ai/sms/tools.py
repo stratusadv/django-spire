@@ -4,10 +4,50 @@ from dandy.llm import MessageHistory
 from dandy.workflow import BaseWorkflow
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
+from twilio.rest import Client
+from twilio.twiml.messaging_response import MessagingResponse
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 from django_spire.ai.sms.intel import SmsIntel
+from django_spire.ai.sms.models import SmsConversation
 from django_spire.consts import AI_SMS_WORKFLOW_CLASS_SETTINGS_NAME
+
+
+def process_message(request, conversation, message):
+    message_intel = sms_workflow_process(
+        request,
+        message,
+        message_history=conversation.generate_message_history(),
+    )
+
+    response_body = f"You said: {message_intel.text}"
+
+    twiml_response = MessagingResponse()
+    twiml_response.message(response_body)
+
+    conversation.add_message(body=response_body, is_inbound=False)
+
+    return twiml_response
+
+
+def send_sms(to_number, body):
+    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+    twilio_message = client.messages.create(
+        to=to_number,
+        from_=settings.TWILIO_PHONE_NUMBER,
+        body=body
+    )
+
+    conversation, created = SmsConversation.objects.get_or_create(
+        phone_number=to_number
+    )
+
+    message = conversation.add_message(body=body, is_inbound=False)
+    message.twilio_sid = twilio_message.sid
+    message.save()
+
+    return message
 
 
 def sms_workflow_process(
