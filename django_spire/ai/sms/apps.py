@@ -1,5 +1,7 @@
 from django.apps import AppConfig
 
+from django_spire.utils import check_required_apps
+
 
 class SmsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -9,4 +11,4 @@ class SmsConfig(AppConfig):
     REQUIRED_APPS = ('django_spire_ai',)
 
     def ready(self):
-        pass  # Import signals or perform other initialization here if needed
+        check_required_apps(self.label)
