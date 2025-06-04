@@ -60,6 +60,7 @@ def ticket_create_form_view(request):
         obj=ticket,
         context_data={
             'form_action_url': reverse('django_spire:help_desk:form:create'),
+            'ticket_pk': ticket.pk
         }
     )
 
@@ -91,5 +92,6 @@ def ticket_update_form_view(request, pk: int):
         context_data={
             'ticket': ticket,
             'form_action_url': reverse('django_spire:help_desk:form:update', kwargs={'pk': ticket.pk}),
+            'ticket_pk': ticket.pk
         }
     )
