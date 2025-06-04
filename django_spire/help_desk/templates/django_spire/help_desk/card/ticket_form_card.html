@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_title %}
-    {{ form_verb }} Ticket #{{ ticket_pk }}
+    {{ form_verb }} Ticket {% if ticket_pk %}#{{ ticket_pk }}{% endif %}
 {% endblock %}
 
 {% block card_title_content %}
