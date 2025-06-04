@@ -235,6 +235,7 @@ def form_view(
         'form': form,
         'form_title': form_title,
         'form_description': form_description,
+        'form_verb': verb
     }
 
     context_data = {**base_context_data, **context_data}

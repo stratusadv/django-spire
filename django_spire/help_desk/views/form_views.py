@@ -1,6 +1,7 @@
 import django_glue as dg
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
+from django.forms import Form
 
 from django_spire.auth.group.decorators import permission_required
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
@@ -16,23 +17,18 @@ def ticket_delete_form_view(request, pk: int = 0):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
     if request.method == 'POST':
-        form = DeleteConfirmationForm(request.POST, obj=ticket)
-
-        if form.is_valid():
-            ticket.set_deleted()
-
-            return redirect(reverse('django_spire:help_desk:page:list'))
-
-        show_form_errors(request, form)
-
-    else:
-        form = DeleteConfirmationForm(request.GET, obj=ticket)
+        ticket.set_deleted()
+        return redirect(reverse('django_spire:help_desk:page:list'))
 
     return portal_views.form_view(
         request,
-        form=form,
+        form=Form(),
         verb=f'Delete',
         obj=ticket,
+        template='django_spire/help_desk/page/ticket_form_page.html',
+        context_data={
+            'ticket_pk': pk
+        }
     )
 
 

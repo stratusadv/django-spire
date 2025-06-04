@@ -5,9 +5,13 @@
 {% endblock %}
 
 {% block card_title %}
-    {% if ticket.pk is None %}Create Ticket{% else %}Update Ticket #{{ ticket.pk }}{% endif %}
+    {{ form_verb }} Ticket #{{ ticket_pk }}
 {% endblock %}
 
 {% block card_title_content %}
-    {% include 'django_spire/help_desk/form/ticket_form.html' %}
+    {% if form_verb|lower == 'delete' %}
+        {% include 'django_spire/help_desk/form/ticket_delete_form.html' %}
+    {% else %}
+        {% include 'django_spire/help_desk/form/ticket_form.html' %}
+    {% endif %}
 {% endblock %}

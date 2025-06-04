@@ -15,7 +15,7 @@
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
         {% endblock %}
 
-        {% block bash_head_additional_meta %}
+        {% block base_head_additional_meta %}
         {% endblock %}
 
         {% block base_head_css %}
@@ -62,13 +62,15 @@
         {% block base_head_additional_js %}
         {% endblock %}
 
-        {% block bash_head_additional_content %}
+        {% block base_head_additional_content %}
         {% endblock %}
 
     {% endblock %}
 </head>
 
-<body class="bg-app-layer-one">
+<body
+    class="{% block base_body_class %}bg-app-layer-one{% endblock %} {% block base_additional_body_class %}{% endblock %}"
+    {% block base_additional_body_attrs %}{% endblock %}>
     {% block base_body %}
         {% block base_body_top_js %}
         {% endblock %}
