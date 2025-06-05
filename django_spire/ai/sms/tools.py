@@ -8,7 +8,7 @@ from django.core.handlers.wsgi import WSGIRequest
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 from django_spire.ai.sms.intel import SmsIntel
-from django_spire.consts import AI_SMS_WORKFLOW_CLASS_SETTINGS_NAME
+from django_spire.consts import AI_SMS_CONVERSATION_WORKFLOW_CLASS_SETTINGS_NAME
 
 
 def sms_workflow_process(
@@ -22,10 +22,10 @@ def sms_workflow_process(
     if user_input is None:
         raise ValueError('sms user_input is required')
 
-    sms_workflow_class = getattr(settings, AI_SMS_WORKFLOW_CLASS_SETTINGS_NAME)
+    sms_workflow_class = getattr(settings, AI_SMS_CONVERSATION_WORKFLOW_CLASS_SETTINGS_NAME)
     
     if sms_workflow_class is None:
-        raise ValueError(f'"{AI_SMS_WORKFLOW_CLASS_SETTINGS_NAME}" must be set in the django settings.')
+        raise ValueError(f'"{AI_SMS_CONVERSATION_WORKFLOW_CLASS_SETTINGS_NAME}" must be set in the django settings.')
 
     module_name = '.'.join(sms_workflow_class.split('.')[:-1])
     object_name = sms_workflow_class.split('.')[-1]
