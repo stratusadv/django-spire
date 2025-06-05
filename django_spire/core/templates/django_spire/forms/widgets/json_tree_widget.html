@@ -1,6 +1,5 @@
 {% load json %}
 
-<input type="hidden" name="{{ widget.name }}" value='{{ widget.value }}'>
 
 <script src="//unpkg.com/alpinejs" defer></script>
 
@@ -8,31 +7,39 @@
     .key-text {
         color: #417690;
     }
+
     .copy-text {
         color: #529041;
     }
 </style>
 
-<div style="font-family: monospace; margin-left: -17px; float: left; clear: left;">
-    <a href="javascript:" x-data="{
-        clicked: false,
-        copy_value_to_clipboard() {
-            navigator.clipboard.writeText(JSON.stringify({{ widget.value }}))
-            this.clicked = true
-            setTimeout(() => {
-                this.clicked = false
-            }, 1000);
-        }
-    }" style="padding-left: 20px;">
-        <span @click="copy_value_to_clipboard()" class="copy-text" style="font-weight: bold;">Copy Tree Raw JSON</span>
-            <span style="font-weight: bold;"
-                x-show="clicked"
-                x-transition:enter.duration.500ms
-                x-transition:leave.duration.500ms
-            >
-                Copied!!!
-            </span>
+
+<div style="font-family: monospace; margin-left: -17px; width: 90%; ">
+    <label style="float: left; clear: both; width: 95%; margin-left: 19px; margin-bottom: 10px; ">
+        <span class="key-text">
+            <a href="javascript:" x-data="{
+                clicked: false,
+                copy_value_to_clipboard() {
+                    navigator.clipboard.writeText(JSON.stringify({{ widget.value }}))
+                    this.clicked = true
+                    setTimeout(() => {
+                        this.clicked = false
+                    }, 1000);
+                }
+            }">
+                <span @click="copy_value_to_clipboard()" class="copy-text" style="font-weight: bold;"> Copy To Clipboard</span>
+                <span style="font-weight: bold;"
+                      x-show="clicked"
+                      x-transition:enter.duration.500ms
+                      x-transition:leave.duration.500ms
+                >
+                    Copied!!!
+                </span>
+            </a>
         </span>
-    </a>
+
+        <textarea style="float: left; clear: both; width: 95%; margin-top: 10px; " rows="10"
+                  name="{{ widget.name }}">{{ widget.value }}</textarea>
+    </label>
     {% include 'django_spire/forms/elements/dict_element.html' with dict=json_tree_dict %}
 </div>

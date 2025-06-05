@@ -11,6 +11,7 @@
   - Ticket Form
   - Notifications for Ticket Creation to Developers and Managers
 - Added custom template_id, context_data, bcc and cc to `EmailNotification` model
+- JSON Tree Input Widget for Admin Panel
 
 ### Fixes
 
