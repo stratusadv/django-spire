@@ -3,7 +3,6 @@ from __future__ import annotations
 from dandy.intel import BaseIntel
 from dandy.llm import LlmBot
 from dandy.recorder import recorder_to_html_file
-from django.test import TestCase
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 from django_spire.core.tests.test_cases import BaseTestCase
