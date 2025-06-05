@@ -37,6 +37,7 @@ jobs:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
           OLLAMA_PORT: ${{ secrets.OLLAMA_PORT }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           PYTHONPATH: ${{ env.PYTHONPATH  }}
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
