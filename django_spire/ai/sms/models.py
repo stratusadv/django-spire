@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
+from django_spire.ai.sms.query_sets import SmsMessageQuerySet, SmsConversationQuerySet
 from django_spire.history.mixins import HistoryModelMixin
 
 
@@ -19,20 +20,27 @@ class SmsConversation(HistoryModelMixin):
 
     phone_number = models.CharField(max_length=20)
     last_message_datetime = models.DateTimeField(default=now, editable=False)
-    has_unread_messages = models.BooleanField(default=False)
+
+    objects = SmsConversationQuerySet.as_manager()
 
     def __str__(self):
         return f"SMS Conversation with {self.phone_number}"
 
-    def add_message(self, body, is_inbound=False):
+    def add_message(
+            self,
+            body: str,
+            is_inbound: bool,
+            twilio_sid: str,
+            is_processed: bool = False,
+    ):
         message = self.messages.create(
             body=body,
             is_inbound=is_inbound,
-            is_processed=False,
+            twilio_sid=twilio_sid,
+            is_processed=is_processed,
         )
 
         self.last_message_datetime = now()
-        self.has_unread_messages = is_inbound
         self.save()
 
         return message
@@ -81,9 +89,12 @@ class SmsMessage(HistoryModelMixin):
     body = models.TextField()
 
     is_inbound = models.BooleanField(default=False)
-    is_processed = models.BooleanField(default=False)
 
     twilio_sid = models.CharField(max_length=64, blank=True, null=True)
+
+    is_processed = models.BooleanField(default=False)
+
+    objects = SmsMessageQuerySet.as_manager()
 
     def __str__(self):
         if len(self.body) < 64:

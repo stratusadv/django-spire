@@ -50,7 +50,7 @@ TWILIO_SMS_BATCH_SIZE = 100
 AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.chat_workflow.ChatWorkflow'
 AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
 
-AI_SMS_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+AI_SMS_WORKFLOW_CLASS = 'test_project.apps.ai.sms.intelligence.sms_conversation_workflow.SmsConversationWorkflow'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True
