@@ -43,3 +43,6 @@ class HelpDeskTicket(HistoryModelMixin):
         db_table = 'django_spire_help_desk_ticket'
         verbose_name = 'Help Desk Ticket'
         verbose_name_plural = 'Help Desk Tickets'
+        permissions = [
+            ('can_view_all_tickets', 'Can view all help desk tickets'),
+        ]
