@@ -5,7 +5,7 @@ App Notifications are processed locally and do not require a third-party service
 
 ### Example
 We must first create the `Notification` object before we create the `AppNotification` object. Once both objects have been created, we are done! Having a automation that runs `notification.automations` will handle the rest!
-For further details on the automations please see the [Automations](/app_guides/notification/automations/) guide.
+For further details on the automations please see the [Automations](automations.md) guide.
 
 ```python
 from django.contrib.contenttypes.models import ContentType

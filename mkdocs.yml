@@ -38,6 +38,7 @@ nav:
       - AI:
           - Usage & Interactions: app_guides/ai/overview.md
           - Chat Assistant: app_guides/ai/chat/overview.md
+          - SMS Conversation: app_guides/ai/sms/overview.md
       - Core:
           - Shortcuts: app_guides/core/shortcuts.md
       - Notification:

@@ -1,8 +1,8 @@
-# AI Chat Assistant
+# SMS Conversation
 
 ## Purpose
 
-This app provides an easy way to create a chat for end users to interface with the project.
+This app provides an easy way to create an SMS conversation for end users to interface with the project.
 
 ## Installation
 
@@ -12,12 +12,12 @@ Simple add the ai application to your `INSTALLED_APPS` and the workflow class wi
 INSTALLED_APPS = [
     ...
     'django_spire.ai',
-    'django_spire.ai.chat',
+    'django_spire.ai.sms',
     ...
 ]
 
 # this is the class and module that will handle the chat interactions
-AI_CHAT_WORKFLOW_CLASS = 'example.ai.chat.intelligence.chat_workflow.ChatWorkflow'
+AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'example.ai.sms.intelligence.sms_conversation_workflow.SmsConversationWorkflow'
 ```
 
 You also need to add django spire to your projects `urls.py`:
@@ -34,9 +34,13 @@ urlpatterns = [
 
     Properly configure Dandy install is required for more information see the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
 
+## Env Variable
+
+You must have a `TWILIO_AUTH_TOKEN` env variable setup and in your django `settings.py` for your project
+
 ## Usage
 
-Your AI chat will need a workflow class that will be the place that all messages are sent to be processed.
+Your AI Sms Conversation will need a workflow class that will be the place that all messages are sent to be processed.
 
 The function you use will need to take 3 arguments:
 
@@ -44,15 +48,13 @@ The function you use will need to take 3 arguments:
 - `user_input` - the message from the user: `str`
 - `message_history` - the message history of the chat: `dandy.llm.MessageHistory`
 
-```python title="apps/ai/chat/intelligence/chat_workflow.py"
---8<-- "test_project/apps/ai/chat/intelligence/chat_workflow.py"
+```python title="apps/ai/sms/intelligence/sms_conversation_workflow.py"
+--8<-- "test_project/apps/ai/sms/intelligence/sms_conversation_workflow.py"
 ```
 
-Once this is setup you can simply add the chat card to your templates:
+Once this is setup you can now add the webhook end point to your phone number management in Twilio.
 
-```html
-{ % include 'django_spire/ai/chat/card/chat_card.html' % }
-```
+https://myproject.com/django_spire/ai/sms/webhook/
 
 !!! tip
 

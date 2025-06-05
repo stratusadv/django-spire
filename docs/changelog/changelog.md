@@ -2,17 +2,19 @@
 
 ## v0.9.0
 
-### Fixes
-
-- Fixed missing login required decorator on multiple views.
-
 ### Features
 
+- AI SMS Conversation App
+  - Integration with Twilio SMS Webhook for Managing SMS Conversations
 - Help Desk Prototype
   - Ticket List
   - Ticket Form
   - Notifications for Ticket Creation to Developers and Managers
 - Added custom template_id, context_data, bcc and cc to `EmailNotification` model
+
+### Fixes
+
+- Fixed missing login required decorator on multiple views.
 
 ## v0.8.2
 
