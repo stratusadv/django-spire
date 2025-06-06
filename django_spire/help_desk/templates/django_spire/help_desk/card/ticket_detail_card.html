@@ -8,10 +8,11 @@
             {{ ticket }}
         </div>
         <div class="col-auto text-end">
+            {% if ticket_perms.can_change %}
             {% url 'django_spire:help_desk:form:update' pk=ticket.pk as edit_url %}
             {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_href=edit_url button_icon='bi bi-pencil' %}
-
-            {% if perms.help_desk.delete_helpdeskticket %}
+            {% endif %}
+            {% if ticket_perms.can_delete %}
                 {% url 'django_spire:help_desk:form:delete' pk=ticket.pk as delete_url %}
                 {% include 'django_spire/button/danger_button.html' with button_text='Delete' button_href=delete_url button_icon='bi bi-trash' %}
             {% endif %}
