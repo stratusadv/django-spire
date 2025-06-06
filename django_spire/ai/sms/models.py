@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from django_spire.ai.sms.query_sets import SmsMessageQuerySet, SmsConversationQuerySet
+from django_spire.ai.sms.querysets import SmsMessageQuerySet, SmsConversationQuerySet
 from django_spire.history.mixins import HistoryModelMixin
 
 

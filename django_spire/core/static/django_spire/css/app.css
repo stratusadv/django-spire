@@ -1,9 +1,9 @@
 :root {
-    --app-black: #212529;
+    --app-black: #000000;
     --app-white: #ffffff;
 
-    --app-light: #f8f9fa;
     --app-dark: #212529;
+    --app-light: #f8f9fa;
 
     --app-secondary: #6c757d;
     --app-secondary-soft: #e2e3e5;

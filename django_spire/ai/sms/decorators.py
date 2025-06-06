@@ -12,7 +12,7 @@ def twilio_auth_required(func):
 
         absolute_uri = request.build_absolute_uri()
 
-        if absolute_uri[:4] == 'http':
+        if absolute_uri[:5] == 'http:':
             absolute_uri = 'https' + absolute_uri[4:]
 
         request_valid = request_validator.validate(

@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from django_spire.ai.chat.messages import BaseMessageIntel
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
-from django_spire.ai.chat.query_sets import ChatQuerySet, ChatMessageQuerySet
+from django_spire.ai.chat.querysets import ChatQuerySet, ChatMessageQuerySet
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.utils import get_class_from_string, get_class_name_from_class
 
