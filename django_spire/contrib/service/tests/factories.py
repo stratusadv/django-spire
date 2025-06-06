@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from django_spire.contrib.services.base_service import BaseService
+from django_spire.contrib.service.service import BaseService
 
 
 class UserService(BaseService):

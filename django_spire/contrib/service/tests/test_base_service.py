@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from django_spire.auth.user.tests.factories import create_super_user
-from django_spire.contrib.services.base_service import BaseService
-from django_spire.contrib.services.tests.factories import UserService
+from django_spire.contrib.service.service import BaseService
+from django_spire.contrib.service.tests.factories import UserService
 
 
 

@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from django_spire.auth.mfa.models import MfaCode
 from django_spire.auth.user.tests.factories import create_super_user
-from django_spire.contrib.services.default_service import DefaultService
+from django_spire.contrib.service.default_service import DefaultService
 
 
 class UpdateServiceTestCase(TestCase):
