@@ -15,11 +15,11 @@ class HelpDeskTicketQuerySet(HistoryQuerySet):
             self,
             ticket_pk,
             user,
-            permission_handler
+            permission_controller
     ):
         ticket = get_object_or_404(self.model, pk=ticket_pk)
 
-        if permission_handler.should_deny_ticket_detail_access(user, ticket):
+        if permission_controller.should_deny_ticket_detail_access(user, ticket):
             raise Http404('The ticket could not be retrieved.')
 
         return ticket

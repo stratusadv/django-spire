@@ -52,7 +52,7 @@ def include_app_urls_with_permissions(
                 (_include_namespace_urls_with_permissions(url_patterns, permission_controller), app_name),
                 namespace=namespace
             ),
-            kwargs={'permission_handler': permission_controller}
+            kwargs={'permission_controller': permission_controller}
         )
         for namespace, url_patterns in namespace_url_patterns
     ]
