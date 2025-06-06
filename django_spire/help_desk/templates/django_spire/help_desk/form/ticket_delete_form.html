@@ -8,7 +8,9 @@
         <div class="col">
             Are you sure you want to delete ticket #{{ ticket_pk }}?
         </div>
-        <div class="col-auto">
+    </div>
+    <div class="row">
+        <div class="col-12 text-start">
             {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_class='btn-sm btn-app-danger' button_text="Delete Ticket" %}
         </div>
     </div>

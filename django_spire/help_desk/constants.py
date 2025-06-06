@@ -1,0 +1,1 @@
+CUSTOM_PERM_HELPDESKTICKET_CAN_ACCESS_ALL = 'can_access_all_helpdeskticket'

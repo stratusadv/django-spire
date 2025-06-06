@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 from typing_extensions import TYPE_CHECKING, TypeVar
@@ -94,3 +95,7 @@ def model_object_from_app_label(
 
     model_class = content_type.model_class()
     return get_object_or_none(model_class, pk=object_pk)
+
+
+def has_any_permission(permissions: tuple[str, ...], user: User) -> bool:
+    return any(user.has_perm(permission) for permission in permissions)

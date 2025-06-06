@@ -3,7 +3,7 @@
 {% block item_title_col %}d-none{% endblock %}
 
 {% block item_row_content %}
-        <a class="col-12 col-sm-4 mb-2 mb-sm-0" href="{% url 'django_spire:help_desk:page:detail' pk=ticket.pk %}">
+        <a class="col-12 col-sm-4 mb-2 mb-sm-0" href="{% url 'help_desk:page:detail' pk=ticket.pk %}">
             {% include 'django_spire/element/attribute_element.html' with attribute_title=ticket attribute_value=ticket.description|truncatechars:50 %}
         </a>
         <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
@@ -18,9 +18,13 @@
             {% include 'django_spire/help_desk/element/ticket_status_badge.html' %}
         </div>
         <div class="col-6 col-sm-1 text-end">
-            {% url 'django_spire:help_desk:page:detail' pk=ticket.pk as detail_url %}
-            {% url 'django_spire:help_desk:form:update' pk=ticket.pk as update_url %}
-            {% url 'django_spire:help_desk:form:delete' pk=ticket.pk as delete_url %}
+            {% url 'help_desk:page:detail' pk=ticket.pk as detail_url %}
+            {% if ticket_perms.can_change %}
+                {% url 'help_desk:form:update' pk=ticket.pk as update_url %}
+            {% endif %}
+            {% if ticket_perms.can_delete %}
+                {% url 'help_desk:form:delete' pk=ticket.pk as delete_url %}
+            {% endif %}
             {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=update_url delete_url=delete_url %}
         </div>
 {% endblock %}

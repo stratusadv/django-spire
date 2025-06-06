@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from django_spire.help_desk.querysets import HelpDeskTicketQuerySet
+from django_spire.help_desk.constants import \
+    CUSTOM_PERM_HELPDESKTICKET_CAN_ACCESS_ALL
 from django_spire.history.mixins import HistoryModelMixin
 
 from django_spire.help_desk import choices
@@ -44,5 +46,5 @@ class HelpDeskTicket(HistoryModelMixin):
         verbose_name = 'Help Desk Ticket'
         verbose_name_plural = 'Help Desk Tickets'
         permissions = [
-            ('can_view_all_tickets', 'Can view all help desk tickets'),
+            (CUSTOM_PERM_HELPDESKTICKET_CAN_ACCESS_ALL, 'Can view all help desk tickets'),
         ]
