@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 
-from django_spire.core.urls.permissions import ViewPermissionHandler
+from django_spire.core.urls.permissions import ViewPermissionController
 
 
-class HelpDeskTicketPermissionHandler(ViewPermissionHandler):
+class HelpDeskTicketPermissionController(ViewPermissionController):
     @classmethod
     def is_helpdesk_admin(cls,user: User):
         return True
