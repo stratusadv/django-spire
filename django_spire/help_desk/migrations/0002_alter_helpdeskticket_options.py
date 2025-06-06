@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='helpdeskticket',
-            options={'permissions': [('can_delete_helpdeskticket', 'Can view, change, and delete all help desk tickets')], 'verbose_name': 'Help Desk Ticket', 'verbose_name_plural': 'Help Desk Tickets'},
+            options={'permissions': [('can_access_all_helpdeskticket', 'Can view, change, and delete all help desk tickets')], 'verbose_name': 'Help Desk Ticket', 'verbose_name_plural': 'Help Desk Tickets'},
         ),
     ]
