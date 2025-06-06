@@ -1,13 +1,15 @@
 from django.urls import include, path
 from django.contrib import admin
 
+from django_spire.help_desk.controllers.url_controller import HelpDeskUrlController
+
 app_name = 'example'
 
 urlpatterns = [
     path('', include('test_project.apps.landing.urls', namespace='landing')),
     path('ai/', include('test_project.apps.ai.urls', namespace='ai')),
     path('comment/', include('test_project.apps.comment.urls', namespace='comment')),
-    path('help_desk/', include('test_project.apps.help_desk.urls', namespace='help_desk')),
+    path('help_desk/', HelpDeskUrlController('tacos').url_pattern),
     path('file/', include('test_project.apps.file.urls', namespace='file')),
     path('history/', include('test_project.apps.history.urls', namespace='history')),
     path('home/', include('test_project.apps.home.urls', namespace='home')),
