@@ -8,16 +8,16 @@ from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk import forms
 from django_spire.help_desk.notifications.handlers import TicketEventNotificationHandler
 from django_spire.help_desk.models import HelpDeskTicket
-from django_spire.help_desk.permissions import HelpDeskTicketPermissionHandler
+from django_spire.help_desk.permissions import HelpDeskTicketPermissionController
 
 
 def ticket_delete_form_view(
         request,
-        permission_handler=HelpDeskTicketPermissionHandler,
+        permission_controller=HelpDeskTicketPermissionController,
         pk: int = 0
 ):
     ticket = HelpDeskTicket.objects.get_ticket_detail_for_user(
-        permission_handler,
+        permission_controller,
         ticket_pk=pk,
         user=request.user,
     )
@@ -44,7 +44,7 @@ def ticket_delete_form_view(
 
 def ticket_create_form_view(
     request,
-    permission_handler=HelpDeskTicketPermissionHandler
+    permission_handler=HelpDeskTicketPermissionController
 ):
     ticket = HelpDeskTicket()
 
@@ -79,7 +79,7 @@ def ticket_create_form_view(
 def ticket_update_form_view(
         request,
         pk: int,
-        permission_handler=HelpDeskTicketPermissionHandler
+        permission_handler=HelpDeskTicketPermissionController
 ):
     ticket = HelpDeskTicket.objects.get_ticket_detail_for_user(
         ticket_pk=pk,

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 
 
-class HelpDeskTicketPermissionHandler:
+class HelpDeskTicketPermissionController:
     @classmethod
     def is_helpdesk_admin(cls,user: User):
         return True
