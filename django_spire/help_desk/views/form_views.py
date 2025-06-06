@@ -13,11 +13,11 @@ from django_spire.help_desk.permissions import HelpDeskTicketPermissionControlle
 
 def ticket_delete_form_view(
         request,
-        permission_handler=HelpDeskTicketPermissionController,
+        permission_controller=HelpDeskTicketPermissionController,
         pk: int = 0
 ):
     ticket = HelpDeskTicket.objects.get_ticket_detail_for_user(
-        permission_handler,
+        permission_controller,
         ticket_pk=pk,
         user=request.user,
     )
@@ -44,7 +44,7 @@ def ticket_delete_form_view(
 
 def ticket_create_form_view(
     request,
-    permission_handler=HelpDeskTicketPermissionController
+    permission_controller=HelpDeskTicketPermissionController
 ):
     ticket = HelpDeskTicket()
 
@@ -79,12 +79,12 @@ def ticket_create_form_view(
 def ticket_update_form_view(
         request,
         pk: int,
-        permission_handler=HelpDeskTicketPermissionController
+        permission_controller=HelpDeskTicketPermissionController
 ):
     ticket = HelpDeskTicket.objects.get_ticket_detail_for_user(
         ticket_pk=pk,
         user=request.user,
-        permission_handler=permission_handler
+        permission_controller=permission_controller
     )
 
     dg.glue_model_object(request, 'ticket', ticket)
