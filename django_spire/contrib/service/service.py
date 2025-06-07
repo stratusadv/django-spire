@@ -1,47 +1,65 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
-from typing import Type, TypedDict
+from abc import ABC
+from typing import Any
 
-from django.contrib.auth.models import User
-from django.db.models import Model
-
-from django_spire.ai.chat.models import Chat
-from django_spire.contrib.service.default_service import DefaultService
-from django_spire.contrib.service.descriptor import ServiceDescriptor
 from django_spire.contrib.service.exceptions import ServiceException
 
 
 class BaseService(ABC):
-    obj_class: type
-    obj_name: str
+    def __init__(self, obj = None):
+        print('__init__ triggered')
+        print(self.__class__.__name__)
 
-    @abstractmethod
-    def __init__(self, *arg):
-        raise NotImplementedError
+        for obj_name, obj_type in self.__class__.__annotations__.items():
+            if not issubclass(obj_type, BaseService):
+                self._obj_name = obj_name
+                self._obj_type = obj_type
+
+        if obj is not None:
+            setattr(self, self._obj_name, obj)
+        else:
+            setattr(self, self._obj_name, self._obj_type())
+
+        if not self._obj_is_valid:
+            raise ServiceException('service validation failed')
 
     def __init_subclass__(cls):
         super().__init_subclass__()
-        for attr in ['obj_class', 'obj_name']:
-            if getattr(cls, attr) is None:
-                raise ServiceException(f'{cls.__name__}.{attr} is required and is not set properly.')
 
-    def __new__(cls, *args, **kwargs):
-        return ServiceDescriptor(cls)
+        non_base_service_objects_count = 0
+        for obj_name, obj_type in cls.__annotations__.items():
+            if not issubclass(obj_type, BaseService):
+                non_base_service_objects_count += 1
 
-    @staticmethod
-    def is_ready_instance(obj: Model | Type[Model]):
-        from django.db.models import Model
-        return isinstance(obj, Model) and obj.id is not None
+        if non_base_service_objects_count > 1:
+            raise ValueError('only one non base service annotation allowed on a service')
 
-    @staticmethod
-    def is_new_instance(obj : Model | Type[Model]):
-        return obj.id is None
+        def __get__(self, instance, owner):
+            if instance is None:
+                target = owner()
+            else:
+                target = instance
 
-    @staticmethod
-    def is_class_instance(obj: Model | Type[Model]):
-        return isinstance(obj, type) and issubclass(obj, Model)
+            print('__get__ triggered')
+            print(cls.__name__)
+            print(f'{target=}')
+
+            if issubclass(target.__class__, BaseService):
+                return cls(
+                    getattr(target, self._obj_name)
+                )
+
+            return cls(target)
+
+        setattr(cls, '__get__', __get__)
 
     @property
-    def default(self):
-        return DefaultService()
+    def obj(self) -> Any:
+        return getattr(self, self._obj_name)
+
+    @property
+    def _obj_is_valid(self) -> bool:
+        return isinstance(self.obj, self._obj_type)
+
+

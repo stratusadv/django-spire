@@ -1,15 +1,17 @@
 from django.contrib.auth.models import User
 
-from django_spire.contrib.service.service import BaseService
+from django_spire.contrib.service.model_service import BaseModelService
 
 
-class UserService(BaseService):
-    obj_class = User
-    obj_name = 'user'
+class UserSubModelService(BaseModelService):
+    user: User
+
+    def get_the_name(self):
+        return self.user.get_full_name()
 
 
+class UserModelService(BaseModelService):
+    user: User
+    sub: UserSubModelService = UserSubModelService()
 
-class UserSubService(BaseService):
-    obj_class = User
-    obj_name = 'user'
 

@@ -1,15 +1,34 @@
-from typing import Any
+from __future__ import annotations
+
 import logging
-from django.core.exceptions import ValidationError
+from abc import ABC
+from typing import Any
+
 from django.db import transaction
 from django.db.models import Model
+from django_spire.contrib.service.service import BaseService
 
 
-class DefaultService:
+class BaseModelService(BaseService, ABC):
+    @property
+    def obj_is_ready_instance(self):
+        from django.db.models import Model
+        return isinstance(self.obj, Model) and self.obj.id is not None
 
-    @staticmethod
+    @property
+    def obj_is_new_instance(self):
+        return self.obj.id is None
+
+    @property
+    def obj_is_class_instance(self):
+        return isinstance(self.obj, type) and issubclass(self._obj_type, Model)
+
+    @property
+    def _obj_is_valid(self) -> bool:
+        return isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
+
     @transaction.atomic
-    def save_instance(instance: Model, **field_data: Any) -> tuple[Model, bool]:
+    def save_instance(self, **field_data: Any) -> tuple[Model, bool]:
         """
             Apply field_data to `instance`, validate, and persist.
             Accepts both `field` and `field_id` for FKs.
@@ -17,11 +36,11 @@ class DefaultService:
             Skips editable = False and auto created fields.
         """
         if not field_data:
-            return instance, False
+            return self.obj, False
 
         concrete = {
             f.name: f
-            for f in instance._meta.get_fields()
+            for f in self.obj._meta.get_fields()
             if f.concrete and not f.many_to_many and not f.one_to_many
         }
 
@@ -32,7 +51,7 @@ class DefaultService:
 
         for field, value in field_data.items():
             if field not in allowed:
-                logging.warning(f'Field {field!r} is not valid for {instance.__class__.__name__}')
+                logging.warning(f'Field {field!r} is not valid for {self.obj.__class__.__name__}')
                 continue
 
             model_field = concrete.get(field.rstrip("_id"), None)
@@ -41,20 +60,20 @@ class DefaultService:
             if model_field and (getattr(model_field, 'auto_created', False) or not model_field.editable):
                 continue
 
-            setattr(instance, field, value)
+            setattr(self.obj, field, value)
             touched.append(field.rstrip('_id'))
 
         # Validate only fields we touched
         try:
-            instance.full_clean(exclude=[f for f in concrete if f not in touched])
-        except ValidationError as exc:
+            self.obj.full_clean(exclude=[f for f in concrete if f not in touched])
+        except:
             raise  # bubble up or wrap as needed
 
-        if instance.pk is None:
-            instance.save()
+        if self.obj.pk is None:
+            self.obj.save()
             created = True
         else:
-            instance.save(update_fields=touched)
+            self.obj.save(update_fields=touched)
             created = False
 
-        return instance, created
+        return self.obj, created
