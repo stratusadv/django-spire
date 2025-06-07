@@ -11,6 +11,7 @@ from django_spire.contrib.service.tests.services import UserModelService
 class TestBaseService(TestCase):
     def setUp(self):
         User.services = UserModelService()
+
         self.user = create_super_user()
 
     def tearDown(self):

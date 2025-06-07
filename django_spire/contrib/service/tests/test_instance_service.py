@@ -10,6 +10,7 @@ class UpdateServiceTestCase(TestCase):
     def setUp(self):
         User.services = UserModelService()
         MfaCode.services = MfaCodeModelService()
+
         self.user = create_super_user()
         self.group = Group.objects.create(name='Boberts Minions')
         # self.user_service = UserModelService()

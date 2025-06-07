@@ -8,11 +8,11 @@ from twilio.request_validator import RequestValidator
 def twilio_auth_required(func):
     @functools.wraps(func)
     def decorated_function(request, *args, **kwargs):
-        request_validator = RequestValidator(os.environ.get('TWILIO_AUTH_TOKEN'))
+        request_validator = RequestValidator(os.environ.get('TWILIO_AUTH_TOKEN', ''))
 
         absolute_uri = request.build_absolute_uri()
 
-        if absolute_uri[:4] == 'http':
+        if absolute_uri[:5] == 'http:':
             absolute_uri = 'https' + absolute_uri[4:]
 
         request_valid = request_validator.validate(
