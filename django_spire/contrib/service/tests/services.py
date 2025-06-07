@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 
+from django_spire.auth.mfa.models import MfaCode
 from django_spire.contrib.service.model_service import BaseModelService
 
 
@@ -15,3 +16,5 @@ class UserModelService(BaseModelService):
     sub: UserSubModelService = UserSubModelService()
 
 
+class MfaCodeModelService(BaseModelService):
+    mfa_code: MfaCode

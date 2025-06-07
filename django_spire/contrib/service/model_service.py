@@ -20,10 +20,6 @@ class BaseModelService(BaseService, ABC):
         return self.obj.id is None
 
     @property
-    def obj_is_class_instance(self):
-        return isinstance(self.obj, type) and issubclass(self._obj_type, Model)
-
-    @property
     def _obj_is_valid(self) -> bool:
         return isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
 

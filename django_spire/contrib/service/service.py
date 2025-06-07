@@ -32,7 +32,7 @@ class BaseService(ABC):
             if not issubclass(obj_type, BaseService):
                 non_base_service_objects_count += 1
 
-        if non_base_service_objects_count > 1:
+        if non_base_service_objects_count != 1:
             raise ValueError('only one non base service annotation allowed on a service')
 
         def __get__(self, instance, owner):
