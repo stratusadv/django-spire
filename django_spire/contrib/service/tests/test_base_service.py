@@ -3,13 +3,26 @@ from django.test import TestCase
 
 from django_spire.auth.user.tests.factories import create_super_user
 from django_spire.contrib.service.service import BaseService
-from django_spire.contrib.service.tests.factories import UserService
+from django_spire.contrib.service.tests.services import UserService
 
 
 
 class TestBaseService(TestCase):
     def setUp(self):
         self.user = create_super_user()
+
+
+    def test_init(self):
+        class NewService(BaseService):
+            obj_class = User
+            obj_name = 'user'
+
+        try:
+            _ = NewService()
+            _.user
+            self.assertTrue(True)
+        except:
+            raise
 
     def test_abstraction_on_init(self):
 

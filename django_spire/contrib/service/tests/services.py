@@ -4,7 +4,12 @@ from django_spire.contrib.service.service import BaseService
 
 
 class UserService(BaseService):
+    obj_class = User
+    obj_name = 'user'
 
-    def __init__(self, user: User):
-        self.user = user
+
+
+class UserSubService(BaseService):
+    obj_class = User
+    obj_name = 'user'
 
