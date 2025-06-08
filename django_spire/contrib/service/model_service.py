@@ -11,12 +11,11 @@ from django_spire.contrib.service.service import BaseService
 
 class BaseModelService(BaseService, ABC):
     @property
-    def obj_is_ready_instance(self):
-        from django.db.models import Model
+    def model_obj_is_ready(self):
         return isinstance(self.obj, Model) and self.obj.id is not None
 
     @property
-    def obj_is_new_instance(self):
+    def model_obj_is_new(self):
         return self.obj.id is None
 
     @property

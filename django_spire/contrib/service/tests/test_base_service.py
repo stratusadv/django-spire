@@ -26,11 +26,11 @@ class TestBaseService(TestCase):
             BrokenModelService()
 
     def test_is_ready_instance(self):
-        self.assertTrue(self.user.services.obj_is_ready_instance)
-        self.assertFalse(User().services.obj_is_ready_instance)
+        self.assertTrue(self.user.services.model_obj_is_ready)
+        self.assertFalse(User().services.model_obj_is_ready)
 
     def test_is_new_instance(self):
         new_user = User()
 
-        self.assertTrue(new_user.services.obj_is_new_instance)
-        self.assertFalse(self.user.services.obj_is_new_instance)
+        self.assertTrue(new_user.services.model_obj_is_new)
+        self.assertFalse(self.user.services.model_obj_is_new)
