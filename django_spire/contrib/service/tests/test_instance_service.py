@@ -3,17 +3,16 @@ from django.test import TestCase
 
 from django_spire.auth.mfa.models import MfaCode
 from django_spire.auth.user.tests.factories import create_super_user
-from django_spire.contrib.service.tests.services import UserModelService, MfaCodeModelService
+from django_spire.contrib.service.tests.services import TestUserModelService, TestMfaCodeModelService
 
 
 class UpdateServiceTestCase(TestCase):
     def setUp(self):
-        User.services = UserModelService()
-        MfaCode.services = MfaCodeModelService()
+        User.services = TestUserModelService()
+        MfaCode.services = TestMfaCodeModelService()
 
         self.user = create_super_user()
         self.group = Group.objects.create(name='Boberts Minions')
-        # self.user_service = UserModelService()
 
     def tearDown(self):
         User.services = None
@@ -25,27 +24,32 @@ class UpdateServiceTestCase(TestCase):
             'last_name': 'Smith'
         }
 
-        user, created = self.user.services.save_instance(**data)
-        self.assertEqual(user.first_name, 'John')
-        self.assertEqual(user.last_name, 'Smith')
+        created = self.user.services.model_obj_validate_field_data_and_save(**data)
+        self.assertEqual(self.user.first_name, 'John')
+        self.assertEqual(self.user.last_name, 'Smith')
+        self.assertFalse(created)
 
     def test_valid_create_model_fields(self):
+        new_user = User()
+
         data = {
             'first_name': 'John',
             'last_name': 'Smith'
         }
 
-        user, created = self.user.services.save_instance(**data)
-        self.assertEqual(user.first_name, 'John')
-        self.assertEqual(user.last_name, 'Smith')
-        self.assertIsNotNone(user.id)
+        created = new_user.services.model_obj_validate_field_data_and_save(**data)
+        self.assertEqual(new_user.first_name, 'John')
+        self.assertEqual(new_user.last_name, 'Smith')
+        self.assertIsNotNone(self.user.id)
+        self.assertTrue(created)
 
     def test_invalid_field_name(self):
         # Skips the field and saves the instance.
         data = {
             'invalid_field': 'test'
         }
-        self.user.services.save_instance(**data)
+        created = self.user.services.model_obj_validate_field_data_and_save(**data)
+        self.assertFalse(created)
 
     def test_fk_id_aliases(self):
         mfa = MfaCode.objects.create(
@@ -59,8 +63,9 @@ class UpdateServiceTestCase(TestCase):
             'user_id': new_user.id,
         }
 
-        mfa, created = mfa.services.save_instance(**data)
+        created = mfa.services.model_obj_validate_field_data_and_save(**data)
         self.assertEqual(mfa.user_id, new_user.id)
+        self.assertFalse(created)
 
     def test_obj_fk_id_aliases(self):
         mfa = MfaCode.objects.create(
@@ -74,5 +79,6 @@ class UpdateServiceTestCase(TestCase):
             'user': new_user,
         }
 
-        mfa, created = mfa.services.save_instance(**data)
+        created = mfa.services.model_obj_validate_field_data_and_save(**data)
         self.assertEqual(mfa.user_id, new_user.id)
+        self.assertFalse(created)

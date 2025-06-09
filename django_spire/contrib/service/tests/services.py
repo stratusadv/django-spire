@@ -19,7 +19,7 @@ class TestUserModelService(BaseModelService):
         return self.user.first_name
 
 
-class MfaCodeModelService(BaseModelService):
+class TestMfaCodeModelService(BaseModelService):
     mfa_code: MfaCode
 
     def get_code_length(self):

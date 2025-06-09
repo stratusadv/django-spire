@@ -11,38 +11,34 @@ from django_spire.contrib.service.service import BaseService
 
 class BaseModelService(BaseService, ABC):
     @property
-    def model_obj_is_ready(self):
-        return isinstance(self.obj, Model) and self.obj.id is not None
-
-    @property
-    def model_obj_is_new(self):
-        return self.obj.id is None
-
-    @property
     def _obj_is_valid(self) -> bool:
-        return isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
+        return super()._obj_is_valid and isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
 
-    @transaction.atomic
-    def save_instance(self, **field_data: Any) -> tuple[Model, bool]:
+    @property
+    def model_obj_is_created(self) -> bool:
+        return self._obj_is_valid and not self.model_obj_is_new
+
+    @property
+    def model_obj_is_new(self) -> bool:
+        return self.obj.id is None or self.obj.id == 0 or self.obj.id == '' or self.obj.pk is None or self.obj.pk == 0 or self.obj.pk == ''
+
+    def model_obj_validate_field_data(self, **field_data: dict) -> list[str]:
         """
-            Apply field_data to `instance`, validate, and persist.
+            Apply field_data to `instance`, validate, but do not persist.
             Accepts both `field` and `field_id` for FKs.
             Works for unsaved (create) and existing (update) instances.
             Skips editable = False and auto created fields.
         """
-        if not field_data:
-            return self.obj, False
-
         concrete = {
-            f.name: f
-            for f in self.obj._meta.get_fields()
-            if f.concrete and not f.many_to_many and not f.one_to_many
+            field.name: field
+            for field in self.obj._meta.get_fields()
+            if field.concrete and not field.many_to_many and not field.one_to_many
         }
 
-        fk_id_aliases = {f"{n}_id" for n, f in concrete.items() if f.many_to_one}
-        allowed = set(concrete) | fk_id_aliases
+        foriegn_key_id_aliases = {f"{name}_id" for name, field in concrete.items() if field.many_to_one}
+        allowed = set(concrete) | foriegn_key_id_aliases
 
-        touched: list[str] = []
+        touched_fields: list[str] = []
 
         for field, value in field_data.items():
             if field not in allowed:
@@ -56,19 +52,37 @@ class BaseModelService(BaseService, ABC):
                 continue
 
             setattr(self.obj, field, value)
-            touched.append(field.rstrip('_id'))
+
+            touched_fields.append(field.rstrip('_id'))
 
         # Validate only fields we touched
         try:
-            self.obj.full_clean(exclude=[f for f in concrete if f not in touched])
+            self.obj.full_clean(
+                exclude=[field for field in concrete if field not in touched_fields]
+            )
         except:
             raise  # bubble up or wrap as needed
 
-        if self.obj.pk is None:
-            self.obj.save()
-            created = True
-        else:
-            self.obj.save(update_fields=touched)
-            created = False
+        return touched_fields
 
-        return self.obj, created
+    @transaction.atomic
+    def model_obj_validate_field_data_and_save(self, **field_data: dict) -> bool:
+        new_model_obj_was_created = False
+
+        if not field_data:
+            return new_model_obj_was_created
+
+        touched_fields = self.model_obj_validate_field_data(**field_data)
+
+        if self.model_obj_is_new:
+            self.obj.save()
+            new_model_obj_was_created = True
+        elif self.model_obj_is_created and touched_fields:
+            self.obj.save(update_fields=touched_fields)
+        else:
+            logging.warning(f'Nothing to save for {self.obj.__class__.__name__}')
+
+        return new_model_obj_was_created
+
+    class Meta:
+        abstract = True

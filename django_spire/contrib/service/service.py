@@ -7,52 +7,56 @@ from django_spire.contrib.service.exceptions import ServiceException
 
 
 class BaseService(ABC):
-    def __init__(self, obj = None):
-        print('__init__ triggered')
-        print(self.__class__.__name__)
+    def __init__(self, obj: Any = None):
+        self._obj_name = None
+        self._obj_type = None
+        if len(self.__class__.__annotations__.items()) > 0:
+            for obj_name, obj_type in self.__class__.__annotations__.items():
+                if not issubclass(obj_type, BaseService):
+                    self._obj_name = obj_name
+                    self._obj_type = obj_type
 
-        for obj_name, obj_type in self.__class__.__annotations__.items():
-            if not issubclass(obj_type, BaseService):
-                self._obj_name = obj_name
-                self._obj_type = obj_type
+            if self._obj_name is None or self._obj_type is None:
+                raise ServiceException(f'{self.__class__.__name__} must have exactly one non-BaseService object annotated.')
 
-        if obj is not None:
-            setattr(self, self._obj_name, obj)
-        else:
-            setattr(self, self._obj_name, self._obj_type())
+            if obj is not None:
+                setattr(self, self._obj_name, obj)
+            else:
+                setattr(self, self._obj_name, self._obj_type())
 
-        if not self._obj_is_valid:
-            raise ServiceException('service validation failed')
+            if not self._obj_is_valid:
+                raise ServiceException(f'{self._obj_name} failed to validate on {self.__class__.__name__}')
 
     def __init_subclass__(cls):
         super().__init_subclass__()
 
-        non_base_service_objects_count = 0
-        for obj_name, obj_type in cls.__annotations__.items():
-            if not issubclass(obj_type, BaseService):
-                non_base_service_objects_count += 1
+        if len(cls.__annotations__.items()) > 0:
+            non_base_service_objects_count = 0
+            for obj_name, obj_type in cls.__annotations__.items():
+                if not issubclass(obj_type, BaseService):
+                    non_base_service_objects_count += 1
 
-        if non_base_service_objects_count != 1:
-            raise ValueError('only one non base service annotation allowed on a service')
-
-        def __get__(self, instance, owner):
-            if instance is None:
-                target = owner()
-            else:
-                target = instance
-
-            print('__get__ triggered')
-            print(cls.__name__)
-            print(f'{target=}')
-
-            if issubclass(target.__class__, BaseService):
-                return cls(
-                    getattr(target, self._obj_name)
+            if non_base_service_objects_count != 1:
+                raise ServiceException(
+                    f'{cls.__name__} must have exactly one non-BaseService object annotated. Found {non_base_service_objects_count}'
                 )
 
-            return cls(target)
+            # Typing Does not work properly for services if you override __get__ in the BaseService class.
+            # This is a workaround to get around that and should be fixed in future versions of python or lsp's.
+            def __get__(self, instance, owner):
+                if instance is None:
+                    target = owner()
+                else:
+                    target = instance
 
-        setattr(cls, '__get__', __get__)
+                if issubclass(target.__class__, BaseService):
+                    return cls(
+                        getattr(target, self._obj_name)
+                    )
+
+                return cls(target)
+
+            setattr(cls, '__get__', __get__)
 
     @property
     def obj(self) -> Any:
@@ -62,4 +66,5 @@ class BaseService(ABC):
     def _obj_is_valid(self) -> bool:
         return isinstance(self.obj, self._obj_type)
 
-
+    class Meta:
+        abstract = True
