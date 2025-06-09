@@ -80,7 +80,7 @@ class HelpDeskTicketNotifications:
             )
 
         if url is None:
-            url = reverse('django_spire:help_desk:page:detail', kwargs={'pk': self.ticket.pk})
+            url = reverse('help_desk:page:detail', kwargs={'pk': self.ticket.pk})
 
         # TODO: Find out best way to get management user accounts to send app notifications to
         # management_users = get_management_users()

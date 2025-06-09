@@ -21,7 +21,7 @@ def ticket_delete_form_view(request, pk: int = 0):
         if form.is_valid():
             ticket.set_deleted()
 
-            return redirect(reverse('django_spire:help_desk:page:list'))
+            return redirect(reverse('help_desk:page:list'))
 
         show_form_errors(request, form)
 
@@ -49,7 +49,7 @@ def ticket_create_form_view(request):
             ticket = form.save(user=request.user)
             TicketEventNotificationHandler.handle_new(ticket)
 
-            return redirect(reverse('django_spire:help_desk:page:list'))
+            return redirect(reverse('help_desk:page:list'))
 
         show_form_errors(request, form)
 
@@ -63,7 +63,7 @@ def ticket_create_form_view(request):
         verb=f'Create',
         obj=ticket,
         context_data={
-            'form_action_url': reverse('django_spire:help_desk:form:create'),
+            'form_action_url': reverse('help_desk:form:create'),
         }
     )
 
@@ -80,7 +80,7 @@ def ticket_update_form_view(request, pk: int):
         if form.is_valid():
             ticket = form.save()
 
-            return redirect(reverse('django_spire:help_desk:page:list'))
+            return redirect(reverse('help_desk:page:list'))
 
         show_form_errors(request, form)
 
@@ -94,6 +94,6 @@ def ticket_update_form_view(request, pk: int):
         form=form,
         context_data={
             'ticket': ticket,
-            'form_action_url': reverse('django_spire:help_desk:form:update', kwargs={'pk': ticket.pk}),
+            'form_action_url': reverse('help_desk:form:update', kwargs={'pk': ticket.pk}),
         }
     )

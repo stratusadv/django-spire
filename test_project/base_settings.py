@@ -77,6 +77,7 @@ INSTALLED_APPS += [
     'django_spire.contrib.breadcrumb',
     'django_spire.comment',
     'django_spire.core',
+    'django_spire.core.controllers',
     'django_spire.file',
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
@@ -124,6 +125,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_glue.middleware.DjangoGlueMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
+    'django_spire.core.controllers.middleware.AppModifierMiddleware',
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

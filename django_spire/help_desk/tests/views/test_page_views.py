@@ -9,7 +9,7 @@ class HelpDeskPageViewsTestCase(BaseTestCase):
         tickets = [create_helpdesk_ticket() for _ in range(5)]
 
         response = self.client.get(
-            path=reverse('django_spire:help_desk:page:list'),
+            path=reverse('help_desk:page:list'),
         )
 
         self.assertEqual(response.status_code, 200)
@@ -20,7 +20,7 @@ class HelpDeskPageViewsTestCase(BaseTestCase):
         ticket = create_helpdesk_ticket()
 
         response = self.client.get(
-            path=reverse('django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk}),
+            path=reverse('help_desk:page:detail', kwargs={'pk': ticket.pk}),
         )
 
         self.assertEqual(response.status_code, 200)

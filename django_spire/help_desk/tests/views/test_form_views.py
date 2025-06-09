@@ -11,13 +11,13 @@ class HelpDeskFormViewsTestCase(BaseTestCase):
 
         response = self.client.post(
             data=ticket_data,
-            path=reverse('django_spire:help_desk:form:create'),
+            path=reverse('help_desk:form:create'),
         )
 
         ticket = HelpDeskTicket.objects.first()
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('django_spire:help_desk:page:list'))
+        self.assertEqual(response.url, reverse('help_desk:page:list'))
 
         self.assertEqual(ticket.priority, ticket_data['priority'])
         self.assertEqual(ticket.purpose, ticket_data['purpose'])
@@ -30,7 +30,7 @@ class HelpDeskFormViewsTestCase(BaseTestCase):
 
         response = self.client.post(
             data={'should_delete': 'on'},
-            path=reverse('django_spire:help_desk:form:delete', kwargs={'pk': ticket_pk}),
+            path=reverse('help_desk:form:delete', kwargs={'pk': ticket_pk}),
         )
 
         self.assertEqual(response.status_code, 302)
@@ -49,11 +49,11 @@ class HelpDeskFormViewsTestCase(BaseTestCase):
 
         response = self.client.post(
             data=updated_ticket_data,
-            path=reverse('django_spire:help_desk:form:update', kwargs={'pk': ticket_pk}),
+            path=reverse('help_desk:form:update', kwargs={'pk': ticket_pk}),
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('django_spire:help_desk:page:list'))
+        self.assertEqual(response.url, reverse('help_desk:page:list'))
         ticket = HelpDeskTicket.objects.get(pk=ticket_pk)
         self.assertEqual(ticket.priority, updated_ticket_data['priority'])
         self.assertEqual(ticket.purpose, updated_ticket_data['purpose'])
