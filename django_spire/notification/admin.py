@@ -7,9 +7,9 @@ from django_spire.notification import models
 @admin.register(models.Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'type', 'user',
-        'view_body_snippet', 'url_link', 'status', 'priority', 'sent_datetime',
-        'publish_datetime', 'content_type', 'object_id', 'is_deleted'
+        'id', 'title', 'type', 'user', 'view_body_snippet', 'url_link', 'status',
+        'status_message', 'priority', 'sent_datetime', 'publish_datetime',
+        'content_type', 'object_id', 'is_deleted'
     )
     list_filter = ('type',)
     search_fields = ('id', 'title', 'type')
