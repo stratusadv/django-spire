@@ -10,9 +10,35 @@ from django_spire.contrib.service.service import BaseService
 
 
 class BaseModelService(BaseService, ABC):
-    @property
-    def _obj_is_valid(self) -> bool:
-        return super()._obj_is_valid and isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
+    def _get_concrete_fields(self) -> dict:
+        return {
+            field.name: field
+            for field in self.obj._meta.get_fields()
+            if field.concrete and not field.many_to_many and not field.one_to_many
+        }
+
+    def _get_touched_fields(self, concrete_fields: dict, **field_data: dict) -> list[str]:
+        foreign_key_id_aliases = {f"{name}_id" for name, field in concrete_fields.items() if field.many_to_one}
+        allowed = set(concrete_fields) | foreign_key_id_aliases
+
+        touched_fields: list[str] = []
+
+        for field, value in field_data.items():
+            if field not in allowed:
+                logging.warning(f'Field {field!r} is not valid for {self.obj.__class__.__name__}')
+                continue
+
+            model_field = concrete_fields.get(field.rstrip("_id"), None)
+
+            if model_field and (getattr(model_field, 'auto_created', False) or not model_field.editable):
+                continue
+
+            setattr(self.obj, field, value)
+
+            touched_fields.append(field.rstrip('_id'))
+
+        return touched_fields
+
 
     @property
     def _model_obj_id_is_empty(self) -> bool:
@@ -37,34 +63,14 @@ class BaseModelService(BaseService, ABC):
             Works for unsaved (create) and existing (update) instances.
             Skips editable = False and auto created fields.
         """
-        concrete = {
-            field.name: field
-            for field in self.obj._meta.get_fields()
-            if field.concrete and not field.many_to_many and not field.one_to_many
-        }
 
-        foreign_key_id_aliases = {f"{name}_id" for name, field in concrete.items() if field.many_to_one}
-        allowed = set(concrete) | foreign_key_id_aliases
+        concrete_fields = self._get_concrete_fields()
 
-        touched_fields: list[str] = []
-
-        for field, value in field_data.items():
-            if field not in allowed:
-                logging.warning(f'Field {field!r} is not valid for {self.obj.__class__.__name__}')
-                continue
-
-            model_field = concrete.get(field.rstrip("_id"), None)
-
-            if model_field and (getattr(model_field, 'auto_created', False) or not model_field.editable):
-                continue
-
-            setattr(self.obj, field, value)
-
-            touched_fields.append(field.rstrip('_id'))
+        touched_fields = self._get_touched_fields(concrete_fields)
 
         try:
             self.obj.full_clean(
-                exclude=[field for field in concrete if field not in touched_fields]
+                exclude=[field for field in concrete_fields if field not in touched_fields]
             )
         except:
             raise
@@ -92,3 +98,8 @@ class BaseModelService(BaseService, ABC):
 
     class Meta:
         abstract = True
+
+    @property
+    def _obj_is_valid(self) -> bool:
+        return super()._obj_is_valid and isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
+
