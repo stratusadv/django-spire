@@ -6,7 +6,7 @@ from django_spire.auth.user.tests.factories import create_super_user
 from django_spire.contrib.service.tests.services import TestUserModelService, TestMfaCodeModelService
 
 
-class UpdateServiceTestCase(TestCase):
+class TestInstanceService(TestCase):
     def setUp(self):
         User.services = TestUserModelService()
         MfaCode.services = TestMfaCodeModelService()
@@ -51,7 +51,7 @@ class UpdateServiceTestCase(TestCase):
         created = self.user.services.model_obj_validate_field_data_and_save(**data)
         self.assertFalse(created)
 
-    def test_fk_id_aliases(self):
+    def test_foreign_key_id_aliases(self):
         mfa = MfaCode.objects.create(
             user=self.user,
             code='123456',
@@ -67,7 +67,7 @@ class UpdateServiceTestCase(TestCase):
         self.assertEqual(mfa.user_id, new_user.id)
         self.assertFalse(created)
 
-    def test_obj_fk_id_aliases(self):
+    def test_obj_foreign_key_id_aliases(self):
         mfa = MfaCode.objects.create(
             user=self.user,
             code='123456',

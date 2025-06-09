@@ -19,9 +19,6 @@ class TestBaseService(TestCase):
     def test_abstraction_on_init(self):
         with self.assertRaises(ServiceException) as context:
             class BrokenModelService(BaseModelService):
-                user: User
-                user2: User
-
                 def create_taco(self):
                     return "Taco!"
 
@@ -29,11 +26,11 @@ class TestBaseService(TestCase):
 
             self.user.services.create_taco()
 
-    def test_is_ready_instance(self):
+    def test_model_obj_is_created(self):
         self.assertTrue(self.user.services.model_obj_is_created)
         self.assertFalse(User().services.model_obj_is_created)
 
-    def test_is_new_instance(self):
+    def test_model_obj_is_new(self):
         new_user = User()
 
         self.assertTrue(new_user.services.model_obj_is_new)

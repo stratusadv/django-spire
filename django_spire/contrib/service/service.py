@@ -8,21 +8,22 @@ from django_spire.contrib.service.exceptions import ServiceException
 
 class BaseService(ABC):
     def __init__(self, obj: Any = None):
-        self._obj_name = None
-        self._obj_type = None
-        if len(self.__class__.__annotations__.items()) > 0:
+        self._obj_name: str = ...
+        self._obj_type: type = ...
+
+        if ABC not in self.__class__.__bases__:
             for obj_name, obj_type in self.__class__.__annotations__.items():
                 if not issubclass(obj_type, BaseService):
                     self._obj_name = obj_name
                     self._obj_type = obj_type
 
             if self._obj_name is None or self._obj_type is None:
-                raise ServiceException(f'{self.__class__.__name__} must have exactly one non-BaseService object annotated.')
+                raise ServiceException(f'{self.__class__.__name__} does not have one non-BaseService annotated class attribute.')
 
-            if obj is not None:
-                setattr(self, self._obj_name, obj)
-            else:
+            if obj is None:
                 setattr(self, self._obj_name, self._obj_type())
+            else:
+                setattr(self, self._obj_name, obj)
 
             if not self._obj_is_valid:
                 raise ServiceException(f'{self._obj_name} failed to validate on {self.__class__.__name__}')
@@ -30,7 +31,7 @@ class BaseService(ABC):
     def __init_subclass__(cls):
         super().__init_subclass__()
 
-        if len(cls.__annotations__.items()) > 0:
+        if ABC not in cls.__bases__:
             non_base_service_objects_count = 0
             for obj_name, obj_type in cls.__annotations__.items():
                 if not issubclass(obj_type, BaseService):
@@ -38,7 +39,7 @@ class BaseService(ABC):
 
             if non_base_service_objects_count != 1:
                 raise ServiceException(
-                    f'{cls.__name__} must have exactly one non-BaseService object annotated. Found {non_base_service_objects_count}'
+                    f'{cls.__name__} must have exactly one non-BaseService annotated class attribute. Found {non_base_service_objects_count}'
                 )
 
             # Typing Does not work properly for services if you override __get__ in the BaseService class.
@@ -65,6 +66,3 @@ class BaseService(ABC):
     @property
     def _obj_is_valid(self) -> bool:
         return isinstance(self.obj, self._obj_type)
-
-    class Meta:
-        abstract = True
