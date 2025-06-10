@@ -8,5 +8,7 @@ psycopg2
 pydantic
 Pygments
 python-dateutil
+requests # Tied to SmsNotifications
+html2image # Tied to SmsNotifications
 typing_extensions
 twilio

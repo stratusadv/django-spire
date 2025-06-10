@@ -54,3 +54,6 @@ class NotificationQuerySet(HistoryQuerySet):
 
     def sms_notifications(self):
         return self.filter(type=NotificationTypeChoices.SMS)
+
+    def unsent(self):
+        return self.filter(status__in=[NotificationStatusChoices.PENDING, NotificationStatusChoices.PROCESSING])
