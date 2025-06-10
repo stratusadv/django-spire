@@ -91,8 +91,6 @@ class BaseModelService(BaseService, ABC):
             new_model_obj_was_created = True
         elif self.model_obj_is_created and touched_fields:
             self.obj.save(update_fields=touched_fields)
-        else:
-            logging.warning(f'Nothing to save for {self.obj.__class__.__name__}')
 
         return new_model_obj_was_created
 
