@@ -1,6 +1,6 @@
 from django.db import models
 
 
-class SmsMediaTypeChoices(models.TextChoices):
-    PNG = 'png'
-    JPEG = 'jpeg'
+class SmsMediaContentTypeChoices(models.TextChoices):
+    PNG = 'image/png'
+    JPEG = 'image/jpeg'

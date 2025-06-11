@@ -1,33 +1,43 @@
+from django.contrib.sites.models import Site
 from django.db import models
+from django.urls import reverse
 from django.utils.timezone import now
 
 from django_spire.notification.models import Notification
-from django_spire.notification.sms.choices import SmsMediaTypeChoices
+from django_spire.notification.sms.choices import SmsMediaContentTypeChoices
 from django_spire.notification.sms.querysets import SmsNotificationQuerySet, \
     SmsTemporaryMediaQuerySet
 
 
 class SmsTemporaryMedia(models.Model):
     content = models.TextField()
-    content_type = models.CharField(max_length=64, choices=SmsMediaTypeChoices)
+    content_type = models.CharField(max_length=64, choices=SmsMediaContentTypeChoices)
     name = models.CharField(max_length=255)
     expire_datetime = models.DateTimeField()
     external_access_key = models.UUIDField(unique=True)
-    external_url = models.URLField(max_length=255, blank=True, null=True)
 
     objects = SmsTemporaryMediaQuerySet.as_manager()
 
     def __str__(self):
         return f'{self.name} - {self.content_type}'
 
+    @property
+    def external_url(self) -> str:
+        path = reverse(
+            'django_spire:notification:sms:media:temporary_media',
+            kwargs={'external_access_key': self.external_access_key},
+        )
+
+        return f'{Site.objects.get_current()}/{path}'
+
     def is_expired(self) -> bool:
         return self.expire_datetime < now()
 
-    def has_unsent_notifications(self) -> bool:
-        return self.sms_notifications.notification.unsent().active().exists()
-
     def is_ready_for_deletion(self) -> bool:
         return not self.has_unsent_notifications() or self.is_expired()
+
+    def has_unsent_notifications(self) -> bool:
+        return self.sms_notifications.notification.unsent().active().exists()
 
     class Meta:
         db_table = 'django_spire_notification_sms_temporary_media'
@@ -52,12 +62,9 @@ class SmsNotification(models.Model):
         related_query_name='sms_notification',
     )
     to_phone_number = models.CharField(max_length=11, blank=True)
-    media_url = models.URLField(max_length=255, blank=True)
+    media_url = models.URLField(max_length=255, blank=True, null=True)
 
     objects = SmsNotificationQuerySet.as_manager()
-
-    def has_media(self) -> bool:
-        return bool(self.temporary_media)
 
     def __str__(self):
         return f'{self.to_phone_number} - {self.notification.title}'

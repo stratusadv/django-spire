@@ -4,5 +4,5 @@ app_name = 'sms'
 
 
 urlpatterns = [
-    path('template/', include('django_spire.notification.sms.urls.template_urls', namespace='template')),
+    path('media/', include('django_spire.notification.sms.urls.media_urls', namespace='media')),
 ]
