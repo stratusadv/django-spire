@@ -8,7 +8,7 @@ from twilio.request_validator import RequestValidator
 def twilio_auth_required(func):
     @functools.wraps(func)
     def decorated_function(request, *args, **kwargs):
-        request_validator = RequestValidator(os.environ.get('TWILIO_AUTH_TOKEN'))
+        request_validator = RequestValidator(os.environ.get('TWILIO_AUTH_TOKEN', ''))
 
         absolute_uri = request.build_absolute_uri()
 
