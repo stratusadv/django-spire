@@ -11,6 +11,8 @@
   - Ticket Form
   - Notifications for Ticket Creation to Developers and Managers
 - Added custom template_id, context_data, bcc and cc to `EmailNotification` model
+- SMS Notifications now support MMS
+  - Temporary Media added for developers to publicly expose media for MMS messages
 - JSON Tree Input Widget for Admin Panel
 
 ### Fixes
