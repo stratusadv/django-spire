@@ -91,9 +91,6 @@ class BaseDjangoModelService(BaseService, ABC):
 
         return new_model_obj_was_created
 
-    class Meta:
-        abstract = True
-
     @property
     def _obj_is_valid(self) -> bool:
         return super()._obj_is_valid and isinstance(self.obj, Model) and issubclass(self._obj_type, Model)

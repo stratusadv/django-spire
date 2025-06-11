@@ -12,6 +12,9 @@
   - Notifications for Ticket Creation to Developers and Managers
 - Added custom template_id, context_data, bcc and cc to `EmailNotification` model
 - JSON Tree Input Widget for Admin Panel
+- Service Layer Abstraction is now ready for use with `BaseService` and `BaseDjangoModelService`.
+  - both located in the `django_spire.contrib.service`
+- Add support for Media in `django_spire.notification.sms`
 
 ### Fixes
 
@@ -27,13 +30,11 @@
 
 - Added `App Notification` list view filtering to include priority.
 
-
 ## v0.8.1
 
 ### Fixes
 
 - Fixed missing login required decorator on `app_notification_list_view`.
-
 
 ## v0.8.0
 
