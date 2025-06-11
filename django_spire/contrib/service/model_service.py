@@ -6,6 +6,7 @@ from abc import ABC
 from django.db import transaction
 from django.db.models import Model
 
+from django_spire.contrib.service.exceptions import ServiceException
 from django_spire.contrib.service.service import BaseService
 
 
@@ -82,7 +83,7 @@ class BaseModelService(BaseService, ABC):
         new_model_obj_was_created = False
 
         if not field_data:
-            return new_model_obj_was_created
+            raise ServiceException(f'Field data is required to save on {self.obj.__class__.__name__}')
 
         touched_fields = self.model_obj_validate_field_data(**field_data)
 

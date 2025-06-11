@@ -68,6 +68,7 @@ class BaseService(ABC):
     @classmethod
     def _validate_annotations_or_error(cls):
         non_base_service_objects_count = 0
+
         for obj_name, obj_type in cls.__annotations__.items():
             if not issubclass(obj_type, BaseService):
                 non_base_service_objects_count += 1
