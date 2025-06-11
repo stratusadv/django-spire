@@ -8,7 +8,7 @@ from django_spire.notification.sms.models import SmsTemporaryMedia
 
 
 @csrf_exempt
-def temporary_media_view(request, external_access_key: uuid.UUID) -> HttpResponse:
+def external_temporary_media_view(request, external_access_key: uuid.UUID) -> HttpResponse:
     temporary_media = SmsTemporaryMedia.objects.get(external_access_key=external_access_key)
 
     return HttpResponse(

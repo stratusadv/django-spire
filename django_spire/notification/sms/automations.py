@@ -1,5 +1,5 @@
 from django_spire.notification.sms.models import SmsTemporaryMedia
-from django_spire.notification.sms.tools import update_unsent_notification_status
+from django_spire.notification.sms.tools import update_unsent_notification_status_for_deleted_temporary_media
 
 
 def clear_sms_temporary_media():
@@ -10,6 +10,6 @@ def clear_sms_temporary_media():
         .prefetch_related('sms_notifications__notification')
     )
 
-    update_unsent_notification_status(media_to_delete)
+    update_unsent_notification_status_for_deleted_temporary_media(media_to_delete)
 
     SmsTemporaryMedia.objects.bulk_delete(media_to_delete)
