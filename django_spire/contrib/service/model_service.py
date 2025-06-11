@@ -88,9 +88,9 @@ class BaseModelService(BaseService, ABC):
         touched_fields = self.model_obj_validate_field_data(**field_data)
 
         if self.model_obj_is_new:
-            self.obj.save()
             new_model_obj_was_created = True
-        elif self.model_obj_is_created and touched_fields:
+
+        if touched_fields:
             self.obj.save(update_fields=touched_fields)
 
         return new_model_obj_was_created
