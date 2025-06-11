@@ -24,7 +24,7 @@ class BaseService(ABC):
             cls._validate_annotations_or_error()
 
             # Typing Does not work properly for services if you override __get__ in the BaseService class.
-            # This is a workaround to get around that and should be fixed in future versions of the python lsp.
+            # This is a workaround and should be fixed in future versions of the python lsp.
             def __get__(self, instance, owner):
                 if instance is None:
                     target: BaseService | Any = owner()

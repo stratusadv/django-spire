@@ -10,7 +10,7 @@ from django_spire.contrib.service.exceptions import ServiceException
 from django_spire.contrib.service.service import BaseService
 
 
-class BaseModelService(BaseService, ABC):
+class BaseDjangoModelService(BaseService, ABC):
     def _get_concrete_fields(self) -> dict:
         return {
             field.name: field
@@ -58,16 +58,8 @@ class BaseModelService(BaseService, ABC):
         return self._model_obj_id_is_empty or self._model_obj_pk_is_empty
 
     def model_obj_validate_field_data(self, **field_data: dict) -> list[str]:
-        """
-            Apply field_data to `instance`, validate, but do not persist.
-            Accepts both `field` and `field_id` for FKs.
-            Works for unsaved (create) and existing (update) instances.
-            Skips editable = False and auto created fields.
-        """
-
         concrete_fields = self._get_concrete_fields()
-
-        touched_fields = self._get_touched_fields(concrete_fields)
+        touched_fields = self._get_touched_fields(concrete_fields, **field_data)
 
         try:
             self.obj.full_clean(
@@ -89,9 +81,13 @@ class BaseModelService(BaseService, ABC):
 
         if self.model_obj_is_new:
             new_model_obj_was_created = True
+            self.obj.save()
 
-        if touched_fields:
+        elif touched_fields:
             self.obj.save(update_fields=touched_fields)
+
+        else:
+            logging.warning(f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.')
 
         return new_model_obj_was_created
 

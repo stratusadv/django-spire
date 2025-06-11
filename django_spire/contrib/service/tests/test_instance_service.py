@@ -39,7 +39,9 @@ class TestInstanceService(TestCase):
 
         created = new_user.services.model_obj_validate_field_data_and_save(**data)
         self.assertEqual(new_user.first_name, 'John')
+        self.assertEqual(new_user.services.user.first_name, 'John')
         self.assertEqual(new_user.last_name, 'Smith')
+        self.assertEqual(new_user.services.user.last_name, 'Smith')
         self.assertIsNotNone(self.user.id)
         self.assertTrue(created)
 

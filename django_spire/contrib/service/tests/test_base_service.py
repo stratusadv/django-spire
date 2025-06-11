@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from django_spire.auth.user.tests.factories import create_super_user
 from django_spire.contrib.service.exceptions import ServiceException
-from django_spire.contrib.service.model_service import BaseModelService
+from django_spire.contrib.service.django_model_service import BaseDjangoModelService
 from django_spire.contrib.service.tests.services import TestUserModelService
 
 
@@ -18,7 +18,7 @@ class TestBaseService(TestCase):
 
     def test_abstraction_on_init(self):
         with self.assertRaises(ServiceException) as context:
-            class BrokenModelService(BaseModelService):
+            class BrokenModelService(BaseDjangoModelService):
                 def create_taco(self):
                     return "Taco!"
 
