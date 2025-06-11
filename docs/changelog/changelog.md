@@ -16,7 +16,6 @@
 - JSON Tree Input Widget for Admin Panel
 - Service Layer Abstraction is now ready for use with `BaseService` and `BaseDjangoModelService`.
   - both located in the `django_spire.contrib.service`
-- Add support for Media in `django_spire.notification.sms`
 
 ### Fixes
 
