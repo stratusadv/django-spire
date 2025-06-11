@@ -29,12 +29,16 @@ class NotificationForm(forms.ModelForm):
                 )
         elif self.instance.type == NotificationTypeChoices.SMS:
             try:
-                _ = self.instance.sms
+                sms_notification = self.instance.sms
             except SmsNotification.DoesNotExist:
-                SmsNotification.objects.create(
-                    notification=self.instance,
-                    to_phone_number=self.data.get('phone_number')
+                sms_notification = SmsNotification.objects.create(
+                    notification=self.instance
                 )
+
+            sms_notification.to_phone_number = self.data.get('phone_number')
+            if self.data.get('media_url'):
+                sms_notification.media_url = self.data.get('media_url')
+            sms_notification.save()
 
         elif self.instance.type == NotificationTypeChoices.PUSH:
             pass

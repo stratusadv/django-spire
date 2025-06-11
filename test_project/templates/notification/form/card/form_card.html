@@ -8,11 +8,14 @@
             notification: new ModelObjectGlue('notification'),
             email: new GlueCharField('email'),
             phone_number: new GlueCharField('phone_number'),
+            media_url: new GlueCharField('media_url'),
 
             async init() {
                 await this.notification.get()
                 this.phone_number.label = 'Phone Number'
-                console.log(this.notification)
+                this.phone_number.value = {{ notification.sms.to_phone_number }}
+                this.media_url.label = 'Media URL'
+                this.media_url.value = '{{ notification.sms.media_url|default:'null' }}'
             },
             validate_form() {
                 return true
@@ -57,8 +60,11 @@
         </div>
 
         <div x-show="notification.type === 'sms'" x-cloak x-transition class="row g-3 mb-3">
-            <div class="col-12">
+            <div class="col-6">
                 {% include 'django_glue/form/field/telephone_field.html' with glue_field='phone_number' %}
+            </div>
+            <div class="col-6">
+                {% include 'django_glue/form/field/telephone_field.html' with glue_field='media_url' %}
             </div>
         </div>
 

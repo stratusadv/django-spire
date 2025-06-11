@@ -63,6 +63,7 @@ class TwilioSMSHelper:
         self.to_phone_number = self._format_phone_number(
             notification.sms.to_phone_number
         )
+        self.notification = notification
         self.message = f'{notification.title}: {notification.body}'
         self.client = client
 
@@ -71,7 +72,8 @@ class TwilioSMSHelper:
             return self.client.messages.create(
                 to=self.to_phone_number,
                 from_=settings.TWILIO_PHONE_NUMBER,
-                body=self.message
+                body=self.message,
+                media_url=[self.notification.sms.media_url] if self.notification.sms.media_url else [],
             )
         except Exception as e:
             raise TwilioException(f'Twilio Exception: {str(e)}')

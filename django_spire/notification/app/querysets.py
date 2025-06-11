@@ -16,6 +16,7 @@ class AppNotificationQuerySet(HistoryQuerySet):
             default=Value(False),
             output_field=BooleanField()
         ))
+
     def ordered_by_priority(self):
         priority_order = Case(
             When(notification__priority=NotificationPriorityChoices.LOW, then=Value(3)),
