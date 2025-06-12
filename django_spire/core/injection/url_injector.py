@@ -1,7 +1,7 @@
 import importlib
 import sys
 from types import FunctionType
-from typing import Callable, Tuple, Union
+from typing import Callable, Tuple, Union, Sequence
 
 from django.urls import path, URLResolver, URLPattern, include
 
@@ -9,7 +9,7 @@ from django_spire.core.injection.composite_injector import BaseCompositeInjector
 from django_spire.core.injection.decorator_injector import DecoratorInjector
 from django_spire.core.injection.dependency_injector import DependencyInjector
 
-URLConf = Tuple[URLPattern | URLResolver, ...] | URLPattern | URLResolver
+URLConf = Sequence[URLPattern | URLResolver] | URLPattern | URLResolver
 
 
 ALLOWED_URL_CHILD_INJECTOR_TYPES = (DecoratorInjector, DependencyInjector)
@@ -46,7 +46,7 @@ class UrlConfInjector(BaseCompositeInjector[URLConf]):
         elif isinstance(url, URLResolver):
             return self._inject_url_resolver(url)
         else:
-            raise TypeError('All urls passed to add_urlpatterns must be '
+            raise TypeError(f'Invalid url {url} - all urls passed to add_urlpatterns must be '
                             'either URLPattern or URLResolver')
 
     def _inject_url_resolver(self, url_resolver: URLResolver):
@@ -83,7 +83,7 @@ class UrlConfInjector(BaseCompositeInjector[URLConf]):
             *args,
             **kwargs
     ) -> URLConf:
-        if not isinstance(injector_target, tuple):
+        if not isinstance(injector_target, Sequence):
            injector_target = [injector_target]
 
         injected_urlpatterns = tuple([

@@ -1,15 +1,20 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, Http404
+from django.shortcuts import get_object_or_404
+
 from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk.models import HelpDeskTicket
-from django_spire.help_desk.permissions import HelpDeskTicketPermissionController
+from django_spire.help_desk.permissions import BaseHelpDeskAuthorizationController
 
 
 @login_required()
 def ticket_list_view(
-        request,
-        permission_controller=HelpDeskTicketPermissionController
+        request: HttpRequest,
+        auth_controller: BaseHelpDeskAuthorizationController,
 ):
-    if permission_controller.is_helpdesk_admin(request.user):
+    auth = auth_controller.check_authorization(user=request.user)
+
+    if auth.is_helpdesk_admin:
         tickets = HelpDeskTicket.objects.sort_by_date().active()
     else:
         tickets = (HelpDeskTicket.objects
@@ -21,7 +26,7 @@ def ticket_list_view(
         request=request,
         context_data={
             'tickets': tickets,
-            'ticket_perms': permission_controller.get_ticket_perms(request.user),
+            'ticket_access': auth.__dict__,
         },
         model=HelpDeskTicket,
         template='django_spire/help_desk/page/ticket_list_page.html'
@@ -32,20 +37,20 @@ def ticket_list_view(
 def ticket_detail_view(
         request,
         pk,
-        permission_controller=HelpDeskTicketPermissionController
+        auth_controller: BaseHelpDeskAuthorizationController,
 ):
-    ticket = HelpDeskTicket.objects.get_ticket_detail_for_user(
-        ticket_pk=pk,
-        user=request.user,
-        permission_controller=permission_controller
-    )
+    ticket = get_object_or_404(HelpDeskTicket, pk=pk)
+    auth = auth_controller.check_authorization(user=request.user, ticket=ticket)
+
+    if auth.should_deny_ticket_detail_access:
+        raise Http404('The ticket could not be retrieved.')
 
     return portal_views.detail_view(
         request=request,
         obj=ticket,
         context_data={
             'ticket': ticket,
-            'ticket_perms': permission_controller.get_ticket_perms(request.user),
+            'ticket_access': auth.__dict__,
         },
         template='django_spire/help_desk/page/ticket_detail_page.html',
     )

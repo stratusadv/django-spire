@@ -1,17 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Tuple, TypeVar, Generic, get_args
-
-from django_spire.core.utils import get_generic_type_args
-
+from typing import TypeVar, Generic
 
 TInjectorTarget = TypeVar('TInjectorTarget')
 
 
 class BaseInjector(Generic[TInjectorTarget], ABC):
-    allowed_child_injector_types: Tuple[type[BaseInjector], ...] = None
-
     @property
     def target(self) -> TInjectorTarget:
         return self._injector_target
@@ -21,7 +16,7 @@ class BaseInjector(Generic[TInjectorTarget], ABC):
         if target is None:
             return
 
-        if get_generic_type_args(cls, 0) == type(target):
+        if cls.__orig_bases__[0] == type(target):
             raise TypeError(f'Invalid injector_target {target} '
                             f'- must be not callable.')
 

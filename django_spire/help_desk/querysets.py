@@ -1,6 +1,3 @@
-from django.http.response import Http404
-from django.shortcuts import get_object_or_404
-
 from django_spire.history.querysets import HistoryQuerySet
 
 
@@ -10,16 +7,3 @@ class HelpDeskTicketQuerySet(HistoryQuerySet):
 
     def filter_by_user(self, user):
         return self.filter(created_by=user)
-
-    def get_ticket_detail_for_user(
-            self,
-            ticket_pk,
-            user,
-            permission_controller
-    ):
-        ticket = get_object_or_404(self.model, pk=ticket_pk)
-
-        if permission_controller.should_deny_ticket_detail_access(user, ticket):
-            raise Http404('The ticket could not be retrieved.')
-
-        return ticket

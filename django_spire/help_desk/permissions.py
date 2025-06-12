@@ -1,28 +1,49 @@
-from django.contrib.auth.models import User
+import dataclasses
 
-from django_spire.core.urls.permissions import ViewPermissionController
+from django.contrib.auth.models import AbstractUser, AnonymousUser
+
+from django_spire.help_desk.models import HelpDeskTicket
 
 
-class HelpDeskTicketPermissionController(ViewPermissionController):
-    @classmethod
-    def is_helpdesk_admin(cls,user: User):
+@dataclasses.dataclass
+class HelpDeskAuthorization:
+    is_helpdesk_admin: bool
+    can_delete_tickets: bool
+    can_change_tickets: bool
+    should_deny_ticket_detail_access: bool
+
+class BaseHelpDeskAuthorizationController:
+    def __init__(self, user: AbstractUser | AnonymousUser = None, ticket: HelpDeskTicket = None):
+        self.user = user
+        self.ticket = ticket
+
+    def check_authorization(
+        self,
+        user: AbstractUser,
+        ticket: HelpDeskTicket = None
+    ) -> HelpDeskAuthorization:
+        self.user = user
+        self.ticket = ticket
+
+        return HelpDeskAuthorization(
+            is_helpdesk_admin=self.is_helpdesk_admin,
+            can_delete_tickets=self.can_delete_tickets,
+            can_change_tickets=self.can_change_tickets,
+            should_deny_ticket_detail_access=self.should_deny_ticket_detail_access,
+        )
+
+    @property
+    def is_helpdesk_admin(self) -> bool:
         return True
 
-    @classmethod
-    def can_delete_tickets(cls, user):
+    @property
+    def can_delete_tickets(self) -> bool:
         return True
 
-    @classmethod
-    def can_change_tickets(cls, user: User):
+    @property
+    def can_change_tickets(self) -> bool:
         return True
 
-    @classmethod
-    def should_deny_ticket_detail_access(cls, user, ticket):
-        return False
-
-    @classmethod
-    def get_ticket_perms(cls, user):
-        return {
-            'can_delete': cls.can_delete_tickets(user),
-            'can_change': cls.can_change_tickets(user),
-        }
+    @property
+    def should_deny_ticket_detail_access(self) -> bool:
+        return True

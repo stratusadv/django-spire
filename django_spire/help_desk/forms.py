@@ -1,13 +1,14 @@
 from typing import ClassVar
 
 from django import forms
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import User
 
 from django_spire.help_desk.models import HelpDeskTicket
 
 
 class HelpDeskTicketCreateForm(forms.ModelForm):
-    def save(self, commit: bool = True, user: User | None = None) -> HelpDeskTicket:
+    def save(self, commit: bool = True, user: AbstractBaseUser | None = None) -> HelpDeskTicket:
         if user is not None:
             self.instance.created_by = user
 

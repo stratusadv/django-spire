@@ -1,9 +1,11 @@
+from inspect import signature
+from typing import Callable, get_type_hints
+
 from django.apps import apps
 
 
 def app_is_installed(app_label: str) -> bool:
     return app_label in list(apps.app_configs.keys())
-
 
 def check_required_apps(app_label: str) -> None:
     app_config = apps.get_app_config(app_label)
@@ -29,3 +31,14 @@ def get_class_from_string(class_string: str) -> type:
 
 def get_class_name_from_class(cls: type) -> str:
     return cls.__module__ + '.' + cls.__qualname__
+
+def callable_returns_type(
+        target_callable: Callable,
+        return_type: type
+):
+    callable_return_type = signature(target_callable).return_annotation
+
+    if isinstance(return_type, str):
+        callable_return_type = get_class_from_string(callable_return_type)
+
+    return callable_return_type == return_type

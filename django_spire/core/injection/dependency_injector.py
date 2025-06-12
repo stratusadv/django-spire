@@ -1,59 +1,54 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Callable, get_type_hints, Any, TypeVar, Generic, get_args
+from inspect import signature
+from typing import Callable, TypeVar
 
 from django_spire.core.injection.injector import BaseInjector
-from django_spire.core.utils import get_generic_type_args
+
 
 TDependency = TypeVar('TDependency')
 
-class DependencyInjector(BaseInjector, Generic[TDependency]):
-    @staticmethod
-    def callable_returns_type(
-            target_callable: Callable,
-            return_type: type
-    ):
-        callable_annotations = get_type_hints(target_callable)
 
-        return callable_annotations.get('return', None) == return_type
-
-
-    @classmethod
-    def get_dependency_type(cls):
-        return get_generic_type_args(cls, 0)
-
+class DependencyInjector(BaseInjector[Callable]):
     def __init__(
             self,
-            new_dependency_instance: Any,
+            target_dependency_type: type,
+            dependency_factory: Callable[[], TDependency],
             injector_target: Callable = None,
             *args,
             **kwargs
     ):
         super().__init__(injector_target=injector_target, *args, **kwargs)
 
-        dependency_type = self.get_dependency_type()
 
-        if not isinstance(new_dependency_instance, self.get_dependency_type()):
+        if not callable(dependency_factory):
             raise TypeError(
-                f'Invalid new_dependency_instance {dependency_type} -'
-                f' must be an instance of {dependency_type}.'
+                f'Invalid dependency_factory {dependency_factory} -'
+                f' must be a callable.'
             )
 
-        self._new_dependency_instance = new_dependency_instance
+        dependency_test = dependency_factory()
 
-    @classmethod
+        if not isinstance(dependency_test, target_dependency_type):
+            raise TypeError(
+                f'Invalid dependency_factory {dependency_factory} -'
+                f' must return an instance of {target_dependency_type}.'
+            )
+
+        self._dependency_factory = dependency_factory
+        self._target_dependency_type = target_dependency_type
+
     def _find_callable_args_matching_dependency_type(
-            cls,
+            self,
             target_callable: Callable,
     ) -> list[str]:
-        callable_annotations = get_type_hints(target_callable)
-        target_type = cls.get_dependency_type()
+        callable_signature = signature(target_callable)
 
         arg_matches = [
             arg_name
-            for arg_name, arg_type in callable_annotations.items()
-            if issubclass(arg_type, target_type)
+            for arg_name, arg_type in callable_signature.parameters.items()
+            if arg_type.annotation == self._target_dependency_type
         ]
 
         return arg_matches
@@ -73,12 +68,15 @@ class DependencyInjector(BaseInjector, Generic[TDependency]):
             injector_target
         )
 
+        if len(callable_args_matching_dependency_type) == 0:
+            return injector_target
+
         if not len(callable_args_matching_dependency_type) == 1:
             raise TypeError(
                 f'Invalid target_callable {injector_target} - '
-                f'must have exactly one parameter of type {self.get_dependency_type()}'
+                f'must have exactly one parameter of type {self._target_dependency_type}.'
             )
 
-        original_dependency_arg_name = callable_args_matching_dependency_type[0]
+        original_dependency_arg_name = callable_args_matching_dependency_type.pop()
 
-        return partial(injector_target, **{original_dependency_arg_name: self._new_dependency_instance})
+        return partial(injector_target, **{original_dependency_arg_name: self._dependency_factory()})

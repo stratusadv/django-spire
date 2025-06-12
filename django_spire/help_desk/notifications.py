@@ -1,20 +1,15 @@
-from re import match
 from typing import List
 
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-
-
-from django_spire.help_desk.exceptions import HelpDeskNotificationTypeNotSupportedError
 from django_spire.help_desk.models import HelpDeskTicket
-from django_spire.notification.choices import NotificationTypeChoices
-from django_spire.notification.models import Notification
 from django_spire.notification.app.models import AppNotification
+from django_spire.notification.choices import NotificationTypeChoices
 from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.maps import NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP
-from django_spire.notification.processors.notification import NotificationProcessor
+from django_spire.notification.models import Notification
 
 
 class HelpDeskTicketNotifications:
@@ -48,7 +43,7 @@ class HelpDeskTicketNotifications:
             return AppNotification(notification=base_notification)
 
         else:
-            raise HelpDeskNotificationTypeNotSupportedError(notification_type)
+            raise Exception(notification_type)
 
     def _create_helpdesk_notification_for_users(
             self,

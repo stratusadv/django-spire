@@ -11,15 +11,11 @@ from django_spire.help_desk.views.form_views import (
 help_desk_url_injector = UrlConfInjector(
     child_injectors=(
         DecoratorInjector(
-            decorators=(
-                permission_required('django_spire_help_desk.delete_helpdeskticket')
-            ),
+            decorators=permission_required('django_spire_help_desk.delete_helpdeskticket'),
             injector_target=ticket_delete_form_view
         ),
         DecoratorInjector(
-            decorators=(
-                permission_required('django_spire_help_desk.change_helpdeskticket')
-            ),
+            decorators=permission_required('django_spire_help_desk.change_helpdeskticket'),
             injector_target=ticket_update_form_view
         )
     )

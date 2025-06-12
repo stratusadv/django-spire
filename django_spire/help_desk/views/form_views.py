@@ -1,30 +1,31 @@
 import django_glue as dg
+from django.forms import Form
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django.forms import Form
 
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk import forms
-from django_spire.help_desk.notifications.handlers import TicketEventNotificationHandler
 from django_spire.help_desk.models import HelpDeskTicket
-from django_spire.help_desk.permissions import HelpDeskTicketPermissionController
+from django_spire.help_desk.notifications.handlers import TicketEventNotificationHandler
+from django_spire.help_desk.permissions import BaseHelpDeskAuthorizationController
 
 
 def ticket_delete_form_view(
-        request,
-        permission_controller=HelpDeskTicketPermissionController,
+        request: HttpRequest,
+        auth_controller: BaseHelpDeskAuthorizationController,
         pk: int = 0
-):
-    ticket = HelpDeskTicket.objects.get_ticket_detail_for_user(
-        permission_controller,
-        ticket_pk=pk,
-        user=request.user,
-    )
+) -> HttpResponse:
+    ticket = get_object_or_404(HelpDeskTicket, pk=pk)
+    auth = auth_controller.check_authorization(user=request.user, ticket=ticket)
+
+    if auth.should_deny_ticket_detail_access:
+        raise Http404('The ticket could not be retrieved.')
 
     if request.method == 'POST':
         ticket.set_deleted()
-        return redirect(reverse('help_desk:page:list'))
+        return redirect(reverse('django_spire:help_desk:page:list'))
 
     return portal_views.form_view(
         request,
@@ -35,16 +36,16 @@ def ticket_delete_form_view(
         context_data={
             'ticket_pk': pk,
             'form_action_url': reverse(
-                'help_desk:form:delete',
+                'django_spire:help_desk:form:delete',
                 kwargs={'pk': pk}
             ),
+            'ticket_access': auth.__dict__,
         }
     )
 
 
 def ticket_create_form_view(
-    request,
-    permission_controller=HelpDeskTicketPermissionController
+    request: HttpRequest,
 ):
     ticket = HelpDeskTicket()
 
@@ -57,7 +58,7 @@ def ticket_create_form_view(
             ticket = form.save(user=request.user)
             TicketEventNotificationHandler.handle_new(ticket)
 
-            return redirect(reverse('help_desk:page:list'))
+            return redirect(reverse('django_spire:help_desk:page:list'))
 
         show_form_errors(request, form)
 
@@ -71,21 +72,21 @@ def ticket_create_form_view(
         verb=f'Create',
         obj=ticket,
         context_data={
-            'form_action_url': reverse('help_desk:form:create'),
+            'form_action_url': reverse('django_spire:help_desk:form:create'),
         }
     )
 
 
 def ticket_update_form_view(
-        request,
+        request: HttpRequest,
         pk: int,
-        permission_controller=HelpDeskTicketPermissionController
+        auth_controller: BaseHelpDeskAuthorizationController,
 ):
-    ticket = HelpDeskTicket.objects.get_ticket_detail_for_user(
-        ticket_pk=pk,
-        user=request.user,
-        permission_controller=permission_controller
-    )
+    ticket = get_object_or_404(HelpDeskTicket, pk=pk)
+    auth = auth_controller.check_authorization(user=request.user, ticket=ticket)
+
+    if auth.should_deny_ticket_detail_access:
+        raise Http404('The ticket could not be retrieved.')
 
     dg.glue_model_object(request, 'ticket', ticket)
 
@@ -93,9 +94,8 @@ def ticket_update_form_view(
         form = forms.HelpDeskTicketUpdateForm(request.POST, instance=ticket)
 
         if form.is_valid():
-            ticket = form.save()
-
-            return redirect(reverse('help_desk:page:list'))
+            form.save()
+            return redirect(reverse('django_spire:help_desk:page:list'))
 
         show_form_errors(request, form)
 
@@ -109,7 +109,11 @@ def ticket_update_form_view(
         form=form,
         context_data={
             'ticket': ticket,
-            'form_action_url': reverse('help_desk:form:update', kwargs={'pk': ticket.pk}),
-            'ticket_pk': ticket.pk
+            'form_action_url': reverse(
+                'django_spire:help_desk:form:update',
+                kwargs={'pk': ticket.pk}
+            ),
+            'ticket_pk': ticket.pk,
+            'ticket_access': auth.__dict__
         }
     )
