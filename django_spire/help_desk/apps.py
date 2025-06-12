@@ -9,6 +9,8 @@ class HelpDeskConfig(AppConfig):
     name = 'django_spire.help_desk'
 
     REQUIRED_APPS = ('django_spire_core',)
+    URLPATTERNS_INCLUDE = 'django_spire.help_desk.urls'
+    URLPATTERNS_NAMESPACE = 'help_desk'
 
     def ready(self) -> None:
         check_required_apps(self.label)

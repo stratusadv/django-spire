@@ -1,18 +1,17 @@
 import django_glue as dg
+from django.http import HttpRequest
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 
-from django_spire.auth.group.decorators import permission_required
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk import forms
-from django_spire.help_desk.notifications.handlers import TicketEventNotificationHandler
 from django_spire.help_desk.models import HelpDeskTicket
+from django_spire.help_desk.notifications.handlers import TicketEventNotificationHandler
 
 
-@permission_required('django_spire_help_desk.delete_helpdeskticket')
-def ticket_delete_form_view(request, pk: int = 0):
+def ticket_delete_form_view(request: HttpRequest, pk: int = 0):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
     if request.method == 'POST':
@@ -36,8 +35,7 @@ def ticket_delete_form_view(request, pk: int = 0):
     )
 
 
-@permission_required('django_spire_help_desk.change_helpdeskticket')
-def ticket_create_form_view(request):
+def ticket_create_form_view(request: HttpRequest):
     ticket = HelpDeskTicket()
 
     dg.glue_model_object(request, 'ticket', ticket)
@@ -68,8 +66,7 @@ def ticket_create_form_view(request):
     )
 
 
-@permission_required('django_spire_help_desk.change_helpdeskticket')
-def ticket_update_form_view(request, pk: int):
+def ticket_update_form_view(request: HttpRequest, pk: int):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
     dg.glue_model_object(request, 'ticket', ticket)

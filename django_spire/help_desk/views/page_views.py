@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 
 from django_spire.contrib.generic_views import portal_views
@@ -6,7 +7,7 @@ from django_spire.help_desk.models import HelpDeskTicket
 
 
 @login_required()
-def ticket_list_view(request):
+def ticket_list_view(request: HttpRequest):
     tickets = HelpDeskTicket.objects.order_by('-created_datetime').active()
 
     return portal_views.list_view(
@@ -19,7 +20,7 @@ def ticket_list_view(request):
     )
 
 @login_required()
-def ticket_detail_view(request, pk):
+def ticket_detail_view(request: HttpRequest, pk):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
     return portal_views.detail_view(
