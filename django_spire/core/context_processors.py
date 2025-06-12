@@ -12,6 +12,7 @@ def django_spire(_: WSGIRequest) -> dict[str, Any]:
     return {
         'DJANGO_SPIRE_VERSION': __VERSION__,
         'app_bootstrap_icon': {
-            'help_desk': 'bi bi-headset'
+            'help_desk': 'bi bi-headset',
+            'user_profile': 'bi bi-person-circle'
         }
     }

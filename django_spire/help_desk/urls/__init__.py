@@ -1,8 +1,8 @@
-from django.urls import include, path
+from django_spire.help_desk.permissions import HelpDeskTicketPermissionController
+from django_spire.help_desk.urls.shortcuts import include_helpdesk_urls_with_permissions
 
 app_name = 'help_desk'
 
-urlpatterns = [
-    path('page/', include('django_spire.help_desk.urls.page_urls', namespace='page')),
-    path('form/', include('django_spire.help_desk.urls.form_urls', namespace='form')),
-]
+urlpatterns = include_helpdesk_urls_with_permissions(
+    permission_controller=HelpDeskTicketPermissionController,
+)

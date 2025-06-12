@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+from django_spire.help_desk.constants import CUSTOM_PERM_HELPDESKTICKET_CAN_ACCESS_ALL
 from django_spire.help_desk.notifications.factories import create_ticket_event_notifications
 from django_spire.help_desk.models import HelpDeskTicket
 from django_spire.help_desk.enums import TicketEventType
@@ -28,7 +29,7 @@ class TicketEventNotificationHandler:
             )
 
         managers = User.objects.filter(
-            Q(groups__permissions__codename='delete_helpdeskticket') |
+            Q(groups__permissions__codename=CUSTOM_PERM_HELPDESKTICKET_CAN_ACCESS_ALL) |
             Q(is_superuser=True)).all()
 
         create_ticket_event_notifications(
