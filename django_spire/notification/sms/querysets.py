@@ -1,7 +1,8 @@
 from django_spire.history.querysets import HistoryQuerySet
+from django_spire.notification.querysets import NotificationContentObjectQuerySet
 
 
-class SmsNotificationQuerySet(HistoryQuerySet):
+class SmsNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQuerySet):
     pass
 
 
