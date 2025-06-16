@@ -4,11 +4,12 @@ from django.db.models import QuerySet, Value, When, Case, BooleanField
 
 from django_spire.history.querysets import HistoryQuerySet
 from django_spire.notification.choices import NotificationStatusChoices
+from django_spire.notification.querysets import NotificationContentObjectQuerySet
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
-class EmailNotificationQuerySet(HistoryQuerySet):
+class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQuerySet):
     def annotate_is_viewed_by_user(self, user: User) -> QuerySet:
         return self.by_user(user=user).annotate(viewed=Case(
             When(views__user=user, then=Value(True)),
