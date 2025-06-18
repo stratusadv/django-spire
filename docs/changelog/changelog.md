@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.9.2
+
+### Features
+
+- Added tool to  the `File` app for copying filed from one model to another.  
+
 ## v0.9.1
 
 ### Features
