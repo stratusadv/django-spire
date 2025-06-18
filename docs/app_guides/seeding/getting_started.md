@@ -227,3 +227,43 @@ This calls the built-in `in_order` method, which assigns values from the list on
 --
 
 Each type works independently or combined with others. Fields not declared in `fields` will default to `llm` or `faker` — unless `default_to` is set to `"included"`.
+
+
+### Full implementation
+
+A sample seeder file might look like this:
+
+```python
+from django_spire.contrib.seeding import DjangoModelSeeder
+from application.models import Product
+
+class ProductSeeder(DjangoModelSeeder):
+    model_class = Product
+    default_to = 'faker'
+    cache_name = 'product_seeder'
+    cache_seed = True
+    fields = {
+        'id': 'exclude',
+        'name': ('llm', 'A product name that is found in a catalog.'),
+        'description': ('llm', 'A product description for a catalog.'),
+        'price': ('faker', 'pydecimal', {'left_digits': 2, 'right_digits': 2, 'positive': True}),
+        'in_stock': True,
+        'created_at': ('faker', 'date_time_between', {'start_date': "-30d", 'end_date': 'now'}),
+        'updated_at': lambda: timezone.now(),
+        'supplier_id': ('custom', 'in_order', {'values': supplier_ids})
+    }
+
+    @classmethod
+    def seed_grocery_product(cls, count: int = 1):
+        cls.seed_database(
+            count=count,
+            fields=cls.fields | {
+                'name': ('llm', 'A product name that is found in a grocery store.'),
+                'description': ('llm', 'A product description for a grocery store.'),
+                'price': ('faker', "pydecimal", {'left_digits': 2, 'right_digits': 2, 'positive': True}),
+            }
+        )
+
+ProductSeeder.seed(count=5)
+ProductSeeder.seed_grocery_product(count=5)
+```
