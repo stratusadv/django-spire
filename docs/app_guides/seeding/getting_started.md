@@ -140,7 +140,12 @@ Use `faker` when you want realistic-looking data like names, addresses, dates, a
 
 ```python
 "name": ("faker", "name")
+"key": ("faker", "uuid4")
+"barcode": ("faker", "ean13")
 "created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"})
+"random_int": ("faker", "random_int", {"min": 10, "max": 100})
+"random_element": ("faker", "random_element", {"elements": ["a", "b", "c"]})
+"random_elements": ("faker", "random_elements", {"elements": ["abc", "def", "ghi"], "length": 3})
 ```
 
 **Common Faker Methods**
@@ -150,7 +155,8 @@ Use `faker` when you want realistic-looking data like names, addresses, dates, a
 - `email`
 - `date_time_between` (with `start_date`, `end_date`)
 - `pydecimal` (with `left_digits`, `right_digits`, `positive`)
-
+- `random_element` (with `elements`) - selects a random element from a list
+- `random_elements` (with `elements`, `length`) - selects a specified number of random elements from a list
 ---
 
 ### LLM
@@ -214,10 +220,10 @@ This calls the built-in `in_order` method, which assigns values from the list on
 
 #### Built-in Custom Methods
 
-| Method Name | Parameters           | Use Case                                           |
-|-------------|----------------------|----------------------------------------------------|
-| `in_order`  | `values: list`, `index` (auto-injected) | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. |
-
----
+| Method Name  | Parameters                              | Use Case                                                                                                | Example                                                   |
+|--------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| `in_order`   | `values: list`, `index` (auto-injected) | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. | `'id': ('custom', 'in_order', {'values': [list_of_ids]})` |
+| `date_time_between` | `start_date: str`, `end_date: str`      | Randomly generates a datetime between `start_date` and `end_date`.                                      | `'created_at': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'})`            |
+--
 
 Each type works independently or combined with others. Fields not declared in `fields` will default to `llm` or `faker` — unless `default_to` is set to `"included"`.
