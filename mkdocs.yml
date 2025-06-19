@@ -41,6 +41,7 @@ nav:
           - SMS Conversation: app_guides/ai/sms/overview.md
       - Core:
           - Shortcuts: app_guides/core/shortcuts.md
+          - Filtering: app_guides/core/filtering.md
       - Notification:
           - Automations: app_guides/notification/automations.md
           - App Notifications: app_guides/notification/app_notifications.md
