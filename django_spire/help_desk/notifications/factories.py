@@ -46,11 +46,11 @@ def get_ticket_event_notification_body(event_type: TicketEventType, notification
 def get_ticket_notification_url(ticket: HelpDeskTicket, notification_type: NotificationTypeChoices) -> str:
     path = reverse(
         "django_spire:help_desk:page:detail",
-        kwargs={"pk": ticket.pk})[1:]
+        kwargs={"pk": ticket.pk})
 
     if notification_type == NotificationTypeChoices.EMAIL:
         site_host = Site.objects.get_current()
-        return f'{site_host}/{path}'
+        return f'{site_host}/{path[1:]}'
 
     return path
 
