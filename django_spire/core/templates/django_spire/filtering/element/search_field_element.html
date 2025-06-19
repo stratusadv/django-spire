@@ -1,0 +1,7 @@
+{% extends 'django_spire/filtering/search_filter.html' %}
+
+{% block filter_key %}list_filter.filter_key{% endblock %}
+
+{% block filter_content %}
+    {% include 'django_glue/form/field/char_field.html' with glue_field='search_value' %}
+{% endblock %}

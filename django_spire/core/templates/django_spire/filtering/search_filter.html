@@ -1,0 +1,7 @@
+{% extends 'django_spire/filtering/base_filter.html' %}
+
+{% block filter_type %}search{% endblock %}
+
+{% block submit_button %}
+    {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text='Search' %}
+{% endblock %}
