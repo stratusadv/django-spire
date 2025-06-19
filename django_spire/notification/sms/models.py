@@ -26,7 +26,7 @@ class SmsTemporaryMedia(models.Model):
         path = reverse(
             'django_spire:notification:sms:media:temporary_media',
             kwargs={'external_access_key': self.external_access_key},
-        )
+        )[1:]
 
         return f'{Site.objects.get_current()}/{path}'
 

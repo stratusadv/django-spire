@@ -50,7 +50,7 @@ def get_ticket_notification_url(ticket: HelpDeskTicket, notification_type: Notif
 
     if notification_type == NotificationTypeChoices.EMAIL:
         site_host = Site.objects.get_current()
-        return f'{site_host}/{path}'
+        return f'{site_host}/{path[1:]}'
 
     return path
 
