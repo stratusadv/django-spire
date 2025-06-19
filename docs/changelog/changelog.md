@@ -4,7 +4,10 @@
 
 ### Features
 - Django Glue List Filtering System.
-  - Filtering Tutorial Docs
+    - Filtering Tutorial Docs
+
+### Changes
+- Added `app-override.css` file to allow for easy overriding of Spire CSS classes.
 
 ## v0.9.2
 
