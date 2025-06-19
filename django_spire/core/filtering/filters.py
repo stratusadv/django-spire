@@ -1,19 +1,15 @@
-from django_spire.core.filtering.querysets import FilteringQuerySetMixin
-from django_spire.core.filtering.session import ListFilterSession
+from django_spire.core.filtering.querysets import FilterQuerySet, SearchQuerySet
+from django_spire.core.filtering.session import QuerySetFilterSession
 
 
-class FilterData(dict):
-    pass
-
-
-class ListFilter:
+class QuerySetFilter:
     filter_key: str = None
 
     def __init__(
             self,
             request,
             filter_key: str,
-            default_filtering_data: FilterData = None
+            default_filtering_data: dict = None
     ):
         self.request = request
         self.filter_key = filter_key
@@ -21,7 +17,7 @@ class ListFilter:
         self.user_command = self.request.GET.get('filter_type')
         self.user_key = self.request.GET.get('filter_key')
 
-        self.session_helper = ListFilterSession(self.request, self.filter_key)
+        self.session_helper = QuerySetFilterSession(self.request, self.filter_key)
 
         if not self.request.GET.get('page') and self.user_command not in ['filter', 'search']:
             self.session_helper.clear()
@@ -65,7 +61,7 @@ class ListFilter:
 
     def process_queryset(
             self,
-            queryset: FilteringQuerySetMixin,
+            queryset: SearchQuerySet | FilterQuerySet,
             ignore_search_query: bool = False
     ):
         if self.filter_data.get('search_value') and not ignore_search_query:

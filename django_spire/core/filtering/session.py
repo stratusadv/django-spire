@@ -2,7 +2,7 @@ from abc import ABC
 from datetime import datetime, timedelta
 
 
-class ListFilterSession(ABC):
+class QuerySetFilterSession(ABC):
     _session_key: str = 'list_filter'
 
     def __init__(self, request, filter_key: str, timeout: int = 60 * 5):
