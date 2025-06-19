@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.9.3
+
+### Features
+- Django Glue List Filtering System.
+  - Filtering Tutorial Docs
+
 ## v0.9.2
 
 ### Features
