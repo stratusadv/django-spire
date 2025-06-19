@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.4
+
+### Fixes
+- Fixed incorrect external urls for `HelpDesk Notifications` and `SmsTemporaryMedia External Url`. 
+
 ## v0.9.3
 
 ### Features
