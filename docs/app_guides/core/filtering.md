@@ -76,7 +76,7 @@ def person_list_view(request):
 ```
 
 
-### Step 4: Pass the `ListFilter` instance and objects to the template.
+### Step 4: Pass the `ListFilter` instance to the template.
 
 ```python title='app/person/views.py'
 from app.person.models import Person
@@ -98,13 +98,11 @@ def person_list_view(request):
 ```
 
 
-### Step 5: Create a Django Glue form that extends a filter html file. 
+### Step 5: Create a Django Glue form that extends one of the filter html files.
 
-Include the form file in your template. For this example, only the Django Glue form will be shown.
+#### Searching
 
-#### Only Searching
-
-``` title='person/form/search_form.html'
+```html title='person/form/search_form.html'
 {% extends 'django_spire/filtering/search_filter.html' %}
 
 {% block filter_key %}{{ list_filter.filter_key }}{% endblock %}
@@ -126,19 +124,18 @@ Include the form file in your template. For this example, only the Django Glue f
             )
         }"
     >
+        Include block tags {% %} excluded due to mkdocs attempting to render file.
         <div class="col-12">
+            include 'django_glue/form/field/char_field.html' with glue_field='search_value'
         </div>
     </div>
 {% endblock %}
 ```
 
-[//]: # (Insert into form when not breaking build, Add {% %}) 
- include 'django_glue/form/field/char_field.html' with glue_field='search_value'
+#### Filtering
+Searching can be included with filtering, see [More Complex Example](#more-complex-example) for an example.
 
-
-#### Filtering (Searching can be included)
-
-``` title='person/form/filter_form.html'
+```html title='person/form/filter_form.html'
 {% extends 'django_spire/filtering/list_filter.html' %}
 
 {% block filter_key %}{{ list_filter.filter_key }}{% endblock %}
@@ -155,28 +152,17 @@ Include the form file in your template. For this example, only the Django Glue f
                 {
                     value: {{ list_filter.filter_data.age|default:'null' }},
                 }
-            ),
-            search_value: new GlueCharField(
-                'search_value',
-                {
-                    value: '{{ list_filter.filter_data.search_value }}',
-                    label: 'Search',
-                    name: 'search_value',
-                }
             )
         }"
     >
+        Include block tags {% %} excluded due to mkdocs attempting to render file.
         <div class="col-12">
-        </div>
-        <div class="col-12">
+            include 'django_glue/form/field/number_field.html' with glue_field='age'
         </div>
     </div>
 {% endblock %}
 ```
 
-[//]: # (Insert into form when not breaking build, Add {% %}) 
- include 'django_glue/form/field/char_field.html' with glue_field='search_value'
- include 'django_glue/form/field/number_field.html' with glue_field='age
 
 ### More Complex Example
 ```python title='app/person/views.py'
@@ -238,7 +224,7 @@ class PersonQuerySet(QuerySet):
         return self.filter(query).distinct().order_by('first_name', 'last_name')
 ```
 
-``` title='person/form/filter_form.html'
+```html title='person/form/filter_form.html'
 {% extends 'django_spire/filtering/list_filter.html' %}
 
 {% block filter_key %}{{ list_filter.filter_key }}{% endblock %}
@@ -273,17 +259,16 @@ class PersonQuerySet(QuerySet):
             ),
         }"
     >
+        Include block tags {% %} excluded due to mkdocs attempting to render file.
         <div class="col-12">
+            include 'django_glue/form/field/char_field.html' with glue_field='search_value'
         </div>
         <div class="col-12">
+            include 'django_glue/form/field/number_field.html' with glue_field='age'
         </div>
         <div class="col-12">
+            include 'django_glue/form/field/multi_select_field.html' with glue_field='hair_colour_choices'
         </div>
     </div>
 {% endblock %}
 ```
-
-[//]: # (Insert into form when not breaking build, Add {% %}) 
- include 'django_glue/form/field/char_field.html' with glue_field='search_value'
- include 'django_glue/form/field/number_field.html' with glue_field='age'
- include 'django_glue/form/field/multi_select_field.html' with glue_field='hair_colour_choices'
