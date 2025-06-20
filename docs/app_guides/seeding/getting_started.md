@@ -140,7 +140,12 @@ Use `faker` when you want realistic-looking data like names, addresses, dates, a
 
 ```python
 "name": ("faker", "name")
+"key": ("faker", "uuid4")
+"barcode": ("faker", "ean13")
 "created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"})
+"random_int": ("faker", "random_int", {"min": 10, "max": 100})
+"random_element": ("faker", "random_element", {"elements": ["a", "b", "c"]})
+"random_elements": ("faker", "random_elements", {"elements": ["abc", "def", "ghi"], "length": 3})
 ```
 
 **Common Faker Methods**
@@ -150,7 +155,8 @@ Use `faker` when you want realistic-looking data like names, addresses, dates, a
 - `email`
 - `date_time_between` (with `start_date`, `end_date`)
 - `pydecimal` (with `left_digits`, `right_digits`, `positive`)
-
+- `random_element` (with `elements`) - selects a random element from a list
+- `random_elements` (with `elements`, `length`) - selects a specified number of random elements from a list
 ---
 
 ### LLM
@@ -214,10 +220,51 @@ This calls the built-in `in_order` method, which assigns values from the list on
 
 #### Built-in Custom Methods
 
-| Method Name | Parameters           | Use Case                                           |
-|-------------|----------------------|----------------------------------------------------|
-| `in_order`  | `values: list`, `index` (auto-injected) | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. |
-
----
+| Method Name         | Parameters                               | Use Case                                                                                                | Example                                                                                    |
+|---------------------|------------------------------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| `in_order`          | `values: list`, `index` (auto-injected)  | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. | `'id': ('custom', 'in_order', {'values': [list_of_ids]})`                                  |
+| `date_time_between` | `start_date: str`, `end_date: str`       | Randomly generates a datetime between `start_date` and `end_date`.                                      | `'created_at': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'})` |
+| `fk_random`         | `model_class`                            | Randomly selects a foreign key from the model_class                                                     | `'supplier_id': ('custom', 'fk_random', {'model_class': Supplier})`                        |
+| `fk_in_order`       | `model_class`                            | Selects foreign key values sequentially from the model_class                                            | `'supplier_id': ('custom', 'fk_in_order', {'model_class': Supplier})`                      |
 
 Each type works independently or combined with others. Fields not declared in `fields` will default to `llm` or `faker` — unless `default_to` is set to `"included"`.
+
+
+### Full implementation
+
+A sample seeder file might look like this:
+
+```python
+from django_spire.contrib.seeding import DjangoModelSeeder
+from application.models import Product
+
+class ProductSeeder(DjangoModelSeeder):
+    model_class = Product
+    default_to = 'faker'
+    cache_name = 'product_seeder'
+    cache_seed = True
+    fields = {
+        'id': 'exclude',
+        'name': ('llm', 'A product name that is found in a catalog.'),
+        'description': ('llm', 'A product description for a catalog.'),
+        'price': ('faker', 'pydecimal', {'left_digits': 2, 'right_digits': 2, 'positive': True}),
+        'in_stock': True,
+        'created_at': ('faker', 'date_time_between', {'start_date': "-30d", 'end_date': 'now'}),
+        'updated_at': lambda: timezone.now(),
+        'supplier_id': ('custom', 'in_order', {'values': supplier_ids})
+    }
+
+    @classmethod
+    def seed_grocery_product(cls, count: int = 1):
+        cls.seed_database(
+            count=count,
+            fields=cls.fields | {
+                'name': ('llm', 'A product name that is found in a grocery store.'),
+                'description': ('llm', 'A product description for a grocery store.'),
+                'price': ('faker', "pydecimal", {'left_digits': 2, 'right_digits': 2, 'positive': True}),
+            }
+        )
+
+ProductSeeder.seed(count=5)
+ProductSeeder.seed_grocery_product(count=5)
+```
