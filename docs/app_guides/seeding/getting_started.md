@@ -220,11 +220,12 @@ This calls the built-in `in_order` method, which assigns values from the list on
 
 #### Built-in Custom Methods
 
-| Method Name  | Parameters                              | Use Case                                                                                                | Example                                                   |
-|--------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| `in_order`   | `values: list`, `index` (auto-injected) | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. | `'id': ('custom', 'in_order', {'values': [list_of_ids]})` |
-| `date_time_between` | `start_date: str`, `end_date: str`      | Randomly generates a datetime between `start_date` and `end_date`.                                      | `'created_at': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'})`            |
---
+| Method Name         | Parameters                               | Use Case                                                                                                | Example                                                                                    |
+|---------------------|------------------------------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| `in_order`          | `values: list`, `index` (auto-injected)  | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. | `'id': ('custom', 'in_order', {'values': [list_of_ids]})`                                  |
+| `date_time_between` | `start_date: str`, `end_date: str`       | Randomly generates a datetime between `start_date` and `end_date`.                                      | `'created_at': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'})` |
+| `fk_random`         | `model_class`                            | Randomly selects a foreign key from the model_class                                                     | `'supplier_id': ('custom', 'fk_random', {'model_class': Supplier})`                        |
+| `fk_in_order`       | `model_class`                            | Selects foreign key values sequentially from the model_class                                            | `'supplier_id': ('custom', 'fk_in_order', {'model_class': Supplier})`                      |
 
 Each type works independently or combined with others. Fields not declared in `fields` will default to `llm` or `faker` — unless `default_to` is set to `"included"`.
 
