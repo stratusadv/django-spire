@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.timezone import localdate, now
 
 from django_spire.history.mixins import HistoryModelMixin
+from test_project.tests.contrib.services.tests.services import TestModelService, TestModelChildService
 
 
 class TestModel(HistoryModelMixin):
@@ -32,6 +33,8 @@ class TestModel(HistoryModelMixin):
     bed_time = models.TimeField(default='20:00')
     likes_to_party = models.BooleanField(default=True)
 
+    services = TestModelService()
+
     def __str__(self) -> str:
         return f'{self.first_name} {self.last_name}'
 
@@ -45,3 +48,21 @@ class TestModel(HistoryModelMixin):
         db_table = 'django_spire_test_model'
         verbose_name = 'Test Model'
         verbose_name_plural = 'Test Model'
+
+
+class TestModelChild(HistoryModelMixin):
+    parent = models.ForeignKey(
+        TestModel,
+        on_delete=models.CASCADE,
+        related_name='children',
+        related_query_name='child'
+    )
+    first_name = models.CharField(max_length=32)
+    last_name = models.CharField(max_length=32)
+
+    services = TestModelChildService()
+
+    class Meta:
+        db_table = 'django_spire_test_model_child'
+        verbose_name = 'Test Model Child'
+        verbose_name_plural = 'Test Model Children'

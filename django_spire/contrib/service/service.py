@@ -8,8 +8,6 @@ class BaseService(ABC):
     class_setup: bool = False
 
     def __init__(self, obj: Any = None):
-        # Todo: Add check to see if it should be initialized.
-        # Todo: Can I improve the performance on this?
         """
             Rules
             - First annotated class attribute must be the target object
@@ -34,14 +32,21 @@ class BaseService(ABC):
 
         if ABC not in cls.__bases__:
 
+            # Typing Does not work properly for services if you override __get__ in the BaseService class.
+            # This is a workaround and should be fixed in future versions of the python lsp.
             def __get__(self, instance, owner):
                 if instance is None:
                     target: BaseService | Any = owner()
                 else:
                     target: BaseService | Any = instance
 
-                return cls(target)
-
+                # Caches the service and sub services onto the target object.
+                if hasattr(target, cls._cache_key()):
+                    return getattr(target, cls._cache_key())
+                else:
+                    instance = cls(target)
+                    setattr(target, cls._cache_key(), instance)
+                    return instance
 
             setattr(cls, '__get__', __get__)
 
@@ -49,6 +54,10 @@ class BaseService(ABC):
         for key, value in self.__class__.__annotations__.items():
             if isinstance(getattr(self, key), type) and issubclass(getattr(self, key), BaseService):
                 setattr(self, key, getattr(self, key)(self.obj))
+
+    @classmethod
+    def _cache_key(cls):
+        return f'{cls.__name__}_cache_key'
 
     @property
     def obj(self) -> Any:
