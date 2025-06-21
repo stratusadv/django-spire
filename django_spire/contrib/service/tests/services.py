@@ -10,19 +10,24 @@ if TYPE_CHECKING:
     from django.contrib.auth.models import User
     from django_spire.auth.mfa.models import MfaCode
 
+
 class TestUserSubService(BaseDjangoModelService):
     user: User
 
-    def get_the_full_name(self):
+    def full_name(self):
         return self.user.get_full_name()
 
 
 class TestUserService(BaseDjangoModelService):
     user: User
-    sub: TestUserService = TestUserSubService()
+    sub: TestUserService = TestUserSubService
 
     def get_the_first_name(self, weather: str = ''):
         return self.user.first_name + weather
+
+    def set_inactive(self):
+        self.user.is_active = False
+        self.user.save()
 
 
 class TestMfaCodeService(BaseDjangoModelService):
@@ -30,3 +35,4 @@ class TestMfaCodeService(BaseDjangoModelService):
 
     def get_code_length(self):
         return len(self.mfa_code.code)
+
