@@ -1,25 +1,31 @@
-from django.contrib.auth.models import User
+from __future__ import annotations
 
-from django_spire.auth.mfa.models import MfaCode
+from typing import TYPE_CHECKING
+
+
 from django_spire.contrib.service.django_model_service import BaseDjangoModelService
 
+# Simulates imports as real environment.
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+    from django_spire.auth.mfa.models import MfaCode
 
-class TestUserSubModelService(BaseDjangoModelService):
+class TestUserSubService(BaseDjangoModelService):
     user: User
 
     def get_the_full_name(self):
         return self.user.get_full_name()
 
 
-class TestUserModelService(BaseDjangoModelService):
+class TestUserService(BaseDjangoModelService):
     user: User
-    sub: TestUserSubModelService = TestUserSubModelService()
+    sub: TestUserService = TestUserSubService()
 
     def get_the_first_name(self, weather: str = ''):
         return self.user.first_name + weather
 
 
-class TestMfaCodeModelService(BaseDjangoModelService):
+class TestMfaCodeService(BaseDjangoModelService):
     mfa_code: MfaCode
 
     def get_code_length(self):

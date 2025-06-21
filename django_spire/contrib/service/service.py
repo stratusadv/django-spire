@@ -1,19 +1,5 @@
 from __future__ import annotations
 
-"""BaseService – fourth‑iteration (handles *unresolved* forward refs during instantiation)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This revision fixes the last crash you saw:
-``TypeError: 'ForwardRef' object is not callable``
-which happened when a concrete service was instantiated **before** its domain
-model class existed.  We now:
-
-* Detect when the selected ``_obj_type`` is still a ``str``/``ForwardRef``.
-* Defer object creation *and* validation in that case, populating the attribute
-  with ``None`` (or the caller‑supplied object).
-* Perform the missing validation and default‑construction later, the first time
-  the service is accessed *after* all models are loaded.
-"""
-
 import inspect
 import sys
 import typing
@@ -23,43 +9,17 @@ from typing import Any, ForwardRef, get_type_hints
 from django_spire.contrib.service.exceptions import ServiceException
 
 
+"""
+Forward ref happens when we use if TYPE_CHECKING.
+The string gets resolved in the future to an actual type.
+"""
+
+
 class BaseService(ABC):
-    """Smart façade that injects a domain object into a *service* instance."""
-
-    # ---------------------------------------------------------------------
-    # Utilities
-    # ---------------------------------------------------------------------
-    @classmethod
-    def _is_service(cls, t: object) -> bool:
-        return isinstance(t, type) and issubclass(t, BaseService)
-
-    @classmethod
-    def _resolved_annotations(cls) -> dict[str, type | ForwardRef | str]:
-        try:
-            return get_type_hints(
-                cls,
-                globalns=sys.modules[cls.__module__].__dict__,
-                localns=cls.__dict__,
-                include_extras=True,
-            )
-        except (NameError, AttributeError):
-            out: dict[str, type | ForwardRef | str] = {}
-            for name, ann in cls.__annotations__.items():
-                if isinstance(ann, str):
-                    ann = ForwardRef(ann)
-                try:
-                    out[name] = typing.evaluate_forward_ref(
-                        ann, sys.modules[cls.__module__].__dict__, cls.__dict__
-                    )
-                except (NameError, AttributeError):
-                    out[name] = ann
-            return out
-
-    # ------------------------------------------------------------------
-    # Metaclass – phase 1 validation
-    # ------------------------------------------------------------------
     def __init_subclass__(cls) -> None:  # noqa: D401 imperative mood
         super().__init_subclass__()
+        # Need to set class up to skip Future Refs
+        cls._is_type_forward_ref = False
 
         # Descriptor workaround – unchanged
         def __get__(self, instance, owner):
@@ -75,43 +35,55 @@ class BaseService(ABC):
 
         setattr(cls, "__get__", __get__)
 
-        if ABC in cls.__bases__ or inspect.isabstract(cls):
-            cls._needs_late_validation = False
+        # Check if abstract
+        if cls._is_abstract_class():
             return
 
-        cls._needs_late_validation = False
         non_service = 0
+
         for ann in cls.__annotations__.values():
             if isinstance(ann, str):
-                cls._needs_late_validation = True
+                cls._is_type_forward_ref = True
                 continue
+
             if not cls._is_service(ann):
                 non_service += 1
-        if not cls._needs_late_validation and non_service != 1:
+
+        # Must have one non_service
+        if not cls._is_type_forward_ref and non_service != 1:
             raise ServiceException(
-                f"{cls.__name__} must have exactly one non‑BaseService annotated "
-                f"attribute. Found {non_service}."
+                f"{cls.__name__} must have exactly one non‑BaseService annotated."
+                f" Found {non_service}."
             )
 
-    # ------------------------------------------------------------------
-    # Instance construction – phase 2 validation
-    # ------------------------------------------------------------------
+
+    @classmethod
+    def _is_service(cls, t: object) -> bool:
+        return isinstance(t, type) and issubclass(t, BaseService)
+
+    @classmethod
+    def _is_abstract_class(cls):
+        return ABC in cls.__bases__ or inspect.isabstract(cls.__class__)
+
     def __init__(self, obj: Any | None = None):
         self._obj_name: str = ""
+        # Forward Ref is the type passed when we use __future__
         self._obj_type: type | ForwardRef | str
 
-        if ABC in self.__class__.__bases__ or inspect.isabstract(self.__class__):
+        if self._is_abstract_class():
             return
 
-        self._set_obj_from_annotations(obj)
 
-        if self._obj_is_resolved and not self._obj_is_valid:
+        if not self.is_future_ref and self._obj_is_valid:
+            self._set_obj_from_annotations(obj)
+        else:
             raise ServiceException(
-                f"{self._obj_name} failed to validate on {self.__class__.__name__}"
+                f"{self._obj_name} must be of same type {self.__class__.__name__}"
             )
 
-        if getattr(self.__class__, "_needs_late_validation", False) and self._obj_is_resolved:
-            self.__class__._needs_late_validation = False
+
+        if getattr(self.__class__, "_is_type_forward_ref", False) and self._obj_is_resolved:
+            self.__class__._is_type_forward_ref = False
             annotations = self.__class__._resolved_annotations()
             non_service = [
                 t for t in annotations.values() if not self.__class__._is_service(t)
@@ -122,26 +94,27 @@ class BaseService(ABC):
                     f"annotated attribute. Found {len(non_service)}."
                 )
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
     @property
     def obj(self) -> Any | None:  # May be None until late‑binding resolves
         return getattr(self, self._obj_name)
 
-    # ------------------------------------------------------------------
-    # Internals
-    # ------------------------------------------------------------------
     @property
     def _obj_is_resolved(self) -> bool:
-        return isinstance(self._obj_type, type)
+        return not self.__class__('_is_forward_ref') and isinstance(self._obj_type, type)
 
     @property
     def _obj_is_valid(self) -> bool:
-        return not self._obj_is_resolved or isinstance(self.obj, self._obj_type)
+        return self._obj_is_resolved and isinstance(self.obj, self._obj_type)
+
+    @property
+    def is_future_ref(self) ->bool:
+        return getattr(self.__class__, "_is_type_forward_ref", False)
 
     def _set_obj_from_annotations(self, obj: Any | None = None) -> None:
+        # If the object is None I want to initalize the type.
+
         annotations = self.__class__._resolved_annotations()
+
         for name, typ in annotations.items():
             if self.__class__._is_service(typ):
                 continue
@@ -164,7 +137,7 @@ class BaseService(ABC):
             # Still unresolved forward ref → just store what we have (or None)
             setattr(self, self._obj_name, obj)
             # Ensure late validation once the ref is resolved
-            self.__class__._needs_late_validation = True
+            self.__class__._is_type_forward_ref = True
 
     def _validate_target_or_error(self, target: "BaseService" | Any) -> None:
         if target._obj_name != self._obj_name:

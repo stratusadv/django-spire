@@ -1,37 +1,33 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
+from django_spire.auth.mfa.models import MfaCode
 from django_spire.auth.user.tests.factories import create_super_user
+from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.contrib.service.exceptions import ServiceException
-from django_spire.contrib.service.django_model_service import BaseDjangoModelService
-from django_spire.contrib.service.tests.services import TestUserModelService
+from django_spire.contrib.service.tests.services import TestUserService, TestUserSubService
 
 
 class TestBaseService(TestCase):
     def setUp(self):
-        User.services = TestUserModelService()
 
         self.user = create_super_user()
+        self.service = TestUserService(self.user)
+        self.user.service = self.service
 
-    def tearDown(self):
-        User.services = None
+    def test_initialization(self):
+        print(self.user.service.get_the_first_name('bad'))
 
-    def test_abstraction_on_init(self):
-        with self.assertRaises(ServiceException) as context:
-            class BrokenModelService(BaseDjangoModelService):
-                def create_taco(self):
-                    return "Taco!"
 
-            User.services = BrokenModelService()
-
-            self.user.services.create_taco()
-
-    def test_model_obj_is_created(self):
-        self.assertTrue(self.user.services.model_obj_is_created)
-        self.assertFalse(User().services.model_obj_is_created)
-
-    def test_model_obj_is_new(self):
-        new_user = User()
-
-        self.assertTrue(new_user.services.model_obj_is_new)
-        self.assertFalse(self.user.services.model_obj_is_new)
+    # def test_error_no_non_base_service(self):
+    #     with self.assertRaises(ServiceException):
+    #         class ErrorTestUserService(BaseDjangoModelService):
+    #             sub: TestUserService = TestUserSubService()
+    #
+    # def test_error_more_than_one_non_base_service(self):
+    #
+    #     with self.assertRaises(ServiceException):
+    #         class ErrorTestUserService(BaseDjangoModelService):
+    #             user: User
+    #             mfa: MfaCode
+    #             sub: TestUserService = TestUserSubService()
