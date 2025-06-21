@@ -38,8 +38,3 @@ class TestBaseService(TestCase):
     def test_method_on_sub_service(self):
         self.assertEqual(self.user.get_full_name(), self.user.services.sub.full_name())
 
-
-
-
-
-

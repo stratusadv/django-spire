@@ -18,6 +18,7 @@ class TestUserSubService(BaseDjangoModelService):
         return self.user.get_full_name()
 
 
+
 class TestUserService(BaseDjangoModelService):
     user: User
     sub: TestUserService = TestUserSubService
