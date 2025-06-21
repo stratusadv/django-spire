@@ -3,25 +3,34 @@ from __future__ import annotations
 from abc import ABC
 from typing import Any
 
-from django_spire.contrib.service.exceptions import ServiceException
-
 
 class BaseService(ABC):
+    class_setup: bool = False
+
     def __init__(self, obj: Any = None):
-        self._obj_name: str = ...
-        self._obj_type: type = ...
+        """
+            Rules
+            - First annotated class attribute must be the target object
+            - Must have the same target object name as the class name?
+            - Target type must be the same type as the object?
+        """
 
-        if ABC not in self.__class__.__bases__:
-            self._set_obj_from_annotations(obj)
+        # Object will be initialized on the __get__ call
+        if obj is None:
+            return
 
-            if not self._obj_is_valid:
-                raise ServiceException(f'{self._obj_name} failed to validate on {self.__class__.__name__}')
+        self._obj_name: str = list(self.__class__.__annotations__.keys())[0]
+        self._obj_type: type = obj.__class__
+
+        setattr(self, self._obj_name, obj)
+
+        # Cascade initializing services
+        self._init_sub_services()
 
     def __init_subclass__(cls):
         super().__init_subclass__()
 
         if ABC not in cls.__bases__:
-            cls._validate_annotations_or_error()
 
             # Typing Does not work properly for services if you override __get__ in the BaseService class.
             # This is a workaround and should be fixed in future versions of the python lsp.
@@ -31,15 +40,24 @@ class BaseService(ABC):
                 else:
                     target: BaseService | Any = instance
 
-                if issubclass(target.__class__, BaseService):
-
-                    self._validate_target_or_error(target)
-
-                    return cls(getattr(target, self._obj_name))
-
-                return cls(target)
+                # Caches the service and sub services onto the target object.
+                if hasattr(target, cls._cache_key()):
+                    return getattr(target, cls._cache_key())
+                else:
+                    instance = cls(target)
+                    setattr(target, cls._cache_key(), instance)
+                    return instance
 
             setattr(cls, '__get__', __get__)
+
+    def _init_sub_services(self):
+        for key, value in self.__class__.__annotations__.items():
+            if isinstance(getattr(self, key), type) and issubclass(getattr(self, key), BaseService):
+                setattr(self, key, getattr(self, key)(self.obj))
+
+    @classmethod
+    def _cache_key(cls):
+        return f'{cls.__name__}_cache_key'
 
     @property
     def obj(self) -> Any:
@@ -48,41 +66,3 @@ class BaseService(ABC):
     @property
     def _obj_is_valid(self) -> bool:
         return isinstance(self.obj, self._obj_type)
-
-    def _set_obj_from_annotations(self, obj: Any = None):
-        for obj_name, obj_type in self.__class__.__annotations__.items():
-            if not issubclass(obj_type, BaseService):
-                self._obj_name = obj_name
-                self._obj_type = obj_type
-                break
-
-        if self._obj_type is None:
-            raise ServiceException(
-                f'{self.__class__.__name__} annotated class attribute cannot be type None.')
-
-        if obj is None:
-            setattr(self, self._obj_name, self._obj_type())
-        else:
-            setattr(self, self._obj_name, obj)
-
-    @classmethod
-    def _validate_annotations_or_error(cls):
-        non_base_service_objects_count = 0
-
-        for obj_name, obj_type in cls.__annotations__.items():
-            if not issubclass(obj_type, BaseService):
-                non_base_service_objects_count += 1
-
-        if non_base_service_objects_count != 1:
-            raise ServiceException(
-                f'{cls.__name__} must have exactly one non-BaseService annotated class attribute. Found {non_base_service_objects_count}'
-            )
-
-    def _validate_target_or_error(self, target: BaseService | Any):
-        if target._obj_name != self._obj_name:
-            raise ServiceException(
-                f'{target.__class__.__name__} is required to have the same obj name as {self.__class__.__name__}. "{target._obj_name}" is not "{self._obj_name}".')
-
-        if target._obj_type != self._obj_type:
-            raise ServiceException(
-                f'{target.__class__.__name__} must use the same obj type as {self.__class__.__name__}. {target._obj_type} is not {self._obj_type}.')
