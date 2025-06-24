@@ -186,6 +186,7 @@ def person_list_view(request):
                 PersonHairColourChoices.BLACK,
                 PersonHairColourChoices.BROWN
             ],
+            'is_active': True
         }
     )
 
@@ -206,9 +207,9 @@ def person_list_view(request):
 ```
 
 ```python title='app/person/querysets.py'
-import json
 from django.db.models import Q, QuerySet
 from django_spire.core.filtering.querysets import FilterQuerySet, SearchQuerySet
+from django_spire.core.filtering.utils import query_multi_select_field, query_bool_select_field
 
 
 class PersonQuerySet(FilterQuerySet, SearchQuerySet):
@@ -218,15 +219,18 @@ class PersonQuerySet(FilterQuerySet, SearchQuerySet):
         age = filter_data.get('age')
         if age:
             query &= Q(age=age)
-            
-        no_selected_choices = [None, 'false', '']
-        
-        hair_colour_choices = filter_data.get('hair_colour_choices')
-        if hair_colour_choices not in no_selected_choices:
-            if isinstance(hair_colour_choices, str):
-                hair_colour_choices = json.loads(hair_colour_choices)
-            if hair_colour_choices:
-                query &= Q(status__in=hair_colour_choices)
+
+        query = query_bool_select_field(
+            query,
+            field_name='is_active',
+            field_value=filter_data.get('is_active')
+        )
+
+        query = query_multi_select_field(
+            query,
+            field_name='hair_colour',
+            field_value=filter_data.get('hair_colour_choices')
+        )
 
         return self.filter(query).distinct().order_by('first_name', 'last_name')
 
@@ -270,6 +274,14 @@ class PersonQuerySet(FilterQuerySet, SearchQuerySet):
                     choices: {{ hair_colour_options }},
                 }
             ),
+            is_active: new GlueBooleanField(
+                'is_active',
+                {
+                    label: 'Active',
+                    choices: [[1, 'Yes'], [0, 'No']],
+                    value: {{ queryset_filter.filter_data.is_active|default:'null' }}
+                }
+            ),
         }"
     >
         Include block tags {% %} excluded due to mkdocs attempting to render file.
@@ -281,6 +293,9 @@ class PersonQuerySet(FilterQuerySet, SearchQuerySet):
         </div>
         <div class="col-12">
             include 'django_glue/form/field/multi_select_field.html' with glue_field='hair_colour_choices'
+        </div>
+        <div class="col-12">
+            include 'django_glue/form/field/select_field.html' with glue_field='is_active'
         </div>
     </div>
 {% endblock %}

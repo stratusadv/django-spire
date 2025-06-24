@@ -1,0 +1,34 @@
+<div
+    x-data="{
+        view: null,
+        is_rendered: false,
+        show: false,
+        async render() {
+            // view_url block must be a single line
+            this.view = new ViewGlue('{% block view_url %}{% endblock %}')
+            await this.view.render_inner(this.$refs.accordion_content)
+
+            this.is_rendered = true
+            this.show = true
+        },
+        render_or_toggle_show() {
+            if (!this.is_rendered) {
+                this.render()
+            } else {
+                this.show = !this.show
+            }
+        }
+    }"
+>
+    {% block accordion_toggle %}
+        {# Call render_or_toggle_show() #}
+    {% endblock %}
+    <div
+        x-show="show"
+        x-ref="accordion_content"
+        x-transition
+        x-cloak
+        class="{% block accordion_content_class %}{% endblock %}"
+    >
+    </div>
+</div>
