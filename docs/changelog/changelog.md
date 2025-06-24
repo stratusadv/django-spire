@@ -6,13 +6,19 @@
 - Created filtering util functions.
 - Created view glue accordion template.
 
-### Changes
-- Updated filter docs
+### Fixes
+- ``DjangoModelService`` can properly initialize from future refs to avoid type checking errors.
+- Caching the service instance onto the target object to avoid unnecessary initialization.  
+- Test for services moved into the test_project for a realistic environment.
+
+### Breaking
+- ``model_obj_validate_field_data`` refactored to ``validate_model_obj``
+- ``model_obj_validate_field_data_and_save`` refactored to ``save_model_obj`` 
 
 ## v0.9.4
 
 ### Fixes
-- Fixed incorrect external urls for HelpDesk Notifications and SmsTemporaryMedia External Url.
+- Fixed incorrect external urls for `HelpDesk Notifications` and `SmsTemporaryMedia External Url`.
 
 ## v0.9.3
 

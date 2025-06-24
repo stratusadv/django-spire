@@ -57,7 +57,7 @@ class BaseDjangoModelService(BaseService, ABC):
     def model_obj_is_new(self) -> bool:
         return self._model_obj_id_is_empty or self._model_obj_pk_is_empty
 
-    def model_obj_validate_field_data(self, **field_data: dict) -> list[str]:
+    def validate_model_obj(self, **field_data: dict) -> list[str]:
         concrete_fields = self._get_concrete_fields()
         touched_fields = self._get_touched_fields(concrete_fields, **field_data)
 
@@ -71,13 +71,13 @@ class BaseDjangoModelService(BaseService, ABC):
         return touched_fields
 
     @transaction.atomic
-    def model_obj_validate_field_data_and_save(self, **field_data: dict) -> bool:
+    def save_model_obj(self, **field_data: dict) -> bool:
         new_model_obj_was_created = False
 
         if not field_data:
             raise ServiceException(f'Field data is required to save on {self.obj.__class__.__name__}')
 
-        touched_fields = self.model_obj_validate_field_data(**field_data)
+        touched_fields = self.validate_model_obj(**field_data)
 
         if self.model_obj_is_new:
             new_model_obj_was_created = True

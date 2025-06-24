@@ -27,6 +27,11 @@ We store seed results in a local SQLite cache table — so if you’ve seeded on
 - Rapid development
 - Restoring known states
 - Testing edge cases
+
+|Class Variables|Description|Example|
+|---------------|-----------|--------|
+|`cache_name`|The name of the cache table|`cache_name = 'item_seeder'`
+|`cache_seed`|Whether to cache seed results|`cache_seed = True`
     
 ---
 

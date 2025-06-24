@@ -51,6 +51,8 @@ nav:
           - Overview: app_guides/seeding/overview.md
           - Getting Started: app_guides/seeding/getting_started.md
           - Faker: app_guides/seeding/faker.md
+      - Service Layer:
+          - Overview: app_guides/service/overview.md
   - Components:
       - Accordian: components/accordian.md
       - Badge: components/badge.md
