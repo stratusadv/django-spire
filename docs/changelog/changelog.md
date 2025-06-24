@@ -2,6 +2,10 @@
 
 ## v0.9.5
 
+### Features
+- Created filtering util functions.
+- Created view glue accordion template.
+
 ### Fixes
 - ``DjangoModelService`` can properly initialize from future refs to avoid type checking errors.
 - Caching the service instance onto the target object to avoid unnecessary initialization.  
@@ -14,7 +18,7 @@
 ## v0.9.4
 
 ### Fixes
-- Fixed incorrect external urls for `HelpDesk Notifications` and `SmsTemporaryMedia External Url`. 
+- Fixed incorrect external urls for `HelpDesk Notifications` and `SmsTemporaryMedia External Url`.
 
 ## v0.9.3
 
