@@ -1,10 +1,13 @@
 # Changelog
 
-## v0.9.5
+## v0.9.6
 
 ### Features
 - Created filtering util functions.
 - Created view glue accordion template.
+
+
+## v0.9.5
 
 ### Fixes
 - ``DjangoModelService`` can properly initialize from future refs to avoid type checking errors.
