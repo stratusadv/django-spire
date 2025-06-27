@@ -139,3 +139,33 @@ Task.services.automation.clean_dead_tasks()
 | ----------------------------------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Work on **one existing** row                                      | `task.services.mark_done()`                   | You already have the instance; the service mutates it and persists changes.                                                       |
 | Run **bulk / maintenance** logic or logic **before** a row exists | `Task.services.automation.clean_dead_tasks()` | You need the behaviour but not a specific row to start from; the service will create its own temporary Task or iterate over many. |
+
+## 6 · Accessing Model Class in Service
+
+- When working inside a service, you may need access to the model class itself to perform database queries.
+
+- The service initialization automatically provides this by setting the model class as an attribute matching the model name.
+
+
+In the background, our base service sets the target object class as an attribute by the class name. 
+
+Here's how to use it:
+
+```python
+# tasks/service/services.py
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+from django_spire.contrib.service import BaseDjangoModelService
+
+if TYPE_CHECKING:
+    from app.tasks.models import Task
+
+class TaskAutomationService(BaseDjangoModelService):    
+    task: Task    
+    Task: Task # add for proper type annotations when using database queries
+    
+    def mark_stale(self) -> Task:
+        stale_tasks = self.Task.objects.filter(created_date__lte='2020-01-01')
+        ...        
+```

@@ -1,5 +1,12 @@
 # Changelog
 
+
+## v0.9.7
+
+### Features
+- Model class added to base service initialization
+
+
 ## v0.9.6
 
 ### Features

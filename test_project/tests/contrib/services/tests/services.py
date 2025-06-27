@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 from django_spire.contrib.service.django_model_service import BaseDjangoModelService
 
 if TYPE_CHECKING:
@@ -23,6 +23,8 @@ class TestModelChildSubService(BaseDjangoModelService):
 
 class TestModelService(BaseDjangoModelService):
     test_model: TestModel
+    TestModel: Type[TestModel]
+
     sub: TestModelService = TestModelSubService
 
     def get_the_first_name(self, weather: str = ''):
@@ -31,6 +33,9 @@ class TestModelService(BaseDjangoModelService):
     def set_inactive(self):
         self.test_model.is_active = False
         self.test_model.save()
+
+    def find_all(self):
+        return self.TestModel.objects.all()
 
 
 class TestModelChildService(BaseDjangoModelService):

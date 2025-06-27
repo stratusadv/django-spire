@@ -25,6 +25,13 @@ class TestBaseService(TestCase):
         # Initialize null object from model class.
         self.assertEqual(TestModel.services.test_model.id, None)
 
+    def test_model_class_access(self):
+        self.assertIsNotNone(self.test_model.services.TestModel)
+        self.assertEqual(self.test_model.services.TestModel, self.test_model.__class__)
+
+    def test_model_class_service_method(self):
+        self.assertIsNotNone(self.test_model.services.find_all())
+
     def test_method_on_top_level_service(self):
         self.test_model.services.set_inactive()
         self.assertFalse(self.test_model.is_active)
