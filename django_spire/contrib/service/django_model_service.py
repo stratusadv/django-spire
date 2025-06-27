@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC
+from typing import Type
 
 from django.db import transaction
 from django.db.models import Model
@@ -39,7 +40,6 @@ class BaseDjangoModelService(BaseService, ABC):
             touched_fields.append(field.rstrip('_id'))
 
         return touched_fields
-
 
     @property
     def _model_obj_id_is_empty(self) -> bool:
@@ -90,6 +90,10 @@ class BaseDjangoModelService(BaseService, ABC):
             logging.warning(f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.')
 
         return new_model_obj_was_created
+
+    @property
+    def obj_class(self) -> Type[Model]:
+        return self.obj.__class__
 
     @property
     def _obj_is_valid(self) -> bool:

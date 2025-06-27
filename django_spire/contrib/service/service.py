@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any
+from typing import Any, cast
 
 
 class BaseService(ABC):
@@ -23,6 +23,9 @@ class BaseService(ABC):
         self._obj_type: type = obj.__class__
 
         setattr(self, self._obj_name, obj)
+
+        target_class = obj.__class__
+        setattr(self, target_class.__name__, target_class)
 
         # Cascade initializing services
         self._init_sub_services()
@@ -62,6 +65,10 @@ class BaseService(ABC):
     @property
     def obj(self) -> Any:
         return getattr(self, self._obj_name)
+
+    @property
+    def obj_class(self) -> type:
+        return self._obj_type
 
     @property
     def _obj_is_valid(self) -> bool:
