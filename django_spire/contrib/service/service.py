@@ -10,7 +10,7 @@ class BaseService(ABC):
     def __init__(self, obj: Any = None):
         self._obj_name: str = list(self.__class__.__annotations__.keys())[0]
 
-        self._obj_type_str: str = str(
+        self._obj_type_name: str = str(
             list(self.__class__.__annotations__.values())[0]
         ).split('.')[-1]
 
@@ -19,9 +19,9 @@ class BaseService(ABC):
         if obj is None:
             return
 
-        if obj.__class__.__name__ != self._obj_type_str:
+        if obj.__class__.__name__ != self._obj_type_name:
             raise ServiceException(
-                f'{self.__class__.__name__} was instantiated with obj type "{obj.__class__.__name__}" and failed as it was expecting "{self._obj_type_str}".'
+                f'{self.__class__.__name__} was instantiated with obj type "{obj.__class__.__name__}" and failed as it was expecting "{self._obj_type_name}".'
             )
 
         self._obj_type: type = obj.__class__
@@ -32,7 +32,7 @@ class BaseService(ABC):
 
         # This will set a class attribute to match the annotation type
         # Example: "car: Car" will allow you to access "self.car" for the instance and "self.Car" for the class access.
-        setattr(self, self._obj_type_str, self._obj_type)
+        setattr(self, self._obj_type_name, self._obj_type)
 
         setattr(self, self._obj_name, obj)
 
@@ -71,7 +71,7 @@ class BaseService(ABC):
 
     @property
     def obj_class(self) -> Any:
-        return getattr(self, self.obj.__class__.__name__)
+        return self._obj_type
 
     @property
     def _obj_is_valid(self) -> bool:
@@ -82,7 +82,7 @@ class BaseService(ABC):
             raise ServiceException(
                 f'{target.__class__.__name__} is required to have the same obj name as {self.__class__.__name__}. "{target._obj_name}" is not "{self._obj_name}".')
 
-        if target._obj_type_str != self._obj_type_str:
+        if target._obj_type_name != self._obj_type_name:
             raise ServiceException(
                 f'{target.__class__.__name__} must use the same obj type as {self.__class__.__name__}. {target._obj_type} is not {self._obj_type}.')
 
