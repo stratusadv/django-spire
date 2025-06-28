@@ -1,6 +1,12 @@
 # Changelog
 
 
+## v0.9.8
+
+### Changes
+- Improved SMS Notification Admin Panel
+
+
 ## v0.9.7
 
 ### Features
