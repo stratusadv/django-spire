@@ -53,8 +53,6 @@ class BaseService(ABC):
                 else:
                     target: BaseService | Any = instance
 
-                print(f'{target=}')
-
                 if issubclass(target.__class__, BaseService):
 
                     self._validate_base_service_target_or_error(target)
