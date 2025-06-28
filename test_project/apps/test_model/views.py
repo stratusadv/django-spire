@@ -32,10 +32,8 @@ def test_model_detail_view(request: WSGIRequest) -> TemplateResponse:
         information=f'{request.user} added a model.'
     )
 
-    activities = test_model.activity_log.all()
 
     context_data = {
-        'activities': activities,
         'fields': fields
     }
 
@@ -59,6 +57,7 @@ def test_model_list_view(request: WSGIRequest) -> TemplateResponse:
 
     return portal_views.list_view(
         request,
+        model=generate_test_model,
         context_data=context_data,
         template='test_model/page/test_model_list_page.html'
     )

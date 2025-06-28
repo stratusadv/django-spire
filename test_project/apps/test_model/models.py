@@ -4,11 +4,12 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.timezone import localdate, now
 
+from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from test_project.tests.contrib.services.tests.services import TestModelService, TestModelChildService
 
 
-class TestModel(HistoryModelMixin):
+class TestModel(ActivityMixin, HistoryModelMixin):
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)
     description = models.TextField()
@@ -50,7 +51,7 @@ class TestModel(HistoryModelMixin):
         verbose_name_plural = 'Test Model'
 
 
-class TestModelChild(HistoryModelMixin):
+class TestModelChild(ActivityMixin, HistoryModelMixin):
     parent = models.ForeignKey(
         TestModel,
         on_delete=models.CASCADE,
