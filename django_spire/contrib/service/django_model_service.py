@@ -92,8 +92,12 @@ class BaseDjangoModelService(BaseService, ABC):
         return new_model_obj_was_created
 
     @property
+    def obj(self) -> Model:
+        return super().obj
+
+    @property
     def obj_class(self) -> Type[Model]:
-        return self.obj.__class__
+        return super().obj_class
 
     @property
     def _obj_is_valid(self) -> bool:

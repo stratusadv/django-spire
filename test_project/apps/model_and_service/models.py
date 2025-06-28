@@ -6,10 +6,11 @@ from django.utils.timezone import localdate, now
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
-from test_project.tests.contrib.services.tests.services import TestModelService, TestModelChildService
+from test_project.apps.model_and_service.services.adult_service import AdultService
+from test_project.apps.model_and_service.services.kid_service import KidService
 
 
-class TestModel(ActivityMixin, HistoryModelMixin):
+class Adult(ActivityMixin, HistoryModelMixin):
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)
     description = models.TextField()
@@ -34,7 +35,7 @@ class TestModel(ActivityMixin, HistoryModelMixin):
     bed_time = models.TimeField(default='20:00')
     likes_to_party = models.BooleanField(default=True)
 
-    services = TestModelService()
+    services = AdultService()
 
     def __str__(self) -> str:
         return f'{self.first_name} {self.last_name}'
@@ -46,14 +47,14 @@ class TestModel(ActivityMixin, HistoryModelMixin):
         return f'{self.first_name} {self.last_name}'
 
     class Meta:
-        db_table = 'django_spire_test_model'
-        verbose_name = 'Test Model'
-        verbose_name_plural = 'Test Model'
+        db_table = 'test_project_adult'
+        verbose_name = 'Adult'
+        verbose_name_plural = 'Adults'
 
 
-class TestModelChild(ActivityMixin, HistoryModelMixin):
+class Kid(ActivityMixin, HistoryModelMixin):
     parent = models.ForeignKey(
-        TestModel,
+        Adult,
         on_delete=models.CASCADE,
         related_name='children',
         related_query_name='child'
@@ -61,9 +62,9 @@ class TestModelChild(ActivityMixin, HistoryModelMixin):
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)
 
-    services = TestModelChildService()
+    services = KidService()
 
     class Meta:
-        db_table = 'django_spire_test_model_child'
-        verbose_name = 'Test Model Child'
-        verbose_name_plural = 'Test Model Children'
+        db_table = 'test_project_kid'
+        verbose_name = 'Kid'
+        verbose_name_plural = 'Kids'
