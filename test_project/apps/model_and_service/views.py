@@ -7,7 +7,7 @@ from django.template.response import TemplateResponse
 
 from django_spire.contrib.generic_views import portal_views
 
-from test_project.apps.test_model.factories import generate_test_model
+from test_project.apps.model_and_service.factories import generate_test_model
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

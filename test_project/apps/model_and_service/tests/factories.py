@@ -1,7 +1,7 @@
-from test_project.apps.test_model.models import TestModel, TestModelChild
+from test_project.apps.model_and_service.models import Adult, Kid
 
 
-def create_test_model(**kwargs):
+def create_adult(**kwargs) -> Adult:
     data = {
         'first_name': 'John',
         'last_name': 'Doe',
@@ -16,15 +16,15 @@ def create_test_model(**kwargs):
         'likes_to_party': True
     }
     data.update(kwargs)
-    return TestModel.objects.create(**data)
+    return Adult.objects.create(**data)
 
 
-def create_test_model_child(**kwargs):
-    parent = kwargs.pop('parent', create_test_model())
+def create_kid(**kwargs) -> Kid:
+    parent = kwargs.pop('parent', create_adult())
     data = {
         'parent': parent,
         'first_name': 'Junior',
         'last_name': 'Doe'
     }
     data.update(kwargs)
-    return TestModelChild.objects.create(**data)
+    return Kid.objects.create(**data)
