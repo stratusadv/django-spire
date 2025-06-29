@@ -80,8 +80,8 @@ class TaskService(BaseDjangoModelService):
     task: Task 
 
     # followed by all sub services
-    notification: TaskNotificationService = TaskNotificationService # <- passing class
-    processor: TaskProcessorService = TaskProcessorService
+    notification: TaskNotificationService = TaskNotificationService()
+    processor: TaskProcessorService = TaskProcessorService()
 ```
 
 ```python
