@@ -5,11 +5,11 @@ import random
 
 from django.utils.timezone import localdate, now
 
-from test_project.apps.test_model.models import TestModel
+from test_project.apps.model_and_service.models import Adult
 
 
-def generate_test_model() -> TestModel:
-    return TestModel.objects.create(
+def generate_test_model() -> Adult:
+    return Adult.objects.create(
         first_name='John',
         last_name='Doe',
         description='This is a sample description used for testing.',

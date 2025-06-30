@@ -75,13 +75,13 @@ if TYPE_CHECKING:
     from app.tasks.service.notification_service import TaskNotificationService
     from app.tasks.service.processor_service import TaskProcessorService
 
-class TaskService(BaseDjangoModelService):    
+class TaskService(BaseDjangoModelService['Task']):    
     # target model — must be first
-    task: Task 
+    obj: Task 
 
     # followed by all sub services
-    notification: TaskNotificationService = TaskNotificationService # <- passing class
-    processor: TaskProcessorService = TaskProcessorService
+    notification: TaskNotificationService = TaskNotificationService()
+    processor: TaskProcessorService = TaskProcessorService()
 ```
 
 ```python
@@ -94,13 +94,13 @@ from django_spire.contrib.service import BaseDjangoModelService
 if TYPE_CHECKING:
     from app.tasks.models import Task
 
-class TaskProcessorService(BaseDjangoModelService):    
-    task: Task 
+class TaskProcessorService(BaseDjangoModelService['Task']):    
+    obj: Task 
 
     def mark_done(self) -> Task:
-        self.task.is_done = True
-        self.task.save()            
-        return self.task
+        self.obj.is_done = True
+        self.obj.save()            
+        return self.obj
 ```
 
 ---
@@ -161,11 +161,10 @@ from django_spire.contrib.service import BaseDjangoModelService
 if TYPE_CHECKING:
     from app.tasks.models import Task
 
-class TaskAutomationService(BaseDjangoModelService):    
-    task: Task    
-    Task: Task # add for proper type annotations when using database queries
+class TaskAutomationService(BaseDjangoModelService['Task']):    
+    obj: Task
     
     def mark_stale(self) -> Task:
-        stale_tasks = self.Task.objects.filter(created_date__lte='2020-01-01')
+        stale_tasks = self.obj_class.objects.filter(created_date__lte='2020-01-01')
         ...        
 ```
