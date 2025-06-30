@@ -14,7 +14,7 @@ urlpatterns = [
     path('notification/', include('test_project.apps.notification.urls', namespace='notification')),
     path('tabular/', include('test_project.apps.tabular.urls', namespace='tabular')),
     path('wizard/', include('test_project.apps.wizard.urls', namespace='wizard')),
-    path('test_model/', include('test_project.apps.test_model.urls', namespace='test_model'))
+    path('test_model/', include('test_project.apps.model_and_service.urls', namespace='test_model'))
 ]
 
 urlpatterns += [

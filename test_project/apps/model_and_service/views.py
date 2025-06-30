@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from typing_extensions import TYPE_CHECKING
 
+from test_project.apps.model_and_service.models import Adult
+
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
 from django_spire.contrib.generic_views import portal_views
 
-from test_project.apps.test_model.factories import generate_test_model
+from test_project.apps.model_and_service.factories import generate_test_model
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
