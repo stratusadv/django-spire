@@ -48,8 +48,7 @@ from typing import TYPE_CHECKING
 
 from django.db import models
 
-if TYPE_CHECKING:
-    from app.tasks.services.service import TaskService
+from app.tasks.services.service import TaskService
 
 class Task(models.Model):
     title = models.CharField(max_length=200)
@@ -70,10 +69,11 @@ from typing import TYPE_CHECKING
 
 from django_spire.contrib.service import BaseDjangoModelService
 
+from app.tasks.service.notification_service import TaskNotificationService
+from app.tasks.service.processor_service import TaskProcessorService
+
 if TYPE_CHECKING:
     from app.tasks.models import Task
-    from app.tasks.service.notification_service import TaskNotificationService
-    from app.tasks.service.processor_service import TaskProcessorService
 
 class TaskService(BaseDjangoModelService):    
     # target model — must be first
@@ -162,8 +162,9 @@ if TYPE_CHECKING:
     from app.tasks.models import Task
 
 class TaskAutomationService(BaseDjangoModelService):    
-    task: Task    
-    Task: Task # add for proper type annotations when using database queries
+    task: Task 
+    # add for proper type annotations when using database queries
+    Task: Task 
     
     def mark_stale(self) -> Task:
         stale_tasks = self.Task.objects.filter(created_date__lte='2020-01-01')
