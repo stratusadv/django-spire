@@ -1,6 +1,16 @@
 # Changelog
 
 
+## v0.10.0
+
+### Changes
+- Service changed to use generic typing and object reference.
+
+### Breaking
+- Service must take an obj with type annotations. 
+- See the docs for other small changes. 
+
+
 ## v0.9.8
 
 ### Changes
