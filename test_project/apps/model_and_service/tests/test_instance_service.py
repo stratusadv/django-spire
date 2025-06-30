@@ -31,9 +31,9 @@ class TestInstanceService(TestCase):
 
         created = new_adult.services.save_model_obj(**data)
         self.assertEqual(new_adult.first_name, 'John')
-        self.assertEqual(new_adult.services.adult.first_name, 'John')
+        self.assertEqual(new_adult.services.obj.first_name, 'John')
         self.assertEqual(new_adult.last_name, 'Smith')
-        self.assertEqual(new_adult.services.adult.last_name, 'Smith')
+        self.assertEqual(new_adult.services.obj.last_name, 'Smith')
         self.assertIsNotNone(self.adult.id)
         self.assertTrue(created)
 
@@ -81,15 +81,15 @@ class TestInstanceService(TestCase):
         created = new_kid.services.save_model_obj(**data)
 
         self.assertEqual(new_kid.parent_id, new_adult.id)
-        self.assertEqual(new_kid.services.kid.parent_id, new_adult.id)
-        self.assertEqual(new_kid.services.sub.kid.parent_id, new_adult.id)
-        self.assertEqual(new_kid.services.sub.deep.kid.parent_id, new_adult.id)
+        self.assertEqual(new_kid.services.obj.parent_id, new_adult.id)
+        self.assertEqual(new_kid.services.sub.obj.parent_id, new_adult.id)
+        self.assertEqual(new_kid.services.sub.deep.obj.parent_id, new_adult.id)
 
         new_kid.first_name = 'George'
 
-        self.assertEqual(new_kid.services.sub.deep.kid.first_name, 'George')
+        self.assertEqual(new_kid.services.sub.deep.obj.first_name, 'George')
 
-        new_kid.services.sub.deep.kid.first_name = 'Burt'
+        new_kid.services.sub.deep.obj.first_name = 'Burt'
 
         self.assertEqual(new_kid.first_name, 'Burt')
 

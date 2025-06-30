@@ -8,10 +8,10 @@ if TYPE_CHECKING:
     from test_project.apps.model_and_service.models import Kid
 
 
-class KidService(BaseDjangoModelService):
-    kid: Kid
+class KidService(BaseDjangoModelService['Kid']):
+    obj: Kid
 
     sub: KidSubService = KidSubService()
 
     def prepend_tacos_str_name(self) -> str:
-        return f'tacos {self.kid.first_name} {self.kid.last_name}'
+        return f'tacos {self.obj.first_name} {self.obj.last_name}'

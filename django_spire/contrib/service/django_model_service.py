@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC
-from typing import Type
+from typing import Type, Generic, TypeVar
 
 from django.db import transaction
 from django.db.models import Model
@@ -10,8 +10,10 @@ from django.db.models import Model
 from django_spire.contrib.service.exceptions import ServiceException
 from django_spire.contrib.service.service import BaseService
 
+TypeDjangoModel = TypeVar('TypeDjangoModel', bound=Model, covariant=True)
 
-class BaseDjangoModelService(BaseService, ABC):
+
+class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjangoModel]):
     def _get_concrete_fields(self) -> dict:
         return {
             field.name: field
@@ -87,19 +89,15 @@ class BaseDjangoModelService(BaseService, ABC):
             self.obj.save(update_fields=touched_fields)
 
         else:
-            logging.warning(f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.')
+            logging.warning(
+                f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.')
 
         return new_model_obj_was_created
 
     @property
-    def obj(self) -> Model:
-        return super().obj
-
-    @property
-    def obj_class(self) -> Type[Model]:
+    def obj_class(self) -> Type[TypeDjangoModel]:
         return super().obj_class
 
     @property
     def _obj_is_valid(self) -> bool:
         return super()._obj_is_valid and isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
-

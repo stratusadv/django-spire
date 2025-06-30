@@ -10,16 +10,15 @@ class TestBaseService(TestCase):
         self.adult = create_adult()
 
     def test_get_sets_objects_dynamically(self):
-        self.assertEqual(self.adult.services._obj_name, 'adult')
         self.assertEqual(self.adult.services._obj_type, Adult)
 
-        self.assertEqual(self.adult.services.adult, self.adult)
+        self.assertEqual(self.adult.services.obj, self.adult)
 
-        self.assertEqual(Adult.services.adult.id, None)
+        self.assertEqual(Adult.services.obj.id, None)
 
     def test_model_class_access(self):
-        self.assertIsNotNone(self.adult.services.Adult)
-        self.assertEqual(self.adult.services.Adult, self.adult.__class__)
+        self.assertIsNotNone(self.adult.services.obj_class)
+        self.assertEqual(self.adult.services.obj_class, self.adult.__class__)
 
     def test_model_class_service_method(self):
         self.assertIsNotNone(self.adult.services.find_all())
@@ -32,7 +31,7 @@ class TestBaseService(TestCase):
         self.adult.services.set_inactive()
         self.assertFalse(self.adult.is_active)
 
-        self.assertEqual(self.adult.services.sub.adult.is_active, self.adult.is_active)
+        self.assertEqual(self.adult.services.sub.obj.is_active, self.adult.is_active)
 
     def test_method_on_sub_service(self):
         self.assertEqual(self.adult.get_full_name(), self.adult.services.sub.full_name())

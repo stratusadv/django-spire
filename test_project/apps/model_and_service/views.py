@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing_extensions import TYPE_CHECKING
 
+from test_project.apps.model_and_service.models import Adult
+
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 

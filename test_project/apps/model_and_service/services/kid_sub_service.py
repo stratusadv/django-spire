@@ -9,10 +9,10 @@ if TYPE_CHECKING:
     from test_project.apps.model_and_service.models import Kid
 
 
-class KidSubService(BaseDjangoModelService):
-    kid: Kid
+class KidSubService(BaseDjangoModelService['Kid']):
+    obj: Kid
 
     deep: KidDeepService = KidDeepService()
 
     def full_name(self):
-        return f'{self.kid.first_name} {self.kid.last_name}'
+        return f'{self.obj.first_name} {self.obj.last_name}'

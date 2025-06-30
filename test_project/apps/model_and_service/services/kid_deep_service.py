@@ -8,8 +8,8 @@ if TYPE_CHECKING:
     from test_project.apps.model_and_service.models import Kid
 
 
-class KidDeepService(BaseDjangoModelService):
-    kid: Kid
+class KidDeepService(BaseDjangoModelService['Kid']):
+    obj: Kid
 
     def postfix_deep_to_first_name(self):
-        return f'{self.kid.first_name} deep'
+        return f'{self.obj.first_name} deep'

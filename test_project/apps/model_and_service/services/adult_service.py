@@ -8,17 +8,17 @@ if TYPE_CHECKING:
     from test_project.apps.model_and_service.models import Adult
 
 
-class AdultService(BaseDjangoModelService):
-    adult: Adult
+class AdultService(BaseDjangoModelService['Adult']):
+    obj: Adult
 
     sub: AdultSubService = AdultSubService()
 
     def get_the_first_name(self, weather: str = ''):
-        return self.adult.first_name + weather
+        return self.obj.first_name + weather
 
     def set_inactive(self):
-        self.adult.is_active = False
-        self.adult.save()
+        self.obj.is_active = False
+        self.obj.save()
 
     def find_all(self):
         return self.obj_class.objects.all()
