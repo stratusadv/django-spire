@@ -7,6 +7,7 @@ faker
 psycopg2
 pydantic
 Pygments
+Pillow==11.2.1
 python-dateutil
 typing_extensions
 twilio

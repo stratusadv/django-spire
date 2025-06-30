@@ -1,6 +1,12 @@
 # Changelog
 
 
+## v0.10.1
+
+### Feature
+- Added PNG compression to SMS Temporary Media view.
+
+
 ## v0.10.0
 
 ### Changes
