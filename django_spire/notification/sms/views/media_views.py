@@ -16,9 +16,8 @@ def external_temporary_media_view(request, external_access_key: uuid.UUID) -> Ht
 
     image = Image.open(
         BytesIO(base64.b64decode(temporary_media.content))
-    ).convert('P', palette=Image.ADAPTIVE, colors=32)
-
-    image = image.resize((int(image.size[0]/2), int(image.size[1]/2)), resample=Image.Resampling.BICUBIC)
+    )
+    image = image.convert('P', palette=Image.ADAPTIVE, colors=32)
 
     buffer = BytesIO()
     image.save(buffer, 'PNG')
