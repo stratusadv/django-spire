@@ -62,7 +62,7 @@ def delete_form_view(
     # Present and past tense of verb
     verbs: tuple[str, str] = ('delete', 'deleted'),
     return_url: str,
-    template: str = 'django_spire/page/form_full_page.html'
+    template: str = 'django_spire/page/delete_confirmation_form_page.html'
 ) -> HttpResponseRedirect | TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -70,23 +70,23 @@ def delete_form_view(
     model_name = obj._meta.model._meta.verbose_name
 
     if request.method == 'POST':
-        form = DeleteConfirmationForm(request.POST)
+        form = DeleteConfirmationForm(data=request.POST, obj=obj)
 
         if form.is_valid():
-            if delete_func is not None:
-                delete_func()
-            else:
-                obj.set_deleted()
+            if form.cleaned_data['should_delete']:
+                if delete_func is not None:
+                    delete_func()
+                else:
+                    obj.set_deleted()
 
-            if activity_func is not None:
-                activity_func()
-            elif hasattr(obj, 'add_activity') and auto_add_activity:
-                obj.add_activity(
-                    user=request.user,
-                    verb=verbs[1],
-                    device=request.device,
-                    information=f'{request.user.get_full_name()} {verbs[1].lower()} {model_name} "{obj}".'
-                )
+                if activity_func is not None:
+                    activity_func()
+                elif hasattr(obj, 'add_activity') and auto_add_activity:
+                    obj.add_activity(
+                        user=request.user,
+                        verb=verbs[1],
+                        information=f'{request.user.get_full_name()} {verbs[1].lower()} {model_name} "{obj}".'
+                    )
 
             return HttpResponseRedirect(return_url)
     else:
