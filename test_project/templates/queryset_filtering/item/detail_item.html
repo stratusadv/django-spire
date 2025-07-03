@@ -1,0 +1,11 @@
+{% include 'django_spire/item/item.html' %}
+
+{% block item_title %}
+	{% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=task.name %}
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=task.description %}
+    </div>
+{% endblock %}
