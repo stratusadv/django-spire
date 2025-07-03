@@ -86,6 +86,8 @@ INSTALLED_APPS += [
     'django_spire.history.activity',
     'django_spire.history.viewed',
 
+    'django_spire.knowledge',
+
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',

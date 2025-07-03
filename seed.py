@@ -10,5 +10,5 @@ from django_spire.auth.user.tests.factories import create_super_user
 
 create_super_user()
 
-print('Seeding Help Desk Data...')
-from test_project.apps.help_desk.seed import *
+print('Seeding Test Project...')
+from test_project.seed import *

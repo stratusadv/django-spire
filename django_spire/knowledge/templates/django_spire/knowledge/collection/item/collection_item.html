@@ -1,0 +1,9 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title %}
+    {{ collection.name }}
+{% endblock %}
+
+{% block item_row_content %}
+    {{ collection.description }}
+{% endblock %}

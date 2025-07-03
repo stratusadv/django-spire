@@ -7,3 +7,6 @@ application = get_wsgi_application()
 
 print('Seeding Help Desk Data...')
 from test_project.apps.help_desk.seed import *
+
+print('Seeding Knowledge Data...')
+from test_project.apps.knowledge.seed import *

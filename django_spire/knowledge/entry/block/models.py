@@ -1,20 +1,32 @@
 from django.db import models
 
-from django_spire.knowledge.entry.models import EntryRevision
-from django_spire.knowledge.entry.block.choices import EntryBlockTypeChoices
+from django_spire.knowledge.entry.block.choices import BlockTypeChoices
+from django_spire.knowledge.entry.block.maps import ENTRY_BLOCK_MAP
+from django_spire.knowledge.entry.editor.blocks.block import BaseBlock
+from django_spire.knowledge.entry.models import EntryVersion
 
 
-class EntryBlock(models.Model):
-    revision = models.ForeignKey(
-        EntryRevision,
+class EntryVersionBlock(models.Model):
+    version = models.ForeignKey(
+        EntryVersion,
         on_delete=models.CASCADE,
-        related_name='snippets',
-        related_query_name='snippet'
+        related_name='blocks',
+        related_query_name='block'
     )
     type = models.CharField(
         max_length=32,
-        choices=EntryBlockTypeChoices,
-        default=EntryBlockTypeChoices.TEXT
+        choices=BlockTypeChoices,
+        default=BlockTypeChoices.TEXT
     )
-    block_data = models.JSONField()
-    text_data = models.TextField()
+    _block_data = models.JSONField()
+    _text_data = models.TextField()
+
+    @property
+    def block(self) -> BaseBlock:
+        return ENTRY_BLOCK_MAP[self.type](**self._block_data)
+
+    @block.setter
+    def block(self, value: BaseBlock):
+        self.type = value.type
+        self._block_data = value.model_dump()
+        self._text_data = value.render_to_text()

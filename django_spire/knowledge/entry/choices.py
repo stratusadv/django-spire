@@ -1,7 +1,7 @@
 from django.db.models import TextChoices
 
 
-class EntryRevisionTypeChoices(TextChoices):
+class EntryVersionTypeChoices(TextChoices):
     DRAFT = 'draft'
     PUBLISHED = 'published'
     ARCHIVED = 'archived'

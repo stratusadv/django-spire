@@ -1,0 +1,20 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title_content_style %}{% endblock %}
+
+{% block card_title %}
+    Collections
+{% endblock %}
+
+{% block card_button %}
+    {% url 'django_spire:help_desk:form:create' as create_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% for collection in collections %}
+        {% include 'django_spire/knowledge/collection/item/collection_item.html' %}
+    {% empty %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}

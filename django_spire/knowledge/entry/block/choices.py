@@ -1,6 +1,7 @@
 from django.db.models import TextChoices
 
 
-class EntryBlockTypeChoices(TextChoices):
+class BlockTypeChoices(TextChoices):
     TEXT = 'text'
     HEADING = 'heading'
+    SUB_HEADING = 'sub_heading'

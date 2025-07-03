@@ -1,7 +1,9 @@
 from django.db import models
+from django.utils.timezone import now
 
+from django_spire.auth.user.models import AuthUser
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.entry.choices import EntryRevisionTypeChoices
+from django_spire.knowledge.entry.choices import EntryVersionTypeChoices
 
 
 class Entry(models.Model):
@@ -11,21 +13,37 @@ class Entry(models.Model):
         related_name='entries',
         related_query_name='entry'
     )
-    current_revision = models.OneToOneField(
-        'EntryRevision',
+    current_version = models.OneToOneField(
+        'EntryVersion',
         on_delete=models.CASCADE,
-        related_name='current_entry',
-        related_query_name='current_entry'
+        related_name='current_version',
+        related_query_name='current_version',
+        null=True,
+        blank=True,
     )
 
+    name = models.CharField(max_length=255)
 
-class EntryRevision(models.Model):
+
+class EntryVersion(models.Model):
     entry = models.ForeignKey(
         Entry,
         on_delete=models.CASCADE,
-        related_name='revisions',
-        related_query_name='revision'
+        related_name='versions',
+        related_query_name='version'
     )
+    author = models.ForeignKey(
+        AuthUser,
+        on_delete=models.CASCADE,
+        related_name='entry_versions',
+        related_query_name='entry_version'
+    )
+    published_datetime = models.DateTimeField(blank=True, null=True)
+    last_edit_datetime = models.DateTimeField(default=now)
 
-    type = models.CharField(max_length=32, choices=EntryRevisionTypeChoices, default=EntryRevisionTypeChoices.DRAFT)
+    status = models.CharField(
+        max_length=32,
+        choices=EntryVersionTypeChoices,
+        default=EntryVersionTypeChoices.DRAFT
+    )
 
