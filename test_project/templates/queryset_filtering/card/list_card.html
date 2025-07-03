@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block card_button %}
+	{% include 'django_spire/button/primary_button.html' with button_icon='bi bi-filter' x_button_click='toggle_card_title_dropdown' %}
+{% endblock %}
+
+{% block card_dropdown_content %}
+    {% include 'queryset_filtering/form/list_filter_form.html' %}
 {% endblock %}
 
 {% block card_title_content %}

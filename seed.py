@@ -12,3 +12,6 @@ create_super_user()
 
 print('Seeding Help Desk Data...')
 from test_project.apps.help_desk.seed import *
+
+print('Seeing Query Set Filtering Models')
+from test_project.apps.queryset_filtering.seeding.seed import *

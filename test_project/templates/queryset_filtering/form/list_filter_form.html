@@ -1,0 +1,53 @@
+{% extends 'django_spire/filtering/form/filter_form.html' %}
+
+{% block filter_key %}{{ queryset_filter.filter_key }}{% endblock %}
+
+{% block filter_content %}
+    <div
+        class="row"
+        x-data="{
+            init() {
+                this.search_value.set_attribute('placeholder', 'Search first and last name...')
+            },
+            age: new GlueIntegerField(
+                'age',
+                {
+                    value: '{{ queryset_filter.filter_data.age|default:0 }}',
+                }
+            ),
+            search_value: new GlueCharField(
+                'search_value',
+                {
+                    value: '{{ queryset_filter.filter_data.search_value }}',
+                    label: 'Search',
+                    name: 'search_value',
+                }
+            ),
+            'hair_colour_choices': new GlueIntegerField(
+                'hair_colour_choices',
+                {
+                    value: '{{ queryset_filter.filter_data.hair_colour_choices|default:'null' }}',
+                    choices: [
+                        ['blue', 'Blue'],
+                        ['brown', 'Brown'],
+                        ['black', 'Black'],
+                        ['red', 'Red'],
+                        ['white', 'White'],
+                        ['grey', 'Grey'],
+                        ['other', 'Other'],
+                    ],
+                }
+            ),
+        }"
+    >
+        <div class="col-12">
+            {% include 'django_glue/form/field/char_field.html' with glue_field='search_value' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_glue/form/field/number_field.html' with glue_field='age' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_glue/form/field/multi_select_field.html' with glue_field='hair_colour_choices' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,6 +1,3 @@
-import django
-django.setup()
-
 from django_spire.contrib.seeding import DjangoModelSeeder
 from test_project.apps.queryset_filtering.models import Task
 
@@ -19,8 +16,3 @@ class TaskModelSeeder(DjangoModelSeeder):
     }
 
     default_to = 'faker'
-
-
-if __name__ == '__main__':
-    TaskModelSeeder.seed_database(20)
-    print('seeded!')
