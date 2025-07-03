@@ -3,8 +3,6 @@ from django_spire.core.filtering.session import QuerySetFilterSession
 
 
 class QuerySetFilter:
-    filter_key: str = None
-
     def __init__(
             self,
             request,
@@ -14,7 +12,12 @@ class QuerySetFilter:
         self.request = request
         self.filter_key = filter_key
 
+        # What are the different types for?
+        # Searching and Filtering and Clear?
+        # If there is a search key then it should automatically search?
         self.user_command = self.request.GET.get('filter_type')
+
+        # This allows us to have multiple filters on the page
         self.user_key = self.request.GET.get('filter_key')
 
         self.session_helper = QuerySetFilterSession(self.request, self.filter_key)
@@ -73,6 +76,7 @@ class QuerySetFilter:
         return queryset
 
     def to_context_data(self) -> dict:
+        # Todo: This can be turned into attributes that are accessed from the queryset filter
         return {
             self.filter_key: {
                 'has_data': self.session_helper.has_data(),

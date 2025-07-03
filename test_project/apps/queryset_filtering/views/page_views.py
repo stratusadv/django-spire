@@ -5,7 +5,12 @@ from test_project.apps.queryset_filtering.models import Task
 
 
 def list_page(request):
-    queryset_filter = QuerySetFilter(request, filter_key='task_queryset_filter')
+    # Pulls filter data from sessions for reloading of pages. Do not want to lose filter data.
+    #
+    queryset_filter = QuerySetFilter(
+        request,
+        filter_key='task_queryset_filter'
+    )
     tasks = queryset_filter.process_queryset(Task.objects.all())
 
     context_data = {
