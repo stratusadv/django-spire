@@ -1,21 +1,22 @@
 from django.template.response import TemplateResponse
 
-from django_spire.core.filtering.filters import QuerySetFilter
 from test_project.apps.queryset_filtering.models import Task
 
 
 def list_page(request):
-    # Pulls filter data from sessions for reloading of pages. Do not want to lose filter data.
-    #
-    queryset_filter = QuerySetFilter(
-        request,
-        filter_key='task_queryset_filter'
+
+    tasks = (
+        Task
+        .objects
+        .active()
+        .process_session_filter(request, 'task_list_page')
+        .search(request.GET.get('search_value'))
     )
-    tasks = queryset_filter.process_queryset(Task.objects.all())
+
 
     context_data = {
-        'tasks': Task.objects.active(),
-        'queryset_filter': queryset_filter,
+        'tasks': tasks,
+        # 'session_filter_data': request.session.queryset_filtering.get('task_list_page')
     }
 
     return TemplateResponse(

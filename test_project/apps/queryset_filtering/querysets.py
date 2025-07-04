@@ -1,30 +1,38 @@
+from __future__ import annotations
+
 from django.db.models import QuerySet, Q
 
-from django_spire.core.filtering.querysets import FilterQuerySet, SearchQuerySet
+from django_spire.core.querysets.mixins import SearchQuerySetMixin, SessionQuerySetFilterMixin
+from django_spire.history.querysets import HistoryQuerySet
 
 
 class TaskQuerySet(
-    FilterQuerySet,
-    SearchQuerySet
+    HistoryQuerySet,
+    SessionQuerySetFilterMixin,
+    SearchQuerySetMixin,
 ):
-
-    def active(self) -> QuerySet:
-        return self.filter(is_active=True, is_deleted=False)
-
     def complete(self) -> QuerySet:
         return self.filter(is_complete=True)
 
-    def filter_by_query_dict(self, filter_data: dict) -> QuerySet:
+    def _session_filter(self, session_data: dict) -> QuerySet['TaskQuerySet']:
+        # Todo: Can I make this easier?
         query = Q()
 
-        age = filter_data.get('age')
-        if age:
-            query &= Q(age=age)
+        name = session_data.get('name')
+        if name:
+            query &= Q(name__icontains=name)
+
+        status = session_data.get('status')
+        if status:
+            query &= Q(status=status)
 
         return self.filter(query)
 
-    def search(self, search_query: str) -> QuerySet:
+    def search(self, value: str | None) -> QuerySet:
+        if value is None:
+            return self
+
         return self.filter(
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query)
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         )
