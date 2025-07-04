@@ -2,8 +2,6 @@ from typing import Any
 
 from django import template
 
-from django_spire.core.querysets.session import QuerySetFilterSession
-
 register = template.Library()
 
 @register.simple_tag(takes_context=True)

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
 
-from django_spire.core.querysets.session import QuerySetFilterSession
+from django_spire.contrib.queryset.session import QuerySetFilterSession
 
 
 class SessionQuerySetFilterMixin(QuerySet):

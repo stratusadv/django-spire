@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.db.models import QuerySet, Q
 
-from django_spire.core.querysets.mixins import SearchQuerySetMixin, SessionQuerySetFilterMixin
+from django_spire.contrib.queryset.mixins import SearchQuerySetMixin, SessionQuerySetFilterMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 
