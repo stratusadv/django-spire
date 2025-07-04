@@ -7,7 +7,7 @@ from django.contrib.sessions.models import Session
 from django_spire.contrib.session.tests.factories import ShoppingCartSession
 
 
-class TestSessionSaving(TestCase):
+class BaseSessionTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.request = self.factory.get('/')
@@ -93,7 +93,6 @@ class TestSessionSaving(TestCase):
         # Decode the session data
         session_data = session_in_db.get_decoded()
 
-        print(session_data)
         self.assertIn(self.shopping_cart_session.session_key, session_data)
         self.assertIn('favorites', session_data[self.shopping_cart_session.session_key])
         self.assertEqual(
