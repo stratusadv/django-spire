@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.2
+
+### Fixes
+- Fixed App Notification Ordering
+
 
 ## v0.10.1
 
