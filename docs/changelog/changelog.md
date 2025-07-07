@@ -4,6 +4,7 @@
 
 ### Fixes
 - Fixed App Notification Ordering
+- Fixed Email Notification Url
 
 
 ## v0.10.1
