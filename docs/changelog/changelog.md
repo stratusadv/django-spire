@@ -4,6 +4,8 @@
 
 ### Fixes
 - Fixed App Notification Ordering
+- Fixed Djagno Error when accessing the `App Notificaiton Dropdown` as an anonymous user.
+- Added protection to 'SmsTemporaryMedia' view to prevent rendering non-existent media.
 
 
 ## v0.10.1
