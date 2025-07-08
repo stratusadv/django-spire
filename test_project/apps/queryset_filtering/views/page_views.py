@@ -8,6 +8,7 @@ from test_project.apps.queryset_filtering.views.session import TaskListFilterSes
 
 def list_page(request):
     # We have user input so a form should be used to validate the data.
+
     filter_form = TaskListFilterForm(request.GET)
     session = TaskListFilterSession(request=request)
 
