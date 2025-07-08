@@ -2,7 +2,7 @@ import json
 
 from django.db.models import Q
 
-from django_spire.core.filtering.constants import NOT_SELECTED_CHOICES
+from django_spire.contrib.queryset.constants import NOT_SELECTED_CHOICES
 
 
 # Used for boolean fields filtered with select field.

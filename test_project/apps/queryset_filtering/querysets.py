@@ -14,15 +14,15 @@ class TaskQuerySet(
     def complete(self) -> QuerySet:
         return self.filter(is_complete=True)
 
-    def _session_filter(self, session_data: dict) -> QuerySet['TaskQuerySet']:
+    def _session_filter(self, filter_data: dict) -> QuerySet['TaskQuerySet']:
         # Todo: Can I make this easier?
         query = Q()
 
-        name = session_data.get('name')
+        name = filter_data.get('name')
         if name:
             query &= Q(name__icontains=name)
 
-        status = session_data.get('status')
+        status = filter_data.get('status')
         if status:
             query &= Q(status=status)
 

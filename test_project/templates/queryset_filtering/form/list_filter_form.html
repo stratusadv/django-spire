@@ -2,19 +2,19 @@
 
 {% load queryset_tags %}
 
-{% block session_filter_key %}task_list_page{% endblock %}
+{% block session_filter_key %}task_list_filter{% endblock %}
 
 {% block filter_content %}
     <div
-        class="row"
+        class="row g-2"
         x-data="{
             init() {
-                this.search_value.set_attribute('placeholder', 'Search first and last name...')
+                this.search_value.set_attribute('placeholder', 'Search...')
             },
             search_value: new GlueCharField(
                 'search_value',
                 {
-                    value: '{% session_queryset_filter "task_list_page" "search_value" "" %}',
+                    value: '{{ task_filter_session.search_value|default:"" }}',
                     label: 'Search',
                     name: 'search_value',
                 }
@@ -22,13 +22,13 @@
             name: new GlueIntegerField(
                 'name',
                 {
-                    value: '{% session_queryset_filter "task_list_page" "name" "" %}',
+                    value: '{{ task_filter_session.name|default:"" }}',
                 }
             ),
             'status': new GlueIntegerField(
                 'status',
                 {
-                    value: '{% session_queryset_filter "task_list_page" "status" "com" %}',
+                    value: '{{ task_filter_session.search_value|default:"com" }}',
                     choices: [
                         ['com', 'Complete'],
                         ['new', 'New'],
@@ -37,13 +37,13 @@
             ),
         }"
     >
-        <div class="col-12">
+        <div class="col-4">
             {% include 'django_glue/form/field/char_field.html' with glue_field='search_value' %}
         </div>
-        <div class="col-12">
+        <div class="col-4">
             {% include 'django_glue/form/field/char_field.html' with glue_field='name' %}
         </div>
-        <div class="col-12">
+        <div class="col-4">
             {% include 'django_glue/form/field/select_field.html' with glue_field='status' %}
         </div>
     </div>

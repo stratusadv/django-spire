@@ -2,21 +2,23 @@ from __future__ import annotations
 
 from abc import abstractmethod
 
-from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
 
-from django_spire.contrib.queryset.session import QuerySetFilterSession
+from django_spire.contrib.session.base_session import BaseSession
 
 
 class SessionQuerySetFilterMixin(QuerySet):
 
     def process_session_filter(
             self,
-            request: WSGIRequest,
-            session_key: str
+            session: BaseSession,
+            data: dict
     ) -> QuerySet:
-        queryset_filter_session = QuerySetFilterSession(request, session_key)
-        return self._session_filter(queryset_filter_session.data)
+        # If there is data I want to update the session data with it.
+        # On clear I want to remove all data.
+        # process_queryset_fitler_session_data(session, data)
+        print(data)
+        return self._session_filter(session.data)
 
     @abstractmethod
     def _session_filter(self, session_data: dict) -> QuerySet:

@@ -1,10 +1,8 @@
 <form>
-    {% csrf_token %}
     <input type="text" hidden value="{% block session_filter_key %}{% endblock %}" name="session_filter_key">
 
     {% block filter_content %}{% endblock %}
 
-    <button type="submit">Submit</button>
+    <button type="submit" class="float-end">Submit</button>
+    <button type="submit" class="float-end">Clear</button>
 </form>
-
-{% block clear_button %}{% endblock %}
