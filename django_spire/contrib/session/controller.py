@@ -9,8 +9,19 @@ from django.http import HttpRequest
 
 
 class SessionController:
-    _TIMEOUT_KEY = '_timeout_datestamp'
+    """
+        This class provides an interface for storing, retrieving, and managing session data
+        with automatic expiration. It handles session data under a specific key and supports
+        timeout-based cleanup of expired sessions.
 
+        Args:
+            request (HttpRequest): The Django request object containing the session.
+            session_key (str): Unique key under which the session data will be stored.
+            seconds_till_expiry (int, optional): Number of seconds until session expiry.
+                Defaults to 300 seconds (5 minutes).
+    """
+
+    _TIMEOUT_KEY = '_timeout_datestamp'
 
     def __init__(
             self,
@@ -64,11 +75,7 @@ class SessionController:
         self._set_modified()
 
     def _clean(self) -> None:
-        """
-            This will purge the current session.
-            What happens if this session does not get called? It will sit there.
-            Should it purge all sessions?
-        """
+
         if self._TIMEOUT_KEY in self.data and self.is_expired:
             self.request.session.pop(self.session_key)
             self._set_modified()

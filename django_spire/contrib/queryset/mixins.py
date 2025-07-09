@@ -8,6 +8,7 @@ from django.db.models import QuerySet
 from django.forms import Form
 
 from django_spire.contrib.form.utils import show_form_errors
+from django_spire.contrib.queryset.enums import SessionFilterActionEnum
 from django_spire.contrib.session.controller import SessionController
 
 
@@ -30,23 +31,25 @@ class SessionFilterQuerySetMixin(QuerySet):
             session = SessionController(request=request, session_key=session_key)
 
             # Todo: Change actions into an enum
-            if action == 'Clear':
+            if action == SessionFilterActionEnum.CLEAR.value:
                 session.purge()
                 return self
 
-            # The user has manipulated the filter form.
-            if any(form.cleaned_data.values()):
+            # The user has submitted the filter form
+            if action == SessionFilterActionEnum.FILTER.value:
 
+                # Update session data
                 for key, value in form.cleaned_data.items():
                     session.add_data(key, value)
 
-            return self._session_filter(session.data)
+            return self.bulk_filter(session.data)
         else:
             show_form_errors(request, form)
             return self
 
+
     @abstractmethod
-    def _session_filter(self, session_data: dict) -> QuerySet:
+    def bulk_filter(self, filter_data: dict) -> QuerySet:
         pass
 
 

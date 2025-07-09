@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.db.models import QuerySet, Q
 
+from django_spire.contrib.queryset.filter_tools import filter_by_lookup_map
 from django_spire.contrib.queryset.mixins import SearchQuerySetMixin, SessionFilterQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
@@ -11,28 +12,23 @@ class TaskQuerySet(
     SessionFilterQuerySetMixin,
     SearchQuerySetMixin,
 ):
+
+
     def complete(self) -> QuerySet:
         return self.filter(is_complete=True)
 
-    def _session_filter(self, data: dict) -> QuerySet["TaskQuerySet"]:
+    def bulk_filter(self, filter_data: dict) -> QuerySet["TaskQuerySet"]:
         queryset = self
 
-        # Todo: Move this into a tools file in queryset.
-        lookup_map = {
+        filter_map = {
             'name': 'name__icontains',
-            'status': 'status',
+            'status': 'status'
         }
 
-        lookup_kwargs = {
-            lookup_map[k]: v
-            for k, v in data.items()
-            if k in lookup_map and v not in (None, "")
-        }
-
-        if search_term := data.get("search"):
+        if search_term := filter_data.get("search"):
             queryset = queryset.search(search_term)
 
-        return queryset.filter(**lookup_kwargs)
+        return filter_by_lookup_map(queryset, filter_map, filter_data)
 
     def search(self, value: str | None) -> QuerySet:
         if value is None:
@@ -42,3 +38,4 @@ class TaskQuerySet(
             Q(name__icontains=value) |
             Q(description__icontains=value)
         )
+
