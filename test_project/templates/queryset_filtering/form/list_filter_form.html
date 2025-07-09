@@ -2,49 +2,41 @@
 
 {% load queryset_tags %}
 
-{% block session_filter_key %}task_list_filter{% endblock %}
+{% block session_filter_key %}filter_session.session_key{% endblock %}
 
 {% block filter_content %}
     <div
         class="row g-2"
         x-data="{
-            init() {
-                this.search_value.set_attribute('placeholder', 'Search...')
+            async init() {
+                this.search.set_attribute('placeholder', 'Search...')
+
+                this.task.glue_fields.name.required = false
+                this.task.name = '{{ filter_session.name|default:"" }}'
+
+                this.task.glue_fields.status.required = false
+                this.task.status = '{{ filter_session.status|default:"" }}'
+
             },
-            search_value: new GlueCharField(
-                'search_value',
+            task: new ModelObjectGlue('task'),
+            search: new GlueCharField(
+                'search',
                 {
-                    value: '{{ task_filter_session.search_value|default:"" }}',
+                    value: '{{ filter_session.search|default:"" }}',
                     label: 'Search',
-                    name: 'search_value',
-                }
-            ),
-            name: new GlueIntegerField(
-                'name',
-                {
-                    value: '{{ task_filter_session.name|default:"" }}',
-                }
-            ),
-            'status': new GlueIntegerField(
-                'status',
-                {
-                    value: '{{ task_filter_session.search_value|default:"com" }}',
-                    choices: [
-                        ['com', 'Complete'],
-                        ['new', 'New'],
-                    ],
+                    name: 'search',
                 }
             ),
         }"
     >
         <div class="col-4">
-            {% include 'django_glue/form/field/char_field.html' with glue_field='search_value' %}
+            {% include 'django_glue/form/field/char_field.html' with glue_field='search' %}
         </div>
         <div class="col-4">
-            {% include 'django_glue/form/field/char_field.html' with glue_field='name' %}
+            {% include 'django_glue/form/field/char_field.html' with glue_model_field='task.name' %}
         </div>
         <div class="col-4">
-            {% include 'django_glue/form/field/select_field.html' with glue_field='status' %}
+            {% include 'django_glue/form/field/select_field.html' with glue_model_field='task.status' %}
         </div>
     </div>
 {% endblock %}

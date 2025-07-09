@@ -8,19 +8,18 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpRequest
 
 
-class BaseSession:
-    json_serializable: bool = False
-    session_key: str | None = None
-
+class SessionController:
     _TIMEOUT_KEY = '_timeout_datestamp'
 
 
     def __init__(
             self,
             request: HttpRequest,
+            session_key: str,
             seconds_till_expiry: int = 60 * 5
     ):
         self.request = request
+        self.session_key = session_key
         self.seconds_till_expiry = seconds_till_expiry
 
         self.request.session.setdefault(self.session_key, dict())
@@ -60,6 +59,10 @@ class BaseSession:
         if self._TIMEOUT_KEY in self.data and len(self.data.keys()) == 1:
             self.data.pop(self._TIMEOUT_KEY)
 
+    def purge(self):
+        self.request.session.pop(self.session_key)
+        self._set_modified()
+
     def _clean(self) -> None:
         """
             This will purge the current session.
@@ -67,7 +70,6 @@ class BaseSession:
             Should it purge all sessions?
         """
         if self._TIMEOUT_KEY in self.data and self.is_expired:
-            print('Session expired')
             self.request.session.pop(self.session_key)
             self._set_modified()
 
@@ -83,7 +85,4 @@ class BaseSession:
         self.data[self._TIMEOUT_KEY] = timeout_datetime.timestamp()
 
     def to_json(self):
-        if not self.json_serializable:
-            raise ValueError(f'Session {self.data.__class__.__name__} is not JSON serializable. ')
-
         return json.dumps(self.data, cls=DjangoJSONEncoder)

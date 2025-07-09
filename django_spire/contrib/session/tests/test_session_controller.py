@@ -4,7 +4,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.sessions.models import Session
 
-from django_spire.contrib.session.tests.factories import ShoppingCartSession
+from django_spire.contrib.session.controller import SessionController
 
 
 class BaseSessionTestCase(TestCase):
@@ -16,7 +16,10 @@ class BaseSessionTestCase(TestCase):
         middleware = SessionMiddleware(lambda req: None)
         middleware.process_request(self.request)
 
-        self.shopping_cart_session = ShoppingCartSession(self.request)
+        self.shopping_cart_session = SessionController(
+            request=self.request,
+            session_key='shopping_cart'
+        )
 
     def test_base_session_add_data(self):
         key = 'currency'
@@ -62,11 +65,11 @@ class BaseSessionTestCase(TestCase):
 
         self.assertTrue(isinstance(self.shopping_cart_session.to_json(), str))
 
-    def test_to_json_errors_when_not_json_serializable(self):
-        self.shopping_cart_session.json_serializable = False
-
-        with self.assertRaises(ValueError):
-            self.shopping_cart_session.to_json()
+    # def test_to_json_errors_when_not_json_serializable(self):
+    #     self.shopping_cart_session.json_serializable = False
+    #
+    #     with self.assertRaises(ValueError):
+    #         self.shopping_cart_session.to_json()
 
     def test_set_timeout_datestamp(self):
         self.shopping_cart_session._set_timeout_datestamp()
