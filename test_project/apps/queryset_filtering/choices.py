@@ -7,3 +7,8 @@ class TaskStatusChoices(TextChoices):
     DONE = 'com', 'Complete'
     CANCELLED = 'can', 'Cancelled'
 
+
+class TaskUserRoleChoices(TextChoices):
+    LEADER = 'lea', 'Leader'
+    SUPPORT = 'sup', 'Support'
+    FOLLOWER = 'fol', 'Follower'

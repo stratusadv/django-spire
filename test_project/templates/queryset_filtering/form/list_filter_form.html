@@ -15,8 +15,12 @@
                 this.task.glue_fields.status.required = false
                 this.task.status = '{{ filter_session.status|default:"" }}'
 
+                this.users.choices = await this.user_queryset.to_choices()
+
             },
             task: new ModelObjectGlue('task'),
+            user_queryset: new QuerySetGlue('users'),
+            users: new GlueCharField('users'),
             search: new GlueCharField(
                 'search',
                 {
@@ -35,6 +39,8 @@
         </div>
         <div class="col-4">
             {% include 'django_glue/form/field/select_field.html' with glue_model_field='task.status' %}
+        </div><div class="col-4">
+            {% include 'django_glue/form/field/multi_select_field.html' with glue_field='users' %}
         </div>
     </div>
 {% endblock %}

@@ -26,6 +26,7 @@ class SessionFilterQuerySetMixin(QuerySet):
 
         action = request.GET.get('action')
         form = form_class(request.GET)
+        print(request.GET)
 
         if form.is_valid():
             session = SessionController(request=request, session_key=session_key)

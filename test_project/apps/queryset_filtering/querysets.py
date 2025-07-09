@@ -17,6 +17,9 @@ class TaskQuerySet(
     def complete(self) -> QuerySet:
         return self.filter(is_complete=True)
 
+    def prefetch_users(self):
+        return self.prefetch_related('users')
+
     def bulk_filter(self, filter_data: dict) -> QuerySet["TaskQuerySet"]:
         queryset = self
 

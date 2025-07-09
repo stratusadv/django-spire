@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
 import django_glue as dg
@@ -28,6 +29,7 @@ def list_page(request):
     )
 
     dg.glue_model_object(request, 'task', Task())
+    dg.glue_query_set(request, 'users', User.objects.all())
 
     context_data = {
         'tasks': tasks,
