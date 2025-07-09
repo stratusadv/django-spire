@@ -19,12 +19,17 @@ class SessionFilterQuerySetMixin(QuerySet):
             session_key: str,
             form_class: Type[Form]
     ) -> QuerySet:
-        form = form_class(request.GET)
+        # Session keys must match to process new queryset data
+        if session_key != request.GET.get('session_filter_key'):
+            return self
+
         action = request.GET.get('action')
+        form = form_class(request.GET)
 
         if form.is_valid():
             session = SessionController(request=request, session_key=session_key)
 
+            # Todo: Change actions into an enum
             if action == 'Clear':
                 session.purge()
                 return self

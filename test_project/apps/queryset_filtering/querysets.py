@@ -16,6 +16,8 @@ class TaskQuerySet(
 
     def _session_filter(self, data: dict) -> QuerySet["TaskQuerySet"]:
         queryset = self
+
+        # Todo: Move this into a tools file in queryset.
         lookup_map = {
             'name': 'name__icontains',
             'status': 'status',

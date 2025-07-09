@@ -10,6 +10,13 @@ from test_project.apps.queryset_filtering.forms import TaskListFilterForm
 
 def list_page(request):
 
+    """
+        - Enum for actions
+        - Tool for queryset filter maps
+        - How do we handle glue select field returning false? What should this return?
+        - Add Filtering by task users.
+    """
+
     tasks = (
         Task
         .objects

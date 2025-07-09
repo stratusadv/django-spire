@@ -2,7 +2,7 @@
 
 {% load queryset_tags %}
 
-{% block session_filter_key %}filter_session.session_key{% endblock %}
+{% block session_filter_key %}{{ filter_session.session_key }}{% endblock %}
 
 {% block filter_content %}
     <div
