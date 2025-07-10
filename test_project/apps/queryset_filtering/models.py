@@ -25,7 +25,7 @@ class Task(HistoryModelMixin):
 
     def user_initials(self):
         return [
-            f'{user_bridge.user.first_name[0]}{user_bridge.user.last_name[0]}'
+            f'{user_bridge.user.first_name} {user_bridge.user.id}'
             for user_bridge in self.users.all()
         ]
 

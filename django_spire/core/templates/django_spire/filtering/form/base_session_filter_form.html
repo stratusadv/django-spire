@@ -1,4 +1,7 @@
-<form>
+<form
+    method="get"
+    action="{% block session_filter_url %}{% endblock %}"
+>
     <input type="text" hidden value="{% block session_filter_key %}{% endblock %}" name="session_filter_key">
 
     {% block filter_content %}{% endblock %}

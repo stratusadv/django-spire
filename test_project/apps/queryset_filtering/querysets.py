@@ -25,7 +25,8 @@ class TaskQuerySet(
 
         filter_map = {
             'name': 'name__icontains',
-            'status': 'status'
+            'status': 'status',
+            'users': 'user__user__id__in'
         }
 
         if search_term := filter_data.get("search"):

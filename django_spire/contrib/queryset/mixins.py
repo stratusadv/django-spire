@@ -21,12 +21,9 @@ class SessionFilterQuerySetMixin(QuerySet):
             form_class: Type[Form]
     ) -> QuerySet:
         # Session keys must match to process new queryset data
-        if session_key != request.GET.get('session_filter_key'):
-            return self
 
         action = request.GET.get('action')
         form = form_class(request.GET)
-        print(request.GET)
 
         if form.is_valid():
             session = SessionController(request=request, session_key=session_key)
@@ -37,7 +34,7 @@ class SessionFilterQuerySetMixin(QuerySet):
                 return self
 
             # The user has submitted the filter form
-            if action == SessionFilterActionEnum.FILTER.value:
+            if action == SessionFilterActionEnum.FILTER.value and session_key == request.GET.get('session_filter_key'):
 
                 # Update session data
                 for key, value in form.cleaned_data.items():

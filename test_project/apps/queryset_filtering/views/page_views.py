@@ -12,7 +12,6 @@ from test_project.apps.queryset_filtering.forms import TaskListFilterForm
 def list_page(request):
 
     """
-        - How do we handle glue select field returning false? What should this return?
         - Add Filtering by task users.
         - Update docs
     """
