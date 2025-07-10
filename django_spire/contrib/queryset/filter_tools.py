@@ -16,7 +16,7 @@ def filter_by_lookup_map(queryset: QuerySet, lookup_map: dict, data: dict):
     lookup_kwargs = {
         lookup_map[k]: v
         for k, v in data.items()
-        if k in lookup_map and v not in (None, "")
+        if k in lookup_map and v not in (None, "", [])
     }
 
     return queryset.filter(**lookup_kwargs)

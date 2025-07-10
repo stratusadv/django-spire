@@ -12,7 +12,8 @@ from test_project.apps.queryset_filtering.forms import TaskListFilterForm
 def list_page(request):
 
     """
-        - Add Filtering by task users.
+        - Test glue multi select field in other projects.
+        - Review Code
         - Update docs
     """
 

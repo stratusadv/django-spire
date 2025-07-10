@@ -6,6 +6,19 @@
 
     {% block filter_content %}{% endblock %}
 
-    <input type="submit" name="action" value="Filter" class="float-end">Submit</input>
-    <input type="submit" name="action" value="Clear" class="float-end" >
+    {% block filter_buttons %}
+        <input
+            type="submit"
+            name="action"
+            value="Filter"
+            class="btn btn-sm btn-primary float-end"
+        >
+
+        <input
+            type="submit"
+            name="action"
+            value="Clear"
+            class="btn btn-sm btn-secondary me-2 float-end"
+        >
+    {% endblock %}
 </form>

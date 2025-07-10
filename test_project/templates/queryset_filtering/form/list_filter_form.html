@@ -1,7 +1,6 @@
 {% extends 'django_spire/filtering/form/base_session_filter_form.html' %}
 
 {% block session_filter_key %}{{ filter_session.session_key }}{% endblock %}
-{#{% block session_filter_url %}{% url 'queryset_filtering:page:list' %}{% endblock %}#}
 
 {% block filter_content %}
     <div
@@ -18,6 +17,8 @@
 
                 this.users.choices = await this.user_queryset.to_choices()
                 this.users.value = '{{ filter_session.users|default:"" }}'
+
+                this.users.required = false
 
             },
             task: new ModelObjectGlue('task'),
@@ -45,13 +46,5 @@
         <div class="col-4">
             {% include 'django_glue/form/field/multi_select_field.html' with glue_field='users' %}
         </div>
-    <div class="col-4">
-        <select name="testing" multiple id="">
-            <option value="">--------------</option>
-            <option value="Hello">Hi</option>
-            <option value="Bye">Bye</option>
-        </select>
-    </div>
-
     </div>
 {% endblock %}
