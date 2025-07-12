@@ -77,6 +77,7 @@ INSTALLED_APPS += [
     'django_spire.contrib.breadcrumb',
     'django_spire.comment',
     'django_spire.core',
+    'django_spire.contrib.session',
     'django_spire.file',
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
