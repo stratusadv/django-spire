@@ -19,8 +19,6 @@
                 this.users.choices = await this.user_queryset.to_choices()
                 this.users.value = this.session_controller.get_data('users', '')
                 this.users.required = false
-                console.log('SESSION CONTROLLER')
-                console.log(this.session_controller.get_data('users', ''))
 
             },
             session_controller: new SessionController('{% session_controller_to_json 'task_list_filter' %}'),
