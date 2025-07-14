@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from django.contrib.auth.models import AnonymousUser
 from typing_extensions import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
@@ -13,15 +14,18 @@ if TYPE_CHECKING:
 
 
 def notification_dropdown_template_view(request: WSGIRequest) -> TemplateResponse:
-    app_notification_list = (
-        AppNotification.objects.active()
-        .is_sent()
-        .annotate_is_viewed_by_user(request.user)
-        .select_related('notification')
-        .distinct()
-        .order_by('-notification__sent_datetime')
-        .ordered_by_priority()
-    )
+    if isinstance(request.user, AnonymousUser):
+        app_notification_list = []
+
+    else:
+        app_notification_list = (
+            AppNotification.objects.active()
+            .is_sent()
+            .annotate_is_viewed_by_user(request.user)
+            .select_related('notification')
+            .distinct()
+            .ordered_by_priority_and_sent_datetime()
+        )
 
     body_data = json.loads(request.body.decode('utf-8'))
 

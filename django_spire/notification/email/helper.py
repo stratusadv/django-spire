@@ -47,7 +47,7 @@ class SendGridEmailHelper(EmailHelper):
             'from': settings.DEFAULT_FROM_EMAIL,
             'subject': notification.title,
             'body': notification.body,
-            'link': notification.url
+            'url': notification.url
         }
 
         self.template_data.update(notification.email.context_data)
