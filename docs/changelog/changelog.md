@@ -1,7 +1,17 @@
 # Changelog
 
-## v0.10.2
 
+## v0.11.0
+## Features
+- Session controller class to help manage session data with timeouts.
+- Session controller js class and template tags to access session data within alpine js.
+- Queryset app with session filtering tools
+
+## Breaking
+- Core filtering app no longer exists. Tool improved and transferred into contrib/queryset 
+
+
+## v0.10.2
 ### Fixes
 - Fixed App Notification Ordering
 - Fixed Djagno Error when accessing the `App Notificaiton Dropdown` as an anonymous user.

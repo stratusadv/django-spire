@@ -1,0 +1,29 @@
+<form
+        method="get"
+        action="{% block session_filter_url %}{% endblock %}"
+        class="row border-bottom"
+>
+    <div class="col-12">
+        <input type="text" hidden value="{% block session_filter_key %}{% endblock %}" name="session_filter_key">
+
+        {% block filter_content %}{% endblock %}
+
+        {% block filter_buttons %}
+            <div class="py-2">
+                <input
+                        type="submit"
+                        name="action"
+                        value="Filter"
+                        class="btn btn-sm btn-primary float-end"
+                >
+
+                <input
+                        type="submit"
+                        name="action"
+                        value="Clear"
+                        class="btn btn-sm btn-secondary me-2 float-end"
+                >
+            </div>
+        {% endblock %}
+    </div>
+</form>
