@@ -5,9 +5,5 @@ from django_spire.knowledge.collection import views
 app_name = 'collection'
 
 urlpatterns = [
-    path(
-        'list/',
-        views.collection_list_view,
-        name='list'
-    )
+    path('page/', include('django_spire.knowledge.collection.urls.page_urls', namespace='page')),
 ]

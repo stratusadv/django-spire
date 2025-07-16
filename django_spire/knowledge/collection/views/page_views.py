@@ -5,14 +5,14 @@ from django_spire.knowledge.collection.models import Collection
 
 
 @login_required()
-def collection_list_view(request):
+def list_view(request):
     collections = Collection.objects.all()
 
     return portal_views.list_view(
-        request=request,
+        request,
+        model=Collection,
         context_data={
             'collections': collections
         },
-        model=Collection,
-        template='django_spire/knowledge/collection/page/collection_list_page.html'
+        template='django_spire/knowledge/collection/page/list_page.html'
     )
