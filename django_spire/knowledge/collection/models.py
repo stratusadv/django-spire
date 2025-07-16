@@ -19,7 +19,7 @@ class Collection(HistoryModelMixin):
     description = models.TextField()
 
     services = CollectionService()
-    objects = CollectionQuerySet().as_manager()
+    objects = CollectionQuerySet.as_manager()
 
     def __str__(self):
         return self.name

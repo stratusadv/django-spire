@@ -4,6 +4,8 @@ from django.utils.timezone import now
 from django_spire.auth.user.models import AuthUser
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.models import Collection
+from django_spire.knowledge.entry.block.querysets import EntryQuerySet, \
+    EntryVersionQuerySet
 from django_spire.knowledge.entry.choices import EntryVersionTypeChoices
 
 
@@ -24,6 +26,8 @@ class Entry(HistoryModelMixin):
     )
 
     name = models.CharField(max_length=255)
+
+    objects = EntryQuerySet.as_manager()
 
 
 class EntryVersion(HistoryModelMixin):
@@ -47,3 +51,5 @@ class EntryVersion(HistoryModelMixin):
         choices=EntryVersionTypeChoices,
         default=EntryVersionTypeChoices.DRAFT
     )
+
+    objects = EntryVersionQuerySet.as_manager()

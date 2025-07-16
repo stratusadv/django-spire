@@ -1,7 +1,8 @@
 {% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
-    {{ collection.name }}
+    {% url 'django_spire:knowledge:collection:page:detail' pk=collection.pk as collection_detail_url %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_value=collection.name attribute_href=collection_detail_url %}
 {% endblock %}
 
 {% block item_row_content %}
