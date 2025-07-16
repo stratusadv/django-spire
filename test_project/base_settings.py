@@ -77,6 +77,7 @@ INSTALLED_APPS += [
     'django_spire.contrib.breadcrumb',
     'django_spire.comment',
     'django_spire.core',
+    'django_spire.contrib.session',
     'django_spire.file',
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
@@ -108,6 +109,7 @@ INSTALLED_APPS += [
     'test_project.apps.history',
     'test_project.apps.notification',
     'test_project.apps.model_and_service',
+    'test_project.apps.queryset_filtering',
 ]
 
 INSTALLED_APPS += [

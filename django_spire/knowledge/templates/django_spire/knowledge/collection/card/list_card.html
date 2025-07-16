@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% url 'django_spire:help_desk:form:create' as create_url %}
+    {% url 'django_spire:knowledge:collection:form:create' as create_url %}
     {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
 {% endblock %}
 

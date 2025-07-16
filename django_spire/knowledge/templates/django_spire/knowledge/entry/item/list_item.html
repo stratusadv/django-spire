@@ -1,0 +1,22 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title_col %}2{% endblock %}
+
+{% block item_title %}
+	{{ entry.name }}
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Author' attribute_value=entry.current_version.author.get_full_name %}
+    </div>
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Published' attribute_value=entry.current_version.published_datetime %}
+    </div>
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Edit' attribute_value=entry.current_version.last_edit_datetime %}
+    </div>
+    <div class="col-auto">
+        {% include 'django_spire/knowledge/collection/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
+    </div>
+{% endblock %}

@@ -62,7 +62,7 @@ def delete_form_view(
     # Present and past tense of verb
     verbs: tuple[str, str] = ('delete', 'deleted'),
     return_url: str,
-    template: str = 'django_spire/page/form_full_page.html'
+    template: str = 'django_spire/page/delete_form_page.html'
 ) -> HttpResponseRedirect | TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -70,7 +70,7 @@ def delete_form_view(
     model_name = obj._meta.model._meta.verbose_name
 
     if request.method == 'POST':
-        form = DeleteConfirmationForm(request.POST)
+        form = DeleteConfirmationForm(request.POST, obj=obj)
 
         if form.is_valid():
             if delete_func is not None:
