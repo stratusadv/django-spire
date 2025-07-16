@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_title_content %}
-	{% for entry in entries %}
+	{% for entry in current_entries %}
         {% include 'django_spire/knowledge/entry/item/list_item.html' %}
     {% empty %}
         {% include 'django_spire/item/no_data_item.html' %}

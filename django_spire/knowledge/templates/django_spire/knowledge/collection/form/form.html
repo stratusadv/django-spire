@@ -8,6 +8,8 @@
         async init() {
             await this.collection.get()
             this.collection.glue_fields.parent.choices = await this.collection_query_set.to_choices()
+
+            this.collection.glue_fields.parent.label = 'Parent Collection'
         }
     }"
 >
