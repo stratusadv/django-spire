@@ -1,0 +1,22 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Tasks
+{% endblock %}
+
+{% block card_button %}
+{% endblock %}
+
+{% block card_dropdown_content %}
+{% endblock %}
+
+{% block card_title_content %}
+
+    {% include 'queryset_filtering/form/list_filter_form.html' %}
+
+    {% for task in tasks %}
+        {% include 'queryset_filtering/item/detail_item.html' %}
+    {% empty %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}
