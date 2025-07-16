@@ -6,7 +6,7 @@ from django_spire.knowledge.collection.models import Collection
 
 @login_required()
 def list_view(request):
-    collections = Collection.objects.all()
+    collections = Collection.objects.active().select_related('parent')
 
     return portal_views.list_view(
         request,

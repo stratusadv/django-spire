@@ -20,3 +20,6 @@ class Collection(HistoryModelMixin):
 
     services = CollectionService()
     objects = CollectionQuerySet().as_manager()
+
+    def __str__(self):
+        return self.name
