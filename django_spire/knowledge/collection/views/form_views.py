@@ -8,7 +8,7 @@ from django.urls import reverse
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.collection.views.forms import CollectionForm
+from django_spire.knowledge.collection.forms import CollectionForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -25,7 +25,7 @@ def form_view(
         form = CollectionForm(request.POST, instance=collection)
 
         if form.is_valid():
-            collection = form.save()
+            created = Collection.services.save_model_obj(request.POST)
 
             return HttpResponseRedirect(
                 reverse('django_spire:knowledge:collection:page:list')

@@ -1,12 +1,13 @@
 from django.db import models
 
+from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.entry.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.block.maps import ENTRY_BLOCK_MAP
 from django_spire.knowledge.entry.editor.blocks.block import BaseBlock
 from django_spire.knowledge.entry.models import EntryVersion
 
 
-class EntryVersionBlock(models.Model):
+class EntryVersionBlock(HistoryModelMixin):
     version = models.ForeignKey(
         EntryVersion,
         on_delete=models.CASCADE,

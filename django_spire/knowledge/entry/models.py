@@ -2,11 +2,12 @@ from django.db import models
 from django.utils.timezone import now
 
 from django_spire.auth.user.models import AuthUser
+from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.choices import EntryVersionTypeChoices
 
 
-class Entry(models.Model):
+class Entry(HistoryModelMixin):
     collection = models.ForeignKey(
         Collection,
         on_delete=models.CASCADE,
@@ -25,7 +26,7 @@ class Entry(models.Model):
     name = models.CharField(max_length=255)
 
 
-class EntryVersion(models.Model):
+class EntryVersion(HistoryModelMixin):
     entry = models.ForeignKey(
         Entry,
         on_delete=models.CASCADE,
@@ -46,4 +47,3 @@ class EntryVersion(models.Model):
         choices=EntryVersionTypeChoices,
         default=EntryVersionTypeChoices.DRAFT
     )
-
