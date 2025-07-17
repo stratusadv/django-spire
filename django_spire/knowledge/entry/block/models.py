@@ -3,6 +3,7 @@ from django.db import models
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.entry.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.block.maps import ENTRY_BLOCK_MAP
+from django_spire.knowledge.entry.block.services.service import EntryVersionBlockService
 from django_spire.knowledge.entry.editor.blocks.block import BaseBlock
 from django_spire.knowledge.entry.models import EntryVersion
 from django_spire.knowledge.entry.querysets import EntryVersionBlockQuerySet
@@ -20,6 +21,7 @@ class EntryVersionBlock(HistoryModelMixin):
         choices=BlockTypeChoices,
         default=BlockTypeChoices.TEXT
     )
+    order = models.PositiveIntegerField(unique=True)
     _block_data = models.JSONField()
     _text_data = models.TextField()
 
@@ -34,3 +36,4 @@ class EntryVersionBlock(HistoryModelMixin):
         self._text_data = value.render_to_text()
 
     objects = EntryVersionBlockQuerySet.as_manager()
+    services = EntryVersionBlockService()

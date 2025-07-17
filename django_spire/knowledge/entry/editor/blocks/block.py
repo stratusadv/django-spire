@@ -17,3 +17,11 @@ class BaseBlock(ABC, BaseModel):
     @abstractmethod
     def render_to_text(self) -> str:
         raise NotImplementedError
+
+    @abstractmethod
+    def render_to_html(self) -> str:
+        raise NotImplementedError
+
+
+class EditBlock(BaseModel):
+    edit_template: str

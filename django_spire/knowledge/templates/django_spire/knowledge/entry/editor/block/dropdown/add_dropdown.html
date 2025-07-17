@@ -1,0 +1,16 @@
+{% extends 'django_spire/dropdown/dropdown.html' %}
+
+{% block dropdown_trigger %}
+    <span
+        class="bi bi-plus-lg fs-5"
+        x-bind="trigger"
+    >
+    </span>
+{% endblock %}
+
+{% block dropdown_content %}
+    {% for block_type in block_types %}
+        {# TODO: Implement adding block functionality #}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text=block_type.label %}
+    {% endfor %}
+{% endblock %}
