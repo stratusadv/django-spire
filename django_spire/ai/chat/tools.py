@@ -5,7 +5,7 @@ from dandy.workflow import BaseWorkflow
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 
-from django_spire.ai.chat.messages import BaseMessageIntel
+from django_spire.ai.chat.message_intel import BaseMessageIntel
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 from django_spire.consts import AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME
 

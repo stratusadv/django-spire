@@ -4,7 +4,7 @@ from typing import List
 from django.template.loader import render_to_string
 
 from django_spire.ai.chat.choices import MessageResponseType
-from django_spire.ai.chat.messages import BaseMessageIntel
+from django_spire.ai.chat.message_intel import BaseMessageIntel
 
 
 @dataclass

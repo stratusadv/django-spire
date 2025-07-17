@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from django_spire.ai.chat.messages import BaseMessageIntel
+from django_spire.ai.chat.message_intel import BaseMessageIntel
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
 from django_spire.ai.chat.querysets import ChatQuerySet, ChatMessageQuerySet
