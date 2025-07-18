@@ -7,17 +7,18 @@ from typing import TYPE_CHECKING
 from django_spire.knowledge.entry.block.choices import BlockTypeChoices
 
 if TYPE_CHECKING:
+    from django_spire.knowledge.entry.models import EntryVersion
     from django_spire.knowledge.entry.block.models import EntryVersionBlock
 
 
 class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
-    @staticmethod
-    def create_blank_text_block() -> EntryVersionBlock:
-        return EntryVersionBlock.objects.create(
+    def create_blank_text_block(self, version: EntryVersion) -> EntryVersionBlock:
+        return self.obj_class.create(
+            version=version,
             type=BlockTypeChoices.TEXT,
             order=0,
-            _block_data={},
+            _block_data={'value': '', 'type': BlockTypeChoices.TEXT.value},
             _text_data='',
         )

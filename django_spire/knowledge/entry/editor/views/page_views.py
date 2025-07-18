@@ -18,12 +18,8 @@ def edit_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     if version_blocks.count() == 0:
         version_blocks = [
-            EntryVersionBlock.objects.create(
-                version=current_version,
-                type=BlockTypeChoices.TEXT,
-                order=0,
-                _block_data={'value': '', '_type': 'text'},
-                _text_data='',
+            EntryVersionBlock.services.factory.create_blank_text_block(
+                version=current_version
             )
         ]
 

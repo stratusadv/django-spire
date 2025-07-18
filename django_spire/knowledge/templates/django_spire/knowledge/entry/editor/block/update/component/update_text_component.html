@@ -1,0 +1,37 @@
+<div
+    x-data="{
+        text_value: '{{ version_block.block.value|escapejs }}',
+        update_text_value() {
+            let response = django_glue_fetch(
+                '{% url "django_spire:knowledge:entry:block:json:update_text" pk=version_block.pk %}',
+                {payload: {
+                    value: this.text_value,
+                    block_type: '{{ version_block.block.type }}'
+                }},
+            )
+
+            if (response.type === 'error') {
+                $dispatch('error', 'An error occurred while saving the text block.')
+            }
+        },
+        update_height(event) {
+            event.target.style.height = 'auto';
+            event.target.style.height = event.target.scrollHeight + 'px';
+        }
+    }"
+>
+    <style>
+        textarea:focus {
+            outline: none;
+            border: none;
+        }
+    </style>
+    <textarea
+        class="w-100 border-0 bg-transparent px-1 auto-resize overflow-y-hidden"
+        placeholder="Write something..."
+        style="height: 30px;"
+        x-model="text_value"
+        x-on:input="update_height($event)"
+        x-on:input.debounce.500ms="update_text_value()"
+    >
+</div>

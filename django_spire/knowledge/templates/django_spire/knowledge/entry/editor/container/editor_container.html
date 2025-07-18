@@ -6,16 +6,12 @@
 
 {% block container_content %}
     {% for version_block in version_blocks %}
-        <div class="row align-items-center">
+        <div class="row">
             <div class="col-auto pe-0">
                 {% include 'django_spire/knowledge/entry/editor/block/dropdown/add_dropdown.html' %}
             </div>
             <div class="col">
-                {% if version_block.block.edit_template %}
-                    {% include version_block.block.edit_template %}
-                {% else %}
-                    {{ version_block.block.render_to_html|safe }}
-                {% endif %}
+                {% include version_block.block.update_template with value=version_block.block.value %}
             </div>
         </div>
     {% endfor %}
