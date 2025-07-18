@@ -5,7 +5,7 @@ from django_spire.knowledge.entry.editor.blocks.block import BaseBlock, EditBloc
 class HeadingBlock(BaseBlock, EditBlock):
     value: str
     _type: BlockTypeChoices = BlockTypeChoices.HEADING
-    edit_template: str = 'django_spire/knowledge/entry/editor/block/component/edit_text_component.html'
+    update_template: str = 'django_spire/knowledge/entry/editor/block/component/edit_text_component.html'
 
     def render_to_text(self) -> str:
         return f'{self.value}\n'

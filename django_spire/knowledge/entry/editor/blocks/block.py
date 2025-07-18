@@ -8,7 +8,15 @@ from django_spire.knowledge.entry.block.choices import BlockTypeChoices
 
 class BaseBlock(ABC, BaseModel):
     value: Any
+    update_template: str
+    display_template: str
     _type: BlockTypeChoices
+
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+
+        if cls.update_template is None or cls.update_template == '':
+            raise ValueError(f'{cls.__module__}.{cls.__qualname__}.update_template must be set')
 
     @property
     def type(self) -> BlockTypeChoices:
@@ -22,6 +30,6 @@ class BaseBlock(ABC, BaseModel):
     def render_to_html(self) -> str:
         raise NotImplementedError
 
-
-class EditBlock(BaseModel):
-    edit_template: str
+    @abstractmethod
+    def update(self, **kwargs):
+        raise NotImplementedError
