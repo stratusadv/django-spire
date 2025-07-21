@@ -8,6 +8,9 @@
   - Email and app notifications to ADMINS when a ticket is created.
   - App notifications to 'delete' perm users when a ticket is created.
 
+### Breaking
+- Must include DEVELOPMENT_EMAIL in settings file that pulls from env.
+
 
 ## v0.11.0
 ## Features
