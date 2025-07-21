@@ -37,8 +37,7 @@ class HelpDeskTicketNotificationServiceTestCase(BaseTestCase):
         developers = User.objects.filter(Q(email__in=[admin[1] for admin in settings.ADMINS]))
 
         managers = User.objects.filter(
-            Q(groups__permissions__codename='delete_helpdeskticket') |
-            Q(is_superuser=True)
+            Q(groups__permissions__codename='delete_helpdeskticket')
         )
 
         ticket = create_test_helpdesk_ticket()
