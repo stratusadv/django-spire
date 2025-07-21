@@ -1,6 +1,14 @@
 # Changelog
 
 
+## v0.12.0
+### Features
+- Help Desk System Prototype with Basic Permissions
+  - Full CRUD for tickets.
+  - Email and app notifications to ADMINS when a ticket is created.
+  - App notifications to 'delete' perm users when a ticket is created.
+
+
 ## v0.11.0
 ## Features
 - Session controller class to help manage session data with timeouts.
@@ -14,7 +22,7 @@
 ## v0.10.2
 ### Fixes
 - Fixed App Notification Ordering
-- Fixed Djagno Error when accessing the `App Notificaiton Dropdown` as an anonymous user.
+- Fixed Django Error when accessing the `App Notificaiton Dropdown` as an anonymous user.
 - Added protection to 'SmsTemporaryMedia' view to prevent rendering non-existent media.
 - Fixed Email Notification Url
 
