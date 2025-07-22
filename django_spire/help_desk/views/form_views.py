@@ -9,7 +9,7 @@ from django_spire.help_desk import forms
 from django_spire.help_desk.models import HelpDeskTicket
 
 
-@permission_required('django_spire_help_desk.change_helpdeskticket')
+@permission_required('django_spire_help_desk.add_helpdeskticket')
 def ticket_create_form_view(request):
     ticket = HelpDeskTicket()
 
