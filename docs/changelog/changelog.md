@@ -1,6 +1,12 @@
 # Changelog
 
 
+## v0.12.1
+
+### Fixes
+- Corrected Help Desk 'Add' Permissions
+
+
 ## v0.12.0
 ### Features
 - Help Desk System Prototype with Basic Permissions
