@@ -1,4 +1,5 @@
 <div
+    class="d-flex align-items-center"
     x-data="{
         text_value: '{{ version_block.block.value|escapejs }}',
         init() {
@@ -34,11 +35,13 @@
     </style>
     <textarea
         x-ref="textarea"
-        class="w-100 border-0 bg-transparent px-1 auto-resize overflow-y-hidden"
+        class="w-100 border-0 bg-transparent px-1 auto-resize overflow-y-hidden {% block textarea_class %}fs-6{% endblock %}"
         placeholder="Write something..."
-        style="height: 30px;"
+        style="height: 30px; resize: none;"
         x-model="text_value"
         @input="update_height($event)"
-        @keypress.debounce.300ms="update_text_value()"
+        @beforeinput.debounce.300ms="update_text_value()"
+{#        @keydown.enter="create_blank_block({block_type: 'text', order: version_block.order + 1})"#}
+        rows="1"
     ></textarea>
 </div>

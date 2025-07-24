@@ -21,13 +21,21 @@
                 if (response.type === 'error') {
                     $dispatch('error', 'An error occurred while creating the block.')
                 } else {
-                    console.log(response)
+                    let block_data = JSON.parse(response.entry_version_block_json)
+                    this.editor.insert_blank_block(
+                        {
+                            id: block_data.id,
+                            block_type: block_data.type,
+                            order: block_data.order,
+                            update_template_rendered: block_data.block.update_template_rendered
+                        }
+                    )
                 }
             }
         }"
     >
         <template x-for="(version_block, index) in editor.entry_version.version_blocks" :key="version_block.id">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-auto pe-0">
                     {% include 'django_spire/knowledge/entry/editor/block/dropdown/add_dropdown.html' %}
                 </div>

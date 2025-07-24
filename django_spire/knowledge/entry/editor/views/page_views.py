@@ -23,7 +23,7 @@ def edit_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     if version_blocks.count() == 0:
         version_blocks = [
             EntryVersionBlock.services.factory.create_blank_block(
-                version=current_version,
+                entry_version=current_version,
                 block_type=BlockTypeChoices.TEXT,
                 order=0
             )
@@ -42,25 +42,7 @@ def edit_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'current_version': current_version,
             'version_blocks_json': json.dumps(
                 [
-                    {
-                        **model_to_dict(
-                            version_block,
-                            fields=['id', 'order', 'type'],
-                        ),
-                        'is_deleted': version_block.is_deleted,
-                        'block': {
-                            'value': version_block.block.value,
-                            'type': version_block.block.type,
-                            'update_template_rendered': render_to_string(
-                                request=request,
-                                context={
-                                    'version_block': version_block,
-                                    'value': version_block.block.value,
-                                },
-                                template_name=version_block.block.update_template,
-                            )
-                        }
-                    }
+                    version_block.to_dict()
                     for version_block in version_blocks
                 ]
             ),

@@ -63,12 +63,12 @@ class Editor {
                 id: id,
                 type: block_type,
                 order: order,
+                is_deleted: false,
                 block: new Block({
                     value: '',
                     type: block_type,
                     update_template_rendered: update_template_rendered
-                }),
-                is_deleted: false
+                })
             })
         )
 

@@ -26,4 +26,9 @@ def create_blank_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
     )
     entry_version.services.processor.insert_block(version_block=version_block)
 
-    return JsonResponse({'type': 'success'})
+    return JsonResponse(
+        {
+            'type': 'success',
+            'entry_version_block_json': json.dumps(version_block.to_dict())
+        }
+    )

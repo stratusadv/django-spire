@@ -6,7 +6,7 @@ class TextBlock(BaseBlock):
     value: str
     type: BlockTypeChoices = BlockTypeChoices.TEXT
     display_template: str = 'django_spire/knowledge/entry/editor/block/display/component/text_component.html'
-    update_template: str = 'django_spire/knowledge/entry/editor/block/update/component/update_text_component.html'
+    update_template: str = 'django_spire/knowledge/entry/editor/block/update/component/text_component.html'
 
     def render_to_text(self) -> str:
         return f'{self.value}\n'

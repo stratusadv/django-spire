@@ -15,6 +15,9 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
     obj: EntryVersion
 
     def insert_block(self, version_block: EntryVersionBlock):
-        self.obj_class.objects.greater_or_equal_order(
-            version_block=version_block
-        ).update(order=F('order') + 1)
+        (
+            self.obj.blocks
+            .greater_or_equal_order(order=version_block.order)
+            .active()
+            .update(order=F('order') + 1)
+        )

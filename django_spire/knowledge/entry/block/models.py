@@ -1,4 +1,6 @@
 from django.db import models
+from django.forms import model_to_dict
+from django.template.loader import render_to_string
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.entry.block.choices import BlockTypeChoices
@@ -21,7 +23,7 @@ class EntryVersionBlock(HistoryModelMixin):
         choices=BlockTypeChoices,
         default=BlockTypeChoices.TEXT
     )
-    order = models.PositiveIntegerField(unique=True)
+    order = models.PositiveIntegerField()
     _block_data = models.JSONField()
     _text_data = models.TextField()
 
@@ -34,6 +36,26 @@ class EntryVersionBlock(HistoryModelMixin):
         self.type = value.type
         self._block_data = value.model_dump()
         self._text_data = value.render_to_text()
+
+    def to_dict(self) -> dict:
+        return {
+            **model_to_dict(
+                self,
+                fields=['id', 'order', 'type'],
+            ),
+            'is_deleted': self.is_deleted,
+            'block': {
+                'value': self.block.value,
+                'type': self.block.type,
+                'update_template_rendered': render_to_string(
+                    context={
+                        'version_block': self,
+                        'value': self.block.value,
+                    },
+                    template_name=self.block.update_template,
+                )
+            }
+        }
 
     objects = EntryVersionBlockQuerySet.as_manager()
     services = EntryVersionBlockService()

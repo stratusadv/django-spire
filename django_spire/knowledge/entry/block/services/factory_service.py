@@ -18,7 +18,7 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
     def create_blank_block(
             self,
             entry_version: EntryVersion,
-            block_type: str,
+            block_type: BlockTypeChoices,
             order: int,
     ) -> EntryVersionBlock:
         self.obj = self.obj_class(
