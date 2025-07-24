@@ -5,6 +5,7 @@ from django_spire.contrib.service import BaseDjangoModelService
 from typing import TYPE_CHECKING
 
 from django_spire.knowledge.entry.block.choices import BlockTypeChoices
+from django_spire.knowledge.entry.block.maps import ENTRY_BLOCK_MAP
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import EntryVersion
@@ -14,11 +15,17 @@ if TYPE_CHECKING:
 class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
-    def create_blank_text_block(self, version: EntryVersion) -> EntryVersionBlock:
-        return self.obj_class.create(
-            version=version,
-            type=BlockTypeChoices.TEXT,
-            order=0,
-            _block_data={'value': '', 'type': BlockTypeChoices.TEXT.value},
-            _text_data='',
+    def create_blank_block(
+            self,
+            entry_version: EntryVersion,
+            block_type: str,
+            order: int,
+    ) -> EntryVersionBlock:
+        self.obj = self.obj_class(
+            version=entry_version,
+            type=block_type,
+            order=order,
         )
+        self.obj.block = ENTRY_BLOCK_MAP[block_type](value='', type=block_type)
+        self.obj.save()
+        return self.obj

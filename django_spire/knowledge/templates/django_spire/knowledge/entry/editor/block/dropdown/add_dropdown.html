@@ -10,7 +10,14 @@
 
 {% block dropdown_content %}
     {% for block_type in block_types %}
-        {# TODO: Implement adding block functionality #}
-        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text=block_type.label %}
+        <div
+            x-data="{
+                create_block() {
+                    create_blank_block({block_type: '{{ block_type.value }}', order: version_block.order + 1})
+                }
+            }"
+        >
+            {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text=block_type.label x_click="create_block()" %}
+        </div>
     {% endfor %}
 {% endblock %}

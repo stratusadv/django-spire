@@ -1,10 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django_spire.history.querysets import HistoryQuerySet
 
-
-class EntryQuerySet(HistoryQuerySet):
-    def has_current_version(self):
-        return self.filter(current_version__isnull=False)
+if TYPE_CHECKING:
+    from django_spire.knowledge.entry.block.models import EntryVersionBlock
 
 
-class EntryVersionQuerySet(HistoryQuerySet):
-    pass
+class EntryVersionBlockQuerySet(HistoryQuerySet):
+    def greater_or_equal_order(self, version_block: EntryVersionBlock):
+        return self.filter(order__gte=version_block.order).exclude(id=version_block.id)

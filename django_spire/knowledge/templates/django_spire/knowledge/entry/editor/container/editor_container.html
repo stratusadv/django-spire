@@ -5,14 +5,35 @@
 {% endblock %}
 
 {% block container_content %}
-    {% for version_block in version_blocks %}
-        <div class="row">
-            <div class="col-auto pe-0">
-                {% include 'django_spire/knowledge/entry/editor/block/dropdown/add_dropdown.html' %}
+    <div
+        x-data="{
+            init() {
+                this.editor = new Editor({
+                    id: {{ current_version.pk }},
+                    version_blocks_json: {{ version_blocks_json }}
+                })
+            },
+            async create_blank_block({block_type, order}) {
+                let response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:json:create_blank_block" pk=current_version.pk %}',
+                    {payload: {block_type: block_type, order: order}},
+                )
+                if (response.type === 'error') {
+                    $dispatch('error', 'An error occurred while creating the block.')
+                } else {
+                    console.log(response)
+                }
+            }
+        }"
+    >
+        <template x-for="(version_block, index) in editor.entry_version.version_blocks" :key="version_block.id">
+            <div class="row">
+                <div class="col-auto pe-0">
+                    {% include 'django_spire/knowledge/entry/editor/block/dropdown/add_dropdown.html' %}
+                </div>
+                <div class="col" x-html="version_block.block.update_template_rendered">
+                </div>
             </div>
-            <div class="col">
-                {% include version_block.block.update_template with value=version_block.block.value %}
-            </div>
-        </div>
-    {% endfor %}
+        </template>
+    </div>
 {% endblock %}

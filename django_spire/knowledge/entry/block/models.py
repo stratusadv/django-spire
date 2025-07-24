@@ -6,7 +6,7 @@ from django_spire.knowledge.entry.block.maps import ENTRY_BLOCK_MAP
 from django_spire.knowledge.entry.block.services.service import EntryVersionBlockService
 from django_spire.knowledge.entry.editor.blocks.block import BaseBlock
 from django_spire.knowledge.entry.models import EntryVersion
-from django_spire.knowledge.entry.querysets import EntryVersionBlockQuerySet
+from django_spire.knowledge.entry.block.querysets import EntryVersionBlockQuerySet
 
 
 class EntryVersionBlock(HistoryModelMixin):
