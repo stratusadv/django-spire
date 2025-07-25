@@ -1,12 +1,27 @@
 <div
     class="d-flex align-items-center"
     x-data="{
-        text_value: '{{ version_block.block.value|escapejs }}',
+        text_value: version_block.block.value,
         init() {
             $nextTick(() => {
                 $refs.textarea.style.height = 'auto'
                 $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'
             })
+
+            $watch('editor.block_order_autofocus', () => {
+                if (editor.block_order_autofocus === version_block.order) {
+                    $refs.textarea.focus()
+                }
+            })
+
+            if (editor.block_order_autofocus === version_block.order) {
+                $refs.textarea.focus()
+            }
+        },
+        delete_if_empty() {
+            if (this.text_value === '') {
+                delete_block({version_block_id: version_block.id})
+            }
         },
         async update_text_value() {
             let response = await django_glue_fetch(
@@ -18,7 +33,7 @@
             )
 
             if (response.type === 'error') {
-                $dispatch('error', 'An error occurred while saving the text block.')
+                $dispatch('notify', {type: 'error', message: 'An error occurred while saving the text block.'})
             }
         },
         update_height(event) {
@@ -41,6 +56,7 @@
         x-model="text_value"
         @input="update_height($event)"
         @beforeinput.debounce.300ms="update_text_value()"
+        @keydown.backspace="delete_if_empty()"
 {#        @keydown.enter="create_blank_block({block_type: 'text', order: version_block.order + 1})"#}
         rows="1"
     ></textarea>

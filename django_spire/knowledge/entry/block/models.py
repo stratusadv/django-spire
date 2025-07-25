@@ -43,7 +43,6 @@ class EntryVersionBlock(HistoryModelMixin):
                 self,
                 fields=['id', 'order', 'type'],
             ),
-            'is_deleted': self.is_deleted,
             'block': {
                 'value': self.block.value,
                 'type': self.block.type,

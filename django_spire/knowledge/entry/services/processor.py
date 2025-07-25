@@ -14,10 +14,20 @@ if TYPE_CHECKING:
 class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
     obj: EntryVersion
 
+    def delete_block(self, version_block: EntryVersionBlock):
+        version_block.set_deleted()
+        (
+            self.obj.blocks
+            .greater_or_equal_order(order=version_block.order)
+            .active()
+            .update(order=F('order') - 1)
+        )
+
     def insert_block(self, version_block: EntryVersionBlock):
         (
             self.obj.blocks
             .greater_or_equal_order(order=version_block.order)
+            .exclude(pk=version_block.pk)
             .active()
             .update(order=F('order') + 1)
         )

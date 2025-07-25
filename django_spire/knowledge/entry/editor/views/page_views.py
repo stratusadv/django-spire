@@ -25,7 +25,7 @@ def edit_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             EntryVersionBlock.services.factory.create_blank_block(
                 entry_version=current_version,
                 block_type=BlockTypeChoices.TEXT,
-                order=0
+                order=1
             )
         ]
 

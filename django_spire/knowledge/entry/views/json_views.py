@@ -32,3 +32,20 @@ def create_blank_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
             'entry_version_block_json': json.dumps(version_block.to_dict())
         }
     )
+
+
+@valid_ajax_request_required
+def delete_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
+    entry_version = EntryVersion.objects.get(pk=pk)
+
+    body_data = json.loads(request.body.decode('utf-8'))
+    version_block_pk = body_data.get('version_block_pk')
+
+    try:
+        version_block = EntryVersionBlock.objects.get(pk=version_block_pk)
+    except EntryVersionBlock.DoesNotExist:
+        return JsonResponse({'type': 'error', 'message': 'Block Not Found.'})
+
+    entry_version.services.processor.delete_block(version_block=version_block)
+
+    return JsonResponse({'type': 'success'})

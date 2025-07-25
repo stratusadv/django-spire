@@ -19,7 +19,7 @@
                     {payload: {block_type: block_type, order: order}},
                 )
                 if (response.type === 'error') {
-                    $dispatch('error', 'An error occurred while creating the block.')
+                    $dispatch('notify', {type:'error', message: 'An error occurred while creating the block.'})
                 } else {
                     let block_data = JSON.parse(response.entry_version_block_json)
                     this.editor.insert_blank_block(
@@ -30,6 +30,17 @@
                             update_template_rendered: block_data.block.update_template_rendered
                         }
                     )
+                }
+            },
+            async delete_block({version_block_id}) {
+                let response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:json:delete_block" pk=current_version.pk %}',
+                    {payload: {version_block_pk: version_block_id}},
+                )
+                if (response.type === 'error') {
+                    $dispatch('notify', {type: 'error', message: 'An error occurred while deleting the block.'})
+                } else {
+                    this.editor.delete_block({id: version_block_id})
                 }
             }
         }"

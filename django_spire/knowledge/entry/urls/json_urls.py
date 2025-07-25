@@ -10,4 +10,9 @@ urlpatterns = [
         json_views.create_blank_block_view,
         name='create_blank_block',
     ),
+    path(
+        '<int:pk>/delete_block/',
+        json_views.delete_block_view,
+        name='delete_block',
+    ),
 ]

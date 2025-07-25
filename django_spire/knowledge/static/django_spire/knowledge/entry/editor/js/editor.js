@@ -7,11 +7,10 @@ class Block {
 }
 
 class EntryVersionBlock {
-    constructor({id, type, order, block, is_deleted}) {
+    constructor({id, type, order, block}) {
         this.id = id
         this.type = type
         this.order = order
-        this.is_deleted = is_deleted
         this.block = new Block({
             value: block.value,
             type: block.type,
@@ -33,7 +32,6 @@ class EntryVersion {
                         type: version_block.type,
                         order: version_block.order,
                         block: version_block.block,
-                        is_deleted: version_block.is_deleted
                     })
                 )
             }
@@ -47,6 +45,19 @@ class Editor {
             id: id,
             version_blocks_json: version_blocks_json
         })
+        this.block_order_autofocus = null
+    }
+
+    delete_block({id}) {
+        const version_block = this.entry_version.version_blocks.find(
+            version_block => version_block.id === id
+        )
+        if (version_block.order > 0) {
+            this.block_order_autofocus = version_block.order - 1
+        }
+        this.entry_version.version_blocks = this.entry_version.version_blocks.filter(
+            version_block => version_block.id !== id
+        )
     }
 
     insert_blank_block({id, block_type, order, update_template_rendered}) {
@@ -63,7 +74,6 @@ class Editor {
                 id: id,
                 type: block_type,
                 order: order,
-                is_deleted: false,
                 block: new Block({
                     value: '',
                     type: block_type,
@@ -75,5 +85,7 @@ class Editor {
         this.entry_version.version_blocks.sort(
             (a, b) => a.order - b.order
         )
+
+        this.block_order_autofocus = order
     }
 }
