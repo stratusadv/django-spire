@@ -1,12 +1,15 @@
 {% extends 'django_spire/container/container.html' %}
 
 {% block container_title %}
-    {{ entry.name }}
+    <div class="ps-3">
+        {{ entry.name }}
+    </div>
 {% endblock %}
 
 {% block container_content %}
     <div
         x-data="{
+            first_load: true,
             init() {
                 this.editor = new Editor({
                     id: {{ current_version.pk }},
@@ -45,9 +48,12 @@
             }
         }"
     >
-        <template x-for="(version_block, index) in editor.entry_version.version_blocks" :key="version_block.id">
+        <template x-for="(version_block, index) in editor.entry_version.version_blocks" :key="version_block.order">
             <div class="row align-items-center">
-                <div class="col-auto pe-0">
+                <div
+                    class="col-auto pe-0"
+                    :class="editor.block_order_focus === version_block.order ? 'opacity-100' : 'opacity-0'"
+                >
                     {% include 'django_spire/knowledge/entry/editor/block/dropdown/add_dropdown.html' %}
                 </div>
                 <div class="col" x-html="version_block.block.update_template_rendered">
