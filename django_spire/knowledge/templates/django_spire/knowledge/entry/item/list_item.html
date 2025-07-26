@@ -3,7 +3,8 @@
 {% block item_title_col %}2{% endblock %}
 
 {% block item_title %}
-	{{ entry.name }}
+    {% url 'django_spire:knowledge:entry:editor:page:edit' pk=entry.pk as entry_edit_url %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_value=entry.name attribute_href=entry_edit_url %}
 {% endblock %}
 
 {% block item_row_content %}

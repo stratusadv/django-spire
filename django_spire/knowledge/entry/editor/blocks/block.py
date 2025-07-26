@@ -8,11 +8,22 @@ from django_spire.knowledge.entry.block.choices import BlockTypeChoices
 
 class BaseBlock(ABC, BaseModel):
     value: Any
-    _type: BlockTypeChoices
+    type: BlockTypeChoices
+    display_template: str
+    update_template: str
 
-    @property
-    def type(self) -> BlockTypeChoices:
-        return self._type
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+
+        if cls.display_template is None or cls.display_template == '':
+            raise ValueError(
+                f'{cls.__module__}.{cls.__qualname__}.display_template must be set'
+            )
+
+        if cls.update_template is None or cls.update_template == '':
+            raise ValueError(
+                f'{cls.__module__}.{cls.__qualname__}.update_template must be set'
+            )
 
     @abstractmethod
     def render_to_text(self) -> str:
