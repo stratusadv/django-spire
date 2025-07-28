@@ -6,11 +6,13 @@ from django_spire.knowledge.entry.editor.blocks.heading_block import HeadingBloc
 from django_spire.knowledge.entry.editor.blocks.sub_heading_block import SubHeadingBlock
 from django_spire.knowledge.entry.editor.blocks.text_block import TextBlock
 
+LADDER_SAFETY_COLLECTION_NAME = 'Ladder Safety'
+
 SEED_COLLECTIONS = {
     'Health and Safety': {
         'description': 'Information on health and safety',
         'sub_collections': {
-            'Ladder Safety': 'Information on ladder safety',
+            LADDER_SAFETY_COLLECTION_NAME: 'Information on ladder safety',
             'Fire Safety': 'Information on fire safety'
         },
         'General': 'General knowledge about the company',
@@ -33,10 +35,10 @@ for key, value in SEED_COLLECTIONS.items():
 
 SEED_ENTRIES = [
     {
-        'collection': 'Health and Safety',
-        'name': 'Ladder Safety',
+        'collection': LADDER_SAFETY_COLLECTION_NAME,
+        'name': 'Proper Ladder Safety',
         'blocks': [
-            HeadingBlock(value='Ladder Safety'),
+            HeadingBlock(value='Proper Ladder Safety'),
             SubHeadingBlock(value='What is to High?'),
             TextBlock(value='High ladders are a falling risk and all workers should take time to understand the risks of using them.'),
             TextBlock(value='When climbing up a ladder below a certain height, make sure to confirm the ladder is on solid ground and leaning against a solid support.'),
@@ -48,7 +50,7 @@ SEED_ENTRIES = [
 ]
 
 for entry in SEED_ENTRIES:
-    collection = Collection.objects.earliest('pk')
+    collection = Collection.objects.get(name=entry['collection'])
     new_entry = collection.entries.create(
         name=entry['name']
     )

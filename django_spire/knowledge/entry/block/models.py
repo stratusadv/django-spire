@@ -27,6 +27,8 @@ class EntryVersionBlock(HistoryModelMixin):
     _block_data = models.JSONField()
     _text_data = models.TextField()
 
+    objects = EntryVersionBlockQuerySet.as_manager()
+
     @property
     def block(self) -> BaseBlock:
         return ENTRY_BLOCK_MAP[self.type](**self._block_data)
@@ -36,6 +38,9 @@ class EntryVersionBlock(HistoryModelMixin):
         self.type = value.type
         self._block_data = value.model_dump()
         self._text_data = value.render_to_text()
+
+    def render_to_text(self) -> str:
+        return self.block.render_to_text()
 
     def to_dict(self) -> dict:
         return {
