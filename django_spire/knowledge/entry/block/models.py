@@ -47,8 +47,9 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
         return {
             **model_to_dict(
                 self,
-                fields=['id', 'order', 'type'],
+                fields=['id', 'type'],
             ),
+            'order': self.order,
             'block': {
                 'value': self.block.value,
                 'type': self.block.type,
@@ -61,4 +62,3 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
                 )
             }
         }
-

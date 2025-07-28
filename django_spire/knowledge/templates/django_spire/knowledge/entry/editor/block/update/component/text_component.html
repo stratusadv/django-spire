@@ -2,8 +2,10 @@
     class="d-flex align-items-center"
     x-data="{
         init() {
-            $refs.textarea.style.height = 'auto'
-            $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'
+            $nextTick(() => {
+                $refs.textarea.style.height = 'auto'
+                $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'
+            })
         },
         async create_block() {
             await create_blank_block({block_type: 'text', order: version_block.order + 1})
