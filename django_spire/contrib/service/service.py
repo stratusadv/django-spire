@@ -18,7 +18,9 @@ class BaseService(ABC, Generic[TypeAny]):
         if obj is None:
             return
 
-        if obj.__class__.__name__ != self._obj_type_name:
+        obj_mro = [cls.__name__ for cls in obj.__class__.__mro__]
+
+        if not self._obj_type_name in obj_mro:
             raise ServiceException(
                 f'{self.__class__.__name__} was instantiated with obj type "{obj.__class__.__name__}" and failed as it was expecting "{self._obj_type_name}".'
             )
