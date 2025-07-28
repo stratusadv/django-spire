@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.12.2
+
+### Fixes
+- Django Service bug fixed when striping "_id" to match field names. 
+
+
 
 ## v0.12.1
 
