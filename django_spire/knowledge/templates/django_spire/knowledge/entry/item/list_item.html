@@ -3,8 +3,8 @@
 {% block item_title_col %}2{% endblock %}
 
 {% block item_title %}
-    {% url 'django_spire:knowledge:entry:editor:page:edit' pk=entry.pk as entry_edit_url %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_value=entry.name attribute_href=entry_edit_url %}
+    {% url 'django_spire:knowledge:entry:page:detail' pk=entry.pk as entry_detail_url %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_value=entry.name attribute_href=entry_detail_url %}
 {% endblock %}
 
 {% block item_row_content %}
