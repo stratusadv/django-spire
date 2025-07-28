@@ -18,7 +18,7 @@
             },
             async create_blank_block({block_type, order}) {
                 let response = await django_glue_fetch(
-                    '{% url "django_spire:knowledge:entry:json:create_blank_block" pk=current_version.pk %}',
+                    '{% url "django_spire:knowledge:entry:json:create_blank_block" version_pk=current_version.pk %}',
                     {payload: {block_type: block_type, order: order}},
                 )
                 if (response.type === 'error') {
@@ -37,7 +37,7 @@
             },
             async delete_block({version_block_id}) {
                 let response = await django_glue_fetch(
-                    '{% url "django_spire:knowledge:entry:json:delete_block" pk=current_version.pk %}',
+                    '{% url "django_spire:knowledge:entry:json:delete_block" version_pk=current_version.pk %}',
                     {payload: {version_block_pk: version_block_id}},
                 )
                 if (response.type === 'error') {

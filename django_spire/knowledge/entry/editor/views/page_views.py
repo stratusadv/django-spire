@@ -6,6 +6,7 @@ from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.urls import reverse
 
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.generic_views import portal_views
@@ -15,8 +16,8 @@ from django_spire.knowledge.entry.models import Entry
 
 
 @login_required()
-def edit_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    entry = get_object_or_404(Entry, pk=pk)
+def edit_view(request: WSGIRequest, entry_pk: int) -> TemplateResponse:
+    entry = get_object_or_404(Entry, pk=entry_pk)
     current_version = entry.current_version
     version_blocks = current_version.blocks.active().order_by('order')
 
@@ -30,6 +31,18 @@ def edit_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         ]
 
     breadcrumbs = Breadcrumbs()
+    breadcrumbs.add_breadcrumb(name='Knowledge')
+    breadcrumbs.add_breadcrumb(
+        name='Collections',
+        href=reverse('django_spire:knowledge:collection:page:list')
+    )
+    breadcrumbs.add_breadcrumb(
+        name=entry.collection.name,
+        href=reverse(
+            'django_spire:knowledge:collection:page:detail',
+            kwargs={'pk': entry.collection.pk}
+        )
+    )
     breadcrumbs.add_breadcrumb(name=f'Edit {entry.name}')
 
     return portal_views.template_view(

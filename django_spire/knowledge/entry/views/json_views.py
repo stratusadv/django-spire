@@ -9,8 +9,8 @@ from django_spire.knowledge.entry.models import EntryVersion
 
 
 @valid_ajax_request_required
-def create_blank_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
-    entry_version = EntryVersion.objects.get(pk=pk)
+def create_blank_block_view(request: WSGIRequest, version_pk: int) -> JsonResponse:
+    entry_version = EntryVersion.objects.get(pk=version_pk)
 
     body_data = json.loads(request.body.decode('utf-8'))
     block_type = body_data.get('block_type')
@@ -35,8 +35,8 @@ def create_blank_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
 
 
 @valid_ajax_request_required
-def delete_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
-    entry_version = EntryVersion.objects.get(pk=pk)
+def delete_block_view(request: WSGIRequest, version_pk: int) -> JsonResponse:
+    entry_version = EntryVersion.objects.get(pk=version_pk)
 
     body_data = json.loads(request.body.decode('utf-8'))
     version_block_pk = body_data.get('version_block_pk')
