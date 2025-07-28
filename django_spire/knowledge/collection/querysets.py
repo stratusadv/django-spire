@@ -4,6 +4,11 @@ from django_spire.history.querysets import HistoryQuerySet
 
 
 class CollectionQuerySet(HistoryQuerySet):
+    def annotate_entry_count(self):
+        return self.annotate(
+            entry_count=Count('entry')
+        )
+
     def by_parent(self, parent):
         return self.filter(parent=parent)
 

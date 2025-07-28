@@ -1,4 +1,5 @@
 import json
+from typing import Type
 
 from dandy.llm import MessageHistory
 from dandy.llm.service.request.message import RoleLiteralStr
@@ -6,7 +7,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from django_spire.ai.chat.message_intel import BaseMessageIntel
+from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
 from django_spire.ai.chat.querysets import ChatQuerySet, ChatMessageQuerySet
@@ -115,8 +116,15 @@ class ChatMessage(HistoryModelMixin):
 
     @property
     def intel(self):
-        intel_class: BaseMessageIntel = get_class_from_string(self._intel_class_name)
-        return intel_class.model_validate(self._intel_data)
+        try:
+            intel_class: Type[BaseMessageIntel] = get_class_from_string(self._intel_class_name)
+            return intel_class.model_validate(self._intel_data)
+
+        except ImportError:
+            intel_class: Type[BaseMessageIntel] = DefaultMessageIntel
+            return intel_class.model_validate(
+                {'text': str(self._intel_data)}
+            )
 
     @intel.setter
     def intel(self, message_intel: BaseMessageIntel):

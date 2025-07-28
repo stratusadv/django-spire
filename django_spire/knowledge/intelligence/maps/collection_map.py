@@ -12,7 +12,7 @@ def get_collection_map_class() -> Type[BaseLlmMap]:
         map = Map({
             **{
                 collection.name: collection
-                for collection in Collection.objects.all()
+                for collection in Collection.objects.all().annotate_entry_count()
             },
             **{'No Matching Knowledge Collection Titles': None}
         })
