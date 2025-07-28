@@ -19,18 +19,20 @@ SEED_COLLECTIONS = {
     }
 }
 
-for key, value in SEED_COLLECTIONS.items():
+for idx, (key, value) in enumerate(SEED_COLLECTIONS.items(), start=1):
     new_collection = Collection.objects.create(
         name=key,
         description=value['description'],
+        order=idx
     )
 
     if 'sub_collections' in value:
-        for sub_key, sub_value in value['sub_collections'].items():
+        for sub_idx, (sub_key, sub_value) in enumerate(value['sub_collections'].items(), start=1):
             new_sub_collection = Collection.objects.create(
                 name=sub_key,
                 description=sub_value,
-                parent=new_collection
+                parent=new_collection,
+                order=sub_idx
             )
 
 SEED_ENTRIES = [
@@ -49,10 +51,11 @@ SEED_ENTRIES = [
     }
 ]
 
-for entry in SEED_ENTRIES:
+for entry_idx, entry in enumerate(SEED_ENTRIES, start=1):
     collection = Collection.objects.get(name=entry['collection'])
     new_entry = collection.entries.create(
-        name=entry['name']
+        name=entry['name'],
+        order=entry_idx
     )
     new_entry_version = new_entry.versions.create(
         status=EntryVersionTypeChoices.PUBLISHED,
@@ -62,8 +65,9 @@ for entry in SEED_ENTRIES:
     new_entry.current_version = new_entry_version
     new_entry.save()
 
-    for block in entry['blocks']:
+    for block_idx, block in enumerate(entry['blocks'], start=1):
         new_entry_version_block = EntryVersionBlock()
         new_entry_version_block.block = block
         new_entry_version_block.version = new_entry_version
+        new_entry_version_block.order = block_idx
         new_entry_version_block.save()
