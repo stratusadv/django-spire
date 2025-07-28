@@ -7,7 +7,7 @@
         load_messages_view: new ViewGlue('{% url "django_spire:ai:chat:message:load_chat" chat_id=chat.id %}'),
         chat_id: '{{ chat.id }}',
         message_body: '',
-        async send_chat(synthesis_speech_for_response = false) {
+        async send_chat(synthesis_speech_for_response = false, message_body = '') {
             if(this.message_body !== '') {
                 await this.request_message_view.render_insert_adjacent(this.$refs.target_div, {
                         message_body: this.message_body.trim(),

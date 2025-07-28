@@ -4,8 +4,8 @@ from dandy.llm import LlmBot, MessageHistory
 from django.core.handlers.wsgi import WSGIRequest
 
 from django_spire.ai.sms.intel import SmsIntel
-from test_project.apps.ai.sms.intelligence.llm_maps import IntentLlmMap
-from test_project.apps.ai.sms.intelligence.prompts import test_project_company_prompt
+from test_project.apps.ai.chat.intelligence.intent_map import IntentLlmMap
+from test_project.apps.ai.chat.intelligence.prompts import test_project_company_prompt
 
 
 class SmsConversationWorkflow(BaseWorkflow):
@@ -18,7 +18,10 @@ class SmsConversationWorkflow(BaseWorkflow):
             message_history: MessageHistory | None = None
     ) -> SmsIntel:
 
-        intents = IntentLlmMap.process(user_input, max_return_values=1)
+        intents = IntentLlmMap.process(
+            user_input,
+            max_return_values=1
+        )
 
         if intents[0] == 'clowns':
             response = LlmBot.process(
