@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django_spire.contrib.ordering.service import OrderingService
 from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING, Any
@@ -17,4 +18,5 @@ class EntryVersionBlockService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
     factory: EntryVersionBlockFactoryService = EntryVersionBlockFactoryService()
+    ordering: OrderingService = OrderingService()
     processor: EntryVersionBlockProcessorService = EntryVersionBlockProcessorService()

@@ -1,9 +1,10 @@
 from django.db.models import Count
 
+from django_spire.contrib.ordering.queryset_mixin import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 
-class CollectionQuerySet(HistoryQuerySet):
+class CollectionQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
     def annotate_entry_count(self):
         return self.annotate(
             entry_count=Count('entry')
