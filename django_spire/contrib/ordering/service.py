@@ -8,5 +8,5 @@ if TYPE_CHECKING:
     from django_spire.contrib.ordering.model_mixin import OrderingModelMixin
 
 
-class OrderingService(BaseDjangoModelService[OrderingModelMixin]):
-    pass
+class OrderingService(BaseDjangoModelService['OrderingModelMixin']):
+    obj: OrderingModelMixin

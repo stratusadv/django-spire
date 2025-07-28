@@ -10,13 +10,13 @@ if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry, EntryVersion
 
 
-class EntryService(BaseDjangoModelService[Entry]):
+class EntryService(BaseDjangoModelService['Entry']):
     obj: Entry
 
     ordering: OrderingService = OrderingService()
 
 
-class EntryVersionService(BaseDjangoModelService[EntryVersion]):
+class EntryVersionService(BaseDjangoModelService['EntryVersion']):
     obj: EntryVersion
 
     processor: EntryVersionProcessorService = EntryVersionProcessorService()

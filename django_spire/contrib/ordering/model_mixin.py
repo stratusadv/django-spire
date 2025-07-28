@@ -6,3 +6,6 @@ class OrderingModelMixin(models.Model):
         default=0,
         editable=False
     )
+
+    class Meta:
+        abstract = True
