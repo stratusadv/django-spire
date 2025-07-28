@@ -1,8 +1,8 @@
 import django
 from dandy.recorder import Recorder
 
-from django_spire.contrib.prompt.bots import DandyPythonPromptBot
-from django_spire.contrib.prompt.tuning.bots import PromptTuningBot
+from django_spire.ai.prompt.bots import DandyPythonPromptBot
+from django_spire.ai.prompt.tuning.bots import PromptTuningBot
 
 django.setup()
 

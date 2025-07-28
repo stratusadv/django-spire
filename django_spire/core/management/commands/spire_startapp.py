@@ -8,15 +8,15 @@ from typing_extensions import TYPE_CHECKING
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from django_spire.core.management.commands.spire_bootstrap_pkg.manager import (
+from django_spire.core.management.commands.spire_startapp_pkg.manager import (
         AppManager,
         HTMLTemplateManager,
 )
-from django_spire.core.management.commands.spire_bootstrap_pkg.processor import (
+from django_spire.core.management.commands.spire_startapp_pkg.processor import (
         AppTemplateProcessor,
         HTMLTemplateProcessor
 )
-from django_spire.core.management.commands.spire_bootstrap_pkg.reporter import Reporter
+from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
 
 if TYPE_CHECKING:
     import argparse

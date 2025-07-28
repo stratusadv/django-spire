@@ -1,6 +1,6 @@
 from dandy.llm import BaseLlmBot
 
-from django_spire.contrib.prompt.tuning import prompts, intel
+from django_spire.ai.prompt.tuning import prompts, intel
 
 
 class PromptTuningBot(BaseLlmBot):

@@ -1,6 +1,7 @@
 from dandy.llm import BaseLlmBot
 
-from django_spire.contrib.prompt.system import intel, prompts
+from django_spire.ai.prompt.system import prompts
+from django_spire.ai.prompt.system import intel
 
 
 class SystemPromptBot(BaseLlmBot):

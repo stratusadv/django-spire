@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
-from django_spire.contrib.prompt.tuning.choices import OutcomeRatingChoices
+from django_spire.ai.prompt.tuning.choices import OutcomeRatingChoices
 
 
 class PromptTrainingMixin(models.Model):

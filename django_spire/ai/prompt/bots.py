@@ -3,7 +3,8 @@ from pathlib import Path
 from dandy.llm import BaseLlmBot
 from django.conf import settings
 
-from django_spire.contrib.prompt import prompts, intel
+from django_spire.ai.prompt import prompts
+from django_spire.ai.prompt import intel
 
 _PROMPT_OUTPUT_PATH = Path(settings.BASE_DIR, '.prompt_generator_output')
 

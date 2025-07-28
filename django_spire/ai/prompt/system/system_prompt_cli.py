@@ -1,13 +1,13 @@
 import django
 
-from django_spire.contrib.prompt.tuning.bots import PromptTuningBot
+from django_spire.ai.prompt.tuning.bots import PromptTuningBot
 
 django.setup()
 
 from dandy.recorder import Recorder
 
-from django_spire.contrib.prompt.bots import DandyPythonPromptBot
-from django_spire.contrib.prompt.system import bots
+from django_spire.ai.prompt.bots import DandyPythonPromptBot
+from django_spire.ai.prompt.system import bots
 
 if __name__ == '__main__':
     Recorder.start_recording(recording_name='system_prompt')

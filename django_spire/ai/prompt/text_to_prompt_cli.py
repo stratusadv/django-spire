@@ -1,7 +1,7 @@
 import django
 django.setup()
 
-from django_spire.contrib.prompt.bots import DandyPythonPromptBot
+from django_spire.ai.prompt.bots import DandyPythonPromptBot
 
 if __name__ == '__main__':
     prompt = """
