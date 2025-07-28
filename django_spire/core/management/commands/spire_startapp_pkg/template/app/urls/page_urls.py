@@ -4,5 +4,6 @@ from module.views import page_views
 
 app_name = 'page'
 urlpatterns = [
-    path('', page_views.home_page, name='home'),
+    path('<int:pk>/detail/', page_views.spireparentapp_spirechildapp_detail_view, name='detail'),
+    path('list/', page_views.spireparentapp_spirechildapp_list_view, name='list'),
 ]

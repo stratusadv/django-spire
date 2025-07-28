@@ -1,3 +1,3 @@
-from module.seeding.seeder import SpireChildAppSeeder
+from module.seeding.seeder import SpireChildAppModelSeeder
 
-SpireChildAppSeeder.seed_database(count=10)
+SpireChildAppModelSeeder.seed_database(count=10)

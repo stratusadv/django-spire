@@ -71,22 +71,6 @@ def spireparentapp_spirechildapp_delete_view(request: WSGIRequest, pk: int) -> T
     )
 
 
-@permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
-
-    context_data = {
-        'spirechildapp': spirechildapp,
-    }
-
-    return portal_views.detail_view(
-        request,
-        obj=spirechildapp,
-        context_data=context_data,
-        template='spirechildapp/page/spirechildapp_detail_page.html'
-    )
-
-
 @permission_required('spireparentapp.change_spirepermission')
 def spireparentapp_spirechildapp_form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
@@ -133,18 +117,4 @@ def spireparentapp_spirechildapp_form_view(request: WSGIRequest, pk: int) -> Tem
         form=form,
         obj=spirechildapp,
         template='spirechildapp/page/spirechildapp_form_page.html'
-    )
-
-
-@permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'spirechildapps': models.SpireChildApp.objects.all()
-    }
-
-    return portal_views.list_view(
-        request,
-        model=models.SpireChildApp,
-        context_data=context_data,
-        template='spirechildapp/page/spirechildapp_list_page.html'
     )

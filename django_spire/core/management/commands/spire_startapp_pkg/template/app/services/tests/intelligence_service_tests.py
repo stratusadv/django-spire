@@ -1,6 +1,6 @@
 from django.test import TestCase
 
 
-class SpireChildAppViewTestCase(TestCase):
+class SpireChildAppIntelligenceServiceTestCase(TestCase):
     def setUp(self):
         super().setUp()
