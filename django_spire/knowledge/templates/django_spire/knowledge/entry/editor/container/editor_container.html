@@ -48,7 +48,7 @@
             }
         }"
     >
-        <template x-for="(version_block, index) in editor.entry_version.version_blocks" :key="version_block.order">
+        <template x-for="(version_block, index) in editor.entry_version.version_blocks" :key="version_block.id">
             <div class="row align-items-center">
                 <div
                     class="col-auto pe-0"

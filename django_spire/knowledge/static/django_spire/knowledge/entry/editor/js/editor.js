@@ -45,7 +45,7 @@ class Editor {
             id: id,
             version_blocks_json: version_blocks_json
         })
-        this.block_order_focus = null
+        this.block_order_focus = 1
     }
 
     get_block_length({order}) {
