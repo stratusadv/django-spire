@@ -12,6 +12,9 @@
         async delete_if_empty() {
             if (version_block.block.value === '') {
                 const previous_order = version_block.order - 1
+                if (previous_order === 0) {
+                    return
+                }
                 const previous_block_length = editor.get_block_length({order: previous_order})
                 $dispatch(
                     'update_block_order_focus',
