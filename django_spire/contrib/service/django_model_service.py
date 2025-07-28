@@ -32,14 +32,14 @@ class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjan
                 logging.warning(f'Field {field!r} is not valid for {self.obj.__class__.__name__}')
                 continue
 
-            model_field = concrete_fields.get(field.rstrip("_id"), None)
+            model_field = concrete_fields.get(field.removesuffix("_id"), None)
 
             if model_field and (getattr(model_field, 'auto_created', False) or not model_field.editable):
                 continue
 
             setattr(self.obj, field, value)
 
-            touched_fields.append(field.rstrip('_id'))
+            touched_fields.append(field.removesuffix('_id'))
 
         return touched_fields
 
