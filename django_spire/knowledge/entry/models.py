@@ -4,9 +4,9 @@ from django.utils.timezone import now
 from django_spire.auth.user.models import AuthUser
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.entry.block.querysets import EntryQuerySet, \
-    EntryVersionQuerySet
+from django_spire.knowledge.entry.querysets import EntryQuerySet, EntryVersionQuerySet
 from django_spire.knowledge.entry.choices import EntryVersionTypeChoices
+from django_spire.knowledge.entry.services.service import EntryVersionService
 
 
 class Entry(HistoryModelMixin):
@@ -53,3 +53,4 @@ class EntryVersion(HistoryModelMixin):
     )
 
     objects = EntryVersionQuerySet.as_manager()
+    services = EntryVersionService()
