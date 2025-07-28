@@ -29,7 +29,7 @@ class Command(BaseCommand):
         super().__init__()
 
         self.app_base = Path(settings.BASE_DIR)
-        self.app_template = Path(django_spire.__file__).parent / 'core/management/commands/spire_bootstrap_pkg/template/app'
+        self.app_template = Path(django_spire.__file__).parent / 'core/management/commands/spire_startapp_pkg/template/app'
 
         self.template_base = self.app_base / 'templates'
         self.html_template = Path(django_spire.__file__).parent / 'template/templates'
@@ -76,7 +76,7 @@ class Command(BaseCommand):
         if missing:
             self.reporter.report_missing_components(missing)
             self.reporter.report_app_tree_structure(self.app_base, components, registry, self.app_template)
-            self.reporter.report_html_tree_structure(self.template_base, components, registry, self.html_template)
+            # self.reporter.report_html_tree_structure(self.template_base, components, registry, self.html_template)
 
             if not self.reporter.prompt_for_confirmation('\nProceed with app creation? (y/n): '):
                 self.reporter.write('App creation aborted.', self.style.ERROR)
@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
             for module in missing:
                 self.app_manager.create_custom_app(module, self.app_processor, self.reporter)
-                self.html_manager.create_custom_templates(module, self.html_processor, self.reporter)
+                # self.html_manager.create_custom_templates(module, self.html_processor, self.reporter)
 
             self.reporter.report_installed_apps_suggestion(missing)
         else:
