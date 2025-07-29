@@ -26,7 +26,7 @@ class ConfirmationForm(forms.Form):
     #
 
 class DeleteConfirmationForm(ConfirmationForm):
-    should_delete = forms.BooleanField(required=True)
+    should_delete = forms.BooleanField(required=False)
 
     def __init__(self, *args, obj = None, **kwargs):
         if obj is None:
