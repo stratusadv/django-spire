@@ -7,6 +7,7 @@ from django_spire.ai.prompt import prompts
 from django_spire.ai.prompt import intel
 
 _PROMPT_OUTPUT_PATH = Path(settings.BASE_DIR, '.prompt_generator_output')
+_MARKDOWN_OUTPUT_PATH = Path(settings.BASE_DIR, '.markdown')
 
 
 class DandyPythonPromptBot(BaseLlmBot):
@@ -36,3 +37,28 @@ class DandyPythonPromptBot(BaseLlmBot):
         return prompt_file
 
 
+class TextToMarkdownPromptBot(BaseLlmBot):
+    instructions_prompt = prompts.text_to_markdown_instruction_bot_prompt()
+    intel_class = intel.TextToMarkdownIntel
+
+    @classmethod
+    def process(
+            cls,
+            text: str,
+
+    ) -> intel.TextToMarkdownIntel:
+        """
+            Takes in user text and converts it to properly formatted Markdown.
+        """
+        markdown_file = cls.process_prompt_to_intel(
+            prompt=prompts.text_to_markdown_input_prompt(text)
+        )
+
+        Path(_MARKDOWN_OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
+
+        with open(Path(_MARKDOWN_OUTPUT_PATH, markdown_file.file_name), 'w') as f:
+            f.write(markdown_file.markdown_content)
+
+        print(f'Done ... saved to "{Path(_MARKDOWN_OUTPUT_PATH, markdown_file.file_name)}"')
+
+        return markdown_file

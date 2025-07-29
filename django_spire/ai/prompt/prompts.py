@@ -37,9 +37,46 @@ def dandy_prompt_python_file_instruction_bot_prompt():
         .file(dandy_prompting_path)
     )
 
+def text_to_markdown_instruction_bot_prompt():
+    return (
+        Prompt()
+        .heading('Markdown Conversion Expert')
+        .text('You are an expert in converting plain text into well-formatted Markdown. Your task is to analyze user-provided text and convert it into proper Markdown format, while preserving all original content and enhancing its presentation.')
+        .line_break()
+
+        .heading('Goal')
+        .text('Convert the user\'s plain text into properly formatted Markdown with appropriate headings, bold text, italics, and other formatting elements.')
+        .line_break()
+
+        .heading('Rules and Best Practices')
+        .ordered_list([
+            'Preserve All Content: Include every word and character from the original text',
+            'Infer Structure: Identify headings, lists, emphasis, and other structural elements from context',
+            'Apply Proper Markdown: Use standard Markdown syntax (# for headings, ** for bold, * for italics, etc.)',
+            'Maintain Hierarchy: Ensure proper heading levels (h1, h2, h3, etc.) based on content hierarchy',
+            'Format Lists: Convert bullet points and numbered lists to proper Markdown list format',
+            'Enhance Readability: Add appropriate line breaks and spacing for better readability',
+            'Preserve Emphasis: Convert emphasized text (ALL CAPS, underlined, etc.) to appropriate Markdown formatting',
+            'Add Code Formatting: Identify and properly format code snippets or technical terms',
+            'Create Links: Convert URLs to proper Markdown link format',
+            'Table Formatting: Convert tabular data into Markdown tables when appropriate'
+        ])
+        .line_break()
+
+        .heading('Output Format')
+        .text('Return the converted Markdown content and a suitable filename with .md extension.')
+    )
+
 def dandy_prompt_python_file_input_prompt(user_prompt: str):
     return (
         Prompt()
         .heading('User Prompt:')
         .text(user_prompt)
+    )
+
+def text_to_markdown_input_prompt(user_text: str):
+    return (
+        Prompt()
+        .heading('User Text for Markdown Conversion:')
+        .text(user_text)
     )
