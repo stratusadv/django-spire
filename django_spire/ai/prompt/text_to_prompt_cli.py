@@ -1,5 +1,5 @@
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 
-def text_to_prompt_cli():
-    prompt = input('Enter your prompt: ')
+def text_to_prompt_cli(prompt: str):
+    prompt = prompt
     DandyPythonPromptBot().process(prompt)

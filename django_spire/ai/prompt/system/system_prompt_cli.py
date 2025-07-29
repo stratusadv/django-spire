@@ -25,8 +25,8 @@ def create_system_prompt_cli():
         )
         print('----------------------------------------------------')
         print()
-        print(new_prompt.system_prompt)
-        prompt = new_prompt.system_prompt
+        print(new_prompt.prompt)
+        prompt = new_prompt.prompt
         print()
 
     Recorder.stop_recording(recording_name='system_prompt')

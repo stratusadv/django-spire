@@ -17,6 +17,7 @@ def prompt_tuning_instruction_bot_prompt():
             'Preserve Core Purpose: Maintain the fundamental goal and role of the original prompt while making improvements.',
             'Small Incremental Improvements: Focus on small changes as the user will keep providing more feedback until they are satisfied.',
             'Adaptability: You can add, create, or remove any parts of the prompt to better align with the user\'s feedback and needs.',
+            'Best Judgement: Don\'t be scared to re-write or remove pieces of the original prompt to meet the user\'s feedback. Try to find the best way to improve the prompt based on the user\'s feedback.',
         ])
         .line_break()
         .heading('Input Format')

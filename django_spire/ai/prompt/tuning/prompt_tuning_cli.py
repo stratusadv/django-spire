@@ -4,14 +4,12 @@ from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.tuning.bots import PromptTuningBot
 
 
-def prompt_tuning_cli():
+def prompt_tuning_cli(prompt: str):
     Recorder.start_recording(recording_name='prompt_tuning')
 
-
     # ENTER YOUR PROMPT HERE!
-    prompt = input('Enter your prompt: ')
+    holding = prompt
 
-    print(prompt)
     print('----------------------------------------------------')
 
     while True:
@@ -25,13 +23,13 @@ def prompt_tuning_cli():
 
         new_prompt = (
             PromptTuningBot()
-            .process(prompt, feedback)
+            .process(holding, feedback)
         )
-        prompt = new_prompt.system_prompt
+        holding = new_prompt.prompt
 
         print('----------------------NEW PROMPT START------------------------------')
         print()
-        print(new_prompt.system_prompt)
+        print(new_prompt.prompt)
         print()
         print('----------------------NEW PROMPT END------------------------------')
         print()
