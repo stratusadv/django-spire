@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from django_spire.help_desk.querysets import HelpDeskTicketQuerySet
+from django_spire.help_desk.services.service import HelpDeskTicketService
 from django_spire.history.mixins import HistoryModelMixin
 
 from django_spire.help_desk import choices
@@ -35,6 +36,7 @@ class HelpDeskTicket(HistoryModelMixin):
     description = models.TextField()
 
     objects = HelpDeskTicketQuerySet.as_manager()
+    services = HelpDeskTicketService()
 
     def __str__(self):
         return f'Ticket #{self.pk}'

@@ -20,8 +20,7 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         .annotate_is_viewed_by_user(request.user)
         .select_related('notification')
         .distinct()
-        .order_by('-notification__sent_datetime')
-        .ordered_by_priority()
+        .ordered_by_priority_and_sent_datetime()
     )
 
     return portal_views.list_view(

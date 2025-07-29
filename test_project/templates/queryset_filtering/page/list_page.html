@@ -1,0 +1,10 @@
+{% extends 'django_spire/page/full_page.html' %}
+{% load static %}
+
+{% block base_head_additional_js %}
+    <script type="application/javascript" src="{% static 'django_spire/js/session_controller.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+{% endblock %}
+
+{% block full_page_content %}
+    {% include 'queryset_filtering/card/list_card.html' %}
+{% endblock %}

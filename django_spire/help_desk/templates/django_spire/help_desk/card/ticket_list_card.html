@@ -7,17 +7,19 @@
         <div class="col text-start">
             Tickets
         </div>
-        <div class="col text-end mb-1">
-            {% url 'django_spire:help_desk:form:create' as create_url %}
-            {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
-        </div>
+        {% if perms.django_spire_help_desk.add_helpdeskticket %}
+            <div class="col text-end mb-1">
+                {% url 'django_spire:help_desk:form:create' as create_url %}
+                {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block card_title_content %}
     {% for ticket in tickets %}
         {% include 'django_spire/help_desk/item/ticket_item.html' %}
-        {% empty %}
-            {% include 'django_spire/item/no_data_item.html' %}
+    {% empty %}
+        {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}
 {% endblock %}

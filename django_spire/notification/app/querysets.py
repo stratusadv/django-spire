@@ -18,14 +18,17 @@ class AppNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQuerySet
             output_field=BooleanField()
         ))
 
-    def ordered_by_priority(self):
+    def ordered_by_priority_and_sent_datetime(self):
         priority_order = Case(
             When(notification__priority=NotificationPriorityChoices.LOW, then=Value(3)),
             When(notification__priority=NotificationPriorityChoices.MEDIUM, then=Value(2)),
             When(notification__priority=NotificationPriorityChoices.HIGH, then=Value(1)),
             output_field=IntegerField(),
         )
-        return self.annotate(priority_order=priority_order).order_by('priority_order')
+        return self.annotate(priority_order=priority_order).order_by(
+            'priority_order',
+            '-notification__sent_datetime'
+        )
 
     def by_user(self, user: User) -> QuerySet:
         return self.filter(notification__user=user)
