@@ -1,15 +1,10 @@
-import django
-
 from django_spire.ai.prompt.tuning.bots import PromptTuningBot
-
-django.setup()
-
 from dandy.recorder import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.system import bots
 
-if __name__ == '__main__':
+def create_system_prompt_cli():
     Recorder.start_recording(recording_name='system_prompt')
 
     user_story = input('Enter your user story: ')

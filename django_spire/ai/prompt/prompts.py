@@ -5,7 +5,7 @@ from dandy.llm import Prompt
 
 _RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent.parent.parent.resolve())
 dandy_prompting_path = Path(_RELATIVE_BASE_DIR, '.venv/Lib/site-packages/dandy/llm/prompt/prompt.py')
-dandy_tutorial_path = Path(_RELATIVE_BASE_DIR, 'mort/prompt/docs/prompt_tutorial.md')
+dandy_tutorial_path = Path(_RELATIVE_BASE_DIR, 'django_spire/ai/prompt/docs/prompt_tutorial.md')
 
 def dandy_prompt_python_file_instruction_bot_prompt():
     return (

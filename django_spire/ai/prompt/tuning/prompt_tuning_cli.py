@@ -1,18 +1,15 @@
-import django
 from dandy.recorder import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.tuning.bots import PromptTuningBot
 
-django.setup()
 
-
-if __name__ == '__main__':
+def prompt_tuning_cli():
     Recorder.start_recording(recording_name='prompt_tuning')
 
 
     # ENTER YOUR PROMPT HERE!
-    prompt = ''
+    prompt = input('Enter your prompt: ')
 
     print(prompt)
     print('----------------------------------------------------')
