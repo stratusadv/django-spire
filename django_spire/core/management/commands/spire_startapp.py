@@ -42,19 +42,12 @@ class Command(BaseCommand):
 
         self.reporter = Reporter(self)
 
-    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
-        parser.add_argument(
-            'app_name',
-            help='The name of the application to create',
-            type=str
-        )
-
     def get_app_names(self) -> list[str]:
         from django.apps import apps
         return [config.name for config in apps.get_app_configs()]
 
     def handle(self, *_args, **kwargs) -> None:
-        app = kwargs.get('app_name')
+        app = input('Enter the path of the app (e.g., "app.maintenance.work_order"):')
 
         if not app:
             raise CommandError(self.style.ERROR('The app name is missing'))
@@ -82,7 +75,7 @@ class Command(BaseCommand):
                 self.reporter.write('App creation aborted.', self.style.ERROR)
                 return
 
-            for module in missing:
+            for module in [missing[-1]]:
                 self.app_manager.create_custom_app(module, self.app_processor, self.reporter)
                 # self.html_manager.create_custom_templates(module, self.html_processor, self.reporter)
 
