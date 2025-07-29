@@ -1,4 +1,4 @@
-from django_spire.ai.prompt.tuning.bots import PromptTuningBot
+from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
 from dandy.recorder import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
@@ -20,7 +20,7 @@ def create_system_prompt_cli():
 
         print('Creating new prompt from feedback.....')
         new_prompt = (
-            PromptTuningBot()
+            SimplePromptTuningBot()
             .process(prompt, feedback)
         )
         print('----------------------------------------------------')
@@ -31,4 +31,7 @@ def create_system_prompt_cli():
 
     Recorder.stop_recording(recording_name='system_prompt')
     Recorder.to_html_file(recording_name='system_prompt')
-    DandyPythonPromptBot().process(prompt)
+
+    prompt_file = input('Do you want to create a Prompt File y/n?')
+    if prompt_file.strip().lower() == 'y':
+        DandyPythonPromptBot().process(prompt)

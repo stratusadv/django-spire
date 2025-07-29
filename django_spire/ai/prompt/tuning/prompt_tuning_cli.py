@@ -1,7 +1,7 @@
 from dandy.recorder import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
-from django_spire.ai.prompt.tuning.bots import PromptTuningBot
+from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
 
 
 def prompt_tuning_cli(prompt: str):
@@ -22,7 +22,7 @@ def prompt_tuning_cli(prompt: str):
         print('Attempting to tune prompt.....')
 
         new_prompt = (
-            PromptTuningBot()
+            SimplePromptTuningBot()
             .process(holding, feedback)
         )
         holding = new_prompt.prompt
