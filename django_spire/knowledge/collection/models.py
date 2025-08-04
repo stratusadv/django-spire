@@ -24,3 +24,8 @@ class Collection(HistoryModelMixin, OrderingModelMixin):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'Collection'
+        verbose_name_plural = 'Collections'
+        db_table = 'django_spire_knowledge_collection'

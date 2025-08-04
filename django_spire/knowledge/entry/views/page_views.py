@@ -9,6 +9,23 @@ from django_spire.knowledge.entry.models import Entry
 
 
 @login_required()
+def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    entry = get_object_or_404(Entry, pk=pk)
+
+    return portal_views.delete_form_view(
+        request,
+        obj=entry,
+        return_url=request.GET.get(
+            'return_url',
+            reverse(
+                'django_spire:knowledge:collection:page:detail',
+                kwargs={'pk': entry.collection.pk}
+            )
+        )
+    )
+
+
+@login_required()
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry = get_object_or_404(Entry, pk=pk)
     current_version = entry.current_version

@@ -31,6 +31,14 @@ class Entry(HistoryModelMixin, OrderingModelMixin):
     objects = EntryQuerySet.as_manager()
     services = EntryService()
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Entry'
+        verbose_name_plural = 'Entries'
+        db_table = 'django_spire_knowledge_entry'
+
 
 class EntryVersion(HistoryModelMixin):
     entry = models.ForeignKey(
@@ -56,3 +64,8 @@ class EntryVersion(HistoryModelMixin):
 
     objects = EntryVersionQuerySet.as_manager()
     services = EntryVersionService()
+
+    class Meta:
+        verbose_name = 'Entry Version'
+        verbose_name_plural = 'Entry Versions'
+        db_table = 'django_spire_knowledge_entry_version'
