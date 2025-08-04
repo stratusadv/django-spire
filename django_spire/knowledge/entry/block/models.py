@@ -62,3 +62,8 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
                 )
             }
         }
+
+    class Meta:
+        verbose_name = 'Block'
+        verbose_name_plural = 'Blocks'
+        db_table = 'django_spire_knowledge_entry_version_block'
