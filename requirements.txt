@@ -4,6 +4,7 @@ django-glue>=0.8.1
 django-sendgrid-v5
 docutils
 faker
+marko==2.1.4
 psycopg2
 pydantic
 Pygments
