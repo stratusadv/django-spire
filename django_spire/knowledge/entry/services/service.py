@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.ordering.service import OrderingService
 from django_spire.contrib.service import BaseDjangoModelService
-from django_spire.knowledge.entry.services.processor_service import EntryVersionProcessorService
+from django_spire.knowledge.entry.version import models
 
 if TYPE_CHECKING:
-    from django_spire.knowledge.entry.models import Entry, EntryVersion
+    from django_spire.knowledge.entry.models import Entry
 
 
 class EntryService(BaseDjangoModelService['Entry']):
@@ -20,9 +20,7 @@ class EntryService(BaseDjangoModelService['Entry']):
         created = super().save_model_obj(**field_data)
 
         if created:
-            from django_spire.knowledge.entry.models import EntryVersion
-
-            entry_version = EntryVersion.objects.create(
+            entry_version = models.EntryVersion.objects.create(
                 entry=self.obj,
                 author=author
             )
@@ -31,9 +29,3 @@ class EntryService(BaseDjangoModelService['Entry']):
             self.obj.save()
 
         return created
-
-
-class EntryVersionService(BaseDjangoModelService['EntryVersion']):
-    obj: EntryVersion
-
-    processor: EntryVersionProcessorService = EntryVersionProcessorService()

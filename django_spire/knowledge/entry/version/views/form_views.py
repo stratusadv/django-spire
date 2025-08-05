@@ -1,0 +1,64 @@
+import json
+
+from django.contrib.auth.decorators import login_required
+from django.core.handlers.wsgi import WSGIRequest
+from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.urls import reverse
+
+from django_spire.contrib import Breadcrumbs
+from django_spire.contrib.generic_views import portal_views
+from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
+from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
+from django_spire.knowledge.entry.version.models import EntryVersion
+
+
+@login_required()
+def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    current_version = get_object_or_404(EntryVersion, pk=pk)
+    entry = current_version.entry
+    version_blocks = current_version.blocks.active().order_by('order')
+
+    if version_blocks.count() == 0:
+        version_blocks = [
+            EntryVersionBlock.services.factory.create_blank_block(
+                entry_version=current_version,
+                block_type=BlockTypeChoices.TEXT,
+                order=1
+            )
+        ]
+
+    breadcrumbs = Breadcrumbs()
+    breadcrumbs.add_breadcrumb(name='Knowledge')
+    breadcrumbs.add_breadcrumb(
+        name='Collections',
+        href=reverse('django_spire:knowledge:collection:page:list')
+    )
+    breadcrumbs.add_breadcrumb(
+        name=entry.collection.name,
+        href=reverse(
+            'django_spire:knowledge:collection:page:detail',
+            kwargs={'pk': entry.collection_id}
+        )
+    )
+    breadcrumbs.add_breadcrumb(name=f'Edit {entry.name}')
+
+    return portal_views.template_view(
+        request,
+        page_title=f'Edit {entry.name}',
+        page_description=f'Edit {entry.name}',
+        breadcrumbs=breadcrumbs,
+        context_data={
+            'entry': entry,
+            'current_version': current_version,
+            'version_blocks_json': json.dumps(
+                [
+                    version_block.to_dict()
+                    for version_block in version_blocks
+                ]
+            ),
+            'version_blocks': version_blocks,
+            'block_types': BlockTypeChoices,
+        },
+        template='django_spire/knowledge/entry/version/page/form_page.html',
+    )

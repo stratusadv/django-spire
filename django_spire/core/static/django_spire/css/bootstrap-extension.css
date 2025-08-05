@@ -2,18 +2,23 @@
     --app-a-primary: var(--app-primary);
 }
 
+@font-face {
+    font-family: 'Poppins-Regular';
+    src: url('../font/Poppins-Regular.ttf') format('truetype');
+}
+
 a {
     color: var(--app-a-primary) !important;
     text-decoration: none;
 }
 
 body {
-    font-family: 'Karla-Bold', sans-serif !important;
+    font-family: 'Poppins-Regular', sans-serif !important;
     font-weight: 500 !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Merriweather', serif !important;
+    font-family: 'Poppins-Regular', serif !important;
     font-weight: 600 !important;
 }
 

@@ -14,7 +14,7 @@ from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm
 
 
-@login_required
+@login_required()
 def form_view(
         request: WSGIRequest,
         collection_pk: int,
@@ -23,7 +23,7 @@ def form_view(
     entry = get_object_or_null_obj(Entry, pk=pk)
     collection = Collection.objects.get(pk=collection_pk)
 
-    dg.glue_model_object(request, 'entry', entry)
+    dg.glue_model_object(request, 'entry', entry, fields=['name'])
 
     if request.method == 'POST':
         form = EntryForm(request.POST, instance=entry)
