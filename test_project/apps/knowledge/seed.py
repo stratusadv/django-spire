@@ -1,10 +1,10 @@
 from django_spire.auth.user.models import AuthUser
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.entry.block.models import EntryVersionBlock
-from django_spire.knowledge.entry.choices import EntryVersionTypeChoices
-from django_spire.knowledge.entry.editor.blocks.heading_block import HeadingBlock
-from django_spire.knowledge.entry.editor.blocks.sub_heading_block import SubHeadingBlock
-from django_spire.knowledge.entry.editor.blocks.text_block import TextBlock
+from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
+from django_spire.knowledge.entry.version.choices import EntryVersionTypeChoices
+from django_spire.knowledge.entry.version.block.blocks.heading_block import HeadingBlock
+from django_spire.knowledge.entry.version.block.blocks.sub_heading_block import SubHeadingBlock
+from django_spire.knowledge.entry.version.block.blocks.text_block import TextBlock
 
 LADDER_SAFETY_COLLECTION_NAME = 'Ladder Safety'
 

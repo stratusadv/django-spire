@@ -1,7 +1,7 @@
 {% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
-    {% url 'django_spire:knowledge:entry:page:detail' pk=entry.pk as entry_detail_url %}
+    {% url 'django_spire:knowledge:entry:version:page:detail' pk=entry.current_version_id as entry_detail_url %}
     {% include 'django_spire/element/attribute_element.html' with attribute_value=entry.name attribute_href=entry_detail_url %}
 {% endblock %}
 
@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block item_button %}
-    {% url 'django_spire:knowledge:entry:page:detail' pk=entry.pk as entry_detail_url %}
+    {% url 'django_spire:knowledge:entry:version:page:detail' pk=entry.current_version_id as entry_detail_url %}
     {% url 'django_spire:knowledge:entry:form:update' pk=entry.pk collection_pk=collection.pk as entry_edit_url %}
     {% url 'django_spire:knowledge:entry:page:delete' pk=entry.pk as entry_delete_url %}
     {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=entry_detail_url edit_url=entry_edit_url delete_url=entry_delete_url %}

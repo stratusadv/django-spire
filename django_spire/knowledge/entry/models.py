@@ -1,13 +1,11 @@
 from django.db import models
-from django.utils.timezone import now
 
-from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.ordering.model_mixin import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.entry.choices import EntryVersionTypeChoices
-from django_spire.knowledge.entry.querysets import EntryQuerySet, EntryVersionQuerySet
-from django_spire.knowledge.entry.services.service import EntryVersionService, EntryService
+from django_spire.knowledge.entry.querysets import EntryQuerySet
+from django_spire.knowledge.entry.services.service import EntryService
+from django_spire.knowledge.entry.version.models import EntryVersion
 
 
 class Entry(HistoryModelMixin, OrderingModelMixin):
@@ -18,7 +16,7 @@ class Entry(HistoryModelMixin, OrderingModelMixin):
         related_query_name='entry'
     )
     current_version = models.OneToOneField(
-        'EntryVersion',
+        EntryVersion,
         on_delete=models.CASCADE,
         related_name='current_version',
         related_query_name='current_version',
@@ -38,34 +36,3 @@ class Entry(HistoryModelMixin, OrderingModelMixin):
         verbose_name = 'Entry'
         verbose_name_plural = 'Entries'
         db_table = 'django_spire_knowledge_entry'
-
-
-class EntryVersion(HistoryModelMixin):
-    entry = models.ForeignKey(
-        Entry,
-        on_delete=models.CASCADE,
-        related_name='versions',
-        related_query_name='version'
-    )
-    author = models.ForeignKey(
-        AuthUser,
-        on_delete=models.CASCADE,
-        related_name='entry_versions',
-        related_query_name='entry_version'
-    )
-    published_datetime = models.DateTimeField(blank=True, null=True)
-    last_edit_datetime = models.DateTimeField(default=now)
-
-    status = models.CharField(
-        max_length=32,
-        choices=EntryVersionTypeChoices,
-        default=EntryVersionTypeChoices.DRAFT
-    )
-
-    objects = EntryVersionQuerySet.as_manager()
-    services = EntryVersionService()
-
-    class Meta:
-        verbose_name = 'Entry Version'
-        verbose_name_plural = 'Entry Versions'
-        db_table = 'django_spire_knowledge_entry_version'

@@ -1,0 +1,24 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% block container_title %}
+    {{ entry.name }}
+{% endblock %}
+
+{% block container_button %}
+	{% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' button_href=entry_edit_url %}
+{% endblock %}
+
+{% block container_content %}
+    <div class="row px-3">
+        {% for version_block in version_blocks %}
+            <div class="col-12">
+                {% include version_block.block.detail_template with value=version_block.block.value %}
+            </div>
+        {% empty %}
+            <div class="col-12">
+                No information...
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -2,7 +2,8 @@ from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.knowledge.collection.tests.factories import create_test_collection
-from django_spire.knowledge.entry.tests.factories import create_test_entry, \
+from django_spire.knowledge.entry.tests.factories import create_test_entry
+from django_spire.knowledge.entry.version.tests.factories import \
     create_test_entry_version
 
 

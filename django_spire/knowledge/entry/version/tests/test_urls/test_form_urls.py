@@ -6,22 +6,20 @@ from django_spire.knowledge.entry.version.tests.factories import \
     create_test_entry_version
 
 
-class EntryPageUrlsTests(BaseTestCase):
+class EntryVersionFormUrlsTests(BaseTestCase):
     def setUp(self):
         super().setUp()
 
         self.test_entry = create_test_entry()
-        self.test_entry_version = create_test_entry_version(
-            entry=self.test_entry
-        )
+        self.test_entry_version = create_test_entry_version(entry=self.test_entry)
         self.test_entry.current_version = self.test_entry_version
         self.test_entry.save()
 
-    def test_delete_view_url_path(self):
+    def test_update_form_view_url_path(self):
         response = self.client.get(
             reverse(
-                'django_spire:knowledge:entry:page:delete',
-                kwargs={'pk': self.test_entry.pk}
+                'django_spire:knowledge:entry:version:form:update',
+                kwargs={'pk': self.test_entry_version.pk}
             )
         )
 
