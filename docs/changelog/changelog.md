@@ -1,10 +1,15 @@
 # Changelog
 
+## v0.12.3
+
+### Tools
+- Phone number to international number formatter
+
+
 ## v0.12.2
 
 ### Fixes
 - Django Service bug fixed when striping "_id" to match field names. 
-
 
 
 ## v0.12.1
