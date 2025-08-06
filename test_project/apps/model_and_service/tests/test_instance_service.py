@@ -14,7 +14,7 @@ class TestInstanceService(TestCase):
             'last_name': 'Smith'
         }
 
-        created = self.adult.services.save_model_obj(**data)
+        self.adult, created = self.adult.services.save_model_obj(**data)
         self.assertEqual(self.adult.first_name, 'John')
         self.assertEqual(self.adult.last_name, 'Smith')
         self.assertFalse(created)
@@ -29,7 +29,7 @@ class TestInstanceService(TestCase):
             'weight_lbs': 400
         }
 
-        created = new_adult.services.save_model_obj(**data)
+        new_adult, created = new_adult.services.save_model_obj(**data)
         self.assertEqual(new_adult.first_name, 'John')
         self.assertEqual(new_adult.services.obj.first_name, 'John')
         self.assertEqual(new_adult.last_name, 'Smith')
@@ -42,7 +42,7 @@ class TestInstanceService(TestCase):
         data = {
             'invalid_field': 'test'
         }
-        created = self.adult.services.save_model_obj(**data)
+        self.adult, created = self.adult.services.save_model_obj(**data)
         self.assertFalse(created)
 
     def test_foreign_key_id_aliases(self):
@@ -53,7 +53,7 @@ class TestInstanceService(TestCase):
             'parent_id': new_adult.id,
         }
 
-        created = new_kid.services.save_model_obj(**data)
+        new_kid, created = new_kid.services.save_model_obj(**data)
         self.assertEqual(new_kid.parent_id, new_adult.id)
         self.assertFalse(created)
 
@@ -65,10 +65,9 @@ class TestInstanceService(TestCase):
             'parent': new_adult,
         }
 
-        created = new_kid.services.save_model_obj(**data)
+        new_kid, created = new_kid.services.save_model_obj(**data)
         self.assertEqual(new_kid.parent_id, new_adult.id)
         self.assertFalse(created)
-
 
     def test_sub_service_depth(self):
         new_adult = create_adult()
@@ -78,7 +77,7 @@ class TestInstanceService(TestCase):
             'parent': new_adult,
         }
 
-        created = new_kid.services.save_model_obj(**data)
+        new_kid, created = new_kid.services.save_model_obj(**data)
 
         self.assertEqual(new_kid.parent_id, new_adult.id)
         self.assertEqual(new_kid.services.obj.parent_id, new_adult.id)
