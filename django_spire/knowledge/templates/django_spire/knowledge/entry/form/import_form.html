@@ -1,0 +1,39 @@
+<form
+    class="row"
+    method="post"
+    enctype="multipart/form-data"
+    action="{% url 'django_spire:knowledge:entry:form:import' collection_pk=collection_pk|default:0 %}"
+    x-data="{
+        collection: new GlueIntegerField(
+            'collection',
+            {
+                label: 'Collection',
+                value: {{ collection_pk|default:0 }}
+            }
+        ),
+        collection_query_set: new QuerySetGlue('collections'),
+        files: new GlueCharField('files'),
+
+        async init() {
+            this.files.hide_label()
+            this.collection.choices = await this.collection_query_set.to_choices()
+        }
+    }"
+>
+    {% csrf_token %}
+    <div class="col-12">
+        {% include 'django_glue/form/field/search_and_select_field.html' with glue_field='collection' %}
+    </div>
+    <div class="col-12 mt-2">
+        <div class="d-flex justify-content-between">
+            <span>
+                Files
+            </span>
+            <span class="fs--1">*Supported file types: {{ supported_file_types }}</span>
+        </div>
+        {% include 'django_glue/form/field/multi_file_field.html' with glue_field='files' accept=supported_file_types %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+    </div>
+</form>

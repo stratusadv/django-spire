@@ -18,7 +18,7 @@
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Edit' attribute_value=entry.current_version.last_edit_datetime %}
     </div>
     <div class="col-auto">
-        {% include 'django_spire/knowledge/collection/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
+        {% include 'django_spire/knowledge/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
     </div>
 {% endblock %}
 

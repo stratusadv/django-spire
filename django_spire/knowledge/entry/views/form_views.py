@@ -1,4 +1,5 @@
 import django_glue as dg
+import requests
 from django.contrib.auth.decorators import login_required
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -12,6 +13,7 @@ from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm
+from django_spire.knowledge.entry.constants import ENTRY_IMPORT_FILE_TYPES
 
 
 @login_required()
@@ -62,4 +64,34 @@ def form_view(
             )
         },
         template='django_spire/knowledge/entry/page/form_page.html'
+    )
+
+
+@login_required()
+def import_form_view(request: WSGIRequest, collection_pk: int) -> TemplateResponse:
+    dg.glue_query_set(
+        request,
+        'collections',
+        Collection.objects.active(),
+        fields=['name']
+    )
+
+    if request.method == 'POST':
+        Entry.services.converter.markdown.convert_to_model_objs(
+            file_path='static/django_spire/knowledge/test.md'
+        )
+        # content = requests.get(json.loads(request.POST['files'])[0]['data'])
+        # with open(json.loads(request.POST['files'])[0]['data'], 'r') as f:
+        #     data = marko.parse(f.read())
+
+
+    return portal_views.form_view(
+        request,
+        form=EntryForm(),
+        obj=Entry(),
+        context_data={
+            'collection_pk': collection_pk,
+            'supported_file_types': ', '.join(ENTRY_IMPORT_FILE_TYPES)
+        },
+        template='django_spire/knowledge/entry/page/import_form_page.html'
     )
