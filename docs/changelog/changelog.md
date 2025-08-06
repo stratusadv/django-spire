@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.12.4
+
+### Changes
+- `BaseDjangoModelService save_model_obj` changed to return a tuple of (obj, created).
+
+### Breaking
+- Previous save_model_obj calls must be refactored for new return tuple.
+
+
 ## v0.12.3
 
 ### Tools
