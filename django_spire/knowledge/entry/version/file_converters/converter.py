@@ -11,12 +11,10 @@ if TYPE_CHECKING:
 
 
 class BaseFileConverter(ABC):
-    def __init__(self, file: File) -> None:
-        self.file = file
+    def __init__(self, file: File, entry_version: EntryVersion) -> None:
+        self.file = file,
+        self.entry_version = entry_version
 
     @abstractmethod
-    def convert_to_model_objects(
-            self,
-            entry_version: EntryVersion
-    ) -> list[EntryVersionBlock]:
+    def convert_to_model_objects(self) -> list[EntryVersionBlock]:
         raise NotImplementedError
