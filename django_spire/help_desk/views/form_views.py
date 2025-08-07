@@ -52,7 +52,7 @@ def ticket_update_form_view(request, pk: int):
         form = forms.HelpDeskTicketUpdateForm(request.POST, instance=ticket)
 
         if form.is_valid():
-            ticket.services.save_model_obj(**form.cleaned_data)
+            _, _ = ticket.services.save_model_obj(**form.cleaned_data)
 
             return redirect(reverse('django_spire:help_desk:page:list'))
 
