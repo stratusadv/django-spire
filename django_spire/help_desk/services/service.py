@@ -18,7 +18,7 @@ class HelpDeskTicketService(BaseDjangoModelService['HelpDeskTicket']):
 
     def create(self, created_by: User, **kwargs) -> HelpDeskTicket:
         self.obj.created_by = created_by
-        _ = self.obj.services.save_model_obj(**kwargs)
+        self.obj, _ = self.obj.services.save_model_obj(**kwargs)
 
         self.obj.services.notification.create_new_ticket_notifications()
 
