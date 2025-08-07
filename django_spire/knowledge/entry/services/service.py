@@ -16,11 +16,11 @@ class EntryService(BaseDjangoModelService['Entry']):
 
     ordering: OrderingService = OrderingService()
 
-    def save_model_obj(self, author: AuthUser, **field_data) -> bool:
-        created, self.obj = super().save_model_obj(**field_data)
+    def save_model_obj(self, author: AuthUser, **field_data) -> tuple[Entry, bool]:
+        self.obj, created = super().save_model_obj(**field_data)
 
         if created:
-            is_created, entry_version = EntryVersion.services.save_model_obj(
+            entry_version, _ = EntryVersion.services.save_model_obj(
                 entry=self.obj,
                 author=author
             )
@@ -28,4 +28,4 @@ class EntryService(BaseDjangoModelService['Entry']):
             self.obj.current_version = entry_version
             self.obj.save()
 
-        return created
+        return self.obj, created
