@@ -32,14 +32,14 @@ class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjan
                 logging.warning(f'Field {field!r} is not valid for {self.obj.__class__.__name__}')
                 continue
 
-            model_field = concrete_fields.get(field.rstrip("_id"), None)
+            model_field = concrete_fields.get(field.removesuffix("_id"), None)
 
             if model_field and (getattr(model_field, 'auto_created', False) or not model_field.editable):
                 continue
 
             setattr(self.obj, field, value)
 
-            touched_fields.append(field.rstrip('_id'))
+            touched_fields.append(field.removesuffix('_id'))
 
         return touched_fields
 
@@ -73,7 +73,7 @@ class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjan
         return touched_fields
 
     @transaction.atomic
-    def save_model_obj(self, **field_data: dict) -> bool:
+    def save_model_obj(self, **field_data: dict) -> tuple[Model, bool]:
         new_model_obj_was_created = False
 
         if not field_data:
@@ -92,7 +92,7 @@ class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjan
             logging.warning(
                 f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.')
 
-        return new_model_obj_was_created
+        return self.obj, new_model_obj_was_created
 
     @property
     def obj_class(self) -> Type[TypeDjangoModel]:

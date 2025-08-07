@@ -8,6 +8,7 @@ from django.urls import reverse
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
+
 def django_spire(_: WSGIRequest) -> dict[str, Any]:
     return {
         'DJANGO_SPIRE_VERSION': __VERSION__,

@@ -5,7 +5,14 @@ from django_spire.help_desk.choices import HelpDeskTicketPriorityChoices, \
 from django_spire.help_desk.models import HelpDeskTicket
 
 
-def create_helpdesk_ticket_data(**kwargs) -> dict:
+def create_test_helpdesk_ticket(**kwargs):
+    if 'created_by' not in kwargs:
+        kwargs['created_by'] = User.objects.first()
+
+    return HelpDeskTicket.objects.create(**create_test_helpdesk_ticket_data(**kwargs))
+
+
+def create_test_helpdesk_ticket_data(**kwargs) -> dict:
     ticket_data = {
         'priority': HelpDeskTicketPriorityChoices.LOW,
         'purpose': HelpDeskTicketPurposeChoices.APP,
@@ -16,9 +23,3 @@ def create_helpdesk_ticket_data(**kwargs) -> dict:
     ticket_data.update(**kwargs)
 
     return ticket_data
-
-def create_helpdesk_ticket(**kwargs):
-    if 'created_by' not in kwargs:
-        kwargs['created_by'] = User.objects.first()
-
-    return HelpDeskTicket.objects.create(**create_helpdesk_ticket_data(**kwargs))
