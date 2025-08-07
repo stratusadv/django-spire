@@ -22,4 +22,5 @@ django_spire.egg-info/
 inspectionProfiles/
 venv*/
 .qodo
+.dev
 
