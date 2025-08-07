@@ -6,8 +6,10 @@ from typing import TYPE_CHECKING
 
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP
+from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
 if TYPE_CHECKING:
+    from django_spire.file.models import File
     from django_spire.knowledge.entry.version.models import EntryVersion
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
@@ -29,3 +31,17 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
         self.obj.block = ENTRY_BLOCK_MAP[block_type](value='', type=block_type)
         self.obj.save()
         return self.obj
+
+    def create_blocks_from_file(
+            self,
+            file: File,
+            entry_version: EntryVersion
+    ) -> list[EntryVersionBlock]:
+        if file.type not in FILE_TYPE_CONVERTER_MAP:
+            return []
+
+        return self.obj_class.objects.bulk_create(
+            FILE_TYPE_CONVERTER_MAP[file.type](file=file).convert_to_model_objects(
+                entry_version=entry_version
+            )
+        )

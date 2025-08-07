@@ -12,11 +12,26 @@
             }
         ),
         collection_query_set: new QuerySetGlue('collections'),
-        files: new GlueCharField('files'),
+        import_files: new GlueCharField('import_files'),
+        support_file_types: {{ supported_file_types }},
 
         async init() {
-            this.files.hide_label()
+            this.import_files.hide_label()
             this.collection.choices = await this.collection_query_set.to_choices()
+
+            $watch('import_files', () => {
+                let files = JSON.parse(this.import_files.value)
+
+                let send_warning = files.some(
+                    file => !this.support_file_types.some(
+                        supported => file.name.endsWith(supported)
+                    )
+                )
+
+                if (send_warning) {
+                    $dispatch('notify', {type: 'warning', message: 'Unsupported file type detected.'})
+                }
+            })
         }
     }"
 >
@@ -29,9 +44,9 @@
             <span>
                 Files
             </span>
-            <span class="fs--1">*Supported file types: {{ supported_file_types }}</span>
+            <span class="fs--1">*Supported file types: {{ supported_file_types_verbose }}</span>
         </div>
-        {% include 'django_glue/form/field/multi_file_field.html' with glue_field='files' accept=supported_file_types %}
+        {% include 'django_glue/form/field/multi_file_field.html' with glue_field='import_files' accept=supported_file_types_verbose %}
     </div>
     <div class="col-12 mt-2">
         {% include 'django_spire/contrib/form/button/form_submit_button.html' %}

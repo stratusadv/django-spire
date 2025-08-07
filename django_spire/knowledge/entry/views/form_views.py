@@ -1,3 +1,5 @@
+import json
+
 import django_glue as dg
 import requests
 from django.contrib.auth.decorators import login_required
@@ -7,12 +9,14 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.file.interfaces import MultiFileUploader
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
-from django_spire.knowledge.entry.forms import EntryForm
+from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
 from django_spire.knowledge.entry.constants import ENTRY_IMPORT_FILE_TYPES
 
 
@@ -68,7 +72,10 @@ def form_view(
 
 
 @login_required()
-def import_form_view(request: WSGIRequest, collection_pk: int) -> TemplateResponse:
+def import_form_view(
+        request: WSGIRequest,
+        collection_pk: int
+) -> TemplateResponse | HttpResponseRedirect:
     dg.glue_query_set(
         request,
         'collections',
@@ -77,21 +84,51 @@ def import_form_view(request: WSGIRequest, collection_pk: int) -> TemplateRespon
     )
 
     if request.method == 'POST':
-        Entry.services.converter.markdown.convert_to_model_objs(
-            file_path='static/django_spire/knowledge/test.md'
+        file_form = EntryFilesForm(request.POST, request.FILES)
+
+        if file_form.is_valid():
+            file_objects = MultiFileUploader(related_field=None).upload(
+                request.FILES.getlist('import_files')
+            )
+
+            _ = Entry.services.factory.create_from_files(
+                author=request.user,
+                collection=Collection.objects.get(pk=collection_pk),
+                files=file_objects
+            )
+
+            for file_object in file_objects:
+                file_object.delete()
+
+            return HttpResponseRedirect(
+                reverse(
+                    'django_spire:knowledge:collection:page:detail',
+                    kwargs={'pk': collection_pk}
+                )
+            )
+
+        show_form_errors(request, file_form)
+
+    breadcrumbs = Breadcrumbs()
+    if collection_pk != 0:
+        breadcrumbs.add_breadcrumb(
+            name=Collection.objects.get(pk=collection_pk).name,
+            href=reverse(
+                'django_spire:knowledge:collection:page:detail',
+                kwargs={'pk': collection_pk}
+            )
         )
-        # content = requests.get(json.loads(request.POST['files'])[0]['data'])
-        # with open(json.loads(request.POST['files'])[0]['data'], 'r') as f:
-        #     data = marko.parse(f.read())
+    breadcrumbs.add_breadcrumb(name='Import Files')
 
-
-    return portal_views.form_view(
+    return portal_views.template_view(
         request,
-        form=EntryForm(),
-        obj=Entry(),
+        breadcrumbs=breadcrumbs,
+        page_title='Import Files',
+        page_description='Import Files',
         context_data={
             'collection_pk': collection_pk,
-            'supported_file_types': ', '.join(ENTRY_IMPORT_FILE_TYPES)
+            'supported_file_types': ENTRY_IMPORT_FILE_TYPES,
+            'supported_file_types_verbose': ', '.join(ENTRY_IMPORT_FILE_TYPES)
         },
         template='django_spire/knowledge/entry/page/import_form_page.html'
     )
