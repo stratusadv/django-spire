@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.12.5
+
+### Fixes
+- Refactored HelpDesk `save_model_obj` calls.
+
 ## v0.12.4
 
 ### Changes
