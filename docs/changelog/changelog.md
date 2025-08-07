@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.12.6
+### Features
+- spire_startapp management command that creates a new app with Spire's best practices. 
+- Experimental Ai prompting command line features.
+
+
 ## v0.12.5
 
 ### Fixes
