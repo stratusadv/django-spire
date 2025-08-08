@@ -1,0 +1,13 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="container">
+        <div class="mb-4">
+            <a href="{% url 'theme:page:dashboard' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+        
+        {% include 'theme/section/typography_section.html' %}
+    </div>
+{% endblock %}
