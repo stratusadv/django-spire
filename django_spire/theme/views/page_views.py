@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@permission_required('apps.view_theme')
 def dashboard_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb('Dashboard')
@@ -27,7 +26,6 @@ def dashboard_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-@permission_required('apps.view_theme')
 def colors_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
@@ -42,7 +40,6 @@ def colors_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-@permission_required('apps.view_theme')
 def typography_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
@@ -57,7 +54,6 @@ def typography_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-@permission_required('apps.view_theme')
 def buttons_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
@@ -72,7 +68,6 @@ def buttons_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-@permission_required('apps.view_theme')
 def badges_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
@@ -87,7 +82,6 @@ def badges_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-@permission_required('apps.view_theme')
 def borders_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
