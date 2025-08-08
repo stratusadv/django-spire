@@ -1,95 +1,36 @@
 {% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_content %}
-    <div class="container">
-        <!-- Theme Overview -->
-        <section class="mb-5">
-            <h2 class="mb-4">Theme Overview</h2>
-            
-            <!-- Color Palette Preview -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h3 class="mb-3">Color Palette</h3>
-                            <div class="d-flex flex-wrap">
-                                <div class="p-3 m-1 bg-app-primary text-white" style="width: 60px; height: 60px;"></div>
-                                <div class="p-3 m-1 bg-app-secondary text-white" style="width: 60px; height: 60px;"></div>
-                                <div class="p-3 m-1 bg-app-accent text-white" style="width: 60px; height: 60px;"></div>
-                                <div class="p-3 m-1 bg-app-success text-white" style="width: 60px; height: 60px;"></div>
-                                <div class="p-3 m-1 bg-app-warning text-dark" style="width: 60px; height: 60px;"></div>
-                                <div class="p-3 m-1 bg-app-danger text-white" style="width: 60px; height: 60px;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Typography Preview -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h3 class="mb-3">Typography</h3>
-                            <h1>Heading 1</h1>
-                            <h2>Heading 2</h2>
-                            <h3>Heading 3</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Button Preview -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h3 class="mb-3">Buttons</h3>
-                            <div class="mb-2">{% include 'django_spire/button/primary_button.html' with button_text='Primary' %}</div>
-                            <div class="mb-2">{% include 'django_spire/button/secondary_button.html' with button_text='Secondary' %}</div>
-                            <div class="mb-2">{% include 'django_spire/button/accent_button.html' with button_text='Accent' %}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Component Preview Cards -->
-        <section class="mb-5">
-            <h2 class="mb-4">Component Previews</h2>
-            <div class="row">
-                <!-- Color Preview Card -->
-                <div class="col-md-4 mb-4">
-                    {% url 'theme:page:colors' as colors_url %}
-                    {% include 'theme/card/colors_preview_card.html' with card_link=colors_url %}
-                </div>
-                
-                <!-- Typography Preview Card -->
-                <div class="col-md-4 mb-4">
-                    {% url 'theme:page:typography' as typography_url %}
-                    {% include 'theme/card/typography_preview_card.html' with card_link=typography_url %}
-                </div>
-                
-                <!-- Buttons Preview Card -->
-                <div class="col-md-4 mb-4">
-                    {% url 'theme:page:buttons' as buttons_url %}
-                    {% include 'theme/card/buttons_preview_card.html' with card_link=buttons_url %}
-                </div>
-            </div>
-            
-            <div class="row">
-                <!-- Badges Preview Card -->
-                <div class="col-md-4 mb-4">
-                    {% url 'theme:page:badges' as badges_url %}
-                    {% include 'theme/card/badges_preview_card.html' with card_link=badges_url %}
-                </div>
-                
-                <!-- Borders Preview Card -->
-                <div class="col-md-4 mb-4">
-                    {% url 'theme:page:borders' as borders_url %}
-                    {% include 'theme/card/borders_preview_card.html' with card_link=borders_url %}
-                </div>
-            </div>
-        </section>
+    <h2 class="mb-4">Theme Overview</h2>
+    <div class="row">
+        <!-- Color Preview Card -->
+        <div class="col-md-4 mb-4">
+            {% url 'theme:page:colors' as colors_url %}
+            {% include 'theme/card/colors_preview_card.html' with card_link=colors_url %}
+        </div>
+
+        <!-- Typography Preview Card -->
+        <div class="col-md-4 mb-4">
+            {% url 'theme:page:typography' as typography_url %}
+            {% include 'theme/card/typography_preview_card.html' with card_link=typography_url %}
+        </div>
+
+        <!-- Buttons Preview Card -->
+        <div class="col-md-4 mb-4">
+            {% url 'theme:page:buttons' as buttons_url %}
+            {% include 'theme/card/buttons_preview_card.html' with card_link=buttons_url %}
+        </div>
+
+        <!-- Badges Preview Card -->
+        <div class="col-md-4 mb-4">
+
+            {% include 'theme/card/badges_preview_card.html' with card_link=badges_url %}
+        </div>
+
+        <!-- Borders Preview Card -->
+        <div class="col-md-4 mb-4">
+            {% url 'theme:page:borders' as borders_url %}
+            {% include 'theme/card/borders_preview_card.html' with card_link=borders_url %}
+        </div>
     </div>
 {% endblock %}

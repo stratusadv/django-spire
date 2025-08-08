@@ -1,26 +1,24 @@
 {% extends 'theme/card/base_preview_card.html' %}
 
-{% block preview_card_title %}Badges{% endblock %}
+{% block card_title %}Badges{% endblock %}
 
-{% block preview_card_icon %}
-    <i class="bi bi-tag fs-1 mb-3 text-app-success"></i>
+
+{% block card_button %}
+    {% url 'theme:page:badges' as badges_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=badges_url %}
 {% endblock %}
 
+{% block preview_card_icon %}bi bi-tag{% endblock %}
+
 {% block preview_card_subtitle %}
-    <h5 class="mb-3">Badge Styles</h5>
+    Badge Styles
 {% endblock %}
 
 {% block preview_card_description %}
-    <div class="mb-3">
-        View all badge types and colors
-    </div>
+    View all badge types and colors
 {% endblock %}
 
 {% block preview_card_content %}
-    <div class="preview-sample border p-3 rounded bg-app-light">
-        <div>
-            <span class="badge bg-app-primary me-1">Primary</span>
-            <span class="badge bg-app-secondary me-1">Secondary</span>
-        </div>
-    </div>
+    <span class="badge bg-app-primary me-1">Primary</span>
+    <span class="badge bg-app-secondary me-1">Secondary</span>
 {% endblock %}
