@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     context_data = {
@@ -32,7 +32,7 @@ def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> T
 
 
 @permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_list_view(request: WSGIRequest) -> TemplateResponse:
+def list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
         'spirechildapps': models.SpireChildApp.objects.all()
     }

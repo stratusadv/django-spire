@@ -108,6 +108,7 @@ INSTALLED_APPS += [
     'test_project.apps.notification',
     'test_project.apps.model_and_service',
     'test_project.apps.queryset_filtering',
+    'test_project.apps.theme',
 ]
 
 INSTALLED_APPS += [

@@ -13,7 +13,7 @@ class SpireChildApp(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.PlaceholderQuerySet().as_manager()
+    objects = querysets.SpireChildAppQuerySet().as_manager()
 
     def __str__(self):
         return self.name
@@ -23,7 +23,7 @@ class SpireChildApp(HistoryModelMixin):
         crumbs = Breadcrumbs()
 
         crumbs.add_breadcrumb(
-            'Placeholder',
+            'SpireChildApp',
             reverse('spireparentapp:spirechildapp:page:list')
         )
 

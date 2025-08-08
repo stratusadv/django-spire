@@ -14,6 +14,7 @@ urlpatterns = [
     path('notification/', include('test_project.apps.notification.urls', namespace='notification')),
     path('tabular/', include('test_project.apps.tabular.urls', namespace='tabular')),
     path('test_model/', include('test_project.apps.model_and_service.urls', namespace='test_model')),
+    path('theme/', include('test_project.apps.theme.urls', namespace='theme')),
     path('queryset-filtering/', include('test_project.apps.queryset_filtering.urls', namespace='queryset_filtering')),
     path('wizard/', include('test_project.apps.wizard.urls', namespace='wizard')),
 ]
