@@ -5,9 +5,9 @@
     --app-border-light: var(--app-light);
     --app-border-dark: var(--app-dark);
 
-    --app-border-primary: var(--app-black);
-    --app-border-primary-soft: var(--app-black);
-    --app-border-primary-dark: var(--app-black);
+    --app-border-primary: var(--app-primary);
+    --app-border-primary-soft: var(--app-primary-soft);
+    --app-border-primary-dark: var(--app-primary-dark);
 
     --app-border-secondary: var(--app-secondary-dark);
     --app-border-secondary-soft: var(--app-secondary-dark);
