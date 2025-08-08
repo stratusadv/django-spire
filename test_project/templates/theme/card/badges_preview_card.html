@@ -19,29 +19,12 @@
 {% endblock %}
 
 {% block preview_card_content %}
-    <div class="preview-sample border p-3 rounded bg-app-light">
-        <div class="mb-2">
-            <!-- Primary badges -->
-            <span class="badge bg-app-primary me-1">Primary</span>
-            <span class="badge bg-app-primary-soft text-dark me-1">Soft</span>
-            <span class="badge bg-app-primary-dark me-1">Dark</span>
-        </div>
-        <div class="mb-2">
-            <!-- Secondary badges -->
-            <span class="badge bg-app-secondary me-1">Secondary</span>
-            <span class="badge bg-app-secondary-soft text-dark me-1">Soft</span>
-            <span class="badge bg-app-secondary-dark me-1">Dark</span>
-        </div>
-        <div class="mb-2">
-            <!-- Accent badges -->
-            <span class="badge bg-app-accent me-1">Accent</span>
-            <span class="badge bg-app-accent-soft text-dark me-1">Soft</span>
-            <span class="badge bg-app-accent-dark me-1">Dark</span>
-        </div>
-        <div>
-            <!-- Outlined badges -->
-            <span class="badge border border-app-primary text-app-primary me-1">Outlined</span>
-            {% include 'django_spire/badge/primary_outlined_badge.html' with badge_text='Primary' %}
-        </div>
-    </div>
+    {% include 'django_spire/badge/primary_badge.html' with badge_text='Primary' badge_class='me-1' %}
+    {% include 'django_spire/badge/secondary_badge.html' with badge_text='Secondary' badge_class='me-1' %}
+    {% include 'django_spire/badge/accent_badge.html' with badge_text='Accent' badge_class='me-1' %}
+    {% include 'django_spire/badge/success_badge.html' with badge_text='Success' badge_class='me-1' %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text='Warning' badge_class='me-1' %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text='Danger' badge_class='me-1' %}
+    {% include 'django_spire/badge/primary_outlined_badge.html' with badge_text='Outlined' badge_class='me-1' %}
+    {% include 'django_spire/badge/secondary_outlined_badge.html' with badge_text='Secondary' badge_class='me-1' %}
 {% endblock %}
