@@ -1,0 +1,26 @@
+{% extends 'theme/card/base_preview_card.html' %}
+
+{% block preview_card_title %}Borders{% endblock %}
+
+{% block preview_card_icon %}
+    <i class="bi bi-bounding-box fs-1 mb-3 text-app-warning"></i>
+{% endblock %}
+
+{% block preview_card_subtitle %}
+    <h5 class="mb-3">Border Styles</h5>
+{% endblock %}
+
+{% block preview_card_description %}
+    <div class="mb-3">
+        Explore border colors and widths
+    </div>
+{% endblock %}
+
+{% block preview_card_content %}
+    <div class="preview-sample border p-3 rounded bg-app-light">
+        <div class="d-flex">
+            <div class="p-2 m-1 border border-app-primary" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 border border-app-secondary" style="width: 40px; height: 40px;"></div>
+        </div>
+    </div>
+{% endblock %}

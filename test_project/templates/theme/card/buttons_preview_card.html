@@ -1,0 +1,26 @@
+{% extends 'theme/card/base_preview_card.html' %}
+
+{% block preview_card_title %}Buttons{% endblock %}
+
+{% block preview_card_icon %}
+    <i class="bi bi-hand-index-thumb fs-1 mb-3 text-app-accent"></i>
+{% endblock %}
+
+{% block preview_card_subtitle %}
+    <h5 class="mb-3">Button Styles</h5>
+{% endblock %}
+
+{% block preview_card_description %}
+    <div class="mb-3">
+        Explore all button variants and sizes
+    </div>
+{% endblock %}
+
+{% block preview_card_content %}
+    <div class="preview-sample border p-3 rounded bg-app-light">
+        <div>
+            {% include 'django_spire/button/primary_button.html' with button_text='Primary' button_size='sm' %}
+            {% include 'django_spire/button/secondary_button.html' with button_text='Secondary' button_size='sm' %}
+        </div>
+    </div>
+{% endblock %}
