@@ -1,6 +1,75 @@
 {% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_content %}
+    <h2 class="mb-4">Colour Palette</h2>
+    <div class="row mb-5">
+        <div class="col-6">
+            <h5>Basic Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-black); color: white;">--app-black: #000000</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-white); color: black; border: 1px solid #dee2e6;">--app-white: #ffffff</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-dark); color: white;">--app-dark: #212529</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-light); color: black; border: 1px solid #dee2e6;">--app-light: #f8f9fa</div>
+        </div>
+        <div class="col-6">
+            <h5>Layer Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-layer-one); color: black; border: 1px solid #dee2e6;">--app-layer-one: #f8f9fa</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-layer-two); color: black; border: 1px solid #dee2e6;">--app-layer-two: #ebebeb</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-layer-three); color: white;">--app-layer-three: #000000</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-layer-four); color: black; border: 1px solid #dee2e6;">--app-layer-four: #ffffff</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-layer-five); color: white;">--app-layer-five: #000000</div>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-4">
+            <h5>Primary Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-primary); color: white;">--app-primary: #0d6efd</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-primary-soft); color: black; border: 1px solid #dee2e6;">--app-primary-soft: #cfe2ff</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-primary-dark); color: white;">--app-primary-dark: #084298</div>
+        </div>
+        <div class="col-4">
+            <h5>Secondary Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-secondary); color: white;">--app-secondary: #6c757d</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-secondary-soft); color: black; border: 1px solid #dee2e6;">--app-secondary-soft: #e2e3e5</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-secondary-dark); color: white;">--app-secondary-dark: #41464b</div>
+        </div>
+        <div class="col-4">
+            <h5>Accent Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-accent); color: white;">--app-accent: #ff6d00</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-accent-soft); color: black; border: 1px solid #dee2e6;">--app-accent-soft: #ff9e80</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-accent-dark); color: white;">--app-accent-dark: #b25400</div>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-4">
+            <h5>Success Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-success); color: white;">--app-success: #198754</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-success-soft); color: black; border: 1px solid #dee2e6;">--app-success-soft: #d1e7dd</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-success-dark); color: white;">--app-success-dark: #0f5132</div>
+        </div>
+        <div class="col-4">
+            <h5>Warning Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-warning); color: black;">--app-warning: #ffc107</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-warning-soft); color: black; border: 1px solid #dee2e6;">--app-warning-soft: #fff3cd</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-warning-dark); color: white;">--app-warning-dark: #664d03</div>
+        </div>
+        <div class="col-4">
+            <h5>Danger Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-danger); color: white;">--app-danger: #dc3545</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-danger-soft); color: black; border: 1px solid #dee2e6;">--app-danger-soft: #f8d7da</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-danger-dark); color: white;">--app-danger-dark: #842029</div>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-6">
+            <h5>Navigation Colors</h5>
+            <div class="mb-3 p-3" style="background-color: var(--app-side-navigation-bg-color); color: white;">--app-side-navigation-bg-color: #306178</div>
+            <div class="mb-3 p-3" style="background-color: var(--app-mobile-navigation-bg-color); color: white;">--app-mobile-navigation-bg-color: #001720</div>
+        </div>
+    </div>
+
     <h2 class="mb-4">Typography</h2>
     <div class="row">
         <div class="col-6">
