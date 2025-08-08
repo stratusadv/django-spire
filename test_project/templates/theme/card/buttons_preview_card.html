@@ -20,9 +20,23 @@
 
 {% block preview_card_content %}
     <div class="preview-sample border p-3 rounded bg-app-light">
-        <div>
+        <div class="mb-2">
+            <!-- Primary buttons -->
             {% include 'django_spire/button/primary_button.html' with button_text='Primary' button_size='sm' %}
+            {% include 'django_spire/button/primary_dark_button.html' with button_text='Dark' button_size='sm' %}
+            {% include 'django_spire/button/primary_outlined_button.html' with button_text='Outlined' button_size='sm' %}
+        </div>
+        <div class="mb-2">
+            <!-- Secondary buttons -->
             {% include 'django_spire/button/secondary_button.html' with button_text='Secondary' button_size='sm' %}
+            {% include 'django_spire/button/secondary_dark_button.html' with button_text='Dark' button_size='sm' %}
+            {% include 'django_spire/button/secondary_outlined_button.html' with button_text='Outlined' button_size='sm' %}
+        </div>
+        <div>
+            <!-- Accent buttons -->
+            {% include 'django_spire/button/accent_button.html' with button_text='Accent' button_size='sm' %}
+            {% include 'django_spire/button/accent_dark_button.html' with button_text='Dark' button_size='sm' %}
+            {% include 'django_spire/button/accent_outlined_button.html' with button_text='Outlined' button_size='sm' %}
         </div>
     </div>
 {% endblock %}
