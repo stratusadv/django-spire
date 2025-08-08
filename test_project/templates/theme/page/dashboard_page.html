@@ -3,33 +3,23 @@
 {% block full_page_content %}
     <h2 class="mb-4">Theme Overview</h2>
     <div class="row">
-        <!-- Color Preview Card -->
         <div class="col-md-4 mb-4">
-            {% url 'theme:page:colors' as colors_url %}
             {% include 'theme/card/colors_preview_card.html' with card_link=colors_url %}
         </div>
 
-        <!-- Typography Preview Card -->
         <div class="col-md-4 mb-4">
-            {% url 'theme:page:typography' as typography_url %}
             {% include 'theme/card/typography_preview_card.html' with card_link=typography_url %}
         </div>
 
-        <!-- Buttons Preview Card -->
         <div class="col-md-4 mb-4">
-            {% url 'theme:page:buttons' as buttons_url %}
             {% include 'theme/card/buttons_preview_card.html' with card_link=buttons_url %}
         </div>
 
-        <!-- Badges Preview Card -->
         <div class="col-md-4 mb-4">
-
             {% include 'theme/card/badges_preview_card.html' with card_link=badges_url %}
         </div>
 
-        <!-- Borders Preview Card -->
         <div class="col-md-4 mb-4">
-            {% url 'theme:page:borders' as borders_url %}
             {% include 'theme/card/borders_preview_card.html' with card_link=borders_url %}
         </div>
     </div>

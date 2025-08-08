@@ -1,19 +1,21 @@
 {% extends 'theme/card/base_preview_card.html' %}
 
-{% block preview_card_title %}Typography{% endblock %}
+{% block card_title %}Typography{% endblock %}
 
-{% block preview_card_icon %}
-    <i class="bi bi-type fs-1 mb-3 text-app-secondary"></i>
+
+{% block card_button %}
+    {% url 'theme:page:typography' as typography_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=typography_url %}
 {% endblock %}
 
+{% block preview_card_icon %}bi bi-type{% endblock %}
+
 {% block preview_card_subtitle %}
-    <h5 class="mb-3">Text Styles</h5>
+    Text Styles
 {% endblock %}
 
 {% block preview_card_description %}
-    <div class="mb-3">
-        View all heading styles and font sizes
-    </div>
+    View all heading styles and font sizes
 {% endblock %}
 
 {% block preview_card_content %}

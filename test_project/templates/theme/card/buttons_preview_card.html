@@ -1,19 +1,21 @@
 {% extends 'theme/card/base_preview_card.html' %}
 
-{% block preview_card_title %}Buttons{% endblock %}
+{% block card_title %}Buttons{% endblock %}
 
-{% block preview_card_icon %}
-    <i class="bi bi-hand-index-thumb fs-1 mb-3 text-app-accent"></i>
+
+{% block card_button %}
+    {% url 'theme:page:buttons' as buttons_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=buttons_url %}
 {% endblock %}
 
+{% block preview_card_icon %}bi bi-hand-index-thumb{% endblock %}
+
 {% block preview_card_subtitle %}
-    <h5 class="mb-3">Button Styles</h5>
+    Button Styles
 {% endblock %}
 
 {% block preview_card_description %}
-    <div class="mb-3">
-        Explore all button variants and sizes
-    </div>
+    Explore all button variants and sizes
 {% endblock %}
 
 {% block preview_card_content %}

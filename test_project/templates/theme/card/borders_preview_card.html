@@ -1,19 +1,21 @@
 {% extends 'theme/card/base_preview_card.html' %}
 
-{% block preview_card_title %}Borders{% endblock %}
+{% block card_title %}Borders{% endblock %}
 
-{% block preview_card_icon %}
-    <i class="bi bi-bounding-box fs-1 mb-3 text-app-warning"></i>
+
+{% block card_button %}
+    {% url 'theme:page:borders' as borders_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=borders_url %}
 {% endblock %}
 
+{% block preview_card_icon %}bi bi-bounding-box{% endblock %}
+
 {% block preview_card_subtitle %}
-    <h5 class="mb-3">Border Styles</h5>
+    Border Styles
 {% endblock %}
 
 {% block preview_card_description %}
-    <div class="mb-3">
-        Explore border colors and widths
-    </div>
+    Explore border colors and widths
 {% endblock %}
 
 {% block preview_card_content %}

@@ -1,19 +1,21 @@
 {% extends 'theme/card/base_preview_card.html' %}
 
-{% block preview_card_title %}Colors{% endblock %}
+{% block card_title %}Colors{% endblock %}
 
-{% block preview_card_icon %}
-    <i class="bi bi-palette fs-1 mb-3 text-app-primary"></i>
+
+{% block card_button %}
+    {% url 'theme:page:colors' as colors_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=colors_url %}
 {% endblock %}
 
+{% block preview_card_icon %}bi bi-palette{% endblock %}
+
 {% block preview_card_subtitle %}
-    <h5 class="mb-3">Color Palette</h5>
+    Color Palette
 {% endblock %}
 
 {% block preview_card_description %}
-    <div class="mb-3">
-        Explore the complete color system
-    </div>
+    Explore the complete color system
 {% endblock %}
 
 {% block preview_card_content %}
