@@ -18,7 +18,9 @@ class BaseService(ABC, Generic[TypeAny]):
         if obj is None:
             return
 
-        if obj.__class__.__name__ != self._obj_type_name:
+        self._obj_mro_type_names = [cls.__name__ for cls in obj.__class__.__mro__]
+
+        if not self._obj_type_name in self._obj_mro_type_names:
             raise ServiceException(
                 f'{self.__class__.__name__} was instantiated with obj type "{obj.__class__.__name__}" and failed as it was expecting "{self._obj_type_name}".'
             )
@@ -71,8 +73,6 @@ class BaseService(ABC, Generic[TypeAny]):
         return isinstance(self.obj, self._obj_type)
 
     def _validate_base_service_target_or_error(self, target: BaseService):
-        if target._obj_type_name != self._obj_type_name:
+        if self._obj_type_name not in target._obj_mro_type_names:
             raise ServiceException(
-                f'{target.__class__.__name__} must use the same obj type as {self.__class__.__name__}. {target._obj_type} is not {self._obj_type}.')
-
-
+                f'{target.__class__.__name__} must use the same obj type as {self.__class__.__name__}. {self._obj_type_name} is not in {target._obj_mro_type_names}')
