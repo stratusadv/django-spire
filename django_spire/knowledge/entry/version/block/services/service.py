@@ -17,6 +17,6 @@ if TYPE_CHECKING:
 class EntryVersionBlockService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
-    factory: EntryVersionBlockFactoryService = EntryVersionBlockFactoryService()
-    ordering: OrderingService = OrderingService()
-    processor: EntryVersionBlockProcessorService = EntryVersionBlockProcessorService()
+    factory = EntryVersionBlockFactoryService()
+    ordering = OrderingService()
+    processor = EntryVersionBlockProcessorService()

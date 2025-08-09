@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 
 class BaseFileConverter(ABC):
-    def __init__(self, file: File, entry_version: EntryVersion) -> None:
-        self.file = file,
+    def __init__(self, file: File, entry_version: EntryVersion):
+        self.file = file
         self.entry_version = entry_version
 
     @abstractmethod
