@@ -27,7 +27,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=spirechildapp,
         context_data=context_data,
-        template='spirechildapp/page/spirechildapp_detail_page.html'
+        template='spirechildapp/page/detail_page.html'
     )
 
 
@@ -41,5 +41,5 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=models.SpireChildApp,
         context_data=context_data,
-        template='spirechildapp/page/spirechildapp_list_page.html'
+        template='spirechildapp/page/list_page.html'
     )
