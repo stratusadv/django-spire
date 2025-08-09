@@ -1,9 +1,10 @@
+import os
 from pathlib import Path
 
 from dandy.llm import Prompt
 
 
-_RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent.parent.parent.parent.resolve())
+_RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent.parent.parent.parent.parent.resolve())
 
 
 def generate_django_model_seeder_system_prompt() -> Prompt:
@@ -49,12 +50,12 @@ def generate_django_model_seeder_system_prompt() -> Prompt:
         .divider()
         .title('Source Code')
         .text('Below is the source code for our seeder tools.')
-        .module_source('django_spire.seeding.model.base')
-        .module_source('django_spire.seeding.model.django.seeder')
+        .module_source('django_spire.contrib.seeding.model.base')
+        .module_source('django_spire.contrib.seeding.model.django.seeder')
         .line_break()
         .title('Example')
         .text('Below is an example of what the output should look like.')
-        .module_source('django_spire.seeding.management.example')
+        .module_source('django_spire.contrib.seeding.management.example')
     )
 
 
