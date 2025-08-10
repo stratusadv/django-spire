@@ -41,3 +41,12 @@ class EntryPageUrlsTests(BaseTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
+    def test_import_form_view_url_path(self):
+        response = self.client.get(
+            reverse(
+                'django_spire:knowledge:entry:form:import',
+                kwargs={'collection_pk': self.collection.pk}
+            )
+        )
+        self.assertEqual(response.status_code, 200)

@@ -1,0 +1,28 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+	Entries
+{% endblock %}
+
+{% block card_button %}
+    <div class='container'>
+        <div class='row'>
+            <div class='col-auto'>
+                {% url 'django_spire:knowledge:entry:form:import' collection_pk=collection.pk as import_url %}
+                {% include 'django_spire/button/primary_button.html' with button_text='Import' button_href=import_url button_icon='bi bi-upload' %}
+            </div>
+            <div class='col-auto'>
+                {% url 'django_spire:knowledge:entry:form:create' collection_pk=collection.pk as create_url %}
+                {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon='bi bi-plus' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block card_title_content %}
+	{% for entry in current_entries %}
+        {% include 'django_spire/knowledge/entry/item/list_item.html' %}
+    {% empty %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}

@@ -36,7 +36,7 @@ def form_view(
         form = CollectionForm(request.POST, instance=collection)
 
         if form.is_valid():
-            _ = collection.services.save_model_obj(**form.cleaned_data)
+            _, _ = collection.services.save_model_obj(**form.cleaned_data)
 
             return HttpResponseRedirect(
                 reverse('django_spire:knowledge:collection:page:list')

@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.ordering.service import OrderingService
 from django_spire.contrib.service import BaseDjangoModelService
-from django_spire.knowledge.entry.version import models
+from django_spire.knowledge.entry.services.factory_service import EntryFactoryService
+from django_spire.knowledge.entry.version.models import EntryVersion
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry
@@ -14,13 +15,14 @@ if TYPE_CHECKING:
 class EntryService(BaseDjangoModelService['Entry']):
     obj: Entry
 
+    factory: EntryFactoryService = EntryFactoryService()
     ordering: OrderingService = OrderingService()
 
-    def save_model_obj(self, author: AuthUser, **field_data) -> bool:
-        created = super().save_model_obj(**field_data)
+    def save_model_obj(self, author: AuthUser, **field_data) -> tuple[Entry, bool]:
+        self.obj, created = super().save_model_obj(**field_data)
 
         if created:
-            entry_version = models.EntryVersion.objects.create(
+            entry_version, _ = EntryVersion.services.save_model_obj(
                 entry=self.obj,
                 author=author
             )
@@ -28,4 +30,4 @@ class EntryService(BaseDjangoModelService['Entry']):
             self.obj.current_version = entry_version
             self.obj.save()
 
-        return created
+        return self.obj, created

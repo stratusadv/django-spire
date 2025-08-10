@@ -1,5 +1,47 @@
 # Changelog
 
+## v0.12.5
+
+### Fixes
+- Refactored HelpDesk `save_model_obj` calls.
+
+## v0.12.4
+
+### Changes
+- `BaseDjangoModelService save_model_obj` changed to return a tuple of (obj, created).
+
+### Breaking
+- Previous save_model_obj calls must be refactored for new return tuple.
+
+
+## v0.12.3
+
+### Tools
+- Phone number to international number formatter
+
+
+## v0.12.2
+
+### Fixes
+- Django Service bug fixed when striping "_id" to match field names. 
+
+
+## v0.12.1
+
+### Fixes
+- Corrected Help Desk 'Add' Permissions
+
+
+## v0.12.0
+### Features
+- Help Desk System Prototype with Basic Permissions
+  - Full CRUD for tickets.
+  - Email and app notifications to ADMINS when a ticket is created.
+  - App notifications to 'delete' perm users when a ticket is created.
+
+### Breaking
+- Must include DEVELOPMENT_EMAIL in settings file that pulls from env.
+
 
 ## v0.11.0
 ## Features
@@ -14,7 +56,7 @@
 ## v0.10.2
 ### Fixes
 - Fixed App Notification Ordering
-- Fixed Djagno Error when accessing the `App Notificaiton Dropdown` as an anonymous user.
+- Fixed Django Error when accessing the `App Notificaiton Dropdown` as an anonymous user.
 - Added protection to 'SmsTemporaryMedia' view to prevent rendering non-existent media.
 - Fixed Email Notification Url
 
