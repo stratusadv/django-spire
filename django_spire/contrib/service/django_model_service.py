@@ -7,13 +7,17 @@ from typing import Type, Generic, TypeVar
 from django.db import transaction
 from django.db.models import Model
 
+from django_spire.contrib.constructor.django_model_constructor import BaseDjangoModelConstructor
 from django_spire.contrib.service.exceptions import ServiceException
-from django_spire.contrib.service.service import BaseService
 
 TypeDjangoModel = TypeVar('TypeDjangoModel', bound=Model, covariant=True)
 
 
-class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjangoModel]):
+class BaseDjangoModelService(
+    BaseDjangoModelConstructor[TypeDjangoModel],
+    ABC,
+    Generic[TypeDjangoModel]
+):
     def _get_concrete_fields(self) -> dict:
         return {
             field.name: field
@@ -42,22 +46,6 @@ class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjan
             touched_fields.append(field.removesuffix('_id'))
 
         return touched_fields
-
-    @property
-    def _model_obj_id_is_empty(self) -> bool:
-        return self.obj.id is None or self.obj.id == 0 or self.obj.id == ''
-
-    @property
-    def _model_obj_pk_is_empty(self) -> bool:
-        return self.obj.pk is None or self.obj.pk == 0 or self.obj.pk == ''
-
-    @property
-    def model_obj_is_created(self) -> bool:
-        return self._obj_is_valid and not self.model_obj_is_new
-
-    @property
-    def model_obj_is_new(self) -> bool:
-        return self._model_obj_id_is_empty or self._model_obj_pk_is_empty
 
     def validate_model_obj(self, **field_data: dict) -> list[str]:
         concrete_fields = self._get_concrete_fields()
@@ -93,11 +81,3 @@ class BaseDjangoModelService(BaseService[TypeDjangoModel], ABC, Generic[TypeDjan
                 f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.')
 
         return self.obj, new_model_obj_was_created
-
-    @property
-    def obj_class(self) -> Type[TypeDjangoModel]:
-        return super().obj_class
-
-    @property
-    def _obj_is_valid(self) -> bool:
-        return super()._obj_is_valid and isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
