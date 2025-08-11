@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.12.7
+### Change
+- Service layer validation reads through MRO to allow dependent objects to re-use services.  
+
+
 ## v0.12.6
 ### Features
 - spire_startapp management command that creates a new app with Spire's best practices. 
