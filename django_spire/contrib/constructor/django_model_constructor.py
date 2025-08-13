@@ -10,7 +10,11 @@ from django_spire.contrib.constructor.constructor import BaseConstructor
 TypeDjangoModel = TypeVar('TypeDjangoModel', bound=Model, covariant=True)
 
 
-class BaseDjangoModelConstructor(BaseConstructor[TypeDjangoModel], ABC, Generic[TypeDjangoModel]):
+class BaseDjangoModelConstructor(
+    BaseConstructor[TypeDjangoModel],
+    ABC,
+    Generic[TypeDjangoModel]
+):
     @property
     def _model_obj_id_is_empty(self) -> bool:
         return self.obj.id is None or self.obj.id == 0 or self.obj.id == ''
