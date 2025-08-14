@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.13.0
+
+### Breaking
+
+- `BaseService` has been removed from `django_spire.contrib.service`
+
+### Features
+
+- `django_spire.contrib.constructor` has been added as a way to extend our interfacing.
+  - `BaseDjangoModelConstructor` can be used to develop structure interfacing with Django models.
+
+### Changes
+
+- `django_spire.contrib.constructor.BaseConstructor` replaces `django_spire.contrib.service.BaseService`
+- `BaseDjangoModelService` now inherits from `django_spire.contrib.constructor.BaseDjangoModelConstructor`
+
+
 ## v0.12.7
 ### Change
 - Service layer validation reads through MRO to allow dependent objects to re-use services.  
