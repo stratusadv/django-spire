@@ -59,7 +59,7 @@ class BaseConstructor(
                 else:
                     target: cls | Any = instance
 
-                if issubclass(target.__class__, cls):
+                if issubclass(target.__class__, BaseConstructor):
 
                     self._validate_base_service_target_or_error(target)
 
