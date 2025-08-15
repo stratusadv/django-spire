@@ -14,7 +14,7 @@ from django_spire.file.interfaces import MultiFileUploader
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
-from django_spire.knowledge.entry.constants import ENTRY_IMPORT_FILE_TYPES
+from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
 
 @login_required()
@@ -122,6 +122,9 @@ def import_form_view(
             )
         )
     breadcrumbs.add_breadcrumb(name='Import Files')
+    supported_file_types = [
+        '.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())
+    ]
 
     return portal_views.template_view(
         request,
@@ -130,8 +133,8 @@ def import_form_view(
         page_description='Import Files',
         context_data={
             'collection_pk': collection_pk,
-            'supported_file_types': ENTRY_IMPORT_FILE_TYPES,
-            'supported_file_types_verbose': ', '.join(ENTRY_IMPORT_FILE_TYPES)
+            'supported_file_types': supported_file_types,
+            'supported_file_types_verbose': ', '.join(supported_file_types)
         },
         template='django_spire/knowledge/entry/page/import_form_page.html'
     )

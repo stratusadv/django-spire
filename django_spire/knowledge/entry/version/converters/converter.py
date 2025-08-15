@@ -10,11 +10,10 @@ if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
 
-class BaseFileConverter(ABC):
-    def __init__(self, file: File, entry_version: EntryVersion):
-        self.file = file
+class BaseConverter(ABC):
+    def __init__(self, entry_version: EntryVersion):
         self.entry_version = entry_version
 
     @abstractmethod
-    def convert_to_model_objects(self) -> list[EntryVersionBlock]:
+    def convert_file_to_blocks(self, file: File) -> list[EntryVersionBlock]:
         raise NotImplementedError

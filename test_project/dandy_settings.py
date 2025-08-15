@@ -39,4 +39,14 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
+    'KNOWLEDGE_LLM_BOT': {
+        'TYPE': 'ollama',
+        'HOST': os.getenv("OLLAMA_HOST"),
+        'PORT': int(os.getenv("OLLAMA_PORT", 11434)),
+        'API_KEY': os.getenv("OLLAMA_API_KEY"),
+        'MODEL': 'qwen3-coder:latest',
+        'TEMPERATURE': 0.3,
+        'MAX_INPUT_TOKENS': 16000,
+        'MAX_OUTPUT_TOKENS': 32000,
+    },
 }
