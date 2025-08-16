@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.13.1
+
+### Change
+- Change default infinite scroll card title class and add optional card title class block
+
+
 ## v0.13.0
 
 ### Breaking
