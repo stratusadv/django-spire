@@ -6,6 +6,10 @@
 - Change default infinite scroll card title class and add optional card title class block
 
 
+### Fixes
+- Fix for type checking Base Constructor.
+
+
 ## v0.13.0
 
 ### Breaking
