@@ -33,6 +33,13 @@ class DocxConverter(BaseConverter):
         markdown_result = markitdown.convert(file.file.path)
         markdown_content = markdown_result.markdown
 
+        markdown_converter = MarkdownConverter(entry_version=self.entry_version)
+        return markdown_converter.convert_markdown_to_blocks(
+            markdown_content=self.improve_markdown_structure(markdown_content)
+        )
+
+    @staticmethod
+    def improve_markdown_structure(markdown_content: str) -> str:
         markdown_content_chunks = [
             markdown_content[i: i + MARKDOWN_AI_CHUNK_SIZE]
             for i in range(0, len(markdown_content), MARKDOWN_AI_CHUNK_SIZE)
@@ -58,9 +65,5 @@ class DocxConverter(BaseConverter):
                 except Exception:
                     improved_chunks[future.index] = markdown_content_chunks[future.index]
 
-        markdown_converter = MarkdownConverter(entry_version=self.entry_version)
-        blocks = markdown_converter.convert_markdown_to_blocks(
-            markdown_content=''.join(improved_chunks.values())
-        )
-
-        return blocks
+        sorted_improved_chunks = sorted(improved_chunks.items(), key=lambda x: x[0])
+        return ''.join(chunk[1] for chunk in sorted_improved_chunks)
