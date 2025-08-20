@@ -9,28 +9,37 @@ from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
 
 @close_db_connections
-def convert_files_to_model_objects():
+def convert_files_to_model_objects() -> str:
     file_objects = (
         File.objects
         .related_field(field_name=ENTRY_IMPORT_RELATED_FIELD)
         .filter(content_type=ContentType.objects.get_for_model(Entry))
         .active()
-        .annotate(entry=Entry.objects.filter(id=F('object_id')))
-        .select_related('entry__current_version')
+        .select_related('content_type')
+        .order_by('object_id')
     )
 
-    for file in file_objects:
+    entries = Entry.objects.id_in(
+        list({file_object.object_id for file_object in file_objects})
+    ).select_related('current_version')
+
+    entry_pk_map = {entry.pk: entry for entry in entries}
+
+    errored = []
+    for file_object in file_objects:
         try:
             EntryVersionBlock.services.factory.create_blocks_from_file(
-                file=file,
-                entry_version=file.entry.current_version
+                file=file_object,
+                entry_version=entry_pk_map[file_object.object_id].current_version
             )
-        except Exception:
-            for file_object in file_objects:
-                file_object.file.delete()
-                file_object.delete()
-            raise
+        except Exception as e:
+            errored.append({'file': file_object.name, 'error': str(e)})
+            file_object.file.delete()
+            file_object.delete()
         else:
-            for file_object in file_objects:
-                file_object.file.delete()
-                file_object.delete()
+            file_object.file.delete()
+            file_object.delete()
+
+    return (
+        f'Files Converted: {len(file_objects) - len(errored)}\nFiles Errored: {errored}'
+    )

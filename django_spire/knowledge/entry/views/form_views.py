@@ -99,20 +99,6 @@ def import_form_view(
                     kwargs={'pk': collection_pk}
                 )
             )
-            # try:
-            #     EntryVersionBlock.services.factory.create_blocks_from_file(
-            #         file=file,
-            #         entry_version=entry.current_version
-            #     )
-            # except Exception:
-            #     for file_object in file_objects:
-            #         file_object.file.delete()
-            #         file_object.delete()
-            #     raise
-            # else:
-            #     for file_object in file_objects:
-            #         file_object.file.delete()
-            #         file_object.delete()
 
         show_form_errors(request, file_form)
 
