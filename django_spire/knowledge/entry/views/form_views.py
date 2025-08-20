@@ -88,27 +88,31 @@ def import_form_view(
                 request.FILES.getlist('import_files')
             )
 
-            try:
-                _ = Entry.services.factory.create_from_files(
-                    author=request.user,
-                    collection=Collection.objects.get(pk=collection_pk),
-                    files=file_objects
+            _ = Entry.services.factory.create_from_files(
+                author=request.user,
+                collection=Collection.objects.get(pk=collection_pk),
+                files=file_objects
+            )
+            return HttpResponseRedirect(
+                reverse(
+                    'django_spire:knowledge:collection:page:detail',
+                    kwargs={'pk': collection_pk}
                 )
-            except Exception:
-                for file_object in file_objects:
-                    file_object.file.delete()
-                    file_object.delete()
-                raise
-            else:
-                for file_object in file_objects:
-                    file_object.file.delete()
-                    file_object.delete()
-                return HttpResponseRedirect(
-                    reverse(
-                        'django_spire:knowledge:collection:page:detail',
-                        kwargs={'pk': collection_pk}
-                    )
-                )
+            )
+            # try:
+            #     EntryVersionBlock.services.factory.create_blocks_from_file(
+            #         file=file,
+            #         entry_version=entry.current_version
+            #     )
+            # except Exception:
+            #     for file_object in file_objects:
+            #         file_object.file.delete()
+            #         file_object.delete()
+            #     raise
+            # else:
+            #     for file_object in file_objects:
+            #         file_object.file.delete()
+            #         file_object.delete()
 
         show_form_errors(request, file_form)
 

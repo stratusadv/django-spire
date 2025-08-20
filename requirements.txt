@@ -11,5 +11,6 @@ pydantic
 Pygments
 Pillow==11.2.1
 python-dateutil
+robit
 typing_extensions
 twilio

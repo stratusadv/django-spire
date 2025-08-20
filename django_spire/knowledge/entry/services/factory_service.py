@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.contrib.contenttypes.models import ContentType
+
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.file.models import File
+from django_spire.knowledge.entry.tests.constants import ENTRY_IMPORT_RELATED_FIELD
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
 if TYPE_CHECKING:
@@ -30,9 +33,15 @@ class EntryFactoryService(BaseDjangoModelService['Entry']):
             )
             entries.append(entry)
 
-            EntryVersionBlock.services.factory.create_blocks_from_file(
-                file=file,
-                entry_version=entry.current_version
-            )
+            file.content_type = ContentType.objects.get_for_model(entry.__class__)
+            file.object_id = entry.id
+            file.related_field = ENTRY_IMPORT_RELATED_FIELD
+
+            # EntryVersionBlock.services.factory.create_blocks_from_file(
+            #     file=file,
+            #     entry_version=entry.current_version
+            # )
+
+        File.objects.bulk_update(files, ['content_type', 'object_id', 'related_field'])
 
         return entries
