@@ -67,7 +67,7 @@
     {% endblock %}
 </head>
 
-<body class="bg-app-layer-one">
+<body class="{% block base_body_class %}bg-app-layer-one{% endblock %}">
     {% block base_body %}
         {% block base_body_top_js %}
         {% endblock %}

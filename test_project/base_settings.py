@@ -95,6 +95,8 @@ INSTALLED_APPS += [
 
     'django_spire.contrib.options',
     'django_spire.contrib.pagination',
+
+    'django_spire.theme',
 ]
 
 INSTALLED_APPS += [

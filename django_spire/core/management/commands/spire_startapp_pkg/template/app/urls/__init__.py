@@ -4,6 +4,6 @@
 # app_name = 'spirechildapp'
 #
 # urlpatterns = [
-#     path('page/', include('module.page_urls', namespace='page')),
-#     path('form/', include('module.form_urls', namespace='form')),
+#     path('page/', include('module.urls.page_urls', namespace='page')),
+#     path('form/', include('module.urls.form_urls', namespace='form')),
 # ]

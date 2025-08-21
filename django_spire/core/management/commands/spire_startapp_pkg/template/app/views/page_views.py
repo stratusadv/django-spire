@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     context_data = {
@@ -27,12 +27,12 @@ def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> T
         request,
         obj=spirechildapp,
         context_data=context_data,
-        template='spirechildapp/page/spirechildapp_detail_page.html'
+        template='spirechildapp/page/detail_page.html'
     )
 
 
 @permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_list_view(request: WSGIRequest) -> TemplateResponse:
+def list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
         'spirechildapps': models.SpireChildApp.objects.all()
     }
@@ -41,5 +41,5 @@ def spireparentapp_spirechildapp_list_view(request: WSGIRequest) -> TemplateResp
         request,
         model=models.SpireChildApp,
         context_data=context_data,
-        template='spirechildapp/page/spirechildapp_list_page.html'
+        template='spirechildapp/page/list_page.html'
     )

@@ -1,0 +1,42 @@
+{% extends 'django_spire/theme/card/base_preview_card.html' %}
+
+{% block card_title %}Borders{% endblock %}
+
+
+{% block card_button %}
+    {% url 'theme:page:borders' as borders_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=borders_url %}
+{% endblock %}
+
+{% block preview_card_icon %}bi bi-bounding-box{% endblock %}
+
+{% block preview_card_subtitle %}
+    Border Styles
+{% endblock %}
+
+{% block preview_card_description %}
+    Explore border colors and widths
+{% endblock %}
+
+{% block preview_card_content %}
+    <div class="preview-sample border p-3 rounded bg-app-light">
+        <div class="mb-2 d-flex">
+            <!-- Primary borders -->
+            <div class="p-2 m-1 border border-app-primary" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 border border-app-primary-soft" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 border border-app-primary-dark" style="width: 40px; height: 40px;"></div>
+        </div>
+        <div class="mb-2 d-flex">
+            <!-- Secondary borders -->
+            <div class="p-2 m-1 border border-app-secondary" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 border border-app-secondary-soft" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 border border-app-secondary-dark" style="width: 40px; height: 40px;"></div>
+        </div>
+        <div class="d-flex">
+            <!-- Accent borders -->
+            <div class="p-2 m-1 border border-app-accent" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 border border-app-accent-soft" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 border border-app-accent-dark" style="width: 40px; height: 40px;"></div>
+        </div>
+    </div>
+{% endblock %}
