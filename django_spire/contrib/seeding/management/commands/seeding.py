@@ -36,8 +36,6 @@ class Command(BaseCommand):
         model_import = kwargs['model_import']
         model_description = ' '.join(kwargs['model_description'])
 
-        print(model_import)
-
         source_intel = SeederGeneratorBot.process(model_import, model_description)
 
         Path(_SEEDING_OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
