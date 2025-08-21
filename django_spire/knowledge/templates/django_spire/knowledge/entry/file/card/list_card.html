@@ -1,0 +1,35 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+	Converting Files
+{% endblock %}
+
+{% block card_title_content %}
+    <div
+        class="row"
+        x-data="{
+            files_json: null,
+            async init() {
+                this.files_json = JSON.parse('{{ files_json|escapejs }}')
+                this.update_files_json()
+            },
+            update_files_json() {
+                setInterval(async () => {
+                    let response = await django_glue_fetch(
+                        '{% url "django_spire:knowledge:entry:json:update_files" %}',
+                    )
+                    this.files_json = JSON.parse(response.files_json)
+                }, 5000)
+            }
+        }"
+    >
+        <div class="col-12">
+            <template x-for="file_json in files_json" :key="file_json.name">
+                {% include 'django_spire/knowledge/entry/file/item/list_item.html' with hide_button=True %}
+            </template>
+        </div>
+        <div x-show="files_json.length === 0" class="col-12">
+            {% include 'django_spire/item/no_data_item.html' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title_col %}8{% endblock %}
+
+{% block item_title %}
+	<span x-text="file_json.name"></span>
+{% endblock %}
+
+{% block item_row_content %}
+	<div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Type' %}
+        <span x-text="file_json.type"></span>
+    </div>
+	<div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Size' %}
+        <span x-text="file_json.size"></span>
+    </div>
+{% endblock %}

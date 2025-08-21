@@ -94,10 +94,7 @@ def import_form_view(
                 files=file_objects
             )
             return HttpResponseRedirect(
-                reverse(
-                    'django_spire:knowledge:collection:page:detail',
-                    kwargs={'pk': collection_pk}
-                )
+                reverse('django_spire:knowledge:entry:template:file_list')
             )
 
         show_form_errors(request, file_form)

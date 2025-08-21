@@ -2,6 +2,7 @@ import os
 import robit
 from django.core.wsgi import get_wsgi_application
 
+
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE",
     'test_project.system.development.settings'
@@ -13,8 +14,8 @@ robit.set_timezone('America/Edmonton')
 robit.set_database_logging(True)
 robit.set_controls(True)
 
+from django_spire.knowledge.entry.models import Entry
 from django_spire.notification import automations as notification_automations
-from django_spire.knowledge.entry import automations as knowledge_import_automations
 
 
 wo = robit.Worker(
@@ -38,8 +39,8 @@ wo.add_job(
 wo.add_group('Knowledge Base')
 
 wo.add_job(
-    name="Convert files to knowledge base model objects",
-    method=knowledge_import_automations.convert_files_to_model_objects,
+    name="Convert Files to Model Objects",
+    method=Entry.services.automation.convert_files_to_model_objects,
     group='Knowledge Base',
     cron='0 0 * * 6'
 )

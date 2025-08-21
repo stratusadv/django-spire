@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from concurrent.futures import as_completed
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import TYPE_CHECKING
@@ -21,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class DocxConverter(BaseConverter):
-    """Converts a DocX content to a list of EntryVersionBlocks using Markitdown, AI and
+    """Converts DocX content to a list of EntryVersionBlocks using Markitdown, AI and
     the MarkdownConverter.
 
     For more info on Markitdown:
