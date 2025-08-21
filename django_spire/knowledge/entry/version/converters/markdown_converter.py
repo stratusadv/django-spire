@@ -10,35 +10,25 @@ from typing import TYPE_CHECKING
 from marko.element import Element
 from marko.block import Heading
 
-from django_spire.knowledge.entry.version.file_converters.file_converter import \
-    BaseFileConverter
+from django_spire.knowledge.entry.version.converters.converter import \
+    BaseConverter
 from django_spire.knowledge.entry.version.block import models
 
 if TYPE_CHECKING:
+    from django_spire.file.models import File
     from marko.block import BlockElement
 
 
-class MarkdownConverter(BaseFileConverter):
-    """Converts a Markdown file to a list of EntryVersionBlocks using Marko.
+class MarkdownConverter(BaseConverter):
+    """Converts Markdown content to a list of EntryVersionBlocks using Marko.
 
     For more info on Marko:
     https://marko-py.readthedocs.io/en/latest/api.html#marko.block.BlockElement
     """
 
-    def convert_to_model_objects(self) -> list[models.EntryVersionBlock]:
-        blocks = []
-        with open(self.file.file.path, 'r') as f:
-            syntax_tree = marko.parse(f.read())
-
-            for order, marko_block in enumerate(syntax_tree.children):
-                blocks.append(
-                    self._marko_block_to_version_block(
-                        marko_block=marko_block,
-                        order=order + 1
-                    )
-                )
-
-        return blocks
+    def convert_file_to_blocks(self, file: File) -> list[models.EntryVersionBlock]:
+        with open(file.file.path, 'r') as f:
+            return self.convert_markdown_to_blocks(f.read())
 
     def _convert_heading_block(
             self,
@@ -55,8 +45,24 @@ class MarkdownConverter(BaseFileConverter):
             entry_version=self.entry_version,
             block_type=heading_type,
             order=order,
-            value=self._get_marko_text_content(marko_block)
+            value=self._get_marko_text_content(marko_block),
         )
+
+    def convert_markdown_to_blocks(
+            self,
+            markdown_content: str
+    ) -> list[models.EntryVersionBlock]:
+        syntax_tree = marko.parse(markdown_content)
+
+        blocks = []
+        for order, marko_block in enumerate(syntax_tree.children):
+            blocks.append(
+                self._marko_block_to_version_block(
+                    marko_block=marko_block, order=order + 1
+                )
+            )
+
+        return blocks
 
     def _get_marko_text_content(
             self,
@@ -80,5 +86,5 @@ class MarkdownConverter(BaseFileConverter):
         )
 
     @staticmethod
-    def _strip_html_tags(text):
+    def _strip_html_tags(text: str) -> str:
         return html.unescape(re.sub(r'<[^>]+>', '', text))

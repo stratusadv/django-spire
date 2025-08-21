@@ -5,10 +5,12 @@ django-sendgrid-v5
 docutils
 faker
 marko==2.1.4
+markitdown==0.1.2
 psycopg2
 pydantic
 Pygments
 Pillow==11.2.1
 python-dateutil
+robit
 typing_extensions
 twilio

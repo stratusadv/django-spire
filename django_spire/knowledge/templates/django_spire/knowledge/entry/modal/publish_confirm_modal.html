@@ -1,0 +1,21 @@
+{% extends 'django_spire/modal/center_modal.html' %}
+
+{% block modal_trigger %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Publish' %}
+{% endblock %}
+
+{% block modal_content %}
+	<form
+        class="row"
+        method="post"
+        action="{% url 'django_spire:knowledge:entry:version:redirect:publish' pk=entry.current_version_id %}"
+    >
+        {% csrf_token %}
+        <div class="col-12">
+            Are you sure you want to publish {{ entry }}?
+        </div>
+        <div class="col-12 mt-2">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text='Publish' %}
+        </div>
+    </form>
+{% endblock %}

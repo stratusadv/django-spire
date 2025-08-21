@@ -46,7 +46,7 @@
             </span>
             <span class="fs--1">*Supported file types: {{ supported_file_types_verbose }}</span>
         </div>
-        {% include 'django_glue/form/field/multi_file_field.html' with glue_field='import_files' accept=supported_file_types_verbose %}
+        {% include 'django_glue/form/field/multi_file_field.html' with glue_field='import_files' accept=supported_file_types_verbose disable_camera=True %}
     </div>
     <div class="col-12 mt-2">
         {% include 'django_spire/contrib/form/button/form_submit_button.html' %}

@@ -8,4 +8,5 @@ urlpatterns = [
     path('form/', include('django_spire.knowledge.entry.version.urls.form_urls', namespace='form')),
     path('json/', include('django_spire.knowledge.entry.version.urls.json_urls', namespace='json')),
     path('page/', include('django_spire.knowledge.entry.version.urls.page_urls', namespace='page')),
+    path('redirect/', include('django_spire.knowledge.entry.version.urls.redirect_urls', namespace='redirect')),
 ]

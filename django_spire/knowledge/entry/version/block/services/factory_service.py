@@ -40,11 +40,10 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
         if file.type not in FILE_TYPE_CONVERTER_MAP:
             return []
 
+        converter = FILE_TYPE_CONVERTER_MAP[file.type](entry_version=entry_version)
+
         return self.obj_class.objects.bulk_create(
-            FILE_TYPE_CONVERTER_MAP[file.type](
-                file=file,
-                entry_version=entry_version
-            ).convert_to_model_objects()
+            converter.convert_file_to_blocks(file=file)
         )
 
     def create_null_block(
