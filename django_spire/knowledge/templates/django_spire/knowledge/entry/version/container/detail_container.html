@@ -1,12 +1,27 @@
 {% extends 'django_spire/container/container.html' %}
 
 {% block container_title %}
-    {{ entry.name }}
+    <div class="fs-4">
+        {{ entry.name }}
+    </div>
 {% endblock %}
 
 {% block container_button %}
-	{% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
-    {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_icon='bi bi-pencil-fill' button_href=entry_edit_url %}
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                {% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
+                {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_href=entry_edit_url %}
+            </div>
+            <div class="col">
+                {% if entry.current_version.is_published %}
+                    {% include 'django_spire/knowledge/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
+                {% else %}
+                    {% include 'django_spire/knowledge/entry/modal/publish_confirm_modal.html' %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block container_content %}

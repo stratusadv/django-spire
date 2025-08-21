@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.db.models import F
+from django.utils.timezone import localtime
 
 from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.knowledge.entry.version.choices import EntryVersionTypeChoices
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
@@ -31,3 +33,8 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
             .active()
             .update(order=F('order') + 1)
         )
+
+    def publish(self):
+        self.obj.status = EntryVersionTypeChoices.PUBLISHED
+        self.obj.published_datetime = localtime()
+        self.obj.save()

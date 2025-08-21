@@ -33,6 +33,9 @@ class EntryVersion(HistoryModelMixin):
     objects = EntryVersionQuerySet.as_manager()
     services = EntryVersionService()
 
+    def is_published(self) -> bool:
+        return self.status == EntryVersionTypeChoices.PUBLISHED
+
     class Meta:
         verbose_name = 'Entry Version'
         verbose_name_plural = 'Entry Versions'

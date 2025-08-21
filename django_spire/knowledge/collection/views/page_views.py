@@ -35,6 +35,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
                 collection.entries
                 .active()
                 .has_current_version()
+                .user_has_access(user=request.user)
                 .select_related('current_version')
             )
         },
