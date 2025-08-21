@@ -1,25 +1,3 @@
-a {
-    color: var(--app-default-link-color);
-    text-decoration: none;
-}
-
-a:hover {
-    color: var(--app-default-link-hover-color);
-}
-
-a:active {
-    color: var(--app-default-link-active-color);
-}
-
-a:visited {
-    color: var(--app-default-link-visited-color);
-}
-
-body {
-    color: var(--app-default-text-color);
-    background-color: var(--app-default-bg-color);
-}
-
 .cursor-pointer {
     cursor: pointer !important;
 }

@@ -5,7 +5,7 @@ from django.apps import AppConfig
 from django_spire.utils import check_required_apps
 
 
-class HistoryConfig(AppConfig):
+class ThemeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_theme'
     name = 'django_spire.theme'
