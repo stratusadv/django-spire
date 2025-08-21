@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.14.0
+
+### Features
+- Spire theme app to help view and style your application's theme!
+
+### Change
+- Default css text colors with root variables. 
+- Spire start app command has improved naming and file structure. 
+
+
 ## v0.13.1
 
 ### Change
