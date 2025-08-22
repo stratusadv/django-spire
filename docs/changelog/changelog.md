@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.14.2
+
+## Change
+- Moved default spire notification dropdown position to be at the top center of screen on mobile devices
+
 ## v0.14.1
 
 ## Breaking
