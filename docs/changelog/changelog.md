@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.14.1
+
+## Breaking
+
+- Activity templates moved from `django_spire/history` to `django_spire/activity`
+- Renamed `activity_list_card.html` template to `list_card.html` (Import path is now `django_spire/card/list_card.html`)
+
+### Fixes
+- Fixed generic `poral_delete_form` raising error on page load. 
+
 ## v0.14.0
 
 ### Features
@@ -108,16 +118,6 @@
 - Added protection to 'SmsTemporaryMedia' view to prevent rendering non-existent media.
 - Fixed Email Notification Url
 
-
-## v0.10.2
-
-## Breaking
-
-- Activity templates moves from `django_spire/history` to `django_spire/activity`
-- Renamed `activity_list_card.html` template to `list_card.html` (Import path is now `django_spire/card/list_card.html`)
-
-### Fixes
-- Fixed generic `poral_delete_form` raising error on page load. 
 
 ## v0.10.1
 
