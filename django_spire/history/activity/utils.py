@@ -7,10 +7,10 @@ if TYPE_CHECKING:
     from django_spire.history.activity.mixins import ActivityMixin
 
 
-def add_form_activity(model_object: ActivityMixin, pk: int, user: User) -> None:
+def add_form_activity(model_object: ActivityMixin, pk: int | bool, user: User) -> None:
     verb = (
         'created'
-        if pk == 0 else 'updated'
+        if pk else 'updated'
     )
 
     information = (
