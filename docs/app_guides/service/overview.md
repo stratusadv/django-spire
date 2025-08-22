@@ -55,7 +55,7 @@ class Task(models.Model):
     title = models.CharField(max_length=200)
     is_done = models.BooleanField(default=False)
     
-    services: TaskService = TaskService()
+    services = TaskService()
 
     def __str__(self) -> str:
         return self.title
@@ -80,8 +80,8 @@ class TaskService(BaseDjangoModelService['Task']):
     obj: Task 
 
     # followed by all sub services
-    notification: TaskNotificationService = TaskNotificationService()
-    processor: TaskProcessorService = TaskProcessorService()
+    notification = TaskNotificationService()
+    processor = TaskProcessorService()
 ```
 
 ```python

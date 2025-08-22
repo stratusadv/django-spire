@@ -1,0 +1,23 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+
+{% block card_title_content %}
+    <div class="text-center py-3">
+        <i class="{% block preview_card_icon %}bi bi-card-text{% endblock %} fs-1 mb-3 text-app-primary"></i>
+
+        <h5 class="mb-3">
+            {% block preview_card_subtitle %}
+            {% endblock %}
+        </h5>
+
+        <div class="mb-3">
+            {% block preview_card_description %}
+            {% endblock %}
+        </div>
+
+        <div class="border p-3 rounded bg-app-light">
+            {% block preview_card_content %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

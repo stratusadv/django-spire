@@ -1,0 +1,22 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <h2 class="mb-4">Theme Overview</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            {% include 'django_spire/theme/card/colors_preview_card.html' with card_link=colors_url %}
+        </div>
+        <div class="col-md-4 mb-4">
+            {% include 'django_spire/theme/card/typography_preview_card.html' with card_link=typography_url %}
+        </div>
+        <div class="col-md-4 mb-4">
+            {% include 'django_spire/theme/card/buttons_preview_card.html' with card_link=buttons_url %}
+        </div>
+        <div class="col-md-4 mb-4">
+            {% include 'django_spire/theme/card/badges_preview_card.html' with card_link=badges_url %}
+        </div>
+        <div class="col-md-4 mb-4">
+            {% include 'django_spire/theme/card/borders_preview_card.html' with card_link=borders_url %}
+        </div>
+    </div>
+{% endblock %}

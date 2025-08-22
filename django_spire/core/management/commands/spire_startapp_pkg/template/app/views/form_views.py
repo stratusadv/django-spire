@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 @permission_required('spireparentapp.delete_spirepermission')
-def spireparentapp_spirechildapp_delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     form_action = reverse(
@@ -56,7 +56,7 @@ def spireparentapp_spirechildapp_delete_form_modal_view(request: WSGIRequest, pk
 
 
 @permission_required('spireparentapp.delete_spirepermission')
-def spireparentapp_spirechildapp_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     return_url = request.GET.get(
@@ -71,24 +71,8 @@ def spireparentapp_spirechildapp_delete_view(request: WSGIRequest, pk: int) -> T
     )
 
 
-@permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
-
-    context_data = {
-        'spirechildapp': spirechildapp,
-    }
-
-    return portal_views.detail_view(
-        request,
-        obj=spirechildapp,
-        context_data=context_data,
-        template='spirechildapp/page/spirechildapp_detail_page.html'
-    )
-
-
 @permission_required('spireparentapp.change_spirepermission')
-def spireparentapp_spirechildapp_form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     dg.glue_model_object(request, 'spirechildapp', spirechildapp)
@@ -100,12 +84,12 @@ def spireparentapp_spirechildapp_form_content_modal_view(request: WSGIRequest, p
     return TemplateResponse(
         request,
         context=context_data,
-        template='spirechildapp/modal/content/spirechildapp_form_modal_content.html'
+        template='spirechildapp/modal/content/form_modal_content.html'
     )
 
 
 @permission_required('spireparentapp.change_spirepermission')
-def spireparentapp_spirechildapp_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_null_obj(models.SpireChildApp, pk=pk)
 
     dg.glue_model_object(request, 'spirechildapp', spirechildapp, 'view')
@@ -132,19 +116,5 @@ def spireparentapp_spirechildapp_form_view(request: WSGIRequest, pk: int) -> Tem
         request,
         form=form,
         obj=spirechildapp,
-        template='spirechildapp/page/spirechildapp_form_page.html'
-    )
-
-
-@permission_required('spireparentapp.view_spirepermission')
-def spireparentapp_spirechildapp_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'spirechildapps': models.SpireChildApp.objects.all()
-    }
-
-    return portal_views.list_view(
-        request,
-        model=models.SpireChildApp,
-        context_data=context_data,
-        template='spirechildapp/page/spirechildapp_list_page.html'
+        template='spirechildapp/page/form_page.html'
     )

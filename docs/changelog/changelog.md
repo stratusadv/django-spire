@@ -1,10 +1,77 @@
 # Changelog
 
+## v0.14.0
+
+### Features
+- Spire theme app to help view and style your application's theme!
+
+### Change
+- Default css text colors with root variables. 
+- Spire start app command has improved naming and file structure. 
+
+
+## v0.13.1
+
+### Change
+- Change default infinite scroll card title class and add optional card title class block
+
+
+### Fixes
+- Fix for type checking Base Constructor.
+
+
+## v0.13.0
+
+### Breaking
+
+- `BaseService` has been removed from `django_spire.contrib.service`
+
+### Features
+
+- `django_spire.contrib.constructor` has been added as a way to extend our interfacing.
+  - `BaseDjangoModelConstructor` can be used to develop structure interfacing with Django models.
+
+### Changes
+
+- `django_spire.contrib.constructor.BaseConstructor` replaces `django_spire.contrib.service.BaseService`
+- `BaseDjangoModelService` now inherits from `django_spire.contrib.constructor.BaseDjangoModelConstructor`
+
+
+## v0.12.7
+### Change
+- Service layer validation reads through MRO to allow dependent objects to re-use services.  
+
+
+## v0.12.6
+### Features
+- spire_startapp management command that creates a new app with Spire's best practices. 
+- Experimental Ai prompting command line features.
+
+
+## v0.12.5
+
+### Fixes
+- Refactored HelpDesk `save_model_obj` calls.
+
+## v0.12.4
+
+### Changes
+- `BaseDjangoModelService save_model_obj` changed to return a tuple of (obj, created).
+
+### Breaking
+- Previous save_model_obj calls must be refactored for new return tuple.
+
+
+## v0.12.3
+
+### Tools
+- Phone number to international number formatter
+
+
 ## v0.12.2
 
 ### Fixes
 - Django Service bug fixed when striping "_id" to match field names. 
-
 
 
 ## v0.12.1

@@ -28,7 +28,7 @@ class Command(BaseCommand):
             nargs='+',
         )
 
-    @recorder_to_html_file('seeding_generator')
+    # @recorder_to_html_file('seeding_generator')
     def handle(self, *args, **kwargs):
         if not kwargs['model_import'] or not kwargs['model_description']:
             raise CommandError('You must provide a model import path and a model description')

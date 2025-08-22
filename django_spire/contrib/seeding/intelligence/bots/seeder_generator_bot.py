@@ -10,7 +10,7 @@ from django_spire.contrib.seeding.intelligence.prompts.generate_django_model_see
 
 class SeederGeneratorBot(BaseLlmBot):
 
-    config = 'DEEP_SEEK'
+    config = 'PYTHON_MODULE'
 
     config_options = LlmConfigOptions(
         temperature=0.3,

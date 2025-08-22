@@ -1,0 +1,35 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_class %}{{ card_class|default:"h-100" }}{% endblock %}
+
+{% block card_title %}
+    {{ card_title|default:"Preview" }}
+{% endblock %}
+
+{% block card_button %}
+    {% if card_link %}
+        <a href="{{ card_link }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-eye me-1"></i> View Full Preview
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="text-center py-3">
+        {% if card_icon %}
+            <i class="{{ card_icon }} fs-1 mb-3 text-app-{{ card_color|default:"primary" }}"></i>
+        {% endif %}
+        
+        <h5 class="mb-3">{{ card_subtitle|default:"" }}</h5>
+        
+        <div class="mb-3">
+            {{ card_description|default:"" }}
+        </div>
+        
+        {% if card_preview_content %}
+            <div class="preview-sample border p-3 rounded bg-app-light">
+                {{ card_preview_content }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
