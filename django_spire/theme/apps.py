@@ -12,5 +12,8 @@ class ThemeConfig(AppConfig):
 
     REQUIRED_APPS = ('django_spire_core',)
 
+    URLPATTERNS_INCLUDE = 'django_spire.theme.urls'
+    URLPATTERNS_NAMESPACE = 'theme'
+
     def ready(self) -> None:
         check_required_apps(self.label)
