@@ -7,6 +7,7 @@ from django_spire.contrib.breadcrumb import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 
 from module import querysets
+from module.services.service import SpireChildAppService
 
 
 class SpireChildApp(HistoryModelMixin):
@@ -14,6 +15,7 @@ class SpireChildApp(HistoryModelMixin):
     description = models.TextField(default='')
 
     objects = querysets.SpireChildAppQuerySet().as_manager()
+    services = SpireChildAppService()
 
     def __str__(self):
         return self.name

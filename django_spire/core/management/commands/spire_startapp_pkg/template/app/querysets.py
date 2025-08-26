@@ -9,5 +9,4 @@ if TYPE_CHECKING:
 
 
 class SpireChildAppQuerySet(HistoryQuerySet):
-    def active(self) -> QuerySet:
-        return self.filter(is_active=True, is_deleted=False)
+    pass
