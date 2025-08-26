@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.14.3
+
+### Changes
+- Updated `spire_startapp` template testing file structure.
+
 ## v0.14.2
 
 ## Change

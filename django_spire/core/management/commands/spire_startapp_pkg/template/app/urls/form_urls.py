@@ -2,7 +2,9 @@ from django.urls import path
 
 from module.views import form_views
 
+
 app_name = 'form'
+
 urlpatterns = [
     path('<int:pk>/delete/form/', form_views.delete_view, name='delete'),
     path('<int:pk>/delete/form/modal/', form_views.delete_form_modal_view, name='delete_form_modal'),

@@ -1,5 +1,6 @@
 from dandy.llm import Prompt
 
+
 def spirechildapp_instruction_prompt():
     return (
         Prompt()
@@ -17,8 +18,8 @@ def spirechildapp_instruction_prompt():
         .line_break()
     )
 
-def spirechildapp_user_input_prompt(user_input: str):
 
+def spirechildapp_user_input_prompt(user_input: str):
     return (
         Prompt()
         .heading('SpireChildApp Request')
