@@ -7,13 +7,15 @@ from django_spire.contrib.breadcrumb import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 
 from module import querysets
+from module.services.service import SpireChildAppService
 
 
 class SpireChildApp(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.PlaceholderQuerySet().as_manager()
+    objects = querysets.SpireChildAppQuerySet().as_manager()
+    services = SpireChildAppService()
 
     def __str__(self):
         return self.name
@@ -23,7 +25,7 @@ class SpireChildApp(HistoryModelMixin):
         crumbs = Breadcrumbs()
 
         crumbs.add_breadcrumb(
-            'Placeholder',
+            'SpireChildApp',
             reverse('spireparentapp:spirechildapp:page:list')
         )
 

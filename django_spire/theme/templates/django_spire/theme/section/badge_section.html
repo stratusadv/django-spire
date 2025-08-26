@@ -1,0 +1,57 @@
+<h2 class="mb-4">Badges</h2>
+<div class="row">
+    <div class="col-6">
+        <h5>Regular Badges</h5>
+        <div class="mb-3">{% include 'django_spire/badge/primary_badge.html' with badge_text='Primary Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/secondary_badge.html' with badge_text='Secondary Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/success_badge.html' with badge_text='Success Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/warning_badge.html' with badge_text='Warning Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/danger_badge.html' with badge_text='Danger Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/accent_badge.html' with badge_text='Accent Badge' %}</div>
+    </div>
+    <div class="col-6">
+        <h5>Outlined Badges</h5>
+        <div class="mb-3">{% include 'django_spire/badge/primary_outlined_badge.html' with badge_text='Primary Outlined Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/secondary_outlined_badge.html' with badge_text='Secondary Outlined Badge' %}</div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-6">
+        <h5>Badge Sizes</h5>
+        <div class="mb-3">
+            <span class="badge bg-app-primary fs-6">Large Badge</span>
+            <span class="badge bg-app-primary">Default Badge</span>
+            <span class="badge bg-app-primary fs--1">Small Badge</span>
+            <span class="badge bg-app-primary fs--2">Smaller Badge</span>
+        </div>
+    </div>
+    <div class="col-6">
+        <h5>Badge Shapes</h5>
+        <div class="mb-3">
+            <span class="badge bg-app-primary rounded-0">Square Badge</span>
+            <span class="badge bg-app-secondary rounded-1">Slightly Rounded</span>
+            <span class="badge bg-app-success rounded">Default Rounded</span>
+            <span class="badge bg-app-warning rounded-pill">Pill Badge</span>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-6">
+        <h5>Badge with Icons</h5>
+        <div class="mb-3">
+            <span class="badge bg-app-primary"><i class="bi bi-check me-1"></i>Completed</span>
+            <span class="badge bg-app-warning"><i class="bi bi-clock me-1"></i>Pending</span>
+            <span class="badge bg-app-danger"><i class="bi bi-x-circle me-1"></i>Failed</span>
+        </div>
+    </div>
+    <div class="col-6">
+        <h5>Badge Usage Examples</h5>
+        <div class="mb-3">
+            <h6>Status Indicators <span class="badge bg-app-success">Active</span></h6>
+            <p>Notification <span class="badge bg-app-danger rounded-pill">New</span></p>
+            <button type="button" class="btn btn-primary">
+                Messages <span class="badge bg-app-light text-dark">4</span>
+            </button>
+        </div>
+    </div>
+</div>

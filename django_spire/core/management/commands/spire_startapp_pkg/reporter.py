@@ -50,7 +50,7 @@ class Reporter:
 
             self.command.stdout.write(f'{indent}{ICON_FOLDER_OPEN} {component}/')
 
-            if i > 0 and app not in registry and template.exists():
+            if i == len(components) - 1 and app not in registry and template.exists():
                 local_formatter = lambda item: (
                     item.name
                     if item.is_dir()
@@ -147,7 +147,8 @@ class Reporter:
 
     def report_installed_apps_suggestion(self, missing_components: list[str]) -> None:
         self.command.stdout.write(self.command.style.NOTICE('\nPlease add the following to INSTALLED_APPS in settings.py:'))
-        self.command.stdout.write('\n'.join(f'"{app}"' for app in missing_components))
+        self.command.stdout.write(f'\n {missing_components[-1]}')
+        # self.command.stdout.write('\n'.join(f'"{app}"' for app in missing_components))
 
     def report_app_creation_success(self, app: str) -> None:
         message = f'Successfully created app: {app}'

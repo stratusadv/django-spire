@@ -9,7 +9,7 @@
         },
 
         async check_new_notifications(){
-            let url = '{% url 'django_spire:notification:app:json:check_new' %}'
+            let url = '{% url "django_spire:notification:app:json:check_new" %}'
             let response = await django_glue_fetch(url)
             this.new_notification = response.has_new_notifications
         },
@@ -24,7 +24,7 @@
         },
 
         async mark_notifications_as_viewed(){
-            let response = await django_glue_fetch('{% url 'django_spire:notification:app:json:set_viewed' %}')
+            let response = await django_glue_fetch('{% url "django_spire:notification:app:json:set_viewed" %}')
             this.new_notification = false
         }
 

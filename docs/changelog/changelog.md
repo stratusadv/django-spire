@@ -1,5 +1,73 @@
 # Changelog
 
+## v0.14.3
+
+### Changes
+- Updated `spire_startapp` template testing file structure.
+
+## v0.14.2
+
+## Change
+- Moved default spire notification dropdown position to be at the top center of screen on mobile devices
+
+## v0.14.1
+
+## Breaking
+
+- Activity templates moved from `django_spire/history` to `django_spire/activity`
+- Renamed `activity_list_card.html` template to `list_card.html` (Import path is now `django_spire/card/list_card.html`)
+
+### Fixes
+- Fixed generic `poral_delete_form` raising error on page load. 
+
+## v0.14.0
+
+### Features
+- Spire theme app to help view and style your application's theme!
+
+### Change
+- Default css text colors with root variables. 
+- Spire start app command has improved naming and file structure. 
+
+
+## v0.13.1
+
+### Change
+- Change default infinite scroll card title class and add optional card title class block
+
+
+### Fixes
+- Fix for type checking Base Constructor.
+
+
+## v0.13.0
+
+### Breaking
+
+- `BaseService` has been removed from `django_spire.contrib.service`
+
+### Features
+
+- `django_spire.contrib.constructor` has been added as a way to extend our interfacing.
+  - `BaseDjangoModelConstructor` can be used to develop structure interfacing with Django models.
+
+### Changes
+
+- `django_spire.contrib.constructor.BaseConstructor` replaces `django_spire.contrib.service.BaseService`
+- `BaseDjangoModelService` now inherits from `django_spire.contrib.constructor.BaseDjangoModelConstructor`
+
+
+## v0.12.7
+### Change
+- Service layer validation reads through MRO to allow dependent objects to re-use services.  
+
+
+## v0.12.6
+### Features
+- spire_startapp management command that creates a new app with Spire's best practices. 
+- Experimental Ai prompting command line features.
+
+
 ## v0.12.5
 
 ### Fixes

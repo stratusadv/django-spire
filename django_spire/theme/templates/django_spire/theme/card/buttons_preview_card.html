@@ -1,0 +1,42 @@
+{% extends 'django_spire/theme/card/base_preview_card.html' %}
+
+{% block card_title %}Buttons{% endblock %}
+
+
+{% block card_button %}
+    {% url 'theme:page:buttons' as buttons_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=buttons_url %}
+{% endblock %}
+
+{% block preview_card_icon %}bi bi-hand-index-thumb{% endblock %}
+
+{% block preview_card_subtitle %}
+    Button Styles
+{% endblock %}
+
+{% block preview_card_description %}
+    Explore all button variants and sizes
+{% endblock %}
+
+{% block preview_card_content %}
+    <div class="preview-sample border p-3 rounded bg-app-light">
+        <div class="mb-2">
+            <!-- Primary buttons -->
+            {% include 'django_spire/button/primary_button.html' with button_text='Primary' button_size='sm' %}
+            {% include 'django_spire/button/primary_dark_button.html' with button_text='Dark' button_size='sm' %}
+            {% include 'django_spire/button/primary_outlined_button.html' with button_text='Outlined' button_size='sm' %}
+        </div>
+        <div class="mb-2">
+            <!-- Secondary buttons -->
+            {% include 'django_spire/button/secondary_button.html' with button_text='Secondary' button_size='sm' %}
+            {% include 'django_spire/button/secondary_dark_button.html' with button_text='Dark' button_size='sm' %}
+            {% include 'django_spire/button/secondary_outlined_button.html' with button_text='Outlined' button_size='sm' %}
+        </div>
+        <div>
+            <!-- Accent buttons -->
+            {% include 'django_spire/button/accent_button.html' with button_text='Accent' button_size='sm' %}
+            {% include 'django_spire/button/accent_dark_button.html' with button_text='Dark' button_size='sm' %}
+            {% include 'django_spire/button/accent_outlined_button.html' with button_text='Outlined' button_size='sm' %}
+        </div>
+    </div>
+{% endblock %}

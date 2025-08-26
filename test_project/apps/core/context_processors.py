@@ -29,6 +29,7 @@ def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'Knowledge', 'icon': 'bi bi-journal-bookmark', 'url': reverse('django_spire:knowledge:collection:page:list')},
             {'title': 'Notification', 'icon': 'bi bi-bell', 'url': reverse('notification:page:list')},
             {'title': 'Test Model', 'icon': 'bi bi-flask', 'url': reverse('queryset_filtering:page:list')},
+            {'title': 'Theme', 'icon': 'bi bi-brush', 'url': reverse('theme:page:dashboard')},
             {'title': 'QuerySet Filtering', 'icon': 'bi bi-filter', 'url': reverse('queryset_filtering:page:list')},
             {'title': 'Wizard', 'icon': 'bi bi-magic', 'url': reverse('wizard:home')},
             {'heading': 'Examples'},
