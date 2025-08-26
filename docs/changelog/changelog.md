@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.14.4
+
+### Changes
+- Updated theme apps.py file to allow for url access. 
+
+
 ## v0.14.3
 
 ### Changes
