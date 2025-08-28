@@ -37,8 +37,8 @@
 }
 
 
-.text-app-attribute-text-color, .text-app-attribute-text-color-hover:hover {
-    color: var(--app-default-attribute-title-text-color) !important;
+.text-app-attribute-color, .text-app-attribute-color-hover:hover {
+    color: var(--app-default-attribute-title-color) !important;
 }
 
 
