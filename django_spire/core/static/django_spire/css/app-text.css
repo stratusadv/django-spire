@@ -36,6 +36,12 @@
     --app-text-layer-five: var(--app-layer-five);
 }
 
+
+.text-app-attribute-text-color, .text-app-attribute-text-color-hover:hover {
+    color: var(--app-default-attribute-title-text-color) !important;
+}
+
+
 .text-app-primary, .text-app-primary-hover:hover {
     color: var(--app-text-primary) !important;
 }

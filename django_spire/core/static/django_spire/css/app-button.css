@@ -50,13 +50,13 @@
 
 .btn-app-primary {
     background-color: var(--app-btn-primary) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
 .btn-app-primary-dark {
     background-color: var(--app-btn-primary-dark) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
@@ -67,13 +67,13 @@
 
 .btn-app-secondary {
     background-color: var(--app-btn-secondary) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
 .btn-app-secondary-dark {
     background-color: var(--app-btn-secondary-dark) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
@@ -84,13 +84,13 @@
 
 .btn-app-accent {
     background-color: var(--app-btn-accent) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
 .btn-app-accent-dark {
     background-color: var(--app-btn-accent-dark) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
@@ -101,13 +101,13 @@
 
 .btn-app-danger {
     background-color: var(--app-btn-danger) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
 .btn-app-danger-dark {
     background-color: var(--app-btn-danger-dark) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
@@ -118,13 +118,13 @@
 
 .btn-app-success {
     background-color: var(--app-btn-success) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
 .btn-app-success-dark {
     background-color: var(--app-btn-success-dark) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
@@ -135,13 +135,13 @@
 
 .btn-app-warning {
     background-color: var(--app-btn-warning) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
 .btn-app-warning-dark {
     background-color: var(--app-btn-warning-dark) !important;
-    color: var(--app-btn-layer-one) !important;
+    color: white !important;
     border: none;
 }
 
