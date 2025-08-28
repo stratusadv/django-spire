@@ -14,8 +14,6 @@ class BaseAuthController:
     ):
         self._request = request
 
-    # add logic for all_required
-
     @property
     def request(self):
         if self._request is None:
