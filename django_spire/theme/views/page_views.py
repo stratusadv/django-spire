@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.urls import reverse
 from typing_extensions import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
@@ -28,7 +29,7 @@ def dashboard_view(request: WSGIRequest) -> TemplateResponse:
 
 def colors_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
-    crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
+    crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Colors')
 
     return portal_views.template_view(
@@ -42,7 +43,7 @@ def colors_view(request: WSGIRequest) -> TemplateResponse:
 
 def typography_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
-    crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
+    crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Typography')
 
     return portal_views.template_view(
@@ -56,7 +57,7 @@ def typography_view(request: WSGIRequest) -> TemplateResponse:
 
 def buttons_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
-    crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
+    crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Buttons')
 
     return portal_views.template_view(
@@ -70,7 +71,7 @@ def buttons_view(request: WSGIRequest) -> TemplateResponse:
 
 def badges_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
-    crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
+    crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Badges')
 
     return portal_views.template_view(
@@ -84,7 +85,7 @@ def badges_view(request: WSGIRequest) -> TemplateResponse:
 
 def borders_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
-    crumbs.add_breadcrumb('Dashboard', 'theme:page:dashboard')
+    crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Borders')
 
     return portal_views.template_view(
