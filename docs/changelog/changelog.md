@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.14.5
+
+### Changes
+- Added css variables for attribute title and tweaked css styling. 
+
+
 ## v0.14.4
 
 ### Changes
