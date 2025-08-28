@@ -1,46 +1,62 @@
 import functools
 
+from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 
 from django_spire.auth.group.decorators import permission_required_decorator_function
+from django_spire.core.utils import get_object_from_module_string
 
 
 class BaseAuthController:
-    def __init__(self, request: WSGIRequest | None = None):
-        self.request: WSGIRequest | None = None
+    def __init__(
+            self,
+            request: WSGIRequest | None = None
+    ):
+        self._request = request
 
-    def permission_required(self, permissions: str | tuple[str, ...]):
-        if isinstance(permissions, str):
-            permissions = (permissions,)
+    # add logic for all_required
+
+    @property
+    def request(self):
+        if self._request is None:
+            raise Exception('AuthController.request is None')
+
+        return self._request
+
+    @request.setter
+    def request(self, value: WSGIRequest):
+        self._request = value
+
+    def permission_required(
+            self,
+            *permissions: str,
+            all_required: bool = True
+    ):
 
         def decorator(method):
             @functools.wraps(method)
             def wrapper(request: WSGIRequest, *args, **kwargs):
                 self.request = request
 
-                if self.request is None:
-                    raise Exception('AuthController.request is None')
-
-
                 uncallable_permissions = []
 
-                for permission in permissions:
-                    callable_permission = getattr(self, permission)
+                for perm in permissions:
+                    callable_permission = getattr(self, perm)
                     if callable(callable_permission):
-                        if not callable_permission():
-                            return HttpResponseRedirect(
-                                reverse('django_spire:auth:admin:login')
-                            )
+                        if not all_required and callable_permission():
+                            return method(request, *args, **kwargs)
+                        elif not callable_permission():
+                            raise PermissionDenied
+
                     else:
-                        uncallable_permissions.append(permission)
+                        uncallable_permissions.append(perm)
 
                 return permission_required_decorator_function(
-                    permissions,
+                    uncallable_permissions,
                     method,
-                    request,
+                    self.request,
                     *args,
+                    all_required=all_required,
                     **kwargs
                 )
 
@@ -49,22 +65,20 @@ class BaseAuthController:
         return decorator
 
 
-class AuthController:
-    def __new__(cls, controller: str, **kwargs):
-        from django.conf import settings
-        from importlib import import_module
+class AppAuthController:
+    def __new__(
+            cls,
+            app_name: str,
+            request: WSGIRequest | None = None,
+            **kwargs
+    ):
+        from django_spire.conf import settings
 
-        if controller not in settings.AUTH_CONTROLLERS:
-            raise Exception(f'Controller {controller} not found in settings.AUTH_CONTROLLERS')
-
-        module_path = '.'.join(settings.AUTH_CONTROLLERS[controller].split('.')[0:-1])
-        print(module_path)
+        if app_name not in settings.DJANGO_SPIRE_AUTH_CONTROLLERS:
+            raise Exception(f'Controller {app_name} not found in settings.AUTH_CONTROLLERS')
 
         try:
-            import_module(module_path)
-            module = import_module(module_path)
-
-            return getattr(module, settings.AUTH_CONTROLLERS[controller].split('.')[-1])()
+            return get_object_from_module_string(settings.DJANGO_SPIRE_AUTH_CONTROLLERS[app_name])(request)
 
         except ModuleNotFoundError:
-            return BaseAuthController()
+            raise Exception(f'Auth Controller for {app_name} not found')

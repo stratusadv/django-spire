@@ -7,3 +7,8 @@
         {% include 'django_spire/navigation/elements/nav_link.html' with link_text=app.title link_icon=app.icon link_url=app.url %}
     {% endif %}
 {% endfor %}
+
+{% if DjangoSpireAuthController.knowledge.has_tacos %}
+    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='HAS TACOS' link_icon='' link_url='' %}
+{% endif %}
+

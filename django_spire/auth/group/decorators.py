@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+from typing import Sequence
 
 from typing_extensions import TYPE_CHECKING
 
@@ -13,27 +14,36 @@ if TYPE_CHECKING:
 
 
 def permission_required_decorator_function(
-        permissions,
+        permissions: str | Sequence[str],
         method,
         request: WSGIRequest,
         *args,
+        all_required: bool = True,
         **kwargs
 ):
-    if request.user.is_authenticated:
-        if isinstance(permissions, str):
-            perms = (permissions,)
-        else:
-            perms = permissions
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('django_spire:auth:admin:login'))
 
-        if not request.user.has_perms(perms):
-            raise PermissionDenied
+    if isinstance(permissions, str):
+        perms = (permissions,)
+    else:
+        perms = permissions
 
-        return method(request, *args, **kwargs)
+    if not all_required:
+        for perm in perms:
+            if request.user.has_perm(perm):
+                return method(request, *args, **kwargs)
 
-    return HttpResponseRedirect(reverse('django_spire:auth:admin:login'))
+    if not request.user.has_perms(perms):
+        raise PermissionDenied
+
+    return method(request, *args, **kwargs)
 
 
-def permission_required(permissions: str | tuple[str, ...]):
+def permission_required(
+        *permissions: str,
+        all_required: bool = True
+):
     def decorator(method):
         @functools.wraps(method)
         def wrapper(request: WSGIRequest, *args, **kwargs):
@@ -42,6 +52,7 @@ def permission_required(permissions: str | tuple[str, ...]):
                 method,
                 request,
                 *args,
+                all_required=all_required,
                 **kwargs
             )
 

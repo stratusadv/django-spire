@@ -101,7 +101,7 @@ INSTALLED_APPS += [
     'django_spire.theme',
 ]
 
-AUTH_CONTROLLERS = {
+DJANGO_SPIRE_AUTH_CONTROLLERS = {
     'knowledge': 'test_project.apps.knowledge.auth.controller.KnowledgeAuthController',
 }
 
@@ -183,3 +183,4 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
+STATIC_ROOT = str(BASE_DIR / 'static')

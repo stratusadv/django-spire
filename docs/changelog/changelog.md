@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.XX.X
+
+### Breaking
+
+- The `permissions_required` decorator now takes position arguments instead of an optional tuple.
+
+### Feature
+
+- `AuthController` has been added to control all the app permissions in an explicit way that follows django practices.
+
+### Fix
+
+- fixed permission decoractor to redirect to login
+
 ## v0.14.4
 
 ### Changes
