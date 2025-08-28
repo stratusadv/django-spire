@@ -1,6 +1,7 @@
 build
 django-debug-toolbar
 pip
+pyinstrument
 setuptools
 twine
 
