@@ -101,6 +101,10 @@ INSTALLED_APPS += [
     'django_spire.theme',
 ]
 
+AUTH_CONTROLLERS = {
+    'knowledge': 'test_project.apps.knowledge.auth.controller.KnowledgeAuthController',
+}
+
 INSTALLED_APPS += [
     'test_project.apps.ai',
     'test_project.apps.comment',

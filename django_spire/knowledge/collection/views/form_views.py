@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
+from django_spire.auth.controller.controller import AuthController
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
+@AuthController('knowledge').permission_required('has_tacos')
 def form_view(
         request: WSGIRequest,
         pk: int = 0
