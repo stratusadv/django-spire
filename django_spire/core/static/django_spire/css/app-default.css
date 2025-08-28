@@ -19,29 +19,3 @@ body {
     color: var(--app-default-text-color);
     background-color: var(--app-default-bg-color);
 }
-
-.item-select:hover {
-    background-color: var(--app-primary);
-    cursor: pointer;
-}
-
-.item-container:first-child {
-    padding-top: 0 !important;
-    padding-bottom: 10px !important;
-}
-
-.item-container:last-child {
-    padding-top: 10px !important;
-    padding-bottom: 0 !important;
-    border: none !important;
-}
-
-.tab-item::after{
-    content: "";
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background-color: var(--app-primary);
-}
