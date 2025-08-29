@@ -54,10 +54,18 @@
     border: none;
 }
 
+.btn-app-primary:hover {
+    background-color: var(--app-btn-primary-dark) !important;
+}
+
 .btn-app-primary-dark {
     background-color: var(--app-btn-primary-dark) !important;
     color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-primary-dark:hover {
+    background-color: var(--app-btn-primary) !important;
 }
 
 .btn-app-primary-outlined {
@@ -66,8 +74,8 @@
 }
 
 .btn-app-primary-outlined:hover {
-    color: var(--app-btn-layer-one) !important;
-
+    background-color: var(--app-btn-primary-dark) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-secondary {
@@ -76,15 +84,28 @@
     border: none;
 }
 
+.btn-app-secondary:hover {
+    background-color: var(--app-btn-secondary-dark) !important;
+}
+
 .btn-app-secondary-dark {
     background-color: var(--app-btn-secondary-dark) !important;
     color: var(--app-default-button-text-color) !important;
     border: none;
 }
 
+.btn-app-secondary-dark:hover {
+    background-color: var(--app-btn-secondary) !important;
+}
+
 .btn-app-secondary-outlined {
     color: var(--app-btn-secondary) !important;
     border: 1px solid var(--app-btn-secondary) !important;
+}
+
+.btn-app-secondary-outlined:hover {
+    background-color: var(--app-btn-secondary) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-accent {
@@ -93,15 +114,28 @@
     border: none;
 }
 
+.btn-app-accent:hover {
+    background-color: var(--app-btn-accent-dark) !important;
+}
+
 .btn-app-accent-dark {
     background-color: var(--app-btn-accent-dark) !important;
     color: var(--app-default-button-text-color) !important;
     border: none;
 }
 
+.btn-app-accent-dark:hover {
+    background-color: var(--app-btn-accent) !important;
+}
+
 .btn-app-accent-outlined {
     color: var(--app-btn-accent) !important;
     border: 1px solid var(--app-btn-accent) !important;
+}
+
+.btn-app-accent-outlined:hover {
+    background-color: var(--app-btn-accent) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-danger {
@@ -110,15 +144,29 @@
     border: none;
 }
 
+.btn-app-danger:hover {
+    background-color: var(--app-btn-danger-dark) !important;
+    color: var(--app-default-button-text-color) !important;
+}
+
 .btn-app-danger-dark {
     background-color: var(--app-btn-danger-dark) !important;
     color: var(--app-default-button-text-color) !important;
     border: none;
 }
 
+.btn-app-danger-dark:hover {
+    background-color: var(--app-btn-danger) !important;
+}
+
 .btn-app-danger-outlined {
     color: var(--app-btn-danger) !important;
     border: 1px solid var(--app-btn-danger) !important;
+}
+
+.btn-app-danger-outlined:hover {
+    background-color: var(--app-btn-danger) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-success {
@@ -127,15 +175,28 @@
     border: none;
 }
 
+.btn-app-success:hover {
+    background-color: var(--app-btn-success-dark) !important;
+}
+
 .btn-app-success-dark {
     background-color: var(--app-btn-success-dark) !important;
     color: var(--app-default-button-text-color) !important;
     border: none;
 }
 
+.btn-app-success-dark:hover {
+    background-color: var(--app-btn-success) !important;
+}
+
 .btn-app-success-outlined {
     color: var(--app-btn-success) !important;
     border: 1px solid var(--app-btn-success) !important;
+}
+
+.btn-app-success-outlined:hover {
+    background-color: var(--app-btn-success) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-warning {
@@ -144,15 +205,29 @@
     border: none;
 }
 
+.btn-app-warning:hover {
+    background-color: var(--app-btn-warning-dark) !important;
+}
+
 .btn-app-warning-dark {
     background-color: var(--app-btn-warning-dark) !important;
     color: var(--app-default-button-text-color) !important;
     border: none;
 }
 
+.btn-app-warning-dark:hover {
+    background-color: var(--app-btn-warning) !important;
+    color: var(--app-default-button-text-color) !important;
+}
+
 .btn-app-warning-outlined {
     color: var(--app-btn-warning) !important;
     border: 1px solid var(--app-btn-warning) !important;
+}
+
+.btn-app-warning-outlined:hover {
+    background-color: var(--app-btn-warning) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-light {
@@ -161,8 +236,16 @@
     border: none;
 }
 
+.btn-app-light:hover {
+    background-color: var(--app-btn-dark) !important;
+}
+
 .btn-app-dark {
     background-color: var(--app-btn-dark) !important;
     color: var(--app-btn-light) !important;
     border: none;
+}
+
+.btn-app-dark:hover {
+    background-color: var(--app-btn-light) !important;
 }
