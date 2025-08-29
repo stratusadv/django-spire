@@ -153,6 +153,9 @@ class ProfilingMiddleware(MiddlewareMixin):
         args: tuple[Any, ...],
         kwargs: dict[str, Any]
     ) -> Any:
+        if not settings.DEBUG:
+            return None
+
         if not self.enabled:
             return None
 
