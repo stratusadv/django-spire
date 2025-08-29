@@ -12,15 +12,13 @@ class TaskQuerySet(
     SessionFilterQuerySetMixin,
     SearchQuerySetMixin,
 ):
-
-
     def complete(self) -> QuerySet:
         return self.filter(is_complete=True)
 
     def prefetch_users(self):
-        return self.prefetch_related('users')
+        return self.prefetch_related('users__user')
 
-    def bulk_filter(self, filter_data: dict) -> QuerySet["TaskQuerySet"]:
+    def bulk_filter(self, filter_data: dict) -> QuerySet[TaskQuerySet]:
         queryset = self
 
         filter_map = {
@@ -42,4 +40,3 @@ class TaskQuerySet(
             Q(name__icontains=value) |
             Q(description__icontains=value)
         )
-
