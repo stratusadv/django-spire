@@ -4,7 +4,7 @@
 
 
 {% block card_button %}
-    {% url 'theme:page:buttons' as buttons_url %}
+    {% url 'django_spire:theme:page:buttons' as buttons_url %}
     {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=buttons_url %}
 {% endblock %}
 
@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block preview_card_content %}
-    <div class="preview-sample border p-3 rounded bg-app-light">
+    <div class="preview-sample">
         <div class="mb-2">
             <!-- Primary buttons -->
             {% include 'django_spire/button/primary_button.html' with button_text='Primary' button_size='sm' %}

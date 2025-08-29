@@ -45,6 +45,10 @@
     color: var(--app-default-link-color) !important;
 }
 
+.text-app-default-text-color, .text-app-default-text-color:hover {
+    color: var(--app-default-text-color) !important;
+}
+
 .text-app-primary, .text-app-primary-hover:hover {
     color: var(--app-text-primary) !important;
 }

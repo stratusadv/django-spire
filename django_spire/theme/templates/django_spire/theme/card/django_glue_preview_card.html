@@ -1,0 +1,42 @@
+{% extends 'django_spire/theme/card/base_preview_card.html' %}
+
+{% block card_title %}Django Glue Fields{% endblock %}
+
+{% block card_button %}
+    {% url 'django_spire:theme:page:django_glue' as django_glue_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=django_glue_url %}
+{% endblock %}
+
+{% block preview_card_icon %}bi bi-file-text{% endblock %}
+
+{% block preview_card_subtitle %}
+    Django Glue
+{% endblock %}
+
+{% block preview_card_description %}
+    Explore how the colour scheme works with Django Glue fields.
+{% endblock %}
+
+{% block preview_card_content %}
+    <div
+        class="row preview-sample"
+        x-data="{
+            default_choices: [[1, 'Choice 1'], [2, 'Choice 2'], [3, 'Choice 3']],
+            char_field: new GlueCharField('char_field', {value: 'Text...'}),
+            text_field: new GlueCharField('text_field', {value: 'Text...'}),
+            select_field: new GlueIntegerField('select_field'),
+            multi_select_field: new GlueCharField('multi_select_field'),
+            init() {
+                this.select_field.choices = this.default_choices;
+                this.multi_select_field.choices = this.default_choices;
+            }
+        }"
+    >
+        <div class="col-12 mt-2">
+            {% include 'django_glue/form/field/char_field.html' with glue_field='char_field' %}
+        </div>
+        <div class="col-12 mt-2">
+            {% include 'django_glue/form/field/select_field.html' with glue_field='select_field' %}
+        </div>
+    </div>
+{% endblock %}

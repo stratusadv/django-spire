@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.14.6
+
+### Changes
+- Added Django Glue Fields and Example Theme Page.
+- Changed hard-coded colours across system.
+- Added hover colouring on all buttons.
+
+### Breaking
+- Potential broken CSS / colours. Review theme page for any issues. 
+
+
 ## v0.14.5
 
 ### Changes

@@ -1,0 +1,13 @@
+{% extends 'django_spire/tab/tab.html' %}
+
+{% block tab_triggers %}
+	{% include 'django_spire/tab/element/tab_trigger_element.html' with trigger_title='Example 1' %}
+	{% include 'django_spire/tab/element/tab_trigger_element.html' with trigger_title='Example 2' %}
+	{% include 'django_spire/tab/element/tab_trigger_element.html' with trigger_title='Example 3' %}
+{% endblock %}
+
+{% block tab_sections %}
+	{% include 'django_spire/theme/example/tab/element/example_tab_section_element.html' %}
+	{% include 'django_spire/theme/example/tab/element/example_tab_section_element.html' %}
+	{% include 'django_spire/theme/example/tab/element/example_tab_section_element.html' %}
+{% endblock %}

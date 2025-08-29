@@ -1,0 +1,17 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% block container_title %}
+	Container
+{% endblock %}
+
+{% block container_button %}
+	{% include 'django_spire/button/primary_button.html' with button_text='Button' button_class='btn-md' %}
+{% endblock %}
+
+{% block container_content %}
+    <div class="row">
+        <div class="col-12">
+            {% include 'django_spire/theme/example/tab/example_tab.html' %}
+        </div>
+    </div>
+{% endblock %}

@@ -47,6 +47,9 @@
     --app-side-navigation-bg-color: #306178;
     --app-mobile-navigation-bg-color: #001720;
 
+    --app-top-navigation-bg-color: #ffffff;
+    --app-footer-bg-color: #ffffff;
+
     --app-side-navigation-width: 200px;
     --app-mobile-navigation-width: 200px;
 }

@@ -4,7 +4,7 @@
 
 
 {% block card_button %}
-    {% url 'theme:page:borders' as borders_url %}
+    {% url 'django_spire:theme:page:borders' as borders_url %}
     {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=borders_url %}
 {% endblock %}
 
@@ -19,20 +19,20 @@
 {% endblock %}
 
 {% block preview_card_content %}
-    <div class="preview-sample border p-3 rounded bg-app-light">
-        <div class="mb-2 d-flex">
+    <div class="preview-sample">
+        <div class="mb-2 d-flex justify-content-center">
             <!-- Primary borders -->
             <div class="p-2 m-1 border border-app-primary" style="width: 40px; height: 40px;"></div>
             <div class="p-2 m-1 border border-app-primary-soft" style="width: 40px; height: 40px;"></div>
             <div class="p-2 m-1 border border-app-primary-dark" style="width: 40px; height: 40px;"></div>
         </div>
-        <div class="mb-2 d-flex">
+        <div class="mb-2 d-flex justify-content-center">
             <!-- Secondary borders -->
             <div class="p-2 m-1 border border-app-secondary" style="width: 40px; height: 40px;"></div>
             <div class="p-2 m-1 border border-app-secondary-soft" style="width: 40px; height: 40px;"></div>
             <div class="p-2 m-1 border border-app-secondary-dark" style="width: 40px; height: 40px;"></div>
         </div>
-        <div class="d-flex">
+        <div class="d-flex justify-content-center">
             <!-- Accent borders -->
             <div class="p-2 m-1 border border-app-accent" style="width: 40px; height: 40px;"></div>
             <div class="p-2 m-1 border border-app-accent-soft" style="width: 40px; height: 40px;"></div>
