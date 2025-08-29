@@ -1,0 +1,11 @@
+{% extends 'django_spire/tab/element/tab_section_element.html' %}
+
+{% block tab_section_content %}
+    <div class="mb-3">
+        {% include 'django_spire/note/note.html' with note_text='Note' %}
+    </div>
+    <div class="mb-3">
+	    {% include 'django_spire/theme/example/card/example_title_card.html' %}
+    </div>
+
+{% endblock %}
