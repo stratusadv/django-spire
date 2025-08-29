@@ -4,4 +4,7 @@ mkdocs-include-markdown-plugin
 mkdocs-material
 mkdocs-table-reader-plugin
 mkdocstrings-python
+mkdocs-gen-files
+mkdocs-literate-nav
+mkdocs-section-index
 openpyxl
