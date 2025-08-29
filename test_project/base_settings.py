@@ -55,6 +55,11 @@ AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'test_project.apps.ai.sms.intelligence.sms_
 # Maintenance Mode
 MAINTENANCE_MODE = True
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
