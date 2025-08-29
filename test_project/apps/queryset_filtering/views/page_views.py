@@ -21,6 +21,7 @@ def list_page(request):
         Task
         .objects
         .active()
+        .prefetch_users()
         .process_session_filter(
             request=request,
             session_key=TASK_FILTERING_SESSION_KEY,

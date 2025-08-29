@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.14.7
+
+### Changes
+- Implemented a profiling middleware
+
 ## v0.14.6
 
 ### Changes
