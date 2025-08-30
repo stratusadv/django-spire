@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.db.models import Q
 from django_spire.contrib.ordering.queryset_mixin import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
-from django_spire.knowledge.entry.version.choices import EntryVersionTypeChoices
+from django_spire.knowledge.entry.version.choices import EntryVersionStatusChoices
 
 if TYPE_CHECKING:
     from django_spire.auth.user.models import AuthUser
@@ -23,10 +23,10 @@ class EntryQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
     def user_has_access(self, user: AuthUser) -> QuerySet[Entry]:
         return self.filter(
             Q(
-                current_version__status=EntryVersionTypeChoices.PUBLISHED
+                current_version__status=EntryVersionStatusChoices.PUBLISHED
             ) |
             Q(
                 current_version__author=user,
-                current_version__status=EntryVersionTypeChoices.DRAFT
+                current_version__status=EntryVersionStatusChoices.DRAFT
             )
         )

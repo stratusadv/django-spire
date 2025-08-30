@@ -3,7 +3,7 @@ from django.utils.timezone import now
 
 from django_spire.auth.user.models import AuthUser
 from django_spire.history.mixins import HistoryModelMixin
-from django_spire.knowledge.entry.version.choices import EntryVersionTypeChoices
+from django_spire.knowledge.entry.version.choices import EntryVersionStatusChoices
 from django_spire.knowledge.entry.version.querysets import EntryVersionQuerySet
 from django_spire.knowledge.entry.version.services.service import EntryVersionService
 
@@ -26,15 +26,15 @@ class EntryVersion(HistoryModelMixin):
 
     status = models.CharField(
         max_length=32,
-        choices=EntryVersionTypeChoices,
-        default=EntryVersionTypeChoices.DRAFT
+        choices=EntryVersionStatusChoices,
+        default=EntryVersionStatusChoices.DRAFT
     )
 
     objects = EntryVersionQuerySet.as_manager()
     services = EntryVersionService()
 
     def is_published(self) -> bool:
-        return self.status == EntryVersionTypeChoices.PUBLISHED
+        return self.status == EntryVersionStatusChoices.PUBLISHED
 
     class Meta:
         verbose_name = 'Entry Version'
