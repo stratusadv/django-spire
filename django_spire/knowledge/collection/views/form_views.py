@@ -4,6 +4,7 @@ import django_glue as dg
 
 from typing import TYPE_CHECKING
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
-@AppAuthController('knowledge').permission_required('has_tacos', 'collection.add_collection')
+@login_required()
 def form_view(
         request: WSGIRequest,
         pk: int = 0
