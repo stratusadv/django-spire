@@ -29,7 +29,9 @@ def create_blank_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
     return JsonResponse(
         {
             'type': 'success',
-            'entry_version_block_json': json.dumps(version_block.to_dict())
+            'entry_version_block_json': json.dumps(
+                version_block.services.transformation.to_dict()
+            )
         }
     )
 
