@@ -43,26 +43,6 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
     def render_to_text(self) -> str:
         return self.block.render_to_text()
 
-    def to_dict(self) -> dict:
-        return {
-            **model_to_dict(
-                self,
-                fields=['id', 'type'],
-            ),
-            'order': self.order,
-            'block': {
-                'value': self.block.value,
-                'type': self.block.type,
-                'update_template_rendered': render_to_string(
-                    context={
-                        'version_block': self,
-                        'value': self.block.value,
-                    },
-                    template_name=self.block.update_template,
-                )
-            }
-        }
-
     class Meta:
         verbose_name = 'Block'
         verbose_name_plural = 'Blocks'

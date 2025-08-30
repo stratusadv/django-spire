@@ -53,7 +53,7 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'current_version': current_version,
             'version_blocks_json': json.dumps(
                 [
-                    version_block.to_dict()
+                    version_block.services.transformation.to_dict()
                     for version_block in version_blocks
                 ]
             ),

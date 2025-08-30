@@ -9,6 +9,8 @@ from django_spire.knowledge.entry.version.block.services.factory_service import 
     EntryVersionBlockFactoryService
 from django_spire.knowledge.entry.version.block.services.processor_service import \
     EntryVersionBlockProcessorService
+from django_spire.knowledge.entry.version.block.services.transformation_service import \
+    EntryVersionBlockTransformationService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
@@ -20,3 +22,4 @@ class EntryVersionBlockService(BaseDjangoModelService['EntryVersionBlock']):
     factory = EntryVersionBlockFactoryService()
     ordering = OrderingService()
     processor = EntryVersionBlockProcessorService()
+    transformation = EntryVersionBlockTransformationService()

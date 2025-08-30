@@ -11,8 +11,19 @@
 
 # Big Heading
 
-
 This is some text
+
+**This is bolded text**
+
+*This is italicized text*
+
+***This is bolded and italicized text***
+
+Not Bold, **Bold**, *Italics*
+
+~~This is strikethrough text~~
+
+`This is inline code`
 
 > This is a quote
 
