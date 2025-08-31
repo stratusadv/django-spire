@@ -20,7 +20,7 @@ if os.getenv('DJANGO_DEBUG', 'False') == 'True':
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0, 127.0.0.1, localhost').split(',')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0,127.0.0.1,localhost').split(',')
 
 ASGI_APPLICATION = 'test_project.asgi.application'
 WSGI_APPLICATION = 'test_project.wsgi.application'

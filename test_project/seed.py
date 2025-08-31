@@ -14,7 +14,7 @@ print('Seeding Users')
 from django_spire.auth.seeding.seed import *
 
 print('Seeding Help Desk Data...')
-from test_project.apps.help_desk.seed import *
+from test_project.apps.help_desk.seeding.seed import *
 
 print('Seeding Query Set Filtering Models')
 from test_project.apps.queryset_filtering.seeding.seed import *

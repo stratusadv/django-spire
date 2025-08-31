@@ -9,7 +9,7 @@ from django_spire.knowledge.entry.version.seeding.seeder import EntryVersionSeed
 
 class EntrySeeder(DjangoModelSeeder):
     model_class = models.Entry
-    # cache_name = 'entry_seeder'
+    cache_name = 'entry_seeder'
     fields = {
         'id': 'exclude',
         'current_version': 'exclude',
@@ -23,10 +23,13 @@ class EntrySeeder(DjangoModelSeeder):
     @classmethod
     def _correct_order(cls, entries: list[models.Entry]) -> list[models.Entry]:
         for collection in Collection.objects.all():
-            for idx, entry in enumerate(collection.entries.all(), start=1):
+            collection_entries = collection.entries.all()
+
+            for idx, entry in enumerate(collection_entries, start=1):
                 entry.order = idx
 
-        cls.model_class.objects.bulk_update(entries, ['order'])
+            cls.model_class.objects.bulk_update(collection_entries, ['order'])
+
         return entries
 
     @classmethod
@@ -41,7 +44,7 @@ class EntrySeeder(DjangoModelSeeder):
         )
 
         cls._correct_order(entries)
-        return cls._set_current_version(entries)
+        return cls._set_current_version(entries=entries, count=count)
 
     @classmethod
     def _set_current_version(cls, entries: list[models.Entry], count: int = 1):
