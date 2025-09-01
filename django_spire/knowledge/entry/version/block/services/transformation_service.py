@@ -21,7 +21,6 @@ class EntryVersionBlockTransformationService(BaseDjangoModelService['EntryVersio
             'block': {
                 'value': self.obj.block.value,
                 'type': self.obj.block.type,
-                'rendered_html': self.obj.block.render_to_html(),
                 'update_template_rendered': render_to_string(
                     context={
                         'version_block': self.obj,

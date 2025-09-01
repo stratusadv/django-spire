@@ -1,12 +1,12 @@
 {% extends 'django_spire/modal/center_modal.html' %}
 
 {% block modal_trigger %}
-    {% include 'django_spire/button/primary_button.html' with button_text='Publish' %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Publish' button_class='btn-md' %}
 {% endblock %}
 
 {% block modal_content %}
 	<form
-        class="row"
+        class="row text-center"
         method="post"
         action="{% url 'django_spire:knowledge:entry:version:redirect:publish' pk=entry.current_version_id %}"
     >
