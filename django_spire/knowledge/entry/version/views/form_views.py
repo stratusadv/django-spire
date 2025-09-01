@@ -41,6 +41,13 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             kwargs={'pk': entry.collection_id}
         )
     )
+    breadcrumbs.add_breadcrumb(
+        name=f'View {entry.name}',
+        href=reverse(
+            'django_spire:knowledge:entry:version:page:detail',
+            kwargs={'pk': entry.current_version_id}
+        )
+    )
     breadcrumbs.add_breadcrumb(name=f'Edit {entry.name}')
 
     return portal_views.template_view(

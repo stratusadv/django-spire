@@ -1,1 +1,3 @@
-<div class="fs-4">{{ value|default:"<br>" }}</div>
+{% load spire_knowledge_tags %}
+
+<div class="fs-4 fw-bold">{{ value|format_to_html|safe }}</div>

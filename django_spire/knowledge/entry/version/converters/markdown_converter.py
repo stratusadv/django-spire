@@ -55,20 +55,24 @@ class MarkdownConverter(BaseConverter):
         syntax_tree = marko.parse(markdown_content)
 
         blocks = []
-        for order, marko_block in enumerate(syntax_tree.children):
+        for order, marko_block in enumerate(syntax_tree.children, start=1):
             blocks.append(
                 self._marko_block_to_version_block(
-                    marko_block=marko_block, order=order + 1
+                    marko_block=marko_block,
+                    order=order,
                 )
             )
 
         return blocks
 
-    def _get_marko_text_content(
-            self,
-            marko_block: BlockElement
-    ) -> str:
-        return self._strip_html_tags(marko.render(marko_block))
+    @staticmethod
+    def _get_marko_text_content(marko_block: BlockElement) -> str:
+        html_text = marko.render(marko_block)
+        bolded_text = re.sub(r'<strong>(.*?)</strong>', r'**\1**', html_text)
+        italicized_text = re.sub(r'<em>(.*?)</em>', r'*\1*', bolded_text)
+        strikethrough_text = re.sub(r'<del>(.*?)</del>', r'~~*\1*~~', italicized_text)
+        text = re.sub(r'<[^>]+>', '', strikethrough_text)
+        return html.unescape(text)
 
     def _marko_block_to_version_block(
             self,
@@ -84,7 +88,3 @@ class MarkdownConverter(BaseConverter):
             order=order,
             value=self._get_marko_text_content(marko_block)
         )
-
-    @staticmethod
-    def _strip_html_tags(text: str) -> str:
-        return html.unescape(re.sub(r'<[^>]+>', '', text))

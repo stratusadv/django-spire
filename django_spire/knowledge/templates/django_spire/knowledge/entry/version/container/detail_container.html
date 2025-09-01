@@ -1,9 +1,7 @@
 {% extends 'django_spire/container/container.html' %}
 
 {% block container_title %}
-    <div class="fs-4">
-        {{ entry.name }}
-    </div>
+    {{ entry.name }}
 {% endblock %}
 
 {% block container_button %}
@@ -11,7 +9,7 @@
         <div class="row align-items-center">
             <div class="col">
                 {% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
-                {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_href=entry_edit_url %}
+                {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_class='btn-md' button_href=entry_edit_url %}
             </div>
             <div class="col">
                 {% if entry.current_version.is_published %}
