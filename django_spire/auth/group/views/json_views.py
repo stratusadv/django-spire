@@ -6,10 +6,10 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
 from django_spire.auth.group import models
-from django_spire.auth.permission.consts import PERMISSION_MODELS_DICT
-from django_spire.auth.permission.decorators import permission_required
-from django_spire.auth.permission.permissions import GroupPermissions
 from django_spire.auth.group.utils import perm_level_to_int, perm_level_to_django_permission
+from django_spire.auth.permissions.decorators import permission_required
+from django_spire.auth.permissions.permissions import GroupPermissions
+from django_spire.auth.permissions.tools import generate_model_permissions, generate_model_key_permission_map
 from django_spire.core.shortcuts import process_request_body
 
 
@@ -23,14 +23,17 @@ def permission_form_ajax(
     if request.method == 'POST':
         error_message = 'App Does Not Exist.'
 
-        if app_name.lower() in PERMISSION_MODELS_DICT:
+        permission_map = generate_model_key_permission_map()
+
+        if app_name.lower() in permission_map:
+            model_permission = permission_map[app_name.lower()]
             body = process_request_body(request, key=None)
             perm_level = perm_level_to_int(body.get('perm_level'))
             error_message = 'Please provide a valid permission level'
 
             if isinstance(perm_level, int) and 4 >= perm_level >= 0:
                 group = get_object_or_404(models.AuthGroup, pk=pk)
-                group_perm_helper = GroupPermissions(group, model_key=app_name)
+                group_perm_helper = GroupPermissions(group, model_permission=model_permission)
 
                 django_permission_verbose = perm_level_to_django_permission(
                     perm_level=perm_level,
@@ -57,7 +60,10 @@ def special_role_form_ajax(
     if request.method == 'POST':
         error_message = 'App Does Not Exist.'
 
-        if app_name.lower() in PERMISSION_MODELS_DICT:
+        permission_map = generate_model_key_permission_map()
+
+        if app_name.lower() in permission_map:
+            model_permission = permission_map[app_name.lower()]
             body = process_request_body(request)
             grant_special_role_access = body.get('grant_special_role_access')
             codename = body.get('codename')
@@ -65,7 +71,7 @@ def special_role_form_ajax(
 
             if request.user.has_perm('permission.change_portalgroup'):
                 group = get_object_or_404(models.AuthGroup, pk=pk)
-                group_perm_helper = GroupPermissions(group, model_key=app_name)
+                group_perm_helper = GroupPermissions(group, model_permission=model_permission)
 
                 if grant_special_role_access:
                     group_perm_helper.add_special_role(codename)

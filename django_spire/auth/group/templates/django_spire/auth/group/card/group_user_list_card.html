@@ -15,7 +15,7 @@
 
 {% block card_title_content %}
     {% for user in user_list %}
-        {% include 'django_spire/permission/item/../item/group_user_item.html' with small_view=True %}
+        {% include 'django_spire/auth/group/item/group_user_item.html' with small_view=True %}
     {% empty %}
         {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}

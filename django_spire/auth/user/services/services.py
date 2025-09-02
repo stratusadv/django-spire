@@ -11,10 +11,10 @@ if TYPE_CHECKING:
 class AuthUserService(BaseDjangoModelService['AuthUser']):
     obj: AuthUser
 
-    def get_user_choices(self):
+    def get_user_choices(self) -> list[tuple[int, str]]:
         users = self.obj_class.objects.filter(is_active=True)
-        return [(user.id, user.get_full_name()) for user in users]
+        return [[user.id, user.get_full_name()] for user in users]
 
-    def get_user_choices_by_group(self, group: AuthGroup):
-        users = group.users.filter(is_active=True)
-        return [(user.id, user.get_full_name()) for user in users]
+    def get_user_choices_by_group(self, group: AuthGroup) -> list[tuple[int, str]]:
+        users = self.obj_class.objects.filter(is_active=True, groups=group)
+        return [[user.id, user.get_full_name()] for user in users]

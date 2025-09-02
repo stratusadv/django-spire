@@ -11,6 +11,8 @@ from django.contrib.auth.decorators import login_required
 import django_glue as dg
 from django_glue.utils import serialize_to_json
 
+from django_spire.auth.permissions.decorators import permission_required
+from django_spire.auth.permissions.tools import generate_group_perm_data, generate_user_perm_data
 from django_spire.core.redirect import safe_redirect_url
 from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 from django_spire.contrib.form.confirmation_forms import (
@@ -20,9 +22,7 @@ from django_spire.contrib.form.confirmation_forms import (
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.history.activity.utils import add_form_activity
 from django_spire.contrib.pagination.pagination import paginate_list
-from django_spire.auth.permission.decorators import permission_required
 from django_spire.auth.user.models import AuthUser
-from django_spire.auth.permission.tools import generate_user_perm_data, generate_group_perm_data
 from django_spire.auth.user import forms
 from django_spire.contrib.generic_views import portal_views
 

@@ -8,10 +8,11 @@ from django.urls import reverse
 
 import django_glue as dg
 from django_spire.auth.group import models, forms
-from django_spire.auth.permission.decorators import permission_required
-from django_spire.auth.group.utils import add_users_to_group
+from django_spire.auth.group.utils import set_group_users
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
+from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
@@ -50,13 +51,14 @@ def group_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | Htt
 def group_user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     user_choices = AuthUser.services.get_user_choices()
+    selected_user_ids = list(AuthUser.objects.filter(groups=group).values_list('id', flat=True).distinct())
 
     if request.method == 'POST':
-        form = forms.GroupUserForm(request.POST, group=group)
+        form = forms.GroupUserForm(data=request.POST)
 
         if form.is_valid():
-            user_list = form.cleaned_data.get('available_users')
-            add_users_to_group(group, user_list)
+            user_list = form.cleaned_data.get('users')
+            set_group_users(group, user_list)
 
             group.add_activity(
                 user=request.user,
@@ -64,17 +66,20 @@ def group_user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | Ht
                 information=f'{request.user.get_full_name()} added {len(user_list)} users to the group "{group.name}".'
             )
 
-            return_url = reverse('permission:detail', kwargs={'pk': pk})
+            return_url = reverse('django_spire:auth:group:page:detail', kwargs={'pk': pk})
             return HttpResponseRedirect(return_url)
+        else:
+            show_form_errors(request, form)
 
-    form = forms.GroupUserForm(group=group)
+    form = forms.GroupUserForm()
 
     def crumbs(breadcrumbs) -> None:
-        breadcrumbs.add_breadcrumb(name='Add Users')
+        breadcrumbs.add_breadcrumb(name='Edit Users')
 
     context_data = {
         'group': group,
-        'user_choices': user_choices
+        'user_choices': user_choices,
+        'selected_user_ids': selected_user_ids
     }
 
     return portal_views.form_view(

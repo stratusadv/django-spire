@@ -39,9 +39,7 @@ class GroupForm(forms.ModelForm):
 
 
 class GroupUserForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        group = kwargs.pop('group')
-        super().__init__(*args, **kwargs)
+    users = forms.ModelMultipleChoiceField(required=False, queryset=User.objects.filter(is_active=True))
 
         # self.helper = FormHelper(self)
         # self.helper.include_media = False

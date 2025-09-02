@@ -7,15 +7,12 @@ from typing_extensions import TYPE_CHECKING
 from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType
 
-from django_spire.auth.permission.consts import (
-    PERMISSION_MODELS_DICT,
-    VALID_PERMISSION_LEVELS
-)
 from django_spire.auth.group.utils import (
     codename_list_to_perm_level,
     codename_to_perm_level,
     perm_level_to_string
 )
+from django_spire.auth.permissions.consts import VALID_PERMISSION_LEVELS
 from django_spire.core.utils import get_object_from_module_string
 
 if TYPE_CHECKING:
@@ -40,13 +37,9 @@ class ModelPermission:
 
 
 class ModelPermissions:
-    def __init__(self, model_key: str):
-        if model_key not in PERMISSION_MODELS_DICT:
-            message = f'Model key {model_key} not in permission models dict.'
-            raise KeyError(message)
-
-        self.model = PERMISSION_MODELS_DICT[model_key]['model']
-        self.is_proxy_model = PERMISSION_MODELS_DICT[model_key]['is_proxy_model']
+    def __init__(self, model_permission: ModelPermission):
+        self.model = model_permission.model_class
+        self.is_proxy_model = model_permission.is_proxy_model
 
         # All the permissions accessible to this model
         self.permissions: QuerySet[Permission] = self._set_model_perms()
@@ -96,12 +89,12 @@ class ModelPermissions:
 
 
 class GroupPermissions:
-    def __init__(self, group: Group, model_key: str):
+    def __init__(self, group: Group, model_permission: ModelPermission):
         """
             Helper to use Django Groups as a cascading permission structure.
         """
         self.group = group
-        self.model_permissions = ModelPermissions(model_key.lower())
+        self.model_permissions = ModelPermissions(model_permission)
         self.group_perms = self.group.permissions.all()
 
     def add_special_role(self, codename: str) -> None:
@@ -197,5 +190,3 @@ class UserPermissionHelper:
 
     def perm_level_verbose(self) -> str:
         return perm_level_to_string(self.perm_level())
-
-

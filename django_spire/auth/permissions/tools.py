@@ -5,17 +5,14 @@ from typing import Any
 from django.apps import apps
 from django.contrib.auth.models import User, Group
 
-from django_spire.auth.permission.consts import PERMISSION_MODELS_DICT
-from django_spire.auth.permission.permissions import UserPermissionHelper, GroupPermissions, ModelPermission
+from django_spire.auth.permissions.permissions import ModelPermission, UserPermissionHelper, GroupPermissions
 
 
 def generate_model_permissions() -> list[ModelPermission]:
     model_permissions = []
 
     for app_config in apps.get_app_configs():
-
         if hasattr(app_config, 'MODEL_PERMISSIONS'):
-
             for model_permission in app_config.MODEL_PERMISSIONS:
                 model_permissions.append(
                     ModelPermission(**model_permission)
@@ -23,11 +20,16 @@ def generate_model_permissions() -> list[ModelPermission]:
 
     return model_permissions
 
+def generate_model_key_permission_map() -> dict[str, ModelPermission]:
+    return {
+        model_permission.name.lower(): model_permission
+        for model_permission in generate_model_permissions()
+    }
 
 def generate_user_perm_data(user: User) -> list[dict]:
     perm_data = []
 
-    for key in PERMISSION_MODELS_DICT:
+    for permission in generate_model_permissions():
         user_permissions = UserPermissionHelper(user, key)
 
         perm_data.append({
@@ -42,15 +44,14 @@ def generate_group_perm_data(
         group: Group,
         with_special_role: bool = False
 ) -> list[dict]:
-    from django_spire.auth.permission.consts import PERMISSION_MODELS_DICT
 
     perm_data = []
 
-    for key in PERMISSION_MODELS_DICT:
-        group_permissions = GroupPermissions(group=group, model_key=key)
+    for model_permission in generate_model_permissions():
+        group_permissions = GroupPermissions(group=group, model_permission=model_permission)
 
         perm_information_dic = {
-            'app_name': key.capitalize(),
+            'app_name': model_permission.name.capitalize(),
             'level_verbose': group_permissions.perm_level_verbose()
         }
 
