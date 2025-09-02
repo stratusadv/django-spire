@@ -2,7 +2,7 @@
 {% load django_glue %}
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="{% block html_data_bs_theme %}light{% endblock %}">
 <head>
     {% block base_head %}
         {% block base_head_title %}
