@@ -12,7 +12,7 @@
                     this.loading = true
                     let response = await ajax_request(
                         'POST',
-                        '{% url "permission:group_special_role_ajax" app_name=perm_data.app_name pk=group.pk %}',
+                        '{% url "django_spire:auth:group:json:group_special_role_ajax" app_name=perm_data.app_name pk=group.pk %}',
                         {
                             'codename': this.codename,
                             'grant_special_role_access': perm === 'Yes'

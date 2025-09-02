@@ -11,7 +11,7 @@
                        this.loading = true
                        let response = await ajax_request(
                            'POST',
-                           '{% url "permission:group_permission_ajax" app_name=perm_data.app_name pk=group.pk %}',
+                           '{% url "django_spire:auth:group:json:group_permission_ajax" app_name=perm_data.app_name pk=group.pk %}',
                            {'perm_level': perm}
                        )
                        this.loading = false

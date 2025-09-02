@@ -15,7 +15,7 @@ class PortalGroupAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
     def view_group_detail_link(self, group: models.AuthGroup) -> str:
-        url = reverse('permission:group_detail', kwargs={'pk': group.pk})
+        url = reverse('permission:detail', kwargs={'pk': group.pk})
         return format_html(f'<a href="{url}">View Details</a>')
 
     view_group_detail_link.short_description = 'Details Link'

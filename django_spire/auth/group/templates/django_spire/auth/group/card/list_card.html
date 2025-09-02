@@ -10,17 +10,15 @@
 
 {% block card_button %}
     {% if perms.permission.change_portalgroup %}
-        {% url 'permission:group_form' pk=0 as add_group_url %}
+        {% url 'django_spire:auth:group:form:add' as add_group_url %}
         {% include 'django_spire/button/primary_dark_button.html' with button_href=add_group_url button_text='Add' button_icon='bi bi-plus' %}
     {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
-    {% if group_list %}
-        {% for group in group_list %}
-            {% include 'django_spire/permission/item/../item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}
-        {% endfor %}
-    {% else %}
+    {% for group in group_list %}
+            {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}
+    {% empty %}
         {% include 'django_spire/item/no_data_item.html' %}
-    {% endif %}
+    {% endfor %}
 {% endblock %}

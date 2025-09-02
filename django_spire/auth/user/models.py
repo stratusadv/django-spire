@@ -3,11 +3,14 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from django_spire.auth.user.services.services import AuthUserService
 from django_spire.contrib import Breadcrumbs
 from django_spire.history.activity.mixins import ActivityMixin
 
 
 class AuthUser(User, ActivityMixin):
+    services = AuthUserService()
+
     @classmethod
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()

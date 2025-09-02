@@ -10,16 +10,16 @@
     <div class="col">
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Level' %}
         {% if perms.permission.change_portalgroup %}
-            {% include 'django_spire/permission/element/../element/group_perm_element.html' %}
+            {% include 'django_spire/auth/group/element/group_perm_element.html' %}
         {% else %}
-            {% include 'django_spire/permission/element/../element/group_perm_level_badge.html' with permission_level=perm_data.level_verbose %}
+            {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with permission_level=perm_data.level_verbose %}
         {% endif %}
     </div>
     {% for special_role in perm_data.special_role_data %}
         <div class="col">
             {% include 'django_spire/element/attribute_element.html' with attribute_title=special_role.name|title %}
             {% if perms.permission.change_portalgroup %}
-                {% include 'django_spire/permission/element/../element/group_special_role_element.html' %}
+                {% include 'django_spire/auth/group/element/group_special_role_element.html' %}
             {% else %}
                 {{ special_role.has_access }}
             {% endif %}
