@@ -32,7 +32,7 @@ class MarkdownConverter(BaseConverter):
 
     def _convert_heading_block(
             self,
-            marko_block: Heading | BlockElement,
+            marko_block: Heading,
             order: int
     ) -> models.EntryVersionBlock:
         heading_type = (

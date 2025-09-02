@@ -60,6 +60,8 @@
             border: none;
         }
     </style>
+    {% block before_text_content %}
+    {% endblock %}
     <textarea
         x-ref="textarea"
         class="w-100 border-0 bg-transparent px-1 auto-resize overflow-y-hidden {% block textarea_class %}fs-6{% endblock %}"

@@ -1,0 +1,9 @@
+{% extends 'django_spire/knowledge/entry/version/block/update/component/text_component.html' %}
+
+{% block before_text_content %}
+    <span
+        x-text="version_block.block.bullet"
+        :style="`padding-left: ${20 * version_block.block.indent_level}px;`"
+    >
+    </span>
+{% endblock %}

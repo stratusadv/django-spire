@@ -1,8 +1,10 @@
 class Block {
-    constructor({value, type, update_template_rendered}) {
+    constructor({value, type, update_template_rendered, ...optional}) {
         this.value = value
         this.type = type
         this.update_template_rendered = update_template_rendered
+
+        Object.assign(this, optional)
     }
 }
 
@@ -11,11 +13,7 @@ class EntryVersionBlock {
         this.id = id
         this.type = type
         this.order = order
-        this.block = new Block({
-            value: block.value,
-            type: block.type,
-            update_template_rendered: block.update_template_rendered
-        })
+        this.block = new Block({...block})
     }
 }
 
@@ -69,7 +67,7 @@ class EntryVersionManager {
         )
     }
 
-    insert_blank_block({id, block_type, order, update_template_rendered}) {
+    insert_blank_block({id, block_type, order, block}) {
         this.entry_version.version_blocks.forEach(
             version_block => {
                 if (version_block.order >= order) {
@@ -83,11 +81,7 @@ class EntryVersionManager {
                 id: id,
                 type: block_type,
                 order: order,
-                block: new Block({
-                    value: '',
-                    type: block_type,
-                    update_template_rendered: update_template_rendered
-                })
+                block: new Block({...block})
             })
         )
 
