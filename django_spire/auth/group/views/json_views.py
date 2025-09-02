@@ -6,9 +6,9 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 
 from django_spire.auth.group import models
-from django_spire.auth.group.constants import PERMISSION_MODELS_DICT
-from django_spire.auth.group.decorators import permission_required
-from django_spire.auth.group.permissions import GroupPermissions
+from django_spire.auth.permission.consts import PERMISSION_MODELS_DICT
+from django_spire.auth.permission.decorators import permission_required
+from django_spire.auth.permission.permissions import GroupPermissions
 from django_spire.auth.group.utils import perm_level_to_int, perm_level_to_django_permission
 from django_spire.core.shortcuts import process_request_body
 

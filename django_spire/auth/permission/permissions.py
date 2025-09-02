@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from typing_extensions import TYPE_CHECKING
 
 from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType
 
-from django_spire.auth.group.constants import (
+from django_spire.auth.permission.consts import (
     PERMISSION_MODELS_DICT,
     VALID_PERMISSION_LEVELS
 )
@@ -14,10 +16,27 @@ from django_spire.auth.group.utils import (
     codename_to_perm_level,
     perm_level_to_string
 )
+from django_spire.core.utils import get_object_from_module_string
 
 if TYPE_CHECKING:
-    from django.db.models import QuerySet
-    from typing_extensions import Any
+    from django.db.models import QuerySet, Model
+
+
+class ModelPermission:
+    def __init__(
+            self,
+            name: str,
+            model_class_path: str,
+            is_proxy_model: bool
+    ):
+        self.name = name
+        self.model_class_path = model_class_path
+        self.is_proxy_model = is_proxy_model
+
+    @property
+    def model_class(self) -> type[Model]:
+        return get_object_from_module_string(self.model_class_path)
+
 
 
 class ModelPermissions:
@@ -180,56 +199,3 @@ class UserPermissionHelper:
         return perm_level_to_string(self.perm_level())
 
 
-def generate_user_perm_data(user: User) -> list[dict]:
-    perm_data = []
-
-    for key in PERMISSION_MODELS_DICT:
-        user_permissions = UserPermissionHelper(user, key)
-
-        perm_data.append({
-            'app_name': key.capitalize(),
-            'level_verbose': user_permissions.perm_level_verbose()
-        })
-
-    return perm_data
-
-
-def generate_group_perm_data(
-    group: Group,
-    with_special_role: bool = False
-) -> list[dict]:
-    from django_spire.auth.group.constants import PERMISSION_MODELS_DICT
-
-    perm_data = []
-
-    for key in PERMISSION_MODELS_DICT:
-        group_permissions = GroupPermissions(group=group, model_key=key)
-
-        perm_information_dic = {
-            'app_name': key.capitalize(),
-            'level_verbose': group_permissions.perm_level_verbose()
-        }
-
-        if with_special_role:
-            perm_information_dic['special_role_data'] = generate_special_role_data(group_permissions)
-
-        perm_data.append(perm_information_dic)
-
-    return perm_data
-
-
-def generate_special_role_data(
-    group_permissions: GroupPermissions
-) -> list[dict[str, Any]]:
-    special_role_data = []
-
-    model_permissions = group_permissions.model_permissions
-
-    for special_role in model_permissions.special_role_list():
-        special_role_data.append({
-            'name': special_role.name,
-            'codename': special_role.codename,
-            'has_access': group_permissions.has_special_role(special_role.codename)
-        })
-
-    return special_role_data

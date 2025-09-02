@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django_spire.auth.group.constants import (
+from django_spire.auth.permission.consts import (
     PERMISSIONS_LEVEL_CHOICES,
     VALID_PERMISSION_LEVELS
 )

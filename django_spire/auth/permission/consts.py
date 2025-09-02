@@ -17,13 +17,13 @@ PERMISSIONS_LEVEL_CHOICES = (
 VALID_PERMISSION_LEVELS = Literal[0, 1, 2, 3, 4]
 
 
-PERMISSION_MODELS_DICT = {
-    'group': {
-        'model': AuthGroup,
-        'is_proxy_model': True
-    },
-    'user': {
-        'model': AuthUser,
-        'is_proxy_model': True
-    }
-}
+# PERMISSION_MODELS_DICT = {
+#     'group': {
+#         'model': AuthGroup,
+#         'is_proxy_model': True
+#     },
+#     'user': {
+#         'model': AuthUser,
+#         'is_proxy_model': True
+#     }
+# }

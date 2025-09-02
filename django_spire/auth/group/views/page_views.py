@@ -5,10 +5,8 @@ from typing_extensions import TYPE_CHECKING
 from django.shortcuts import get_object_or_404
 
 from django_spire.auth.group import models
-from django_spire.auth.group.decorators import permission_required
-from django_spire.auth.group.permissions import (
-    generate_group_perm_data
-)
+from django_spire.auth.permission.decorators import permission_required
+from django_spire.auth.permission.tools import generate_group_perm_data
 from django_spire.contrib.generic_views import portal_views
 
 if TYPE_CHECKING:

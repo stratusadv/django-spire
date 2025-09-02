@@ -8,7 +8,7 @@ from django.urls import reverse
 
 import django_glue as dg
 from django_spire.auth.group import models, forms
-from django_spire.auth.group.decorators import permission_required
+from django_spire.auth.permission.decorators import permission_required
 from django_spire.auth.group.utils import add_users_to_group
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
