@@ -4,7 +4,7 @@
 
 
 {% block card_button %}
-    {% url 'theme:page:badges' as badges_url %}
+    {% url 'django_spire:theme:page:badges' as badges_url %}
     {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=badges_url %}
 {% endblock %}
 

@@ -71,17 +71,7 @@ nav:
       - Notification: components/notification.md
       - Page: components/page.md
       - Tab: components/tab.md
-  - API:
-      - AI:
-          - Decorators: api/ai/decorators.md
-      - Core:
-          - Template Tags: api/core/templatetags.md
-          - Redirects: api/core/redirects.md
-          - Shortcuts: api/core/shortcuts.md
-      - Notification:
-          - Notification: api/notification/notification.md
-          - App Notification: api/notification/app_notification.md
-          - Email Notification: api/notification/email_notification.md
+  - API Reference: reference/
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
       - Legend: roadmap/legend.md
@@ -92,6 +82,12 @@ nav:
       - Contributors: about/contributors.md
 
 plugins:
+  - gen-files:
+      scripts:
+        - scripts/generate_api_reference.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
   - include-markdown
   - mkdocstrings:
       handlers:

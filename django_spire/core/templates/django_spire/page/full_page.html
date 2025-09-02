@@ -2,15 +2,13 @@
 
 {% block page_content %}
     <div class="d-flex w-100">
-
         <div class="pe-1 d-none d-lg-block w-side-navigation">
             {% block full_page_side_navigation %}
                 {% include 'django_spire/navigation/side_navigation.html' %}
             {% endblock %}
         </div>
 
-        <div class="d-block ps-2 full-page-content">
-
+        <div class="d-flex flex-column ps-2 full-page-content">
             <div class="row sticky-top">
                 <div class="col-12">
                     {% block full_page_top_navigation %}
@@ -19,7 +17,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row flex-grow-1">
                 <div class="col-12">
                     {% block full_page_content %}
                     {% endblock %}
@@ -27,13 +25,12 @@
             </div>
 
             <div class="row">
-                <div class="col-12 mt-2">
+                <div class="col-12 px-0 mt-2">
                     {% block full_page_bottom_content %}
                         {% include 'django_spire/footer/footer.html' %}
                     {% endblock %}
                 </div>
             </div>
-
         </div>
     </div>
 {% endblock %}

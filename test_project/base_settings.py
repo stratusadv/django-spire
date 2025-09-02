@@ -55,6 +55,11 @@ AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'test_project.apps.ai.sms.intelligence.sms_
 # Maintenance Mode
 MAINTENANCE_MODE = True
 
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -134,6 +139,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_glue.middleware.DjangoGlueMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
+    'django_spire.core.middleware.ProfilingMiddleware',
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

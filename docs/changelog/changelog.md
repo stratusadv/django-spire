@@ -14,6 +14,28 @@
 
 - fixed permission decoractor to redirect to login
 
+## v0.14.7
+
+### Changes
+- Implemented a profiling middleware
+
+## v0.14.6
+
+### Changes
+- Added Django Glue Fields and Example Theme Page.
+- Changed hard-coded colours across system.
+- Added hover colouring on all buttons.
+
+### Breaking
+- Potential broken CSS / colours. Review theme page for any issues. 
+
+
+## v0.14.5
+
+### Changes
+- Added css variables for attribute title and tweaked css styling. 
+
+
 ## v0.14.4
 
 ### Changes

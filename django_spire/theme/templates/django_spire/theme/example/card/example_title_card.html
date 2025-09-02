@@ -1,0 +1,25 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+	Title Card
+{% endblock %}
+
+{% block card_button %}
+    <div x-data>
+	    {% include 'django_spire/button/primary_button.html' with button_text='Button' x_button_click='alert(`🐇🥚`)' %}
+    </div>
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="row">
+	    <div class="col-12 border-bottom pb-2">
+            {% include 'django_spire/theme/example/item/example_item.html' %}
+        </div>
+	    <div class="col-12 border-bottom pb-2">
+            {% include 'django_spire/theme/example/item/example_item.html' %}
+        </div>
+	    <div class="col-12 border-bottom pb-2">
+            {% include 'django_spire/theme/example/item/example_item.html' %}
+        </div>
+    </div>
+{% endblock %}
