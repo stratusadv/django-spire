@@ -14,12 +14,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry = current_version.entry
     version_blocks = current_version.blocks.active().order_by('order')
 
-    entry.ordering_services.processor.move_to_position(
-        destination_objects=[entry],
-        position=0,
-        origin_objects=[entry]
-    )
-
     def breadcrumbs_func(breadcrumbs):
         breadcrumbs.add_breadcrumb(name='Knowledge')
         breadcrumbs.add_breadcrumb(

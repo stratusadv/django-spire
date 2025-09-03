@@ -20,9 +20,30 @@
 {% endblock %}
 
 {% block card_title_content %}
-	{% for entry in current_entries %}
-        {% include 'django_spire/knowledge/entry/item/list_item.html' %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
+    <div x-data="{
+            async reorder_entries({entry, order}){
+                let response = null
+                try {
+                    response = await django_glue_fetch(
+                        '{% url "django_spire:knowledge:entry:json:reorder" pk=0 order=9 %}'.replace(0, entry).replace(9, order),
+                    )
+                } catch (e) {
+                    window.location.reload()
+                }
+
+                if (response.type == 'error' {
+                    $dispatch('notify', {'type': type, 'message': response.message})
+                }
+            }
+        }"
+         x-sort="await reorder_entries({entry: $item, order: $position})"
+    >
+        {% for entry in current_entries %}
+            <div x-sort:item="{{ entry.pk }}">
+                {% include 'django_spire/knowledge/entry/item/list_item.html' %}
+            </div>
+        {% empty %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endfor %}
+    </div>
 {% endblock %}

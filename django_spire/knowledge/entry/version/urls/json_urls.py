@@ -15,4 +15,9 @@ urlpatterns = [
         json_views.delete_block_view,
         name='delete_block',
     ),
+    path(
+        '<int:pk>/reorder/',
+        json_views.reorder_view,
+        name='reorder',
+    ),
 ]

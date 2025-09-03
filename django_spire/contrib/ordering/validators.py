@@ -37,21 +37,14 @@ class OrderingMixinValidator:
         Validates that the destination and origin and insertion objects and position are valid.
         Returns tuple of validity and applicable error messages.
         """
-        self._run_check(self._validate_position)
+        self._validate_position()
 
         return False if self._errors else True
-
-    def _run_check(self, func: Callable):
-        """Stores errors found during validation and proceeds"""
-        try:
-            func()
-        except OrderingMixinException as e:
-            self._errors.append(e)
 
     def _validate_position(self):
         """Ensure position is valid."""
         if self._position < 0 or not isinstance(self._position, int):
-            raise OrderingMixinException('Position must be a positive number.')
+            self._errors.append(OrderingMixinException('Position must be a positive number.'))
 
         if self._position > len(self._destination_objects):
-            raise OrderingMixinException('Position must be less than the number of destination objects.')
+            self._errors.append(OrderingMixinException('Position must be less than the number of destination objects.'))

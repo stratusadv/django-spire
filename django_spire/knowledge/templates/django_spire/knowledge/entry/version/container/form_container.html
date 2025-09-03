@@ -45,18 +45,39 @@
                 } else {
                     this.manager.delete_block({id: version_block_id})
                 }
+            },
+            async reorder_block({block, order}){
+                let response = null
+                console.log(order)
+                try {
+                    response = await django_glue_fetch(
+                        '{% url "django_spire:knowledge:entry:version:json:reorder" pk=current_version.pk %}',
+                        { payload: {'block_id': block, 'order': order} }
+                    )
+                } catch (e) {
+                    window.location.reload()
+                }
+
+                console.log(response)
+
+                if (response.type == 'error') {
+                    $dispatch('notify', {'type': response.type, 'message': response.message})
+                }
             }
         }"
+        x-sort="await reorder_block({block: $item, order: $position})"
     >
         <template x-for="(version_block, index) in manager.entry_version.version_blocks" :key="version_block.id">
-            <div class="row align-items-center">
+            <div class="row align-items-center" x-sort:item="version_block.id">
+                <i style="cursor: grab" x-sort:handle class="col-auto bi bi-grip-vertical p-0 align-self-center"></i>
                 <div
                     class="col-auto pe-0"
                     :class="manager.block_order_focus === version_block.order ? 'opacity-100' : 'opacity-0'"
                 >
                     {% include 'django_spire/knowledge/entry/version/block/dropdown/add_dropdown.html' %}
                 </div>
-                <div class="col" x-html="version_block.block.update_template_rendered">
+                <div class="col"
+                     x-html="version_block.block.update_template_rendered">
                 </div>
             </div>
         </template>

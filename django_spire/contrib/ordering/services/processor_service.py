@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django_spire.contrib.ordering.exceptions import OrderingMixinExceptionGroup
 from django_spire.contrib.ordering.validators import OrderingMixinValidator
 from django_spire.contrib.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
-    from django_spire.contrib.ordering.mixins import OrderingModelMixin
     from django.db.models import Model, QuerySet
+    from django_spire.contrib.ordering.mixins import OrderingModelMixin
 
 
 class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
@@ -25,13 +26,11 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         origin_objects: QuerySet[Model],
         insert_position: int,
     ):
-        for index, item in enumerate(origin_objects):
-            item.order = index
-
-        self.obj_class.objects.bulk_update(origin_objects, ['order'])
+        self._reorder_objects(origin_objects)
 
         # Forces destination objects to refresh in the event they overlap the origin objects
         destination_objects = destination_objects.all()
+
         for index, item in enumerate(destination_objects):
             if item.order >= insert_position:
                 item.order = index + 1
@@ -52,7 +51,7 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         )
 
         if not ordering_mixin_validator.validate():
-            raise ExceptionGroup(
+            raise OrderingMixinExceptionGroup(
                 'Ordering validation failed.',
                 ordering_mixin_validator.errors
             )

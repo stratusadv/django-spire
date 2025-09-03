@@ -6,7 +6,7 @@ from django_spire.core.shortcuts import get_object_or_null_obj
 from test_project.apps.ordering import models
 
 
-def reorder_json_view(request: WSGIRequest, pk: int, order: int)-> JsonResponse:
+def reorder_view(request: WSGIRequest, pk: int, order: int)-> JsonResponse:
     duck = get_object_or_null_obj(models.Duck, pk=pk)
 
     if duck.id is None:
