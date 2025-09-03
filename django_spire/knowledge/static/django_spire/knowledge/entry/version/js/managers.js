@@ -76,20 +76,21 @@ class EntryVersionManager {
             }
         )
 
-        this.entry_version.version_blocks.push(
-            new EntryVersionBlock({
-                id: id,
-                type: block_type,
-                order: order,
-                block: new Block({...block})
-            })
-        )
+        const version_block = new EntryVersionBlock({
+            id: id,
+            type: block_type,
+            order: order,
+            block: new Block({...block})
+        })
+        this.entry_version.version_blocks.push(version_block)
 
         this.entry_version.version_blocks.sort(
             (a, b) => a.order - b.order
         )
 
         this.block_order_focus = order
+
+        return version_block
     }
 
     update_block_order_focus({order}) {

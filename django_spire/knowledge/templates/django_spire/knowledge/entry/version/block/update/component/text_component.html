@@ -8,7 +8,7 @@
             })
         },
         async create_block() {
-            await create_blank_block({block_type: 'text', order: version_block.order + 1})
+            const version_block = await create_blank_block({block_type: 'text', order: version_block.order + 1})
             $dispatch('update_block_order_focus', {order: version_block.order + 1, cursor_position: 0})
         },
         async delete_if_empty() {
@@ -48,7 +48,9 @@
                 $refs.textarea.setSelectionRange(cursor_position, cursor_position)
                 manager.update_block_order_focus({order: order})
             }
-        }
+        },
+        {% block x_data %}
+        {% endblock %}
     }"
     @update_block_order_focus.window="
         update_focus({order: $event.detail.order, cursor_position: $event.detail.cursor_position})
@@ -63,18 +65,22 @@
     {% block before_text_content %}
     {% endblock %}
     <textarea
-        x-ref="textarea"
+        rows="1"
         class="w-100 border-0 bg-transparent px-1 auto-resize overflow-y-hidden {% block textarea_class %}fs-6{% endblock %}"
         style="height: 30px; resize: none;"
+        x-ref="textarea"
         x-model="version_block.block.value"
         @input="update_height($event)"
         @focus="update_focus({order: version_block.order, cursor_position: $event.target.selectionStart})"
         :placeholder="manager.block_order_focus === version_block.order ? 'Write something...' : ''"
         @beforeinput.debounce.300ms="update_text_value()"
         @keydown.backspace="delete_if_empty()"
+        {% block shift_enter_event %}
         @keydown.shift.enter.prevent="create_block()"
+        {% endblock %}
         @keydown.up.prevent="$dispatch('update_block_order_focus', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})"
         @keydown.down.prevent="$dispatch('update_block_order_focus', {order: version_block.order + 1, cursor_position: $event.target.selectionStart})"
-        rows="1"
+        {% block textarea_attributes %}
+        {% endblock %}
     ></textarea>
 </div>

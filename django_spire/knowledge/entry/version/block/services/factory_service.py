@@ -22,13 +22,18 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
             entry_version: EntryVersion,
             block_type: BlockTypeChoices,
             order: int,
+            **kwargs
     ) -> EntryVersionBlock:
         self.obj = self.obj_class(
             version=entry_version,
             type=block_type,
             order=order,
         )
-        self.obj.block = ENTRY_BLOCK_MAP[block_type](value='', type=block_type)
+        self.obj.block = ENTRY_BLOCK_MAP[block_type](
+            value='',
+            type=block_type,
+            **kwargs
+        )
         self.obj.save()
         return self.obj
 

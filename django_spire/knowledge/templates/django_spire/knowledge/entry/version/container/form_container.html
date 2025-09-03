@@ -16,16 +16,17 @@
                     version_blocks_json: {{ version_blocks_json }}
                 })
             },
-            async create_blank_block({block_type, order}) {
+            async create_blank_block({block_type, order, ...optional_fields}) {
                 let response = await django_glue_fetch(
                     '{% url "django_spire:knowledge:entry:version:json:create_blank_block" pk=current_version.pk %}',
-                    {payload: {block_type: block_type, order: order}},
+                    {payload: {block_type: block_type, order: order, ...optional_fields}},
                 )
                 if (response.type === 'error') {
                     $dispatch('notify', {type:'error', message: response.message})
+                    return null
                 } else {
                     let block_data = JSON.parse(response.entry_version_block_json)
-                    this.manager.insert_blank_block(
+                    return this.manager.insert_blank_block(
                         {
                             id: block_data.id,
                             block_type: block_data.type,

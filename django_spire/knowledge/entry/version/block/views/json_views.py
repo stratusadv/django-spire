@@ -18,9 +18,9 @@ def update_text_view(request: WSGIRequest, pk: int) -> JsonResponse:
     value = body_data.get('value')
     block_type = body_data.get('block_type')
 
-    if value is None or not block_type:
+    if value is None or block_type is None:
         return JsonResponse({'type': 'error', 'message': 'Missing Required Data'})
 
-    version_block.services.processor.update(value=value, block_type=block_type)
+    version_block.services.processor.update_block(value=value, block_type=block_type)
 
     return JsonResponse({'type': 'success'})
