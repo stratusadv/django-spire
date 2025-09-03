@@ -1,1 +1,36 @@
- List Item Detail Component
+{% load spire_knowledge_tags %}
+
+{% if version_block.block.ordered %}
+<div
+{% else %}
+<ol
+{% endif %}
+    style="
+        padding-left: calc(20 * {{ version_block.block.indent_level }}px);
+        {% if not version_block.block.ordered %}
+            {% if version_block.block.indent_level|divisibleby:2 %}
+                list-style-type: disc;
+            {% else %}
+                list-style-type: circle;
+            {% endif %}
+        {% endif %}
+    "
+    class="d-flex mb-1"
+>
+    {% if version_block.block.ordered %}
+        <span class="col-auto" style="width: 20px">
+            {{ version_block.block.bullet }}
+        </span>
+        <span class="col">
+            {{ version_block.block.value|format_to_html|safe }}
+        </span>
+    {% else %}
+        <li class="col">
+            {{ version_block.block.value|format_to_html|safe }}
+        </li>
+    {% endif %}
+{% if version_block.block.ordered %}
+</div>
+{% else %}
+</ol>
+{% endif %}

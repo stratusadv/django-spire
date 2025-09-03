@@ -23,15 +23,17 @@
 {% endblock %}
 
 {% block container_content %}
-    <div class="row px-3">
-        {% for version_block in version_blocks %}
-            <div class="col-12">
-                {% include version_block.block.detail_template with value=version_block.block.value %}
-            </div>
-        {% empty %}
-            <div class="col-12">
-                No information...
-            </div>
-        {% endfor %}
+    <div class="container">
+        <div class="row px-3">
+            {% for version_block in version_blocks %}
+                <div class="col-12">
+                    {% include version_block.block.detail_template with value=version_block.block.value %}
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    No information...
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
