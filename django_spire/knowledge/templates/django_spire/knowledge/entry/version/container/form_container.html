@@ -51,7 +51,7 @@
                     indent_level: previous_block.block.indent_level,
                     ordered: previous_block.block.ordered
                 })
-                $dispatch('update_block_order_focus', {order: previous_block.order + 1, cursor_position: 0})
+                $dispatch('update_block_order_focus', {order: version_block.order, cursor_position: 0})
             },
             async delete_block_if_empty({version_block}) {
                 if (version_block.block.value !== '') return
