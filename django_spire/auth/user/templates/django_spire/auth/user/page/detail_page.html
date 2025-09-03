@@ -3,15 +3,15 @@
 {% block full_page_content %}
     <div class="row g-3 mb-3">
         <div class="col">
-            {% include 'django_spire/user_account/card/../card/user_detail_title_card.html' %}
+            {% include 'django_spire/auth/user/card/detail_card.html' %}
         </div>
     </div>
     <div class="row g-3">
         <div class="col-lg-8 col-12">
-            {% include 'django_spire/user_account/card/../card/user_group_list_card.html' %}
+            {% include 'django_spire/auth/user/card/group_list_card.html' %}
         </div>
         <div class="col-lg-4 col-12">
-            {% include 'django_spire/history/card/activity_list_card.html' %}
+            {% include 'django_spire/activity/card/list_card.html' %}
         </div>
     </div>
 {% endblock %}

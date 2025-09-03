@@ -37,7 +37,7 @@
         </div>
         <div class="col">
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
-            {% include 'django_spire/permission/element/../element/is_active_badge.html' with is_active=user.is_active %}
+            {% include 'django_spire/auth/group/element/is_active_badge.html' with is_active=user.is_active %}
         </div>
     </div>
     <div class="row">

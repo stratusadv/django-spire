@@ -64,7 +64,7 @@ def special_role_form_ajax(
 
         if app_name.lower() in permission_map:
             model_permission = permission_map[app_name.lower()]
-            body = process_request_body(request)
+            body = process_request_body(request, key=None)
             grant_special_role_access = body.get('grant_special_role_access')
             codename = body.get('codename')
             error_message = 'models.PortalUser does not have permission.'

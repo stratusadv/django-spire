@@ -24,11 +24,13 @@ class ModelPermission:
             self,
             name: str,
             model_class_path: str,
-            is_proxy_model: bool
+            is_proxy_model: bool,
+            verbose_name: str | None = None,
     ):
         self.name = name
         self.model_class_path = model_class_path
         self.is_proxy_model = is_proxy_model
+        self.verbose_name = verbose_name
 
     @property
     def model_class(self) -> type[Model]:
@@ -168,12 +170,12 @@ class GroupPermissions:
 
 
 class UserPermissionHelper:
-    def __init__(self, user: User, model_key: str):
+    def __init__(self, user: User, model_permission: ModelPermission):
         """
             Helper to query user's current cascading permissions
         """
         self.user = user
-        self.model_permissions = ModelPermissions(model_key.lower())
+        self.model_permissions = ModelPermissions(model_permission)
         self.user_perms = self.get_user_perms()
 
     def get_user_perms(self) -> QuerySet[Permission]:

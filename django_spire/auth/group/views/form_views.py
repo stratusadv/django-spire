@@ -18,8 +18,8 @@ from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 
 
-@permission_required(' permission.change_portalgroup')
-def group_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
+@permission_required('django_spire_auth_group.change_authgroup')
+def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_null_obj(models.AuthGroup, pk=pk)
 
     dg.glue_model_object(request, 'group', group)
@@ -47,8 +47,8 @@ def group_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | Htt
     )
 
 
-@permission_required('permission.add_portalgroup')
-def group_user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
+@permission_required('django_spire_auth_group.add_authgroup')
+def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     user_choices = AuthUser.services.get_user_choices()
     selected_user_ids = list(AuthUser.objects.filter(groups=group).values_list('id', flat=True).distinct())
@@ -92,8 +92,8 @@ def group_user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | Ht
     )
 
 
-@permission_required('permission.delete_portalgroup')
-def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+@permission_required('django_spire_auth_group.delete_authgroup')
+def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     return_url = reverse('permission:list')
 

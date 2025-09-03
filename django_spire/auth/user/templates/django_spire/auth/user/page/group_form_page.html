@@ -2,8 +2,9 @@
 
 {% block full_page_content %}
     <div class="row">
-        <div class="col">
-            {% include 'django_spire/user_account/card/../card/user_list_card.html' with queryset=user_list %}
+        <div class="col-12">
+            {% include 'django_spire/auth/user/card/group_form_card.html' %}
         </div>
     </div>
+
 {% endblock %}

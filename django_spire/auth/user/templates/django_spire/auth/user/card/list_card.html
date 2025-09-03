@@ -8,14 +8,14 @@
 
 {% block card_button %}
     {% if perms.permission.add_portaluser %}
-        {% url 'user_account:register_user_form' as register_user_url %}
+        {% url 'django_spire:auth:user:form:register_form' as register_user_url %}
         {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus-lg' button_href=register_user_url %}
     {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
     {% for user in user_list %}
-        {% include 'django_spire/user_account/item/../item/user_item.html' %}
+        {% include 'django_spire/auth/user/item/user_item.html' %}
     {% empty %}
         {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}

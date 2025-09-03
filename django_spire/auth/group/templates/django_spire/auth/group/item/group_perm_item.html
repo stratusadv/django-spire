@@ -3,7 +3,7 @@
 {% block item_title_col %}4{% endblock %}
 
 {% block item_title %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_title='App' attribute_value=perm_data.app_name|title %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_title='App' attribute_value=perm_data.verbose_app_name|default:perm_data.app_name|title %}
 {% endblock %}
 
 {% block item_row_content %}

@@ -55,7 +55,7 @@
         <input type="text" hidden x-model="return_user_groups" name="user_groups">
 
         <template x-for="(group, index) in groups" :key="index">
-            {% include 'django_spire/permission/item/../item/permission_user_group_form_item.html' %}
+            {% include 'django_spire/auth/group/item/permission_user_group_form_item.html' %}
         </template>
 
         <template x-if="groups.length === 0">

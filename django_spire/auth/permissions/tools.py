@@ -30,10 +30,11 @@ def generate_user_perm_data(user: User) -> list[dict]:
     perm_data = []
 
     for permission in generate_model_permissions():
-        user_permissions = UserPermissionHelper(user, key)
+
+        user_permissions = UserPermissionHelper(user, permission)
 
         perm_data.append({
-            'app_name': key.capitalize(),
+            'app_name': permission.name.capitalize(),
             'level_verbose': user_permissions.perm_level_verbose()
         })
 
@@ -52,6 +53,7 @@ def generate_group_perm_data(
 
         perm_information_dic = {
             'app_name': model_permission.name.capitalize(),
+            'verbose_app_name': model_permission.verbose_name,
             'level_verbose': group_permissions.perm_level_verbose()
         }
 

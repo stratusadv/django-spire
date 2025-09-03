@@ -1,0 +1,9 @@
+    {% extends 'django_spire/card/title_card.html' %}
+
+    {% block card_title %}
+        Edit {{ portal_user.get_full_name }}
+    {% endblock %}
+
+    {% block card_title_content %}
+       {% include 'django_spire/auth/user/form/form.html' %}
+    {% endblock %}

@@ -16,7 +16,7 @@
             setup_fields() {
                 this.user.glue_fields.first_name.required = true
                 this.user.glue_fields.last_name.required = true
-                this.user.glue_fields.email.choices = true
+                this.user.glue_fields.email.required = true
                 this.repeat_password.required = true
             },
             async get_glue() {

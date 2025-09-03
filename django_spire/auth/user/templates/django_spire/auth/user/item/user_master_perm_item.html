@@ -8,7 +8,7 @@
     {% for perm in user_perm_data %}
         <div class="col-lg-4 col-sm-3 col-4 mb-2">
             {% include 'django_spire/element/attribute_element.html' with attribute_title=perm.app_name %}
-            {% include 'django_spire/permission/element/group_perm_level_badge.html' with permission_level=perm.level_verbose %}
+            {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with permission_level=perm.level_verbose %}
         </div>
     {% endfor %}
 {% endblock %}
