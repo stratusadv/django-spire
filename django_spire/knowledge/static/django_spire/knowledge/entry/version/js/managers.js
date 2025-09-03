@@ -65,6 +65,15 @@ class EntryVersionManager {
         this.entry_version.version_blocks = this.entry_version.version_blocks.filter(
             version_block => version_block.id !== id
         )
+
+        this.entry_version.version_blocks = this.entry_version.version_blocks.map(
+            other_block => {
+                if (other_block.order > version_block.order) {
+                    other_block.order -= 1
+                }
+                return other_block
+            }
+        )
     }
 
     insert_blank_block({id, block_type, order, block}) {
