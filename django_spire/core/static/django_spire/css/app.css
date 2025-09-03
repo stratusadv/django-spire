@@ -1,4 +1,6 @@
 :root {
+    --app-default-attribute-title-color: #000000;
+    --app-default-button-text-color: #ffffff;
     --app-default-text-color: #000000;
     --app-default-bg-color: #ffffff;
     --app-default-link-color: #0d6efd;
@@ -44,6 +46,9 @@
 
     --app-side-navigation-bg-color: #306178;
     --app-mobile-navigation-bg-color: #001720;
+
+    --app-top-navigation-bg-color: #ffffff;
+    --app-footer-bg-color: #ffffff;
 
     --app-side-navigation-width: 200px;
     --app-mobile-navigation-width: 200px;

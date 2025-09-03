@@ -1,0 +1,95 @@
+<div
+    class="row"
+    x-data="{
+        char_field: new GlueCharField('char_field', {value: 'Text...'}),
+        color_field: new GlueCharField('color_field', {value: '#000000'}),
+        date_field: new GlueCharField('date_field'),
+        datetime_field: new GlueCharField('datetime_field'),
+        decimal_field: new GlueCharField('decimal_field'),
+        email_field: new GlueCharField('email_field'),
+        input_field: new GlueCharField('input_field'),
+        multi_file_field: new GlueCharField('multi_file_field'),
+        multi_select_field: new GlueCharField('multi_select_field'),
+        number_field: new GlueCharField('number_field'),
+        password_field: new GlueCharField('password_field'),
+        radio_field: new GlueCharField('radio_field'),
+        range_field: new GlueCharField('range_field'),
+        search_and_select_field: new GlueCharField('search_and_select_field'),
+        select_field: new GlueCharField('select_field'),
+        single_checkbox_field: new GlueCharField('single_checkbox_field'),
+        single_file_field: new GlueCharField('single_file_field'),
+        telephone_field: new GlueCharField('telephone_field'),
+        text_field: new GlueCharField('text_field'),
+        time_field: new GlueCharField('time_field'),
+
+        default_choices: [[1, 'Choice 1'], [2, 'Choice 2'], [3, 'Choice 3']],
+        init() {
+            this.select_field.choices = this.default_choices;
+            this.multi_select_field.choices = this.default_choices;
+        }
+    }"
+>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/char_field.html' with glue_field='char_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/color_field.html' with glue_field='color_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/date_field.html' with glue_field='date_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/datetime_field.html' with glue_field='datetime_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/decimal_field.html' with glue_field='decimal_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/email_field.html' with glue_field='email_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/input_field.html' with glue_field='input_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/multi_file_field.html' with glue_field='multi_file_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/multi_select_field.html' with glue_field='multi_select_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/number_field.html' with glue_field='number_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/password_field.html' with glue_field='password_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/radio_field.html' with glue_field='radio_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/range_field.html' with glue_field='range_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/search_and_select_field.html' with glue_field='search_and_select_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/select_field.html' with glue_field='select_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/single_checkbox_field.html' with glue_field='single_checkbox_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/single_file_field.html' with glue_field='single_file_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/telephone_field.html' with glue_field='telephone_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/text_field.html' with glue_field='text_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_glue/form/field/time_field.html' with glue_field='time_field' %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+    </div>
+</div>

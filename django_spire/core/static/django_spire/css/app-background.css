@@ -18,7 +18,7 @@
     --app-bg-accent-dark: var(--app-accent-dark);
 
     --app-bg-success: var(--app-success);
-    --app-bg-success-outlined: var(--app-success-soft);
+    --app-bg-success-soft: var(--app-success-soft);
     --app-bg-success-dark: var(--app-success-dark);
 
     --app-bg-warning: var(--app-warning);
@@ -37,6 +37,10 @@
 
     --app-bg-side-navigation: var(--app-side-navigation-bg-color);
     --app-bg-mobile-navigation: var(--app-mobile-navigation-bg-color);
+
+    --app-bg-top-navigation: var(--app-top-navigation-bg-color);
+
+    --app-bg-footer: var(--app-footer-bg-color);
 }
 
 .bg-app-primary, .bg-app-primary-hover:hover {
@@ -73,6 +77,18 @@
 
 .bg-app-accent-dark, .bg-app-accent-dark-hover:hover {
     background-color: var(--app-bg-accent-dark) !important;
+}
+
+.bg-app-success, .bg-app-success-hover:hover {
+    background-color: var(--app-bg-success) !important;
+}
+
+.bg-app-success-soft, .bg-app-success-soft-hover:hover {
+    background-color: var(--app-bg-success-soft) !important;
+}
+
+.bg-app-success-dark, .bg-app-success-dark-hover:hover {
+    background-color: var(--app-bg-success-dark) !important;
 }
 
 .bg-app-warning, .bg-app-warning-hover:hover {
@@ -125,6 +141,22 @@
 
 .bg-app-mobile-navigation, .bg-app-mobile-navigation-hover:hover {
     background-color: var(--app-bg-mobile-navigation) !important;
+}
+
+.bg-app-top-navigation, .bg-app-top-navigation-hover:hover {
+    background-color: var(--app-bg-top-navigation) !important;
+}
+
+.bg-app-footer, .bg-app-footer-hover:hover {
+    background-color: var(--app-bg-footer) !important;
+}
+
+.bg-app-white, .bg-app-white-hover:hover {
+    background-color: var(--app-bg-white) !important;
+}
+
+.bg-app-black, .bg-app-black-hover:hover {
+    background-color: var(--app-bg-black) !important;
 }
 
 .bg-app-light, .bg-app-light-hover:hover {

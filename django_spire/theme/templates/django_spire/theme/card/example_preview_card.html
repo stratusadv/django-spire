@@ -1,0 +1,34 @@
+{% extends 'django_spire/theme/card/base_preview_card.html' %}
+
+{% block card_title %}Example{% endblock %}
+
+{% block card_button %}
+    {% url 'django_spire:theme:page:example' as example_url %}
+    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=example_url %}
+{% endblock %}
+
+{% block preview_card_icon %}bi bi-grid-1x2{% endblock %}
+
+{% block preview_card_subtitle %}
+    Example
+{% endblock %}
+
+{% block preview_card_description %}
+    Explore an example page that contains some of our core templates.
+{% endblock %}
+
+{% block preview_card_content %}
+    <div class="preview-sample row">
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Title' attribute_value='Value' %}
+        </div>
+        <div class="col text-center">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Dropdown' %}
+            {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url='#' delete_url='#' %}
+        </div>
+        <div class="col text-center">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Modal' %}
+            {% include 'django_spire/dropdown/ellipsis_modal_dropdown.html' with view_url='#' edit_url='#' delete_url='#' %}
+        </div>
+    </div>
+{% endblock %}
