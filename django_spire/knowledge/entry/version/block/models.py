@@ -2,7 +2,7 @@ from django.db import models
 from django.forms import model_to_dict
 from django.template.loader import render_to_string
 
-from django_spire.contrib.ordering.model_mixin import OrderingModelMixin
+from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP

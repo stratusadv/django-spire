@@ -1,4 +1,4 @@
-from django_spire.contrib.ordering.queryset_mixin import OrderingQuerySetMixin
+from django_spire.contrib.ordering.querysets import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 

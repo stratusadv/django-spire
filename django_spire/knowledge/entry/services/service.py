@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.auth.user.models import AuthUser
-from django_spire.contrib.ordering.service import OrderingService
+from django_spire.contrib.ordering.services.service import OrderingService
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.knowledge.entry.services.automation_service import \
     EntryAutomationService

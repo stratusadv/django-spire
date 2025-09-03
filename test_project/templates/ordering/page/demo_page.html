@@ -1,0 +1,115 @@
+{% extends 'django_spire/page/full_page.html' %}
+{% load static %}
+
+
+{% block base_head_additional_css %}
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(to bottom, #87ceeb 0%, #87ceeb 60%, #1e90ff 60%, #1e90ff 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-5px) rotate(-1deg);
+            }
+            50% {
+                transform: translateY(0) rotate(0deg);
+            }
+            75% {
+                transform: translateY(5px) rotate(1deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        .bobbing {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite !important;
+        }
+
+        .duck {
+            position: relative;
+            display: inline-block;
+            transition: transform 0.4s ease;
+        }
+
+        @keyframes hover-wiggle {
+            0%   { transform: translateY(-10px) rotate(-5deg); }
+            25%  { transform: translateY(-12px) rotate(5deg); }
+            50%  { transform: translateY(-10px) rotate(-5deg); }
+            75%  { transform: translateY(-12px) rotate(5deg); }
+            100% { transform: translateY(-10px) rotate(-5deg); }
+        }
+
+        .duck:hover {
+            animation: hover-wiggle 0.6s ease-in-out infinite !important;
+        }
+        .duck.bobbing:hover {
+            animation: hover-wiggle 0.6s ease-in-out infinite !important;
+        }
+
+        .duck-container {
+            display: inline-block;
+        }
+
+        .duck-name {
+            position: absolute;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index:1;
+        }
+
+        .duck-container:hover .duck-name {
+            opacity: 1;
+        }
+    </style>
+{% endblock %}
+
+
+{% block full_page_content %}
+    <div class="row">
+        <div class="col-auto">
+            {% include 'ordering/modal/modal_form.html' %}
+        </div>
+        <div style="margin-top: 20%" class="col-12">&nbsp;</div>
+    </div>
+    <div class="row"
+         x-data="{
+            ducks: {{ ducks }},
+
+            async reorder_ducks({duck, order}) {
+                let response = null
+                try {
+                    response = await django_glue_fetch(
+                        '{% url "ordering:json:reorder" pk=0 order=9 %}'.replace(0, duck.id).replace(9, order),
+                    )
+                } catch (e) {
+                    window.location.reload()
+                }
+            }
+         }"
+         x-sort="await reorder_ducks({duck: $item, order: $position})"
+    >
+        <template x-for="duck of ducks" :key="duck.id">
+            <div class="col-auto duck-container" x-data style="cursor: grab" x-sort:item="duck">
+                <div class="duck-name" x-text="duck.name"></div>
+                    {% include 'ordering/duck/duck.svg' %}
+            </div>
+        </template>
+    </div>
+{% endblock %}

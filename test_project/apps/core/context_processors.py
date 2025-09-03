@@ -26,6 +26,7 @@ def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'Help Desk', 'icon': spire_context_data['app_bootstrap_icon']['help_desk'], 'url': reverse('help_desk:home')},
             {'title': 'History', 'icon': 'bi bi-clock-history', 'url': reverse('history:home')},
             {'title': 'Home', 'icon': 'bi bi-house-door', 'url': reverse('home:page:home')},
+            {'title': 'Ordering', 'icon': 'bi bi-list-ol', 'url': reverse('ordering:page:demo')},
             {'title': 'Knowledge', 'icon': 'bi bi-journal-bookmark', 'url': reverse('django_spire:knowledge:collection:page:list')},
             {'title': 'Notification', 'icon': 'bi bi-bell', 'url': reverse('notification:page:list')},
             {'title': 'Test Model', 'icon': 'bi bi-flask', 'url': reverse('queryset_filtering:page:list')},

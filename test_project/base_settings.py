@@ -96,6 +96,7 @@ INSTALLED_APPS += [
     'django_spire.notification.push',
 
     'django_spire.contrib.options',
+    'django_spire.contrib.ordering',
     'django_spire.contrib.pagination',
 
     'django_spire.theme',
@@ -112,6 +113,7 @@ INSTALLED_APPS += [
     'test_project.apps.help_desk',
     'test_project.apps.home',
     'test_project.apps.landing',
+    'test_project.apps.ordering',
     'test_project.apps.history',
     'test_project.apps.notification',
     'test_project.apps.model_and_service',

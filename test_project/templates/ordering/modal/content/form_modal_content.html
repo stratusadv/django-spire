@@ -1,0 +1,38 @@
+<form
+    x-data="{
+        duck: new ModelObjectGlue('duck'),
+
+        async init() {
+            await this.notification.get()
+        },
+        validate_form() {
+            return true
+        },
+        async submit() {
+            if (this.validate_form()) {
+                await this.notification.save()
+            }
+        }
+    }"
+    method="post"
+    action="{% url 'ordering:form:create' %}"
+>
+{% csrf_token %}
+<div class="row g-3 mb-3">
+    <div class="col">
+        {% include 'django_glue/form/field/char_field.html' with glue_model_field='duck.name' %}
+    </div>
+    <div class="col">
+        {% include 'django_glue/form/field/number_field.html' with glue_model_field='duck.order' %}
+    </div>
+    <div class="col">
+        {% include 'django_glue/form/field/color_field.html' with glue_model_field='duck.color' %}
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+    </div>
+</div>
+</form>

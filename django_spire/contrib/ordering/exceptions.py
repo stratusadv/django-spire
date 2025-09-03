@@ -1,0 +1,2 @@
+class OrderingMixinException(Exception):
+    pass

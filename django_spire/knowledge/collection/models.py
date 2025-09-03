@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_spire.contrib.ordering.model_mixin import OrderingModelMixin
+from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.querysets import CollectionQuerySet
 from django_spire.knowledge.collection.services.service import CollectionService
