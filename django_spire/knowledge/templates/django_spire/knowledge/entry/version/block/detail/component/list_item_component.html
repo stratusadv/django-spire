@@ -5,17 +5,19 @@
 {% else %}
 <ol
 {% endif %}
+    class="d-flex mb-1"
     style="
         padding-left: calc(20 * {{ version_block.block.indent_level }}px);
         {% if not version_block.block.ordered %}
             {% if version_block.block.indent_level|divisibleby:2 %}
                 list-style-type: disc;
+                list-style-position: inside;
             {% else %}
                 list-style-type: circle;
+                list-style-position: inside;
             {% endif %}
         {% endif %}
     "
-    class="d-flex mb-1"
 >
     {% if version_block.block.ordered %}
         <span class="col-auto" style="width: 20px">

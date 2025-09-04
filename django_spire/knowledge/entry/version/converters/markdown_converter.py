@@ -28,7 +28,7 @@ class MarkdownConverter(BaseConverter):
     """
     def __init__(self, entry_version: EntryVersion):
         super().__init__(entry_version)
-        self.last_order = 0
+        self._order = 0
 
     def convert_file_to_blocks(self, file: File) -> list[models.EntryVersionBlock]:
         with open(file.file.path, 'r') as f:
@@ -56,34 +56,39 @@ class MarkdownConverter(BaseConverter):
             self,
             marko_block: List | ListItem | Element,
             bullet: str,
-            indent_level: int = 0
+            indent_level: int,
+            ordered: bool,
     ) -> list[models.EntryVersionBlock]:
-        if not marko_block.children:
+        if isinstance(marko_block.children, str):
             list_item_block = models.EntryVersionBlock.services.factory.create_null_block(
                 entry_version=self.entry_version,
                 block_type=models.BlockTypeChoices.LIST_ITEM,
-                order=self.last_order,
+                order=self._order,
                 value=self._get_marko_text_content(marko_block),
                 bullet=bullet,
                 indent_level=indent_level,
-                ordered=marko_block.ordered,
+                ordered=ordered,
             )
-            self.last_order += 1
+            self._order += 1
             return [list_item_block]
+
+        if isinstance(marko_block, ListItem):
+            indent_level += 1
 
         blocks = []
         for child in marko_block.children:
-            if bullet.endswith('.'):
-                bullet = bullet.rstrip('.')
-                bullet = str(int(bullet) + 1) + '.'
-
             blocks.extend(
                 self._convert_list_block(
                     marko_block=child,
                     bullet=bullet,
-                    indent_level=indent_level + 1,
+                    indent_level=indent_level,
+                    ordered=ordered,
                 )
             )
+
+            if isinstance(child, ListItem) and bullet.endswith('.'):
+                bullet = bullet.rstrip('.')
+                bullet = str(int(bullet) + 1) + '.'
 
         return blocks
 
@@ -100,17 +105,18 @@ class MarkdownConverter(BaseConverter):
                     self._convert_list_block(
                         marko_block=marko_block,
                         bullet=marko_block.bullet,
-
+                        indent_level=-1,
+                        ordered=marko_block.ordered,
                     )
                 )
             else:
                 blocks.append(
                     self._marko_block_to_version_block(
                         marko_block=marko_block,
-                        order=self.last_order,
+                        order=self._order,
                     )
                 )
-                self.last_order += 1
+                self._order += 1
 
         return blocks
 
