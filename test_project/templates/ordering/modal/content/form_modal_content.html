@@ -1,21 +1,13 @@
 <form
     x-data="{
-        duck: new ModelObjectGlue('duck'),
+        duck: new ModelObjectGlue('{{ unique_name }}'),
 
         async init() {
-            await this.notification.get()
-        },
-        validate_form() {
-            return true
-        },
-        async submit() {
-            if (this.validate_form()) {
-                await this.notification.save()
-            }
+            await this.duck.get()
         }
     }"
     method="post"
-    action="{% url 'ordering:form:create' %}"
+    action="{{ action_url }}"
 >
 {% csrf_token %}
 <div class="row g-3 mb-3">

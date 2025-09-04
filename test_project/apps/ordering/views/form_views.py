@@ -63,7 +63,7 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     duck = get_object_or_404(models.Duck, pk=pk)
 
     form_action = reverse(
-        'apps:ordering:delete_form_modal',
+        'ordering:delete_form_modal',
         kwargs={'pk': pk}
     )
 
@@ -76,7 +76,7 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         )
 
     fallback = reverse(
-        'apps:ordering:demo',
+        'ordering:page:demo',
         kwargs={'pk': duck.apps.pk}
     )
 
@@ -94,14 +94,25 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('apps.change_appsordering')
 def form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     duck = get_object_or_null_obj(models.Duck, pk=pk)
+    action_url = reverse(
+        'ordering:form:form',
+        kwargs={'pk': pk}
+    )
+    unique_name = f'{duck.pk}_duck'
 
     if duck.id is None:
         duck = models.Duck()
+        action_url = reverse(
+            'ordering:form:create'
+        )
+        unique_name = 'duck'
 
-    dg.glue_model_object(request, 'duck', duck)
+    dg.glue_model_object(request, unique_name, duck)
 
     context_data = {
-        'duck': duck
+        'duck': duck,
+        'action_url': action_url,
+        'unique_name': unique_name
     }
 
     return TemplateResponse(

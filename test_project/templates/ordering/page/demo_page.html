@@ -83,8 +83,8 @@
 
 {% block full_page_content %}
     <div class="row">
-        <div class="col-auto">
-            {% include 'ordering/modal/modal_form.html' %}
+        <div x-data @click="dispatch_modal_view('{% url "ordering:form:form_modal_content" pk=0 %}')" class="col-auto">
+            {% include 'django_spire/button/primary_button.html' with button_text='Add Duck' button_icon='bi bi-plus-lg' %}
         </div>
         <div style="margin-top: 20%" class="col-12">&nbsp;</div>
     </div>
@@ -106,7 +106,7 @@
          x-sort="await reorder_ducks({duck: $item, order: $position})"
     >
         <template x-for="duck of ducks" :key="duck.id">
-            <div class="col-auto duck-container" x-data style="cursor: grab" x-sort:item="duck">
+            <div @click="dispatch_modal_view('{% url "ordering:form:form_modal_content" pk=0 %}'.replace(0, duck.id))" class="col-auto duck-container" x-data style="cursor: grab" x-sort:item="duck">
                 <div class="duck-name" x-text="duck.name"></div>
                     {% include 'ordering/duck/duck.svg' %}
             </div>
