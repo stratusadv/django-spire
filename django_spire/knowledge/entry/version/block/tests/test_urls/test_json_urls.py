@@ -1,3 +1,5 @@
+import json
+
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -12,10 +14,12 @@ class EntryVersionBlockJsonUrlsTests(BaseTestCase):
 
     def test_update_text_view_url_path(self):
         response = self.client.post(
-            reverse(
-                'django_spire:knowledge:entry:version:block:json:update_text',
-                kwargs={'pk': self.test_version_block.pk}
-            ),
+            reverse('django_spire:knowledge:entry:version:block:json:update_text'),
+            data=json.dumps({
+                'pk': self.test_version_block.pk,
+                'value': '',
+                'block_type': 'text'
+            }),
             content_type='application/json'
         )
 

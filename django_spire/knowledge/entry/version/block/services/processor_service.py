@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from copy import deepcopy
+
 from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING, Any
 
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
@@ -14,7 +15,10 @@ if TYPE_CHECKING:
 class EntryVersionBlockProcessorService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
-    def update(self, value: Any, block_type: BlockTypeChoices):
-        self.obj.block = ENTRY_BLOCK_MAP[block_type](value=value, type=block_type)
+    def update_block(self, value: Any, block_type: BlockTypeChoices):
+        block = deepcopy(self.obj.block)
+        block.value = value
+        block.type = block_type
+        self.obj.block = block
         self.obj.save()
         return self.obj

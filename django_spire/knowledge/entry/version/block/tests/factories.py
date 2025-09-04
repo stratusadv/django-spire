@@ -1,5 +1,6 @@
 import json
 
+from django_spire.knowledge.entry.version.block.blocks.text_block import TextBlock
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.tests.factories import \
@@ -15,4 +16,8 @@ def create_test_version_block(**kwargs) -> EntryVersionBlock:
         '_text_data': ''
     }
     data.update(kwargs)
-    return EntryVersionBlock.objects.create(**data)
+    version_block = EntryVersionBlock.objects.create(**data)
+    version_block.block = TextBlock(value='', type=BlockTypeChoices.TEXT)
+    version_block.save()
+
+    return version_block

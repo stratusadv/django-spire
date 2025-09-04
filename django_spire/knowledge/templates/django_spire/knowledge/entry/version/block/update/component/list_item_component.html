@@ -1,0 +1,13 @@
+{% extends 'django_spire/knowledge/entry/version/block/update/component/text_component.html' %}
+
+{% block before_text_content %}
+    <span
+        x-text="version_block.block.bullet"
+        :style="`padding-left: ${20 * version_block.block.indent_level}px;`"
+    >
+    </span>
+{% endblock %}
+
+{% block shift_enter_event %}
+    @keydown.shift.enter.prevent="create_list_item_block({previous_block: version_block})"
+{% endblock %}
