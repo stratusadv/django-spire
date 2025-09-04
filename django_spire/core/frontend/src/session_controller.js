@@ -1,4 +1,4 @@
-class SessionController {
+export class SessionController {
     constructor(session_json) {
         this.data = JSON.parse(session_json);
     }

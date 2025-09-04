@@ -1,0 +1,16 @@
+{
+  "name": "django-spire-core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild src/index.js",
+    "watch": "node build.mjs --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.23.0"
+  }
+}

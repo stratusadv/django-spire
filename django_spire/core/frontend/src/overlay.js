@@ -1,4 +1,4 @@
-function toggle_loading_overlay() {
+export function toggle_loading_overlay() {
     let body = document.body;
     let spinner = document.getElementById('loading-icon');
 
