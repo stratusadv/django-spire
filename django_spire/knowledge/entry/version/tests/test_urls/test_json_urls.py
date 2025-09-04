@@ -34,3 +34,13 @@ class EntryVersionJsonUrlsTests(BaseTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+
+    def test_reorder_view_url_path(self):
+        response = self.client.get(
+            reverse(
+                'django_spire:knowledge:entry:version:json:reorder',
+                kwargs={'pk': self.test_entry_version.pk}
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)

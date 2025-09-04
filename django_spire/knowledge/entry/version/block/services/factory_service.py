@@ -17,6 +17,13 @@ if TYPE_CHECKING:
 class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
+    def _reorder_entry_version_blocks(self, position: int):
+        entry_blocks = self.obj.version.blocks.active()
+        self.obj.ordering_services.processor.move_to_position(
+            destination_objects=entry_blocks,
+            position=position,
+        )
+
     def create_blank_block(
             self,
             entry_version: EntryVersion,
@@ -30,6 +37,9 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
         )
         self.obj.block = ENTRY_BLOCK_MAP[block_type](value='', type=block_type)
         self.obj.save()
+
+        self._reorder_entry_version_blocks(order)
+
         return self.obj
 
     def create_blocks_from_file(

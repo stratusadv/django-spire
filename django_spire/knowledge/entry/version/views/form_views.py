@@ -24,7 +24,7 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             EntryVersionBlock.services.factory.create_blank_block(
                 entry_version=current_version,
                 block_type=BlockTypeChoices.TEXT,
-                order=1
+                order=0
             )
         ]
 
@@ -58,11 +58,8 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data={
             'entry': entry,
             'current_version': current_version,
-            'version_blocks_json': json.dumps(
-                [
-                    version_block.services.transformation.to_dict()
-                    for version_block in version_blocks
-                ]
+            'version_blocks_json': EntryVersionBlock.services.transformation.objects_to_json(
+                objects=version_blocks
             ),
             'version_blocks': version_blocks,
             'block_types': BlockTypeChoices,

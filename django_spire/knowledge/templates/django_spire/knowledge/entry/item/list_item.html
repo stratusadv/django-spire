@@ -2,7 +2,7 @@
 
 {% block item_title %}
     <div class="row m-0">
-        <i style="cursor: grab" x-sort:handle class="col-auto bi bi-grip-vertical p-0"></i>
+        <i style="cursor: grab" x-sort:handle class="col-auto align-self-center bi bi-grip-vertical p-0"></i>
         <div class="col">
             {% url 'django_spire:knowledge:entry:version:page:detail' pk=entry.current_version_id as entry_detail_url %}
             {% include 'django_spire/element/attribute_element.html' with attribute_value=entry.name attribute_href=entry_detail_url %}

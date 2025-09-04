@@ -41,8 +41,12 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         self,
         destination_objects: QuerySet[Model],
         position: int,
-        origin_objects: QuerySet[Model],
+        origin_objects: QuerySet[Model] = None,
     ):
+        # If origin objects not passed, assume origin objects are same as destination
+        if origin_objects is None:
+            origin_objects = destination_objects
+
         ordering_mixin_validator = OrderingMixinValidator(
             destination_objects=destination_objects,
             position=position,

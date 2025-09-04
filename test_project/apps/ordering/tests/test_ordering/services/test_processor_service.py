@@ -13,7 +13,23 @@ class TestOrderingProcessorService(BaseTestCase):
         self.test_duck.ordering_services.processor.move_to_position(
             destination_objects=all_ducks,
             position=1,
-            origin_objects=all_ducks,
+        )
+
+        self.test_duck.refresh_from_db()
+        self.test_other_duck.refresh_from_db()
+
+        self.assertEqual(self.test_duck.order, 1)
+        self.assertEqual(self.test_other_duck.order, 0)
+
+    def test_reorder_different_object_lists(self):
+        all_ducks = Duck.objects.all()
+        some_ducks = all_ducks.filter(name=self.test_duck.name)
+        other_ducks = all_ducks.filter(name=self.test_other_duck.name)
+
+        self.test_duck.ordering_services.processor.move_to_position(
+            destination_objects=some_ducks,
+            position=1,
+            origin_objects=other_ducks,
         )
 
         self.test_duck.refresh_from_db()
@@ -32,7 +48,6 @@ class TestOrderingProcessorService(BaseTestCase):
         new_duck.ordering_services.processor.move_to_position(
             destination_objects=all_ducks,
             position=1,
-            origin_objects=all_ducks,
         )
 
         self.test_duck.refresh_from_db()

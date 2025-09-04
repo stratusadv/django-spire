@@ -23,7 +23,6 @@ def reorder_view(request: WSGIRequest, pk: int, order: int)-> JsonResponse:
     entry.ordering_services.processor.move_to_position(
         destination_objects=all_entries,
         position=order,
-        origin_objects=all_entries
     )
 
     return JsonResponse({

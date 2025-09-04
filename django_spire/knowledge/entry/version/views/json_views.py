@@ -25,14 +25,11 @@ def create_blank_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
         block_type=block_type,
         order=order,
     )
-    entry_version.services.processor.insert_block(version_block=version_block)
 
     return JsonResponse(
         {
             'type': 'success',
-            'entry_version_block_json': json.dumps(
-                version_block.services.transformation.to_dict()
-            )
+            'entry_version_block_json': version_block.services.transformation.to_json()
         }
     )
 
@@ -49,7 +46,11 @@ def delete_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
     except EntryVersionBlock.DoesNotExist:
         return JsonResponse({'type': 'error', 'message': 'Block Not Found.'})
 
-    entry_version.services.processor.delete_block(version_block=version_block)
+    version_block.ordering_services.processor.remove_from_objects(
+        destination_objects=entry_version.blocks.active()
+    )
+
+    version_block.set_deleted()
 
     return JsonResponse({'type': 'success'})
 
@@ -82,7 +83,6 @@ def reorder_view(request: WSGIRequest, pk: int)-> JsonResponse:
     block.ordering_services.processor.move_to_position(
         destination_objects=version_blocks,
         position=order,
-        origin_objects=version_blocks
     )
 
     return JsonResponse({

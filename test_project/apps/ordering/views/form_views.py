@@ -35,11 +35,9 @@ def create_form_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateRes
             duck.services.save_model_obj(**form.cleaned_data)
             all_ducks = models.Duck.objects.all().order_by('order')
             duck.ordering_services.processor.move_to_position(
-                origin_objects=all_ducks,
                 destination_objects=all_ducks,
                 position=duck.order
             )
-            print(duck.order)
 
             return redirect(
                 request.GET.get(

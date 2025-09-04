@@ -9,7 +9,6 @@
         },
         async create_block() {
             await create_blank_block({block_type: 'text', order: version_block.order + 1})
-            $dispatch('update_block_order_focus', {order: version_block.order + 1, cursor_position: 0})
         },
         async delete_if_empty() {
             if (version_block.block.value === '') {
@@ -17,11 +16,6 @@
                 if (previous_order === 0) {
                     return
                 }
-                const previous_block_length = manager.get_block_length({order: previous_order})
-                $dispatch(
-                    'update_block_order_focus',
-                    {order: previous_order, cursor_position: previous_block_length}
-                )
                 await delete_block({version_block_id: version_block.id})
             }
         },
@@ -46,13 +40,9 @@
             if (order === version_block.order) {
                 $refs.textarea.focus()
                 $refs.textarea.setSelectionRange(cursor_position, cursor_position)
-                manager.update_block_order_focus({order: order})
             }
         }
     }"
-    @update_block_order_focus.window="
-        update_focus({order: $event.detail.order, cursor_position: $event.detail.cursor_position})
-    "
 >
     <style>
         textarea:focus {
@@ -71,8 +61,6 @@
         @beforeinput.debounce.300ms="update_text_value()"
         @keydown.backspace="delete_if_empty()"
         @keydown.shift.enter.prevent="create_block()"
-        @keydown.up.prevent="$dispatch('update_block_order_focus', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})"
-        @keydown.down.prevent="$dispatch('update_block_order_focus', {order: version_block.order + 1, cursor_position: $event.target.selectionStart})"
         rows="1"
     ></textarea>
 </div>

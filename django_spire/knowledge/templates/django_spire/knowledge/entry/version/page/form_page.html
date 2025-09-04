@@ -2,6 +2,21 @@
 
 {% load static %}
 
+{% block base_head_additional_css %}
+    <style>
+        .block {}
+
+        .action-items {
+            opacity: 0;
+        }
+
+        .block:hover .action-items,
+        .block:focus-within .action-items {
+            opacity: 1;
+        }
+    </style>
+{% endblock %}
+
 {% block base_body_additional_top_js %}
     <script type="application/javascript" src="{% static 'django_spire/knowledge/entry/version/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 {% endblock %}
@@ -9,7 +24,7 @@
 {% block full_page_content %}
     <div class="row justify-content-center">
         <div class="col-12 col-xl-8">
-            {% include 'django_spire/knowledge/entry/version/container/form_container.html' with blocks=blocks %}
+            {% include 'django_spire/knowledge/entry/version/container/form_container.html' %}
         </div>
     </div>
 {% endblock %}
