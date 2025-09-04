@@ -5,6 +5,13 @@
 ### Breaking
 
 - The `permissions_required` decorator now takes position arguments instead of an optional tuple.
+- Templates in the 'django_spire/auth/user_account' directory have been moved to 'django_spire/auth/user'
+- Templates in the 'django_spire/auth/permission' directory have been moved to 'django_spire/auth/group'
+- The form views that were previously in 'django_spire/auth/user/page_views.py' have been moved to 'django_spire/auth/user/views/form_views.py'
+- The form URLs that were previously in 'django_spire/auth/user/urls/page_urls.py' have been moved to 'django_spire/auth/user/urls/form_urls.py'
+- The form views that were previously in 'django_spire/auth/group/page_views.py' have been moved to 'django_spire/auth/group/views/form_views.py'
+- The form URLs that were previously in 'django_spire/auth/group/urls/page_urls.py' have been moved to 'django_spire/auth/group/urls/form_urls.py'
+- Page view URLs for the 'AuthUser' and 'AuthGroup' now require the 'page' namespace
 
 ### Feature
 
