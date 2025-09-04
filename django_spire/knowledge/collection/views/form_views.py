@@ -4,7 +4,6 @@ import django_glue as dg
 
 from typing import TYPE_CHECKING
 
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -20,7 +19,15 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
-@login_required()
+# Don't like this method. Hard-coupled to view name.
+@AppAuthController('knowledge').can_access_view()  # Gets view name and can create map in KnowledgeAuthController to match to permission.
+
+# Provide basic default views, how can user (client devs) have special permissions on views?
+@AppAuthController('knowledge').can_view()
+@AppAuthController('knowledge').can_add()
+@AppAuthController('knowledge').can_change()
+@AppAuthController('knowledge').can_delete()
+
 def form_view(
         request: WSGIRequest,
         pk: int = 0
