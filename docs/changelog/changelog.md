@@ -20,11 +20,13 @@
 ### Fix
 
 - fixed permission decoractor to redirect to login
+- Fixed broken urls that were in the base templates for the 'AuthUser' and 'AuthGroup' apps.
 
 ## v0.14.4
 
 ### Changes
 - Updated theme apps.py file to allow for url access. 
+- Updated app structure for 'AuthUser' and 'AuthGroup' to be consistent with other spire apps.
 
 
 ## v0.14.3
