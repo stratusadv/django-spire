@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django_glue.utils import serialize_to_json
 
+from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.user import forms
 from django_spire.auth.user.models import AuthUser
@@ -91,63 +92,32 @@ def form_view(request, pk):
         template='django_spire/auth/user/page/form_page.html'
     )
 
-
-@permission_required('permission.delete_portaluser')
-def status_form_view(request, pk):
-    user = get_object_or_404(AuthUser, pk=pk)
-
-    form_class = DeleteConfirmationForm if user.is_active else ConfirmationForm
-
-    if request.method == 'POST':
-        form = form_class(request.POST)
-
-        if form.is_valid():
-            user.is_active = not user.is_active
-            user.save()
-
-            toggle_verb = 'activated' if user.is_active else 'deactivated'
-
-            user.add_activity(
-                user=request.user,
-                verb=toggle_verb,
-                information=f'{request.user.get_full_name()} {toggle_verb} user "{user.get_full_name()}".'
-            )
-
-            return_url = safe_redirect_url(request)
-            return HttpResponseRedirect(return_url)
-
-    form = form_class()
-    toggle_verb = 'Activate' if user.is_active else 'Deactivate'
-
-    def update_breadcrumbs(breadcrumbs: Breadcrumbs):
-        breadcrumbs.add_breadcrumb(name=toggle_verb)
-
-    return portal_views.form_view(
-        request,
-        form=form,
-        verb=toggle_verb,
-        obj=user,
-        breadcrumbs_func=update_breadcrumbs
-    )
-
-
+@permission_required('django_spire_auth_group.change_authgroup')
 def group_form_view(request, pk):
     user = get_object_or_404(AuthUser, pk=pk)
+    dg.glue_query_set(request, 'group_choices', AuthGroup.objects.all())
+    selected_group_ids = [group.pk for group in user.groups.all()]
 
     if request.method == 'POST':
         form = forms.UserGroupForm(request.POST)
 
         if form.is_valid():
-
+            user.groups.set(form.cleaned_data['group_list'])
             return HttpResponseRedirect(reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk}))
         else:
             show_form_errors(request, form)
 
     form = forms.UserGroupForm()
 
+    context_data = {
+        'user': user,
+        'selected_group_ids': selected_group_ids
+    }
+
     return portal_views.form_view(
         request,
         obj=user,
+        context_data=context_data,
         form=forms.UserGroupForm(),
         template='django_spire/auth/user/page/group_form_page.html'
     )

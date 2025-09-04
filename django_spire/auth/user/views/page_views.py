@@ -31,10 +31,12 @@ def detail_view(request, pk):
 
 @permission_required('django_spire_auth_user.view_authuser')
 def list_view(request):
-    user_list = AuthUser.objects.all()
+    active_user_list = AuthUser.objects.filter(is_active=True).prefetch_related('groups').order_by('first_name', 'last_name')
+    inactive_user_list = AuthUser.objects.filter(is_active=False).prefetch_related('groups').order_by('first_name', 'last_name')
 
     context_data = {
-        'user_list': paginate_list(user_list, page_number=request.GET.get('page', 1))
+        'active_user_list': paginate_list(active_user_list, page_number=request.GET.get('page', 1)),
+        'inactive_user_list': paginate_list(inactive_user_list, page_number=request.GET.get('page', 1))
     }
 
     return portal_views.list_view(

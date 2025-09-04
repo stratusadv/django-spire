@@ -11,11 +11,7 @@ urlpatterns = [
 
     path('user/<int:pk>/form',
          form_views.form_view,
-         name='edit'),
-
-    path('user/<int:pk>/toggle/form/',
-         form_views.status_form_view,
-         name='status_form'),
+         name='update'),
 
     path('user/<int:pk>/group/form/',
          form_views.group_form_view,

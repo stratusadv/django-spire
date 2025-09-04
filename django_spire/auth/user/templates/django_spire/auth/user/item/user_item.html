@@ -8,17 +8,26 @@
 {% endblock %}
 
 {% block item_row_content %}
-    <div class="col">
+    <div class="col-2">
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
         {% include 'django_spire/auth/group/element/is_active_badge.html' with is_active=user.is_active %}
+    </div>
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Groups' %}
+        {% for group in user.groups.all %}
+            {% include 'django_spire/badge/secondary_badge.html' with badge_text=group.name%}
+        {% empty %}
+            N/A
+        {% endfor %}
+
     </div>
 {% endblock %}
 
 {% block item_button %}
-    {% url 'user_account:detail' pk=user.pk as detail_url %}
+    {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
 
     {% if perms.permission.change_portaluser %}
-        {% url 'user_account:form' pk=user.pk as edit_url %}
+        {% url 'django_spire:auth:user:form:update' pk=user.pk as edit_url %}
     {% endif %}
 
     {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=edit_url %}
