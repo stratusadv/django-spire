@@ -1,20 +1,9 @@
 <form
         x-data="{
                 async init () {
-                    toggle_loading_overlay()
-                    await this.get_glue()
-                    toggle_loading_overlay()
-                },
-                user: new ModelObjectGlue('portal_user'),
-                async get_glue() {
                     await this.user.get()
                 },
-                set_fields() {
-                    this.user.glue_fields.first_name.required = true
-                    this.user.glue_fields.last_name.required = true
-                    this.user.glue_fields.email.required = true
-                }
-
+                user: new ModelObjectGlue('portal_user'),
             }"
         method="post"
 >
