@@ -1,9 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from abc import ABC, abstractmethod
 from typing import Any
 
+from django.template.loader import render_to_string
 from pydantic import BaseModel
 
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
+
+if TYPE_CHECKING:
+    from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
 
 class BaseBlock(ABC, BaseModel):
@@ -28,3 +36,16 @@ class BaseBlock(ABC, BaseModel):
     @abstractmethod
     def render_to_text(self) -> str:
         raise NotImplementedError
+
+    def to_dict(self, version_block: EntryVersionBlock):
+        return {
+            'value': self.value,
+            'type': self.type,
+            'update_template_rendered': render_to_string(
+                context={
+                    'version_block': version_block,
+                    'value': self.value,
+                },
+                template_name=self.update_template,
+            )
+        }

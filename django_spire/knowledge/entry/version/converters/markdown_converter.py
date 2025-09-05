@@ -8,13 +8,14 @@ import marko
 from typing import TYPE_CHECKING
 
 from marko.element import Element
-from marko.block import Heading
+from marko.block import Heading, List, ListItem
 
 from django_spire.knowledge.entry.version.converters.converter import \
     BaseConverter
 from django_spire.knowledge.entry.version.block import models
 
 if TYPE_CHECKING:
+    from django_spire.knowledge.entry.version.models import EntryVersion
     from django_spire.file.models import File
     from marko.block import BlockElement
 
@@ -25,6 +26,9 @@ class MarkdownConverter(BaseConverter):
     For more info on Marko:
     https://marko-py.readthedocs.io/en/latest/api.html#marko.block.BlockElement
     """
+    def __init__(self, entry_version: EntryVersion):
+        super().__init__(entry_version)
+        self._order = 0
 
     def convert_file_to_blocks(self, file: File) -> list[models.EntryVersionBlock]:
         with open(file.file.path, 'r') as f:
@@ -32,7 +36,7 @@ class MarkdownConverter(BaseConverter):
 
     def _convert_heading_block(
             self,
-            marko_block: Heading | BlockElement,
+            marko_block: Heading,
             order: int
     ) -> models.EntryVersionBlock:
         heading_type = (
@@ -48,6 +52,46 @@ class MarkdownConverter(BaseConverter):
             value=self._get_marko_text_content(marko_block),
         )
 
+    def _convert_list_block(
+            self,
+            marko_block: List | ListItem | Element,
+            bullet: str,
+            indent_level: int,
+            ordered: bool,
+    ) -> list[models.EntryVersionBlock]:
+        if isinstance(marko_block.children, str):
+            list_item_block = models.EntryVersionBlock.services.factory.create_null_block(
+                entry_version=self.entry_version,
+                block_type=models.BlockTypeChoices.LIST_ITEM,
+                order=self._order,
+                value=self._get_marko_text_content(marko_block),
+                bullet=bullet,
+                indent_level=indent_level,
+                ordered=ordered,
+            )
+            self._order += 1
+            return [list_item_block]
+
+        if isinstance(marko_block, ListItem):
+            indent_level += 1
+
+        blocks = []
+        for child in marko_block.children:
+            blocks.extend(
+                self._convert_list_block(
+                    marko_block=child,
+                    bullet=bullet,
+                    indent_level=indent_level,
+                    ordered=ordered,
+                )
+            )
+
+            if isinstance(child, ListItem) and bullet.endswith('.'):
+                bullet = bullet.rstrip('.')
+                bullet = str(int(bullet) + 1) + '.'
+
+        return blocks
+
     def convert_markdown_to_blocks(
             self,
             markdown_content: str
@@ -55,13 +99,24 @@ class MarkdownConverter(BaseConverter):
         syntax_tree = marko.parse(markdown_content)
 
         blocks = []
-        for order, marko_block in enumerate(syntax_tree.children, start=1):
-            blocks.append(
-                self._marko_block_to_version_block(
-                    marko_block=marko_block,
-                    order=order,
+        for marko_block in syntax_tree.children:
+            if isinstance(marko_block, List):
+                blocks.extend(
+                    self._convert_list_block(
+                        marko_block=marko_block,
+                        bullet=marko_block.bullet,
+                        indent_level=-1,
+                        ordered=marko_block.ordered,
+                    )
                 )
-            )
+            else:
+                blocks.append(
+                    self._marko_block_to_version_block(
+                        marko_block=marko_block,
+                        order=self._order,
+                    )
+                )
+                self._order += 1
 
         return blocks
 

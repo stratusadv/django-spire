@@ -14,16 +14,18 @@ def create_blank_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
     entry_version = EntryVersion.objects.get(pk=pk)
 
     body_data = json.loads(request.body.decode('utf-8'))
-    block_type = body_data.get('block_type')
-    order = body_data.get('order')
 
-    if not order or not block_type:
+    if 'order' not in body_data or 'block_type' not in body_data:
         return JsonResponse({'type': 'error', 'message': 'Missing Required Data.'})
+
+    block_type = body_data.pop('block_type')
+    order = body_data.pop('order')
 
     version_block = EntryVersionBlock.services.factory.create_blank_block(
         entry_version=entry_version,
         block_type=block_type,
         order=order,
+        **body_data,
     )
 
     return JsonResponse(
