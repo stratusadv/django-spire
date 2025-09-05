@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from django_spire.auth.permission.decorators import permission_required
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk.models import HelpDeskTicket
 

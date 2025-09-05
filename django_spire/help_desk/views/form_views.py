@@ -2,7 +2,7 @@ import django_glue as dg
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 
-from django_spire.auth.permission.decorators import permission_required
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk import forms
