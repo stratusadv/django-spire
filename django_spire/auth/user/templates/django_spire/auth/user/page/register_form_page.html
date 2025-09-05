@@ -1,12 +1,9 @@
 {% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_content %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-12">
-                {% include 'django_spire/auth/user/card/register_form_card.html' %}
-            </div>
+    <div class="row">
+        <div class="col-12">
+            {% include 'django_spire/auth/user/card/register_form_card.html' %}
         </div>
-    </form>
+    </div>
 {% endblock %}

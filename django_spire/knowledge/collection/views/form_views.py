@@ -19,15 +19,7 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
-# Don't like this method. Hard-coupled to view name.
-@AppAuthController('knowledge').can_access_view()  # Gets view name and can create map in KnowledgeAuthController to match to permission.
-
-# Provide basic default views, how can user (client devs) have special permissions on views?
-@AppAuthController('knowledge').can_view()
-@AppAuthController('knowledge').can_add()
-@AppAuthController('knowledge').can_change()
-@AppAuthController('knowledge').can_delete()
-
+AppAuthController('knowledge').permission_required('can_change')
 def form_view(
         request: WSGIRequest,
         pk: int = 0
@@ -41,9 +33,6 @@ def form_view(
         target=Collection.objects.active(),
         fields=['name']
     )
-
-    if AppAuthController('knowledge', request).has_tacos():
-        ...
 
     if request.method == 'POST':
         form = CollectionForm(request.POST, instance=collection)

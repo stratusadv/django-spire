@@ -22,27 +22,24 @@ from django_spire.core.redirect import safe_redirect_url
 from django_spire.history.activity.utils import add_form_activity
 
 
-@login_required()
+@permission_required('django_spire_auth_user.add_authuser')
 def register_form_view(request):
-    # Is this the best way to initialize a null object in glue?
-    dg.glue_model_object(request, 'portal_user', AuthUser(), 'view')
+    portal_user = AuthUser()
+    dg.glue_model_object(request, 'portal_user', portal_user, 'view')
 
     if request.method == 'POST':
-        user_form = forms.RegisterUserForm(request.POST)
+        user_form = forms.RegisterUserForm(request.POST, instance=portal_user)
 
-        # Checks to see if all forms are valid.
         if user_form.is_valid():
             user = user_form.save()
 
-            # Add form activity. This needs to be improved.
             add_form_activity(user, 0, request.user)
 
             return HttpResponseRedirect(reverse('django_spire:auth:user:page:list'))
 
         show_form_errors(request, user_form)
     else:
-        # If the form has an initial it will override the defaults.
-        user_form = forms.RegisterUserForm()
+        user_form = forms.RegisterUserForm(instance=portal_user)
 
     context_data = {
         # Todo: Function that takes in all of the forms and dumps the data here?
@@ -63,7 +60,7 @@ def register_form_view(request):
     )
 
 
-@permission_required('permission.change_portaluser')
+@permission_required('django_spire_auth_user.change_authuser')
 def form_view(request, pk):
     portal_user = get_object_or_404(AuthUser, pk=pk)
     dg.glue_model_object(request, 'portal_user', portal_user, 'view')
@@ -91,6 +88,7 @@ def form_view(request, pk):
         context_data=context_data,
         template='django_spire/auth/user/page/form_page.html'
     )
+
 
 @permission_required('django_spire_auth_group.change_authgroup')
 def group_form_view(request, pk):

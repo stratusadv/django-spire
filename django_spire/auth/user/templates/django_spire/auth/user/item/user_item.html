@@ -26,7 +26,7 @@
 {% block item_button %}
     {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
 
-    {% if perms.permission.change_portaluser %}
+    {% if perms.django_spire_auth_user.change_authuser %}
         {% url 'django_spire:auth:user:form:update' pk=user.pk as edit_url %}
     {% endif %}
 

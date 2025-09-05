@@ -29,9 +29,9 @@
             <span x-text="current_permission"></span>
         </div>
         <div @click.outside="show_dropdown = false" x-show="show_dropdown" style="width: 80px; z-index: 2"
-             class="card position-absolute bg-white mt-1">
+             class="card position-absolute bg-app-layer-three mt-1">
             <template x-for="perm in permission_choices">
-                <div @click="update(perm)" class="py-1 ps-2 cursor-pointer bg-soft-primary-hover"
+                <div @click="update(perm)" class="py-1 ps-2 cursor-pointer text-app-primary-hover"
                      x-bind:class="{ 'border-bottom': perm !== 'Delete' }">
                     <span class="fs--1" x-bind:class="{ 'text-app-secondary': perm === current_permission }"
                           x-text="perm"></span>

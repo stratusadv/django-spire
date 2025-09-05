@@ -14,7 +14,7 @@ from django_spire.core.shortcuts import process_request_body
 
 
 @require_POST
-@permission_required('permission.change_portalgroup')
+@permission_required('django_spire_auth_group.change_authgroup')
 def permission_form_ajax(
     request: WSGIRequest,
     pk: int,
@@ -51,7 +51,7 @@ def permission_form_ajax(
 
 
 @require_POST
-@permission_required('permission.change_portalgroup')
+@permission_required('django_spire_auth_group.change_authgroup')
 def special_role_form_ajax(
     request: WSGIRequest,
     pk: int,
@@ -69,7 +69,7 @@ def special_role_form_ajax(
             codename = body.get('codename')
             error_message = 'models.PortalUser does not have permission.'
 
-            if request.user.has_perm('permission.change_portalgroup'):
+            if request.user.has_perm('django_spire_auth_group.change_authgroup'):
                 group = get_object_or_404(models.AuthGroup, pk=pk)
                 group_perm_helper = GroupPermissions(group, model_permission=model_permission)
 

@@ -17,10 +17,8 @@
 {% endblock %}
 
 {% block item_button %}
-    {% if perms.permission.delete_portalgroup %}
-        {% url 'django_spire:auth:group:user_remove_form' group_pk=group.pk pk=user.pk as delete_url %}
-        {{ delete_url }}
+    {% if perms.django_spire_auth_group.delete_authgroup %}
+        {% url 'django_spire:auth:group:form:user_remove' group_pk=group.pk pk=user.pk as delete_url %}
         {% include 'django_spire/dropdown/ellipsis_dropdown.html' with delete_url_name='Remove' delete_url=delete_url %}
     {% endif %}
-
 {% endblock %}

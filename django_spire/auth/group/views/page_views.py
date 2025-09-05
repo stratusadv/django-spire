@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
-@permission_required('permission.view_portalgroup')
+@permission_required('django_spire_auth_group.view_authgroup')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=pk)
 
@@ -32,7 +32,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('permission.view_portalgroup')
+@permission_required('django_spire_auth_group.view_authgroup')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     group_list = models.AuthGroup.objects.all().prefetch_related('permissions')
 

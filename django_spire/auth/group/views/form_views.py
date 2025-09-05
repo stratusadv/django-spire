@@ -19,7 +19,10 @@ from django_spire.history.activity.utils import add_form_activity
 
 
 @permission_required('django_spire_auth_group.change_authgroup')
-def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
+def form_view(
+        request: WSGIRequest,
+        pk: int = 0
+) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_null_obj(models.AuthGroup, pk=pk)
 
     dg.glue_model_object(request, 'group', group)
@@ -48,10 +51,18 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpRespo
 
 
 @permission_required('django_spire_auth_group.add_authgroup')
-def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
+def user_form_view(
+        request: WSGIRequest,
+        pk: int
+) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     user_choices = AuthUser.services.get_user_choices()
-    selected_user_ids = list(AuthUser.objects.filter(groups=group).values_list('id', flat=True).distinct())
+    selected_user_ids = list(
+        AuthUser.objects
+        .filter(groups=group)
+        .values_list('id', flat=True)
+        .distinct()
+    )
 
     if request.method == 'POST':
         form = forms.GroupUserForm(data=request.POST)
@@ -63,7 +74,10 @@ def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResp
             group.add_activity(
                 user=request.user,
                 verb='added',
-                information=f'{request.user.get_full_name()} added {len(user_list)} users to the group "{group.name}".'
+                information=(
+                    f'{request.user.get_full_name()} added {len(user_list)} users to '
+                    f'the group "{group.name}".'
+                )
             )
 
             return_url = reverse('django_spire:auth:group:page:detail', kwargs={'pk': pk})
@@ -95,21 +109,22 @@ def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResp
 @permission_required('django_spire_auth_group.delete_authgroup')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=pk)
-    return_url = reverse('permission:list')
+    return_url = reverse('django_spire:auth:group:page:list')
 
     return portal_views.delete_form_view(
         request,
         obj=group,
         delete_func=group.delete,
+        activity_func=lambda: None,
         return_url=return_url
     )
 
 
-@permission_required('permission.delete_portaluser')
+@permission_required('django_spire_auth_group.delete_authgroup')
 def group_remove_user_form_view(
-    request: WSGIRequest,
-    group_pk: int,
-    pk: int
+        request: WSGIRequest,
+        group_pk: int,
+        pk: int
 ) -> HttpResponseRedirect | TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=group_pk)
     user = get_object_or_404(AuthUser, pk=pk)
@@ -123,11 +138,15 @@ def group_remove_user_form_view(
             group.add_activity(
                 user=request.user,
                 verb='removed',
-                information=f'{request.user.get_full_name()} removed {user.get_full_name()} from the group "{group.name}".'
+                information=(
+                    f'{request.user.get_full_name()} removed {user.get_full_name()} '
+                    f'from the group "{group.name}".'
+                )
             )
 
-            return_url = reverse('permission:detail', kwargs={'pk': group_pk})
-            return HttpResponseRedirect(return_url)
+            return HttpResponseRedirect(
+                reverse('django_spire:auth:group:page:detail', kwargs={'pk': group_pk})
+            )
 
     form = DeleteConfirmationForm(request.GET, obj=user)
 
@@ -141,5 +160,6 @@ def group_remove_user_form_view(
         form=form,
         verb=f'remove {user.get_full_name()} from',
         obj=group,
-        breadcrumbs_func=get_breadcrumbs
+        breadcrumbs_func=get_breadcrumbs,
+        template = 'django_spire/page/delete_confirmation_form_page.html'
     )

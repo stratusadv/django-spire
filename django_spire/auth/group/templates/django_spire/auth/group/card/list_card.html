@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.permission.change_portalgroup %}
+    {% if perms.django_spire_auth_group.change_authgroup %}
         {% url 'django_spire:auth:group:form:add' as add_group_url %}
         {% include 'django_spire/button/primary_dark_button.html' with button_href=add_group_url button_text='Add' button_icon='bi bi-plus' %}
     {% endif %}

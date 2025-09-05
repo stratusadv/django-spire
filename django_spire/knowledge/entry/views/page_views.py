@@ -4,11 +4,12 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
 from django_spire.knowledge.entry.models import Entry
 
 
-@login_required()
+AppAuthController('knowledge').permission_required('can_delete')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry = get_object_or_404(Entry, pk=pk)
 

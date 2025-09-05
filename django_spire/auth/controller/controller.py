@@ -39,7 +39,9 @@ class BaseAuthController:
                 uncallable_permissions = []
 
                 for perm in permissions:
-                    callable_permission = getattr(self, perm)
+                    callable_permission = (
+                        getattr(self, perm) if hasattr(self, perm) else perm
+                    )
                     if callable(callable_permission):
                         if not all_required and callable_permission():
                             return method(request, *args, **kwargs)

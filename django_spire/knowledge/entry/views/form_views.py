@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
@@ -17,7 +18,7 @@ from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
 
-@login_required()
+AppAuthController('knowledge').permission_required('can_change')
 def form_view(
         request: WSGIRequest,
         collection_pk: int,
@@ -68,7 +69,7 @@ def form_view(
     )
 
 
-@login_required()
+AppAuthController('knowledge').permission_required('can_add')
 def import_form_view(
         request: WSGIRequest,
         collection_pk: int

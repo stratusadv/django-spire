@@ -7,12 +7,12 @@
 {% block nav_icon %}bi bi-gear-fill{% endblock %}
 
 {% block accordion_links %}
-    {% if perms.permission.view_portalgroup %}
+    {% if perms.django_spire_auth_group.view_authgroup %}
         {% url 'django_spire_permission:list' as group_list_url %}
         {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Groups' link_icon='bi bi-people' link_url=group_list_url %}
     {% endif %}
 
-    {% if perms.permission.view_portaluser %}
+    {% if perms.django_spire_auth_user.view_authuser %}
         {% url 'django_spire_permission:user_list' as user_list_url %}
         {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Users' link_icon='bi bi-person-badge' link_url=user_list_url %}
     {% endif %}
