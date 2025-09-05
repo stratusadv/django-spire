@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    {{ form_title }}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'django_spire/auth/group/form/form.html' %}
+{% endblock %}

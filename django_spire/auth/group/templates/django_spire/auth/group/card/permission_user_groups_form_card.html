@@ -1,0 +1,77 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Permissions
+{% endblock %}
+
+
+{% block card_title_content %}
+    {% include 'django_spire/element/divider_element.html' with divider_title='Groups' %}
+    <div class="fs--1 text-muted">Adding a user to a group will assign them permissions allocated to this group.</div>
+
+    <div
+        x-data="{
+            async init() {
+                await this.group.get()
+                this.groups = await this.group_queryset.all()
+
+             },
+            group_queryset: new QuerySetGlue('group_queryset'),
+            group: new ModelObjectGlue('group'),
+            groups: [],
+            selected_groups: [],
+            get return_user_groups() {
+                return JSON.stringify(this.selected_groups)
+            },
+            get return_groups() {
+                return JSON.stringify(this.groups)
+            },
+            add_group() {
+                console.log(this.group.name)
+                if(this.group_exists(this.group.name) || this.group.name.length === 0) {
+                    dispatch_error_notification('Group names must be unique.')
+                } else {
+                    console.log(this.group)
+                    this.groups.push({... this.group})
+                    this.group.name = ''
+                }
+            },
+            select_group(group){
+                if(this.is_linked_group(group.name)) {
+                   this.selected_groups.splice(this.selected_groups.findIndex(obj => obj.name === group.name), 1);
+                } else {
+                    this.selected_groups.push(group)
+                }
+            },
+            is_linked_group() {
+                return this.selected_groups.some(obj => obj.name === group.name)
+            },
+            group_exists() {
+                return this.groups.some(obj => obj.name === this.group.name)
+            }
+        }"
+    >
+        <input type="text" hidden x-model="return_groups" name="groups">
+        <input type="text" hidden x-model="return_user_groups" name="user_groups">
+
+        <template x-for="(group, index) in groups" :key="index">
+            {% include 'django_spire/auth/group/item/permission_user_group_form_item.html' %}
+        </template>
+
+        <template x-if="groups.length === 0">
+            <div class="mt-1">
+                Create a group to add permissions!
+            </div>
+        </template>
+
+       <div class="row g-3 pt-2">
+           <div class="col-12">
+               {% include 'django_spire/element/divider_element.html' with divider_title='Add Group' %}
+               {% include 'django_glue/form/field/char_field.html' with label='Group Name' x_model_value='group.name' %}
+           </div>
+           <div class="col-12">
+               <span @click="add_group()">{% include 'django_spire/button/secondary_outlined_button.html' with button_text='Add Group' %}</span>
+           </div>
+       </div>
+    </div>
+{% endblock %}

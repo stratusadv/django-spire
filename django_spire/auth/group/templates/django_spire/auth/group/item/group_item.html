@@ -1,0 +1,33 @@
+{% extends 'django_spire/item/item.html' %}
+{% load spire_core_tags %}
+
+{% block item_title %}
+    {% if perms.permission.view_portalgroup %}
+        {% url 'django_spire:auth:group:page:detail' pk=group.pk as group_detail_url %}
+    {% endif %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_href=group_detail_url attribute_title='Name' attribute_value=group.name %}
+{% endblock %}
+
+{% block item_row_content %}
+    {% for perm in perm_data %}
+        <div class="col-lg-4 col-sm-3 col-4 mb-2">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title=perm.verbose_app_name|default:perm.app_name|title %}
+            {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with permission_level=perm.level_verbose|title %}
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block item_button %}
+    {% if location == 'group' %}
+        {% if perms.permission.change_portalgroup %}
+            {% url 'permission:detail' pk=group.pk as view_url %}
+            {% url 'permission:form' pk=group.pk as edit_url %}
+            {% if perms.permission.delete_portalgroup %}
+                {% url 'permission:delete_form' pk=group.pk as delete_url %}
+            {% endif %}
+            {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}
+        {% endif %}
+    {% else %}
+        {% include 'django_spire/item/element/item_ellipsis_spacer_element.html' %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Register New User
+{% endblock %}
+
+{% block card_title_content %}
+    <div
+        x-data="{
+            async init() {
+                this.setup_fields()
+                await this.get_glue()
+            },
+            user: new ModelObjectGlue('portal_user'),
+            repeat_password: new GlueCharField( 'repeat_password'),
+            setup_fields() {
+                this.user.glue_fields.first_name.required = true
+                this.user.glue_fields.last_name.required = true
+                this.user.glue_fields.email.required = true
+                this.repeat_password.required = true
+            },
+            async get_glue() {
+                // Better if this is a function and uses map?
+                await this.user.get()
+                this.user.set_properties(JSON.parse('{{ user_form_data }}'))
+            },
+            validate_form() {
+                if (this.user.password !== this.repeat_password.value){
+                    dispatch_error_notification('Passwords do not match.')
+                    return false
+                }
+
+                return true
+            }
+        }"
+        class="row g-3"
+    >
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/field/char_field.html' with glue_model_field='user.first_name' %}
+        </div>
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/field/char_field.html' with glue_model_field='user.last_name' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_glue/form/field/email_field.html' with glue_model_field='user.email' %}
+        </div>
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/field/password_field.html' with glue_model_field='user.password' %}
+        </div>
+        <div class="col-md-6 col-12">
+            {% include 'django_glue/form/field/password_field.html' with glue_field='repeat_password' x_model_value='repeat_password.value' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        </div>
+    </div>
+{% endblock %}

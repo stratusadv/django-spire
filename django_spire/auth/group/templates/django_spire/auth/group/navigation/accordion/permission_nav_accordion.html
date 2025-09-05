@@ -1,0 +1,19 @@
+{% extends 'django_spire/navigation/accordion/nav_accordion.html' %}
+
+{% block nav_title %}
+    Permission
+{% endblock %}
+
+{% block nav_icon %}bi bi-gear-fill{% endblock %}
+
+{% block accordion_links %}
+    {% if perms.permission.view_portalgroup %}
+        {% url 'django_spire_permission:list' as group_list_url %}
+        {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Groups' link_icon='bi bi-people' link_url=group_list_url %}
+    {% endif %}
+
+    {% if perms.permission.view_portaluser %}
+        {% url 'django_spire_permission:user_list' as user_list_url %}
+        {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Users' link_icon='bi bi-person-badge' link_url=user_list_url %}
+    {% endif %}
+{% endblock %}
