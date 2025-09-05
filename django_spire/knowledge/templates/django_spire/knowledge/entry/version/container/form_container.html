@@ -25,7 +25,7 @@
                     $dispatch('notify', {type:'error', message: response.message})
                 } else {
                     let block_data = JSON.parse(response.entry_version_block_json)
-                    const new_version_block = await this.manager.insert_blank_block(
+                    await this.manager.insert_blank_block(
                         {
                             id: block_data.id,
                             block_type: block_data.type,
@@ -33,7 +33,6 @@
                             block: block_data.block
                         }
                     )
-                    $dispatch('update_block_order_focus', {order: new_version_block.order, cursor_position: 0})
                 }
             },
             async create_list_item_block({previous_block}) {
@@ -44,26 +43,19 @@
                 } else {
                     bullet = previous_block.block.bullet
                 }
-                const version_block = await this.create_blank_block({
+                await this.create_blank_block({
                     block_type: 'list_item',
                     order: previous_block.order + 1,
                     bullet: bullet,
                     indent_level: previous_block.block.indent_level,
                     ordered: previous_block.block.ordered
                 })
-                $dispatch('update_block_order_focus', {order: version_block.order, cursor_position: 0})
             },
             async delete_block_if_empty({version_block}) {
                 if (version_block.block.value !== '') return
 
                 const previous_order = version_block.order - 1
                 if (previous_order === 0) return
-
-                const previous_block_length = this.manager.get_block_length({order: previous_order})
-                $dispatch(
-                    'update_block_order_focus',
-                    {order: previous_order, cursor_position: previous_block_length}
-                )
 
                 let response = await django_glue_fetch(
                     '{% url "django_spire:knowledge:entry:version:json:delete_block" pk=current_version.pk %}',
@@ -110,12 +102,13 @@
             }
         }"
         x-sort="await reorder_block({block: $item, order: $position})"
+        x-sort:config="{handle: '[x-sort\\:handle]'}"
     >
         <template x-for="(version_block, index) in manager.entry_version.version_blocks" :key="version_block.id">
             <div class="row align-items-center block" x-sort:item="version_block.id">
-                <div class="col-auto pe-0 action-items">
+                <div x-sort:handle class="col-auto pe-0 action-items">
                     <div class="row m-0 p-0">
-                        <i style="cursor: grab" x-sort:handle class="col bi bi-grip-vertical p-0 align-self-center"></i>
+                        <i style="cursor: grab" class="col bi bi-grip-vertical p-0 align-self-center"></i>
                         <div class="col">
                             {% include 'django_spire/knowledge/entry/version/block/dropdown/add_dropdown.html' %}
                         </div>
