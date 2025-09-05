@@ -14,7 +14,7 @@ from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
-AppAuthController('knowledge').permission_required('can_change')
+@AppAuthController('knowledge').permission_required('can_change')
 def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     current_version = get_object_or_404(EntryVersion, pk=pk)
     entry = current_version.entry

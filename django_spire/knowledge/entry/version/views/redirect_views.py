@@ -8,7 +8,7 @@ from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
-AppAuthController('knowledge').permission_required('can_change')
+@AppAuthController('knowledge').permission_required('can_change')
 def publish_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect:
     version = get_object_or_404(EntryVersion, pk=pk)
     version.services.processor.publish()

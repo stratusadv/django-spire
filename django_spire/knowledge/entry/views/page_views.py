@@ -9,7 +9,7 @@ from django_spire.contrib.generic_views import portal_views
 from django_spire.knowledge.entry.models import Entry
 
 
-AppAuthController('knowledge').permission_required('can_delete')
+@AppAuthController('knowledge').permission_required('can_delete')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry = get_object_or_404(Entry, pk=pk)
 

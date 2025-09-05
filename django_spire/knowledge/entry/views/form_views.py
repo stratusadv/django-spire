@@ -18,7 +18,7 @@ from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
 
-AppAuthController('knowledge').permission_required('can_change')
+@AppAuthController('knowledge').permission_required('can_change')
 def form_view(
         request: WSGIRequest,
         collection_pk: int,
@@ -69,7 +69,7 @@ def form_view(
     )
 
 
-AppAuthController('knowledge').permission_required('can_add')
+@AppAuthController('knowledge').permission_required('can_add')
 def import_form_view(
         request: WSGIRequest,
         collection_pk: int
