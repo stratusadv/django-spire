@@ -51,7 +51,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         model=Collection,
         context_data={
             'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                queryset=Collection.objects.active().select_related('parent')
+                queryset=Collection.objects.active().select_related('parent').order_by('order')
             )
         },
         template='django_spire/knowledge/collection/page/list_page.html'

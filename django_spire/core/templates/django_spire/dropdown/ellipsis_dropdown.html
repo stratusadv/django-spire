@@ -13,13 +13,19 @@
 {% block dropdown_content %}
     {% if view_url %}
         {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='View' link_url=view_url %}
+    {% elif x_view_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='View' x_link_url=x_view_url %}
     {% endif %}
 
     {% if edit_url %}
         {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Edit' link_url=edit_url %}
+    {% elif x_edit_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Edit' x_link_url=x_edit_url %}
     {% endif %}
 
     {% if delete_url %}
         {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Delete' link_url=delete_url link_css='text-app-danger' %}
+    {% elif x_delete_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Delete' x_link_url=x_delete_url %}
     {% endif %}
 {% endblock %}
