@@ -11,7 +11,7 @@ class AuthGroup(Group, ActivityMixin):
     @classmethod
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
-        crumbs.add_breadcrumb('Groups', reverse('permission:group_list'))
+        crumbs.add_breadcrumb('Groups', reverse('django_spire:auth:group:page:list'))
         return crumbs
 
     def breadcrumbs(self) -> Breadcrumbs:
@@ -22,7 +22,7 @@ class AuthGroup(Group, ActivityMixin):
             crumbs.add_breadcrumb(
                 name=self.name,
                 href=reverse(
-                    'permission:group_detail',
+                    'django_spire:auth:group:page:detail',
                     kwargs={'pk': self.pk}
                 )
             )
@@ -33,5 +33,3 @@ class AuthGroup(Group, ActivityMixin):
         proxy = True
         verbose_name = 'Auth Group'
         verbose_name_plural = 'Auth Groups'
-
-

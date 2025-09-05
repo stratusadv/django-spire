@@ -2,10 +2,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.template.response import TemplateResponse
 
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.entry.models import Entry
 
 
-@login_required()
+@AppAuthController('knowledge').permission_required('can_view')
 def file_list_view(request: WSGIRequest) -> TemplateResponse:
     return TemplateResponse(
         request,

@@ -7,15 +7,17 @@
 {% block container_button %}
     <div class="container">
         <div class="row align-items-center">
+            {% if AuthController.knowledge.can_change %}
+                <div class="col">
+                    {% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
+                    {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_class='btn-md' button_href=entry_edit_url %}
+                </div>
+            {% endif %}
             <div class="col">
-                {% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
-                {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_class='btn-md' button_href=entry_edit_url %}
-            </div>
-            <div class="col">
-                {% if entry.current_version.is_published %}
-                    {% include 'django_spire/knowledge/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
-                {% else %}
+                {% if not entry.current_version.is_published and AuthController.knowledge.can_change %}
                     {% include 'django_spire/knowledge/entry/modal/publish_confirm_modal.html' %}
+                {% else %}
+                    {% include 'django_spire/knowledge/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
                 {% endif %}
             </div>
         </div>
