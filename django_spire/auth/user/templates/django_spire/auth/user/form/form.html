@@ -4,12 +4,10 @@
                     toggle_loading_overlay()
                     await this.get_glue()
                     toggle_loading_overlay()
-                    console.log(this.user)
                 },
                 user: new ModelObjectGlue('portal_user'),
                 async get_glue() {
                     await this.user.get()
-                    // this.user.set_properties('{{ initial_data }}')
                 },
                 set_fields() {
                     this.user.glue_fields.first_name.required = true

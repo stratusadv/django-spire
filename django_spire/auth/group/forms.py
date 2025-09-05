@@ -41,20 +41,6 @@ class GroupForm(forms.ModelForm):
 class GroupUserForm(forms.Form):
     users = forms.ModelMultipleChoiceField(required=False, queryset=User.objects.filter(is_active=True))
 
-        # self.helper = FormHelper(self)
-        # self.helper.include_media = False
-        # self.fields['available_users'] = forms.ModelMultipleChoiceField(
-        #     queryset=User.objects.exclude(id__in=[user.id for user in group.user_set.all()]),
-        #     required=True,
-        # )
-        # self.fields['available_users'].label_from_instance = self.user_label
-        # self.helper.layout = Layout(
-        #     Row(
-        #         Column('available_users', css_class='form-group col-12'),
-        #     ),
-        # )
-        # self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-primary'))
-
     @staticmethod
     def user_label(obj):
         return obj.get_full_name()
