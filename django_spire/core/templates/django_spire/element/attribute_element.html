@@ -10,8 +10,8 @@
     {% endblock %}
 </div>
 
-{% if attribute_href %}
-    <a class="text-decoration-none" href="{{ attribute_href }}" target="{{ target }}">
+{% if attribute_href or x_click %}
+    <a class="text-decoration-none" href="{{ attribute_href }}" target="{{ target }}" @click="{{ x_click }}">
 {% else %}
     <div class="fs-6">
 {% endif %}
@@ -26,7 +26,7 @@
     {% endif %}
 {% endblock %}
 
-{% if attribute_href %}
+{% if attribute_href or x_click %}
     </a>
 {% else %}
     </div>

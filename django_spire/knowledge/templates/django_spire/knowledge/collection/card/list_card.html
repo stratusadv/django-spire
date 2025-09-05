@@ -12,9 +12,22 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% for collection in collections %}
-        {% include 'django_spire/knowledge/collection/item/list_item.html' %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
+    <div
+        x-data="{
+            manager: new CollectionManager({{ collection_tree_json }})
+        }"
+    >
+        <template x-component="collection-tree">
+            <template x-for="collection in items" :key="collection.id">
+                <div>
+                    {% include 'django_spire/knowledge/collection/item/list_item.html' %}
+                    <div class="ms-2">
+                        <x-collection-tree :items="collection.children"></x-collection-tree>
+                    </div>
+                </div>
+            </template>
+        </template>
+
+        <x-collection-tree :items="manager.collection_map"></x-collection-tree>
+    </div>
 {% endblock %}

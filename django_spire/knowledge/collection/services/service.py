@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from django_spire.contrib.ordering.services.service import OrderingService
 from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
+
+from django_spire.knowledge.collection.services.transformation_service import \
+    CollectionTransformationService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.collection.models import Collection
@@ -12,4 +14,4 @@ if TYPE_CHECKING:
 class CollectionService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    ordering: OrderingService = OrderingService()
+    transformation: CollectionTransformationService = CollectionTransformationService()

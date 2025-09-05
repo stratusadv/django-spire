@@ -1,9 +1,42 @@
 {% extends 'django_spire/page/full_page.html' %}
 
+{% load static %}
+
+{% block base_body_additional_top_js %}
+    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+{% endblock %}
+
 {% block full_page_content %}
     <div class="row">
         <div class="col-12">
             {% include 'django_spire/knowledge/collection/card/list_card.html' %}
         </div>
     </div>
+{% endblock %}
+
+{% block base_body_additional_bottom_js %}
+<script>
+    document.querySelectorAll('template[x-component]').forEach(template => {
+        const name = `x-${template.getAttribute('x-component')}`;
+
+        class Component extends HTMLElement {
+            connectedCallback() {
+                const clone = template.content.cloneNode(true);
+                const itemsBinding = this.getAttribute(':items');
+                if (itemsBinding) {
+                    const wrapper = document.createElement('div');
+                    wrapper.setAttribute('x-data', `{ items: ${itemsBinding} }`);
+                    wrapper.appendChild(clone);
+                    this.append(wrapper);
+                } else {
+                    this.append(clone);
+                }
+            }
+        }
+
+        if (!customElements.get(name)) {
+            customElements.define(name, Component);
+        }
+    });
+</script>
 {% endblock %}

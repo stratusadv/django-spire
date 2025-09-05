@@ -46,13 +46,13 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @login_required()
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    collections = Collection.objects.active().select_related('parent')
-
     return portal_views.list_view(
         request,
         model=Collection,
         context_data={
-            'collections': collections
+            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
+                queryset=Collection.objects.active().select_related('parent')
+            )
         },
         template='django_spire/knowledge/collection/page/list_page.html'
     )
