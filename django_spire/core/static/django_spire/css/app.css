@@ -1,26 +1,23 @@
 :root {
-    --app-default-attribute-title-color: #000000;
-    --app-default-button-text-color: #ffffff;
-    --app-default-text-color: #000000;
-    --app-default-bg-color: #ffffff;
-    --app-default-link-color: #0d6efd;
-    --app-default-link-hover-color: #0a58ca;
-    --app-default-link-active-color: #084298;
-    --app-default-link-visited-color: #6c757d;
-
     --app-black: #000000;
     --app-white: #ffffff;
+    --app-side-navigation-width: 200px;
+    --app-mobile-navigation-width: 200px;
 
     --app-dark: #212529;
     --app-light: #f8f9fa;
+
+    --app-primary: #0d6efd;
+    --app-primary-soft: #cfe2ff;
+    --app-primary-dark: #084298;
 
     --app-secondary: #6c757d;
     --app-secondary-soft: #e2e3e5;
     --app-secondary-dark: #41464b;
 
-    --app-primary: #0d6efd;
-    --app-primary-soft: #cfe2ff;
-    --app-primary-dark: #084298;
+    --app-accent: #ff6d00;
+    --app-accent-soft: #ff9e80;
+    --app-accent-dark: #b25400;
 
     --app-success: #198754;
     --app-success-soft: #d1e7dd;
@@ -29,10 +26,6 @@
     --app-warning: #ffc107;
     --app-warning-soft: #fff3cd;
     --app-warning-dark: #664d03;
-
-    --app-accent: #ff6d00;
-    --app-accent-soft: #ff9e80;
-    --app-accent-dark: #b25400;
 
     --app-danger: #dc3545;
     --app-danger-soft: #f8d7da;
@@ -44,12 +37,39 @@
     --app-layer-four: #ffffff;
     --app-layer-five: #000000;
 
+    --app-default-attribute-title-color: #000000;
+    --app-default-button-text-color: #ffffff;
+    --app-default-text-color: #000000;
+    --app-default-bg-color: #ffffff;
+    --app-default-link-color: #0d6efd;
+    --app-default-link-hover-color: #0a58ca;
+    --app-default-link-active-color: #084298;
+    --app-default-link-visited-color: #6c757d;
+
     --app-side-navigation-bg-color: #306178;
     --app-mobile-navigation-bg-color: #001720;
-
     --app-top-navigation-bg-color: #ffffff;
     --app-footer-bg-color: #ffffff;
 
-    --app-side-navigation-width: 200px;
-    --app-mobile-navigation-width: 200px;
+    --bs-border-color: #000000;
+    --bs-border-color-translucent: rgba(0, 0, 0, 0.175);
+
+    --app-shadow-light: rgba(0, 0, 0, 0.1);
+    --app-shadow-medium: rgba(0, 0, 0, 0.3);
+    --app-shadow-heavy: rgba(0, 0, 0, 0.4);
+    --app-shadow-navigation: rgba(0, 0, 0, 0.6);
+
+    --app-overlay-light: rgba(0, 0, 0, 0.5);
+    --app-overlay-modal: rgba(0, 0, 0, 0.5);
+
+    --app-border-translucent-light: rgba(0, 0, 0, 0.175);
+
+    --app-focus-ring-primary: rgba(13, 110, 253, 0.25);
+
+    --app-btn-shadow-default: 2px 2px 4px 0px var(--app-shadow-light);
+    --app-btn-shadow-hover: 3px 3px 4px 0px var(--app-shadow-medium);
+    --app-btn-shadow-dark-default: 0 2px 4px var(--app-shadow-medium);
+    --app-btn-shadow-dark-hover: 0 4px 8px var(--app-shadow-heavy);
+
+    --app-nav-shadow: 0 4px 12px var(--app-shadow-navigation);
 }

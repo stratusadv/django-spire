@@ -4,6 +4,16 @@
 <!doctype html>
 <html lang="en" data-bs-theme="{% block html_data_bs_theme %}light{% endblock %}">
 <head>
+    <script>
+        (function() {
+            let theme = localStorage.getItem('django-spire-theme') || 'light';
+
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     {% block base_head %}
         {% block base_head_title %}
             <title>{{ html_head_title }}</title>
@@ -63,12 +73,13 @@
 
         {% block base_head_additional_content %}
         {% endblock %}
-
     {% endblock %}
 </head>
 
 <body class="{% block base_body_class %}bg-app-layer-one{% endblock %}">
     {% block base_body %}
+        {% include 'django_spire/element/theme_store_element.html' %}
+
         {% block base_body_top_js %}
         {% endblock %}
 

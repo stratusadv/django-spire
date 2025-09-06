@@ -6,7 +6,7 @@ html, body {
 }
 
 body {
-    color: black;
+    transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 body > .container.my-3 {
@@ -14,8 +14,7 @@ body > .container.my-3 {
 }
 
 .hover-card:hover {
-    transform: scale(1.10);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.02);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 

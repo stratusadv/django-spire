@@ -1,120 +1,91 @@
-:root {
-    --app-border-white: var(--app-white);
-    --app-border-black: var(--app-black);
-
-    --app-border-light: var(--app-light);
-    --app-border-dark: var(--app-dark);
-
-    --app-border-primary: var(--app-primary);
-    --app-border-primary-soft: var(--app-primary-soft);
-    --app-border-primary-dark: var(--app-primary-dark);
-
-    --app-border-secondary: var(--app-secondary-dark);
-    --app-border-secondary-soft: var(--app-secondary-dark);
-    --app-border-secondary-dark: var(--app-secondary-dark);
-
-    --app-border-accent: var(--app-accent);
-    --app-border-accent-soft: var(--app-accent);
-    --app-border-accent-dark: var(--app-accent);
-
-    --app-border-success: var(--app-success);
-    --app-border-success-outlined: var(--app-success);
-    --app-border-success-dark: var(--app-success);
-
-    --app-border-warning: var(--app-warning);
-    --app-border-warning-soft: var(--app-warning);
-    --app-border-warning-dark: var(--app-warning);
-
-    --app-border-danger: var(--app-danger);
-    --app-border-danger-soft: var(--app-danger);
-    --app-border-danger-dark: var(--app-danger);
-
-    --app-border-layer-one: var(--app-layer-one);
-    --app-border-layer-two: var(--app-layer-two);
-    --app-border-layer-three: var(--app-layer-three);
-    --app-border-layer-four: var(--app-layer-four);
-    --app-border-layer-five: var(--app-layer-five);
-}
-
-.border-app-none {
-}
-
 .border-app-primary {
-    border-color: var(--app-border-primary) !important;
+    border-color: var(--app-primary);
 }
 
 .border-app-primary-soft {
-    border-color: var(--app-border-primary-soft) !important;
+    border-color: var(--app-primary-soft);
 }
 
 .border-app-primary-dark {
-    border-color: var(--app-border-primary-dark) !important;
+    border-color: var(--app-primary-dark);
 }
 
 .border-app-secondary {
-    border-color: var(--app-border-secondary) !important;
+    border-color: var(--app-secondary);
 }
 
 .border-app-secondary-soft {
-    border-color: var(--app-border-secondary-soft) !important;
+    border-color: var(--app-secondary-soft);
 }
 
 .border-app-secondary-dark {
-    border-color: var(--app-border-secondary-dark) !important;
+    border-color: var(--app-secondary-dark);
 }
 
 .border-app-accent {
-    border-color: var(--app-border-accent) !important;
+    border-color: var(--app-accent);
 }
 
 .border-app-accent-soft {
-    border-color: var(--app-border-accent-soft) !important;
+    border-color: var(--app-accent-soft);
 }
 
 .border-app-accent-dark {
-    border-color: var(--app-border-accent-dark) !important;
+    border-color: var(--app-accent-dark);
+}
+
+.border-app-success {
+    border-color: var(--app-success);
+}
+
+.border-app-success-soft {
+    border-color: var(--app-success-soft);
+}
+
+.border-app-success-dark {
+    border-color: var(--app-success-dark);
 }
 
 .border-app-warning {
-    border-color: var(--app-border-warning) !important;
+    border-color: var(--app-warning);
 }
 
 .border-app-warning-soft {
-    border-color: var(--app-border-warning-soft) !important;
+    border-color: var(--app-warning-soft);
 }
 
 .border-app-warning-dark {
-    border-color: var(--app-border-warning-dark) !important;
+    border-color: var(--app-warning-dark);
 }
 
 .border-app-danger {
-    border-color: var(--app-border-danger) !important;
+    border-color: var(--app-danger);
 }
 
 .border-app-danger-soft {
-    border-color: var(--app-border-danger-soft) !important;
+    border-color: var(--app-danger-soft);
 }
 
 .border-app-danger-dark {
-    border-color: var(--app-border-danger-dark) !important;
+    border-color: var(--app-danger-dark);
 }
 
 .border-app-layer-one {
-    border-color: var(--app-border-layer-one) !important;
+    border-color: var(--app-layer-one);
 }
 
 .border-app-layer-two {
-    border-color: var(--app-border-layer-two) !important;
+    border-color: var(--app-layer-two);
 }
 
 .border-app-layer-three {
-    border-color: var(--app-border-layer-three) !important;
+    border-color: var(--app-layer-three);
 }
 
 .border-app-light {
-    border-color: var(--app-border-light) !important;
+    border-color: var(--app-light);
 }
 
 .border-app-dark {
-    border-color: var(--app-border-dark) !important;
+    border-color: var(--app-dark);
 }

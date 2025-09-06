@@ -1,0 +1,9 @@
+<button
+    @click="$store.theme.toggle()"
+    class="theme-toggle"
+    type="button"
+    x-data
+>
+    <span x-show="$store.theme.is('dark')">🌙</span>
+    <span x-show="$store.theme.is('light')">☀️</span>
+</button>

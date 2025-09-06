@@ -92,7 +92,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
     @property
     def field_prompt(self) -> Prompt:
-        # Todo: Add functionality here to take a prompt.
+        # TODO: Add functionality here to take a prompt.
         if any(len(info) > 1 for info in self.seeder_fields.values()):
             field_prompt = (
                 Prompt()
@@ -115,10 +115,13 @@ class DjangoFieldFakerSeeder(BaseFieldSeeder):
 
     def seed(self, model_seeder, count = 1) -> list[dict]:
         data = []
-        for i in range(count):
+
+        for _ in range(count):
             row = {}
+
             for field_name, faker_config in self.seeder_fields.items():
                 faker_method = faker_config[1:] if len(faker_config) > 1 else None
+
                 try:
                     row[field_name] = fake_model_field_value(
                         model_class=model_seeder.model_class,
@@ -126,6 +129,9 @@ class DjangoFieldFakerSeeder(BaseFieldSeeder):
                         faker_method=faker_method
                     )
                 except Exception as e:
-                    raise ValueError(f"Error generating faker value for field '{field_name}': {e}")
+                    message = f"Error generating faker value for field '{field_name}': {e}"
+                    raise ValueError(message) from None
+
             data.append(row)
+
         return data

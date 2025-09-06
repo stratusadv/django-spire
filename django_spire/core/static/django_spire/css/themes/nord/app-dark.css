@@ -1,0 +1,57 @@
+[data-theme="dark"] {
+    --app-dark: #2e3440;
+    --app-light: #eceff4;
+
+    --app-primary: #81a1c1;
+    --app-primary-soft: #3b4252;
+    --app-primary-dark: #5e81ac;
+
+    --app-secondary: #d8dee9;
+    --app-secondary-soft: #3b4252;
+    --app-secondary-dark: #e5e9f0;
+
+    --app-accent: #bf616a;
+    --app-accent-soft: #3b4252;
+    --app-accent-dark: #a54e56;
+
+    --app-success: #a3be8c;
+    --app-success-soft: #3b4252;
+    --app-success-dark: #8fa876;
+
+    --app-warning: #ebcb8b;
+    --app-warning-soft: #3b4252;
+    --app-warning-dark: #d4b066;
+
+    --app-danger: #bf616a;
+    --app-danger-soft: #3b4252;
+    --app-danger-dark: #a54e56;
+
+    --app-layer-one: #2e3440;
+    --app-layer-two: #3b4252;
+    --app-layer-three: #434c5e;
+    --app-layer-four: #4c566a;
+    --app-layer-five: #5e6d83;
+
+    --app-default-attribute-title-color: #eceff4;
+    --app-default-button-text-color: #2e3440;
+    --app-default-text-color: #eceff4;
+    --app-default-bg-color: #2e3440;
+    --app-default-link-color: #81a1c1;
+    --app-default-link-hover-color: #bf616a;
+    --app-default-link-active-color: #a3be8c;
+
+    --app-side-navigation-bg-color: #2e3440;
+    --app-mobile-navigation-bg-color: #2e3440;
+    --app-top-navigation-bg-color: #2e3440;
+    --app-footer-bg-color: #2e3440;
+
+    --bs-border-color: #434c5e;
+
+    --app-shadow-light: rgba(0, 0, 0, 0.2);
+    --app-shadow-medium: rgba(0, 0, 0, 0.4);
+    --app-shadow-heavy: rgba(0, 0, 0, 0.6);
+    --app-shadow-navigation: rgba(0, 0, 0, 0.8);
+
+    --app-border-translucent-light: rgba(67, 76, 94, 0.175);
+    --app-focus-ring-primary: rgba(129, 161, 193, 0.25);
+}

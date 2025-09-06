@@ -1,0 +1,29 @@
+<div x-data x-init="
+    Alpine.store('theme', {
+        current: localStorage.getItem('django-spire-theme') || 'light',
+
+        apply() {
+            if (this.current === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        },
+
+        toggle() {
+            this.current = this.current === 'dark' ? 'light' : 'dark';
+            this.apply();
+            localStorage.setItem('django-spire-theme', this.current);
+        },
+
+        set(theme) {
+            this.current = theme;
+            this.apply();
+            localStorage.setItem('django-spire-theme', theme);
+        },
+
+        is(theme) {
+            return this.current === theme;
+        }
+    });
+"></div>

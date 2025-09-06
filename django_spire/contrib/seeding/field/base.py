@@ -22,7 +22,8 @@ class BaseFieldSeeder(ABC):
         super().__init_subclass__(**kwargs)
 
         if cls.keyword is None:
-            raise ValueError("Seeds must have a keyword")
+            message = 'Seeds must have a keyword'
+            raise ValueError(message)
 
     def _normalize_fields(self, fields: dict) -> dict:
         return normalize_seeder_fields(fields)

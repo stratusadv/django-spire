@@ -1,6 +1,13 @@
+body {
+    color: var(--app-default-text-color);
+    background-color: var(--app-default-bg-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 a {
     color: var(--app-default-link-color);
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 a:hover {
@@ -9,17 +16,4 @@ a:hover {
 
 a:active {
     color: var(--app-default-link-active-color);
-}
-
-a:visited {
-    color: var(--app-default-link-visited-color);
-}
-
-a:visited:hover {
-    color: var(--app-default-link-hover-color);
-}
-
-body {
-    color: var(--app-default-text-color);
-    background-color: var(--app-default-bg-color);
 }
