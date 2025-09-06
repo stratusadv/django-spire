@@ -1,0 +1,28 @@
+<form
+        x-data="{
+                async init () {
+                    await this.user.get()
+                },
+                user: new ModelObjectGlue('portal_user'),
+            }"
+        method="post"
+>
+    {% csrf_token %}
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            {% include 'django_glue/form/field/char_field.html' with glue_model_field='user.first_name' %}
+        </div>
+        <div class="col-6">
+            {% include 'django_glue/form/field/char_field.html' with glue_model_field='user.last_name' %}
+        </div>
+        <div class="col-6">
+            {% include 'django_glue/form/field/email_field.html' with glue_model_field='user.email' %}
+        </div>
+        <div class="col-6">
+            {% include 'django_glue/form/field/select_field.html' with glue_model_field='user.is_active' %}
+        </div>
+    </div>
+
+    {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+</form>

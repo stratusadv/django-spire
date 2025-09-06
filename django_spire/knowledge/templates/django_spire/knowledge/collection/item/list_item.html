@@ -15,8 +15,14 @@
 {% endblock %}
 
 {% block item_button %}
-    {% url 'django_spire:knowledge:collection:page:detail' pk=collection.pk as collection_detail_url %}
-    {% url 'django_spire:knowledge:collection:form:update' pk=collection.pk as collection_edit_url %}
-    {% url 'django_spire:knowledge:collection:page:delete' pk=collection.pk as collection_delete_url %}
+    {% if AuthController.knowledge.can_view %}
+        {% url 'django_spire:knowledge:collection:page:detail' pk=collection.pk as collection_detail_url %}
+    {% endif %}
+    {% if AuthController.knowledge.can_change %}
+        {% url 'django_spire:knowledge:collection:form:update' pk=collection.pk as collection_edit_url %}
+    {% endif %}
+    {% if AuthController.knowledge.can_delete %}
+        {% url 'django_spire:knowledge:collection:page:delete' pk=collection.pk as collection_delete_url %}
+    {% endif %}
     {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=collection_detail_url edit_url=collection_edit_url delete_url=collection_delete_url %}
 {% endblock %}

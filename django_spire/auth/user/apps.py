@@ -8,6 +8,14 @@ class UserAccountConfig(AppConfig):
     label = 'django_spire_auth_user'
     name = 'django_spire.auth.user'
 
+    MODEL_PERMISSIONS = (
+        {
+            'name': 'user',
+            'model_class_path': 'django_spire.auth.user.models.AuthUser',
+            'is_proxy_model': True
+        },
+    )
+
     REQUIRED_APPS = ('django_spire_core', 'django_spire_auth')
 
     def ready(self) -> None:

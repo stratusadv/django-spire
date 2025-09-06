@@ -5,6 +5,13 @@
 ### Breaking
 
 - The `permissions_required` decorator now takes position arguments instead of an optional tuple.
+- Templates in the 'django_spire/auth/user_account' directory have been moved to 'django_spire/auth/user'
+- Templates in the 'django_spire/auth/permission' directory have been moved to 'django_spire/auth/group'
+- The form views that were previously in 'django_spire/auth/user/page_views.py' have been moved to 'django_spire/auth/user/views/form_views.py'
+- The form URLs that were previously in 'django_spire/auth/user/urls/page_urls.py' have been moved to 'django_spire/auth/user/urls/form_urls.py'
+- The form views that were previously in 'django_spire/auth/group/page_views.py' have been moved to 'django_spire/auth/group/views/form_views.py'
+- The form URLs that were previously in 'django_spire/auth/group/urls/page_urls.py' have been moved to 'django_spire/auth/group/urls/form_urls.py'
+- Page view URLs for the 'AuthUser' and 'AuthGroup' now require the 'page' namespace
 
 ### Feature
 
@@ -13,6 +20,7 @@
 ### Fix
 
 - fixed permission decoractor to redirect to login
+- Fixed broken urls that were in the base templates for the 'AuthUser' and 'AuthGroup' apps.
 
 ## v0.14.7
 
@@ -40,6 +48,7 @@
 
 ### Changes
 - Updated theme apps.py file to allow for url access. 
+- Updated app structure for 'AuthUser' and 'AuthGroup' to be consistent with other spire apps.
 
 
 ## v0.14.3

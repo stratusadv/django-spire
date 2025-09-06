@@ -1,0 +1,26 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% load spire_core_tags %}
+
+{% block card_title %}
+    Groups
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.django_spire_auth_group.change_authgroup %}
+        {% url 'django_spire:auth:user:form:group_form' pk=user.pk as add_group_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_href=add_group_url button_icon='bi bi-pencil-fill' %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% if group_list %}
+        {% include 'django_spire/auth/user/item/user_master_perm_item.html' %}
+
+        {% for group in group_list %}
+            {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='user' delete_url_name='Remove' %}
+        {% endfor %}
+    {% else %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endif %}
+{% endblock %}

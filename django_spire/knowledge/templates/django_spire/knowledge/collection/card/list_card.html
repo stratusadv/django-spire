@@ -7,8 +7,10 @@
 {% endblock %}
 
 {% block card_button %}
-    {% url 'django_spire:knowledge:collection:form:create' as create_url %}
-    {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+    {% if AuthController.knowledge.can_change %}
+        {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+    {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
