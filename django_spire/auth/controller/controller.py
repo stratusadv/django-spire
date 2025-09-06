@@ -3,7 +3,7 @@ import functools
 from django.core.exceptions import PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
 
-from django_spire.auth.group.decorators import permission_required_decorator_function
+from django_spire.auth.permissions.decorators import permission_required_decorator_function
 from django_spire.core.utils import get_object_from_module_string
 
 
@@ -39,7 +39,9 @@ class BaseAuthController:
                 uncallable_permissions = []
 
                 for perm in permissions:
-                    callable_permission = getattr(self, perm)
+                    callable_permission = (
+                        getattr(self, perm) if hasattr(self, perm) else perm
+                    )
                     if callable(callable_permission):
                         if not all_required and callable_permission():
                             return method(request, *args, **kwargs)

@@ -7,7 +7,16 @@
                 $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'
             })
         },
+        update_cursor_position({order, cursor_position}) {
+            if (order === version_block.order) {
+                $refs.textarea.focus()
+                $refs.textarea.setSelectionRange(cursor_position, cursor_position)
+            }
+        }
     }"
+    @update_cursor_position.window="
+        update_cursor_position({order: $event.detail.order, cursor_position: $event.detail.cursor_position})
+    "
 >
     <style>
         textarea:focus {
@@ -24,12 +33,15 @@
         x-ref="textarea"
         x-model="version_block.block.value"
         @input="update_height($event)"
+        @focus="update_focus({order: version_block.order, cursor_position: $event.target.selectionStart})"
         :placeholder="manager.block_order_focus === version_block.order ? 'Write something...' : ''"
         @beforeinput.debounce.300ms="update_value({version_block: version_block})"
         @keydown.backspace="delete_block_if_empty({version_block: version_block})"
         {% block shift_enter_event %}
         @keydown.shift.enter.prevent="create_blank_block({block_type: 'text', order: version_block.order + 1})"
         {% endblock %}
+        @keydown.up.prevent="$dispatch('update_cursor_position', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})"
+        @keydown.down.prevent="$dispatch('update_cursor_position', {order: version_block.order + 1, cursor_position: $event.target.selectionStart})"
         {% block textarea_attributes %}
         {% endblock %}
     ></textarea>

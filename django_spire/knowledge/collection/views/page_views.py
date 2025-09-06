@@ -1,14 +1,14 @@
-from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
 from django_spire.knowledge.collection.models import Collection
 
 
-@login_required()
+@AppAuthController('knowledge').permission_required('can_delete')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 
@@ -22,7 +22,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@login_required()
+@AppAuthController('knowledge').permission_required('can_view')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 
@@ -44,7 +44,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@login_required()
+@AppAuthController('knowledge').permission_required('can_view')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     return portal_views.list_view(
         request,

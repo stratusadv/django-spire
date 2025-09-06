@@ -1,4 +1,4 @@
-{% include 'django_spire/permission/navigation/accordion/permission_nav_accordion.html' %}
+{% include 'django_spire/auth/group/navigation/accordion/permission_nav_accordion.html' %}
 
 {% for app in test_project_apps %}
     {% if app.heading %}
@@ -7,8 +7,3 @@
         {% include 'django_spire/navigation/elements/nav_link.html' with link_text=app.title link_icon=app.icon link_url=app.url %}
     {% endif %}
 {% endfor %}
-
-{% if DjangoSpireAuthController.knowledge.has_tacos %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='HAS TACOS' link_icon='' link_url='' %}
-{% endif %}
-

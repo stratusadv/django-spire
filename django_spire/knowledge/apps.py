@@ -7,6 +7,14 @@ class KnowledgeConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'django_spire_knowledge'
     name = 'django_spire.knowledge'
+    MODEL_PERMISSIONS = (
+        {
+            'name': 'knowledge',
+            'verbose_name': 'Knowledge',
+            'model_class_path': 'django_spire.knowledge.collection.models.Collection',
+            'is_proxy_model': False,
+        },
+    )
 
     REQUIRED_APPS = ('django_spire_core',)
 

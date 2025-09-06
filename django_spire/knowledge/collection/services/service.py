@@ -16,5 +16,5 @@ if TYPE_CHECKING:
 class CollectionService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    transformation: CollectionTransformationService = CollectionTransformationService()
-    ordering: CollectionOrderingService = CollectionOrderingService()
+    transformation = CollectionTransformationService()
+    ordering = CollectionOrderingService()

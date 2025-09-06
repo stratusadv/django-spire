@@ -26,12 +26,17 @@
 {% block item_button %}
     <div
         x-data="{
+            {% if AuthController.knowledge.can_view %}
             detail_url: '{% url "django_spire:knowledge:collection:page:detail" pk=0 %}'.replace(0, collection.id),
+            {% endif %}
+            {% if AuthController.knowledge.can_change %}
             edit_url: '{% url "django_spire:knowledge:collection:form:update" pk=0 %}'.replace(0, collection.id),
+            {% endif %}
+            {% if AuthController.knowledge.can_delete %}
             delete_url: '{% url "django_spire:knowledge:collection:page:delete" pk=0 %}'.replace(0, collection.id)
+            {% endif %}
         }"
     >
         {% include 'django_spire/dropdown/ellipsis_dropdown.html' with x_view_url='detail_url' x_edit_url='edit_url' x_delete_url='delete_url' %}
     </div>
 {% endblock %}
-

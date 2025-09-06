@@ -16,21 +16,34 @@ class EntryVersionJsonUrlsTests(BaseTestCase):
         self.test_entry.save()
 
     def test_create_blank_block_view_url_path(self):
-        response = self.client.get(
+        response = self.client.post(
             reverse(
                 'django_spire:knowledge:entry:version:json:create_blank_block',
                 kwargs={'pk': self.test_entry_version.pk}
-            )
+            ),
+            content_type='application/json'
         )
 
         self.assertEqual(response.status_code, 200)
 
     def test_delete_block_view_url_path(self):
-        response = self.client.get(
+        response = self.client.post(
             reverse(
                 'django_spire:knowledge:entry:version:json:delete_block',
                 kwargs={'pk': self.test_entry_version.pk}
-            )
+            ),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_reorder_view_url_path(self):
+        response = self.client.post(
+            reverse(
+                'django_spire:knowledge:entry:version:json:reorder',
+                kwargs={'pk': self.test_entry_version.pk}
+            ),
+            content_type='application/json'
         )
 
         self.assertEqual(response.status_code, 200)
