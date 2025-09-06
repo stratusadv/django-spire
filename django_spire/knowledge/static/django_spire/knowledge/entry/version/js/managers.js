@@ -45,6 +45,14 @@ class EntryVersionManager {
         })
     }
 
+    get_block_length({order}) {
+        const version_block = this.entry_version.version_blocks.find(
+            version_block => version_block.order === order
+        )
+        version_block.block.value = version_block.block.value + ' '
+        return version_block.block.value.length
+    }
+
     delete_block({id}) {
         const version_block = this.entry_version.version_blocks.find(
             version_block => version_block.id === id
@@ -84,5 +92,7 @@ class EntryVersionManager {
         this.entry_version.version_blocks.sort(
             (a, b) => a.order - b.order
         )
+
+        return version_block
     }
 }

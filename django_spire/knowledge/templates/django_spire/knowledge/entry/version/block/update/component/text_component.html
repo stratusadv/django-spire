@@ -7,7 +7,16 @@
                 $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'
             })
         },
+        update_cursor_position({order, cursor_position}) {
+            if (order === version_block.order) {
+                $refs.textarea.focus()
+                $refs.textarea.setSelectionRange(cursor_position, cursor_position)
+            }
+        }
     }"
+    @update_cursor_position.window="
+        update_cursor_position({order: $event.detail.order, cursor_position: $event.detail.cursor_position})
+    "
 >
     <style>
         textarea:focus {
@@ -30,6 +39,8 @@
         {% block shift_enter_event %}
         @keydown.shift.enter.prevent="create_blank_block({block_type: 'text', order: version_block.order + 1})"
         {% endblock %}
+        @keydown.up.prevent="$dispatch('update_cursor_position', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})"
+        @keydown.down.prevent="$dispatch('update_cursor_position', {order: version_block.order + 1, cursor_position: $event.target.selectionStart})"
         {% block textarea_attributes %}
         {% endblock %}
     ></textarea>

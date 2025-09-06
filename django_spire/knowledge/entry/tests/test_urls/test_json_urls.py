@@ -11,20 +11,20 @@ class EntryJsonUrlsTests(BaseTestCase):
         self.test_entry = create_test_entry()
 
     def test_reorder_view_url_path(self):
-        response = self.client.get(
+        response = self.client.post(
             reverse(
                 'django_spire:knowledge:entry:json:reorder',
                 kwargs={'pk': self.test_entry.pk, 'order': 0}
-            )
+            ),
+            content_type='application/json',
         )
 
         self.assertEqual(response.status_code, 200)
 
     def test_update_files_view_url_path(self):
-        response = self.client.get(
-            reverse(
-                'django_spire:knowledge:entry:json:update_files',
-            )
+        response = self.client.post(
+            reverse('django_spire:knowledge:entry:json:update_files'),
+            content_type='application/json',
         )
 
         self.assertEqual(response.status_code, 200)
