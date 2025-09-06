@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.ordering.queryset_mixin import OrderingQuerySetMixin
+from django_spire.contrib.ordering.querysets import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 if TYPE_CHECKING:
@@ -11,5 +11,5 @@ if TYPE_CHECKING:
 
 
 class EntryVersionBlockQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
-    def greater_or_equal_order(self, order: int) -> QuerySet[EntryVersionBlock]:
-        return self.filter(order__gte=order)
+    def by_version_id(self, entry_version_id: int) -> QuerySet[EntryVersionBlock]:
+        return self.filter(version_id=entry_version_id)

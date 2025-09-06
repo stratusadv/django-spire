@@ -37,6 +37,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
                 .has_current_version()
                 .user_has_access(user=request.user)
                 .select_related('current_version')
+                .order_by('order')
             )
         },
         template='django_spire/knowledge/collection/page/detail_page.html'

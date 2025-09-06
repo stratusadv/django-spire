@@ -30,11 +30,19 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
             order=order,
         )
         self.obj.block = ENTRY_BLOCK_MAP[block_type](
-            value='',
-            type=block_type,
-            **kwargs
+            value='', type=block_type, **kwargs
         )
         self.obj.save()
+
+        self.obj.ordering_services.processor.move_to_position(
+            destination_objects=(
+                self.obj_class.objects
+                .active()
+                .by_version_id(entry_version_id=entry_version.id)
+            ),
+            position=order,
+        )
+
         return self.obj
 
     def create_blocks_from_file(

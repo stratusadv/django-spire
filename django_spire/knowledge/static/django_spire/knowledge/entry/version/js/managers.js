@@ -43,7 +43,6 @@ class EntryVersionManager {
             id: id,
             version_blocks_json: version_blocks_json
         })
-        this.block_order_focus = 1
     }
 
     get_block_length({order}) {
@@ -58,9 +57,6 @@ class EntryVersionManager {
         const version_block = this.entry_version.version_blocks.find(
             version_block => version_block.id === id
         )
-        if (version_block.order > 0) {
-            this.block_order_focus = version_block.order - 1
-        }
 
         this.entry_version.version_blocks = this.entry_version.version_blocks.filter(
             version_block => version_block.id !== id
@@ -97,12 +93,6 @@ class EntryVersionManager {
             (a, b) => a.order - b.order
         )
 
-        this.block_order_focus = order
-
         return version_block
-    }
-
-    update_block_order_focus({order}) {
-        this.block_order_focus = order
     }
 }

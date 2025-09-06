@@ -6,7 +6,7 @@ from django_spire.knowledge.entry.models import Entry
 class EntryForm(forms.ModelForm):
     class Meta:
         model = Entry
-        exclude = ['current_version', 'collection']
+        exclude = ['current_version', 'collection', 'order']
 
 
 class EntryFilesForm(forms.Form):
