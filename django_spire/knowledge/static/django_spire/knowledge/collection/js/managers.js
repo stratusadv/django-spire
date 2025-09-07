@@ -13,10 +13,6 @@ class Collection {
         return this.children.length > 0
     }
 
-    has_parent() {
-        return this.parent.id !== -1
-    }
-
     toggle_show_children({value = false}) {
         this.show_children = value
 

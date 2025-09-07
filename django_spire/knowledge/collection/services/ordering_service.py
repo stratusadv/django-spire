@@ -32,3 +32,5 @@ class CollectionOrderingService(BaseDjangoModelService['Collection']):
             position=order,
             origin_objects=origin_objects
         )
+
+        self.obj.services.processor.set_parent(parent_pk=new_parent_pk)

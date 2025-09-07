@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from django_spire.knowledge.collection.services.ordering_service import \
     CollectionOrderingService
+from django_spire.knowledge.collection.services.processor_service import \
+    CollectionProcessorService
 from django_spire.knowledge.collection.services.transformation_service import \
     CollectionTransformationService
 
@@ -16,5 +18,7 @@ if TYPE_CHECKING:
 class CollectionService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    transformation = CollectionTransformationService()
-    ordering = CollectionOrderingService()
+    ordering: CollectionOrderingService = CollectionOrderingService()
+    processor: CollectionProcessorService = CollectionProcessorService()
+    transformation: CollectionTransformationService = CollectionTransformationService()
+
