@@ -10,15 +10,11 @@
     <div
         x-data="{
             first_load: true,
-            is_dragging: false,
             init() {
                 this.manager = new EntryVersionManager({
                     id: {{ current_version.pk }},
                     version_blocks_json: {{ version_blocks_json }}
                 })
-                this.$watch('is_dragging', (value) => {
-                    console.log(value)
-                });
             },
             async create_blank_block({block_type, order, ...optional_fields}) {
                 let response = await django_glue_fetch(

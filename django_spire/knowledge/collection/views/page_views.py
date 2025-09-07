@@ -26,9 +26,29 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 
+    def breadcrumbs_func(breadcrumbs):
+        breadcrumbs.add_breadcrumb(name='Knowledge')
+        breadcrumbs.add_breadcrumb(
+            name='Collections',
+            href=reverse('django_spire:knowledge:collection:page:list')
+        )
+
+        if collection.parent_id is not None:
+            parent = collection.parent
+            breadcrumbs.add_breadcrumb(
+                name=parent.name,
+                href=reverse(
+                    viewname='django_spire:knowledge:collection:page:detail',
+                    kwargs={'pk': parent.pk}
+                )
+            )
+
+        breadcrumbs.add_breadcrumb(name=collection.name)
+
     return portal_views.detail_view(
         request,
         obj=collection,
+        breadcrumbs_func=breadcrumbs_func,
         context_data={
             'collection': collection,
             'current_entries': (
@@ -46,13 +66,13 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @AppAuthController('knowledge').permission_required('can_view')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    collections = Collection.objects.active().select_related('parent')
-
     return portal_views.list_view(
         request,
         model=Collection,
         context_data={
-            'collections': collections
+            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
+                queryset=Collection.objects.active().select_related('parent').order_by('order')
+            )
         },
         template='django_spire/knowledge/collection/page/list_page.html'
     )
