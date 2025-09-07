@@ -17,10 +17,25 @@
                 { name: 'Rose Pine Dark', value: 'rose-pine-dark', family: 'rose-pine', mode: 'dark' }
             ],
 
+            families: [
+                { name: 'Catppuccin', value: 'catppuccin' },
+                { name: 'Dracula', value: 'dracula' },
+                { name: 'Gruvbox', value: 'gruvbox' },
+                { name: 'Material', value: 'material' },
+                { name: 'Nord', value: 'nord' },
+                { name: 'Rose Pine', value: 'rose-pine' }
+            ],
+
             current: localStorage.getItem('django-spire-theme') || 'rose-pine-light',
 
             get_current_theme() {
                 return this.available.find(theme => theme.value === this.current) || this.available[0];
+            },
+
+            get_current_family_name() {
+                let current_theme = this.get_current_theme();
+                let family = this.families.find(f => f.value === current_theme.family);
+                return family ? family.name : 'Unknown';
             },
 
             apply() {
@@ -44,17 +59,25 @@
 
                 let link = document.createElement('link');
                 link.rel = 'stylesheet';
-                link.href = `/static/django_spire/css/themes/${family}/app-${mode}.css`;
+                link.href = '/static/django_spire/css/themes/' + family + '/app-' + mode + '.css';
                 link.setAttribute('data-theme-css', 'true');
-
                 document.head.appendChild(link);
             },
 
             toggle() {
                 let current_theme = this.get_current_theme();
                 let new_mode = current_theme.mode === 'dark' ? 'light' : 'dark';
-                let new_theme_value = `${current_theme.family}-${new_mode}`;
+                let new_theme_value = current_theme.family + '-' + new_mode;
+                let new_theme = this.available.find(t => t.value === new_theme_value);
 
+                if (new_theme) {
+                    this.set(new_theme.value);
+                }
+            },
+
+            set_family(family) {
+                let current_theme = this.get_current_theme();
+                let new_theme_value = family + '-' + current_theme.mode;
                 let new_theme = this.available.find(t => t.value === new_theme_value);
 
                 if (new_theme) {
@@ -68,16 +91,12 @@
                 localStorage.setItem('django-spire-theme', theme_value);
             },
 
-            is(theme_value) {
-                return this.current === theme_value;
+            is_family(family) {
+                return this.get_current_theme().family === family;
             },
 
             is_mode(mode) {
                 return this.get_current_theme().mode === mode;
-            },
-
-            get_theme_name() {
-                return this.get_current_theme().name;
             }
         });
 
