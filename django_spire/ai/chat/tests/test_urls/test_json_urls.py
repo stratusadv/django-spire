@@ -10,7 +10,7 @@ class ChatJsonUrlTests(BaseTestCase):
         self.test_chat = create_test_chat(user=self.super_user)
 
     def test_delete_view_url_path(self):
-        response = self.client.get(
+        response = self.client.post(
             reverse(
                 'django_spire:ai:chat:json:delete',
                 kwargs={'pk': self.test_chat.pk}

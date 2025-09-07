@@ -1,0 +1,24 @@
+{% extends 'django_spire/dropdown/dropdown.html' %}
+
+{% block dropdown_trigger %}
+    <span
+        class="bi bi-plus-lg fs-5 p-0 cursor-pointer opacity-50"
+        x-bind="trigger"
+        :type="manager.block_order_focus === version_block.order ? 'button' : 'not-allowed'"
+    >
+    </span>
+{% endblock %}
+
+{% block dropdown_content %}
+    {% for block_type in block_types %}
+        <div
+            x-data="{
+                create_block() {
+                    create_blank_block({block_type: '{{ block_type.value }}', order: version_block.order + 1})
+                }
+            }"
+        >
+            {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text=block_type.label x_click="create_block()" %}
+        </div>
+    {% endfor %}
+{% endblock %}

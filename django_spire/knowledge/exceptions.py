@@ -1,0 +1,2 @@
+class KnowledgeBaseConversionException(Exception):
+    pass

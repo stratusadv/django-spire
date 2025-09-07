@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.urls import reverse
 from typing_extensions import TYPE_CHECKING
 
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
 from django_spire.contrib import Breadcrumbs

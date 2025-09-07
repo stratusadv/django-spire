@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Type
+from typing import Type, TypeVar
 
 from dandy.llm import Prompt
 from django.db.models import ForeignKey
@@ -13,6 +13,9 @@ from django_spire.contrib.seeding.field.django.seeder import DjangoFieldFakerSee
 from django_spire.contrib.seeding.field.static import StaticFieldSeeder
 from django_spire.contrib.seeding.model.base import BaseModelSeeder
 from django_spire.contrib.seeding.model.django.config import DjangoModelFieldsConfig
+
+
+TypeModel = TypeVar('TypeModel', bound=Model)
 
 
 class DjangoModelSeeder(BaseModelSeeder):
@@ -49,8 +52,8 @@ class DjangoModelSeeder(BaseModelSeeder):
     @classmethod
     def seed_database(
             cls,
-            count = 1,
+            count=1,
             fields: dict | None = None
-    ) -> list[Model]:
+    ) -> list[TypeModel]:
         model_objects = cls.seed(count, fields)
         return cls.model_class.objects.bulk_create(model_objects)

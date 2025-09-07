@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Edit Assigned Group Users for {{ group.name }}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'django_spire/auth/group/form/group_user_form.html' %}
+{% endblock %}

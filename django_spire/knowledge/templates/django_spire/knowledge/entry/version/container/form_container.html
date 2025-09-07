@@ -1,0 +1,129 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% block container_title %}
+    <div class="ps-3">
+        {{ entry.name }}
+    </div>
+{% endblock %}
+
+{% block container_content %}
+    <div
+        x-data="{
+            first_load: true,
+            init() {
+                this.manager = new EntryVersionManager({
+                    id: {{ current_version.pk }},
+                    version_blocks_json: {{ version_blocks_json }}
+                })
+            },
+            async create_blank_block({block_type, order, ...optional_fields}) {
+                let response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:version:json:create_blank_block" pk=current_version.pk %}',
+                    {payload: {block_type: block_type, order: order, ...optional_fields}},
+                )
+                if (response.type === 'error') {
+                    $dispatch('notify', {type:'error', message: response.message})
+                } else {
+                    let block_data = JSON.parse(response.entry_version_block_json)
+                    const new_version_block = await this.manager.insert_blank_block(
+                        {
+                            id: block_data.id,
+                            block_type: block_data.type,
+                            order: block_data.order,
+                            block: block_data.block
+                        }
+                    )
+                    $dispatch('update_cursor_position', {order: new_version_block.order, cursor_position: 0})
+                }
+            },
+            async create_list_item_block({previous_block}) {
+                let bullet = null
+                if (previous_block.block.ordered) {
+                    const number = parseInt(previous_block.block.bullet.split('.')[0]) + 1
+                    bullet = number + '.'
+                } else {
+                    bullet = previous_block.block.bullet
+                }
+                await this.create_blank_block({
+                    block_type: 'list_item',
+                    order: previous_block.order + 1,
+                    bullet: bullet,
+                    indent_level: previous_block.block.indent_level,
+                    ordered: previous_block.block.ordered
+                })
+            },
+            async delete_block_if_empty({version_block}) {
+                if (version_block.block.value !== '') return
+
+                const previous_order = version_block.order - 1
+                if (previous_order === 0) return
+
+                const previous_block_length = this.manager.get_block_length({order: previous_order})
+                $dispatch(
+                    'update_cursor_position',
+                    {order: previous_order, cursor_position: previous_block_length}
+                )
+
+                let response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:version:json:delete_block" pk=current_version.pk %}',
+                    {payload: {version_block_pk: version_block.id}},
+                )
+                if (response.type === 'error') {
+                    $dispatch('notify', {type: 'error', message: response.message})
+                } else {
+                    this.manager.delete_block({id: version_block.id})
+                }
+            },
+            update_height(event) {
+                event.target.style.height = 'auto'
+                event.target.style.height = event.target.scrollHeight + 'px'
+            },
+            async update_value({version_block}) {
+                let response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:version:block:json:update_text" %}',
+                    {payload: {
+                        pk: version_block.id,
+                        value: version_block.block.value,
+                        block_type: version_block.block.type
+                    }},
+                )
+
+                if (response.type === 'error') {
+                    $dispatch('notify', {type: 'error', message: 'An error occurred while saving the text block.'})
+                }
+            },
+            async reorder_block({block, order}){
+                let response = null
+                try {
+                    response = await django_glue_fetch(
+                        '{% url "django_spire:knowledge:entry:version:json:reorder" pk=current_version.pk %}',
+                        { payload: {'block_id': block, 'order': order} }
+                    )
+                } catch (e) {
+                    window.location.reload()
+                }
+
+                if (response.type === 'error') {
+                    $dispatch('notify', {'type': response.type, 'message': response.message})
+                }
+            }
+        }"
+        x-sort="await reorder_block({block: $item, order: $position})"
+        x-sort:config="{handle: '[x-sort\\:handle]'}"
+    >
+        <template x-for="(version_block, index) in manager.entry_version.version_blocks" :key="version_block.id">
+            <div class="row align-items-center block" x-sort:item="version_block.id">
+                <div class="col-auto action-items pe-0" x-sort:handle>
+                    <div class="row m-0 p-0 align-items-center">
+                        {% include 'django_spire/element/grabber_element.html' with grabber_class='col-auto opacity-50' %}
+                        <div class="col pe-0">
+                            {% include 'django_spire/knowledge/entry/version/block/dropdown/add_dropdown.html' %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col" x-html="version_block.block.update_template_rendered">
+                </div>
+            </div>
+        </template>
+    </div>
+{% endblock %}

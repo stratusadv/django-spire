@@ -10,20 +10,6 @@ if TYPE_CHECKING:
 
 class ConfirmationForm(forms.Form):
     pass
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     self.helper = FormHelper(self)
-    #     self.helper.include_media = False
-    #     self.helper.layout = Layout()
-    #     self.helper.add_input(
-    #         Submit(
-    #             'submit',
-    #             'Confirm',
-    #             css_class='btn-success btn-sm mt-1 mb-0'
-    #         )
-    #     )
-    #
 
 class DeleteConfirmationForm(ConfirmationForm):
     should_delete = forms.BooleanField(required=False)
