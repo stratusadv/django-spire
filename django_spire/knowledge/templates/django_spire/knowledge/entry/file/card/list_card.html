@@ -24,7 +24,7 @@
         }"
     >
         <div class="col-12">
-            <template x-for="file_json in files_json" :key="file_json.name">
+            <template x-for="file_json in files_json" :key="file_json.name + file_json.id">
                 {% include 'django_spire/knowledge/entry/file/item/list_item.html' with hide_button=True %}
             </template>
         </div>

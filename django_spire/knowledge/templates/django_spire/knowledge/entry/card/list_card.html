@@ -23,11 +23,12 @@
 
 {% block card_title_content %}
     <div x-data="{
-            async reorder_entries({entry, order}){
+            async reorder_entries({entry_id, order}){
                 let response = null
                 try {
                     response = await django_glue_fetch(
-                        '{% url "django_spire:knowledge:entry:json:reorder" pk=0 order=9 %}'.replace(0, entry).replace(9, order),
+                        '{% url "django_spire:knowledge:entry:json:reorder" %}',
+                        {payload: {entry_id: entry_id, order: order}}
                     )
                 } catch (e) {
                     window.location.reload()
@@ -38,7 +39,7 @@
                 }
             }
         }"
-         x-sort="await reorder_entries({entry: $item, order: $position})"
+         x-sort="await reorder_entries({entry_id: $item, order: $position})"
     >
         {% for entry in current_entries %}
             <div x-sort:item="{{ entry.pk }}">

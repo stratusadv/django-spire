@@ -112,9 +112,9 @@
         x-sort:config="{handle: '[x-sort\\:handle]'}"
     >
         <template x-for="(version_block, index) in manager.entry_version.version_blocks" :key="version_block.id">
-            <div class="row block" x-sort:item="version_block.id">
+            <div class="row align-items-center block" x-sort:item="version_block.id">
                 <div class="col-auto action-items pe-0" x-sort:handle>
-                    <div class="row m-0 p-0 align-items-center pt-1">
+                    <div class="row m-0 p-0 align-items-center">
                         {% include 'django_spire/element/grabber_element.html' with grabber_class='col-auto opacity-50' %}
                         <div class="col pe-0">
                             {% include 'django_spire/knowledge/entry/version/block/dropdown/add_dropdown.html' %}

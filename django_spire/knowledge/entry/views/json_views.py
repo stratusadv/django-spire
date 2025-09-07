@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 from django_spire.core.shortcuts import get_object_or_null_obj
@@ -12,22 +13,26 @@ if TYPE_CHECKING:
 
 
 @valid_ajax_request_required
-def reorder_view(request: WSGIRequest, pk: int, order: int)-> JsonResponse:
-    entry = get_object_or_null_obj(Entry, pk=pk)
+def reorder_view(request: WSGIRequest) -> JsonResponse:
+    body_data = json.loads(request.body.decode('utf-8'))
+
+    entry_id = body_data.get('entry_id', 0)
+    entry = get_object_or_null_obj(Entry, pk=entry_id)
 
     if entry.id is None:
         return JsonResponse({'type': 'error', 'message': 'Entry not found.'})
 
-    all_entries = Entry.objects.active()
+    order = body_data.get('order', None)
+
+    if order is None:
+        return JsonResponse({'type': 'error', 'message': 'Order not found.'})
 
     entry.ordering_services.processor.move_to_position(
-        destination_objects=all_entries,
+        destination_objects=entry.collection.entries.active(),
         position=order,
     )
 
-    return JsonResponse({
-        'type': 'success', 'message': 'Order reordered successfully',
-    })
+    return JsonResponse({'type': 'success', 'message': 'Order reordered successfully'})
 
 
 @valid_ajax_request_required

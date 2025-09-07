@@ -57,7 +57,7 @@ class EntryVersionSeeder(DjangoModelSeeder):
             safety_blocks = random.choice(SAFETY_BLOCKS)
 
             version_blocks = []
-            for idx, safety_block in enumerate(safety_blocks, start=1):
+            for idx, safety_block in enumerate(safety_blocks):
                 version_block = EntryVersionBlock(
                     version=entry_version,
                     type=safety_block.type,

@@ -29,6 +29,7 @@ class EntryToolService(BaseDjangoModelService['Entry']):
         return json.dumps(
             [
                 {
+                    'id': file_object.id,
                     'name': file_object.name,
                     'type': file_object.type,
                     'size': file_object.size,

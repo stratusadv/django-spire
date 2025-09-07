@@ -22,10 +22,28 @@ class CollectionSeeder(DjangoModelSeeder):
     }
 
     @classmethod
+    def _correct_order(
+            cls,
+            child_collections: list[models.Collection]
+    ) -> list[models.Collection]:
+        parent_collections = cls.model_class.objects.parentless()
+
+        for parent_collection in parent_collections:
+            children = parent_collection.children.all()
+            for idx, child_collection in enumerate(children):
+                child_collection.order = idx
+
+            cls.model_class.objects.bulk_update(children, ['order'])
+
+        return child_collections
+
+    @classmethod
     def seed_child_collections(cls, count: int = 1) -> list[models.Collection]:
-        return cls.seed_database(
-            count=count,
-            fields=cls.fields | {
-                'parent_id': ('custom', 'fk_random', {'model_class': models.Collection})
-            },
+        return cls._correct_order(
+            cls.seed_database(
+                count=count,
+                fields=cls.fields | {
+                    'parent_id': ('custom', 'fk_random', {'model_class': models.Collection})
+                },
+            )
         )

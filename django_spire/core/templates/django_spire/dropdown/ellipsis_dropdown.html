@@ -26,6 +26,6 @@
     {% if delete_url %}
         {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Delete' link_url=delete_url link_css='text-app-danger' %}
     {% elif x_delete_url %}
-        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Delete' x_link_url=x_delete_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_text='Delete' x_link_url=x_delete_url link_css='text-app-danger' %}
     {% endif %}
 {% endblock %}

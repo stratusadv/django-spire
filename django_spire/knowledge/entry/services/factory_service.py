@@ -36,6 +36,11 @@ class EntryFactoryService(BaseDjangoModelService['Entry']):
             file.object_id = entry.id
             file.related_field = ENTRY_IMPORT_RELATED_FIELD
 
+            entry.ordering_services.processor.move_to_position(
+                destination_objects=collection.entries.active(),
+                position=0,
+            )
+
         File.objects.bulk_update(files, ['content_type', 'object_id', 'related_field'])
 
         return entries

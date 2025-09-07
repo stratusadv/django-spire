@@ -12,10 +12,8 @@ class EntryJsonUrlsTests(BaseTestCase):
 
     def test_reorder_view_url_path(self):
         response = self.client.post(
-            reverse(
-                'django_spire:knowledge:entry:json:reorder',
-                kwargs={'pk': self.test_entry.pk, 'order': 0}
-            ),
+            reverse('django_spire:knowledge:entry:json:reorder'),
+            data={'entry_id': self.test_entry.pk, 'order': 0},
             content_type='application/json',
         )
 

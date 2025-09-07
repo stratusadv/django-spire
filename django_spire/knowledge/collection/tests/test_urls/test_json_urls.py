@@ -12,10 +12,11 @@ class CollectionJsonUrlsTests(BaseTestCase):
 
     def test_reorder_view_url_path(self):
         response = self.client.post(
-            reverse(
-                'django_spire:knowledge:collection:json:reorder',
-                kwargs={'pk': self.test_collection.pk}
-            ),
+            reverse('django_spire:knowledge:collection:json:reorder'),
+            data={
+                'collection_id': self.test_collection.pk,
+                'order': 0
+            },
             content_type='application/json',
         )
 

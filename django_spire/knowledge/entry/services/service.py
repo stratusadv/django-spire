@@ -8,6 +8,8 @@ from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.knowledge.entry.services.automation_service import \
     EntryAutomationService
 from django_spire.knowledge.entry.services.factory_service import EntryFactoryService
+from django_spire.knowledge.entry.services.processor_service import \
+    EntryProcessorService
 from django_spire.knowledge.entry.services.tool_service import EntryToolService
 from django_spire.knowledge.entry.version.models import EntryVersion
 
@@ -21,6 +23,7 @@ class EntryService(BaseDjangoModelService['Entry']):
     automation = EntryAutomationService()
     factory = EntryFactoryService()
     ordering = OrderingService()
+    processor = EntryProcessorService()
     tool = EntryToolService()
 
     def save_model_obj(self, author: AuthUser, **field_data) -> tuple[Entry, bool]:
@@ -34,5 +37,10 @@ class EntryService(BaseDjangoModelService['Entry']):
 
             self.obj.current_version = entry_version
             self.obj.save()
+
+        self.obj.ordering_services.processor.move_to_position(
+            destination_objects=self.obj.collection.entries.active(),
+            position=0 if created else self.obj.order,
+        )
 
         return self.obj, created

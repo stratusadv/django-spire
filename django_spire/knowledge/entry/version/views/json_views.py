@@ -48,16 +48,13 @@ def delete_block_view(request: WSGIRequest, pk: int) -> JsonResponse:
     except EntryVersionBlock.DoesNotExist:
         return JsonResponse({'type': 'error', 'message': 'Block Not Found.'})
 
-    version_block.ordering_services.processor.remove_from_objects(
-        destination_objects=entry_version.blocks.active()
-    )
-
-    version_block.set_deleted()
+    version_block.services.processor.set_deleted()
 
     return JsonResponse({'type': 'success'})
 
+
 @valid_ajax_request_required
-def reorder_view(request: WSGIRequest, pk: int)-> JsonResponse:
+def reorder_view(request: WSGIRequest, pk: int) -> JsonResponse:
     entry_version = get_object_or_null_obj(EntryVersion, pk=pk)
 
     if entry_version.id is None:
@@ -80,10 +77,8 @@ def reorder_view(request: WSGIRequest, pk: int)-> JsonResponse:
     if block.id is None:
         return JsonResponse({'type': 'error', 'message': 'Block not found.'})
 
-    version_blocks = entry_version.blocks.active()
-
     block.ordering_services.processor.move_to_position(
-        destination_objects=version_blocks,
+        destination_objects=entry_version.blocks.active(),
         position=order,
     )
 

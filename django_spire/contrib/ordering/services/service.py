@@ -13,4 +13,4 @@ if TYPE_CHECKING:
 class OrderingService(BaseDjangoModelService['OrderingModelMixin']):
     obj: OrderingModelMixin
 
-    processor: OrderingProcessorService = OrderingProcessorService()
+    processor = OrderingProcessorService()

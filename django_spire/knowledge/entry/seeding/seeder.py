@@ -25,7 +25,7 @@ class EntrySeeder(DjangoModelSeeder):
         for collection in Collection.objects.all():
             collection_entries = collection.entries.all()
 
-            for idx, entry in enumerate(collection_entries, start=1):
+            for idx, entry in enumerate(collection_entries):
                 entry.order = idx
 
             cls.model_class.objects.bulk_update(collection_entries, ['order'])

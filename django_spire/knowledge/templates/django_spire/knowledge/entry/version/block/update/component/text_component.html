@@ -1,6 +1,7 @@
 <div
     class="d-flex align-items-center"
     x-data="{
+        is_focused: false,
         init() {
             $nextTick(() => {
                 $refs.textarea.style.height = 'auto'
@@ -33,7 +34,9 @@
         x-ref="textarea"
         x-model="version_block.block.value"
         @input="update_height($event)"
-        :placeholder="manager.block_order_focus === version_block.order ? 'Write something...' : ''"
+        :placeholder="is_focused ? 'Write Something...' : ''"
+        @focus="is_focused = true"
+        @blur="is_focused = false"
         @beforeinput.debounce.300ms="update_value({version_block: version_block})"
         @keydown.backspace="delete_block_if_empty({version_block: version_block})"
         {% block shift_enter_event %}

@@ -18,7 +18,11 @@ class CollectionOrderingService(BaseDjangoModelService['Collection']):
             origin_objects = self.obj_class.objects.parentless().active()
 
         else:
-            origin_objects = self.obj_class.objects.by_parent(parent=current_parent).active()
+            origin_objects = (
+                self.obj_class.objects
+                .by_parent(parent=current_parent)
+                .active()
+            )
 
         if new_parent_pk is None:
             destination_objects = self.obj_class.objects.parentless().active()

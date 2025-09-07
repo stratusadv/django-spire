@@ -15,6 +15,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return portal_views.delete_form_view(
         request,
         obj=collection,
+        delete_func=collection.services.processor.set_deleted,
         return_url=request.GET.get(
             'return_url',
             reverse('django_spire:knowledge:collection:page:list')

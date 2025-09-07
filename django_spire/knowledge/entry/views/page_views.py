@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -16,6 +15,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return portal_views.delete_form_view(
         request,
         obj=entry,
+        delete_func=entry.services.processor.set_deleted,
         return_url=request.GET.get(
             'return_url',
             reverse(

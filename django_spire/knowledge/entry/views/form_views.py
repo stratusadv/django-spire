@@ -1,5 +1,4 @@
 import django_glue as dg
-from django.contrib.auth.decorators import login_required
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponseRedirect
@@ -34,7 +33,7 @@ def form_view(
 
         if form.is_valid():
             form.cleaned_data['collection'] = collection
-            _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
+            _, _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
 
             return HttpResponseRedirect(
                 reverse(
@@ -95,7 +94,10 @@ def import_form_view(
                 files=file_objects
             )
             return HttpResponseRedirect(
-                reverse('django_spire:knowledge:entry:template:file_list')
+                reverse(
+                    'django_spire:knowledge:entry:template:file_list',
+                    kwargs={'collection_pk': collection_pk}
+                )
             )
 
         show_form_errors(request, file_form)

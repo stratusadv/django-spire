@@ -32,8 +32,8 @@
                         let response = null
                         try {
                             response = await django_glue_fetch(
-                                '{% url "django_spire:knowledge:collection:json:reorder" pk=0 %}'.replace(0, collection.id),
-                                {payload: {order: order, parent: new_parent}}
+                                '{% url "django_spire:knowledge:collection:json:reorder" %}',
+                                {payload: {collection_id: collection.id, order: order, parent: new_parent}}
                             )
                         } catch (e) {
                              $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
