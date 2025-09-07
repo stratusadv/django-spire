@@ -1,0 +1,76 @@
+name: Code Quality
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  linting:
+    name: linting
+    runs-on: ubuntu-latest
+    env:
+      TARGET: django_spire
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        run: uv python install 3.11
+
+      - name: Install ruff
+        run: uv tool install ruff
+
+      - name: Check for critical error(s)
+        run: |
+          echo "Checking for undefined names and critical errors..."
+          uv tool run ruff check --select=F821,F822,F823 $TARGET
+          echo "No critical error(s) found."
+
+      - name: Check for debugger statement
+        run: |
+          FOUND=$(find $TARGET -type f \( -name "*.html" -o -name "*.js" \) -exec grep -l "\bdebugger\b" {} \;)
+
+          if [ -n "$FOUND" ]; then
+            echo "::error::debugger statement(s) found:"
+            echo "$FOUND"
+            exit 1
+          else
+            echo "No debugger statement(s) found."
+          fi
+
+      - name: Check for unused import(s)
+        run: |
+          FOUND=$(uv tool run ruff check --select=F401 --exit-zero $TARGET)
+          if [ -n "$FOUND" ]; then
+            echo "::warning::Unused import(s) found:"
+            echo "$FOUND"
+          else
+            echo "No unused import(s) found."
+          fi
+
+      - name: Check for print
+        run: |
+          FOUND=$(uv tool run ruff check --select=T201 --exit-zero $TARGET)
+          if [ -n "$FOUND" ]; then
+            echo "::warning::Print statement(s) found:"
+            echo "$FOUND"
+          else
+            echo "No print statement(s) found."
+          fi
+
+      - name: Check for console.log
+        run: |
+          FOUND=$(find $TARGET -type f \( -name "*.html" -o -name "*.js" \) -exec grep -l "console\.log" {} \;)
+
+          if [ -n "$FOUND" ]; then
+            echo "::warning::console.log statement(s) found:"
+            echo "$FOUND"
+          else
+            echo "No console.log statement(s) found."
+          fi
