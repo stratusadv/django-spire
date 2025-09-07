@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.XX.X
+## v0.15.0
 
 ### Breaking
 
@@ -15,11 +15,16 @@
 
 ### Feature
 
+- Knowledge Base Feature Release
+  - CRUD for collection, entries and blocks.
+  - Importing docx and markdown files.
+  - Use the AI Chat to search the knowledge base.
+  - Drag and drop ordering.
 - `AuthController` has been added to control all the app permissions in an explicit way that follows django practices.
 
 ### Fix
 
-- fixed permission decoractor to redirect to login
+- Fixed permission decorator to redirect to login.
 - Fixed broken urls that were in the base templates for the 'AuthUser' and 'AuthGroup' apps.
 
 

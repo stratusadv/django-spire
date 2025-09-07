@@ -46,6 +46,8 @@ dependencies = [
     "django-sendgrid-v5",
     "docutils",
     "faker",
+    "marko==2.1.4",
+    "markitdown[docx, pdf]==0.1.2",
     "psycopg2",
     "pydantic",
     "Pygments",
