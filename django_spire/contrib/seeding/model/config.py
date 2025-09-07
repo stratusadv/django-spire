@@ -43,7 +43,7 @@ class FieldsConfig:
             if name not in self.fields and name not in self._excluded:
                 self.fields[name] = (method,)
 
-    def override(self, overrides: dict) -> 'FieldConfig':
+    def override(self, overrides: dict):
         merged = {**self.fields, **normalize_seeder_fields(overrides)}
         new_raw = {
             **{k: v for k, v in self.raw_fields.items() if k in self._excluded},
