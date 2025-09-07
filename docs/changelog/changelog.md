@@ -22,10 +22,18 @@
 - fixed permission decoractor to redirect to login
 - Fixed broken urls that were in the base templates for the 'AuthUser' and 'AuthGroup' apps.
 
+
+## v0.14.8
+
+### Changes
+- Optimize modal column sizes for different screen sizes
+
+
 ## v0.14.7
 
 ### Changes
 - Implemented a profiling middleware
+
 
 ## v0.14.6
 
@@ -48,7 +56,6 @@
 
 ### Changes
 - Updated theme apps.py file to allow for url access. 
-- Updated app structure for 'AuthUser' and 'AuthGroup' to be consistent with other spire apps.
 
 
 ## v0.14.3

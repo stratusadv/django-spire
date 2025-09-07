@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
 from django_spire.file.models import File
+from django_spire.file.utils import random_64_char_token
 
 if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile

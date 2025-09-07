@@ -18,27 +18,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          version: "latest"
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r development_requirements.txt
-          pip install -r requirements.txt
+      - name: Setup Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
 
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd):$(pwd)/django-spire" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: uv sync --extra development --extra documentation
 
-      - name: Run Tests
+      - name: Run tests
         env:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+          ACTION_OLLAMA_HOST: ${{ secrets.ACTION_OLLAMA_HOST }}
+          THINKING_OLLAMA_HOST: ${{ secrets.THINKING_OLLAMA_HOST }}
           OLLAMA_PORT: ${{ secrets.OLLAMA_PORT }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          PYTHONPATH: ${{ env.PYTHONPATH  }}
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
-          python manage.py test . --settings=test_project.sqlite_settings 
+          uv run python manage.py test . --settings=test_project.sqlite_settings
