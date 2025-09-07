@@ -8,7 +8,6 @@ ignore = [
     "A003",
     "ANN002",
     "ANN003",
-    "ANN101",
     "ANN204",
     "ANN401",
     "BLE001",
@@ -111,8 +110,8 @@ exclude = [
 per-file-ignores = {}
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[mccabe]
-max-complexity = 10
-
 [format]
 quote-style = "single"
+
+[lint.mccabe]
+max-complexity = 10
