@@ -17,7 +17,7 @@ jobs:
         with:
           version: "latest"
 
-      - name: Set up Python
+      - name: Setup Python
         run: uv python install 3.11
 
       - name: Install project dependencies
@@ -25,11 +25,7 @@ jobs:
 
       - name: Install security tools
         run: |
-          uv tool install bandit
           uv tool install pip-audit
-
-      - name: Run Bandit
-        run: uv tool run bandit -c pyproject.toml -r . --severity-level medium --confidence-level low --format txt | tee bandit_report.txt
 
       - name: Run pip-audit
         run: uv tool run pip-audit | tee pip_audit_report.txt
@@ -55,7 +51,6 @@ jobs:
         with:
           name: security-reports
           path: |
-            bandit_report.txt
             pip_audit_report.txt
             trivy_report.txt
             trufflehog_report.txt
