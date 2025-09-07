@@ -5,13 +5,15 @@ import json
 from django import forms
 from django.contrib.auth.models import Group, User
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Column, Layout, Row, Submit
+
 from django_spire.auth.group.factories import bulk_create_groups_from_names
 
 
 class GroupNamesField(forms.CharField):
-    """
-        Receives a list of group names as a json string
-    """
+    """Receives a list of group names as a json string"""
+
     def clean(self, value) -> list[str]:
         return json.loads(value)
 

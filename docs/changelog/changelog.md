@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.14.8
+
+### Changes
+- Optimize modal column sizes for different screen sizes
+
 ## v0.14.7
 
 ### Changes
