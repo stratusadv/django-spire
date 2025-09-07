@@ -41,7 +41,7 @@ LLM_CONFIGS = {
     },
     'QWEN_2_5_CODER_14B': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('OLLAMA_HOST'),
+        'HOST': os.getenv('ACTION_OLLAMA_HOST'),
         'PORT': int(os.getenv('OLLAMA_PORT', 11434)),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:30b',
