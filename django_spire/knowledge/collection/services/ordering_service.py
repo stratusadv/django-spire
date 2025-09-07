@@ -12,15 +12,15 @@ if TYPE_CHECKING:
 class CollectionOrderingService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    def reorder(self, order: int, new_parent_pk: int):
+    def reorder(self, order: int, new_parent_pk: int | None):
         current_parent = self.obj.parent
         if current_parent is None:
             origin_objects = self.obj_class.objects.parentless().active()
 
         else:
-            origin_objects = self.obj_class.objects.by_parent(parent=self.obj.parent).active()
+            origin_objects = self.obj_class.objects.by_parent(parent=current_parent).active()
 
-        if new_parent_pk == -1:
+        if new_parent_pk is None:
             destination_objects = self.obj_class.objects.parentless().active()
 
         else:
@@ -33,4 +33,4 @@ class CollectionOrderingService(BaseDjangoModelService['Collection']):
             origin_objects=origin_objects
         )
 
-        self.obj.services.processor.set_parent(parent_pk=new_parent_pk)
+        self.obj, _ = self.obj.services.save_model_obj(parent_id=new_parent_pk)

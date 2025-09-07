@@ -5,18 +5,25 @@
 {% block card_content %}
     <div class="row m-0 align-items-center">
         <div class="col-3 p-0">
-            <div class="row m-0">
-                <div class="col-auto">
-                    <i style="cursor: grab" x-sort:handle class="align-self-center bi bi-grip-vertical p-0"></i>
-                    <i x-show="collection.has_children()" class="align-self-center bi bi-chevron-down p-0 cursor-pointer" @click="collection.toggle_show_children({value: !collection.show_children})"></i>
-                </div>
-                <div
-                    x-data="{
-                        collection_detail_url: '{% url "django_spire:knowledge:collection:page:detail" pk=0 %}'.replace(0, collection.id)
-                    }"
-                    class="col p-0"
-                >
-                    {% include 'django_spire/element/attribute_element.html' with x_attribute_value='collection.name' x_attribute_href='collection_detail_url' %}
+            <div class="container">
+                <div class="row m-0">
+                    <div class="col-auto ps-0">
+                        <i style="cursor: grab" x-sort:handle class="align-self-center bi bi-grip-vertical p-0"></i>
+                        <i
+                            x-show="collection.has_children()"
+                            class="align-self-center p-0 cursor-pointer"
+                            :class="collection.show_children ? 'bi-chevron-down' : 'bi-chevron-right'"
+                            @click="collection.toggle_show_children({value: !collection.show_children})"
+                        ></i>
+                    </div>
+                    <div
+                        x-data="{
+                            collection_detail_url: '{% url "django_spire:knowledge:collection:page:detail" pk=0 %}'.replace(0, collection.id)
+                        }"
+                        class="col p-0"
+                    >
+                        {% include 'django_spire/element/attribute_element.html' with x_attribute_value='collection.name' x_attribute_href='collection_detail_url' %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,4 +48,3 @@
         </div>
     </div>
 {% endblock %}
-

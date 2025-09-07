@@ -25,10 +25,10 @@ class Collection {
 class CollectionManager {
     constructor(collection_tree){
         this.collection_lookup_map = new Map()
-        this.collection_map = this.create_tree_structure({collections: collection_tree})
+        this.collection_map = this._create_tree_structure({collections: collection_tree})
     }
 
-    create_tree_structure({collections}) {
+    _create_tree_structure({collections}) {
         return collections.map((collection, index) => {
             const collection_object = new Collection({
                 id: collection.id,
@@ -36,7 +36,7 @@ class CollectionManager {
                 description: collection.description,
                 order: collection.order,
                 parent: new Collection({}),
-                children: this.create_tree_structure({collections: collection.children})
+                children: this._create_tree_structure({collections: collection.children})
             })
 
             this.collection_lookup_map.set(collection_object.id, collection_object)

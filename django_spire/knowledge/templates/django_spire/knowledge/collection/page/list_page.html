@@ -6,6 +6,10 @@
     <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 {% endblock %}
 
+{% block base_body_additional_bottom_js %}
+    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/x_component.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+{% endblock %}
+
 {% block full_page_content %}
     <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom">
         <div class="col">
@@ -44,12 +48,8 @@
             >
                 {% include 'django_spire/knowledge/collection/component/x_collection_tree.html' %}
 
-                <x-collection-tree :data="{items: manager.collection_map, id: -1}"></x-collection-tree>
+                <x-collection-tree :data="{items: manager.collection_map, id: null}"></x-collection-tree>
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block base_body_additional_bottom_js %}
-    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/x_component.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 {% endblock %}
