@@ -1,4 +1,4 @@
-name: Code Quality
+name: Linting
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
           uv tool run ruff check --select=F821,F822,F823 $TARGET
           echo "No critical error(s) found."
 
-      - name: Check for debugger statement
+      - name: Check for debugger statement(s)
         run: |
           FOUND=$(find $TARGET -type f \( -name "*.html" -o -name "*.js" \) -exec grep -l "\bdebugger\b" {} \;)
 
@@ -54,7 +54,7 @@ jobs:
             echo "No unused import(s) found."
           fi
 
-      - name: Check for print
+      - name: Check for print statement(s)
         run: |
           FOUND=$(uv tool run ruff check --select=T201 --exit-zero $TARGET)
           if [ -n "$FOUND" ]; then
@@ -64,7 +64,7 @@ jobs:
             echo "No print statement(s) found."
           fi
 
-      - name: Check for console.log
+      - name: Check for console.log statement(s)
         run: |
           FOUND=$(find $TARGET -type f \( -name "*.html" -o -name "*.js" \) -exec grep -l "console\.log" {} \;)
 
