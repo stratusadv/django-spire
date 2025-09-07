@@ -1,8 +1,8 @@
 <template x-component="collection-tree">
     <div x-sort="await move_collection({collection: $item, order: $position})">
         <template x-for="collection in data.items" :key="collection.id">
-            <div x-sort:item="collection">
-                {% include 'django_spire/knowledge/collection/item/list_item.html' %}
+            <div x-sort:item="collection" class="my-1">
+                {% include 'django_spire/knowledge/collection/card/collection_card.html' %}
                 <div x-show="collection.show_children" class="ms-4">
                     <x-collection-tree :data="{items: collection.children, id: collection.id}"></x-collection-tree>
                 </div>

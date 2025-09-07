@@ -26,9 +26,18 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 
+    def breadcrumbs_func(breadcrumbs):
+        breadcrumbs.add_breadcrumb(name='Knowledge')
+        breadcrumbs.add_breadcrumb(
+            name='Collections',
+            href=reverse('django_spire:knowledge:collection:page:list')
+        )
+        breadcrumbs.add_breadcrumb(name=collection.name)
+
     return portal_views.detail_view(
         request,
         obj=collection,
+        breadcrumbs_func=breadcrumbs_func,
         context_data={
             'collection': collection,
             'current_entries': (
