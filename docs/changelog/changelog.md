@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.15.3
+
+### Changes
+- Added fonts to package data bundling
+
+
 ## v0.15.2
 
 ### Changes
