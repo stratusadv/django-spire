@@ -104,7 +104,8 @@ django_spire = [
     "**/*.png",
     "**/*.gif",
     "**/*.jpg",
-    "**/*.jpeg"
+    "**/*.jpeg",
+    "**/*.ttf",
 ]
 
 [tool.setuptools.dynamic]
