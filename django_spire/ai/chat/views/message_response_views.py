@@ -3,7 +3,7 @@ import json
 from django.conf import settings
 from django.http import HttpResponse
 
-from django_spire.ai.chat.messages import DefaultMessageIntel
+from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType

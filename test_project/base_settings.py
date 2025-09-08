@@ -20,7 +20,7 @@ if os.getenv('DJANGO_DEBUG', 'False') == 'True':
 else:
     DEBUG = False
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0, 127.0.0.1, localhost').split(',')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0,127.0.0.1,localhost').split(',')
 
 ASGI_APPLICATION = 'test_project.asgi.application'
 WSGI_APPLICATION = 'test_project.wsgi.application'
@@ -92,6 +92,8 @@ INSTALLED_APPS += [
     'django_spire.history.activity',
     'django_spire.history.viewed',
 
+    'django_spire.knowledge',
+
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
@@ -99,10 +101,16 @@ INSTALLED_APPS += [
     'django_spire.notification.push',
 
     'django_spire.contrib.options',
+    'django_spire.contrib.ordering',
     'django_spire.contrib.pagination',
 
     'django_spire.theme',
 ]
+
+DJANGO_SPIRE_AUTH_CONTROLLERS = {
+    'ai_chat': 'django_spire.ai.chat.auth.controller.BaseAiChatAuthController',
+    'knowledge': 'test_project.apps.knowledge.auth.controller.KnowledgeAuthController',
+}
 
 INSTALLED_APPS += [
     'test_project.apps.ai',
@@ -111,6 +119,7 @@ INSTALLED_APPS += [
     'test_project.apps.help_desk',
     'test_project.apps.home',
     'test_project.apps.landing',
+    'test_project.apps.ordering',
     'test_project.apps.history',
     'test_project.apps.notification',
     'test_project.apps.model_and_service',
@@ -183,3 +192,4 @@ TEMPLATES = [
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
+STATIC_ROOT = str(BASE_DIR / 'static')

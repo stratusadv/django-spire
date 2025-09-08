@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
 from django_spire.file.models import File
+from django_spire.file.utils import random_64_char_token
 
 if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -133,7 +134,7 @@ class SingleFileUploader(FileUploader):
 
 @dataclass
 class MultiFileUploader(FileUploader):
-    def upload(self, files: list[InMemoryUploadedFile]) -> File:
+    def upload(self, files: list[InMemoryUploadedFile]) -> list[File]:
         files_to_upload = [self.null_file_obj(file) for file in files]
         return File.objects.bulk_create(files_to_upload)
 

@@ -1,9 +1,0 @@
-build
-django-debug-toolbar
-pip
-pyinstrument
-setuptools
-twine
-
--r mkdocs_requirements.txt
--r requirements.txt

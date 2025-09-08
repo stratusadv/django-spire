@@ -1,0 +1,18 @@
+<form method="post">
+    <div x-data="{
+    init() {
+        this.users.choices = {{ user_choices|safe }}
+        this.users.value = {{ selected_user_ids }}
+    },
+    users: new GlueCharField('users')
+    }" class="row">
+        {% csrf_token %}
+        <div class="col-6 mb-2">
+            {% include 'django_glue/form/field/multi_select_field.html' with glue_field='users' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        </div>
+
+    </div>
+</form>

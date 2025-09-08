@@ -1,19 +1,58 @@
 # Changelog
 
-## v0.14.9
+## v0.15.2
 
 ### Changes
 - Added override block to modal column sizes
+
+
+## v0.15.1
+
+### Changes
+- Added AI Chat Home Page
+
+### Fix
+- Some Knowledge Base Permissions
+
+## v0.15.0
+
+### Breaking
+
+- The `permissions_required` decorator now takes position arguments instead of an optional tuple.
+- Templates in the 'django_spire/auth/user_account' directory have been moved to 'django_spire/auth/user'
+- Templates in the 'django_spire/auth/permission' directory have been moved to 'django_spire/auth/group'
+- The form views that were previously in 'django_spire/auth/user/page_views.py' have been moved to 'django_spire/auth/user/views/form_views.py'
+- The form URLs that were previously in 'django_spire/auth/user/urls/page_urls.py' have been moved to 'django_spire/auth/user/urls/form_urls.py'
+- The form views that were previously in 'django_spire/auth/group/page_views.py' have been moved to 'django_spire/auth/group/views/form_views.py'
+- The form URLs that were previously in 'django_spire/auth/group/urls/page_urls.py' have been moved to 'django_spire/auth/group/urls/form_urls.py'
+- Page view URLs for the 'AuthUser' and 'AuthGroup' now require the 'page' namespace
+
+### Feature
+
+- Knowledge Base Feature Release
+  - CRUD for collection, entries and blocks.
+  - Importing docx and markdown files.
+  - Use the AI Chat to search the knowledge base.
+  - Drag and drop ordering.
+- `AuthController` has been added to control all the app permissions in an explicit way that follows django practices.
+
+### Fix
+
+- Fixed permission decorator to redirect to login.
+- Fixed broken urls that were in the base templates for the 'AuthUser' and 'AuthGroup' apps.
+
 
 ## v0.14.8
 
 ### Changes
 - Optimize modal column sizes for different screen sizes
 
+
 ## v0.14.7
 
 ### Changes
 - Implemented a profiling middleware
+
 
 ## v0.14.6
 

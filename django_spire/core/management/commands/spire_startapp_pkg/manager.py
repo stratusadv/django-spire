@@ -113,7 +113,7 @@ class AppManager(BaseTemplateManager):
 
         return missing
 
-    def _report_exists(self, app: str, destination: Pathx, reporter: Reporter) -> None:
+    def _report_exists(self, app: str, destination: Path, reporter: Reporter) -> None:
         reporter.report_app_exists(app, destination)
 
     def _report_creating(self, app: str, destination: Path, reporter: Reporter) -> None:

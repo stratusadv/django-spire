@@ -1,0 +1,41 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title %}
+    <div class="row m-0">
+        {% include 'django_spire/element/grabber_element.html' with grabber_class='col-auto align-self-center' %}
+        <div class="col">
+            {% url 'django_spire:knowledge:entry:version:page:detail' pk=entry.current_version_id as entry_detail_url %}
+            {% include 'django_spire/element/attribute_element.html' with attribute_value=entry.name attribute_href=entry_detail_url %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Author' attribute_value=entry.current_version.author.get_full_name %}
+    </div>
+    {% if entry.current_version.published_datetime %}
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Published' attribute_value=entry.current_version.published_datetime %}
+        </div>
+    {% endif %}
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Edit' attribute_value=entry.current_version.last_edit_datetime %}
+    </div>
+    <div class="col-auto">
+        {% include 'django_spire/knowledge/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
+    </div>
+{% endblock %}
+
+{% block item_button %}
+    {% if AuthController.knowledge.can_view %}
+        {% url 'django_spire:knowledge:entry:version:page:detail' pk=entry.current_version_id as entry_detail_url %}
+    {% endif %}
+    {% if AuthController.knowledge.can_change %}
+        {% url 'django_spire:knowledge:entry:form:update' pk=entry.pk collection_pk=collection.pk as entry_edit_url %}
+    {% endif %}
+    {% if AuthController.knowledge.can_delete %}
+        {% url 'django_spire:knowledge:entry:page:delete' pk=entry.pk as entry_delete_url %}
+    {% endif %}
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=entry_detail_url edit_url=entry_edit_url delete_url=entry_delete_url %}
+{% endblock %}

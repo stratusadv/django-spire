@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@login_required
+@login_required()
 def file_multiple_upload_ajax(request: WSGIRequest) -> JsonResponse:
     if request.method == 'POST':
         file_uploader = MultiFileUploader(request.POST.get('related_field', ''))
@@ -22,7 +22,7 @@ def file_multiple_upload_ajax(request: WSGIRequest) -> JsonResponse:
         })
 
 
-@login_required
+@login_required()
 def file_single_upload_ajax(request: WSGIRequest) -> JsonResponse:
     if request.method == 'POST':
         file_uploader = SingleFileUploader(request.POST.get('related_field', ''))

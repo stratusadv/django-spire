@@ -1,19 +1,16 @@
 from __future__ import annotations
 
-from django_spire.auth.group.constants import (
-    PERMISSIONS_LEVEL_CHOICES,
-    VALID_PERMISSION_LEVELS
-)
 
 from typing_extensions import TYPE_CHECKING
+
+from django_spire.auth.permissions.consts import VALID_PERMISSION_LEVELS, PERMISSIONS_LEVEL_CHOICES
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import Group, User
 
 
-def add_users_to_group(group: Group, user_list: list[User]) -> None:
-    for user in user_list:
-        user.groups.add(group)
+def set_group_users(group: Group, user_list: list[User]) -> None:
+    group.user_set.set(user_list)
 
 
 def codename_to_perm_level(codename: str) -> int:
