@@ -25,3 +25,6 @@ class CollectionProcessorService(BaseDjangoModelService['Collection']):
             destination_objects=destination_objects
         )
         self.obj.set_deleted()
+
+        for child in self.obj.children.active():
+            child.services.processor.set_deleted()
