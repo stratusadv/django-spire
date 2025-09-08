@@ -34,7 +34,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('django_spire_auth_group.view_authgroup')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    group_list = models.AuthGroup.objects.all().prefetch_related('permissions')
+    group_list = models.AuthGroup.objects.all().prefetch_related('permissions').order_by('name')
 
     context_data = {
         'group_list': group_list,

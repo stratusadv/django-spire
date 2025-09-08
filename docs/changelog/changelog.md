@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.15.5
+
+### Features
+- Added default 'All Users' group that applies to all users that are created.
+
+
 ## v0.15.4
 
 ### Changes
@@ -7,6 +13,7 @@
 
 ### Fixes
 - Knowledge Base Collection Deletion Bug Fix.
+
 
 ## v0.15.3
 
