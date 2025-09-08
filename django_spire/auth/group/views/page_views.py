@@ -8,6 +8,7 @@ from django_spire.auth.group import models
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data
 from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.pagination.pagination import paginate_list
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -18,10 +19,17 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=pk)
 
+    active_user_list = group.user_set.filter(is_active=True).order_by('first_name', 'last_name')
+    inactive_user_list = group.user_set.filter(is_active=False).order_by('first_name', 'last_name')
+
+    paginated_active_user_list = paginate_list(active_user_list, page_number=request.GET.get('page', 1), per_page=10)
+    paginated_inactive_user_list = paginate_list(inactive_user_list, page_number=request.GET.get('page', 1), per_page=10)
+
     context_data = {
         'group': group,
         'permission_data': generate_group_perm_data(group, with_special_role=True),
-        'user_list': group.user_set.all()
+        'active_user_list': paginated_active_user_list,
+        'inactive_user_list': paginated_inactive_user_list,
     }
 
     return portal_views.detail_view(

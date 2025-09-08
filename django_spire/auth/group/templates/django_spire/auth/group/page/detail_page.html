@@ -13,7 +13,7 @@
         </div>
         <div class="col-lg-4">
             <div class="mb-3">
-                {% include 'django_spire/auth/group/card/group_user_list_card.html' with queryset=user_list %}
+                {% include 'django_spire/auth/group/tab/user_list_card_tabs.html'%}
             </div>
 
             {% include 'django_spire/activity/card/list_card.html' with queryset=group.activity_log.all %}
