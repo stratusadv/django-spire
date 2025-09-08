@@ -108,6 +108,7 @@ INSTALLED_APPS += [
 ]
 
 DJANGO_SPIRE_AUTH_CONTROLLERS = {
+    'ai_chat': 'django_spire.ai.chat.auth.controller.BaseAiChatAuthController',
     'knowledge': 'test_project.apps.knowledge.auth.controller.KnowledgeAuthController',
 }
 

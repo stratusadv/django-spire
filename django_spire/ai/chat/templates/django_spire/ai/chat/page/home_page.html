@@ -1,0 +1,9 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="row">
+        <div class="col-12">
+            {% include 'django_spire/ai/chat/card/chat_card.html' with top_nav_height_px='200' %}
+        </div>
+    </div>
+{% endblock %}
