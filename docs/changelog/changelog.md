@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.15.4
+
+### Changes
+- Added Knowledge Base Admin Files
+
+### Fixes
+- Knowledge Base Collection Deletion Bug Fix.
+
 ## v0.15.3
 
 ### Changes
