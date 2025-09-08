@@ -36,6 +36,8 @@ def form_view(
 
             return_url = reverse('django_spire:auth:group:page:list')
             return HttpResponseRedirect(return_url)
+        else:
+            show_form_errors(request, form)
 
     form = forms.GroupForm(instance=group)
 

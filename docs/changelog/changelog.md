@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.15.4
+
+### Features
+- Added default 'All Users' group that applies to all users that are created.
+
 ## v0.15.3
 
 ### Changes

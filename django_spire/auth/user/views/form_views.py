@@ -14,6 +14,7 @@ from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.user import forms
 from django_spire.auth.user.models import AuthUser
+from django_spire.auth.user.tools import add_user_to_all_user_group
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm, ConfirmationForm
 from django_spire.contrib.form.utils import show_form_errors
@@ -32,6 +33,7 @@ def register_form_view(request):
 
         if user_form.is_valid():
             user = user_form.save()
+            add_user_to_all_user_group(user)
 
             add_form_activity(user, 0, request.user)
 
