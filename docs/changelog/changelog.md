@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.15.1
+
+### Changes
+- Added AI Chat Home Page
+
+### Fix
+- Some Knowledge Base Permissions
+
 ## v0.15.0
 
 ### Breaking
