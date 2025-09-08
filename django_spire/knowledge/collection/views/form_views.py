@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
-@AppAuthController('knowledge').permission_required('can_change')
+@AppAuthController('knowledge').permission_required('can_add')
 def form_view(
         request: WSGIRequest,
         pk: int = 0

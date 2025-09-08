@@ -1,8 +1,6 @@
-from typing import List
-
+from dandy.llm import MessageHistory
 from dandy.workflow import BaseWorkflow
 
-from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchLlmBot
 from django_spire.knowledge.intelligence.intel.collection_intel import CollectionIntel
 from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel, EntryIntel
@@ -15,34 +13,32 @@ class KnowledgeWorkflow(BaseWorkflow):
     @classmethod
     def process(
             cls,
-            user_input: str
+            user_input: str,
     ) -> KnowledgeMessageIntel:
         CollectionMap = get_collection_map_class()
 
         collections = CollectionMap.process(
-            user_input
+            user_input,
         )
 
         entries = []
 
         if collections[0] is None:
             return KnowledgeMessageIntel(
-                body='There was no knowledge related to your request. Please reword it and try again.'
+                body=(
+                    'There was no knowledge related to your request. Please reword it '
+                    'and try again.'
+                )
             )
 
         for collection in collections:
-            print(collection.entries.all())
             if collection.entry_count > 0:
 
                 EntryMap = get_entry_map_class(
                     collection=collection
                 )
 
-                entries.extend(
-                    EntryMap.process(
-                        user_input
-                    )
-                )
+                entries.extend(EntryMap.process(user_input))
 
         if entries:
             entries_intel = EntriesIntel(
@@ -59,13 +55,11 @@ class KnowledgeWorkflow(BaseWorkflow):
                 ]
             )
 
-            return KnowledgeMessageIntel(
-                body=f'Entries: {entries_intel}'
-            )
+            return KnowledgeMessageIntel(body=f'Entries: {entries_intel}')
 
         return KnowledgeMessageIntel(
-            body='There was no knowledge related to your request. Please reword it and try again.'
+            body=(
+                'There was no knowledge related to your request. Please reword it and '
+                'try again.'
+            )
         )
-
-    def get_collections(self) -> List[Collection]:
-        pass
