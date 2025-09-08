@@ -12,17 +12,17 @@
          @keydown.escape.window="expanded = false">
 
         <input
-                x-model="search_query"
-                type="text"
-                name="query"
-                class="form-control"
-                placeholder="Search..."
-                @input.debounce.300ms="submit_user_input"
-                @keydown.down="$focus.within($refs.search_results).first()"
-                id="searchInput"
-                x-ref="search_input"
-                @click="expanded = true"
-                autocomplete="off"
+            x-model="search_query"
+            type="text"
+            name="query"
+            class="form-control"
+            placeholder="Search..."
+            @input.debounce.300ms="submit_user_input"
+            @keydown.down="$focus.within($refs.search_results).first()"
+            id="searchInput"
+            x-ref="search_input"
+            @click="expanded = true"
+            autocomplete="off"
         >
 
         <div
