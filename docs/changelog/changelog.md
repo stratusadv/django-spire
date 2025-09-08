@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.15.2
+
+### Changes
+- Added override block to modal column sizes
+
+
 ## v0.15.1
 
 ### Changes
