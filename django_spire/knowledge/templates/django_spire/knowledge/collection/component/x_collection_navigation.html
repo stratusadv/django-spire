@@ -1,0 +1,13 @@
+<template x-component="collection-navigation">
+    <template x-for="collection in data.items" :key="collection.id">
+        <div class="my-1">
+            {% include 'django_spire/knowledge/collection/offcanvas/item/collection_item.html' %}
+            <div x-show="collection.show_children" class="ms-4">
+                <div x-show="!collection.has_children()">
+                    <span class="fs--2">No sub collections</span>
+                </div>
+                <x-collection-navigation :data="{items: collection.children, id: collection.id}"></x-collection-navigation>
+            </div>
+        </div>
+    </template>
+</template>

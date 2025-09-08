@@ -48,4 +48,18 @@ class CollectionManager {
             return collection_object
         })
     }
+
+    _show_child_to_root({collection}) {
+        collection.show_children = true
+
+        if (collection.parent) {
+            this._show_child_to_root({collection: collection.parent})
+        }
+    }
+
+    open_path_to({collection_id}) {
+        const target_collection = this.collection_lookup_map.get(collection_id)
+
+        this._show_child_to_root({collection: target_collection})
+    }
 }

@@ -52,6 +52,9 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         breadcrumbs_func=breadcrumbs_func,
         context_data={
             'collection': collection,
+            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
+                queryset=Collection.objects.all().select_related('parent').order_by('name')
+            ),
             'current_entries': (
                 collection.entries
                 .active()

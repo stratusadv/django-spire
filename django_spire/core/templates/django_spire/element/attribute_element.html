@@ -15,7 +15,7 @@
 </div>
 
 {% if attribute_href or x_attribute_href %}
-    <a class="text-decoration-none" :href="{{ x_attribute_href }}" href="{{ attribute_href }}" target="{{ target }}">
+    <a class="text-decoration-none" {% if x_attribute_href %}:href="{{ x_attribute_href }}"{% endif %} href="{{ attribute_href }}" target="{{ target }}">
 {% else %}
     <div class="fs-6">
 {% endif %}

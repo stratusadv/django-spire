@@ -1,0 +1,27 @@
+<div
+    x-show="show_context_menu"
+    x-transition
+    :style="{ top: y + 'px', left: x + 'px' }"
+    class="position-fixed card p-3 z-3 vstack"
+    @click.away="hide_menu()"
+>
+    <span x-text="title"></span>
+    <i
+        class="cursor-pointer bi bi-plus text-app-primary"
+        @click="add_collection()"
+    >
+        Add Entry
+    </i>
+    <i
+        class="cursor-pointer bi bi-upload text-app-primary"
+        @click="import_entry()"
+    >
+        Import Entry
+    </i>
+    <i
+        class="cursor-pointer bi bi-trash3 text-danger"
+        @click="delete_collection()"
+    >
+        Delete
+    </i>
+</div>

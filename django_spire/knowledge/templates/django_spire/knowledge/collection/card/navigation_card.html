@@ -1,0 +1,47 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+	Collections
+{% endblock %}
+
+{% block card_title_content %}
+    <div
+        x-data="{
+            show_context_menu: false,
+            x: 0,
+            y: 0,
+            focused_collection: 0,
+            title: '',
+
+            show_menu({event, collection_id}) {
+                this.x = event.pageX
+                this.y = event.pageY
+                this.focused_collection = collection_id
+                this.title = manager.collection_lookup_map.get(collection_id).name
+                this.show_context_menu = true
+            },
+            hide_menu() {
+                this.show_context_menu = false
+                this.focused_collection = 0
+            },
+            add_collection() {
+                alert('Add New action triggered' + this.focused_collection)
+                this.hide_menu()
+            },
+            delete_collection() {
+                alert('Delete action triggered' + this.focused_collection)
+                this.hide_menu()
+            },
+            import_entry() {
+                alert('Import action triggered' + this.focused_collection)
+                this.hide_menu()
+            }
+        }"
+        class="user-select-none"
+    >
+        {% include 'django_spire/knowledge/collection/component/x_collection_navigation.html' %}
+        {% include 'django_spire/knowledge/collection/card/context_menu_card.html' %}
+
+        <x-collection-navigation :data="{items: manager.collection_map, id: null}"></x-collection-navigation>
+    </div>
+{% endblock %}
