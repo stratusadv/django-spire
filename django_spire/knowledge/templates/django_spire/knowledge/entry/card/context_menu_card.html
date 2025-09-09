@@ -1,0 +1,38 @@
+<div
+    x-show="show_context_menu && focused_type === 'entry'"
+    x-transition
+    x-cloak
+    style="min-width: 200px; max-width: 200px"
+    :style="{
+        top: y + 'px',
+        left: x + 'px',
+    }"
+    class="position-fixed card shadow-lg z-3 vstack cursor-pointer"
+    @click.away="hide_menu()"
+>
+    <span class="px-3 mb-2 text-center" x-text="title"></span>
+
+    {% if AuthController.knowledge.can_view %}
+    <span class="border-top bg-app-layer-one-hover" @click="view_entry()">
+        <i class="bi bi-eye text-app-primary px-3">
+            View Entry
+        </i>
+    </span>
+    {% endif %}
+
+    {% if AuthController.knowledge.can_change %}
+    <span class="border-top bg-app-layer-one-hover" @click="edit_entry()">
+        <i class="bi bi-pencil text-app-primary px-3">
+            Edit Entry
+        </i>
+    </span>
+    {% endif %}
+
+    {% if AuthController.knowledge.can_delete %}
+    <span class="border-top bg-app-layer-one-hover" @click="delete_entry()">
+        <i class="bi bi-trash3 text-danger px-3">
+            Delete Entry
+        </i>
+    </span>
+    {% endif %}
+</div>

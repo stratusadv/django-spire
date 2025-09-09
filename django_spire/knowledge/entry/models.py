@@ -1,4 +1,7 @@
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db import models
+from django.urls import reverse
 
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
@@ -28,6 +31,24 @@ class Entry(HistoryModelMixin, OrderingModelMixin):
 
     objects = EntryQuerySet.as_manager()
     services = EntryService()
+
+    @property
+    def delete_url(self) -> str:
+        site = Site.objects.get_current() if not settings.DEBUG else ''
+        path = reverse(
+            'django_spire:knowledge:entry:page:delete',
+            kwargs={'pk': self.pk},
+        )[1:]
+        return f'{site}/{path}'
+
+    @property
+    def edit_url(self) -> str:
+        site = Site.objects.get_current() if not settings.DEBUG else ''
+        path = reverse(
+            'django_spire:knowledge:entry:form:update',
+            kwargs={'pk': self.pk, 'collection_pk': self.collection_id},
+        )[1:]
+        return f'{site}/{path}'
 
     def __str__(self):
         return self.name

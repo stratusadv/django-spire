@@ -53,14 +53,15 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data={
             'collection': collection,
             'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                queryset=Collection.objects.all().select_related('parent').order_by('name')
+                queryset=Collection.objects.all().select_related('parent').order_by('name'),
+                user=request.user
             ),
             'current_entries': (
                 collection.entries
                 .active()
                 .has_current_version()
                 .user_has_access(user=request.user)
-                .select_related('current_version')
+                .select_related('current_version__author')
                 .order_by('order')
             )
         },
@@ -75,7 +76,8 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         model=Collection,
         context_data={
             'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                queryset=Collection.objects.active().select_related('parent').order_by('order')
+                queryset=Collection.objects.active().select_related('parent').order_by('order'),
+                user=request.user
             )
         },
         template='django_spire/knowledge/collection/page/list_page.html'

@@ -11,24 +11,17 @@
 {% endblock %}
 
 {% block full_page_content %}
-    <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom">
-        <div class="col">
-            <div class="card-title text-uppercase mb-0">
-                Collections
-            </div>
-        </div>
-        <div class="col-auto d-flex">
-            {% if AuthController.knowledge.can_add %}
-                {% url 'django_spire:knowledge:collection:form:create' as create_url %}
-                {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
-            {% endif %}
-        </div>
-    </div>
     <div class="row">
         <div class="col-12">
             <div
                 x-data="{
                     manager: new CollectionManager({{ collection_tree_json }}),
+
+                    is_dragging: false,
+
+                    toggle_dragging(value) {
+                        this.is_dragging = value
+                    },
 
                     async move_collection({collection, order, new_parent}) {
                         let response = null
@@ -44,13 +37,27 @@
                         if (response.type === 'error') {
                             $dispatch('notify', {'type': response.type, 'message': response.message})
                         }
+                    },
+
+                    async move_entry({entry, collection, order}) {
+                        let response = null
+                        try {
+                            response = await django_glue_fetch(
+                                '{% url "django_spire:knowledge:entry:json:reorder" %}',
+                                {payload: {entry_id: entry.entry_id, order: order, collection_id: collection.id}}
+                            )
+                        } catch (e) {
+                             $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
+                        }
+
+                        if (response.type === 'error') {
+                            $dispatch('notify', {'type': response.type, 'message': response.message})
+                        }
                     }
                 }"
                 x-sort:config="{handle: '[x-sort\\:handle]'}"
-            >
-                {% include 'django_spire/knowledge/collection/component/x_collection_tree.html' %}
-
-                <x-collection-tree :data="{items: manager.collection_map, id: null}"></x-collection-tree>
+                >
+                    {% include 'django_spire\knowledge\collection\navigation\card\navigation_card.html' %}
             </div>
         </div>
     </div>

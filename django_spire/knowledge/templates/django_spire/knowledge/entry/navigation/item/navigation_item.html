@@ -1,0 +1,11 @@
+<div
+    class="ms-4"
+    @contextmenu.prevent="show_menu({event: $event, object: entry, type: 'entry'})"
+>
+    <i
+        @dblclick="window.location.href = '{% url "django_spire:knowledge:entry:version:page:detail" pk=0 %}'.replace(0, entry.version_id)"
+        class="bi bi-file-earmark-text cursor-pointer"
+    >
+        <span class="fw-normal" x-text="entry.name"></span>
+    </i>
+</div>

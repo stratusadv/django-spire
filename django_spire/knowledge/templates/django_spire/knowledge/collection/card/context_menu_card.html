@@ -1,27 +1,29 @@
 <div
-    x-show="show_context_menu"
+    x-show="show_context_menu && focused_type === 'collection'"
     x-transition
-    :style="{ top: y + 'px', left: x + 'px' }"
-    class="position-fixed card p-3 z-3 vstack"
+    x-cloak
+    style="min-width: 200px; max-width: 200px"
+    :style="{
+        top: y + 'px',
+        left: x + 'px',
+    }"
+    class="position-fixed card shadow-lg z-3 vstack cursor-pointer"
     @click.away="hide_menu()"
 >
-    <span x-text="title"></span>
-    <i
-        class="cursor-pointer bi bi-plus text-app-primary"
-        @click="add_collection()"
-    >
-        Add Entry
-    </i>
-    <i
-        class="cursor-pointer bi bi-upload text-app-primary"
-        @click="import_entry()"
-    >
-        Import Entry
-    </i>
-    <i
-        class="cursor-pointer bi bi-trash3 text-danger"
-        @click="delete_collection()"
-    >
-        Delete
-    </i>
+    <span class="px-3 mb-2 text-center" x-text="title"></span>
+    <span class="border-top bg-app-layer-one-hover" @click="add_entry()">
+        <i class="bi bi-plus text-app-primary px-3">
+            Add Entry
+        </i>
+    </span>
+    <span class="border-top bg-app-layer-one-hover" @click="import_entry()">
+        <i class="bi bi-upload text-app-primary px-3">
+            Import Entry
+        </i>
+    </span>
+    <span class="border-top bg-app-layer-one-hover" @click="delete_collection()">
+        <i class="bi bi-trash3 text-danger px-3">
+            Delete Collection
+        </i>
+    </span>
 </div>
