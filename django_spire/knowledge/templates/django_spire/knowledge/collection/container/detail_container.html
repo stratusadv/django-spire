@@ -5,19 +5,74 @@
 {% endblock %}
 
 {% block container_content %}
+    <style>
+        .side-toggle-btn {
+            position: fixed;
+            top: 7%;
+            left: var(--app-side-navigation-width);
+            z-index: 2000;
+            transition: left 0.4s;
+        }
+
+        .side-toggle-btn.open {
+            left: 400px;
+        }
+    </style>
     <div class="row">
-        <div class="col-12 mb-2 ps-4">
-            {{ collection.description }}
-        </div>
-        <div class="col-3 pe-0">
-            {% include 'django_spire/knowledge/collection/navigation/card/navigation_card.html' %}
-        </div>
-        <div class="col-9 ps-0">
-            <div class="row m-0">
-                <div class="col-12">
-                    {% include 'django_spire/knowledge/entry/card/list_card.html' %}
-                </div>
-            </div>
+        <div class="col-12">
+            {% include 'django_spire/knowledge/entry/card/list_card.html' %}
         </div>
     </div>
+
+
+    <div
+        id="side-toggle-btn"
+        class="side-toggle-btn fs-4"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#navigation-card"
+    >
+        <i
+            class="bi bi-layout-sidebar-inset"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Collapse Collection Navigation"
+        ></i>
+    </div>
+
+    <div
+        class="offcanvas offcanvas-start rounded-3"
+         data-bs-scroll="true"
+         data-bs-backdrop="false"
+         tabindex="-1"
+         id="navigation-card"
+    >
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Navigation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        {% include 'django_spire/knowledge/collection/container/navigation_container.html' %}
+    </div>
+{#    <div class="offcanvas offcanvas-side-navigation rounded-3" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="navigation-card">#}
+{#        <div class="offcanvas-header">#}
+{#            <h5 class="offcanvas-title">Navigation</h5>#}
+{#            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>#}
+{#        </div>#}
+{#            {% include 'django_spire\knowledge\collection\container\navigation_container.html' %}#}
+{#    </div>#}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('side-toggle-btn');
+            const offcanvasEl = document.getElementById('navigation-card');
+
+            offcanvasEl.addEventListener('show.bs.offcanvas', function () {
+                toggleBtn.classList.add('open');
+            });
+
+            offcanvasEl.addEventListener('hide.bs.offcanvas', function () {
+                toggleBtn.classList.remove('open');
+            });
+        });
+    </script>
 {% endblock %}

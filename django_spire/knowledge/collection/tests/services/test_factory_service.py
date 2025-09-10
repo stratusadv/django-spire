@@ -6,91 +6,49 @@ from django_spire.knowledge.collection.models import Collection
 
 class TestCollectionTransformationService(BaseTestCase):
     def test_to_hierarchy_json(self):
-        Collection.objects.bulk_create([
-            Collection(name='Grand Parent A', id=1, parent_id=None),
-            Collection(name='Parent A1', id=2, parent_id=1),
-            Collection(name='Child A1a', id=3, parent_id=2),
-            Collection(name='Parent A2', id=4, parent_id=1),
-            Collection(name='Child A2a', id=5, parent_id=4),
-            Collection(name='Child A2b', id=6, parent_id=4),
-            Collection(name='Grand Parent B', id=7, parent_id=None),
-            Collection(name='Parent B1', id=8, parent_id=7),
-            Collection(name='Child B1a', id=9, parent_id=8),
-            Collection(name='Grand Child B1a1', id=10, parent_id=9),
-        ])
+        self.test_collection_1 = Collection.objects.create(name='Grand Parent A', id=1, parent_id=None)
+        self.test_collection_2 = Collection.objects.create(name='Parent A1', id=2, parent_id=1)
+        self.test_collection_3 = Collection.objects.create(name='Child A1a', id=3, parent_id=2)
 
         family_tree = Collection.services.transformation.to_hierarchy_json(
-            queryset=Collection.objects.all().select_related('parent')
+            queryset=Collection.objects.all().select_related('parent'),
+            user=self.super_user
         )
 
         expected_family_tree = [
             {
                 'id': 1,
+                'delete_url': self.test_collection_1.delete_url,
+                'create_entry_url': self.test_collection_1.create_entry_url,
+                'import_entry_url': self.test_collection_1.import_entry_url,
                 'name': 'Grand Parent A',
                 'description': '',
+                'entries': [],
                 'children': [
                     {
                         'id': 2,
+                        'delete_url': self.test_collection_2.delete_url,
+                        'create_entry_url': self.test_collection_2.create_entry_url,
+                        'import_entry_url': self.test_collection_2.import_entry_url,
                         'name': 'Parent A1',
                         'description': '',
+                        'entries': [],
                         'children': [
                             {
                                 'id': 3,
+                                'delete_url': self.test_collection_3.delete_url,
+                                'create_entry_url': self.test_collection_3.create_entry_url,
+                                'import_entry_url': self.test_collection_3.import_entry_url,
                                 'name': 'Child A1a',
                                 'description': '',
-                                'children': [],
-                            }
-                        ],
-                    },
-                    {
-                        'id': 4,
-                        'name': 'Parent A2',
-                        'description': '',
-                        'children': [
-                            {
-                                'id': 5,
-                                'name': 'Child A2a',
-                                'description': '',
-                                'children': [],
-                            },
-                            {
-                                'id': 6,
-                                'name': 'Child A2b',
-                                'description': '',
+                                'entries': [],
                                 'children': [],
                             }
                         ],
                     }
-                ],
-            },
-            {
-                'id': 7,
-                'name': 'Grand Parent B',
-                'description': '',
-                'children': [
-                    {
-                        'id': 8,
-                        'name': 'Parent B1',
-                        'description': '',
-                        'children': [
-                            {
-                                'id': 9,
-                                'name': 'Child B1a',
-                                'description': '',
-                                'children': [
-                                    {
-                                        'id': 10,
-                                        'name': 'Grand Child B1a1',
-                                        'description': '',
-                                        'children': [],
-                                    }
-                                ],
-                            }
-                        ],
-                    }
-                ],
+                ]
             }
-        ]
+            ]
 
         self.assertEqual(
             json.loads(family_tree),

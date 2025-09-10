@@ -29,7 +29,7 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         self._reorder_objects(origin_objects)
 
         # Forces destination objects to refresh in the event they overlap the origin objects
-        destination_objects = destination_objects.all()
+        destination_objects = destination_objects.all().order_by('order')
 
         for index, item in enumerate(destination_objects):
             if item.order >= insert_position:

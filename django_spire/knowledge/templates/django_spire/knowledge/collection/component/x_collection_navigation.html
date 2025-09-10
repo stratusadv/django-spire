@@ -1,14 +1,13 @@
 <template x-component="collection-navigation">
     <div
-        class="border border-primary"
         x-sort="await move_collection({collection: $item, order: $position, new_parent: data.id})"
         x-sort:group="collection"
-        @mouseover="this.style.paddingTop = is_dragging ? '100px' : '0px'"
     >
         <template x-for="collection in data.items" :key="collection.id">
             <div
                 x-sort:item="collection"
-                class="my-1 ms-4"
+                :id="collection.name"
+                class="my-1 ms-4 collection"
                 @dragstart="toggle_dragging(true)"
                 @dragend="toggle_dragging(false)"
             >
@@ -17,18 +16,19 @@
                     <x-collection-navigation :data="{items: collection.children, id: collection.id}"></x-collection-navigation>
                     <div class="ms-4">
                         <div
-                            class="border border-danger"
                             x-sort="await move_entry({entry: $item, collection: collection, order: $position})"
                             x-sort:group="entry"
                         >
                             <template x-for="entry in collection.entries" :key="entry.version_id">
-                            <div
-                                x-sort:item="entry"
-                                @dragstart="toggle_dragging(true)"
-                                @dragend="toggle_dragging(false)"
-                            >
-                                {% include  'django_spire/knowledge/entry/navigation/item/navigation_item.html' %}
-                            </div>
+                                <div
+                                    class="entry"
+                                    x-sort:item="entry"
+                                    :id="entry.name"
+                                    @dragstart="toggle_dragging(true)"
+                                    @dragend="toggle_dragging(false)"
+                                >
+                                    {% include  'django_spire/knowledge/entry/navigation/item/navigation_item.html' %}
+                                </div>
                             </template>
                         </div>
                     </div>

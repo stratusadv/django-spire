@@ -1,0 +1,133 @@
+<div
+    x-data="{
+        user_search: '',
+        found_items: new Map(),
+        show_context_menu: false,
+        x: 0,
+        y: 0,
+        focused_object: {},
+        focused_type: '',
+        title: '',
+        manager: new CollectionManager({{ collection_tree_json }}),
+        is_dragging: false,
+
+        init() {
+            {% if collection.id %}
+                this.manager.open_path_to({collection_id: {{ collection.id }}})
+            {% endif %}
+        },
+
+        toggle_dragging(value) {
+            this.is_dragging = value
+        },
+
+        async move_collection({collection, order, new_parent}) {
+            let response = null
+            try {
+                response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:collection:json:reorder" %}',
+                    {payload: {collection_id: collection.id, order: order, parent: new_parent}}
+                )
+            } catch (e) {
+                 $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
+            }
+
+            if (response.type === 'error') {
+                $dispatch('notify', {'type': response.type, 'message': response.message})
+            }
+
+            this.manager.set_parent({collection: collection, parent_id: new_parent})
+        },
+
+        async move_entry({entry, collection, order}) {
+            let response = null
+            try {
+                response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:json:reorder" %}',
+                    {payload: {entry_id: entry.entry_id, order: order, collection_id: collection.id}}
+                )
+            } catch (e) {
+                 $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
+            }
+
+            if (response.type === 'error') {
+                $dispatch('notify', {'type': response.type, 'message': response.message})
+            }
+        },
+
+        search() {
+            let item_map = new Map()
+            const query = this.user_search.toLocaleLowerCase()
+            document.querySelector('.search-items').style.display = query ? 'block' : 'none'
+            document.querySelector('.navigation-items').style.display = query ? 'none' : 'block'
+            document.querySelectorAll('.collection, .entry').forEach(div => {
+                let div_id =  div.id.toLocaleLowerCase()
+
+                let item = {}
+                if (div.classList.contains('collection')) {
+                    item = Alpine.$data(div).collection
+                } else {
+                    item = Alpine.$data(div).entry
+                }
+
+                if (div_id.includes(query)) {
+                    item_map.set(item, item)
+                } else {
+                    item_map.delete(item)
+                }
+            })
+
+            if (!query) {
+                this.found_items.clear()
+            } else {
+                this.found_items = item_map
+            }
+        },
+
+
+        show_menu({event, type, object}) {
+            this.x = event.pageX
+            this.y = event.pageY
+            this.focused_type = type
+            this.focused_object = object
+            this.title = this.focused_object.name
+            this.show_context_menu = true
+        },
+        hide_menu() {
+            this.show_context_menu = false
+            this.focused_object = {}
+        },
+
+        {% if AuthController.knowledge.can_view %}
+        view_entry() {
+            window.location.href = this.focused_object.view_url
+        },
+        {% endif %}
+
+        {% if AuthController.knowledge.can_change %}
+        edit_entry() {
+            window.location.href = this.focused_object.edit_url
+        },
+        {% endif %}
+
+        {% if AuthController.knowledge.can_delete %}
+        delete_entry() {
+            window.location.href = this.focused_object.delete_url
+        },
+        delete_collection() {
+            window.location.href = this.focused_object.delete_url
+        },
+        {% endif %}
+
+        {% if AuthController.knowledge.can_add %}
+        import_entry() {
+            window.location.href = this.focused_object.import_entry_url
+        },
+        add_entry() {
+            window.location.href = this.focused_object.create_entry_url
+        },
+        {% endif %}
+    }"
+>
+    {% include 'django_spire\knowledge\collection\navigation\card\navigation_card.html' %}
+</div>

@@ -38,7 +38,12 @@ def reorder_view(request: WSGIRequest) -> JsonResponse:
     entry.save()
 
     entry.ordering_services.processor.move_to_position(
-        destination_objects=entry.collection.entries.active(),
+        destination_objects=(
+            collection.entries
+            .has_current_version()
+            .user_has_access(user=request.user)
+            .active()
+        ),
         position=order,
     )
 

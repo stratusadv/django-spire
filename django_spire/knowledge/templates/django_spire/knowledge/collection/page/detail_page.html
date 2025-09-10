@@ -12,16 +12,7 @@
 
 {% block full_page_content %}
     <div class="row">
-        <div
-            x-data="{
-                manager: new CollectionManager({{ collection_tree_json }}),
-
-                init() {
-                    this.manager.open_path_to({collection_id: {{ collection.pk }}})
-                }
-            }"
-            class="col-12"
-        >
+        <div class="col-12">
             {% include 'django_spire/knowledge/collection/container/detail_container.html' %}
         </div>
     </div>

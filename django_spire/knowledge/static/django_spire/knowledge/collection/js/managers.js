@@ -133,4 +133,11 @@ class CollectionManager {
 
         this._show_details_to_root({collection: target_collection})
     }
+
+    set_parent({collection, parent_id}) {
+        collection.parent = this.collection_lookup_map.get(parent_id)
+        if (collection.parent) {
+            this.open_path_to({collection_id: collection.parent.id})
+        }
+    }
 }
