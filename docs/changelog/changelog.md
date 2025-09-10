@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.15.6
+
+### Changes
+- Added inactive function in History Queryset
+
 ## v0.15.5
 
 ### Features
