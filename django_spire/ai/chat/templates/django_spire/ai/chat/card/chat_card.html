@@ -6,7 +6,7 @@
 
 {% block card_content %}
     <div class="row">
-        <div class="col-12" style="height: calc(100vh - {{ top_nav_height_px }}px);">
+        <div class="col-12 vh-minus-nav">
             {% include 'django_spire/ai/chat/widget/chat_widget.html' %}
         </div>
     </div>

@@ -1,11 +1,74 @@
+.item-select:hover {
+    background-color: var(--app-primary);
+    cursor: pointer;
+}
+
+.item-container:first-child {
+    padding-top: 0 !important;
+}
+
+.item-container:last-child {
+    padding-bottom: 0 !important;
+    border: none !important;
+}
+
 .no-select {
     user-select: none;
 }
 
-.w-side-navigation {
+.tab-item::after{
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--app-primary);
+}
+
+.footer {
+    background-color: var(--app-footer-bg-color) !important;
+    color: var(--app-footer-text-color) !important;
+}
+
+.footer a {
+    color: var(--app-footer-link-color) !important;
+}
+
+.footer a:hover {
+    color: var(--app-footer-link-hover-color) !important;
+}
+
+.top-navigation {
+    background-color: var(--app-top-navigation-bg-color) !important;
+    color: var(--app-top-navigation-text-color) !important;
+}
+
+.top-navigation a {
+    color: var(--app-top-navigation-link-color) !important;
+}
+
+.top-navigation a:hover {
+    color: var(--app-top-navigation-link-hover-color) !important;
+}
+
+/* Must be below top-navigation for mobile side navigation css to be correct */
+.side-navigation {
+    background-color: var(--app-side-navigation-bg-color) !important;
+    color: var(--app-side-navigation-text-color) !important;
     width: var(--app-side-navigation-width);
-    background-color: var(--app-side-navigation-bg-color);
-    border-right: 1px solid var(--app-layer-two);
+}
+
+.side-navigation a {
+    color: var(--app-side-navigation-link-color) !important;
+}
+
+.side-navigation a:hover {
+    color: var(--app-side-navigation-link-hover-color) !important;
+}
+
+.vh-minus-nav {
+    height: calc(100vh - var(--app-top-navigation-height));
 }
 
 .w-side-navigation-img {
@@ -14,35 +77,8 @@
 
 .w-mobile-navigation {
     width: var(--app-mobile-navigation-width);
-    background-color: var(--app-mobile-navigation-bg-color);
-    border: 1px solid var(--app-layer-two);
-    box-shadow: var(--app-nav-shadow);
 }
 
 .w-mobile-navigation-img {
     width: calc(var(--app-mobile-navigation-width) - 20px);
-}
-
-.item-select:hover {
-    background-color: var(--app-primary);
-    cursor: pointer;
-}
-
-.item-container:first-child {
-    padding-top: 0;
-}
-
-.item-container:last-child {
-    padding-bottom: 0;
-    border: none;
-}
-
-.tab-item::after {
-    content: "";
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background-color: var(--app-primary);
 }

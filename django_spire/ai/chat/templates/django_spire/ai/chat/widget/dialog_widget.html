@@ -44,7 +44,7 @@
 
             <div class="row mb-3">
                 <div x-init="load_messages()" x-ref="target_div" class="col-12 overflow-auto p-4"
-                     style="height: calc(100vh - 90px - {{ top_nav_height_px }}px);">
+                     style="height: calc(100vh - 90px - var(--app-top-navigation-height));">
 
                 </div>
             </div>
@@ -73,4 +73,3 @@
     </div>
 
 {% endblock %}
-

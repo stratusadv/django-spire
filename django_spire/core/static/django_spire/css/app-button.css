@@ -1,131 +1,277 @@
+:root {
+    --app-btn-primary: var(--app-primary);
+    --app-btn-primary-soft: var(--app-primary-soft);
+    --app-btn-primary-dark: var(--app-primary-dark);
+
+    --app-btn-secondary: var(--app-secondary);
+    --app-btn-secondary-soft: var(--app-secondary-soft);
+    --app-btn-secondary-dark: var(--app-secondary-dark);
+
+    --app-btn-accent: var(--app-accent);
+    --app-btn-accent-soft: var(--app-accent-soft);
+    --app-btn-accent-dark: var(--app-accent-dark);
+
+    --app-btn-success: var(--app-success);
+    --app-btn-success-soft: var(--app-success-soft);
+    --app-btn-success-dark: var(--app-success-dark);
+
+    --app-btn-warning: var(--app-warning);
+    --app-btn-warning-soft: var(--app-warning-soft);
+    --app-btn-warning-dark: var(--app-warning-dark);
+
+    --app-btn-danger: var(--app-danger);
+    --app-btn-danger-soft: var(--app-danger-soft);
+    --app-btn-danger-dark: var(--app-danger-dark);
+
+    --app-btn-layer-one: var(--app-layer-one);
+    --app-btn-layer-two: var(--app-layer-two);
+    --app-btn-layer-three: var(--app-layer-three);
+    --app-btn-layer-four: var(--app-layer-four);
+
+    --app-btn-alt-layer-one: var(--app-alt-layer-one);
+    --app-btn-alt-layer-two: var(--app-alt-layer-two);
+    --app-btn-alt-layer-three: var(--app-alt-layer-three);
+    --app-btn-alt-layer-four: var(--app-alt-layer-four);
+}
+
 .btn {
     position: relative;
     transition: top 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: var(--app-btn-shadow-default);
-    border-radius: 8px;
+    box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
 }
 
 .btn:hover {
     top: -1px;
-    box-shadow: var(--app-btn-shadow-hover);
+    box-shadow: 3px 3px 4px 0px rgba(0, 0, 0, 0.3) !important;
 }
 
 .btn-app-primary {
-    background-color: var(--app-primary);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-primary) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-primary:hover {
+    background-color: var(--app-btn-primary-dark) !important;
 }
 
 .btn-app-primary-dark {
-    background-color: var(--app-primary-dark);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-primary-dark) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-primary-dark:hover {
+    background-color: var(--app-btn-primary) !important;
 }
 
 .btn-app-primary-outlined {
-    color: var(--app-primary-dark);
-    border: 1px solid var(--app-primary-dark);
-    background: transparent;
+    color: var(--app-btn-primary-dark) !important;
+    border: 1px solid var(--app-btn-primary-dark) !important;
+}
+
+.btn-app-primary-outlined:hover {
+    background-color: var(--app-btn-primary-dark) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-secondary {
-    background-color: var(--app-secondary);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-secondary) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-secondary:hover {
+    background-color: var(--app-btn-secondary-dark) !important;
 }
 
 .btn-app-secondary-dark {
-    background-color: var(--app-secondary-dark);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-secondary-dark) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-secondary-dark:hover {
+    background-color: var(--app-btn-secondary) !important;
 }
 
 .btn-app-secondary-outlined {
-    color: var(--app-secondary-dark);
-    border: 1px solid var(--app-secondary-dark);
-    background: transparent;
+    color: var(--app-btn-secondary) !important;
+    border: 1px solid var(--app-btn-secondary) !important;
+}
+
+.btn-app-secondary-outlined:hover {
+    background-color: var(--app-btn-secondary) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-accent {
-    background-color: var(--app-accent);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-accent) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-accent:hover {
+    background-color: var(--app-btn-accent-dark) !important;
 }
 
 .btn-app-accent-dark {
-    background-color: var(--app-accent-dark);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-accent-dark) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-accent-dark:hover {
+    background-color: var(--app-btn-accent) !important;
 }
 
 .btn-app-accent-outlined {
-    color: var(--app-accent-dark);
-    border: 1px solid var(--app-accent-dark);
-    background: transparent;
+    color: var(--app-btn-accent) !important;
+    border: 1px solid var(--app-btn-accent) !important;
 }
 
-.btn-app-success {
-    background-color: var(--app-success);
-    color: var(--app-default-button-text-color);
-    border: none;
-}
-
-.btn-app-success-dark {
-    background-color: var(--app-success-dark);
-    color: var(--app-default-button-text-color);
-    border: none;
-}
-
-.btn-app-success-outlined {
-    color: var(--app-success-dark);
-    border: 1px solid var(--app-success-dark);
-    background: transparent;
-}
-
-.btn-app-warning {
-    background-color: var(--app-warning);
-    color: var(--app-default-button-text-color);
-    border: none;
-}
-
-.btn-app-warning-dark {
-    background-color: var(--app-warning-dark);
-    color: var(--app-default-button-text-color);
-    border: none;
-}
-
-.btn-app-warning-outlined {
-    color: var(--app-warning-dark);
-    border: 1px solid var(--app-warning-dark);
-    background: transparent;
+.btn-app-accent-outlined:hover {
+    background-color: var(--app-btn-accent) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-danger {
-    background-color: var(--app-danger);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-danger) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-danger:hover {
+    background-color: var(--app-btn-danger-dark) !important;
+    color: var(--app-default-button-text-color) !important;
 }
 
 .btn-app-danger-dark {
-    background-color: var(--app-danger-dark);
-    color: var(--app-default-button-text-color);
+    background-color: var(--app-btn-danger-dark) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
+}
+
+.btn-app-danger-dark:hover {
+    background-color: var(--app-btn-danger) !important;
 }
 
 .btn-app-danger-outlined {
-    color: var(--app-danger-dark);
-    border: 1px solid var(--app-danger-dark);
-    background: transparent;
+    color: var(--app-btn-danger) !important;
+    border: 1px solid var(--app-btn-danger) !important;
 }
 
-.btn-app-light {
-    background-color: var(--app-light);
-    color: var(--app-dark);
+.btn-app-danger-outlined:hover {
+    background-color: var(--app-btn-danger) !important;
+    color: var(--app-default-button-text-color) !important;
+}
+
+.btn-app-success {
+    background-color: var(--app-btn-success) !important;
+    color: var(--app-default-button-text-color) !important;
     border: none;
 }
 
-.btn-app-dark {
-    background-color: var(--app-dark);
-    color: var(--app-light);
+.btn-app-success:hover {
+    background-color: var(--app-btn-success-dark) !important;
+}
+
+.btn-app-success-dark {
+    background-color: var(--app-btn-success-dark) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+}
+
+.btn-app-success-dark:hover {
+    background-color: var(--app-btn-success) !important;
+}
+
+.btn-app-success-outlined {
+    color: var(--app-btn-success) !important;
+    border: 1px solid var(--app-btn-success) !important;
+}
+
+.btn-app-success-outlined:hover {
+    background-color: var(--app-btn-success) !important;
+    color: var(--app-default-button-text-color) !important;
+}
+
+.btn-app-warning {
+    background-color: var(--app-btn-warning) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+}
+
+.btn-app-warning:hover {
+    background-color: var(--app-btn-warning-dark) !important;
+}
+
+.btn-app-warning-dark {
+    background-color: var(--app-btn-warning-dark) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+}
+
+.btn-app-warning-dark:hover {
+    background-color: var(--app-btn-warning) !important;
+    color: var(--app-default-button-text-color) !important;
+}
+
+.btn-app-warning-outlined {
+    color: var(--app-btn-warning) !important;
+    border: 1px solid var(--app-btn-warning) !important;
+}
+
+.btn-app-warning-outlined:hover {
+    background-color: var(--app-btn-warning) !important;
+    color: var(--app-default-button-text-color) !important;
+}
+
+.btn-app-layer-one {
+    background-color: var(--app-layer-one) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+}
+
+.btn-app-layer-two {
+    background-color: var(--app-layer-two) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+}
+
+.btn-app-layer-three {
+    background-color: var(--app-layer-three) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+}
+
+.btn-app-layer-four {
+    background-color: var(--app-layer-four) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+}
+
+.btn-app-alt-layer-one {
+    background-color: var(--app-btn-alt-layer-one) !important;
+    color: var(--app-default-alt-text-color) !important;
+    border: none;
+}
+
+.btn-app-alt-layer-two {
+    background-color: var(--app-btn-alt-layer-two) !important;
+    color: var(--app-default-alt-text-color) !important;
+    border: none;
+}
+
+.btn-app-alt-layer-three {
+    background-color: var(--app-btn-alt-layer-three) !important;
+    color: var(--app-default-alt-text-color) !important;
+    border: none;
+}
+
+.btn-app-alt-layer-four {
+    background-color: var(--app-alt-layer-four) !important;
+    color: var(--app-default-alt-text-color) !important;
     border: none;
 }

@@ -17,7 +17,7 @@
         </div>
         <div class="row">
             <div @click="show_message_menu = !show_message_menu"
-                 class="col border px-3 py-2 rounded-3 shadow-sm {{ content_class }}">
+                 class="col px-3 py-2 rounded-3 shadow-sm {{ content_class|default:'border' }}">
                 {% block message_content %}
                     {{ message_intel.content_to_str|linebreaksbr }}
                 {% endblock %}
