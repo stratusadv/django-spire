@@ -2,14 +2,14 @@
 
 <div x-data="{ show_mobile_nav: false }">
     <span
-        class="bi bi-list text-app-primary fs-2 d-lg-none cursor-pointer mx-2"
+        class="bi bi-list fs-2 d-lg-none cursor-pointer mx-2"
         @click="show_mobile_nav = true"
     >
     </span>
 
     <div class="col-auto d-lg-none">
         <div
-            class="sidebar bg-app-side-navigation px-2 w-mobile-navigation"
+            class="sidebar side-navigation px-2 w-mobile-navigation"
             style="display: none;"
             x-show="show_mobile_nav"
             :class="{'show': show_mobile_nav}"
@@ -17,7 +17,7 @@
         >
             {# Close Button #}
             <i
-                class="bi bi-x-lg text-white position-absolute top-0 end-0 m-2"
+                class="bi bi-x-lg position-absolute top-0 end-0 m-2"
                 type="button"
                 @click="show_mobile_nav = false"
             >
