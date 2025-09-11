@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Register New User
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'django_spire/auth/user/form/register_form.html' %}
+{% endblock %}

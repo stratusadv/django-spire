@@ -1,0 +1,41 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% block container_title %}
+    {{ entry.name }}
+{% endblock %}
+
+{% block container_button %}
+    <div class="container">
+        <div class="row align-items-center">
+            {% if AuthController.knowledge.can_change %}
+                <div class="col">
+                    {% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
+                    {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_class='btn-md' button_href=entry_edit_url %}
+                </div>
+            {% endif %}
+            <div class="col">
+                {% if not entry.current_version.is_published and AuthController.knowledge.can_change %}
+                    {% include 'django_spire/knowledge/entry/modal/publish_confirm_modal.html' %}
+                {% else %}
+                    {% include 'django_spire/knowledge/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block container_content %}
+    <div class="container">
+        <div class="row px-3">
+            {% for version_block in version_blocks %}
+                <div class="col-12">
+                    {% include version_block.block.detail_template with value=version_block.block.value %}
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    No information...
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

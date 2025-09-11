@@ -3,9 +3,7 @@ from __future__ import annotations
 from django import forms
 from django.contrib.auth.models import User
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Column, Layout, Row, Submit
-
+from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.user.models import AuthUser
 from django_spire.auth.user.factories import register_new_user
 
@@ -52,29 +50,9 @@ class AddUserForm(forms.ModelForm):
 
 
 class UserGroupForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        from django.contrib.auth.models import Group
-        self.user = kwargs.pop('user')
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper(self)
-        self.helper.include_media = False
-
-        user_groups = self.user.groups.all()
-
-        self.fields['group_list'] = forms.ModelMultipleChoiceField(
-            queryset=Group.objects.exclude(pk__in=[group.pk for group in user_groups]),
-            initial=user_groups,
-            required=True,
-            label='Available Groups'
+        group_list = forms.ModelMultipleChoiceField(
+            queryset=AuthGroup.objects.all(),
         )
-
-        self.helper.layout = Layout(
-            Row(
-                Column('group_list', css_class='form-group col-12'),
-            ),
-        )
-        self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-blue'))
 
 
 class EditUserForm(forms.ModelForm):

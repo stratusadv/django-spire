@@ -1,4 +1,4 @@
-from django_spire.ai.chat.messages import BaseMessageIntel
+from django_spire.ai.chat.message_intel import BaseMessageIntel
 
 
 class ClownFlyingDistanceMessageIntel(BaseMessageIntel):

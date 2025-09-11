@@ -134,7 +134,7 @@ class SingleFileUploader(FileUploader):
 
 @dataclass
 class MultiFileUploader(FileUploader):
-    def upload(self, files: list[InMemoryUploadedFile]) -> File:
+    def upload(self, files: list[InMemoryUploadedFile]) -> list[File]:
         files_to_upload = [self.null_file_obj(file) for file in files]
         return File.objects.bulk_create(files_to_upload)
 

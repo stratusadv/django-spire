@@ -1,0 +1,18 @@
+<form method="post">
+    <div x-data="{
+        async init() {
+            this.group_list.choices = await this.group_choices.to_choices()
+            this.group_list.value = {{ selected_group_ids }}
+        },
+        group_list: new GlueCharField('group_list'),
+        group_choices: new QuerySetGlue('group_choices')
+    }" class="row">
+        {% csrf_token %}
+        <div class="col-6 mb-2">
+            {% include 'django_glue/form/field/multi_select_field.html' with glue_field='group_list' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        </div>
+    </div>
+</form>

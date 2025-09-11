@@ -1,0 +1,28 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title_col %}4{% endblock %}
+
+{% block item_title %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_title='App' attribute_value=perm_data.verbose_app_name|default:perm_data.app_name|title %}
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Level' %}
+        {% if perms.django_spire_auth_group.change_authgroup %}
+            {% include 'django_spire/auth/group/element/group_perm_element.html' %}
+        {% else %}
+            {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with permission_level=perm_data.level_verbose %}
+        {% endif %}
+    </div>
+    {% for special_role in perm_data.special_role_data %}
+        <div class="col">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title=special_role.name|title %}
+            {% if perms.django_spire_auth_group.change_authgroup %}
+                {% include 'django_spire/auth/group/element/group_special_role_element.html' %}
+            {% else %}
+                {{ special_role.has_access }}
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}

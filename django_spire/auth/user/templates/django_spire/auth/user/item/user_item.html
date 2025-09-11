@@ -1,0 +1,34 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% load spire_core_tags %}
+
+{% block item_title %}
+    {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_title='User' attribute_value=user.get_full_name attribute_href=detail_url %}
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-2">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
+        {% include 'django_spire/auth/group/element/is_active_badge.html' with is_active=user.is_active %}
+    </div>
+    <div class="col">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Groups' %}
+        {% for group in user.groups.all %}
+            {% include 'django_spire/badge/secondary_badge.html' with badge_text=group.name%}
+        {% empty %}
+            N/A
+        {% endfor %}
+
+    </div>
+{% endblock %}
+
+{% block item_button %}
+    {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
+
+    {% if perms.django_spire_auth_user.change_authuser %}
+        {% url 'django_spire:auth:user:form:update' pk=user.pk as edit_url %}
+    {% endif %}
+
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=edit_url %}
+{% endblock %}

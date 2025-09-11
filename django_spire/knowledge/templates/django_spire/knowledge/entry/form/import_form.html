@@ -1,0 +1,54 @@
+<form
+    class="row"
+    method="post"
+    enctype="multipart/form-data"
+    action="{% url 'django_spire:knowledge:entry:form:import' collection_pk=collection_pk|default:0 %}"
+    x-data="{
+        collection: new GlueIntegerField(
+            'collection',
+            {
+                label: 'Collection',
+                value: {{ collection_pk|default:0 }}
+            }
+        ),
+        collection_query_set: new QuerySetGlue('collections'),
+        import_files: new GlueCharField('import_files'),
+        support_file_types: {{ supported_file_types }},
+
+        async init() {
+            this.import_files.hide_label()
+            this.collection.choices = await this.collection_query_set.to_choices()
+
+            $watch('import_files', () => {
+                let files = JSON.parse(this.import_files.value)
+
+                let send_warning = files.some(
+                    file => !this.support_file_types.some(
+                        supported => file.name.endsWith(supported)
+                    )
+                )
+
+                if (send_warning) {
+                    $dispatch('notify', {type: 'warning', message: 'Unsupported file type detected.'})
+                }
+            })
+        }
+    }"
+>
+    {% csrf_token %}
+    <div class="col-12">
+        {% include 'django_glue/form/field/search_and_select_field.html' with glue_field='collection' %}
+    </div>
+    <div class="col-12 mt-2">
+        <div class="d-flex justify-content-between">
+            <span>
+                Files
+            </span>
+            <span class="fs--1">*Supported file types: {{ supported_file_types_verbose }}</span>
+        </div>
+        {% include 'django_glue/form/field/multi_file_field.html' with glue_field='import_files' accept=supported_file_types_verbose disable_camera=True %}
+    </div>
+    <div class="col-12 mt-2">
+        {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+    </div>
+</form>

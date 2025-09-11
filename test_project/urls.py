@@ -16,6 +16,7 @@ urlpatterns = [
     path('history/', include('test_project.apps.history.urls', namespace='history')),
     path('home/', include('test_project.apps.home.urls', namespace='home')),
     path('notification/', include('test_project.apps.notification.urls', namespace='notification')),
+    path('order/', include('test_project.apps.ordering.urls', namespace='order')),
     path('tabular/', include('test_project.apps.tabular.urls', namespace='tabular')),
     path('test_model/', include('test_project.apps.model_and_service.urls', namespace='test_model')),
     path('theme/', include('django_spire.theme.urls', namespace='theme')),
