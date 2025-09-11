@@ -1,10 +1,4 @@
 :root {
-    --app-border-white: var(--app-white);
-    --app-border-black: var(--app-black);
-
-    --app-border-light: var(--app-light);
-    --app-border-dark: var(--app-dark);
-
     --app-border-primary: var(--app-primary);
     --app-border-primary-soft: var(--app-primary-soft);
     --app-border-primary-dark: var(--app-primary-dark);
@@ -33,7 +27,11 @@
     --app-border-layer-two: var(--app-layer-two);
     --app-border-layer-three: var(--app-layer-three);
     --app-border-layer-four: var(--app-layer-four);
-    --app-border-layer-five: var(--app-layer-five);
+
+    --app-border-alt-layer-one: var(--app-alt-layer-one);
+    --app-border-alt-layer-two: var(--app-alt-layer-two);
+    --app-border-alt-layer-three: var(--app-alt-layer-three);
+    --app-border-alt-layer-four: var(--app-alt-layer-four);
 }
 
 .border-app-none {
@@ -111,10 +109,22 @@
     border-color: var(--app-border-layer-three) !important;
 }
 
-.border-app-light {
-    border-color: var(--app-border-light) !important;
+.border-app-layer-four {
+    border-color: var(--app-border-layer-four) !important;
 }
 
-.border-app-dark {
-    border-color: var(--app-border-dark) !important;
+.border-app-alt-layer-one {
+    border-color: var(--app-border-alt-layer-one) !important;
+}
+
+.border-app-alt-layer-two {
+    border-color: var(--app-border-alt-layer-two) !important;
+}
+
+.border-app-alt-layer-three {
+    border-color: var(--app-border-alt-layer-three) !important;
+}
+
+.border-app-alt-layer-four {
+    border-color: var(--app-border-alt-layer-four) !important;
 }

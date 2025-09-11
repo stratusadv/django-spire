@@ -1,10 +1,4 @@
 :root {
-    --app-text-white: var(--app-white);
-    --app-text-black: var(--app-black);
-
-    --app-text-light: var(--app-light);
-    --app-text-dark: var(--app-dark);
-
     --app-text-primary: var(--app-primary);
     --app-text-primary-soft: var(--app-primary-soft);
     --app-text-primary-dark: var(--app-primary-dark);
@@ -33,9 +27,28 @@
     --app-text-layer-two: var(--app-layer-two);
     --app-text-layer-three: var(--app-layer-three);
     --app-text-layer-four: var(--app-layer-four);
-    --app-text-layer-five: var(--app-layer-five);
+
+    --app-text-alt-layer-one: var(--app-alt-layer-one);
+    --app-text-alt-layer-two: var(--app-alt-layer-two);
+    --app-text-alt-layer-three: var(--app-alt-layer-three);
+    --app-text-alt-layer-four: var(--app-alt-layer-four);
+
+    --app-text-side-navigation: var(--app-side-navigation-text-color);
+    --app-link-side-navigation: var(--app-side-navigation-link-color);
+    --app-link-side-navigation-hover: var(--app-side-navigation-link-hover-color);
+
+    --app-text-top-navigation: var(--app-top-navigation-text-color);
+    --app-link-top-navigation: var(--app-top-navigation-link-color);
+    --app-link-top-navigation-hover: var(--app-top-navigation-link-hover-color);
+
+    --app-text-footer: var(--app-footer-text-color);
+    --app-link-footer: var(--app-footer-link-color);
+    --app-link-footer-hover: var(--app-footer-link-hover-color);
 }
 
+.text-alt-color, .text-alt-color-hover:hover {
+    color: var(--app-default-alt-text-color) !important;
+}
 
 .text-app-attribute-color, .text-app-attribute-color-hover:hover {
     color: var(--app-default-attribute-title-color) !important;
@@ -121,10 +134,58 @@
     color: var(--app-text-layer-three) !important;
 }
 
-.text-app-light, .text-app-light-hover:hover {
-    color: var(--app-text-light) !important;
+.text-app-layer-four, .text-app-layer-four-hover:hover {
+    color: var(--app-text-layer-four) !important;
 }
 
-.text-app-dark, .text-app-dark-hover:hover {
-    color: var(--app-text-dark) !important;
+.text-app-alt-layer-one, .text-app-alt-layer-one-hover:hover {
+    color: var(--app-text-alt-layer-one) !important;
+}
+
+.text-app-alt-layer-two, .text-app-alt-layer-two-hover:hover {
+    color: var(--app-text-alt-layer-two) !important;
+}
+
+.text-app-alt-layer-three, .text-app-alt-layer-three-hover:hover {
+    color: var(--app-text-alt-layer-three) !important;
+}
+
+.text-app-alt-layer-four, .text-app-alt-layer-four-hover:hover {
+    color: var(--app-text-alt-layer-four) !important;
+}
+
+.text-app-side-navigation {
+    color: var(--app-text-side-navigation) !important;
+}
+
+.text-app-link-side-navigation {
+    color: var(--app-link-side-navigation) !important;
+}
+
+.text-app-link-side-navigation:hover {
+    color: var(--app-link-side-navigation-hover) !important;
+}
+
+.text-app-top-navigation {
+    color: var(--app-text-top-navigation) !important;
+}
+
+.text-app-link-top-navigation {
+    color: var(--app-link-top-navigation) !important;
+}
+
+.text-app-link-top-navigation:hover {
+    color: var(--app-link-top-navigation-hover) !important;
+}
+
+.text-app-footer {
+    color: var(--app-text-footer) !important;
+}
+
+.text-app-link-footer {
+    color: var(--app-link-footer) !important;
+}
+
+.text-app-link-footer:hover {
+    color: var(--app-link-footer-hover) !important;
 }

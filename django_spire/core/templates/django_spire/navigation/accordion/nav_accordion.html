@@ -2,7 +2,7 @@
 
 {% block accordion_toggle %}
     <div
-        class="d-flex justify-content-center align-items-baseline cursor-pointer text-app-accent-hover mb-1 ps-1 pe-0"
+        class="d-flex justify-content-center align-items-baseline cursor-pointer text-app-link-side-navigation mb-1 ps-1 pe-0"
         :class="{'text-app-primary': show_accordion, 'text-white': !show_accordion}"
         style="width: 150px"
     >
@@ -15,7 +15,7 @@
 
         <span
             class="ms-auto small"
-            :class="{'bi bi-chevron-right': !show_accordion, 'bi bi-chevron-down text-app-primary': show_accordion}"
+            :class="{'bi bi-chevron-right': !show_accordion, 'bi bi-chevron-down': show_accordion}"
         >
         </span>
     </div>
