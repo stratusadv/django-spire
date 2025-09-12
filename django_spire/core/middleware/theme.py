@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing_extensions import Callable, TYPE_CHECKING
 
+from django.conf import settings
+
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.http import HttpResponse
@@ -12,7 +14,8 @@ class ThemeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: WSGIRequest) -> HttpResponse:
-        theme = request.COOKIES.get('project-theme', 'standard-light')
+        default_theme = getattr(settings, 'DJANGO_SPIRE_DEFAULT_THEME', 'standard-light')
+        theme = request.COOKIES.get('project-theme', default_theme)
 
         parts = theme.split('-')
         mode = parts[-1]

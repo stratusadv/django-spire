@@ -45,7 +45,7 @@ document.addEventListener('alpine:init', () => {
             { name: 'Tokyo Night', value: 'tokyo-night' }
         ],
 
-        current: window.django_spire_theme_current || 'standard-light',
+        current: window.project_theme || window.default_theme || 'standard-light',
 
         get_current_theme() {
             return this.available.find(theme => theme.value === this.current) || this.available[0];

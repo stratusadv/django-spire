@@ -35,7 +35,8 @@
 
         {% block base_head_js %}
             <script>
-                window.django_spire_theme_current = '{{ theme.full|escapejs }}';
+                window.project_theme = '{{ theme.full|escapejs }}';
+                window.default_theme = '{{ DJANGO_SPIRE_DEFAULT_THEME|escapejs }}';
             </script>
 
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
