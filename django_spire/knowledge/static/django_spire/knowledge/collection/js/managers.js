@@ -1,26 +1,28 @@
 class Entry {
     constructor({
-        author,
-        delete_url,
-        edit_url,
         entry_id,
-        last_edit_datetime,
         name,
-        publish_datetime,
-        status,
         version_id,
+        author,
+        status,
+        last_edit_datetime,
+        publish_datetime,
         view_url,
+        edit_url,
+        edit_version_url,
+        delete_url,
     }) {
-        this.author = author
-        this.delete_url = delete_url
-        this.edit_url = edit_url
         this.entry_id = entry_id
-        this.last_edit_datetime = last_edit_datetime
         this.name = name
-        this.publish_datetime = publish_datetime
-        this.status = status
         this.version_id = version_id
+        this.author = author
+        this.status = status
+        this.last_edit_datetime = last_edit_datetime
+        this.publish_datetime = publish_datetime
         this.view_url = view_url
+        this.edit_url = edit_url
+        this.delete_url = delete_url
+        this.edit_version_url = edit_version_url
     }
 }
 
@@ -78,18 +80,18 @@ class CollectionManager {
 
         entries_json.forEach(entry => {
             entries.push(new Entry({
-                author: entry.author,
-                delete_url: entry.delete_url,
-                edit_url: entry.edit_url,
                 entry_id: entry.entry_id,
-                last_edit_datetime: entry.last_edit_datetime,
                 name: entry.name,
-                publish_datetime: entry.publish_datetime,
-                status: entry.status,
                 version_id: entry.version_id,
-                view_url: entry.view_url
+                author: entry.author,
+                status: entry.status,
+                last_edit_datetime: entry.last_edit_datetime,
+                publish_datetime: entry.publish_datetime,
+                view_url: entry.view_url,
+                edit_url: entry.edit_url,
+                edit_version_url: entry.edit_version_url,
+                delete_url: entry.delete_url,
             }))
-
         })
 
         return entries

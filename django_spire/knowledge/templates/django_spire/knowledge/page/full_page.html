@@ -21,9 +21,6 @@
             });
         });
     </script>
-{% endblock %}
-
-{% block base_body_additional_top_js %}
     <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 {% endblock %}
 
@@ -39,8 +36,8 @@
         class="fs-4"
         style="
             position: absolute;
-            top: calc(10px + var(app-top-navigation-height));
-            right: 10px;
+            top: calc(25px + var(--app-top-navigation-height));
+            right: 25px;
         "
         type="button"
         data-bs-toggle="offcanvas"

@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.urls import reverse
 
 from django_spire.contrib.service import BaseDjangoModelService
 
@@ -18,26 +21,61 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
     def queryset_to_navigation_list(queryset: QuerySet[Entry]) -> list[dict[str, str]]:
         json_list = []
         for entry in queryset:
-            current_version = entry.current_version
-            json_list.append(
-                {
-                    'author': current_version.author.get_full_name(),
-                    'delete_url': entry.delete_url,
-                    'edit_url': entry.edit_url,
-                    'entry_id': entry.pk,
-                    'last_edit_datetime': (
-                        current_version.last_edit_datetime.strftime('%Y-%m-%d')
-                        if current_version.last_edit_datetime else ''
-                    ),
-                    'name': entry.name,
-                    'publish_datetime': (
-                        current_version.published_datetime.strftime('%Y-%m-%d')
-                        if current_version.published_datetime else ''
-                    ),
-                    'status': current_version.status,
-                    'version_id': current_version.id,
-                    'view_url': current_version.view_url,
-                }
-            )
+            json_list.append(entry.services.transformation.to_dict())
 
         return json_list
+
+    def to_dict(self):
+        site = Site.objects.get_current() if not settings.DEBUG else ''
+        current_version = self.obj.current_version
+
+        return {
+            'entry_id': self.obj.pk,
+            'name': self.obj.name,
+            'version_id': current_version.id,
+            'author': current_version.author.get_full_name(),
+            'last_edit_datetime': (
+                current_version.last_edit_datetime.strftime('%Y-%m-%d')
+                if current_version.last_edit_datetime else ''
+            ),
+            'publish_datetime': (
+                current_version.published_datetime.strftime('%Y-%m-%d')
+                if current_version.published_datetime else ''
+            ),
+            'status': current_version.status,
+            'delete_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:entry:page:delete',
+                        kwargs={'pk': self.obj.pk},
+                    )
+                }
+            ''',
+            'edit_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:entry:form:update',
+                        kwargs={
+                            'pk': self.obj.pk,
+                            'collection_pk': self.obj.collection.pk
+                        },
+                    )
+                }
+            ''',
+            'view_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:entry:version:page:detail',
+                        kwargs={'pk': current_version.pk},
+                    )
+                }
+            ''',
+            'edit_version_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:entry:version:form:update',
+                        kwargs={'pk': current_version.pk},
+                    )
+                }
+            '''
+        }

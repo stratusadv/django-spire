@@ -1,7 +1,4 @@
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.db import models
-from django.urls import reverse
 
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
@@ -24,33 +21,6 @@ class Collection(HistoryModelMixin, OrderingModelMixin):
 
     services = CollectionService()
     objects = CollectionQuerySet.as_manager()
-
-    @property
-    def delete_url(self) -> str:
-        site = Site.objects.get_current() if not settings.DEBUG else ''
-        path = reverse(
-            'django_spire:knowledge:collection:page:delete',
-            kwargs={'pk': self.pk},
-        )[1:]
-        return f'{site}/{path}'
-
-    @property
-    def create_entry_url(self) -> str:
-        site = Site.objects.get_current() if not settings.DEBUG else ''
-        path = reverse(
-            'django_spire:knowledge:entry:form:create',
-            kwargs={'collection_pk': self.pk},
-        )[1:]
-        return f'{site}/{path}'
-
-    @property
-    def import_entry_url(self) -> str:
-        site = Site.objects.get_current() if not settings.DEBUG else ''
-        path = reverse(
-            'django_spire:knowledge:entry:form:import',
-            kwargs={'collection_pk': self.pk},
-        )[1:]
-        return f'{site}/{path}'
 
     def __str__(self):
         return self.name

@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 
+from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db.models import QuerySet, Prefetch
+from django.urls import reverse
 
 from django_spire.contrib.service import BaseDjangoModelService
 
@@ -30,31 +33,61 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
         )
 
         collections = list(
-            queryset.prefetch_related(
-                Prefetch('entries', queryset=entry_queryset)
-            ).active().order_by('order')
+            queryset.prefetch_related(Prefetch('entries', queryset=entry_queryset))
+            .active()
+            .order_by('order')
         )
 
         collection_map = {}
         for collection in collections:
-            entries = collection.entries.all()
-
-            collection_map[collection.pk] = {
-                'id': collection.pk,
-                'name': collection.name,
-                'description': collection.description,
-                'children': [],
-                'delete_url': collection.delete_url,
-                'create_entry_url': collection.create_entry_url,
-                'import_entry_url': collection.import_entry_url,
-                'entries': collection.entries.model.services.transformation.queryset_to_navigation_list(queryset=entries)
-        }
+            collection_map[collection.pk] = collection.services.transformation.to_dict()
 
         tree = []
         for collection in collections:
             if collection.parent_id:
-                collection_map[collection.parent_id]['children'].append(collection_map[collection.pk])
+                collection_map[collection.parent_id]['children'].append(
+                    collection_map[collection.pk]
+                )
             else:
                 tree.append(collection_map[collection.pk])
 
         return json.dumps(tree)
+
+    def to_dict(self):
+        site = Site.objects.get_current() if not settings.DEBUG else ''
+        entries = self.obj.entries.all()
+
+        return {
+            'id': self.obj.pk,
+            'name': self.obj.name,
+            'description': self.obj.description,
+            'children': [],
+            'entries': (
+                entries.model.services.transformation
+                .queryset_to_navigation_list(queryset=entries)
+            ),
+            'delete_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:collection:page:delete',
+                        kwargs={'pk': self.obj.pk},
+                    )
+                }
+            ''',
+            'create_entry_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:entry:form:create',
+                        kwargs={'collection_pk': self.obj.pk},
+                    )
+                }
+            ''',
+            'import_entry_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:entry:form:import',
+                        kwargs={'collection_pk': self.obj.pk},
+                    )
+                }
+            ''',
+        }

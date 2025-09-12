@@ -108,6 +108,9 @@
         edit_entry() {
             window.location.href = this.focused_object.edit_url
         },
+        edit_entry_version() {
+            window.location.href = this.focused_object.edit_version_url
+        },
         {% endif %}
 
         {% if AuthController.knowledge.can_delete %}

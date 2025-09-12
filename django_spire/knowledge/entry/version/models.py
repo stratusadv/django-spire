@@ -1,7 +1,4 @@
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.db import models
-from django.urls import reverse
 from django.utils.timezone import now
 
 from django_spire.auth.user.models import AuthUser
@@ -38,15 +35,6 @@ class EntryVersion(HistoryModelMixin):
 
     def is_published(self) -> bool:
         return self.status == EntryVersionStatusChoices.PUBLISHED
-
-    @property
-    def view_url(self) -> str:
-        site = Site.objects.get_current() if not settings.DEBUG else ''
-        path = reverse(
-            'django_spire:knowledge:entry:version:page:detail',
-            kwargs={'pk': self.pk},
-        )[1:]
-        return f'{site}/{path}'
 
     class Meta:
         verbose_name = 'Entry Version'
