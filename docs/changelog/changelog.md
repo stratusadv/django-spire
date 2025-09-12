@@ -1,6 +1,11 @@
 # Changelog
 
 
+## v0.15.8
+
+### Fixes
+- Fixed group user form from breaking when names contained escape characters.
+
 ## v0.15.7
 
 ### Breaking
