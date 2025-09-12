@@ -1,0 +1,69 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% load static %}
+
+{% block base_head_additional_css %}
+    <link rel="stylesheet" href="{% static 'django_spire/knowledge/css/navigation_items.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+{% endblock %}
+
+{% block base_body_top_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('side-toggle-btn');
+            const offcanvasEl = document.getElementById('navigation-card');
+
+            offcanvasEl.addEventListener('show.bs.offcanvas', function () {
+                toggleBtn.classList.add('open');
+            });
+
+            offcanvasEl.addEventListener('hide.bs.offcanvas', function () {
+                toggleBtn.classList.remove('open');
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block base_body_additional_top_js %}
+    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+{% endblock %}
+
+{% block base_body_additional_bottom_js %}
+    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/x_component.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+{% endblock %}
+
+{% block full_page_content %}
+    {% block knowledge_full_page_content %}
+    {% endblock %}
+    <div
+        id="side-toggle-btn"
+        class="fs-4"
+        style="
+            position: fixed;
+            top: 9%;
+            left: 98%;
+        "
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#navigation-card"
+    >
+        <i
+            class="bi bi-layout-sidebar-inset-reverse"
+            data-bs-toggle="tooltip"
+            data-bs-placement="left"
+            title="Expand Navigation"
+        ></i>
+    </div>
+    <div
+        class="offcanvas offcanvas-end rounded-3"
+        data-bs-scroll="true"
+        data-bs-backdrop="false"
+        tabindex="-1"
+        id="navigation-card"
+    >
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Navigation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        {% include 'django_spire/knowledge/collection/navigation/side_navigation.html' %}
+    </div>
+{% endblock %}

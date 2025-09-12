@@ -1,16 +1,6 @@
-{% extends 'django_spire/page/full_page.html' %}
+{% extends 'django_spire/knowledge/page/full_page.html' %}
 
-{% load static %}
-
-{% block base_body_additional_top_js %}
-    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-{% endblock %}
-
-{% block base_body_additional_bottom_js %}
-    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/x_component.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-{% endblock %}
-
-{% block full_page_content %}
+{% block knowledge_full_page_content %}
     <div class="row">
         <div class="col-12">
             {% include 'django_spire/knowledge/collection/container/detail_container.html' %}
