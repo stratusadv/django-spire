@@ -1,6 +1,6 @@
-<div class="dropdown">
+<div class="dropdown" x-data>
     <i
-        class="bi bi-palette {{ icon_size|default:'fs-2' }} mx-2 cursor-pointer"Retry
+        class="bi bi-palette {{ icon_size|default:'fs-2' }} mx-2 cursor-pointer"
         id="theme_dropdown_button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
@@ -8,18 +8,18 @@
 
     <ul class="dropdown-menu py-0" aria-labelledby="theme_dropdown_button">
         <li>
-            <h6 class="dropdown-header fs--1" x-text="$store.theme.get_current_family_name()" x-data></h6>
+            <h6 class="dropdown-header fs--1" x-text="$store.theme.get_current_display_name()"></h6>
         </li>
 
         <li>
-            <a class="dropdown-item fs--1" href="#" @click.prevent="$store.theme.toggle()" x-data>
+            <a class="dropdown-item fs--1" href="#" @click.prevent="$store.theme.toggle()">
                 Toggle Mode
             </a>
         </li>
 
         <li><hr class="dropdown-divider"></li>
 
-        <template x-for="family in $store.theme.families" x-data>
+        <template x-for="family in $store.theme.families">
             <li>
                 <a
                     class="dropdown-item fs--1"

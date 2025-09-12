@@ -32,18 +32,43 @@
     --app-layer-four: #585b70;
     --app-layer-five: #6c7086;
 
+    --app-alt-layer-one: #11111b;
+    --app-alt-layer-two: #1e1e2e;
+    --app-alt-layer-three: #393952;
+    --app-alt-layer-four: #4a4b61;
+
     --app-default-attribute-title-color: #cdd6f4;
     --app-default-button-text-color: #1e1e2e;
     --app-default-text-color: #cdd6f4;
+    --app-default-alt-text-color: #bac2de;
     --app-default-bg-color: #1e1e2e;
     --app-default-link-color: #cba6f7;
     --app-default-link-hover-color: #f38ba8;
     --app-default-link-active-color: #a6e3a1;
 
     --app-side-navigation-bg-color: #181825;
+    --app-side-navigation-text-color: #cdd6f4;
+    --app-side-navigation-link-color: #cdd6f4;
+    --app-side-navigation-link-hover-color: #cba6f7;
+    --app-side-navigation-width: 200px;
+
     --app-mobile-navigation-bg-color: #1e1e2e;
+    --app-mobile-navigation-width: 200px;
+
     --app-top-navigation-bg-color: #181825;
+    --app-top-navigation-text-color: #cdd6f4;
+    --app-top-navigation-link-color: #cba6f7;
+    --app-top-navigation-link-hover-color: #f38ba8;
+    --app-top-navigation-height: 100px;
+
     --app-footer-bg-color: #181825;
+    --app-footer-text-color: #cdd6f4;
+    --app-footer-link-color: #cba6f7;
+    --app-footer-link-hover-color: #f38ba8;
+
+    --app-table-row-color: #1e1e2e;
+    --app-table-row-alt-color: #313244;
+    --app-table-row-hover-color: #45475a;
 
     --bs-border-color: #45475a;
 
