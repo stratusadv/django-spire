@@ -3,7 +3,6 @@
         @dblclick="window.location.href = '{% url "django_spire:knowledge:collection:page:detail" pk=0 %}'.replace(0, collection.id)"
         @click.prevent
     {% endif %}
-    @click="collection.toggle_show_details({value: !collection.show_details})"
     class="knowledge-nav-item cursor-pointer"
     @contextmenu.prevent="show_menu({event: $event, object: collection, type: 'collection'})"
 >
@@ -14,6 +13,7 @@
         {% else %}
         :style="{visibility: (collection.has_child_collections() || collection.has_entries()) ? 'visible' : 'hidden'}"
         {% endif %}
+        @click="collection.toggle_show_details({value: !collection.show_details})"
     ></i>
     <i class="bi bi-folder2 fs-5"></i>
     <span

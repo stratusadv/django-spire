@@ -52,10 +52,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         breadcrumbs_func=breadcrumbs_func,
         context_data={
             'collection': collection,
-            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                queryset=Collection.objects.all().select_related('parent').order_by('name'),
-                user=request.user
-            ),
             'current_entries': (
                 collection.entries
                 .active()
@@ -74,11 +70,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     return portal_views.list_view(
         request,
         model=Collection,
-        context_data={
-            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                queryset=Collection.objects.active().select_related('parent').order_by('order'),
-                user=request.user
-            )
-        },
+        context_data={},
         template='django_spire/knowledge/collection/page/list_page.html'
     )

@@ -38,9 +38,9 @@
         id="side-toggle-btn"
         class="fs-4"
         style="
-            position: fixed;
-            top: 9%;
-            left: 98%;
+            position: absolute;
+            top: calc(10px + var(app-top-navigation-height));
+            right: 10px;
         "
         type="button"
         data-bs-toggle="offcanvas"
@@ -64,6 +64,6 @@
             <h5 class="offcanvas-title">Navigation</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
         </div>
-        {% include 'django_spire/knowledge/collection/navigation/side_navigation.html' %}
+        {% include 'django_spire/knowledge/collection/navigation/navigation.html' %}
     </div>
 {% endblock %}
