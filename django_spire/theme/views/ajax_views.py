@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+
+from http import HTTPStatus
 from typing_extensions import TYPE_CHECKING
 
 from django.http import JsonResponse
@@ -11,13 +14,32 @@ if TYPE_CHECKING:
 
 @require_POST
 def set_theme(request: WSGIRequest) -> JsonResponse:
-    theme = request.POST.get('theme')
-    response = JsonResponse({'success': True})
+    try:
+        data = json.loads(request.body)
+        theme = data.get('theme')
 
-    response.set_cookie(
-        'django-spire-theme',
-        theme,
-        max_age=31536000
-    )
+        if not theme:
+            return JsonResponse(
+                {'success': False, 'error': 'Theme is required'},
+                status=HTTPStatus.BAD_REQUEST
+            )
 
-    return response
+        response = JsonResponse({'success': True})
+
+        response.set_cookie(
+            'project-theme',
+            theme,
+            max_age=31536000
+        )
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {'success': False, 'error': 'Invalid JSON'},
+            status=HTTPStatus.BAD_REQUEST
+        )
+    except Exception:
+        return JsonResponse(
+            {'success': False, 'error': 'Server error'},
+            status=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+    else:
+        return response

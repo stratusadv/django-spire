@@ -45,14 +45,7 @@ document.addEventListener('alpine:init', () => {
             { name: 'Tokyo Night', value: 'tokyo-night' }
         ],
 
-        current: window.django_spire_theme_current || 'rose-pine-light',
-
-        get_csrf_token() {
-            return document.cookie
-                .split('; ')
-                .find(row => row.startsWith('csrftoken='))
-                ?.split('=')[1];
-        },
+        current: window.django_spire_theme_current || 'standard-light',
 
         get_current_theme() {
             return this.available.find(theme => theme.value === this.current) || this.available[0];
@@ -87,32 +80,27 @@ document.addEventListener('alpine:init', () => {
 
         load_theme_css(family, mode) {
             let existing_link = document.querySelector('link[data-theme-css]');
-
-            if (existing_link) {
-                existing_link.remove();
-            }
+            let href = `/static/django_spire/css/themes/${family}/app-${mode}.css`;
 
             let link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/static/django_spire/css/themes/' + family + '/app-' + mode + '.css';
+            link.href = href;
             link.setAttribute('data-theme-css', 'true');
+
+            link.onload = () => {
+                if (existing_link) {
+                    existing_link.remove();
+                }
+            };
 
             document.head.appendChild(link);
         },
-
         async persist_to_server(theme) {
-            let body = new FormData();
-            body.append('theme', theme);
-
-            await fetch('/theme/ajax/set_theme/', {
-                method: 'POST',
-                body: body,
-                credentials: 'same-origin',
-                headers: {
-                    'X-CSRFToken': this.get_csrf_token(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
+            await ajax_request(
+                'POST',
+                '/theme/ajax/set_theme/',
+                { theme: theme }
+            );
         },
 
         toggle() {

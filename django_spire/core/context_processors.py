@@ -28,10 +28,10 @@ def django_spire(request: WSGIRequest) -> dict[str, Any]:
 def theme_context(request: WSGIRequest) -> dict[str, Any]:
     return {
         'theme': getattr(request, 'theme', {
-            'full': 'rose-pine-light',
-            'family': 'rose-pine',
+            'full': 'standard-light',
+            'family': 'standard',
             'mode': 'light',
             'is_dark': False,
-            'css_path': 'django_spire/css/themes/rose-pine/app-light.css'
+            'stylesheet': 'django_spire/css/themes/standard/app-light.css'
         })
     }

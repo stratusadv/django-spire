@@ -12,7 +12,7 @@ class ThemeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: WSGIRequest) -> HttpResponse:
-        theme = request.COOKIES.get('django-spire-theme', 'rose-pine-light')
+        theme = request.COOKIES.get('project-theme', 'standard-light')
 
         parts = theme.split('-')
         mode = parts[-1]
@@ -23,7 +23,7 @@ class ThemeMiddleware:
             'family': family,
             'mode': mode,
             'is_dark': mode == 'dark',
-            'css_path': f'django_spire/css/themes/{family}/app-{mode}.css'
+            'stylesheet': f'django_spire/css/themes/{family}/app-{mode}.css'
         }
 
         return self.get_response(request)
