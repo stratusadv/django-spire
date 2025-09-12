@@ -7,12 +7,8 @@
         chat_content_type: '',
         select_chat_visible: false,
         chat_dialog_visible: true,
-        chat_load_ajax_view: new ViewGlue(
-            '{% url "django_spire:ai:chat:template:load" %}',
-            {top_nav_height_px: '{{ top_nav_height_px }}'}
-        ),
+        chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
         chat_load_recent_view:  new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
-
 
         init() {
             if(window.innerWidth >= 576) {

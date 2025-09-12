@@ -26,14 +26,12 @@ class GroupNamesForm(forms.Form):
 
 
 class GroupForm(forms.ModelForm):
-    pass
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     self.helper = FormHelper(self)
-    #     self.helper.include_media = False
-    #     self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary btn-sm bg-primary'))
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if name.lower() == 'all users':
+            raise forms.ValidationError('"All Users" is a reserved name. Please choose another name.')
 
+        return name
     class Meta:
         model = Group
         exclude = ['permissions']

@@ -26,8 +26,49 @@
     background-color: var(--app-primary);
 }
 
-.w-side-navigation {
+.footer {
+    background-color: var(--app-footer-bg-color) !important;
+    color: var(--app-footer-text-color) !important;
+}
+
+.footer a {
+    color: var(--app-footer-link-color) !important;
+}
+
+.footer a:hover {
+    color: var(--app-footer-link-hover-color) !important;
+}
+
+.top-navigation {
+    background-color: var(--app-top-navigation-bg-color) !important;
+    color: var(--app-top-navigation-text-color) !important;
+}
+
+.top-navigation a {
+    color: var(--app-top-navigation-link-color) !important;
+}
+
+.top-navigation a:hover {
+    color: var(--app-top-navigation-link-hover-color) !important;
+}
+
+/* Must be below top-navigation for mobile side navigation css to be correct */
+.side-navigation {
+    background-color: var(--app-side-navigation-bg-color) !important;
+    color: var(--app-side-navigation-text-color) !important;
     width: var(--app-side-navigation-width);
+}
+
+.side-navigation a {
+    color: var(--app-side-navigation-link-color) !important;
+}
+
+.side-navigation a:hover {
+    color: var(--app-side-navigation-link-hover-color) !important;
+}
+
+.vh-minus-nav {
+    height: calc(100vh - var(--app-top-navigation-height));
 }
 
 .w-side-navigation-img {

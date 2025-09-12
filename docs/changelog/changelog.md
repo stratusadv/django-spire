@@ -1,5 +1,47 @@
 # Changelog
 
+
+## v0.15.7
+
+### Breaking
+- Removed `app-layer-five` and default background css variable.
+- CSS classes changed to reflect definition of layer-one, layer-two, etc. Please review the new app.css file and use the theme page for any issues.
+
+### Changes
+- Updated templates to reflect definitions of layer-one, layer-two, etc.
+- Added alternate layer classes.
+- Added side navigation, top navigation and footer background, text, link and link hover CSS variables.
+- Added top navigation height as css variable.
+- Modified AI Chat to use top navigation height.
+
+
+## v0.15.6
+
+### Changes
+- Added inactive function in History Queryset
+
+
+## v0.15.5
+
+### Features
+- Added default 'All Users' group that applies to all users that are created.
+
+
+## v0.15.4
+
+### Changes
+- Added Knowledge Base Admin Files
+
+### Fixes
+- Knowledge Base Collection Deletion Bug Fix.
+
+
+## v0.15.3
+
+### Changes
+- Added fonts to package data bundling
+
+
 ## v0.15.2
 
 ### Changes

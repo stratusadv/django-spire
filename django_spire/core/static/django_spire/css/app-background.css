@@ -1,10 +1,4 @@
 :root {
-    --app-bg-white: var(--app-white);
-    --app-bg-black: var(--app-black);
-
-    --app-bg-light: var(--app-light);
-    --app-bg-dark: var(--app-dark);
-
     --app-bg-primary: var(--app-primary);
     --app-bg-primary-soft: var(--app-primary-soft);
     --app-bg-primary-dark: var(--app-primary-dark);
@@ -33,14 +27,21 @@
     --app-bg-layer-two: var(--app-layer-two);
     --app-bg-layer-three: var(--app-layer-three);
     --app-bg-layer-four: var(--app-layer-four);
-    --app-bg-layer-five: var(--app-layer-five);
+
+    --app-bg-alt-layer-one: var(--app-alt-layer-one);
+    --app-bg-alt-layer-two: var(--app-alt-layer-two);
+    --app-bg-alt-layer-three: var(--app-alt-layer-three);
+    --app-bg-alt-layer-four: var(--app-alt-layer-four);
 
     --app-bg-side-navigation: var(--app-side-navigation-bg-color);
-    --app-bg-mobile-navigation: var(--app-mobile-navigation-bg-color);
 
     --app-bg-top-navigation: var(--app-top-navigation-bg-color);
 
     --app-bg-footer: var(--app-footer-bg-color);
+
+    --app-bg-table-row: var(--app-table-row-color);
+    --app-bg-table-row-alt: var(--app-table-row-alt-color);
+    --app-bg-table-row-hover: var(--app-table-row-hover-color);
 }
 
 .bg-app-primary, .bg-app-primary-hover:hover {
@@ -131,16 +132,27 @@
     background-color: var(--app-bg-layer-four) !important;
 }
 
-.bg-app-layer-five, .bg-app-layer-five-hover:hover {
-    background-color: var(--app-bg-layer-five) !important;
+.bg-app-alt-layer-one, .bg-app-alt-layer-one-hover:hover {
+    background-color: var(--app-bg-alt-layer-one) !important;
+    color: var(--app-default-alt-text-color) !important;
+}
+
+.bg-app-alt-layer-two, .bg-app-alt-layer-two-hover:hover {
+    background-color: var(--app-bg-alt-layer-two) !important;
+    color: var(--app-default-alt-text-color) !important;
+}
+
+.bg-app-alt-layer-three, .bg-app-alt-layer-three-hover:hover {
+    background-color: var(--app-bg-alt-layer-three) !important;
+    color: var(--app-default-alt-text-color) !important;
+}
+
+.bg-app-alt-layer-four, .bg-app-alt-layer-four-hover:hover {
+    background-color: var(--app-bg-alt-layer-four) !important;
 }
 
 .bg-app-side-navigation, .bg-app-side-navigation-hover:hover {
     background-color: var(--app-bg-side-navigation) !important;
-}
-
-.bg-app-mobile-navigation, .bg-app-mobile-navigation-hover:hover {
-    background-color: var(--app-bg-mobile-navigation) !important;
 }
 
 .bg-app-top-navigation, .bg-app-top-navigation-hover:hover {
@@ -151,18 +163,15 @@
     background-color: var(--app-bg-footer) !important;
 }
 
-.bg-app-white, .bg-app-white-hover:hover {
-    background-color: var(--app-bg-white) !important;
+.bg-app-table-row, .bg-app-table-row-hover:hover {
+    background-color: var(--app-bg-table-row) !important;
 }
 
-.bg-app-black, .bg-app-black-hover:hover {
-    background-color: var(--app-bg-black) !important;
+.bg-app-table-row-alt, .bg-app-table-row-alt-hover:hover {
+    background-color: var(--app-bg-table-row-alt) !important;
+    color: var(--app-default-alt-text-color) !important;
 }
 
-.bg-app-light, .bg-app-light-hover:hover {
-    background-color: var(--app-bg-light) !important;
-}
-
-.bg-app-dark, .bg-app-dark-hover:hover {
-    background-color: var(--app-bg-dark) !important;
+.bg-app-table-row-hover, .bg-app-table-row-hover:hover {
+    background-color: var(--app-bg-table-row-hover) !important;
 }

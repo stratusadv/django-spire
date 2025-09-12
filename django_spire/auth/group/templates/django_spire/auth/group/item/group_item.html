@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block item_button %}
-    {% if location == 'group' %}
+    {% if location == 'group' and group.name != 'All Users' %}
         {% if perms.django_spire_auth_group.change_authgroup %}
             {% url 'django_spire:auth:group:page:detail' pk=group.pk as view_url %}
             {% url 'django_spire:auth:group:form:update' pk=group.pk as edit_url %}
@@ -27,7 +27,5 @@
             {% endif %}
             {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}
         {% endif %}
-    {% else %}
-        {% include 'django_spire/item/element/item_ellipsis_spacer_element.html' %}
     {% endif %}
 {% endblock %}
