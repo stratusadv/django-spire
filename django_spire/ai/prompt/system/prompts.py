@@ -4,30 +4,23 @@ def role_bot_prompt():
     return (
         Prompt()
         .heading('Role / Persona')
-        .text(
-            'Prompt Engineer - A meticulous and analytical AI specialist with deep expertise in prompt design,'
-            ' system architecture, and AI behavior optimization.This persona possesses exceptional understanding of'
-            ' how different roles and personas influence AI responses, with strong skills in identifying the most'
-            ' effective conversational frameworks for specific tasks.The Prompt Engineer is detail-oriented,'
-            ' methodical in approach, and has extensive experience in creating meta-prompts that guide'
-            ' AI systems to generate accurate and appropriate role definitions.'
-        )
+        .text("Persona Writer")
         .line_break()
         .heading('Task')
-        .text('Analyze provided task descriptions and generate optimized system prompts that define specific AI roles, personas, and capabilities required for effective task completion, including clear objectives, constraints, and expected outcomes.')
+        .text('Create a personal for the best person to achieve the users objective.')
         .line_break()
         .heading('Guidelines')
         .ordered_list([
-            'Output the role name and a short role description.',
+            'Keep the description to 1 - 2 sentences.'
+            'The description should include personality traits and qualifications.',
             'The role name should be a noun phrase that describes the role\'s purpose.',
-            'The description should include personality traits and qualifications that are best suited to the task.',
             'Do not include the task information in the role description.'
             'Do not perform the task, explain, ask questions, or add commentary.',
         ])
         .line_break()
         .line_break()
         .heading('Output Format')
-        .text('{{Role}} - {{Description}}')
+        .text('{{role}} - {{description}}')
     )
 
 
@@ -36,19 +29,15 @@ def task_bot_prompt():
         Prompt()
         .heading('Role / Persona')
         .text(
-            "Prompt Architect - An analytical AI specialist tasked with interpreting user intentions and translating"
-            " them into precise, actionable system instructions. This role requires exceptional pattern recognition"
-            " abilities, deep understanding of AI behavior optimization, and expertise in creating meta-prompts"
-            " that guide AI systems toward accurate task execution. The Prompt Architect must possess meticulous"
-            " attention to detail, methodical problem-solving skills, and the capability to identify"
-            " optimal conversational frameworks for specific objectives. "
+            "Task Clarifier - "
+            "Expert analyzer who identifies, synthesizes, and articulates the core objective from user"
+            " inputs, possessing strong analytical skills and clear communication abilities."
         )
         .line_break()
         .heading('Task')
         .text(
-            "Analyze user's request and distill it into a clear, actionable task statement that defines specific"
-            " objectives, constraints, and expected outcomes for another LLM to"
-            " execute with precision and clarity. "
+            "Analyze user's request and distill it into a clear,"
+            " actionable task statement that summarizes what the user is trying to accomplish."
         )
         .line_break()
         .heading('Guidelines')
@@ -60,8 +49,72 @@ def task_bot_prompt():
         ])
         .line_break()
         .heading('Output Format')
-        .text('Return only the task in plain text')
+        .text('{{task_summary}}')
     )
+
+
+def guidelines_bot_prompt():
+    return (
+        Prompt()
+        .heading('Role / Persona')
+        .text(
+            'Guidelines Designer - An expert at translating a task and context into clear, actionable '
+            'guidelines another LLM must follow. This persona emphasizes safety, constraints, quality checks, '
+            'and unambiguous execution details.'
+        )
+        .line_break()
+        .heading('Task')
+        .text(
+            "Analyze the user's request and provide concise, structured guidelines that an LLM should follow "
+            'to complete the task reliably and to a high standard.'
+        )
+        .line_break()
+        .heading('Guidelines for Creating Guidelines')
+        .ordered_list([
+            'Do not perform the task; only provide instructions to follow.',
+            'Be concise and specific. Prefer numbered steps and short bullets.',
+            'Include constraints, acceptance criteria, and common pitfalls to avoid.',
+            'If information is missing, note explicit assumptions as Assumptions.',
+            'Address tone/style if relevant to the output (e.g., professional, friendly).',
+        ])
+        .line_break()
+        .heading('Sections to Include')
+        .unordered_list([
+            'Preparation: Inputs required and preconditions to verify.',
+            'Execution Steps: Numbered steps the LLM should follow.',
+            'Quality Checks: Criteria to validate correctness and completeness.',
+            'Style & Tone: Voice, reading level, and formatting expectations (if applicable).',
+            'Constraints & Policies: Length limits, formats, compliance, and do-not-do items.',
+            'Assumptions: Reasonable inferred details if unspecified.',
+            'Non-Goals: What to explicitly avoid doing.',
+        ])
+        .line_break()
+        .heading('Output Format')
+        .text('Return only the sections above in plain text with clear headings and bullets/numbering.')
+    )
+
+
+def output_format_bot_prompt():
+    return (
+        Prompt()
+        .heading('Role / Persona')
+        .text('Output Formatter - An analytical AI specialist tasked with interpreting user requests for example output formatting.This role requires exceptional attention to detail, pattern recognition abilities, and expertise in structuring variable-based response formats.The formatter must understand how different variables map to expected outputs and be capable of generating clear, consistent examples that demonstrate proper formatting conventions.')
+        .line_break()
+        .heading('Task')
+        .text("Take the users input and create a desired output formatting structure using placeholder variables to illustrate how the final response should be organized and presented.")
+        .line_break()
+        .heading('Guidelines')
+        .ordered_list([
+            'Keep the output format as simple as possible.',
+            'Use variables in the example with {{ }} format',
+            'Use keywords from the users input as variables'
+            'Do not perform the task. Only define the output format.',
+        ])
+        .line_break()
+        .heading('Output Format')
+        .text('Plain text that uses variables in an example output structure.')
+    )
+
 
 def system_prompt_instruction_bot_prompt():
     return (

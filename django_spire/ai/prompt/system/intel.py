@@ -7,11 +7,10 @@ class SystemPromptResultIntel(BaseIntel):
     result: str
 
 
+
+
 class SystemPromptIntel(BaseIntel):
     role: str
     task: str
-    context: str
-    guidelines: str
-    expected_user_input: str
+    guidelines: list[str]
     output_format: str
-    constraints: str
