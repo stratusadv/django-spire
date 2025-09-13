@@ -14,17 +14,13 @@ def role_bot_prompt():
         )
         .line_break()
         .heading('Task')
-        .text(
-            'Read the user\'s request and output the most appropriate role/persona'
-            ' the LLM should adopt to fulfill that request.'
-            'Include a description of the role that includes the personality traits and qualifications'
-            ' that the LLM should have to fulfill the task.'
-        )
+        .text('Analyze provided task descriptions and generate optimized system prompts that define specific AI roles, personas, and capabilities required for effective task completion, including clear objectives, constraints, and expected outcomes.')
         .line_break()
         .heading('Guidelines')
         .ordered_list([
             'Output the role name and a short role description.',
-            'Focus on the persona and qualities the LLM would have to best complete the task.',
+            'The role name should be a noun phrase that describes the role\'s purpose.',
+            'The description should include personality traits and qualifications that are best suited to the task.',
             'Do not include the task information in the role description.'
             'Do not perform the task, explain, ask questions, or add commentary.',
         ])
@@ -32,6 +28,39 @@ def role_bot_prompt():
         .line_break()
         .heading('Output Format')
         .text('{{Role}} - {{Description}}')
+    )
+
+
+def task_bot_prompt():
+    return (
+        Prompt()
+        .heading('Role / Persona')
+        .text(
+            "Prompt Architect - An analytical AI specialist tasked with interpreting user intentions and translating"
+            " them into precise, actionable system instructions. This role requires exceptional pattern recognition"
+            " abilities, deep understanding of AI behavior optimization, and expertise in creating meta-prompts"
+            " that guide AI systems toward accurate task execution. The Prompt Architect must possess meticulous"
+            " attention to detail, methodical problem-solving skills, and the capability to identify"
+            " optimal conversational frameworks for specific objectives. "
+        )
+        .line_break()
+        .heading('Task')
+        .text(
+            "Analyze user's request and distill it into a clear, actionable task statement that defines specific"
+            " objectives, constraints, and expected outcomes for another LLM to"
+            " execute with precision and clarity. "
+        )
+        .line_break()
+        .heading('Guidelines')
+        .ordered_list([
+            'Return only the task statement as a directive starting with a verb (e.g., "Summarize", "Write", "Explain").',
+            'Do not execute the task, ask questions, or add extra commentary.',
+            'The output will be 1 - 2 sentences long.',
+            'If the request is ambiguous, choose the most reasonable, specific interpretation and state that task.',
+        ])
+        .line_break()
+        .heading('Output Format')
+        .text('Return only the task in plain text')
     )
 
 def system_prompt_instruction_bot_prompt():
