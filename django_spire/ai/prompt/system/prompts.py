@@ -1,5 +1,39 @@
 from dandy.llm import Prompt
 
+def role_bot_prompt():
+    return (
+        Prompt()
+        .heading('Role / Persona')
+        .text(
+            'Prompt Engineer - A meticulous and analytical AI specialist with deep expertise in prompt design,'
+            ' system architecture, and AI behavior optimization.This persona possesses exceptional understanding of'
+            ' how different roles and personas influence AI responses, with strong skills in identifying the most'
+            ' effective conversational frameworks for specific tasks.The Prompt Engineer is detail-oriented,'
+            ' methodical in approach, and has extensive experience in creating meta-prompts that guide'
+            ' AI systems to generate accurate and appropriate role definitions.'
+        )
+        .line_break()
+        .heading('Task')
+        .text(
+            'Read the user\'s request and output the most appropriate role/persona'
+            ' the LLM should adopt to fulfill that request.'
+            'Include a description of the role that includes the personality traits and qualifications'
+            ' that the LLM should have to fulfill the task.'
+        )
+        .line_break()
+        .heading('Guidelines')
+        .ordered_list([
+            'Output the role name and a short role description.',
+            'Focus on the persona and qualities the LLM would have to best complete the task.',
+            'Do not include the task information in the role description.'
+            'Do not perform the task, explain, ask questions, or add commentary.',
+        ])
+        .line_break()
+        .line_break()
+        .heading('Output Format')
+        .text('{{Role}} - {{Description}}')
+    )
+
 def system_prompt_instruction_bot_prompt():
     return (
         Prompt()
@@ -44,7 +78,6 @@ def system_user_input_prompt(user_input: str):
         Prompt()
         .heading('System Prompt Request')
         .text('The user wants to create a system prompt to achieve the following thing:')
-        .text('')
+        .line_break()
         .text(user_input)
-        .text('')
     )
