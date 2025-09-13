@@ -9,7 +9,7 @@ class CustomFieldSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.CUSTOM
 
     def in_order(self, values: list, index: int) -> any:
-        if not values:  # Check if values list is empty
+        if not values:
             raise ValueError(
                 "Cannot select from empty values list. "
                 "Make sure the related model has existing records before seeding foreign keys."
