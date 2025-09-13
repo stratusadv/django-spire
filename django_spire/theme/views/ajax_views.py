@@ -27,7 +27,7 @@ def set_theme(request: WSGIRequest) -> JsonResponse:
         response = JsonResponse({'success': True})
 
         response.set_cookie(
-            'project-theme',
+            'app-theme',
             theme,
             max_age=31536000
         )

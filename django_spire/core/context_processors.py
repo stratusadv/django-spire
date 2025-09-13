@@ -26,19 +26,21 @@ def django_spire(request: WSGIRequest) -> dict[str, Any]:
 
 
 def theme_context(request: WSGIRequest) -> dict[str, Any]:
-    default_theme = getattr(settings, 'DJANGO_SPIRE_DEFAULT_THEME', 'standard-light')
+    default_theme = settings.DJANGO_SPIRE_DEFAULT_THEME
 
-    parts = default_theme.split('-')
-    default_mode = parts[-1]
-    default_family = '-'.join(parts[:-1])
+    theme = request.COOKIES.get('app-theme', default_theme)
+
+    parts = theme.split('-')
+    mode = parts[-1]
+    family = '-'.join(parts[:-1])
 
     return {
-        'theme': getattr(request, 'theme', {
-            'full': default_theme,
-            'family': default_family,
-            'mode': default_mode,
-            'is_dark': default_mode == 'dark',
-            'stylesheet': f'django_spire/css/themes/{default_family}/app-{default_mode}.css'
-        }),
+        'theme': {
+            'full': theme,
+            'family': family,
+            'mode': mode,
+            'is_dark': mode == 'dark',
+            'stylesheet': f'django_spire/css/themes/{family}/app-{mode}.css'
+        },
         'DJANGO_SPIRE_DEFAULT_THEME': default_theme
     }

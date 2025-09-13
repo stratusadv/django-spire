@@ -18,6 +18,8 @@
         {% block base_head_additional_meta %}
         {% endblock %}
 
+        {{available}}
+
         {% block base_head_css %}
             <link rel="stylesheet" href="{% static theme.stylesheet %}">
 
@@ -35,7 +37,8 @@
 
         {% block base_head_js %}
             <script>
-                window.project_theme = '{{ theme.full|escapejs }}';
+                window.app_theme = '{{ theme.full|escapejs }}';
+                window.app_theme_path = '{{ DJANGO_SPIRE_THEME_PATH|escapejs }}';
                 window.default_theme = '{{ DJANGO_SPIRE_DEFAULT_THEME|escapejs }}';
             </script>
 

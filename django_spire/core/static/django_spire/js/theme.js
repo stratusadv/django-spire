@@ -5,6 +5,8 @@ document.addEventListener('alpine:init', () => {
             { name: 'Ayu Dark', value: 'ayu-dark', family: 'ayu', mode: 'dark' },
             { name: 'Catppuccin Light', value: 'catppuccin-light', family: 'catppuccin', mode: 'light' },
             { name: 'Catppuccin Dark', value: 'catppuccin-dark', family: 'catppuccin', mode: 'dark' },
+            { name: 'Default Light', value: 'default-light', family: 'default', mode: 'light' },
+            { name: 'Default Dark', value: 'default-dark', family: 'default', mode: 'dark' },
             { name: 'Dracula Light', value: 'dracula-light', family: 'dracula', mode: 'light' },
             { name: 'Dracula Dark', value: 'dracula-dark', family: 'dracula', mode: 'dark' },
             { name: 'Gruvbox Light', value: 'gruvbox-light', family: 'gruvbox', mode: 'light' },
@@ -21,8 +23,6 @@ document.addEventListener('alpine:init', () => {
             { name: 'Palenight Dark', value: 'palenight-dark', family: 'palenight', mode: 'dark' },
             { name: 'Rose Pine Light', value: 'rose-pine-light', family: 'rose-pine', mode: 'light' },
             { name: 'Rose Pine Dark', value: 'rose-pine-dark', family: 'rose-pine', mode: 'dark' },
-            { name: 'Standard Light', value: 'standard-light', family: 'standard', mode: 'light' },
-            { name: 'Standard Dark', value: 'standard-dark', family: 'standard', mode: 'dark' },
             { name: 'Synthwave Light', value: 'synthwave-light', family: 'synthwave', mode: 'light' },
             { name: 'Synthwave Dark', value: 'synthwave-dark', family: 'synthwave', mode: 'dark' },
             { name: 'Tokyo Night Light', value: 'tokyo-night-light', family: 'tokyo-night', mode: 'light' },
@@ -32,6 +32,7 @@ document.addEventListener('alpine:init', () => {
         families: [
             { name: 'Ayu', value: 'ayu' },
             { name: 'Catppuccin', value: 'catppuccin' },
+            { name: 'Default', value: 'default' },
             { name: 'Dracula', value: 'dracula' },
             { name: 'Gruvbox', value: 'gruvbox' },
             { name: 'Material', value: 'material' },
@@ -40,12 +41,11 @@ document.addEventListener('alpine:init', () => {
             { name: 'One Dark Pro', value: 'one-dark' },
             { name: 'Palenight', value: 'palenight' },
             { name: 'Rose Pine', value: 'rose-pine' },
-            { name: 'Standard', value: 'standard' },
             { name: 'Synthwave', value: 'synthwave' },
             { name: 'Tokyo Night', value: 'tokyo-night' }
         ],
 
-        current: window.project_theme || window.default_theme || 'standard-light',
+        current: window.app_theme || window.default_theme || 'default-light',
 
         get_current_theme() {
             return this.available.find(theme => theme.value === this.current) || this.available[0];
@@ -80,7 +80,7 @@ document.addEventListener('alpine:init', () => {
 
         load_theme_css(family, mode) {
             let existing_link = document.querySelector('link[data-theme-css]');
-            let href = `/static/django_spire/css/themes/${family}/app-${mode}.css`;
+            let href = `/static/${window.app_theme_path}${family}/app-${mode}.css`;
 
             let link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -95,6 +95,7 @@ document.addEventListener('alpine:init', () => {
 
             document.head.appendChild(link);
         },
+
         async persist_to_server(theme) {
             await ajax_request(
                 'POST',
@@ -130,6 +131,8 @@ document.addEventListener('alpine:init', () => {
             this.apply();
 
             await this.persist_to_server(theme);
+
+            window.location.reload();
         },
 
         is_family(family) {
