@@ -1,82 +1,82 @@
 [data-theme="dark"] {
-    --app-dark: #1a1a1a;
-    --app-light: #e5e5e5;
+    --app-dark: #181818;
+    --app-light: #ffffff;
 
-    --app-primary: #3b82f6;
-    --app-primary-soft: #2d2d2d;
-    --app-primary-dark: #2563eb;
+    --app-primary: #0097c9;
+    --app-primary-soft: #1a2a2f;
+    --app-primary-dark: #00b8e6;
 
-    --app-secondary: #6b7280;
-    --app-secondary-soft: #2d2d2d;
-    --app-secondary-dark: #4b5563;
+    --app-secondary: #797c7d;
+    --app-secondary-soft: #232526;
+    --app-secondary-dark: #949799;
 
-    --app-accent: #ef4444;
-    --app-accent-soft: #2d2d2d;
-    --app-accent-dark: #dc2626;
+    --app-accent: #0097c9;
+    --app-accent-soft: #1a2a2f;
+    --app-accent-dark: #00b8e6;
 
     --app-success: #10b981;
-    --app-success-soft: #2d2d2d;
-    --app-success-dark: #059669;
+    --app-success-soft: #1a2e23;
+    --app-success-dark: #34d399;
 
     --app-warning: #f59e0b;
-    --app-warning-soft: #2d2d2d;
-    --app-warning-dark: #d97706;
+    --app-warning-soft: #2d251a;
+    --app-warning-dark: #fbbf24;
 
     --app-danger: #ef4444;
-    --app-danger-soft: #2d2d2d;
-    --app-danger-dark: #dc2626;
+    --app-danger-soft: #2d1a1a;
+    --app-danger-dark: #f87171;
 
-    --app-layer-one: #1a1a1a;
-    --app-layer-two: #2d2d2d;
-    --app-layer-three: #404040;
-    --app-layer-four: #525252;
-    --app-layer-five: #737373;
+    --app-layer-one: #181818;
+    --app-layer-two: #232526;
+    --app-layer-three: #2d3031;
+    --app-layer-four: #3a3d3e;
+    --app-layer-five: #797c7d;
 
     --app-alt-layer-one: #0f0f0f;
-    --app-alt-layer-two: #262626;
-    --app-alt-layer-three: #363636;
-    --app-alt-layer-four: #474747;
+    --app-alt-layer-two: #1f2122;
+    --app-alt-layer-three: #292c2d;
+    --app-alt-layer-four: #343738;
 
-    --app-default-attribute-title-color: #e5e5e5;
-    --app-default-button-text-color: #1a1a1a;
-    --app-default-text-color: #e5e5e5;
+    --app-default-attribute-title-color: #ffffff;
+    --app-default-button-text-color: #181818;
+    --app-default-text-color: #ffffff;
     --app-default-alt-text-color: #d1d5db;
-    --app-default-bg-color: #1a1a1a;
-    --app-default-link-color: #3b82f6;
-    --app-default-link-hover-color: #60a5fa;
+    --app-default-bg-color: #181818;
+    --app-default-link-color: #0097c9;
+    --app-default-link-hover-color: #00b8e6;
     --app-default-link-active-color: #10b981;
 
     --app-side-navigation-bg-color: #0f0f0f;
-    --app-side-navigation-text-color: #e5e5e5;
-    --app-side-navigation-link-color: #e5e5e5;
-    --app-side-navigation-link-hover-color: #3b82f6;
+    --app-side-navigation-text-color: #ffffff;
+    --app-side-navigation-link-color: #ffffff;
+    --app-side-navigation-link-hover-color: #0097c9;
     --app-side-navigation-width: 200px;
 
-    --app-mobile-navigation-bg-color: #1a1a1a;
+    --app-mobile-navigation-bg-color: #181818;
     --app-mobile-navigation-width: 200px;
 
     --app-top-navigation-bg-color: #0f0f0f;
-    --app-top-navigation-text-color: #e5e5e5;
-    --app-top-navigation-link-color: #3b82f6;
-    --app-top-navigation-link-hover-color: #60a5fa;
+    --app-top-navigation-text-color: #ffffff;
+    --app-top-navigation-link-color: #0097c9;
+    --app-top-navigation-link-hover-color: #00b8e6;
     --app-top-navigation-height: 100px;
 
     --app-footer-bg-color: #0f0f0f;
-    --app-footer-text-color: #e5e5e5;
-    --app-footer-link-color: #3b82f6;
-    --app-footer-link-hover-color: #60a5fa;
+    --app-footer-text-color: #ffffff;
+    --app-footer-link-color: #0097c9;
+    --app-footer-link-hover-color: #00b8e6;
 
-    --app-table-row-color: #1a1a1a;
-    --app-table-row-alt-color: #2d2d2d;
-    --app-table-row-hover-color: #404040;
+    --app-table-row-color: #181818;
+    --app-table-row-alt-color: #232526;
+    --app-table-row-hover-color: #2d3031;
 
-    --bs-border-color: #404040;
+    --bs-border-color: #3a3d3e;
 
     --app-shadow-light: rgba(0, 0, 0, 0.2);
     --app-shadow-medium: rgba(0, 0, 0, 0.4);
     --app-shadow-heavy: rgba(0, 0, 0, 0.6);
     --app-shadow-navigation: rgba(0, 0, 0, 0.8);
 
-    --app-border-translucent-light: rgba(64, 64, 64, 0.175);
-    --app-focus-ring-primary: rgba(59, 130, 246, 0.25);
+    --app-border-translucent-light: rgba(58, 61, 62, 0.175);
+    --app-focus-ring-primary: rgba(0, 151, 201, 0.25);
 }

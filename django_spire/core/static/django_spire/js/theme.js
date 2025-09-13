@@ -80,7 +80,7 @@ document.addEventListener('alpine:init', () => {
 
         load_theme_css(family, mode) {
             let existing_link = document.querySelector('link[data-theme-css]');
-            let href = `/static/${window.app_theme_path}${family}/app-${mode}.css`;
+            let href = `/static/django_spire/css/themes/${family}/app-${mode}.css`;
 
             let link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -131,8 +131,6 @@ document.addEventListener('alpine:init', () => {
             this.apply();
 
             await this.persist_to_server(theme);
-
-            window.location.reload();
         },
 
         is_family(family) {
