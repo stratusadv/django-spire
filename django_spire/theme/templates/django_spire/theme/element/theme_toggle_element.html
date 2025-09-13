@@ -1,0 +1,8 @@
+<button
+    @click="$store.theme.toggle()"
+    class="theme-toggle"
+    type="button"
+    x-data
+>
+    <i class="bi" :class="$store.theme.is_mode('dark') ? 'bi-moon-fill' : 'bi-sun-fill'"></i>
+</button>

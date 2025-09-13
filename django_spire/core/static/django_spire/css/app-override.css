@@ -1,4 +1,45 @@
-/* Override specific CSS variables from the `static/django_spire/css/app.css` in this file */
+[data-theme="dark"] {
+    *, span, div, p, h1, h2, h3, h4, h5, h6 {
+        color: var(--app-default-text-color);
+    }
 
-:root {
+    .w-side-navigation-img,
+    .w-mobile-navigation-img {
+        filter: brightness(1.2);
+    }
+
+    .btn {
+        box-shadow: var(--app-btn-shadow-dark-default);
+    }
+
+    .btn:hover {
+        box-shadow: var(--app-btn-shadow-dark-hover);
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--app-layer-three) var(--app-layer-one);
+    }
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: var(--app-layer-one);
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: var(--app-layer-three);
+        border-radius: 4px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background: var(--app-primary);
+    }
+
+    *::-webkit-scrollbar-corner {
+        background: var(--app-layer-one);
+    }
 }

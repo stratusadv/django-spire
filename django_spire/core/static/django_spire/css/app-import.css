@@ -1,4 +1,5 @@
 @import url('app-default.css');
+@import url('app-theme.css');
 @import url('app-background.css');
 @import url('app-border.css');
 @import url('app-button.css');
@@ -12,3 +13,4 @@
 
 @import url('app.css');
 @import url('app-override.css');
+

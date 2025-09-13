@@ -1,0 +1,82 @@
+[data-theme="dark"] {
+    --app-dark: #0f1419;
+    --app-light: #bfbdb6;
+
+    --app-primary: #59c2ff;
+    --app-primary-soft: #1f2430;
+    --app-primary-dark: #39bae6;
+
+    --app-secondary: #5c6773;
+    --app-secondary-soft: #1f2430;
+    --app-secondary-dark: #4d5562;
+
+    --app-accent: #ff8f40;
+    --app-accent-soft: #1f2430;
+    --app-accent-dark: #ff7733;
+
+    --app-success: #95e6cb;
+    --app-success-soft: #1f2430;
+    --app-success-dark: #7fd4b4;
+
+    --app-warning: #ffb454;
+    --app-warning-soft: #1f2430;
+    --app-warning-dark: #ffa940;
+
+    --app-danger: #f07178;
+    --app-danger-soft: #1f2430;
+    --app-danger-dark: #ed5a61;
+
+    --app-layer-one: #0d1017;
+    --app-layer-two: #1f2430;
+    --app-layer-three: #272d38;
+    --app-layer-four: #3e4b59;
+    --app-layer-five: #5c6773;
+
+    --app-alt-layer-one: #0a0e14;
+    --app-alt-layer-two: #1a1f29;
+    --app-alt-layer-three: #232834;
+    --app-alt-layer-four: #343a46;
+
+    --app-default-attribute-title-color: #bfbdb6;
+    --app-default-button-text-color: #0f1419;
+    --app-default-text-color: #bfbdb6;
+    --app-default-alt-text-color: #acaaa2;
+    --app-default-bg-color: #0f1419;
+    --app-default-link-color: #59c2ff;
+    --app-default-link-hover-color: #ffd580;
+    --app-default-link-active-color: #95e6cb;
+
+    --app-side-navigation-bg-color: #0d1017;
+    --app-side-navigation-text-color: #bfbdb6;
+    --app-side-navigation-link-color: #bfbdb6;
+    --app-side-navigation-link-hover-color: #59c2ff;
+    --app-side-navigation-width: 200px;
+
+    --app-mobile-navigation-bg-color: #0f1419;
+    --app-mobile-navigation-width: 200px;
+
+    --app-top-navigation-bg-color: #0d1017;
+    --app-top-navigation-text-color: #bfbdb6;
+    --app-top-navigation-link-color: #59c2ff;
+    --app-top-navigation-link-hover-color: #ffd580;
+    --app-top-navigation-height: 100px;
+
+    --app-footer-bg-color: #0d1017;
+    --app-footer-text-color: #bfbdb6;
+    --app-footer-link-color: #59c2ff;
+    --app-footer-link-hover-color: #ffd580;
+
+    --app-table-row-color: #0f1419;
+    --app-table-row-alt-color: #1f2430;
+    --app-table-row-hover-color: #272d38;
+
+    --bs-border-color: #272d38;
+
+    --app-shadow-light: rgba(0, 0, 0, 0.2);
+    --app-shadow-medium: rgba(0, 0, 0, 0.4);
+    --app-shadow-heavy: rgba(0, 0, 0, 0.6);
+    --app-shadow-navigation: rgba(0, 0, 0, 0.8);
+
+    --app-border-translucent-light: rgba(39, 45, 56, 0.175);
+    --app-focus-ring-primary: rgba(89, 194, 255, 0.25);
+}

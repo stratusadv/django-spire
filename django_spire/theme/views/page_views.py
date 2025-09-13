@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from django.urls import reverse
 from typing_extensions import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
-from django.template.response import TemplateResponse
+from django.urls import reverse
 
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.generic_views import portal_views
 
-
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
 
 @login_required()
