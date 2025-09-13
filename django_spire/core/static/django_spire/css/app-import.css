@@ -8,9 +8,3 @@
 @import url('app-page.css');
 @import url('app-text.css');
 @import url('app-template.css');
-
-/* The `app.css` and `app-override.css` file must be imported last */
-
-@import url('app.css');
-@import url('app-override.css');
-
