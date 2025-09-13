@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.core.decorators import valid_ajax_request_required
+from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
 from django.http import JsonResponse
 
@@ -27,8 +28,22 @@ def reorder_view(request: WSGIRequest) -> JsonResponse:
     if order is None:
         return JsonResponse({'type': 'error', 'message': 'Order not found.'})
 
+    collection_id = body_data.get('collection_id', None)
+    collection = get_object_or_null_obj(Collection, pk=collection_id)
+
+    if collection.id is None:
+        return JsonResponse({'type': 'error', 'message': 'Collection not found.'})
+
+    entry.collection = collection
+    entry.save()
+
     entry.ordering_services.processor.move_to_position(
-        destination_objects=entry.collection.entries.active(),
+        destination_objects=(
+            collection.entries
+            .has_current_version()
+            .user_has_access(user=request.user)
+            .active()
+        ),
         position=order,
     )
 
