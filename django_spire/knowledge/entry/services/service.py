@@ -11,6 +11,8 @@ from django_spire.knowledge.entry.services.factory_service import EntryFactorySe
 from django_spire.knowledge.entry.services.processor_service import \
     EntryProcessorService
 from django_spire.knowledge.entry.services.tool_service import EntryToolService
+from django_spire.knowledge.entry.services.transformation_services import \
+    EntryTransformationService
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 if TYPE_CHECKING:
@@ -25,6 +27,7 @@ class EntryService(BaseDjangoModelService['Entry']):
     ordering = OrderingService()
     processor = EntryProcessorService()
     tool = EntryToolService()
+    transformation = EntryTransformationService()
 
     def save_model_obj(self, author: AuthUser, **field_data) -> tuple[Entry, bool]:
         self.obj, created = super().save_model_obj(**field_data)

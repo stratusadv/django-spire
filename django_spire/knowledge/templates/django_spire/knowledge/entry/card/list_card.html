@@ -28,7 +28,7 @@
                 try {
                     response = await django_glue_fetch(
                         '{% url "django_spire:knowledge:entry:json:reorder" %}',
-                        {payload: {entry_id: entry_id, order: order}}
+                        {payload: {entry_id: entry_id, order: order, collection_id: {{ collection.id }}}}
                     )
                 } catch (e) {
                     window.location.reload()
