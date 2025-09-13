@@ -7,8 +7,6 @@ class SystemPromptResultIntel(BaseIntel):
     result: str
 
 
-
-
 class SystemPromptIntel(BaseIntel):
     role: str
     task: str

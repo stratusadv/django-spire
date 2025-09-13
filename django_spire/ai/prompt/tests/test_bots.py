@@ -2,7 +2,7 @@ from django_spire.ai.prompt.system import bots
 from django_spire.core.tests.test_cases import BaseTestCase
 
 GUIDELINES_PROMPT = (
-    "your job is to create guidelines that help guide an LLM bot to achieve the users desired output.   "
+    "your job is to understand the task or objective the user is trying to accomplish and set guidelines for a person trying to accomplish the task. The guidelines should direct the person to the best results based on the user input."
 )
 
 OUTPUT_FORMAT_PROMPT = (
@@ -40,10 +40,10 @@ class PromptBotTestCase(BaseTestCase):
         print(task_bot.result)
         print()
 
-        # guidelines_bot = bots.GuidelinesSystemPromptBot.process(GUIDELINES_PROMPT)
-        # print('GUIDELINES')
-        # print(guidelines_bot.result)
-        # print()
+        guidelines_bot = bots.GuidelinesSystemPromptBot.process(GUIDELINES_PROMPT)
+        print('GUIDELINES')
+        print(guidelines_bot.result)
+        print()
 
         output_format_bot = bots.OutputFormatSystemPromptBot.process(GUIDELINES_PROMPT)
         print('OUTPUT FORMAT')
@@ -62,10 +62,10 @@ class PromptBotTestCase(BaseTestCase):
         print(task_bot.result)
         print()
 
-        # guidelines_bot = bots.GuidelinesSystemPromptBot.process(ISSUE_PROMPT)
-        # print('GUIDELINES')
-        # print(guidelines_bot.result)
-        # print()
+        guidelines_bot = bots.GuidelinesSystemPromptBot.process(ISSUE_PROMPT)
+        print('GUIDELINES')
+        print(guidelines_bot.result)
+        print()
 
         output_format_bot = bots.OutputFormatSystemPromptBot.process(ISSUE_PROMPT)
         print('OUTPUT FORMAT')
@@ -83,10 +83,10 @@ class PromptBotTestCase(BaseTestCase):
         print(task_bot.result)
         print()
 
-        # guidelines_bot = bots.GuidelinesSystemPromptBot.process(OUTPUT_FORMAT_PROMPT)
-        # print('GUIDELINES')
-        # print(guidelines_bot.result)
-        #
+        guidelines_bot = bots.GuidelinesSystemPromptBot.process(OUTPUT_FORMAT_PROMPT)
+        print('GUIDELINES')
+        print(guidelines_bot.result)
+
         output_format_bot = bots.OutputFormatSystemPromptBot.process(OUTPUT_FORMAT_PROMPT)
         print('OUTPUT FORMAT')
         print(output_format_bot.result)
@@ -104,10 +104,10 @@ class PromptBotTestCase(BaseTestCase):
         print(task_bot.result)
         print()
 
-        # guidelines_bot = bots.GuidelinesSystemPromptBot.process(ROLE_PROMPT)
-        # print('GUIDELINES')
-        # print(guidelines_bot.result)
-        # print()
+        guidelines_bot = bots.GuidelinesSystemPromptBot.process(ROLE_PROMPT)
+        print('GUIDELINES')
+        print(guidelines_bot.result)
+        print()
 
         output_format_bot = bots.OutputFormatSystemPromptBot.process(ROLE_PROMPT)
         print('OUTPUT FORMAT')
@@ -126,10 +126,10 @@ class PromptBotTestCase(BaseTestCase):
         print(task_bot.result)
         print()
 
-        # guidelines_bot = bots.GuidelinesSystemPromptBot.process(TASK_PROMPT)
-        # print('GUIDELINES')
-        # print(guidelines_bot.result)
-        # print()
+        guidelines_bot = bots.GuidelinesSystemPromptBot.process(TASK_PROMPT)
+        print('GUIDELINES')
+        print(guidelines_bot.result)
+        print()
 
         output_format_bot = bots.OutputFormatSystemPromptBot.process(TASK_PROMPT)
         print('OUTPUT FORMAT')

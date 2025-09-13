@@ -18,9 +18,8 @@ class RoleSystemPromptBot(BaseLlmBot):
     instructions_prompt = prompts.role_bot_prompt()
     intel_class = intel.SystemPromptResultIntel
     config_options = LlmConfigOptions(
-        temperature=0.8
+        temperature=0.5
     )
-
 
     @classmethod
     def process(
@@ -38,9 +37,8 @@ class TaskSystemPromptBot(BaseLlmBot):
     instructions_prompt = prompts.task_bot_prompt()
     intel_class = intel.SystemPromptResultIntel
     config_options = LlmConfigOptions(
-        temperature=0.2
+        temperature=0.5
     )
-
 
     @classmethod
     def process(

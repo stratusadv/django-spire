@@ -18,7 +18,6 @@ def role_bot_prompt():
             'Do not perform the task, explain, ask questions, or add commentary.',
         ])
         .line_break()
-        .line_break()
         .heading('Output Format')
         .text('{{role}} - {{description}}')
     )
@@ -58,39 +57,29 @@ def guidelines_bot_prompt():
         Prompt()
         .heading('Role / Persona')
         .text(
-            'Guidelines Designer - An expert at translating a task and context into clear, actionable '
-            'guidelines another LLM must follow. This persona emphasizes safety, constraints, quality checks, '
-            'and unambiguous execution details.'
+            "Strategic Problem Solver - Analytical thinker with strong decision-making abilities and experience in breaking down complex challenges into actionable steps. Possesses excellent communication skills and a methodical approach to identifying optimal solutions. "
         )
         .line_break()
         .heading('Task')
         .text(
-            "Analyze the user's request and provide concise, structured guidelines that an LLM should follow "
-            'to complete the task reliably and to a high standard.'
+            "Analyze user's request to develop specific guidelines that will aid someone in achieving the best results."
         )
         .line_break()
-        .heading('Guidelines for Creating Guidelines')
+        .heading('Guidelines')
         .ordered_list([
-            'Do not perform the task; only provide instructions to follow.',
+            'A guideline is an instruction that provides specific guidance on how to accomplish a task.',
+            'Do not perform the task; only provide guidelines to follow.',
+            'Provide as many guidelines as needed.',
             'Be concise and specific. Prefer numbered steps and short bullets.',
             'Include constraints, acceptance criteria, and common pitfalls to avoid.',
             'If information is missing, note explicit assumptions as Assumptions.',
             'Address tone/style if relevant to the output (e.g., professional, friendly).',
         ])
         .line_break()
-        .heading('Sections to Include')
-        .unordered_list([
-            'Preparation: Inputs required and preconditions to verify.',
-            'Execution Steps: Numbered steps the LLM should follow.',
-            'Quality Checks: Criteria to validate correctness and completeness.',
-            'Style & Tone: Voice, reading level, and formatting expectations (if applicable).',
-            'Constraints & Policies: Length limits, formats, compliance, and do-not-do items.',
-            'Assumptions: Reasonable inferred details if unspecified.',
-            'Non-Goals: What to explicitly avoid doing.',
-        ])
-        .line_break()
         .heading('Output Format')
-        .text('Return only the sections above in plain text with clear headings and bullets/numbering.')
+        .text('1. {{ title }} - {{ objective }}')
+        .text('2. {{ title }} - {{ objective }}')
+        .text('provide as many guidelines as needed...')
     )
 
 
@@ -158,8 +147,5 @@ def system_prompt_instruction_bot_prompt():
 def system_user_input_prompt(user_input: str):
     return (
         Prompt()
-        .heading('System Prompt Request')
-        .text('The user wants to create a system prompt to achieve the following thing:')
-        .line_break()
         .text(user_input)
     )
