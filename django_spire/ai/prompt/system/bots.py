@@ -4,15 +4,6 @@ from django_spire.ai.prompt.system import prompts
 from django_spire.ai.prompt.system import intel
 from django_spire.ai.prompt.system.intel import SystemPromptIntel
 
-"""
-Role -> :) 
-Task -> :)
-Context -> Skipping for now!
-Guidelines -> ;0
-User Input -> Skipping for now!
-Output Format -> ;0
-Constraints -> Skipping for now!
-"""
 
 class RoleSystemPromptBot(BaseLlmBot):
     instructions_prompt = prompts.role_bot_prompt()

@@ -16,6 +16,11 @@ class PromptTestingBot(BaseLlmBot):
             user_prompt: str,
 
     ) -> intel.PromptTuningIntel:
+        """
+            Takes a system prompt and a user prompt.
+            Used to test the response of the system prompt.
+        """
+
         cls.instructions_prompt = system_prompt
         return cls.process_prompt_to_intel(
             prompt=user_prompt
