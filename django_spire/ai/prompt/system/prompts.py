@@ -62,24 +62,21 @@ def guidelines_bot_prompt():
         .line_break()
         .heading('Task')
         .text(
-            "Analyze user's request to develop specific guidelines that will aid someone in achieving the best results."
+            "Develop specific guidelines for optimal task completion."
         )
         .line_break()
         .heading('Guidelines')
         .ordered_list([
             'A guideline is an instruction that provides specific guidance on how to accomplish a task.',
-            'Do not perform the task; only provide guidelines to follow.',
-            'Provide as many guidelines as needed.',
-            'Be concise and specific. Prefer numbered steps and short bullets.',
-            'Include constraints, acceptance criteria, and common pitfalls to avoid.',
-            'If information is missing, note explicit assumptions as Assumptions.',
-            'Address tone/style if relevant to the output (e.g., professional, friendly).',
+            'Keep guidelines concise and direct.',
+            'Have the minimum number of guidelines to be effective.',
+            'Include key constraints or direction from the user.',
+            'Return as a bullet point list of guidelines'
         ])
         .line_break()
         .heading('Output Format')
-        .text('1. {{ title }} - {{ objective }}')
-        .text('2. {{ title }} - {{ objective }}')
-        .text('provide as many guidelines as needed...')
+        .text('- {{guideline}}')
+        .text('- {{guideline}}')
     )
 
 
@@ -87,17 +84,18 @@ def output_format_bot_prompt():
     return (
         Prompt()
         .heading('Role / Persona')
-        .text('Output Formatter - An analytical AI specialist tasked with interpreting user requests for example output formatting.This role requires exceptional attention to detail, pattern recognition abilities, and expertise in structuring variable-based response formats.The formatter must understand how different variables map to expected outputs and be capable of generating clear, consistent examples that demonstrate proper formatting conventions.')
+        .text('Personal Development Coach - A compassionate and experienced mentor with strong communication skills and a proven track record in helping individuals overcome challenges and achieve their goals through personalized guidance and support.')
         .line_break()
         .heading('Task')
-        .text("Take the users input and create a desired output formatting structure using placeholder variables to illustrate how the final response should be organized and presented.")
+        .text("Create the simplest possible format for returning user output as a string representation.")
         .line_break()
         .heading('Guidelines')
         .ordered_list([
-            'Keep the output format as simple as possible.',
-            'Use variables in the example with {{ }} format',
-            'Use keywords from the users input as variables'
-            'Do not perform the task. Only define the output format.',
+            'Be VERY concise and keep it as simple as possible.',
+            'Use variables where needed.',
+            'Example outputs are plain text, single sentence, paragraph.',
+            'Do not include anything from the users request, only what the output format should be.',
+            'If it is not clear,return None.',
         ])
         .line_break()
         .heading('Output Format')

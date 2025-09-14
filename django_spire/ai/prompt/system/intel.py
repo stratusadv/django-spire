@@ -14,7 +14,7 @@ class SystemPromptIntel(BaseIntel):
     role: str
     task: str
     guidelines: str
-    output_format: str
+    output_format: str | None
 
     def to_markdown(self):
         return TextToMarkdownPromptBot.process(self.to_string())
@@ -23,9 +23,13 @@ class SystemPromptIntel(BaseIntel):
         return DandyPythonPromptBot.process(self.to_string())
 
     def to_string(self):
-        return (
+        prompt = (
             f"Role: {self.role}\n"
             f"Task: {self.task}\n"
             f"Guidelines: {self.guidelines}\n"
-            f"Output Format: {self.output_format}"
         )
+
+        if self.output_format:
+            prompt += f"Output Format: {self.output_format}"
+
+        return prompt
