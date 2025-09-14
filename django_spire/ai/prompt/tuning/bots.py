@@ -1,6 +1,30 @@
-from dandy.llm import BaseLlmBot, LlmConfigOptions
+from dandy.llm import BaseLlmBot, LlmConfigOptions, Prompt
 
 from django_spire.ai.prompt.tuning import prompts, intel
+
+
+
+class PromptTestingBot(BaseLlmBot):
+    instructions_prompt = Prompt()
+    intel_class = intel.PromptTestingIntel
+    config_options = LlmConfigOptions(temperature=0.4)
+
+    @classmethod
+    def process(
+            cls,
+            system_prompt: str,
+            user_prompt: str,
+
+    ) -> intel.PromptTuningIntel:
+        """
+            Takes a system prompt and a user prompt.
+            Used to test the response of the system prompt.
+        """
+
+        cls.instructions_prompt = system_prompt
+        return cls.process_prompt_to_intel(
+            prompt=user_prompt
+        )
 
 
 class SimplePromptTuningBot(BaseLlmBot):

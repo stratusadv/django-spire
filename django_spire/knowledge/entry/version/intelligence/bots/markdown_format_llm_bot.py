@@ -2,7 +2,6 @@ from dandy.llm import BaseLlmBot, Prompt
 
 
 class MarkdownFormatLlmBot(BaseLlmBot):
-    config = 'KNOWLEDGE_LLM_BOT'
 
     @classmethod
     def process(
