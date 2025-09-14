@@ -1,6 +1,13 @@
 # Changelog
 
 
+## v0.15.10
+
+### Changes
+- Improved system prompt bot to have a better prompt structure.
+- Added System Prompt Testing Bot to easily test responses from bots.
+
+
 ## v0.15.9
 
 ### Changes
