@@ -45,12 +45,13 @@ TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 TWILIO_SMS_BATCH_SIZE = 100
 
-
 # AI Chat Config
-AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.chat_workflow.ChatWorkflow'
 AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
+AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.ChatWorkflow'
+AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.SmsConversationWorkflow'
 
-AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'test_project.apps.ai.sms.intelligence.sms_conversation_workflow.SmsConversationWorkflow'
+ORGANIZATION_NAME = 'Snergistic Energistic Inc.'
+ORGANIZATION_DESCRIPTION = 'Marketing organization focused on the word snergy and energetically saying it as much as possible.'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True
