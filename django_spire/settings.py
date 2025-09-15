@@ -4,4 +4,4 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
 }
 
 DJANGO_SPIRE_DEFAULT_THEME = 'default-light'
-DJANGO_SPIRE_THEME_PATH = 'django_spire/css/themes/'
+DJANGO_SPIRE_THEME_PATH = '/static/django_spire/css/themes/{family}/app-{mode}.css'

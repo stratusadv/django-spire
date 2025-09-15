@@ -44,6 +44,7 @@
             <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.x/dist/echarts.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+            <script id="theme-config" type="application/json">{{ theme_config|safe }}</script>
             <script type="application/javascript" src="{% static 'django_spire/js/theme.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript" src="{% static 'django_spire/js/ui.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript" src="{% static 'django_spire/js/cookie.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>

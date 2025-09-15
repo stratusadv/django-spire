@@ -1,74 +1,63 @@
 document.addEventListener('alpine:init', () => {
     Alpine.store('theme', {
-        available: [
-            { name: 'Ayu Light', value: 'ayu-light', family: 'ayu', mode: 'light' },
-            { name: 'Ayu Dark', value: 'ayu-dark', family: 'ayu', mode: 'dark' },
-            { name: 'Catppuccin Light', value: 'catppuccin-light', family: 'catppuccin', mode: 'light' },
-            { name: 'Catppuccin Dark', value: 'catppuccin-dark', family: 'catppuccin', mode: 'dark' },
-            { name: 'Default Light', value: 'default-light', family: 'default', mode: 'light' },
-            { name: 'Default Dark', value: 'default-dark', family: 'default', mode: 'dark' },
-            { name: 'Dracula Light', value: 'dracula-light', family: 'dracula', mode: 'light' },
-            { name: 'Dracula Dark', value: 'dracula-dark', family: 'dracula', mode: 'dark' },
-            { name: 'Gruvbox Light', value: 'gruvbox-light', family: 'gruvbox', mode: 'light' },
-            { name: 'Gruvbox Dark', value: 'gruvbox-dark', family: 'gruvbox', mode: 'dark' },
-            { name: 'Material Light', value: 'material-light', family: 'material', mode: 'light' },
-            { name: 'Material Dark', value: 'material-dark', family: 'material', mode: 'dark' },
-            { name: 'Nord Light', value: 'nord-light', family: 'nord', mode: 'light' },
-            { name: 'Nord Dark', value: 'nord-dark', family: 'nord', mode: 'dark' },
-            { name: 'Oceanic Next Light', value: 'oceanic-next-light', family: 'oceanic-next', mode: 'light' },
-            { name: 'Oceanic Next Dark', value: 'oceanic-next-dark', family: 'oceanic-next', mode: 'dark' },
-            { name: 'One Dark Pro Light', value: 'one-dark-light', family: 'one-dark', mode: 'light' },
-            { name: 'One Dark Pro Dark', value: 'one-dark-dark', family: 'one-dark', mode: 'dark' },
-            { name: 'Palenight Light', value: 'palenight-light', family: 'palenight', mode: 'light' },
-            { name: 'Palenight Dark', value: 'palenight-dark', family: 'palenight', mode: 'dark' },
-            { name: 'Rose Pine Light', value: 'rose-pine-light', family: 'rose-pine', mode: 'light' },
-            { name: 'Rose Pine Dark', value: 'rose-pine-dark', family: 'rose-pine', mode: 'dark' },
-            { name: 'Synthwave Light', value: 'synthwave-light', family: 'synthwave', mode: 'light' },
-            { name: 'Synthwave Dark', value: 'synthwave-dark', family: 'synthwave', mode: 'dark' },
-            { name: 'Tokyo Night Light', value: 'tokyo-night-light', family: 'tokyo-night', mode: 'light' },
-            { name: 'Tokyo Night Dark', value: 'tokyo-night-dark', family: 'tokyo-night', mode: 'dark' }
-        ],
-
-        families: [
-            { name: 'Ayu', value: 'ayu' },
-            { name: 'Catppuccin', value: 'catppuccin' },
-            { name: 'Default', value: 'default' },
-            { name: 'Dracula', value: 'dracula' },
-            { name: 'Gruvbox', value: 'gruvbox' },
-            { name: 'Material', value: 'material' },
-            { name: 'Nord', value: 'nord' },
-            { name: 'Oceanic Next', value: 'oceanic-next' },
-            { name: 'One Dark Pro', value: 'one-dark' },
-            { name: 'Palenight', value: 'palenight' },
-            { name: 'Rose Pine', value: 'rose-pine' },
-            { name: 'Synthwave', value: 'synthwave' },
-            { name: 'Tokyo Night', value: 'tokyo-night' }
-        ],
-
+        config: JSON.parse(document.getElementById('theme-config').textContent),
         current: window.app_theme || window.default_theme || 'default-light',
 
-        get_current_theme() {
-            return this.available.find(theme => theme.value === this.current) || this.available[0];
+        parse(value) {
+            let parts = value.split(this.config.separator);
+            let mode = parts.pop();
+            let family = parts.join(this.config.separator);
+
+            if (!this.config.families[family]) {
+                family = this.config.default_family;
+                mode = this.config.default_mode;
+            }
+
+            if (!this.config.families[family].modes.includes(mode)) {
+                mode = this.config.default_mode;
+            }
+
+            return { family, mode };
         },
 
-        get_current_family_name() {
-            let current = this.get_current_theme();
-            let family = this.families.find(f => f.value === current.family);
-            return family ? family.name : 'Unknown';
+        build(family, mode) {
+            return `${family}${this.config.separator}${mode}`;
+        },
+
+        get_current_theme() {
+            let { family, mode } = this.parse(this.current);
+            let family_config = this.config.families[family];
+
+            return {
+                family: family,
+                family_name: family_config.name,
+                mode: mode,
+                value: this.build(family, mode),
+                display: `${family_config.name} - ${mode.charAt(0).toUpperCase() + mode.slice(1)}`,
+                is_dark: mode === 'dark',
+                stylesheet: window.app_theme_path.replace('{family}', family).replace('{mode}', mode)
+            };
         },
 
         get_current_display_name() {
-            let current = this.get_current_theme();
-            let family = this.families.find(f => f.value === current.family);
-            let family_name = family ? family.name : 'Unknown';
-            let mode_name = current.mode.charAt(0).toUpperCase() + current.mode.slice(1);
-            return `${family_name} - ${mode_name}`;
+            return this.get_current_theme().display;
+        },
+
+        get_current_family_name() {
+            return this.get_current_theme().family_name;
+        },
+
+        families() {
+            return Object.entries(this.config.families).map(([key, config]) => ({
+                value: key,
+                name: config.name
+            }));
         },
 
         apply() {
             let theme = this.get_current_theme();
 
-            if (theme.mode === 'dark') {
+            if (theme.is_dark) {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 document.documentElement.removeAttribute('data-theme');
@@ -79,8 +68,19 @@ document.addEventListener('alpine:init', () => {
         },
 
         load_theme_css(family, mode) {
-            let existing_link = document.querySelector('link[data-theme-css]');
-            let href = `/static/django_spire/css/themes/${family}/app-${mode}.css`;
+            let existing = document.querySelector('link[data-theme-css]');
+
+            if (!window.app_theme_path) {
+                console.error('app_theme_path is not defined');
+                return;
+            }
+
+            if (!family || !mode) {
+                console.error('Missing family or mode:', family, mode);
+                return;
+            }
+
+            let href = window.app_theme_path.replace('{family}', family).replace('{mode}', mode);
 
             let link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -88,49 +88,43 @@ document.addEventListener('alpine:init', () => {
             link.setAttribute('data-theme-css', 'true');
 
             link.onload = () => {
-                if (existing_link) {
-                    existing_link.remove();
+                if (existing) {
+                    existing.remove();
                 }
             };
 
             document.head.appendChild(link);
         },
 
-        async persist_to_server(theme) {
+        async persist_to_server(value) {
             await ajax_request(
                 'POST',
                 '/theme/ajax/set_theme/',
-                { theme: theme }
+                { theme: value }
             );
         },
 
-        toggle() {
-            let current = this.get_current_theme();
-
-            let mode = current.mode === 'dark' ? 'light' : 'dark';
-            let value = current.family + '-' + mode;
-            let theme = this.available.find(t => t.value === value);
-
-            if (theme) {
-                this.set(theme.value);
-            }
-        },
-
-        set_family(family) {
-            let current = this.get_current_theme();
-            let value = family + '-' + current.mode;
-            let theme = this.available.find(t => t.value === value);
-
-            if (theme) {
-                this.set(theme.value);
-            }
-        },
-
-        async set(theme) {
-            this.current = theme;
+        async set(value) {
+            this.current = value;
             this.apply();
+            await this.persist_to_server(value);
+        },
 
-            await this.persist_to_server(theme);
+        async set_family(family) {
+            let current = this.get_current_theme();
+            let mode = current.mode;
+
+            if (!this.config.families[family].modes.includes(mode)) {
+                mode = this.config.families[family].modes[0];
+            }
+
+            await this.set(this.build(family, mode));
+        },
+
+        async toggle() {
+            let current = this.get_current_theme();
+            let mode = current.is_dark ? 'light' : 'dark';
+            await this.set(this.build(current.family, mode));
         },
 
         is_family(family) {

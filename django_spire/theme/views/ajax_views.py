@@ -8,38 +8,40 @@ from typing_extensions import TYPE_CHECKING
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
+from django_spire.theme.models import Theme
+
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
 @require_POST
 def set_theme(request: WSGIRequest) -> JsonResponse:
-    try:
-        data = json.loads(request.body)
-        theme = data.get('theme')
+    data = json.loads(request.body)
+    theme = data.get('theme')
 
-        if not theme:
-            return JsonResponse(
-                {'success': False, 'error': 'Theme is required'},
-                status=HTTPStatus.BAD_REQUEST
-            )
-
-        response = JsonResponse({'success': True})
-
-        response.set_cookie(
-            'app-theme',
-            theme,
-            max_age=31536000
-        )
-    except json.JSONDecodeError:
+    if not theme:
         return JsonResponse(
-            {'success': False, 'error': 'Invalid JSON'},
+            {'error': 'Theme is required', 'success': False},
             status=HTTPStatus.BAD_REQUEST
         )
-    except Exception:
+
+    validated = Theme.from_string(theme, default=None)
+
+    if not validated:
         return JsonResponse(
-            {'success': False, 'error': 'Server error'},
-            status=HTTPStatus.INTERNAL_SERVER_ERROR
+            {'error': f'Invalid theme: {theme}', 'success': False},
+            status=HTTPStatus.BAD_REQUEST
         )
-    else:
-        return response
+
+    response = JsonResponse({
+        'success': True,
+        'theme': validated.to_dict()
+    })
+
+    response.set_cookie(
+        'app-theme',
+        validated.value,
+        max_age=31536000
+    )
+
+    return response
