@@ -72,9 +72,14 @@ class DjangoFieldToFakerData:
     def _char_field_data(self):
         max_length = getattr(self.model_field, 'max_length', 255)
 
+        if max_length is None:
+            max_length = 255
+
         if self.model_field.choices:
             choices = [choice[0] for choice in self.model_field.choices]
             return self.faker.random_element(elements=choices)
+
+
 
         return self.faker.text(max_nb_chars=max_length)
 

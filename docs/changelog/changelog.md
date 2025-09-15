@@ -1,5 +1,44 @@
 # Changelog
 
+
+## v0.15.10
+
+### Changes
+- Improved system prompt bot to have a better prompt structure.
+- Added System Prompt Testing Bot to easily test responses from bots.
+
+
+## v0.15.9
+
+### Changes
+- Added Knowledge Base folder side navigation.
+
+
+## v0.15.8
+
+### Fixes
+- Fixed group user form from breaking when names contained escape characters.
+
+## v0.15.7
+
+### Breaking
+- Removed `app-layer-five` and default background css variable.
+- CSS classes changed to reflect definition of layer-one, layer-two, etc. Please review the new app.css file and use the theme page for any issues.
+
+### Changes
+- Updated templates to reflect definitions of layer-one, layer-two, etc.
+- Added alternate layer classes.
+- Added side navigation, top navigation and footer background, text, link and link hover CSS variables.
+- Added top navigation height as css variable.
+- Modified AI Chat to use top navigation height.
+
+
+## v0.15.6
+
+### Changes
+- Added inactive function in History Queryset
+
+
 ## v0.15.5
 
 ### Features

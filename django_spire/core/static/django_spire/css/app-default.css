@@ -7,19 +7,10 @@ a:hover {
     color: var(--app-default-link-hover-color);
 }
 
-a:active {
-    color: var(--app-default-link-active-color);
-}
-
-a:visited {
-    color: var(--app-default-link-visited-color);
-}
-
 a:visited:hover {
     color: var(--app-default-link-hover-color);
 }
 
 body {
     color: var(--app-default-text-color);
-    background-color: var(--app-default-bg-color);
 }

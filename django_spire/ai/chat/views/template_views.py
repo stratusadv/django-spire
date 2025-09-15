@@ -36,10 +36,7 @@ def dialog_widget_view(request) -> TemplateResponse:
 
     return TemplateResponse(
         request,
-        context={
-            'chat': chat,
-            'top_nav_height_px': body_data['top_nav_height_px']
-        },
+        context={'chat': chat},
         template='django_spire/ai/chat/widget/dialog_widget.html'
     )
 

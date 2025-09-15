@@ -10,10 +10,10 @@
                     <div class="col-auto ps-0">
                         <i style="cursor: grab" x-sort:handle class="align-self-center bi bi-grip-vertical p-0"></i>
                         <i
-                            x-show="collection.has_children()"
+                            x-show="collection.has_child_collections() || collection.has_entries()"
                             class="align-self-center p-0 cursor-pointer"
-                            :class="collection.show_children ? 'bi-chevron-down' : 'bi-chevron-right'"
-                            @click="collection.toggle_show_children({value: !collection.show_children})"
+                            :class="collection.show_details ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
+                            @click="collection.toggle_show_details({value: !collection.show_details})"
                         ></i>
                     </div>
                     <div

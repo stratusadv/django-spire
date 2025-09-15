@@ -1,0 +1,7 @@
+.offcanvas-side-navigation {
+    top: 0;
+    left: 0;
+    width: var(--app-side-navigation-width);
+    border-right: 1px solid rgba(0,0,0,.2);
+    transform: translateX(-100%);
+}
