@@ -6,7 +6,7 @@
 
 {% block item_row_content %}
     <div class="col-8">
-        {% url 'django_spire:auth:user:detail' pk=user.pk as detail_url %}
+        {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=user.get_full_name attribute_href=detail_url %}
     </div>
 
