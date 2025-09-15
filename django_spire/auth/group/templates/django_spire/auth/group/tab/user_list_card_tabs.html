@@ -1,0 +1,11 @@
+{% extends 'django_spire/tab/tab.html' %}
+
+{% block tab_triggers %}
+    {% include 'django_spire/tab/element/tab_trigger_element.html' with trigger_title='Active' %}
+    {% include 'django_spire/tab/element/tab_trigger_element.html' with trigger_title='Inactive' %}
+{% endblock %}
+
+{% block tab_sections %}
+    {% include 'django_spire/auth/group/tab/user_list_card_tab_section.html' with user_list=active_user_list %}
+    {% include 'django_spire/auth/group/tab/user_list_card_tab_section.html' with user_list=inactive_user_list %}
+{% endblock %}
