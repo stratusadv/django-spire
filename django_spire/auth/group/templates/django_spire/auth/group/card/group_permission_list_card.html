@@ -3,7 +3,7 @@
 {% block card_padding_class %}p-0{% endblock %}
 
 {% block card_title %}
-    Permissions
+   {{ group.name }} Permissions - {{ group.user_set.count }} Users
 {% endblock %}
 
 {% block card_title_content %}

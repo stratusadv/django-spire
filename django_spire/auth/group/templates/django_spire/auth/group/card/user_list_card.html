@@ -20,3 +20,7 @@
         {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}
 {% endblock %}
+
+{% block card_footer %}
+    {% include 'django_spire/element/pagination_element.html' with paginated_list=user_list %}
+{% endblock %}
