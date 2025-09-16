@@ -1,4 +1,3 @@
-from dandy.llm import MessageHistory
 from dandy.workflow import BaseWorkflow
 
 from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchLlmBot
@@ -11,17 +10,9 @@ from django_spire.knowledge.intelligence.maps.entry_map import get_entry_map_cla
 
 class KnowledgeWorkflow(BaseWorkflow):
     @classmethod
-    def process(
-            cls,
-            user_input: str,
-    ) -> KnowledgeMessageIntel:
+    def process(cls, user_input: str) -> KnowledgeMessageIntel:
         CollectionMap = get_collection_map_class()
-
-        collections = CollectionMap.process(
-            user_input,
-        )
-
-        entries = []
+        collections = CollectionMap.process(user_input)
 
         if collections[0] is None:
             return KnowledgeMessageIntel(
@@ -31,35 +22,33 @@ class KnowledgeWorkflow(BaseWorkflow):
                 )
             )
 
+        entries = []
         for collection in collections:
             if collection.entry_count > 0:
-
-                EntryMap = get_entry_map_class(
-                    collection=collection
-                )
-
+                EntryMap = get_entry_map_class(collection=collection)
                 entries.extend(EntryMap.process(user_input))
 
-        if entries:
-            entries_intel = EntriesIntel(
-                entry_intel_list=[
-                    EntryIntel(
-                        body=EntrySearchLlmBot.process(
-                            user_input=user_input,
-                            entry=entry
-                        ),
-                        collection_intel=CollectionIntel(
-                            name=entry.collection.name
-                        )
-                    ) for entry in entries
-                ]
+        entries = [entry for entry in entries if entry is not None]
+
+        if not entries:
+            return KnowledgeMessageIntel(
+                body=(
+                    'There was no knowledge related to your request. Please reword it '
+                    'and try again.'
+                )
             )
 
-            return KnowledgeMessageIntel(body=f'Entries: {entries_intel}')
-
-        return KnowledgeMessageIntel(
-            body=(
-                'There was no knowledge related to your request. Please reword it and '
-                'try again.'
-            )
+        entries_intel = EntriesIntel(
+            entry_intel_list=[
+                EntryIntel(
+                    body=EntrySearchLlmBot.process(
+                        user_input=user_input,
+                        entry=entry
+                    ),
+                    collection_intel=CollectionIntel(name=entry.collection.name)
+                )
+                for entry in entries
+            ]
         )
+
+        return KnowledgeMessageIntel(body=f'Entries: {entries_intel}')
