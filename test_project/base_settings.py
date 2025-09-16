@@ -45,7 +45,6 @@ TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 TWILIO_SMS_BATCH_SIZE = 100
 
-
 # AI Chat Config
 AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.chat_workflow.ChatWorkflow'
 AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
@@ -140,6 +139,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
     'django_glue.middleware.DjangoGlueMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
     'django_spire.core.middleware.ProfilingMiddleware',
@@ -181,6 +181,7 @@ TEMPLATES = [
                 'django_glue.context_processors.django_glue',
                 'django_spire.core.context_processors.django_spire',
                 'django_spire.knowledge.context_processors.django_spire_knowledge',
+                'django_spire.core.context_processors.theme_context',
                 'test_project.apps.core.context_processors.test_project',
                 'test_project.apps.core.context_processors.django_spire',
             ],

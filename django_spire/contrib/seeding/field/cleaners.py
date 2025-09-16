@@ -4,15 +4,18 @@ import copy
 
 def normalize_seeder_fields(fields: dict) -> dict:
     normalized = {}
+
     for k, v in fields.items():
-        if v == "exclude" or v == ("exclude",):
+        if v in ("exclude", ("exclude",)):
             continue
 
         if isinstance(v, tuple):
             # Safely clone v[2] if it's a dict
             extra = ()
+
             if len(v) > 2:
                 extra_value = v[2]
+
                 if isinstance(extra_value, dict):
                     extra = (copy.deepcopy(extra_value),)
                 else:
