@@ -2,8 +2,9 @@ from django.conf import settings as django_settings
 
 from django_spire import settings as django_spire_default_settings
 
+
 class Settings:
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         django_value = None
         django_spire_value = None
 
@@ -26,7 +27,8 @@ class Settings:
         if django_spire_value is not None:
             return django_spire_value
 
-        raise f'No attribute {name} found in settings.'
+        message = f'No attribute {name} found in settings.'
+        raise AttributeError(message)
 
 
 settings = Settings()

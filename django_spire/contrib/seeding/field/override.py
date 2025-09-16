@@ -1,5 +1,3 @@
-
-
 class FieldOverride:
     def __init__(self, seeder_class):
         self.seeder_class = seeder_class
@@ -7,14 +5,14 @@ class FieldOverride:
 
     def __getattr__(self, name):
         """
-            Delegate attribute lookup to self.seeder_class if the attribute isn't found
-            in this FieldOverride instance.
+        Delegate attribute lookup to self.seeder_class if the attribute isn't found
+        in this FieldOverride instance.
         """
 
         attr = getattr(self.seeder_class, name)
         if callable(attr):
             def wrapper(*args, **kwargs):
-                # Todo: Error here if fields is passed as an arg.
+                # TODO: Error here if fields is passed as an arg.
                 # Pass the overrides field to the seed method
                 if 'fields' in kwargs and isinstance(kwargs['fields'], dict):
                     kwargs['fields'] = {**kwargs['fields'], **self.overrides}

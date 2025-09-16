@@ -44,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
     left: 0;
     right: 0;
     transition: background-color 0.5s ease;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--app-overlay-light);
 }
 
 .fs--1 {
@@ -64,7 +64,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .modal-overlay {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--app-overlay-modal);
 }
 
 .ms-6 {
@@ -190,7 +190,7 @@ h1, h2, h3, h4, h5, h6 {
     right: 0;
     bottom: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--app-overlay-light);
     z-index: 1040;
     transition: opacity 0.3s ease-in-out;
 }
