@@ -14,7 +14,7 @@
         response_message: new ViewGlue(
             '{% url "django_spire:ai:chat:message:response:new" %}',
             {
-                message_body: '{{ message_intel.text }}',
+                message_body: JSON.parse(document.getElementById('message_intel_text').textContent),
                 chat_id: '{{ chat_id }}',
                 synthesis_speech: '{{ synthesis_speech }}' === 'True'
             }
@@ -23,6 +23,7 @@
     x-show="show_loading"
     x-cloak
 >
+    {{ message_intel.text|json_script:'message_intel_text' }}
     <div x-ref="loading_response_message" class="row mt-2 pb-3">
         <div class="col-auto align-self-center">
             <div class="row align-items-center">
