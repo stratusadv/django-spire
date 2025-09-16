@@ -3,6 +3,10 @@
 
 ## v0.16.1
 
+### Breaking
+- Django Spire AI Settings have been moved into the Django Spire settings file.
+- Organization Name and Description must be set in the django spire settings file in order for the AI Chat to work properly. 
+
 ### Changes
 - Django Spire AI Chat workflow and SMS workflow created
 - Knowledge Base AI Chat improvements
