@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.16.0
+
+### Changes
+- Added the ability to create and customize themes
 
 ## v0.15.11
 

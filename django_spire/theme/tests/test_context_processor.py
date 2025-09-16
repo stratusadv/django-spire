@@ -7,6 +7,7 @@ from django.test import TestCase, RequestFactory
 
 from django_spire.core.context_processors import theme_context
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.theme.utils import get_theme_cookie_name
 
 
 class ThemeContextProcessorTests(TestCase):
@@ -29,7 +30,8 @@ class ThemeContextProcessorTests(TestCase):
 
     def test_theme_context_with_cookie(self) -> None:
         request = self.factory.get('/')
-        request.COOKIES = {'django-spire-theme-e236ce27': 'one-dark-light'}
+        cookie_name = get_theme_cookie_name()
+        request.COOKIES = {cookie_name: 'one-dark-light'}
 
         context = theme_context(request)
 
@@ -40,7 +42,8 @@ class ThemeContextProcessorTests(TestCase):
 
     def test_theme_context_invalid_cookie(self) -> None:
         request = self.factory.get('/')
-        request.COOKIES = {'django-spire-theme-e236ce27': 'invalid-theme'}
+        cookie_name = get_theme_cookie_name()
+        request.COOKIES = {cookie_name: 'invalid-theme'}
 
         with patch('django_spire.conf.settings.DJANGO_SPIRE_DEFAULT_THEME', 'dracula-dark'):
             context = theme_context(request)
@@ -66,13 +69,15 @@ class ThemeContextProcessorIntegrationTests(BaseTestCase):
         self.factory = RequestFactory()
 
     def test_theme_context_with_authenticated_client(self) -> None:
-        self.client.cookies['django-spire-theme-e236ce27'] = 'dracula-dark'
+        cookie_name = get_theme_cookie_name()
+        self.client.cookies[cookie_name] = 'dracula-dark'
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
     def test_theme_context_with_media_root_override(self) -> None:
         request = self.factory.get('/')
-        request.COOKIES = {'django-spire-theme-e236ce27': 'material-light'}
+        cookie_name = get_theme_cookie_name()
+        request.COOKIES = {cookie_name: 'material-light'}
 
         context = theme_context(request)
         data = context['theme']

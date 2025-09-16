@@ -39,13 +39,11 @@ class ThemeModelTests(TestCase):
     def test_theme_initialization_invalid_family(self) -> None:
         with pytest.raises(ValueError) as ctx:
             Theme(family='invalid-family', mode='dark')
-
         self.assertIn('Invalid theme family', str(ctx.value))
 
     def test_theme_initialization_invalid_mode(self) -> None:
         with pytest.raises(ValueError) as ctx:
             Theme(family='dracula', mode='invalid-mode')
-
         self.assertIn('Invalid theme mode', str(ctx.value))
 
     def test_from_string_valid(self) -> None:
@@ -147,9 +145,15 @@ class ThemeModelTests(TestCase):
         result = theme.to_dict()
 
         keys = {
-            'display', 'family', 'family_display', 'full',
-            'is_dark', 'mode', 'stylesheet'
+            'display',
+            'family',
+            'family_display',
+            'full',
+            'is_dark',
+            'mode',
+            'stylesheet'
         }
+
         self.assertEqual(set(result.keys()), keys)
 
         self.assertEqual(result['display'], 'Dracula - Dark')

@@ -10,6 +10,7 @@ from django.http import JsonResponse
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.theme.enums import ThemeFamily
+from django_spire.theme.utils import get_theme_cookie_name
 from django_spire.theme.views import ajax_views
 
 
@@ -65,8 +66,9 @@ class ThemeViewTests(TestCase):
         self.assertEqual(data['family'], 'dracula')
         self.assertEqual(data['mode'], 'dark')
 
-        self.assertIn('django-spire-theme-e236ce27', response.cookies)
-        self.assertEqual(response.cookies['django-spire-theme-e236ce27'].value, 'dracula-dark')
+        cookie_name = get_theme_cookie_name()
+        self.assertIn(cookie_name, response.cookies)
+        self.assertEqual(response.cookies[cookie_name].value, 'dracula-dark')
 
     def test_set_theme_missing_theme(self) -> None:
         request = self.factory.post(
