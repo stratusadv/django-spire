@@ -50,8 +50,8 @@ AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
 AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.ChatWorkflow'
 AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.SmsConversationWorkflow'
 
-ORGANIZATION_NAME = 'Snergistic Energistic Inc.'
-ORGANIZATION_DESCRIPTION = 'Marketing organization focused on the word snergy and energetically saying it as much as possible.'
+ORGANIZATION_NAME = 'Synergistic Energistic Inc.'
+ORGANIZATION_DESCRIPTION = 'Marketing organization focused on the word synergy and energetically saying it as much as possible.'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True

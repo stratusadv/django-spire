@@ -1,5 +1,15 @@
 # Changelog
 
+
+## v0.16.1
+
+### Changes
+- Django Spire AI Chat workflow and SMS workflow created
+- Knowledge Base AI Chat improvements
+- AI Chat Quotations Error Handling
+- AI Chat UI / UX Improvements
+
+
 ## v0.16.0
 
 ### Changes
