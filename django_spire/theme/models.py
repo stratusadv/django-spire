@@ -32,14 +32,18 @@ class Theme:
     }
 
     def __post_init__(self):
-        if not isinstance(self.family, ThemeFamily):
+        if isinstance(self.family, str):
+            self._validate_family(self.family)
+
             object.__setattr__(
                 self,
                 'family',
                 ThemeFamily(self.family)
             )
 
-        if not isinstance(self.mode, ThemeMode):
+        if isinstance(self.mode, str):
+            self._validate_mode(self.mode)
+
             object.__setattr__(
                 self,
                 'mode',
@@ -47,40 +51,52 @@ class Theme:
             )
 
     @classmethod
-    def from_string(cls, theme: str, default: Theme | None = None) -> Theme:
-        if not theme and default:
-            return default
-
-        if not theme:
-            return cls.get_default()
-
+    def _parse(cls, theme: str) -> tuple[str, str]:
         parts = theme.strip().split(cls.SEPARATOR)
 
         if len(parts) < 2:
-            if default:
-                return default
-
             message = f'Invalid theme format: {theme}'
             raise ValueError(message)
 
         mode = parts[-1]
         family = cls.SEPARATOR.join(parts[:-1])
 
-        if family not in [f.value for f in ThemeFamily]:
-            if default:
-                return default
+        return family, mode
 
+    @classmethod
+    def _validate_family(cls, family: str) -> None:
+        if family not in [family.value for family in ThemeFamily]:
             message = f'Invalid theme family: {family}'
             raise ValueError(message)
 
+    @classmethod
+    def _validate_mode(cls, mode: str) -> None:
         if mode not in [mode.value for mode in ThemeMode]:
-            if default:
-                return default
-
             message = f'Invalid theme mode: {mode}'
             raise ValueError(message)
 
-        return cls(family=ThemeFamily(family), mode=ThemeMode(mode))
+    @classmethod
+    def _validate(cls, family: str, mode: str) -> None:
+        cls._validate_family(family)
+        cls._validate_mode(mode)
+
+    @classmethod
+    def from_string(cls, theme: str, default: Theme | None = None) -> Theme:
+        if not theme:
+            if default:
+                return default
+
+            return cls.get_default()
+
+        try:
+            family, mode = cls._parse(theme)
+            cls._validate(family, mode)
+            return cls(family=ThemeFamily(family), mode=ThemeMode(mode))
+        except ValueError:
+            if default:
+                return default
+
+            raise
 
     @classmethod
     def get_available(cls) -> list[Theme]:

@@ -35,9 +35,12 @@
 
         {% block base_head_js %}
             <script>
-                window.app_theme = '{{ theme.full|escapejs }}';
-                window.app_theme_path = '{{ DJANGO_SPIRE_THEME_PATH|escapejs }}';
-                window.default_theme = '{{ DJANGO_SPIRE_DEFAULT_THEME|escapejs }}';
+                window.django_spire = window.django_spire || {};
+                window.django_spire.theme = {
+                    active: '{{ theme.full|escapejs }}',
+                    default: '{{ DJANGO_SPIRE_DEFAULT_THEME|escapejs }}',
+                    path: '{{ DJANGO_SPIRE_THEME_PATH|escapejs }}'
+                };
             </script>
 
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

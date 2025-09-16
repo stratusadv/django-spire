@@ -1,4 +1,4 @@
-<div class="dropdown" x-data>
+<div class="dropdown" x-data="{ families: [] }" x-init="$store.theme.families().then(f => families = f)">
     <i
         class="bi bi-palette {{ icon_size|default:'fs-2' }} mx-2 cursor-pointer"
         id="theme_dropdown_button"
@@ -19,7 +19,7 @@
 
         <li><hr class="dropdown-divider"></li>
 
-        <template x-for="family in $store.theme.families()">
+        <template x-for="family in families" :key="family.value">
             <li>
                 <a
                     class="dropdown-item fs--1"
