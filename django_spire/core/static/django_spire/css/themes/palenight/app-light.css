@@ -1,7 +1,4 @@
 :root {
-    --app-dark: #4e5579;
-    --app-light: #fafafa;
-
     --app-primary: #4A90E2;
     --app-primary-soft: #f0f4ff;
     --app-primary-dark: #2971cc;
@@ -30,7 +27,6 @@
     --app-layer-two: #f5f6f9;
     --app-layer-three: #eeeff2;
     --app-layer-four: #d3d7e3;
-    --app-layer-five: #8087a2;
 
     --app-alt-layer-one: #ffffff;
     --app-alt-layer-two: #fcfcfd;
@@ -41,10 +37,8 @@
     --app-default-button-text-color: #fafafa;
     --app-default-text-color: #4e5579;
     --app-default-alt-text-color: #676e95;
-    --app-default-bg-color: #fafafa;
     --app-default-link-color: #4A90E2;
     --app-default-link-hover-color: #7986CB;
-    --app-default-link-active-color: #7CB342;
 
     --app-side-navigation-bg-color: #4e5579;
     --app-side-navigation-text-color: #fafafa;
@@ -52,7 +46,6 @@
     --app-side-navigation-link-hover-color: #82aaff;
     --app-side-navigation-width: 200px;
 
-    --app-mobile-navigation-bg-color: #676e95;
     --app-mobile-navigation-width: 200px;
 
     --app-top-navigation-bg-color: #fafafa;
