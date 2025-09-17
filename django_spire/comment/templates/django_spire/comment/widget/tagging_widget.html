@@ -108,7 +108,7 @@
              @keydown.up.prevent.stop="$focus.wrap().prev()"
              @keydown.tab.prevent.stop="$focus.wrap().next()"
              @keydown.esc.prevent.stop="document.getElementById(id).focus()"
-             class="bg-white w-100 shadow border border-1 rounded position-absolute top-100 start-0 mt-1">
+             class="w-100 shadow border border-1 rounded position-absolute top-100 start-0 mt-1">
             <template x-if="filtered_users.length > 0">
                 <template x-for="user in filtered_users" :key="user.id">
                         <button

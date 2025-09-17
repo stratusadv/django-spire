@@ -23,7 +23,7 @@
     <div class="position-fixed top-0 end-0 m-3" style="z-index: 1050;">
         <template x-for="notification in notifications" :key="notification.id">
             <div
-                class="mb-3 p-3 rounded border bg-dark text-white shadow"
+                class="mb-3 p-3 rounded border shadow"
                 :class="{
                     'border-success': notification.type === 'success',
                     'border-app-warning': notification.type === 'warning',
