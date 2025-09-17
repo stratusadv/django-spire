@@ -1,7 +1,4 @@
 [data-theme="dark"] {
-    --app-dark: #282828;
-    --app-light: #ebdbb2;
-
     --app-primary: #fabd2f;
     --app-primary-soft: #3c3836;
     --app-primary-dark: #d79921;
@@ -30,7 +27,6 @@
     --app-layer-two: #3c3836;
     --app-layer-three: #504945;
     --app-layer-four: #665c54;
-    --app-layer-five: #7c6f64;
 
     --app-alt-layer-one: #1d2021;
     --app-alt-layer-two: #32302f;
@@ -41,10 +37,8 @@
     --app-default-button-text-color: #282828;
     --app-default-text-color: #ebdbb2;
     --app-default-alt-text-color: #d5c4a1;
-    --app-default-bg-color: #282828;
     --app-default-link-color: #fabd2f;
     --app-default-link-hover-color: #fe8019;
-    --app-default-link-active-color: #b8bb26;
 
     --app-side-navigation-bg-color: #1d2021;
     --app-side-navigation-text-color: #ebdbb2;
@@ -52,7 +46,6 @@
     --app-side-navigation-link-hover-color: #fabd2f;
     --app-side-navigation-width: 200px;
 
-    --app-mobile-navigation-bg-color: #282828;
     --app-mobile-navigation-width: 200px;
 
     --app-top-navigation-bg-color: #1d2021;

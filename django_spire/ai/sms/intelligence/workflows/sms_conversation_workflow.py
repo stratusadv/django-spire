@@ -7,7 +7,7 @@ from django_spire.ai.chat.intelligence.workflows.chat_workflow import SpireChatW
 from django_spire.ai.sms.intel import SmsIntel
 
 
-class SmsConversationWorkflow(BaseWorkflow):
+class SpireSmsConversationWorkflow(BaseWorkflow):
     @classmethod
     @recorder_to_html_file('sms_workflow')
     def process(

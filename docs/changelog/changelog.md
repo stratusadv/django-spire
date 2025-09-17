@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v0.16.2
+
+### Changes
+- Updated CSS theme variables to match changes made in v0.15.7
+
+### Fixes
+- Fixed AI Chat repeated response bug.
+
+
 ## v0.16.1
 
 ### Breaking

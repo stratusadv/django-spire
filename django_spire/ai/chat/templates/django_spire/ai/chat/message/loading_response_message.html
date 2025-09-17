@@ -1,3 +1,6 @@
+{% load spire_core_tags %}
+
+{% generate_id as response_message_intel_id %}
 <div
     x-data="{
         show_loading: false,
@@ -14,7 +17,7 @@
         response_message: new ViewGlue(
             '{% url "django_spire:ai:chat:message:response:new" %}',
             {
-                message_body: JSON.parse(document.getElementById('message_intel_text').textContent),
+                message_body: JSON.parse(document.getElementById('{{ response_message_intel_id }}').textContent),
                 chat_id: '{{ chat_id }}',
                 synthesis_speech: '{{ synthesis_speech }}' === 'True'
             }
@@ -23,7 +26,7 @@
     x-show="show_loading"
     x-cloak
 >
-    {{ message_intel.text|json_script:'message_intel_text' }}
+    {{ message_intel.text|json_script:response_message_intel_id }}
     <div x-ref="loading_response_message" class="row mt-2 pb-3">
         <div class="col-auto align-self-center">
             <div class="row align-items-center">
