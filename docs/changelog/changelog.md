@@ -1,6 +1,12 @@
 # Changelog
 
 
+## vX.XX.X
+
+### Changes
+- Updated CSS theme variables to match changes made in v0.15.7
+
+
 ## v0.16.1
 
 ### Breaking
