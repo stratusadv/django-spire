@@ -23,45 +23,49 @@
         </div>
 
         <div class="col-auto d-flex">
-            <div>
-                {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-2' %}
-            </div>
+            {% block top_navigation_icons %}
+                {% block theme_selector %}
+                    <div>
+                        {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-2' %}
+                    </div>
+                {% endblock %}
 
-            <div class="dropdown">
-                <i
-                    class="bi bi-person-circle fs-2 mx-2 cursor-pointer"
-                    id="dropdownMenuButton1"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                >
-                </i>
-                <ul class="dropdown-menu py-0 bg-app-layer-one" aria-labelledby="dropdownMenuButton1">
-                    {% if request.user.is_superuser %}
-                        <li class="py-0  ">
-                            <a class="dropdown-item fs--1 bg-app-layer-three-hover"
-                               href="{% url 'admin:index' %}" target="_blank">
-                                Admin Panel
+                <div class="dropdown">
+                    <i
+                        class="bi bi-person-circle fs-2 mx-2 cursor-pointer"
+                        id="dropdownMenuButton1"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                    </i>
+                    <ul class="dropdown-menu py-0 bg-app-layer-one" aria-labelledby="dropdownMenuButton1">
+                        {% if request.user.is_superuser %}
+                            <li class="py-0  ">
+                                <a class="dropdown-item fs--1 bg-app-layer-three-hover"
+                                   href="{% url 'admin:index' %}" target="_blank">
+                                    Admin Panel
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="py-0">
+                            <a href="{% url 'django_spire:auth:admin:password_change' %}"
+                               class="dropdown-item fs--1 bg-app-layer-three-hover">
+                                Change Password
                             </a>
                         </li>
-                    {% endif %}
-                    <li class="py-0">
-                        <a href="{% url 'django_spire:auth:admin:password_change' %}"
-                           class="dropdown-item fs--1 bg-app-layer-three-hover">
-                            Change Password
-                        </a>
-                    </li>
-                    <li class="py-0">
-                        <a href="{% url 'django_spire:auth:redirect:logout' %}"
-                           class="dropdown-item fs--1 bg-app-layer-three-hover">
-                            Logout
-                        </a>
-                    </li>
-                </ul>
-            </div>
+                        <li class="py-0">
+                            <a href="{% url 'django_spire:auth:redirect:logout' %}"
+                               class="dropdown-item fs--1 bg-app-layer-three-hover">
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
-            <div class="col-auto d-lg-none">
-                {% include 'django_spire/navigation/mobile_navigation.html' %}
-            </div>
+                <div class="col-auto d-lg-none">
+                    {% include 'django_spire/navigation/mobile_navigation.html' %}
+                </div>
+            {% endblock %}
         </div>
     {% endblock %}
 </div>

@@ -35,4 +35,4 @@ def reverse_generic_relation(content_object: Any, **kwargs) -> HttpResponse | No
     if url_path is not None:
         return reverse(url_path, kwargs=kwargs)
 
-    return HttpResponse('home:home')
+    return HttpResponse('home:page:home')
