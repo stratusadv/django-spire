@@ -29,15 +29,15 @@
                 {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-2' %}
             </div>
 
-            <div class="dropdown">
-                <i
-                    class="bi bi bi-gear-fill fs-2 mx-2 cursor-pointer"
-                    id="dropdownMenuButton1"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                >
-                </i>
-            </div>
+{#            <div class="dropdown">#}
+{#                <i#}
+{#                    class="bi bi bi-gear-fill fs-2 mx-2 cursor-pointer"#}
+{#                    id="dropdownMenuButton1"#}
+{#                    data-bs-toggle="dropdown"#}
+{#                    aria-expanded="false"#}
+{#                >#}
+{#                </i>#}
+{#            </div>#}
 
             <div class="dropdown">
                 <i
@@ -47,7 +47,7 @@
                     aria-expanded="false"
                 >
                 </i>
-                <ul class="dropdown-menu py-0" aria-labelledby="dropdownMenuButton1">
+                <ul class="dropdown-menu py-0 bg-app-layer-two bg-layer-one-hover" aria-labelledby="dropdownMenuButton1">
                     {% if request.user.is_superuser %}
                         <li>
                             <a class="dropdown-item fs--1" href="{% url 'admin:index' %}" target="_blank">
@@ -56,12 +56,12 @@
                         </li>
                     {% endif %}
                     <li>
-                        <a class="dropdown-item fs--1">
+                        <a href="{% url 'django_spire:auth:admin:password_change' %}" class="dropdown-item fs--1">
                             Change Password
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item fs--1">
+                        <a href="{% url 'django_spire:auth:redirect:logout' %}" class="dropdown-item fs--1">
                             Logout
                         </a>
                     </li>
@@ -74,4 +74,3 @@
         </div>
     {% endblock %}
 </div>
-

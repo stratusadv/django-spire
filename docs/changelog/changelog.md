@@ -1,6 +1,11 @@
 # Changelog
 
 
+## v0.16.3
+
+### Fixes
+- Fixed broken buttons on user dropdown menu in top navigation.
+
 ## v0.16.2
 
 ### Changes
