@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.16.4
+
+### Fixes
+- Fixed broken buttons on user dropdown menu in top navigation (This time in proper template :))
 
 ## v0.16.3
 
