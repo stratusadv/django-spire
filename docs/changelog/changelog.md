@@ -9,6 +9,7 @@
 ### Changes
 - Added top navigation icon blocks.
 - Password change form UI improvements.
+- Updated theme urls and views to best practice.
 
 ### Fixes
 - Top navigation dropdown menu URL fixes.
