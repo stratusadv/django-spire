@@ -2,6 +2,10 @@
 
 ## v0.16.4
 
+### Changes
+- Updated CSS styling on all dropdown.
+- Added better padding to ellipsis dropdown menu.
+
 ### Fixes
 - Fixed broken buttons on user dropdown menu in top navigation (This time in proper template :))
 

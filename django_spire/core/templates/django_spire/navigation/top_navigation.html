@@ -35,21 +35,24 @@
                     aria-expanded="false"
                 >
                 </i>
-                <ul class="dropdown-menu py-0 bg-app-layer-two bg-app-layer-one-hover" aria-labelledby="dropdownMenuButton1">
+                <ul class="dropdown-menu py-0 bg-app-layer-one" aria-labelledby="dropdownMenuButton1">
                     {% if request.user.is_superuser %}
-                        <li>
-                            <a class="dropdown-item fs--1" href="{% url 'admin:index' %}" target="_blank">
+                        <li class="py-0  ">
+                            <a class="dropdown-item fs--1 bg-app-layer-three-hover"
+                               href="{% url 'admin:index' %}" target="_blank">
                                 Admin Panel
                             </a>
                         </li>
                     {% endif %}
-                    <li>
-                        <a href="{% url 'django_spire:auth:admin:password_change' %}" class="dropdown-item fs--1">
+                    <li class="py-0">
+                        <a href="{% url 'django_spire:auth:admin:password_change' %}"
+                           class="dropdown-item fs--1 bg-app-layer-three-hover">
                             Change Password
                         </a>
                     </li>
-                    <li>
-                        <a href="{% url 'django_spire:auth:redirect:logout' %}" class="dropdown-item fs--1">
+                    <li class="py-0">
+                        <a href="{% url 'django_spire:auth:redirect:logout' %}"
+                           class="dropdown-item fs--1 bg-app-layer-three-hover">
                             Logout
                         </a>
                     </li>
