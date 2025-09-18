@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.theme.enums import ThemeFamily
 from django_spire.theme.utils import get_theme_cookie_name
-from django_spire.theme.views import ajax_views
+from django_spire.theme.views import json_views
 
 
 class ThemeViewTests(TestCase):
@@ -19,8 +19,8 @@ class ThemeViewTests(TestCase):
         self.factory = RequestFactory()
 
     def test_get_config_success(self) -> None:
-        request = self.factory.get('/theme/ajax/get_config/')
-        response = ajax_views.get_config(request)
+        request = self.factory.get('/django_spire/theme/json/get_config/')
+        response = json_views.get_config(request)
 
         self.assertIsInstance(response, JsonResponse)
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -42,18 +42,18 @@ class ThemeViewTests(TestCase):
             self.assertEqual(set(family_config['modes']), {'dark', 'light'})
 
     def test_get_config_cache_header(self) -> None:
-        _ = self.factory.get('/theme/ajax/get_config/')
+        _ = self.factory.get('/django_spire/theme/json/get_config/')
 
-        with patch('django_spire.theme.views.ajax_views.cache_page') as _:
-            self.assertTrue(hasattr(ajax_views.get_config, '__wrapped__'))
+        with patch('django_spire.theme.views.json_views.cache_page') as _:
+            self.assertTrue(hasattr(json_views.get_config, '__wrapped__'))
 
     def test_set_theme_success(self) -> None:
         request = self.factory.post(
-            '/theme/ajax/set_theme/',
+            '/django_spire/theme/json/set_theme/',
             data=json.dumps({'theme': 'dracula-dark'}),
             content_type='application/json'
         )
-        response = ajax_views.set_theme(request)
+        response = json_views.set_theme(request)
 
         self.assertIsInstance(response, JsonResponse)
         self.assertEqual(response.status_code, HTTPStatus.OK)
@@ -72,11 +72,11 @@ class ThemeViewTests(TestCase):
 
     def test_set_theme_missing_theme(self) -> None:
         request = self.factory.post(
-            '/theme/ajax/set_theme/',
+            '/django_spire/theme/json/set_theme/',
             data=json.dumps({}),
             content_type='application/json'
         )
-        response = ajax_views.set_theme(request)
+        response = json_views.set_theme(request)
 
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         data = json.loads(response.content)
@@ -86,11 +86,11 @@ class ThemeViewTests(TestCase):
 
     def test_set_theme_invalid_theme(self) -> None:
         request = self.factory.post(
-            '/theme/ajax/set_theme/',
+            '/django_spire/theme/json/set_theme/',
             data=json.dumps({'theme': 'invalid-theme'}),
             content_type='application/json'
         )
-        response = ajax_views.set_theme(request)
+        response = json_views.set_theme(request)
 
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         data = json.loads(response.content)
@@ -102,7 +102,7 @@ class ThemeViewTests(TestCase):
 class ThemeViewIntegrationTests(BaseTestCase):
     def test_set_theme_with_authenticated_client(self) -> None:
         response = self.client.post(
-            '/theme/ajax/set_theme/',
+            '/django_spire/theme/json/set_theme/',
             data=json.dumps({'theme': 'dracula-dark'}),
             content_type='application/json'
         )
@@ -112,7 +112,7 @@ class ThemeViewIntegrationTests(BaseTestCase):
         self.assertTrue(data['success'])
 
     def test_get_config_with_authenticated_client(self) -> None:
-        response = self.client.get('/theme/ajax/get_config/')
+        response = self.client.get('/django_spire/theme/json/get_config/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         data = json.loads(response.content)
