@@ -7,6 +7,7 @@
 - Password change return url changed to 'home:page:home'
 
 ### Changes
+- Added to_json template tag.
 - Added top navigation icon blocks.
 - Password change form UI improvements.
 - Updated theme urls and views to best practice.
