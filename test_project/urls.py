@@ -40,3 +40,9 @@ if settings.DEBUG:
         urlpatterns += [
             path('__debug__/', include(debug_toolbar.urls)),
         ]
+
+    if importlib.util.find_spec('django_browser_reload'):
+        urlpatterns += [
+            path('__reload__/', include('django_browser_reload.urls')),
+        ]
+

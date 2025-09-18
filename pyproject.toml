@@ -60,7 +60,9 @@ dependencies = [
 [project.optional-dependencies]
 development = [
     "build",
+    "django-browser-reload",
     "django-debug-toolbar",
+    "django-watchfiles",
     "pip",
     "pyinstrument",
     "pytest",
