@@ -14,7 +14,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 let response = await ajax_request(
                     'GET',
-                    '/theme/ajax/get_config/'
+                    '/django_spire/theme/json/get_config/'
                 );
 
                 if (response && response.data) {
@@ -142,7 +142,7 @@ document.addEventListener('alpine:init', () => {
         async persist_to_server(value) {
             await ajax_request(
                 'POST',
-                '/theme/ajax/set_theme/',
+                '/django_spire/theme/json/set_theme/',
                 { theme: value }
             );
         },

@@ -1,5 +1,20 @@
 # Changelog
 
+
+## v0.16.5
+
+### Breaking
+- Password change return url changed to 'home:page:home'
+
+### Changes
+- Added top navigation icon blocks.
+- Password change form UI improvements.
+- Updated theme urls and views to best practice.
+
+### Fixes
+- Top navigation dropdown menu URL fixes.
+
+
 ## v0.16.4
 
 ### Changes
