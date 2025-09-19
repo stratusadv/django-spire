@@ -5,10 +5,6 @@ html, body {
     flex-direction: column;
 }
 
-body {
-    transition: color 0.3s ease, background-color 0.3s ease;
-}
-
 body > .container.my-3 {
     flex: 1;
 }

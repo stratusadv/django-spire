@@ -18,6 +18,10 @@ class PasswordChangeView(auth_views.PasswordChangeView):
     template_name = 'django_spire/auth/page/password_change_page.html'
     success_url = reverse_lazy('django_spire:auth:admin:password_change_done')
 
+    def form_invalid(self, form):
+        show_form_errors(self.request, form)
+        return super().form_invalid(form)
+
 
 class PasswordChangeDone(auth_views.PasswordChangeDoneView):
     template_name = 'django_spire/auth/page/password_change_done_page.html'
@@ -27,6 +31,10 @@ class PasswordResetView(auth_views.PasswordResetView):
     email_template_name = 'django_spire/auth/password_reset_email.html'
     success_url = reverse_lazy('django_spire:auth:admin:password_reset_done')
     template_name = 'django_spire/auth/page/password_reset_page.html'
+
+    def form_invalid(self, form):
+        show_form_errors(self.request, form)
+        return super().form_invalid(form)
 
 
 class PasswordResetComplete(auth_views.PasswordResetCompleteView):
@@ -45,6 +53,10 @@ class PasswordResetDone(auth_views.PasswordResetDoneView):
 class PasswordResetKeyForm(auth_views.PasswordResetView):
     template_name = 'django_spire/auth/page/password_reset_key_form_page.html'
 
+    def form_invalid(self, form):
+        show_form_errors(self.request, form)
+        return super().form_invalid(form)
+
 
 class PasswordResetKeyFormDone(auth_views.PasswordResetView):
     template_name = 'django_spire/auth/page/password_reset_key_done_page.html'
@@ -52,3 +64,7 @@ class PasswordResetKeyFormDone(auth_views.PasswordResetView):
 
 class PasswordSetForm(auth_views.PasswordResetView):
     template_name = 'django_spire/auth/page/password_set_form_page.html'
+
+    def form_invalid(self, form):
+        show_form_errors(self.request, form)
+        return super().form_invalid(form)

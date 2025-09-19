@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v0.16.5
+
+### Breaking
+- Password change return url changed to 'home:page:home'
+
+### Changes
+- Added to_json template tag.
+- Added top navigation icon blocks.
+- Password change form UI improvements.
+- Updated theme urls and views to best practice.
+
+### Fixes
+- Top navigation dropdown menu URL fixes.
+
+
+## v0.16.4
+
+### Changes
+- Updated CSS styling on all dropdown.
+- Added better padding to ellipsis dropdown menu.
+
+### Fixes
+- Fixed broken buttons on user dropdown menu in top navigation (This time in proper template :))
+
+## v0.16.3
+
+### Fixes
+- Fixed broken buttons on user dropdown menu in top navigation.
+
 ## v0.16.2
 
 ### Changes

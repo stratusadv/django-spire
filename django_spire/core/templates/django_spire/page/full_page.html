@@ -8,7 +8,7 @@
             {% endblock %}
         </div>
 
-        <div class="full-page-content container-fluid">
+        <div class="d-flex flex-column container-fluid">
             <div class="row sticky-top">
                 <div class="col-12 sticky-top">
                     {% block full_page_top_navigation %}
@@ -17,7 +17,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row flex-grow-1">
                 <div class="col-12">
                     {% block full_page_content %}
                     {% endblock %}

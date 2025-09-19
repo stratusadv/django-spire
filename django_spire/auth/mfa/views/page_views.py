@@ -18,7 +18,7 @@ def mfa_form_view(request):
         if form.is_valid():
             mfa_code.set_expired()
             profile.set_mfa_grace_period()
-            return HttpResponseRedirect(reverse('home:home'))
+            return HttpResponseRedirect(reverse('home:page:home'))
 
         if 'mfa_code' in form.errors:
             messages.error(request, form.errors['mfa_code'][0])
@@ -33,4 +33,3 @@ def mfa_form_view(request):
         context=context_data,
         template='django_spire/auth/mfa/mfa_form.html'
     )
-
