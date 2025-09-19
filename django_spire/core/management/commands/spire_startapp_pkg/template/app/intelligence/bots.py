@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dandy.llm import BaseLlmBot
 
 from module.intelligence import prompts
@@ -10,8 +12,8 @@ class SpireChildAppBot(BaseLlmBot):
 
     @classmethod
     def process(
-            cls,
-            user_input: str
+        cls,
+        user_input: str
     ) -> intel.SpireChildAppIntel:
 
         return cls.process_prompt_to_intel(

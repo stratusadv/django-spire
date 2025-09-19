@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.service import BaseDjangoModelService
+
 from module.services.factory_service import SpireChildAppFactoryService
 from module.services.processor_service import SpireChildAppProcessorService
 from module.services.intelligence_service import SpireChildAppIntelligenceService

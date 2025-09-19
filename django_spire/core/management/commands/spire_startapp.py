@@ -3,7 +3,6 @@ from __future__ import annotations
 import django_spire
 
 from pathlib import Path
-from typing_extensions import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -17,9 +16,6 @@ from django_spire.core.management.commands.spire_startapp_pkg.processor import (
         HTMLTemplateProcessor
 )
 from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
-
-if TYPE_CHECKING:
-    import argparse
 
 
 class Command(BaseCommand):

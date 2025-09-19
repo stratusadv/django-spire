@@ -4,14 +4,13 @@ from typing_extensions import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
-from django.template.response import TemplateResponse
 
 from django_spire.contrib.generic_views import portal_views
 
-from module import forms, models
-
+from module import models
 
 if TYPE_CHECKING:
+    from django.template.response import TemplateResponse
     from django.core.handlers.wsgi import WSGIRequest
 
 

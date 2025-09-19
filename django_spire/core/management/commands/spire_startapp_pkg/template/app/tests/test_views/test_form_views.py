@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from django.test import TestCase
 
 
 class SpireChildAppViewTestCase(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
