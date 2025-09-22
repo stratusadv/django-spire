@@ -3,5 +3,5 @@ from django.apps import AppConfig
 
 class SpireChildAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'spireparentapp_spirechildapp'
+    label = 'spireLabelFullChildPath'
     name = 'module'

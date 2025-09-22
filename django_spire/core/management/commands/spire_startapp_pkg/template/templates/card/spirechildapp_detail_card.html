@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-	{% if perms.spireparentapp.change_spirepermission %}
+	{% if perms.spireLabelFullChildPath.change_spirechildapp %}
         {% url 'spireparentapp:spirechildapp:page:form' pk=spirechildapp.pk as spirechildapp_edit_url %}
         {% include 'django_spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=spirechildapp_edit_url %}
     {% endif %}

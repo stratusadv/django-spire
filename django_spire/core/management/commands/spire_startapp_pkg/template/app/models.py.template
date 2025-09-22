@@ -26,7 +26,7 @@ class SpireChildApp(HistoryModelMixin):
 
         crumbs.add_breadcrumb(
             'SpireChildApp',
-            reverse('spireparentapp:spirechildapp:page:list')
+            reverse('spireReverseFullChildPath:page:list')
         )
 
         return crumbs
@@ -39,7 +39,7 @@ class SpireChildApp(HistoryModelMixin):
             crumbs.add_breadcrumb(
                 str(self),
                 reverse(
-                    'spireparentapp:spirechildapp:page:detail',
+                    'spireReverseFullChildPath:page:detail',
                     kwargs={'pk': self.pk}
                 )
             )
@@ -49,4 +49,4 @@ class SpireChildApp(HistoryModelMixin):
     class Meta:
         verbose_name = 'SpireChildApp'
         verbose_name_plural = 'SpireChildApps'
-        db_table = 'spireparentapp_spirechildapp'
+        db_table = 'spireLabelFullChildPath'

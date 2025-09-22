@@ -22,12 +22,12 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@permission_required('spireparentapp.delete_spirepermission')
-def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+@permission_required('spireLabelFullChildPath.delete_spirechildapp')
+def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     form_action = reverse(
-        'spireparentapp:spirechildapp:delete_form_modal',
+        'spireReverseFullChildPath:delete_form_modal',
         kwargs={'pk': pk}
     )
 
@@ -40,7 +40,7 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         )
 
     fallback = reverse(
-        'spireparentapp:detail',
+        'spireReverseFullParentPath:detail',
         kwargs={'pk': spirechildapp.spireparentapp.pk}
     )
 
@@ -55,13 +55,13 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('spireparentapp.delete_spirepermission')
-def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+@permission_required('spireLabelFullChildPath.delete_spirechildapp')
+def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     return_url = request.GET.get(
         'return_url',
-        reverse('spirechildapp:page:list')
+        reverse('spireReverseFullChildPath:page:list')
     )
 
     return portal_views.delete_form_view(
@@ -71,8 +71,17 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('spireparentapp.change_spirepermission')
-def form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+@permission_required('spireLabelFullChildPath.add_spirechildapp')
+def create_modal_form_view(request: WSGIRequest) -> TemplateResponse:
+    return _form_modal_view(request)
+
+
+@permission_required('spireLabelFullChildPath.change_spirechildapp')
+def update_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    return _form_modal_view(request, pk)
+
+
+def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     spirechildapp = get_object_or_404(models.SpireChildApp, pk=pk)
 
     dg.glue_model_object(request, 'spirechildapp', spirechildapp)
@@ -84,18 +93,27 @@ def form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context_data,
-        template='spirechildapp/modal/content/form_modal_content.html'
+        template='spireTemplateFullChildPath/modal/content/form_modal_content.html'
     )
 
 
-@permission_required('spireparentapp.change_spirepermission')
-def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+@permission_required('spireLabelFullChildPath.add_spirechildapp')
+def create_form_view(request: WSGIRequest) -> TemplateResponse:
+    return _form_view(request)
+
+
+@permission_required('spireLabelFullChildPath.change_spirechildapp')
+def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    return _form_view(request, pk)
+
+
+def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     spirechildapp = get_object_or_null_obj(models.SpireChildApp, pk=pk)
 
     dg.glue_model_object(request, 'spirechildapp', spirechildapp, 'view')
 
     if request.method == 'POST':
-        form = forms.PlaceholderForm(request.POST, instance=spirechildapp)
+        form = forms.SpireChildAppForm(request.POST, instance=spirechildapp)
 
         if form.is_valid():
             spirechildapp = form.save()
@@ -104,17 +122,17 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             return redirect(
                 request.GET.get(
                     'return_url',
-                    reverse('spirechildapp:page:list')
+                    reverse('spireReverseFullChildPath:page:list')
                 )
             )
 
         show_form_errors(request, form)
     else:
-        form = forms.PlaceholderForm(instance=spirechildapp)
+        form = forms.SpireChildAppForm(instance=spirechildapp)
 
     return portal_views.form_view(
         request,
         form=form,
         obj=spirechildapp,
-        template='spirechildapp/page/form_page.html'
+        template='spireTemplateFullChildPath/page/form_page.html'
     )

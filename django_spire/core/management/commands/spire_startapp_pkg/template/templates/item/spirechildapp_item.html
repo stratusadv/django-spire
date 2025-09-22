@@ -12,11 +12,11 @@
 {% block item_button %}
     {% url 'spireparentapp:spirechildapp:page:detail' pk=spirechildapp.pk as spirechildapp_view_url %}
 
-    {% if perms.spireparentapp.change_spirepermission %}
+    {% if perms.spireLabelFullChildPath.change_spirechildapp %}
         {% url 'spireparentapp:spirechildapp:page:form' pk=spirechildapp.pk as spirechildapp_edit_url %}
     {% endif %}
 
-    {% if perms.spireparentapp.delete_spirepermission %}
+    {% if perms.spireLabelFullChildPath.delete_spirechildapp %}
         {% url 'spireparentapp:spirechildapp:page:delete' pk=spirechildapp.pk as spirechildapp_delete_url %}
     {% endif %}
 
