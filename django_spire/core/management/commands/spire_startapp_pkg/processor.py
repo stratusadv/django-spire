@@ -24,8 +24,8 @@ class BaseTemplateProcessor:
 
         updated_content = self.apply_replacement(content, replacement)
 
-        with open(path, 'w', encoding='utf-8') as file:
-            file.write(updated_content)
+        with open(path, 'w', encoding='utf-8') as handle:
+            handle.write(updated_content)
 
     def rename_file(self, path: Path, components: list[str]) -> None:
         replacement = generate_replacement_map(components)
@@ -55,9 +55,24 @@ class AppTemplateProcessor(BaseTemplateProcessor):
         self._process_files(
             directory,
             components,
-            '*',
+            '*.template',
             lambda path: path.is_file()
         )
+
+        self._process_files(
+            directory,
+            components,
+            '*.py',
+            lambda path: path.is_file()
+        )
+
+        self._rename_template_files(directory)
+
+    def _rename_template_files(self, directory: Path) -> None:
+        for template_file in directory.rglob('*.py.template'):
+            new_name = template_file.name.replace('.py.template', '.py')
+            new_path = template_file.parent / new_name
+            template_file.rename(new_path)
 
 
 class HTMLTemplateProcessor(BaseTemplateProcessor):

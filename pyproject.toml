@@ -157,7 +157,7 @@ keepdb = true
 verbosity = 1
 
 [tool.dev_tool.unittest.django]
-apps = ["django_spire/theme"]
+apps = ["."]
 settings = "test_project.postgres_settings"
 
 [tool.dev_tool.unittest.python]
