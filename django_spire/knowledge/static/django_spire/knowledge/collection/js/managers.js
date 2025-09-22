@@ -28,27 +28,29 @@ class Entry {
 
 class Collection {
     constructor({
-        children = [],
-        create_entry_url = '',
-        delete_url = '',
-        description = '',
-        entries = [],
         id = -1,
-        import_entry_url = '',
         name = 'None',
+        description = '',
         order = 0,
         parent = null,
+        children = [],
+        entries = [],
+        delete_url = '',
+        edit_url = '',
+        create_entry_url = '',
+        import_entry_url = '',
     }) {
-        this.children = children
-        this.create_entry_url = create_entry_url
-        this.delete_url = delete_url
-        this.description = description
-        this.entries = entries
         this.id = id
-        this.import_entry_url = import_entry_url
         this.name = name
+        this.description = description
         this.order = order
         this.parent = parent
+        this.children = children
+        this.entries = entries
+        this.delete_url = delete_url
+        this.edit_url = edit_url
+        this.create_entry_url = create_entry_url
+        this.import_entry_url = import_entry_url
         this.show_details = false
     }
 
@@ -107,9 +109,10 @@ class CollectionManager {
                 parent: new Collection({}),
                 children: this._create_tree_structure({collections: collection.children}),
                 entries: this._create_entries({entries_json: collection.entries}),
+                delete_url: collection.delete_url,
+                edit_url: collection.edit_url,
                 create_entry_url: collection.create_entry_url,
-                import_entry_url: collection.import_entry_url,
-                delete_url: collection.delete_url
+                import_entry_url: collection.import_entry_url
             })
 
             this.collection_lookup_map.set(collection_object.id, collection_object)

@@ -74,6 +74,14 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
                     )
                 }
             ''',
+            'edit_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:collection:form:update',
+                        kwargs={'pk': self.obj.pk},
+                    )
+                }
+            ''',
             'create_entry_url': f'''
                 {site}{
                     reverse(
