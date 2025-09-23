@@ -41,7 +41,7 @@ def reorder_view(request: WSGIRequest) -> JsonResponse:
         destination_objects=(
             collection.entries
             .has_current_version()
-            .user_has_access(user=request.user)
+            .request_user_has_access(user=request.user)
             .active()
         ),
         position=order,

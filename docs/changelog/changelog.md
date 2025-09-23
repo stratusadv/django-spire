@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v0.16.7
+
+### Changes
+- Collection parent assignment control.
+
+### Fixes
+- Fixed Knowledge Base Collection special permission missing collections bug.
+
+
 ## v0.16.6
 
 ### Changes
