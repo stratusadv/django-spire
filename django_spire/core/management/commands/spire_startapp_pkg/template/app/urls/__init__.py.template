@@ -1,7 +1,7 @@
 from django.urls.conf import path, include
 
 
-app_name = 'spirechildapp'
+app_name = 'spire_app_name'
 
 urlpatterns = [
     path('page/', include('module.urls.page_urls', namespace='page')),

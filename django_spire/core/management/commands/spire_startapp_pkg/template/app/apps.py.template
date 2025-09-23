@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class SpireChildAppConfig(AppConfig):
+class spire_model_nameConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'spireLabelFullChildPath'
+    label = 'spire_parent_app_spire_app_name'
     name = 'module'

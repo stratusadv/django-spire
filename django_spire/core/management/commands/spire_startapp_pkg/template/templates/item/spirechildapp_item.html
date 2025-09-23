@@ -1,24 +1,24 @@
 {% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
-    {% url 'spireparentapp:spirechildapp:page:detail' pk=spirechildapp.pk as spirechildapp_view_url %}
-	{% include 'django_spire/element/attribute_element.html' with attribute_title='SpireChildApp' attribute_value=spirechildapp.name attribute_href=spirechildapp_view_url %}
+    {% url 'spire_parent_app:spire_app_name:page:detail' pk=spire_app_name.pk as spire_app_name_view_url %}
+	{% include 'django_spire/element/attribute_element.html' with attribute_title='spire_model_name' attribute_value=spire_app_name.name attribute_href=spire_app_name_view_url %}
 {% endblock %}
 
 {% block item_row_content %}
-	{% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=spirechildapp.description %}
+	{% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=spire_app_name.description %}
 {% endblock %}
 
 {% block item_button %}
-    {% url 'spireparentapp:spirechildapp:page:detail' pk=spirechildapp.pk as spirechildapp_view_url %}
+    {% url 'spire_parent_app:spire_app_name:page:detail' pk=spire_app_name.pk as spire_app_name_view_url %}
 
-    {% if perms.spireLabelFullChildPath.change_spirechildapp %}
-        {% url 'spireparentapp:spirechildapp:page:form' pk=spirechildapp.pk as spirechildapp_edit_url %}
+    {% if perms.spire_label_path.change_spire_app_name %}
+        {% url 'spire_parent_app:spire_app_name:page:form' pk=spire_app_name.pk as spire_app_name_edit_url %}
     {% endif %}
 
-    {% if perms.spireLabelFullChildPath.delete_spirechildapp %}
-        {% url 'spireparentapp:spirechildapp:page:delete' pk=spirechildapp.pk as spirechildapp_delete_url %}
+    {% if perms.spire_label_path.delete_spire_app_name %}
+        {% url 'spire_parent_app:spire_app_name:page:delete' pk=spire_app_name.pk as spire_app_name_delete_url %}
     {% endif %}
 
-	{% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=spirechildapp_view_url edit_url=spirechildapp_edit_url delete_url=spirechildapp_delete_url %}
+	{% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=spire_app_name_view_url edit_url=spire_app_name_edit_url delete_url=spire_app_name_delete_url %}
 {% endblock %}

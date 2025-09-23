@@ -7,6 +7,6 @@ from module import models
 from django_spire.contrib.seeding import DjangoModelSeeder
 
 
-class SpireChildAppSeeder(DjangoModelSeeder):
-    model_class = models.SpireChildApp
+class spire_model_nameSeeder(DjangoModelSeeder):
+    model_class = models.spire_model_name
     fields: ClassVar = {}

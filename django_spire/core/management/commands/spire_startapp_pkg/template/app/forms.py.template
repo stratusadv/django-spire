@@ -7,9 +7,9 @@ from django import forms
 from module import models
 
 
-class SpireChildAppForm(forms.ModelForm):
+class spire_model_nameForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:
-        model = models.SpireChildApp
+        model = models.spire_model_name
         fields: ClassVar = []
