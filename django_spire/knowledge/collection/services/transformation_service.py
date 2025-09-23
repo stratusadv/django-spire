@@ -7,7 +7,6 @@ from django.contrib.sites.models import Site
 from django.db.models import Prefetch
 from django.urls import reverse
 
-from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
@@ -21,19 +20,12 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
     obj: Collection
 
     def to_hierarchy_json(self, request: WSGIRequest) -> str:
-        user = request.user
-
         collections = (
             self.obj_class.objects
             .active()
+            .request_user_has_access(request)
             .select_related('parent')
         )
-
-        if not (
-                user.is_superuser or
-                AppAuthController('knowledge', request).can_access_all_collections()
-        ):
-            collections = collections.user_has_access(user=user)
 
         entry_queryset = (
             collections.model._meta.fields_map.get('entry')
@@ -41,7 +33,7 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
             .objects
             .active()
             .has_current_version()
-            .user_has_access(user=user)
+            .user_has_access(user=request.user)
             .select_related('current_version__author')
             .order_by('order')
         )

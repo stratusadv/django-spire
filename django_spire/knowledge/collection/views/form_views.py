@@ -31,7 +31,13 @@ def form_view(
     dg.glue_query_set(
         request,
         unique_name='collections',
-        target=Collection.objects.active().user_has_access(request.user),
+        target=(
+            Collection.objects
+            .active()
+            .request_user_has_access(request)
+            .exclude(pk=collection.pk)
+            .exclude_children(collection=collection)
+        ),
         fields=['name']
     )
     dg.glue_query_set(
