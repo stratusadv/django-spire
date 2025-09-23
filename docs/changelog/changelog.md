@@ -1,6 +1,16 @@
 # Changelog
 
 
+## v0.16.6
+
+### Changes
+- Added custom group permissions to Knowledge Base Collections.
+- Added Knowledge Base Collection menu edit option. 
+
+### Fixes
+- Fixed skipped theme tests.
+
+
 ## v0.16.5
 
 ### Breaking
