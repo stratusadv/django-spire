@@ -2,6 +2,7 @@ import json
 
 from django.contrib.sites.models import Site
 from django.conf import settings
+from django.test import RequestFactory
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.knowledge.collection.models import Collection
@@ -29,8 +30,10 @@ class TestCollectionTransformationService(BaseTestCase):
         self.test_collection_2 = Collection.objects.create(name='Parent A1', id=2, parent_id=1)
         self.test_collection_3 = Collection.objects.create(name='Child A1a', id=3, parent_id=2)
 
+        request = RequestFactory().get('/')
+        request.user = self.super_user
         family_tree = Collection.services.transformation.to_hierarchy_json(
-            user=self.super_user
+            request=request
         )
 
         for collection_json in json.loads(family_tree):

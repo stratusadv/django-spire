@@ -11,6 +11,6 @@ def django_spire_knowledge(request: WSGIRequest) -> dict[str, Any]:
 
     return {
         'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-            user=request.user,
+            request=request,
         )
     }

@@ -31,7 +31,7 @@ def form_view(
     dg.glue_query_set(
         request,
         unique_name='collections',
-        target=Collection.objects.active(),
+        target=Collection.objects.active().user_has_access(request.user),
         fields=['name']
     )
     dg.glue_query_set(
@@ -69,7 +69,7 @@ def form_view(
             'collection': collection,
             'group_ids': list(
                 collection.groups.all().values_list('auth_group_id', flat=True)
-            ),
+            ) if collection.id else [],
         },
         template='django_spire/knowledge/collection/page/form_page.html'
     )

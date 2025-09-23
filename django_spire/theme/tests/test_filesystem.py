@@ -15,7 +15,7 @@ class ThemeFilesystemValidationTests(TestCase):
     def _get_themes_base_path(self) -> Path:
         file = Path(__file__)
         root = file.parent.parent.parent.parent
-        return root / 'django_spire' / 'static' / 'django_spire' / 'css' / 'themes'
+        return root / 'django_spire' / 'core' / 'static' / 'django_spire' / 'css' / 'themes'
 
     def test_themes_directory_exists(self) -> None:
         if not self.base_path.exists():
@@ -98,7 +98,7 @@ class ThemeFilesystemValidationTests(TestCase):
 
             file = Path(__file__)
             root = file.parent.parent.parent.parent
-            path = root / 'django_spire' / 'static' / expected
+            path = root / 'django_spire' / 'core' / 'static' / expected
 
             if not path.exists():
                 missing.append(f'{theme.value}: {expected}')

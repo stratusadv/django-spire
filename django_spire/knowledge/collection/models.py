@@ -32,7 +32,7 @@ class Collection(HistoryModelMixin, OrderingModelMixin):
         verbose_name_plural = 'Collections'
         db_table = 'django_spire_knowledge_collection'
         permissions = [
-            ('can_change_globally', 'Can Change Globally'),
+            ('can_access_all_collections', 'Can Access All Collections'),
             ('can_change_collection_groups', 'Can Change Collection Groups')
         ]
 

@@ -2,6 +2,11 @@ from django_spire.auth.controller.controller import BaseAuthController
 
 
 class BaseKnowledgeAuthController(BaseAuthController):
+    def can_access_all_collections(self):
+        return self.request.user.has_perm(
+            'django_spire_knowledge.can_access_all_collections'
+        )
+
     def can_add(self):
         return self.request.user.has_perm('django_spire_knowledge.add_collection')
 

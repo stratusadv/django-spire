@@ -7,30 +7,33 @@ from django.contrib.sites.models import Site
 from django.db.models import Prefetch
 from django.urls import reverse
 
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django_spire.auth.user.models import AuthUser
+    from django.core.handlers.wsgi import WSGIRequest
     from django_spire.knowledge.collection.models import Collection
 
 
 class CollectionTransformationService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    def to_hierarchy_json(self, user: AuthUser) -> str:
-        # TODO:
-        # 1. Change to can_access_all_collections.
-        # 2. Check if user is superuser or can access all. Don't query user_has_access.
-        # 3. Test user_has_access.
+    def to_hierarchy_json(self, request: WSGIRequest) -> str:
+        user = request.user
 
         collections = (
             self.obj_class.objects
-            .user_has_access(user=user)
-            .select_related('parent')
             .active()
+            .select_related('parent')
         )
+
+        if not (
+                user.is_superuser or
+                AppAuthController('knowledge', request).can_access_all_collections()
+        ):
+            collections = collections.user_has_access(user=user)
 
         entry_queryset = (
             collections.model._meta.fields_map.get('entry')
@@ -55,7 +58,7 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
 
         tree = []
         for collection in collections:
-            if collection.parent_id:
+            if collection.parent_id and collection.parent_id in collection_map:
                 collection_map[collection.parent_id]['children'].append(
                     collection_map[collection.pk]
                 )
