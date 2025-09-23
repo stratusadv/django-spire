@@ -12,4 +12,4 @@ class spire_model_nameForm(forms.ModelForm):
 
     class Meta:
         model = models.spire_model_name
-        fields: ClassVar = []
+        exclude: ClassVar = []
