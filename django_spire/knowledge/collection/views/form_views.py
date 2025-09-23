@@ -8,10 +8,11 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.group.models import AuthGroup
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
-from django_spire.knowledge.collection.models import Collection
+from django_spire.knowledge.collection.models import Collection, CollectionGroup
 from django_spire.knowledge.collection.forms import CollectionForm
 
 if TYPE_CHECKING:
@@ -30,7 +31,13 @@ def form_view(
     dg.glue_query_set(
         request,
         unique_name='collections',
-        target=Collection.objects.active(),
+        target=Collection.objects.active().user_has_access(request.user),
+        fields=['name']
+    )
+    dg.glue_query_set(
+        request,
+        unique_name='group_query_set',
+        target=AuthGroup.objects.all(),
         fields=['name']
     )
 
@@ -38,7 +45,13 @@ def form_view(
         form = CollectionForm(request.POST, instance=collection)
 
         if form.is_valid():
-            _, _ = collection.services.save_model_obj(**form.cleaned_data)
+            collection, _ = collection.services.save_model_obj(**form.cleaned_data)
+
+            _ = CollectionGroup.services.factory.replace_groups(
+                request=request,
+                group_pks=dict(request.POST).get('groups'),
+                collection=collection,
+            )
 
             return HttpResponseRedirect(
                 reverse('django_spire:knowledge:collection:page:list')
@@ -53,7 +66,10 @@ def form_view(
         form=form,
         obj=collection,
         context_data={
-            'collection': collection
+            'collection': collection,
+            'group_ids': list(
+                collection.groups.all().values_list('auth_group_id', flat=True)
+            ) if collection.id else [],
         },
         template='django_spire/knowledge/collection/page/form_page.html'
     )
