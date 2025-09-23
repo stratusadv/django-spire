@@ -4,6 +4,8 @@ from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
 
+from django_spire.knowledge.collection.services.factory_service import \
+    CollectionGroupFactoryService
 from django_spire.knowledge.collection.services.ordering_service import \
     CollectionOrderingService
 from django_spire.knowledge.collection.services.processor_service import \
@@ -12,7 +14,7 @@ from django_spire.knowledge.collection.services.transformation_service import \
     CollectionTransformationService
 
 if TYPE_CHECKING:
-    from django_spire.knowledge.collection.models import Collection
+    from django_spire.knowledge.collection.models import Collection, CollectionGroup
 
 
 class CollectionService(BaseDjangoModelService['Collection']):
@@ -40,3 +42,9 @@ class CollectionService(BaseDjangoModelService['Collection']):
         )
 
         return self.obj, created
+
+
+class CollectionGroupService(BaseDjangoModelService['CollectionGroup']):
+    obj: CollectionGroup
+
+    factory = CollectionGroupFactoryService()

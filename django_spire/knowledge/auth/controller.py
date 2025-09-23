@@ -8,6 +8,11 @@ class BaseKnowledgeAuthController(BaseAuthController):
     def can_change(self):
         return self.request.user.has_perm('django_spire_knowledge.change_collection')
 
+    def can_change_collection_groups(self):
+        return self.request.user.has_perm(
+            'django_spire_knowledge.can_change_collection_groups'
+        )
+
     def can_delete(self):
         return self.request.user.has_perm('django_spire_knowledge.delete_collection')
 

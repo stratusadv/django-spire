@@ -8,6 +8,7 @@ from django_spire.contrib.ordering.querysets import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 if TYPE_CHECKING:
+    from django_spire.auth.user.models import AuthUser
     from django.db.models import QuerySet
     from django_spire.knowledge.collection.models import Collection
 
@@ -27,3 +28,6 @@ class CollectionQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
 
     def parentless(self) -> QuerySet[Collection]:
         return self.filter(parent_id__isnull=True)
+
+    def user_has_access(self, user: AuthUser) -> QuerySet[Collection]:
+        return self.filter(group__auth_group__user=user).distinct()

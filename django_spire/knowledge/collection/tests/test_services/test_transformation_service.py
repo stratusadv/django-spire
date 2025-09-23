@@ -30,7 +30,6 @@ class TestCollectionTransformationService(BaseTestCase):
         self.test_collection_3 = Collection.objects.create(name='Child A1a', id=3, parent_id=2)
 
         family_tree = Collection.services.transformation.to_hierarchy_json(
-            queryset=Collection.objects.all().select_related('parent'),
             user=self.super_user
         )
 

@@ -4,7 +4,7 @@ import json
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db.models import QuerySet, Prefetch
+from django.db.models import Prefetch
 from django.urls import reverse
 
 from django_spire.contrib.service import BaseDjangoModelService
@@ -12,17 +12,28 @@ from django_spire.contrib.service import BaseDjangoModelService
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import User
+    from django_spire.auth.user.models import AuthUser
     from django_spire.knowledge.collection.models import Collection
 
 
 class CollectionTransformationService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    @staticmethod
-    def to_hierarchy_json(queryset: QuerySet[Collection], user: User) -> str:
+    def to_hierarchy_json(self, user: AuthUser) -> str:
+        # TODO:
+        # 1. Change to can_access_all_collections.
+        # 2. Check if user is superuser or can access all. Don't query user_has_access.
+        # 3. Test user_has_access.
+
+        collections = (
+            self.obj_class.objects
+            .user_has_access(user=user)
+            .select_related('parent')
+            .active()
+        )
+
         entry_queryset = (
-            queryset.model._meta.fields_map.get('entry')
+            collections.model._meta.fields_map.get('entry')
             .related_model
             .objects
             .active()
@@ -33,7 +44,7 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
         )
 
         collections = list(
-            queryset.prefetch_related(Prefetch('entries', queryset=entry_queryset))
+            collections.prefetch_related(Prefetch('entries', queryset=entry_queryset))
             .active()
             .order_by('order')
         )
