@@ -1,0 +1,12 @@
+from __future__ import annotations
+
+from typing_extensions import ClassVar
+
+from module import models
+
+from django_spire.contrib.seeding import DjangoModelSeeder
+
+
+class SpireChildAppSeeder(DjangoModelSeeder):
+    model_class = models.SpireChildApp
+    fields: ClassVar = {}

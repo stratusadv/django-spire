@@ -4,7 +4,7 @@ import json
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db.models import QuerySet, Prefetch
+from django.db.models import Prefetch
 from django.urls import reverse
 
 from django_spire.contrib.service import BaseDjangoModelService
@@ -12,28 +12,34 @@ from django_spire.contrib.service import BaseDjangoModelService
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import User
+    from django.core.handlers.wsgi import WSGIRequest
     from django_spire.knowledge.collection.models import Collection
 
 
 class CollectionTransformationService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    @staticmethod
-    def to_hierarchy_json(queryset: QuerySet[Collection], user: User) -> str:
+    def to_hierarchy_json(self, request: WSGIRequest) -> str:
+        collections = (
+            self.obj_class.objects
+            .active()
+            .request_user_has_access(request)
+            .select_related('parent')
+        )
+
         entry_queryset = (
-            queryset.model._meta.fields_map.get('entry')
+            collections.model._meta.fields_map.get('entry')
             .related_model
             .objects
             .active()
             .has_current_version()
-            .user_has_access(user=user)
+            .user_has_access(user=request.user)
             .select_related('current_version__author')
             .order_by('order')
         )
 
         collections = list(
-            queryset.prefetch_related(Prefetch('entries', queryset=entry_queryset))
+            collections.prefetch_related(Prefetch('entries', queryset=entry_queryset))
             .active()
             .order_by('order')
         )
@@ -44,7 +50,7 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
 
         tree = []
         for collection in collections:
-            if collection.parent_id:
+            if collection.parent_id and collection.parent_id in collection_map:
                 collection_map[collection.parent_id]['children'].append(
                     collection_map[collection.pk]
                 )
@@ -70,6 +76,14 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
                 {site}{
                     reverse(
                         'django_spire:knowledge:collection:page:delete',
+                        kwargs={'pk': self.obj.pk},
+                    )
+                }
+            ''',
+            'edit_url': f'''
+                {site}{
+                    reverse(
+                        'django_spire:knowledge:collection:form:update',
                         kwargs={'pk': self.obj.pk},
                     )
                 }

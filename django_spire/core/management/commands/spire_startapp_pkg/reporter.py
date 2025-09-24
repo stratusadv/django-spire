@@ -26,6 +26,15 @@ class Reporter:
 
         return name
 
+    def _sort_template_items(self, path: Path) -> tuple[bool, str]:
+        return (path.is_file(), path.name.lower())
+
+    def _app_transformation(self, _index: int, component: str) -> str:
+        return component
+
+    def _html_transformation(self, index: int, component: str) -> str:
+        return 'templates' if index == 0 else component
+
     def _report_tree_structure(
         self,
         title: str,
@@ -34,8 +43,11 @@ class Reporter:
         registry: list[str],
         template: Path,
         formatter: Callable[[Path], str],
-        transformation: Callable[[int, str], str] = lambda _, component: component,
+        transformation: Callable[[int, str], str] | None = None,
     ) -> None:
+        if transformation is None:
+            transformation = self._app_transformation
+
         self.command.stdout.write(title)
         current = base
 
@@ -51,11 +63,9 @@ class Reporter:
             self.command.stdout.write(f'{indent}{ICON_FOLDER_OPEN} {component}/')
 
             if i == len(components) - 1 and app not in registry and template.exists():
-                local_formatter = lambda item: (
-                    item.name
-                    if item.is_dir()
-                    else self._apply_replacement(item.name, replacement)
-                )
+                def local_formatter(item: Path, mapping: dict[str, str] = replacement) -> str:
+                    base_name = formatter(item)
+                    return self._apply_replacement(base_name, mapping)
 
                 self._show_tree_from_template(template, indent + INDENTATION, local_formatter)
 
@@ -67,12 +77,7 @@ class Reporter:
     ) -> None:
         ignore = {'__init__.py', '__pycache__'}
 
-        key = lambda p: (
-            p.is_file(),
-            p.name.lower()
-        )
-
-        items = sorted(template.iterdir(), key=key)
+        items = sorted(template.iterdir(), key=self._sort_template_items)
 
         for item in items:
             if item.name in ignore:
@@ -88,6 +93,15 @@ class Reporter:
                     formatter
                 )
 
+    def _app_formatter(self, item: Path) -> str:
+        return item.name.replace('.py.template', '.py')
+
+    def _html_formatter(self, item: Path, replacement: dict[str, str]) -> str:
+        if item.is_dir():
+            return item.name
+
+        return self._apply_replacement(item.name, replacement)
+
     def report_app_tree_structure(
         self,
         base: Path,
@@ -95,17 +109,14 @@ class Reporter:
         registry: list[str],
         template: Path
     ) -> None:
-        formatter = lambda item: item.name
-        transformation = lambda _, component: component
-
         self._report_tree_structure(
             title='\nThe following app(s) will be created:\n\n',
             base=base,
             components=components,
             registry=registry,
             template=template,
-            formatter=formatter,
-            transformation=transformation,
+            formatter=self._app_formatter,
+            transformation=self._app_transformation,
         )
 
     def report_html_tree_structure(
@@ -117,16 +128,8 @@ class Reporter:
     ) -> None:
         replacement = generate_replacement_map(components)
 
-        formatter = lambda item: (
-            item.name
-            if item.is_dir()
-            else self._apply_replacement(item.name, replacement)
-        )
-
-        transformation = (
-            lambda i, component:
-            'templates' if i == 0 else component
-        )
+        def html_formatter_with_replacement(item: Path) -> str:
+            return self._html_formatter(item, replacement)
 
         self._report_tree_structure(
             title='\nThe following template(s) will be created:\n\n',
@@ -134,8 +137,8 @@ class Reporter:
             components=components,
             registry=registry,
             template=template,
-            formatter=formatter,
-            transformation=transformation,
+            formatter=html_formatter_with_replacement,
+            transformation=self._html_transformation,
         )
 
     def prompt_for_confirmation(self, message: str) -> bool:
@@ -148,7 +151,6 @@ class Reporter:
     def report_installed_apps_suggestion(self, missing_components: list[str]) -> None:
         self.command.stdout.write(self.command.style.NOTICE('\nPlease add the following to INSTALLED_APPS in settings.py:'))
         self.command.stdout.write(f'\n {missing_components[-1]}')
-        # self.command.stdout.write('\n'.join(f'"{app}"' for app in missing_components))
 
     def report_app_creation_success(self, app: str) -> None:
         message = f'Successfully created app: {app}'

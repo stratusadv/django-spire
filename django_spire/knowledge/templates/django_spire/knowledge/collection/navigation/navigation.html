@@ -105,6 +105,9 @@
         {% endif %}
 
         {% if AuthController.knowledge.can_change %}
+        edit_collection() {
+            window.location.href = this.focused_object.edit_url
+        },
         edit_entry() {
             window.location.href = this.focused_object.edit_url
         },

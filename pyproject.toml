@@ -39,7 +39,7 @@ dynamic = ["version"]
 
 dependencies = [
     "crispy-bootstrap5==2024.10",
-    "dandy>=0.18.0",
+    "dandy==0.20.0",
     "django>=5.1.8",
     "django-crispy-forms==2.3",
     "django-glue>=0.8.1",
@@ -157,7 +157,7 @@ keepdb = true
 verbosity = 1
 
 [tool.dev_tool.unittest.django]
-apps = ["django_spire/theme"]
+apps = ["."]
 settings = "test_project.postgres_settings"
 
 [tool.dev_tool.unittest.python]

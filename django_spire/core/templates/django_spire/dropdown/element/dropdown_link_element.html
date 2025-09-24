@@ -1,5 +1,5 @@
 <a
-    class="fs--1 p-0 cursor-pointer text-decoration-none border-bottom bg-app-layer-one bg-app-layer-three-hover text-app-default-text-color"
+    class="fs--1 p-0 cursor-pointer text-decoration-none border-bottom text-app-default-text-color"
     {% if link_url %}href="{{ link_url }}"{% endif %}
     {% if x_link_url %}
         x-show="{{ x_link_url }} ? true : false"
@@ -10,13 +10,16 @@
         {% if x_click %}{{ x_click }}{% endif %}
     }"
 >
-    {% block link_content %}
-        <div class="px-3 py-1 text-nowrap {{ link_css }}">
-            {% if link_text %}
-                {{ link_text }}
-            {% elif x_link_text %}
-                <span x-text="{{ x_link_text }}"></span>
-            {% endif %}
-        </div>
-    {% endblock %}
+    {# Background colours must be applied outside 'a' tag #}
+    <div class="bg-app-layer-one bg-app-layer-three-hover">
+        {% block link_content %}
+            <div class="px-3 py-1 text-nowrap {{ link_css }}">
+                {% if link_text %}
+                    {{ link_text }}
+                {% elif x_link_text %}
+                    <span x-text="{{ x_link_text }}"></span>
+                {% endif %}
+            </div>
+        {% endblock %}
+    </div>
 </a>

@@ -1,5 +1,41 @@
 # Changelog
 
+## vX.XX.X
+
+### Changes
+- Updated modal to close on mousedown outside.
+
+
+## v0.16.9
+
+### Changes
+- Knowledge Base UI improvements.
+
+## v0.16.8
+
+### Changes
+- Override icon on fields for full Chromium theme support.
+- Knowledge Base UI improvements.
+
+
+## v0.16.7
+
+### Changes
+- Collection parent assignment control.
+
+### Fixes
+- Fixed Knowledge Base Collection special permission missing collections bug.
+
+
+## v0.16.6
+
+### Changes
+- Added custom group permissions to Knowledge Base Collections.
+- Added Knowledge Base Collection menu edit option. 
+
+### Fixes
+- Fixed skipped theme tests.
+
 
 ## v0.16.5
 
