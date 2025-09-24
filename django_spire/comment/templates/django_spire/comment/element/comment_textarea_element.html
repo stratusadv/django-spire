@@ -101,7 +101,7 @@
         </form>
 
         <div style="max-height: 125px; z-index: 2; overflow-x: hidden; overflow-y: auto" x-show="show_user_list" @click.outside="show_user_list=false" x-transition
-             class="bg-white text-900 w-100 shadow border rounded position-absolute top-50 start-0">
+             class="text-900 w-100 shadow border rounded position-absolute top-50 start-0">
             <template x-if="filtered_users.length > 0">
                 <template x-for="user in filtered_users" :key="user.id">
                         <div @click="add_user_to_comment(user)"

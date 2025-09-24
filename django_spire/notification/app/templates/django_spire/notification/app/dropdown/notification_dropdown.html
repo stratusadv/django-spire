@@ -32,7 +32,7 @@
     class="position-relative">
         <span @click='await render_dropdown()'>
             {% block notification_dropdown_trigger %}
-                <i x-bind='trigger' class="bi bi-bell-fill text-white fs-4 cursor-pointer position-absolute"></i>
+                <i x-bind='trigger' class="bi bi-bell-fill fs-4 cursor-pointer position-absolute"></i>
                 <span x-show="new_notification"  x-cloak style="width: 10px; height: 10px; top: -1px; right: -24px;" class="bg-danger rounded-circle position-absolute"></span>
             {% endblock  %}
         </span>

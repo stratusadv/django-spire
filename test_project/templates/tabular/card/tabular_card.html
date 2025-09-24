@@ -30,7 +30,7 @@
             </tr>
 
             {% for child_row in row.child_rows %}
-                <tr class="bg-light" x-show="is_row_open['{{ row.data.uuid }}']">
+                <tr x-show="is_row_open['{{ row.data.uuid }}']">
                     <td class="ps-4">
                         <button @click="is_child_row_open['{{ child_row.child_data.uuid }}'] = !is_child_row_open['{{ child_row.child_data.uuid }}']">
                             +
