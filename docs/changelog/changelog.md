@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.16.8
+
+### Changes
+- Override icon on fields for full Chromium theme support.
+- Knowledge Base UI improvements.
+
 
 ## v0.16.7
 

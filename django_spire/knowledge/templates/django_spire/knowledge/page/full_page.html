@@ -57,9 +57,9 @@
         tabindex="-1"
         id="navigation-card"
     >
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Navigation</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        <div class="row offcanvas-header">
+            <h5 class="col offcanvas-title">Navigation</h5>
+            <span class="col-auto bi bi-x-lg cursor-pointer fs-5" data-bs-dismiss="offcanvas"></span>
         </div>
         {% include 'django_spire/knowledge/collection/navigation/navigation.html' %}
     </div>
