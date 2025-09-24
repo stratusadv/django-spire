@@ -1,5 +1,11 @@
 # Changelog
 
+## vX.XX.X
+
+### Changes
+- Updated modal to close on mousedown outside.
+
+
 ## v0.16.9
 
 ### Changes
