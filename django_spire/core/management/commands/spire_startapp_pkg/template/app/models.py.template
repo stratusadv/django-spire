@@ -48,5 +48,5 @@ class spire_model_name(HistoryModelMixin):
 
     class Meta:
         verbose_name = 'spire_model_name'
-        verbose_name_plural = 'spire_model_names'
+        verbose_name_plural = 'spire_model_name_plural'
         db_table = 'spire_label_path'

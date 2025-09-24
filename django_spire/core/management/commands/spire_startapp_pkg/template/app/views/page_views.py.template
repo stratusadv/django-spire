@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @permission_required('spire_label_path.view_spire_app_name')
-def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def detail_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     spire_app_name = get_object_or_404(models.spire_model_name, pk=pk)
 
     context_data = {
@@ -31,9 +31,9 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 @permission_required('spire_label_path.view_spire_app_name')
-def list_view(request: WSGIRequest) -> TemplateResponse:
+def list_page_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
-        'spire_app_names': models.spire_model_name.objects.all()
+        'spire_app_name_plural': models.spire_model_name.objects.all()
     }
 
     return portal_views.list_view(

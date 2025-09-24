@@ -7,19 +7,19 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.contrib.form.utils import show_form_errors
+from django_spire.contrib.generic_views import portal_views, modal_views
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
-from django_spire.contrib.form.utils import show_form_errors
 from django_spire.history.activity.utils import add_form_activity
-from django_spire.contrib.generic_views import portal_views, modal_views
 
 import django_glue as dg
 
 from module import forms, models
 
-
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+    from django.http import HttpResponseRedirect
 
 
 @permission_required('spire_label_path.delete_spire_app_name')
@@ -107,7 +107,7 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
+def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
     spire_app_name = get_object_or_null_obj(models.spire_model_name, pk=pk)
 
     dg.glue_model_object(request, 'spire_app_name', spire_app_name, 'view')

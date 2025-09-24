@@ -12,14 +12,15 @@ def generate_replacement_map(components: list[str]) -> dict[str, str]:
         parent = app_name
     module = '.'.join(components)
 
+    # The sequence is important. Plurals must be replaced first;
+    # otherwise, it will generate _plural variables and names.
     return {
         'module': module,
+        'spire_model_name_plural': model_name + 's',
         'spire_model_name': model_name,
-        'spire_model_names': model_name + 's',
+        'spire_app_name_plural': app_name.lower() + 's',
         'spire_app_name': app_name.lower(),
-        'spire_app_names': app_name.lower() + 's',
         'spire_parent_app': parent.lower(),
-        'spire_parent_apps': parent.lower() + 's',
         'spire_reverse_parent_path': ':'.join(parents[1:]).lower(),
         'spire_reverse_path': ':'.join(parents[1:]).lower() + ':' + app_name.lower(),
         'spire_label_path': '_'.join(parents[1:]).lower() + '_' + app_name.lower(),
