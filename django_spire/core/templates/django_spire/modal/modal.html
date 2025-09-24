@@ -54,7 +54,7 @@
                         <div
                             class="bg-app-layer-one card shadow-lg p-3 {% block modal_content_class %}{% endblock %}"
                             {% block modal_content_attributes %}{% endblock %}
-                            @click.outside="close_modal()"
+                            @mousedown.outside="close_modal()"
                         >
                             {% block modal_content %}
                             {% endblock %}
