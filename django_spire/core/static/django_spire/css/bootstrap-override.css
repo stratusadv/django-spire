@@ -74,16 +74,17 @@
     --bs-popover-header-color: var(--app-default-text-color);
 
     --bs-form-control-color: var(--app-default-text-color);
-    --bs-form-control-bg: var(--app-layer-one);
-    --bs-form-control-border-color: var(--app-layer-two);
+    --bs-form-control-bg: var(--app-layer-two);
+    --bs-form-control-border-color: var(--bs-border-color);
     --bs-form-control-focus-border-color: var(--app-primary);
-    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+    --bs-form-control-disabled-bg: var(--app-layer-three);
 
     --bs-form-select-color: var(--app-default-text-color);
-    --bs-form-select-bg: var(--app-layer-one);
-    --bs-form-select-border-color: var(--app-layer-two);
+    --bs-form-select-bg: var(--app-layer-two);
+    --bs-form-select-border-color: var(--bs-border-color);
     --bs-form-select-focus-border-color: var(--app-primary);
-    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
 
     --bs-btn-color: var(--app-default-button-text-color);
     --bs-btn-bg: var(--app-primary);
@@ -141,8 +142,8 @@
 
     --bs-border-color-translucent: rgba(64, 61, 82, 0.175);
 
-    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem rgba(196, 167, 231, 0.25);
-    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem rgba(196, 167, 231, 0.25);
+    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
+    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
 
     --bs-tooltip-bg: var(--app-layer-two);
     --bs-tooltip-color: var(--app-default-text-color);
@@ -160,6 +161,33 @@
 
     --bs-border-color-translucent: rgba(206, 202, 205, 0.175);
 
-    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem rgba(144, 122, 169, 0.25);
-    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem rgba(144, 122, 169, 0.25);
+    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
+    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
+}
+
+.form-control {
+    background-color: var(--app-layer-two) !important;
+    color: var(--app-default-text-color) !important;
+    border-color: var(--bs-border-color) !important;
+    caret-color: var(--app-default-text-color) !important;
+}
+
+.form-control:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: var(--app-primary) !important;
+    border-width: 2px !important;
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--app-layer-three) !important;
+}
+
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus,
+.form-control:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--app-layer-two) inset !important;
+    -webkit-text-fill-color: var(--app-default-text-color) !important;
 }

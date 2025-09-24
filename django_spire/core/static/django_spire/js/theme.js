@@ -102,6 +102,54 @@ document.addEventListener('alpine:init', () => {
             if (window.django_spire && window.django_spire.theme) {
                 window.django_spire.theme.active = theme.value;
             }
+
+            if (!document.querySelector('link[data-input-css]')) {
+                let link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = '/static/django_spire/css/themes/input.css';
+                link.setAttribute('data-input-css', 'true');
+
+                document.head.appendChild(link);
+            }
+
+            setTimeout(() => this.apply_input_icon_theme(), 100);
+        },
+
+        apply_input_icon_theme() {
+            // This is a fix for a Chromium-based browser. We have to dynamically
+            // target the input field icon, otherwise it won't be styled properly.
+
+            let text_color = getComputedStyle(document.documentElement).getPropertyValue('--app-default-text-color').trim();
+
+            if (!text_color) return;
+
+            let hex = text_color.replace('#', '%23');
+            let style_id = 'calendar-icon-theme';
+            let existing = document.getElementById(style_id);
+
+            if (existing) {
+                existing.remove();
+            }
+
+            let calendar_svg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="${hex}" stroke-width="1.5" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M2 6h12M5 1v3M11 1v3"/><circle cx="5" cy="9" r="0.5" fill="${hex}"/><circle cx="8" cy="9" r="0.5" fill="${hex}"/><circle cx="11" cy="9" r="0.5" fill="${hex}"/><circle cx="5" cy="12" r="0.5" fill="${hex}"/><circle cx="8" cy="12" r="0.5" fill="${hex}"/><circle cx="11" cy="12" r="0.5" fill="${hex}"/></svg>`;
+            let clock_svg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${hex}"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>`;
+
+            let style = document.createElement('style');
+            style.id = style_id;
+
+            style.textContent = `
+                input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+                input[type="date"]::-webkit-calendar-picker-indicator,
+                input[type="week"]::-webkit-calendar-picker-indicator,
+                input[type="month"]::-webkit-calendar-picker-indicator {
+                    background-image: url('${calendar_svg}');
+                }
+
+                input[type="time"]::-webkit-calendar-picker-indicator {
+                    background-image: url('${clock_svg}');
+                }
+            `;
+            document.head.appendChild(style);
         },
 
         load_theme_css(family, mode) {
@@ -134,6 +182,8 @@ document.addEventListener('alpine:init', () => {
                 if (existing) {
                     existing.remove();
                 }
+
+                this.apply_input_icon_theme();
             };
 
             document.head.appendChild(link);
@@ -150,6 +200,7 @@ document.addEventListener('alpine:init', () => {
         async set(value) {
             this.current = value;
             this.apply();
+
             await this.persist_to_server(value);
         },
 
