@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.16.9
+
+### Changes
+- Knowledge Base UI improvements.
+
 ## v0.16.8
 
 ### Changes
