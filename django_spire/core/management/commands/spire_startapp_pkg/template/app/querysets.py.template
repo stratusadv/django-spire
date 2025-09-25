@@ -8,5 +8,5 @@ if TYPE_CHECKING:
     from django.db.models import QuerySet
 
 
-class SpireChildAppQuerySet(HistoryQuerySet):
+class spire_model_nameQuerySet(HistoryQuerySet):
     pass

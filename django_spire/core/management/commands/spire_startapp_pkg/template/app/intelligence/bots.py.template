@@ -6,16 +6,16 @@ from module.intelligence import prompts
 from module.intelligence import intel
 
 
-class SpireChildAppBot(BaseLlmBot):
-    instructions_prompt = prompts.spirechildapp_instruction_prompt()
-    intel_class = intel.SpireChildAppIntel
+class spire_model_nameBot(BaseLlmBot):
+    instructions_prompt = prompts.spire_app_name_instruction_prompt()
+    intel_class = intel.spire_model_nameIntel
 
     @classmethod
     def process(
         cls,
         user_input: str
-    ) -> intel.SpireChildAppIntel:
+    ) -> intel.spire_model_nameIntel:
 
         return cls.process_prompt_to_intel(
-            prompt=prompts.spirechildapp_user_input_prompt(user_input)
+            prompt=prompts.spire_app_name_user_input_prompt(user_input)
         )

@@ -7,15 +7,15 @@ from django_spire.contrib.breadcrumb import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 
 from module import querysets
-from module.services.service import SpireChildAppService
+from module.services.service import spire_model_nameService
 
 
-class SpireChildApp(HistoryModelMixin):
+class spire_model_name(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.SpireChildAppQuerySet().as_manager()
-    services = SpireChildAppService()
+    objects = querysets.spire_model_nameQuerySet().as_manager()
+    services = spire_model_nameService()
 
     def __str__(self):
         return self.name
@@ -25,8 +25,8 @@ class SpireChildApp(HistoryModelMixin):
         crumbs = Breadcrumbs()
 
         crumbs.add_breadcrumb(
-            'SpireChildApp',
-            reverse('spireparentapp:spirechildapp:page:list')
+            'spire_model_name',
+            reverse('spire_reverse_path:page:list')
         )
 
         return crumbs
@@ -39,7 +39,7 @@ class SpireChildApp(HistoryModelMixin):
             crumbs.add_breadcrumb(
                 str(self),
                 reverse(
-                    'spireparentapp:spirechildapp:page:detail',
+                    'spire_reverse_path:page:detail',
                     kwargs={'pk': self.pk}
                 )
             )
@@ -47,6 +47,6 @@ class SpireChildApp(HistoryModelMixin):
         return crumbs
 
     class Meta:
-        verbose_name = 'SpireChildApp'
-        verbose_name_plural = 'SpireChildApps'
-        db_table = 'spireparentapp_spirechildapp'
+        verbose_name = 'spire_model_name'
+        verbose_name_plural = 'spire_model_name_plural'
+        db_table = 'spire_label_path'
