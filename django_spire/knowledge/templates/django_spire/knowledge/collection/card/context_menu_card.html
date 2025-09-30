@@ -7,23 +7,23 @@
         top: y + 'px',
         left: x + 'px',
     }"
-    class="position-fixed card shadow-lg z-3 vstack cursor-pointer bg-app-layer-one"
+    class="position-fixed card shadow-lg z-3 vstack cursor-pointer bg-app-layer-one border"
     @click.away="hide_menu()"
 >
     <span class="px-2 py-1" x-text="title"></span>
 
     {% if AuthController.knowledge.can_change %}
-        <span class="border-top bg-app-layer-one-hover px-3 text-app-default-link-color" @click="edit_collection()">
+        <span class="border-top bg-app-layer-three-hover px-3 text-app-default-link-color dropdown-item" @click="edit_collection()">
             <i class="bi bi-pencil pe-1"></i>
             Edit Collection
         </span>
     {% endif %}
     {% if AuthController.knowledge.can_add %}
-        <span class="border-top bg-app-layer-one-hover px-3 text-app-default-link-color" @click="add_entry()">
+        <span class="bg-app-layer-three-hover px-3 text-app-default-link-color dropdown-item" @click="add_entry()">
             <i class="bi bi-plus pe-1"></i>
             Add Entry
         </span>
-        <span class="border-top bg-app-layer-one-hover px-3 text-app-default-link-color" @click="import_entry()">
+        <span class="bg-app-layer-three-hover px-3 text-app-default-link-color dropdown-item" @click="import_entry()">
             <i class="bi bi-upload pe-1">
             </i>
             Import Entry
@@ -31,7 +31,7 @@
     {% endif %}
 
     {% if AuthController.knowledge.can_delete %}
-        <span class="border-top bg-app-layer-one-hover px-3 text-app-danger" @click="delete_collection()">
+        <span class="bg-app-layer-three-hover px-3 text-app-danger dropdown-item" @click="delete_collection()">
             <i class="bi bi-trash3 pe-1"></i>
             <span>Delete Collection</span>
         </span>

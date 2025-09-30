@@ -1,11 +1,14 @@
 {% extends 'django_spire/auth/page/auth_page.html' %}
 
 {% block authentication_page_content %}
-
-    <form x-data="{
-        username: new GlueCharField('username', {required: true}),
-        password: new GlueCharField('password', {required: true})
-    }" method="post" class="text-app-secondary">
+    <form
+        class="text-app-secondary"
+        method="post"
+        x-data="{
+            username: new GlueCharField('username', {required: true, label: {% block username_label %}'Email Address'{% endblock %}}),
+            password: new GlueCharField('password', {required: true})
+        }"
+    >
         {% csrf_token %}
         <div class="row">
             <div class="col">
@@ -30,8 +33,4 @@
             Forgot my password
         </a>
     </div>
-
 {% endblock %}
-
-
-

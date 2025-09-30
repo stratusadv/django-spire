@@ -1,5 +1,22 @@
 # Changelog
 
+
+## v0.16.11
+
+### Breaking
+- Removed remaining hard-coded colours. Check theme page for any issues.
+
+### Changes
+- Unified dropdown item styling.
+- Improvement dropdown item styling.
+- Removed all remaining hard-coded colours.
+- Knowledge Base UI improvements.
+
+### Fixes
+- Knowledge Base access bug fix.
+- Fixed transparent dropdown items.
+
+
 ## v0.16.10
 
 ### Changes

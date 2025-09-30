@@ -24,6 +24,13 @@
 
         <div class="col-auto d-flex">
             {% block top_navigation_icons %}
+
+                {% block notification_icon %}
+                    <div>
+                        {% include 'django_spire/notification/app/element/notification_bell.html' %}
+                    </div>
+                {% endblock %}
+
                 {% block theme_selector %}
                     <div>
                         {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-2' %}

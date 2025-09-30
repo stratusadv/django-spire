@@ -1,17 +1,17 @@
-<a
-    class="fs--1 p-0 cursor-pointer text-decoration-none border-bottom text-app-default-text-color"
-    {% if link_url %}href="{{ link_url }}"{% endif %}
-    {% if x_link_url %}
-        x-show="{{ x_link_url }} ? true : false"
-        :href="{{ x_link_url }}"
-    {% endif %}
-    @click="() => {
-        toggle_dropdown()
-        {% if x_click %}{{ x_click }}{% endif %}
-    }"
->
-    {# Background colours must be applied outside 'a' tag #}
-    <div class="bg-app-layer-one bg-app-layer-three-hover">
+{# Background colours must be applied outside 'a' tag #}
+<div class="bg-app-layer-one bg-app-layer-three-hover dropdown-item">
+    <a
+        class="fs--1 p-0 cursor-pointer text-decoration-none text-app-default-text-color"
+        {% if link_url %}href="{{ link_url }}"{% endif %}
+        {% if x_link_url %}
+            x-show="{{ x_link_url }} ? true : false"
+            :href="{{ x_link_url }}"
+        {% endif %}
+        @click="() => {
+            toggle_dropdown()
+            {% if x_click %}{{ x_click }}{% endif %}
+        }"
+    >
         {% block link_content %}
             <div class="px-3 py-1 text-nowrap {{ link_css }}">
                 {% if link_text %}
@@ -21,5 +21,5 @@
                 {% endif %}
             </div>
         {% endblock %}
-    </div>
-</a>
+    </a>
+</div>

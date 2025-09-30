@@ -8,7 +8,7 @@
 
 {% block card_button %}
     {% if card_link %}
-        <a href="{{ card_link }}" class="btn btn-sm btn-primary">
+        <a href="{{ card_link }}" class="btn btn-sm btn-app-primary">
             <i class="bi bi-eye me-1"></i> View Full Preview
         </a>
     {% endif %}
@@ -19,13 +19,13 @@
         {% if card_icon %}
             <i class="{{ card_icon }} fs-1 mb-3 text-app-{{ card_color|default:"primary" }}"></i>
         {% endif %}
-        
+
         <h5 class="mb-3">{{ card_subtitle|default:"" }}</h5>
-        
+
         <div class="mb-3">
             {{ card_description|default:"" }}
         </div>
-        
+
         {% if card_preview_content %}
             <div class="preview-sample border p-3 rounded">
                 {{ card_preview_content }}

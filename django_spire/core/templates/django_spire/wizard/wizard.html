@@ -30,7 +30,7 @@
     {% block wizard_pagination %}
         <div class="wizard-footer d-flex justify-content-between align-items-center pt-4">
             {% block wizard_back_button %}
-                <button type="button" class="btn btn-secondary" @click="previous_page()" :disabled="current_page === 1">
+                <button type="button" class="btn btn-app-secondary" @click="previous_page()" :disabled="current_page === 1">
                     Back
                 </button>
             {% endblock %}
@@ -43,13 +43,13 @@
 
             {% block wizard_next_button %}
                 <template x-if="current_page < total_pages">
-                    <button type="button" class="btn btn-primary" @click="next_page()">Next</button>
+                    <button type="button" class="btn btn-app-primary" @click="next_page()">Next</button>
                 </template>
             {% endblock %}
 
             {% block wizard_submit_button %}
                 <template x-if="current_page === total_pages">
-                    <button type="button" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-app-success">Submit</button>
                 </template>
             {% endblock %}
         </div>
@@ -57,7 +57,7 @@
         {% block wizard_progress_bar %}
             <div class="progress my-2" style="height: 5px;">
                 <div
-                    class="progress-bar"
+                    class="progress-bar bg-app-primary"
                     :style="{ width: (current_page / total_pages * 100) + '%' }"
                 ></div>
             </div>

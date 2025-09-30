@@ -16,10 +16,10 @@
     </div>
     <div class="col-2 text-center">
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Dropdown' %}
-        {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url='#' delete_url='#' %}
+        {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url='#' delete_url='#' link_css='text-start' %}
     </div>
     <div class="col-1 text-center">
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Modal' %}
-        {% include 'django_spire/dropdown/ellipsis_modal_dropdown.html' with view_url='#' edit_url='#' delete_url='#' %}
+        {% include 'django_spire/dropdown/ellipsis_modal_dropdown.html' with view_url='#' edit_url='#' delete_url='#' link_css='text-start' %}
     </div>
 {% endblock %}
