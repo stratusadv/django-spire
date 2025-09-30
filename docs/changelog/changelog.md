@@ -7,6 +7,7 @@
 - Removed remaining hard-coded colours. Check theme page for any issues.
 
 ### Changes
+- Login page 'Username' label changed to 'Email Address'.
 - Unified dropdown item styling.
 - Improvement dropdown item styling.
 - Removed all remaining hard-coded colours.
