@@ -3,5 +3,5 @@ from __future__ import annotations
 from dandy.intel import BaseIntel
 
 
-class SpireChildAppIntel(BaseIntel):
+class spire_model_nameIntel(BaseIntel):
     data: dict

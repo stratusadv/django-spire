@@ -1,9 +1,10 @@
 # Changelog
 
-## vX.XX.X
+## v0.16.10
 
 ### Changes
 - Updated modal to close on mousedown outside.
+- Fine tune spire start app command to populate correct naming.
 
 
 ## v0.16.9

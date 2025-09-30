@@ -1,13 +1,13 @@
 from dandy.llm import Prompt
 
 
-def spirechildapp_instruction_prompt() -> Prompt:
+def spire_app_name_instruction_prompt() -> Prompt:
     return (
         Prompt()
-        .title('SpireChildApp Operations')
+        .title('spire_model_name Operations')
         .line_break()
         .heading('Purpose')
-        .text('This prompt provides instructions for SpireChildApp operations.')
+        .text('This prompt provides instructions for spire_model_name operations.')
         .line_break()
         .heading('Instructions')
         .ordered_list([
@@ -19,10 +19,10 @@ def spirechildapp_instruction_prompt() -> Prompt:
     )
 
 
-def spirechildapp_user_input_prompt(user_input: str) -> Prompt:
+def spire_app_name_user_input_prompt(user_input: str) -> Prompt:
     return (
         Prompt()
-        .heading('SpireChildApp Request')
+        .heading('spire_model_name Request')
         .text('The user wants to perform the following operation:')
         .text('')
         .text(user_input)
