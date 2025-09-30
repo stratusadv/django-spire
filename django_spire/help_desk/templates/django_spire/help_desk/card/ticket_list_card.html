@@ -3,17 +3,16 @@
 {% block card_title_content_style %}{% endblock %}
 
 {% block card_title %}
-    <div class="row justify-content-between">
-        <div class="col text-start">
-            Tickets
+    Tickets
+{% endblock %}
+
+{% block card_button %}
+    {% if AuthController.help_desk.can_add %}
+        <div class="col text-end mb-1">
+            {% url 'django_spire:help_desk:form:create' as create_url %}
+            {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
         </div>
-        {% if perms.django_spire_help_desk.add_helpdeskticket %}
-            <div class="col text-end mb-1">
-                {% url 'django_spire:help_desk:form:create' as create_url %}
-                {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
-            </div>
-        {% endif %}
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block card_title_content %}

@@ -1,13 +1,12 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from django_spire.auth.permissions.decorators import permission_required
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk.models import HelpDeskTicket
 
 
-@permission_required('django_spire_help_desk.delete_helpdeskticket')
+@AppAuthController('help_desk').permission_required('can_delete')
 def ticket_delete_view(request, pk):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
@@ -21,7 +20,7 @@ def ticket_delete_view(request, pk):
     )
 
 
-@login_required()
+@AppAuthController('help_desk').permission_required('can_view')
 def ticket_detail_view(request, pk):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
@@ -35,7 +34,7 @@ def ticket_detail_view(request, pk):
     )
 
 
-@login_required()
+@AppAuthController('help_desk').permission_required('can_view')
 def ticket_list_view(request):
     tickets = HelpDeskTicket.objects.order_by('-created_datetime').active()
 

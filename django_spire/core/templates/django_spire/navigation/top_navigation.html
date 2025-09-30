@@ -24,16 +24,22 @@
 
         <div class="col-auto d-flex">
             {% block top_navigation_icons %}
+                {% if AuthController.help_desk.can_view %}
+                    {% block help_desk_icon %}
+                        {% include 'django_spire/help_desk/element/icon.html' %}
+                    {% endblock %}
+                {% endif %}
 
-                {% block notification_icon %}
-                    <div>
-                        {% include 'django_spire/notification/app/element/notification_bell.html' %}
-                    </div>
-                {% endblock %}
 
                 {% block theme_selector %}
                     <div>
                         {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-2' %}
+                    </div>
+                {% endblock %}
+
+                {% block notification_icon %}
+                    <div>
+                        {% include 'django_spire/notification/app/element/notification_bell.html' %}
                     </div>
                 {% endblock %}
 

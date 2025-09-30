@@ -1,5 +1,6 @@
 DJANGO_SPIRE_AUTH_CONTROLLERS = {
     'ai_chat': 'django_spire.ai.chat.auth.controller.BaseAiChatAuthController',
+    'help_desk': 'django_spire.help_desk.auth.controller.BaseHelpDeskAuthController',
     'knowledge': 'django_spire.knowledge.auth.controller.BaseKnowledgeAuthController',
 }
 

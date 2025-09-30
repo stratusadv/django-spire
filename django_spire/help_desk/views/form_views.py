@@ -2,14 +2,14 @@ import django_glue as dg
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 
-from django_spire.auth.permissions.decorators import permission_required
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk import forms
 from django_spire.help_desk.models import HelpDeskTicket
 
 
-@permission_required('django_spire_help_desk.add_helpdeskticket')
+@AppAuthController('help_desk').permission_required('can_add')
 def ticket_create_form_view(request):
     ticket = HelpDeskTicket()
 
@@ -42,7 +42,7 @@ def ticket_create_form_view(request):
     )
 
 
-@permission_required('django_spire_help_desk.change_helpdeskticket')
+@AppAuthController('help_desk').permission_required('can_change')
 def ticket_update_form_view(request, pk: int):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
