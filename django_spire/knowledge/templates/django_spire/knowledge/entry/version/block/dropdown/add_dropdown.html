@@ -12,6 +12,7 @@
 {% block dropdown_content %}
     {% for block_type in block_types %}
         <div
+            class="bg-app-layer-one bg-app-layer-three-hover dropdown-item"
             x-data="{
                 create_block() {
                     create_blank_block({block_type: '{{ block_type.value }}', order: version_block.order + 1})

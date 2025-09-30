@@ -122,7 +122,7 @@
 
             {% elif button_text %}
                 <button @click="toggle_show_comment_dropdown()"
-                        class="btn bg-white text-business-base-blue rounded border-1 border-business-base-blue btn-sm px-2"
+                        class="btn text-business-base-blue rounded border-1 border-business-base-blue btn-sm px-2"
                         type="button" data-display="static"
                         aria-haspopup="true" aria-expanded="false">
                     {{ button_text }}
@@ -143,7 +143,7 @@
 
                             <div style="max-height: 100px; overflow-x: hidden; overflow-y: auto"
                                  x-show="show_user_list_dropdown" @click.outside="show_user_list_dropdown = false"
-                                 class="text-business-base-blue bg-white fs-0 w-75 ms-3 border rounded position-absolute top-25 start-0">
+                                 class="text-business-base-blue fs-0 w-75 ms-3 border rounded position-absolute top-25 start-0">
                                 <template x-for="(user, index) in filtered_users" :key="user.username">
                                     <a class="text-decoration-none text-business-base-blue" href="#">
                                         <li @click="add_user_to_comment(user)"
@@ -153,7 +153,7 @@
                                 </template>
                             </div>
 
-                            <button @click="$store.page_state.toggle_page_loading_state()" class="btn btn-primary btn-sm w-100 mt-1"
+                            <button @click="$store.page_state.toggle_page_loading_state()" class="btn btn-app-primary btn-sm w-100 mt-1"
                                     type="submit">Submit
                             </button>
                         </form>

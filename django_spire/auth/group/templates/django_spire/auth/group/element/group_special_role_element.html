@@ -1,43 +1,60 @@
-<div x-data="{
-                has_access: '{{ special_role.has_access }}' === 'True',
-                get has_access_verbose() { return this.has_access ? 'Yes' : 'No' },
-                codename: '{{ special_role.codename }}',
-                permission_choices: ['No', 'Yes'],
-                loading: false,
-                error_message: '',
-                show_dropdown: false,
-                  async update(perm) {
-                    this.show_dropdown = false
-                    this.error_message = null
-                    this.loading = true
-                    let response = await ajax_request(
-                        'POST',
-                        '{% url "django_spire:auth:group:json:group_special_role_ajax" app_name=perm_data.app_name pk=group.pk %}',
-                        {
-                            'codename': this.codename,
-                            'grant_special_role_access': perm === 'Yes'
-                        }
-                    )
-                    this.loading = false
-                    let status = response.data.status
-                    if (status === 200){
-                        this.has_access = perm === 'Yes'
-                    } else {
-                        this.error_message = response.data.message
-                    }
+<div
+    x-data="{
+        has_access: '{{ special_role.has_access }}' === 'True',
+        get has_access_verbose() { return this.has_access ? 'Yes' : 'No' },
+        codename: '{{ special_role.codename }}',
+        permission_choices: ['No', 'Yes'],
+        loading: false,
+        error_message: '',
+        show_dropdown: false,
+
+        async update(perm) {
+            this.show_dropdown = false
+            this.error_message = null
+            this.loading = true
+            let response = await ajax_request(
+                'POST',
+                '{% url "django_spire:auth:group:json:group_special_role_ajax" app_name=perm_data.app_name pk=group.pk %}',
+                {
+                'codename': this.codename,
+                'grant_special_role_access': perm === 'Yes'
                 }
-            }">
+            )
+            this.loading = false
+            let status = response.data.status
+            if (status === 200){
+                this.has_access = perm === 'Yes'
+            } else {
+                this.error_message = response.data.message
+            }
+        }
+    }"
+>
     <div class="position-relative">
         <div @click="show_dropdown = true" class="btn btn-sm btn-app-primary-outlined dropdown-toggle">
             <span x-text="has_access_verbose"></span>
         </div>
-        <div @click.outside="show_dropdown = false" x-show="show_dropdown" style="width: 80px; z-index: 2"
-             class="card position-absolute bg-white mt-1">
+        <div
+            style="width: 80px; z-index: 2"
+            class="card position-absolute bg-app-layer-one mt-1 border"
+            x-show="show_dropdown"
+            @click.outside="show_dropdown = false"
+        >
             <template x-for="perm in permission_choices">
-                <div @click="update(perm)" class="py-1 ps-2 cursor-pointer bg-soft-primary-hover"
-                     x-bind:class="{ 'border-bottom': perm !== 'Yes' }">
-                    <span class="fs--1" x-bind:class="{ 'text-app-secondary': has_access_verbose === perm }"
-                          x-text="perm"></span>
+                <div
+                    class="py-1 ps-2 cursor-pointer bg-app-layer-three-hover"
+                    :class="{ 'border-bottom': perm !== 'Yes' }"
+                    :style="
+                        perm === 'No' ? 'border-top-left-radius: 0.30rem !important; border-top-right-radius: 0.30rem !important;' :
+                        perm === 'Yes' ? 'border-bottom-left-radius: 0.30rem !important; border-bottom-right-radius: 0.30rem !important;' : ''
+                    "
+                    @click="update(perm)"
+                >
+                    <span
+                        class="fs--1"
+                        :class="{ 'text-app-secondary': has_access_verbose === perm }"
+                        x-text="perm"
+                    ></span>
                 </div>
             </template>
         </div>

@@ -21,7 +21,7 @@
         {% include 'django_glue/form/field/input_field.html' with glue_field='should_delete' %}
 
         <div class="d-flex mt-3">
-            {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text='Delete' button_class='btn-danger btn-sm shadow-sm' %}
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text='Delete' button_class='btn-app-danger btn-sm shadow-sm' %}
             <span class="ms-2" @click="close_modal()" >
                 {% include 'django_spire/button/secondary_button.html' with button_text='Cancel' %}
             </span>

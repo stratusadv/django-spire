@@ -13,4 +13,5 @@ a:visited:hover {
 
 body {
     color: var(--app-default-text-color);
+    scrollbar-color: var(--app-bg-secondary) transparent;
 }

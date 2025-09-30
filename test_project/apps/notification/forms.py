@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from django.utils.timezone import localtime
 from typing_extensions import ClassVar
 
 from django import forms
 
 from django_spire.notification import models
 from django_spire.notification.app.models import AppNotification
-from django_spire.notification.choices import NotificationTypeChoices
+from django_spire.notification.choices import NotificationStatusChoices, \
+    NotificationTypeChoices
 from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.sms.models import SmsNotification
 
@@ -42,6 +44,9 @@ class NotificationForm(forms.ModelForm):
 
         elif self.instance.type == NotificationTypeChoices.PUSH:
             pass
+
+        if self.instance.status == NotificationStatusChoices.SENT:
+            self.instance.sent_datetime = localtime()
 
         super().save(commit=commit)
 

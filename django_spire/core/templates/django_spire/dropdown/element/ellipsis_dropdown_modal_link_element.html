@@ -1,8 +1,11 @@
-<a
-    @click="dispatch_modal_view('{{ view_url }}'); toggle_dropdown();"
-    class="border-bottom fs--1 p-0 cursor-pointer text-decoration-none border-bottom bg-app-layer-one bg-app-layer-three-hover text-app-default-text-color"
->
-    <div class="px-3 py-1 text-nowrap {{ link_css }}">
-        {{ link_text }}
-    </div>
-</a>
+{# Background colours must be applied outside 'a' tag #}
+<div class="bg-app-layer-one bg-app-layer-three-hover dropdown-item">
+    <a
+        @click="dispatch_modal_view('{{ view_url }}'); toggle_dropdown();"
+        class="border-bottom fs--1 p-0 cursor-pointer text-decoration-none text-app-default-text-color"
+    >
+        <div class="px-3 py-1 text-nowrap {{ link_css }}">
+            {{ link_text }}
+        </div>
+    </a>
+</div>

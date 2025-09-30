@@ -2,14 +2,17 @@
     :style="window.innerWidth < 768
     ? 'width: 350px; position: fixed; top: 5%; left: 50%; transform: translateX(-50%);'
     : 'width: 350px'"
-    class="container border rounded-2"
+    class="container border rounded-2 bg-app-layer-two"
 >
     <div class="col-12 w-100">
-        <h6 class="mt-2 ms-2 text-app-secondary text-center">Notifications</h6>
+        <h6 class="mt-2 ms-2 text-center">Notifications</h6>
         <hr class="m-0">
     </div>
 
-    <div style="max-height: 300px !important; overflow-x: hidden !important; overflow-y: scroll !important;" class="text-start">
+    <div
+        style="max-height: 300px !important;"
+        class="text-start overflow-y-scroll overflow-x-hidden"
+    >
         {% for app_notification in app_notification_list %}
             <div class="col-12">
                 {% include app_notification.template %}
