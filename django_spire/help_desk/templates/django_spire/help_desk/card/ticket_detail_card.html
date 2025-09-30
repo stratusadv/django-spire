@@ -7,15 +7,9 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.django_spire_help_desk.change_helpdeskticket %}
-        <div class="pe-3">
-            {% url 'django_spire:help_desk:form:update' pk=ticket.pk as edit_url %}
-            {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_href=edit_url button_icon='bi bi-pencil' %}
-        </div>
-    {% endif %}
-    {% if perms.django_spire_help_desk.delete_helpdeskticket %}
-        {% url 'django_spire:help_desk:page:delete' pk=ticket.pk as delete_url %}
-        {% include 'django_spire/button/danger_button.html' with button_text='Delete' button_href=delete_url button_icon='bi bi-trash' %}
+    {% if AuthController.help_desk.can_change %}
+        {% url 'django_spire:help_desk:form:update' pk=ticket.pk as edit_url %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_href=edit_url button_icon='bi bi-pencil' %}
     {% endif %}
 {% endblock %}
 

@@ -18,7 +18,7 @@
             <input hidden id="delete_confirmation_should_delete" value="false" name="should_delete" type="text">
 
             <div class="col-auto me-3">
-                {% include 'django_spire/button/danger_dark_button.html' with x_button_click='submit_value(true)' button_text='Delete' %}
+                {% include 'django_spire/button/danger_button.html' with x_button_click='submit_value(true)' button_text='Delete' %}
             </div>
             <div class="col-auto">
                 {% include 'django_spire/button/secondary_button.html' with x_button_click='submit_value(false)' button_text='Cancel' %}

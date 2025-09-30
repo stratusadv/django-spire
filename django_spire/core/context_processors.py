@@ -20,9 +20,6 @@ def django_spire(request: WSGIRequest) -> dict[str, Any]:
 
     return {
         'DJANGO_SPIRE_VERSION': __VERSION__,
-        'app_bootstrap_icon': {
-            'help_desk': 'bi bi-headset'
-        },
         'AuthController': auth_controller_dict
     }
 

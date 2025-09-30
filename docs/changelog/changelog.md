@@ -4,9 +4,11 @@
 ## v0.16.11
 
 ### Breaking
+- Removed `app_bootstrap_icon` from context processors.
 - Removed remaining hard-coded colours. Check theme page for any issues.
 
 ### Changes
+- Updated Help Desk permission to new AuthController structure.
 - Login page 'Username' label changed to 'Email Address'.
 - Unified dropdown item styling.
 - Improvement dropdown item styling.
