@@ -1,17 +1,17 @@
 {% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
-	spire_model_name_plural
+    ${spire_model_name_plural}
 {% endblock %}
 
 {% block card_button %}
-    {% url 'spire_parent_app:spire_app_name:page:form' pk=0 as new_spire_app_name_url %}
-	{% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_spire_app_name_url %}
+    {% url '${spire_parent_app}:${spire_app_name}:page:form' pk=0 as new_${spire_app_name}_url %}
+    {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_${spire_app_name}_url %}
 {% endblock %}
 
 {% block card_title_content %}
-	{% for spire_app_name in spire_app_name_plural %}
-		{% include 'spire_parent_app/spire_app_name/item/spire_app_name_item.html' %}
+    {% for ${spire_app_name} in ${spire_app_name_plural} %}
+        {% include '${spire_parent_app}/${spire_app_name}/item/${spire_app_name}_item.html' %}
     {% empty %}
         {% include 'django_spire/item/no_data_item.html' %}
     {% endfor %}

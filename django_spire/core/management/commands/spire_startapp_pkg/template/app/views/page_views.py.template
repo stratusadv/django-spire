@@ -7,38 +7,38 @@ from django.shortcuts import get_object_or_404
 
 from django_spire.contrib.generic_views import portal_views
 
-from module import models
+from ${module} import models
 
 if TYPE_CHECKING:
-    from django.template.response import TemplateResponse
     from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
 
-@permission_required('spire_label_path.view_spire_app_name')
+@permission_required('${spire_label_path}.view_${spire_app_name}')
 def detail_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    spire_app_name = get_object_or_404(models.spire_model_name, pk=pk)
+    ${spire_app_name} = get_object_or_404(models.${spire_model_name}, pk=pk)
 
     context_data = {
-        'spire_app_name': spire_app_name,
+        '${spire_app_name}': ${spire_app_name},
     }
 
     return portal_views.detail_view(
         request,
-        obj=spire_app_name,
+        obj=${spire_app_name},
         context_data=context_data,
-        template='spire_template_path/page/detail_page.html'
+        template='${spire_template_path}/page/detail_page.html'
     )
 
 
-@permission_required('spire_label_path.view_spire_app_name')
+@permission_required('${spire_label_path}.view_${spire_app_name}')
 def list_page_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
-        'spire_app_name_plural': models.spire_model_name.objects.all()
+        '${spire_app_name_plural}': models.${spire_model_name}.objects.all()
     }
 
     return portal_views.list_view(
         request,
-        model=models.spire_model_name,
+        model=models.${spire_model_name},
         context_data=context_data,
-        template='spire_template_path/page/list_page.html'
+        template='${spire_template_path}/page/list_page.html'
     )

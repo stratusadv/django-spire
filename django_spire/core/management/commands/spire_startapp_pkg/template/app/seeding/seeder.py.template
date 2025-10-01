@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing_extensions import ClassVar
 
-from module import models
-
 from django_spire.contrib.seeding import DjangoModelSeeder
 
+from ${module} import models
 
-class spire_model_nameSeeder(DjangoModelSeeder):
-    model_class = models.spire_model_name
+
+class ${spire_model_name}Seeder(DjangoModelSeeder):
+    model_class = models.${spire_model_name}
     fields: ClassVar = {}

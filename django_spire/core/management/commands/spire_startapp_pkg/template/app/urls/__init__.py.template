@@ -1,9 +1,9 @@
-from django.urls.conf import path, include
+from django.urls.conf import include, path
 
 
-app_name = 'spire_app_name'
+app_name = '${spire_app_name}'
 
 urlpatterns = [
-    path('page/', include('module.urls.page_urls', namespace='page')),
-    path('form/', include('module.urls.form_urls', namespace='form')),
+    path('page/', include('${module}.urls.page_urls', namespace='page')),
+    path('form/', include('${module}.urls.form_urls', namespace='form')),
 ]

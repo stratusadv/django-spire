@@ -1,24 +1,24 @@
 {% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
-	spire_model_name
+    ${spire_model_name}
 {% endblock %}
 
 {% block card_button %}
-	{% if perms.spire_label_path.change_spire_app_name %}
-        {% url 'spire_parent_app:spire_app_name:page:form' pk=spire_app_name.pk as spire_app_name_edit_url %}
-        {% include 'django_spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=spire_app_name_edit_url %}
+    {% if perms.${spire_label_path}.change_${spire_app_name} %}
+        {% url '${spire_parent_app}:${spire_app_name}:page:form' pk=${spire_app_name}.pk as ${spire_app_name}_edit_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=${spire_app_name}_edit_url %}
     {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
-	<div class="row g-3">
+    <div class="row g-3">
         <div class="col-12">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=spire_app_name.name %}
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=${spire_app_name}.name %}
         </div>
 
         <div class="col-12">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=spire_app_name.description|linebreaksbr %}
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=${spire_app_name}.description|linebreaksbr %}
         </div>
     </div>
 {% endblock %}

@@ -43,7 +43,7 @@ class Command(BaseCommand):
         return [config.name for config in apps.get_app_configs()]
 
     def handle(self, *_args, **kwargs) -> None:
-        app = input('Enter the path of the app (e.g., "app.maintenance.work_order"):')
+        app = input('Enter the path of the app (e.g., "app.maintenance.work_order"): ')
 
         if not app:
             raise CommandError(self.style.ERROR('The app name is missing'))
@@ -65,7 +65,7 @@ class Command(BaseCommand):
         if missing:
             self.reporter.report_missing_components(missing)
             self.reporter.report_app_tree_structure(self.app_base, components, registry, self.app_template)
-            # self.reporter.report_html_tree_structure(self.template_base, components, registry, self.html_template)
+            self.reporter.report_html_tree_structure(self.template_base, components, registry, self.html_template)
 
             if not self.reporter.prompt_for_confirmation('\nProceed with app creation? (y/n): '):
                 self.reporter.write('App creation aborted.', self.style.ERROR)
@@ -73,7 +73,7 @@ class Command(BaseCommand):
 
             for module in [missing[-1]]:
                 self.app_manager.create_custom_app(module, self.app_processor, self.reporter)
-                # self.html_manager.create_custom_templates(module, self.html_processor, self.reporter)
+                self.html_manager.create_custom_templates(module, self.html_processor, self.reporter)
 
             self.reporter.report_installed_apps_suggestion(missing)
         else:

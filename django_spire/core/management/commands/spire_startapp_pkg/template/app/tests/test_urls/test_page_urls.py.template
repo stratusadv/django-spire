@@ -3,6 +3,6 @@ from __future__ import annotations
 from django.test import TestCase
 
 
-class spire_model_nameUrlTestCase(TestCase):
+class ${spire_model_name}UrlTestCase(TestCase):
     def setUp(self) -> None:
         super().setUp()

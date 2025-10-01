@@ -1,6 +1,6 @@
 from django.urls import path
 
-from module.views import form_views
+from ${module}.views import form_views
 
 
 app_name = 'form'

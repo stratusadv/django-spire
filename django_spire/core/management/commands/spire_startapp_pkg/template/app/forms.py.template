@@ -4,12 +4,12 @@ from typing_extensions import ClassVar
 
 from django import forms
 
-from module import models
+from ${module} import models
 
 
-class spire_model_nameForm(forms.ModelForm):
+class ${spire_model_name}Form(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:
-        model = models.spire_model_name
+        model = models.${spire_model_name}
         exclude: ClassVar = []
