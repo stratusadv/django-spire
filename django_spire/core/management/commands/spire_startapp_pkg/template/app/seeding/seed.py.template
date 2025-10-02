@@ -1,4 +1,6 @@
-from ${module}.seeding.seeder import ${spire_model_name}Seeder
+from __future__ import annotations
+
+from ${module_path}.seeding.seeder import ${seeder_class_name}
 
 
-${spire_model_name}Seeder.seed_database(count=10)
+${seeder_class_name}.seed_database(count=10)

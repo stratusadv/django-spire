@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from django.test import TestCase
+from django_spire.core.tests.test_cases import BaseTestCase
 
 
-class ${spire_model_name}ViewTestCase(TestCase):
+class ${view_test_class_name}(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()

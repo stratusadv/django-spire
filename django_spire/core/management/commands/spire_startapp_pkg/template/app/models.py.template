@@ -6,16 +6,16 @@ from django.urls import reverse
 from django_spire.contrib.breadcrumb import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 
-from ${module} import querysets
-from ${module}.services.service import ${spire_model_name}Service
+from ${module_path} import querysets
+from ${module_path}.services.service import ${service_class_name}
 
 
-class ${spire_model_name}(HistoryModelMixin):
+class ${model_class_name}(HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
-    objects = querysets.${spire_model_name}QuerySet().as_manager()
-    services = ${spire_model_name}Service()
+    objects = querysets.${queryset_class_name}().as_manager()
+    services = ${service_class_name}()
 
     def __str__(self):
         return self.name
@@ -25,8 +25,8 @@ class ${spire_model_name}(HistoryModelMixin):
         crumbs = Breadcrumbs()
 
         crumbs.add_breadcrumb(
-            '${spire_model_name}',
-            reverse('${spire_reverse_path}:page:list')
+            '${model_verbose_name}',
+            reverse('${url_reverse_path}:page:list')
         )
 
         return crumbs
@@ -39,7 +39,7 @@ class ${spire_model_name}(HistoryModelMixin):
             crumbs.add_breadcrumb(
                 str(self),
                 reverse(
-                    '${spire_reverse_path}:page:detail',
+                    '${url_reverse_path}:page:detail',
                     kwargs={'pk': self.pk}
                 )
             )
@@ -47,6 +47,6 @@ class ${spire_model_name}(HistoryModelMixin):
         return crumbs
 
     class Meta:
-        verbose_name = '${spire_model_name}'
-        verbose_name_plural = '${spire_model_name_plural}'
-        db_table = '${spire_label_path}'
+        verbose_name = '${model_verbose_name}'
+        verbose_name_plural = '${model_verbose_name_plural}'
+        db_table = '${db_table_name}'

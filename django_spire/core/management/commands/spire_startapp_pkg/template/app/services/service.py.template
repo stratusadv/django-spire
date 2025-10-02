@@ -4,19 +4,19 @@ from typing import TYPE_CHECKING
 
 from django_spire.contrib.service import BaseDjangoModelService
 
-from ${module}.services.factory_service import ${spire_model_name}FactoryService
-from ${module}.services.intelligence_service import ${spire_model_name}IntelligenceService
-from ${module}.services.processor_service import ${spire_model_name}ProcessorService
-from ${module}.services.transformation_service import ${spire_model_name}TransformationService
+from ${module_path}.services.factory_service import ${factory_service_class_name}
+from ${module_path}.services.intelligence_service import ${intelligence_service_class_name}
+from ${module_path}.services.processor_service import ${processor_service_class_name}
+from ${module_path}.services.transformation_service import ${transformation_service_class_name}
 
 if TYPE_CHECKING:
-    from ${module}.models import ${spire_model_name}
+    from ${module_path}.models import ${model_class_name}
 
 
-class ${spire_model_name}Service(BaseDjangoModelService['${spire_model_name}']):
-    obj: ${spire_model_name}
+class ${service_class_name}(BaseDjangoModelService['${model_class_name}']):
+    obj: ${model_class_name}
 
-    intelligence = ${spire_model_name}IntelligenceService()
-    processor = ${spire_model_name}ProcessorService()
-    factory = ${spire_model_name}FactoryService()
-    transformation = ${spire_model_name}TransformationService()
+    intelligence = ${intelligence_service_class_name}()
+    processor = ${processor_service_class_name}()
+    factory = ${factory_service_class_name}()
+    transformation = ${transformation_service_class_name}()

@@ -1,11 +1,11 @@
 from django.urls import path
 
-from ${module}.views import page_views
+from ${module_path}.views import page_views
 
 
 app_name = 'page'
 
 urlpatterns = [
-    path('list/', page_views.list_page_view, name='list'),
-    path('<int:pk>/detail/', page_views.detail_page_view, name='detail'),
+    path('list/', page_views.${list_page_view_name}, name='list'),
+    path('<int:pk>/detail/', page_views.${detail_page_view_name}, name='detail'),
 ]

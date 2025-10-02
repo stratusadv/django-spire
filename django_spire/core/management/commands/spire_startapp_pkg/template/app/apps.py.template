@@ -1,7 +1,15 @@
 from django.apps import AppConfig
 
 
-class ${spire_model_name}Config(AppConfig):
+class ${app_config_class_name}(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = '${spire_label_path}'
-    name = '${module}'
+    label = '${django_label}'
+    name = '${module_path}'
+
+    MODEL_PERMISSIONS = (
+        {
+            'name': '${permission_name}',
+            'model_class_path': '${model_class_path}',
+            'is_proxy_model': ${is_proxy_model}
+        },
+    )

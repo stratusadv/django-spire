@@ -4,9 +4,18 @@ from typing_extensions import ClassVar
 
 from django_spire.contrib.seeding import DjangoModelSeeder
 
-from ${module} import models
+from ${module_path} import models
 
 
-class ${spire_model_name}Seeder(DjangoModelSeeder):
-    model_class = models.${spire_model_name}
-    fields: ClassVar = {}
+class ${seeder_class_name}(DjangoModelSeeder):
+    model_class = models.${model_class_name}
+    default_to = 'faker'
+
+    fields: ClassVar = {
+        'id': 'exclude',
+        'created_datetime': 'exclude',
+        'is_active': True,
+        'is_deleted': False,
+        # 'name': ('faker', 'company'),
+        # 'status': ('faker', 'random_element', {'elements': ['active', 'inactive', 'pending']}),
+    }

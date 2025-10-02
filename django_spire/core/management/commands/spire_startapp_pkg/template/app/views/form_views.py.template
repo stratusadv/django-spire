@@ -15,124 +15,120 @@ from django_spire.history.activity.utils import add_form_activity
 
 import django_glue as dg
 
-from ${module} import forms, models
+from ${module_path} import forms, models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.http import HttpResponseRedirect
 
 
-@permission_required('${spire_label_path}.delete_${spire_app_name}')
-def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    ${spire_app_name} = get_object_or_404(models.${spire_model_name}, pk=pk)
+@permission_required('${permission_prefix}.delete_${model_instance_name}')
+def ${delete_modal_form_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
+    ${context_single_var} = get_object_or_404(models.${model_class_name}, pk=pk)
 
     form_action = reverse(
-        '${spire_reverse_path}:delete_form_modal',
+        '${url_reverse_path}:form:delete_modal',
         kwargs={'pk': pk}
     )
 
     def add_activity() -> None:
-        ${spire_app_name}.add_activity(
+        ${context_single_var}.add_activity(
             user=request.user,
             verb='deleted',
             device=request.device,
-            information=f'{request.user.get_full_name()} deleted a ${spire_app_name} on "{${spire_app_name}.${spire_parent_app}}".'
+            information=f'{request.user.get_full_name()} deleted a ${model_instance_name}.'
         )
 
-    fallback = reverse(
-        '${spire_reverse_parent_path}:detail',
-        kwargs={'pk': ${spire_app_name}.${spire_parent_app}.pk}
-    )
-
+    fallback = reverse('${url_reverse_path}:page:list')
     return_url = safe_redirect_url(request, fallback=fallback)
 
     return modal_views.dispatch_modal_delete_form_content(
         request,
-        obj=${spire_app_name},
+        obj=${context_single_var},
         form_action=form_action,
         activity_func=add_activity,
         return_url=return_url,
     )
 
 
-@permission_required('${spire_label_path}.delete_${spire_app_name}')
-def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    ${spire_app_name} = get_object_or_404(models.${spire_model_name}, pk=pk)
+@permission_required('${permission_prefix}.delete_${model_instance_name}')
+def ${delete_form_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
+    ${context_single_var} = get_object_or_404(models.${model_class_name}, pk=pk)
 
     return_url = request.GET.get(
         'return_url',
-        reverse('${spire_reverse_path}:page:list')
+        reverse('${url_reverse_path}:page:list')
     )
 
     return portal_views.delete_form_view(
         request,
-        obj=${spire_app_name},
+        obj=${context_single_var},
         return_url=return_url
     )
 
 
-@permission_required('${spire_label_path}.add_${spire_app_name}')
-def create_modal_form_view(request: WSGIRequest) -> TemplateResponse:
+@permission_required('${permission_prefix}.add_${model_instance_name}')
+def ${create_modal_form_view_name}(request: WSGIRequest) -> TemplateResponse:
     return _modal_form_view(request)
 
 
-@permission_required('${spire_label_path}.change_${spire_app_name}')
-def update_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+@permission_required('${permission_prefix}.change_${model_instance_name}')
+def ${update_modal_form_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _modal_form_view(request, pk)
 
 
 def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
-    ${spire_app_name} = get_object_or_404(models.${spire_model_name}, pk=pk)
+    ${context_single_var} = get_object_or_404(models.${model_class_name}, pk=pk)
 
-    dg.glue_model_object(request, '${spire_app_name}', ${spire_app_name})
+    dg.glue_model_object(request, '${glue_model_key}', ${context_single_var})
 
     context_data = {
-        '${spire_app_name}': ${spire_app_name}
+        '${context_single_var}': ${context_single_var}
     }
 
     return TemplateResponse(
         request,
         context=context_data,
-        template='${spire_template_path}/modal/content/form_modal_content.html'
+        template='${template_directory_path}/modal/content/${form_template_name}'
     )
 
 
-@permission_required('${spire_label_path}.add_${spire_app_name}')
-def create_form_view(request: WSGIRequest) -> TemplateResponse:
+@permission_required('${permission_prefix}.add_${model_instance_name}')
+def ${create_form_view_name}(request: WSGIRequest) -> TemplateResponse:
     return _form_view(request)
 
 
-@permission_required('${spire_label_path}.change_${spire_app_name}')
-def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+@permission_required('${permission_prefix}.change_${model_instance_name}')
+def ${update_form_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
 def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
-    ${spire_app_name} = get_object_or_null_obj(models.${spire_model_name}, pk=pk)
+    ${context_single_var} = get_object_or_null_obj(models.${model_class_name}, pk=pk)
 
-    dg.glue_model_object(request, '${spire_app_name}', ${spire_app_name}, 'view')
+    dg.glue_model_object(request, '${glue_model_key}', ${context_single_var}, 'view')
 
     if request.method == 'POST':
-        form = forms.${spire_model_name}Form(request.POST, instance=${spire_app_name})
+        form = forms.${form_class_name}(request.POST, instance=${context_single_var})
 
         if form.is_valid():
-            ${spire_app_name} = form.save()
-            add_form_activity(${spire_app_name}, pk, request.user)
+            ${context_single_var} = form.save()
+            add_form_activity(${context_single_var}, pk, request.user)
 
             return redirect(
                 request.GET.get(
                     'return_url',
-                    reverse('${spire_reverse_path}:page:list')
+                    reverse('${url_reverse_path}:page:list')
                 )
             )
 
         show_form_errors(request, form)
     else:
-        form = forms.${spire_model_name}Form(instance=${spire_app_name})
+        form = forms.${form_class_name}(instance=${context_single_var})
 
     return portal_views.form_view(
         request,
         form=form,
-        obj=${spire_app_name},
-        template='${spire_template_path}/page/form_page.html'
+        obj=${context_single_var},
+        template='${template_directory_path}/page/${form_page_template_name}'
     )

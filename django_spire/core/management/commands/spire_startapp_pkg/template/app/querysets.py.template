@@ -7,6 +7,12 @@ from django_spire.history.querysets import HistoryQuerySet
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
+    from ${module_path}.models import ${model_class_name}
 
-class ${spire_model_name}QuerySet(HistoryQuerySet):
-    pass
+
+class ${queryset_class_name}(HistoryQuerySet):
+    def by_name(self, name: str) -> QuerySet[${model_class_name}]:
+        return self.filter(name__iexact=name)
+
+    def search_by_name(self, search_term: str) -> QuerySet[${model_class_name}]:
+        return self.filter(name__icontains=search_term)

@@ -2,20 +2,20 @@ from __future__ import annotations
 
 from dandy.llm import BaseLlmBot
 
-from ${module}.intelligence import intel
-from ${module}.intelligence import prompts
+from ${module_path}.intelligence import intel
+from ${module_path}.intelligence import prompts
 
 
-class ${spire_model_name}Bot(BaseLlmBot):
-    instructions_prompt = prompts.${spire_app_name}_instruction_prompt()
-    intel_class = intel.${spire_model_name}Intel
+class ${bot_class_name}(BaseLlmBot):
+    instructions_prompt = prompts.${instruction_prompt_function_name}()
+    intel_class = intel.${intel_class_name}
 
     @classmethod
     def process(
         cls,
         user_input: str
-    ) -> intel.${spire_model_name}Intel:
+    ) -> intel.${intel_class_name}:
 
         return cls.process_prompt_to_intel(
-            prompt=prompts.${spire_app_name}_user_input_prompt(user_input)
+            prompt=prompts.${user_input_prompt_function_name}(user_input)
         )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from string import Template
 from typing_extensions import Callable, TYPE_CHECKING
 
 from django_spire.core.management.commands.spire_startapp_pkg.constants import (
@@ -100,7 +101,13 @@ class Reporter:
         if item.is_dir():
             return item.name
 
-        return self._apply_replacement(item.name, replacement)
+        template = Template(item.name)
+        filename = template.safe_substitute(replacement)
+
+        if filename.endswith('.template'):
+            filename = filename.replace('.template', '')
+
+        return filename
 
     def report_app_tree_structure(
         self,

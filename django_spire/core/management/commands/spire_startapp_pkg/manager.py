@@ -40,7 +40,8 @@ class BaseTemplateManager:
         components: list[str],
         processor_method: callable,
         reporter: Reporter,
-        missing_template_message: str
+        missing_template_message: str,
+        user_inputs: dict[str, str] | None = None
     ) -> None:
         destination = self._get_destination(components)
 
@@ -61,7 +62,7 @@ class BaseTemplateManager:
             ignore=shutil.ignore_patterns('__pycache__', '*.pyc')
         )
 
-        processor_method(destination, components)
+        processor_method(destination, components, user_inputs)
         self._report_success(app, reporter)
 
 
@@ -126,7 +127,8 @@ class AppManager(BaseTemplateManager):
         self,
         app: str,
         processor: AppTemplateProcessor,
-        reporter: Reporter
+        reporter: Reporter,
+        user_inputs: dict[str, str] | None = None
     ) -> None:
         components = app.split('.')
 
@@ -140,7 +142,8 @@ class AppManager(BaseTemplateManager):
             components,
             processor.replace_app_name,
             reporter,
-            message
+            message,
+            user_inputs
         )
 
 
@@ -158,7 +161,8 @@ class HTMLTemplateManager(BaseTemplateManager):
         self,
         app: str,
         processor: HTMLTemplateProcessor,
-        reporter: Reporter
+        reporter: Reporter,
+        user_inputs: dict[str, str] | None = None
     ) -> None:
         components = app.split('.')[1:]
 
@@ -172,5 +176,6 @@ class HTMLTemplateManager(BaseTemplateManager):
             components,
             processor.replace_template_names,
             reporter,
-            message
+            message,
+            user_inputs
         )

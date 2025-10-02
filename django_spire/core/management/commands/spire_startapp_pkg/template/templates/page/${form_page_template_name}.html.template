@@ -6,7 +6,7 @@
 
         <div class="row g-3">
             <div class="col-12">
-                {% include 'placeholder/card/placeholder_form_card.html' %}
+                {% include '${template_directory_path}/card/${form_card_template_name}' %}
             </div>
         </div>
     </form>
