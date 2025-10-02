@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.16.12
+
+### Breaking
+- Added optional class variable `app_name` to `FileUploader` class.
+
 
 ## v0.16.11
 

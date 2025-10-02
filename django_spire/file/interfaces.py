@@ -35,7 +35,16 @@ class FileFormatter:
 
     @property
     def location(self) -> str:
-        return'django-spire/' + str(self.related_field) + '/' + '/' + str(self.app_name) + '/' + random_64_char_token() + '/' + self.name
+        location = 'django-spire/'
+
+        if self.related_field is not None:
+            location += str(self.related_field) + '/'
+
+        location += str(self.app_name) + '/'
+        location += random_64_char_token() + '/'
+        location += self.name
+
+        return location
 
     def null_file_obj(self) -> File:
         return File(
@@ -86,9 +95,14 @@ class FileContentObjectFormatter(FileFormatter):
 @dataclass
 class FileUploader(ABC):
     related_field: str | None
+    app_name: str = 'Uncategorized'
 
     def null_file_obj(self, file):
-        formatted_file = FileFormatter(file, self.related_field)
+        formatted_file = FileFormatter(
+            file=file,
+            related_field=self.related_field,
+            app_name=self.app_name
+        )
         return formatted_file.null_file_obj()
 
     @abstractmethod

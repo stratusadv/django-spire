@@ -84,7 +84,7 @@ def import_form_view(
         file_form = EntryFilesForm(request.POST, request.FILES)
 
         if file_form.is_valid():
-            file_objects = MultiFileUploader(related_field=None).upload(
+            file_objects = MultiFileUploader(related_field='kno').upload(
                 request.FILES.getlist('import_files')
             )
 
