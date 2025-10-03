@@ -35,6 +35,9 @@ class EntryAutomationService(BaseDjangoModelService['Entry']):
                 )
             except Exception as e:
                 errored.append({'file': file_object.name, 'error': str(e)})
+                file_object.set_deleted()
+            else:
+                file_object.set_deleted()
 
         message = f'Files Converted: {len(file_objects) - len(errored)}'
         if errored:

@@ -78,7 +78,7 @@ class FileContentObjectFormatter(FileFormatter):
 
     @property
     def location(self) -> str:
-        return 'django-spire/' + '/' + str(self.content_object._meta.app_label) + '/' + random_64_char_token() + '/' + self.name
+        return 'django-spire/' + str(self.content_object._meta.app_label) + '/' + random_64_char_token() + '/' + self.name
 
     def null_file_obj(self) -> File:
         return File(

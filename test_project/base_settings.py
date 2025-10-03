@@ -226,8 +226,6 @@ STORAGES = {
     },
 }
 
-MEDIA_URL = f'https://{AWS_S3_ENDPOINT_URL}/'
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
 STATIC_ROOT = str(BASE_DIR / 'static')

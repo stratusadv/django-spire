@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.file.models import File
-from django_spire.knowledge.entry.tests.constants import ENTRY_IMPORT_RELATED_FIELD
+from django_spire.knowledge.entry.constants import ENTRY_IMPORT_RELATED_FIELD
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry
