@@ -12,7 +12,6 @@ from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.file.interfaces import MultiFileUploader
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.entry.constants import ENTRY_IMPORT_RELATED_FIELD
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
@@ -86,7 +85,7 @@ def import_form_view(
 
         if file_form.is_valid():
             file_uploader = MultiFileUploader(
-                related_field=ENTRY_IMPORT_RELATED_FIELD,
+                related_field=None,
                 app_name='knowledge'
             )
             file_objects = file_uploader.upload(request.FILES.getlist('import_files'))

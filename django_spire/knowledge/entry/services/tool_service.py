@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.file.models import File
-from django_spire.knowledge.entry.constants import ENTRY_IMPORT_RELATED_FIELD
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -19,7 +18,7 @@ class EntryToolService(BaseDjangoModelService['Entry']):
 
     def get_files_to_convert(self) -> QuerySet[File]:
         return (
-            File.objects.related_field(field_name=ENTRY_IMPORT_RELATED_FIELD)
+            File.objects
             .filter(content_type=ContentType.objects.get_for_model(self.obj_class))
             .active()
             .order_by('object_id')

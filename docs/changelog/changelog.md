@@ -3,7 +3,13 @@
 ## v0.16.12
 
 ### Breaking
-- Added optional class variable `app_name` to `FileUploader` class.
+- Modified default file storage to use Digital Ocean Spaces.
+- Added mandatory BASE_FOLDER_NAME to settings to allow for Digital Ocean Spaces organization.
+- Knowledge Base must use Digital Ocean Spaces for file storage / retrieval. 
+
+### Changes
+- Added optional class variable `app_name` to `FileUploader` class. Recommended for organization purposes.
+- Updated Knowledge Base file upload and conversion to use Digital Ocean Spaces.
 
 
 ## v0.16.11

@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.file.models import File
-from django_spire.knowledge.entry.constants import ENTRY_IMPORT_RELATED_FIELD
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry
@@ -34,7 +33,7 @@ class EntryFactoryService(BaseDjangoModelService['Entry']):
 
             file.content_type = ContentType.objects.get_for_model(entry.__class__)
             file.object_id = entry.id
-            file.related_field = ENTRY_IMPORT_RELATED_FIELD
+            file.related_field = None
 
             entry.ordering_services.processor.move_to_position(
                 destination_objects=collection.entries.active(),
