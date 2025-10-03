@@ -1,57 +1,252 @@
 {% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
-    Tabular Data
+    Task Management
 {% endblock %}
 
 {% block card_button %}
-    {% url 'placeholder:page:form' pk=0 as new_placeholder_url %}
-    {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_placeholder_url %}
+    {% url 'queryset_filtering:page:list' as task_list_url %}
+    {% include 'django_spire/button/primary_dark_button.html' with button_text='View List' button_icon='bi bi-list' button_href=task_list_url %}
 {% endblock %}
 
 {% block card_title_content %}
-    <table class="table" x-data="{
-        is_row_open: [],
-        is_child_row_open: []
-    }">
+<div x-data="{
+    is_row_open: {},
+    is_child_row_open: {},
+    selected_rows: new Set(),
+    sort_column: null,
+    sort_direction: 'asc',
+    search_term: '',
+    select_all: false,
 
-        {% for row in rows %}
-            <tr>
-                <td>
-                    <button @click="is_row_open['{{ row.data.uuid }}'] = !is_row_open['{{ row.data.uuid }}']">
-                        +
-                    </button>
-                </td>
-                <td>{{ row.data.uuid }}</td>
-                <td class="text-end">{{ row.data.quantity }}</td>
-                <td class="text-end">{{ row.data.cost }}</td>
-                <td class="text-end">{{ row.data.price }}</td>
-                <td class="text-end">{{ row.data.date }}</td>
-            </tr>
+    sort_by(column) {
+        if (this.sort_column === column) {
+            this.sort_direction = this.sort_direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sort_column = column;
+            this.sort_direction = 'asc';
+        }
+        // Server-side sorting redirect
+        window.location.href = '?sort=' + column + '&direction=' + this.sort_direction;
+    },
 
-            {% for child_row in row.child_rows %}
-                <tr x-show="is_row_open['{{ row.data.uuid }}']">
-                    <td class="ps-4">
-                        <button @click="is_child_row_open['{{ child_row.child_data.uuid }}'] = !is_child_row_open['{{ child_row.child_data.uuid }}']">
-                            +
-                        </button>
-                    </td>
-                    <td>{{ child_row.child_data.uuid }}</td>
-                    <td class="text-end">{{ child_row.child_data.quantity }}</td>
-                    <td class="text-end">{{ child_row.child_data.cost }}</td>
-                    <td class="text-end">{{ child_row.child_data.price }}</td>
-                    <td class="text-end">{{ child_row.child_data.date }}</td>
-                </tr>
+    get_sort_icon(column) {
+        if (this.sort_column !== column) return 'bi-chevron-expand';
+        return this.sort_direction === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down';
+    },
 
-                <tr class="bg-danger" x-show="is_child_row_open['{{ child_row.child_data.uuid }}']">
-                    <td></td>
-                    <td colspan="6">
-                        <h1>Flibbity<br>Flobbity<br>Flooooooooo</h1>
-                    </td>
-                </tr>
-
+    toggle_all() {
+        if (this.select_all) {
+            this.selected_rows.clear();
+            this.select_all = false;
+        } else {
+            {% for row in rows %}
+            this.selected_rows.add('{{ row.data.uuid }}');
             {% endfor %}
+            this.select_all = true;
+        }
+    },
 
-        {% endfor %}
-    </table>
+    toggle_selection(uuid) {
+        if (this.selected_rows.has(uuid)) {
+            this.selected_rows.delete(uuid);
+        } else {
+            this.selected_rows.add(uuid);
+        }
+    },
+
+    matches_search(text) {
+        if (!this.search_term) return true;
+        return text.toLowerCase().includes(this.search_term.toLowerCase());
+    }
+}">
+    <!-- Search Bar -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-app-layer-two">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input
+                    type="text"
+                    x-model="search_term"
+                    class="form-control"
+                    placeholder="Search tasks..."
+                >
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <span class="text-app-secondary fs-7" x-show="selected_rows.size > 0">
+                <span x-text="selected_rows.size"></span> selected
+            </span>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="bg-app-layer-two">
+                <tr>
+                    <th width="30">
+                        <input
+                            type="checkbox"
+                            @change="toggle_all()"
+                            :checked="select_all"
+                            class="form-check-input"
+                        >
+                    </th>
+                    <th width="30"></th>
+                    <th @click="sort_by('name')" class="cursor-pointer user-select-none">
+                        <div class="d-flex align-items-center">
+                            <span>Task Name</span>
+                            <i class="bi ms-1" :class="get_sort_icon('name')"></i>
+                        </div>
+                    </th>
+                    <th @click="sort_by('status')" class="cursor-pointer user-select-none">
+                        <div class="d-flex align-items-center">
+                            <span>Status</span>
+                            <i class="bi ms-1" :class="get_sort_icon('status')"></i>
+                        </div>
+                    </th>
+                    <th @click="sort_by('quantity')" class="cursor-pointer user-select-none text-center">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <span>Users</span>
+                            <i class="bi ms-1" :class="get_sort_icon('quantity')"></i>
+                        </div>
+                    </th>
+                    <th @click="sort_by('date')" class="cursor-pointer user-select-none text-end">
+                        <div class="d-flex align-items-center justify-content-end">
+                            <span>Created</span>
+                            <i class="bi ms-1" :class="get_sort_icon('date')"></i>
+                        </div>
+                    </th>
+                    <th width="120" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <!-- Parent Row (Task) -->
+                    <tr
+                        x-show="matches_search('{{ row.data.name }} {{ row.data.status }} {{ row.data.description }}')"
+                        x-transition
+                        :class="selected_rows.has('{{ row.data.uuid }}') ? 'bg-app-primary-soft' : ''"
+                    >
+                        <td>
+                            <input
+                                type="checkbox"
+                                @change="toggle_selection('{{ row.data.uuid }}')"
+                                :checked="selected_rows.has('{{ row.data.uuid }}')"
+                                class="form-check-input"
+                            >
+                        </td>
+                        <td>
+                            {% if row.child_rows %}
+                            <button
+                                @click="is_row_open['{{ row.data.uuid }}'] = !is_row_open['{{ row.data.uuid }}']"
+                                class="btn btn-sm p-0 border-0 bg-transparent"
+                                :class="is_row_open['{{ row.data.uuid }}'] ? 'text-app-primary' : 'text-app-secondary'"
+                            >
+                                <i class="bi" :class="is_row_open['{{ row.data.uuid }}'] ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                        <td class="fw-medium">{{ row.data.name }}</td>
+                        <td>
+                            <span class="badge bg-app-primary">{{ row.data.status }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-app-secondary">{{ row.data.quantity }}</span>
+                        </td>
+                        <td class="text-end">{{ row.data.date|date:"M d, Y" }}</td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% for child_row in row.child_rows %}
+                        <!-- Child Row (TaskUser) -->
+                        <tr
+                            x-show="is_row_open['{{ row.data.uuid }}']"
+                            x-transition
+                            class="bg-app-layer-two"
+                        >
+                            <td></td>
+                            <td class="ps-4">
+                                <button
+                                    @click="is_child_row_open['{{ child_row.child_data.uuid }}'] = !is_child_row_open['{{ child_row.child_data.uuid }}']"
+                                    class="btn btn-sm p-0 border-0 bg-transparent"
+                                    :class="is_child_row_open['{{ child_row.child_data.uuid }}'] ? 'text-app-accent' : 'text-app-secondary'"
+                                >
+                                    <i class="bi" :class="is_child_row_open['{{ child_row.child_data.uuid }}'] ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <span class="text-app-secondary">└─</span>
+                                <span class="ms-2">{{ child_row.child_data.user_name }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-app-accent">{{ child_row.child_data.role }}</span>
+                            </td>
+                            <td class="text-center">-</td>
+                            <td class="text-end">{{ child_row.child_data.date|date:"M d, Y" }}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Detail Row -->
+                        <tr
+                            x-show="is_child_row_open['{{ child_row.child_data.uuid }}']"
+                            x-transition
+                            class="bg-app-accent-soft"
+                        >
+                            <td></td>
+                            <td colspan="6" class="p-4">
+                                <h5 class="text-app-accent mb-3">User Assignment Details</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="bg-app-layer-one p-3 rounded">
+                                            <h6 class="text-app-secondary mb-3">User Information</h6>
+                                            {% include 'django_spire/element/attribute_element.html' with attribute_title='Username' attribute_value=child_row.child_data.user_name %}
+                                            {% include 'django_spire/element/attribute_element.html' with attribute_title='Role' attribute_value=child_row.child_data.role %}
+                                            {% include 'django_spire/element/attribute_element.html' with attribute_title='Assigned' attribute_value=child_row.child_data.date %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="bg-app-layer-one p-3 rounded">
+                                            <h6 class="text-app-secondary mb-3">Task Information</h6>
+                                            <p class="text-app-primary">{{ row.data.name }}</p>
+                                            <p class="text-app-secondary fs-7">{{ row.data.description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="row mt-3">
+        <div class="col">
+            <span class="text-app-secondary fs-7">
+                Showing {{ rows|length }} tasks
+            </span>
+        </div>
+    </div>
+</div>
 {% endblock %}
