@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+
+from django.conf import settings
+from django.core.files.base import ContentFile
 from typing_extensions import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
@@ -35,16 +38,27 @@ class FileFormatter:
 
     @property
     def location(self) -> str:
-        return'django-spire/' + str(self.related_field) + '/' + '/' + str(self.app_name) + '/' + random_64_char_token() + '/' + self.name
+        location = settings.BASE_FOLDER_NAME + '/'
+        location += str(self.app_name) + '/'
+
+        if self.related_field is not None:
+            location += str(self.related_field) + '/'
+
+        location += random_64_char_token() + '/'
+        location += self.name
+
+        return location
 
     def null_file_obj(self) -> File:
-        return File(
-            file=self.file,
+        file_obj = File(
             name=self.name,
             size=self.size_verbose(),
             type=self.type,
-            related_field=self.related_field
+            related_field=self.related_field,
         )
+        self.save_file(file_obj)
+
+        return file_obj
 
     def size_verbose(self) -> str:
         if self.file.size < 512000:
@@ -62,6 +76,10 @@ class FileFormatter:
 
         return str(value) + ext
 
+    def save_file(self, file_obj: File):
+        file_path = self.location + '.' + self.type
+        file_obj.file.save(file_path, ContentFile(self.file.read()), save=False)
+
 
 @dataclass
 class FileContentObjectFormatter(FileFormatter):
@@ -69,26 +87,41 @@ class FileContentObjectFormatter(FileFormatter):
 
     @property
     def location(self) -> str:
-        return 'django-spire/' + '/' + str(self.content_object._meta.app_label) + '/' + random_64_char_token() + '/' + self.name
+        location = settings.BASE_FOLDER_NAME + '/'
+        location += str(self.content_object._meta.app_label) + '/'
+
+        if self.related_field is not None:
+            location += str(self.related_field) + '/'
+
+        location += random_64_char_token() + '/'
+        location += self.name
+        return location
 
     def null_file_obj(self) -> File:
-        return File(
+        file_obj = File(
             content_type=ContentType.objects.get_for_model(self.content_object),
             object_id=self.content_object.id,
-            file=self.file,
             name=self.name,
             size=self.size_verbose(),
             type=self.type,
-            related_field=self.related_field
+            related_field=self.related_field,
         )
+        self.save_file(file_obj)
+
+        return file_obj
 
 
 @dataclass
 class FileUploader(ABC):
     related_field: str | None
+    app_name: str = 'Uncategorized'
 
     def null_file_obj(self, file):
-        formatted_file = FileFormatter(file, self.related_field)
+        formatted_file = FileFormatter(
+            file=file,
+            related_field=self.related_field,
+            app_name=self.app_name
+        )
         return formatted_file.null_file_obj()
 
     @abstractmethod

@@ -7,6 +7,7 @@ import marko
 
 from typing import TYPE_CHECKING
 
+from django.core.files.storage import default_storage
 from marko.element import Element
 from marko.block import Heading, List, ListItem
 
@@ -31,7 +32,7 @@ class MarkdownConverter(BaseConverter):
         self._order = 0
 
     def convert_file_to_blocks(self, file: File) -> list[models.EntryVersionBlock]:
-        with open(file.file.path, 'r') as f:
+        with default_storage.open(file.file.name, 'r') as f:
             return self.convert_markdown_to_blocks(f.read())
 
     def _convert_heading_block(

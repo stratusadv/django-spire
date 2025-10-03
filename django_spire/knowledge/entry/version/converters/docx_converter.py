@@ -29,7 +29,7 @@ class DocxConverter(BaseConverter):
 
     def convert_file_to_blocks(self, file: File) -> list[models.EntryVersionBlock]:
         markitdown = MarkItDown()
-        markdown_result = markitdown.convert(file.file.path)
+        markdown_result = markitdown.convert(file.file.url)
         markdown_content = markdown_result.markdown
 
         markdown_converter = MarkdownConverter(entry_version=self.entry_version)
