@@ -1,0 +1,160 @@
+{% load i18n %}
+
+<style>
+    .djdt-profiling-panel {
+        padding: 10px;
+    }
+
+    .djdt-profiling-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .djdt-profiling-stat {
+        border-radius: 4px;
+        padding: 15px;
+    }
+
+    .djdt-profiling-stat-label {
+        font-size: 0.85em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+    }
+
+    .djdt-profiling-stat-value {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+
+    .djdt-profiling-stat-path {
+        font-size: 0.9em;
+        word-break: break-all;
+    }
+
+    .djdt-profiling-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9em;
+    }
+
+    .djdt-profiling-table th {
+        padding: 8px;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    .djdt-profiling-table td {
+        padding: 8px;
+    }
+
+    .djdt-profile-link {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .djdt-profile-link:hover {
+        text-decoration: underline;
+    }
+
+    .djdt-profile-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .djdt-profile-delete {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .djdt-profile-delete:hover {
+        text-decoration: underline;
+    }
+
+    .djdt-method-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .djdt-no-profiles {
+        padding: 20px;
+        text-align: center;
+        font-style: italic;
+    }
+</style>
+
+<div class="djdt-profiling-panel">
+    <div class="djdt-profiling-stats">
+        <div class="djdt-profiling-stat">
+            <div class="djdt-profiling-stat-label">Status</div>
+            <div class="djdt-profiling-stat-value">
+                {% if enabled %}ENABLED{% else %}DISABLED{% endif %}
+            </div>
+            {% if not enabled %}
+            <small style="font-size: 0.8em;">Set PROFILING_ENABLED=True</small>
+            {% endif %}
+        </div>
+
+        <div class="djdt-profiling-stat">
+            <div class="djdt-profiling-stat-label">Total Profiles</div>
+            <div class="djdt-profiling-stat-value">{{ count }}</div>
+        </div>
+
+        <div class="djdt-profiling-stat">
+            <div class="djdt-profiling-stat-label">Total Size</div>
+            <div class="djdt-profiling-stat-value">{{ totalsize }}</div>
+        </div>
+
+        <div class="djdt-profiling-stat" style="grid-column: 1 / -1;">
+            <div class="djdt-profiling-stat-label">Profile Directory</div>
+            <div class="djdt-profiling-stat-path">{{ directory }}</div>
+        </div>
+    </div>
+
+    {% if profiles %}
+    <table class="djdt-profiling-table">
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Duration</th>
+                <th>Time</th>
+                <th>Size</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profile in profiles %}
+            <tr>
+                <td>
+                    <span class="djdt-method-badge">{{ profile.method }}</span>
+                </td>
+                <td>{{ profile.path }}</td>
+                <td>{{ profile.duration }}</td>
+                <td>{{ profile.modified }}</td>
+                <td>{{ profile.size }}</td>
+                <td>
+                    <div class="djdt-profile-actions">
+                        <a href="{{ profile.url }}" target="_blank" class="djdt-profile-link">
+                            View
+                        </a>
+                        <a href="{{ profile.deleteurl }}" class="djdt-profile-delete" onclick="return confirm('Delete this profile?');">
+                            Delete
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="djdt-no-profiles">
+        No profiles found in {{ directory }}
+    </div>
+    {% endif %}
+</div>

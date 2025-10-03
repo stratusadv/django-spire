@@ -1,0 +1,160 @@
+{% load i18n %}
+
+<style>
+    .djdt-profiling-panel {
+        padding: 10px;
+    }
+
+    .djdt-profiling-stats {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .djdt-profiling-stat {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .djdt-profiling-stat-label {
+        font-size: 0.9em;
+        opacity: 0.7;
+    }
+
+    .djdt-profiling-stat-value {
+        font-weight: bold;
+    }
+
+    .djdt-profiling-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9em;
+    }
+
+    .djdt-profiling-table th {
+        padding: 8px;
+        text-align: left;
+        font-weight: bold;
+    }
+
+    .djdt-profiling-table td {
+        padding: 8px;
+    }
+
+    .djdt-profile-link {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .djdt-profile-link:hover {
+        text-decoration: underline;
+    }
+
+    .djdt-profile-delete {
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .djdt-profile-delete:hover {
+        text-decoration: underline;
+    }
+
+    .djdt-method-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .djdt-no-profiles {
+        padding: 20px;
+        text-align: center;
+        font-style: italic;
+    }
+</style>
+
+<div class="djdt-profiling-panel">
+    <div class="djdt-profiling-stats">
+        <div class="djdt-profiling-stat">
+            <div class="djdt-profiling-stat-label">Status:</div>
+            <div class="djdt-profiling-stat-value">
+                {% if enabled %}Enabled{% else %}Disabled{% endif %}
+            </div>
+        </div>
+
+        <div class="djdt-profiling-stat">
+            <div class="djdt-profiling-stat-label">Profiles:</div>
+            <div class="djdt-profiling-stat-value" id="profile-count">{{ count }}</div>
+        </div>
+
+        <div class="djdt-profiling-stat">
+            <div class="djdt-profiling-stat-label">Size:</div>
+            <div class="djdt-profiling-stat-value" id="total-size">{{ totalsize }}</div>
+        </div>
+
+        <div class="djdt-profiling-stat">
+            <div class="djdt-profiling-stat-label">Directory:</div>
+            <div class="djdt-profiling-stat-value" style="font-size: 0.85em;">{{ directory }}</div>
+        </div>
+
+        <div class="djdt-profiling-stat" style="margin-left: auto;">
+            <a href="#" onclick="if(confirm('Delete ALL profiles?')){let rows=document.querySelectorAll('#profiling-tbody tr');let promises=[];rows.forEach(row=>{let filename=row.dataset.filename;if(filename)promises.push(fetch('/__debug__/profiling/delete/'+filename+'/').then(r=>r.json()));});Promise.all(promises).then(results=>{let success=results.every(r=>r.success);if(success){document.getElementById('profiling-tbody').innerHTML='';document.getElementById('profile-count').textContent='0';document.getElementById('total-size').textContent='0 B';document.getElementById('profiling-table').outerHTML='<div class=djdt-no-profiles>No profiles found</div>';let panels=document.querySelectorAll('.djDebugPanelButton');panels.forEach(p=>{if(p.textContent.includes('Profiles')){let small=p.querySelector('small');if(small)small.textContent='0 profiles';}});}else{alert('Some profiles failed to delete');}}).catch(e=>alert('Error:'+e));}return false;" style="color: #d32f2f; font-weight: bold; text-decoration: none;">
+                Delete All
+            </a>
+        </div>
+    </div>
+
+    {% if not enabled %}
+        <div style="padding: 10px; margin-bottom: 15px; font-size: 0.9em; opacity: 0.7;">
+            Set PROFILING_ENABLED=True to enable profiling
+        </div>
+    {% endif %}
+
+    {% if profiles %}
+        <table class="djdt-profiling-table" id="profiling-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Path</th>
+                    <th>Duration</th>
+                    <th>Time</th>
+                    <th>Size</th>
+                    <th>View</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody id="profiling-tbody">
+                {% for profile in profiles %}
+                <tr data-filename="{{ profile.filename }}">
+                    <td>
+                        <span class="djdt-method-badge">{{ profile.method }}</span>
+                    </td>
+                    <td>{{ profile.path }}</td>
+                    <td>{{ profile.duration }}</td>
+                    <td>{{ profile.modified }}</td>
+                    <td>{{ profile.size }}</td>
+                    <td>
+                        <a href="{% url 'djdt:profiling_view' profile.filename %}" target="_blank" class="djdt-profile-link">
+                            View
+                        </a>
+                    </td>
+                    <td>
+                        <a href="#" onclick="if(confirm('Delete this profile?')){fetch('/__debug__/profiling/delete/{{ profile.filename }}/').then(r=>r.json()).then(d=>{if(d.success){let row=this.closest('tr');row.remove();let count=document.querySelectorAll('#profiling-tbody tr').length;document.getElementById('profile-count').textContent=count;let panels=document.querySelectorAll('.djDebugPanelButton');panels.forEach(p=>{if(p.textContent.includes('Profiles')){let small=p.querySelector('small');if(small)small.textContent=count+' profiles';}});if(count===0){document.getElementById('profiling-table').outerHTML='<div class=djdt-no-profiles>No profiles found</div>';document.getElementById('total-size').textContent='0 B';}else{fetch('/__debug__/profiling/list/').then(r=>r.json()).then(data=>{document.getElementById('total-size').textContent=data.totalsize;});}}else if(d.error&&!d.error.includes('not found')){alert('Failed to delete: '+d.error);}}).catch(e=>{console.error('Delete error:',e);});}return false;" class="djdt-profile-delete">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="djdt-no-profiles">
+            No profiles found in {{ directory }}
+        </div>
+    {% endif %}
+</div>
