@@ -8,6 +8,8 @@ from ${module_path} import models
 
 
 class ${seeder_class_name}(DjangoModelSeeder):
+    """https://django-spire.stratusadv.com/app_guides/seeding/overview/"""
+
     model_class = models.${model_class_name}
     default_to = 'faker'
 
@@ -17,5 +19,5 @@ class ${seeder_class_name}(DjangoModelSeeder):
         'is_active': True,
         'is_deleted': False,
         # 'name': ('faker', 'company'),
-        # 'status': ('faker', 'random_element', {'elements': ['active', 'inactive', 'pending']}),
+        # 'status': ('faker'),
     }

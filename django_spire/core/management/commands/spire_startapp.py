@@ -44,54 +44,66 @@ class Command(BaseCommand):
         return [config.name for config in apps.get_app_configs()]
 
     def _get_app_path(self) -> tuple[str, list[str]]:
-        app_path = input('[1/8]: Enter the app path (e.g., "app.human_resource.employee.skill"): ').strip()
+        app_path = input('[1/7]: Enter the app path (e.g., "app.human_resource.employee.skill"): ').strip()
 
         if not app_path:
+            self.reporter.write('\n', self.style.NOTICE)
             raise CommandError(self.style.ERROR('The app path is required'))
 
-        return app_path, app_path.split('.')
+        components = app_path.split('.')
+        self._check_app_exists(components)
+
+        return app_path, components
+
+    def _check_app_exists(self, components: list[str]) -> None:
+        destination = self.app_base.joinpath(*components)
+
+        if destination.exists() and any(destination.iterdir()):
+            self.reporter.write('\n', self.style.NOTICE)
+
+            raise CommandError(
+                self.style.ERROR(
+                    f'\n The app already exists at {destination}. '
+                    'Please remove the existing app or choose a different name.'
+                )
+            )
 
     def _get_app_name(self, components: list[str]) -> str:
         default_app_name = components[-1]
-        self.reporter.write(f'\n[2/8]: Enter the app name (default: "{default_app_name}")', self.style.NOTICE)
+        self.reporter.write(f'\n[2/7]: Enter the app name (default: "{default_app_name}")', self.style.NOTICE)
         app_name_input = input('Press Enter to use default or type a custom name: ').strip()
         return app_name_input if app_name_input else default_app_name
 
     def _get_app_label(self, components: list[str], app_name: str) -> str:
         parent_parts = components[1:-1] if len(components) > 1 else []
         default_app_label = '_'.join(parent_parts).lower() + '_' + app_name.lower() if parent_parts else app_name.lower()
-        self.reporter.write(f'\n[3/8]: Enter the app label (default: "{default_app_label}")', self.style.NOTICE)
+        self.reporter.write(f'\n[3/7]: Enter the app label (default: "{default_app_label}")', self.style.NOTICE)
         app_label_input = input('Press Enter to use default or type a custom name: ').strip()
         return app_label_input if app_label_input else default_app_label
 
     def _get_model_name(self, app_name: str) -> str:
         default_model_name = ''.join(word.title() for word in app_name.split('_'))
-        self.reporter.write(f'\n[4/8]: Enter the model name (default: "{default_model_name}")', self.style.NOTICE)
+        self.reporter.write(f'\n[4/7]: Enter the model name (default: "{default_model_name}")', self.style.NOTICE)
         model_name_input = input('Press Enter to use default or type a custom name: ').strip()
         return model_name_input if model_name_input else default_model_name
 
     def _get_model_name_plural(self, model_name: str) -> str:
         default_model_plural = model_name + 's'
-        self.reporter.write(f'\n[5/8]: Enter the model name plural (default: "{default_model_plural}")', self.style.NOTICE)
+        self.reporter.write(f'\n[5/7]: Enter the model name plural (default: "{default_model_plural}")', self.style.NOTICE)
         model_plural_input = input('Press Enter to use default or type a custom name: ').strip()
         return model_plural_input if model_plural_input else default_model_plural
 
     def _get_db_table_name(self, app_label: str) -> str:
         default_db_table = app_label
-        self.reporter.write(f'\n[6/8]: Enter the database table name (default: "{default_db_table}")', self.style.NOTICE)
+        self.reporter.write(f'\n[6/7]: Enter the database table name (default: "{default_db_table}")', self.style.NOTICE)
         db_table_input = input('Press Enter to use default or type a custom name: ').strip()
         return db_table_input if db_table_input else default_db_table
 
     def _get_model_permission_path(self, app_path: str, model_name: str) -> str:
         default_permission_path = f'{app_path}.models.{model_name}'
-        self.reporter.write(f'\n[7/8]: Enter the model permission path (default: "{default_permission_path}")', self.style.NOTICE)
+        self.reporter.write(f'\n[7/7]: Enter the model permission path (default: "{default_permission_path}")', self.style.NOTICE)
         permission_path_input = input('Press Enter to use default or type a custom path: ').strip()
         return permission_path_input if permission_path_input else default_permission_path
-
-    def _get_is_proxy_model(self) -> bool:
-        self.reporter.write('\n[8/8]: Is this a proxy model? (y/N)', self.style.NOTICE)
-        is_proxy_input = input('Press Enter for No or type y for Yes: ').strip().lower()
-        return is_proxy_input in ['y', 'yes']
 
     def _derive_verbose_names(self, model_name: str, model_name_plural: str) -> tuple[str, str]:
         verbose_name = re.sub(r'(?<!^)(?=[A-Z])', ' ', model_name)
@@ -108,7 +120,6 @@ class Command(BaseCommand):
         model_name_plural = self._get_model_name_plural(model_name)
         db_table_name = self._get_db_table_name(app_label)
         model_permission_path = self._get_model_permission_path(app_path, model_name)
-        is_proxy_model = self._get_is_proxy_model()
         verbose_name, verbose_name_plural = self._derive_verbose_names(model_name, model_name_plural)
 
         return {
@@ -119,7 +130,6 @@ class Command(BaseCommand):
             'app_label': app_label,
             'db_table_name': db_table_name,
             'model_permission_path': model_permission_path,
-            'is_proxy_model': is_proxy_model,
             'verbose_name': verbose_name,
             'verbose_name_plural': verbose_name_plural,
         }
@@ -145,7 +155,6 @@ class Command(BaseCommand):
         if missing:
             self.reporter.report_missing_components(missing)
             self.reporter.report_app_tree_structure(self.app_base, components, registry, self.app_template)
-            # self.reporter.report_html_tree_structure(self.template_base, components, registry, self.html_template)
 
             if not self.reporter.prompt_for_confirmation('\nProceed with app creation? (y/n): '):
                 self.reporter.write('App creation aborted.', self.style.ERROR)
@@ -158,8 +167,6 @@ class Command(BaseCommand):
                     self.reporter,
                     user_inputs
                 )
-
-                # self.html_manager.create_custom_templates(module, self.html_processor, self.reporter)
 
             self.reporter.report_installed_apps_suggestion(missing)
         else:

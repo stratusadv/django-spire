@@ -17,6 +17,11 @@ class ModulePaths:
     module: str
     module_path: str
 
+    @classmethod
+    def build(cls, components: list[str], **_kwargs) -> ModulePaths:
+        module = '.'.join(components)
+        return cls(module=module, module_path=module)
+
 
 @dataclass
 class ModelNames:
@@ -40,6 +45,61 @@ class ModelNames:
     model_verbose_name: str
     model_verbose_name_plural: str
 
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> ModelNames:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        default_model_name = ''.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        model_name = (
+            user_inputs.get('model_name', default_model_name)
+            if user_inputs
+            else default_model_name
+        )
+
+        model_name_plural = (
+            user_inputs.get('model_name_plural', model_name + 's')
+            if user_inputs
+            else model_name + 's'
+        )
+
+        default_verbose_name = ' '.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        verbose_name = (
+            user_inputs.get('verbose_name', default_verbose_name)
+            if user_inputs
+            else default_verbose_name
+        )
+
+        verbose_name_plural = (
+            user_inputs.get('verbose_name_plural', verbose_name + 's')
+            if user_inputs
+            else verbose_name + 's'
+        )
+
+        return cls(
+            model_class_name=model_name,
+            model_class_name_plural=model_name_plural,
+            model_instance_name=app_name.lower(),
+            model_instance_name_plural=app_name.lower() + 's',
+            model_verbose_name=verbose_name,
+            model_verbose_name_plural=verbose_name_plural,
+        )
+
 
 @dataclass
 class ModelPermissions:
@@ -49,15 +109,54 @@ class ModelPermissions:
     Example:
         permission_name: 'employee_skill'
         model_class_path: 'app.human_resource.employee.skill.models.EmployeeSkill'
-        is_proxy_model: 'False'
-        is_proxy_model_bool: False
 
     """
 
     permission_name: str
     model_class_path: str
-    is_proxy_model: str
-    is_proxy_model_bool: bool
+
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> ModelPermissions:
+        module = '.'.join(components)
+        parent_parts = components[1:-1] if len(components) > 1 else []
+
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        default_model_name = ''.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        model_name = (
+            user_inputs.get('model_name', default_model_name)
+            if user_inputs
+            else default_model_name
+        )
+
+        default_permission_name = (
+            '_'.join(parent_parts).lower() + '_' + app_name.lower()
+            if parent_parts
+            else app_name.lower()
+        )
+
+        permission_path = (
+            user_inputs.get('model_permission_path', f'{module}.models.{model_name}')
+            if user_inputs
+            else f'{module}.models.{model_name}'
+        )
+
+        return cls(
+            permission_name=default_permission_name,
+            model_class_path=permission_path,
+        )
 
 
 @dataclass
@@ -80,6 +179,57 @@ class AppConfiguration:
     permission_prefix: str
     db_table_name: str
 
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> AppConfiguration:
+        parent_parts = components[1:-1] if len(components) > 1 else []
+
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        default_model_name = ''.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        model_name = (
+            user_inputs.get('model_name', default_model_name)
+            if user_inputs
+            else default_model_name
+        )
+
+        default_label = (
+            '_'.join(parent_parts).lower() + '_' + app_name.lower()
+            if parent_parts
+            else app_name.lower()
+        )
+
+        app_label = (
+            user_inputs.get('app_label', default_label)
+            if user_inputs
+            else default_label
+        )
+
+        db_table = (
+            user_inputs.get('db_table_name', default_label)
+            if user_inputs
+            else default_label
+        )
+
+        return cls(
+            app_config_class_name=model_name + 'Config',
+            app_name_component=app_name,
+            django_label=app_label,
+            permission_prefix=app_label,
+            db_table_name=db_table,
+        )
+
 
 @dataclass
 class ParentReferences:
@@ -94,6 +244,18 @@ class ParentReferences:
 
     parent_app_name: str
     parent_model_class_name: str
+
+    @classmethod
+    def build(cls, components: list[str], **_kwargs) -> ParentReferences:
+        parent = components[-2] if len(components) > 1 else components[-1]
+
+        return cls(
+            parent_app_name=parent.lower(),
+            parent_model_class_name=''.join(
+                word.title()
+                for word in parent.split('_')
+            ),
+        )
 
 
 @dataclass
@@ -116,6 +278,37 @@ class ServiceClasses:
     processor_service_class_name: str
     transformation_service_class_name: str
 
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> ServiceClasses:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        default_model_name = ''.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        model_name = (
+            user_inputs.get('model_name', default_model_name)
+            if user_inputs
+            else default_model_name
+        )
+
+        return cls(
+            service_class_name=model_name + 'Service',
+            factory_service_class_name=model_name + 'FactoryService',
+            intelligence_service_class_name=model_name + 'IntelligenceService',
+            processor_service_class_name=model_name + 'ProcessorService',
+            transformation_service_class_name=model_name + 'TransformationService',
+        )
+
 
 @dataclass
 class IntelligenceClasses:
@@ -130,6 +323,34 @@ class IntelligenceClasses:
 
     bot_class_name: str
     intel_class_name: str
+
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> IntelligenceClasses:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        default_model_name = ''.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        model_name = (
+            user_inputs.get('model_name', default_model_name)
+            if user_inputs
+            else default_model_name
+        )
+
+        return cls(
+            bot_class_name=model_name + 'Bot',
+            intel_class_name=model_name + 'Intel',
+        )
 
 
 @dataclass
@@ -147,6 +368,35 @@ class DataClasses:
     seeder_class_name: str
     queryset_class_name: str
     form_class_name: str
+
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> DataClasses:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        default_model_name = ''.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        model_name = (
+            user_inputs.get('model_name', default_model_name)
+            if user_inputs
+            else default_model_name
+        )
+
+        return cls(
+            seeder_class_name=model_name + 'Seeder',
+            queryset_class_name=model_name + 'QuerySet',
+            form_class_name=model_name + 'Form',
+        )
 
 
 @dataclass
@@ -177,6 +427,41 @@ class TestClasses:
     url_test_class_name: str
     view_test_class_name: str
 
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> TestClasses:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        default_model_name = ''.join(
+            word.title()
+            for word in app_name.split('_')
+        )
+
+        model_name = (
+            user_inputs.get('model_name', default_model_name)
+            if user_inputs
+            else default_model_name
+        )
+
+        return cls(
+            model_test_class_name=model_name + 'ModelTestCase',
+            bot_test_class_name=model_name + 'BotTestCase',
+            service_test_class_name=model_name + 'ServiceTestCase',
+            factory_service_test_class_name=model_name + 'FactoryServiceTestCase',
+            intelligence_service_test_class_name=model_name + 'IntelligenceServiceTestCase',
+            processor_service_test_class_name=model_name + 'ProcessorServiceTestCase',
+            transformation_service_test_class_name=model_name + 'TransformationServiceTestCase',
+            url_test_class_name=model_name + 'UrlTestCase',
+            view_test_class_name=model_name + 'ViewTestCase',
+        )
+
 
 @dataclass
 class URLPatterns:
@@ -193,6 +478,33 @@ class URLPatterns:
     url_namespace: str
     url_reverse_path: str
     url_reverse_parent_path: str
+
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> URLPatterns:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        parent_parts = components[1:-1] if len(components) > 1 else []
+
+        if parent_parts:
+            reverse_parent = ':'.join(parent_parts).lower()
+            reverse_path = reverse_parent + ':' + app_name.lower()
+        else:
+            reverse_parent = ''
+            reverse_path = app_name.lower()
+
+        return cls(
+            url_namespace=app_name.lower(),
+            url_reverse_path=reverse_path,
+            url_reverse_parent_path=reverse_parent,
+        )
 
 
 @dataclass
@@ -223,6 +535,38 @@ class TemplatePaths:
     form_page_template_name: str
     list_page_template_name: str
 
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> TemplatePaths:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        parent_parts = components[1:-1] if len(components) > 1 else []
+
+        template_path = (
+            '/'.join(parent_parts).lower() + '/' + app_name.lower()
+            if parent_parts
+            else app_name.lower()
+        )
+
+        return cls(
+            template_directory_path=template_path,
+            detail_card_template_name=app_name.lower() + '_detail_card',
+            form_card_template_name=app_name.lower() + '_form_card',
+            list_card_template_name=app_name.lower() + '_list_card',
+            item_template_name=app_name.lower() + '_item',
+            form_template_name=app_name.lower() + '_form',
+            detail_page_template_name=app_name.lower() + '_detail_page',
+            form_page_template_name=app_name.lower() + '_form_page',
+            list_page_template_name=app_name.lower() + '_list_page',
+        )
+
 
 @dataclass
 class PromptFunctions:
@@ -237,6 +581,23 @@ class PromptFunctions:
 
     instruction_prompt_function_name: str
     user_input_prompt_function_name: str
+
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> PromptFunctions:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        return cls(
+            instruction_prompt_function_name=app_name.lower() + '_instruction_prompt',
+            user_input_prompt_function_name=app_name.lower() + '_user_input_prompt',
+        )
 
 
 @dataclass
@@ -265,6 +626,19 @@ class ViewFunctions:
     update_modal_form_view_name: str
     delete_modal_form_view_name: str
 
+    @classmethod
+    def build(cls, components: list[str], **_kwargs) -> ViewFunctions:
+        return cls(
+            list_page_view_name='list_page_view',
+            detail_page_view_name='detail_page_view',
+            create_form_view_name='create_form_view',
+            update_form_view_name='update_form_view',
+            delete_form_view_name='delete_form_view',
+            create_modal_form_view_name='create_modal_form_view',
+            update_modal_form_view_name='update_modal_form_view',
+            delete_modal_form_view_name='delete_modal_form_view',
+        )
+
 
 @dataclass
 class ContextVariables:
@@ -282,6 +656,87 @@ class ContextVariables:
     context_single_var: str
     context_plural_var: str
 
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> ContextVariables:
+        app_name = (
+            user_inputs.get('app_name', components[-1])
+            if user_inputs
+            else components[-1]
+        )
+
+        return cls(
+            glue_model_key=app_name.lower(),
+            context_single_var=app_name.lower(),
+            context_plural_var=app_name.lower() + 's',
+        )
+
+
+@dataclass
+class ReplacementMapBuilder:
+    """Aggregates all dataclasses and builds the final replacement map."""
+
+    module_paths: ModulePaths
+    model_names: ModelNames
+    model_permissions: ModelPermissions
+    app_config: AppConfiguration
+    parent_refs: ParentReferences
+    services: ServiceClasses
+    intelligence: IntelligenceClasses
+    data_classes: DataClasses
+    tests: TestClasses
+    urls: URLPatterns
+    templates: TemplatePaths
+    prompts: PromptFunctions
+    views: ViewFunctions
+    context: ContextVariables
+
+    @classmethod
+    def build(
+        cls,
+        components: list[str],
+        user_inputs: dict[str, str] | None = None
+    ) -> ReplacementMapBuilder:
+        return cls(
+            module_paths=ModulePaths.build(components, user_inputs=user_inputs),
+            model_names=ModelNames.build(components, user_inputs=user_inputs),
+            model_permissions=ModelPermissions.build(components, user_inputs=user_inputs),
+            app_config=AppConfiguration.build(components, user_inputs=user_inputs),
+            parent_refs=ParentReferences.build(components, user_inputs=user_inputs),
+            services=ServiceClasses.build(components, user_inputs=user_inputs),
+            intelligence=IntelligenceClasses.build(components, user_inputs=user_inputs),
+            data_classes=DataClasses.build(components, user_inputs=user_inputs),
+            tests=TestClasses.build(components, user_inputs=user_inputs),
+            urls=URLPatterns.build(components, user_inputs=user_inputs),
+            templates=TemplatePaths.build(components, user_inputs=user_inputs),
+            prompts=PromptFunctions.build(components, user_inputs=user_inputs),
+            views=ViewFunctions.build(components, user_inputs=user_inputs),
+            context=ContextVariables.build(components, user_inputs=user_inputs),
+        )
+
+    def to_dict(self) -> dict[str, str]:
+        """Convert the builder to a flat dictionary for template replacement."""
+
+        return {
+            **asdict(self.module_paths),
+            **asdict(self.model_names),
+            **asdict(self.model_permissions),
+            **asdict(self.app_config),
+            **asdict(self.parent_refs),
+            **asdict(self.services),
+            **asdict(self.intelligence),
+            **asdict(self.data_classes),
+            **asdict(self.tests),
+            **asdict(self.urls),
+            **asdict(self.templates),
+            **asdict(self.prompts),
+            **asdict(self.views),
+            **asdict(self.context),
+        }
+
 
 def generate_replacement_map(
     components: list[str],
@@ -289,186 +744,5 @@ def generate_replacement_map(
 ) -> dict[str, str]:
     """Generate replacement mappings for template processing."""
 
-    if user_inputs:
-        app_name = user_inputs.get('app_name', components[-1])
-        model_name = user_inputs.get('model_name')
-        model_name_plural = user_inputs.get('model_name_plural')
-        app_label = user_inputs.get('app_label')
-        db_table_name = user_inputs.get('db_table_name')
-        model_permission_path = user_inputs.get('model_permission_path')
-        verbose_name = user_inputs.get('verbose_name')
-        verbose_name_plural = user_inputs.get('verbose_name_plural')
-        is_proxy_model = user_inputs.get('is_proxy_model', False)
-    else:
-        app_name = components[-1]
-        model_name = None
-        model_name_plural = None
-        app_label = None
-        db_table_name = None
-        model_permission_path = None
-        verbose_name = None
-        verbose_name_plural = None
-        is_proxy_model = False
-
-    if len(components) > 1:
-        parents = components[0:-1]
-        parent = components[-2]
-    else:
-        parents = [app_name]
-        parent = app_name
-
-    module = '.'.join(components)
-    parent_parts = parents[1:]
-    is_root = len(parent_parts) == 0
-
-    if is_root:
-        reverse_parent_path = ''
-        reverse_path = app_name.lower()
-        default_label_path = app_name.lower()
-        template_path = app_name.lower()
-        default_permission_name = app_name.lower()
-    else:
-        reverse_parent_path = ':'.join(parent_parts).lower()
-        reverse_path = ':'.join(parent_parts).lower() + ':' + app_name.lower()
-        default_label_path = '_'.join(parent_parts).lower() + '_' + app_name.lower()
-        template_path = '/'.join(parent_parts).lower() + '/' + app_name.lower()
-        default_permission_name = default_label_path
-
-    default_model_name = ''.join(word.title() for word in app_name.split('_'))
-    final_model_name = model_name if model_name else default_model_name
-    final_model_name_plural = model_name_plural if model_name_plural else final_model_name + 's'
-
-    default_verbose_name = ' '.join(word.title() for word in app_name.split('_'))
-    final_verbose_name = verbose_name if verbose_name else default_verbose_name
-    final_verbose_name_plural = verbose_name_plural if verbose_name_plural else final_verbose_name + 's'
-
-    final_app_label = app_label if app_label else default_label_path
-    final_db_table = db_table_name if db_table_name else default_label_path
-    final_permission_path = model_permission_path if model_permission_path else f'{module}.models.{final_model_name}'
-    final_permission_name = default_permission_name
-
-    module_paths = ModulePaths(
-        module=module,
-        module_path=module,
-    )
-
-    model_names = ModelNames(
-        model_class_name=final_model_name,
-        model_class_name_plural=final_model_name_plural,
-        model_instance_name=app_name.lower(),
-        model_instance_name_plural=app_name.lower() + 's',
-        model_verbose_name=final_verbose_name,
-        model_verbose_name_plural=final_verbose_name_plural,
-    )
-
-    model_permissions = ModelPermissions(
-        permission_name=final_permission_name,
-        model_class_path=final_permission_path,
-        is_proxy_model=str(is_proxy_model),
-        is_proxy_model_bool=is_proxy_model,
-    )
-
-    app_config = AppConfiguration(
-        app_config_class_name=final_model_name + 'Config',
-        app_name_component=app_name,
-        django_label=final_app_label,
-        permission_prefix=final_app_label,
-        db_table_name=final_db_table,
-    )
-
-    parent_refs = ParentReferences(
-        parent_app_name=parent.lower(),
-        parent_model_class_name=''.join(word.title() for word in parent.split('_')),
-    )
-
-    services = ServiceClasses(
-        service_class_name=final_model_name + 'Service',
-        factory_service_class_name=final_model_name + 'FactoryService',
-        intelligence_service_class_name=final_model_name + 'IntelligenceService',
-        processor_service_class_name=final_model_name + 'ProcessorService',
-        transformation_service_class_name=final_model_name + 'TransformationService',
-    )
-
-    intelligence = IntelligenceClasses(
-        bot_class_name=final_model_name + 'Bot',
-        intel_class_name=final_model_name + 'Intel',
-    )
-
-    data_classes = DataClasses(
-        seeder_class_name=final_model_name + 'Seeder',
-        queryset_class_name=final_model_name + 'QuerySet',
-        form_class_name=final_model_name + 'Form',
-    )
-
-    tests = TestClasses(
-        model_test_class_name=final_model_name + 'ModelTestCase',
-        bot_test_class_name=final_model_name + 'BotTestCase',
-        service_test_class_name=final_model_name + 'ServiceTestCase',
-        factory_service_test_class_name=final_model_name + 'FactoryServiceTestCase',
-        intelligence_service_test_class_name=final_model_name + 'IntelligenceServiceTestCase',
-        processor_service_test_class_name=final_model_name + 'ProcessorServiceTestCase',
-        transformation_service_test_class_name=final_model_name + 'TransformationServiceTestCase',
-        url_test_class_name=final_model_name + 'UrlTestCase',
-        view_test_class_name=final_model_name + 'ViewTestCase',
-    )
-
-    urls = URLPatterns(
-        url_namespace=app_name.lower(),
-        url_reverse_path=reverse_path,
-        url_reverse_parent_path=reverse_parent_path,
-    )
-
-    templates = TemplatePaths(
-        template_directory_path=template_path,
-        detail_card_template_name=app_name.lower() + '_detail_card',
-        form_card_template_name=app_name.lower() + '_form_card',
-        list_card_template_name=app_name.lower() + '_list_card',
-        item_template_name=app_name.lower() + '_item',
-        form_template_name=app_name.lower() + '_form',
-        detail_page_template_name=app_name.lower() + '_detail_page',
-        form_page_template_name=app_name.lower() + '_form_page',
-        list_page_template_name=app_name.lower() + '_list_page',
-    )
-
-    prompts = PromptFunctions(
-        instruction_prompt_function_name=app_name.lower() + '_instruction_prompt',
-        user_input_prompt_function_name=app_name.lower() + '_user_input_prompt',
-    )
-
-    views = ViewFunctions(
-        list_page_view_name='list_page_view',
-        detail_page_view_name='detail_page_view',
-        create_form_view_name='create_form_view',
-        update_form_view_name='update_form_view',
-        delete_form_view_name='delete_form_view',
-        create_modal_form_view_name='create_modal_form_view',
-        update_modal_form_view_name='update_modal_form_view',
-        delete_modal_form_view_name='delete_modal_form_view',
-    )
-
-    context = ContextVariables(
-        glue_model_key=app_name.lower(),
-        context_single_var=app_name.lower(),
-        context_plural_var=app_name.lower() + 's',
-    )
-
-    return {
-        **asdict(module_paths),
-        **asdict(model_names),
-        **{
-            k: v
-            for k, v in asdict(model_permissions).items()
-            if k != 'is_proxy_model_bool'
-        },
-        **asdict(app_config),
-        **asdict(parent_refs),
-        **asdict(services),
-        **asdict(intelligence),
-        **asdict(data_classes),
-        **asdict(tests),
-        **asdict(urls),
-        **asdict(templates),
-        **asdict(prompts),
-        **asdict(views),
-        **asdict(context),
-    }
+    builder = ReplacementMapBuilder.build(components, user_inputs)
+    return builder.to_dict()
