@@ -1,21 +1,18 @@
 from __future__ import annotations
 
-from dandy.llm import BaseLlmBot
+from dandy import Bot
 
-from ${module_path}.intelligence import intel
-from ${module_path}.intelligence import prompts
+from ${module_path}.intelligence import intel, prompts
 
 
-class ${bot_class_name}(BaseLlmBot):
-    instructions_prompt = prompts.${instruction_prompt_function_name}()
-    intel_class = intel.${intel_class_name}
+class ${bot_class_name}(Bot):
+    llm_intel_class = intel.${intel_class_name}
+    llm_role = prompts.${instruction_prompt_function_name}()
 
-    @classmethod
     def process(
-        cls,
+        self,
         user_input: str
     ) -> intel.${intel_class_name}:
-
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=prompts.${user_input_prompt_function_name}(user_input)
         )

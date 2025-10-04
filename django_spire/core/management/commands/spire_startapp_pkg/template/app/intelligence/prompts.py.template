@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 def ${instruction_prompt_function_name}() -> Prompt:

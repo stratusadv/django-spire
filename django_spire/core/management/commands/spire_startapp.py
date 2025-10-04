@@ -1,22 +1,21 @@
 from __future__ import annotations
 
 import django_spire
-import re
 
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
-from django_spire.core.management.commands.spire_startapp_pkg.manager import (
-        AppManager,
-        HTMLTemplateManager,
+from django_spire.core.management.commands.spire_startapp_pkg import (
+    AppManager,
+    AppTemplateProcessor,
+    HTMLTemplateManager,
+    HTMLTemplateProcessor,
+    Reporter,
+    PermissionInheritanceHandler,
+    UserInputHandler
 )
-from django_spire.core.management.commands.spire_startapp_pkg.processor import (
-        AppTemplateProcessor,
-        HTMLTemplateProcessor
-)
-from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
 
 
 class Command(BaseCommand):
@@ -38,104 +37,15 @@ class Command(BaseCommand):
         self.html_processor = HTMLTemplateProcessor()
 
         self.reporter = Reporter(self)
+        self.user_input_handler = UserInputHandler(self.reporter)
+        self.permission_handler = PermissionInheritanceHandler(self.reporter)
 
     def get_app_names(self) -> list[str]:
         from django.apps import apps
         return [config.name for config in apps.get_app_configs()]
 
-    def _get_app_path(self) -> tuple[str, list[str]]:
-        app_path = input('[1/7]: Enter the app path (e.g., "app.human_resource.employee.skill"): ').strip()
-
-        if not app_path:
-            self.reporter.write('\n', self.style.NOTICE)
-            raise CommandError(self.style.ERROR('The app path is required'))
-
-        components = app_path.split('.')
-        self._check_app_exists(components)
-
-        return app_path, components
-
-    def _check_app_exists(self, components: list[str]) -> None:
-        destination = self.app_base.joinpath(*components)
-
-        if destination.exists() and any(destination.iterdir()):
-            self.reporter.write('\n', self.style.NOTICE)
-
-            raise CommandError(
-                self.style.ERROR(
-                    f'\n The app already exists at {destination}. '
-                    'Please remove the existing app or choose a different name.'
-                )
-            )
-
-    def _get_app_name(self, components: list[str]) -> str:
-        default_app_name = components[-1]
-        self.reporter.write(f'\n[2/7]: Enter the app name (default: "{default_app_name}")', self.style.NOTICE)
-        app_name_input = input('Press Enter to use default or type a custom name: ').strip()
-        return app_name_input if app_name_input else default_app_name
-
-    def _get_app_label(self, components: list[str], app_name: str) -> str:
-        parent_parts = components[1:-1] if len(components) > 1 else []
-        default_app_label = '_'.join(parent_parts).lower() + '_' + app_name.lower() if parent_parts else app_name.lower()
-        self.reporter.write(f'\n[3/7]: Enter the app label (default: "{default_app_label}")', self.style.NOTICE)
-        app_label_input = input('Press Enter to use default or type a custom name: ').strip()
-        return app_label_input if app_label_input else default_app_label
-
-    def _get_model_name(self, app_name: str) -> str:
-        default_model_name = ''.join(word.title() for word in app_name.split('_'))
-        self.reporter.write(f'\n[4/7]: Enter the model name (default: "{default_model_name}")', self.style.NOTICE)
-        model_name_input = input('Press Enter to use default or type a custom name: ').strip()
-        return model_name_input if model_name_input else default_model_name
-
-    def _get_model_name_plural(self, model_name: str) -> str:
-        default_model_plural = model_name + 's'
-        self.reporter.write(f'\n[5/7]: Enter the model name plural (default: "{default_model_plural}")', self.style.NOTICE)
-        model_plural_input = input('Press Enter to use default or type a custom name: ').strip()
-        return model_plural_input if model_plural_input else default_model_plural
-
-    def _get_db_table_name(self, app_label: str) -> str:
-        default_db_table = app_label
-        self.reporter.write(f'\n[6/7]: Enter the database table name (default: "{default_db_table}")', self.style.NOTICE)
-        db_table_input = input('Press Enter to use default or type a custom name: ').strip()
-        return db_table_input if db_table_input else default_db_table
-
-    def _get_model_permission_path(self, app_path: str, model_name: str) -> str:
-        default_permission_path = f'{app_path}.models.{model_name}'
-        self.reporter.write(f'\n[7/7]: Enter the model permission path (default: "{default_permission_path}")', self.style.NOTICE)
-        permission_path_input = input('Press Enter to use default or type a custom path: ').strip()
-        return permission_path_input if permission_path_input else default_permission_path
-
-    def _derive_verbose_names(self, model_name: str, model_name_plural: str) -> tuple[str, str]:
-        verbose_name = re.sub(r'(?<!^)(?=[A-Z])', ' ', model_name)
-        verbose_name_plural = re.sub(r'(?<!^)(?=[A-Z])', ' ', model_name_plural)
-        return verbose_name, verbose_name_plural
-
-    def get_user_input(self) -> dict[str, str]:
-        self.reporter.write('\n[App Creation Wizard]\n\n', self.style.SUCCESS)
-
-        app_path, components = self._get_app_path()
-        app_name = self._get_app_name(components)
-        app_label = self._get_app_label(components, app_name)
-        model_name = self._get_model_name(app_name)
-        model_name_plural = self._get_model_name_plural(model_name)
-        db_table_name = self._get_db_table_name(app_label)
-        model_permission_path = self._get_model_permission_path(app_path, model_name)
-        verbose_name, verbose_name_plural = self._derive_verbose_names(model_name, model_name_plural)
-
-        return {
-            'app_path': app_path,
-            'app_name': app_name,
-            'model_name': model_name,
-            'model_name_plural': model_name_plural,
-            'app_label': app_label,
-            'db_table_name': db_table_name,
-            'model_permission_path': model_permission_path,
-            'verbose_name': verbose_name,
-            'verbose_name_plural': verbose_name_plural,
-        }
-
-    def handle(self, *_args, **kwargs) -> None:
-        user_inputs = self.get_user_input()
+    def handle(self, *args, **kwargs) -> None:
+        user_inputs = self.user_input_handler.collect_all_inputs()
         app = user_inputs['app_path']
 
         self.app_manager.validate_app_name_format(app)

@@ -91,11 +91,24 @@ class ModelNames:
             else verbose_name + 's'
         )
 
+        inherit_permissions = (
+            user_inputs.get('inherit_permissions', False)
+            if user_inputs
+            else False
+        )
+
+        if inherit_permissions and user_inputs:
+            model_instance_name = user_inputs.get('parent_model_instance_name', app_name.lower())
+            model_instance_name_plural = model_instance_name + 's'
+        else:
+            model_instance_name = app_name.lower()
+            model_instance_name_plural = app_name.lower() + 's'
+
         return cls(
             model_class_name=model_name,
             model_class_name_plural=model_name_plural,
-            model_instance_name=app_name.lower(),
-            model_instance_name_plural=app_name.lower() + 's',
+            model_instance_name=model_instance_name,
+            model_instance_name_plural=model_instance_name_plural,
             model_verbose_name=verbose_name,
             model_verbose_name_plural=verbose_name_plural,
         )
@@ -109,11 +122,13 @@ class ModelPermissions:
     Example:
         permission_name: 'employee_skill'
         model_class_path: 'app.human_resource.employee.skill.models.EmployeeSkill'
+        is_proxy_model: False
 
     """
 
     permission_name: str
     model_class_path: str
+    is_proxy_model: bool
 
     @classmethod
     def build(
@@ -147,15 +162,25 @@ class ModelPermissions:
             else app_name.lower()
         )
 
-        permission_path = (
-            user_inputs.get('model_permission_path', f'{module}.models.{model_name}')
+        inherit_permissions = (
+            user_inputs.get('inherit_permissions', False)
             if user_inputs
-            else f'{module}.models.{model_name}'
+            else False
         )
+
+        if inherit_permissions and user_inputs:
+            permission_path = user_inputs.get('parent_model_path', f'{module}.models.{model_name}')
+        else:
+            permission_path = (
+                user_inputs.get('model_permission_path', f'{module}.models.{model_name}')
+                if user_inputs
+                else f'{module}.models.{model_name}'
+            )
 
         return cls(
             permission_name=default_permission_name,
             model_class_path=permission_path,
+            is_proxy_model=False,
         )
 
 
@@ -222,11 +247,22 @@ class AppConfiguration:
             else default_label
         )
 
+        inherit_permissions = (
+            user_inputs.get('inherit_permissions', False)
+            if user_inputs
+            else False
+        )
+
+        if inherit_permissions and user_inputs:
+            permission_prefix = user_inputs.get('parent_permission_prefix', app_label)
+        else:
+            permission_prefix = app_label
+
         return cls(
             app_config_class_name=model_name + 'Config',
             app_name_component=app_name,
             django_label=app_label,
-            permission_prefix=app_label,
+            permission_prefix=permission_prefix,
             db_table_name=db_table,
         )
 
@@ -745,4 +781,6 @@ def generate_replacement_map(
     """Generate replacement mappings for template processing."""
 
     builder = ReplacementMapBuilder.build(components, user_inputs)
-    return builder.to_dict()
+    replacement_dict = builder.to_dict()
+
+    return {key: str(value) for key, value in replacement_dict.items()}
