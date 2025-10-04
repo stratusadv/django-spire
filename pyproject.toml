@@ -39,7 +39,7 @@ dynamic = ["version"]
 
 dependencies = [
     "boto3==1.24.18",
-    "botocore==1.27.18",
+    "botocore>=1.27.18",
     "crispy-bootstrap5==2024.10",
     "dandy==1.1.0",
     "django>=5.1.8",
