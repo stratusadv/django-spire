@@ -193,7 +193,7 @@ class ProfilingPanel(Panel):
             try:
                 filepath.unlink()
             except FileNotFoundError:
-                return JsonResponse({'success': True, 'already_deleted': True})
+                return JsonResponse({'success': True, 'is_deleted': True})
             except PermissionError:
                 if i < 2:
                     time.sleep(0.1)
@@ -243,7 +243,7 @@ class ProfilingPanel(Panel):
 
         with lock:
             if not filepath.exists():
-                return JsonResponse({'success': True, 'already_deleted': True})
+                return JsonResponse({'success': True, 'is_deleted': True})
 
             error = panel._validate_filepath(filepath, location)
 
