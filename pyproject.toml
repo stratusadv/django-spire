@@ -38,12 +38,15 @@ requires-python = ">=3.11"
 dynamic = ["version"]
 
 dependencies = [
+    "boto3==1.24.18",
+    "botocore==1.27.18",
     "crispy-bootstrap5==2024.10",
     "dandy==0.20.0",
     "django>=5.1.8",
     "django-crispy-forms==2.3",
     "django-glue>=0.8.1",
     "django-sendgrid-v5",
+    "django-storages==1.14.5",
     "docutils",
     "faker",
     "marko==2.1.4",
@@ -53,6 +56,7 @@ dependencies = [
     "Pygments",
     "Pillow==11.2.1",
     "python-dateutil",
+    "robit==0.4.8",
     "typing_extensions",
     "twilio"
 ]
