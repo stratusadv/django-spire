@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-from typing import Type
-
-from dandy import Bot, Prompt
-from dandy.recorder import Recorder
+from dandy import Bot, Prompt, Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
 
 
-def bot_tuning_cli(bot_class: Type[Bot], **bot_params):
+def bot_tuning_cli(bot_class: type[Bot], **bot_params):
     Recorder.start_recording(recording_name='prompt_tuning')
 
     bot = bot_class()

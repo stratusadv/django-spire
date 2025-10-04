@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dandy.intel import BaseIntel
+from dandy import BaseIntel
 
 
 class CollectionIntel(BaseIntel):

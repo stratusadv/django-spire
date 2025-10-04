@@ -23,7 +23,6 @@ class KnowledgeWorkflow:
             )
 
         entries = []
-
         for collection in collections:
             if collection.entry_count > 0:
                 EntryMap = get_entry_map_class(collection=collection)
@@ -39,10 +38,12 @@ class KnowledgeWorkflow:
                 )
             )
 
+        entry_search_bot = EntrySearchLlmBot()
+
         entries_intel = EntriesIntel(
             entry_intel_list=[
                 EntryIntel(
-                    body=EntrySearchLlmBot.process(
+                    body=entry_search_bot.process(
                         user_input=user_input,
                         entry=entry
                     ),

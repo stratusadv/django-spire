@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
-from dandy.recorder import Recorder
+from dandy import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.system import bots
+from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
 
 
 def create_system_prompt_cli() -> None:

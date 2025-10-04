@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dandy.recorder import Recorder
+from dandy import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot

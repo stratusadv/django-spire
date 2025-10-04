@@ -9,7 +9,6 @@ from django_spire.ai.chat.intelligence.maps.intent_llm_map import IntentDecoder
 from django_spire.ai.chat.intelligence.prompts import organization_prompt
 from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.knowledge.intelligence.workflows.knowledge_workflow import KnowledgeWorkflow
 
 if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
@@ -21,6 +20,8 @@ if TYPE_CHECKING:
 class SpireChatWorkflow:
     @staticmethod
     def _generate_intent_decoder(request: WSGIRequest) -> IntentDecoder:
+        from django_spire.knowledge.intelligence.workflows.knowledge_workflow import KnowledgeWorkflow
+
         intent_dict = {}
 
         if AppAuthController(app_name='knowledge', request=request).can_view():

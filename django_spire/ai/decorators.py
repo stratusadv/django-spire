@@ -6,7 +6,7 @@ import uuid
 
 from typing import TYPE_CHECKING
 
-from dandy.recorder import Recorder
+from dandy import Recorder
 from django.utils.timezone import now
 
 from django_spire.ai.models import AiInteraction, AiUsage
