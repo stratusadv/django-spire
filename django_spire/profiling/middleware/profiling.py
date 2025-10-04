@@ -77,10 +77,6 @@ class ProfilingMiddleware(MiddlewareMixin):
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         super().__init__(get_response)
 
-        if Profiler is None:
-            message = 'pyinstrument is required for profiling.'
-            raise ImportError(message)
-
         configuration = {
             'PROFILING_DIR': os.getenv('PROFILING_DIR', '.profile'),
             'PROFILING_ENABLED': os.getenv('PROFILING_ENABLED', 'False') == 'True',
