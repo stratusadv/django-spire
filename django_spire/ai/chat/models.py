@@ -1,8 +1,6 @@
-import json
-from typing import Type
+from __future__ import annotations
 
-from dandy.llm import MessageHistory
-from dandy.llm.service.request.message import RoleLiteralStr
+from dandy.llm.request.message import MessageHistory, RoleLiteralStr
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
@@ -117,11 +115,11 @@ class ChatMessage(HistoryModelMixin):
     @property
     def intel(self):
         try:
-            intel_class: Type[BaseMessageIntel] = get_class_from_string(self._intel_class_name)
+            intel_class: type[BaseMessageIntel] = get_class_from_string(self._intel_class_name)
             return intel_class.model_validate(self._intel_data)
 
         except ImportError:
-            intel_class: Type[BaseMessageIntel] = DefaultMessageIntel
+            intel_class: type[BaseMessageIntel] = DefaultMessageIntel
             return intel_class.model_validate(
                 {'text': str(self._intel_data)}
             )
@@ -135,10 +133,11 @@ class ChatMessage(HistoryModelMixin):
     def role(self) -> RoleLiteralStr:
         if self.response_type == 'request':
             return 'user'
-        elif self.response_type == 'response':
+
+        if self.response_type == 'response':
             return 'assistant'
-        else:
-            return 'system'
+
+        return 'system'
 
     def to_message_response(self) -> MessageResponse:
         return MessageResponse(

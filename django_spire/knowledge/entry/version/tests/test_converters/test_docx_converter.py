@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import time
+
 from unittest.mock import MagicMock, patch
 
 from django_spire.core.tests.test_cases import BaseTestCase

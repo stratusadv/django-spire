@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
 

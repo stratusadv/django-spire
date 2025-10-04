@@ -11,37 +11,34 @@ DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
 LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('ACTION_OLLAMA_HOST'),
-        'PORT': int(os.getenv('OLLAMA_PORT', 11434)),
+        'HOST': os.getenv('OLLAMA_HOST'),
+        'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
-        'MODEL': 'qwen3-coder:30b',
-        'TEMPERATURE': 0.1,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
-    },
-    'SMART_FAST': {
         'MODEL': 'gemma3:12b',
         'TEMPERATURE': 0.1,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
-    'FAST': {
+    'BASIC': {
         'MODEL': 'gemma3:4b',
-        'TEMPERATURE': 0.1,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
-    'THINKING': {
-        'HOST': os.getenv('THINKING_OLLAMA_HOST'),
-        'MODEL': 'qwen3:235b',
-        'TEMPERATURE': 0.1,
+    'ADVANCED': {
+        'MODEL': 'gemma3:12b',
+        'TEMPERATURE': 0.3,
+        'MAX_INPUT_TOKENS': 16000,
+        'MAX_OUTPUT_TOKENS': 16000,
+    },
+    'COMPLEX': {
+        'MODEL': 'gemma3:27b',
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'SEEDING_LLM_BOT': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('ACTION_OLLAMA_HOST'),
-        'PORT': int(os.getenv('OLLAMA_PORT', 11434)),
+        'HOST': os.getenv('OLLAMA_HOST'),
+        'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:30b',
         'TEMPERATURE': 0.0,
@@ -50,8 +47,8 @@ LLM_CONFIGS = {
     },
     'PYTHON_MODULE': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('ACTION_OLLAMA_HOST'),
-        'PORT': int(os.getenv('OLLAMA_PORT', 11434)),
+        'HOST': os.getenv('OLLAMA_HOST'),
+        'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:30b',
         'TEMPERATURE': 0.3,
@@ -60,8 +57,8 @@ LLM_CONFIGS = {
     },
     'QWEN_2_5_CODER_14B': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('ACTION_OLLAMA_HOST'),
-        'PORT': int(os.getenv('OLLAMA_PORT', 11434)),
+        'HOST': os.getenv('OLLAMA_HOST'),
+        'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:30b',
         'TEMPERATURE': 0.0,
@@ -70,8 +67,8 @@ LLM_CONFIGS = {
     },
     'KNOWLEDGE_LLM_BOT': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('ACTION_OLLAMA_HOST'),
-        'PORT': int(os.getenv('OLLAMA_PORT', 11434)),
+        'HOST': os.getenv('OLLAMA_HOST'),
+        'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:latest',
         'TEMPERATURE': 0.3,

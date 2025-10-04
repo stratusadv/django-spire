@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from typing import Type, TypeVar
+from typing import TypeVar, TYPE_CHECKING
 
-from dandy.llm import Prompt
 from django.db.models import ForeignKey
-
 from django.db.models.base import Model
 
 from django_spire.contrib.seeding.field.callable import CallableFieldSeeder
@@ -14,6 +12,9 @@ from django_spire.contrib.seeding.field.static import StaticFieldSeeder
 from django_spire.contrib.seeding.model.base import BaseModelSeeder
 from django_spire.contrib.seeding.model.django.config import DjangoModelFieldsConfig
 
+if TYPE_CHECKING:
+    from dandy import Prompt
+
 
 TypeModel = TypeVar('TypeModel', bound=Model)
 
@@ -21,7 +22,7 @@ TypeModel = TypeVar('TypeModel', bound=Model)
 class DjangoModelSeeder(BaseModelSeeder):
     field_config_class = DjangoModelFieldsConfig
 
-    model_class: Type[Model]
+    model_class: type[Model]
     prompt: Prompt = None
     _field_seeders = [
         CustomFieldSeeder,
@@ -32,14 +33,16 @@ class DjangoModelSeeder(BaseModelSeeder):
     ]
 
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
         if cls.model_class is None:
-            raise ValueError("Seeds must have a model class")
+            message = "Seeds must have a model class"
+            raise ValueError(message)
 
         if cls.fields is None:
-            raise ValueError("Seeds must have fields")
+            message = "Seeds must have fields"
+            raise ValueError(message)
 
     @classmethod
     def field_names(cls) -> list[str]:
@@ -51,9 +54,9 @@ class DjangoModelSeeder(BaseModelSeeder):
 
     @classmethod
     def seed_database(
-            cls,
-            count=1,
-            fields: dict | None = None
+        cls,
+        count=1,
+        fields: dict | None = None
     ) -> list[TypeModel]:
         model_objects = cls.seed(count, fields)
         return cls.model_class.objects.bulk_create(model_objects)

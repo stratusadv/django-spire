@@ -1,12 +1,10 @@
 from django.db.models import Model
 
-from typing_extensions import Type
-
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 def objective_prompt(
-    model_class: Type[Model],
+    model_class: type[Model],
     model_description: str,
     sector_description: str,
 ) -> Prompt:

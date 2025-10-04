@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse

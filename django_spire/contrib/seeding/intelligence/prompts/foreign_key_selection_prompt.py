@@ -1,13 +1,11 @@
-from typing_extensions import Type
-
 from django.db.models import Model
 
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 def foreign_key_selection_prompt(
-    model_class: Type[Model],
-    related_model_class: Type[Model]
+    model_class: type[Model],
+    related_model_class: type[Model]
 ) -> Prompt:
     model_name = model_class._meta.verbose_name.title()
     related_model_name = related_model_class._meta.verbose_name.title()

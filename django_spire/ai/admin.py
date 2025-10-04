@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django import forms
 from django.contrib import admin
 from django.urls import reverse
@@ -24,7 +26,7 @@ class AiUsageAdmin(AiUsageAdminMixin):
     search_fields = ('recorded_date',)
     ordering = ('-recorded_date',)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None) -> list[str]:
         return [field.name for field in self.model._meta.fields]
 
     def view_interactions_link(

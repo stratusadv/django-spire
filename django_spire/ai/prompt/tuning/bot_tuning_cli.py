@@ -1,21 +1,26 @@
+from __future__ import annotations
+
 from typing import Type
 
-from dandy.llm import BaseLlmBot, Prompt
+from dandy import Bot, Prompt
 from dandy.recorder import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
 
 
-def bot_tuning_cli(bot: Type[BaseLlmBot], **bot_parmas):
+def bot_tuning_cli(bot_class: Type[Bot], **bot_params):
     Recorder.start_recording(recording_name='prompt_tuning')
 
-    tuned_prompt = bot.instructions_prompt
+    bot = bot_class()
+    tuned_prompt = bot.llm_role
     print(tuned_prompt)
-    bot_tuning = bot.process(**bot_parmas)
+    bot_tuning = bot.process(**bot_params)
     print(bot_tuning)
 
     print('----------------------------------------------------')
+
+    tuning_bot = SimplePromptTuningBot()
 
     while True:
         print("\nEnter your feedback (or type 'stop' to finish):")
@@ -26,10 +31,7 @@ def bot_tuning_cli(bot: Type[BaseLlmBot], **bot_parmas):
 
         print('Attempting to tune prompt.....')
 
-        new_prompt = (
-            SimplePromptTuningBot()
-            .process(tuned_prompt, feedback)
-        )
+        new_prompt = tuning_bot.process(tuned_prompt, feedback)
 
         print('----------------------NEW PROMPT START------------------------------')
         print()
@@ -38,8 +40,8 @@ def bot_tuning_cli(bot: Type[BaseLlmBot], **bot_parmas):
         print('----------------------NEW PROMPT END------------------------------')
         print()
         print('----------------------BOT TUNING START------------------------------')
-        bot.instructions_prompt = Prompt().text(new_prompt.prompt)
-        bot_tuning = bot.process(**bot_parmas)
+        bot.llm_role = Prompt().text(new_prompt.prompt)
+        bot_tuning = bot.process(**bot_params)
         print(bot_tuning)
         print('----------------------BOT TUNING END------------------------------')
 
@@ -51,5 +53,7 @@ def bot_tuning_cli(bot: Type[BaseLlmBot], **bot_parmas):
     Recorder.to_html_file(recording_name='prompt_tuning')
 
     output_prompt = input('Do you want to output the final prompt y/n?')
+
     if output_prompt.strip().lower() == 'y':
-        DandyPythonPromptBot().process(tuned_prompt)
+        python_bot = DandyPythonPromptBot()
+        python_bot.process(tuned_prompt)

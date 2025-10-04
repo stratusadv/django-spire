@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from django_spire.knowledge.entry.version.block.blocks.text_block import TextBlock

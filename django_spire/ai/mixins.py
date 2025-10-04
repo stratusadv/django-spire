@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db import models
 
 from django.contrib import admin
@@ -14,7 +16,7 @@ class AiUsageMixin(models.Model):
 
 
 class AiUsageAdminMixin(admin.ModelAdmin):
-    def run_time_seconds_formatted(self, obj):
+    def run_time_seconds_formatted(self, obj) -> str:
         return f"{obj.run_time_seconds:.3f}s"
 
     run_time_seconds_formatted.short_description = 'Run Time'

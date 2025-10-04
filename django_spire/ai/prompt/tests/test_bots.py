@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from django_spire.ai.prompt.system import bots
 from django_spire.core.tests.test_cases import BaseTestCase
 
 
 class PromptBotTestCase(BaseTestCase):
-
     def test_system_prompt_system_prompt(self):
         ISSUE_PROMPT = (
             "I am using jira to plan developer workloads And I want to be able to build very clear issues  that"
@@ -25,4 +26,3 @@ class PromptBotTestCase(BaseTestCase):
 
         output_format_bot = bots.OutputFormatSystemPromptBot.process(ISSUE_PROMPT)
         self.assertIsNotNone(output_format_bot)
-                

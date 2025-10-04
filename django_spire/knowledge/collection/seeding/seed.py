@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.knowledge.collection.seeding.seeder import CollectionSeeder
 
 parent_collections = CollectionSeeder.seed_database(count=5)

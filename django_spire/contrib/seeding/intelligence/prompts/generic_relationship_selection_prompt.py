@@ -1,14 +1,12 @@
-from typing_extensions import List, Type
-
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
 
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 def generic_relationship_selection_prompt(
-    model_class: Type[Model],
-    related_model_classes: List[Type[Model]]
+    model_class: type[Model],
+    related_model_classes: list[type[Model]]
 ) -> Prompt:
     related_model_classes_map = {
         related_model_class._meta.verbose_name.title(): {

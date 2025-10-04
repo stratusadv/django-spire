@@ -2,6 +2,7 @@ from django.urls import path
 
 from django_spire.knowledge.entry.views import form_views
 
+
 app_name = 'form'
 
 urlpatterns = [
