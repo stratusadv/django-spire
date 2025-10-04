@@ -5,10 +5,12 @@ import threading
 import time
 
 from pathlib import Path
-from typing_extensions import Any, Callable, TYPE_CHECKING
+from typing_extensions import TYPE_CHECKING
 
 from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
+
+from django_spire.profiling import lock
 
 try:
     from pyinstrument import Profiler
@@ -16,38 +18,9 @@ except ImportError:
     Profiler = None
 
 if TYPE_CHECKING:
+    from typing_extensions import Any, Callable
+
     from django.http import HttpRequest, HttpResponse
-
-
-IGNORE_PATH = [
-    '/__',
-    '/__debug__/',
-    '/__debug__/history_sidebar/',
-    '/__reload__/events/',
-    '/_admin_profiling/',
-    '/admin/',
-    '/admin/autocomplete/',
-    '/admin/jsi18n/',
-    '/api-auth/',
-    '/api-auth/login/',
-    '/api-auth/logout/',
-    '/api/schema/',
-    '/browsable-api/',
-    '/debug/',
-    '/debug-toolbar/',
-    '/django_glue/',
-    '/docs/',
-    '/favicon.ico',
-    '/media/',
-    '/openapi/',
-    '/redoc/',
-    '/robots.txt',
-    '/schema/',
-    '/sitemap.xml',
-    '/static/',
-    '/swagger/',
-    'django_glue',
-]
 
 
 IGNORE_EXTENSION = [
@@ -68,6 +41,37 @@ IGNORE_EXTENSION = [
     '.zip',
 ]
 
+IGNORE_PATH = [
+    '/__',
+    '/__debug__/',
+    '/__debug__/history_sidebar/',
+    '/__reload__/events/',
+    '/_admin_profiling/',
+    '/admin/',
+    '/admin/autocomplete/',
+    '/admin/jsi18n/',
+    '/api-auth/',
+    '/api-auth/login/',
+    '/api-auth/logout/',
+    '/api/schema/',
+    '/browsable-api/',
+    '/debug/',
+    '/debug-toolbar/',
+    '/django_glue/',
+    '/django_spire/theme/json/get_config/',
+    '/docs/',
+    '/favicon.ico',
+    '/media/',
+    '/openapi/',
+    '/redoc/',
+    '/robots.txt/',
+    '/schema/',
+    '/sitemap.xml',
+    '/static/',
+    '/swagger/',
+    'django_glue',
+]
+
 
 class ProfilingMiddleware(MiddlewareMixin):
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
@@ -80,6 +84,8 @@ class ProfilingMiddleware(MiddlewareMixin):
         configuration = {
             'PROFILING_DIR': os.getenv('PROFILING_DIR', '.profile'),
             'PROFILING_ENABLED': os.getenv('PROFILING_ENABLED', 'False') == 'True',
+            'PROFILING_MAX_FILES': int(os.getenv('PROFILING_MAX_FILES', '10')),
+            'PROFILE_THRESHOLD': float(os.getenv('PROFILE_THRESHOLD', '0')),
         }
 
         directory = configuration.get('PROFILING_DIR', '.profile')
@@ -96,32 +102,28 @@ class ProfilingMiddleware(MiddlewareMixin):
         self.directory.mkdir(exist_ok=True)
 
         self.enabled = configuration.get('PROFILING_ENABLED', False)
-        self.profile_threshold = configuration.get('PROFILE_THRESHOLD', 0)
+        self.threshold = configuration.get('PROFILE_THRESHOLD', 0)
+        self.maximum = configuration.get('PROFILING_MAX_FILES', 10)
 
         self.count = 0
         self.lock = threading.Lock()
 
-    def _remove_profile(self) -> None:
-        files = self.directory.glob('*.html')
-        profiles = list(files)
+    def _remove_profiles(self) -> None:
+        files = list(self.directory.glob('*.html'))
 
-        profiles.sort(
-            key=lambda p: p.stat().st_mtime,
+        if len(files) <= self.maximum:
+            return
+
+        files.sort(
+            key=lambda p: p.stat().st_mtime if p.exists() else 0,
             reverse=True
         )
 
-        maximum = 10
-
-        if len(profiles) > maximum:
-            for profile in profiles[maximum:]:
+        for profile in files[self.maximum:]:
+            if profile.exists():
                 profile.unlink()
 
-    def _save_profile(
-        self,
-        profiler: Profiler,
-        request: HttpRequest,
-        duration_ms: float
-    ) -> None:
+    def _save_profile(self, profiler: Profiler, request: HttpRequest, duration: float) -> None:
         with self.lock:
             timestamp = int(time.time() * 1000)
             method = request.method
@@ -130,20 +132,28 @@ class ProfilingMiddleware(MiddlewareMixin):
             if not path or path == '_':
                 path = 'root'
 
-            filename = f'{timestamp}_{method}_{path}_{duration_ms:.1f}ms_{request._profiling_id}.html'
+            profileid = request._profiling_id
+            filename = f'{timestamp}_{method}_{path}_{duration:.1f}ms_{profileid}.html'
+            filepath = self.directory / filename
 
-            path = str(self.directory / filename)
-            profiler.write_html(path)
+            with lock:
+                profiler.write_html(str(filepath))
+                self._remove_profiles()
 
-            self._remove_profile()
-
-    def _should_skip_profiling(self, request: HttpRequest) -> bool:
+    def _should_skip(self, request: HttpRequest) -> bool:
         path = request.path
 
-        return (
-            any(path.startswith(pattern) or pattern in path for pattern in IGNORE_PATH) or
-            any(path.endswith(extension) or extension in path for extension in IGNORE_EXTENSION)
+        path_match = any(
+            path.startswith(pattern) or pattern in path
+            for pattern in IGNORE_PATH
         )
+
+        extension_match = any(
+            path.endswith(extension) or extension in path
+            for extension in IGNORE_EXTENSION
+        )
+
+        return path_match or extension_match
 
     def process_view(
         self,
@@ -158,7 +168,7 @@ class ProfilingMiddleware(MiddlewareMixin):
         if not self.enabled:
             return None
 
-        if self._should_skip_profiling(request):
+        if self._should_skip(request):
             return None
 
         with self.lock:
@@ -166,7 +176,7 @@ class ProfilingMiddleware(MiddlewareMixin):
             request._profiling_id = self.count
 
         profiler = Profiler(interval=0.001)
-        start_time = time.time()
+        start = time.time()
         profiler.start()
 
         try:
@@ -176,15 +186,15 @@ class ProfilingMiddleware(MiddlewareMixin):
                 response.render()
         except Exception:
             profiler.stop()
-            duration_ms = (time.time() - start_time) * 1000
-            self._save_profile(profiler, request, duration_ms)
+            duration = (time.time() - start) * 1000
+            self._save_profile(profiler, request, duration)
 
             raise
         else:
             profiler.stop()
-            duration_ms = (time.time() - start_time) * 1000
+            duration = (time.time() - start) * 1000
 
-            if duration_ms >= self.profile_threshold:
-                self._save_profile(profiler, request, duration_ms)
+            if duration >= self.threshold:
+                self._save_profile(profiler, request, duration)
 
             return response

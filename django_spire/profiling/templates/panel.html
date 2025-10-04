@@ -76,6 +76,14 @@
         text-align: center;
         font-style: italic;
     }
+
+    .djdt-circular-buffer-note {
+        background: #fff3e0;
+        padding: 8px;
+        border-radius: 3px;
+        margin-bottom: 10px;
+        font-size: 3.85em;
+    }
 </style>
 
 <div class="djdt-profiling-panel">
@@ -103,11 +111,19 @@
         </div>
 
         <div class="djdt-profiling-stat" style="margin-left: auto;">
-            <a href="#" onclick="if(confirm('Delete ALL profiles?')){let rows=document.querySelectorAll('#profiling-tbody tr');let promises=[];rows.forEach(row=>{let filename=row.dataset.filename;if(filename)promises.push(fetch('/__debug__/profiling/delete/'+filename+'/').then(r=>r.json()));});Promise.all(promises).then(results=>{let success=results.every(r=>r.success);if(success){document.getElementById('profiling-tbody').innerHTML='';document.getElementById('profile-count').textContent='0';document.getElementById('total-size').textContent='0 B';document.getElementById('profiling-table').outerHTML='<div class=djdt-no-profiles>No profiles found</div>';let panels=document.querySelectorAll('.djDebugPanelButton');panels.forEach(p=>{if(p.textContent.includes('Profiles')){let small=p.querySelector('small');if(small)small.textContent='0 profiles';}});}else{alert('Some profiles failed to delete');}}).catch(e=>alert('Error:'+e));}return false;" style="color: #d32f2f; font-weight: bold; text-decoration: none;">
+            <a href="#" onclick="if(confirm('Delete ALL profiles?')){let rows=document.querySelectorAll('#profiling-tbody tr');let promises=[];rows.forEach(row=>{let filename=row.dataset.filename;if(filename)promises.push(fetch('/__debug__/profiling/delete/'+filename+'/').then(r=>r.json()).catch(e=>({error:e.toString()})));});Promise.all(promises).then(results=>{let success_count=0;let already_deleted=0;let failures=0;results.forEach(r=>{if(r.success)success_count++;else if(r.already_deleted)already_deleted++;else failures++;});document.getElementById('profiling-tbody').innerHTML='';document.getElementById('profiling-table').outerHTML='<div class=djdt-no-profiles>No profiles found</div>';document.getElementById('profile-count').textContent='0';document.getElementById('total-size').textContent='0 B';let panels=document.querySelectorAll('.djDebugPanelButton');panels.forEach(p=>{if(p.textContent.includes('Profiles')){let small=p.querySelector('small');if(small)small.textContent='0 profiles';}});if(failures>0){alert('Deleted '+success_count+' profiles. '+failures+' failed (may have been removed by circular buffer).');}}).catch(e=>alert('Error during bulk delete: '+e));}return false;" style="color: #d32f2f; font-weight: bold; text-decoration: none;">
                 Delete All
             </a>
         </div>
     </div>
+
+    <br>
+
+    <div class="djdt-circular-buffer-note">
+        <strong>Note:</strong> The ten most recent profiles are kept, and the remainder are removed.
+    </div>
+
+    <br>
 
     {% if not enabled %}
         <div style="padding: 10px; margin-bottom: 15px; font-size: 0.9em; opacity: 0.7;">
@@ -144,7 +160,7 @@
                         </a>
                     </td>
                     <td>
-                        <a href="#" onclick="if(confirm('Delete this profile?')){fetch('/__debug__/profiling/delete/{{ profile.filename }}/').then(r=>r.json()).then(d=>{if(d.success){let row=this.closest('tr');row.remove();let count=document.querySelectorAll('#profiling-tbody tr').length;document.getElementById('profile-count').textContent=count;let panels=document.querySelectorAll('.djDebugPanelButton');panels.forEach(p=>{if(p.textContent.includes('Profiles')){let small=p.querySelector('small');if(small)small.textContent=count+' profiles';}});if(count===0){document.getElementById('profiling-table').outerHTML='<div class=djdt-no-profiles>No profiles found</div>';document.getElementById('total-size').textContent='0 B';}else{fetch('/__debug__/profiling/list/').then(r=>r.json()).then(data=>{document.getElementById('total-size').textContent=data.totalsize;});}}else if(d.error&&!d.error.includes('not found')){alert('Failed to delete: '+d.error);}}).catch(e=>{console.error('Delete error:',e);});}return false;" class="djdt-profile-delete">
+                        <a href="#" onclick="if(confirm('Delete this profile?')){fetch('/__debug__/profiling/delete/{{ profile.filename }}/').then(r=>r.json()).then(d=>{if(d.success||d.already_deleted){let row=this.closest('tr');row.remove();let count=document.querySelectorAll('#profiling-tbody tr').length;document.getElementById('profile-count').textContent=count;fetch('/__debug__/profiling/list/').then(r=>r.json()).then(data=>{document.getElementById('total-size').textContent=data.totalsize;});let panels=document.querySelectorAll('.djDebugPanelButton');panels.forEach(p=>{if(p.textContent.includes('Profiles')){let small=p.querySelector('small');if(small)small.textContent=count+' profiles';}});if(count===0){document.getElementById('profiling-table').outerHTML='<div class=djdt-no-profiles>No profiles found</div>';}if(d.already_deleted){alert('Profile was already removed (circular buffer)');}}else if(d.error){alert('Failed to delete: '+d.error);}}).catch(e=>{console.error('Delete error:',e);alert('Network error while deleting');});}return false;" class="djdt-profile-delete">
                             Delete
                         </a>
                     </td>
