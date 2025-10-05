@@ -5,22 +5,25 @@ from typing_extensions import TYPE_CHECKING
 from django.template.response import TemplateResponse
 
 from test_project.apps.tabular.context_data import tabular_context_data
+from test_project.apps.queryset_filtering.models import Task
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
 def tabular_home_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = tabular_context_data(page=1, page_size=5)
+    page_size = 25
+
+    context_data = tabular_context_data(page=1, page_size=page_size)
 
     context = {
-        'rows': context_data['rows'],
+        'rows': [],
         'endpoint': '/tabular/api/rows/',
         'child_endpoint': '/tabular/api/{id}/children/',
-        'page_size': 5,
-        'current_page': 1,
-        'has_next': context_data['has_next'],
-        'table_height': '70vh',
+        'page_size': page_size,
+        'current_page': 0,
+        'has_next': True,
+        'total_count': context_data['total_count'],
     }
 
     return TemplateResponse(request, 'tabular/page/tabular_home_page.html', context=context)
@@ -47,17 +50,33 @@ def tabular_rows_view(request: WSGIRequest) -> TemplateResponse:
     })
 
 
-def tabular_child_rows_view(request: WSGIRequest, task_id: str) -> TemplateResponse:
-    all_context = tabular_context_data()
+def tabular_child_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
+    try:
+        task = Task.objects.prefetch_related('users', 'users__user').get(id=task_id)
 
-    parent_row = None
-    for row in all_context['rows']:
-        if str(row['data']['uuid']) == str(task_id):
-            parent_row = row
-            break
+        children = []
+        for task_user in task.users.all():
+            child_row = {
+                'child_data': {
+                    'uuid': f"task-{task.id}-user-{task_user.user.id}",
+                    'quantity': 1,
+                    'cost': float(50 + task.id),
+                    'price': float(75 + task.id),
+                    'date': task_user.created_datetime.date(),
+                    'user_name': task_user.user.get_full_name() or task_user.user.username,
+                    'role': task_user.get_role_display(),
+                }
+            }
+            children.append(child_row)
 
-    context = {
-        'children': parent_row['child_rows'] if parent_row else [],
-    }
+        context = {
+            'children': children,
+        }
+
+    except Task.DoesNotExist:
+        context = {
+            'children': [],
+            'error': 'Task not found'
+        }
 
     return TemplateResponse(request, 'tabular/table/table_child_rows.html', context=context)

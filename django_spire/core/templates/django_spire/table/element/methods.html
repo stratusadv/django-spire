@@ -1,0 +1,285 @@
+async init() {
+    if (document.getElementById('shared_payload')) {
+        this.shared_payload = JSON.parse(document.getElementById('shared_payload').textContent);
+    }
+
+    await this.$nextTick();
+
+    const header = this.$refs.table_head?.querySelector('tr');
+
+    if (header) {
+        this.column_count = header.querySelectorAll('th').length;
+    }
+
+    this.loaded_count = this.$refs.table_body.querySelectorAll('tr[data-row-id]').length;
+
+    if (this.loaded_count === 0 && this.current_page === 0) {
+        this.skeleton_count = this.skeleton_row;
+        await this.load_more();
+    }
+
+    requestAnimationFrame(() => {
+        if (this.$refs.table_container) {
+            this.$refs.table_container.scrollTop = 0;
+        }
+    });
+
+    if (this.has_next) {
+        setTimeout(() => {
+            this.setup_observer();
+        }, 500);
+    }
+},
+
+async setup_observer() {
+    let trigger = this.$refs.infinite_scroll_trigger;
+
+    if (!trigger) {
+        console.error('Infinite scroll trigger element not found.');
+        return;
+    }
+
+    let options = {
+        root: null,
+        rootMargin: '200px',
+        threshold: 0.01
+    };
+
+    this.observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(async entry => {
+                if (entry.isIntersecting && this.has_next && !this.is_loading) {
+                    await this.load_more();
+                }
+            });
+        },
+        options
+    );
+
+    this.observer.observe(trigger);
+},
+
+async fetch_rows(next_page) {
+    if (!this.endpoint) return { success: false, error: 'No endpoint provided' };
+
+    let params = new URLSearchParams({
+        page: next_page,
+        page_size: this.page_size
+    });
+
+    if (this.sort_column) {
+        params.set('sort', this.sort_column);
+        params.set('direction', this.sort_direction);
+    }
+
+    if (this.search_term) {
+        params.set('search', this.search_term);
+    }
+
+    let url = `${this.endpoint}?${params}`;
+    let view = new ViewGlue(url, this.shared_payload);
+
+    try {
+        if (next_page === 1) {
+            this.$refs.table_body.innerHTML = '';
+        }
+
+        await view.render_insert_adjacent(this.$refs.table_body, {}, 'beforeend');
+        return { success: true };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error };
+    }
+},
+
+async load_more() {
+    if (!this.endpoint) return;
+
+    this.is_loading = true;
+
+    let next_page = this.current_page + 1;
+    let container = this.$refs.table_body;
+
+    if (!container) {
+        console.error('Table body not found');
+        this.is_loading = false;
+        this.skeleton_count = 0;
+        return;
+    }
+
+    let previous_count = container.querySelectorAll('tr[data-row-id]').length;
+
+    let result = await this.fetch_rows(next_page);
+
+    if (!result.success) {
+        this.is_loading = false;
+        this.skeleton_count = 0;
+        return;
+    }
+
+    let current_count = container.querySelectorAll('tr[data-row-id]').length;
+    let added = current_count - previous_count;
+
+    if (added > 0) {
+        this.current_page = next_page;
+        this.loaded_count = current_count;
+    }
+
+    if (added < this.page_size) {
+        this.has_next = false;
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    }
+
+    this.is_loading = false;
+    this.skeleton_count = 0;
+
+    await this.$nextTick();
+
+    let table_container = this.$refs.table_container;
+
+    if (table_container && this.has_next && !this.is_refreshing) {
+        if (table_container.scrollHeight <= table_container.clientHeight) {
+            await this.load_more();
+        }
+    }
+},
+
+async toggle_row(row_id) {
+    this.is_row_open[row_id] = !this.is_row_open[row_id];
+
+    if (this.is_row_open[row_id] && !this.child_rows[row_id] && this.child_endpoint) {
+        await this.load_child_rows(row_id);
+    }
+},
+
+async load_child_rows(parent_id) {
+    if (this.is_child_row_loading[parent_id]) return;
+
+    this.is_child_row_loading[parent_id] = true;
+
+    let url = this.child_endpoint.replace('{id}', parent_id);
+    let view = new ViewGlue(url, this.shared_payload);
+
+    try {
+        let temp_container = document.createElement('div');
+        await view.render_inner(temp_container);
+
+        this.child_rows[parent_id] = temp_container.innerHTML;
+
+        this.$nextTick(() => {
+            let parent_row = document.querySelector(`[data-row-id='${parent_id}']`);
+
+            if (parent_row) {
+                let child_container = document.querySelector(`[data-child-container='${parent_id}']`);
+
+                if (child_container) {
+                    child_container.innerHTML = this.child_rows[parent_id];
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error loading child rows:', error);
+    } finally {
+        this.is_child_row_loading[parent_id] = false;
+    }
+},
+
+async refresh_table() {
+    this.is_refreshing = true;
+
+    await this.$nextTick();
+
+    this.current_page = 1;
+    this.has_next = true;
+    this.loaded_count = 0;
+
+    this.child_rows = {};
+    this.is_row_open = {};
+    this.is_child_row_loading = {};
+
+    await this.fetch_rows(1);
+
+    let container = this.$refs.table_body;
+
+    if (container) {
+        let count = container.querySelectorAll('tr[data-row-id]').length;
+        this.loaded_count = count;
+
+        if (count < this.page_size) {
+            this.has_next = false;
+        }
+    }
+
+    if (this.observer) {
+        this.observer.disconnect();
+    }
+    if (this.has_next) {
+        setTimeout(() => {
+            this.setup_observer();
+        }, 100);
+    }
+
+    this.is_refreshing = false;
+},
+
+async search() {
+    await this.refresh_table();
+},
+
+async sort_by(column) {
+    if (this.sort_column === column) {
+        this.sort_direction = this.sort_direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        this.sort_column = column;
+        this.sort_direction = 'asc';
+    }
+
+    await this.refresh_table();
+},
+
+get_sort_icon(column) {
+    if (this.sort_column !== column) return 'bi-chevron-expand';
+    return this.sort_direction === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down';
+},
+
+toggle_selection(id) {
+    if (this.selected_rows.has(id)) {
+        this.selected_rows.delete(id);
+    } else {
+        this.selected_rows.add(id);
+    }
+
+    this.check_select_all();
+},
+
+toggle_all() {
+    let all_checkboxes = this.$refs.table_body.querySelectorAll('input[type=checkbox]');
+
+    if (this.select_all) {
+        this.selected_rows.clear();
+        all_checkboxes.forEach(cb => cb.checked = false);
+        this.select_all = false;
+    } else {
+        all_checkboxes.forEach(cb => {
+            let row_id = cb.dataset.rowId;
+            if (row_id) {
+                this.selected_rows.add(row_id);
+                cb.checked = true;
+            }
+        });
+        this.select_all = true;
+    }
+},
+
+check_select_all() {
+    let all_checkboxes = this.$refs.table_body.querySelectorAll('input[type=checkbox]');
+    let checked_count = 0;
+
+    all_checkboxes.forEach(cb => {
+        if (cb.checked) checked_count++;
+    });
+
+    this.select_all = all_checkboxes.length > 0 && checked_count === all_checkboxes.length;
+},

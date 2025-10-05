@@ -1,37 +1,3 @@
 {% for row in rows %}
-    <tr data-row-id="{{ row.data.uuid }}">
-        <td>
-            <input type="checkbox" data-row-id="{{ row.data.uuid }}" @change="toggle_selection('{{ row.data.uuid }}')">
-        </td>
-        <td>
-            {% if row.child_rows %}
-                <span @click="toggle_row('{{ row.data.uuid }}')" class="cursor-pointer">
-                    <i class="bi" :class="is_row_open['{{ row.data.uuid }}'] ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
-                </span>
-            {% endif %}
-        </td>
-        <td>
-            <strong>{{ row.data.name }}</strong>
-            <div class="text-muted small">{{ row.data.description }}</div>
-        </td>
-        <td><span class="badge bg-primary">{{ row.data.status }}</span></td>
-        <td>{{ row.data.quantity }}</td>
-        <td>${{ row.data.cost|floatformat:2 }}</td>
-        <td>{{ row.data.date|date:"M d, Y" }}</td>
-        <td>
-            <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-        </td>
-    </tr>
-
-    {% if row.child_rows %}
-        <tr x-show="is_row_open['{{ row.data.uuid }}']" x-cloak x-transition>
-            <td colspan="8" class="p-0">
-                <div class="ps-5 py-2" data-child-container="{{ row.data.uuid }}">
-                    <div x-show="is_child_row_loading['{{ row.data.uuid }}']" class="text-center py-3">
-                        <div class="spinner-border spinner-border-sm"></div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    {% endif %}
+    {% include 'tabular/table/row.html' %}
 {% endfor %}

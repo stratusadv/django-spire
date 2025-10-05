@@ -1,0 +1,25 @@
+<div class="row mb-2">
+    <div class="col-md-12">
+        <div class="input-group my-4">
+            <span class="input-group-text bg-app-layer-two">
+                <i class="bi bi-search"></i>
+            </span>
+
+            <input
+                type="text"
+                x-model="search_term"
+                @keyup.enter="search()"
+                class="form-control"
+                placeholder="{% block search_placeholder %}Search...{% endblock %}"
+            >
+
+            <button
+                class="btn btn-app-primary"
+                @click="search()"
+                :disabled="is_loading"
+            >
+                Search
+            </button>
+        </div>
+    </div>
+</div>
