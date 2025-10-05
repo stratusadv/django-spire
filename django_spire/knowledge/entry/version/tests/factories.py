@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from keyring.testing.util import random_string
 
 from django_spire.auth.user.tests.factories import create_user

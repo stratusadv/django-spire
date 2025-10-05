@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from abc import abstractmethod, ABC
 
-from dandy.intel import BaseIntel
+from dandy import BaseIntel
 from django.template.loader import render_to_string
 
 
@@ -11,7 +13,8 @@ class BaseMessageIntel(BaseIntel, ABC):
         super().__init_subclass__()
 
         if cls._template is None or cls._template == '':
-            raise ValueError(f'{cls.__module__}.{cls.__qualname____}._template must be set')
+            message = f'{cls.__module__}.{cls.__qualname__}._template must be set'
+            raise ValueError(message)
 
     @abstractmethod
     def content_to_str(self) -> str:
@@ -32,5 +35,5 @@ class DefaultMessageIntel(BaseMessageIntel):
     _template: str = 'django_spire/ai/chat/message/default_message.html'
     text: str
 
-    def content_to_str(self):
+    def content_to_str(self) -> str:
         return self.text

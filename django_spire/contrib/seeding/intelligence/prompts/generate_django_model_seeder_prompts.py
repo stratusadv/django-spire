@@ -1,7 +1,6 @@
-import os
 from pathlib import Path
 
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 _RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent.parent.parent.parent.parent.resolve())

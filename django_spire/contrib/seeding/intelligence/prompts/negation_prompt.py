@@ -1,4 +1,4 @@
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 def negation_prompt(

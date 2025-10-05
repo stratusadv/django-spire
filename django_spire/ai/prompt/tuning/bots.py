@@ -1,162 +1,114 @@
-from dandy.llm import BaseLlmBot, LlmConfigOptions, Prompt
+from __future__ import annotations
+
+from dandy import Bot, LlmConfigOptions, Prompt
 
 from django_spire.ai.prompt.tuning import prompts, intel
 
 
+class PromptTestingBot(Bot):
+    llm_role = Prompt()
+    llm_config_options = LlmConfigOptions(temperature=0.4)
 
-class PromptTestingBot(BaseLlmBot):
-    instructions_prompt = Prompt()
-    intel_class = intel.PromptTestingIntel
-    config_options = LlmConfigOptions(temperature=0.4)
-
-    @classmethod
     def process(
-            cls,
-            system_prompt: str,
-            user_prompt: str,
-
-    ) -> intel.PromptTuningIntel:
-        """
-            Takes a system prompt and a user prompt.
-            Used to test the response of the system prompt.
-        """
-
-        cls.instructions_prompt = system_prompt
-        return cls.process_prompt_to_intel(
-            prompt=user_prompt
+        self,
+        system_prompt: str,
+        user_prompt: str
+    ) -> intel.PromptTestingIntel:
+        self.llm_role = system_prompt
+        return self.llm.prompt_to_intel(
+            prompt=user_prompt,
+            intel_class=intel.PromptTestingIntel
         )
 
 
-class SimplePromptTuningBot(BaseLlmBot):
-    instructions_prompt = prompts.prompt_tuning_instruction_bot_prompt()
-    intel_class = intel.PromptTuningIntel
-    config_options = LlmConfigOptions(temperature=0.1)
+class SimplePromptTuningBot(Bot):
+    llm_role = prompts.prompt_tuning_instruction_bot_prompt()
+    llm_config_options = LlmConfigOptions(temperature=0.1)
 
-
-    @classmethod
     def process(
-            cls,
-            prompt: str,
-            feedback: str,
-
+        self,
+        prompt: str,
+        feedback: str
     ) -> intel.PromptTuningIntel:
-
-        return cls.process_prompt_to_intel(
+        return self.llm.prompt_to_intel(
             prompt=prompts.prompt_tuning_input_prompt(prompt, feedback),
+            intel_class=intel.PromptTuningIntel
         )
 
 
-class AdvancedPromptTuningBot(BaseLlmBot):
-    instructions_prompt = prompts.prompt_tuning_instruction_bot_prompt()
-    intel_class = intel.PromptTuningIntel
+class AdvancedPromptTuningBot(Bot):
+    llm_role = prompts.prompt_tuning_instruction_bot_prompt()
 
-    @classmethod
     def process(
-            cls,
-            system_prompt: str,
-            feedback: str,
-
+        self,
+        system_prompt: str,
+        feedback: str
     ) -> intel.PromptTuningIntel:
-        tuned_prompt = SimplePromptTuningBot.process(system_prompt, feedback)
-        formatted_prompt = FormattingBot.process(tuned_prompt.prompt)
-        remove_duplicates = DuplicationRemovalBot.process(formatted_prompt.prompt)
-        improve_instructions = InstructionClarityBot.process(remove_duplicates.prompt)
-        example_optimization = ExampleOptimizationBot.process(improve_instructions.prompt)
-        persona = PersonaBot.process(example_optimization.prompt)
-        return persona
+        simple_bot = SimplePromptTuningBot()
+        formatting_bot = FormattingBot()
+        duplication_bot = DuplicationRemovalBot()
+        instruction_bot = InstructionClarityBot()
+        example_bot = ExampleOptimizationBot()
+        persona_bot = PersonaBot()
+
+        tuned_prompt = simple_bot.process(system_prompt, feedback)
+        formatted_prompt = formatting_bot.process(tuned_prompt.prompt)
+        remove_duplicates = duplication_bot.process(formatted_prompt.prompt)
+        improve_instructions = instruction_bot.process(remove_duplicates.prompt)
+        example_optimization = example_bot.process(improve_instructions.prompt)
+        return persona_bot.process(example_optimization.prompt)
 
 
-        # return cls.process_prompt_to_intel(
-        #     prompt=prompts.prompt_tuning_input_prompt(system_prompt, feedback),
-        #     postfix_system_prompt=None
-        # )
-        #
+class FormattingBot(Bot):
+    llm_role = prompts.formatting_bot_instruction_prompt()
 
-class FormattingBot(BaseLlmBot):
-    """Bot that preserves structure and standardizes formatting of system prompts."""
-    instructions_prompt = prompts.formatting_bot_instruction_prompt()
-    intel_class = intel.PromptTuningIntel
-
-    @classmethod
-    def process(
-            cls,
-            system_prompt: str,
-
-    ) -> intel.PromptTuningIntel:
-
-        return cls.process_prompt_to_intel(
+    def process(self, system_prompt: str) -> intel.PromptTuningIntel:
+        return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
+            intel_class=intel.PromptTuningIntel,
             postfix_system_prompt=None
         )
 
 
-class InstructionClarityBot(BaseLlmBot):
-    """Bot that focuses on improving the clarity of instructions in system prompts."""
-    instructions_prompt = prompts.instruction_clarity_bot_instruction_prompt()
-    intel_class = intel.PromptTuningIntel
+class InstructionClarityBot(Bot):
+    llm_role = prompts.instruction_clarity_bot_instruction_prompt()
 
-    @classmethod
-    def process(
-            cls,
-            system_prompt: str,
-
-    ) -> intel.PromptTuningIntel:
-
-        return cls.process_prompt_to_intel(
+    def process(self, system_prompt: str) -> intel.PromptTuningIntel:
+        return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
+            intel_class=intel.PromptTuningIntel,
             postfix_system_prompt=None
         )
 
 
-class PersonaBot(BaseLlmBot):
-    """Bot that maintains consistent tone and persona throughout system prompts."""
-    instructions_prompt = prompts.persona_bot_instruction_prompt()
-    intel_class = intel.PromptTuningIntel
+class PersonaBot(Bot):
+    llm_role = prompts.persona_bot_instruction_prompt()
 
-    @classmethod
-    def process(
-            cls,
-            system_prompt: str,
-
-    ) -> intel.PromptTuningIntel:
-
-        return cls.process_prompt_to_intel(
+    def process(self, system_prompt: str) -> intel.PromptTuningIntel:
+        return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
+            intel_class=intel.PromptTuningIntel,
             postfix_system_prompt=None
         )
 
 
-class DuplicationRemovalBot(BaseLlmBot):
-    """Bot that identifies and removes redundancies in system prompts."""
-    instructions_prompt = prompts.duplication_removal_bot_instruction_prompt()
-    intel_class = intel.PromptTuningIntel
+class DuplicationRemovalBot(Bot):
+    llm_role = prompts.duplication_removal_bot_instruction_prompt()
 
-    @classmethod
-    def process(
-            cls,
-            system_prompt: str,
-
-    ) -> intel.PromptTuningIntel:
-
-        return cls.process_prompt_to_intel(
+    def process(self, system_prompt: str) -> intel.PromptTuningIntel:
+        return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
+            intel_class=intel.PromptTuningIntel,
             postfix_system_prompt=None
         )
 
 
-class ExampleOptimizationBot(BaseLlmBot):
-    """Bot that refines examples within system prompts."""
-    instructions_prompt = prompts.example_optimization_bot_instruction_prompt()
-    intel_class = intel.PromptTuningIntel
+class ExampleOptimizationBot(Bot):
+    llm_role = prompts.example_optimization_bot_instruction_prompt()
 
-    @classmethod
-    def process(
-            cls,
-            system_prompt: str,
-
-    ) -> intel.PromptTuningIntel:
-
-        return cls.process_prompt_to_intel(
+    def process(self, system_prompt: str) -> intel.PromptTuningIntel:
+        return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
+            intel_class=intel.PromptTuningIntel,
             postfix_system_prompt=None
         )

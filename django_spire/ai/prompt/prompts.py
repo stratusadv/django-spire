@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 from pathlib import Path
 
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 _RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent.parent.parent.resolve())
 dandy_prompting_path = Path(_RELATIVE_BASE_DIR, '.venv/Lib/site-packages/dandy/llm/prompt/prompt.py')
 dandy_tutorial_path = Path(_RELATIVE_BASE_DIR, 'django_spire/ai/prompt/docs/prompt_tutorial.md')
+
 
 def dandy_prompt_python_file_instruction_bot_prompt():
     return (
@@ -37,6 +40,7 @@ def dandy_prompt_python_file_instruction_bot_prompt():
         .file(dandy_prompting_path)
     )
 
+
 def text_to_markdown_instruction_bot_prompt():
     return (
         Prompt()
@@ -67,12 +71,14 @@ def text_to_markdown_instruction_bot_prompt():
         .text('Return the converted Markdown content and a suitable filename with .md extension.')
     )
 
+
 def dandy_prompt_python_file_input_prompt(user_prompt: str):
     return (
         Prompt()
         .heading('User Prompt:')
         .text(user_prompt)
     )
+
 
 def text_to_markdown_input_prompt(user_text: str):
     return (

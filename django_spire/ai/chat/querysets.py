@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db.models import Q, Count
 
 from django_spire.history.querysets import HistoryQuerySet

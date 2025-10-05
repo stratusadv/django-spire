@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+
 from datetime import timedelta
 
 from django.utils.timezone import localtime

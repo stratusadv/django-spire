@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db import models
 
 from django_spire.auth.group.models import AuthGroup
@@ -44,10 +46,12 @@ class CollectionGroup(models.Model):
         related_name='groups',
         related_query_name='group',
     )
+
     auth_group = models.ForeignKey(
         AuthGroup,
         on_delete=models.CASCADE,
         related_name='collection_groups',
         related_query_name='collection_group',
     )
+
     services = CollectionGroupService()

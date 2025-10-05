@@ -1,18 +1,21 @@
-from dandy.workflow import BaseWorkflow
-from dandy.llm import MessageHistory
-from django.core.handlers.wsgi import WSGIRequest
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django_spire.ai.sms.intel import SmsIntel
 from test_project.apps.ai.chat.intelligence.workflows.chat_workflow import ChatWorkflow
 
+if TYPE_CHECKING:
+    from dandy.llm.request.message import MessageHistory
+    from django.core.handlers.wsgi import WSGIRequest
 
-class SmsConversationWorkflow(BaseWorkflow):
-    @classmethod
+
+class SmsConversationWorkflow:
+    @staticmethod
     def process(
-            cls,
-            request: WSGIRequest,
-            user_input: str,
-            message_history: MessageHistory | None = None
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory | None = None
     ) -> SmsIntel:
         return SmsIntel(
             body=str(

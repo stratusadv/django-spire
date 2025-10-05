@@ -1,15 +1,22 @@
-from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
-from dandy.recorder import Recorder
+from __future__ import annotations
+
+from dandy import Recorder
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot
 from django_spire.ai.prompt.system import bots
+from django_spire.ai.prompt.tuning.bots import SimplePromptTuningBot
 
-def create_system_prompt_cli():
+
+def create_system_prompt_cli() -> None:
     Recorder.start_recording(recording_name='system_prompt')
 
     user_story = input('Enter your user story: ')
-    prompt = bots.SystemPromptBot.process(user_story)
+
+    bot = bots.SystemPromptBot()
+    prompt = bot.process(user_story)
     print(prompt)
+
+    tuning_bot = SimplePromptTuningBot()
 
     while True:
         print("\nEnter your feedback (or type 'stop' to finish):")
@@ -19,10 +26,7 @@ def create_system_prompt_cli():
             break
 
         print('Creating new prompt from feedback.....')
-        new_prompt = (
-            SimplePromptTuningBot()
-            .process(prompt, feedback)
-        )
+        new_prompt = tuning_bot.process(prompt, feedback)
         print('----------------------------------------------------')
         print()
         print(new_prompt.prompt)
@@ -33,5 +37,7 @@ def create_system_prompt_cli():
     Recorder.to_html_file(recording_name='system_prompt')
 
     prompt_file = input('Do you want to create a Prompt File y/n?')
+
     if prompt_file.strip().lower() == 'y':
-        DandyPythonPromptBot().process(prompt)
+        python_bot = DandyPythonPromptBot()
+        python_bot.process(prompt)

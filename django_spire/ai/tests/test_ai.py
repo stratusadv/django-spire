@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from dandy.intel import BaseIntel
-from dandy.llm import LlmBot
-from dandy.recorder import recorder_to_html_file
+from dandy import BaseIntel, Bot, recorder_to_html_file
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -19,8 +17,8 @@ class AiTestCase(BaseTestCase):
         @log_ai_interaction_from_recorder(self.super_user, 'horse')
         @recorder_to_html_file('horse')
         def generate_horse_intel(user_input: str) -> HorseIntel:
-
-            return LlmBot.process(
+            bot = Bot()
+            return bot.llm.prompt_to_intel(
                 prompt=user_input,
                 intel_class=HorseIntel,
             )

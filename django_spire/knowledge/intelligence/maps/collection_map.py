@@ -1,20 +1,19 @@
-from typing import Type
+from __future__ import annotations
 
-from dandy.llm import BaseLlmMap
-from dandy.map import Map
+from dandy import Decoder
 
 from django_spire.knowledge.collection.models import Collection
 
 
-def get_collection_map_class() -> Type[BaseLlmMap]:
-    class CollectionMap(BaseLlmMap):
-        map_keys_description = 'Knowledge Collection Titles'
-        map = Map({
+def get_collection_map_class() -> type[Decoder]:
+    class CollectionMap(Decoder):
+        mapping_keys_description = 'Knowledge Collection Titles'
+        mapping = {
             **{
                 collection.name: collection
                 for collection in Collection.objects.all().annotate_entry_count()
             },
-            **{'No Matching Knowledge Collection Titles': None}
-        })
+            'No Matching Knowledge Collection Titles': None
+        }
 
     return CollectionMap

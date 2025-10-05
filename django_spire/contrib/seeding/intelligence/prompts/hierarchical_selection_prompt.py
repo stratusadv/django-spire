@@ -2,7 +2,7 @@ from random import shuffle
 
 from django.db.models import Model
 
-from dandy.llm import Prompt
+from dandy import Prompt
 
 
 def hierarchical_selection_prompt(
