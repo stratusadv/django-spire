@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 from dandy.recorder import recorder_to_html_file
-from dandy.cache import SqliteCache
-from dandy.cache.utils import generate_hash_key
+from dandy import SqliteCache
+from dandy.cache.utils import generate_cache_key
 
 from django_spire.contrib.seeding.field.override import FieldOverride
 from django_spire.contrib.seeding.model.config import FieldsConfig
@@ -59,10 +59,7 @@ class BaseModelSeeder(ABC):
 
     @classmethod
     def clear_cache(cls):
-        SqliteCache(
-            cache_name=cls.cache_name,
-            limit=cls.cache_limit
-        ).clear(cache_name=cls.cache_name)
+        SqliteCache.clear(cache_name=cls.cache_name)
 
     @classmethod
     @abstractmethod
@@ -80,9 +77,14 @@ class BaseModelSeeder(ABC):
         field_config = cls.get_field_config().override(fields) if fields else cls.get_field_config()
 
         if cls.cache_seed:
-            hash_key = generate_hash_key(cls.seed_data, count=count, field_config=field_config.fields)
+            cache_key = generate_cache_key(
+                cls.seed_data,
+                count=count,
+                fields=field_config.fields
+            )
+
             cache = SqliteCache(cache_name=cls.cache_name, limit=cls.cache_limit)
-            formatted_seed_data = cache.get(hash_key)
+            formatted_seed_data = cache.get(cache_key)
 
             if formatted_seed_data:
                 return formatted_seed_data
@@ -95,13 +97,13 @@ class BaseModelSeeder(ABC):
             if len(seeder.seeder_fields) > 0:
                 seed_data.append(seeder.seed(cls, count))
 
-        formatted_seed_data = [dict() for _ in range(max(len(sublist) for sublist in seed_data))]
+        formatted_seed_data = [{} for _ in range(max(len(sublist) for sublist in seed_data))]
         for sublist in seed_data:
             for i, d in enumerate(sublist):
                 formatted_seed_data[i].update(d)
 
         if cls.cache_seed:
-            cache.set(hash_key, formatted_seed_data)
+            cache.set(cache_key, formatted_seed_data)
 
         return formatted_seed_data
 

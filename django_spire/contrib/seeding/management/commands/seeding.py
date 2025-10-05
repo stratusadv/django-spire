@@ -31,12 +31,15 @@ class Command(BaseCommand):
     # @recorder_to_html_file('seeding_generator')
     def handle(self, *args, **kwargs):
         if not kwargs['model_import'] or not kwargs['model_description']:
-            raise CommandError('You must provide a model import path and a model description')
+            message = 'You must provide a model import path and a model description'
+            raise CommandError(message)
 
         model_import = kwargs['model_import']
         model_description = ' '.join(kwargs['model_description'])
 
-        source_intel = SeederGeneratorBot.process(model_import, model_description)
+        # Instantiate the bot
+        bot = SeederGeneratorBot()
+        source_intel = bot.process(model_import, model_description)
 
         Path(_SEEDING_OUTPUT_PATH).mkdir(parents=True, exist_ok=True)
 

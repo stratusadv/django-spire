@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.knowledge.entry.version.block.blocks.list_block import ListItemBlock
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.blocks.heading_block import HeadingBlock

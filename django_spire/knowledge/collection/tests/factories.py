@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.knowledge.collection.models import Collection
 
 

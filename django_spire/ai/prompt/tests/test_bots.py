@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from django_spire.ai.prompt.system import bots
 from django_spire.core.tests.test_cases import BaseTestCase
 
 
 class PromptBotTestCase(BaseTestCase):
-
     def test_system_prompt_system_prompt(self):
         ISSUE_PROMPT = (
             "I am using jira to plan developer workloads And I want to be able to build very clear issues  that"
@@ -13,16 +14,18 @@ class PromptBotTestCase(BaseTestCase):
             "before they get into the details of it "
         )
 
-        role_bot = bots.RoleSystemPromptBot.process(ISSUE_PROMPT)
-        self.assertIsNotNone(role_bot)
+        role_bot = bots.RoleSystemPromptBot()
+        role_result = role_bot.process(ISSUE_PROMPT)
+        self.assertIsNotNone(role_result)
 
-        task_bot = bots.TaskSystemPromptBot.process(ISSUE_PROMPT)
-        self.assertIsNotNone(task_bot)
+        task_bot = bots.TaskSystemPromptBot()
+        task_result = task_bot.process(ISSUE_PROMPT)
+        self.assertIsNotNone(task_result)
 
+        guidelines_bot = bots.GuidelinesSystemPromptBot()
+        guidelines_result = guidelines_bot.process(ISSUE_PROMPT)
+        self.assertIsNotNone(guidelines_result)
 
-        guidelines_bot = bots.GuidelinesSystemPromptBot.process(ISSUE_PROMPT)
-        self.assertIsNotNone(guidelines_bot)
-
-        output_format_bot = bots.OutputFormatSystemPromptBot.process(ISSUE_PROMPT)
-        self.assertIsNotNone(output_format_bot)
-                
+        output_format_bot = bots.OutputFormatSystemPromptBot()
+        output_format_result = output_format_bot.process(ISSUE_PROMPT)
+        self.assertIsNotNone(output_format_result)

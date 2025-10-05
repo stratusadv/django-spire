@@ -1,21 +1,27 @@
+from __future__ import annotations
+
 import json
 import traceback
 import uuid
 
-from dandy.recorder import Recorder
-from django.contrib.auth.models import AbstractBaseUser
+from typing import TYPE_CHECKING
+
+from dandy import Recorder
 from django.utils.timezone import now
-from typing_extensions import Any
 
 from django_spire.ai.models import AiInteraction, AiUsage
 
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser
+
 
 def log_ai_interaction_from_recorder(
-        user: AbstractBaseUser | None = None,
-        actor: str | None = None,
+    user: AbstractBaseUser | None = None,
+    actor: str | None = None
 ):
     if user is None and actor is None:
-        raise ValueError('user or actor must be provided')
+        message = 'user or actor must be provided'
+        raise ValueError(message)
 
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -48,7 +54,7 @@ def log_ai_interaction_from_recorder(
 
                 ai_interaction.stack_trace = stack_trace
 
-                raise e
+                raise
 
             finally:
                 Recorder.stop_recording(recording_uuid)

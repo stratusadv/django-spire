@@ -1,8 +1,7 @@
 # from django_spire.seeding.intelligence.bots import LlmSeedingBot
 # from django_spire.seeding.seeder import BaseSeeder
 #
-# from dandy.llm import Prompt
-# from dandy.intel import BaseIntel
+# from dandy import BaseIntel, Prompt
 #
 #
 # class LlmSeeder(BaseSeeder):

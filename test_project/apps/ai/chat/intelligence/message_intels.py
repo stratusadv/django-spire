@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.ai.chat.message_intel import BaseMessageIntel
 
 

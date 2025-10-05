@@ -1,5 +1,13 @@
 # Changelog
 
+
+## v0.16.13
+
+### Breaking 
+- Dandy v1 now a requirement. Review Dandy documentation and review bot setup. 
+- Review Dandy Settings file. 
+
+
 ## v0.16.12
 
 ### Breaking

@@ -1,9 +1,14 @@
-from django.core.handlers.wsgi import WSGIRequest
-from django.template.response import TemplateResponse
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.generic_views import portal_views
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
 
 @AppAuthController('ai_chat').permission_required('can_delete')
