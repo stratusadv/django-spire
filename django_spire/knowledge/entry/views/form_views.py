@@ -84,9 +84,11 @@ def import_form_view(
         file_form = EntryFilesForm(request.POST, request.FILES)
 
         if file_form.is_valid():
-            file_objects = MultiFileUploader(related_field=None).upload(
-                request.FILES.getlist('import_files')
+            file_uploader = MultiFileUploader(
+                related_field=None,
+                app_name='knowledge'
             )
+            file_objects = file_uploader.upload(request.FILES.getlist('import_files'))
 
             _ = Entry.services.factory.create_from_files(
                 author=request.user,

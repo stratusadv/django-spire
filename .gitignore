@@ -24,4 +24,4 @@ inspectionProfiles/
 venv*/
 .qodo
 .dev
-
+robit.log
