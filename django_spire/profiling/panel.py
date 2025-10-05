@@ -6,7 +6,7 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing_extensions import Any, TYPE_CHECKING
+from typing_extensions import TYPE_CHECKING
 
 from debug_toolbar.panels import Panel
 from django.conf import settings
@@ -108,7 +108,7 @@ class ProfilingPanel(Panel):
             with lock:
                 for file in self.directory.glob('*.html'):
                     if file.exists():
-                        total += file.stat().st_size
+                        total = total + file.stat().st_size
 
         return total
 
