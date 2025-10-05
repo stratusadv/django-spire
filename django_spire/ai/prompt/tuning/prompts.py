@@ -1,4 +1,6 @@
-from dandy.llm import Prompt
+from __future__ import annotations
+
+from dandy import Prompt
 
 
 def prompt_tuning_instruction_bot_prompt():
@@ -181,7 +183,7 @@ def example_optimization_bot_instruction_prompt():
     )
 
 
-def prompt_tuning_input_prompt(system_prompt: str, feedback:str):
+def prompt_tuning_input_prompt(system_prompt: str, feedback: str):
     return (
         Prompt()
         .heading('User Supplies System Prompt')

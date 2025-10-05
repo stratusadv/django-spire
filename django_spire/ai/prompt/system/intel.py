@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from dandy.intel import BaseIntel
+from dandy import BaseIntel
 
 from django_spire.ai.prompt.bots import DandyPythonPromptBot, TextToMarkdownPromptBot
-from django_spire.knowledge.entry.version.intelligence.bots.markdown_format_llm_bot import MarkdownFormatLlmBot
 
 
 class SystemPromptResultIntel(BaseIntel):
@@ -17,10 +16,12 @@ class SystemPromptIntel(BaseIntel):
     output_format: str | None
 
     def to_markdown(self):
-        return TextToMarkdownPromptBot.process(self.to_string())
+        bot = TextToMarkdownPromptBot()
+        return bot.process(self.to_string())
 
     def to_python(self):
-        return DandyPythonPromptBot.process(self.to_string())
+        bot = DandyPythonPromptBot()
+        return bot.process(self.to_string())
 
     def to_string(self):
         prompt = (

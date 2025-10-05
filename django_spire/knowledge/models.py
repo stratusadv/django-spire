@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # These imports are for the migrations to work as a single app "django_spire_knowledge"
 
 from django_spire.knowledge.entry import models

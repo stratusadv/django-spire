@@ -1,4 +1,4 @@
-from dandy.intel import BaseIntel
+from dandy import BaseIntel
 
 
 class SeedingIntel(BaseIntel):

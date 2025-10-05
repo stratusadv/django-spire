@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
-from dandy.intel import BaseIntel
-from dandy.llm import LlmBot, Prompt
-from dandy.recorder import recorder_to_html_file
+from dandy import BaseIntel, Bot, Prompt
 from django.template.response import TemplateResponse
-from typing_extensions import TYPE_CHECKING
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from django.core.handlers.wsgi import WSGIRequest
 
 
@@ -30,12 +29,15 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
         @log_ai_interaction_from_recorder(request.user)
         def generate_horse_intel(horse_description: Any) -> HorseIntel:
             if not isinstance(horse_description, str):
-                raise ValueError('horse_description must be a string')
+                message = 'horse_description must be a string'
+                raise TypeError(message)
 
-            return LlmBot.process(
+            bot = Bot()
+
+            return bot.llm.prompt_to_intel(
                 prompt=horse_description,
                 intel_class=HorseIntel,
-                postfix_system_prompt=Prompt('Please create a horse based on the users input.')
+                postfix_system_prompt=Prompt().text('Please create a horse based on the users input.')
             )
 
         if not request.POST.get('legal_user_input'):

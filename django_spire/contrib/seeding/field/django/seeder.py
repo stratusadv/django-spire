@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dandy.llm import Prompt
-from dandy.intel import BaseIntel
+from dandy import BaseIntel, Prompt
 
 from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
 from django_spire.contrib.seeding.field.base import BaseFieldSeeder
@@ -40,6 +39,9 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
             .prompt(self.field_prompt)
         )
 
+        # Instantiate the bot once
+        bot = LlmFieldSeedingBot()
+
         if count <= 25:
             # Create a prompt for the full count since it's within a single batch
             prompt = (
@@ -49,7 +51,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                 .prompt(base_prompt)
             )
 
-            intel_data = LlmFieldSeedingBot.process(
+            intel_data = bot.process(
                 prompt=prompt,
                 intel_class=SeedingIntel
             )
@@ -73,7 +75,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                     .prompt(base_prompt)
                 )
 
-                future = LlmFieldSeedingBot.process_to_future(
+                future = bot.process_to_future(
                     prompt=batch_prompt,
                     intel_class=SeedingIntel
                 )

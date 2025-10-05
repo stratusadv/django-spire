@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from dandy.intel import BaseIntel
+from dandy import BaseIntel
 from django.conf import settings
 
 _MARKDOWN_OUTPUT_PATH = Path(settings.BASE_DIR, '.markdown')

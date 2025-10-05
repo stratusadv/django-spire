@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Count, Q
+from django.db.models import Count
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.ordering.querysets import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 if TYPE_CHECKING:
-    from django_spire.auth.user.models import AuthUser
+    from django.core.handlers.wsgi import WSGIRequest
     from django.db.models import QuerySet
     from django_spire.knowledge.collection.models import Collection
 
@@ -57,6 +56,7 @@ class CollectionQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
         accessible_ids = set(direct_access.values_list('id', flat=True))
 
         current_level_ids = accessible_ids.copy()
+
         while current_level_ids:
             next_level = self.filter(parent_id__in=current_level_ids)
             new_ids = set(next_level.values_list('id', flat=True)) - accessible_ids

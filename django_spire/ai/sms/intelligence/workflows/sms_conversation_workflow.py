@@ -1,20 +1,20 @@
+from __future__ import annotations
+
 from dandy.recorder import recorder_to_html_file
-from dandy.workflow import BaseWorkflow
-from dandy.llm import MessageHistory
+from dandy.llm.request.message import MessageHistory
 from django.core.handlers.wsgi import WSGIRequest
 
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import SpireChatWorkflow
 from django_spire.ai.sms.intel import SmsIntel
 
 
-class SpireSmsConversationWorkflow(BaseWorkflow):
-    @classmethod
+class SpireSmsConversationWorkflow:
+    @staticmethod
     @recorder_to_html_file('sms_workflow')
     def process(
-            cls,
-            request: WSGIRequest,
-            user_input: str,
-            message_history: MessageHistory | None = None
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory | None = None
     ) -> SmsIntel:
         return SmsIntel(
             body=str(
