@@ -1,16 +1,21 @@
 from test_project.apps.queryset_filtering.models import Task, TaskUser
 
 
-def tabular_context_data():
-    tasks = (
-        Task.objects
-        .select_related()
-        .prefetch_related('users', 'users__user')
-        .order_by('-created_datetime')[:20]
-    )
+def tabular_context_data(page=1, page_size=5, search='', sort_column='name', sort_direction='asc'):
+    offset = (page - 1) * page_size
+
+    tasks = Task.objects.select_related().prefetch_related('users', 'users__user')
+
+    if search:
+        tasks = tasks.filter(name__icontains=search) | tasks.filter(description__icontains=search)
+
+    order_by = f"{'-' if sort_direction == 'desc' else ''}{sort_column if sort_column in ['name', 'status'] else 'created_datetime'}"
+    tasks = tasks.order_by(order_by)
+
+    total_count = tasks.count()
+    tasks = tasks[offset:offset + page_size]
 
     rows = []
-
     for task in tasks:
         row = {
             'data': {
@@ -42,6 +47,10 @@ def tabular_context_data():
 
         rows.append(row)
 
+    has_next = offset + page_size < total_count
+
     return {
         'rows': rows,
+        'has_next': has_next,
+        'total_count': total_count,
     }

@@ -1,0 +1,22 @@
+<table class="table table-sm mb-0">
+    <thead class="bg-app-layer-four">
+        <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th class="d-none d-lg-table-cell">Price</th>
+            <th class="text-end">Cost</th>
+            <th class="d-none d-md-table-cell">Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for child in children %}
+            <tr>
+                <td><i class="bi bi-arrow-return-right text-muted me-2"></i>{{ child.child_data.user_name }}</td>
+                <td><span class="badge bg-secondary">{{ child.child_data.role }}</span></td>
+                <td class="d-none d-lg-table-cell">${{ child.child_data.price|floatformat:2 }}</td>
+                <td class="text-end">${{ child.child_data.cost|floatformat:2 }}</td>
+                <td class="d-none d-md-table-cell">{{ child.child_data.date|date:"M d, Y" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

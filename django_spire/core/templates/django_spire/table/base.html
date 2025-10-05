@@ -1,0 +1,408 @@
+<div
+    x-data="{
+        // Infinite scroll properties
+        endpoint: '{{ endpoint }}',
+        child_endpoint: '{{ child_endpoint|default:'' }}',
+        shared_payload: {},
+        page_size: parseInt('{{ page_size|default:20 }}'),
+        current_page: parseInt('{{ current_page|default:1 }}'),
+        has_next: {{ has_next|default:'true'|yesno:'true,false' }},
+        is_loading: false,
+        observer: null,
+
+        // Table properties
+        is_row_open: {},
+        is_child_row_loading: {},
+        child_rows: {},
+        selected_rows: new Set(),
+        sort_column: {% if sort_column %}'{{ sort_column }}'{% else %}null{% endif %},
+        sort_direction: '{{ sort_direction|default:'asc' }}',
+        search_term: '',
+        select_all: false,
+
+        async init() {
+            // Initialize shared payload
+            if (document.getElementById('shared_payload')) {
+                this.shared_payload = JSON.parse(document.getElementById('shared_payload').textContent);
+            }
+
+            // Reset scroll position
+            requestAnimationFrame(() => {
+                if (this.$refs.table_container) {
+                    this.$refs.table_container.scrollTop = 0;
+                }
+            });
+
+            // Setup infinite scroll observer
+            if (this.has_next) {
+                await this.setup_observer();
+            }
+        },
+
+        async setup_observer() {
+            let trigger = this.$refs.infinite_scroll_trigger;
+
+            if (!trigger) {
+                console.error('Infinite scroll trigger element not found.');
+                return;
+            }
+
+            let options = {
+                root: this.$refs.table_container,
+                rootMargin: '100px',
+                threshold: 0.1
+            };
+
+            this.observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(async entry => {
+                        if (entry.isIntersecting && this.has_next && !this.is_loading) {
+                            await this.load_more();
+                        }
+                    });
+                },
+                options
+            );
+
+            this.observer.observe(trigger);
+        },
+
+        async fetch_rows(next_page) {
+            if (!this.endpoint) return { success: false, error: 'No endpoint provided' };
+
+            let params = new URLSearchParams({
+                page: next_page,
+                page_size: this.page_size
+            });
+
+            if (this.sort_column) {
+                params.set('sort', this.sort_column);
+                params.set('direction', this.sort_direction);
+            }
+
+            if (this.search_term) {
+                params.set('search', this.search_term);
+            }
+
+            let url = `${this.endpoint}?${params}`;
+            let view = new ViewGlue(url, this.shared_payload);
+
+            try {
+                await view.render_insert_adjacent(this.$refs.table_body, {}, 'beforeend');
+                return { success: true };
+            } catch (error) {
+                console.error(error);
+                return { success: false, error };
+            }
+        },
+
+        async load_more() {
+            if (!this.endpoint) return;
+
+            this.is_loading = true;
+
+            let next_page = this.current_page + 1;
+            let container = this.$refs.table_body;
+            let previous_count = container.children.length;
+
+            let result = await this.fetch_rows(next_page);
+
+            if (!result.success) {
+                this.is_loading = false;
+                return;
+            }
+
+            let current_count = container.children.length;
+            let added = current_count - previous_count;
+
+            if (added > 0) {
+                this.current_page = next_page;
+            }
+
+            if (added < this.page_size) {
+                this.has_next = false;
+                if (this.observer) {
+                    this.observer.disconnect();
+                }
+            }
+
+            this.is_loading = false;
+        },
+
+        async toggle_row(row_id) {
+            this.is_row_open[row_id] = !this.is_row_open[row_id];
+
+            // Load child rows if opening and not already loaded
+            if (this.is_row_open[row_id] && !this.child_rows[row_id] && this.child_endpoint) {
+                await this.load_child_rows(row_id);
+            }
+        },
+
+        async load_child_rows(parent_id) {
+            if (this.is_child_row_loading[parent_id]) return;
+
+            this.is_child_row_loading[parent_id] = true;
+
+            let url = this.child_endpoint.replace('{id}', parent_id);
+            let view = new ViewGlue(url, this.shared_payload);
+
+            try {
+                // Create a temporary container to hold the child rows
+                let temp_container = document.createElement('div');
+                await view.render_inner(temp_container);
+
+                // Store the HTML content for this row's children
+                this.child_rows[parent_id] = temp_container.innerHTML;
+
+                // Insert the child rows after the parent row
+                this.$nextTick(() => {
+                    let parent_row = document.querySelector(`[data-row-id='${parent_id}']`);
+                    if (parent_row) {
+                        let child_container = document.querySelector(`[data-child-container='${parent_id}']`);
+                        if (child_container) {
+                            child_container.innerHTML = this.child_rows[parent_id];
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading child rows:', error);
+            } finally {
+                this.is_child_row_loading[parent_id] = false;
+            }
+        },
+
+        async refresh_table() {
+            // Clear existing rows
+            this.$refs.table_body.innerHTML = '';
+
+            // Reset pagination
+            this.current_page = 1;
+            this.has_next = true;
+
+            // Clear child rows cache
+            this.child_rows = {};
+            this.is_row_open = {};
+
+            // Load first page
+            await this.fetch_rows(1);
+
+            // Re-setup observer
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+            if (this.has_next) {
+                await this.setup_observer();
+            }
+        },
+
+        async search() {
+            await this.refresh_table();
+        },
+
+        async sort_by(column) {
+            if (this.sort_column === column) {
+                this.sort_direction = this.sort_direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sort_column = column;
+                this.sort_direction = 'asc';
+            }
+
+            await this.refresh_table();
+        },
+
+        get_sort_icon(column) {
+            if (this.sort_column !== column) return 'bi-chevron-expand';
+            return this.sort_direction === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down';
+        },
+
+        toggle_selection(id) {
+            if (this.selected_rows.has(id)) {
+                this.selected_rows.delete(id);
+            } else {
+                this.selected_rows.add(id);
+            }
+
+            // Update select all state
+            this.check_select_all();
+        },
+
+        toggle_all() {
+            let all_checkboxes = this.$refs.table_body.querySelectorAll('input[type=checkbox]');
+
+            if (this.select_all) {
+                this.selected_rows.clear();
+                all_checkboxes.forEach(cb => cb.checked = false);
+                this.select_all = false;
+            } else {
+                all_checkboxes.forEach(cb => {
+                    let row_id = cb.dataset.rowId;
+                    if (row_id) {
+                        this.selected_rows.add(row_id);
+                        cb.checked = true;
+                    }
+                });
+                this.select_all = true;
+            }
+        },
+
+        check_select_all() {
+            let all_checkboxes = this.$refs.table_body.querySelectorAll('input[type=checkbox]');
+            let checked_count = 0;
+
+            all_checkboxes.forEach(cb => {
+                if (cb.checked) checked_count++;
+            });
+
+            this.select_all = all_checkboxes.length > 0 && checked_count === all_checkboxes.length;
+        },
+
+        {% block table_x_data_methods %}{% endblock %}
+    }"
+>
+    {{ shared_payload|json_script:'shared_payload' }}
+
+    {% block table_toolbar %}
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-app-layer-two">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input
+                        type="text"
+                        x-model="search_term"
+                        @keyup.enter="search()"
+                        class="form-control"
+                        placeholder="{% block search_placeholder %}Search...{% endblock %}"
+                    >
+                    <button
+                        class="btn btn-app-primary"
+                        @click="search()"
+                        :disabled="is_loading"
+                    >
+                        Search
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                {% block toolbar_actions %}
+                    <span class="text-app-secondary fs-7" x-show="selected_rows.size > 0" x-cloak>
+                        <span x-text="selected_rows.size"></span> selected
+                    </span>
+                    {% block table_toolbar_buttons %}{% endblock %}
+                {% endblock %}
+            </div>
+        </div>
+    {% endblock %}
+
+    <div
+        x-ref="table_container"
+        class="table-container position-relative"
+        style="max-height: {{ table_height|default:'600px' }}; overflow-y: auto; overscroll-behavior: contain;"
+    >
+        <table class="table table-hover {% block table_class %}{% endblock %}">
+            <thead class="{% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
+                <tr>
+                    {% block table_headers %}
+                        <th style="width: 40px;">
+                            <input
+                                type="checkbox"
+                                :checked="select_all"
+                                @change="toggle_all()"
+                            >
+                        </th>
+                        <th style="width: 40px;"></th>
+                        <th @click="sort_by('name')" class="cursor-pointer">
+                            Name <i class="bi" :class="get_sort_icon('name')"></i>
+                        </th>
+                        <th @click="sort_by('status')" class="cursor-pointer">
+                            Status <i class="bi" :class="get_sort_icon('status')"></i>
+                        </th>
+                        <th @click="sort_by('created')" class="cursor-pointer">
+                            Created <i class="bi" :class="get_sort_icon('created')"></i>
+                        </th>
+                        <th style="width: 120px;">Actions</th>
+                    {% endblock %}
+                </tr>
+            </thead>
+            <tbody x-ref="table_body">
+                {% block table_initial_rows %}
+                    {% comment %}
+                    Initial rows will be rendered here server-side.
+                    Each row should follow this structure:
+
+                    <tr data-row-id="{{ row.id }}">
+                        <td>
+                            <input
+                                type="checkbox"
+                                data-row-id="{{ row.id }}"
+                                @change="toggle_selection('{{ row.id }}')"
+                            >
+                        </td>
+                        <td>
+                            {% if row.has_children %}
+                                <span
+                                    @click="toggle_row('{{ row.id }}')"
+                                    class="cursor-pointer"
+                                >
+                                    <i class="bi"
+                                       :class="is_row_open['{{ row.id }}'] ? 'bi-chevron-down' : 'bi-chevron-right'">
+                                    </i>
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.name }}</td>
+                        <td>
+                            <span class="badge bg-{{ row.status_class }}">
+                                {{ row.status }}
+                            </span>
+                        </td>
+                        <td>{{ row.created }}</td>
+                        <td>
+                            <!-- Action buttons -->
+                        </td>
+                    </tr>
+
+                    <!-- Child rows container -->
+                    {% if row.has_children %}
+                        <tr x-show="is_row_open['{{ row.id }}']" x-cloak>
+                            <td colspan="6" class="p-0">
+                                <div class="ps-5 py-2 bg-app-layer-three" data-child-container="{{ row.id }}">
+                                    <div x-show="is_child_row_loading['{{ row.id }}']" class="text-center py-3">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    {% endcomment %}
+                {% endblock %}
+            </tbody>
+        </table>
+
+        <!-- Loading indicator -->
+        <div x-show="is_loading" class="text-center my-3">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Infinite scroll trigger -->
+        <div x-ref="infinite_scroll_trigger" style="height: 10px;"></div>
+    </div>
+
+    {% block table_footer %}
+        <div class="row mt-3">
+            <div class="col">
+                <span class="text-app-secondary fs-7">
+                    {% block table_footer_info %}
+                        <span x-text="`Page ${current_page}`"></span>
+                        <span x-show="!has_next"> (No more results)</span>
+                    {% endblock %}
+                </span>
+            </div>
+        </div>
+    {% endblock %}
+</div>

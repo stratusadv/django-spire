@@ -1,0 +1,66 @@
+{% extends 'django_spire/table/base.html' %}
+
+{% block search_placeholder %}Search tasks...{% endblock %}
+
+{% block table_headers %}
+    <th style="width: 40px;">
+        <input type="checkbox" :checked="select_all" @change="toggle_all()">
+    </th>
+    <th style="width: 40px;"></th>
+    <th @click="sort_by('name')" class="cursor-pointer">
+        Task Name <i class="bi" :class="get_sort_icon('name')"></i>
+    </th>
+    <th @click="sort_by('status')" class="cursor-pointer">
+        Status <i class="bi" :class="get_sort_icon('status')"></i>
+    </th>
+    <th @click="sort_by('quantity')" class="cursor-pointer">
+        Users <i class="bi" :class="get_sort_icon('quantity')"></i>
+    </th>
+    <th @click="sort_by('cost')" class="cursor-pointer">
+        Cost <i class="bi" :class="get_sort_icon('cost')"></i>
+    </th>
+    <th @click="sort_by('date')" class="cursor-pointer">
+        Date <i class="bi" :class="get_sort_icon('date')"></i>
+    </th>
+    <th style="width: 120px;">Actions</th>
+{% endblock %}
+
+{% block table_initial_rows %}
+    {% for row in rows %}
+        <tr data-row-id="{{ row.data.uuid }}">
+            <td>
+                <input type="checkbox" data-row-id="{{ row.data.uuid }}" @change="toggle_selection('{{ row.data.uuid }}')">
+            </td>
+            <td>
+                {% if row.child_rows %}
+                    <span @click="toggle_row('{{ row.data.uuid }}')" class="cursor-pointer">
+                        <i class="bi" :class="is_row_open['{{ row.data.uuid }}'] ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                    </span>
+                {% endif %}
+            </td>
+            <td>
+                <strong>{{ row.data.name }}</strong>
+                <div class="text-muted small">{{ row.data.description }}</div>
+            </td>
+            <td><span class="badge bg-primary">{{ row.data.status }}</span></td>
+            <td>{{ row.data.quantity }}</td>
+            <td>${{ row.data.cost|floatformat:2 }}</td>
+            <td>{{ row.data.date|date:"M d, Y" }}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+            </td>
+        </tr>
+
+        {% if row.child_rows %}
+            <tr x-show="is_row_open['{{ row.data.uuid }}']" x-cloak x-transition>
+                <td colspan="8" class="p-0">
+                    <div class="ps-5 py-2 bg-app-layer-three" data-child-container="{{ row.data.uuid }}">
+                        <div x-show="is_child_row_loading['{{ row.data.uuid }}']" class="text-center py-3">
+                            <div class="spinner-border spinner-border-sm"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
