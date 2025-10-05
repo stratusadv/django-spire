@@ -1,6 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 
 from django_spire.ai.chat.views import message_views
+
 
 app_name = 'message'
 

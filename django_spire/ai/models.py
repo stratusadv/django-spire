@@ -1,4 +1,6 @@
-from django.contrib.auth.models import Group, User
+from __future__ import annotations
+
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.formats import localize
 from django.utils.timezone import now
@@ -53,14 +55,17 @@ class AiInteraction(AiUsageMixin):
     def __str__(self):
         return f'"{self.actor}" interaction on "{localize(self.created_datetime)}"'
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if self.user:
             if self.actor is None:
                 self.actor = self.user.get_full_name()
+
             if self.user_email is None:
                 self.user_email = self.user.email
+
             if self.user_first_name is None:
                 self.user_first_name = self.user.first_name
+
             if self.user_last_name is None:
                 self.user_last_name = self.user.last_name
 

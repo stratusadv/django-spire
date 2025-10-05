@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.history.querysets import HistoryQuerySet
 
 
@@ -6,6 +8,7 @@ class SmsConversationQuerySet(HistoryQuerySet):
         return self.filter(
             phone_number=phone_number,
         )
+
 
 class SmsMessageQuerySet(HistoryQuerySet):
     def newest_by_count(self, count: int = 20):

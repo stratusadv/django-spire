@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase

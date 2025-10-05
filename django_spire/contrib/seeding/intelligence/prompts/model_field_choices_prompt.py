@@ -1,11 +1,11 @@
-from dandy.llm import Prompt
+from dandy import Prompt
 from django.db.models.enums import TextChoices
 from django.db.models.fields import Field
 
 
 def model_field_choices_prompt(
-        model_field: Field,
-        choices: TextChoices,
+    model_field: Field,
+    choices: TextChoices
 ) -> Prompt:
     model_name = model_field.field.model.__name__
     field_name = model_field.field.name

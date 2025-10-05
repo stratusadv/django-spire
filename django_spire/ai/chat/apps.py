@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.apps import AppConfig
 from django.conf import settings
 
@@ -22,6 +24,7 @@ class AiChatConfig(AppConfig):
 
     def ready(self) -> None:
         if not isinstance(getattr(settings, AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME), str):
-            raise ValueError(f'"{AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME}" must be set in the django settings when using "{self.label}".')
+            message = f'"{AI_CHAT_WORKFLOW_CLASS_SETTINGS_NAME}" must be set in the django settings when using "{self.label}".'
+            raise TypeError(message)
 
         check_required_apps(self.label)

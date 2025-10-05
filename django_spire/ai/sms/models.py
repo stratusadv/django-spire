@@ -1,5 +1,6 @@
-from dandy.llm import MessageHistory
-from dandy.llm.service.request.message import RoleLiteralStr
+from __future__ import annotations
+
+from dandy.llm.request.message import MessageHistory, RoleLiteralStr
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
@@ -27,11 +28,11 @@ class SmsConversation(HistoryModelMixin):
         return f"SMS Conversation with {self.phone_number}"
 
     def add_message(
-            self,
-            body: str,
-            is_inbound: bool,
-            twilio_sid: str,
-            is_processed: bool = False,
+        self,
+        body: str,
+        is_inbound: bool,
+        twilio_sid: str,
+        is_processed: bool = False
     ):
         message = self.messages.create(
             body=body,
@@ -46,9 +47,9 @@ class SmsConversation(HistoryModelMixin):
         return message
 
     def generate_message_history(
-            self,
-            message_count: int = 20,
-            exclude_last_message: bool = True
+        self,
+        message_count: int = 20,
+        exclude_last_message: bool = True
     ) -> MessageHistory:
         message_history = MessageHistory()
 
@@ -114,10 +115,11 @@ class SmsMessage(HistoryModelMixin):
     def role(self) -> RoleLiteralStr:
         if self.is_inbound:
             return 'user'
-        elif self.is_outbound:
+
+        if self.is_outbound:
             return 'assistant'
-        else:
-            return 'system'
+
+        return 'system'
 
     class Meta:
         db_table = 'django_spire_ai_sms_message'

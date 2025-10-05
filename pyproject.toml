@@ -38,10 +38,10 @@ requires-python = ">=3.11"
 dynamic = ["version"]
 
 dependencies = [
-    "boto3==1.24.18",
-    "botocore==1.27.18",
+    "boto3>=1.34.0",
+    "botocore>=1.34.0",
     "crispy-bootstrap5==2024.10",
-    "dandy==0.20.0",
+    "dandy==1.1.0",
     "django>=5.1.8",
     "django-crispy-forms==2.3",
     "django-glue>=0.8.1",
@@ -69,6 +69,7 @@ development = [
     "django-watchfiles",
     "pip",
     "pyinstrument",
+    "pyrefly",
     "pytest",
     "setuptools",
     "twine"

@@ -1,9 +1,11 @@
-from dandy.llm import Prompt
+from __future__ import annotations
+
+from dandy import Prompt
 
 from django_spire.conf import settings
 
 
-def organization_prompt():
+def organization_prompt() -> Prompt:
     return (
         Prompt()
         .text(f'You are a chat assistant for a company called "{settings.ORGANIZATION_NAME}".')

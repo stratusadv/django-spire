@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from django.utils.timezone import localdate
 
-from dandy.llm import LlmBot, LlmConfigOptions, Prompt
+from dandy import Bot, LlmConfigOptions, Prompt
 
 
-class LlmFieldSeedingBot(LlmBot):
-    config = 'SEEDING_LLM_BOT'
+class LlmFieldSeedingBot(Bot):
+    llm_config = 'SEEDING_LLM_BOT'
 
-    config_options = LlmConfigOptions(
+    llm_config_options = LlmConfigOptions(
         randomize_seed=True,
         temperature=0.5
     )
 
-    instructions_prompt = (
+    llm_role = (
         Prompt()
         .title('You are a database seeding bot.')
         .text('Below you will find rules and instructions.')
@@ -23,9 +23,8 @@ class LlmFieldSeedingBot(LlmBot):
         .text(f'Today\'s date is {localdate().strftime("%Y-%m-%d")} use this in context for generating dates and datetimes')
     )
 
-    @classmethod
-    def process(cls, prompt: Prompt, intel_class) -> list[dict]:
-        intel_data = cls.process_prompt_to_intel(
+    def process(self, prompt: Prompt, intel_class) -> list[dict]:
+        intel_data = self.llm.prompt_to_intel(
             prompt=prompt,
             intel_class=intel_class
         )

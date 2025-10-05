@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 import json
 
 from django.conf import settings
 from django.http import HttpResponse
 
-from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
@@ -17,9 +18,8 @@ def response_message_render_view(request):
     chat_workflow_name = getattr(settings, AI_CHAT_WORKFLOW_SENDER_SETTINGS_NAME)
 
     if chat_workflow_name is None:
-        raise ValueError(
-            f'"{AI_CHAT_WORKFLOW_SENDER_SETTINGS_NAME}" must be set in the django settings.'
-        )
+        message = f'"{AI_CHAT_WORKFLOW_SENDER_SETTINGS_NAME}" must be set in the django settings.'
+        raise ValueError(message)
 
     chat = Chat.objects.by_user(request.user).get(id=body_data['chat_id'])
 

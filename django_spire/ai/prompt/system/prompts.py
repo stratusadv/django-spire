@@ -1,4 +1,7 @@
-from dandy.llm import Prompt
+from __future__ import annotations
+
+from dandy import Prompt
+
 
 def role_bot_prompt():
     return (
@@ -141,6 +144,7 @@ def system_prompt_instruction_bot_prompt():
         .heading('Your Output Format')
         .text('Your response should be a complete system prompt that addresses the user\'s specific needs, ensuring it is structured as a system prompt for an LLM interaction. Extract the relevant information from the user\'s input to create this system prompt.')
     )
+
 
 def system_user_input_prompt(user_input: str):
     return (

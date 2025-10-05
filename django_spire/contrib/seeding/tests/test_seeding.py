@@ -1,4 +1,4 @@
-# from dandy.llm import Prompt
+# from dandy import Prompt
 # from django.test import TestCase
 #
 # from django_spire.seeding.processor import SeedingProcessor
