@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 from dandy import Prompt
 
 
-def spire_app_name_instruction_prompt() -> Prompt:
+def ${instruction_prompt_function_name}() -> Prompt:
     return (
         Prompt()
-        .title('spire_model_name Operations')
+        .title('${model_verbose_name} Operations')
         .line_break()
         .heading('Purpose')
-        .text('This prompt provides instructions for spire_model_name operations.')
+        .text('This prompt provides instructions for ${model_verbose_name} operations.')
         .line_break()
         .heading('Instructions')
         .ordered_list([
@@ -19,10 +21,10 @@ def spire_app_name_instruction_prompt() -> Prompt:
     )
 
 
-def spire_app_name_user_input_prompt(user_input: str) -> Prompt:
+def ${user_input_prompt_function_name}(user_input: str) -> Prompt:
     return (
         Prompt()
-        .heading('spire_model_name Request')
+        .heading('${model_verbose_name} Request')
         .text('The user wants to perform the following operation:')
         .text('')
         .text(user_input)
