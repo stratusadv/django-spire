@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.17.0
+
+### Changes
+- Added profiling middleware / django_debug_toolbar integration using the profiling middleware
+- Modified the spire_startapp to use a wizard and be more flexible
+
 
 ## v0.16.13
 
