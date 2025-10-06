@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.17.2
+
+### Changes
+- Dandy v1.1.2
+
+### Fixes
+- System prompting bot and futures fix. 
+
+
 ## v0.17.1
 
 ### Changes
