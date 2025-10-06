@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.17.3
+
+### Changes
+- Create `ChatBot` for AI Chat app.
+
+### Fixes
+- Fixed Knowledge Base AI crash bug fix.
+
+
 ## v0.17.2
 
 ### Changes

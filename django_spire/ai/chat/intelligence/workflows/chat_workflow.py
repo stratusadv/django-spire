@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from dandy import Prompt, Bot
 from dandy.recorder import recorder_to_html_file
 
+from django_spire.ai.chat.intelligence.bots.chat_bot import ChatBot
 from django_spire.ai.chat.intelligence.maps.intent_llm_map import IntentDecoder
 from django_spire.ai.chat.intelligence.prompts import organization_prompt
 from django_spire.ai.chat.message_intel import DefaultMessageIntel
@@ -47,25 +48,20 @@ class SpireChatWorkflow:
         intent_decoder = SpireChatWorkflow._generate_intent_decoder(request)
         intents = intent_decoder.process(user_input, max_return_values=1)
 
-        bot = Bot()
+        chat_bot = ChatBot()
 
         if intents[0] is None:
-            return bot.llm.prompt_to_intel(
+            return chat_bot.llm.prompt_to_intel(
                 prompt=user_input,
                 intel_class=DefaultMessageIntel,
                 message_history=message_history,
                 postfix_system_prompt=organization_prompt()
             )
 
-        return bot.llm.prompt_to_intel(
+        return chat_bot.llm.prompt_to_intel(
             prompt=(
                 Prompt()
                 .text(f'User Input: {user_input}')
-                .line_break()
-                .text(
-                    'Use the following information to the answer the user\'s question '
-                    'or concern.'
-                )
                 .line_break()
                 .text(intents[0].process(user_input))
             ),
