@@ -107,6 +107,8 @@ exclude = [
 django_spire = [
     "**/*.py",
     "**/*.html",
+    "**/*.py.template",
+    "**/*.html.template",
     "**/*.css",
     "**/*.js",
     "**/*.png",

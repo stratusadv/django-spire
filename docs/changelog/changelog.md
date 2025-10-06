@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.17.1
+
+### Changes
+- Package .template files for the spire_startapp command
+
+
 ## v0.17.0
 
 ### Changes
