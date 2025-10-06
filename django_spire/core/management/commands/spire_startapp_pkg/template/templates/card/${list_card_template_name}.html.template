@@ -1,0 +1,18 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    ${model_verbose_name_plural}
+{% endblock %}
+
+{% block card_button %}
+    {% url '${url_reverse_path}:form:create' as new_${context_single_var}_url %}
+    {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_${context_single_var}_url %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% for ${context_single_var} in ${context_plural_var} %}
+        {% include '${template_directory_path}/item/${item_template_name}' %}
+    {% empty %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}

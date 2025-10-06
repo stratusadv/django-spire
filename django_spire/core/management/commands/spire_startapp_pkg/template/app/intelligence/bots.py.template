@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from dandy import Bot
 
-from module.intelligence import intel, prompts
+from ${module_path}.intelligence import intel, prompts
 
 
-class spire_model_nameBot(Bot):
-    llm_role = prompts.spire_app_name_instruction_prompt()
-    llm_intel_class = intel.spire_model_nameIntel
+class ${bot_class_name}(Bot):
+    llm_intel_class = intel.${intel_class_name}
+    llm_role = prompts.${instruction_prompt_function_name}()
 
     def process(
         self,
         user_input: str
-    ) -> intel.spire_model_nameIntel:
+    ) -> intel.${intel_class_name}:
         return self.llm.prompt_to_intel(
-            prompt=prompts.spire_app_name_user_input_prompt(user_input)
+            prompt=prompts.${user_input_prompt_function_name}(user_input)
         )
