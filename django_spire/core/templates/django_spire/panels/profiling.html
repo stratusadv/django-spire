@@ -1,0 +1,74 @@
+{% load i18n %}
+
+<div>
+    <div>
+        <div>
+            <div>Status</div>
+
+            <div>
+                {% if enabled %}Enabled{% else %}Disabled{% endif %}
+            </div>
+
+            {% if not enabled %}
+                <small style="font-size: 0.8em;">Set PROFILING_ENABLED=True</small>
+            {% endif %}
+        </div>
+
+        <div>
+            <div>Total Profiles</div>
+            <div>{{ count }}</div>
+        </div>
+
+        <div>
+            <div>Total Size</div>
+            <div>{{ totalsize }}</div>
+        </div>
+
+        <div>
+            <div>Profile Directory</div>
+            <div>{{ directory }}</div>
+        </div>
+    </div>
+
+    {% if profiles %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Path</th>
+                    <th>Duration</th>
+                    <th>Time</th>
+                    <th>Size</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td>
+                        <span>{{ profile.method }}</span>
+                    </td>
+                    <td>{{ profile.path }}</td>
+                    <td>{{ profile.duration }}</td>
+                    <td>{{ profile.modified }}</td>
+                    <td>{{ profile.size }}</td>
+                    <td>
+                        <div>
+                            <a href="{{ profile.url }}" target="_blank">
+                                View
+                            </a>
+                            <a href="{{ profile.deleteurl }}" onclick="return confirm('Delete this profile?');">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div>
+            No profiles found in {{ directory }}
+        </div>
+    {% endif %}
+</div>
