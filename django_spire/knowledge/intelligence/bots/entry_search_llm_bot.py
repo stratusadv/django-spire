@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dandy import Bot, Prompt
+from dandy.intel.intel import DefaultIntel
 
 from django_spire.knowledge.entry.models import Entry
 
@@ -16,4 +17,7 @@ class EntrySearchLlmBot(Bot):
         for version_block in entry.current_version.blocks.all():
             entry_prompt.text(version_block.render_to_text())
 
-        return cls().llm.prompt_to_text(prompt=entry_prompt)
+        return cls().llm.prompt_to_intel(
+            prompt=entry_prompt,
+            intel_class=DefaultIntel
+        ).content
