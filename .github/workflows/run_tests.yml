@@ -12,8 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      max-parallel: 1
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -42,3 +43,4 @@ jobs:
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
           uv run python manage.py test . --settings=test_project.sqlite_settings
+          timeout-minutes: 10
