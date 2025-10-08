@@ -26,6 +26,7 @@ class ProgressTracker:
             'progress': progress,
             **kwargs
         }
+
         cache.set(self.key, data, timeout=self.timeout)
 
     def get(self) -> dict[str, Any] | None:
