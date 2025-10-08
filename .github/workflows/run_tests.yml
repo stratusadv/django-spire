@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     strategy:
       max-parallel: 1
@@ -33,8 +34,6 @@ jobs:
       - name: Run tests
         env:
           OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
-          ACTION_OLLAMA_HOST: ${{ secrets.ACTION_OLLAMA_HOST }}
-          THINKING_OLLAMA_HOST: ${{ secrets.THINKING_OLLAMA_HOST }}
           OLLAMA_PORT: ${{ secrets.OLLAMA_PORT }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
