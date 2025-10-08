@@ -42,4 +42,4 @@ jobs:
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
           uv run python manage.py test . --settings=test_project.sqlite_settings
-          timeout-minutes: 10
+        timeout-minutes: 10
