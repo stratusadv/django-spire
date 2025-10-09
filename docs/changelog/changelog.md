@@ -1,10 +1,18 @@
 # Changelog
 
+## v0.17.5
+
+### Changes
+
+- Add an experimental progress bar to add events to dandy
+
+
 ## v0.17.4
 
 ### Fixes
 
 - Update dandy to v1.1.3
+
 
 ## v0.17.3
 
