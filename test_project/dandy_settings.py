@@ -11,33 +11,34 @@ DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
 LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('OLLAMA_HOST'),
+        'HOST': os.getenv('OLLAMA_1_HOST'),
         'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
-        'MODEL': 'gemma3:12b',
+        'MODEL': 'qwen3:30b-instruct',
         'TEMPERATURE': 0.1,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'BASIC': {
-        'MODEL': 'gemma3:4b',
+        'MODEL': 'qwen3:30b-instruct',
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'ADVANCED': {
-        'MODEL': 'gemma3:12b',
+        'MODEL': 'qwen3:30b-instruct',
         'TEMPERATURE': 0.3,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'COMPLEX': {
-        'MODEL': 'gemma3:27b',
+        'HOST': os.getenv('OLLAMA_2_HOST'),
+        'MODEL': 'qwen3:235b-instruct',
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'SEEDING_LLM_BOT': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('OLLAMA_HOST'),
+        'HOST': os.getenv('OLLAMA_1_HOST'),
         'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:30b',
@@ -47,7 +48,7 @@ LLM_CONFIGS = {
     },
     'PYTHON_MODULE': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('OLLAMA_HOST'),
+        'HOST': os.getenv('OLLAMA_1_HOST'),
         'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:30b',
@@ -57,7 +58,7 @@ LLM_CONFIGS = {
     },
     'QWEN_2_5_CODER_14B': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('OLLAMA_HOST'),
+        'HOST': os.getenv('OLLAMA_1_HOST'),
         'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:30b',
@@ -67,7 +68,7 @@ LLM_CONFIGS = {
     },
     'KNOWLEDGE_LLM_BOT': {
         'TYPE': 'ollama',
-        'HOST': os.getenv('OLLAMA_HOST'),
+        'HOST': os.getenv('OLLAMA_1_HOST'),
         'PORT': int(os.getenv('OLLAMA_PORT', '11434')),
         'API_KEY': os.getenv('OLLAMA_API_KEY'),
         'MODEL': 'qwen3-coder:latest',
