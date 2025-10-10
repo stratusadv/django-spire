@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.17.6
+
+### Changes
+
+- Update dandy to v1.1.4
+
+
 ## v0.17.5
 
 ### Changes
