@@ -20,11 +20,13 @@ LLM_CONFIGS = {
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'BASIC': {
+        'HOST': os.getenv('OLLAMA_1_HOST'),
         'MODEL': 'qwen3:30b-instruct',
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
     'ADVANCED': {
+        'HOST': os.getenv('OLLAMA_1_HOST'),
         'MODEL': 'qwen3:30b-instruct',
         'TEMPERATURE': 0.3,
         'MAX_INPUT_TOKENS': 16000,
