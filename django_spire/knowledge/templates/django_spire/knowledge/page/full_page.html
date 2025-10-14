@@ -12,13 +12,15 @@
             const toggleBtn = document.getElementById('side-toggle-btn');
             const offcanvasEl = document.getElementById('navigation-card');
 
-            offcanvasEl.addEventListener('show.bs.offcanvas', function () {
-                toggleBtn.classList.add('open');
-            });
+            if (offcanvasEl) {
+                offcanvasEl.addEventListener('show.bs.offcanvas', function () {
+                    toggleBtn.classList.add('open');
+                });
 
-            offcanvasEl.addEventListener('hide.bs.offcanvas', function () {
-                toggleBtn.classList.remove('open');
-            });
+                offcanvasEl.addEventListener('hide.bs.offcanvas', function () {
+                    toggleBtn.classList.remove('open');
+                });
+            }
         });
     </script>
     <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
@@ -31,36 +33,4 @@
 {% block full_page_content %}
     {% block knowledge_full_page_content %}
     {% endblock %}
-    <div
-        id="side-toggle-btn"
-        class="fs-4"
-        style="
-            position: absolute;
-            top: calc(var(--app-top-navigation-height) - 25px);
-            right: 25px;
-        "
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#navigation-card"
-    >
-        <i
-            class="bi bi-layout-sidebar-inset-reverse"
-            data-bs-toggle="tooltip"
-            data-bs-placement="left"
-            title="Expand Navigation"
-        ></i>
-    </div>
-    <div
-        class="offcanvas offcanvas-end rounded-3 bg-app-layer-one"
-        data-bs-scroll="true"
-        data-bs-backdrop="false"
-        tabindex="-1"
-        id="navigation-card"
-    >
-        <div class="row offcanvas-header">
-            <h5 class="col offcanvas-title">Navigation</h5>
-            <span class="col-auto bi bi-x-lg cursor-pointer fs-5" data-bs-dismiss="offcanvas"></span>
-        </div>
-        {% include 'django_spire/knowledge/collection/navigation/navigation.html' %}
-    </div>
 {% endblock %}

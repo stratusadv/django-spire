@@ -1,8 +1,27 @@
 <div
-    class="ms-4 knowledge-nav-item cursor-pointer"
-    @contextmenu.prevent="show_menu({event: $event, object: entry, type: 'entry'})"
-    @dblclick="window.location.href='{% url "django_spire:knowledge:entry:version:page:detail" pk=0 %}'.replace(0, entry.version_id)"
+    class="row ms-4 knowledge-nav-item cursor-pointer"
+    x-data="{
+        show_menu_toggle_button: false,
+        menu_button_hovered: false,
+    }"
+    @mouseover="show_menu_toggle_button = true"
+    @mouseleave="show_menu_toggle_button = false"
 >
-    <i class="bi bi-file-earmark-text"></i>
-    <span class="fw-normal" x-text="entry.name"></span>
+    <a
+        class="col text-decoration-none text-black"
+        :href="'{% url "django_spire:knowledge:entry:version:page:detail" pk=0 %}'.replace(0, entry.version_id)"
+    >
+        <i class="bi bi-file-earmark-text"></i>
+        <span class="fw-normal" x-text="entry.name"></span>
+    </a>
+    {% if AuthController.knowledge.can_view %}
+        <i
+            class="bi bi-three-dots-vertical ms-2 col-auto"
+            x-show="show_menu_toggle_button"
+            :class="menu_button_hovered && 'text-app-accent'"
+            @mouseover="menu_button_hovered = true"
+            @mouseleave="menu_button_hovered = false"
+            @click.stop="show_menu({event: $event, object: entry, type: 'entry'})"
+        ></i>
+    {% endif %}
 </div>

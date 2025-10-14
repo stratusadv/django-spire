@@ -1,10 +1,13 @@
 <div
     {% if AuthController.knowledge.can_view %}
-        @dblclick="window.location.href = '{% url "django_spire:knowledge:collection:page:detail" pk=0 %}'.replace(0, collection.id)"
-        @click.prevent
+        @click="collection.toggle_show_details({value: !collection.show_details})"
     {% endif %}
     class="knowledge-nav-item cursor-pointer"
-    @contextmenu.prevent="show_menu({event: $event, object: collection, type: 'collection'})"
+    x-data="{
+        show_menu_toggle_button: false,
+    }"
+    @mouseover="show_menu_toggle_button = true"
+    @mouseleave="show_menu_toggle_button = false"
 >
     <i
         :class="collection.show_details ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
@@ -13,7 +16,6 @@
         {% else %}
         :style="{visibility: (collection.has_child_collections() || collection.has_entries()) ? 'visible' : 'hidden'}"
         {% endif %}
-        @click="collection.toggle_show_details({value: !collection.show_details})"
     ></i>
     <i class="bi bi-folder2 fs-5"></i>
     <span
@@ -21,4 +23,34 @@
         x-text="collection.name"
     >
     </span>
+    {% if AuthController.knowledge.can_view %}
+        <a
+            x-data="{
+                href: '{% url "django_spire:knowledge:collection:page:detail" pk=0 %}'.replace(0, collection.id)
+            }"
+            class="text-decoration-none text-black"
+            :href="href">
+            <i
+                x-data="{
+                    hovered: false,
+                }"
+                class="bi bi-eye ms-2 text-decoration-none"
+                x-show="show_menu_toggle_button"
+                :class="hovered && 'text-app-accent'"
+                @mouseover="hovered = true"
+                @mouseleave="hovered = false"
+            ></i>
+        </a>
+        <i
+            x-data="{
+                hovered: false,
+            }"
+            class="bi bi-three-dots-vertical ms-2"
+            x-show="show_menu_toggle_button"
+            :class="hovered && 'text-app-accent'"
+            @mouseover="hovered = true"
+            @mouseleave="hovered = false"
+            @click.stop="show_menu({event: $event, object: collection, type: collection.type})"
+        ></i>
+    {% endif %}
 </div>

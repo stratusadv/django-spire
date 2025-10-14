@@ -83,8 +83,6 @@
                 this.found_items = item_map
             }
         },
-
-
         show_menu({event, type, object}) {
             this.x = event.pageX
             this.y = event.pageY
@@ -97,7 +95,6 @@
             this.show_context_menu = false
             this.focused_object = {}
         },
-
         {% if AuthController.knowledge.can_view %}
         view_entry() {
             window.location.href = this.focused_object.view_url
