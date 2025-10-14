@@ -42,5 +42,5 @@ jobs:
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
-          uv run python manage.py test . --settings=test_project.sqlite_settings
+          uv run python manage.py test . --settings=test_project.sqlite_settings --verbosity=2
         timeout-minutes: 10

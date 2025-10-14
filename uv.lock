@@ -460,17 +460,17 @@ wheels = [
 
 [[package]]
 name = "dandy"
-version = "1.1.0"
+version = "1.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bottle" },
-    { name = "httpx" },
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/55/e5/0aac9c0dd15d7bcb6e91179648d90ab974fb9088eff6a8a9fa20992279dc/dandy-1.1.0.tar.gz", hash = "sha256:faf0d512dcc1a0ce90d4dfb064d9d4c0c9e7b1c1a593570a359ffce9a111f91d", size = 49156, upload-time = "2025-10-04T04:34:18.737Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/54/3a/d24c413ca9a77f358c7b468a343533292cebd83da6834233a46be5c25daf/dandy-1.1.4.tar.gz", hash = "sha256:bc896e0a175e0fae1dbdd4ec12fcd41d87f5de1e8474213a617c36392ed093fc", size = 49285, upload-time = "2025-10-08T23:03:48.438Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/69/b8/1b3b67288f4582a157f0943d16d917e093193df657ec0cd6b10e105f8119/dandy-1.1.0-py3-none-any.whl", hash = "sha256:913eb07f4c01a52a4c0ece465dceacc4e3d934ef1e73dd6761b4fd8f206452fa", size = 81826, upload-time = "2025-10-04T04:34:17.366Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/b0/e7e1c3a3aca0824ac348008934fb6f97c433632c0b3c0130067161709b87/dandy-1.1.4-py3-none-any.whl", hash = "sha256:180aa69fb4f1717a794ff34d0bbdb8105b17ad44b60c0c3b69c9b85136254774", size = 82306, upload-time = "2025-10-08T23:03:47.125Z" },
 ]
 
 [[package]]
@@ -619,7 +619,7 @@ requires-dist = [
     { name = "botocore", specifier = ">=1.34.0" },
     { name = "build", marker = "extra == 'development'" },
     { name = "crispy-bootstrap5", specifier = "==2024.10" },
-    { name = "dandy", specifier = "==1.1.0" },
+    { name = "dandy", specifier = "==1.1.4" },
     { name = "django", specifier = ">=5.1.8" },
     { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-crispy-forms", specifier = "==2.3" },
@@ -834,43 +834,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ec/d7/6c09dd7ce4c7837e4cdb11dce980cb45ae3cd87677298dc3b781b6bce7d3/griffe-1.14.0.tar.gz", hash = "sha256:9d2a15c1eca966d68e00517de5d69dd1bc5c9f2335ef6c1775362ba5b8651a13", size = 424684, upload-time = "2025-09-05T15:02:29.167Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/b1/9ff6578d789a89812ff21e4e0f80ffae20a65d5dd84e7a17873fe3b365be/griffe-1.14.0-py3-none-any.whl", hash = "sha256:0e9d52832cccf0f7188cfe585ba962d2674b241c01916d780925df34873bceb0", size = 144439, upload-time = "2025-09-05T15:02:27.511Z" },
-]
-
-[[package]]
-name = "h11"
-version = "0.16.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/01/ee/02a2c011bdab74c6fb3c75474d40b3052059d95df7e73351460c8588d963/h11-0.16.0.tar.gz", hash = "sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1", size = 101250, upload-time = "2025-04-24T03:35:25.427Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl", hash = "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86", size = 37515, upload-time = "2025-04-24T03:35:24.344Z" },
-]
-
-[[package]]
-name = "httpcore"
-version = "1.0.9"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "certifi" },
-    { name = "h11" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/06/94/82699a10bca87a5556c9c59b5963f2d039dbd239f25bc2a63907a05a14cb/httpcore-1.0.9.tar.gz", hash = "sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8", size = 85484, upload-time = "2025-04-24T22:06:22.219Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl", hash = "sha256:2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55", size = 78784, upload-time = "2025-04-24T22:06:20.566Z" },
-]
-
-[[package]]
-name = "httpx"
-version = "0.28.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anyio" },
-    { name = "certifi" },
-    { name = "httpcore" },
-    { name = "idna" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b1/df/48c586a5fe32a0f01324ee087459e112ebb7224f646c0b5023f5e79e9956/httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc", size = 141406, upload-time = "2024-12-06T15:37:23.222Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad", size = 73517, upload-time = "2024-12-06T15:37:21.509Z" },
 ]
 
 [[package]]
