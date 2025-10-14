@@ -24,23 +24,6 @@
     >
     </span>
     {% if AuthController.knowledge.can_view %}
-        <a
-            x-data="{
-                href: '{% url "django_spire:knowledge:collection:page:detail" pk=0 %}'.replace(0, collection.id)
-            }"
-            class="text-decoration-none text-black"
-            :href="href">
-            <i
-                x-data="{
-                    hovered: false,
-                }"
-                class="bi bi-eye ms-2 text-decoration-none"
-                x-show="show_menu_toggle_button"
-                :class="hovered && 'text-app-accent'"
-                @mouseover="hovered = true"
-                @mouseleave="hovered = false"
-            ></i>
-        </a>
         <i
             x-data="{
                 hovered: false,
