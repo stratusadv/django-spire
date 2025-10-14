@@ -8,6 +8,80 @@
                 $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'
             })
         },
+        focus_info() {
+
+        },
+        update_cursor_position2() {
+            const selection = document.getSelection()
+            const selected_node = selection.anchorNode.parentNode
+            const current_cursor_position = selection.anchorOffset
+
+            function collapseWhiteSpace( value ) {
+                return( value.trim().replace( /\s+/g, ' ' ) );
+            }
+
+            function parse_lines_from_rendered_breaks(text_node) {
+                const text_content = collapseWhiteSpace(text_node.textContent);
+
+                const range = document.createRange();
+                let lines = [];
+                let line_characters = [];
+
+                for (var i = 0 ; i < text_content.length; i++) {
+                    // Set the range to span from the beginning of the text node up to and
+                    // including the current character (offset).
+                    range.setStart(text_node, 0);
+                    range.setEnd(text_node, Math.min(i + 1, text_node.textContent.length));
+
+                    // At this point, the Range's client rectangles will include a rectangle
+                    // for each visually-rendered line of text. Which means, the last
+                    // character in our Range (the current character in our for-loop) will be
+                    // the last character in the last line of text (in our Range). As such, we
+                    // can use the current rectangle count to determine the line of text.
+                    var lineIndex = (range.getClientRects().length - 1);
+
+                    // If this is the first character in this line, create a new buffer for
+                    // this line.
+                    if (!lines[lineIndex]) {
+                        lines.push(line_characters = []);
+                    }
+
+                    // Add this character to the currently pending line of text.
+                    line_characters.push(text_content.charAt(i));
+                }
+
+                // At this point, we have an array (lines) of arrays (characters). Let's
+                // collapse the character buffers down into a single text value.
+
+                lines = lines.map(line => collapseWhiteSpace(line.join('')));
+
+                return lines
+            }
+
+
+            const lines = parse_lines_from_rendered_breaks(selected_node.firstChild)
+
+            debugger
+
+            if (current_cursor_position < lines[0].length) {
+                const new_text_node = get_entry_block_by_order(version_block.order)
+                const new_node_lines = parse_lines_from_rendered_breaks(new_text_node.firstChild)
+
+                const new_node_last_line_start_index = new_node_lines.slice(0, -1).reduce(
+                    (index, line) => index + line.length,
+                    0
+                )
+
+                debugger
+
+                const new_node_cursor_index = new_node_last_line_start_index + current_cursor_position
+
+                debugger
+
+                new_text_node.focus()
+                new_text_node.setSelectionRange(new_node_cursor_index, new_node_cursor_index)
+            }
+        },
         update_cursor_position({order, cursor_position}) {
             if (order === version_block.order) {
                 $refs.textarea.focus()
@@ -20,31 +94,36 @@
     "
 >
     <style>
-        textarea:focus {
+        p {
+            all: unset;
+        }
+        p:focus {
             outline: none;
             border: none;
         }
     </style>
     {% block before_text_content %}
     {% endblock %}
-    <textarea
-        rows="1"
-        class="w-100 border-0 bg-transparent px-1 auto-resize overflow-y-hidden text-app-default-text-color {% block textarea_class %}fs-6{% endblock %}"
-        style="height: 30px; resize: none;"
+    <p
+        contenteditable="true"
+        class="h-auto w-100 border-0 bg-transparent px-1 pb-1 auto-resize text-app-default-text-color {% block textarea_class %}fs-6{% endblock %}"
         x-ref="textarea"
-        x-model="version_block.block.value"
+        x-text="version_block.block.value"
         @input="update_height($event)"
         :placeholder="is_focused ? 'Write Something...' : ''"
-        @focus="is_focused = true"
-        @blur="is_focused = false"
+        @focus="is_focused = true; focus_info();"
+        @blur="is_focused = false; console.log('focus');"
         @beforeinput.debounce.300ms="update_value({version_block: version_block})"
         @keydown.backspace="delete_block_if_empty({version_block: version_block})"
         {% block shift_enter_event %}
         @keydown.shift.enter.prevent="create_blank_block({block_type: 'text', order: version_block.order + 1})"
         {% endblock %}
-        @keydown.up.prevent="$dispatch('update_cursor_position', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})"
+        @keydown.up.prevent="
+            update_cursor_position2()
+{#            $dispatch('update_cursor_position', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})#}
+        "
         @keydown.down.prevent="$dispatch('update_cursor_position', {order: version_block.order + 1, cursor_position: $event.target.selectionStart})"
         {% block textarea_attributes %}
         {% endblock %}
-    ></textarea>
+    ></p>
 </div>

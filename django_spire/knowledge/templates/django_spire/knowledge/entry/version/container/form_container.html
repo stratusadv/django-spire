@@ -106,6 +106,9 @@
                 if (response.type === 'error') {
                     $dispatch('notify', {'type': response.type, 'message': response.message})
                 }
+            },
+            get_entry_block_by_order(order){
+                return document.getElementById(`entry-block-order-${order}`)
             }
         }"
         x-sort="await reorder_block({block: $item, order: $position})"
@@ -121,7 +124,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col" x-html="version_block.block.update_template_rendered">
+                <div class="col" x-html="version_block.block.update_template_rendered" :id="`entry-block-order-${version_block.order}`">
                 </div>
             </div>
         </template>
