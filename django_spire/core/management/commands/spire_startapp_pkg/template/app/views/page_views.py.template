@@ -1,44 +1,44 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 
 from django_spire.contrib.generic_views import portal_views
 
-from module import models
+from ${module_path} import models
 
 if TYPE_CHECKING:
-    from django.template.response import TemplateResponse
     from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
 
-@permission_required('spire_label_path.view_spire_app_name')
-def detail_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    spire_app_name = get_object_or_404(models.spire_model_name, pk=pk)
+@permission_required('${permission_prefix}.view_${model_instance_name}')
+def ${detail_page_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
+    ${context_single_var} = get_object_or_404(models.${model_class_name}, pk=pk)
 
     context_data = {
-        'spire_app_name': spire_app_name,
+        '${context_single_var}': ${context_single_var},
     }
 
     return portal_views.detail_view(
         request,
-        obj=spire_app_name,
+        obj=${context_single_var},
         context_data=context_data,
-        template='spire_template_path/page/detail_page.html'
+        template='${template_directory_path}/page/${detail_page_template_name}'
     )
 
 
-@permission_required('spire_label_path.view_spire_app_name')
-def list_page_view(request: WSGIRequest) -> TemplateResponse:
+@permission_required('${permission_prefix}.view_${model_instance_name}')
+def ${list_page_view_name}(request: WSGIRequest) -> TemplateResponse:
     context_data = {
-        'spire_app_name_plural': models.spire_model_name.objects.all()
+        '${context_plural_var}': models.${model_class_name}.objects.all()
     }
 
     return portal_views.list_view(
         request,
-        model=models.spire_model_name,
+        model=models.${model_class_name},
         context_data=context_data,
-        template='spire_template_path/page/list_page.html'
+        template='${template_directory_path}/page/${list_page_template_name}'
     )

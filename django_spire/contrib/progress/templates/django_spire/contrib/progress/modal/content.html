@@ -1,0 +1,90 @@
+{% extends 'django_spire/modal/content/modal_title_content.html' %}
+
+{% block modal_content_title %}
+    <i class="bi bi-magic"></i>
+    {% block progress_modal_title %}Processing{% endblock %}
+{% endblock %}
+
+{% block modal_content_close_button %}
+{% endblock %}
+
+{% block modal_content_content %}
+    <div
+        data-stream-url="{% block progress_stream_url %}{% endblock %}"
+        data-redirect-url="{% block progress_redirect_url %}{% endblock %}"
+        data-redirect-delay="{% block progress_redirect_delay %}1000{% endblock %}"
+        x-data="{
+            step: 'starting',
+            message: 'Initializing...',
+            progress: 0,
+            has_error: false,
+            stream: null,
+            init() {
+                const stream_url = this.$el.dataset.streamUrl;
+                const redirect_url = this.$el.dataset.redirectUrl;
+                const redirect_delay = parseInt(this.$el.dataset.redirectDelay);
+
+                this.stream = new ProgressStream(stream_url, {
+                    on_update: (data) => {
+                        this.step = data.step;
+                        this.message = data.message;
+                        this.progress = data.progress;
+                    },
+                    on_complete: (data) => {
+                        setTimeout(() => {
+                            close_modal();
+                        }, 500);
+                    },
+                    on_error: (data) => {
+                        this.has_error = true;
+                        this.message = data.message;
+                    },
+                    redirect_on_complete: redirect_url,
+                    redirect_delay: redirect_delay
+                });
+                this.stream.start();
+            }
+        }"
+    >
+        <div class="row g-3">
+            <div class="col-12" x-show="!has_error">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fs-6" x-text="message"></span>
+                    {% include 'django_spire/badge/accent_badge.html' with x_badge_text="progress + '%'" %}
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div
+                        class="progress-bar bg-app-accent"
+                        role="progressbar"
+                        :style="'width: ' + progress + '%'"
+                        :aria-valuenow="progress"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                    ></div>
+                </div>
+            </div>
+
+            <div class="col-12" x-show="!has_error">
+                <p class="text-app-secondary mb-0 fs-7">
+                    {% block progress_wait_message %}We are processing your request. This may take a moment.{% endblock %}
+                </p>
+            </div>
+
+            <div class="col-12" x-show="has_error" x-cloak>
+                <div class="row g-2">
+                    <div class="col-12">
+                        {% include 'django_spire/element/attribute_element.html' with attribute_title='Error' %}
+                        <span class="fs-6 text-app-danger" x-text="message"></span>
+                    </div>
+                    <div class="col-12">
+                        <span @click="close_modal()">
+                            {% block progress_error_button %}
+                                {% include 'django_spire/button/primary_button.html' with button_text='Close' %}
+                            {% endblock %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

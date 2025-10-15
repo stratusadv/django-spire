@@ -1,5 +1,56 @@
 # Changelog
 
+## v0.17.6
+
+### Changes
+
+- Update dandy to v1.1.4
+
+
+## v0.17.5
+
+### Changes
+
+- Add an experimental progress bar to add events to dandy
+
+
+## v0.17.4
+
+### Fixes
+
+- Update dandy to v1.1.3
+
+
+## v0.17.3
+
+### Changes
+- Create `ChatBot` for AI Chat app.
+
+### Fixes
+- Fixed Knowledge Base AI crash bug fix.
+
+
+## v0.17.2
+
+### Changes
+- Dandy v1.1.2
+
+### Fixes
+- System prompting bot and futures fix. 
+
+
+## v0.17.1
+
+### Changes
+- Package .template files for the spire_startapp command
+
+
+## v0.17.0
+
+### Changes
+- Added profiling middleware / django_debug_toolbar integration using the profiling middleware
+- Modified the spire_startapp to use a wizard and be more flexible
+
 
 ## v0.16.13
 

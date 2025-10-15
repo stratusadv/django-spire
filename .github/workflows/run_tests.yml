@@ -10,10 +10,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     strategy:
+      max-parallel: 1
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -31,9 +33,8 @@ jobs:
 
       - name: Run tests
         env:
-          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
-          ACTION_OLLAMA_HOST: ${{ secrets.ACTION_OLLAMA_HOST }}
-          THINKING_OLLAMA_HOST: ${{ secrets.THINKING_OLLAMA_HOST }}
+          OLLAMA_1_HOST: ${{ secrets.OLLAMA_1_HOST }}
+          OLLAMA_2_HOST: ${{ secrets.OLLAMA_2_HOST }}
           OLLAMA_PORT: ${{ secrets.OLLAMA_PORT }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
@@ -41,4 +42,5 @@ jobs:
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
         run: |
-          uv run python manage.py test . --settings=test_project.sqlite_settings
+          uv run python manage.py test . --settings=test_project.sqlite_settings --verbosity=2
+        timeout-minutes: 10

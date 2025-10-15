@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
-    from module.models import spire_model_name
+    from ${module_path}.models import ${model_class_name}
 
 
-class spire_model_nameTransformationService(BaseDjangoModelService['spire_model_name']):
-    obj: spire_model_name
+class ${transformation_service_class_name}(BaseDjangoModelService['${model_class_name}']):
+    obj: ${model_class_name}

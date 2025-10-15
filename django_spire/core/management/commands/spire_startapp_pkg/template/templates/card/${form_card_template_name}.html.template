@@ -1,9 +1,9 @@
 {% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
-	spire_model_name
+    ${model_verbose_name}
 {% endblock %}
 
 {% block card_title_content %}
-	{% include 'spire_parent_app/spire_app_name/form/spire_app_name_form.html' %}
+    {% include '${template_directory_path}/form/${form_template_name}' %}
 {% endblock %}

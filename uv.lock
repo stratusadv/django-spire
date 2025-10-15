@@ -196,6 +196,43 @@ wheels = [
 ]
 
 [[package]]
+name = "boto3"
+version = "1.40.45"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore" },
+    { name = "jmespath" },
+    { name = "s3transfer" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/19/22/97605e64b8661a13f1dd9412c7989b3d78673bc79d91ca61d8237e90b503/boto3-1.40.45.tar.gz", hash = "sha256:e8d794dc1f01729d93dc188c90cf63cd0d32df8818a82ac46e641f6ffcea615e", size = 111561, upload-time = "2025-10-03T19:32:12.859Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8e/db/7d3c27f530c2b354d546ad7fb94505be8b78a5ecabe34c6a1f9a9d6be03e/boto3-1.40.45-py3-none-any.whl", hash = "sha256:5b145752d20f29908e3cb8c823bee31c77e6bcf18787e570f36bbc545cc779ed", size = 139345, upload-time = "2025-10-03T19:32:11.145Z" },
+]
+
+[[package]]
+name = "botocore"
+version = "1.40.45"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jmespath" },
+    { name = "python-dateutil" },
+    { name = "urllib3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0e/19/6c85d5523dd05e060d182cd0e7ce82df60ab738d18b1c8ee2202e4ca02b9/botocore-1.40.45.tar.gz", hash = "sha256:cf8b743527a2a7e108702d24d2f617e93c6dc7ae5eb09aadbe866f15481059df", size = 14395172, upload-time = "2025-10-03T19:32:03.052Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/af/06/df47e2ecb74bd184c9d056666afd3db011a649eaca663337835a6dd5aee6/botocore-1.40.45-py3-none-any.whl", hash = "sha256:9abf473d8372ade8442c0d4634a9decb89c854d7862ffd5500574eb63ab8f240", size = 14063670, upload-time = "2025-10-03T19:31:58.999Z" },
+]
+
+[[package]]
+name = "bottle"
+version = "0.13.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/71/cca6167c06d00c81375fd668719df245864076d284f7cb46a694cbeb5454/bottle-0.13.4.tar.gz", hash = "sha256:787e78327e12b227938de02248333d788cfe45987edca735f8f88e03472c3f47", size = 98717, upload-time = "2025-06-15T10:08:59.439Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/83/f6/b55ec74cfe68c6584163faa311503c20b0da4c09883a41e8e00d6726c954/bottle-0.13.4-py2.py3-none-any.whl", hash = "sha256:045684fbd2764eac9cdeb824861d1551d113e8b683d8d26e296898d3dd99a12e", size = 103807, upload-time = "2025-06-15T10:08:57.691Z" },
+]
+
+[[package]]
 name = "bracex"
 version = "2.6"
 source = { registry = "https://pypi.org/simple" }
@@ -423,16 +460,17 @@ wheels = [
 
 [[package]]
 name = "dandy"
-version = "0.20.0"
+version = "1.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "httpx" },
+    { name = "bottle" },
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ed/57/75ea731fbad507f1222d924972b89aac7b175c22752df51b960557724031/dandy-0.20.0.tar.gz", hash = "sha256:d606e0e1d05568e94cc367d85f8f3e58b11a70a7e6d0c246598823b44705dd12", size = 48055, upload-time = "2025-06-25T00:38:27.142Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/54/3a/d24c413ca9a77f358c7b468a343533292cebd83da6834233a46be5c25daf/dandy-1.1.4.tar.gz", hash = "sha256:bc896e0a175e0fae1dbdd4ec12fcd41d87f5de1e8474213a617c36392ed093fc", size = 49285, upload-time = "2025-10-08T23:03:48.438Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/d1/ae0c97407b098cdb27b2394f47fceb5c4bdf7437490f199a04c6127a75bd/dandy-0.20.0-py3-none-any.whl", hash = "sha256:90ca8adfb209fc56ee8f5f91ff8c8194672b4e51e704ceaae0d609841ae87386", size = 80559, upload-time = "2025-06-25T00:38:26.016Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/b0/e7e1c3a3aca0824ac348008934fb6f97c433632c0b3c0130067161709b87/dandy-1.1.4-py3-none-any.whl", hash = "sha256:180aa69fb4f1717a794ff34d0bbdb8105b17ad44b60c0c3b69c9b85136254774", size = 82306, upload-time = "2025-10-08T23:03:47.125Z" },
 ]
 
 [[package]]
@@ -526,12 +564,15 @@ wheels = [
 name = "django-spire"
 source = { editable = "." }
 dependencies = [
+    { name = "boto3" },
+    { name = "botocore" },
     { name = "crispy-bootstrap5" },
     { name = "dandy" },
     { name = "django" },
     { name = "django-crispy-forms" },
     { name = "django-glue" },
     { name = "django-sendgrid-v5" },
+    { name = "django-storages" },
     { name = "docutils" },
     { name = "faker" },
     { name = "markitdown", extra = ["docx", "pdf"] },
@@ -541,6 +582,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pygments" },
     { name = "python-dateutil" },
+    { name = "robit" },
     { name = "twilio" },
     { name = "typing-extensions" },
 ]
@@ -553,6 +595,7 @@ development = [
     { name = "django-watchfiles" },
     { name = "pip" },
     { name = "pyinstrument" },
+    { name = "pyrefly" },
     { name = "pytest" },
     { name = "setuptools" },
     { name = "twine" },
@@ -572,15 +615,18 @@ documentation = [
 
 [package.metadata]
 requires-dist = [
+    { name = "boto3", specifier = ">=1.34.0" },
+    { name = "botocore", specifier = ">=1.34.0" },
     { name = "build", marker = "extra == 'development'" },
     { name = "crispy-bootstrap5", specifier = "==2024.10" },
-    { name = "dandy", specifier = ">=0.18.0" },
+    { name = "dandy", specifier = "==1.1.4" },
     { name = "django", specifier = ">=5.1.8" },
     { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-crispy-forms", specifier = "==2.3" },
     { name = "django-debug-toolbar", marker = "extra == 'development'" },
     { name = "django-glue", specifier = ">=0.8.1" },
     { name = "django-sendgrid-v5" },
+    { name = "django-storages", specifier = "==1.14.5" },
     { name = "django-watchfiles", marker = "extra == 'development'" },
     { name = "docutils" },
     { name = "faker" },
@@ -602,14 +648,28 @@ requires-dist = [
     { name = "pydantic" },
     { name = "pygments" },
     { name = "pyinstrument", marker = "extra == 'development'" },
+    { name = "pyrefly", marker = "extra == 'development'" },
     { name = "pytest", marker = "extra == 'development'" },
     { name = "python-dateutil" },
+    { name = "robit", specifier = "==0.4.8" },
     { name = "setuptools", marker = "extra == 'development'" },
     { name = "twilio" },
     { name = "twine", marker = "extra == 'development'" },
     { name = "typing-extensions" },
 ]
 provides-extras = ["development", "documentation"]
+
+[[package]]
+name = "django-storages"
+version = "1.14.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d7/eb/4ec2b551a6769cb8112497c9fe5c773717622cec0862a8225bda2dfedb66/django_storages-1.14.5.tar.gz", hash = "sha256:ace80dbee311258453e30cd5cfd91096b834180ccf09bc1f4d2cb6d38d68571a", size = 85867, upload-time = "2025-02-15T16:57:20.187Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a3/61/00e4bcbf55337c2633c6cddc77a15d4ea16cbe74c01c1f745ecde8feff47/django_storages-1.14.5-py3-none-any.whl", hash = "sha256:5ce9c69426f24f379821fd688442314e4aa03de87ae43183c4e16915f4c165d4", size = 32636, upload-time = "2025-02-15T16:57:18.578Z" },
+]
 
 [[package]]
 name = "django-watchfiles"
@@ -777,43 +837,6 @@ wheels = [
 ]
 
 [[package]]
-name = "h11"
-version = "0.16.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/01/ee/02a2c011bdab74c6fb3c75474d40b3052059d95df7e73351460c8588d963/h11-0.16.0.tar.gz", hash = "sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1", size = 101250, upload-time = "2025-04-24T03:35:25.427Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl", hash = "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86", size = 37515, upload-time = "2025-04-24T03:35:24.344Z" },
-]
-
-[[package]]
-name = "httpcore"
-version = "1.0.9"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "certifi" },
-    { name = "h11" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/06/94/82699a10bca87a5556c9c59b5963f2d039dbd239f25bc2a63907a05a14cb/httpcore-1.0.9.tar.gz", hash = "sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8", size = 85484, upload-time = "2025-04-24T22:06:22.219Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/f5/f66802a942d491edb555dd61e3a9961140fd64c90bce1eafd741609d334d/httpcore-1.0.9-py3-none-any.whl", hash = "sha256:2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55", size = 78784, upload-time = "2025-04-24T22:06:20.566Z" },
-]
-
-[[package]]
-name = "httpx"
-version = "0.28.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anyio" },
-    { name = "certifi" },
-    { name = "httpcore" },
-    { name = "idna" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b1/df/48c586a5fe32a0f01324ee087459e112ebb7224f646c0b5023f5e79e9956/httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc", size = 141406, upload-time = "2024-12-06T15:37:23.222Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad", size = 73517, upload-time = "2024-12-06T15:37:21.509Z" },
-]
-
-[[package]]
 name = "humanfriendly"
 version = "10.0"
 source = { registry = "https://pypi.org/simple" }
@@ -922,6 +945,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/df/bf/f7da0350254c0ed7c72f3e33cef02e048281fec7ecec5f032d4aac52226b/jinja2-3.1.6.tar.gz", hash = "sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d", size = 245115, upload-time = "2025-03-05T20:05:02.478Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl", hash = "sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67", size = 134899, upload-time = "2025-03-05T20:05:00.369Z" },
+]
+
+[[package]]
+name = "jmespath"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe", size = 25843, upload-time = "2022-06-17T18:00:12.224Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/b4/b9b800c45527aadd64d5b442f9b932b00648617eb5d63d2c7a6587b7cafc/jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980", size = 20256, upload-time = "2022-06-17T18:00:10.251Z" },
 ]
 
 [[package]]
@@ -1917,7 +1949,7 @@ wheels = [
 
 [[package]]
 name = "pydantic"
-version = "2.11.7"
+version = "2.11.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-types" },
@@ -1925,9 +1957,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/dd/4325abf92c39ba8623b5af936ddb36ffcfe0beae70405d456ab1fb2f5b8c/pydantic-2.11.7.tar.gz", hash = "sha256:d989c3c6cb79469287b1569f7447a17848c998458d49ebe294e975b9baf0f0db", size = 788350, upload-time = "2025-06-14T08:33:17.137Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/5d/09a551ba512d7ca404d785072700d3f6727a02f6f3c24ecfd081c7cf0aa8/pydantic-2.11.9.tar.gz", hash = "sha256:6b8ffda597a14812a7975c90b82a8a2e777d9257aba3453f973acd3c032a18e2", size = 788495, upload-time = "2025-09-13T11:26:39.325Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6a/c0/ec2b1c8712ca690e5d61979dee872603e92b8a32f94cc1b72d53beab008a/pydantic-2.11.7-py3-none-any.whl", hash = "sha256:dde5df002701f6de26248661f6835bbe296a47bf73990135c7d07ce741b9623b", size = 444782, upload-time = "2025-06-14T08:33:14.905Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/d3/108f2006987c58e76691d5ae5d200dd3e0f532cb4e5fa3560751c3a1feba/pydantic-2.11.9-py3-none-any.whl", hash = "sha256:c42dd626f5cfc1c6950ce6205ea58c93efa406da65f479dcb4029d5934857da2", size = 444855, upload-time = "2025-09-13T11:26:36.909Z" },
 ]
 
 [[package]]
@@ -2105,6 +2137,22 @@ wheels = [
 ]
 
 [[package]]
+name = "pyrefly"
+version = "0.35.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/e3/c6de578db34a64f0abc8266e89588a639725d8fae2b4b768e4901b1022a4/pyrefly-0.35.0.tar.gz", hash = "sha256:6df94964bed9a0bccfafdaea6bf69de687adb46bf851b30c28b33810ffa3d27c", size = 1646729, upload-time = "2025-09-29T14:19:36.305Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/77/83/1be809682dc6a192589139b44ca2ef319d0384b7320729d29b08dd333a5e/pyrefly-0.35.0-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:a9a148cc41218a0072c952eb0e58709c779fad828a2174846f51015cc844906c", size = 6779993, upload-time = "2025-09-29T14:19:18.971Z" },
+    { url = "https://files.pythonhosted.org/packages/70/ae/9ab6a3aae57655627d93f0a8da520140ab996c025dfa910473b0c64543d7/pyrefly-0.35.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:af112fff00d79777e5f99f95917d3add1a793730f8e224529f15c9389877b9cd", size = 6319391, upload-time = "2025-09-29T14:19:21.522Z" },
+    { url = "https://files.pythonhosted.org/packages/65/77/b94cfb788a073d28345d58cd5e7ca04e796df8e5762acf74540b9f003ae1/pyrefly-0.35.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1494c8b143076f43b36d16ca31b6984391d32ba6834272677e0a96e8ce47e11e", size = 6561012, upload-time = "2025-09-29T14:19:24.139Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/bc/17ccf1fd85d7ba8544214d3fc878bb38cefbf21b5a30e782c3bbe0c027fe/pyrefly-0.35.0-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:82affd662b0548a9988c30c7f87970bad0766be452c7f60059c22d852eaf2ec0", size = 7397813, upload-time = "2025-09-29T14:19:26.331Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/7c/7d15dc569efe3100254152fcbd89f979a18ce835f1e5702bfcbac9bac22b/pyrefly-0.35.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c1644584dd584d7363b3286d0e4340f1aeebe93ddd4b519864fe27c3b28f1559", size = 7058559, upload-time = "2025-09-29T14:19:28.02Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/a3/17d2d631989e9f47e3183b83bab355a567b49bdd07ebd0142f077e70d8ef/pyrefly-0.35.0-py3-none-win32.whl", hash = "sha256:c60c0e01fe6d254d2e26b5fe6071feebe13f483c2a9a98d4140fc969ae4225da", size = 6557421, upload-time = "2025-09-29T14:19:29.756Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/e0/3f22a7ecacd0cd18e818f3a091798fe2c30628d207d99f4d9a7299067a4d/pyrefly-0.35.0-py3-none-win_amd64.whl", hash = "sha256:f397b9e981e5d3907c2b5cadd518337345ea4aa12a9801c14736703d041db0b6", size = 6994843, upload-time = "2025-09-29T14:19:31.741Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/39/831b6545901919c893b6debd30654974900465df693dcf65710d3829617f/pyrefly-0.35.0-py3-none-win_arm64.whl", hash = "sha256:2a541cc1c75ee75fba1ffcd0ed297facc15994cf9958050b8f8a8f8f750c002b", size = 6583087, upload-time = "2025-09-29T14:19:34.216Z" },
+]
+
+[[package]]
 name = "pytest"
 version = "8.4.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2276,6 +2324,30 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/fe/75/af448d8e52bf1d8fa6a9d089ca6c07ff4453d86c65c145d0a300bb073b9b/rich-14.1.0.tar.gz", hash = "sha256:e497a48b844b0320d45007cdebfeaeed8db2a4f4bcf49f15e455cfc4af11eaa8", size = 224441, upload-time = "2025-07-25T07:32:58.125Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl", hash = "sha256:536f5f1785986d6dbdea3c75205c473f970777b4a0d6c6dd1b696aa05a3fa04f", size = 243368, upload-time = "2025-07-25T07:32:56.73Z" },
+]
+
+[[package]]
+name = "robit"
+version = "0.4.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytz" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5a/1d/99a4c967b3df0c302a2e6e77ec8742a4cbd1e9c003694ac09ecb49d713d5/robit-0.4.8.tar.gz", hash = "sha256:076ecf50c32e38b3d854f90ee55861d65ff1f82334762bf21d9e4297701c371e", size = 94821, upload-time = "2024-09-11T01:54:41.343Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/19/8d044f6d06433572ce039862e092c6980bc250e7dc0f8f23fdf13547c715/robit-0.4.8-py3-none-any.whl", hash = "sha256:7372fd8f1b9c8a082e96221493125a3a8178e7707a912fc5c32c08a414a0766b", size = 107853, upload-time = "2024-09-11T01:54:39.619Z" },
+]
+
+[[package]]
+name = "s3transfer"
+version = "0.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/62/74/8d69dcb7a9efe8baa2046891735e5dfe433ad558ae23d9e3c14c633d1d58/s3transfer-0.14.0.tar.gz", hash = "sha256:eff12264e7c8b4985074ccce27a3b38a485bb7f7422cc8046fee9be4983e4125", size = 151547, upload-time = "2025-09-09T19:23:31.089Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/48/f0/ae7ca09223a81a1d890b2557186ea015f6e0502e9b8cb8e1813f1d8cfa4e/s3transfer-0.14.0-py3-none-any.whl", hash = "sha256:ea3b790c7077558ed1f02a3072fb3cb992bbbd253392f4b6e9e8976941c7d456", size = 85712, upload-time = "2025-09-09T19:23:30.041Z" },
 ]
 
 [[package]]
