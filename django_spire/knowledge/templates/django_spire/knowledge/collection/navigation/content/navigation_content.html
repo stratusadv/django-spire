@@ -21,7 +21,6 @@
     </div>
 </div>
 <div
-    @click.away="hide_menu()"
     class="user-select-none pe-3"
     x-sort:config="{
         handle: '[x-sort\\:handle]',
@@ -30,8 +29,6 @@
     }"
 >
     {% include 'django_spire/knowledge/collection/component/x_collection_navigation.html' %}
-    {% include 'django_spire/knowledge/collection/card/context_menu_card.html' %}
-    {% include 'django_spire/knowledge/entry/card/context_menu_card.html' %}
 
     <div class="navigation-items">
         <x-collection-navigation :data="{items: manager.collection_map, id: null}"></x-collection-navigation>

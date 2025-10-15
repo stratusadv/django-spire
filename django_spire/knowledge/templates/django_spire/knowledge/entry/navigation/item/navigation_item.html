@@ -15,13 +15,16 @@
         <span class="fw-normal" x-text="entry.name"></span>
     </a>
     {% if AuthController.knowledge.can_view %}
-        <i
-            class="bi bi-three-dots-vertical ms-2 col-auto"
-            x-show="show_menu_toggle_button"
-            :class="menu_button_hovered && 'text-app-accent'"
-            @mouseover="menu_button_hovered = true"
-            @mouseleave="menu_button_hovered = false"
-            @click.stop="show_menu({event: $event, object: entry, type: 'entry'})"
-        ></i>
+        <div
+            x-data="{
+                hovered: false
+            }"
+            :class="hovered && 'text-app-accent'"
+            @mouseover="hovered = true"
+            @mouseleave="hovered = false"
+            class="col-auto"
+        >
+            {% include 'django_spire/knowledge/entry/dropdown/navigation_ellipsis_dropdown.html' %}
+        </div>
     {% endif %}
 </div>

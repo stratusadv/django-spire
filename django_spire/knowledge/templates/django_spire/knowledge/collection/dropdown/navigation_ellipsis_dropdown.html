@@ -1,0 +1,28 @@
+{% extends 'django_spire/dropdown/ellipsis_dropdown.html' %}
+
+{% block dropdown_content %}
+    {% if AuthController.knowledge.can_change %}
+        <span class="px-3 py-2 dropdown-item bg-app-layer-one bg-app-alt-layer-one-hover" @click="window.location.href = collection.edit_url">
+            <i class="bi bi-pencil pe-1"></i>
+            Edit Collection
+        </span>
+    {% endif %}
+    {% if AuthController.knowledge.can_add %}
+        <span class="px-3 py-2 dropdown-item bg-app-layer-one bg-app-alt-layer-one-hover" @click="window.location.href = collection.create_entry_url">
+            <i class="bi bi-plus pe-1"></i>
+            Add Entry
+        </span>
+        <span class="px-3 py-2 dropdown-item bg-app-layer-one bg-app-alt-layer-one-hover" @click="window.location.href = collection.import_entry_url">
+            <i class="bi bi-upload pe-1">
+            </i>
+            Import Entry
+        </span>
+    {% endif %}
+    {% if AuthController.knowledge.can_delete %}
+        <span class="px-3 py-2 text-app-danger dropdown-item bg-app-layer-one bg-app-danger-soft-hover" @click="window.location.href = collection.delete_url">
+            <i class="bi bi-trash3 pe-1"></i>
+            <span>Delete Collection</span>
+        </span>
+    {% endif %}
+{% endblock %}
+

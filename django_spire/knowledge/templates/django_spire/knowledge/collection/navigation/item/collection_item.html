@@ -1,39 +1,42 @@
 <div
-    {% if AuthController.knowledge.can_view %}
-        @click="collection.toggle_show_details({value: !collection.show_details})"
-    {% endif %}
-    class="knowledge-nav-item cursor-pointer"
+    class="knowledge-nav-item cursor-pointer row"
     x-data="{
         show_menu_toggle_button: false,
     }"
     @mouseover="show_menu_toggle_button = true"
     @mouseleave="show_menu_toggle_button = false"
 >
-    <i
-        :class="collection.show_details ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
-        {% if hide_chevron %}
-        style="visibility: hidden"
-        {% else %}
-        :style="{visibility: (collection.has_child_collections() || collection.has_entries()) ? 'visible' : 'hidden'}"
+    <div
+        class="col text-start"
+        {% if AuthController.knowledge.can_view %}
+            @click="collection.toggle_show_details({value: !collection.show_details})"
         {% endif %}
-    ></i>
-    <i class="bi bi-folder2 fs-5"></i>
-    <span
-        :class="collection.id === {{ collection.pk|default:0 }} ? 'text-app-accent' : ''"
-        x-text="collection.name"
     >
-    </span>
-    {% if AuthController.knowledge.can_view %}
         <i
+            :class="collection.show_details ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
+            {% if hide_chevron %}
+            style="visibility: hidden"
+            {% else %}
+            :style="{visibility: (collection.has_child_collections() || collection.has_entries()) ? 'visible' : 'hidden'}"
+            {% endif %}
+        ></i>
+        <i class="bi bi-folder2 fs-5"></i>
+        <span
+            :class="collection.id === {{ collection.pk|default:0 }} ? 'text-app-accent' : ''"
+            x-text="collection.name"
+        ></span>
+    </div>
+    {% if AuthController.knowledge.can_view %}
+        <div
             x-data="{
-                hovered: false,
+                hovered: false
             }"
-            class="bi bi-three-dots-vertical ms-2"
-            x-show="show_menu_toggle_button"
             :class="hovered && 'text-app-accent'"
             @mouseover="hovered = true"
             @mouseleave="hovered = false"
-            @click.stop="show_menu({event: $event, object: collection, type: collection.type})"
-        ></i>
+            class="col-auto"
+        >
+            {% include 'django_spire/knowledge/collection/dropdown/navigation_ellipsis_dropdown.html' %}
+        </div>
     {% endif %}
 </div>
