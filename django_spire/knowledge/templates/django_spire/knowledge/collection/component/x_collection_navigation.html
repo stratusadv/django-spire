@@ -20,8 +20,10 @@
                     <x-collection-navigation :data="{items: collection.children, id: collection.id}"></x-collection-navigation>
                     <div class="ms-4">
                         <div
-                            x-sort="await move_entry({entry: $item, collection: collection, order: $position})"
-                            x-sort:group="entry"
+                            {% if AuthController.knowledge.can_change %}
+                                x-sort="await move_entry({entry: $item, collection: collection, order: $position})"
+                                x-sort:group="entry"
+                            {% endif %}
                         >
                             <template x-for="entry in collection.entries" :key="entry.version_id">
                                 <div
