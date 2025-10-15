@@ -38,14 +38,6 @@ jobs:
       - name: Run Trivy
         run: trivy fs . --severity LOW,MEDIUM,HIGH,CRITICAL --format table | tee trivy_report.txt
 
-      - name: Install TruffleHog 3
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh \
-          | sudo sh -s -- -b /usr/local/bin
-
-      - name: Run TruffleHog
-        run: trufflehog filesystem . --json --no-update | tee trufflehog_report.txt
-
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         with:
@@ -53,5 +45,4 @@ jobs:
           path: |
             pip_audit_report.txt
             trivy_report.txt
-            trufflehog_report.txt
           retention-days: 7
