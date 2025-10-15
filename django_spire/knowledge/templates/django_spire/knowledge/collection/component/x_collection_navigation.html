@@ -1,11 +1,13 @@
 <template x-component="collection-navigation">
     <div
-        x-sort="await move_collection({collection: $item, order: $position, new_parent: data.id})"
-        x-sort:group="collection"
+        {% if AuthController.knowledge.can_reorder_navigation %}
+            x-sort="await move_collection({collection: $item, order: $position, new_parent: data.id})"
+            x-sort:group="collection"
+        {% endif %}
     >
         <template x-for="collection in data.items" :key="collection.id">
             <div
-                {% if AuthController.knowledge.can_reorder %}
+                {% if AuthController.knowledge.can_reorder_navigation %}
                     x-sort:item="collection"
                     @dragstart="toggle_dragging(true)"
                     @dragend="toggle_dragging(false)"
@@ -24,7 +26,7 @@
                             <template x-for="entry in collection.entries" :key="entry.version_id">
                                 <div
                                     class="entry"
-                                    {% if AuthController.knowledge.can_reorder %}
+                                    {% if AuthController.knowledge.can_reorder_navigation %}
                                         x-sort:item="collection"
                                         @dragstart="toggle_dragging(true)"
                                         @dragend="toggle_dragging(false)"
