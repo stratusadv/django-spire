@@ -7,26 +7,22 @@ def tabular_context_data(page=1, page_size=5, search='', sort_column='name', sor
 
     tasks = Task.objects.select_related()
 
-    # Apply search filter
     if search:
         tasks = tasks.filter(
             Q(name__icontains=search) |
             Q(description__icontains=search)
         )
 
-    # Annotate with user count for sorting by quantity
     tasks = tasks.annotate(user_count=Count('user'))
 
-    # Map frontend column names to database fields
     sort_mapping = {
         'name': 'name',
         'status': 'status',
         'quantity': 'user_count',
-        'cost': 'id',  # Using id as proxy for cost calculation
+        'cost': 'id',
         'date': 'created_datetime',
     }
 
-    # Get the actual field to sort by
     sort_field = sort_mapping.get(sort_column, 'created_datetime')
     order_by = f"{'-' if sort_direction == 'desc' else ''}{sort_field}"
 
@@ -53,7 +49,6 @@ def tabular_context_data(page=1, page_size=5, search='', sort_column='name', sor
             'child_rows': []
         }
 
-        # Only include child_rows if there are users
         if task_users.exists():
             for task_user in task_users:
                 child_row = {
