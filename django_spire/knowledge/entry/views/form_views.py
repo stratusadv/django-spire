@@ -33,12 +33,12 @@ def form_view(
 
         if form.is_valid():
             form.cleaned_data['collection'] = collection
-            _, _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
+            entry, _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
 
             return HttpResponseRedirect(
                 reverse(
                     'django_spire:knowledge:entry:page:detail',
-                    kwargs={'pk': collection.pk}
+                    kwargs={'pk': entry.pk}
                 )
             )
 
