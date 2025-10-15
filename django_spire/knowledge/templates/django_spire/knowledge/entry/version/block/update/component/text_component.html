@@ -8,113 +8,6 @@
                 $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'
             })
         },
-        update_cursor_position2(event, direction) {
-            const selection = document.getSelection()
-            const selected_node = selection.anchorNode.parentNode
-            const current_cursor_position = selection.anchorOffset
-
-            function parse_lines_from_rendered_breaks(text_node) {
-                const text_content = text_node.textContent;
-
-                const range = document.createRange();
-                let lines = [];
-
-                for (var i = 0 ; i < text_content.length; i++) {
-                    // Set the range to span from the beginning of the text node up to and
-                    // including the current character (offset).
-
-                    range.setStart(text_node, 0);
-                    range.setEnd(text_node, i + 1);
-
-                    // At this point, the Range's client rectangles will include a rectangle
-                    // for each visually-rendered line of text. Which means, the last
-                    // character in our Range (the current character in our for-loop) will be
-                    // the last character in the last line of text (in our Range). As such, we
-                    // can use the current rectangle count to determine the line of text.
-                    var lineIndex = (range.getClientRects().length - 1);
-
-                    // If this is the first character in this line, create a new buffer for
-                    // this line.
-                    if (!lines[lineIndex]) {
-                        lines.push({
-                            characters: [],
-                            start_index: i,
-                            end_index: null
-                        });
-
-                        if (lineIndex > 1) {
-                            lines[lineIndex - 1].end_index = i
-                        }
-                    }
-
-
-                    // Add this character to the currently pending line of text.
-                    lines[lineIndex].characters.push(text_content.charAt(i));
-                }
-
-                lines[-1].end_index = text_content.length - 1;
-
-                // At this point, we have an array (lines) of arrays (characters). Let's
-                // collapse the character buffers down into a single text value.
-
-                lines = lines.map(line => line.characters.join(''));
-
-                return lines
-            }
-
-
-            const lines = parse_lines_from_rendered_breaks(selected_node.firstChild)
-
-            let new_text_node, new_node_lines;
-            const new_node_order = direction === 'up' ? version_block.order - 1 : version_block.order + 1
-            const new_node = document.getElementById(`entry-block-order-${new_node_order}`)
-            if (new_node) {
-                new_text_node = new_node.getElementsByClassName('block-content')[0]
-                new_node_lines = parse_lines_from_rendered_breaks(new_text_node.firstChild)
-            } else {
-                return
-            }
-
-            let new_node_cursor_index;
-            if (direction === 'up' && current_cursor_position < lines[0].length) {
-
-                const new_node_last_line_start_index = new_node_lines.slice(0, -1).reduce(
-                    (index, line) => index + line.length,
-                    0
-                )
-
-                new_node_cursor_index = Math.min(
-                    new_node_last_line_start_index + current_cursor_position,
-                    new_text_node.textContent.length
-                )
-            }
-
-            if (direction === 'down' && current_cursor_position < lines[0].length) {>) {
-                if (current_cursor_position < lines[0].length) {
-                    const new_node_last_line_start_index = new_node_lines.slice(0, -1).reduce(
-                        (index, line) => index + line.length,
-                        0
-                    )
-
-                    new_node_cursor_index = Math.min(
-                        new_node_last_line_start_index + current_cursor_position,
-                        new_text_node.textContent.length
-                    )
-                }
-            }
-
-            if (new_node_cursor_index) {
-                event.preventDefault()
-                new_text_node.focus()
-                const range = document.createRange();
-                range.selectNodeContents(new_text_node);
-                var sel = window.getSelection();
-                sel.removeAllRanges();
-                range.setStart(new_text_node.firstChild, new_node_cursor_index);
-                range.setEnd(new_text_node.firstChild, new_node_cursor_index);
-                sel.addRange(range);
-            }
-        },
         update_cursor_position({order, cursor_position}) {
             if (order === version_block.order) {
                 $refs.textarea.focus()
@@ -151,14 +44,8 @@
         {% block shift_enter_event %}
         @keydown.shift.enter.prevent="create_blank_block({block_type: 'text', order: version_block.order + 1})"
         {% endblock %}
-        @keydown.up="
-            update_cursor_position2($event, 'up')
-            //$dispatch('update_cursor_position', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})
-        "
-        @keydown.down="
-            update_cursor_position2($event, 'down')
-            //$dispatch('update_cursor_position', {order: version_block.order + 1, cursor_position: $event.target.selectionStart})
-        "
+        @keydown.up="$dispatch('update_cursor_position', {order: version_block.order - 1, cursor_position: $event.target.selectionStart})"
+        @keydown.down="$dispatch('update_cursor_position', {order: version_block.order + 1, cursor_position: $event.target.selectionStart})"
         {% block textarea_attributes %}
         {% endblock %}
     ></p>
