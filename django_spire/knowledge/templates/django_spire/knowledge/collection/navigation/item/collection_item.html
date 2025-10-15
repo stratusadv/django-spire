@@ -1,11 +1,4 @@
-<div
-    class="knowledge-nav-item cursor-pointer row"
-    x-data="{
-        show_menu_toggle_button: false,
-    }"
-    @mouseover="show_menu_toggle_button = true"
-    @mouseleave="show_menu_toggle_button = false"
->
+<div class="knowledge-nav-item cursor-pointer row">
     <div
         class="col text-start"
         {% if AuthController.knowledge.can_view %}
