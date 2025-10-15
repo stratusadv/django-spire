@@ -22,14 +22,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             name='Collections',
             href=reverse('django_spire:knowledge:collection:page:list')
         )
-        breadcrumbs.add_breadcrumb(
-            name=entry.collection.name,
-            href=reverse(
-                'django_spire:knowledge:collection:page:detail',
-                kwargs={'pk': entry.collection.pk}
-            )
-        )
-        breadcrumbs.add_breadcrumb(name=f'View {entry.name}')
 
     return portal_views.detail_view(
         request,

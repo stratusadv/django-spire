@@ -21,23 +21,6 @@ def file_list_view(request: WSGIRequest, collection_pk: int = 0) -> TemplateResp
             href=reverse('django_spire:knowledge:collection:page:list')
         )
 
-        if collection.parent_id is not None:
-            parent = collection.parent
-            breadcrumbs.add_breadcrumb(
-                name=parent.name,
-                href=reverse(
-                    viewname='django_spire:knowledge:collection:page:detail',
-                    kwargs={'pk': parent.pk}
-                )
-            )
-
-        breadcrumbs.add_breadcrumb(
-            name=collection.name,
-            href=reverse(
-                viewname='django_spire:knowledge:collection:page:detail',
-                kwargs={'pk': collection.pk}
-            )
-        )
         breadcrumbs.add_breadcrumb(name='Importing Files')
 
     return TemplateResponse(

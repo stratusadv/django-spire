@@ -37,7 +37,7 @@ def form_view(
 
             return HttpResponseRedirect(
                 reverse(
-                    'django_spire:knowledge:collection:page:detail',
+                    'django_spire:knowledge:entry:page:detail',
                     kwargs={'pk': collection.pk}
                 )
             )
@@ -105,14 +105,6 @@ def import_form_view(
         show_form_errors(request, file_form)
 
     breadcrumbs = Breadcrumbs()
-    if collection_pk != 0:
-        breadcrumbs.add_breadcrumb(
-            name=Collection.objects.get(pk=collection_pk).name,
-            href=reverse(
-                'django_spire:knowledge:collection:page:detail',
-                kwargs={'pk': collection_pk}
-            )
-        )
     breadcrumbs.add_breadcrumb(name='Import Files')
     supported_file_types = [
         '.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())

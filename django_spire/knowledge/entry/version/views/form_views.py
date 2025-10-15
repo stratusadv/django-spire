@@ -37,13 +37,6 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         href=reverse('django_spire:knowledge:collection:page:list')
     )
     breadcrumbs.add_breadcrumb(
-        name=entry.collection.name,
-        href=reverse(
-            'django_spire:knowledge:collection:page:detail',
-            kwargs={'pk': entry.collection_id}
-        )
-    )
-    breadcrumbs.add_breadcrumb(
         name=f'View {entry.name}',
         href=reverse(
             'django_spire:knowledge:entry:version:page:detail',
