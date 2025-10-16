@@ -1,0 +1,15 @@
+{% extends 'django_spire/dropdown/ellipsis_dropdown.html' %}
+
+{% block dropdown_content %}
+    {% if AuthController.knowledge.can_change %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with x_link_url='collection.edit_url' link_icon='bi bi-pencil' link_text='Edit Collection' %}
+    {% endif %}
+    {% if AuthController.knowledge.can_add %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with x_link_url='collection.create_entry_url' link_icon='bi bi-plus' link_text='Add Entry' %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with x_link_url='collection.import_entry_url' link_icon='bi bi-upload' link_text='Import Entry' %}
+    {% endif %}
+    {% if AuthController.knowledge.can_delete %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with x_link_url='collection.delete_url' link_icon='bi bi-trash3' link_text='Delete Collection' link_css='text-app-danger' %}
+    {% endif %}
+{% endblock %}
+

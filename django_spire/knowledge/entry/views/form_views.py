@@ -37,7 +37,7 @@ def form_view(
 
             return HttpResponseRedirect(
                 reverse(
-                    'django_spire:knowledge:entry:page:detail',
+                    'django_spire:knowledge:entry:version:page:detail',
                     kwargs={'pk': entry.pk}
                 )
             )

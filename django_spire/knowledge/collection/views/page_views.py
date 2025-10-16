@@ -20,16 +20,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         delete_func=collection.services.processor.set_deleted,
         return_url=request.GET.get(
             'return_url',
-            reverse('django_spire:knowledge:collection:page:list')
+            reverse('django_spire:knowledge:page:home')
         )
-    )
-
-
-@AppAuthController('knowledge').permission_required('can_view')
-def list_view(request: WSGIRequest) -> TemplateResponse:
-    return portal_views.list_view(
-        request,
-        model=Collection,
-        context_data={},
-        template='django_spire/knowledge/collection/page/list_page.html'
     )

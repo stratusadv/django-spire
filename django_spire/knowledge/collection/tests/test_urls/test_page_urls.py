@@ -23,7 +23,7 @@ class CollectionPageUrlsTests(BaseTestCase):
 
     def test_list_view_url_path(self):
         response = self.client.get(
-            reverse('django_spire:knowledge:collection:page:list')
+            reverse('django_spire:knowledge:page:home')
         )
 
         self.assertEqual(response.status_code, 200)

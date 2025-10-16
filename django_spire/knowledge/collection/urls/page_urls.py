@@ -7,5 +7,4 @@ app_name = 'page'
 
 urlpatterns = [
     path('<int:pk>/delete/', page_views.delete_view, name='delete'),
-    path('list/', page_views.list_view, name='list'),
 ]

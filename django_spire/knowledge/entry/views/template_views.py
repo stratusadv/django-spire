@@ -18,7 +18,7 @@ def file_list_view(request: WSGIRequest, collection_pk: int = 0) -> TemplateResp
 
         breadcrumbs.add_breadcrumb(
             name='Collections',
-            href=reverse('django_spire:knowledge:collection:page:list')
+            href=reverse('django_spire:knowledge:page:home')
         )
 
         breadcrumbs.add_breadcrumb(name='Importing Files')

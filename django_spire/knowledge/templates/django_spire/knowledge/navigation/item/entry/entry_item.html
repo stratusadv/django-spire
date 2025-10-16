@@ -1,7 +1,9 @@
 <div class="row ms-4 knowledge-nav-item cursor-pointer">
     <a
         class="col text-decoration-none text-black"
-        :href="'{% url "django_spire:knowledge:entry:version:page:detail" pk=0 %}'.replace(0, entry.version_id)"
+        {% if AuthController.knowledge.can_view %}
+            :href="'{% url "django_spire:knowledge:entry:version:page:detail" pk=0 %}'.replace(0, entry.version_id)"
+        {% endif %}
     >
         <i class="bi bi-file-earmark-text"></i>
         <span class="fw-normal" x-text="entry.name"></span>
@@ -16,7 +18,7 @@
             @mouseleave="hovered = false"
             class="col-auto"
         >
-            {% include 'django_spire/knowledge/entry/dropdown/navigation_ellipsis_dropdown.html' %}
+            {% include 'django_spire/knowledge/navigation/item/entry/dropdown/navigation_ellipsis_dropdown.html' %}
         </div>
     {% endif %}
 </div>

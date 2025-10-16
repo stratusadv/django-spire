@@ -1,0 +1,38 @@
+{% extends 'django_spire/knowledge/navigation/page/full_page.html' %}
+
+{% load static %}
+
+{% block base_head_additional_css %}
+    <link rel="stylesheet" href="{% static 'django_spire/knowledge/css/navigation_items.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+{% endblock %}
+
+{% block base_body_top_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('side-toggle-btn');
+            const offcanvasEl = document.getElementById('navigation-card');
+
+            if (offcanvasEl) {
+                offcanvasEl.addEventListener('show.bs.offcanvas', function () {
+                    toggleBtn.classList.add('open');
+                });
+
+                offcanvasEl.addEventListener('hide.bs.offcanvas', function () {
+                    toggleBtn.classList.remove('open');
+                });
+            }
+        });
+    </script>
+    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+{% endblock %}
+
+{% block full_page_content %}
+    {% include 'django_spire/knowledge/navigation/button/navigation_toggle_button.html' %}
+
+    {% block knowledge_full_page_content %}
+    {% endblock %}
+{% endblock %}
+
+{% block base_body_additional_bottom_js %}
+    <script type="application/javascript" src="{% static 'django_spire/knowledge/collection/js/x_component.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+{% endblock %}

@@ -11,7 +11,7 @@
                 @dragstart="toggle_dragging(true)"
                 @dragend="toggle_dragging(false)"
             >
-                {% include 'django_spire/knowledge/collection/navigation/item/collection_item.html' %}
+                {% include 'django_spire/knowledge/navigation/item/collection/collection_item.html' %}
                 <div x-show="collection.show_details" class="my-1">
                     <x-collection-navigation :data="{items: collection.children, id: collection.id}"></x-collection-navigation>
                     <div class="ms-4">
@@ -27,7 +27,7 @@
                                     @dragstart="toggle_dragging(true)"
                                     @dragend="toggle_dragging(false)"
                                 >
-                                    {% include  'django_spire/knowledge/entry/navigation/item/navigation_item.html' %}
+                                    {% include 'django_spire/knowledge/navigation/item/entry/entry_item.html' %}
                                 </div>
                             </template>
                         </div>
