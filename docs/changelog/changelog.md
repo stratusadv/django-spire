@@ -8,6 +8,7 @@
 - Removed collections detail page from knowledge base
 - Change knowledge base side navigation to share page space with main content, rather than slide over top (kept overlay behaviour for mobile screens)
 - Restricted knowledge item reordering to users with change_collection permission
+- Added support for icons in core dropdown menus
 
 ## v0.17.6
 
