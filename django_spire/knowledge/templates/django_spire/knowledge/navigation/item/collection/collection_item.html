@@ -20,16 +20,10 @@
         ></span>
     </div>
     {% if AuthController.knowledge.can_view %}
-        <div
-            x-data="{
-                hovered: false
-            }"
-            :class="hovered && 'text-app-accent'"
-            @mouseover="hovered = true"
-            @mouseleave="hovered = false"
-            class="col-auto"
-        >
-            {% include 'django_spire/knowledge/navigation/item/collection/dropdown/navigation_ellipsis_dropdown.html' %}
+        <div class="col-auto">
+            <div class="d-flex h-100 justify-content-center align-items-center">
+                {% include 'django_spire/knowledge/navigation/item/collection/dropdown/navigation_ellipsis_dropdown.html' %}
+            </div>
         </div>
     {% endif %}
 </div>
