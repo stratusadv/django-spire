@@ -1,6 +1,6 @@
 <div class="row ms-4 knowledge-nav-item cursor-pointer">
     <a
-        class="col text-decoration-none text-black"
+        class="col text-decoration-none text-app-default-text-color"
         {% if AuthController.knowledge.can_view %}
             :href="'{% url "django_spire:knowledge:entry:version:page:detail" pk=0 %}'.replace(0, entry.version_id)"
         {% endif %}

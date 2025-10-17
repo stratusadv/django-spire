@@ -1,5 +1,12 @@
 # Changelog
 
+
+## v0.17.8
+
+### Changes
+- Removed hard-coded colours from v0.17.7
+
+
 ## v0.17.7
 
 ### Changes
