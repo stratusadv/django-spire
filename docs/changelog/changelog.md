@@ -10,6 +10,7 @@
 - Restricted knowledge item reordering to users with change_collection permission
 - Added support for icons in core dropdown menus
 
+
 ## v0.17.6
 
 ### Changes
