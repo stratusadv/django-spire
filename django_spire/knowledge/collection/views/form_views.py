@@ -60,7 +60,7 @@ def form_view(
             )
 
             return HttpResponseRedirect(
-                reverse('django_spire:knowledge:collection:page:list')
+                reverse('django_spire:knowledge:page:home')
             )
 
         show_form_errors(request, form)

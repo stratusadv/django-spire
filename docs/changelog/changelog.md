@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.17.7
+
+### Changes
+
+- Replaced right click context menus with options button in knowledge base and improved look of options menu items 
+- Removed collections detail page from knowledge base
+- Change knowledge base side navigation to share page space with main content, rather than slide over top (kept overlay behaviour for mobile screens)
+- Restricted knowledge item reordering to users with change_collection permission
+- Added support for icons in core dropdown menus
+
+
 ## v0.17.6
 
 ### Changes

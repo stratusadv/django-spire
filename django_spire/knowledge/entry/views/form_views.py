@@ -33,12 +33,12 @@ def form_view(
 
         if form.is_valid():
             form.cleaned_data['collection'] = collection
-            _, _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
+            entry, _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
 
             return HttpResponseRedirect(
                 reverse(
-                    'django_spire:knowledge:collection:page:detail',
-                    kwargs={'pk': collection.pk}
+                    'django_spire:knowledge:entry:version:page:detail',
+                    kwargs={'pk': entry.pk}
                 )
             )
 
@@ -105,14 +105,6 @@ def import_form_view(
         show_form_errors(request, file_form)
 
     breadcrumbs = Breadcrumbs()
-    if collection_pk != 0:
-        breadcrumbs.add_breadcrumb(
-            name=Collection.objects.get(pk=collection_pk).name,
-            href=reverse(
-                'django_spire:knowledge:collection:page:detail',
-                kwargs={'pk': collection_pk}
-            )
-        )
     breadcrumbs.add_breadcrumb(name='Import Files')
     supported_file_types = [
         '.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())
