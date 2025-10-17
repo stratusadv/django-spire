@@ -1,0 +1,14 @@
+{% extends 'django_spire/form/editable/elements/base_field.html' %}
+
+{% block field %}
+    <input
+        type="datetime-local"
+        x-model="temp_value"
+        x-ref="edit_field"
+        @change="save()"
+        @keydown.escape="cancel()"
+        @blur="save()"
+        class="form-control {% block input_class %}{% endblock %}"
+        {% block input_attributes %}{% endblock %}
+    >
+{% endblock %}

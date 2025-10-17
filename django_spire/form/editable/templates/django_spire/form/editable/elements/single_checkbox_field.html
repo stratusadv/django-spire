@@ -1,0 +1,48 @@
+<div
+    x-data="{
+        is_checked: {{ value|default:'false'|yesno:'true,false' }},
+        is_saving: false,
+
+        async toggle() {
+            if (this.is_saving) return;
+
+            this.is_saving = true;
+            this.is_checked = !this.is_checked;
+
+            try {
+                {% block save_action %}
+                {% endblock %}
+            } finally {
+                this.is_saving = false;
+            }
+        }
+    }"
+    class="d-flex align-items-center justify-content-between cursor-pointer {% block container_class %}{% endblock %}"
+    style="min-height: 38px;"
+    @click="toggle()"
+>
+    {% block label %}
+    {% endblock %}
+
+    <template x-if="!is_saving">
+        <div class="form-check form-switch m-0">
+            <input
+                class="form-check-input cursor-pointer {% block input_class %}{% endblock %}"
+                type="checkbox"
+                x-model="is_checked"
+                @click.stop="toggle()"
+                {% block input_attributes %}{% endblock %}
+            >
+            <label class="form-check-label cursor-pointer ms-2">
+                {% block checkbox_label %}{{ label }}{% endblock %}
+            </label>
+        </div>
+    </template>
+
+    <template x-if="is_saving">
+        <div class="d-flex align-items-center" style="min-height: 38px;">
+            <span class="spinner-border spinner-border-sm text-app-primary me-2" role="status"></span>
+            <span class="text-app-secondary">{% block saving_text %}Saving...{% endblock %}</span>
+        </div>
+    </template>
+</div>

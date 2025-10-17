@@ -1,0 +1,23 @@
+{% extends 'django_spire/form/editable/elements/base_field.html' %}
+
+{% block display_content %}
+    <span x-text="display_value" class="d-block w-100"></span>
+{% endblock %}
+
+{% block field %}
+    <div class="d-flex align-items-center gap-2">
+        <input
+            type="range"
+            x-model="temp_value"
+            x-ref="edit_field"
+            @input="save()"
+            @keydown.escape="cancel()"
+            class="form-range flex-grow-1"
+            min="{% block range_min %}0{% endblock %}"
+            max="{% block range_max %}100{% endblock %}"
+            step="{% block range_step %}1{% endblock %}"
+            {% block input_attributes %}{% endblock %}
+        >
+        <span x-text="temp_value" class="badge bg-app-primary"></span>
+    </div>
+{% endblock %}

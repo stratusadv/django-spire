@@ -1,0 +1,11 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <h2 class="pb-4">Editable Fields Overview</h2>
+
+    <div class="row">
+        <div class="col-md-6 mb-4 h-100">
+            {% include 'django_spire/form/editable/card/editable_fields_preview_card.html' %}
+        </div>
+    </div>
+{% endblock %}

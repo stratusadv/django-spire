@@ -1,0 +1,10 @@
+{% extends 'django_spire/form/editable/elements/base_field.html' %}
+
+{% block input_type %}number{% endblock %}
+
+{% block validation %}
+    if (this.temp_value === '') {
+        this.cancel()
+        return
+    }
+{% endblock %}

@@ -90,6 +90,8 @@ INSTALLED_APPS += [
     'django_spire.core',
     'django_spire.contrib.session',
     'django_spire.file',
+    'django_spire.form',
+    'django_spire.form.editable',
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
     'django_spire.contrib.help',

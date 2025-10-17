@@ -1,0 +1,53 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Editable Fields
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="row g-3">
+        <div class="col-12 col-md-6 col-lg-3">
+            {% include 'django_spire/form/editable/elements/input_field.html' with label='First Name' value='John' %}
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            {% include 'django_spire/form/editable/elements/input_field.html' with label='Last Name' value='Doe' %}
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            {% include 'django_spire/form/editable/elements/email_field.html' with label='Email' value='john@example.com' %}
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+            {% include 'django_spire/form/editable/elements/telephone_field.html' with label='Phone' value='555-1234' %}
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-6">
+            {% include 'django_spire/form/editable/elements/input_field.html' with label='Department' value='Engineering' %}
+        </div>
+        <div class="col-12 col-md-6 col-lg-6 d-flex align-items-center">
+            <div class="w-100">
+                {% include 'django_spire/form/editable/elements/single_checkbox_field.html' with label='Active Status' value=True %}
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-6">
+            {% include 'django_spire/form/editable/elements/select_field.html' with label='Role' choices=role_choices value='developer' %}
+        </div>
+        <div class="col-12 col-md-6 col-lg-6">
+            {% include 'django_spire/form/editable/elements/decimal_field.html' with label='Salary ($)' value='75000' %}
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-6">
+            {% include 'django_spire/form/editable/elements/date_field.html' with label='Start Date' value='2024-02-01' %}
+        </div>
+        <div class="col-12 col-md-6 col-lg-6">
+            {% include 'django_spire/form/editable/elements/time_field.html' with label='Preferred Login Time' value='09:00' %}
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-6">
+            {% include 'django_spire/form/editable/elements/url_field.html' with label='Website' value='https://example.com' %}
+        </div>
+
+        <div class="col-12">
+            {% include 'django_spire/form/editable/elements/textarea_field.html' with label='Notes' value='John is a senior engineer specializing in backend services.' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'django_spire/form/editable/elements/base_field.html' %}
+
+{% block initial_value %}{{ value|default:'' }}{% endblock %}
+
+{% block display_content %}
+    <span
+        x-text="(() => {
+            const choices = {{ choices|safe }};
+            const choice = choices.find(c => c.value === display_value);
+            return choice ? choice.label : '{% block empty_text %}Double-click to select...{% endblock %}';
+        })()"
+        :class="{'text-secondary fst-italic': !display_value}"
+        :style="!display_value ? 'opacity: 0.7;' : ''"
+    ></span>
+{% endblock %}
+
+{% block validation %}
+{% endblock %}
+
+{% block field %}
+    <select
+        x-model="temp_value"
+        x-ref="edit_field"
+        @change="save()"
+        @keydown.escape="cancel()"
+        @blur="save()"
+        class="form-select {% block input_class %}{% endblock %}"
+        {% block input_attributes %}{% endblock %}
+    >
+        <option value="">Select an option...</option>
+        {% block radio_options %}
+            {% for choice in choices %}
+                <option value="{{ choice.value }}">{{ choice.label }}</option>
+            {% endfor %}
+        {% endblock %}
+    </select>
+{% endblock %}

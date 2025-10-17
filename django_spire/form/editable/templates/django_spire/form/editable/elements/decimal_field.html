@@ -1,0 +1,16 @@
+{% extends 'django_spire/form/editable/elements/base_field.html' %}
+
+{% block input_type %}number{% endblock %}
+
+{% block input_attributes %}
+    step="{% block decimal_step %}0.01{% endblock %}"
+    min="{% block decimal_min %}{% endblock %}"
+    max="{% block decimal_max %}{% endblock %}"
+{% endblock %}
+
+{% block validation %}
+    if (this.temp_value === '') {
+        this.cancel()
+        return
+    }
+{% endblock %}

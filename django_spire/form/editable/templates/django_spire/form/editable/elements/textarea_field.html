@@ -1,0 +1,33 @@
+{% extends 'django_spire/form/editable/elements/base_field.html' %}
+
+{% block display_class %}{% endblock %}
+
+{% block display_content %}
+    <span
+        x-text="display_value || '{% block empty_text %}Double-click to edit...{% endblock %}'"
+        :class="{'text-secondary fst-italic': !display_value}"
+        :style="!display_value ? 'opacity: 0.7;' : ''"
+        style="white-space: pre-wrap; display: block; min-height: 60px;"
+    ></span>
+{% endblock %}
+
+{% block field %}
+    <textarea
+        x-model="temp_value"
+        x-ref="edit_field"
+        @keydown.escape="cancel()"
+        @blur="save()"
+        rows="{% block textarea_rows %}3{% endblock %}"
+        class="form-control {% block input_class %}{% endblock %}"
+        placeholder="{% block placeholder %}{% endblock %}"
+        {% block input_attributes %}{% endblock %}
+    ></textarea>
+{% endblock %}
+
+{% block focus_action %}
+    this.$refs.edit_field.select()
+{% endblock %}
+
+{% block field_help %}
+    <small class="text-app-secondary d-block mt-1">Press Escape to cancel</small>
+{% endblock %}

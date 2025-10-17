@@ -1,0 +1,98 @@
+<div
+    x-data="{
+        is_editing: false,
+        display_value: '{% block initial_value %}{{ value|default:'' }}{% endblock %}',
+        temp_value: '',
+        is_saving: false,
+
+        start_edit() {
+            this.temp_value = this.display_value;
+            this.is_editing = true;
+
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    if (this.$refs.edit_field) {
+                        this.$refs.edit_field.focus();
+
+                        {% block focus_action %}
+                            this.$refs.edit_field.select();
+                        {% endblock %}
+                    }
+                })
+            })
+        },
+
+        async save() {
+            {% block validation %}
+                if (!this.temp_value.trim()) {
+                    this.cancel();
+                    return;
+                }
+            {% endblock %}
+
+            {% block save_action %}
+                this.display_value = this.temp_value;
+                this.is_editing = false;
+            {% endblock %}
+        },
+
+        cancel() {
+            this.temp_value = this.display_value;
+            this.is_editing = false;
+        }
+    }"
+    class="{% block container_class %}{% endblock %}"
+>
+    {% block label %}
+        {% if label %}
+            <div class="fs-7 text-app-attribute-color fw-bold mb-1">
+                {{ label }}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    <div
+        x-show="!is_editing && !is_saving"
+        @dblclick.prevent.stop="start_edit()"
+        class="cursor-pointer {% block display_class %}{% endblock %}"
+        style="min-height: 38px; height: 38px; padding: 0.375rem 0.75rem; display: flex; align-items: center; border: 1px solid transparent; box-sizing: border-box;"
+    >
+        {% block display_content %}
+            <span
+                x-text="display_value || '{% block empty_text %}Double-click to edit...{% endblock %}'"
+                :class="{'text-secondary fst-italic': !display_value}"
+                :style="!display_value ? 'opacity: 0.7;' : ''"
+            ></span>
+        {% endblock %}
+    </div>
+
+    <template x-if="is_saving">
+        <div class="d-flex align-items-center" style="min-height: 38px; height: 38px; padding: 0.375rem 0.75rem;">
+            <span class="spinner-border spinner-border-sm text-app-primary me-2" role="status"></span>
+            <span class="text-app-secondary">{% block saving_text %}Saving...{% endblock %}</span>
+        </div>
+    </template>
+
+    <div
+        x-show="is_editing"
+        @click.outside="save()"
+        style="min-height: 38px; height: 38px;"
+    >
+        {% block field %}
+            <input
+                type="{% block input_type %}text{% endblock %}"
+                x-model="temp_value"
+                x-ref="edit_field"
+                @keydown.enter.prevent="save()"
+                @keydown.escape.prevent="cancel()"
+                class="form-control {% block input_class %}{% endblock %}"
+                style="box-sizing: border-box; height: 38px; padding: 0.375rem 0.75rem;"
+                placeholder="{% block placeholder %}{% endblock %}"
+                {% block input_attributes %}{% endblock %}
+            >
+        {% endblock %}
+
+        {% block field_help %}
+        {% endblock %}
+    </div>
+</div>
