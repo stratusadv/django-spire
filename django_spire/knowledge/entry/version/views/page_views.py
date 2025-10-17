@@ -17,10 +17,16 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     version_blocks = current_version.blocks.active().order_by('order')
 
     def breadcrumbs_func(breadcrumbs):
-        breadcrumbs.add_breadcrumb(name='Knowledge')
         breadcrumbs.add_breadcrumb(
-            name='Collections',
+            name='Knowledge',
             href=reverse('django_spire:knowledge:page:home')
+        )
+        collection = entry.collection
+        breadcrumbs.add_breadcrumb(
+            name=f'{collection.name}'
+        )
+        breadcrumbs.add_breadcrumb(
+            name=f'{entry.name}',
         )
 
     return portal_views.detail_view(
