@@ -154,6 +154,9 @@ if __name__ == '__main__':
             user_input = input()
             if user_input.lower() == 'y':
                 commit = True
+            else:
+                print('Aborting migration')
+                sys.exit(0)
 
         else:
             print('Invalid argument. Valid arguments are: --commit')
