@@ -56,7 +56,7 @@ dependencies = [
     "Pygments",
     "Pillow==11.2.1",
     "python-dateutil",
-    "robit==0.4.8",
+    "robit>=0.4.8",
     "typing_extensions",
     "twilio"
 ]
