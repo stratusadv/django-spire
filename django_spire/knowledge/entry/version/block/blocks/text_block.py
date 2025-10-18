@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
+from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock, \
+    BaseEditorBlockData
 
 
 class TextBlock(BaseBlock):
@@ -12,3 +13,9 @@ class TextBlock(BaseBlock):
 
     def render_to_text(self) -> str:
         return f'{self.value}\n'
+
+class TextEditorBlockData(BaseEditorBlockData):
+    text: str
+
+    def render_to_text(self) -> str:
+        return f'{self.text}\n'

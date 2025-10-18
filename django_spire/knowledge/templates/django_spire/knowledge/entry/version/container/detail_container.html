@@ -8,9 +8,26 @@
     <div class="container">
         <div class="row align-items-center">
             {% if AuthController.knowledge.can_change %}
-                <div class="col">
-                    {% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
-                    {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_class='btn-md' button_href=entry_edit_url %}
+                <div
+                    class="col"
+                    x-data="{
+                        editor_is_readonly: true,
+                        handle_btn_click() {
+                            if (KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.isEnabled) {
+                                // Do readonly stuff
+                            }
+                            else {
+                                // Do update stuff
+                            }
+
+                            KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.toggle()
+                            this.editor_is_readonly = KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.isEnabled
+                        }
+                    }"
+                >
+                    <div class="btn shadow-sm btn-md btn-app-primary" @click="handle_btn_click()">
+                        <span x-text="editor_is_readonly ? 'Edit' : 'Update'"></span>
+                    </div>
                 </div>
             {% endif %}
             <div class="col">
@@ -27,15 +44,8 @@
 {% block container_content %}
     <div class="container">
         <div class="row px-3">
-            {% for version_block in version_blocks %}
-                <div class="col-12">
-                    {% include version_block.block.detail_template with value=version_block.block.value %}
-                </div>
-            {% empty %}
-                <div class="col-12">
-                    No information...
-                </div>
-            {% endfor %}
+            {# Hydrated by django_spire/knowledge/entry/version/js/editor.js #}
+            <div id="knowledge-entry-version-editor"></div>
         </div>
     </div>
 {% endblock %}

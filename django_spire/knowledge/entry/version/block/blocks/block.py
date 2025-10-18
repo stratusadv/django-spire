@@ -49,3 +49,15 @@ class BaseBlock(ABC, BaseModel):
                 template_name=self.update_template,
             )
         }
+
+
+class EditorBlock(BaseModel):
+    id: str
+    type: BlockTypeChoices
+    data: BaseEditorBlockData
+    order: int | None
+    tunes: dict | None
+
+class BaseEditorBlockData(BaseModel):
+    def render_to_text(self) -> str:
+        raise NotImplementedError
