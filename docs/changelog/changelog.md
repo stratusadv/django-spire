@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.17.9
+
+### Changes
+- Loosen robit requirement
+
 
 ## v0.17.8
 
