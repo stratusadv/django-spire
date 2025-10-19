@@ -6,6 +6,13 @@
 - Loosen robit requirement
 
 
+## v0.17.9
+
+### Fixes
+- Knowledge base file page UI bug fix
+- Knowledge base side navigation UX improvement
+
+
 ## v0.17.8
 
 ### Changes

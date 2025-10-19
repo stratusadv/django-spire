@@ -16,8 +16,12 @@
         x-data="{
             nav_toggle_type: null,
             show_side_nav: false,
-            handle_resize() {
+
+            set_nav_toggle_type() {
                 this.nav_toggle_type = window.innerWidth > 768 ? 'collapse' : 'offcanvas'
+            },
+            handle_resize() {
+                this.set_nav_toggle_type()
                 if (this.nav_toggle_type === 'offcanvas') {
                     document.getElementById('side-nav').classList.remove('show')
                     this.show_side_nav = false
@@ -26,9 +30,9 @@
                     document.getElementById('side-nav').classList.add('show')
                     this.show_side_nav = true
                 }
-            },
+            }
         }"
-        x-init="handle_resize()"
+        x-init="set_nav_toggle_type()"
         @resize.window="handle_resize()"
     >
         <div class="col">
@@ -57,7 +61,9 @@
             class="col-auto bg-app-layer-one ps-0"
             :class="nav_toggle_type === 'collapse' ? 'collapse collapse-horizontal' : 'offcanvas offcanvas-end'"
             data-bs-backdrop="false"
-            id="side-nav">
+            id="side-nav"
+            x-cloak
+        >
             <div
                 class="position-relative h-100"
                 :style="nav_toggle_type === 'collapse' && 'width: 35vw'"
