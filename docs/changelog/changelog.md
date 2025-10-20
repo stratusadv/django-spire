@@ -1,5 +1,25 @@
 # Changelog
 
+
+## v0.17.10
+
+### Fixes
+- Knowledge base file page UI bug fix
+- Knowledge base side navigation UX improvement
+
+
+## v0.17.9
+
+### Changes
+- Loosen robit requirement
+
+
+## v0.17.8
+
+### Changes
+- Removed hard-coded colours from v0.17.7
+
+
 ## v0.17.7
 
 ### Changes
@@ -9,6 +29,7 @@
 - Change knowledge base side navigation to share page space with main content, rather than slide over top (kept overlay behaviour for mobile screens)
 - Restricted knowledge item reordering to users with change_collection permission
 - Added support for icons in core dropdown menus
+
 
 ## v0.17.6
 
