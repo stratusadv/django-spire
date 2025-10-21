@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.17.##
+
+### Features
+
+- Added a button to the profile in the top navigation that allows super users to quickly get to the theme dashboard.
+- The theme app is much more complete and shows all theming on layer 1 and 2 for better design.
+
+### Fixes
+
+- Fixed css for `text-app-success` and all variants.
+
 ## v0.17.11
 
 ### Fixes
