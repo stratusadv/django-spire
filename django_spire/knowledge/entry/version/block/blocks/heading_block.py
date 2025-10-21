@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from django_spire.knowledge.entry.version.block.blocks.text_block import \
-    TextEditorBlockData
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock, \
-    BaseEditorBlockData
+from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
 
 
+# Keeping this and other BaseBlock subclasses around until we confirm we don't need to do data conversion
 class HeadingBlock(BaseBlock):
     value: str
     type: BlockTypeChoices = BlockTypeChoices.HEADING
@@ -15,10 +13,3 @@ class HeadingBlock(BaseBlock):
 
     def render_to_text(self) -> str:
         return f'{self.value}\n'
-
-class HeadingEditorBlockData(BaseEditorBlockData):
-    text: str
-    level: int
-
-    def render_to_text(self) -> str:
-        return f'{"#" * self.level} {self.text}\n'

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
 
+# Keeping this and other BaseBlock subclasses around until we confirm we don't need to do data conversion
 class BaseBlock(ABC, BaseModel):
     value: Any
     type: BlockTypeChoices
@@ -49,15 +50,3 @@ class BaseBlock(ABC, BaseModel):
                 template_name=self.update_template,
             )
         }
-
-
-class EditorBlock(BaseModel):
-    id: str
-    type: BlockTypeChoices
-    data: BaseEditorBlockData
-    order: int | None
-    tunes: dict | None
-
-class BaseEditorBlockData(BaseModel):
-    def render_to_text(self) -> str:
-        raise NotImplementedError

@@ -1,29 +1,32 @@
+import argparse
 import sys
 
 from django.core.wsgi import get_wsgi_application
+from django.db.models import QuerySet
 
 app = get_wsgi_application()
 
-from django_spire.knowledge.entry.version.block.blocks.block import BaseEditorBlockData, \
-    BaseBlock
-from django_spire.knowledge.entry.version.block.blocks.heading_block import \
-    HeadingEditorBlockData
-from django_spire.knowledge.entry.version.block.blocks.list_block import \
-    ListEditorBlockDataStyle, ListEditorBlockData, ListItemEditorBlockData
-from django_spire.knowledge.entry.version.block.blocks.text_block import \
-    TextEditorBlockData
+from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
+from django_spire.knowledge.entry.version.block.entities import HeadingEditorBlockData, \
+    BaseEditorBlockData, ListEditorBlockData, ListItemEditorBlockData, \
+    ListEditorBlockDataStyle, TextEditorBlockData
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
-class EntryVersionEditorDataMigrator:
-    def __init__(self, dry_run: bool = False) -> None:
-        self.dry_run = dry_run
+class EntryVersionEditorJSDataMigrator:
+    def __init__(
+        self,
+        dry_run: bool = False,
+        target_entries: QuerySet[EntryVersion] = None,
+    ) -> None:
+        entry_versions = target_entries or EntryVersion.objects.all()
 
+        self.dry_run = dry_run
         self._entry_block_queue = []
         self._old_list_items = []
-        self._entry_versions = EntryVersion.objects.prefetch_related('blocks').all()
+        self._entry_versions = entry_versions.prefetch_related('blocks').all()
         self._current_processing_entry_version = None
         self._current_processing_entry_version_block = None
 
@@ -148,18 +151,32 @@ class EntryVersionEditorDataMigrator:
 
 if __name__ == '__main__':
     commit = False
-    if len(sys.argv) > 1:
-        if sys.argv[1] == '--commit':
-            print('WARNING - Changes will be committed to the database. Are you sure you want to continue? (y/n)')
-            user_input = input()
-            if user_input.lower() == 'y':
-                commit = True
-            else:
-                print('Aborting migration')
-                sys.exit(0)
+    parser = argparse.ArgumentParser(
+        description='Migrate entry version blocks to editor block data.')
+    parser.add_argument('--commit', action='store_true',
+                        help='Commit changes to the database')
+    parser.add_argument('--target-entry')
+    args = parser.parse_args()
 
+    if args.commit:
+        print(
+            'WARNING - Changes will be committed to the database. Are you sure you want to continue? (y/n)')
+        user_input = input()
+        if user_input.lower() == 'y':
+            commit = True
         else:
-            print('Invalid argument. Valid arguments are: --commit')
-            sys.exit(1)
+            print('Aborting migration')
+            sys.exit(0)
+    else:
+        commit = False
 
-    EntryVersionEditorDataMigrator(dry_run=not commit).migrate_entry_version_blocks_to_editor_block_data()
+    if args.target_entry:
+        target_entries = EntryVersion.objects.filter(
+            entry__id=args.target_entry)
+    else:
+        target_entries = None
+
+    EntryVersionEditorJSDataMigrator(
+        dry_run=not commit,
+        target_entries=target_entries,
+    ).migrate_entry_version_blocks_to_editor_block_data()

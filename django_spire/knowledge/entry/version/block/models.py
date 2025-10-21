@@ -8,8 +8,8 @@ from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP, \
     EDITOR_BLOCK_DATA_MAP
 from django_spire.knowledge.entry.version.block.services.service import EntryVersionBlockService
-from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock, \
-    EditorBlock, BaseEditorBlockData
+from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
+from django_spire.knowledge.entry.version.block.entities import BaseEditorBlockData
 from django_spire.knowledge.entry.version.models import EntryVersion
 from django_spire.knowledge.entry.version.block.querysets import EntryVersionBlockQuerySet
 
@@ -48,20 +48,18 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
 
     @block.setter
     def block(self, value: BaseBlock):
-        self.type = value.type
-        self._editor_block_data = value.model_dump()
+        # self.type = value.type
+        self._block_data = value.model_dump()
         self._text_data = value.render_to_text()
-
 
     @property
     def editor_block_data(self) -> BaseEditorBlockData:
         return EDITOR_BLOCK_DATA_MAP[self.type](**self._editor_block_data)
 
-
     @editor_block_data.setter
     def editor_block_data(self, block: BaseEditorBlockData):
-        self._new_block_data = block.data.model_dump()
-        self._new_text_data = block.data.render_to_text()
+        self._block_data = block.model_dump()
+        self._text_data = block.render_to_text()
 
     def render_to_text(self) -> str:
         return self.editor_block_data.render_to_text()

@@ -20,6 +20,5 @@
 
 {% block base_body_additional_bottom_js %}
     {{ block.super }}
-    {{ entry_version_block_data|json_script:'initial-block-data' }}
     <script type="application/javascript" src="{% static 'django_spire/knowledge/entry/version/js/editor.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 {% endblock %}

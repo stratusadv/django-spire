@@ -72,9 +72,9 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
             'edit_version_url': f'''
                 {site}{
                     reverse(
-                        'django_spire:knowledge:entry:version:form:update',
+                        'django_spire:knowledge:entry:version:page:detail',
                         kwargs={'pk': current_version.pk},
                     )
-                }
+                }?view_mode=edit
             '''
         }

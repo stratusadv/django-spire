@@ -4,6 +4,7 @@ from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
 
 
+# Keeping this and other BaseBlock subclasses around until we confirm we don't need to do data conversion
 class SubHeadingBlock(BaseBlock):
     value: str
     type: BlockTypeChoices = BlockTypeChoices.SUB_HEADING

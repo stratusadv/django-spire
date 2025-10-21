@@ -4,7 +4,9 @@ from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
 
-from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP
+from django_spire.knowledge.entry.version.block.entities import EditorBlock
+from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP, \
+    EDITOR_BLOCK_DATA_MAP
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
 if TYPE_CHECKING:
@@ -17,35 +19,14 @@ if TYPE_CHECKING:
 class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
-    def create_blank_block(
-            self,
-            entry_version: EntryVersion,
-            block_type: BlockTypeChoices,
-            order: int,
-            **kwargs
-    ) -> EntryVersionBlock:
-        self.obj = self.obj_class(
+    def from_editor_block(self, editor_block: EditorBlock, entry_version: EntryVersion):
+        return self.obj_class(
             version=entry_version,
-            type=block_type,
-            order=order,
-        )
-        self.obj.block = ENTRY_BLOCK_MAP[block_type](
-            value='',
-            type=block_type,
-            **kwargs
-        )
-        self.obj.save()
-
-        self.obj.ordering_services.processor.move_to_position(
-            destination_objects=(
-                self.obj_class.objects
-                .active()
-                .by_version_id(entry_version_id=entry_version.id)
-            ),
-            position=order,
+            type=editor_block.type,
+            order=editor_block.order,
+            block=EDITOR_BLOCK_DATA_MAP[editor_block.type](**editor_block.data),
         )
 
-        return self.obj
 
     def create_blocks_from_file(
             self,

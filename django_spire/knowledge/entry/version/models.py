@@ -42,3 +42,4 @@ class EntryVersion(HistoryModelMixin):
         verbose_name = 'Entry Version'
         verbose_name_plural = 'Entry Versions'
         db_table = 'django_spire_knowledge_entry_version'
+
