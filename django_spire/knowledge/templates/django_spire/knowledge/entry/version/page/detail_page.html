@@ -20,5 +20,6 @@
 
 {% block base_body_additional_bottom_js %}
     {{ block.super }}
+    <script type="application/javascript" src="{% static 'django_spire/knowledge/entry/version/js/null_paragraph.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
     <script type="application/javascript" src="{% static 'django_spire/knowledge/entry/version/js/editor.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 {% endblock %}
