@@ -21,7 +21,7 @@ class EntryVersionBlockTransformationService(BaseDjangoModelService['EntryVersio
             'id': self.obj.id,
             'type': self.obj.type,
             'order': self.obj.order,
-            'block': self.obj.block.to_dict(self.obj)
+            'block': self.obj.editor_block_data.to_dict(self.obj)
         }
 
     def to_json(self) -> str:

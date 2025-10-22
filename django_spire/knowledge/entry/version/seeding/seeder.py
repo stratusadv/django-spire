@@ -67,7 +67,7 @@ class EntryVersionSeeder(DjangoModelSeeder):
                     type=EDITOR_BLOCK_DATA_REVERSE_MAP[type(safety_block)],
                     order=idx,
                 )
-                version_block.block = safety_block
+                version_block.editor_block_data = safety_block
                 version_blocks.append(version_block)
 
             EntryVersionBlock.objects.bulk_create(version_blocks)

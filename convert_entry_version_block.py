@@ -98,7 +98,7 @@ class EntryVersionEditorJSDataMigrator:
         self._entry_block_queue.append(entry_version_block)
 
     def _migrate_entry_version_block_to_editor_block_data(self, entry_version_block: EntryVersionBlock) -> None:
-        old_block = entry_version_block.block
+        old_block = entry_version_block.editor_block_data
 
         if old_block.type == BlockTypeChoices.LIST_ITEM:
             self._old_list_items.append(old_block)

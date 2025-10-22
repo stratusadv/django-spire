@@ -24,7 +24,7 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
             version=entry_version,
             type=editor_block.type,
             order=editor_block.order,
-            block=EDITOR_BLOCK_DATA_MAP[editor_block.type](**editor_block.data),
+            editor_block_data=EDITOR_BLOCK_DATA_MAP[editor_block.type](**editor_block.data),
         )
 
 
@@ -60,5 +60,5 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
             value=value,
             **kwargs
         )
-        self.obj.block = block
+        self.obj.editor_block_data = block
         return self.obj

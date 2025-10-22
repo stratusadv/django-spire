@@ -35,7 +35,7 @@ def create_test_version_block(**kwargs) -> EntryVersionBlock:
 
     data.update(kwargs)
     version_block = EntryVersionBlock.objects.create(**data)
-    version_block.block = TextEditorBlockData(
+    version_block.editor_block_data = TextEditorBlockData(
         text='',
     )
     version_block.save()
