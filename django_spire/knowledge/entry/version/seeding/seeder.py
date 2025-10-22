@@ -11,8 +11,7 @@ from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.version import models
 
 from django_spire.contrib.seeding import DjangoModelSeeder
-from django_spire.knowledge.entry.version.block.entities import EditorBlock
-from django_spire.knowledge.entry.version.block.maps import \
+from django_spire.knowledge.entry.version.block.data.maps import \
     EDITOR_BLOCK_DATA_REVERSE_MAP
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.block.seeding.constants import SAFETY_BLOCKS

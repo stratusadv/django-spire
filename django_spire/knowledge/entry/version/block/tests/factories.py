@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import json
 
-from django_spire.knowledge.entry.version.block.blocks.text_block import TextBlock
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.entities import EditorBlock, \
+from django_spire.knowledge.entry.version.block.data.text_data import \
     TextEditorBlockData
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.tests.factories import \
