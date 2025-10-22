@@ -41,7 +41,7 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
 
     @editor_block_data.setter
     def editor_block_data(self, value: BaseEditorBlockData):
-        self._block_data = value.model_dump()
+        self._block_data = value.model_dump(exclude_none=True)
         self._text_data = value.render_to_text()
 
     def render_to_text(self) -> str:
