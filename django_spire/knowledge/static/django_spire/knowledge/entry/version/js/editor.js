@@ -4,7 +4,6 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
         readOnly: !should_init_editor_in_edit_mode(),
         // TODO: Consider storing this data in db to make editor runtime configurable
         tools: {
-            paragraph: false,
             text: {
                 class: Paragraph,
                 inlineToolbar: true,
@@ -27,7 +26,8 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
                 config: {
                     defaultStyle: 'unordered'
                 },
-            }
+            },
+            paragraph: NullParagraph
         },
         defaultBlock: 'text',
         onChange: async (api, _) => {
