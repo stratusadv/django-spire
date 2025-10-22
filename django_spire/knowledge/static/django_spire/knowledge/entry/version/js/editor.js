@@ -4,10 +4,13 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
         readOnly: !should_init_editor_in_edit_mode(),
         // TODO: Consider storing this data in db to make editor runtime configurable
         tools: {
+            paragraph: false,
             text: {
                 class: Paragraph,
                 inlineToolbar: true,
-                placeholder: 'Write something awesome!',
+                config: {
+                    placeholder: 'Write something awesome!',
+                }
             },
             heading: {
                 class: Header,
@@ -31,22 +34,30 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
             const raw_editor_blocks = await api.saver.save()
 
             const parsed_editor_blocks = raw_editor_blocks.blocks.map((block, i) => ({
-                id: block.id,
-                order: i,
-                data: block.data,
-                type: block.type,
-                tunes: block?.tunes ?? {},
+                block_order: i,
+                block_data: block.data,
+                block_type: block.type,
+                block_tunes: block?.tunes ?? {},
             }))
 
-            const response = await django_glue_fetch(
-                update_url,
-                {
-                    payload: parsed_editor_blocks,
+           try {
+                await django_glue_fetch(
+                    update_url,
+                    {
+                        payload: parsed_editor_blocks,
+                    }
+                )
+            }
+            catch (e) {
+                console.error('Error saving editor blocks', e)
+                const event_detail = {
+                    'id': Date.now(),
+                    'type': 'error',
+                    'message': 'Something went wrong when saving your changes. Please reload the page and try again.'
                 }
-            )
 
-            if (response.status !== 200) {
-                // TODO: Handle failed update request
+                const editor_error_event = new CustomEvent('notify', { detail: event_detail })
+                window.dispatchEvent(editor_error_event)
             }
         },
         onReady: () => {

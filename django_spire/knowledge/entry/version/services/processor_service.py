@@ -21,18 +21,17 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
         self.obj.save()
 
     def update_blocks(self, raw_block_data: list[dict]):
-        from django_spire.knowledge.entry.version.block.entities import EditorBlock
         from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
         old_entry_blocks = self.obj.blocks.active()
 
-        incoming_editor_blocks = [EditorBlock(**block) for block in raw_block_data]
         incoming_entry_blocks = [
-            EntryVersionBlock.services.factory.from_editor_block(
-                editor_block=editor_block,
-                entry_version=self.obj
+            EntryVersionBlock.services.save_model_obj(
+                entry_version=self.obj,
+                commit=False,
+                **block_data,
             )
-            for editor_block in incoming_editor_blocks
+            for block_data in raw_block_data
         ]
 
         with transaction.atomic():

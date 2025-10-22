@@ -4,9 +4,9 @@ from django.db import models
 
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
-from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.maps import EDITOR_BLOCK_DATA_MAP
+from django_spire.knowledge.entry.version.block.data.data import BaseEditorBlockData
+from django_spire.knowledge.entry.version.block.data.maps import EDITOR_BLOCK_DATA_MAP
 from django_spire.knowledge.entry.version.block.querysets import \
     EntryVersionBlockQuerySet
 from django_spire.knowledge.entry.version.block.services.service import \
@@ -36,11 +36,11 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
     services = EntryVersionBlockService()
 
     @property
-    def editor_block_data(self) -> BaseBlock:
+    def editor_block_data(self) -> BaseEditorBlockData:
         return EDITOR_BLOCK_DATA_MAP[self.type](**self._block_data)
 
     @editor_block_data.setter
-    def editor_block_data(self, value: BaseBlock):
+    def editor_block_data(self, value: BaseEditorBlockData):
         self._block_data = value.model_dump()
         self._text_data = value.render_to_text()
 

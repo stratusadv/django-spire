@@ -4,9 +4,6 @@ from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
 
-from django_spire.knowledge.entry.version.block.entities import EditorBlock
-from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP, \
-    EDITOR_BLOCK_DATA_MAP
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
 if TYPE_CHECKING:
@@ -18,15 +15,6 @@ if TYPE_CHECKING:
 
 class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
-
-    def from_editor_block(self, editor_block: EditorBlock, entry_version: EntryVersion):
-        return self.obj_class(
-            version=entry_version,
-            type=editor_block.type,
-            order=editor_block.order,
-            editor_block_data=editor_block.data,
-        )
-
 
     def create_blocks_from_file(
             self,
