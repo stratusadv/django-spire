@@ -4,8 +4,7 @@ from django_spire.knowledge.entry.version.block.blocks.list_block import ListIte
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.blocks.heading_block import \
     HeadingBlock
-from django_spire.knowledge.entry.version.block.entities import HeadingEditorBlockData, \
- TextEditorBlockData
+from django_spire.knowledge.entry.version.block import entities
 from django_spire.knowledge.entry.version.block.blocks.sub_heading_block import \
     SubHeadingBlock
 from django_spire.knowledge.entry.version.block.blocks.text_block import TextBlock
@@ -18,11 +17,25 @@ ENTRY_BLOCK_MAP = {
 }
 
 EDITOR_BLOCK_DATA_MAP = {
-    BlockTypeChoices.TEXT: TextEditorBlockData,
-    BlockTypeChoices.HEADING: HeadingEditorBlockData,
+    BlockTypeChoices.TEXT: entities.TextEditorBlockData,
+    BlockTypeChoices.HEADING: entities.HeadingEditorBlockData,
+    BlockTypeChoices.LIST: entities.ListEditorBlockData,
 }
 
 EDITOR_BLOCK_DATA_REVERSE_MAP = {
-    TextEditorBlockData: BlockTypeChoices.TEXT,
-    HeadingEditorBlockData: BlockTypeChoices.HEADING,
+    entities.TextEditorBlockData: BlockTypeChoices.TEXT,
+    entities.HeadingEditorBlockData: BlockTypeChoices.HEADING,
+    entities.ListEditorBlockData: BlockTypeChoices.LIST,
+}
+
+LIST_BLOCK_DATA_META_MAP = {
+    entities.ListEditorBlockDataStyle.ORDERED: entities.OrderedListItemMeta,
+    entities.ListEditorBlockDataStyle.CHECKLIST: entities.ChecklistItemMeta,
+    entities.ListEditorBlockDataStyle.UNORDERED: None,
+}
+
+LIST_BLOCK_DATA_REVERSE_META_MAP = {
+    entities.OrderedListItemMeta: entities.ListEditorBlockDataStyle.ORDERED,
+    entities.ChecklistItemMeta: entities.ListEditorBlockDataStyle.CHECKLIST,
+    None: entities.ListEditorBlockDataStyle.UNORDERED,
 }
