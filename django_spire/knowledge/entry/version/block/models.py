@@ -4,14 +4,14 @@ from django.db import models
 
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
-from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.maps import ENTRY_BLOCK_MAP, \
-    EDITOR_BLOCK_DATA_MAP
-from django_spire.knowledge.entry.version.block.services.service import EntryVersionBlockService
 from django_spire.knowledge.entry.version.block.blocks.block import BaseBlock
-from django_spire.knowledge.entry.version.block.entities import BaseEditorBlockData
+from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
+from django_spire.knowledge.entry.version.block.maps import EDITOR_BLOCK_DATA_MAP
+from django_spire.knowledge.entry.version.block.querysets import \
+    EntryVersionBlockQuerySet
+from django_spire.knowledge.entry.version.block.services.service import \
+    EntryVersionBlockService
 from django_spire.knowledge.entry.version.models import EntryVersion
-from django_spire.knowledge.entry.version.block.querysets import EntryVersionBlockQuerySet
 
 
 class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):

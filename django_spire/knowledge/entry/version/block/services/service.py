@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING
 
 from django_spire.knowledge.entry.version.block.services.factory_service import \
     EntryVersionBlockFactoryService
-from django_spire.knowledge.entry.version.block.services.transformation_service import \
-    EntryVersionBlockTransformationService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
@@ -17,4 +15,3 @@ class EntryVersionBlockService(BaseDjangoModelService['EntryVersionBlock']):
     obj: EntryVersionBlock
 
     factory = EntryVersionBlockFactoryService()
-    transformation = EntryVersionBlockTransformationService()
