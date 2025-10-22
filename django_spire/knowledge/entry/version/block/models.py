@@ -41,6 +41,8 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
 
     @editor_block_data.setter
     def editor_block_data(self, value: BaseEditorBlockData):
+        # exclude_none=True ensures that block meta objects aren't autofilled with keys,
+        # which can mess up editor rendering
         self._block_data = value.model_dump(exclude_none=True)
         self._text_data = value.render_to_text()
 
