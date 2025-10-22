@@ -15,7 +15,7 @@ class EditorBlock(BaseModel):
     This class provides a structured representation of a block that is formatted from the
     EditorJS save output.
     It includes attributes to store information about the block's type,
-    order within the editor, additional data, and any optional customizations or
+    order within the editor, content data, and any optional customizations or
     "tunes" that may apply to the block.
 
     Attributes:
@@ -79,89 +79,3 @@ class HeadingEditorBlockData(BaseEditorBlockData):
 
     def render_to_text(self) -> str:
         return f'{"#" * self.level} {self.text}\n'
-
-
-# LIST
-class ListEditorBlockData(BaseEditorBlockData):
-    style: ListEditorBlockDataStyle
-    meta: BaseItemMeta | None = None
-    items: list[ListItemEditorBlockData] = []
-
-    def render_to_text(self) -> str:
-        render_string = ''
-        for i, item in enumerate(self.items):
-            render_string += item.render_to_text(self.style, 0, i)
-
-        return render_string
-
-
-class ListItemEditorBlockData(BaseEditorBlockData):
-    content: str
-    meta: BaseItemMeta | None = None
-    items: list[ListItemEditorBlockData] = []
-    ordered: bool
-
-    def get_prefix(
-            self,
-            style: ListEditorBlockDataStyle,
-            indent_level: int,
-            index = None
-    ):
-        prefix = ' ' * indent_level * SPACES_PER_INDENT
-
-        if style == ListEditorBlockDataStyle.ORDERED:
-            index = index or 0
-            start = self.meta.start or 1
-            prefix += f'{start + index}.'
-
-        elif style == ListEditorBlockDataStyle.CHECKLIST:
-            prefix += f'[{"X" if self.meta.checked else " "}]'
-
-        else:
-            prefix += '-'
-
-        return prefix
-
-    def render_to_text(
-        self,
-        style: ListEditorBlockDataStyle,
-        indent_level: int,
-        index: int
-    ) -> str:
-        prefix = self.get_prefix(style, indent_level, index)
-        render_string = f'{prefix} {self.content}\n'
-        for i, item in enumerate(self.items):
-            render_string += item.render_to_text(style, indent_level + 1, i)
-
-        return render_string
-
-
-class ListEditorBlockDataStyle(enum.Enum):
-    UNORDERED = 'unordered'
-    ORDERED = 'ordered'
-    CHECKLIST = 'checklist'
-
-
-class BaseItemMeta(BaseModel):
-    pass
-
-
-class ChecklistItemMeta(BaseItemMeta):
-    checked: bool
-
-
-class OrderedListCounterType(enum.Enum):
-    NUMERIC = 'numeric'
-    UPPER_ROMAN = 'upper-roman'
-    LOWER_ROMAN = 'lower-roman'
-    UPPER_ALPHA = 'upper-alpha'
-    LOWER_ALPHA = 'lower-alpha'
-
-
-class OrderedListItemMeta(BaseItemMeta):
-    start: int | None = None
-    counterType: OrderedListCounterType | None = None
-
-
-class UnorderedListItemMeta(BaseItemMeta):
-    pass
