@@ -59,7 +59,7 @@
                     init() {
                         KNOWLEDGE_ENTRY_VERSION_EDITOR = create_editorjs_instance({
                             holder_id: this.editor_element_id,
-                            update_url: '{% url "django_spire:knowledge:entry:version:json:update_blocks" entry.id %}',
+                            update_url: '{% url "django_spire:knowledge:entry:version:json:update_blocks" pk=entry.id %}',
                             initial_editor_blocks: {{ version_blocks }}
                         })
                     }
