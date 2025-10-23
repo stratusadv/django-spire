@@ -2,11 +2,25 @@ from __future__ import annotations
 
 import json
 
-from django_spire.knowledge.entry.version.block.blocks.text_block import TextBlock
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
+from django_spire.knowledge.entry.version.block.data.text_data import \
+    TextEditorBlockData
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.tests.factories import \
     create_test_entry_version
+
+
+def create_test_block_form_data(**kwargs) -> dict:
+    data = {
+        'id': 0,
+        'order': 0,
+        'type': BlockTypeChoices.TEXT,
+        'data': {'text': 'test text'},
+        'tunes': {}
+    }
+
+    data.update(kwargs)
+    return data
 
 
 def create_test_version_block(**kwargs) -> EntryVersionBlock:
@@ -17,9 +31,12 @@ def create_test_version_block(**kwargs) -> EntryVersionBlock:
         '_block_data': json.dumps({}),
         '_text_data': ''
     }
+
     data.update(kwargs)
     version_block = EntryVersionBlock.objects.create(**data)
-    version_block.block = TextBlock(value='', type=BlockTypeChoices.TEXT)
+    version_block.editor_block_data = TextEditorBlockData(
+        text='',
+    )
     version_block.save()
 
     return version_block

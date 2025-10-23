@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from dandy.recorder import recorder_to_html_file
 from dandy import SqliteCache
-from dandy.cache.utils import generate_cache_key
+from dandy.cache.tools import generate_cache_key
 
 from django_spire.contrib.seeding.field.override import FieldOverride
 from django_spire.contrib.seeding.model.config import FieldsConfig

@@ -1,15 +1,25 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from django.db.models.functions import Coalesce
+from django.db.models import JSONField
 
 from django_spire.contrib.ordering.querysets import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
-
-if TYPE_CHECKING:
-    from django.db.models import QuerySet
-    from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
+from django.db.models import Value
 
 
 class EntryVersionBlockQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
-    def by_version_id(self, entry_version_id: int) -> QuerySet[EntryVersionBlock]:
-        return self.filter(version_id=entry_version_id)
+    def format_for_editor(self):
+        coalesce_json_field = lambda field_name: Coalesce(
+            field_name,
+            Value({}, output_field=JSONField())
+        )
+
+        return (
+            self.annotate(
+                data=coalesce_json_field('_block_data'),
+                tunes=coalesce_json_field('_tunes_data'),
+            )
+            .order_by('order')
+            .values('id', 'type', 'data', 'tunes')
+        )

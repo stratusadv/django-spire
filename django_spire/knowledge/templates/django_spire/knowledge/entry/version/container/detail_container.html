@@ -8,9 +8,28 @@
     <div class="container">
         <div class="row align-items-center">
             {% if AuthController.knowledge.can_change %}
-                <div class="col">
-                    {% url 'django_spire:knowledge:entry:version:form:update' pk=entry.current_version_id as entry_edit_url %}
-                    {% include 'django_spire/button/primary_button.html' with button_text='Edit' button_class='btn-md' button_href=entry_edit_url %}
+                <div
+                    class="col"
+                    x-data="{
+                        editor_is_readonly: !should_init_editor_in_edit_mode(),
+                        toggle_editor_readonly() {
+                            KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.toggle()
+                            this.editor_is_readonly = KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.isEnabled
+
+                            const view_mode = this.editor_is_readonly ? 'readonly' : 'edit'
+
+                            const url = new URL(window.location)
+                            url.searchParams.set('view_mode', view_mode)
+                            history.pushState(null, '', url);
+                        }
+                    }"
+                >
+                    <div class="btn shadow-sm btn-md btn-app-primary"
+                        @click="
+                            toggle_editor_readonly();
+                        ">
+                        <span x-text="editor_is_readonly ? 'Edit' : 'Save'"></span>
+                    </div>
                 </div>
             {% endif %}
             <div class="col">
@@ -27,15 +46,27 @@
 {% block container_content %}
     <div class="container">
         <div class="row px-3">
-            {% for version_block in version_blocks %}
-                <div class="col-12">
-                    {% include version_block.block.detail_template with value=version_block.block.value %}
-                </div>
-            {% empty %}
-                <div class="col-12">
-                    No information...
-                </div>
-            {% endfor %}
+            <script>
+                // Define editor instance outside of alpine js scope to avoid potential issues caused by reactivity
+                // and to allow above button to access
+                let KNOWLEDGE_ENTRY_VERSION_EDITOR;
+            </script>
+
+            {# The EditorJS will be attached to this div #}
+            <div
+                x-data="{
+                    editor_element_id: 'knowledge-entry-version-editor',
+                    init() {
+                        KNOWLEDGE_ENTRY_VERSION_EDITOR = create_editorjs_instance({
+                            holder_id: this.editor_element_id,
+                            update_url: '{% url "django_spire:knowledge:entry:version:json:update_blocks" pk=entry.id %}',
+                            initial_editor_blocks: {{ version_blocks }}
+                        })
+                    }
+                }"
+                :id="editor_element_id"
+            >
+            </div>
         </div>
     </div>
 {% endblock %}
