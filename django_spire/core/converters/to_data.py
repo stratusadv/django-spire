@@ -15,7 +15,7 @@ class DjangoFieldToFakerData:
             faker_method = (faker_method,)
         self.model_field = model_field
         self.faker_method = faker_method
-        self.faker = Faker()
+        self.faker = Faker('en_CA')
 
     @property
     def field_converters(self):

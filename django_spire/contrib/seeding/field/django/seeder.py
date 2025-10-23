@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from dandy import BaseIntel, Prompt
 
-from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
 from django_spire.contrib.seeding.field.base import BaseFieldSeeder
 from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
 from django_spire.contrib.seeding.intelligence.bots.field_seeding_bots import LlmFieldSeedingBot
+from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
 
 
 class DjangoFieldLlmSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.LLM
 
-    def seed(self, model_seeder, count: int = 1,) -> list[dict]:
+    def seed(self, model_seeder, count: int = 1) -> list[dict]:
 
         include_fields = list(self.seeder_fields.keys())
 
@@ -41,6 +41,30 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
         # Instantiate the bot once
         bot = LlmFieldSeedingBot()
+
+        batch_size = 15
+        intel_data = []
+        while len(intel_data) < count:
+            remaining_count = count - len(intel_data)
+            batch_count = min(remaining_count, batch_size)
+            exclusion_data = ""
+            if intel_data:
+                exclusion_data = f"Ensure new items are different from existing ones like: {self.get_current_intel(intel_data)}"
+            # Create a prompt for the full count since it's within a single batch
+            prompt = (
+                Prompt()
+                .heading('Seed Count')
+                .text(f'Generate {batch_count} diverse {model_seeder.model_class.__name__}.')
+                .text(f'Make each {model_seeder.model_class.__name__} unique and realistic.')
+                .text(exclusion_data)
+                .prompt(base_prompt)
+            )
+            new_intel_data = bot.process(
+                prompt=prompt,
+                intel_class=SeedingIntel
+            )
+            intel_data.extend(new_intel_data)
+        return intel_data[:count]
 
         if count <= 25:
             # Create a prompt for the full count since it's within a single batch
@@ -110,12 +134,14 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
         return field_prompt
 
+    def get_current_intel(self, items):
+        return ', '.join([f"{key}: {value}" for item in items for key, value in item.items()])
 
 
 class DjangoFieldFakerSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.FAKER
 
-    def seed(self, model_seeder, count = 1) -> list[dict]:
+    def seed(self, model_seeder, count=1) -> list[dict]:
         data = []
 
         for _ in range(count):
