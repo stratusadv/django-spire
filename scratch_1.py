@@ -1,52 +1,35 @@
-from django.core.wsgi import get_wsgi_application
 
-from django_spire.knowledge.entry.version.block.entities import TextEditorBlockData, \
-    EditorBlock, ListEditorBlockData
+import re
+from bs4 import BeautifulSoup
+
+import marko
+from django.core.wsgi import get_wsgi_application
+from markitdown.converters import HtmlConverter
 
 get_wsgi_application()
 
-test_list_data = {
-    'style': 'checklist',
-    'meta': {},
-    'items': [
-        {
-            'content': '',
-            'items': [
-                {'content': 'test', 'items': [], 'meta': {'checked': True}}
-            ],
-            'meta': {}
-        }
-    ]
-}
+from django_spire.knowledge.entry.version.converters.markdown_converter import \
+    MarkdownConverter
+from django_spire.knowledge.entry.version.models import EntryVersion
 
-list_editor_block_using_data_obj = EditorBlock(
-    type='list',
-    order=1,
-    data=test_list_data,
-    tunes={}
-)
+test_markdown_file = ''
 
-list_editor_block_data = ListEditorBlockData(**test_list_data)
+test_markdown = HtmlConverter().convert_string('<i><b>testtt</b></i>')
 
-list_editor_block_using_data_dict = EditorBlock(
-    type='list',
-    order=1,
-    data=list_editor_block_data,
-    tunes={}
-)
+test_html = marko.convert(test_markdown.markdown)
 
-test_text_data = {
-    'text': 'test'
-}
+soup = BeautifulSoup(test_html, 'html.parser')
 
-text_editor_block_data = TextEditorBlockData(**test_text_data)
+soup_el = soup.find().decode_contents()
 
-text_editor_block = EditorBlock(
-    type='text',
-    order=1,
-    data=test_text_data,
-    tunes={}
-)
+with open('test.md', 'r') as f:
+    markdown_content = f.read()
 
 
-print(text_editor_block)
+
+parsed_document = marko.parse(markdown_content)
+
+for child in parsed_document.children:
+    html_text = marko.render(child)
+
+blocks = MarkdownConverter(EntryVersion()).convert_markdown_to_blocks(markdown_content)

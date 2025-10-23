@@ -11,6 +11,10 @@ from django.core.files.storage import default_storage
 from marko.element import Element
 from marko.block import Heading, List, ListItem
 
+from django_spire.knowledge.entry.version.block.data.heading_data import \
+    HeadingEditorBlockData
+from django_spire.knowledge.entry.version.block.data.text_data import \
+    TextEditorBlockData
 from django_spire.knowledge.entry.version.converters.converter import \
     BaseConverter
 from django_spire.knowledge.entry.version.block import models
@@ -19,6 +23,11 @@ if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.models import EntryVersion
     from django_spire.file.models import File
     from marko.block import BlockElement
+
+
+marko_block_type_map = {
+    List,
+}
 
 
 class MarkdownConverter(BaseConverter):
@@ -97,29 +106,15 @@ class MarkdownConverter(BaseConverter):
             self,
             markdown_content: str
     ) -> list[models.EntryVersionBlock]:
-        syntax_tree = marko.parse(markdown_content)
+        parsed_markdown_document = marko.parse(markdown_content)
 
-        blocks = []
-        for marko_block in syntax_tree.children:
-            if isinstance(marko_block, List):
-                blocks.extend(
-                    self._convert_list_block(
-                        marko_block=marko_block,
-                        bullet=marko_block.bullet,
-                        indent_level=-1,
-                        ordered=marko_block.ordered,
-                    )
-                )
-            else:
-                blocks.append(
-                    self._marko_block_to_version_block(
-                        marko_block=marko_block,
-                        order=self._order,
-                    )
-                )
-                self._order += 1
-
-        return blocks
+        return [
+            self._marko_block_to_version_block(
+                marko_block=marko_block,
+                order=i,
+            )
+            for i, marko_block in enumerate(parsed_markdown_document.children)
+        ]
 
     @staticmethod
     def _get_marko_text_content(marko_block: BlockElement) -> str:
@@ -130,13 +125,29 @@ class MarkdownConverter(BaseConverter):
         text = re.sub(r'<[^>]+>', '', strikethrough_text)
         return html.unescape(text)
 
+    @staticmethod
+    def convert_html_text_to_markdown(html_text: str) -> str:
+        return marko.convert(html_text)
+
     def _marko_block_to_version_block(
             self,
             marko_block: BlockElement | Element,
             order: int
     ) -> models.EntryVersionBlock:
         if isinstance(marko_block, Heading):
+            editor_block_data = HeadingEditorBlockData(
+                text=self._get_marko_text_content(marko_block),
+                level=marko_block.level,
+            )
+
+        elif isinstance(marko_block, List):
             return self._convert_heading_block(marko_block=marko_block, order=order)
+
+        else:
+            editor_block_data = TextEditorBlockData(
+                text=self._get_marko_text_content(marko_block)
+            )
+
 
         return models.EntryVersionBlock.services.factory.create_null_block(
             entry_version=self.entry_version,
