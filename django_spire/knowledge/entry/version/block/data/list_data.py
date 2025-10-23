@@ -67,8 +67,12 @@ class ListItemEditorBlockData(BaseModel):
         indent_level: int,
         index: int
     ) -> str:
+        from django_spire.knowledge.entry.version.converters.markdown_converter import \
+            MarkdownConverter
+
         prefix = self.get_prefix(style, indent_level, index)
-        render_string = f'{prefix} {self.content}\n'
+        parsed_content = MarkdownConverter.html_to_markdown(self.content)
+        render_string = f'{prefix} {parsed_content}\n'
         for i, item in enumerate(self.items):
             render_string += item.render_to_text(style, indent_level + 1, i)
 

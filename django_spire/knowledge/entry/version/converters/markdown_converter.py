@@ -7,12 +7,16 @@ import marko
 
 from typing import TYPE_CHECKING
 
+from bs4 import BeautifulSoup
 from django.core.files.storage import default_storage
+from markitdown.converters import HtmlConverter
 from marko.element import Element
-from marko.block import Heading, List, ListItem
+from marko.block import Heading, List, ListItem, Paragraph
 
 from django_spire.knowledge.entry.version.block.data.heading_data import \
     HeadingEditorBlockData
+from django_spire.knowledge.entry.version.block.data.list_data import \
+    ListEditorBlockData, ListItemEditorBlockData
 from django_spire.knowledge.entry.version.block.data.text_data import \
     TextEditorBlockData
 from django_spire.knowledge.entry.version.converters.converter import \
@@ -31,6 +35,9 @@ class MarkdownConverter(BaseConverter):
     For more info on Marko:
     https://marko-py.readthedocs.io/en/latest/api.html#marko.block.BlockElement
     """
+
+    html_converter = HtmlConverter()
+
     def __init__(self, entry_version: EntryVersion):
         super().__init__(entry_version)
         self._order = 0
@@ -111,18 +118,84 @@ class MarkdownConverter(BaseConverter):
             for i, marko_block in enumerate(parsed_markdown_document.children)
         ]
 
-    @staticmethod
-    def _get_marko_text_content(marko_block: BlockElement) -> str:
-        html_text = marko.render(marko_block)
-        bolded_text = re.sub(r'<strong>(.*?)</strong>', r'**\1**', html_text)
-        italicized_text = re.sub(r'<em>(.*?)</em>', r'*\1*', bolded_text)
-        strikethrough_text = re.sub(r'<del>(.*?)</del>', r'~~*\1*~~', italicized_text)
-        text = re.sub(r'<[^>]+>', '', strikethrough_text)
-        return html.unescape(text)
+    @classmethod
+    def html_to_markdown(cls, html_content: str) -> str:
+        return cls.html_converter.convert_string(html_content).markdown
 
-    @staticmethod
-    def convert_html_text_to_markdown(html_text: str) -> str:
-        return marko.convert(html_text)
+    @classmethod
+    def _remove_outer_html_tags(
+            cls,
+            html_content: str,
+            tag_name: str | None = None,
+    ) -> str:
+        bs = BeautifulSoup(html_content, 'html.parser')
+
+        if tag_name:
+            # Only target specific tag given for removal
+            html_element = bs.find(tag_name)
+
+            if html_element:
+                html_content = html_element.decode_contents()
+        else:
+            # Remove any outer tag found
+            html_element = bs.find()
+
+            if html_element:
+                html_content = html_element.decode_contents()
+
+        return html_content
+
+    @classmethod
+    def _marko_list_item_block_to_editor_block_data(cls, item: ListItem):
+        pass
+
+    @classmethod
+    def _marko_block_to_editor_block_data(cls, marko_block: BlockElement | Element):
+        if isinstance(marko_block, Paragraph):
+            editor_block_text_string = cls._remove_outer_html_tags(marko.render(marko_block))
+            return TextEditorBlockData(text=editor_block_text_string)
+
+        if isinstance(marko_block, Heading):
+            return HeadingEditorBlockData(
+                text=cls._remove_outer_html_tags(marko.render(marko_block)),
+                level=marko_block.level,
+            )
+
+        if isinstance(marko_block, List):
+            list_items = [
+                cls._marko_block_to_editor_block_data(child)
+                for child in marko_block.children
+            ]
+
+            return ListEditorBlockData(
+                items=list_items,
+                style=marko_block.style,
+            )
+
+        if isinstance(marko_block, ListItem):
+            nested_list_items = []
+            for child in marko_block.children:
+                if isinstance(child, List):
+                    nested_list_items = cls._marko_block_to_editor_block_data(
+                        marko_block.children.pop(child)
+                    )
+                    break
+
+            # Marko wraps the text content in li when it renders a ListItem,
+            # so need to remove that, then remove any leftover tags (e.g. if the content
+            # in the li was a header
+            content = cls._remove_outer_html_tags(
+                cls._remove_outer_html_tags(marko.render(marko_block), 'li')
+            )
+
+            return ListItemEditorBlockData(
+                content=content,
+                items=nested_list_items,
+            )
+
+    @classmethod
+    def marko_block_to_markdown_string(cls, marko_block: BlockElement) -> str:
+        return cls.html_to_markdown(marko.render(marko_block))
 
     def _marko_block_to_version_block(
             self,
@@ -131,7 +204,7 @@ class MarkdownConverter(BaseConverter):
     ) -> models.EntryVersionBlock:
         if isinstance(marko_block, Heading):
             editor_block_data = HeadingEditorBlockData(
-                text=self._get_marko_text_content(marko_block),
+                text=self._marko_block_to_markdown_string(marko_block),
                 level=marko_block.level,
             )
 
@@ -140,7 +213,7 @@ class MarkdownConverter(BaseConverter):
 
         else:
             editor_block_data = TextEditorBlockData(
-                text=self._get_marko_text_content(marko_block)
+                text=self.marko_block_to_markdown_string(marko_block)
             )
 
 
