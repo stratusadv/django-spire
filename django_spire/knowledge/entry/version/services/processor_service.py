@@ -26,9 +26,8 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
         old_entry_blocks = self.obj.blocks.active()
 
         incoming_entry_blocks = [
-            EntryVersionBlock.services.save_model_obj(
+            EntryVersionBlock.services.factory.create_validated_block(
                 entry_version=self.obj,
-                commit=False,
                 **block_data,
             )
             for block_data in raw_block_data
