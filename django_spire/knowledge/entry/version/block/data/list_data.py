@@ -11,7 +11,7 @@ from django_spire.knowledge.entry.version.block.data.data import BaseEditorBlock
 
 class ListEditorBlockData(BaseEditorBlockData):
     style: ListEditorBlockDataStyle | str
-    meta: ChecklistItemMeta | OrderedListItemMeta | None
+    meta: ChecklistItemMeta | OrderedListItemMeta | None = None
     items: list[ListItemEditorBlockData]
 
     def render_to_text(self) -> str:
@@ -37,7 +37,7 @@ class ListEditorBlockData(BaseEditorBlockData):
 
 class ListItemEditorBlockData(BaseModel):
     content: str
-    meta: ChecklistItemMeta | OrderedListItemMeta | dict | None
+    meta: ChecklistItemMeta | OrderedListItemMeta | dict | None = None
     items: Optional[list[ListItemEditorBlockData]] = []
 
     def get_prefix(

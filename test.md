@@ -5,7 +5,7 @@
   - test
   - test
 
-1. ### Heading
+2. Heading
 2. Configure settings
 3. Run migrations
 4. Start the server
