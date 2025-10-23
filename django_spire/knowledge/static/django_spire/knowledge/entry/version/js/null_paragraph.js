@@ -1,9 +1,7 @@
 class NullParagraph {
     static isReadOnlySupported = true;
 
-    constructor({data, api, config, readOnly, block}){
-    // ... use or store arguments as you want
-    }
+    constructor({data, api, config, readOnly, block}){}
 
     render()
     {

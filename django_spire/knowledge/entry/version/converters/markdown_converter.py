@@ -25,11 +25,6 @@ if TYPE_CHECKING:
     from marko.block import BlockElement
 
 
-marko_block_type_map = {
-    List,
-}
-
-
 class MarkdownConverter(BaseConverter):
     """Converts Markdown content to a list of EntryVersionBlocks using Marko.
 
@@ -55,7 +50,7 @@ class MarkdownConverter(BaseConverter):
             else models.BlockTypeChoices.SUB_HEADING
         )
 
-        return models.EntryVersionBlock.services.factory.create_null_block(
+        return models.EntryVersionBlock.services.factory.create_validated_block(
             entry_version=self.entry_version,
             block_type=heading_type,
             order=order,
@@ -70,7 +65,7 @@ class MarkdownConverter(BaseConverter):
             ordered: bool,
     ) -> list[models.EntryVersionBlock]:
         if isinstance(marko_block.children, str):
-            list_item_block = models.EntryVersionBlock.services.factory.create_null_block(
+            list_item_block = models.EntryVersionBlock.services.factory.create_validated_block(
                 entry_version=self.entry_version,
                 block_type=models.BlockTypeChoices.LIST_ITEM,
                 order=self._order,
@@ -149,7 +144,7 @@ class MarkdownConverter(BaseConverter):
             )
 
 
-        return models.EntryVersionBlock.services.factory.create_null_block(
+        return models.EntryVersionBlock.services.factory.create_validated_block(
             entry_version=self.entry_version,
             block_type=models.BlockTypeChoices.TEXT,
             order=order,
