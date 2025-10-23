@@ -4,6 +4,7 @@ from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
 
+from django_spire.knowledge.entry.version.block.data.maps import EDITOR_BLOCK_DATA_MAP
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
 if TYPE_CHECKING:
@@ -30,23 +31,20 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
             converter.convert_file_to_blocks(file=file)
         )
 
-    def create_null_block(
+    def create_validated_block(
             self,
             entry_version: EntryVersion,
             block_type: BlockTypeChoices,
-            order: int,
-            value: str,
-            **kwargs,
+            block_data: dict,
+            block_order: int,
+            block_tunes: dict = {}
     ):
-        self.obj = self.obj_class(
-            version=entry_version,
-            type=block_type,
-            order=order
-        )
-        block = ENTRY_BLOCK_MAP[block_type](
-            type=block_type,
-            value=value,
-            **kwargs
-        )
-        self.obj.editor_block_data = block
-        return self.obj
+        self.obj.version = entry_version
+        self.obj.type = block_type
+        self.obj.order = block_order
+        self.obj.tunes = block_tunes
+        self.obj.editor_block_data = EDITOR_BLOCK_DATA_MAP[block_type](**block_data)
+
+        self.obj.clean()
+
+        return self.obj,
