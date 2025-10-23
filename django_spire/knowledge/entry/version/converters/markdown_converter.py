@@ -188,6 +188,17 @@ class MarkdownConverter(BaseConverter):
                 cls._remove_outer_html_tags(marko.render(marko_block), 'li')
             )
 
+            meta = {}
+
+            # Check if content starts with "[ ]" or "[x]"
+            has_empty_checkbox = re.match(r'\[ ?\]\s*', content)
+
+            if has_empty_checkbox:
+                re.sub(r'\[ ?\]\s*', '', content)
+
+
+            has_checked_checkbox = re.match(r'\[x\]\s*', content)
+
             return ListItemEditorBlockData(
                 content=content,
                 items=nested_list_items,
