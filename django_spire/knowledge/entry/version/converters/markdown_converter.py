@@ -46,7 +46,7 @@ class MarkdownConverter(BaseConverter):
             else models.BlockTypeChoices.SUB_HEADING
         )
 
-        return models.EntryVersionBlock.services.factory.create_null_block(
+        return models.EntryVersionBlock.services.factory.create_validated_block(
             entry_version=self.entry_version,
             block_type=heading_type,
             order=order,
@@ -61,7 +61,7 @@ class MarkdownConverter(BaseConverter):
             ordered: bool,
     ) -> list[models.EntryVersionBlock]:
         if isinstance(marko_block.children, str):
-            list_item_block = models.EntryVersionBlock.services.factory.create_null_block(
+            list_item_block = models.EntryVersionBlock.services.factory.create_validated_block(
                 entry_version=self.entry_version,
                 block_type=models.BlockTypeChoices.LIST_ITEM,
                 order=self._order,
@@ -138,7 +138,7 @@ class MarkdownConverter(BaseConverter):
         if isinstance(marko_block, Heading):
             return self._convert_heading_block(marko_block=marko_block, order=order)
 
-        return models.EntryVersionBlock.services.factory.create_null_block(
+        return models.EntryVersionBlock.services.factory.create_validated_block(
             entry_version=self.entry_version,
             block_type=models.BlockTypeChoices.TEXT,
             order=order,

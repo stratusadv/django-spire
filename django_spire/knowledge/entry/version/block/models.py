@@ -30,6 +30,10 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
 
     _block_data = models.JSONField()
     _text_data = models.TextField()
+
+    # contains data related to EditorJS tunes,
+    # which are additional modifications to blocks (e.g. footnotes, etc.)
+    # https://editorjs.io/block-tunes-api/
     _tunes_data = models.JSONField(null=True, blank=True)
 
     objects = EntryVersionBlockQuerySet.as_manager()
