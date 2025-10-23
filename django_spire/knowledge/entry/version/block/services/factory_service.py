@@ -47,4 +47,4 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
 
         self.obj.clean()
 
-        return self.obj,
+        return self.obj
