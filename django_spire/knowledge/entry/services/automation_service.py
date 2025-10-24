@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import traceback
 from typing import TYPE_CHECKING
 
 import json
@@ -34,15 +35,17 @@ class EntryAutomationService(BaseDjangoModelService['Entry']):
                     entry_version=entry_pk_map[file_object.object_id].current_version,
                 )
             except Exception as e:
-                errored.append({'file': file_object.name, 'error': str(e)})
+                errored.append({'file': file_object.name, 'error': traceback.format_exc()})
                 file_object.set_deleted()
             else:
                 file_object.set_deleted()
 
         message = f'Files Converted: {len(file_objects) - len(errored)}'
         if errored:
-            raise KnowledgeBaseConversionException(
-                f'\n{message}\nFiles Errored: {json.dumps(errored, indent=4)}'
-            )
+            error_string = f'\n{message}\nFiles Errored:'
+            for error in errored:
+                error_string += f'    File Name: {error["file"]}\n    Error: {error["error"]}'
+
+            raise KnowledgeBaseConversionException(error_string)
 
         return message

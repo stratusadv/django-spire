@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 import re
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import marko
@@ -11,6 +13,7 @@ from marko.block import Heading, List, ListItem, Paragraph, BlankLine
 from marko.element import Element
 
 from django_spire.knowledge.entry.version.block import models
+from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
 from django_spire.knowledge.entry.version.block.data.list.choices import \
     ListEditorBlockDataStyle
 from django_spire.knowledge.entry.version.converters.converter import \
@@ -22,12 +25,15 @@ if TYPE_CHECKING:
     from marko.block import BlockElement
 
 
-MARKO_BLOCK_TYPE_TO_BLOCK_CHOICES = {
-    Paragraph: models.BlockTypeChoices.TEXT,
-    BlankLine: models.BlockTypeChoices.TEXT,
-    Heading: models.BlockTypeChoices.HEADING,
-    List: models.BlockTypeChoices.LIST,
-}
+MARKO_BLOCK_TYPE_TO_BLOCK_CHOICES = defaultdict(
+    lambda:BlockTypeChoices.TEXT,
+    {
+        Paragraph: models.BlockTypeChoices.TEXT,
+        BlankLine: models.BlockTypeChoices.TEXT,
+        Heading: models.BlockTypeChoices.HEADING,
+        List: models.BlockTypeChoices.LIST,
+    }
+)
 
 
 class MarkdownConverter(BaseConverter):
@@ -176,17 +182,17 @@ class MarkdownConverter(BaseConverter):
         if isinstance(marko_block, BlankLine):
             return { 'text': '' }
 
-        if isinstance(marko_block, Paragraph):
+        elif isinstance(marko_block, Paragraph):
             editor_block_text_string = cls._remove_outer_html_tags(marko.render(marko_block))
             return { 'text': editor_block_text_string }
 
-        if isinstance(marko_block, Heading):
+        elif isinstance(marko_block, Heading):
             return {
                 'text': cls._remove_outer_html_tags(marko.render(marko_block)),
                 'level': marko_block.level,
             }
 
-        if isinstance(marko_block, List):
+        elif isinstance(marko_block, List):
             list_editor_block_data_dict = {
                 'items': [],
                 'style': ListEditorBlockDataStyle.UNORDERED,
@@ -202,7 +208,13 @@ class MarkdownConverter(BaseConverter):
 
             return list_editor_block_data_dict
 
-        raise ValueError(f'Unsupported marko block type: {marko_block.__class__.__name__!r}')
+        else:
+            logging.warning(
+                f'Unsupported marko block type: {marko_block.__class__.__name__!r}. '
+                f'Rendering content to html and adding to markdown as a basic paragraph block.'
+            )
+            return { 'text': marko.render(marko_block) }
+
 
     @classmethod
     def marko_block_to_markdown_string(cls, marko_block: BlockElement) -> str:
