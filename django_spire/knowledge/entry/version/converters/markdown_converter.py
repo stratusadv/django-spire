@@ -173,7 +173,7 @@ class MarkdownConverter(BaseConverter):
                 # The presence of checklist items takes priority over an ordered list style
                 list_editor_block_data_style = ListEditorBlockDataStyle.CHECKLIST
             elif parent_marko_list_block.ordered:
-                    list_editor_block_data_style = ListEditorBlockDataStyle.ORDERED
+                list_editor_block_data_style = ListEditorBlockDataStyle.ORDERED
 
         return list_item_editor_block_data_kwargs, list_editor_block_data_style
 

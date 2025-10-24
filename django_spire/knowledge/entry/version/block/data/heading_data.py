@@ -12,4 +12,4 @@ class HeadingEditorBlockData(BaseEditorBlockData):
             MarkdownConverter
 
         text = MarkdownConverter.html_to_markdown(self.text)
-        return f'{"#" * self.level} {self.text}\n'
+        return f'{"#" * self.level} {text}\n'
