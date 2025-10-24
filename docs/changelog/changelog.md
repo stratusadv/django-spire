@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.17.11
+
+### Fixes
+- Update `Dandy` requirement to v1.2.1
 
 ## v0.17.10
 
