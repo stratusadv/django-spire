@@ -11,7 +11,7 @@ from marko.block import Heading, List, ListItem, Paragraph, BlankLine
 from marko.element import Element
 
 from django_spire.knowledge.entry.version.block import models
-from django_spire.knowledge.entry.version.block.data.list_data import \
+from django_spire.knowledge.entry.version.block.data.list.choices import \
     ListEditorBlockDataStyle
 from django_spire.knowledge.entry.version.converters.converter import \
     BaseConverter
