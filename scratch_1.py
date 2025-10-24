@@ -1,52 +1,38 @@
 from django.core.wsgi import get_wsgi_application
-
-from django_spire.knowledge.entry.version.block.entities import TextEditorBlockData, \
-    EditorBlock, ListEditorBlockData
+from markitdown.converters import DocxConverter, HtmlConverter
+from markitdown.converter_utils.docx.pre_process import pre_process_docx
+import mammoth.transforms
+from mammoth import documents
 
 get_wsgi_application()
 
-test_list_data = {
-    'style': 'checklist',
-    'meta': {},
-    'items': [
-        {
-            'content': '',
-            'items': [
-                {'content': 'test', 'items': [], 'meta': {'checked': True}}
-            ],
-            'meta': {}
-        }
-    ]
-}
+def transform_paragraph(element):
+    new_element = None
 
-list_editor_block_using_data_obj = EditorBlock(
-    type='list',
-    order=1,
-    data=test_list_data,
-    tunes={}
-)
+    if element.children and not element.style_id:
+        for child in element.children:
+            if isinstance(child, documents.Run) and isinstance(child.font_size, float):
+                if child.font_size >= 20:
+                    new_element = element.copy(style_id="Heading1")
+                elif 16 > child.font_size > 20:
+                    new_element = element.copy(style_id="Heading2")
 
-list_editor_block_data = ListEditorBlockData(**test_list_data)
-
-list_editor_block_using_data_dict = EditorBlock(
-    type='list',
-    order=1,
-    data=list_editor_block_data,
-    tunes={}
-)
-
-test_text_data = {
-    'text': 'test'
-}
-
-text_editor_block_data = TextEditorBlockData(**test_text_data)
-
-text_editor_block = EditorBlock(
-    type='text',
-    order=1,
-    data=test_text_data,
-    tunes={}
-)
+    return new_element or element
 
 
-print(text_editor_block)
+transform_document = mammoth.transforms.paragraph(transform_paragraph)
+
+with open("DOCX_TestPage.docx", "rb") as docx_file:
+    preprocessed_docx_stream = pre_process_docx(docx_file)
+
+html_content = mammoth.convert_to_html(
+    preprocessed_docx_stream,
+    transform_document=transform_document
+).value
+
+markdown_content = HtmlConverter().convert_string(html_content).markdown
+
+with open("test_output_new.md", "w", encoding='utf-8') as md_file:
+    md_file.write(markdown_content)
+
+

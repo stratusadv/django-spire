@@ -1,27 +1,20 @@
 from __future__ import annotations
 
-import html
 import re
+from typing import TYPE_CHECKING
 
 import marko
-
-from typing import TYPE_CHECKING, Generator
-
 from bs4 import BeautifulSoup
 from django.core.files.storage import default_storage
 from markitdown.converters import HtmlConverter
-from marko.element import Element
 from marko.block import Heading, List, ListItem, Paragraph, BlankLine
+from marko.element import Element
 
-from django_spire.knowledge.entry.version.block.data.heading_data import \
-    HeadingEditorBlockData
+from django_spire.knowledge.entry.version.block import models
 from django_spire.knowledge.entry.version.block.data.list_data import \
-    ListEditorBlockData, ListItemEditorBlockData, ListEditorBlockDataStyle
-from django_spire.knowledge.entry.version.block.data.text_data import \
-    TextEditorBlockData
+    ListEditorBlockDataStyle
 from django_spire.knowledge.entry.version.converters.converter import \
     BaseConverter
-from django_spire.knowledge.entry.version.block import models
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.version.models import EntryVersion
