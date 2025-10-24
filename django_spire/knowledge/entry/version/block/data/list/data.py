@@ -14,7 +14,7 @@ from django_spire.knowledge.entry.version.block.data.list.choices import \
 
 class ListEditorBlockData(BaseEditorBlockData):
     style: ListEditorBlockDataStyle | str
-    meta: ChecklistItemMeta | OrderedListItemMeta | None
+    meta: ChecklistItemMeta | OrderedListItemMeta | None = None
     items: list[ListItemEditorBlockData]
 
     def render_to_text(self) -> str:
@@ -40,7 +40,7 @@ class ListEditorBlockData(BaseEditorBlockData):
 
 class ListItemEditorBlockData(BaseModel):
     content: str
-    meta: ChecklistItemMeta | OrderedListItemMeta | dict | None
+    meta: ChecklistItemMeta | OrderedListItemMeta | dict | None = None
     items: Optional[list[ListItemEditorBlockData]] = []
 
     def get_prefix(
@@ -70,15 +70,23 @@ class ListItemEditorBlockData(BaseModel):
         indent_level: int,
         index: int
     ) -> str:
+        from django_spire.knowledge.entry.version.converters.markdown_converter import \
+            MarkdownConverter
+
         prefix = self.get_prefix(style, indent_level, index)
-        render_string = f'{prefix} {self.content}\n'
+        parsed_content = MarkdownConverter.html_to_markdown(self.content)
+        render_string = f'{prefix} {parsed_content}\n'
         for i, item in enumerate(self.items):
             render_string += item.render_to_text(style, indent_level + 1, i)
 
         return render_string
 
     @classmethod
-    def style_aware_create_from_dict(cls, values: dict, style: ListEditorBlockDataStyle) -> ListItemEditorBlockData:
+    def style_aware_create_from_dict(
+        cls,
+        values: dict,
+        style: ListEditorBlockDataStyle
+    ) -> ListItemEditorBlockData:
         from django_spire.knowledge.entry.version.block.data.list.maps import \
             LIST_BLOCK_DATA_META_MAP
 

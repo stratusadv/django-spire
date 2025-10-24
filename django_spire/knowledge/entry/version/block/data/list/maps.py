@@ -1,21 +1,14 @@
 from __future__ import annotations
 
-from django_spire.knowledge.entry.version.block.data.list.choices import (
-    ListEditorBlockDataStyle,
-)
-from django_spire.knowledge.entry.version.block.data.list.meta import (
-    ChecklistItemMeta,
-    OrderedListItemMeta,
-)
-
+from django_spire.knowledge.entry.version.block.data.list import choices, meta
 
 LIST_BLOCK_DATA_META_MAP = {
-    ListEditorBlockDataStyle.ORDERED: OrderedListItemMeta,
-    ListEditorBlockDataStyle.CHECKLIST: ChecklistItemMeta,
-    ListEditorBlockDataStyle.UNORDERED: None,
+    choices.ListEditorBlockDataStyle.ORDERED: meta.OrderedListItemMeta,
+    choices.ListEditorBlockDataStyle.CHECKLIST: meta.ChecklistItemMeta,
+    choices.ListEditorBlockDataStyle.UNORDERED: None,
 }
 LIST_BLOCK_DATA_REVERSE_META_MAP = {
-    OrderedListItemMeta: ListEditorBlockDataStyle.ORDERED,
-    ChecklistItemMeta: ListEditorBlockDataStyle.CHECKLIST,
-    None: ListEditorBlockDataStyle.UNORDERED,
+    meta.OrderedListItemMeta: choices.ListEditorBlockDataStyle.ORDERED,
+    meta.ChecklistItemMeta: choices.ListEditorBlockDataStyle.CHECKLIST,
+    None: choices.ListEditorBlockDataStyle.UNORDERED,
 }

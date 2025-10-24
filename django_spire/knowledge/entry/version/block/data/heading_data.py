@@ -8,4 +8,8 @@ class HeadingEditorBlockData(BaseEditorBlockData):
     level: int
 
     def render_to_text(self) -> str:
-        return f'{"#" * self.level} {self.text}\n'
+        from django_spire.knowledge.entry.version.converters.markdown_converter import \
+            MarkdownConverter
+
+        text = MarkdownConverter.html_to_markdown(self.text)
+        return f'{"#" * self.level} {text}\n'

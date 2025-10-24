@@ -3,7 +3,6 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
         holder: holder_id,
         readOnly: !should_init_editor_in_edit_mode(),
         tools: {
-            paragraph: NullParagraph,
             text: {
                 class: Paragraph,
                 inlineToolbar: true,
@@ -26,7 +25,8 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
                 config: {
                     defaultStyle: 'unordered'
                 },
-            }
+            },
+            paragraph: NullParagraph
         },
         defaultBlock: 'text',
         onChange: async (api, _) => {
