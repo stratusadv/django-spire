@@ -22,7 +22,7 @@ class BaseModelSeeder(ABC):
     fields = None
     field_config_class = FieldsConfig
 
-    default_to = "llm"
+    default_to = 'llm'
 
     cache_seed = True
     cache_name = 'model_seeder'
@@ -40,16 +40,15 @@ class BaseModelSeeder(ABC):
     @classmethod
     def get_field_config(cls) -> FieldsConfig:
         if cls._field_config is None:
-
             if cls.model_class is None:
-                raise ValueError("model_class must be defined before using seeder.")
+                raise ValueError('model_class must be defined before using seeder.')
 
-            raw_fields = cls.__dict__.get("fields", {})
+            raw_fields = cls.__dict__.get('fields', {})
             cls._field_config = cls.field_config_class(
                 raw_fields=raw_fields,
                 field_names=cls.field_names(),
                 default_to=cls.default_to,
-                model_class=cls.model_class
+                model_class=cls.model_class,
             )
         return cls._field_config
 
@@ -69,18 +68,19 @@ class BaseModelSeeder(ABC):
     @classmethod
     @recorder_to_html_file('model_seeder')
     def seed_data(
-            cls,
-            count=1,
-            fields: dict | None = None,
+        cls,
+        count=1,
+        fields: dict | None = None,
     ) -> list[dict]:
-
-        field_config = cls.get_field_config().override(fields) if fields else cls.get_field_config()
+        field_config = (
+            cls.get_field_config().override(fields)
+            if fields
+            else cls.get_field_config()
+        )
 
         if cls.cache_seed:
             cache_key = generate_cache_key(
-                cls.seed_data,
-                count=count,
-                fields=field_config.fields
+                cls.seed_data, count=count, fields=field_config.fields
             )
 
             cache = SqliteCache(cache_name=cls.cache_name, limit=cls.cache_limit)
@@ -97,7 +97,9 @@ class BaseModelSeeder(ABC):
             if len(seeder.seeder_fields) > 0:
                 seed_data.append(seeder.seed(cls, count))
 
-        formatted_seed_data = [{} for _ in range(max(len(sublist) for sublist in seed_data))]
+        formatted_seed_data = [
+            {} for _ in range(max(len(sublist) for sublist in seed_data))
+        ]
         for sublist in seed_data:
             for i, d in enumerate(sublist):
                 formatted_seed_data[i].update(d)
@@ -109,11 +111,10 @@ class BaseModelSeeder(ABC):
 
     @classmethod
     def seed(
-            cls,
-            count: int = 1,
-            fields: dict | None = None,
+        cls,
+        count: int = 1,
+        fields: dict | None = None,
     ) -> list:
         return [
-            cls.model_class(**seed_data)
-            for seed_data in cls.seed_data(count, fields)
+            cls.model_class(**seed_data) for seed_data in cls.seed_data(count, fields)
         ]
