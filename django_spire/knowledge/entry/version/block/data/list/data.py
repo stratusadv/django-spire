@@ -6,10 +6,10 @@ from pydantic import model_validator, BaseModel
 
 from django_spire.knowledge.entry.version.block.constants import SPACES_PER_INDENT
 from django_spire.knowledge.entry.version.block.data.data import BaseEditorBlockData
+from django_spire.knowledge.entry.version.block.data.list.meta import ChecklistItemMeta, \
+    OrderedListItemMeta
 from django_spire.knowledge.entry.version.block.data.list.choices import \
     ListEditorBlockDataStyle
-from django_spire.knowledge.entry.version.block.data.list.meta import \
-    OrderedListItemMeta, ChecklistItemMeta
 
 
 class ListEditorBlockData(BaseEditorBlockData):
