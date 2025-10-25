@@ -12,11 +12,10 @@ from django_spire.knowledge.entry.version.tests.factories import \
 
 def create_test_block_form_data(**kwargs) -> dict:
     data = {
-        'id': 0,
-        'order': 0,
-        'type': BlockTypeChoices.TEXT,
-        'data': {'text': 'test text'},
-        'tunes': {}
+        'block_order': 0,
+        'block_type': BlockTypeChoices.TEXT,
+        'block_data': {'text': 'test text'},
+        'block_tunes': {}
     }
 
     data.update(kwargs)
