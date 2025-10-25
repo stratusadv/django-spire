@@ -1,15 +1,35 @@
 # Changelog
 
-## v0.17.##
+## v0.18.##
 
 ### Features
 
 - Added a button to the profile in the top navigation that allows super users to quickly get to the theme dashboard.
 - The theme app is much more complete and shows all theming on layer 1 and 2 for better design.
+- Created primary dark outlined button.
 
 ### Fixes
 
 - Fixed css for `text-app-success` and all variants.
+- Primary button outlined fixed from dark primary colouring to primary.
+
+
+## v0.18.0
+
+### Features
+- Knowledge Base editor refactored to EditorJS.
+  - Full ordered and unordered list support.
+  - Link support.
+  - Checkbox support.
+  - Text styling support.
+  - H1-H6 Heading support.
+  - Paragraph support.
+  - Editor UI / UX improvements.
+
+### Changes
+- Knowledge Base file conversion refactored to support EditorJS refactor.
+  - Paragraph, heading, lists, and checkbox support 
+
 
 ## v0.17.11
 
