@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.18.0
+
+### Features
+- Knowledge Base editor refactored to EditorJS.
+  - Full ordered and unordered list support.
+  - Link support.
+  - Checkbox support.
+  - Text styling support.
+  - H1-H6 Heading support.
+  - Paragraph support.
+  - Editor UI / UX improvements.
+
+### Changes
+- Knowledge Base file conversion refactored to support EditorJS refactor.
+  - Paragraph, heading, lists, and checkbox support 
+
+
 ## v0.17.11
 
 ### Fixes
