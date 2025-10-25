@@ -1,5 +1,12 @@
 # Changelog
 
+
+## v0.18.1
+
+### Fixes
+- Add missing migration file for Knowledge Base.
+
+
 ## v0.18.0
 
 ### Features
