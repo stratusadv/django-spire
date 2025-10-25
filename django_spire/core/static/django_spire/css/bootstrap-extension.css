@@ -7,11 +7,6 @@
     src: url('../font/Poppins-Regular.ttf') format('truetype');
 }
 
-a {
-    color: var(--app-a-primary) !important;
-    text-decoration: none;
-}
-
 body {
     font-family: 'Poppins-Regular', sans-serif !important;
     font-weight: 500 !important;
