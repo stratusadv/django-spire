@@ -1,5 +1,6 @@
 # Changelog
 
+
 ## v0.18.##
 
 ### Features
@@ -12,6 +13,13 @@
 
 - Fixed css for `text-app-success` and all variants.
 - Primary button outlined fixed from dark primary colouring to primary.
+
+
+
+## v0.18.1
+
+### Fixes
+- Add missing migration file for Knowledge Base.
 
 
 ## v0.18.0
