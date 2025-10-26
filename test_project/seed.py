@@ -21,3 +21,6 @@ from test_project.apps.queryset_filtering.seeding.seed import *
 
 print('Seeding Knowledge Data...')
 from django_spire.knowledge.seeding.seed import *
+
+print('Seeding AI Context Data...')
+from django_spire.ai.context.seeding.seed import *

@@ -18,49 +18,45 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-class ChatWorkflow:
-    @staticmethod
-    @recorder_to_html_file('chat_workflow')
-    def process(
-        request: WSGIRequest,
-        user_input: str,
-        message_history: MessageHistory | None = None
-    ) -> BaseMessageIntel:
-        decoder = IntentDecoder()
+@recorder_to_html_file('chat_workflow')
+def chat_workflow(
+    request: WSGIRequest,
+    user_input: str,
+    message_history: MessageHistory | None = None
+) -> BaseMessageIntel:
+    decoder = IntentDecoder(mapping = {
+        'The user wants to talk about a clown or clowns.': 'clowns',
+        'The user wants to talk about a pirate or pirates.': 'pirates',
+        'The user does not want to talk about clowns or pirates': 'default',
+    })
 
-        decoder.mapping = {
-            'The user wants to talk about a clown or clowns.': 'clowns',
-            'The user wants to talk about a pirate or pirates.': 'pirates',
-            'The user does not want to talk about clowns or pirates': 'default',
-        }
+    intents = decoder.process(
+        user_input,
+        max_return_values=1
+    )
 
-        intents = decoder.process(
-            user_input,
-            max_return_values=1
+    bot = Bot()
+
+    if intents[0] == 'clowns':
+        response = bot.llm.prompt_to_intel(
+            prompt=user_input,
+            intel_class=ClownFlyingDistanceMessageIntel,
+            message_history=message_history,
         )
 
-        bot = Bot()
+    elif intents[0] == 'pirates':
+        response = bot.llm.prompt_to_intel(
+            prompt=user_input,
+            intel_class=PirateMessageIntel,
+            message_history=message_history,
+        )
 
-        if intents[0] == 'clowns':
-            response = bot.llm.prompt_to_intel(
-                prompt=user_input,
-                intel_class=ClownFlyingDistanceMessageIntel,
-                message_history=message_history,
-            )
+    else:
+        response = bot.llm.prompt_to_intel(
+            prompt=user_input,
+            intel_class=DefaultMessageIntel,
+            message_history=message_history,
+            postfix_system_prompt=organization_prompt()
+        )
 
-        elif intents[0] == 'pirates':
-            response = bot.llm.prompt_to_intel(
-                prompt=user_input,
-                intel_class=PirateMessageIntel,
-                message_history=message_history,
-            )
-
-        else:
-            response = bot.llm.prompt_to_intel(
-                prompt=user_input,
-                intel_class=DefaultMessageIntel,
-                message_history=message_history,
-                postfix_system_prompt=organization_prompt()
-            )
-
-        return response
+    return response

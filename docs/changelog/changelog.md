@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.##.##
+
+### Feature
+
+- New app `django_spire.ai.context` has been added to create organizational context for the all AI features.
+
+### Breaking
+
+- `settings.AI_CHAT_WORKFLOW_NAME` changed to `settings.AI_PERSONA_NAME`
+- `settings.AI_CHAT_WORKFLOW_CLASS` changed to `settings.AI_CHAT_DEFAULT_CALLABLE`
+- `settings.AI_SMS_CONVERSATION_WORKFLOW_CLASS` changed to `settings.AI_SMS_CONVERSATION_DEFAULT_CALLABLE`
+- `settings.ORGANIZATION_NAME` has been removed, refer to `django_spire.ai.context`
+- `settings.ORGANIZATION_DESCRIPTION` has been removed, refer to `django_spire.ai.context`
+
+### Changes
+
+- `settings.AI_CHAT_DEFAULT_CALLABLE` is no longer mandatory.
+- `settings.AI_SMS_CONVERSATION_DEFAULT_CALLABLE` is no longer mandatory.
+
 ## v0.17.11
 
 ### Fixes

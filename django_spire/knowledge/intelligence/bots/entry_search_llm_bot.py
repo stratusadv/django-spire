@@ -20,4 +20,4 @@ class EntrySearchLlmBot(Bot):
         return cls().llm.prompt_to_intel(
             prompt=entry_prompt,
             intel_class=DefaultIntel
-        ).content
+        ).text
