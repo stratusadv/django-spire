@@ -11,6 +11,7 @@ from django_spire.history.mixins import HistoryModelMixin
 class Organization(HistoryModelMixin):
     name = models.CharField(max_length=255)
     legal_name = models.CharField(max_length=255)
+    description = models.TextField()
     sector = models.CharField(max_length=255)
     sub_sector = models.CharField(max_length=255)
     website = models.URLField(max_length=255)
@@ -46,6 +47,7 @@ class People(HistoryModelMixin):
         related_query_name='ai_context_people'
     )
     role = models.CharField(max_length=16, choices=PeopleRoleChoices, default=PeopleRoleChoices.ADMIN)
+    role_details = models.TextField()
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=255)
