@@ -1,12 +1,10 @@
-{% extends 'django_spire/page/full_page.html' %}
+{% extends 'django_spire/theme/page/theme_page.html' %}
 
-{% block full_page_content %}
-    <div class="container">
-        <div class="mb-4">
-            {% url 'django_spire:theme:page:dashboard' as dashboard_url %}
-            {% include 'django_spire/button/primary_outlined_button.html' with button_text="Back to Dashboard" button_icon="bi bi-arrow-left" button_href=dashboard_url %}
-        </div>
-
-        {% include 'django_spire/theme/section/badge_section.html' %}
-    </div>
+{% block theme_content %}
+    {% include 'django_spire/theme/section/badge_section.html' %}
 {% endblock %}
+
+{% block theme_on_card_content %}
+    {% include 'django_spire/theme/section/badge_section_card.html' %}
+{% endblock %}
+

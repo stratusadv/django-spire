@@ -12,7 +12,7 @@
     --app-text-accent-dark: var(--app-accent-dark);
 
     --app-text-success: var(--app-success);
-    --app-text-success-outlined: var(--app-success-soft);
+    --app-text-success-soft: var(--app-success-soft);
     --app-text-success-dark: var(--app-success-dark);
 
     --app-text-warning: var(--app-warning);
@@ -96,6 +96,18 @@
 
 .text-app-accent-dark, .text-app-accent-dark-hover:hover {
     color: var(--app-text-accent-dark) !important;
+}
+
+.text-app-success, .text-app-success-hover:hover {
+    color: var(--app-text-success) !important;
+}
+
+.text-app-success-soft, .text-app-success-soft-hover:hover {
+    color: var(--app-text-success-soft) !important;
+}
+
+.text-app-success-dark, .text-app-success-dark-hover:hover {
+    color: var(--app-text-success-dark) !important;
 }
 
 .text-app-warning, .text-app-warning-hover:hover {

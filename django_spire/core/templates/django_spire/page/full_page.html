@@ -10,7 +10,7 @@
 
         <div class="d-flex flex-column container-fluid">
             <div class="row sticky-top">
-                <div class="col-12 sticky-top">
+                <div class="col-12">
                     {% block full_page_top_navigation %}
                         {% include 'django_spire/navigation/top_navigation.html' %}
                     {% endblock %}
@@ -18,9 +18,93 @@
             </div>
 
             <div class="row flex-grow-1">
-                <div class="col-12">
+                <div
+                        class="col-auto me-3"
+                        x-show="has_content($refs.full_page_sub_navigation)"
+                        x-data="{
+                            show: true,
+                            init() {
+                            }
+                        }"
+                >
+                    <div
+                            class="row sticky-top border-end border-2 border-app-primary"
+                            style="top: 85px; height: 80vh;"
+                    >
+                        <div class="col">
+                            <div class="row">
+                                <div class="col h5 pt-2 text-center text-app-primary" x-show="show">
+                                    {% block full_page_sub_navigation_title %}
+                                    {% endblock %}
+                                </div>
+                                <div class="col-auto text-end">
+                                    <span
+                                            :class="show ? 'bi-arrow-left-square' : 'bi-arrow-right-square'"
+                                            type="button"
+                                            class="bi fs-4 text-app-primary bg-app-layer-one"
+                                            style="margin-right: -24px;"
+                                            x-on:click="show = !show"
+                                    ></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div
+                                        class="col"
+                                        x-ref="full_page_sub_navigation"
+                                        x-show="show"
+                                >
+                                    {% block full_page_sub_navigation %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
                     {% block full_page_content %}
                     {% endblock %}
+                </div>
+                <div
+                        class="col-auto ms-3"
+                        x-show="has_content($refs.full_page_info_navigation)"
+                        x-data="{
+                            show: true,
+                            init() {
+                            }
+                        }"
+                >
+                    <div
+                            class="row sticky-top border-start border-2 border-app-primary"
+                            style="top: 85px; height: 80vh;"
+                    >
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-auto text-start">
+                                    <span
+                                            :class="show ? 'bi-arrow-right-square' : 'bi-arrow-left-square'"
+                                            type="button"
+                                            class="bi fs-4 text-app-primary bg-app-layer-one"
+                                            style="margin-left: -24px;"
+                                            x-on:click="show = !show"
+                                    ></span>
+                                </div>
+                                <div class="col h5 pt-2 text-center text-app-primary" x-show="show">
+                                    {% block full_page_info_navigation_title %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div
+                                        class="col"
+                                        x-ref="full_page_info_navigation"
+                                        x-show="show"
+                                >
+                                    {% block full_page_info_navigation %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
