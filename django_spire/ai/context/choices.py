@@ -1,7 +1,7 @@
 from django.db.models import TextChoices
 
 
-class PeopleRoleChoices(TextChoices):
+class PersonRoleChoices(TextChoices):
     ADMIN = 'admin', 'Admin'
     HUMAN_RESOURCES = 'human_resources', 'Human Resources'
     SALES = 'sales', 'Sales'

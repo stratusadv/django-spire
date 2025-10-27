@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from django_spire.ai.context import querysets
-from django_spire.ai.context.choices import PeopleRoleChoices
+from django_spire.ai.context.choices import PersonRoleChoices
 from django_spire.auth.user.models import AuthUser
 from django_spire.history.mixins import HistoryModelMixin
 
@@ -40,7 +40,7 @@ class Organization(HistoryModelMixin):
         verbose_name_plural = 'Organization Context'
 
 
-class People(HistoryModelMixin):
+class Person(HistoryModelMixin):
     is_internal_to_organization = models.BooleanField(default=True)
     user = models.ForeignKey(
         AuthUser,
@@ -48,9 +48,9 @@ class People(HistoryModelMixin):
         null=True,
         on_delete=models.SET_NULL,
         related_name='ai_context_people',
-        related_query_name='ai_context_people'
+        related_query_name='ai_context_person'
     )
-    role = models.CharField(max_length=16, choices=PeopleRoleChoices, default=PeopleRoleChoices.ADMIN)
+    role = models.CharField(max_length=16, choices=PersonRoleChoices, default=PersonRoleChoices.ADMIN)
     role_details = models.TextField(blank=True, null=True)
     first_name = models.CharField(max_length=255, blank=True, null=True)
     last_name = models.CharField(max_length=255, blank=True, null=True)
@@ -60,7 +60,7 @@ class People(HistoryModelMixin):
     objects = querysets.PeopleQuerySet.as_manager()
 
     class Meta:
-        db_table = 'django_spire_ai_context_peopl'
-        verbose_name = 'People Context'
+        db_table = 'django_spire_ai_context_person'
+        verbose_name = 'Person Context'
         verbose_name_plural = 'People Context'
 

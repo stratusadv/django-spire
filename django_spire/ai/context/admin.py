@@ -8,6 +8,6 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'created_datetime', 'is_deleted')
 
 
-@admin.register(models.People)
-class PeopleAdmin(admin.ModelAdmin):
+@admin.register(models.Person)
+class PersonAdmin(admin.ModelAdmin):
     list_display = ('id', 'first_name', 'created_datetime', 'is_deleted')

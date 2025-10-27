@@ -8,11 +8,11 @@ models.Organization.objects.create(
     legal_name='Spire Candy Processors Limited',
 )
 
-for people_role_choice in choices.PeopleRoleChoices:
+for people_role_choice in choices.PersonRoleChoices:
     first_name = Faker().first_name()
     last_name = Faker().last_name()
 
-    people = models.People.objects.create(
+    people = models.Person.objects.create(
         role=people_role_choice.value,
         first_name=first_name,
         last_name=last_name,
