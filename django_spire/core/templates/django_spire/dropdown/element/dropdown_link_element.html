@@ -1,22 +1,26 @@
 {# Background colours must be applied outside 'a' tag #}
+
 <div class="bg-app-layer-one bg-app-layer-three-hover dropdown-item">
     <a
-        class="fs-7 p-0 cursor-pointer text-decoration-none text-app-default-text-color"
-        {% if link_url %}href="{{ link_url }}"{% endif %}
-        {% if x_link_url %}
-            x-show="{{ x_link_url }} ? true : false"
+        class="border-bottom fs-7 p-0 text-app-default-text-color text-decoration-none"
+        {% if link_url %}
+            href="{{ link_url }}"
+        {% elif x_link_url %}
             :href="{{ x_link_url }}"
         {% endif %}
-        @click="() => {
-            toggle_dropdown()
-            {% if x_click %}{{ x_click }}{% endif %}
-        }"
+
+        {% if x_click %}
+            @click="{{ x_click }}"
+        {% else %}
+            @click="toggle_dropdown()"
+        {% endif %}
     >
         {% block link_content %}
             <div class="px-3 py-2 text-nowrap {{ link_css }}">
                 {% if link_icon %}
                     <i class="{{ link_icon }} pe-1"></i>
                 {% endif %}
+
                 {% if link_text %}
                     {{ link_text }}
                 {% elif x_link_text %}
