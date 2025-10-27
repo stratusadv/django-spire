@@ -5,9 +5,9 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
 }
 
 # AI Settings
-AI_CHAT_WORKFLOW_NAME = 'AI Assistant'
-AI_CHAT_WORKFLOW_CLASS = 'django_spire.ai.chat.intelligence.workflows.chat_workflow.ChatWorkflow'
-AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'django_spire.ai.sms.intelligence.workflows.sms_conversation_workflow.SmsConversationWorkflow'
+AI_PERSONA_NAME = 'AI Assistant'
+AI_CHAT_DEFAULT_CALLABLE = None
+AI_SMS_CONVERSATION_DEFAULT_CALLABLE = None
 
 ORGANIZATION_NAME = 'No Organization Provided'
 ORGANIZATION_DESCRIPTION = 'No Description Provided'
