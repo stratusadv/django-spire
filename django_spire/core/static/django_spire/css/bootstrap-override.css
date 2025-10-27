@@ -1,146 +1,163 @@
 :root {
-    --bs-body-color: var(--app-default-text-color);
+    --app-form-field-bg: #ffffff;
+    --app-form-field-border: var(--bs-border-color);
+    --app-form-field-color: var(--app-default-text-color);
+    --app-form-field-disabled-bg: var(--app-layer-three);
+    --app-form-field-disabled-border: var(--app-layer-four);
+    --app-form-field-disabled-color: var(--app-secondary);
+    --app-form-field-focus-border: var(--app-primary);
+
+    --bs-alert-bg: var(--app-layer-two);
+    --bs-alert-border-color: var(--app-layer-three);
+    --bs-alert-color: var(--app-default-text-color);
+
     --bs-body-bg: var(--app-default-bg-color);
-    --bs-emphasis-color: var(--app-default-text-color);
-    --bs-secondary-color: var(--app-secondary);
-    --bs-tertiary-color: var(--app-layer-four);
-
-    --bs-primary: var(--app-primary);
-    --bs-secondary: var(--app-secondary);
-    --bs-success: var(--app-success);
-    --bs-info: var(--app-primary);
-    --bs-warning: var(--app-warning);
-    --bs-danger: var(--app-danger);
-    --bs-light: var(--app-light);
-    --bs-dark: var(--app-dark);
-
-    --bs-primary-rgb: 13, 110, 253;
-    --bs-secondary-rgb: 108, 117, 125;
-    --bs-success-rgb: 25, 135, 84;
-    --bs-info-rgb: 13, 202, 240;
-    --bs-warning-rgb: 255, 193, 7;
-    --bs-danger-rgb: 220, 53, 69;
-    --bs-light-rgb: 248, 249, 250;
-    --bs-dark-rgb: 33, 37, 41;
-
-    --bs-link-color: var(--app-default-link-color);
-    --bs-link-hover-color: var(--app-default-link-hover-color);
+    --bs-body-color: var(--app-default-text-color);
 
     --bs-border-color: var(--app-layer-three);
     --bs-border-color-translucent: rgba(0, 0, 0, 0.175);
 
+    --bs-breadcrumb-bg: var(--app-layer-two);
+    --bs-breadcrumb-item-active-color: var(--app-secondary);
+
     --bs-card-bg: var(--app-layer-one);
     --bs-card-border-color: var(--app-layer-two);
-    --bs-card-title-color: var(--app-default-text-color);
-    --bs-card-subtitle-color: var(--app-secondary);
     --bs-card-color: var(--app-default-text-color);
+    --bs-card-subtitle-color: var(--app-secondary);
+    --bs-card-title-color: var(--app-default-text-color);
+
+    --bs-danger: var(--app-danger);
+    --bs-danger-rgb: 220, 53, 69;
+    --bs-dark: var(--app-dark);
+    --bs-dark-rgb: 33, 37, 41;
+
+    --bs-emphasis-color: var(--app-default-text-color);
+
+    --bs-info: var(--app-primary);
+    --bs-info-rgb: 13, 202, 240;
+
+    --bs-light: var(--app-light);
+    --bs-light-rgb: 248, 249, 250;
+
+    --bs-link-color: var(--app-default-link-color);
+    --bs-link-hover-color: var(--app-default-link-hover-color);
 
     --bs-modal-bg: var(--app-layer-one);
     --bs-modal-color: var(--app-default-text-color);
-    --bs-modal-header-border-color: var(--app-layer-two);
     --bs-modal-footer-border-color: var(--app-layer-two);
+    --bs-modal-header-border-color: var(--app-layer-two);
 
-    --bs-navbar-color: var(--app-light);
-    --bs-navbar-hover-color: var(--app-primary);
-    --bs-navbar-active-color: var(--app-primary);
-    --bs-navbar-brand-color: var(--app-light);
-    --bs-navbar-brand-hover-color: var(--app-primary);
+    --bs-offcanvas-bg: var(--app-layer-one);
+    --bs-offcanvas-border-color: var(--app-layer-two);
+    --bs-offcanvas-color: var(--app-default-text-color);
+
+    --bs-primary: var(--app-primary);
+    --bs-primary-rgb: 13, 110, 253;
+
+    --bs-progress-bg: var(--app-layer-two);
+
+    --bs-secondary: var(--app-secondary);
+    --bs-secondary-color: var(--app-secondary);
+    --bs-secondary-rgb: 108, 117, 125;
+
+    --bs-success: var(--app-success);
+    --bs-success-rgb: 25, 135, 84;
+
+    --bs-tertiary-color: var(--app-layer-four);
+
+    --bs-warning: var(--app-warning);
+    --bs-warning-rgb: 255, 193, 7;
+
+    --bs-accordion-bg: var(--app-layer-one);
+    --bs-accordion-border-color: var(--app-layer-two);
+    --bs-accordion-button-active-bg: var(--app-primary-soft);
+    --bs-accordion-button-active-color: var(--app-default-text-color);
+    --bs-accordion-button-bg: var(--app-layer-two);
+    --bs-accordion-button-color: var(--app-default-text-color);
+    --bs-accordion-color: var(--app-default-text-color);
+
+    --bs-btn-bg: var(--app-primary);
+    --bs-btn-border-color: var(--app-primary);
+    --bs-btn-color: var(--app-default-button-text-color);
+    --bs-btn-hover-bg: var(--app-primary-dark);
+    --bs-btn-hover-border-color: var(--app-primary-dark);
+    --bs-btn-hover-color: var(--app-default-button-text-color);
+
+    --bs-dropdown-bg: var(--app-layer-one);
+    --bs-dropdown-border-color: var(--app-layer-two);
+    --bs-dropdown-color: var(--app-default-text-color);
+    --bs-dropdown-link-color: var(--app-default-text-color);
+    --bs-dropdown-link-hover-bg: var(--app-primary);
+    --bs-dropdown-link-hover-color: var(--app-default-button-text-color);
+
+    --bs-form-control-bg: var(--app-form-field-bg);
+    --bs-form-control-border-color: var(--app-form-field-border);
+    --bs-form-control-color: var(--app-form-field-color);
+    --bs-form-control-disabled-bg: var(--app-form-field-disabled-bg);
+    --bs-form-control-focus-border-color: var(--app-form-field-focus-border);
+    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+
+    --bs-form-select-bg: var(--app-form-field-bg);
+    --bs-form-select-border-color: var(--app-form-field-border);
+    --bs-form-select-color: var(--app-form-field-color);
+    --bs-form-select-focus-border-color: var(--app-form-field-focus-border);
+    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
+
+    --bs-list-group-action-color: var(--app-default-text-color);
+    --bs-list-group-action-hover-color: var(--app-default-text-color);
+    --bs-list-group-bg: var(--app-layer-one);
+    --bs-list-group-border-color: var(--app-layer-two);
+    --bs-list-group-color: var(--app-default-text-color);
+    --bs-list-group-hover-bg: var(--app-layer-two);
 
     --bs-nav-link-color: var(--app-light);
     --bs-nav-link-hover-color: var(--app-primary);
 
-    --bs-dropdown-bg: var(--app-layer-one);
-    --bs-dropdown-color: var(--app-default-text-color);
-    --bs-dropdown-border-color: var(--app-layer-two);
-    --bs-dropdown-link-color: var(--app-default-text-color);
-    --bs-dropdown-link-hover-color: var(--app-default-button-text-color);
-    --bs-dropdown-link-hover-bg: var(--app-primary);
+    --bs-navbar-active-color: var(--app-primary);
+    --bs-navbar-brand-color: var(--app-light);
+    --bs-navbar-brand-hover-color: var(--app-primary);
+    --bs-navbar-color: var(--app-light);
+    --bs-navbar-hover-color: var(--app-primary);
 
-    --bs-accordion-bg: var(--app-layer-one);
-    --bs-accordion-color: var(--app-default-text-color);
-    --bs-accordion-border-color: var(--app-layer-two);
-    --bs-accordion-button-color: var(--app-default-text-color);
-    --bs-accordion-button-bg: var(--app-layer-two);
-    --bs-accordion-button-active-bg: var(--app-primary-soft);
-    --bs-accordion-button-active-color: var(--app-default-text-color);
-
-    --bs-tooltip-bg: var(--app-dark);
-    --bs-tooltip-color: var(--app-light);
+    --bs-pagination-active-bg: var(--app-primary);
+    --bs-pagination-active-border-color: var(--app-primary);
+    --bs-pagination-active-color: var(--app-default-button-text-color);
+    --bs-pagination-bg: var(--app-layer-one);
+    --bs-pagination-border-color: var(--app-layer-two);
+    --bs-pagination-color: var(--app-default-text-color);
+    --bs-pagination-hover-bg: var(--app-layer-two);
+    --bs-pagination-hover-border-color: var(--app-layer-three);
+    --bs-pagination-hover-color: var(--app-primary);
 
     --bs-popover-bg: var(--app-layer-one);
-    --bs-popover-color: var(--app-default-text-color);
     --bs-popover-border-color: var(--app-layer-two);
+    --bs-popover-color: var(--app-default-text-color);
     --bs-popover-header-bg: var(--app-layer-two);
     --bs-popover-header-color: var(--app-default-text-color);
 
-    --bs-form-control-color: var(--app-default-text-color);
-    --bs-form-control-bg: var(--app-layer-two);
-    --bs-form-control-border-color: var(--bs-border-color);
-    --bs-form-control-focus-border-color: var(--app-primary);
-    --bs-form-control-focus-box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
-    --bs-form-control-disabled-bg: var(--app-layer-three);
-
-    --bs-form-select-color: var(--app-default-text-color);
-    --bs-form-select-bg: var(--app-layer-two);
-    --bs-form-select-border-color: var(--bs-border-color);
-    --bs-form-select-focus-border-color: var(--app-primary);
-    --bs-form-select-focus-box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25);
-
-    --bs-btn-color: var(--app-default-button-text-color);
-    --bs-btn-bg: var(--app-primary);
-    --bs-btn-border-color: var(--app-primary);
-    --bs-btn-hover-color: var(--app-default-button-text-color);
-    --bs-btn-hover-bg: var(--app-primary-dark);
-    --bs-btn-hover-border-color: var(--app-primary-dark);
-
-    --bs-list-group-bg: var(--app-layer-one);
-    --bs-list-group-color: var(--app-default-text-color);
-    --bs-list-group-border-color: var(--app-layer-two);
-    --bs-list-group-hover-bg: var(--app-layer-two);
-    --bs-list-group-action-color: var(--app-default-text-color);
-    --bs-list-group-action-hover-color: var(--app-default-text-color);
-
     --bs-table-bg: transparent;
-    --bs-table-color: var(--app-default-text-color);
     --bs-table-border-color: var(--app-layer-three);
-    --bs-table-striped-bg: var(--app-layer-two);
+    --bs-table-color: var(--app-default-text-color);
     --bs-table-hover-bg: var(--app-layer-two);
+    --bs-table-striped-bg: var(--app-layer-two);
 
-    --bs-pagination-color: var(--app-default-text-color);
-    --bs-pagination-bg: var(--app-layer-one);
-    --bs-pagination-border-color: var(--app-layer-two);
-    --bs-pagination-hover-color: var(--app-primary);
-    --bs-pagination-hover-bg: var(--app-layer-two);
-    --bs-pagination-hover-border-color: var(--app-layer-three);
-    --bs-pagination-active-color: var(--app-default-button-text-color);
-    --bs-pagination-active-bg: var(--app-primary);
-    --bs-pagination-active-border-color: var(--app-primary);
-
-    --bs-alert-color: var(--app-default-text-color);
-    --bs-alert-bg: var(--app-layer-two);
-    --bs-alert-border-color: var(--app-layer-three);
-
-    --bs-breadcrumb-bg: var(--app-layer-two);
-    --bs-breadcrumb-item-active-color: var(--app-secondary);
-
-    --bs-progress-bg: var(--app-layer-two);
-
-    --bs-offcanvas-bg: var(--app-layer-one);
-    --bs-offcanvas-color: var(--app-default-text-color);
-    --bs-offcanvas-border-color: var(--app-layer-two);
+    --bs-tooltip-bg: var(--app-dark);
+    --bs-tooltip-color: var(--app-light);
 }
 
 [data-theme="dark"] {
+    --app-form-field-bg: var(--app-layer-one);
+
+    --bs-border-color-translucent: rgba(64, 61, 82, 0.175);
+
+    --bs-danger-rgb: 235, 111, 146;
+    --bs-dark-rgb: 25, 23, 36;
+    --bs-info-rgb: 196, 167, 231;
+    --bs-light-rgb: 224, 222, 244;
     --bs-primary-rgb: 196, 167, 231;
     --bs-secondary-rgb: 144, 140, 170;
     --bs-success-rgb: 49, 116, 143;
-    --bs-info-rgb: 196, 167, 231;
     --bs-warning-rgb: 246, 193, 119;
-    --bs-danger-rgb: 235, 111, 146;
-    --bs-light-rgb: 224, 222, 244;
-    --bs-dark-rgb: 25, 23, 36;
-
-    --bs-border-color-translucent: rgba(64, 61, 82, 0.175);
 
     --bs-form-control-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
     --bs-form-select-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
@@ -150,44 +167,65 @@
 }
 
 [data-theme="light"] {
+    --bs-border-color-translucent: rgba(206, 202, 205, 0.175);
+
+    --bs-danger-rgb: 215, 130, 126;
+    --bs-dark-rgb: 87, 82, 121;
+    --bs-info-rgb: 144, 122, 169;
+    --bs-light-rgb: 250, 244, 237;
     --bs-primary-rgb: 144, 122, 169;
     --bs-secondary-rgb: 121, 117, 147;
     --bs-success-rgb: 40, 105, 131;
-    --bs-info-rgb: 144, 122, 169;
     --bs-warning-rgb: 234, 157, 52;
-    --bs-danger-rgb: 215, 130, 126;
-    --bs-light-rgb: 250, 244, 237;
-    --bs-dark-rgb: 87, 82, 121;
-
-    --bs-border-color-translucent: rgba(206, 202, 205, 0.175);
 
     --bs-form-control-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
     --bs-form-select-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
 }
 
 .form-control {
-    background-color: var(--app-layer-two) !important;
-    color: var(--app-default-text-color) !important;
-    border-color: var(--bs-border-color) !important;
-    caret-color: var(--app-default-text-color) !important;
+    background-color: var(--app-form-field-bg) !important;
+    border-color: var(--app-form-field-border) !important;
+    caret-color: var(--app-form-field-color) !important;
+    color: var(--app-form-field-color) !important;
 }
 
 .form-control:focus {
+    border-color: var(--app-form-field-focus-border) !important;
     box-shadow: none !important;
     outline: none !important;
-    border-color: var(--app-primary) !important;
-    border-width: 2px !important;
 }
 
 .form-control:disabled,
 .form-control[readonly] {
-    background-color: var(--app-layer-three) !important;
+    background-color: var(--app-form-field-disabled-bg) !important;
+    border-color: var(--app-form-field-disabled-border) !important;
+    color: var(--app-form-field-disabled-color) !important;
+    cursor: not-allowed;
 }
 
 .form-control:-webkit-autofill,
-.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:active,
 .form-control:-webkit-autofill:focus,
-.form-control:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px var(--app-layer-two) inset !important;
-    -webkit-text-fill-color: var(--app-default-text-color) !important;
+.form-control:-webkit-autofill:hover {
+    -webkit-box-shadow: 0 0 0 30px var(--app-form-field-bg) inset !important;
+    -webkit-text-fill-color: var(--app-form-field-color) !important;
+}
+
+.form-select {
+    background-color: var(--app-form-field-bg) !important;
+    border-color: var(--app-form-field-border) !important;
+    color: var(--app-form-field-color) !important;
+}
+
+.form-select:focus {
+    border-color: var(--app-form-field-focus-border) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.form-select:disabled {
+    background-color: var(--app-form-field-disabled-bg) !important;
+    border-color: var(--app-form-field-disabled-border) !important;
+    color: var(--app-form-field-disabled-color) !important;
+    cursor: not-allowed;
 }
