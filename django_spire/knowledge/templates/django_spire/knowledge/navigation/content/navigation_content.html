@@ -1,0 +1,145 @@
+<div
+    x-data="{
+        user_search: '',
+        found_items: new Map(),
+        focused_object: {},
+        focused_type: '',
+        title: '',
+        manager: new CollectionManager({{ collection_tree_json }}),
+        is_dragging: false,
+
+        init() {
+            {% if collection.id %}
+                this.manager.open_path_to({collection_id: {{ collection.id }}})
+            {% endif %}
+        },
+
+        toggle_dragging(value) {
+            this.is_dragging = value
+        },
+
+        async move_collection({collection, order, new_parent}) {
+            let response = null
+            try {
+                response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:collection:json:reorder" %}',
+                    {payload: {collection_id: collection.id, order: order, parent: new_parent}}
+                )
+            } catch (e) {
+                 $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
+            }
+
+            if (response.type === 'error') {
+                $dispatch('notify', {'type': response.type, 'message': response.message})
+            }
+
+            this.manager.set_parent({collection: collection, parent_id: new_parent})
+        },
+
+        async move_entry({entry, collection, order}) {
+            let response = null
+            try {
+                response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:json:reorder" %}',
+                    {payload: {entry_id: entry.entry_id, order: order, collection_id: collection.id}}
+                )
+            } catch (e) {
+                 $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
+            }
+
+            if (response.type === 'error') {
+                $dispatch('notify', {'type': response.type, 'message': response.message})
+            }
+        },
+
+        search() {
+            let item_map = new Map()
+            const query = this.user_search.toLocaleLowerCase()
+            document.querySelector('.search-items').style.display = query ? 'block' : 'none'
+            document.querySelector('.navigation-items').style.display = query ? 'none' : 'block'
+            document.querySelectorAll('.collection, .entry').forEach(div => {
+                let div_id =  div.id.toLocaleLowerCase()
+
+                let item = {}
+                if (div.classList.contains('collection')) {
+                    item = Alpine.$data(div).collection
+                } else {
+                    item = Alpine.$data(div).entry
+                }
+
+                if (div_id.includes(query)) {
+                    item_map.set(item, item)
+                } else {
+                    item_map.delete(item)
+                }
+            })
+
+            if (!query) {
+                this.found_items.clear()
+            } else {
+                this.found_items = item_map
+            }
+        },
+    }"
+>
+    <div class="container-fluid">
+        <div class="row align-items-center border-bottom mx-1 pb-2">
+            <div class="col px-0 text-uppercase pb-2 d-flex align-items-center">
+                Collections
+            </div>
+            <div class="col-auto px-0 pb-2">
+                {% if AuthController.knowledge.can_add %}
+                    {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+                    {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+                {% endif %}
+            </div>
+            <div class="col-12 px-0">
+                <input
+                    class="rounded-2 p-1 form-control"
+                    type="text"
+                    placeholder="Search ..."
+                    x-model="user_search"
+                    @input.debounce.300ms="search"
+                >
+            </div>
+        </div>
+    </div>
+    <div
+        class="user-select-none pe-3"
+        x-sort:config="{
+            handle: '[x-sort\\:handle]',
+            distance: 20,
+            swapThreshold: 0.01
+        }"
+    >
+        {% include 'django_spire/knowledge/collection/component/x_collection_navigation.html' %}
+
+        <div class="navigation-items">
+            <x-collection-navigation :data="{items: manager.collection_map, id: null}"></x-collection-navigation>
+        </div>
+        <div class="search-items">
+            <template x-for="(item, index) in Array.from(found_items.values())" :key="index">
+                <div>
+                    <template x-if="item?.constructor.name === 'Collection'">
+                        <div
+                            x-data="{
+                                collection: item
+                            }"
+                        >
+                            {% include 'django_spire/knowledge/navigation/item/collection/collection_item.html' with hide_chevron=True %}
+                        </div>
+                    </template>
+                    <template x-if="item?.constructor.name === 'Entry'">
+                        <div
+                            x-data="{
+                                entry: item
+                            }"
+                        >
+                            {% include 'django_spire/knowledge/navigation/item/entry/entry_item.html' %}
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>

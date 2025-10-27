@@ -5,7 +5,12 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE",
-    'test_project.system.development.settings'
+    'test_project.postgres_settings'
+)
+
+os.environ.setdefault(
+    "DANDY_SETTINGS_MODULE",
+    'test_project.dandy_settings'
 )
 
 application = get_wsgi_application()
@@ -42,7 +47,7 @@ wo.add_job(
     name="Convert Files to Model Objects",
     method=Entry.services.automation.convert_files_to_model_objects,
     group='Knowledge Base',
-    cron='0 0 * * 6'
+    cron='* * * * 6'
 )
 
 

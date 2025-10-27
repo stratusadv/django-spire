@@ -1,7 +1,7 @@
 {# Background colours must be applied outside 'a' tag #}
 <div class="bg-app-layer-one bg-app-layer-three-hover dropdown-item">
     <a
-        class="fs--1 p-0 cursor-pointer text-decoration-none text-app-default-text-color"
+        class="fs-7 p-0 cursor-pointer text-decoration-none text-app-default-text-color"
         {% if link_url %}href="{{ link_url }}"{% endif %}
         {% if x_link_url %}
             x-show="{{ x_link_url }} ? true : false"
@@ -13,7 +13,10 @@
         }"
     >
         {% block link_content %}
-            <div class="px-3 py-1 text-nowrap {{ link_css }}">
+            <div class="px-3 py-2 text-nowrap {{ link_css }}">
+                {% if link_icon %}
+                    <i class="{{ link_icon }} pe-1"></i>
+                {% endif %}
                 {% if link_text %}
                     {{ link_text }}
                 {% elif x_link_text %}

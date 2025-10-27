@@ -11,6 +11,8 @@ from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.version import models
 
 from django_spire.contrib.seeding import DjangoModelSeeder
+from django_spire.knowledge.entry.version.block.data.maps import \
+    EDITOR_BLOCK_DATA_REVERSE_MAP
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.block.seeding.constants import SAFETY_BLOCKS
 from django_spire.knowledge.entry.version.choices import EntryVersionStatusChoices
@@ -61,10 +63,10 @@ class EntryVersionSeeder(DjangoModelSeeder):
             for idx, safety_block in enumerate(safety_blocks):
                 version_block = EntryVersionBlock(
                     version=entry_version,
-                    type=safety_block.type,
+                    type=EDITOR_BLOCK_DATA_REVERSE_MAP[type(safety_block)],
                     order=idx,
                 )
-                version_block.block = safety_block
+                version_block.editor_block_data = safety_block
                 version_blocks.append(version_block)
 
             EntryVersionBlock.objects.bulk_create(version_blocks)

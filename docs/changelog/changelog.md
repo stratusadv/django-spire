@@ -1,5 +1,64 @@
 # Changelog
 
+
+## v0.18.1
+
+### Fixes
+- Add missing migration file for Knowledge Base.
+
+
+## v0.18.0
+
+### Features
+- Knowledge Base editor refactored to EditorJS.
+  - Full ordered and unordered list support.
+  - Link support.
+  - Checkbox support.
+  - Text styling support.
+  - H1-H6 Heading support.
+  - Paragraph support.
+  - Editor UI / UX improvements.
+
+### Changes
+- Knowledge Base file conversion refactored to support EditorJS refactor.
+  - Paragraph, heading, lists, and checkbox support 
+
+
+## v0.17.11
+
+### Fixes
+- Update `Dandy` requirement to v1.2.1
+
+## v0.17.10
+
+### Fixes
+- Knowledge base file page UI bug fix
+- Knowledge base side navigation UX improvement
+
+
+## v0.17.9
+
+### Changes
+- Loosen robit requirement
+
+
+## v0.17.8
+
+### Changes
+- Removed hard-coded colours from v0.17.7
+
+
+## v0.17.7
+
+### Changes
+
+- Replaced right click context menus with options button in knowledge base and improved look of options menu items 
+- Removed collections detail page from knowledge base
+- Change knowledge base side navigation to share page space with main content, rather than slide over top (kept overlay behaviour for mobile screens)
+- Restricted knowledge item reordering to users with change_collection permission
+- Added support for icons in core dropdown menus
+
+
 ## v0.17.6
 
 ### Changes

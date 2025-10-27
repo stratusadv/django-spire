@@ -1,33 +1,41 @@
 <template x-component="collection-navigation">
     <div
-        x-sort="await move_collection({collection: $item, order: $position, new_parent: data.id})"
-        x-sort:group="collection"
+        {% if AuthController.knowledge.can_change %}
+            x-sort="await move_collection({collection: $item, order: $position, new_parent: data.id})"
+            x-sort:group="collection"
+        {% endif %}
     >
         <template x-for="collection in data.items" :key="collection.id">
             <div
-                x-sort:item="collection"
+                {% if AuthController.knowledge.can_change %}
+                    x-sort:item="collection"
+                    @dragstart="toggle_dragging(true)"
+                    @dragend="toggle_dragging(false)"
+                {% endif %}
                 :id="collection.name"
                 class="my-1 ms-4 collection"
-                @dragstart="toggle_dragging(true)"
-                @dragend="toggle_dragging(false)"
             >
-                {% include 'django_spire/knowledge/collection/navigation/item/collection_item.html' %}
+                {% include 'django_spire/knowledge/navigation/item/collection/collection_item.html' %}
                 <div x-show="collection.show_details" class="my-1">
                     <x-collection-navigation :data="{items: collection.children, id: collection.id}"></x-collection-navigation>
                     <div class="ms-4">
                         <div
-                            x-sort="await move_entry({entry: $item, collection: collection, order: $position})"
-                            x-sort:group="entry"
+                            {% if AuthController.knowledge.can_change %}
+                                x-sort="await move_entry({entry: $item, collection: collection, order: $position})"
+                                x-sort:group="entry"
+                            {% endif %}
                         >
                             <template x-for="entry in collection.entries" :key="entry.version_id">
                                 <div
                                     class="entry"
-                                    x-sort:item="entry"
+                                    {% if AuthController.knowledge.can_change %}
+                                        x-sort:item="collection"
+                                        @dragstart="toggle_dragging(true)"
+                                        @dragend="toggle_dragging(false)"
+                                    {% endif %}
                                     :id="entry.name"
-                                    @dragstart="toggle_dragging(true)"
-                                    @dragend="toggle_dragging(false)"
                                 >
-                                    {% include  'django_spire/knowledge/entry/navigation/item/navigation_item.html' %}
+                                    {% include 'django_spire/knowledge/navigation/item/entry/entry_item.html' %}
                                 </div>
                             </template>
                         </div>

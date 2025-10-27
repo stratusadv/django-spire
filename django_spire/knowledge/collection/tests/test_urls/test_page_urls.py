@@ -21,19 +21,9 @@ class CollectionPageUrlsTests(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_detail_view_url_path(self):
-        response = self.client.get(
-            reverse(
-                'django_spire:knowledge:collection:page:detail',
-                kwargs={'pk': self.test_collection.pk}
-            )
-        )
-
-        self.assertEqual(response.status_code, 200)
-
     def test_list_view_url_path(self):
         response = self.client.get(
-            reverse('django_spire:knowledge:collection:page:list')
+            reverse('django_spire:knowledge:page:home')
         )
 
         self.assertEqual(response.status_code, 200)
