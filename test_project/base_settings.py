@@ -47,11 +47,8 @@ TWILIO_SMS_BATCH_SIZE = 100
 
 # AI Chat Config
 AI_PERSONA_NAME = 'Rubber Ducky'
-AI_CHAT_CALLABLE = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.chat_workflow'
-AI_SMS_CONVERSATION_CALLABLE = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.sms_conversation_workflow'
-
-ORGANIZATION_NAME = 'Synergistic Energistic Inc.'
-ORGANIZATION_DESCRIPTION = 'Marketing organization focused on the word synergy and energetically saying it as much as possible.'
+AI_CHAT_DEFAULT_CALLABLE = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.chat_workflow'
+AI_SMS_CONVERSATION_DEFAULT_CALLABLE = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.sms_conversation_workflow'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True

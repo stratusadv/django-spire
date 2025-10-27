@@ -24,17 +24,18 @@ class KnowledgeWorkflow:
     @classmethod
     def process(
         cls, request: WSGIRequest, user_input: str, message_history: MessageHistory
-    ) -> KnowledgeMessageIntel:
+    ) -> KnowledgeMessageIntel | None:
         CollectionMap = get_collection_map_class()
         collections = CollectionMap().process(user_input).values
 
         if collections[0] is None:
-            return KnowledgeMessageIntel(
-                body=(
-                    'There was no knowledge related to your request. Please reword it '
-                    'and try again.'
-                )
-            )
+            return None
+            # return KnowledgeMessageIntel(
+            #     body=(
+            #         'There was no knowledge related to your request. Please reword it '
+            #         'and try again.'
+            #     )
+            # )
 
         entries = []
         for collection in collections:
@@ -45,12 +46,13 @@ class KnowledgeWorkflow:
         entries = [entry for entry in entries if entry is not None]
 
         if not entries:
-            return KnowledgeMessageIntel(
-                body=(
-                    'There was no knowledge related to your request. Please reword it '
-                    'and try again.'
-                )
-            )
+            return None
+            # return KnowledgeMessageIntel(
+            #     body=(
+            #         'There was no knowledge related to your request. Please reword it '
+            #         'and try again.'
+            #     )
+            # )
 
         entry_search_bot = EntrySearchLlmBot()
 
