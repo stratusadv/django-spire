@@ -40,7 +40,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         breadcrumbs_func=breadcrumbs_func,
         context_data={
             'entry': entry,
-            'version': entry_version,
+            'current_version': entry_version,
             'version_blocks': json.dumps(list(version_blocks)),
         },
         template='django_spire/knowledge/entry/version/page/detail_page.html',

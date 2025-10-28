@@ -229,3 +229,15 @@
     color: var(--app-form-field-disabled-color) !important;
     cursor: not-allowed;
 }
+
+.ce-block__content [data-placeholder]:empty::before,
+.ce-block__content [data-placeholder][data-empty="true"]::before {
+    color: var(--app-primary) !important;
+    opacity: 0.8;
+}
+
+.ce-paragraph[data-placeholder]:empty::before,
+.ce-paragraph[data-placeholder-active]::before {
+    color: var(--app-primary) !important;
+    opacity: 0.8;
+}

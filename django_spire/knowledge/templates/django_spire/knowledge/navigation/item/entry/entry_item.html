@@ -1,4 +1,7 @@
-<div class="row ms-4 knowledge-nav-item cursor-pointer">
+<div
+    class="row ms-4 knowledge-nav-item cursor-pointer"
+    :class="entry.version_id === current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
+>
     <a
         class="col text-decoration-none text-app-default-text-color"
         {% if AuthController.knowledge.can_view %}
@@ -8,6 +11,7 @@
         <i class="bi bi-file-earmark-text"></i>
         <span class="fw-normal" x-text="entry.name"></span>
     </a>
+
     {% if AuthController.knowledge.can_view %}
         <div class="col-auto">
             <div class="d-flex h-100 justify-content-center align-items-center">

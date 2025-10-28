@@ -2,16 +2,43 @@
     x-data="{
         user_search: '',
         found_items: new Map(),
-        focused_object: {},
-        focused_type: '',
-        title: '',
         manager: new CollectionManager({{ collection_tree_json }}),
         is_dragging: false,
+        current_collection_id: {{ current_collection_id|default:'null' }},
+        current_version_id: {{ current_version_id|default:'null' }},
+        expanded_ids: [],
 
         init() {
-            {% if collection.id %}
-                this.manager.open_path_to({collection_id: {{ collection.id }}})
-            {% endif %}
+            if (this.current_collection_id) {
+                this.expand_path_to(this.current_collection_id)
+            }
+        },
+
+        expand_path_to(collection_id) {
+            const collection = this.manager.collection_lookup_map.get(collection_id)
+            if (!collection) return
+
+            let current = collection
+            let ids_to_expand = []
+
+            while (current && current.id !== -1) {
+                ids_to_expand.push(current.id)
+                current = current.parent
+            }
+
+            this.expanded_ids = ids_to_expand
+        },
+
+        is_expanded(collection_id) {
+            return this.expanded_ids.includes(collection_id)
+        },
+
+        toggle_expand(collection_id) {
+            if (this.is_expanded(collection_id)) {
+                this.expanded_ids = this.expanded_ids.filter(id => id !== collection_id)
+            } else {
+                this.expanded_ids.push(collection_id)
+            }
         },
 
         toggle_dragging(value) {

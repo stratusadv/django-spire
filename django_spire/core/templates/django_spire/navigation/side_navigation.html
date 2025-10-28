@@ -1,6 +1,19 @@
 {% load static %}
 
-<div class="navbar sticky-top bg-app-side-navigation d-block" style="width: 100%; height: 100vh">
+<div
+    class="navbar sticky-top bg-app-side-navigation d-block position-relative"
+    style="width: 100%; height: 100vh"
+    x-data="{
+        has_scroll: false,
+        is_at_bottom: false,
+        check_scroll() {
+            let element = this.$refs.scroll_container;
+            this.has_scroll = element.scrollHeight > element.clientHeight;
+            this.is_at_bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 10;
+        }
+    }"
+    x-init="$nextTick(() => { check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
+>
     <div class="text-center pt-2">
         {% block side_navigation_top_content %}
             <div class="text-center d-flex justify-content-center">
@@ -12,9 +25,20 @@
         {% endblock %}
     </div>
 
-    <div class="navbar-nav-scroll scrollbar-hidden p-2">
+    <div
+        class="navbar-nav-scroll scrollbar-hidden p-2"
+        x-ref="scroll_container"
+        @scroll="check_scroll()"
+    >
         {% block side_navigation_links %}
             {% include 'django_spire/navigation/navigation_links.html' %}
         {% endblock %}
+    </div>
+
+    <div
+        class="position-absolute bottom-0 start-0 w-100 side-navigation-fade"
+        x-show="has_scroll && !is_at_bottom"
+        x-cloak
+    >
     </div>
 </div>
