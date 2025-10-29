@@ -5,7 +5,7 @@
     class="d-flex min-vh-100 w-100"
     x-data="{
         show_info: false,
-        show_sub: false,
+        show_sub: true,
         is_mobile: window.innerWidth < 992,
 
         has_content(el) {
@@ -83,31 +83,30 @@
                 </div>
             </div>
 
-            <button
-                class="btn-toggle btn-toggle-left"
-                type="button"
-                x-show="has_content($refs.full_page_sub_navigation) && !show_sub"
-                x-on:click="toggle_sub()"
+            <div
+                class="panel-toggle-container panel-toggle-container-left"
+                x-show="has_content($refs.full_page_sub_navigation) && !show_sub && !(is_mobile && show_info)"
             >
-                <i class="bi bi-chevron-right"></i>
-            </button>
+                {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
+            </div>
 
             <div
                 class="col main-content"
-                :class="(show_sub || show_info) && is_mobile ? 'mobile-hide' : ''"
+                :class="{
+                    'mobile-hide': (show_sub || show_info) && is_mobile,
+                    'with-left-panel': show_sub && !is_mobile
+                }"
             >
                 {% block full_page_content %}
                 {% endblock %}
             </div>
 
-            <button
-                class="btn-toggle btn-toggle-right"
-                type="button"
-                x-show="has_content($refs.full_page_info_navigation) && !show_info"
-                x-on:click="toggle_info()"
+            <div
+                class="panel-toggle-container panel-toggle-container-right"
+                x-show="has_content($refs.full_page_info_navigation) && !show_info && !(is_mobile && show_sub)"
             >
-                <i class="bi bi-chevron-left"></i>
-            </button>
+                {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
+            </div>
 
             <div
                 class="side-panel side-panel-right"

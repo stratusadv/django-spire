@@ -39,6 +39,11 @@
     color: var(--app-footer-link-hover-color) !important;
 }
 
+.navbar-nav-scroll {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
 .top-navigation {
     background-color: var(--app-top-navigation-bg-color) !important;
     color: var(--app-top-navigation-text-color) !important;
@@ -73,8 +78,14 @@
 }
 
 .side-navigation-fade {
-    background: linear-gradient(to top, var(--app-side-navigation-bg-color) 0%, transparent 100%);
-    height: 200px;
+    background: linear-gradient(to top, var(--app-side-navigation-bg-color) 0%, var(--app-side-navigation-bg-color) 50%, transparent 100%);
+    height: 100px;
+    pointer-events: none;
+}
+
+.side-navigation-fade-top {
+    background: linear-gradient(to bottom, var(--app-side-navigation-bg-color) 0%, var(--app-side-navigation-bg-color) 50%, transparent 100%);
+    height: 75px;
     pointer-events: none;
 }
 
