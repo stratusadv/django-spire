@@ -1,5 +1,5 @@
 name: 'Linting'
-description: 'An action to ensures code quality and cleanliness across the repository.'
+description: 'An action to ensure code quality and cleanliness across the repository.'
 
 inputs:
   python-version:
