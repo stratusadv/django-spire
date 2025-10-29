@@ -1,23 +1,24 @@
-<div class="knowledge-nav-item cursor-pointer row">
+<div
+    class="knowledge-nav-item cursor-pointer row"
+    :class="collection.id === current_collection_id && !current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
+>
     <div
         class="col text-start"
-        {% if AuthController.knowledge.can_view %}
-            @click="collection.toggle_show_details({value: !collection.show_details})"
-        {% endif %}
+        @click="toggle_expand(collection.id)"
     >
         <i
-            :class="collection.show_details ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
+            :class="is_expanded(collection.id) ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
             {% if hide_chevron %}
             style="visibility: hidden"
             {% else %}
             :style="{visibility: (collection.has_child_collections() || collection.has_entries()) ? 'visible' : 'hidden'}"
             {% endif %}
         ></i>
-        <i class="bi bi-folder2 fs-5"></i>
-        <span
-            :class="collection.id === {{ collection.pk|default:0 }} ? 'text-app-accent' : ''"
-            x-text="collection.name"
-        ></span>
+        <i
+            class="bi fs-5"
+            :class="is_expanded(collection.id) ? 'bi-folder2-open' : 'bi-folder2'"
+        ></i>
+        <span x-text="collection.name"></span>
     </div>
     {% if AuthController.knowledge.can_view %}
         <div class="col-auto">
