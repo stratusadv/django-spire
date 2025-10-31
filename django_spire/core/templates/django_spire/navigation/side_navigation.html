@@ -22,7 +22,7 @@
 
     <div
         class="position-relative"
-        style="height: calc(100vh - 150px);"
+        style="height: calc(100vh - var(--app-side-navigation-top-content-height));"
         x-data="{
             show_top_fade: false,
             show_bottom_fade: false,
@@ -45,8 +45,7 @@
         </div>
 
         <div
-            class="navbar-nav-scroll scrollbar-hidden px-2 pt-2"
-            style="height: 100%; padding-bottom: 150px;"
+            class="navbar-nav-scroll scrollbar-hidden px-2 pb-4 h-100"
             x-ref="scroll_container"
             @scroll="check_scroll()"
         >
@@ -56,7 +55,7 @@
         </div>
 
         <div
-            class="position-absolute bottom-0 start-0 w-100 side-navigation-fade"
+            class="position-absolute bottom-0 start-0 w-100 side-navigation-fade-bottom"
             style="z-index: 10;"
             x-show="show_bottom_fade"
         >

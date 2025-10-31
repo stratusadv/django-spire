@@ -1,31 +1,26 @@
 {% extends 'django_spire/page/page.html' %}
 
 {% block page_content %}
-<div
-    class="d-flex min-vh-100 w-100"
-    x-data="{
-        show_info: false,
-        show_sub: true,
+    <div
+            class="d-flex min-vh-100 w-100"
+            x-data="{
+        show_info_nav: false,
+        show_sub_nav: true,
         is_mobile: window.innerWidth < 992,
 
-        has_content(el) {
-            if (!el) return false;
-            return el.children.length > 0 && el.textContent.trim().length > 0;
-        },
-
         toggle_sub() {
-            this.show_sub = !this.show_sub;
+            this.show_sub_nav = !this.show_sub_nav;
 
             if (this.is_mobile) {
-                this.show_info = false;
+                this.show_info_nav = false;
             }
         },
 
         toggle_info() {
-            this.show_info = !this.show_info;
+            this.show_info_nav = !this.show_info_nav;
 
             if (this.is_mobile) {
-                this.show_sub = false;
+                this.show_sub_nav = false;
             }
         },
 
@@ -35,118 +30,142 @@
             });
         }
     }"
->
-    <div class="d-none d-lg-block pe-1 side-navigation">
-        {% block full_page_side_navigation %}
-            {% include 'django_spire/navigation/side_navigation.html' %}
-        {% endblock %}
-    </div>
-
-    <div class="container-fluid d-flex flex-column">
-        <div class="row sticky-top">
-            <div class="col-12">
-                {% block full_page_top_navigation %}
-                    {% include 'django_spire/navigation/top_navigation.html' %}
-                {% endblock %}
-            </div>
+    >
+        <div class="d-none d-lg-block pe-1 side-navigation">
+            {% block full_page_side_navigation %}
+                {% include 'django_spire/navigation/side_navigation.html' %}
+            {% endblock %}
         </div>
 
-        <div class="flex-grow-1 row position-relative">
-            <div
-                class="side-panel side-panel-left"
-                x-show="has_content($refs.full_page_sub_navigation) && show_sub"
-                x-transition:enter="side-panel-transition-enter"
-                x-transition:enter-start="side-panel-transition-enter-start-left"
-                x-transition:enter-end="side-panel-transition-enter-end"
-                x-transition:leave="side-panel-transition-leave"
-                x-transition:leave-start="side-panel-transition-leave-start"
-                x-transition:leave-end="side-panel-transition-leave-end-left"
-            >
-                <div class="side-panel-header">
-                    <div class="side-panel-title">
-                        {% block full_page_sub_navigation_title %}
-                        {% endblock %}
-                    </div>
-                    <button
-                        class="btn-close-panel"
-                        type="button"
-                        x-on:click="show_sub = false"
+        <div class="container-fluid d-flex flex-column">
+            <div class="row sticky-top">
+                <div class="col-12">
+                    {% block full_page_top_navigation %}
+                        {% include 'django_spire/navigation/top_navigation.html' %}
+                    {% endblock %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div
+                        class="col-auto"
+                        x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
+                        x-transition:enter="side-panel-transition-enter"
+                        x-transition:enter-start="side-panel-transition-enter-start-left"
+                        x-transition:enter-end="side-panel-transition-enter-end"
+                        x-transition:leave="side-panel-transition-leave"
+                        x-transition:leave-start="side-panel-transition-leave-start"
+                        x-transition:leave-end="side-panel-transition-leave-end-left"
+                >
+                    <div
+                            class="row sticky-top border-end border-app-primary side-panel overflow-y-auto"
                     >
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
-                <div class="side-panel-body">
-                    <div x-ref="full_page_sub_navigation">
-                        {% block full_page_sub_navigation %}
-                        {% endblock %}
+                        <div class="col">
+                            <div class="row pb-2">
+                                <div class="col text-center pt-1 h5 text-app-primary">
+                                    {% block full_page_sub_navigation_title %}
+                                    {% endblock %}
+                                </div>
+                                <div class="col-auto px-1">
+                                    {% block full_page_sub_navigation_buttons %}
+                                    {% endblock %}
+                                </div>
+                                <div class="col-auto px-1">
+                                    <button
+                                            class="btn-close-panel"
+                                            type="button"
+                                            x-on:click="show_sub_nav = false"
+                                    >
+                                        <i class="bi bi-x-lg f5"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col" x-ref="full_page_sub_navigation">
+                                    {% block full_page_sub_navigation %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+
+                        </div>
+
                     </div>
                 </div>
-            </div>
 
-            <div
-                class="panel-toggle-container panel-toggle-container-left"
-                x-show="has_content($refs.full_page_sub_navigation) && !show_sub && !(is_mobile && show_info)"
-            >
-                {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
-            </div>
+                <div
+                        class="panel-toggle-container panel-toggle-container-left"
+                        x-show="has_content($refs.full_page_sub_navigation) && !show_sub_nav && !(is_mobile && show_info_nav)"
+                >
+                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
+                </div>
 
-            <div
-                class="col main-content"
-                :class="{
-                    'mobile-hide': (show_sub || show_info) && is_mobile,
-                    'with-left-panel': show_sub && !is_mobile
+                <div
+                        class="col"
+                        :class="{
+                    'd-none': (show_sub_nav || show_info_nav) && is_mobile
                 }"
-            >
-                {% block full_page_content %}
-                {% endblock %}
-            </div>
+                >
+                    {% block full_page_content %}
+                    {% endblock %}
 
-            <div
-                class="panel-toggle-container panel-toggle-container-right"
-                x-show="has_content($refs.full_page_info_navigation) && !show_info && !(is_mobile && show_sub)"
-            >
-                {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
-            </div>
+                    {% block full_page_bottom_content %}
+                    {% endblock %}
 
-            <div
-                class="side-panel side-panel-right"
-                x-show="has_content($refs.full_page_info_navigation) && show_info"
-                x-transition:enter="side-panel-transition-enter"
-                x-transition:enter-start="side-panel-transition-enter-start-right"
-                x-transition:enter-end="side-panel-transition-enter-end"
-                x-transition:leave="side-panel-transition-leave"
-                x-transition:leave-start="side-panel-transition-leave-start"
-                x-transition:leave-end="side-panel-transition-leave-end-right"
-            >
-                <div class="side-panel-header">
-                    <div class="side-panel-title">
-                        {% block full_page_info_navigation_title %}
-                        {% endblock %}
-                    </div>
-                    <button
-                        class="btn-close-panel"
-                        type="button"
-                        x-on:click="show_info = false"
+                </div>
+
+                <div
+                        class="col-auto panel-toggle-container panel-toggle-container-right"
+                        x-show="has_content($refs.full_page_info_navigation) && !show_info_nav && !(is_mobile && show_sub_nav)"
+                >
+                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
+                </div>
+
+                <div
+                        class="col-auto"
+                        x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
+                        x-transition:enter="side-panel-transition-enter"
+                        x-transition:enter-start="side-panel-transition-enter-start-right"
+                        x-transition:enter-end="side-panel-transition-enter-end"
+                        x-transition:leave="side-panel-transition-leave"
+                        x-transition:leave-start="side-panel-transition-leave-start"
+                        x-transition:leave-end="side-panel-transition-leave-end-right"
+                >
+                    <div
+                            class="row sticky-top border-start border-app-primary side-panel overflow-y-auto"
                     >
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </div>
-                <div class="side-panel-body side-panel-body-right">
-                    <div x-ref="full_page_info_navigation">
-                        {% block full_page_info_navigation %}
-                        {% endblock %}
+                        <div class="col">
+                            <div class="row pb-2">
+                                <div class="col text-center pt-1 h5 text-app-primary">
+                                    {% block full_page_info_navigation_title %}
+                                    {% endblock %}
+                                </div>
+                                <div class="col-auto px-1
+">
+                                    {% block full_page_info_navigation_buttons %}
+                                    {% endblock %}
+                                </div>
+                                <div class="col-auto px-1">
+                                    <button
+                                            class="btn-close-panel"
+                                            type="button"
+                                            x-on:click="show_info_nav = false"
+                                    >
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col" x-ref="full_page_info_navigation">
+                                    {% block full_page_info_navigation %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12 mt-2 px-0">
-                {% block full_page_bottom_content %}
-                    {% include 'django_spire/footer/footer.html' %}
-                {% endblock %}
-            </div>
         </div>
     </div>
-</div>
 {% endblock %}

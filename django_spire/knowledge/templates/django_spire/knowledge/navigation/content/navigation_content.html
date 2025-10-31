@@ -110,16 +110,7 @@
     }"
 >
     <div class="container-fluid">
-        <div class="row align-items-center border-bottom mx-1 pb-2">
-            <div class="col px-0 text-uppercase pb-2 d-flex align-items-center">
-                Collections
-            </div>
-            <div class="col-auto px-0 pb-2">
-                {% if AuthController.knowledge.can_add %}
-                    {% url 'django_spire:knowledge:collection:form:create' as create_url %}
-                    {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
-                {% endif %}
-            </div>
+        <div class="row align-items-center mx-1 pb-2">
             <div class="col-12 px-0">
                 <input
                     class="rounded-2 p-1 form-control"
@@ -132,7 +123,7 @@
         </div>
     </div>
     <div
-        class="user-select-none pe-3"
+        class="user-select-none px-2"
         x-sort:config="{
             handle: '[x-sort\\:handle]',
             distance: 20,
@@ -144,6 +135,7 @@
         <div class="navigation-items">
             <x-collection-navigation :data="{items: manager.collection_map, id: null}"></x-collection-navigation>
         </div>
+
         <div class="search-items">
             <template x-for="(item, index) in Array.from(found_items.values())" :key="index">
                 <div>

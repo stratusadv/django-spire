@@ -201,3 +201,9 @@
 .text-app-link-footer:hover {
     color: var(--app-link-footer-hover) !important;
 }
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

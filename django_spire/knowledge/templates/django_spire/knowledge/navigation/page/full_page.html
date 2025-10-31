@@ -14,6 +14,13 @@
     Collections
 {% endblock %}
 
+{% block full_page_sub_navigation_buttons %}
+    {% if AuthController.knowledge.can_add %}
+        {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+    {% endif %}
+{% endblock %}
+
 {% block full_page_info_navigation_title %}
     More Info
 {% endblock %}

@@ -1,0 +1,50 @@
+<div x-data="{
+        chat_object_id: '',
+        chat_content_type: '',
+        chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
+        chat_load_recent_view:  new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
+
+        init() {
+            this.load_chat(0)
+        },
+        load_recent_chats() {
+            this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
+        },
+        async load_chat(chat_id) {
+            await this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
+                    chat_id: chat_id
+                }
+            )
+            this.load_recent_chats()
+        }
+    }" class="row">
+    <div class="col-auto px-3">
+        <div class="row ">
+            <div
+                    class="col ps-0 pe-2"
+                    x-transition:enter.duration.300ms
+                    x-transition:leave.duration.0ms
+            >
+                <div x-data x-init="load_recent_chats()" class="row">
+                    <div class="col-12">
+
+                        <div class="row">
+                            <div class="col-12">
+                                <button x-on:click="load_chat(0)" class="btn btn-sm btn-app-primary-outlined w-100">
+                                    <i class="bi bi-plus-lg"></i> Create New Chat
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div x-ref="chat_recent_list" class="col-12"
+                                 style="height: calc(100vh - 30px - var(--app-top-navigation-height));">
+                                No Recent Chats
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

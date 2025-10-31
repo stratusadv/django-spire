@@ -1,7 +1,6 @@
 from django.urls import path
 
-from django_spire.ai.chat.views import template_views
-
+from django_spire.ai.chat.views.template import template_views
 
 app_name = 'template'
 

@@ -13,8 +13,16 @@
                     @dragend="toggle_dragging(false)"
                 {% endif %}
                 :id="collection.name"
-                class="my-1 ms-4 collection"
+                :class="{'ms-4': collection.parent.id !== -1}"
+                class="mb-1 collection"
             >
+                <div x-data="{
+                    init() {
+                        console.log(collection)
+                     }
+                }">
+
+                </div>
                 {% include 'django_spire/knowledge/navigation/item/collection/collection_item.html' %}
 
                 <div x-show="is_expanded(collection.id)" class="my-1">
@@ -28,7 +36,7 @@
                         >
                             <template x-for="entry in collection.entries" :key="entry.version_id">
                                 <div
-                                    class="entry"
+                                    class="mb-1 entry"
                                     {% if AuthController.knowledge.can_change %}
                                         x-sort:item="entry"
                                         @dragstart="toggle_dragging(true)"

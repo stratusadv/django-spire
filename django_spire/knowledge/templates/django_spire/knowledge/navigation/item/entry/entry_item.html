@@ -1,5 +1,5 @@
 <div
-    class="row ms-4 knowledge-nav-item cursor-pointer"
+    class="row ms-2 pt-2 pb-1 knowledge-nav-item cursor-pointer"
     :class="entry.version_id === current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
 >
     <a
@@ -9,14 +9,12 @@
         {% endif %}
     >
         <i class="bi bi-file-earmark-text"></i>
-        <span class="fw-normal" x-text="entry.name"></span>
+        <span class="text-truncate" x-text="entry.name"></span>
     </a>
 
     {% if AuthController.knowledge.can_view %}
         <div class="col-auto">
-            <div class="d-flex h-100 justify-content-center align-items-center">
-                {% include 'django_spire/knowledge/navigation/item/entry/dropdown/navigation_ellipsis_dropdown.html' %}
-            </div>
+            {% include 'django_spire/knowledge/navigation/item/entry/dropdown/navigation_ellipsis_dropdown.html' %}
         </div>
     {% endif %}
 </div>

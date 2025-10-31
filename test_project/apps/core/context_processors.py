@@ -13,13 +13,13 @@ def django_spire(request: WSGIRequest) -> dict[str, Any]:
 
 
 def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
-    spire_context_data = django_spire(request)
+    _ = django_spire(request)
 
     return {
         'test_project_apps': [
             {'heading': 'Django Spire'},
-            {'title': 'Ai Management', 'icon': 'bi bi-robot', 'url': reverse('ai:home')},
-            {'title': 'Ai Chat', 'icon': 'bi bi-chat-heart', 'url': reverse('ai:chat:home')},
+            {'title': 'Ai Home', 'icon': 'bi bi-robot', 'url': reverse('ai:home')},
+            {'title': 'Ai Chat', 'icon': 'bi bi-chat-heart', 'url': reverse('django_spire:ai:chat:page:home')},
             {'title': 'Comment', 'icon': 'bi bi-chat-text', 'url': reverse('comment:home')},
             {'title': 'Help Desk', 'icon': 'bi bi-headset', 'url': reverse('help_desk:home')},
             {'title': 'History', 'icon': 'bi bi-clock-history', 'url': reverse('history:home')},
