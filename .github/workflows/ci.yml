@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: ./.github/actions/linting
+      - uses: stratusadv/github-actions/linting@v1
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -36,15 +36,18 @@ jobs:
       DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
     steps:
       - uses: actions/checkout@v5
-      - uses: ./.github/actions/tests
+      - uses: stratusadv/github-actions/tests@v1
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          settings-module: test_project.sqlite_settings
+          sync-extras: development documentation
 
   security:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: ./.github/actions/security
+      - uses: stratusadv/github-actions/security@v1
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          sync-extras: ''
