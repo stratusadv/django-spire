@@ -1,44 +1,36 @@
-<div x-data="{
-        chat_object_id: '',
+<div class="row" x-data="{
         chat_content_type: '',
-        chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
-        chat_load_recent_view:  new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
+        chat_load_recent_view: new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
+        chat_object_id: '',
 
         init() {
-            this.load_chat(0)
+            this.load_recent_chats()
+            $dispatch('load-chat', {chat_id: 0})
         },
         load_recent_chats() {
             this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
-        },
-        async load_chat(chat_id) {
-            await this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
-                    chat_id: chat_id
-                }
-            )
-            this.load_recent_chats()
         }
-    }" class="row">
+    }" @chat-loaded.window="load_recent_chats()">
     <div class="col-auto px-3">
         <div class="row ">
             <div
-                    class="col ps-0 pe-2"
-                    x-transition:enter.duration.300ms
-                    x-transition:leave.duration.0ms
+                class="col ps-0 pe-2"
+                x-transition:enter.duration.300ms
+                x-transition:leave.duration.0ms
             >
-                <div x-data x-init="load_recent_chats()" class="row">
+                <div class="row">
                     <div class="col-12">
 
                         <div class="row">
                             <div class="col-12">
-                                <button x-on:click="load_chat(0)" class="btn btn-sm btn-app-primary-outlined w-100">
+                                <button class="btn btn-sm btn-app-primary-outlined w-100" @click="$dispatch('load-chat', {chat_id: 0})">
                                     <i class="bi bi-plus-lg"></i> Create New Chat
                                 </button>
                             </div>
                         </div>
 
                         <div class="row mt-2">
-                            <div x-ref="chat_recent_list" class="col-12"
-                                 style="height: calc(100vh - 30px - var(--app-top-navigation-height));">
+                            <div class="col-12" style="height: calc(100vh - 30px - var(--app-top-navigation-height));" x-ref="chat_recent_list">
                                 No Recent Chats
                             </div>
                         </div>
