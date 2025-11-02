@@ -1,49 +1,41 @@
-<div x-data="{
-        chat_object_id: '',
+<div
+    class="row"
+    x-data="{
+        active_chat_id: 0,
         chat_content_type: '',
-        chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
-        chat_load_recent_view:  new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
+        chat_load_recent_view: new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
+        chat_object_id: '',
 
         init() {
-            this.load_chat(0)
-        },
-        load_recent_chats() {
-            this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
-        },
-        async load_chat(chat_id) {
-            await this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
-                    chat_id: chat_id
-                }
-            )
             this.load_recent_chats()
+            $dispatch('load-chat', {chat_id: 0})
+        },
+        async load_recent_chats() {
+            await this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
+            $dispatch('chat-activated', {chat_id: this.active_chat_id})
         }
-    }" class="row">
-    <div class="col-auto px-3">
-        <div class="row ">
-            <div
-                    class="col ps-0 pe-2"
-                    x-transition:enter.duration.300ms
-                    x-transition:leave.duration.0ms
-            >
-                <div x-data x-init="load_recent_chats()" class="row">
-                    <div class="col-12">
+    }"
+    @chat-loaded.window="load_recent_chats()"
+    @new-chat-created.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})"
+    @load-chat.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})">
 
-                        <div class="row">
-                            <div class="col-12">
-                                <button x-on:click="load_chat(0)" class="btn btn-sm btn-app-primary-outlined w-100">
-                                    <i class="bi bi-plus-lg"></i> Create New Chat
-                                </button>
-                            </div>
-                        </div>
+    <div class="col-12 px-0">
+        <div class="px-3 py-3">
+            <button @click="$dispatch('load-chat', {chat_id: 0})" class="btn btn-app-primary w-100">
+                <i class="bi bi-plus-lg me-2"></i>New Chat
+            </button>
+        </div>
 
-                        <div class="row mt-2">
-                            <div x-ref="chat_recent_list" class="col-12"
-                                 style="height: calc(100vh - 30px - var(--app-top-navigation-height));">
-                                No Recent Chats
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="border-top border-app-primary"></div>
+
+        <div class="px-3 py-2">
+            <div class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
+                Recent Chats
+            </div>
+        </div>
+
+        <div class="overflow-auto" style="height: calc(100vh - 180px - var(--app-top-navigation-height));">
+            <div class="px-2" x-ref="chat_recent_list">
             </div>
         </div>
     </div>

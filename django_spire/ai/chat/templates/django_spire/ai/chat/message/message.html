@@ -2,17 +2,19 @@
 
 {% block message %}
     {% generate_id as message_intel_id %}
+
     <div
         class="col-auto mb-1 {{ message_class }}"
         @mouseover="show_message_menu = true"
         @mouseleave="show_message_menu = false"
         x-data="{
-            show_message_menu: false,
             message_intel_str: '',
+            show_message_menu: false,
+
             init() {
                 this.message_intel_str = JSON.parse(document.getElementById('{{ message_intel_id }}').textContent)
-                {% if synthesis_speech %}this.start_speaking(this.message_intel_str){% endif %}
-                $el.scrollIntoView({behavior: 'smooth'})
+                {% if synthesis_speech %}$dispatch('speak', {text: this.message_intel_str}){% endif %}
+                {% if not is_loading %}$el.scrollIntoView({behavior: 'smooth'}){% endif %}
             }
         }"
     >
@@ -23,6 +25,10 @@
                     {% block message_sender %}
                         {{ sender }}
                     {% endblock %}
+
+                    {% if message_timestamp %}
+                        <span class="text-muted ms-2" style="font-size: 0.7rem;">{{ message_timestamp }}</span>
+                    {% endif %}
                 </div>
             </div>
             <div class="row">
@@ -37,12 +43,12 @@
                 :class="show_message_menu ? 'opacity-100' : 'opacity-0'"
             >
                 <div class="col-auto px-0">
-                    <div @click="start_speaking(message_intel_str)" class="py-1 px-2 cursor-pointer">
+                    <div @click="$dispatch('speak', {text: message_intel_str})" class="py-1 px-2 cursor-pointer">
                         <i class="bi bi-soundwave"></i>
                     </div>
                 </div>
                 <div class="col-auto pe-0 ps-1">
-                    <div @click="send_chat({message_body: message_intel_str})" class="py-1 px-2 cursor-pointer">
+                    <div @click="$dispatch('send-message', {message_body: message_intel_str})" class="py-1 px-2 cursor-pointer">
                         <i class="bi bi-repeat"></i>
                     </div>
                 </div>

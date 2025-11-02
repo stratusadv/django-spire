@@ -22,7 +22,7 @@ def webhook_view(request):
     body = request.POST.get('Body', '')
     message_sid = request.POST.get('MessageSid', '')
 
-    conversation, created = SmsConversation.objects.get_or_create(
+    conversation, _ = SmsConversation.objects.get_or_create(
         phone_number=from_number
     )
 
@@ -33,7 +33,6 @@ def webhook_view(request):
     )
 
     try:
-
         sms_intel = sms_conversation_workflow(
             request=request,
             user_input=body,
@@ -55,7 +54,6 @@ def webhook_view(request):
         message.save()
 
         return HttpResponse(twiml_response)
-
     except:
         raise
 

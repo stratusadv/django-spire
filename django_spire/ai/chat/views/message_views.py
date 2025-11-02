@@ -24,6 +24,7 @@ def load_messages_render_view(request, chat_id):
         message_group.render_to_html_string(
             {
                 'chat_id': chat.id,
+                'is_loading': True,
             }
         )
     )

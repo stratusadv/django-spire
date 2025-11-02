@@ -1,14 +1,10 @@
-<div
-    class="row justify-content-end ps-4 ps-lg-5"
-    x-data="{
+<div class="row justify-content-end ps-4 ps-lg-5" data-message-chat-id="{{ chat_id }}" {% if not is_loading %}x-data="{
         show_message: false,
+
         init() {
             setTimeout(() => this.show_message = true, 500)
             setTimeout(() => $el.scrollIntoView({behavior: 'smooth'}), 550)
         }
-    }"
-    x-show="show_message"
-    x-transition
->
+    }" x-show="show_message" x-transition{% endif %}>
     {% include message_intel.template with sender_class="text-end" speech_synthesis_class='justify-content-end' content_class="bg-app-layer-three" %}
 </div>

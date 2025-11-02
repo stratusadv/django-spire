@@ -7,9 +7,7 @@ from django_spire.history.querysets import HistoryQuerySet
 
 class ChatQuerySet(HistoryQuerySet):
     def by_user(self, user):
-        return self.filter(
-            user=user,
-        )
+        return self.filter(user=user)
 
     def get_empty_or_create(self, user):
         try:

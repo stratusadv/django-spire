@@ -2,34 +2,86 @@
 
 {% block page_content %}
     <div
-            class="d-flex min-vh-100 w-100"
-            x-data="{
-        show_info_nav: false,
-        show_sub_nav: true,
-        is_mobile: window.innerWidth < 992,
+        @mousemove.window="
+            if (is_resizing_sub && !is_mobile) {
+                let delta = $event.clientX - resize_start_x;
+                sub_nav_width = resize_start_width + delta;
 
-        toggle_sub() {
-            this.show_sub_nav = !this.show_sub_nav;
-
-            if (this.is_mobile) {
-                this.show_info_nav = false;
+                if (sub_nav_width < sub_nav_min_width) sub_nav_width = sub_nav_min_width;
+                if (sub_nav_width > sub_nav_max_width) sub_nav_width = sub_nav_max_width;
             }
-        },
 
-        toggle_info() {
-            this.show_info_nav = !this.show_info_nav;
+            if (is_resizing_info && !is_mobile) {
+                let delta = resize_start_x - $event.clientX;
+                info_nav_width = resize_start_width + delta;
 
-            if (this.is_mobile) {
-                this.show_sub_nav = false;
+                if (info_nav_width < info_nav_min_width) info_nav_width = info_nav_min_width;
+                if (info_nav_width > info_nav_max_width) info_nav_width = info_nav_max_width;
             }
-        },
+        "
+        @mouseup.window="is_resizing_sub = false; is_resizing_info = false"
+        class="d-flex min-vh-100 w-100"
+        x-data="{
+            info_nav_max_width: 600,
+            info_nav_min_width: 200,
+            info_nav_width: 400,
+            is_mobile: window.innerWidth < 992,
+            is_resizing_info: false,
+            is_resizing_sub: false,
+            resize_start_width: 0,
+            resize_start_x: 0,
+            show_info_nav: false,
+            show_sub_nav: window.innerWidth >= 992,
+            sub_nav_has_been_resized: false,
+            sub_nav_max_width: 600,
+            sub_nav_min_width: 300,
+            sub_nav_width: 300,
 
-        init() {
-            window.addEventListener('resize', () => {
-                this.is_mobile = window.innerWidth < 992;
-            });
-        }
-    }"
+            init() {
+                window.addEventListener('resize', () => {
+                    this.is_mobile = window.innerWidth < 992
+                    if (this.is_mobile) {
+                        this.show_sub_nav = false
+                        this.show_info_nav = false
+                    }
+                })
+            },
+
+            start_resize_info(event) {
+                if (!this.is_mobile) {
+                    this.is_resizing_info = true
+                    this.resize_start_x = event.clientX
+                    this.resize_start_width = this.info_nav_width
+                }
+            },
+
+            start_resize_sub(event) {
+                if (!this.is_mobile) {
+                    let current_width = $refs.sub_nav_container.offsetWidth
+                    this.sub_nav_width = current_width
+                    this.sub_nav_has_been_resized = true
+                    this.is_resizing_sub = true
+                    this.resize_start_x = event.clientX
+                    this.resize_start_width = current_width
+                }
+            },
+
+            toggle_info() {
+                this.show_info_nav = !this.show_info_nav
+
+                if (this.is_mobile) {
+                    this.show_sub_nav = false
+                }
+            },
+
+            toggle_sub() {
+                this.show_sub_nav = !this.show_sub_nav
+
+                if (this.is_mobile) {
+                    this.show_info_nav = false
+                }
+            }
+        }"
     >
         <div class="d-none d-lg-block pe-1 side-navigation">
             {% block full_page_side_navigation %}
@@ -48,21 +100,24 @@
 
             <div class="row">
                 <div
-                        class="col-auto"
-                        x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
-                        x-transition:enter="side-panel-transition-enter"
-                        x-transition:enter-start="side-panel-transition-enter-start-left"
-                        x-transition:enter-end="side-panel-transition-enter-end"
-                        x-transition:leave="side-panel-transition-leave"
-                        x-transition:leave-start="side-panel-transition-leave-start"
-                        x-transition:leave-end="side-panel-transition-leave-end-left"
+                    :class="is_mobile ? '' : 'position-relative col-auto'"
+                    :style="is_mobile ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1040;' : (sub_nav_has_been_resized ? `width: ${sub_nav_width}px; min-width: ${sub_nav_width}px; max-width: ${sub_nav_width}px;` : `min-width: ${sub_nav_min_width}px;`)"
+                    x-ref="sub_nav_container"
+                    x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
+                    x-transition:enter="side-panel-transition-enter"
+                    x-transition:enter-end="side-panel-transition-enter-end"
+                    x-transition:enter-start="side-panel-transition-enter-start-left"
+                    x-transition:leave="side-panel-transition-leave"
+                    x-transition:leave-end="side-panel-transition-leave-end-left"
+                    x-transition:leave-start="side-panel-transition-leave-start"
                 >
                     <div
-                            class="row sticky-top border-end border-app-primary side-panel overflow-y-auto"
+                        :style="is_mobile ? 'height: 100vh;' : ''"
+                        class="row sticky-top border-end border-app-primary side-panel overflow-y-auto"
                     >
                         <div class="col">
-                            <div class="row pb-2">
-                                <div class="col text-center pt-1 h5 text-app-primary">
+                            <div class="row pb-2 align-items-center">
+                                <div class="col h5 text-app-primary text-center text-nowrap overflow-hidden text-truncate mb-0" style="min-width: 0;">
                                     {% block full_page_sub_navigation_title %}
                                     {% endblock %}
                                 </div>
@@ -72,67 +127,69 @@
                                 </div>
                                 <div class="col-auto px-1">
                                     <button
-                                            class="btn-close-panel"
-                                            type="button"
-                                            x-on:click="show_sub_nav = false"
+                                        @click="show_sub_nav = false"
+                                        class="btn-close-panel"
+                                        type="button"
                                     >
                                         <i class="bi bi-x-lg f5"></i>
                                     </button>
                                 </div>
-
                             </div>
+
                             <div class="row">
                                 <div class="col" x-ref="full_page_sub_navigation">
                                     {% block full_page_sub_navigation %}
                                     {% endblock %}
                                 </div>
                             </div>
-
                         </div>
-
+                    </div>
+                    <div
+                        @mousedown="start_resize_sub($event)"
+                        class="position-absolute top-0 d-flex align-items-center justify-content-center"
+                        style="cursor: ew-resize; height: 100%; right: -8px; user-select: none; width: 16px; z-index: 1000;"
+                        x-show="!is_mobile"
+                    >
+                        <div class="bg-app-primary rounded-pill" style="height: 40px; width: 10px; opacity: 0.3; transition: opacity 0.2s ease;" @mouseover="$el.style.opacity = '0.6'" @mouseleave="$el.style.opacity = '0.3'"></div>
                     </div>
                 </div>
 
                 <div
-                        class="panel-toggle-container panel-toggle-container-left"
-                        x-show="has_content($refs.full_page_sub_navigation) && !show_sub_nav && !(is_mobile && show_info_nav)"
+                    class="panel-toggle-container panel-toggle-container-left"
+                    x-show="has_content($refs.full_page_sub_navigation) && !show_sub_nav && !(is_mobile && show_info_nav)"
                 >
                     {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
                 </div>
 
-                <div
-                        class="col"
-                        :class="{
-                    'd-none': (show_sub_nav || show_info_nav) && is_mobile
-                }"
-                >
+                <div class="col">
                     {% block full_page_content %}
                     {% endblock %}
 
                     {% block full_page_bottom_content %}
                     {% endblock %}
-
                 </div>
 
                 <div
-                        class="col-auto panel-toggle-container panel-toggle-container-right"
-                        x-show="has_content($refs.full_page_info_navigation) && !show_info_nav && !(is_mobile && show_sub_nav)"
+                    class="col-auto panel-toggle-container panel-toggle-container-right"
+                    x-show="has_content($refs.full_page_info_navigation) && !show_info_nav && !(is_mobile && show_sub_nav)"
                 >
                     {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
                 </div>
 
                 <div
-                        class="col-auto"
-                        x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
-                        x-transition:enter="side-panel-transition-enter"
-                        x-transition:enter-start="side-panel-transition-enter-start-right"
-                        x-transition:enter-end="side-panel-transition-enter-end"
-                        x-transition:leave="side-panel-transition-leave"
-                        x-transition:leave-start="side-panel-transition-leave-start"
-                        x-transition:leave-end="side-panel-transition-leave-end-right"
+                    :class="is_mobile ? '' : 'position-relative col-auto'"
+                    :style="is_mobile ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;`"
+                    x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
+                    x-transition:enter="side-panel-transition-enter"
+                    x-transition:enter-end="side-panel-transition-enter-end"
+                    x-transition:enter-start="side-panel-transition-enter-start-right"
+                    x-transition:leave="side-panel-transition-leave"
+                    x-transition:leave-end="side-panel-transition-leave-end-right"
+                    x-transition:leave-start="side-panel-transition-leave-start"
                 >
                     <div
-                            class="row sticky-top border-start border-app-primary side-panel overflow-y-auto"
+                        :style="is_mobile ? 'height: 100vh;' : ''"
+                        class="row sticky-top border-start border-app-primary side-panel overflow-y-auto bg-app-layer-one"
                     >
                         <div class="col">
                             <div class="row pb-2">
@@ -140,21 +197,23 @@
                                     {% block full_page_info_navigation_title %}
                                     {% endblock %}
                                 </div>
-                                <div class="col-auto px-1
-">
+
+                                <div class="col-auto px-1">
                                     {% block full_page_info_navigation_buttons %}
                                     {% endblock %}
                                 </div>
+
                                 <div class="col-auto px-1">
                                     <button
-                                            class="btn-close-panel"
-                                            type="button"
-                                            x-on:click="show_info_nav = false"
+                                        @click="show_info_nav = false"
+                                        class="btn-close-panel"
+                                        type="button"
                                     >
                                         <i class="bi bi-x-lg"></i>
                                     </button>
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="col" x-ref="full_page_info_navigation">
                                     {% block full_page_info_navigation %}
@@ -163,9 +222,15 @@
                             </div>
                         </div>
                     </div>
+
+                    <div
+                        @mousedown="start_resize_info($event)"
+                        class="position-absolute top-0"
+                        style="cursor: ew-resize; height: 100%; left: -8px; user-select: none; width: 16px; z-index: 1000;"
+                        x-show="!is_mobile"
+                    ></div>
                 </div>
             </div>
-
         </div>
     </div>
 {% endblock %}

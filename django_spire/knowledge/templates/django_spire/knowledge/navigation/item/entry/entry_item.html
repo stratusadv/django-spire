@@ -3,13 +3,13 @@
     :class="entry.version_id === current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
 >
     <a
-        class="col text-decoration-none text-app-default-text-color"
+        class="col d-flex align-items-center overflow-hidden text-decoration-none text-app-default-text-color"
         {% if AuthController.knowledge.can_view %}
             :href="'{% url "django_spire:knowledge:entry:version:page:detail" pk=0 %}'.replace(0, entry.version_id)"
         {% endif %}
     >
-        <i class="bi bi-file-earmark-text"></i>
-        <span class="text-truncate" x-text="entry.name"></span>
+        <i class="bi bi-file-earmark-text flex-shrink-0"></i>
+        <span class="text-truncate ms-1" x-text="entry.name"></span>
     </a>
 
     {% if AuthController.knowledge.can_view %}

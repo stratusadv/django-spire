@@ -1,14 +1,18 @@
 <div
-    x-data="{
-        show_message: false,
-        init() {
-            setTimeout(() => this.show_message = true, 300)
-            setTimeout(() => $el.scrollIntoView({behavior: 'smooth'}), 350)
-        }
-    }"
     class="row justify-content-start pe-4 pe-lg-5"
-    x-show="show_message"
-    x-transition
+    data-message-chat-id="{{ chat_id }}"
+    {% if not is_loading %}
+        x-data="{
+            show_message: false,
+
+            init() {
+                setTimeout(() => this.show_message = true, 300)
+                setTimeout(() => $el.scrollIntoView({behavior: 'smooth'}), 350)
+            }
+        }"
+        x-show="show_message"
+        x-transition
+    {% endif %}
 >
     {% include message_intel.template with content_class="bg-app-alt-layer-three" %}
 </div>

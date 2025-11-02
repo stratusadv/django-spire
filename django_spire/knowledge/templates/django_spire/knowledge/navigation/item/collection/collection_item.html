@@ -3,11 +3,12 @@
     :class="collection.id === current_collection_id && !current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
 >
     <div
-        class="col text-start"
+        class="col d-flex align-items-center overflow-hidden"
         @click="toggle_expand(collection.id)"
     >
         <i
             :class="is_expanded(collection.id) ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
+            class="flex-shrink-0"
             {% if hide_chevron %}
             style="visibility: hidden"
             {% else %}
@@ -15,10 +16,10 @@
             {% endif %}
         ></i>
         <i
-            class="bi"
             :class="is_expanded(collection.id) ? 'bi-folder2-open' : 'bi-folder2'"
+            class="bi flex-shrink-0 ms-1"
         ></i>
-        <span class="text-truncate" x-text="collection.name"></span>
+        <span class="text-truncate ms-1" x-text="collection.name"></span>
     </div>
     {% if AuthController.knowledge.can_view %}
         <div class="col-auto">
