@@ -44,13 +44,11 @@ class DocxConverter(BaseConverter):
             for i in range(0, len(markdown_content), MARKDOWN_AI_CHUNK_SIZE)
         ]
 
-        markdown_format_bot = MarkdownFormatLlmBot()
-
         with ThreadPoolExecutor(max_workers=4) as executor:
             futures = []
             for idx, chunk in enumerate(markdown_content_chunks):
                 future = executor.submit(
-                    markdown_format_bot.process,
+                    MarkdownFormatLlmBot().process,
                     markdown_content=chunk
                 )
                 future.index = idx
