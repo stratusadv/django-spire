@@ -1,79 +1,119 @@
 <div
-    class="mb-2"
+    class="mb-1"
     x-data="{
         can_rename_chat: false,
         chat_name: '{{ recent_chat.name|escapejs }}',
+        is_active: false,
         new_chat_name: '{{ recent_chat.name|escapejs }}',
         show_recent_chat: true,
+
+        cancel_rename_chat() {
+            this.new_chat_name = this.chat_name
+            this.can_rename_chat = false
+        },
+
+        confirm_rename_chat() {
+            this.rename_chat()
+        },
 
         disable_rename_chat() {
             this.can_rename_chat = false
         },
+
         enable_rename_chat() {
             this.can_rename_chat = true
+
+            $nextTick(() => {
+                let input = this.$el.querySelector('input')
+                if (input) input.focus()
+            })
         },
+
         async rename_chat() {
+            if (this.new_chat_name.trim() === '') {
+                this.new_chat_name = this.chat_name
+                this.can_rename_chat = false
+                return
+            }
+
             let response = await django_glue_fetch(
                 '{% url "django_spire:ai:chat:json:rename" pk=recent_chat.pk %}',
                 {payload: {new_name: this.new_chat_name}}
             )
 
             let type = response.type
+
             if (type === 'success') {
                 this.chat_name = this.new_chat_name
             } else {
                 $dispatch('notify', {'type': type, 'message': response.message})
+                this.new_chat_name = this.chat_name
             }
 
             this.can_rename_chat = false
         }
     }"
     x-show="show_recent_chat"
+    @chat-activated.window="is_active = ($event.detail.chat_id === {{ recent_chat.id }})"
+    @click.outside="if (can_rename_chat) cancel_rename_chat()"
     @deleted_chat.window="if (show_recent_chat) show_recent_chat = $event.detail !== {{ recent_chat.id }}"
 >
-    <div class="d-flex flex-wrap justify-content-between btn btn-sm w-100 text-muted">
-        <div
-            x-show="!can_rename_chat"
-            class="col cursor-pointer px-0 text-start text-truncate"
-            @click="$dispatch('load-chat', {chat_id: {{ recent_chat.id }}})"
-        >
-            <i class="bi bi-chat-dots-fill"></i>
-            <span x-text="chat_name"></span>
+    <div
+        :class="is_active ? 'bg-app-layer-two' : ''"
+        class="d-flex align-items-center justify-content-between px-3 py-2 rounded"
+        data-chat-id="{{ recent_chat.id }}"
+        style="min-height: 44px; transition: background-color 0.15s ease;"
+    >
+        <div class="d-flex align-items-center flex-grow-1" style="min-width: 0; width: 0;">
+            <i
+                :class="{
+                    'bi-chat-dots-fill': !can_rename_chat,
+                    'bi-chat-dots': can_rename_chat,
+                    'text-app-primary': is_active || can_rename_chat,
+                    'text-muted': !is_active && !can_rename_chat
+                }"
+                class="bi me-2"
+                style="flex-shrink: 0; font-size: 1rem;"
+            ></i>
+
+            <template x-if="!can_rename_chat">
+                <div @click="$dispatch('load-chat', {chat_id: {{ recent_chat.id }}})" class="cursor-pointer flex-grow-1 text-truncate">
+                    <span class="px-2" x-text="chat_name"></span>
+                </div>
+            </template>
+
+            <template x-if="can_rename_chat">
+                <div class="d-flex align-items-center position-relative" style="flex: 1 1 0; min-width: 0;">
+                    <input
+                        @focus="$el.select()"
+                        @keydown.enter="confirm_rename_chat()"
+                        @keydown.esc="cancel_rename_chat()"
+                        class="form-control pe-5"
+                        style="font-size: 1rem; padding: 0.01rem 0.5rem; width: 100%;"
+                        type="text"
+                        x-init="$el.focus()"
+                        x-model="new_chat_name"
+                    />
+                    <div class="d-flex align-items-center position-absolute" style="gap: 0.5rem; pointer-events: none; right: 8px;">
+                        <i
+                            @click="confirm_rename_chat()"
+                            class="bi bi-check cursor-pointer text-success"
+                            style="font-size: 1.1rem; pointer-events: auto;"
+                            title="Confirm"
+                        ></i>
+                        <i
+                            @click="cancel_rename_chat()"
+                            class="bi bi-x cursor-pointer text-danger"
+                            style="font-size: 1.3rem; pointer-events: auto;"
+                            title="Cancel"
+                        ></i>
+                    </div>
+                </div>
+            </template>
         </div>
-        <div
-            x-show="can_rename_chat"
-            class="col px-0 text-start"
-        >
-            <div class="d-flex flex-wrap align-items-center">
-                <i class="col-auto bi bi-chat-dots-fill"></i>
-                <input
-                    @focus="$el.select()"
-                    @keydown.enter="rename_chat()"
-                    @keydown.esc="disable_rename_chat()"
-                    class="col form-control d-inline p-0 mx-1 fs-7"
-                    style="min-width: 100px;"
-                    type="text"
-                    x-model="new_chat_name"
-                />
-                <i
-                    @click="rename_chat()"
-                    class="col-auto bi bi-check fs-5 btn-hover"
-                    title="Confirm"
-                ></i>
-                <i
-                    @click="disable_rename_chat()"
-                    class="col-auto bi bi-x fs-5 btn-hover"
-                    title="Cancel"
-                ></i>
-            </div>
+
+        <div class="ms-2" style="flex-shrink: 0; visibility: hidden;" :style="can_rename_chat ? '' : 'visibility: visible;'">
+            {% include 'django_spire/ai/chat/dropdown/ellipsis_dropdown.html' %}
         </div>
-        {% if not recent_chat.is_empty %}
-            <div
-                x-show="!can_rename_chat"
-                class="col-auto px-0 text-end"
-            >
-                {% include 'django_spire/ai/chat/dropdown/ellipsis_dropdown.html' %}
-            </div>
-        {% endif %}
     </div>
 </div>

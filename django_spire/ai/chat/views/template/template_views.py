@@ -23,13 +23,7 @@ def dialog_widget_view(request) -> TemplateResponse:
     chat_id = body_data['chat_id']
 
     if chat_id == 0:
-        chat = Chat.objects.get_empty_or_create(
-            user=request.user
-        )
-        chat.name = 'New Chat'
-        chat.last_message_datetime = now()
-        chat.save()
-
+        chat = None
     else:
         chat = Chat.objects.get(
             id=chat_id,

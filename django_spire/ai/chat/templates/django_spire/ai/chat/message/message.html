@@ -2,6 +2,7 @@
 
 {% block message %}
     {% generate_id as message_intel_id %}
+
     <div
         class="col-auto mb-1 {{ message_class }}"
         @mouseover="show_message_menu = true"
@@ -13,7 +14,7 @@
             init() {
                 this.message_intel_str = JSON.parse(document.getElementById('{{ message_intel_id }}').textContent)
                 {% if synthesis_speech %}$dispatch('speak', {text: this.message_intel_str}){% endif %}
-                $el.scrollIntoView({behavior: 'smooth'})
+                {% if not is_loading %}$el.scrollIntoView({behavior: 'smooth'}){% endif %}
             }
         }"
     >
@@ -24,6 +25,10 @@
                     {% block message_sender %}
                         {{ sender }}
                     {% endblock %}
+
+                    {% if message_timestamp %}
+                        <span class="text-muted ms-2" style="font-size: 0.7rem;">{{ message_timestamp }}</span>
+                    {% endif %}
                 </div>
             </div>
             <div class="row">

@@ -4,25 +4,35 @@ import json
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.timezone import now
 
+from django_spire.ai.chat.choices import MessageResponseType
 from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
-from django_spire.ai.chat.responses import MessageResponseGroup, MessageResponse
-from django_spire.ai.chat.choices import MessageResponseType
+from django_spire.ai.chat.responses import MessageResponse, MessageResponseGroup
 
 
 def request_message_render_view(request):
     body_data = json.loads(request.body)
 
-    chat = (
-        Chat.objects
-        .by_user(request.user)
-        .get(id=body_data['chat_id'])
-    )
+    chat_id = body_data['chat_id']
 
-    if chat.is_empty:
-        chat.name = body_data['message_body']
-        chat.save()
+    if chat_id in {0, '0', ''}:
+        chat = Chat.objects.create(
+            user=request.user,
+            name=body_data['message_body'],
+            last_message_datetime=now()
+        )
+    else:
+        chat = (
+            Chat.objects
+            .by_user(request.user)
+            .get(id=chat_id)
+        )
+
+        if chat.is_empty:
+            chat.name = body_data['message_body']
+            chat.save()
 
     message_response_group = MessageResponseGroup()
 

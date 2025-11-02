@@ -9,8 +9,14 @@
 {% endblock %}
 
 {% block full_page_content %}
-    <div class="row" x-data="{
+    <div
+        class="row"
+        x-data="{
             chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
+
+            init() {
+                this.load_chat(0)
+            },
 
             async load_chat(chat_id) {
                 await this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
@@ -20,9 +26,10 @@
 
                 $dispatch('chat-loaded')
             }
-        }" @load-chat.window="load_chat($event.detail.chat_id)">
-        <div class="col" x-ref="chat_dialog">
-            No Chat Loaded
-        </div>
+        }"
+        @deleted_chat.window="load_chat(0)"
+        @load-chat.window="load_chat($event.detail.chat_id)"
+    >
+        <div class="col" x-ref="chat_dialog"></div>
     </div>
 {% endblock %}

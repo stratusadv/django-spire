@@ -25,7 +25,7 @@ def twilio_auth_required(func):
 
         if request_valid:
             return func(request, *args, **kwargs)
-        else:
-            return HttpResponseForbidden()
+
+        return HttpResponseForbidden()
 
     return decorated_function
