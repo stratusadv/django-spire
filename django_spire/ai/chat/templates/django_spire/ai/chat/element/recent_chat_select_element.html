@@ -59,7 +59,7 @@
     @deleted_chat.window="if (show_recent_chat) show_recent_chat = $event.detail !== {{ recent_chat.id }}"
 >
     <div
-        :class="is_active ? 'bg-app-layer-two' : ''"
+        :class="is_active ? 'bg-app-primary-soft' : ''"
         class="d-flex align-items-center justify-content-between px-3 py-2 rounded"
         data-chat-id="{{ recent_chat.id }}"
         style="min-height: 44px; transition: background-color 0.15s ease;"
