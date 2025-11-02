@@ -187,7 +187,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django_glue.context_processors.django_glue',
                 'django_spire.core.context_processors.django_spire',
-                'django_spire.knowledge.context_processors.django_spire_knowledge',
                 'django_spire.core.context_processors.theme_context',
                 'test_project.apps.core.context_processors.test_project',
                 'test_project.apps.core.context_processors.django_spire',

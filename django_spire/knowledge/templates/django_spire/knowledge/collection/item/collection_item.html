@@ -1,0 +1,15 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title %}
+    <a href="{% url 'django_spire:knowledge:collection:page:top_level' pk=collection.id %}">
+        {{ collection.name }}
+    </a>
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="row">
+        <div class="col fs-7 text-muted">
+            {{ collection.description }}
+        </div>
+    </div>
+{% endblock %}

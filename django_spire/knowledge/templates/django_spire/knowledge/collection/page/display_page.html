@@ -1,0 +1,37 @@
+{% extends 'django_spire/knowledge/navigation/page/full_page.html' %}
+
+{% block full_page_sub_navigation_title %}
+	{{ collection.name_short }}
+{% endblock %}
+
+{% block full_page_sub_navigation %}
+    {% include 'django_spire/knowledge/navigation/content/navigation_content.html' with current_collection_id=entry.collection.id current_version_id=current_version.id %}
+{% endblock %}
+
+{% block knowledge_full_page_content %}
+    <div class="row">
+        <div class="col-12 h4 text-app-primary">
+            {{ collection.name }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            Sub Collections: {{ collection.children.count }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            Entries: {{ collection.entries.count }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            Popular Collections & Entries ETC
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            Last Edits ETC
+        </div>
+    </div>
+{% endblock %}

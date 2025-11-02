@@ -1,0 +1,15 @@
+{% extends 'django_spire/card/card.html' %}
+
+{% block card_content %}
+    {% for collection in collections %}
+        <div class="row">
+            <div class="col">
+                {% include 'django_spire/knowledge/collection/item/collection_item.html' %}
+            </div>
+        </div>
+    {% empty %}
+        No Items Found
+    {% endfor %}
+
+{% endblock %}
+

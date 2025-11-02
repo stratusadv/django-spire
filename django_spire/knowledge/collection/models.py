@@ -4,6 +4,7 @@ from django.db import models
 
 from django_spire.auth.group.models import AuthGroup
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
+from django_spire.contrib.utils import truncate_string
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.querysets import CollectionQuerySet
 from django_spire.knowledge.collection.services.service import CollectionGroupService, \
@@ -28,6 +29,10 @@ class Collection(HistoryModelMixin, OrderingModelMixin):
 
     def __str__(self):
         return self.name
+
+    @property
+    def name_short(self) -> str:
+        return truncate_string(self.name, 20)
 
     class Meta:
         verbose_name = 'Collection'

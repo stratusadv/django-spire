@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
+from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.models import EntryVersion
 
@@ -42,6 +43,9 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'entry': entry,
             'current_version': entry_version,
             'version_blocks': json.dumps(list(version_blocks)),
+            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
+                request=request
+            ),
         },
         template='django_spire/knowledge/entry/version/page/detail_page.html',
     )
