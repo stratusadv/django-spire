@@ -20,6 +20,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry_version = get_object_or_404(EntryVersion.objects.prefetch_blocks(),pk=pk)
 
     entry = entry_version.entry
+    top_level_collection = entry.top_level_collection
     version_blocks = entry_version.blocks.format_for_editor()
 
     def breadcrumbs_func(breadcrumbs):
@@ -27,13 +28,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             name='Knowledge',
             href=reverse('django_spire:knowledge:page:home')
         )
-        collection = entry.collection
-        breadcrumbs.add_breadcrumb(
-            name=f'{collection.name}'
-        )
-        breadcrumbs.add_breadcrumb(
-            name=f'{entry.name}',
-        )
+        breadcrumbs.add_base_breadcrumb(entry)
 
     return portal_views.detail_view(
         request,
@@ -42,9 +37,11 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         context_data={
             'entry': entry,
             'current_version': entry_version,
+            'collection': top_level_collection,
             'version_blocks': json.dumps(list(version_blocks)),
             'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                request=request
+                request=request,
+                parent_id=top_level_collection.id,
             ),
         },
         template='django_spire/knowledge/entry/version/page/detail_page.html',

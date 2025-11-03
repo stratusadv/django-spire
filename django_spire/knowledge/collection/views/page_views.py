@@ -16,12 +16,8 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     collection = get_object_or_404(Collection, pk=pk)
 
     breadcrumbs = Breadcrumbs()
-    breadcrumbs.add_breadcrumb(
-        'Knowledge'
-    )
-    breadcrumbs.add_breadcrumb(
-        collection.name
-    )
+    breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
+    breadcrumbs.add_base_breadcrumb(collection)
 
     return portal_views.template_view(
         request,
@@ -31,12 +27,11 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
         context_data={
             'collection': collection,
             'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                request=request
+                request=request, parent_id=collection.id
             ),
         },
         template='django_spire/knowledge/collection/page/display_page.html',
     )
-
 
 
 @AppAuthController('knowledge').permission_required('can_delete')
@@ -47,8 +42,5 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=collection,
         delete_func=collection.services.processor.set_deleted,
-        return_url=request.GET.get(
-            'return_url',
-            reverse('django_spire:knowledge:page:home')
-        )
+        return_url=request.GET.get('return_url', reverse('django_spire:knowledge:page:home')),
     )
