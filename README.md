@@ -1,6 +1,6 @@
 # Django Spire
 
-![Build](https://img.shields.io/github/actions/workflow/status/stratusadv/django-spire/run_tests.yml)
+![Build](https://img.shields.io/github/actions/workflow/status/stratusadv/django-spire/ci.yml)
 ![Python Versions](https://img.shields.io/pypi/pyversions/django-spire)
 ![PyPI Version](https://img.shields.io/pypi/v/django-spire)
 ![Downloads](https://img.shields.io/pypi/dm/django-spire)
