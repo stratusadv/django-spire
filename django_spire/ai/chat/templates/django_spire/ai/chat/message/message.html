@@ -22,13 +22,13 @@
             {{ message_intel.content_to_str|json_script:message_intel_id }}
 
             <div class="row">
-                <div class="col fs--1 px-2 text-muted {{ sender_class }}">
+                <div class="col px-2 text-muted {{ sender_class }}" style="font-size: 0.7rem;">
                     {% block message_sender %}
-                        {{ sender }}
+                        <span class="fw-semibold">{{ sender }}</span>
                     {% endblock %}
 
                     {% if message_timestamp %}
-                        <span class="text-muted ms-2" style="font-size: 0.7rem;">{{ message_timestamp }}</span>
+                        <span>- {{ message_timestamp }}</span>
                     {% endif %}
                 </div>
             </div>
