@@ -1,15 +1,19 @@
-from typing import Callable
+from __future__ import annotations
+
+from typing import Callable, TYPE_CHECKING
 
 from dandy import Decoder
-from django.core.handlers.wsgi import WSGIRequest
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.intelligence.workflows.knowledge_workflow import KnowledgeWorkflow
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+
 
 def generate_intent_decoder(
-        request: WSGIRequest,
-        default_callable: Callable | None = None
+    request: WSGIRequest,
+    default_callable: Callable | None = None
 ) -> Decoder:
     intent_dict = {}
 

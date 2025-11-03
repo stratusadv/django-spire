@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now
@@ -11,17 +13,23 @@ from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.responses import MessageResponse, MessageResponseGroup
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
-def request_message_render_view(request):
+
+def request_message_render_view(request: WSGIRequest) -> HttpResponse:
     body_data = json.loads(request.body)
 
     chat_id = body_data['chat_id']
+
+    current_datetime = now()
+    formatted_timestamp = current_datetime.strftime('%b %d, %Y at %I:%M %p')
 
     if chat_id in {0, '0', ''}:
         chat = Chat.objects.create(
             user=request.user,
             name=body_data['message_body'],
-            last_message_datetime=now()
+            last_message_datetime=current_datetime
         )
     else:
         chat = (
@@ -41,7 +49,8 @@ def request_message_render_view(request):
         sender='You',
         message_intel=DefaultMessageIntel(
             text=body_data['message_body']
-        )
+        ),
+        message_timestamp=formatted_timestamp
     )
 
     message_response_group.add_message_response(

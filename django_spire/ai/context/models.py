@@ -27,10 +27,11 @@ class Organization(HistoryModelMixin):
 
     objects = querysets.OrganizationQuerySet.as_manager()
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
         if self.pk is None:
             if self.__class__.objects.exists():
-                raise ValidationError('Only one AI Organization Context is allowed')
+                message = 'Only one AI Organization Context is allowed'
+                raise ValidationError(message)
 
         return super().save(*args, **kwargs)
 

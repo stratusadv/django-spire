@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from typing import TYPE_CHECKING
+
 from django.http import JsonResponse
 
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import chat_workflow

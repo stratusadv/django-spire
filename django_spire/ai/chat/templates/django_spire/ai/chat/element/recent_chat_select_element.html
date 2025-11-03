@@ -97,14 +97,18 @@
                     <div class="d-flex align-items-center position-absolute" style="gap: 0.5rem; pointer-events: none; right: 8px;">
                         <i
                             @click="confirm_rename_chat()"
+                            @mouseenter="$el.style.opacity = '0.75'"
+                            @mouseleave="$el.style.opacity = '1'"
                             class="bi bi-check cursor-pointer text-success"
-                            style="font-size: 1.1rem; pointer-events: auto;"
+                            style="font-size: 1.1rem; pointer-events: auto; transition: opacity 0.15s ease;"
                             title="Confirm"
                         ></i>
                         <i
                             @click="cancel_rename_chat()"
+                            @mouseenter="$el.style.opacity = '0.75'"
+                            @mouseleave="$el.style.opacity = '1'"
                             class="bi bi-x cursor-pointer text-danger"
-                            style="font-size: 1.3rem; pointer-events: auto;"
+                            style="font-size: 1.3rem; pointer-events: auto; transition: opacity 0.15s ease;"
                             title="Cancel"
                         ></i>
                     </div>

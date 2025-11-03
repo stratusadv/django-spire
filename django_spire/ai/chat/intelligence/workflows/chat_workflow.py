@@ -19,9 +19,10 @@ if TYPE_CHECKING:
 
 @recorder_to_html_file('spire_ai_chat_workflow')
 def chat_workflow(
-    request: WSGIRequest, user_input: str, message_history: MessageHistory | None = None
+    request: WSGIRequest,
+    user_input: str,
+    message_history: MessageHistory | None = None
 ) -> BaseMessageIntel:
-
     if settings.AI_CHAT_DEFAULT_CALLABLE is not None:
         default_process = get_callable_from_module_string_and_validate_arguments(
                 module_string=settings.AI_CHAT_DEFAULT_CALLABLE,

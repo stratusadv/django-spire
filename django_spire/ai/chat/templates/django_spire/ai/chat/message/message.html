@@ -20,8 +20,9 @@
     >
         <div class="container-fluid">
             {{ message_intel.content_to_str|json_script:message_intel_id }}
+
             <div class="row">
-                <div class="col fs--1 {{ sender_class }}">
+                <div class="col fs--1 px-2 text-muted {{ sender_class }}">
                     {% block message_sender %}
                         {{ sender }}
                     {% endblock %}
@@ -31,6 +32,7 @@
                     {% endif %}
                 </div>
             </div>
+
             <div class="row">
                 <div class="col-12 px-3 py-2 rounded-3 shadow-sm {{ content_class|default:'border' }}">
                     {% block message_content %}
@@ -38,6 +40,7 @@
                     {% endblock %}
                 </div>
             </div>
+
             <div
                 class="row justify-content-end"
                 :class="show_message_menu ? 'opacity-100' : 'opacity-0'"

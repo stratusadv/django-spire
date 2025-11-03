@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from django_spire.ai.context import models
 from django_spire.ai.context import choices
 
 from faker import Faker
+
 
 models.Organization.objects.create(
     name='Spire Candy',

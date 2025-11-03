@@ -16,7 +16,7 @@
 
                 setTimeout(() => {
                     if (this.$refs.target_div) {
-                        this.$refs.target_div.scrollTop = this.$refs.target_div.scrollHeight
+                        this.smooth_scroll_to_bottom()
                     }
                 }, 1500)
 
@@ -29,6 +29,28 @@
             load_messages() {
                 let load_messages_view = new ViewGlue(`/django_spire/ai/chat/message/load/chat/${this.chat_id}/`)
                 load_messages_view.render_insert_adjacent(this.$refs.target_div, {})
+            },
+
+            smooth_scroll_to_bottom() {
+                let target = this.$refs.target_div
+                let start = target.scrollTop
+                let end = target.scrollHeight - target.clientHeight
+                let duration = 400
+                let start_time = performance.now()
+
+                function animate(current_time) {
+                    let elapsed = current_time - start_time
+                    let progress = Math.min(elapsed / duration, 1)
+                    let ease = progress * (2 - progress)
+
+                    target.scrollTop = start + (end - start) * ease
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate)
+                    }
+                }
+
+                requestAnimationFrame(animate)
             },
 
             async send_chat({message_body = '', synthesis_speech_for_response = false}) {
@@ -71,7 +93,7 @@
     >
         <div class="col-12">
             <div class="row border-bottom px-0">
-                <div class="col text-center fw-bold pb-2" x-text="chat_name">
+                <div class="col text-center pb-2" x-text="chat_name">
                 </div>
             </div>
 

@@ -6,5 +6,6 @@
             setTimeout(() => $el.scrollIntoView({behavior: 'smooth'}), 550)
         }
     }" x-show="show_message" x-transition{% endif %}>
-    {% include message_intel.template with sender_class="text-end" speech_synthesis_class='justify-content-end' content_class="bg-app-layer-three" %}
+
+    {% include message_intel.template with sender_class="text-end" speech_synthesis_class='justify-content-end' content_class="bg-app-primary-soft" %}
 </div>

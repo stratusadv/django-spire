@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dandy import Prompt
 from django.forms import model_to_dict
 

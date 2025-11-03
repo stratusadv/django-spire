@@ -3,7 +3,7 @@ from __future__ import annotations
 from dandy import Prompt
 
 from django_spire.ai.context.intelligence.prompts.organization_prompts import (
-    organization_info_prompt,
+    organization_info_prompt
 )
 
 
@@ -11,7 +11,7 @@ def chat_system_prompt() -> Prompt:
     return (
         Prompt()
         .text(
-            f'You are a chat assistant, please use the organization information below for answering questions.'
+            'You are a chat assistant, please use the organization information below for answering questions.'
         )
         .line_break()
         .prompt(organization_info_prompt())

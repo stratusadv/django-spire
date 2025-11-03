@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-from dandy import Bot, LlmConfigOptions, recorder_to_html_file
+from dandy import Bot, LlmConfigOptions
 
-from django_spire.ai.prompt.system import prompts
-from django_spire.ai.prompt.system import intel
-from django_spire.ai.prompt.system.intel import SystemPromptIntel
+from django_spire.ai.prompt.system import intel, prompts
 
 
 class RoleSystemPromptBot(Bot):
@@ -70,7 +68,7 @@ class SystemPromptBot(Bot):
         guidelines = guidelines_bot.process(user_story)
         output_format = output_format_bot.process(user_story)
 
-        return SystemPromptIntel(
+        return intel.SystemPromptIntel(
             role=role.result,
             task=task.result,
             guidelines=guidelines.result,
