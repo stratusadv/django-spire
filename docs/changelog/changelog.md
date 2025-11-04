@@ -5,6 +5,11 @@
 ### Feature
 
 - New app `django_spire.ai.context` has been added to create organizational context for the all AI features.
+- Template `django_spire/page/full_page.html` has two new blocks for creating additional navigation.
+  - Block `full_page_sub_navigation` automatically displays when it has content on the left/start and pushes `full_page_content`.
+    - Also see `full_page_sub_navigation_title` and `full_page_sub_navigation_buttons`.
+  - Block `full_page_info_navigation` works similar but does not push content and is on the right/end.
+    - Also see `full_page_info_navigation_title` and `full_page_info_navigation_buttons`.
 
 ### Breaking
 
@@ -19,6 +24,9 @@
 - `settings.AI_CHAT_DEFAULT_CALLABLE` is no longer mandatory.
 - `settings.AI_SMS_CONVERSATION_DEFAULT_CALLABLE` is no longer mandatory.
 
+### Fixes
+
+- Updated `django_spire.ai.chat` and `django_spire.knowledge` to use new sub nav.
 
 ## v0.18.##
 

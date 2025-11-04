@@ -145,7 +145,7 @@
                                 collection: item
                             }"
                         >
-                            {% include 'django_spire/knowledge/navigation/item/collection/collection_item.html' with hide_chevron=True %}
+                            {% include 'django_spire/knowledge/navigation/item/collection/collection_navigation_item.html' with hide_chevron=True %}
                         </div>
                     </template>
                     <template x-if="item?.constructor.name === 'Entry'">
@@ -154,7 +154,7 @@
                                 entry: item
                             }"
                         >
-                            {% include 'django_spire/knowledge/navigation/item/entry/entry_item.html' %}
+                            {% include 'django_spire/knowledge/navigation/item/entry/entry_navigation_item.html' %}
                         </div>
                     </template>
                 </div>

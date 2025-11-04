@@ -1,6 +1,9 @@
 from django.db import models
+from django.urls import reverse
 
+from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
+from django_spire.contrib.utils import truncate_string
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.querysets import EntryQuerySet
@@ -31,6 +34,35 @@ class Entry(HistoryModelMixin, OrderingModelMixin):
 
     def __str__(self):
         return self.name
+
+    @property
+    def name_short(self) -> str:
+        return truncate_string(self.name, 32)
+
+    @property
+    def top_level_collection(self) -> Collection:
+        return self.collection.top_level_parent
+
+    def base_breadcrumb(self) -> Breadcrumbs:
+        bread_crumbs = Breadcrumbs()
+
+        bread_crumbs.add_breadcrumb(
+            self.top_level_collection.name_short,
+            reverse(
+                'django_spire:knowledge:collection:page:top_level',
+                kwargs={'pk': self.top_level_collection.pk}
+            )
+        )
+
+        bread_crumbs.add_breadcrumb(
+            self.collection.name_short
+        )
+
+        bread_crumbs.add_breadcrumb(
+            self.name_short,
+        )
+
+        return bread_crumbs
 
     class Meta:
         verbose_name = 'Entry'

@@ -61,13 +61,13 @@
                 x-data="{
                     editor_element_id: 'knowledge-entry-version-editor',
                     init() {
-                        console.log('Editor blocks:', {{ version_blocks }});
+                        console.log('Editor blocks:', {{ version_blocks }})
                         KNOWLEDGE_ENTRY_VERSION_EDITOR = create_editorjs_instance({
                             holder_id: this.editor_element_id,
                             initial_editor_blocks: {{ version_blocks }},
                             update_url: '{% url "django_spire:knowledge:entry:version:json:update_blocks" pk=entry.id %}'
                         })
-                        console.log('Editor initialized:', KNOWLEDGE_ENTRY_VERSION_EDITOR);
+                        console.log('Editor initialized:', KNOWLEDGE_ENTRY_VERSION_EDITOR)
                     }
                 }"
             >

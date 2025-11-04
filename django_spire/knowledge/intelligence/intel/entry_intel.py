@@ -7,6 +7,8 @@ from django_spire.knowledge.intelligence.intel.collection_intel import Collectio
 
 class EntryIntel(BaseIntel):
     body: str
+    name: str
+    pk: int
     collection_intel: CollectionIntel
 
 
