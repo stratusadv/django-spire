@@ -1,7 +1,7 @@
 {% extends 'django_spire/knowledge/navigation/page/full_page.html' %}
 
 {% block full_page_sub_navigation_title %}
-	{{ collection.name_short }}
+    {{ collection.name_short }}
 {% endblock %}
 
 {% block full_page_sub_navigation %}
@@ -10,27 +10,32 @@
 
 {% block knowledge_full_page_content %}
     <div class="row">
-        <div class="col-12 h4 text-app-primary">
+        <div class="col-12 col-lg-8 mx-auto pb-4 h4 text-app-primary">
             {{ collection.name }}
         </div>
     </div>
     <div class="row">
-        <div class="col-12">
-            Sub Collections: {{ collection.children.count }}
+        <div class="col-12 col-lg-8 mx-auto pb-4">
+            Description:<br>{{ collection.description }}
         </div>
     </div>
     <div class="row">
-        <div class="col-12">
-            Entries: {{ collection.entries.count }}
+        <div class="col-12 col-lg-8 mx-auto pb-4">
+            Sub Collections:<br>{{ collection.children.count }}
         </div>
     </div>
     <div class="row">
-        <div class="col-12">
+        <div class="col-12 col-lg-8 mx-auto pb-4">
+            Entries:<br>{{ collection.entries.count }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-8 mx-auto pb-4">
             Popular Collections & Entries ETC
         </div>
     </div>
     <div class="row">
-        <div class="col-12">
+        <div class="col-12 col-lg-8 mx-auto pb-4">
             Last Edits ETC
         </div>
     </div>

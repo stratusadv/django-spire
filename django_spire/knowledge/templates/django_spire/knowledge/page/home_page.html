@@ -3,12 +3,15 @@
 {% load static %}
 
 {% block full_page_content %}
-    <div class="row">
+    <div class="row my-2">
         <div class="col h5">
             Knowledge Collections
         </div>
         <div class="col-auto text-end">
-            +Add
+            {% if AuthController.knowledge.can_add %}
+                {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+                {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+            {% endif %}
         </div>
     </div>
     <div class="row">

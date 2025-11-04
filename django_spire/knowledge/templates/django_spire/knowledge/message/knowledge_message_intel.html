@@ -1,5 +1,22 @@
 {% extends 'django_spire/ai/chat/message/message.html' %}
 
 {% block message_content %}
-    {{ message_intel.body }}
+    {% for entry_intel in message_intel.entries_intel %}
+
+        <div class="row">
+            <div class="col pt-2">
+                <a href="{% url 'django_spire:knowledge:entry:version:page:detail' pk=entry_intel.pk %}" target="_blank">
+                    {{ entry_intel.name }}
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col pb-2">
+                {{ entry_intel.body }}
+            </div>
+        </div>
+
+    {% endfor %}
+
 {% endblock %}

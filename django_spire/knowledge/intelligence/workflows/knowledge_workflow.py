@@ -30,12 +30,6 @@ class KnowledgeWorkflow:
 
         if collections[0] is None:
             return None
-            # return KnowledgeMessageIntel(
-            #     body=(
-            #         'There was no knowledge related to your request. Please reword it '
-            #         'and try again.'
-            #     )
-            # )
 
         entries = []
         for collection in collections:
@@ -47,12 +41,6 @@ class KnowledgeWorkflow:
 
         if not entries:
             return None
-            # return KnowledgeMessageIntel(
-            #     body=(
-            #         'There was no knowledge related to your request. Please reword it '
-            #         'and try again.'
-            #     )
-            # )
 
         entry_search_bot = EntrySearchLlmBot()
 
@@ -60,10 +48,15 @@ class KnowledgeWorkflow:
             entry_intel_list=[
                 EntryIntel(
                     body=entry_search_bot.process(user_input=user_input, entry=entry),
+                    name=entry.name,
+                    pk=entry.pk,
                     collection_intel=CollectionIntel(name=entry.collection.name),
                 )
                 for entry in entries
             ]
         )
 
-        return KnowledgeMessageIntel(body=f'Entries: {entries_intel}')
+        return KnowledgeMessageIntel(
+            body=f'Entries: {entries_intel}',
+            entries_intel=entries_intel,
+        )
