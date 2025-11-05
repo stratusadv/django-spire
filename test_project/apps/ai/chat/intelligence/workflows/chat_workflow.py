@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from dandy.recorder import recorder_to_html_file
-from dandy import Bot
+from dandy import Bot, Prompt
 
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
 from django_spire.ai.chat.intelligence.prompts import organization_prompt
@@ -57,10 +57,14 @@ class ChatWorkflow:
 
         else:
             response = bot.llm.prompt_to_intel(
-                prompt=user_input,
+                prompt=(
+                    Prompt()
+                    .text(user_input)
+                    .line_break()
+                    .prompt(organization_prompt())
+                ),
                 intel_class=DefaultMessageIntel,
-                message_history=message_history,
-                postfix_system_prompt=organization_prompt()
+                message_history=message_history
             )
 
         return response
