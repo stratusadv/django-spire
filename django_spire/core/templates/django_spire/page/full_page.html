@@ -31,13 +31,21 @@
             resize_start_width: 0,
             resize_start_x: 0,
             show_info_nav: false,
-            show_sub_nav: window.innerWidth >= 992,
+            show_sub_nav: true,
             sub_nav_has_been_resized: false,
             sub_nav_max_width: 600,
             sub_nav_min_width: 300,
             sub_nav_width: 300,
 
             init() {
+                const urlParams = new URLSearchParams(window.location.search);
+
+                if (urlParams.has('show_sub_nav')) {
+                    this.show_sub_nav = urlParams.get('show_sub_nav') === 'true'
+                } else {
+                    this.show_sub_nav = window.innerWidth >= 992
+                }
+
                 window.addEventListener('resize', () => {
                     this.is_mobile = window.innerWidth < 992
                     if (this.is_mobile) {
@@ -150,7 +158,6 @@
                         style="cursor: ew-resize; height: 100%; right: -8px; user-select: none; width: 16px; z-index: 1000;"
                         x-show="!is_mobile"
                     >
-                        <div class="bg-app-primary rounded-pill" style="height: 40px; width: 10px; opacity: 0.3; transition: opacity 0.2s ease;" @mouseover="$el.style.opacity = '0.6'" @mouseleave="$el.style.opacity = '0.3'"></div>
                     </div>
                 </div>
 

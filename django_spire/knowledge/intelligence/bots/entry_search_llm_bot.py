@@ -6,7 +6,7 @@ from dandy.intel.intel import DefaultIntel
 from django_spire.knowledge.entry.models import Entry
 
 
-class EntrySearchLlmBot(Bot):
+class EntrySearchBot(Bot):
     @classmethod
     def process(cls, user_input: str, entry: Entry) -> str:
         entry_prompt = Prompt()
