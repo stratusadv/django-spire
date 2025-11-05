@@ -35,9 +35,13 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
             bot = Bot()
 
             return bot.llm.prompt_to_intel(
-                prompt=horse_description,
-                intel_class=HorseIntel,
-                postfix_system_prompt=Prompt().text('Please create a horse based on the users input.')
+                prompt=(
+                    Prompt()
+                    .text('Please create a horse based on the users input.')
+                    .line_break()
+                    .text(horse_description)
+                ),
+                intel_class=HorseIntel
             )
 
         if not request.POST.get('legal_user_input'):
