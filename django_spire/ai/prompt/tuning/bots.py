@@ -65,8 +65,7 @@ class FormattingBot(Bot):
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
-            intel_class=intel.PromptTuningIntel,
-            postfix_system_prompt=None
+            intel_class=intel.PromptTuningIntel
         )
 
 
@@ -76,8 +75,7 @@ class InstructionClarityBot(Bot):
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
-            intel_class=intel.PromptTuningIntel,
-            postfix_system_prompt=None
+            intel_class=intel.PromptTuningIntel
         )
 
 
@@ -87,8 +85,7 @@ class PersonaBot(Bot):
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
-            intel_class=intel.PromptTuningIntel,
-            postfix_system_prompt=None
+            intel_class=intel.PromptTuningIntel
         )
 
 
@@ -98,8 +95,7 @@ class DuplicationRemovalBot(Bot):
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
-            intel_class=intel.PromptTuningIntel,
-            postfix_system_prompt=None
+            intel_class=intel.PromptTuningIntel
         )
 
 
@@ -109,6 +105,5 @@ class ExampleOptimizationBot(Bot):
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
             prompt=prompts.specialized_bot_input_prompt(system_prompt),
-            intel_class=intel.PromptTuningIntel,
-            postfix_system_prompt=None
+            intel_class=intel.PromptTuningIntel
         )

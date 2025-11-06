@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.18.3
+
+### Fixes
+- Fixed duplicate content during Knowledge Base conversion process.
+
+
+## v0.18.2
+
+### Fixes
+- Fixed incorrect ordering for app notification list and dropdown.
+- Fixed bad dandy call in base seeder.
+
+
 ## v0.18.1
 
 ### Fixes
