@@ -6,7 +6,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchBot
 from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
-from django_spire.knowledge.intelligence.decoders.collection_decoder import CollectionDecoder
+from django_spire.knowledge.intelligence.decoders.collection_decoder import get_collection_decoder
 from django_spire.knowledge.intelligence.decoders.entry_decoder import get_entry_decoder
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ def knowledge_search_workflow(
         user_input: str,
         message_history: MessageHistory,
 ) -> KnowledgeMessageIntel | None:
-    collection_decoder = CollectionDecoder()
+    collection_decoder = get_collection_decoder()
     collections = collection_decoder.process(user_input).values
 
     if collections[0] is None:
