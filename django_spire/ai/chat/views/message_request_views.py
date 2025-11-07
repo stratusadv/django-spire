@@ -2,28 +2,45 @@ from __future__ import annotations
 
 import json
 
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.timezone import now
 
+from django_spire.ai.chat.choices import MessageResponseType
 from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
-from django_spire.ai.chat.responses import MessageResponseGroup, MessageResponse
-from django_spire.ai.chat.choices import MessageResponseType
-from django_spire.consts import AI_CHAT_WORKFLOW_SENDER_SETTINGS_NAME
+from django_spire.ai.chat.responses import MessageResponse, MessageResponseGroup
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
-def request_message_render_view(request):
+def request_message_render_view(request: WSGIRequest) -> HttpResponse:
     body_data = json.loads(request.body)
 
-    chat = (
-        Chat.objects
-        .by_user(request.user)
-        .get(id=body_data['chat_id'])
-    )
+    chat_id = body_data['chat_id']
 
-    if chat.is_empty:
-        chat.name = body_data['message_body']
-        chat.save()
+    current_datetime = now()
+    formatted_timestamp = current_datetime.strftime('%b %d, %Y at %I:%M %p')
+
+    if chat_id in {0, '0', ''}:
+        chat = Chat.objects.create(
+            user=request.user,
+            name=body_data['message_body'],
+            last_message_datetime=current_datetime
+        )
+    else:
+        chat = (
+            Chat.objects
+            .by_user(request.user)
+            .get(id=chat_id)
+        )
+
+        if chat.is_empty:
+            chat.name = body_data['message_body']
+            chat.save()
 
     message_response_group = MessageResponseGroup()
 
@@ -32,7 +49,8 @@ def request_message_render_view(request):
         sender='You',
         message_intel=DefaultMessageIntel(
             text=body_data['message_body']
-        )
+        ),
+        message_timestamp=formatted_timestamp
     )
 
     message_response_group.add_message_response(
@@ -56,7 +74,7 @@ def request_message_render_view(request):
         message_response_group.render_to_html_string(
             context_data={
                 "chat_id": chat.id,
-                "chat_workflow_name": getattr(settings, AI_CHAT_WORKFLOW_SENDER_SETTINGS_NAME),
+                "chat_workflow_name": settings.AI_PERSONA_NAME,
             }
         )
     )

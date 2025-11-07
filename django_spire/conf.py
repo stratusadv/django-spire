@@ -27,8 +27,6 @@ class Settings:
         if django_spire_value is not None:
             return django_spire_value
 
-        message = f'No attribute {name} found in settings.'
-        raise AttributeError(message)
-
+        return None
 
 settings = Settings()

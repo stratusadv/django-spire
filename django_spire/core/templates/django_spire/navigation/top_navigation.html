@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="top-navigation row justify-content-between align-items-center p-1 p-md-2 mb-3 border-bottom shadow-sm">
+<div class="top-navigation row justify-content-between align-items-center p-1 p-md-2 mb-2 border-bottom shadow-sm">
     {% block top_navigation_content %}
         <div class="col">
             <div class="row">
@@ -57,6 +57,12 @@
                                 <a class="dropdown-item fs--1 bg-app-layer-three-hover"
                                    href="{% url 'admin:index' %}" target="_blank">
                                     Admin Panel
+                                </a>
+                            </li>
+                            <li class="py-0  ">
+                                <a class="dropdown-item fs--1 bg-app-layer-three-hover"
+                                   href="{% url 'django_spire:theme:page:dashboard' %}" target="_blank">
+                                    Theme Dashboard
                                 </a>
                             </li>
                         {% endif %}

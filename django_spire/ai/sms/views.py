@@ -6,8 +6,8 @@ from django.views.decorators.http import require_POST
 from twilio.twiml.messaging_response import MessagingResponse
 
 from django_spire.ai.sms.decorators import twilio_auth_required
+from django_spire.ai.sms.intelligence.workflows.sms_conversation_workflow import sms_conversation_workflow
 from django_spire.ai.sms.models import SmsConversation
-from django_spire.ai.sms.tools import sms_workflow_process
 
 
 @csrf_exempt
@@ -22,7 +22,7 @@ def webhook_view(request):
     body = request.POST.get('Body', '')
     message_sid = request.POST.get('MessageSid', '')
 
-    conversation, created = SmsConversation.objects.get_or_create(
+    conversation, _ = SmsConversation.objects.get_or_create(
         phone_number=from_number
     )
 
@@ -33,8 +33,7 @@ def webhook_view(request):
     )
 
     try:
-
-        sms_intel = sms_workflow_process(
+        sms_intel = sms_conversation_workflow(
             request=request,
             user_input=body,
             message_history=conversation.generate_message_history(),
@@ -55,7 +54,6 @@ def webhook_view(request):
         message.save()
 
         return HttpResponse(twiml_response)
-
     except:
         raise
 

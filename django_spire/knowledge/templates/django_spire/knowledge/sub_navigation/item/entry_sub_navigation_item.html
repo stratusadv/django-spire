@@ -1,0 +1,20 @@
+<div
+    class="row ms-2 pt-2 pb-1 knowledge-nav-item cursor-pointer fs-7"
+    :class="entry.version_id === current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
+>
+    <a
+        class="col d-flex align-items-center overflow-hidden text-decoration-none text-app-default-text-color"
+        {% if AuthController.knowledge.can_view %}
+            :href="'{% url "django_spire:knowledge:entry:version:page:editor" pk=0 %}'.replace(0, entry.version_id)"
+        {% endif %}
+    >
+        <i class="bi bi-file-earmark-text flex-shrink-0"></i>
+        <span class="text-truncate ms-1" x-text="entry.name"></span>
+    </a>
+
+    {% if AuthController.knowledge.can_view %}
+        <div class="col-auto">
+            {% include 'django_spire/knowledge/sub_navigation/element/entry_sub_navigation_ellipsis_dropdown.html' %}
+        </div>
+    {% endif %}
+</div>

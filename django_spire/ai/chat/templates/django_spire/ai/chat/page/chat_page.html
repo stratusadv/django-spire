@@ -1,0 +1,35 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_sub_navigation_title %}
+    Chat History
+{% endblock %}
+
+{% block full_page_sub_navigation %}
+    {% include 'django_spire/ai/chat/widget/selection_widget.html' %}
+{% endblock %}
+
+{% block full_page_content %}
+    <div
+        class="row"
+        x-data="{
+            chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
+
+            init() {
+                this.load_chat(0)
+            },
+
+            async load_chat(chat_id) {
+                await this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
+                        chat_id: chat_id
+                    }
+                )
+
+                $dispatch('chat-loaded')
+            }
+        }"
+        @deleted_chat.window="load_chat(0)"
+        @load-chat.window="load_chat($event.detail.chat_id)"
+    >
+        <div class="col" x-ref="chat_dialog"></div>
+    </div>
+{% endblock %}

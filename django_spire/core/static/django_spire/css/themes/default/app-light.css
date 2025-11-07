@@ -44,15 +44,11 @@
     --app-side-navigation-text-color: #ffffff;
     --app-side-navigation-link-color: #ffffff;
     --app-side-navigation-link-hover-color: #0097c9;
-    --app-side-navigation-width: 200px;
-
-    --app-mobile-navigation-width: 200px;
 
     --app-top-navigation-bg-color: #ffffff;
     --app-top-navigation-text-color: #181818;
     --app-top-navigation-link-color: #0097c9;
     --app-top-navigation-link-hover-color: #007ba3;
-    --app-top-navigation-height: 100px;
 
     --app-footer-bg-color: #f5f5f6;
     --app-footer-text-color: #181818;

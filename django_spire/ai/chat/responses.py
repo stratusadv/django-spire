@@ -18,12 +18,14 @@ class MessageResponse:
     type: MessageResponseType
     sender: str
     message_intel: BaseMessageIntel
+    message_timestamp: str | None = None
     synthesis_speech: bool = False
 
     def _render_template_to_html_string(self, template: str, context_data: dict[str, Any] | None = None) -> str:
         return render_to_string(
             template_name=template,
             context={
+                'message_timestamp': self.message_timestamp,
                 'sender': self.sender,
                 'message_intel': self.message_intel,
                 'synthesis_speech': self.synthesis_speech,
@@ -62,6 +64,9 @@ class MessageResponseGroup:
 
     def render_to_html_string(self, context_data: dict[str, Any] | None = None) -> str:
         html_string = ''
+
+        context_data = context_data or {}
+        context_data['is_loading'] = context_data.get('is_loading', False)
 
         for message_response in self.message_responses:
             html_string += message_response.render_to_html_string(context_data)

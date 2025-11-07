@@ -1,11 +1,13 @@
 {% load spire_core_tags %}
 
 {% generate_id as response_message_intel_id %}
+
 <div
     x-data="{
         show_loading: false,
         show_reading: true,
         show_typing: false,
+
         init() {
             this.response_message.render_outer($refs.loading_response_message)
 
@@ -14,6 +16,7 @@
             setTimeout(() => {this.show_reading = false}, 4000)
             setTimeout(() => {this.show_typing = true}, 4000)
         },
+
         response_message: new ViewGlue(
             '{% url "django_spire:ai:chat:message:response:new" %}',
             {
@@ -27,18 +30,20 @@
     x-cloak
 >
     {{ message_intel.text|json_script:response_message_intel_id }}
+
     <div x-ref="loading_response_message" class="row mt-2 pb-3">
         <div class="col-auto align-self-center">
             <div class="row align-items-center">
                 <div class="col-12 fs--1">
                     {{ chat_workflow_name }}
                 </div>
+
                 <div class="col-12 ps-4 pt-2">
-                    <span class="spinner-border spinner-border-sm" role="status">
+                    <span class="spinner-border spinner-border-sm text-muted" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </span>
-                    <span x-show="show_reading">Reading...</span>
-                    <span x-show="show_typing">Typing...</span>
+                    <span class="text-muted" x-show="show_reading">Reading...</span>
+                    <span class="text-muted" x-show="show_typing">Typing...</span>
                 </div>
             </div>
         </div>

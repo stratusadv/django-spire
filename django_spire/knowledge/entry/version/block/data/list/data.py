@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from typing import Optional
 
 from pydantic import model_validator, BaseModel
 
 from django_spire.knowledge.entry.version.block.constants import SPACES_PER_INDENT
-from django_spire.knowledge.entry.version.block.data.data import BaseEditorBlockData
+from django_spire.knowledge.entry.version.block.data.data import BaseEditorJsBlockData
 from django_spire.knowledge.entry.version.block.data.list.meta import ChecklistItemMeta, \
     OrderedListItemMeta
 from django_spire.knowledge.entry.version.block.data.list.choices import \
     ListEditorBlockDataStyle
 
 
-class ListEditorBlockData(BaseEditorBlockData):
+class ListEditorBlockData(BaseEditorJsBlockData):
     style: ListEditorBlockDataStyle | str
     meta: ChecklistItemMeta | OrderedListItemMeta | None = None
     items: list[ListItemEditorBlockData]
@@ -41,7 +40,7 @@ class ListEditorBlockData(BaseEditorBlockData):
 class ListItemEditorBlockData(BaseModel):
     content: str
     meta: ChecklistItemMeta | OrderedListItemMeta | dict | None = None
-    items: Optional[list[ListItemEditorBlockData]] = []
+    items: list[ListItemEditorBlockData] | None = []
 
     def get_prefix(
             self,

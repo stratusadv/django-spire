@@ -10,3 +10,15 @@ function toggle_loading_overlay() {
         spinner.classList.remove('d-none');
     }
 }
+
+function has_content(el) {
+    return Array.from(el.childNodes).some(
+        node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.textContent.trim() !== '';
+            }
+            return node.nodeType === Node.ELEMENT_NODE;
+
+        }
+    )
+}

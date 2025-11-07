@@ -3,22 +3,22 @@ from __future__ import annotations
 import json
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import F, Prefetch
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
-from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
+from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
 @AppAuthController('knowledge').permission_required('can_view')
-def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry_version = get_object_or_404(EntryVersion.objects.prefetch_blocks(),pk=pk)
 
     entry = entry_version.entry
+    top_level_collection = entry.top_level_collection
     version_blocks = entry_version.blocks.format_for_editor()
 
     def breadcrumbs_func(breadcrumbs):
@@ -26,13 +26,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             name='Knowledge',
             href=reverse('django_spire:knowledge:page:home')
         )
-        collection = entry.collection
-        breadcrumbs.add_breadcrumb(
-            name=f'{collection.name}'
-        )
-        breadcrumbs.add_breadcrumb(
-            name=f'{entry.name}',
-        )
+        breadcrumbs.add_base_breadcrumb(entry)
 
     return portal_views.detail_view(
         request,
@@ -40,8 +34,13 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         breadcrumbs_func=breadcrumbs_func,
         context_data={
             'entry': entry,
-            'version': entry_version,
+            'current_version': entry_version,
+            'collection': top_level_collection,
             'version_blocks': json.dumps(list(version_blocks)),
+            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
+                request=request,
+                parent_id=top_level_collection.id,
+            ),
         },
-        template='django_spire/knowledge/entry/version/page/detail_page.html',
+        template='django_spire/knowledge/entry/version/page/editor_page.html',
     )
