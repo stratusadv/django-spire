@@ -6,7 +6,6 @@ from dandy.recorder import recorder_to_html_file
 from dandy import Bot
 
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
-from django_spire.ai.chat.intelligence.prompts import chat_system_prompt
 from test_project.apps.ai.chat.intelligence.maps.intent_map import IntentDecoder
 from test_project.apps.ai.chat.intelligence.message_intels import (
     ClownFlyingDistanceMessageIntel,
@@ -56,7 +55,6 @@ def chat_workflow(
             prompt=user_input,
             intel_class=DefaultMessageIntel,
             message_history=message_history,
-            postfix_system_prompt=chat_system_prompt()
         )
 
     return response
