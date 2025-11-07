@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import F, Prefetch
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -11,12 +10,11 @@ from django.urls import reverse
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
 @AppAuthController('knowledge').permission_required('can_view')
-def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry_version = get_object_or_404(EntryVersion.objects.prefetch_blocks(),pk=pk)
 
     entry = entry_version.entry
@@ -44,5 +42,5 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
                 parent_id=top_level_collection.id,
             ),
         },
-        template='django_spire/knowledge/entry/version/page/detail_page.html',
+        template='django_spire/knowledge/entry/version/page/editor_page.html',
     )

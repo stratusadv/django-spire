@@ -5,7 +5,7 @@
 
         <div class="row">
             <div class="col pt-2">
-                <a href="{% url 'django_spire:knowledge:entry:version:page:detail' pk=entry_intel.entry_id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}" target="_blank">
+                <a href="{% url 'django_spire:knowledge:entry:version:page:editor' pk=entry_intel.entry_id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}" target="_blank">
                     {{ entry_intel.relevant_heading_text }}
                 </a>
             </div>

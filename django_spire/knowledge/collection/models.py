@@ -57,6 +57,7 @@ class Collection(HistoryModelMixin, OrderingModelMixin):
             ('can_access_all_collections', 'Can Access All Collections'),
             ('can_change_collection_groups', 'Can Change Collection Groups'),
         ]
+        ordering = ['name']
 
 
 class CollectionGroup(models.Model):

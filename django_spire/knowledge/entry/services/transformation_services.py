@@ -42,15 +42,15 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
                 if current_version.published_datetime else ''
             ),
             'status': current_version.status,
-            'delete_url': f'''
+            'delete_url': f"""
                 {site}{
                     reverse(
                         'django_spire:knowledge:entry:page:delete',
                         kwargs={'pk': self.obj.pk},
                     )
                 }
-            ''',
-            'edit_url': f'''
+            """,
+            'edit_url': f"""
                 {site}{
                     reverse(
                         'django_spire:knowledge:entry:form:update',
@@ -60,21 +60,21 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
                         },
                     )
                 }
-            ''',
-            'view_url': f'''
+            """,
+            'view_url': f"""
                 {site}{
                     reverse(
-                        'django_spire:knowledge:entry:version:page:detail',
+                        'django_spire:knowledge:entry:version:page:editor',
                         kwargs={'pk': current_version.pk},
                     )
                 }
-            ''',
-            'edit_version_url': f'''
+            """,
+            'edit_version_url': f"""
                 {site}{
                     reverse(
-                        'django_spire:knowledge:entry:version:page:detail',
+                        'django_spire:knowledge:entry:version:page:editor',
                         kwargs={'pk': current_version.pk},
                     )
                 }?view_mode=edit
-            '''
+            """
         }

@@ -18,7 +18,7 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
         model=Collection,
         breadcrumbs_func=breadcrumbs_func,
         context_data={
-            'collections': Collection.objects.parentless().request_user_has_access(request),
+            'collections': Collection.objects.active().parentless().request_user_has_access(request),
         },
         template='django_spire/knowledge/page/home_page.html',
     )

@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block full_page_sub_navigation %}
-    {% include 'django_spire/knowledge/navigation/content/navigation_content.html' with current_collection_id=entry.collection.id current_version_id=current_version.id %}
+    {% include 'django_spire/knowledge/sub_navigation/widget/collection_entry_sub_navigation_widget.html' with current_collection_id=entry.collection.id current_version_id=current_version.id %}
 {% endblock %}
 
 {% block full_page_info_navigation %}

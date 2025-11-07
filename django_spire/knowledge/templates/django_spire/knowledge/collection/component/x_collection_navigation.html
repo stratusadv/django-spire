@@ -23,7 +23,7 @@
                 }">
 
                 </div>
-                {% include 'django_spire/knowledge/navigation/item/collection/collection_navigation_item.html' %}
+                {% include 'django_spire/knowledge/sub_navigation/item/collection_sub_navigation_item.html' %}
 
                 <div x-show="is_expanded(collection.id)" class="my-1">
                     <x-collection-navigation :data="{items: collection.children, id: collection.id}"></x-collection-navigation>
@@ -44,7 +44,7 @@
                                     {% endif %}
                                     :id="entry.name"
                                 >
-                                    {% include 'django_spire/knowledge/navigation/item/entry/entry_navigation_item.html' %}
+                                    {% include 'django_spire/knowledge/sub_navigation/item/entry_sub_navigation_item.html' %}
                                 </div>
                             </template>
                         </div>

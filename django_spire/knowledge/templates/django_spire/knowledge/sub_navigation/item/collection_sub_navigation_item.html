@@ -1,5 +1,5 @@
 <div
-    class="knowledge-nav-item cursor-pointer row pt-2 pb-1"
+    class="knowledge-nav-item cursor-pointer row pt-2 pb-1 fs-7"
     :class="collection.id === current_collection_id && !current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
 >
     <div
@@ -23,7 +23,7 @@
     </div>
     {% if AuthController.knowledge.can_view %}
         <div class="col-auto">
-            {% include 'django_spire/knowledge/navigation/item/collection/dropdown/navigation_ellipsis_dropdown.html' %}
+            {% include 'django_spire/knowledge/sub_navigation/element/collection_sub_navigation_ellipsis_dropdown.html' %}
         </div>
     {% endif %}
 </div>

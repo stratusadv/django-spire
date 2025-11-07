@@ -23,11 +23,13 @@ if TYPE_CHECKING:
 @AppAuthController('knowledge').permission_required('can_add')
 def form_view(
         request: WSGIRequest,
-        pk: int = 0
+        pk: int = 0,
+        parent_pk: int = None,
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=pk)
 
     dg.glue_model_object(request, unique_name='collection', model_object=collection)
+
     dg.glue_query_set(
         request,
         unique_name='collections',
@@ -59,8 +61,16 @@ def form_view(
                 collection=collection,
             )
 
+            if collection.parent_id:
+                return_url = reverse(
+                    'django_spire:knowledge:collection:page:top_level',
+                    kwargs={'pk': collection.parent_id}
+                )
+            else:
+                return_url = reverse('django_spire:knowledge:page:home')
+
             return HttpResponseRedirect(
-                reverse('django_spire:knowledge:page:home')
+                return_url
             )
 
         show_form_errors(request, form)
@@ -73,6 +83,7 @@ def form_view(
         obj=collection,
         context_data={
             'collection': collection,
+            'collection_parent_pk': parent_pk,
             'group_ids': list(
                 collection.groups.all().values_list('auth_group_id', flat=True)
             ) if collection.id else [],

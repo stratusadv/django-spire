@@ -8,8 +8,12 @@
 
 {% block item_row_content %}
     <div class="row">
-        <div class="col fs-7 text-muted">
+        <div class="col fs-7 text-muted pt-2">
             {{ collection.description }}
         </div>
     </div>
+{% endblock %}
+
+{% block item_button %}
+	{% include 'django_spire/knowledge/collection/element/ellipsis_dropdown.html' %}
 {% endblock %}

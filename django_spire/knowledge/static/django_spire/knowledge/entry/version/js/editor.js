@@ -33,11 +33,11 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
             const raw_editor_blocks = await api.saver.save()
 
             const parsed_editor_blocks = raw_editor_blocks.blocks.map((block, i) => ({
-                block_id: block.id,
-                block_order: i,
-                block_data: block.data,
-                block_type: block.type,
-                block_tunes: block?.tunes ?? {},
+                id: block.id,
+                order: i,
+                data: block.data,
+                type: block.type,
+                tunes: block?.tunes ?? {},
             }))
 
            try {

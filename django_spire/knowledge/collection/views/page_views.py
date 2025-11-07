@@ -38,9 +38,20 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 
+    if collection.parent:
+        return_url = request.GET.get(
+            'return_url',
+            reverse(
+                'django_spire:knowledge:collection:page:top_level',
+                kwargs={'pk': collection.parent_id}
+            )
+        )
+    else:
+        return_url = request.GET.get('return_url', reverse('django_spire:knowledge:page:home'))
+
     return portal_views.delete_form_view(
         request,
         obj=collection,
         delete_func=collection.services.processor.set_deleted,
-        return_url=request.GET.get('return_url', reverse('django_spire:knowledge:page:home')),
+        return_url=return_url
     )

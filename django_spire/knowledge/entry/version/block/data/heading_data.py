@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from django_spire.knowledge.entry.version.block.data.data import BaseEditorBlockData
+from django_spire.knowledge.entry.version.block.data.data import BaseEditorJsBlockData
 
 
-class HeadingEditorBlockData(BaseEditorBlockData):
+class HeadingEditorBlockData(BaseEditorJsBlockData):
     text: str
     level: int
 

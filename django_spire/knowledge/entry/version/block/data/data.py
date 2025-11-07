@@ -3,7 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 
-class BaseEditorBlockData(BaseModel):
+class BaseEditorJsBlockData(BaseModel):
     """
     This class serves as a foundational abstract model for EditorJS tool data objects.
 
@@ -29,5 +29,6 @@ class BaseEditorBlockData(BaseModel):
 
         Raises:
             NotImplementedError: If the method is not implemented in a subclass.
+
         """
         raise NotImplementedError

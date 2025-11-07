@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from markitdown import MarkItDown
 
-from django_spire.knowledge.entry.version.constants import MARKDOWN_AI_CHUNK_SIZE
+from django_spire.knowledge.entry.version.consts import MARKDOWN_AI_CHUNK_SIZE
 from django_spire.knowledge.entry.version.converters.converter import \
     BaseConverter
 from django_spire.knowledge.entry.version.block import models

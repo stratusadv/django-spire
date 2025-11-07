@@ -62,6 +62,8 @@ ignore = [
     "A003",
     "ANN002",
     "ANN003",
+    "ANN201",
+    "ANN202",
     "ANN204",
     "ANN401",
     "BLE001",
@@ -99,6 +101,7 @@ ignore = [
     "PLW2901",
     "PT019",
     "PTH123",
+    "RUF012",
     "Q000",
     "Q003",
     "S301",
@@ -123,4 +126,4 @@ skip-magic-trailing-comma = true
 known-first-party = ["system", "app"]
 
 [lint.mccabe]
-max-complexity = 10
+max-complexity = 6

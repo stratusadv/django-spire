@@ -1,8 +1,8 @@
 <form
-    class="row"
-    method="post"
-    action="{% url 'django_spire:knowledge:collection:form:update' pk=collection.pk|default:0 %}"
-    x-data="{
+        class="row"
+        method="post"
+        action="{% url 'django_spire:knowledge:collection:form:update' pk=collection.pk|default:0 %}"
+        x-data="{
         collection: new ModelObjectGlue('collection'),
         collection_query_set: new QuerySetGlue('collections'),
         groups: new GlueCharField('groups'),
@@ -11,6 +11,11 @@
             await this.collection.get()
             this.collection.glue_fields.parent.choices = await this.collection_query_set.to_choices()
             this.collection.glue_fields.parent.label = 'Parent Collection'
+            console.log(this.collection.parent)
+
+            if (!this.collection.parent) {
+                this.collection.parent = {{ collection_parent_pk|default:'null' }}
+            }
 
             this.groups.choices = await this.group_query_set.to_choices()
             this.groups.value = JSON.parse('{{ group_ids }}')
@@ -18,21 +23,28 @@
     }"
 >
     {% csrf_token %}
+
     <div class="col-12">
         {% include 'django_glue/form/field/char_field.html' with glue_model_field='collection.name' %}
     </div>
+
     <div class="col-12 mt-2">
         {% include 'django_glue/form/field/char_field.html' with glue_model_field='collection.description' %}
     </div>
-    <div class="col-12 mt-2">
-        {% include 'django_glue/form/field/search_and_select_field.html' with glue_model_field='collection.parent' %}
-    </div>
+
     {% if AuthController.knowledge.can_change_collection_groups %}
-        <div class="col-12 mt-2">
+        <div class="col-12 col-lg mt-2">
             {% include 'django_glue/form/field/multi_select_field.html' with glue_field='groups' %}
         </div>
     {% endif %}
-    <div class="col-12 mt-2">
+
+    {% if request.GET.top_level != 'True' %}
+        <div class="col-12 col-lg mt-2">
+            {% include 'django_glue/form/field/search_and_select_field.html' with glue_model_field='collection.parent' %}
+        </div>
+    {% endif %}
+
+    <div class="col-12 mt-3">
         {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
     </div>
 </form>

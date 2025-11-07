@@ -4,8 +4,15 @@
     {{ collection.name_short }}
 {% endblock %}
 
+{% block full_page_sub_navigation_buttons %}
+    {% if AuthController.knowledge.can_add %}
+        {% url 'django_spire:knowledge:collection:form:create_with_parent' parent_pk=collection.id as create_url %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+    {% endif %}
+{% endblock %}
+
 {% block full_page_sub_navigation %}
-    {% include 'django_spire/knowledge/navigation/content/navigation_content.html' with current_collection_id=entry.collection.id current_version_id=current_version.id %}
+    {% include 'django_spire/knowledge/sub_navigation/widget/collection_entry_sub_navigation_widget.html' with current_collection_id=entry.collection.id current_version_id=current_version.id %}
 {% endblock %}
 
 {% block knowledge_full_page_content %}
