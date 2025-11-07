@@ -15,6 +15,8 @@ class SeederGeneratorBot(Bot):
         randomize_seed=True
     )
 
+    llm_guidelines = generate_django_model_seeder_system_prompt()
+
     llm_role = 'You are an expert Python developer specializing in Django model seeders.'
 
     def process(
@@ -27,6 +29,5 @@ class SeederGeneratorBot(Bot):
                 model_import,
                 model_description,
             ),
-            intel_class=SourceIntel,
-            postfix_system_prompt=generate_django_model_seeder_system_prompt()
+            intel_class=SourceIntel
         )
