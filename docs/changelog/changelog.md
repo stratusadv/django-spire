@@ -1,18 +1,11 @@
 # Changelog
 
-## v0.##.##
-
-### Feature
-
-- New app `django_spire.ai.context` has been added to create organizational context for the all AI features.
-- Template `django_spire/page/full_page.html` has two new blocks for creating additional navigation.
-  - Block `full_page_sub_navigation` automatically displays when it has content on the left/start and pushes `full_page_content`.
-    - Also see `full_page_sub_navigation_title` and `full_page_sub_navigation_buttons`.
-  - Block `full_page_info_navigation` works similar but does not push content and is on the right/end.
-    - Also see `full_page_info_navigation_title` and `full_page_info_navigation_buttons`.
+## v0.19.0
 
 ### Breaking
 
+- The `djangospire.knowledge` app and it's sub apps have been refactored along with its functionality.
+- The `djangospire.ai.chat` app has been refactored.
 - `settings.AI_CHAT_WORKFLOW_NAME` changed to `settings.AI_PERSONA_NAME`
 - `settings.AI_CHAT_WORKFLOW_CLASS` changed to `settings.AI_CHAT_DEFAULT_CALLABLE`
 - `settings.AI_SMS_CONVERSATION_WORKFLOW_CLASS` changed to `settings.AI_SMS_CONVERSATION_DEFAULT_CALLABLE`
@@ -24,23 +17,23 @@
 - `settings.AI_CHAT_DEFAULT_CALLABLE` is no longer mandatory.
 - `settings.AI_SMS_CONVERSATION_DEFAULT_CALLABLE` is no longer mandatory.
 
-### Fixes
+### Feature
 
-- Updated `django_spire.ai.chat` and `django_spire.knowledge` to use new sub nav.
-
-## v0.18.##
-
-### Features
-
+- New app `django_spire.ai.context` has been added to create organizational context for the all AI features.
+- Template `django_spire/page/full_page.html` has two new blocks for creating additional navigation.
+  - Block `full_page_sub_navigation` automatically displays when it has content on the left/start and pushes `full_page_content`.
+    - Also see `full_page_sub_navigation_title` and `full_page_sub_navigation_buttons`.
+  - Block `full_page_info_navigation` works similar but does not push content and is on the right/end.
+    - Also see `full_page_info_navigation_title` and `full_page_info_navigation_buttons`.
 - Added a button to the profile in the top navigation that allows super users to quickly get to the theme dashboard.
 - The theme app is much more complete and shows all theming on layer 1 and 2 for better design.
 - Created primary dark outlined button.
 
 ### Fixes
 
+- Updated `django_spire.ai.chat` and `django_spire.knowledge` to use new sub nav.
 - Fixed css for `text-app-success` and all variants.
 - Primary button outlined fixed from dark primary colouring to primary.
-
 
 
 ## v0.18.3
