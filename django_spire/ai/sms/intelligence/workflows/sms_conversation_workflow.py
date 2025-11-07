@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 @recorder_to_html_file('spire_ai_sms_conversation_workflow')
 def sms_conversation_workflow(
-    request: WSGIRequest, user_input: str, message_history: MessageHistory | None = None
+    request: WSGIRequest, user_input: str, message_history: MessageHistory | None = None, actor: str | None = None
 ) -> SmsIntel:
     return SmsIntel(
         body=str(
