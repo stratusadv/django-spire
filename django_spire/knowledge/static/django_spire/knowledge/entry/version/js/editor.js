@@ -33,6 +33,7 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
             const raw_editor_blocks = await api.saver.save()
 
             const parsed_editor_blocks = raw_editor_blocks.blocks.map((block, i) => ({
+                block_id: block.id,
                 block_order: i,
                 block_data: block.data,
                 block_type: block.type,
@@ -68,6 +69,24 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
                     if (should_init_editor_in_edit_mode()) {
                         focus_editor()
                     }
+
+                    const block_id = new URLSearchParams(window.location.search).get('block_id')
+
+                    if (block_id) {
+                        setTimeout(() => {
+                            const element = document.querySelector(`[data-id="${block_id}"]`)
+                            console.log('element', element)
+                            if (element) {
+                                element.scrollIntoView({behavior: 'smooth', block: 'center'})
+                                element.style.transition = 'background-color 1s ease'
+                                element.classList.add('bg-app-accent-soft', 'mx-3', 'rounded-3')
+                                setTimeout(() => {
+                                    element.classList.remove('bg-app-accent-soft')
+                                }, 4000)
+                            }
+                        }, 100)
+                    }
+
                 }
             }
             catch (e) {

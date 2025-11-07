@@ -1,67 +1,48 @@
 from __future__ import annotations
 
-from dandy.llm.request.message import MessageHistory
-from django.core.handlers.wsgi import WSGIRequest
+from typing import TYPE_CHECKING
 
-from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import (
-    EntrySearchBot,
-)
-from django_spire.knowledge.intelligence.intel.collection_intel import CollectionIntel
-from django_spire.knowledge.intelligence.intel.entry_intel import (
-    EntriesIntel,
-    EntryIntel,
-)
-from django_spire.knowledge.intelligence.intel.message_intel import (
-    KnowledgeMessageIntel,
-)
-from django_spire.knowledge.intelligence.decoders.collection_decoder import (
-    get_collection_decoder,
-)
+from django.core.handlers.wsgi import WSGIRequest
+from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchBot
+from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
+from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
+from django_spire.knowledge.intelligence.decoders.collection_decoder import CollectionDecoder
 from django_spire.knowledge.intelligence.decoders.entry_decoder import get_entry_decoder
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from dandy.llm.request.message import MessageHistory
 
-class KnowledgeWorkflow:
-    @classmethod
-    def process(
-        cls, request: WSGIRequest, user_input: str, message_history: MessageHistory
-    ) -> KnowledgeMessageIntel | None:
 
-        collection_decoder = get_collection_decoder()
-        collections = collection_decoder.process(user_input).values
+def knowledge_search_workflow(
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory,
+) -> KnowledgeMessageIntel | None:
+    collection_decoder = CollectionDecoder()
+    collections = collection_decoder.process(user_input).values
 
-        if collections[0] is None:
-            return None
+    if collections[0] is None:
+        return None
 
-        entries = []
+    entries = []
 
-        for collection in collections:
-            if collection.entry_count > 0:
-                entry_decoder = get_entry_decoder(collection=collection)
+    for collection in collections:
+        if collection.entry_count > 0:
+            entry_decoder = get_entry_decoder(collection=collection)
 
-                entries.extend(
-                    entry_decoder.process(user_input).values
-                )
+            entries.extend(entry_decoder.process(user_input).values)
 
-        entries = [entry for entry in entries if entry is not None]
+    entries = [entry for entry in entries if entry is not None]
 
-        if not entries:
-            return None
+    if not entries:
+        return None
 
-        entry_search_bot = EntrySearchBot()
+    entries_intel = EntriesIntel(entry_intel_list=[])
 
-        entries_intel = EntriesIntel(
-            entry_intel_list=[
-                EntryIntel(
-                    body=entry_search_bot.process(user_input=user_input, entry=entry),
-                    name=entry.name,
-                    pk=entry.pk,
-                    collection_intel=CollectionIntel(name=entry.collection.name),
-                )
-                for entry in entries
-            ]
+    for entry in entries:
+        entries_intel.append(
+            EntrySearchBot().process(user_input=user_input, entry=entry)
         )
 
-        return KnowledgeMessageIntel(
-            body=f'Entries: {entries_intel}',
-            entries_intel=entries_intel,
-        )
+    return KnowledgeMessageIntel(body=f'Entries: {entries_intel}', entries_intel=entries_intel)

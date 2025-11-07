@@ -6,10 +6,11 @@ from django_spire.knowledge.intelligence.intel.collection_intel import Collectio
 
 
 class EntryIntel(BaseIntel):
-    body: str
-    name: str
-    pk: int
-    collection_intel: CollectionIntel
+    relevant_heading_text: str
+    relevant_subject_text: str
+    relevant_block_id: int
+    entry_id: int = None
+    collection_intel: CollectionIntel = None
 
 
 class EntriesIntel(BaseListIntel[EntryIntel]):

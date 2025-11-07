@@ -6,8 +6,8 @@ from django_spire.knowledge.collection.models import Collection
 
 
 def get_entry_decoder(collection: Collection) -> Decoder:
-    return Decoder(
-        mapping_keys_description = 'Knowledge Entries',
+    class EntryDecoder(Decoder):
+        mapping_keys_description = 'Knowledge Entries'
         mapping = {
             **{
                 entry.name: entry
@@ -15,4 +15,5 @@ def get_entry_decoder(collection: Collection) -> Decoder:
               },
             'No Matching Knowledge Entries': None
         }
-    )
+
+    return EntryDecoder()

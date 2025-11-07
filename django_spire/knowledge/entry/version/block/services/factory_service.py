@@ -37,7 +37,8 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
             block_type: BlockTypeChoices,
             block_data: dict,
             block_order: int,
-            block_tunes: dict = {}
+            block_tunes: dict = {},
+            **kwargs,
     ):
         self.obj.version = entry_version
         self.obj.type = block_type

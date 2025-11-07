@@ -50,6 +50,9 @@ class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
         self._block_data = value.model_dump(exclude_none=True)
         self._text_data = value.render_to_text()
 
+    def update_editor_block_data_from_dict(self, value: dict):
+        self.editor_block_data = EDITOR_BLOCK_DATA_MAP[self.type](**value)
+
     def render_to_text(self) -> str:
         return self.editor_block_data.render_to_text()
 

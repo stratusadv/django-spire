@@ -60,9 +60,9 @@
 >
     <div
         :class="is_active ? 'bg-app-primary-soft' : ''"
-        class="d-flex align-items-center justify-content-between px-3 py-2 rounded"
+        class="d-flex align-items-center justify-content-between px-2 py-1 rounded"
         data-chat-id="{{ recent_chat.id }}"
-        style="min-height: 44px; transition: background-color 0.15s ease;"
+        style="transition: background-color 0.15s ease;"
     >
         <div class="d-flex align-items-center flex-grow-1" style="min-width: 0; width: 0;">
             <i
@@ -73,42 +73,41 @@
                     'text-muted': !is_active && !can_rename_chat
                 }"
                 class="bi me-2"
-                style="flex-shrink: 0; font-size: 1rem;"
+                style="flex-shrink: 0;"
             ></i>
 
             <template x-if="!can_rename_chat">
                 <div @click="$dispatch('load-chat', {chat_id: {{ recent_chat.id }}})" class="cursor-pointer flex-grow-1 text-truncate">
-                    <span class="px-2" x-text="chat_name"></span>
+                    <span class="px-2 fs-7" x-text="chat_name"></span>
                 </div>
             </template>
 
             <template x-if="can_rename_chat">
-                <div class="d-flex align-items-center position-relative" style="flex: 1 1 0; min-width: 0;">
+                <div class="d-flex align-items-center position-relative w-100 py-0 px-1" style="flex: 1 1 0; min-width: 0;">
                     <input
                         @focus="$el.select()"
                         @keydown.enter="confirm_rename_chat()"
                         @keydown.esc="cancel_rename_chat()"
-                        class="form-control pe-5"
-                        style="font-size: 1rem; padding: 0.01rem 0.5rem; width: 100%;"
+                        class="form-control ps-1 pe-5 py-0 fs-7"
                         type="text"
                         x-init="$el.focus()"
                         x-model="new_chat_name"
                     />
-                    <div class="d-flex align-items-center position-absolute" style="gap: 0.5rem; pointer-events: none; right: 8px;">
+                    <div class="d-flex align-items-center position-absolute g-2" style="pointer-events: none; right: 8px;">
                         <i
                             @click="confirm_rename_chat()"
                             @mouseenter="$el.style.opacity = '0.75'"
                             @mouseleave="$el.style.opacity = '1'"
                             class="bi bi-check cursor-pointer text-success"
-                            style="font-size: 1.1rem; pointer-events: auto; transition: opacity 0.15s ease;"
+                            style="pointer-events: auto; transition: opacity 0.15s ease;"
                             title="Confirm"
                         ></i>
                         <i
                             @click="cancel_rename_chat()"
                             @mouseenter="$el.style.opacity = '0.75'"
                             @mouseleave="$el.style.opacity = '1'"
-                            class="bi bi-x cursor-pointer text-danger"
-                            style="font-size: 1.3rem; pointer-events: auto; transition: opacity 0.15s ease;"
+                            class="bi bi-x cursor-pointer text-danger pe-1"
+                            style="pointer-events: auto; transition: opacity 0.15s ease;"
                             title="Cancel"
                         ></i>
                     </div>
