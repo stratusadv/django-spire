@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.19.1
+
+### Changes
+
+- Fix minor CSS issues in AI Chat
+- Fix spire_startapp to include ".html" extension in views
+
 ## v0.19.0
 
 ### Breaking
