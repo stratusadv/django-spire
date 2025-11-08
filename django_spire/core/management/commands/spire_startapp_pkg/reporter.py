@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from string import Template
-from typing import Protocol, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django_spire.core.management.commands.spire_startapp_pkg.maps import generate_replacement_map
 
@@ -10,26 +10,6 @@ if TYPE_CHECKING:
     from typing import Callable
 
     from django.core.management.base import BaseCommand
-
-
-class ReporterInterface(Protocol):
-    """
-    Protocol defining the interface for reporting and user interaction.
-
-    This protocol specifies methods for displaying messages, prompts,
-    and tree structures to the user during app creation.
-    """
-
-    def prompt_confirmation(self, message: str) -> bool: ...
-    def report_app_creation_success(self, app: str) -> None: ...
-    def report_app_exists(self, app: str, destination: Path) -> None: ...
-    def report_creating_app(self, app: str, destination: Path) -> None: ...
-    def report_creating_templates(self, app: str, destination: Path) -> None: ...
-    def report_installed_apps_suggestion(self, missing_components: list[str]) -> None: ...
-    def report_missing_components(self, missing_components: list[str]) -> None: ...
-    def report_templates_creation_success(self, app: str) -> None: ...
-    def report_templates_exist(self, app: str, destination: Path) -> None: ...
-    def write(self, message: str, style: Callable[[str], str]) -> None: ...
 
 
 class Reporter:

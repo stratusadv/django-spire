@@ -2,29 +2,11 @@ from __future__ import annotations
 
 import shutil
 
-from typing import Protocol, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
     from typing import Iterator
-
-
-class FileSystemInterface(Protocol):
-    """
-    Protocol defining the interface for file system operations.
-
-    This protocol specifies the methods required for interacting with
-    the file system during app creation.
-    """
-
-    def copy_tree(self, src: Path, dst: Path) -> None: ...
-    def create_directory(self, path: Path) -> None: ...
-    def exists(self, path: Path) -> bool: ...
-    def has_content(self, path: Path) -> bool: ...
-    def iterate_files(self, path: Path, pattern: str) -> Iterator[Path]: ...
-    def read_file(self, path: Path) -> str: ...
-    def rename(self, old: Path, new: Path) -> None: ...
-    def write_file(self, path: Path, content: str) -> None: ...
 
 
 class FileSystem:

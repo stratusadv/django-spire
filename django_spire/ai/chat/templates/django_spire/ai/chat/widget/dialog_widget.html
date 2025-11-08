@@ -98,8 +98,7 @@
             </div>
 
             <div class="row mb-3">
-                <div class="col-12 overflow-auto p-4" style="height: calc(100vh - 90px - var(--app-top-navigation-height));" x-ref="target_div">
-                </div>
+                <div class="col-12 overflow-auto p-4" style="{{ dialog_height|default:'height: calc(100vh - 90px - var(--app-top-navigation-height));' }}" x-ref="target_div"></div>
             </div>
 
             <div class="row">

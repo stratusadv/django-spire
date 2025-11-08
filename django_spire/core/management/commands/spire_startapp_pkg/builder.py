@@ -7,7 +7,7 @@ from django_spire.core.management.commands.spire_startapp_pkg.maps import genera
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from django_spire.core.management.commands.spire_startapp_pkg.reporter import ReporterInterface
+    from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
 
 
 class TemplateBuilder:
@@ -18,7 +18,7 @@ class TemplateBuilder:
     that will be created for new apps and their associated templates.
     """
 
-    def __init__(self, reporter: ReporterInterface):
+    def __init__(self, reporter: Reporter):
         """
         Initializes the TemplateBuilder with a reporter for output.
 

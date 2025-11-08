@@ -8,9 +8,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from django_spire.core.management.commands.spire_startapp_pkg.config import AppConfig, PathConfig
-    from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystemInterface
+    from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
     from django_spire.core.management.commands.spire_startapp_pkg.processor import TemplateProcessor
-    from django_spire.core.management.commands.spire_startapp_pkg.reporter import ReporterInterface
+    from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
 
 
 class AppGenerator:
@@ -23,15 +23,15 @@ class AppGenerator:
 
     def __init__(
         self,
-        filesystem: FileSystemInterface,
+        filesystem: FileSystem,
         processor: TemplateProcessor,
-        reporter: ReporterInterface,
+        reporter: Reporter,
         path_config: PathConfig
     ):
         """
         Initializes the AppGenerator with required dependencies.
 
-        :param filesystem: File system interface for file operations.
+        :param filesystem: File system for file operations.
         :param processor: Template processor for replacing placeholders.
         :param reporter: Reporter for user feedback and output.
         :param path_config: Configuration containing template paths.
@@ -100,15 +100,15 @@ class TemplateGenerator:
 
     def __init__(
         self,
-        filesystem: FileSystemInterface,
+        filesystem: FileSystem,
         processor: TemplateProcessor,
-        reporter: ReporterInterface,
+        reporter: Reporter,
         path_config: PathConfig
     ):
         """
         Initializes the TemplateGenerator with required dependencies.
 
-        :param filesystem: File system interface for file operations.
+        :param filesystem: File system for file operations.
         :param processor: Template processor for replacing placeholders.
         :param reporter: Reporter for user feedback and output.
         :param path_config: Configuration containing template paths.

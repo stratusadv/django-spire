@@ -1,23 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Protocol
 
 from django.conf import settings
-
-
-class PathResolverInterface(Protocol):
-    """
-    Protocol defining the interface for resolving file system paths.
-
-    This protocol specifies methods for determining where apps and
-    templates should be created in the file system.
-    """
-
-    def get_app_destination(self, components: list[str]) -> Path: ...
-    def get_base_dir(self) -> Path: ...
-    def get_template_destination(self, components: list[str]) -> Path: ...
-    def get_template_dir(self) -> Path: ...
 
 
 class PathResolver:

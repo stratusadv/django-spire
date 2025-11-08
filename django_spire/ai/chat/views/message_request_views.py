@@ -28,7 +28,7 @@ def request_message_render_view(request: WSGIRequest) -> HttpResponse:
     if chat_id in {0, '0', ''}:
         chat = Chat.objects.create(
             user=request.user,
-            name=body_data['message_body'],
+            name=body_data['message_body'][:64],
             last_message_datetime=current_datetime
         )
     else:
@@ -39,7 +39,7 @@ def request_message_render_view(request: WSGIRequest) -> HttpResponse:
         )
 
         if chat.is_empty:
-            chat.name = body_data['message_body']
+            chat.name = body_data['message_body'][:64]
             chat.save()
 
     message_response_group = MessageResponseGroup()

@@ -5,8 +5,9 @@
 
     <div
         class="col-auto mb-1 {{ message_class }}"
-        @mouseover="show_message_menu = true"
         @mouseleave="show_message_menu = false"
+        @mouseover="show_message_menu = true"
+        style="max-width: 70%;"
         x-data="{
             message_intel_str: '',
             show_message_menu: false,
@@ -18,43 +19,33 @@
             }
         }"
     >
-        <div class="container-fluid">
-            {{ message_intel.content_to_str|json_script:message_intel_id }}
+        {{ message_intel.content_to_str|json_script:message_intel_id }}
 
-            <div class="row">
-                <div class="col px-2 text-muted {{ sender_class }}" style="font-size: 0.7rem;">
-                    {% block message_sender %}
-                        <span class="fw-semibold">{{ sender }}</span>
-                    {% endblock %}
+        <div class="px-1 text-muted {{ sender_class }}" style="font-size: 0.7rem;">
+            {% block message_sender %}
+                <span class="fw-semibold">{{ sender }}</span>
+            {% endblock %}
 
-                    {% if message_timestamp %}
-                        <span>- {{ message_timestamp }}</span>
-                    {% endif %}
-                </div>
+            {% if message_timestamp %}
+                <span>- {{ message_timestamp }}</span>
+            {% endif %}
+        </div>
+
+        <div class="d-inline-block px-2 py-1 rounded-3 shadow-sm {{ content_class|default:'border' }}">
+            {% block message_content %}
+                {{ message_intel.content_to_str|linebreaksbr }}
+            {% endblock %}
+        </div>
+
+        <div
+            :class="show_message_menu ? 'opacity-100' : 'opacity-0'"
+            class="d-flex justify-content-end"
+        >
+            <div @click="$dispatch('speak', {text: message_intel_str})" class="py-1 px-2 cursor-pointer">
+                <i class="bi bi-soundwave"></i>
             </div>
-
-            <div class="row">
-                <div class="col-12 px-3 py-2 rounded-3 shadow-sm {{ content_class|default:'border' }}">
-                    {% block message_content %}
-                        {{ message_intel.content_to_str|linebreaksbr }}
-                    {% endblock %}
-                </div>
-            </div>
-
-            <div
-                class="row justify-content-end"
-                :class="show_message_menu ? 'opacity-100' : 'opacity-0'"
-            >
-                <div class="col-auto px-0">
-                    <div @click="$dispatch('speak', {text: message_intel_str})" class="py-1 px-2 cursor-pointer">
-                        <i class="bi bi-soundwave"></i>
-                    </div>
-                </div>
-                <div class="col-auto pe-0 ps-1">
-                    <div @click="$dispatch('send-message', {message_body: message_intel_str})" class="py-1 px-2 cursor-pointer">
-                        <i class="bi bi-repeat"></i>
-                    </div>
-                </div>
+            <div @click="$dispatch('send-message', {message_body: message_intel_str})" class="py-1 px-2 cursor-pointer">
+                <i class="bi bi-repeat"></i>
             </div>
         </div>
     </div>

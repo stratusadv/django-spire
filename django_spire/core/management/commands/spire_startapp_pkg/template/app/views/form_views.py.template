@@ -89,7 +89,7 @@ def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context_data,
-        template='${template_directory_path}/modal/content/${form_template_name}'
+        template='${template_directory_path}/modal/content/${form_template_name}.html'
     )
 
 
@@ -130,5 +130,5 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
         request,
         form=form,
         obj=${context_single_var},
-        template='${template_directory_path}/page/${form_page_template_name}'
+        template='${template_directory_path}/page/${form_page_template_name}.html'
     )
