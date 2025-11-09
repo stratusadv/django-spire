@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import QuerySet
+from django.utils.text import slugify
 
 from django_spire.core.tags.models import Tag
 
@@ -19,17 +20,23 @@ class TagsModelMixin(models.Model):
     def tag_set(self) -> set[str]:
         return set(self.tags.values_list('name', flat=True))
 
-    def add_tag_set(self, tag_set: set[str]):
+    def add_tag_set(self, tag_set: set[str], add_to_aggregated: bool = True):
         self._update_global_tags_from_set(tag_set)
 
-        tag_objects = Tag.objects.filter(name__in=tag_set)
+        tag_objects = Tag.objects.in_tag_set(tag_set)
 
         self.tags.add(*tag_objects)
-        self.aggregated_tags.add(*tag_objects)
+
+        if add_to_aggregated:
+            self.aggregated_tags.add(*tag_objects)
 
     def add_tag_set_to_aggregated_tags(self, tag_set: set[str]):
         self._update_global_tags_from_set(tag_set)
-        self.aggregated_tags.add(*Tag.objects.filter(name__in=tag_set))
+        self.aggregated_tags.add(*Tag.objects.in_tag_set(tag_set))
+
+    @staticmethod
+    def _clean_tag_set(tag_set: set[str]) -> set[str]:
+        return set(map(slugify, tag_set))
 
     def clear_tags(self):
         self.aggregated_tags.remove(*self.tags.all())
@@ -39,13 +46,17 @@ class TagsModelMixin(models.Model):
         self.aggregated_tags.clear()
 
     def get_matching_tags_from_tag_set(self, tag_set: set[str]) -> QuerySet:
-        return self.tags.filter(name__in=tag_set)
+        return self.tags.in_tag_set(tag_set)
 
     def get_matching_tags_in_aggregated_from_tag_set(self, tag_set: set[str]) -> QuerySet:
-        return self.aggregated_tags.filter(name__in=tag_set)
+        return self.aggregated_tags.in_tag_set(tag_set)
 
     def get_matching_tags_percentage_from_tag_set(self, tag_set: set[str]) -> float:
-        return len(self.get_matching_tags_from_tag_set(tag_set)) / len(tag_set) if tag_set else 0.0
+        return (
+            len(self.get_matching_tags_from_tag_set(tag_set)) / len(tag_set)
+            if tag_set
+            else 0.0
+        )
 
     def get_matching_tags_in_aggregated_percentage_from_tag_set(self, tag_set: set[str]) -> float:
         return (
@@ -77,14 +88,16 @@ class TagsModelMixin(models.Model):
     def has_tag_set_in_aggregated(self, tag_set: set[str]) -> bool:
         return len(self.get_matching_tags_in_aggregated_from_tag_set(tag_set)) == len(tag_set)
 
-    def remove_tag_set(self, tag_set: set[str]):
-        tag_objects = Tag.objects.filter(name__in=tag_set)
+    def remove_tag_set(self, tag_set: set[str], remove_from_aggregated: bool = False):
+        tag_objects = Tag.objects.in_tag_set(tag_set)
+
         self.tags.remove(*tag_objects)
-        self.remove_tag_set_from_aggregated(tag_set)
+
+        if remove_from_aggregated:
+            self.aggregated_tags.remove(*tag_objects)
 
     def remove_tag_set_from_aggregated(self, tag_set: set[str]):
-        tag_objects = Tag.objects.filter(name__in=tag_set)
-        self.aggregated_tags.remove(*tag_objects)
+        self.aggregated_tags.remove(*Tag.objects.in_tag_set(tag_set))
 
     @staticmethod
     def _update_global_tags_from_set(tag_set: set[str]):
