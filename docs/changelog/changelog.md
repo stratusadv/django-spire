@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.##.#
+
+### Feature
+
+- New mixin `django_spire.core.tags.mixin` this allows your to properly store and retrieve tag sequences on a model.
+
 ## v0.19.1
 
 ### Changes
