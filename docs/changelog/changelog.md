@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.19.2
+
+### Changes
+
+- Truncate chat name based on message
+
+### Fixes
+- Fix chat/knowledge issue that gave a 500 status code
+- Fix tool typing issues
+
 ## v0.19.1
 
 ### Changes
