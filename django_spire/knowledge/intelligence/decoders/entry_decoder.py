@@ -10,7 +10,7 @@ def get_entry_decoder(collection: Collection) -> Decoder:
         mapping_keys_description = 'Knowledge Entries'
         mapping = {
             **{
-                entry.name: entry
+                f'{entry.tag_set}': entry
                 for entry in collection.entries.all()
               },
             'No Matching Knowledge Entries': None

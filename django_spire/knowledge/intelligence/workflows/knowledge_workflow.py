@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.core.handlers.wsgi import WSGIRequest
+
+from django_spire.ai.chat.message_intel import DefaultMessageIntel, BaseMessageIntel
 from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchBot
 from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
@@ -13,17 +15,21 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from dandy.llm.request.message import MessageHistory
 
+NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
+    text='Sorry, I could not find any information on that.'
+)
+
 
 def knowledge_search_workflow(
         request: WSGIRequest,
         user_input: str,
         message_history: MessageHistory,
-) -> KnowledgeMessageIntel | None:
+) -> BaseMessageIntel | None:
     collection_decoder = get_collection_decoder()
     collections = collection_decoder.process(user_input).values
 
     if collections[0] is None:
-        return None
+        return NO_KNOWLEDGE_MESSAGE_INTEL
 
     entries = []
 
@@ -36,7 +42,7 @@ def knowledge_search_workflow(
     entries = [entry for entry in entries if entry is not None]
 
     if not entries:
-        return None
+        return NO_KNOWLEDGE_MESSAGE_INTEL
 
     entries_intel = EntriesIntel(entry_intel_list=[])
 

@@ -33,10 +33,11 @@ class EntryTagService(BaseDjangoModelService['Entry']):
             content=entry_prompt
         )
 
+        print(tag_set)
+
         self.obj.set_tags_from_tag_set(
             tag_set=tag_set,
             also_set_aggregated=True
         )
-
 
 

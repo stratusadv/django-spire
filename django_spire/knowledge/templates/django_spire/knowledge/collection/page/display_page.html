@@ -46,4 +46,20 @@
             Last Edits ETC
         </div>
     </div>
+    <div class="row">
+        <div class="col-12 col-lg-8 mx-auto pb-4">
+            Tags:
+            {% for tag in collection.tags.all %}
+                <span class="badge bg-secondary">{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-8 mx-auto pb-4">
+            Aggregated Tags:
+            {% for tag in collection.services.tag.get_aggregated_tag_set %}
+                <span class="badge bg-secondary">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

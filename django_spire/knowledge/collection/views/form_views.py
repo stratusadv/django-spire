@@ -61,6 +61,8 @@ def form_view(
                 collection=collection,
             )
 
+            collection.services.tag.process_and_set_tags()
+
             if collection.parent_id:
                 return_url = reverse(
                     'django_spire:knowledge:collection:page:top_level',

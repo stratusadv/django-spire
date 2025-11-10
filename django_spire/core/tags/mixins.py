@@ -5,8 +5,8 @@ from django_spire.core.tags.models import Tag
 
 
 class TagsModelMixin(models.Model):
-    aggregated_tags = models.ManyToManyField(Tag, related_name='+')
-    tags = models.ManyToManyField(Tag, related_name='+')
+    aggregated_tags = models.ManyToManyField(Tag, related_name='+', null=True, blank=True, editable=False)
+    tags = models.ManyToManyField(Tag, related_name='+', null=True, blank=True, editable=False)
 
     class Meta:
         abstract = True

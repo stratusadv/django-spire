@@ -27,6 +27,6 @@ def update_blocks_view(request: WSGIRequest, pk: int) -> JsonResponse:
 def update_entry_from_version_view(request: WSGIRequest, pk: int) -> JsonResponse:
     entry_version = get_object_or_404(EntryVersion, pk=pk)
 
-    entry_version.entry.services.tag.process_tags()
+    entry_version.entry.services.tag.process_and_set_tags()
 
     return JsonResponse({'type': 'success'})
