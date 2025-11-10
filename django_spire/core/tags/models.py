@@ -14,11 +14,6 @@ class Tag(models.Model):
 
     objects = TagQuerySet.as_manager()
 
-    class Meta:
-        db_table = 'django_spire_core_tag'
-        verbose_name = 'Tag'
-        verbose_name_plural = 'Tags'
-
     def __init__(self, *args, **kwargs):
         name = kwargs.get('name')
         if name:
@@ -35,3 +30,9 @@ class Tag(models.Model):
             tags,
             ignore_conflicts=True
         )
+
+    class Meta:
+        db_table = 'django_spire_core_tag'
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+

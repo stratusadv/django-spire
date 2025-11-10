@@ -15,12 +15,6 @@ if TYPE_CHECKING:
 class EntryTagService(BaseDjangoModelService['Entry']):
     obj: Entry
 
-    def update_parent_aggregated_tags(self, tag_set: set[str] | None = None):
-        if self.obj.collection:
-            self.obj.collection.services.tag.update_parent_aggregated_tags(
-                self.obj.get_and_set_aggregated_tag_set(tag_set=tag_set)
-            )
-
     def process_and_set_tags(self):
         entry_prompt = Prompt()
 
@@ -33,11 +27,8 @@ class EntryTagService(BaseDjangoModelService['Entry']):
             content=entry_prompt
         )
 
-        print(tag_set)
-
         self.obj.set_tags_from_tag_set(
             tag_set=tag_set,
-            also_set_aggregated=True
         )
 
 
