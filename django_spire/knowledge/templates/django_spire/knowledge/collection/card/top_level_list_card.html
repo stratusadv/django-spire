@@ -1,0 +1,21 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Knowledge Collections
+{% endblock %}
+
+{% block card_button %}
+    {% if AuthController.knowledge.can_add %}
+        {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_url_params='?top_level=True' button_icon="bi bi-plus" %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% for collection in collections %}
+        {% include 'django_spire/knowledge/collection/item/collection_item.html' %}
+    {% empty %}
+        No Items Found
+    {% endfor %}
+{% endblock %}
+

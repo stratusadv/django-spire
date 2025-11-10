@@ -67,11 +67,21 @@
 }
 
 .btn-app-primary-outlined {
+    color: var(--app-btn-primary) !important;
+    border: 1px solid var(--app-btn-primary) !important;
+}
+
+.btn-app-primary-outlined:hover {
+    background-color: var(--app-btn-primary) !important;
+    color: var(--app-default-button-text-color) !important;
+}
+
+.btn-app-primary-dark-outlined {
     color: var(--app-btn-primary-dark) !important;
     border: 1px solid var(--app-btn-primary-dark) !important;
 }
 
-.btn-app-primary-outlined:hover {
+.btn-app-primary-dark-outlined:hover {
     background-color: var(--app-btn-primary-dark) !important;
     color: var(--app-default-button-text-color) !important;
 }

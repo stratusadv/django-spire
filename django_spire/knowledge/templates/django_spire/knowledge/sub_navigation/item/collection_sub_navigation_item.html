@@ -1,0 +1,29 @@
+<div
+    class="knowledge-nav-item cursor-pointer row pt-2 pb-1 fs-7"
+    :class="collection.id === current_collection_id && !current_version_id ? 'bg-app-primary-soft rounded-2' : ''"
+>
+    <div
+        class="col d-flex align-items-center overflow-hidden"
+        @click="toggle_expand(collection.id)"
+    >
+        <i
+            :class="is_expanded(collection.id) ? 'bi bi-chevron-down' : 'bi bi-chevron-right'"
+            class="flex-shrink-0"
+            {% if hide_chevron %}
+            style="visibility: hidden"
+            {% else %}
+            :style="{visibility: (collection.has_child_collections() || collection.has_entries()) ? 'visible' : 'hidden'}"
+            {% endif %}
+        ></i>
+        <i
+            :class="is_expanded(collection.id) ? 'bi-folder2-open' : 'bi-folder2'"
+            class="bi flex-shrink-0 ms-1"
+        ></i>
+        <span class="text-truncate ms-1" x-text="collection.name"></span>
+    </div>
+    {% if AuthController.knowledge.can_view %}
+        <div class="col-auto">
+            {% include 'django_spire/knowledge/sub_navigation/element/collection_sub_navigation_ellipsis_dropdown.html' %}
+        </div>
+    {% endif %}
+</div>

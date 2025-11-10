@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django_spire.core.management.commands.spire_startapp_pkg.resolver import PathResolverInterface
+    from django_spire.core.management.commands.spire_startapp_pkg.resolver import PathResolver
 
 
 @dataclass(frozen=True)
@@ -84,7 +84,7 @@ class AppConfigFactory:
     paths and processing user inputs.
     """
 
-    def __init__(self, path_resolver: PathResolverInterface):
+    def __init__(self, path_resolver: PathResolver):
         """
         Initializes the factory with a path resolver.
 

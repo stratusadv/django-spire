@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from django.urls import path
 
 from django_spire.ai.sms import views
+
 
 app_name = 'sms'
 

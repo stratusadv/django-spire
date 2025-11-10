@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 @AppAuthController('ai_chat').permission_required('can_delete')
-def home_view(request: WSGIRequest) -> TemplateResponse:
+def chat_view(request: WSGIRequest) -> TemplateResponse:
     breadcrumbs = Breadcrumbs()
     breadcrumbs.add_breadcrumb(name='AI Chat')
 
@@ -22,5 +22,5 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
         page_title='AI Chat',
         page_description='Chat with AI',
         breadcrumbs=breadcrumbs,
-        template='django_spire/ai/chat/page/home_page.html',
+        template='django_spire/ai/chat/page/chat_page.html',
     )

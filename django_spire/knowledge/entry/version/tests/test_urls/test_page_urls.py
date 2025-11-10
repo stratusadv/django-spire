@@ -22,7 +22,7 @@ class EntryVersionPageUrlsTests(BaseTestCase):
     def test_detail_view_url_path(self):
         response = self.client.get(
             reverse(
-                'django_spire:knowledge:entry:version:page:detail',
+                'django_spire:knowledge:entry:version:page:editor',
                 kwargs={'pk': self.test_entry_version.pk}
             )
         )

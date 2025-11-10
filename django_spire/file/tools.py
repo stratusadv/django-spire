@@ -1,12 +1,11 @@
-from typing import List, Type, TypeVar, Any
+from typing import Any
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
 
 from django_spire.file.models import File
 
 
-def copy_files_from_source_to_target_model_object(source: Any[models.Model], target: Any[models.Model]) -> List[File]:
+def copy_files_from_source_to_target_model_object(source: Any, target: Any) -> list[File]:
     target_class = target.__class__
     target_content_type = ContentType.objects.get_for_model(target_class)
 

@@ -1,23 +1,7 @@
 from __future__ import annotations
 
-from typing import Protocol
-
 from django.apps import apps
 from django.conf import settings
-
-
-class AppRegistryInterface(Protocol):
-    """
-    Protocol defining the interface for Django app registry operations.
-
-    This protocol specifies methods for querying registered apps and
-    validating app component paths.
-    """
-
-    def get_installed_apps(self) -> list[str]: ...
-    def get_missing_components(self, components: list[str]) -> list[str]: ...
-    def get_valid_root_apps(self) -> set[str]: ...
-    def is_app_registered(self, app_path: str) -> bool: ...
 
 
 class AppRegistry:

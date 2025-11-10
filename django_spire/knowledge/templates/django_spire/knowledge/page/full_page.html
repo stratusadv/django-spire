@@ -1,0 +1,37 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% load static %}
+
+{% block base_head_additional_css %}
+    <link href="{% static 'django_spire/knowledge/css/navigation_items.css' %}?v={{ DJANGO_SPIRE_VERSION }}" rel="stylesheet">
+{% endblock %}
+
+{% block base_body_top_js %}
+    <script src="{% static 'django_spire/knowledge/collection/js/managers.js' %}?v={{ DJANGO_SPIRE_VERSION }}" type="application/javascript"></script>
+{% endblock %}
+
+{% block full_page_sub_navigation_title %}
+    {{ collection.name_short }}
+{% endblock %}
+
+{% block full_page_sub_navigation_buttons %}
+    {% if AuthController.knowledge.can_add %}
+        {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+    {% endif %}
+{% endblock %}
+
+{% block full_page_info_navigation_title %}
+    More Info
+{% endblock %}
+
+{% block full_page_content %}
+    <div class="main-content-with-panels">
+        {% block knowledge_full_page_content %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block base_body_additional_bottom_js %}
+    <script src="{% static 'django_spire/knowledge/collection/js/x_component.js' %}?v={{ DJANGO_SPIRE_VERSION }}" type="application/javascript"></script>
+{% endblock %}

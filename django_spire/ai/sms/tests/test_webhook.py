@@ -1,14 +1,15 @@
 from unittest.mock import patch
 
-from django.test import TestCase, Client
 from django.urls import reverse
 
 from django_spire.ai.sms.models import SmsConversation
+from django_spire.core.tests.test_cases import BaseTestCase
 
 
-class SmsWebhookTests(TestCase):
+class SmsWebhookTests(BaseTestCase):
     def setUp(self):
-        self.client = Client()
+        super().setUp()
+
         self.webhook_url = reverse('django_spire:ai:sms:webhook')
 
     @patch('twilio.request_validator.RequestValidator.validate')

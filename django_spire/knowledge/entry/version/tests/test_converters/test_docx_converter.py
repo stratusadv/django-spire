@@ -5,7 +5,7 @@ import time
 from unittest.mock import MagicMock, patch
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.knowledge.entry.version.constants import MARKDOWN_AI_CHUNK_SIZE
+from django_spire.knowledge.entry.version.consts import MARKDOWN_AI_CHUNK_SIZE
 from django_spire.knowledge.entry.version.converters.docx_converter import DocxConverter
 
 from django_spire.knowledge.entry.version.tests.factories import \

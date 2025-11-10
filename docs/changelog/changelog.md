@@ -1,5 +1,57 @@
 # Changelog
 
+## v0.19.2
+
+### Changes
+
+- Truncate chat name based on message
+
+### Fixes
+- Fix chat/knowledge issue that gave a 500 status code
+- Fix tool typing issues
+
+## v0.19.1
+
+### Changes
+
+- Fix minor CSS issues in AI Chat
+- Fix spire_startapp to include ".html" extension in views
+
+## v0.19.0
+
+### Breaking
+
+- The `djangospire.knowledge` app and it's sub apps have been refactored along with its functionality.
+- The `djangospire.ai.chat` app has been refactored.
+- `settings.AI_CHAT_WORKFLOW_NAME` changed to `settings.AI_PERSONA_NAME`
+- `settings.AI_CHAT_WORKFLOW_CLASS` changed to `settings.AI_CHAT_DEFAULT_CALLABLE`
+- `settings.AI_SMS_CONVERSATION_WORKFLOW_CLASS` changed to `settings.AI_SMS_CONVERSATION_DEFAULT_CALLABLE`
+- `settings.ORGANIZATION_NAME` has been removed, refer to `django_spire.ai.context`
+- `settings.ORGANIZATION_DESCRIPTION` has been removed, refer to `django_spire.ai.context`
+
+### Changes
+
+- `settings.AI_CHAT_DEFAULT_CALLABLE` is no longer mandatory.
+- `settings.AI_SMS_CONVERSATION_DEFAULT_CALLABLE` is no longer mandatory.
+
+### Feature
+
+- New app `django_spire.ai.context` has been added to create organizational context for the all AI features.
+- Template `django_spire/page/full_page.html` has two new blocks for creating additional navigation.
+  - Block `full_page_sub_navigation` automatically displays when it has content on the left/start and pushes `full_page_content`.
+    - Also see `full_page_sub_navigation_title` and `full_page_sub_navigation_buttons`.
+  - Block `full_page_info_navigation` works similar but does not push content and is on the right/end.
+    - Also see `full_page_info_navigation_title` and `full_page_info_navigation_buttons`.
+- Added a button to the profile in the top navigation that allows super users to quickly get to the theme dashboard.
+- The theme app is much more complete and shows all theming on layer 1 and 2 for better design.
+- Created primary dark outlined button.
+
+### Fixes
+
+- Updated `django_spire.ai.chat` and `django_spire.knowledge` to use new sub nav.
+- Fixed css for `text-app-success` and all variants.
+- Primary button outlined fixed from dark primary colouring to primary.
+
 
 ## v0.18.3
 
@@ -17,12 +69,14 @@
 ## v0.18.1
 
 ### Fixes
+
 - Add missing migration file for Knowledge Base.
 
 
 ## v0.18.0
 
 ### Features
+
 - Knowledge Base editor refactored to EditorJS.
   - Full ordered and unordered list support.
   - Link support.
@@ -33,6 +87,7 @@
   - Editor UI / UX improvements.
 
 ### Changes
+
 - Knowledge Base file conversion refactored to support EditorJS refactor.
   - Paragraph, heading, lists, and checkbox support 
 

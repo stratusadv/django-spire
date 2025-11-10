@@ -26,7 +26,7 @@ def ${detail_page_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=${context_single_var},
         context_data=context_data,
-        template='${template_directory_path}/page/${detail_page_template_name}'
+        template='${template_directory_path}/page/${detail_page_template_name}.html'
     )
 
 
@@ -40,5 +40,5 @@ def ${list_page_view_name}(request: WSGIRequest) -> TemplateResponse:
         request,
         model=models.${model_class_name},
         context_data=context_data,
-        template='${template_directory_path}/page/${list_page_template_name}'
+        template='${template_directory_path}/page/${list_page_template_name}.html'
     )

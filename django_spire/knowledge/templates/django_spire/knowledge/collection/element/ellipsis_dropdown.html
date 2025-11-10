@@ -1,0 +1,22 @@
+{% extends 'django_spire/dropdown/ellipsis_dropdown.html' %}
+
+{% block dropdown_content %}
+    {% if AuthController.knowledge.can_change %}
+        {% url 'django_spire:knowledge:collection:form:update' pk=collection.pk as edit_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_url=edit_url link_icon='bi bi-pencil' link_text='Edit Collection' %}
+    {% endif %}
+
+    {% if AuthController.knowledge.can_add %}
+        {% url 'django_spire:knowledge:entry:form:create' collection_pk=collection.pk as create_entry_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_url=create_entry_url link_icon='bi bi-plus' link_text='Add Entry' %}
+
+        {% url 'django_spire:knowledge:entry:form:import' collection_pk=collection.pk as import_entry_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_url=import_entry_url link_icon='bi bi-upload' link_text='Import Entry' %}
+    {% endif %}
+
+    {% if AuthController.knowledge.can_delete %}
+        {% url 'django_spire:knowledge:collection:page:delete' pk=collection.pk as delete_url %}
+        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with link_url=delete_url link_icon='bi bi-trash3' link_text='Delete Collection' link_css='text-app-danger' %}
+    {% endif %}
+{% endblock %}
+

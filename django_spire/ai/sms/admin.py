@@ -25,11 +25,13 @@ class SmsConversationAdmin(admin.ModelAdmin):
 
     def view_sms_messages_link(self, obj):
         count = obj.messages.count()
+
         url = (
                 reverse("admin:django_spire_ai_sms_smsmessage_changelist")
                 + "?"
                 + urlencode({"sms_conversation__id": f"{obj.id}"})
         )
+
         return format_html('<a href="%s">%s Messages</a>' % (url, count))
 
     view_sms_messages_link.short_description = "Messages"

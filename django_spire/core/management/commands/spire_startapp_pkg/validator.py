@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 from django.core.management.base import CommandError
 
 if TYPE_CHECKING:
-    from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystemInterface
-    from django_spire.core.management.commands.spire_startapp_pkg.registry import AppRegistryInterface
-    from django_spire.core.management.commands.spire_startapp_pkg.reporter import ReporterInterface
-    from django_spire.core.management.commands.spire_startapp_pkg.resolver import PathResolverInterface
+    from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
+    from django_spire.core.management.commands.spire_startapp_pkg.registry import AppRegistry
+    from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
+    from django_spire.core.management.commands.spire_startapp_pkg.resolver import PathResolver
 
 
 class AppValidator:
@@ -21,10 +21,10 @@ class AppValidator:
 
     def __init__(
         self,
-        reporter: ReporterInterface,
-        registry: AppRegistryInterface,
-        path_resolver: PathResolverInterface,
-        filesystem: FileSystemInterface
+        reporter: Reporter,
+        registry: AppRegistry,
+        path_resolver: PathResolver,
+        filesystem: FileSystem
     ):
         """
         Initializes the validator with required dependencies.
@@ -32,7 +32,7 @@ class AppValidator:
         :param reporter: Reporter for displaying error messages.
         :param registry: Registry for checking installed apps.
         :param path_resolver: Path resolver for determining file locations.
-        :param filesystem: File system interface for checking file existence.
+        :param filesystem: File system for checking file existence.
         """
 
         self._filesystem = filesystem

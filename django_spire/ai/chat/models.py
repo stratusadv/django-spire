@@ -143,7 +143,8 @@ class ChatMessage(HistoryModelMixin):
         return MessageResponse(
             type=MessageResponseType(self.response_type),
             sender=self.sender,
-            message_intel=self.intel
+            message_intel=self.intel,
+            message_timestamp=self.created_datetime.strftime('%b %d, %Y at %I:%M %p')
         )
 
     class Meta:

@@ -15,7 +15,9 @@ from django_spire.knowledge.entry.version.models import EntryVersion
 @AppAuthController('knowledge').permission_required('can_change')
 def update_blocks_view(request: WSGIRequest, pk: int) -> JsonResponse:
     entry_version = get_object_or_404(EntryVersion.objects.prefetch_blocks(), pk=pk)
-    new_block_data = json.loads(request.body.decode('utf-8'))
-    entry_version.services.processor.update_blocks(new_block_data)
+
+    block_data_list = json.loads(request.body.decode('utf-8'))
+
+    entry_version.services.processor.add_update_delete_blocks(block_data_list)
 
     return JsonResponse({'type': 'success'})

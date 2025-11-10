@@ -9,15 +9,13 @@ from django_spire.knowledge.entry.version.block.data.text_data import \
     TextEditorBlockData
 
 
-EDITOR_BLOCK_DATA_MAP = {
+EDITOR_JS_BLOCK_DATA_MAP = {
     BlockTypeChoices.TEXT: TextEditorBlockData,
     BlockTypeChoices.HEADING: HeadingEditorBlockData,
     BlockTypeChoices.LIST: ListEditorBlockData,
 }
 
 
-EDITOR_BLOCK_DATA_REVERSE_MAP = {
-    TextEditorBlockData: BlockTypeChoices.TEXT,
-    HeadingEditorBlockData: BlockTypeChoices.HEADING,
-    ListEditorBlockData: BlockTypeChoices.LIST
+EDITOR_JS_BLOCK_DATA_REVERSE_MAP = {
+    value: key for key, value in EDITOR_JS_BLOCK_DATA_MAP.items()
 }

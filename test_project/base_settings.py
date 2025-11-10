@@ -46,12 +46,9 @@ TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 TWILIO_SMS_BATCH_SIZE = 100
 
 # AI Chat Config
-AI_CHAT_WORKFLOW_NAME = 'Rubber Ducky'
-AI_CHAT_WORKFLOW_CLASS = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.ChatWorkflow'
-AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.SmsConversationWorkflow'
-
-ORGANIZATION_NAME = 'Synergistic Energistic Inc.'
-ORGANIZATION_DESCRIPTION = 'Marketing organization focused on the word synergy and energetically saying it as much as possible.'
+AI_PERSONA_NAME = 'Rubber Ducky'
+AI_CHAT_DEFAULT_CALLABLE = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.chat_workflow'
+AI_SMS_CONVERSATION_DEFAULT_CALLABLE = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.sms_conversation_workflow'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True
@@ -79,6 +76,7 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [
     'django_spire.ai',
     'django_spire.ai.chat',
+    'django_spire.ai.context',
     'django_spire.ai.sms',
 
     'django_spire.auth',
@@ -189,7 +187,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django_glue.context_processors.django_glue',
                 'django_spire.core.context_processors.django_spire',
-                'django_spire.knowledge.context_processors.django_spire_knowledge',
                 'django_spire.core.context_processors.theme_context',
                 'test_project.apps.core.context_processors.test_project',
                 'test_project.apps.core.context_processors.django_spire',

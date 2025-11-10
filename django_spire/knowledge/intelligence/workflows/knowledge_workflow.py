@@ -1,56 +1,48 @@
 from __future__ import annotations
 
-from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchLlmBot
-from django_spire.knowledge.intelligence.intel.collection_intel import CollectionIntel
-from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel, EntryIntel
+from typing import TYPE_CHECKING
+
+from django.core.handlers.wsgi import WSGIRequest
+from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchBot
+from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
-from django_spire.knowledge.intelligence.maps.collection_map import get_collection_map_class
-from django_spire.knowledge.intelligence.maps.entry_map import get_entry_map_class
+from django_spire.knowledge.intelligence.decoders.collection_decoder import get_collection_decoder
+from django_spire.knowledge.intelligence.decoders.entry_decoder import get_entry_decoder
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from dandy.llm.request.message import MessageHistory
 
 
-class KnowledgeWorkflow:
-    @classmethod
-    def process(cls, user_input: str) -> KnowledgeMessageIntel:
-        CollectionMap = get_collection_map_class()
-        collections = CollectionMap().process(user_input).values
+def knowledge_search_workflow(
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory,
+) -> KnowledgeMessageIntel | None:
+    collection_decoder = get_collection_decoder()
+    collections = collection_decoder.process(user_input).values
 
-        if collections[0] is None:
-            return KnowledgeMessageIntel(
-                body=(
-                    'There was no knowledge related to your request. Please reword it '
-                    'and try again.'
-                )
-            )
+    if collections[0] is None:
+        return None
 
-        entries = []
-        for collection in collections:
-            if collection.entry_count > 0:
-                EntryMap = get_entry_map_class(collection=collection)
-                entries.extend(EntryMap().process(user_input).values)
+    entries = []
 
-        entries = [entry for entry in entries if entry is not None]
+    for collection in collections:
+        if collection.entry_count > 0:
+            entry_decoder = get_entry_decoder(collection=collection)
 
-        if not entries:
-            return KnowledgeMessageIntel(
-                body=(
-                    'There was no knowledge related to your request. Please reword it '
-                    'and try again.'
-                )
-            )
+            entries.extend(entry_decoder.process(user_input).values)
 
-        entry_search_bot = EntrySearchLlmBot()
+    entries = [entry for entry in entries if entry is not None]
 
-        entries_intel = EntriesIntel(
-            entry_intel_list=[
-                EntryIntel(
-                    body=entry_search_bot.process(
-                        user_input=user_input,
-                        entry=entry
-                    ),
-                    collection_intel=CollectionIntel(name=entry.collection.name)
-                )
-                for entry in entries
-            ]
+    if not entries:
+        return None
+
+    entries_intel = EntriesIntel(entry_intel_list=[])
+
+    for entry in entries:
+        entries_intel.append(
+            EntrySearchBot().process(user_input=user_input, entry=entry)
         )
 
-        return KnowledgeMessageIntel(body=f'Entries: {entries_intel}')
+    return KnowledgeMessageIntel(body=f'Entries: {entries_intel}', entries_intel=entries_intel)

@@ -1,0 +1,168 @@
+<div
+    x-data="{
+        user_search: '',
+        found_items: new Map(),
+        manager: new CollectionManager({{ collection_tree_json }}),
+        is_dragging: false,
+        current_collection_id: {{ current_collection_id|default:'null' }},
+        current_version_id: {{ current_version_id|default:'null' }},
+        top_level_collection_id: {{ collection.id }},
+        expanded_ids: [],
+
+        init() {
+            if (this.current_collection_id) {
+                this.expand_path_to(this.current_collection_id)
+            }
+        },
+
+        expand_path_to(collection_id) {
+            const collection = this.manager.collection_lookup_map.get(collection_id)
+            if (!collection) return
+
+            let current = collection
+            let ids_to_expand = []
+
+            while (current && current.id !== -1) {
+                ids_to_expand.push(current.id)
+                current = current.parent
+            }
+
+            this.expanded_ids = ids_to_expand
+        },
+
+        is_expanded(collection_id) {
+            return this.expanded_ids.includes(collection_id)
+        },
+
+        toggle_expand(collection_id) {
+            if (this.is_expanded(collection_id)) {
+                this.expanded_ids = this.expanded_ids.filter(id => id !== collection_id)
+            } else {
+                this.expanded_ids.push(collection_id)
+            }
+        },
+
+        toggle_dragging(value) {
+            this.is_dragging = value
+        },
+
+        async move_collection({collection, order, new_parent}) {
+            let response = null
+            if (new_parent === null) {
+                new_parent = this.top_level_collection_id
+            }
+            try {
+                response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:collection:json:reorder" %}',
+                    {payload: {collection_id: collection.id, order: order, parent: new_parent}}
+                )
+            } catch (e) {
+                 $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
+            }
+
+            if (response.type === 'error') {
+                $dispatch('notify', {'type': response.type, 'message': response.message})
+            }
+
+            this.manager.set_parent({collection: collection, parent_id: new_parent})
+        },
+
+        async move_entry({entry, collection, order}) {
+            let response = null
+            try {
+                response = await django_glue_fetch(
+                    '{% url "django_spire:knowledge:entry:json:reorder" %}',
+                    {payload: {entry_id: entry.entry_id, order: order, collection_id: collection.id}}
+                )
+            } catch (e) {
+                 $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
+            }
+
+            if (response.type === 'error') {
+                $dispatch('notify', {'type': response.type, 'message': response.message})
+            }
+        },
+
+        search() {
+            let item_map = new Map()
+            const query = this.user_search.toLocaleLowerCase()
+            document.querySelector('.search-items').style.display = query ? 'block' : 'none'
+            document.querySelector('.navigation-items').style.display = query ? 'none' : 'block'
+            document.querySelectorAll('.collection, .entry').forEach(div => {
+                let div_id =  div.id.toLocaleLowerCase()
+
+                let item = {}
+                if (div.classList.contains('collection')) {
+                    item = Alpine.$data(div).collection
+                } else {
+                    item = Alpine.$data(div).entry
+                }
+
+                if (div_id.includes(query)) {
+                    item_map.set(item, item)
+                } else {
+                    item_map.delete(item)
+                }
+            })
+
+            if (!query) {
+                this.found_items.clear()
+            } else {
+                this.found_items = item_map
+            }
+        },
+    }"
+>
+    <div class="container-fluid">
+        <div class="row align-items-center mx-1 pb-2">
+            <div class="col-12 px-0">
+                <input
+                    class="rounded-2 p-1 form-control"
+                    type="text"
+                    placeholder="Search ..."
+                    x-model="user_search"
+                    @input.debounce.300ms="search"
+                >
+            </div>
+        </div>
+    </div>
+    <div
+        class="user-select-none px-2"
+        x-sort:config="{
+            handle: '[x-sort\\:handle]',
+            distance: 20,
+            swapThreshold: 0.01
+        }"
+    >
+        {% include 'django_spire/knowledge/collection/component/x_collection_navigation.html' %}
+
+        <div class="navigation-items">
+            <x-collection-navigation :data="{items: manager.collection_map, id: null}"></x-collection-navigation>
+        </div>
+
+        <div class="search-items">
+            <template x-for="(item, index) in Array.from(found_items.values())" :key="index">
+                <div>
+                    <template x-if="item?.constructor.name === 'Collection'">
+                        <div
+                            x-data="{
+                                collection: item
+                            }"
+                        >
+                            {% include 'django_spire/knowledge/sub_navigation/item/collection_sub_navigation_item.html' with hide_chevron=True %}
+                        </div>
+                    </template>
+                    <template x-if="item?.constructor.name === 'Entry'">
+                        <div
+                            x-data="{
+                                entry: item
+                            }"
+                        >
+                            {% include 'django_spire/knowledge/sub_navigation/item/entry_sub_navigation_item.html' %}
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>

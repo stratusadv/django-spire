@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.template.response import TemplateResponse
-from django.urls.base import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.generic_views import portal_views
 from django_spire.knowledge.collection.models import Collection
 
@@ -19,6 +17,8 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=Collection,
         breadcrumbs_func=breadcrumbs_func,
-        context_data={},
-        template='django_spire/knowledge/page/home_page.html'
+        context_data={
+            'collections': Collection.objects.active().parentless().request_user_has_access(request),
+        },
+        template='django_spire/knowledge/page/home_page.html',
     )

@@ -8,7 +8,7 @@ from django_spire.core.management.commands.spire_startapp_pkg.maps import genera
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystemInterface
+    from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
 
 
 class TemplateEngine:
@@ -40,12 +40,12 @@ class TemplateProcessor:
     and manages file renaming based on user configuration.
     """
 
-    def __init__(self, engine: TemplateEngine, filesystem: FileSystemInterface):
+    def __init__(self, engine: TemplateEngine, filesystem: FileSystem):
         """
         Initializes the processor with an engine and file system.
 
         :param engine: Template engine for rendering strings.
-        :param filesystem: File system interface for file operations.
+        :param filesystem: File system for file operations.
         """
 
         self._engine = engine
