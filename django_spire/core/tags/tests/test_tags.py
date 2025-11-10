@@ -18,15 +18,15 @@ class TestTags(TestCase):
 
         self.dirty_tag_set = {'HaT~', 'four* tacos', '123 hoop!!'}
 
-        self.collection.add_tag_set(self.tag_set_a)
-        self.collection.add_tag_set(self.tag_set_b)
-        self.collection.add_tag_set(self.tag_set_c)
+        self.collection.add_tags_from_tag_set(self.tag_set_a)
+        self.collection.add_tags_from_tag_set(self.tag_set_b)
+        self.collection.add_tags_from_tag_set(self.tag_set_c)
 
-        self.collection.add_tag_set(self.mixed_tag_set)
+        self.collection.add_tags_from_tag_set(self.mixed_tag_set)
 
-        self.collection.add_tag_set(self.dirty_tag_set)
+        self.collection.add_tags_from_tag_set(self.dirty_tag_set)
 
-    def test_tag_set(self):
+    def test_tag_removal(self):
         self.assertIn('apple', self.collection.tag_set)
         self.assertIn('grape', self.collection.aggregated_tag_set)
 
@@ -39,6 +39,15 @@ class TestTags(TestCase):
 
         self.assertIn('kiwi', self.collection.tag_set)
         self.assertNotIn('kiwi', self.collection.aggregated_tag_set)
+
+    def test_tag_add_and_set(self):
+        self.collection.set_tags_from_tag_set(self.mixed_tag_set, also_set_aggregated=True)
+
+        self.assertIn('lemon', self.collection.tag_set)
+        self.assertIn('lemon', self.collection.aggregated_tag_set)
+
+        self.assertNotIn('banana', self.collection.tag_set)
+        self.assertNotIn('banana', self.collection.aggregated_tag_set)
 
     def test_tag_count(self):
         self.assertEqual(Tag.objects.count(), 12)

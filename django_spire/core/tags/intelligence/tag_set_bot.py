@@ -16,7 +16,7 @@ class TagSetBot(Bot):
         ])
     )
 
-    def process(self, content: str) -> set[str]:
+    def process(self, content: Prompt | str) -> set[str]:
         tags_intel = self.llm.prompt_to_intel(
             prompt=content,
             intel_class=TagsIntel

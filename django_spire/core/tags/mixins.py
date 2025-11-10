@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import QuerySet
-from django.utils.text import slugify
 
 from django_spire.core.tags.models import Tag
 
@@ -20,7 +19,7 @@ class TagsModelMixin(models.Model):
     def tag_set(self) -> set[str]:
         return set(self.tags.values_list('name', flat=True))
 
-    def add_tag_set(self, tag_set: set[str], add_to_aggregated: bool = True):
+    def add_tags_from_tag_set(self, tag_set: set[str], add_to_aggregated: bool = True):
         self._update_global_tags_from_set(tag_set)
 
         tag_objects = Tag.objects.in_tag_set(tag_set)
@@ -30,13 +29,14 @@ class TagsModelMixin(models.Model):
         if add_to_aggregated:
             self.aggregated_tags.add(*tag_objects)
 
-    def add_tag_set_to_aggregated_tags(self, tag_set: set[str]):
+    def add_tags_to_aggregated_from_tag_set(self, tag_set: set[str]):
         self._update_global_tags_from_set(tag_set)
+
         self.aggregated_tags.add(*Tag.objects.in_tag_set(tag_set))
 
-    @staticmethod
-    def _clean_tag_set(tag_set: set[str]) -> set[str]:
-        return set(map(slugify, tag_set))
+    # @staticmethod
+    # def _clean_tag_set(tag_set: set[str]) -> set[str]:
+    #     return set(map(slugify, tag_set))
 
     def clear_tags(self):
         self.aggregated_tags.remove(*self.tags.all())
@@ -44,6 +44,12 @@ class TagsModelMixin(models.Model):
 
     def clear_aggregated_tags(self):
         self.aggregated_tags.clear()
+
+    def get_and_set_aggregated_tag_set(self, tag_set: set[str] | None = None):
+        if tag_set:
+            self.add_tags_to_aggregated_from_tag_set(tag_set)
+
+        return self.aggregated_tag_set
 
     def get_matching_tags_from_tag_set(self, tag_set: set[str]) -> QuerySet:
         return self.tags.in_tag_set(tag_set)
@@ -98,6 +104,23 @@ class TagsModelMixin(models.Model):
 
     def remove_tag_set_from_aggregated(self, tag_set: set[str]):
         self.aggregated_tags.remove(*Tag.objects.in_tag_set(tag_set))
+
+    def set_tags_from_tag_set(self, tag_set: set[str], add_to_aggregated: bool = True, also_set_aggregated: bool = False):
+        self._update_global_tags_from_set(tag_set)
+
+        tag_objects = Tag.objects.in_tag_set(tag_set)
+        self.tags.set(tag_objects)
+
+        if add_to_aggregated:
+            self.aggregated_tags.add(*tag_objects)
+
+        if also_set_aggregated:
+            self.aggregated_tags.set(tag_objects)
+
+    def set_tags_in_aggregated_from_tag_set(self, tag_set: set[str]):
+        self._update_global_tags_from_set(tag_set)
+
+        self.aggregated_tags.set(Tag.objects.in_tag_set(tag_set))
 
     @staticmethod
     def _update_global_tags_from_set(tag_set: set[str]):
