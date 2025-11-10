@@ -67,7 +67,7 @@
                     )
 
                     if (was_new_chat) {
-                        this.chat_name = message_body
+                        this.chat_name = message_body.length > 24 ? message_body.substring(0, 21) + '...' : message_body
 
                         let message_element = this.$refs.target_div.querySelector('[data-message-chat-id]')
 

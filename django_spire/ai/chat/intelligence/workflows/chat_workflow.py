@@ -63,6 +63,13 @@ def chat_workflow(
     message_intel = run_workflow_process(intent_process)
 
     if not isinstance(message_intel, BaseMessageIntel):
+        if message_intel is None:
+            return default_chat_response(
+                request=request,
+                user_input=user_input,
+                message_history=message_history
+            )
+
         message = f'{intent_process.__qualname__} must return an instance of a {BaseMessageIntel.__name__} sub class.'
         raise TypeError(message)
 
