@@ -164,6 +164,9 @@
 
     --bs-tooltip-bg: var(--app-layer-two);
     --bs-tooltip-color: var(--app-default-text-color);
+
+    --bs-card-border-width: 1px;
+    --bs-list-group-border-width: 1px;
 }
 
 [data-theme="light"] {
@@ -180,6 +183,28 @@
 
     --bs-form-control-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
     --bs-form-select-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
+}
+
+.card {
+    border-width: 1px;
+    border-color: var(--bs-border-color);
+}
+
+.card-body {
+    background-color: var(--bs-card-bg);
+}
+
+.list-group-flush .list-group-item {
+    border-left: 0;
+    border-right: 0;
+}
+
+.list-group-flush .list-group-item:first-child {
+    border-top: 0;
+}
+
+.list-group-flush .list-group-item:last-child {
+    border-bottom: 0;
 }
 
 .form-control {
@@ -228,6 +253,14 @@
     border-color: var(--app-form-field-disabled-border) !important;
     color: var(--app-form-field-disabled-color) !important;
     cursor: not-allowed;
+}
+
+.progress {
+    background-color: var(--app-layer-three);
+}
+
+.progress-bar {
+    background-color: var(--app-primary);
 }
 
 .ce-block__content [data-placeholder]:empty::before,
