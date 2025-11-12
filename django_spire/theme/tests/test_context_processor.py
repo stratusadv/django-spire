@@ -18,14 +18,14 @@ class ThemeContextProcessorTests(TestCase):
         request = self.factory.get('/')
         request.COOKIES = {}
 
-        with patch('django_spire.conf.settings.DJANGO_SPIRE_DEFAULT_THEME', 'dracula-dark'):
+        with patch('django_spire.conf.settings.DJANGO_SPIRE_DEFAULT_THEME', 'gruvbox-dark'):
             context = theme_context(request)
 
-        self.assertEqual(context['DJANGO_SPIRE_DEFAULT_THEME'], 'dracula-dark')
+        self.assertEqual(context['DJANGO_SPIRE_DEFAULT_THEME'], 'gruvbox-dark')
         self.assertIn('theme', context)
 
         data = context['theme']
-        self.assertEqual(data['family'], 'dracula')
+        self.assertEqual(data['family'], 'gruvbox')
         self.assertEqual(data['mode'], 'dark')
 
     def test_theme_context_with_cookie(self) -> None:
@@ -45,11 +45,11 @@ class ThemeContextProcessorTests(TestCase):
         cookie_name = get_theme_cookie_name()
         request.COOKIES = {cookie_name: 'invalid-theme'}
 
-        with patch('django_spire.conf.settings.DJANGO_SPIRE_DEFAULT_THEME', 'dracula-dark'):
+        with patch('django_spire.conf.settings.DJANGO_SPIRE_DEFAULT_THEME', 'gruvbox-dark'):
             context = theme_context(request)
 
         data = context['theme']
-        self.assertEqual(data['family'], 'dracula')
+        self.assertEqual(data['family'], 'gruvbox')
         self.assertEqual(data['mode'], 'dark')
 
     def test_theme_context_path_setting(self) -> None:
@@ -70,7 +70,7 @@ class ThemeContextProcessorIntegrationTests(BaseTestCase):
 
     def test_theme_context_with_authenticated_client(self) -> None:
         cookie_name = get_theme_cookie_name()
-        self.client.cookies[cookie_name] = 'dracula-dark'
+        self.client.cookies[cookie_name] = 'gruvbox-dark'
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
