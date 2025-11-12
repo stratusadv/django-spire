@@ -32,6 +32,8 @@ jobs:
       OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
       OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      AI_API_HOST: ${{ secrets.AI_API_HOST }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
       TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
       DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
     steps:
