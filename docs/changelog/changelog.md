@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.20.1
+
+### Change
+
+- Added a new setting `AI_CHAT_CALLABLE` that allows you to completely override the django spire chat workflow.
+
 ## v0.20.0
 
 ### Feature
