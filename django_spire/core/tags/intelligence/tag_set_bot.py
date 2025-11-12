@@ -7,7 +7,6 @@ class TagsIntel(BaseListIntel[list[str]]):
 
 
 class TagSetBot(Bot):
-    llm_config = 'VLLM_OPEN_WEBUI'
     llm_role = 'Tag Identifier'
     llm_task = 'Read through the provided content and return a list of tags.'
     llm_guidelines = (
