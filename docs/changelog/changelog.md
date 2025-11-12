@@ -5,6 +5,7 @@
 ### Feature
 
 - New mixin `django_spire.core.tags.mixin` this allows your to properly store and retrieve tag sequences on a model.
+- Knowledge app ai workflow complete overhaul.
 
 ## v0.19.5
 
