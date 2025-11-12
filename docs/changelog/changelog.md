@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.19.3
+
+### Fixes
+
+- Update theme CSS on dark mode
+
 ## v0.19.2
 
 ### Changes
