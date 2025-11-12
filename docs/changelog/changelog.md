@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.19.4
+
+### Fixes
+
+- Fix spire_startapp command to create proper app labels
+- Add a templatetag to allow navigation tracking
+
 ## v0.19.3
 
 ### Fixes

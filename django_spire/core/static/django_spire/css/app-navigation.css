@@ -73,6 +73,10 @@
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.side-navigation a.active {
+    color: var(--app-side-navigation-link-color) !important;
+}
+
 .side-navigation a:hover {
     color: var(--app-side-navigation-link-hover-color) !important;
 }
