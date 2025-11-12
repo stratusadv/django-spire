@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.19.5
+
+### Changes
+
+- Remove Dracula, Oceanic-Next and Synthwave theme
+
 ## v0.19.4
 
 ### Fixes

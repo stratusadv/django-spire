@@ -33,6 +33,8 @@
     --app-bg-alt-layer-three: var(--app-alt-layer-three);
     --app-bg-alt-layer-four: var(--app-alt-layer-four);
 
+    --app-bg-card-header: var(--app-card-header);
+
     --app-bg-side-navigation: var(--app-side-navigation-bg-color);
 
     --app-bg-top-navigation: var(--app-top-navigation-bg-color);
@@ -149,6 +151,10 @@
 
 .bg-app-alt-layer-four, .bg-app-alt-layer-four-hover:hover {
     background-color: var(--app-bg-alt-layer-four) !important;
+}
+
+.bg-app-card-header {
+    background-color: var(--app-bg-card-header) !important;
 }
 
 .bg-app-side-navigation, .bg-app-side-navigation-hover:hover {
