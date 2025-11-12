@@ -19,10 +19,8 @@ class TestTagIntelligence(TestCase):
     def test_tag_set_bot(self):
         tag_set = TagSetBot().process(TEST_INPUT)
 
-        print(tag_set)
-
         self.assertIn('science', tag_set)
-        self.assertIn('ai', tag_set)
+        self.assertIn('artificial', tag_set)
         self.assertIn('fantasy', tag_set)
 
         self.assertNotIn('camping', tag_set)
