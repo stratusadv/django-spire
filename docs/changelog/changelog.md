@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.20.0
+
+### Feature
+
+- New mixin `django_spire.core.tags.mixin` this allows your to properly store and retrieve tag sequences on a model.
+
 ## v0.19.5
 
 ### Changes
@@ -26,6 +32,7 @@
 - Truncate chat name based on message
 
 ### Fixes
+
 - Fix chat/knowledge issue that gave a 500 status code
 - Fix tool typing issues
 

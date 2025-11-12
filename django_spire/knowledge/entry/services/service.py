@@ -10,6 +10,7 @@ from django_spire.knowledge.entry.services.automation_service import \
 from django_spire.knowledge.entry.services.factory_service import EntryFactoryService
 from django_spire.knowledge.entry.services.processor_service import \
     EntryProcessorService
+from django_spire.knowledge.entry.services.tag_service import EntryTagService
 from django_spire.knowledge.entry.services.tool_service import EntryToolService
 from django_spire.knowledge.entry.services.transformation_services import \
     EntryTransformationService
@@ -26,6 +27,7 @@ class EntryService(BaseDjangoModelService['Entry']):
     factory = EntryFactoryService()
     ordering = OrderingService()
     processor = EntryProcessorService()
+    tag = EntryTagService()
     tool = EntryToolService()
     transformation = EntryTransformationService()
 

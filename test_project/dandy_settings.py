@@ -78,4 +78,14 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 32000,
     },
+    'VLLM_OPEN_WEBUI': {
+        'TYPE': 'openai',
+        'MODEL': 'RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic',
+        'HOST': 'http://10.10.6.3',
+        # 'HOST': os.getenv("OPEN_WEBUI_HOST"),
+        'PORT': 8000,
+        # 'PORT': int(os.getenv("OPENAI_PORT", '443')),
+        'API_KEY': os.getenv("OPEN_WEBUI_API_KEY"),
+        'TEMPERATURE': 0.3,
+    },
 }
