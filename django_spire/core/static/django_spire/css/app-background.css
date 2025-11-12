@@ -58,6 +58,26 @@
     background-color: var(--app-bg-primary-dark) !important;
 }
 
+.bg-app-primary-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-primary) 10%, transparent) !important;
+}
+
+.bg-app-primary-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-primary) 25%, transparent) !important;
+}
+
+.bg-app-primary-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-primary) 50%, transparent) !important;
+}
+
+.bg-app-primary-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-primary) 75%, transparent) !important;
+}
+
+.bg-app-primary-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-primary) 90%, transparent) !important;
+}
+
 .bg-app-secondary, .bg-app-secondary-hover:hover {
     background-color: var(--app-bg-secondary) !important;
 }
@@ -68,6 +88,26 @@
 
 .bg-app-secondary-dark, .bg-app-secondary-dark-hover:hover {
     background-color: var(--app-bg-secondary-dark) !important;
+}
+
+.bg-app-secondary-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-secondary) 10%, transparent) !important;
+}
+
+.bg-app-secondary-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-secondary) 25%, transparent) !important;
+}
+
+.bg-app-secondary-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-secondary) 50%, transparent) !important;
+}
+
+.bg-app-secondary-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-secondary) 75%, transparent) !important;
+}
+
+.bg-app-secondary-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-secondary) 90%, transparent) !important;
 }
 
 .bg-app-accent, .bg-app-accent-hover:hover {
@@ -82,6 +122,26 @@
     background-color: var(--app-bg-accent-dark) !important;
 }
 
+.bg-app-accent-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-accent) 10%, transparent) !important;
+}
+
+.bg-app-accent-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-accent) 25%, transparent) !important;
+}
+
+.bg-app-accent-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-accent) 50%, transparent) !important;
+}
+
+.bg-app-accent-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-accent) 75%, transparent) !important;
+}
+
+.bg-app-accent-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-accent) 90%, transparent) !important;
+}
+
 .bg-app-success, .bg-app-success-hover:hover {
     background-color: var(--app-bg-success) !important;
 }
@@ -92,6 +152,26 @@
 
 .bg-app-success-dark, .bg-app-success-dark-hover:hover {
     background-color: var(--app-bg-success-dark) !important;
+}
+
+.bg-app-success-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-success) 10%, transparent) !important;
+}
+
+.bg-app-success-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-success) 25%, transparent) !important;
+}
+
+.bg-app-success-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-success) 50%, transparent) !important;
+}
+
+.bg-app-success-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-success) 75%, transparent) !important;
+}
+
+.bg-app-success-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-success) 90%, transparent) !important;
 }
 
 .bg-app-warning, .bg-app-warning-hover:hover {
@@ -106,6 +186,26 @@
     background-color: var(--app-bg-warning-dark) !important;
 }
 
+.bg-app-warning-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-warning) 10%, transparent) !important;
+}
+
+.bg-app-warning-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-warning) 25%, transparent) !important;
+}
+
+.bg-app-warning-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-warning) 50%, transparent) !important;
+}
+
+.bg-app-warning-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-warning) 75%, transparent) !important;
+}
+
+.bg-app-warning-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-warning) 90%, transparent) !important;
+}
+
 .bg-app-danger, .bg-app-danger-hover:hover {
     background-color: var(--app-bg-danger) !important;
 }
@@ -116,6 +216,26 @@
 
 .bg-app-danger-dark, .bg-app-danger-dark-hover:hover {
     background-color: var(--app-bg-danger-dark) !important;
+}
+
+.bg-app-danger-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-danger) 10%, transparent) !important;
+}
+
+.bg-app-danger-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-danger) 25%, transparent) !important;
+}
+
+.bg-app-danger-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-danger) 50%, transparent) !important;
+}
+
+.bg-app-danger-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-danger) 75%, transparent) !important;
+}
+
+.bg-app-danger-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-danger) 90%, transparent) !important;
 }
 
 .bg-app-layer-one, .bg-app-layer-one-hover:hover {
@@ -132,6 +252,86 @@
 
 .bg-app-layer-four, .bg-app-layer-four-hover:hover {
     background-color: var(--app-bg-layer-four) !important;
+}
+
+.bg-app-layer-one-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-one) 10%, transparent) !important;
+}
+
+.bg-app-layer-one-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-one) 25%, transparent) !important;
+}
+
+.bg-app-layer-one-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-one) 50%, transparent) !important;
+}
+
+.bg-app-layer-one-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-one) 75%, transparent) !important;
+}
+
+.bg-app-layer-one-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-one) 90%, transparent) !important;
+}
+
+.bg-app-layer-two-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-two) 10%, transparent) !important;
+}
+
+.bg-app-layer-two-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-two) 25%, transparent) !important;
+}
+
+.bg-app-layer-two-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-two) 50%, transparent) !important;
+}
+
+.bg-app-layer-two-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-two) 75%, transparent) !important;
+}
+
+.bg-app-layer-two-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-two) 90%, transparent) !important;
+}
+
+.bg-app-layer-three-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-three) 10%, transparent) !important;
+}
+
+.bg-app-layer-three-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-three) 25%, transparent) !important;
+}
+
+.bg-app-layer-three-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-three) 50%, transparent) !important;
+}
+
+.bg-app-layer-three-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-three) 75%, transparent) !important;
+}
+
+.bg-app-layer-three-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-three) 90%, transparent) !important;
+}
+
+.bg-app-layer-four-opacity-10 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-four) 10%, transparent) !important;
+}
+
+.bg-app-layer-four-opacity-25 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-four) 25%, transparent) !important;
+}
+
+.bg-app-layer-four-opacity-50 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-four) 50%, transparent) !important;
+}
+
+.bg-app-layer-four-opacity-75 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-four) 75%, transparent) !important;
+}
+
+.bg-app-layer-four-opacity-90 {
+    background-color: color-mix(in srgb, var(--app-bg-layer-four) 90%, transparent) !important;
 }
 
 .bg-app-alt-layer-one, .bg-app-alt-layer-one-hover:hover {

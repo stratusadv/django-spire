@@ -42,6 +42,9 @@
     --app-default-link-color: #cba6f7;
     --app-default-link-hover-color: #f38ba8;
 
+    --app-inverted-text-color: #1e1e2e;
+    --app-inverted-alt-text-color: #313244;
+
     --app-side-navigation-bg-color: #181825;
     --app-side-navigation-text-color: #cdd6f4;
     --app-side-navigation-link-color: #cdd6f4;
