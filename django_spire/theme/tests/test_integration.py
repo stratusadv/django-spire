@@ -40,9 +40,9 @@ class ThemeIntegrationTests(BaseTestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_theme_media_integration(self) -> None:
-        theme = Theme(family=ThemeFamily.DRACULA, mode='dark')
+        theme = Theme(family=ThemeFamily.GRUVBOX, mode='dark')
         stylesheet = theme.stylesheet
 
         self.assertIn('django_spire/css/themes/', stylesheet)
-        self.assertIn('dracula', stylesheet)
+        self.assertIn('gruvbox', stylesheet)
         self.assertIn('app-dark.css', stylesheet)

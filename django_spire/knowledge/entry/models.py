@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
+from django_spire.core.tags.mixins import TagsModelMixin
 from django_spire.contrib.utils import truncate_string
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.models import Collection
@@ -11,7 +12,11 @@ from django_spire.knowledge.entry.services.service import EntryService
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
-class Entry(HistoryModelMixin, OrderingModelMixin):
+class Entry(
+    HistoryModelMixin,
+    OrderingModelMixin,
+    TagsModelMixin
+):
     collection = models.ForeignKey(
         Collection,
         on_delete=models.CASCADE,

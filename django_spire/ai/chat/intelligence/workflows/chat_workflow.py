@@ -8,25 +8,15 @@ from dandy.recorder import recorder_to_html_file
 from django_spire.ai.chat.intelligence.decoders.tools import generate_intent_decoder
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
+from django_spire.conf import settings
+from django_spire.core.utils import get_callable_from_module_string_and_validate_arguments
 
 if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
     from django.core.handlers.wsgi import WSGIRequest
 
 
-def SpireChatWorkflow(
-    request: WSGIRequest,
-    user_input: str,
-    message_history: MessageHistory | None = None
-) -> BaseMessageIntel:
-    return chat_workflow(
-        request=request,
-        user_input=user_input,
-        message_history=message_history
-    )
-
-
-def default_chat_response(
+def default_chat_callable(
     request: WSGIRequest,
     user_input: str,
     message_history: MessageHistory | None = None
@@ -45,13 +35,6 @@ def chat_workflow(
     user_input: str,
     message_history: MessageHistory | None = None
 ) -> BaseMessageIntel:
-    intent_decoder = generate_intent_decoder(
-        request=request,
-        default_callable=default_chat_response,
-    )
-
-    intent_process = intent_decoder.process(user_input, max_return_values=1)[0]
-
     @log_ai_interaction_from_recorder(request.user)
     def run_workflow_process(callable_: Callable) -> BaseMessageIntel | None:
         return callable_(
@@ -60,11 +43,28 @@ def chat_workflow(
             message_history=message_history,
         )
 
-    message_intel = run_workflow_process(intent_process)
+    if settings.AI_CHAT_CALLABLE is not None:
+        chat_callable = get_callable_from_module_string_and_validate_arguments(
+            settings.AI_CHAT_CALLABLE,
+            ['request', 'user_input', 'message_history']
+        )
+
+        message_intel = run_workflow_process(chat_callable)
+
+    else:
+
+        intent_decoder = generate_intent_decoder(
+            request=request,
+            default_callable=default_chat_callable,
+        )
+
+        intent_process = intent_decoder.process(user_input, max_return_values=1)[0]
+
+        message_intel = run_workflow_process(intent_process)
 
     if not isinstance(message_intel, BaseMessageIntel):
         if message_intel is None:
-            return default_chat_response(
+            return default_chat_callable(
                 request=request,
                 user_input=user_input,
                 message_history=message_history

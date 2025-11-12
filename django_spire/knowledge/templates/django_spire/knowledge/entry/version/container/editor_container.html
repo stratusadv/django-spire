@@ -21,6 +21,12 @@
                     KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.toggle()
                     this.editor_is_readonly = KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.isEnabled
 
+                    if (this.editor_is_readonly) {
+                        django_glue_fetch(
+                            '{% url "django_spire:knowledge:entry:version:json:update_entry_from_version" pk=entry.id %}',
+                        )
+                    }
+
                     let view_mode = this.editor_is_readonly ? 'readonly' : 'edit'
 
                     let url = new URL(window.location)
