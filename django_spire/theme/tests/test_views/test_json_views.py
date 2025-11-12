@@ -50,7 +50,7 @@ class ThemeViewTests(TestCase):
     def test_set_theme_success(self) -> None:
         request = self.factory.post(
             '/django_spire/theme/json/set_theme/',
-            data=json.dumps({'theme': 'dracula-dark'}),
+            data=json.dumps({'theme': 'gruvbox-dark'}),
             content_type='application/json'
         )
         response = json_views.set_theme(request)
@@ -63,12 +63,12 @@ class ThemeViewTests(TestCase):
         self.assertIn('theme', data)
 
         data = data['theme']
-        self.assertEqual(data['family'], 'dracula')
+        self.assertEqual(data['family'], 'gruvbox')
         self.assertEqual(data['mode'], 'dark')
 
         cookie_name = get_theme_cookie_name()
         self.assertIn(cookie_name, response.cookies)
-        self.assertEqual(response.cookies[cookie_name].value, 'dracula-dark')
+        self.assertEqual(response.cookies[cookie_name].value, 'gruvbox-dark')
 
     def test_set_theme_missing_theme(self) -> None:
         request = self.factory.post(
@@ -103,7 +103,7 @@ class ThemeViewIntegrationTests(BaseTestCase):
     def test_set_theme_with_authenticated_client(self) -> None:
         response = self.client.post(
             '/django_spire/theme/json/set_theme/',
-            data=json.dumps({'theme': 'dracula-dark'}),
+            data=json.dumps({'theme': 'gruvbox-dark'}),
             content_type='application/json'
         )
 

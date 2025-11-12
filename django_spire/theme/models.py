@@ -19,15 +19,12 @@ class Theme:
         ThemeFamily.AYU: 'Ayu',
         ThemeFamily.CATPPUCCIN: 'Catppuccin',
         ThemeFamily.DEFAULT: 'Default',
-        ThemeFamily.DRACULA: 'Dracula',
         ThemeFamily.GRUVBOX: 'Gruvbox',
         ThemeFamily.MATERIAL: 'Material',
         ThemeFamily.NORD: 'Nord',
-        ThemeFamily.OCEANIC_NEXT: 'Oceanic Next',
         ThemeFamily.ONE_DARK: 'One Dark Pro',
         ThemeFamily.PALENIGHT: 'Palenight',
         ThemeFamily.ROSE_PINE: 'Rose Pine',
-        ThemeFamily.SYNTHWAVE: 'Synthwave',
         ThemeFamily.TOKYO_NIGHT: 'Tokyo Night',
     }
 

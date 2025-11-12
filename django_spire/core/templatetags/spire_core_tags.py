@@ -79,6 +79,17 @@ def index(indexable: Sequence[U], index_value: int) -> U | Sequence[U]:
         return indexable
 
 
+@register.filter(name='is_path')
+def is_path(current: str, url: str) -> bool:
+    if not current or not url:
+        return False
+
+    if current == url:
+        return True
+
+    return url != '/' and current.startswith(url)
+
+
 @register.simple_tag()
 def generate_id() -> str:
     """

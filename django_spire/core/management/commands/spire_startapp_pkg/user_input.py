@@ -49,7 +49,7 @@ class UserInputCollector:
         app_label = self._collect_app_label(components, app_name)
         model_name = self._collect_model_name(app_name)
         model_name_plural = self._collect_model_name_plural(model_name)
-        db_table_name = self._collect_db_table_name(app_label)
+        db_table_name = self._collect_db_table_name(components, app_name)  # Changed from app_label to components, app_name
         model_permission_path = self._collect_model_permission_path(app_path, model_name)
 
         permission_data = self._collect_permission_inheritance(components)
@@ -78,8 +78,8 @@ class UserInputCollector:
         :return: User-provided or default app label.
         """
 
-        parent_parts = components[1:-1] if len(components) > 1 else []
-        default = '_'.join(parent_parts).lower() + '_' + app_name.lower() if parent_parts else app_name.lower()
+        immediate_parent = components[-2] if len(components) > 2 else None
+        default = immediate_parent.lower() + '_' + app_name.lower() if immediate_parent else app_name.lower()
         return self._collect_input('Enter the app label', default, '3/8')
 
     def _collect_app_name(self, components: list[str]) -> str:
@@ -114,15 +114,18 @@ class UserInputCollector:
 
         return app_path
 
-    def _collect_db_table_name(self, app_label: str) -> str:
+    def _collect_db_table_name(self, components: list[str], app_name: str) -> str:
         """
         Prompts the user for the database table name.
 
-        :param app_label: App label to use as default.
+        :param components: List of app path components.
+        :param app_name: Name of the app.
         :return: User-provided or default database table name.
         """
 
-        return self._collect_input('Enter the database table name', app_label, '6/8')
+        parent_parts = components[1:-1] if len(components) > 1 else []
+        default = '_'.join(parent_parts).lower() + '_' + app_name.lower() if parent_parts else app_name.lower()
+        return self._collect_input('Enter the database table name', default, '6/8')
 
     def _collect_input(self, prompt: str, default: str, step_number: str) -> str:
         """
@@ -183,7 +186,7 @@ class UserInputCollector:
         :return: Dictionary containing permission inheritance settings.
         """
 
-        if len(components) <= 2:
+        if len(components) <= 1:
             return {'inherit_permissions': False, 'parent_permission_prefix': '', 'parent_model_instance_name': ''}
 
         if not self._should_inherit_permissions():

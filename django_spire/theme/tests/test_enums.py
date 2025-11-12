@@ -11,15 +11,12 @@ class ThemeEnumTests(TestCase):
             'ayu',
             'catppuccin',
             'default',
-            'dracula',
             'gruvbox',
             'material',
             'nord',
-            'oceanic-next',
             'one-dark',
             'palenight',
             'rose-pine',
-            'synthwave',
             'tokyo-night'
         }
 

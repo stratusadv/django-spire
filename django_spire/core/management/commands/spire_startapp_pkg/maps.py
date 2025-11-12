@@ -29,6 +29,7 @@ class AppConfiguration:
         components: list[str],
         user_inputs: dict[str, str] | None = None
     ) -> AppConfiguration:
+        immediate_parent = components[-2] if len(components) > 2 else None
         parent_parts = components[1:-1] if len(components) > 1 else []
 
         app_name = (
@@ -49,8 +50,8 @@ class AppConfiguration:
         )
 
         default_label = (
-            '_'.join(parent_parts).lower() + '_' + app_name.lower()
-            if parent_parts
+            immediate_parent.lower() + '_' + app_name.lower()
+            if immediate_parent
             else app_name.lower()
         )
 
@@ -60,10 +61,16 @@ class AppConfiguration:
             else default_label
         )
 
+        default_db_table = (
+            '_'.join(parent_parts).lower() + '_' + app_name.lower()
+            if parent_parts
+            else app_name.lower()
+        )
+
         db_table = (
-            user_inputs.get('db_table_name', default_label)
+            user_inputs.get('db_table_name', default_db_table)
             if user_inputs
-            else default_label
+            else default_db_table
         )
 
         inherit_permissions = (
@@ -324,7 +331,7 @@ class ModelPermissions:
         user_inputs: dict[str, str] | None = None
     ) -> ModelPermissions:
         module = '.'.join(components)
-        parent_parts = components[1:-1] if len(components) > 1 else []
+        immediate_parent = components[-2] if len(components) > 2 else None
 
         app_name = (
             user_inputs.get('app_name', components[-1])
@@ -344,8 +351,8 @@ class ModelPermissions:
         )
 
         default_permission_name = (
-            '_'.join(parent_parts).lower() + '_' + app_name.lower()
-            if parent_parts
+            immediate_parent.lower() + '_' + app_name.lower()
+            if immediate_parent
             else app_name.lower()
         )
 

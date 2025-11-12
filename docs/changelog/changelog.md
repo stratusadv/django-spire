@@ -1,10 +1,40 @@
 # Changelog
 
-## v0.##.#
+## v0.20.0
 
 ### Feature
 
 - New mixin `django_spire.core.tags.mixin` this allows your to properly store and retrieve tag sequences on a model.
+
+## v0.19.5
+
+### Changes
+
+- Remove Dracula, Oceanic-Next and Synthwave theme
+
+## v0.19.4
+
+### Fixes
+
+- Fix spire_startapp command to create proper app labels
+- Add a templatetag to allow navigation tracking
+
+## v0.19.3
+
+### Fixes
+
+- Update theme CSS on dark mode
+
+## v0.19.2
+
+### Changes
+
+- Truncate chat name based on message
+
+### Fixes
+
+- Fix chat/knowledge issue that gave a 500 status code
+- Fix tool typing issues
 
 ## v0.19.1
 
