@@ -1,8 +1,14 @@
 # Changelog
 
+## v0.20.2
+
+### Changes
+
+- Added optional file attachments to email notifications.
+
 ## v0.20.1
 
-### Change
+### Changes
 
 - Added a new setting `AI_CHAT_CALLABLE` that allows you to completely override the django spire chat workflow.
 
