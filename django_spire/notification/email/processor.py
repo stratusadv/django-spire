@@ -73,7 +73,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
             email_notifications()
             .ready_to_send()
             .active()
-            .prefetch_related('email')
+            .prefetch_related('email', 'email__attachment')
         )
 
     def process_errored(self):
@@ -82,5 +82,5 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
             .email_notifications()
             .errored()
             .active()
-            .prefetch_related('email')
+            .prefetch_related('email', 'email__attachment')
         )
