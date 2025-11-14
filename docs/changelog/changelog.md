@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.20.4
+
+### Changes
+
+- Dispatch message upon theme change
+
 ## v0.20.3
 
 ### Changes

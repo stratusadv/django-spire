@@ -184,6 +184,9 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 this.apply_input_icon_theme();
+
+                let theme = this.get_current_theme();
+                window.dispatchEvent(new CustomEvent('theme-changed', { detail: theme }));
             };
 
             document.head.appendChild(link);
@@ -238,3 +241,22 @@ document.addEventListener('alpine:init', () => {
         }
     });
 });
+
+window.get_echarts_theme = function() {
+    let styles = getComputedStyle(document.documentElement);
+    let is_dark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    return {
+        text: styles.getPropertyValue('--app-default-text-color').trim(),
+        primary: styles.getPropertyValue('--app-primary').trim(),
+        primary_dark: styles.getPropertyValue('--app-primary-dark').trim(),
+        secondary: styles.getPropertyValue('--app-secondary').trim(),
+        secondary_dark: styles.getPropertyValue('--app-secondary-dark').trim(),
+        border: styles.getPropertyValue('--bs-border-color').trim(),
+        bg: styles.getPropertyValue('--app-layer-one').trim(),
+        layer_two: styles.getPropertyValue('--app-layer-two').trim(),
+        layer_three: styles.getPropertyValue('--app-layer-three').trim(),
+        layer_four: styles.getPropertyValue('--app-layer-four').trim(),
+        is_dark: is_dark,
+    };
+};
