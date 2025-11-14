@@ -1,37 +1,37 @@
 {% extends 'django_spire/table/base.html' %}
 
-{% block search_placeholder %}Search tasks...{% endblock %}
-
-{% block table_class %}table-fixed{% endblock %}
+{% block table_head_class %}bg-app-layer-one sticky-top{% endblock %}
 
 {% block table_header %}
-    <th style="width: 50px; min-width: 50px;">
-        <input type="checkbox" :checked="select_all" @change="toggle_all()">
+    <th style="min-width: 40px; width: 40px;">
+        <input :checked="select_all" @change="handle_toggle_all()" type="checkbox">
     </th>
 
-    <th style="width: 40px; min-width: 40px;"></th>
+    <th style="min-width: 40px; width: 40px;"></th>
 
-    <th @click="sort_by('name')" class="cursor-pointer" style="width: 35%; min-width: 250px;">
-        Task Name <i class="bi" :class="get_sort_icon('name')"></i>
-    </th>
-    <th @click="sort_by('status')" class="cursor-pointer" style="width: 120px; min-width: 120px;">
-        Status <i class="bi" :class="get_sort_icon('status')"></i>
-    </th>
-    <th @click="sort_by('quantity')" class="cursor-pointer" style="width: 100px; min-width: 100px;">
-        Users <i class="bi" :class="get_sort_icon('quantity')"></i>
-    </th>
-    <th @click="sort_by('cost')" class="cursor-pointer" style="width: 120px; min-width: 120px;">
-        Cost <i class="bi" :class="get_sort_icon('cost')"></i>
-    </th>
-    <th @click="sort_by('date')" class="cursor-pointer" style="width: 140px; min-width: 140px;">
-        Date <i class="bi" :class="get_sort_icon('date')"></i>
+    <th @click="sort_by('name')" class="cursor-pointer" style="min-width: 250px; width: 45%;">
+        Task Name <i :class="get_sort_icon('name')" class="bi"></i>
     </th>
 
-    <th style="width: 100px; min-width: 100px;">Actions</th>
+    <th @click="sort_by('status')" class="cursor-pointer" style="min-width: 120px; width: 120px;">
+        Status <i :class="get_sort_icon('status')" class="bi"></i>
+    </th>
+
+    <th @click="sort_by('quantity')" class="cursor-pointer" style="min-width: 100px; width: 100px;">
+        Users <i :class="get_sort_icon('quantity')" class="bi"></i>
+    </th>
+
+    <th @click="sort_by('cost')" class="cursor-pointer" style="min-width: 120px; width: 120px;">
+        Cost <i :class="get_sort_icon('cost')" class="bi"></i>
+    </th>
+
+    <th @click="sort_by('date')" class="cursor-pointer" style="min-width: 140px; width: 140px;">
+        Date <i :class="get_sort_icon('date')" class="bi"></i>
+    </th>
+
+    <th style="min-width: 70px; width: 70px;">Actions</th>
 {% endblock %}
 
 {% block table_body %}
-    {% for row in rows %}
-        {% include 'tabular/table/row.html' %}
-    {% endfor %}
+    {% include 'tabular/table/table_rows.html' %}
 {% endblock %}

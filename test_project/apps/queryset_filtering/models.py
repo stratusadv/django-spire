@@ -1,13 +1,17 @@
+from __future__ import annotations
+
 from django.contrib.auth.models import User
 from django.db import models
 
+from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
+
 from test_project.apps.queryset_filtering.choices import TaskStatusChoices, TaskUserRoleChoices
 from test_project.apps.queryset_filtering.querysets import TaskQuerySet
 from test_project.apps.queryset_filtering.services.service import TaskService
 
 
-class Task(HistoryModelMixin):
+class Task(ActivityMixin, HistoryModelMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
@@ -35,7 +39,7 @@ class Task(HistoryModelMixin):
         db_table = 'test_project_queryset_filtering_task'
 
 
-class TaskUser(HistoryModelMixin):
+class TaskUser(ActivityMixin, HistoryModelMixin):
     user = models.ForeignKey(
         User,
         related_name='tasks',
@@ -54,9 +58,6 @@ class TaskUser(HistoryModelMixin):
         choices=TaskUserRoleChoices.choices,
         max_length=3
     )
-
-    # objects = TaskUserQuerySet().as_manager()
-    # services = TaskUserService()
 
     class Meta:
         verbose_name = 'Task User'

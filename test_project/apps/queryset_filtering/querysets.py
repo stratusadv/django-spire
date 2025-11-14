@@ -27,16 +27,19 @@ class TaskQuerySet(
             'users': 'user__user__id__in'
         }
 
-        if search_term := filter_data.get("search"):
+        search_term = filter_data.get('search')
+        if search_term:
             queryset = queryset.search(search_term)
 
         return filter_by_lookup_map(queryset, filter_map, filter_data)
 
-    def search(self, value: str | None) -> QuerySet:
-        if value is None:
+    def search(self, search_value: str | None) -> QuerySet:
+        if not search_value:
             return self
 
+        search_value = search_value.strip()
+
         return self.filter(
-            Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(name__icontains=search_value) |
+            Q(description__icontains=search_value)
         )

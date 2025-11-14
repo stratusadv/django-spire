@@ -1,0 +1,28 @@
+<div class="bg-app-layer-two p-3">
+    <div class="mb-2">
+        <strong class="text-app-primary">User Details</strong>
+    </div>
+
+    <div class="small">
+        <div class="mb-1">
+            <span class="text-muted">Email:</span> {{ user.email|default:"N/A" }}
+        </div>
+        <div class="mb-1">
+            <span class="text-muted">Username:</span> {{ user.username }}
+        </div>
+        <div class="mb-2">
+            <span class="text-muted">Tasks:</span> {{ task_users.count }}
+        </div>
+
+        {% if task_users %}
+            <div class="mt-2">
+                <div class="fw-semibold mb-1">Associated Tasks:</div>
+                {% for task_user in task_users %}
+                    <div class="border-bottom py-1">
+                        {{ task_user.task.name }} - ${{ task_user.calculated_cost|floatformat:2 }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

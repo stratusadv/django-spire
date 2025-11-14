@@ -1,10 +1,10 @@
-<tbody x-show="!is_refreshing && skeleton_count > 0" x-cloak>
+<tbody x-cloak x-show="!is_refreshing && skeleton_count > 0">
     <template x-if="column_count > 0">
         <template x-for="i in skeleton_count" :key="i">
             <tr class="skeleton-row">
                 <template x-for="j in column_count" :key="j">
                     <td>
-                        <div class="skeleton-box" style="width: 90%; height: 20px;"></div>
+                        <div class="skeleton-box" style="height: 20px; width: 90%;"></div>
                     </td>
                 </template>
             </tr>

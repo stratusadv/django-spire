@@ -1,0 +1,36 @@
+{% extends 'django_spire/modal/content/modal_title_content.html' %}
+
+{% block modal_content_title %}
+    {{ task.name|default:'Create Task' }}
+{% endblock %}
+
+{% block modal_content_content %}
+    <form
+        action="{% if task.pk %}{% url 'queryset_filtering:form:update' pk=task.pk %}{% else %}{% url 'queryset_filtering:form:create' %}{% endif %}"
+        method="post"
+        x-data="{
+            async init() {
+                await this.task.get();
+            },
+
+            task: new ModelObjectGlue('task')
+        }"
+    >
+        {% csrf_token %}
+
+        <div class="row g-2">
+            <div class="col-12">
+                {% include 'django_glue/form/field/char_field.html' with glue_model_field='task.name' %}
+            </div>
+            <div class="col-12">
+                {% include 'django_glue/form/field/text_field.html' with glue_model_field='task.description' %}
+            </div>
+            <div class="col-12">
+                {% include 'django_glue/form/field/select_field.html' with glue_model_field='task.status' %}
+            </div>
+            <div class="col-12 pt-2">
+                {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+            </div>
+        </div>
+    </form>
+{% endblock %}

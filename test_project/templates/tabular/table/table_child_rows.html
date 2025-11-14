@@ -1,23 +1,64 @@
-<table class="table table-sm mb-0">
-    <thead class="bg-app-layer-four">
-        <tr>
-            <th>User</th>
-            <th>Role</th>
-            <th class="d-none d-lg-table-cell">Price</th>
-            <th class="text-end">Cost</th>
-            <th class="d-none d-md-table-cell">Date</th>
-        </tr>
-    </thead>
+<div class="bg-app-layer-one px-3 py-4">
+    {% for task_user in task_users %}
+        <div
+            class="ps-4 {% if task_users|length > 1 and not forloop.last %}border-bottom pb-3 mb-3{% endif %}"
+            x-data="{
+                is_loading: false,
+                is_open: false,
+                has_loaded: false,
 
-    <tbody>
-        {% for child in children %}
-            <tr>
-                <td><i class="bi bi-arrow-return-right text-muted me-2"></i>{{ child.child_data.user_name }}</td>
-                <td><span class="badge bg-secondary">{{ child.child_data.role }}</span></td>
-                <td class="d-none d-lg-table-cell">${{ child.child_data.price|floatformat:2 }}</td>
-                <td class="text-end">${{ child.child_data.cost|floatformat:2 }}</td>
-                <td class="d-none d-md-table-cell">{{ child.child_data.date|date:"M d, Y" }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                async load_user_details() {
+                    if (this.is_open) {
+                        this.is_open = false;
+                        return;
+                    }
+
+                    if (this.is_loading) {
+                        return;
+                    }
+
+                    this.is_loading = true;
+
+                    if (!this.has_loaded) {
+                        let url = '/tabular/template/api/user/{{ task_user.user.id }}/details/';
+                        let view = new ViewGlue(url, {});
+
+                        await view.render_inner(this.$refs.user_details);
+                        this.has_loaded = true;
+                    }
+
+                    this.is_loading = false;
+
+                    this.is_open = true;
+                }
+            }"
+        >
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-arrow-return-right text-muted"></i>
+                <strong>{{ task_user.user.get_full_name|default:task_user.user.username }}</strong>
+                <span class="badge bg-secondary">{{ task_user.get_role_display }}</span>
+                <i
+                    @click="load_user_details()"
+                    class="bi cursor-pointer text-primary"
+                    :class="is_loading
+                        ? 'bi-arrow-clockwise spin'
+                        : (is_open ? 'bi-chevron-up' : 'bi-info-circle')"
+                ></i>
+            </div>
+
+            <div class="ms-4 small text-muted">
+                <div class="d-none d-lg-block">Price: ${{ task_user.calculated_price|floatformat:2 }}</div>
+                <div>Cost: ${{ task_user.calculated_cost|floatformat:2 }}</div>
+                <div class="d-none d-md-block">{{ task_user.created_datetime|date:"M d, Y" }}</div>
+            </div>
+
+            <div
+                class="ms-4 mt-2"
+                x-cloak
+                x-show="is_open"
+                x-collapse
+                x-ref="user_details"
+            ></div>
+        </div>
+    {% endfor %}
+</div>

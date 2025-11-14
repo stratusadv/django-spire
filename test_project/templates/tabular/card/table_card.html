@@ -1,0 +1,23 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Tasks
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.test_project_queryset_filtering.add_task %}
+        <span @click="dispatch_modal_view('{% url 'tabular:form:create_modal' %}')">
+            {% include 'django_spire/button/primary_button.html' with button_text='New' button_logo_left='bi bi-plus-lg' %}
+        </span>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="my-4">
+        {% include 'tabular/form/table_filter_form.html' %}
+    </div>
+
+    <div class="my-4">
+        {% include 'tabular/table/task_table.html' %}
+    </div>
+{% endblock %}

@@ -263,6 +263,11 @@
     background-color: var(--app-primary);
 }
 
+.table-striped tbody tr:nth-of-type(4n+1),
+.table-striped tbody tr:nth-of-type(4n+2) {
+    background-color: var(--app-alt-layer-four);
+}
+
 .ce-block__content [data-placeholder]:empty::before,
 .ce-block__content [data-placeholder][data-empty="true"]::before {
     color: var(--app-primary) !important;

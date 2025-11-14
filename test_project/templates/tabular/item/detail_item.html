@@ -1,0 +1,29 @@
+<div class="row border-bottom border-2 pb-2 mb-2">
+    <div class="col-3">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=task.name %}
+    </div>
+    <div class="col-3">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' attribute_value=task.get_status_display %}
+    </div>
+    <div class="col-3">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Users' %}
+        {% for user_initial in task.user_initials %}
+            {{ user_initial }}
+        {% endfor %}
+    </div>
+    <div class="col-3 text-end">
+        {% if perms.test_project_queryset_filtering.change_task %}
+            <span @click="dispatch_modal_view('{% url 'tabular:form:update_modal' pk=task.pk %}')">
+                <i class="bi bi-pencil cursor-pointer me-2"></i>
+            </span>
+        {% endif %}
+        {% if perms.test_project_queryset_filtering.delete_task %}
+            <span @click="dispatch_modal_view('{% url 'tabular:form:delete_modal' pk=task.pk %}')">
+                <i class="bi bi-trash cursor-pointer text-danger"></i>
+            </span>
+        {% endif %}
+    </div>
+    <div class="col-12 fs--2 text-muted">
+        {{ task.description }}
+    </div>
+</div>
