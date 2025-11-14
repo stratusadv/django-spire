@@ -4,6 +4,7 @@ from dandy.llm.request.message import MessageHistory, RoleLiteralStr
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
+from pydantic import ValidationError
 
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
 from django_spire.ai.chat.responses import MessageResponse
@@ -118,7 +119,7 @@ class ChatMessage(HistoryModelMixin):
             intel_class: type[BaseMessageIntel] = get_class_from_string(self._intel_class_name)
             return intel_class.model_validate(self._intel_data)
 
-        except ImportError:
+        except (ImportError, ValidationError):
             intel_class: type[BaseMessageIntel] = DefaultMessageIntel
             return intel_class.model_validate(
                 {'text': str(self._intel_data)}
