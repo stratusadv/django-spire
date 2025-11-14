@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.20.3
+
+### Changes
+
+- Theme expansion for more customization
+
 ## v0.20.2
 
 ### Changes
