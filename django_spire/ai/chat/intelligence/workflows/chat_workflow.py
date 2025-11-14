@@ -1,13 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
-from dandy import Bot
-from dandy.recorder import recorder_to_html_file
-
-from django_spire.ai.chat.intelligence.decoders.tools import generate_intent_decoder
-from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
-from django_spire.ai.decorators import log_ai_interaction_from_recorder
 from django_spire.conf import settings
 from django_spire.core.utils import get_callable_from_module_string_and_validate_arguments
 
@@ -15,62 +9,34 @@ if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
     from django.core.handlers.wsgi import WSGIRequest
 
-
-def default_chat_callable(
-    request: WSGIRequest,
-    user_input: str,
-    message_history: MessageHistory | None = None
-) -> BaseMessageIntel:
-    bot = Bot()
-    return bot.llm.prompt_to_intel(
-        prompt=user_input,
-        intel_class=DefaultMessageIntel,
-        message_history=message_history,
-    )
+    from django_spire.ai.chat.message_intel import BaseMessageIntel
 
 
-@recorder_to_html_file('spire_ai_chat_workflow')
 def chat_workflow(
     request: WSGIRequest,
     user_input: str,
     message_history: MessageHistory | None = None
 ) -> BaseMessageIntel:
-    @log_ai_interaction_from_recorder(request.user)
-    def run_workflow_process(callable_: Callable) -> BaseMessageIntel | None:
-        return callable_(
-            request=request,
-            user_input=user_input,
-            message_history=message_history,
-        )
+    router_key = getattr(settings, 'DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER', 'SPIRE')
 
-    if settings.AI_CHAT_CALLABLE is not None:
-        chat_callable = get_callable_from_module_string_and_validate_arguments(
-            settings.AI_CHAT_CALLABLE,
-            ['request', 'user_input', 'message_history']
-        )
+    chat_routers = getattr(settings, 'DJANGO_SPIRE_AI_CHAT_ROUTERS', {
+        'SPIRE': 'django_spire.ai.chat.router.SpireChatRouter'
+    })
 
-        message_intel = run_workflow_process(chat_callable)
+    router_path = chat_routers.get(router_key)
 
-    else:
+    if not router_path:
+        router_path = 'django_spire.ai.chat.router.SpireChatRouter'
 
-        intent_decoder = generate_intent_decoder(
-            request=request,
-            default_callable=default_chat_callable,
-        )
+    router_class = get_callable_from_module_string_and_validate_arguments(
+        router_path,
+        []
+    )
 
-        intent_process = intent_decoder.process(user_input, max_return_values=1)[0]
+    router_instance = router_class()
 
-        message_intel = run_workflow_process(intent_process)
-
-    if not isinstance(message_intel, BaseMessageIntel):
-        if message_intel is None:
-            return default_chat_callable(
-                request=request,
-                user_input=user_input,
-                message_history=message_history
-            )
-
-        message = f'{intent_process.__qualname__} must return an instance of a {BaseMessageIntel.__name__} sub class.'
-        raise TypeError(message)
-
-    return message_intel
+    return router_instance.process(
+        request=request,
+        user_input=user_input,
+        message_history=message_history,
+    )

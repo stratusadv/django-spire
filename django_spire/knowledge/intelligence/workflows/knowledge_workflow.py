@@ -15,15 +15,16 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from dandy.llm.request.message import MessageHistory
 
+
 NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
     text='Sorry, I could not find any information on that.'
 )
 
 
 def knowledge_search_workflow(
-        request: WSGIRequest,
-        user_input: str,
-        message_history: MessageHistory,
+    request: WSGIRequest,
+    user_input: str,
+    message_history: MessageHistory | None = None,
 ) -> BaseMessageIntel | None:
     collection_decoder = get_collection_decoder()
     collections = collection_decoder.process(user_input).values

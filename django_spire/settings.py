@@ -5,13 +5,20 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
 }
 
 # AI Settings
-AI_PERSONA_NAME = 'AI Assistant'
-AI_CHAT_CALLABLE = None
-AI_CHAT_DEFAULT_CALLABLE = None
-AI_SMS_CONVERSATION_DEFAULT_CALLABLE = None
+DJANGO_SPIRE_AI_PERSONA_NAME = 'AI Assistant'
+DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER = 'SPIRE'
 
-ORGANIZATION_NAME = 'No Organization Provided'
-ORGANIZATION_DESCRIPTION = 'No Description Provided'
+DJANGO_SPIRE_AI_CHAT_ROUTERS = {
+    'SPIRE': 'django_spire.ai.chat.router.SpireChatRouter',
+}
+
+DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS = {
+    'KNOWLEDGE_SEARCH': {
+        'INTENT_DESCRIPTION': 'The user is asking about information in the knowledge base.',
+        'REQUIRED_PERMISSION': 'django_spire_knowledge.view_collection',
+        'CHAT_ROUTER': 'django_spire.knowledge.router.KnowledgeSearchRouter',
+    },
+}
 
 # Theme Settings
 DJANGO_SPIRE_DEFAULT_THEME = 'default-light'

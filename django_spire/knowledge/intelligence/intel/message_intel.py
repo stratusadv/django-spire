@@ -9,5 +9,5 @@ class KnowledgeMessageIntel(BaseMessageIntel):
     body: str
     entries_intel: EntriesIntel
 
-    def content_to_str(self) -> str:
+    def render_to_str(self) -> str:
         return self.body

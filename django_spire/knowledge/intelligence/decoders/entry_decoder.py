@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from dandy import Decoder
 
-from django_spire.knowledge.collection.models import Collection
+if TYPE_CHECKING:
+    from django_spire.knowledge.collection.models import Collection
 
 
 def get_entry_decoder(collection: Collection) -> Decoder:

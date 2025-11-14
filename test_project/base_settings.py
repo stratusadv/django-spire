@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
 import logging
+import os
 import sys
 
 from pathlib import Path
@@ -28,10 +28,8 @@ WSGI_APPLICATION = 'test_project.wsgi.application'
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
-# Notification Settings
 NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
 
-# Email Settings
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
@@ -39,18 +37,13 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 SENDGRID_TEMPLATE_ID = os.getenv('SENDGRID_TEMPLATE_ID')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-# SMS Notification Settings
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 TWILIO_SMS_BATCH_SIZE = 100
 
-# AI Chat Config
-AI_PERSONA_NAME = 'Rubber Ducky'
-AI_CHAT_CALLABLE = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.chat_workflow'
-AI_SMS_CONVERSATION_DEFAULT_CALLABLE = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.sms_conversation_workflow'
+DJANGO_SPIRE_AI_PERSONA_NAME = 'Rubber Ducky'
 
-# Maintenance Mode
 MAINTENANCE_MODE = True
 
 INTERNAL_IPS = [
@@ -198,7 +191,6 @@ TEMPLATES = [
     },
 ]
 
-# Storages - We are using Digital Ocean, which uses AWS S3 service
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
@@ -212,7 +204,6 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 BASE_FOLDER_NAME = 'django-spire'
 
-# 25MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024
 
 STORAGES = {

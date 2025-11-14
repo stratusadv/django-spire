@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 
 from dandy import BaseIntel
 from django.template.loader import render_to_string
@@ -17,10 +17,10 @@ class BaseMessageIntel(BaseIntel, ABC):
             raise ValueError(message)
 
     @abstractmethod
-    def content_to_str(self) -> str:
+    def render_to_str(self) -> str:
         raise NotImplementedError
 
-    def render_to_string(self, context_data: dict | None = None):
+    def render_template_to_str(self, context_data: dict | None = None):
         return render_to_string(
             template_name=self._template,
             context={**self.model_dump(), **(context_data or {})},
@@ -35,5 +35,5 @@ class DefaultMessageIntel(BaseMessageIntel):
     _template: str = 'django_spire/ai/chat/message/default_message.html'
     text: str
 
-    def content_to_str(self) -> str:
+    def render_to_str(self) -> str:
         return self.text
