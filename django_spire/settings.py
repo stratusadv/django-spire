@@ -16,7 +16,7 @@ DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS = {
     'KNOWLEDGE_SEARCH': {
         'INTENT_DESCRIPTION': 'The user is asking about information in the knowledge base.',
         'REQUIRED_PERMISSION': 'django_spire_knowledge.view_collection',
-        'CHAT_ROUTER': 'django_spire.knowledge.router.KnowledgeSearchRouter',
+        'CHAT_ROUTER': 'django_spire.knowledge.intelligence.router.KnowledgeSearchRouter',
     },
 }
 

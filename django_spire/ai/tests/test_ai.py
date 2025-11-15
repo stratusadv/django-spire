@@ -25,4 +25,4 @@ class AiTestCase(BaseTestCase):
 
         horse_intel = generate_horse_intel('Make me a magical horse that grants wishes!')
 
-        self.assertNotEqual(horse_intel.first_name, '')
+        assert horse_intel.first_name != ''

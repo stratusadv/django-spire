@@ -9,10 +9,18 @@ from django.template.loader import render_to_string
 class BaseMessageIntel(BaseIntel, ABC):
     _template: str
 
-    def __init_subclass__(cls):
-        super().__init_subclass__()
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
 
-        if cls._template is None or cls._template == '':
+        template = cls.__dict__.get('_template')
+
+        if template is None and hasattr(cls, '__private_attributes__'):
+            private_attr = cls.__private_attributes__.get('_template')
+
+            if private_attr and hasattr(private_attr, 'default'):
+                template = private_attr.default
+
+        if not template:
             message = f'{cls.__module__}.{cls.__qualname__}._template must be set'
             raise ValueError(message)
 
