@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
 import logging
+import os
 import sys
 
 from pathlib import Path
@@ -46,9 +46,7 @@ TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 TWILIO_SMS_BATCH_SIZE = 100
 
 # AI Chat Config
-AI_PERSONA_NAME = 'Rubber Ducky'
-AI_CHAT_CALLABLE = 'test_project.apps.ai.chat.intelligence.workflows.chat_workflow.chat_workflow'
-AI_SMS_CONVERSATION_DEFAULT_CALLABLE = 'test_project.apps.ai.sms.intelligence.workflows.sms_conversation_workflow.sms_conversation_workflow'
+DJANGO_SPIRE_AI_PERSONA_NAME = 'Rubber Ducky'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True

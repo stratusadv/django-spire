@@ -23,8 +23,8 @@ class CollectionSeeder(DjangoModelSeeder):
 
     @classmethod
     def _correct_order(
-            cls,
-            child_collections: list[models.Collection]
+        cls,
+        child_collections: list[models.Collection]
     ) -> list[models.Collection]:
         parent_collections = cls.model_class.objects.parentless()
 
