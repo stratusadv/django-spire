@@ -7,6 +7,7 @@
         {% if AuthController.knowledge.can_view %}
             :href="'{% url "django_spire:knowledge:entry:version:page:editor" pk=0 %}'.replace(0, entry.version_id)"
         {% endif %}
+        data-closes-nav
     >
         <i class="bi bi-file-earmark-text flex-shrink-0"></i>
         <span class="text-truncate ms-1" x-text="entry.name"></span>

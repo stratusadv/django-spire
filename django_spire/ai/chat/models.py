@@ -4,11 +4,12 @@ from dandy.llm.request.message import MessageHistory, RoleLiteralStr
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
+from pydantic import ValidationError
 
-from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
-from django_spire.ai.chat.responses import MessageResponse
 from django_spire.ai.chat.choices import MessageResponseType
-from django_spire.ai.chat.querysets import ChatQuerySet, ChatMessageQuerySet
+from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
+from django_spire.ai.chat.querysets import ChatMessageQuerySet, ChatQuerySet
+from django_spire.ai.chat.responses import MessageResponse
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.utils import get_class_from_string, get_class_name_from_class
 
@@ -64,7 +65,7 @@ class Chat(HistoryModelMixin):
         for message in messages:
             message_history.add_message(
                 role=message.role,
-                content=message.intel.content_to_str()
+                content=message.intel.render_to_str()
             )
 
         return message_history
@@ -105,7 +106,7 @@ class ChatMessage(HistoryModelMixin):
     objects = ChatMessageQuerySet.as_manager()
 
     def __str__(self):
-        content = self.intel.content_to_str()
+        content = self.intel.render_to_str()
 
         if len(content) < 64:
             return content
@@ -118,7 +119,7 @@ class ChatMessage(HistoryModelMixin):
             intel_class: type[BaseMessageIntel] = get_class_from_string(self._intel_class_name)
             return intel_class.model_validate(self._intel_data)
 
-        except ImportError:
+        except (ImportError, ValidationError):
             intel_class: type[BaseMessageIntel] = DefaultMessageIntel
             return intel_class.model_validate(
                 {'text': str(self._intel_data)}

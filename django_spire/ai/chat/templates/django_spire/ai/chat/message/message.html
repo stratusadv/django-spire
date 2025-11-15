@@ -19,7 +19,7 @@
             }
         }"
     >
-        {{ message_intel.content_to_str|json_script:message_intel_id }}
+        {{ message_intel.render_to_str|json_script:message_intel_id }}
 
         <div class="px-1 text-muted {{ sender_class }}" style="font-size: 0.7rem;">
             {% block message_sender %}
@@ -33,7 +33,7 @@
 
         <div class="d-inline-block px-2 py-1 rounded-3 shadow-sm {{ content_class|default:'border' }}">
             {% block message_content %}
-                {{ message_intel.content_to_str|linebreaksbr }}
+                {{ message_intel.render_to_str|linebreaksbr }}
             {% endblock %}
         </div>
 

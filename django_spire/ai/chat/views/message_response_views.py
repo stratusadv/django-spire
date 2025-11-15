@@ -8,10 +8,10 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now
 
+from django_spire.ai.chat.choices import MessageResponseType
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import chat_workflow
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.responses import MessageResponse
-from django_spire.ai.chat.choices import MessageResponseType
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -33,7 +33,7 @@ def response_message_render_view(request: WSGIRequest) -> HttpResponse:
 
     response_message = MessageResponse(
         type=MessageResponseType.RESPONSE,
-        sender=settings.AI_PERSONA_NAME,
+        sender=getattr(settings, 'DJANGO_SPIRE_AI_PERSONA_NAME', 'AI Assistant'),
         message_intel=message_intel,
         synthesis_speech=body_data.get('synthesis_speech', False),
         message_timestamp=formatted_timestamp

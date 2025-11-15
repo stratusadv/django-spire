@@ -44,6 +44,9 @@
     --app-text-footer: var(--app-footer-text-color);
     --app-link-footer: var(--app-footer-link-color);
     --app-link-footer-hover: var(--app-footer-link-hover-color);
+
+    --app-text-inverted: var(--app-inverted-text-color);
+    --app-text-inverted-alt: var(--app-inverted-alt-text-color);
 }
 
 .text-alt-color, .text-alt-color-hover:hover {
@@ -62,6 +65,14 @@
     color: var(--app-default-text-color) !important;
 }
 
+.text-app-inverted, .text-app-inverted-hover:hover {
+    color: var(--app-text-inverted) !important;
+}
+
+.text-app-inverted-alt, .text-app-inverted-alt-hover:hover {
+    color: var(--app-text-inverted-alt) !important;
+}
+
 .text-app-primary, .text-app-primary-hover:hover {
     color: var(--app-text-primary) !important;
 }
@@ -72,6 +83,26 @@
 
 .text-app-primary-dark, .text-app-primary-dark-hover:hover {
     color: var(--app-text-primary-dark) !important;
+}
+
+.text-app-primary-opacity-10 {
+    color: color-mix(in srgb, var(--app-text-primary) 10%, transparent) !important;
+}
+
+.text-app-primary-opacity-25 {
+    color: color-mix(in srgb, var(--app-text-primary) 25%, transparent) !important;
+}
+
+.text-app-primary-opacity-50 {
+    color: color-mix(in srgb, var(--app-text-primary) 50%, transparent) !important;
+}
+
+.text-app-primary-opacity-75 {
+    color: color-mix(in srgb, var(--app-text-primary) 75%, transparent) !important;
+}
+
+.text-app-primary-opacity-90 {
+    color: color-mix(in srgb, var(--app-text-primary) 90%, transparent) !important;
 }
 
 .text-app-secondary, .text-app-secondary-hover:hover {
@@ -86,6 +117,26 @@
     color: var(--app-text-secondary-dark) !important;
 }
 
+.text-app-secondary-opacity-10 {
+    color: color-mix(in srgb, var(--app-text-secondary) 10%, transparent) !important;
+}
+
+.text-app-secondary-opacity-25 {
+    color: color-mix(in srgb, var(--app-text-secondary) 25%, transparent) !important;
+}
+
+.text-app-secondary-opacity-50 {
+    color: color-mix(in srgb, var(--app-text-secondary) 50%, transparent) !important;
+}
+
+.text-app-secondary-opacity-75 {
+    color: color-mix(in srgb, var(--app-text-secondary) 75%, transparent) !important;
+}
+
+.text-app-secondary-opacity-90 {
+    color: color-mix(in srgb, var(--app-text-secondary) 90%, transparent) !important;
+}
+
 .text-app-accent, .text-app-accent-hover:hover {
     color: var(--app-text-accent) !important;
 }
@@ -96,6 +147,26 @@
 
 .text-app-accent-dark, .text-app-accent-dark-hover:hover {
     color: var(--app-text-accent-dark) !important;
+}
+
+.text-app-accent-opacity-10 {
+    color: color-mix(in srgb, var(--app-text-accent) 10%, transparent) !important;
+}
+
+.text-app-accent-opacity-25 {
+    color: color-mix(in srgb, var(--app-text-accent) 25%, transparent) !important;
+}
+
+.text-app-accent-opacity-50 {
+    color: color-mix(in srgb, var(--app-text-accent) 50%, transparent) !important;
+}
+
+.text-app-accent-opacity-75 {
+    color: color-mix(in srgb, var(--app-text-accent) 75%, transparent) !important;
+}
+
+.text-app-accent-opacity-90 {
+    color: color-mix(in srgb, var(--app-text-accent) 90%, transparent) !important;
 }
 
 .text-app-success, .text-app-success-hover:hover {
@@ -110,6 +181,26 @@
     color: var(--app-text-success-dark) !important;
 }
 
+.text-app-success-opacity-10 {
+    color: color-mix(in srgb, var(--app-text-success) 10%, transparent) !important;
+}
+
+.text-app-success-opacity-25 {
+    color: color-mix(in srgb, var(--app-text-success) 25%, transparent) !important;
+}
+
+.text-app-success-opacity-50 {
+    color: color-mix(in srgb, var(--app-text-success) 50%, transparent) !important;
+}
+
+.text-app-success-opacity-75 {
+    color: color-mix(in srgb, var(--app-text-success) 75%, transparent) !important;
+}
+
+.text-app-success-opacity-90 {
+    color: color-mix(in srgb, var(--app-text-success) 90%, transparent) !important;
+}
+
 .text-app-warning, .text-app-warning-hover:hover {
     color: var(--app-text-warning) !important;
 }
@@ -122,6 +213,26 @@
     color: var(--app-text-warning-dark) !important;
 }
 
+.text-app-warning-opacity-10 {
+    color: color-mix(in srgb, var(--app-text-warning) 10%, transparent) !important;
+}
+
+.text-app-warning-opacity-25 {
+    color: color-mix(in srgb, var(--app-text-warning) 25%, transparent) !important;
+}
+
+.text-app-warning-opacity-50 {
+    color: color-mix(in srgb, var(--app-text-warning) 50%, transparent) !important;
+}
+
+.text-app-warning-opacity-75 {
+    color: color-mix(in srgb, var(--app-text-warning) 75%, transparent) !important;
+}
+
+.text-app-warning-opacity-90 {
+    color: color-mix(in srgb, var(--app-text-warning) 90%, transparent) !important;
+}
+
 .text-app-danger, .text-app-danger-hover:hover {
     color: var(--app-text-danger) !important;
 }
@@ -132,6 +243,26 @@
 
 .text-app-danger-dark, .text-app-danger-dark-hover:hover {
     color: var(--app-text-danger-dark) !important;
+}
+
+.text-app-danger-opacity-10 {
+    color: color-mix(in srgb, var(--app-text-danger) 10%, transparent) !important;
+}
+
+.text-app-danger-opacity-25 {
+    color: color-mix(in srgb, var(--app-text-danger) 25%, transparent) !important;
+}
+
+.text-app-danger-opacity-50 {
+    color: color-mix(in srgb, var(--app-text-danger) 50%, transparent) !important;
+}
+
+.text-app-danger-opacity-75 {
+    color: color-mix(in srgb, var(--app-text-danger) 75%, transparent) !important;
+}
+
+.text-app-danger-opacity-90 {
+    color: color-mix(in srgb, var(--app-text-danger) 90%, transparent) !important;
 }
 
 .text-app-layer-one, .text-app-layer-one-hover:hover {

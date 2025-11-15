@@ -34,9 +34,9 @@ class EntrySeeder(DjangoModelSeeder):
 
     @classmethod
     def seed_database(
-            cls,
-            count: int = 1,
-            fields: dict | None = None
+        cls,
+        count: int = 1,
+        fields: dict | None = None
     ) -> list[models.Entry]:
         entries = super().seed_database(
             count=count,
@@ -44,13 +44,18 @@ class EntrySeeder(DjangoModelSeeder):
         )
 
         cls._correct_order(entries)
-        return cls._set_current_version(entries=entries, count=count)
+        entries = cls._set_current_version(entries=entries, count=count)
+
+        for entry in entries:
+            entry.services.tag.process_and_set_tags()
+
+        return entries
 
     @classmethod
     def _set_current_version(cls, entries: list[models.Entry], count: int = 1):
         entry_versions = EntryVersionSeeder.seed_database(count=count)
 
-        for entry, entry_version in zip(entries, entry_versions):
+        for entry, entry_version in zip(entries, entry_versions, strict=False):
             entry_version.entry = entry
             entry.current_version = entry_version
 
