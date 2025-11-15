@@ -5,25 +5,6 @@
     top: var(--app-top-navigation-height);
 }
 
-.btn-close-panel {
-    align-items: center;
-    background: transparent;
-    border: none;
-    border-radius: 50%;
-    color: var(--app-primary);
-    cursor: pointer;
-    display: flex;
-    height: 28px;
-    justify-content: center;
-    transition: background 0.2s ease, color 0.2s ease;
-    width: 28px;
-}
-
-.btn-close-panel:hover {
-    background: var(--app-primary);
-    color: var(--app-default-button-text-color);
-}
-
 .panel-toggle-container {
     height: 30px;
     position: fixed;
@@ -48,32 +29,6 @@
     padding: 0 !important;
     text-align: center !important;
     width: 30px !important;
-}
-
-.side-panel-transition-enter {
-    transition: opacity 0.3s ease;
-}
-
-.side-panel-transition-enter-start-left,
-.side-panel-transition-enter-start-right {
-    opacity: 0;
-}
-
-.side-panel-transition-enter-end {
-    opacity: 1;
-}
-
-.side-panel-transition-leave {
-    transition: opacity 0.3s ease;
-}
-
-.side-panel-transition-leave-start {
-    opacity: 1;
-}
-
-.side-panel-transition-leave-end-left,
-.side-panel-transition-leave-end-right {
-    opacity: 0;
 }
 
 @media (min-width: 992px) {
