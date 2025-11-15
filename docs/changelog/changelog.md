@@ -1,5 +1,67 @@
 # Changelog
 
+## v0.21.0
+
+### Breaking
+
+**Settings Renamed**
+- All `AI_*` settings renamed to `DJANGO_SPIRE_AI_*` for consistency
+- `AI_PERSONA_NAME` → `DJANGO_SPIRE_AI_PERSONA_NAME`
+
+**Example:**
+```python
+# Before
+AI_PERSONA_NAME = 'Assistant'
+AI_CHAT_DEFAULT_CALLABLE = 'path.to.workflow'
+
+# After
+DJANGO_SPIRE_AI_PERSONA_NAME = 'Assistant'
+```
+
+**Settings Removed**
+- `AI_CHAT_CALLABLE`
+- `AI_CHAT_DEFAULT_CALLABLE`
+- `AI_SMS_CONVERSATION_DEFAULT_CALLABLE`
+- `ORGANIZATION_NAME`
+- `ORGANIZATION_DESCRIPTION`
+
+**BaseMessageIntel Method Renames**
+- `render_to_str()` → `render_template_to_str()`
+- `content_to_str()` → `render_to_str()`
+
+### Features
+
+**Router Architecture**
+- New `BaseChatRouter` abstract base class for extensible AI chat implementations
+- New `SpireChatRouter` default router
+
+**Intent-Based Routing**
+- Automatic query routing to specialized routers based on user intent
+- Permission-based access control for intent routes
+- Automatic fallback to default chat when no intent matches
+
+**New Settings**
+
+`DJANGO_SPIRE_AI_CHAT_ROUTERS` - Map router keys to class paths:
+```python
+DJANGO_SPIRE_AI_CHAT_ROUTERS = {
+    'SPIRE': 'django_spire.ai.chat.router.SpireChatRouter',
+}
+```
+
+`DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS` - Configure intent-based routing:
+```python
+DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS = {
+    'KNOWLEDGE_SEARCH': {
+        'INTENT_DESCRIPTION': 'User asking about knowledge base',
+        'REQUIRED_PERMISSION': 'app.view_knowledge',
+        'CHAT_ROUTER': 'app.routers.KnowledgeRouter',
+    },
+}
+```
+
+`DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER` - Specify default router key (defaults to 'SPIRE' if not set)
+
 ## v0.20.4
 
 ### Changes
