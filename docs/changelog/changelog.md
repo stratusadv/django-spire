@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.21.1
+
+### Fixes
+
+- Fixed CSS issues related to chat/knowledge_base/full_page
+
 ## v0.21.0
 
 ### Breaking
