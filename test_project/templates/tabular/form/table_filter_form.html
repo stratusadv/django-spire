@@ -13,9 +13,6 @@
 
                 this.search_field.set_attribute('placeholder', 'Search...')
 
-                this.task.glue_fields.name.required = false
-                this.task.name = this.session_controller.get_data('name', '')
-
                 this.task.glue_fields.status.required = false
                 this.task.status = this.session_controller.get_data('status', '')
 
@@ -37,13 +34,9 @@
                 }
             ),
         }"
-        @filter-applied.window="refresh_table()"
     >
         <div class="col-3">
             {% include 'django_glue/form/field/char_field.html' with glue_field='search_field' %}
-        </div>
-        <div class="col-3">
-            {% include 'django_glue/form/field/char_field.html' with glue_model_field='task.name' %}
         </div>
         <div class="col-3">
             {% include 'django_glue/form/field/select_field.html' with glue_model_field='task.status' %}

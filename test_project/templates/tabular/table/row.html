@@ -1,6 +1,8 @@
 {% extends 'django_spire/table/element/row.html' %}
 
-{% block cells %}
+{% block row_has_children %}{{ row.user_count|default:0 }} > 0{% endblock %}
+
+{% block table_cells %}
     <td width="40%">
         <div class="fw-medium">{{ row.name|truncatechars:75 }}</div>
         <div class="small text-muted">{{ row.description }}</div>
@@ -16,7 +18,7 @@
 
     <td>{{ row.created_datetime|date:"M d, Y" }}</td>
 
-    <td style="overflow: visible;">
+    <td>
         {% url 'tabular:form:update_modal' pk=row.pk as edit_url %}
         {% url 'tabular:form:delete_modal' pk=row.pk as delete_url %}
 

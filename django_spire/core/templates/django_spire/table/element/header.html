@@ -1,11 +1,8 @@
-<th style="width: 40px;">
-    <input
-        :checked="select_all"
-        @change="handle_toggle_all()"
-        type="checkbox"
-    >
+<th
+    data-breakpoint="{{ breakpoint|default:'' }}"
+    {% if sort_key %}@click="sort_by('{{ sort_key }}')"{% endif %}
+    class="{% if sort_key %}cursor-pointer{% endif %} {% if breakpoint %}d-none d-{{ breakpoint }}-table-cell{% endif %} {{ extra_class|default:'' }}"
+    style="{{ style|default:'' }}"
+>
+    {{ label }} {% if sort_key %}<i :class="get_sort_icon('{{ sort_key }}')" class="bi"></i>{% endif %}
 </th>
-
-<th style="width: 40px;"></th>
-
-<th style="width: 120px;">Actions</th>

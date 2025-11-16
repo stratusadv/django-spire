@@ -1,11 +1,23 @@
+{% if forloop.first %}
+    <div
+        x-data="{
+            init() {
+                this.$dispatch('total-count-updated', { total_count: {{ total_count }} });
+            }
+        }"
+        style="display: none;"
+    ></div>
+{% endif %}
+
 <tr
+    class="align-middle"
     data-row-id="{{ row.pk }}"
     x-data="{
         row_id: '{{ row.pk }}',
         is_checked: false,
         is_open: false,
         is_loading: false,
-        has_children: {{ row.user_count|default:0 }} > 0,
+        has_children: {% block row_has_children %}false{% endblock %},
 
         init() {
             this.$dispatch('row-mounted', { row_id: this.row_id });
@@ -64,10 +76,11 @@
         </template>
     </td>
 
-    {% block cells %}{% endblock %}
+    {% block table_cells %}{% endblock %}
 </tr>
 
 <tr
+    class="align-middle"
     x-data="{
         row_id: '{{ row.pk }}',
         is_open: false,

@@ -1,7 +1,7 @@
 <div
     x-data="{
         endpoint: '{{ endpoint }}',
-        child_endpoint: '{{ child_endpoint|default:'' }}',
+        child_endpoint: '{{ child_endpoint|default:'' }}'.replace(/\/\d+\//, '/{id}/'),
         page_size: parseInt('{{ page_size|default:25 }}'),
         shared_payload: {},
 
@@ -10,11 +10,15 @@
         loaded_count: 0,
         total_count: parseInt('{{ total_count|default:0 }}'),
 
+        any_row_has_children: false,
         column_count: 0,
+        column_breakpoints: [],
         is_loading: false,
         is_refreshing: false,
+        responsive_mode: '{{ responsive_mode|default:"collapse" }}',
 
         observer: null,
+        row_observer: null,
         select_all: false,
         selected_rows: new Set(),
         skeleton_count: 0,
@@ -32,6 +36,8 @@
         async init() {
             await this.$nextTick();
             this.reset_scroll_position();
+            this.scan_column_breakpoints();
+            this.setup_row_observer();
 
             if (this.should_load_initial_data()) {
                 this.skeleton_count = this.skeleton_row;
@@ -41,6 +47,20 @@
             if (this.has_next) {
                 setTimeout(() => this.setup_observer(), 500);
             }
+        },
+
+        build_child_url(params) {
+            let url = this.child_endpoint;
+
+            if (typeof params === 'object') {
+                for (let [key, value] of Object.entries(params)) {
+                    url = url.replace(`{${key}}`, value);
+                }
+            } else {
+                url = url.replace(/\{(\w+)\}/, params);
+            }
+
+            return url;
         },
 
         should_load_initial_data() {
@@ -53,6 +73,54 @@
                     this.$refs.table_container.scrollTop = 0;
                 }
             });
+        },
+
+        scan_column_breakpoints() {
+            if (!this.$refs.header_row) return;
+
+            let headers = this.$refs.header_row.querySelectorAll('th');
+
+            this.column_breakpoints = Array.from(headers).map(th => {
+                return th.dataset.breakpoint || null;
+            });
+        },
+
+        setup_row_observer() {
+            if (!this.$refs.table_body || this.responsive_mode !== 'collapse') return;
+
+            this.row_observer = new MutationObserver((mutations) => {
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeName === 'TR' && node.dataset.rowId) {
+                            this.apply_column_classes_to_row(node);
+                        }
+                    });
+                });
+            });
+
+            this.row_observer.observe(this.$refs.table_body, { childList: true });
+
+            this.$refs.table_body.querySelectorAll('tr[data-row-id]').forEach(row => {
+                this.apply_column_classes_to_row(row);
+            });
+        },
+
+        apply_column_classes_to_row(row) {
+            let cells = row.querySelectorAll('td');
+
+            cells.forEach((cell, index) => {
+                let breakpoint = this.column_breakpoints[index];
+
+                if (breakpoint) {
+                    cell.classList.add('d-none', `d-${breakpoint}-table-cell`);
+                }
+            });
+        },
+
+        disconnect_row_observer() {
+            if (this.row_observer) {
+                this.row_observer.disconnect();
+            }
         },
 
         handle_header_mounted(event) {
@@ -71,6 +139,7 @@
 
         async setup_observer() {
             let trigger = this.$refs.infinite_scroll_trigger;
+
             if (!trigger) {
                 console.error('Infinite scroll trigger element not found.');
                 return;
@@ -117,7 +186,9 @@
             }
 
             let previous_count = this.loaded_count;
+
             await view.render_insert_adjacent(this.$refs.table_body, {}, 'beforeend');
+
             let added = this.loaded_count - previous_count;
 
             return { success: true, added: added };
@@ -145,7 +216,6 @@
             this.is_loading = true;
 
             if (!this.$refs.table_body) {
-                console.error('Table body not found');
                 this.cleanup_loading_state();
                 return;
             }
@@ -206,13 +276,13 @@
             this.is_child_row_loading[parent_id] = true;
             this.$dispatch('toggle-row-state', { row_id: parent_id, is_open: true, is_loading: true });
 
-            let url = this.child_endpoint.replace('{id}', parent_id);
+            let url = this.build_child_url(parent_id);
             let view = new ViewGlue(url, this.$refs.shared_payload ? JSON.parse(this.$refs.shared_payload.textContent) : {});
 
-            let temp_container = document.createElement('div');
-            await view.render_inner(temp_container);
+            let container = document.createElement('div');
+            await view.render_inner(container);
 
-            this.child_rows[parent_id] = temp_container.innerHTML;
+            this.child_rows[parent_id] = container.innerHTML;
 
             this.$nextTick(() => {
                 this.$dispatch('update-child-row', { parent_id: parent_id, content: this.child_rows[parent_id] });
@@ -227,6 +297,7 @@
             await this.$nextTick();
 
             this.reset_table_state();
+
             let result = await this.fetch_rows(1);
             this.update_counts_after_refresh(result);
 
@@ -290,42 +361,54 @@
             this.selected_rows.delete(event.detail.row_id);
         },
 
-        handle_toggle_row(event) {
-            let row_id = event.detail.row_id;
-            this.is_row_open[row_id] = !this.is_row_open[row_id];
-
-            this.$dispatch('toggle-row-state', { row_id: row_id, is_open: this.is_row_open[row_id] });
-
-            if (this.is_row_open[row_id] && !this.child_rows[row_id] && this.child_endpoint) {
-                this.load_child_rows(row_id);
-            }
+        handle_total_count_updated(event) {
+            this.total_count = event.detail.total_count;
         },
     }"
     @clear-rows.window="handle_rows_cleared()"
+    @filter-applied.window="refresh_table()"
     @header-mounted="handle_header_mounted($event)"
     @row-deselected.window="handle_row_deselected($event)"
     @row-mounted.window="handle_row_mounted()"
     @row-selected.window="handle_row_selected($event)"
     @toggle-row.window="handle_toggle_row($event)"
+    @total-count-updated.window="handle_total_count_updated($event)"
 >
     <script type="application/json" x-ref="shared_payload">{% if shared_payload %}{{ shared_payload|safe }}{% else %}{}{% endif %}</script>
-
-    {% block table_toolbar %}{% endblock %}
 
     {% block table_container %}
         <div
             class="position-relative table-container"
-            style="max-height: {{ table_height|default:'600px' }}; overflow-y: auto; overscroll-behavior: contain;"
+            style="max-height: {{ table_height|default:'600px' }}; overflow-y: auto; overflow-x: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
             x-ref="table_container"
         >
-            <table class="table table-striped table-hover fs-7 {% block table_class %}{% endblock %}" style="table-layout: fixed;">
+            <table
+                class="table table-striped table-hover fs-7 w-100 {% block table_class %}{% endblock %}"
+                :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;')"
+            >
                 <thead class="z-1 {% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
                     <tr
                         x-init="column_count = $el.children.length; $dispatch('header-mounted', { count: column_count })"
                         x-ref="header_row"
                     >
-                        {% block table_header %}
-                            {% include 'django_spire/table/element/header.html' %}
+                        {% block table_header_container %}
+                            {% block table_header_start %}
+                                <th style="min-width: 30px; width: 30px;">
+                                    <input
+                                        :checked="select_all"
+                                        @change="handle_toggle_all()"
+                                        type="checkbox"
+                                    >
+                                </th>
+
+                                <th style="min-width: 30px; width: 30px;"></th>
+                            {% endblock %}
+
+                            {% block table_header %}{% endblock %}
+
+                            {% block table_header_end %}
+                                <th style="min-width: 70px; width: 70px;">Actions</th>
+                            {% endblock %}
                         {% endblock %}
                     </tr>
                 </thead>

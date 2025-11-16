@@ -270,6 +270,48 @@ def model_form_view(
     )
 
 
+def table_view(
+    request: WSGIRequest,
+    *,
+    queryset: QuerySet,
+    queryset_name: str,
+    template: str,
+    context_data: dict[str, Any] | None = None
+) -> TemplateResponse:
+    if context_data is None:
+        context_data = {}
+
+    default_page_size = 25
+
+    page = int(request.GET.get('page', 1))
+
+    page_size = (
+        context_data.get('page_size')
+        if 'page_size' in context_data
+        else int(request.GET.get('page_size', default_page_size))
+    )
+
+    offset = (page - 1) * page_size
+
+    total_count = queryset.count()
+    object_list = queryset[offset:offset + page_size]
+    has_next = offset + page_size < total_count
+
+    base_context_data = {
+        queryset_name: object_list,
+        'has_next': has_next,
+        'total_count': total_count,
+    }
+
+    context_data.update(base_context_data)
+
+    return TemplateResponse(
+        request,
+        context=context_data,
+        template=template
+    )
+
+
 def template_view(
     request: WSGIRequest,
     page_title: str,

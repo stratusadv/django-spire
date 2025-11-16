@@ -7,7 +7,7 @@ from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 
 from test_project.apps.queryset_filtering.choices import TaskStatusChoices, TaskUserRoleChoices
-from test_project.apps.queryset_filtering.querysets import TaskQuerySet
+from test_project.apps.queryset_filtering.querysets import TaskQuerySet, TaskUserQuerySet
 from test_project.apps.queryset_filtering.services.service import TaskService
 
 
@@ -46,6 +46,7 @@ class TaskUser(ActivityMixin, HistoryModelMixin):
         related_query_name='task',
         on_delete=models.CASCADE
     )
+
     task = models.ForeignKey(
         Task,
         related_name='users',
@@ -58,6 +59,8 @@ class TaskUser(ActivityMixin, HistoryModelMixin):
         choices=TaskUserRoleChoices.choices,
         max_length=3
     )
+
+    objects = TaskUserQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Task User'
