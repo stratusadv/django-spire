@@ -13,10 +13,10 @@ class TagSetBot(Bot):
         Prompt()
         .list([
             'Make sure to have enough tags to properly cover all the provided content.',
-            'Focus on tagging the words in the content',
+            'Focus on tagging the words in the content.',
             'Only add additional words that are very relevant to the content.'
-            'Use spaces to separate words in tags',
-            'Include known acronyms along with the full tags.',
+            'Use spaces to separate words in tags.',
+            'Include common acronyms in addition to the tags.',
         ])
     )
 

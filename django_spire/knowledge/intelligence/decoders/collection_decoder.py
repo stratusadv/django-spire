@@ -10,7 +10,7 @@ def get_collection_decoder() -> Decoder:
         mapping_keys_description = 'Knowledge Collections Tags'
         mapping = {
             **{
-                f'{collection.services.tag.get_aggregated_tag_set_simplified()}': collection
+                f'{collection.services.tag.get_aggregated_simplified_tag_set()}': collection
                 for collection in Collection.objects.all().annotate_entry_count()
             },
             'No Matching Knowledge Collection Tags': None,

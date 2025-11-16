@@ -4,15 +4,15 @@ from typing import TYPE_CHECKING
 
 from dandy import Prompt
 
-from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.core.tags.intelligence.tag_set_bot import TagSetBot
+from django_spire.core.tags.service.tag_service import BaseTagService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry
 
 
 
-class EntryTagService(BaseDjangoModelService['Entry']):
+class EntryTagService(BaseTagService['Entry']):
     obj: Entry
 
     def process_and_set_tags(self):

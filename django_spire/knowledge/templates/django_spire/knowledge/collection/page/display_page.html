@@ -49,8 +49,8 @@
     <div class="row">
         <div class="col-12 col-lg-8 mx-auto pb-4">
             Tags:
-            {% for tag in collection.tags.all %}
-                <span class="badge bg-secondary">{{ tag.name }}</span>
+            {% for tag, weight in collection.tag_dict_weighted.items %}
+                <span class="badge bg-secondary">{{ tag }} {{ weight }}</span>
             {% endfor %}
         </div>
     </div>

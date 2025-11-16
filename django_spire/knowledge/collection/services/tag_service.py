@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING
 
 from dandy import Prompt
 
-from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.core.tags.intelligence.tag_set_bot import TagSetBot
+from django_spire.core.tags.service.tag_service import BaseTagService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.collection.models import Collection
 
 
-class CollectionTagService(BaseDjangoModelService['Collection']):
+class CollectionTagService(BaseTagService['Collection']):
     obj: Collection
 
     def process_and_set_tags(self):
@@ -28,7 +28,7 @@ class CollectionTagService(BaseDjangoModelService['Collection']):
             tag_set=tag_set,
         )
 
-    def get_aggregated_tag_set(self):
+    def get_aggregated_tag_set(self) -> set[str]:
         tag_set = self.obj.tag_set
 
         for collection in self.obj.children.active():
@@ -39,14 +39,14 @@ class CollectionTagService(BaseDjangoModelService['Collection']):
 
         return tag_set
 
-    def get_aggregated_tag_set_simplified(self):
-        tag_set = self.obj.tag_set_simplified
+    def get_aggregated_simplified_tag_set(self) -> set[str]:
+        tag_set = self.obj.simplified_tag_set
 
         for collection in self.obj.children.active():
             tag_set.update(collection.services.tag.get_aggregated_tag_set())
 
         for entry in self.obj.entries.active():
-            tag_set.update(entry.tag_set_simplified)
+            tag_set.update(entry.simplified_tag_set)
 
         return tag_set
 
