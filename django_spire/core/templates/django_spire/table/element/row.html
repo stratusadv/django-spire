@@ -19,13 +19,7 @@
         has_children: {% block row_has_children %}false{% endblock %},
 
         init() {
-            this.$dispatch('row-mounted', { row_id: this.row_id });
-        },
-
-        handle_toggle_row_state(event) {
-            if (event.detail.row_id === this.row_id) {
-                this.is_open = event.detail.is_open;
-            }
+            this.$dispatch('row-mounted', { row_id: this.row_id, row_element: this.$el });
         },
 
         handle_checkbox_change() {
@@ -38,15 +32,21 @@
             }
         },
 
+        handle_deselect_all_rows() {
+            this.is_checked = false;
+            this.$dispatch('row-deselected', { row_id: this.row_id });
+        },
+
         handle_select_all_rows() {
             this.is_checked = true;
             this.$dispatch('row-selected', { row_id: this.row_id });
         },
 
-        handle_deselect_all_rows() {
-            this.is_checked = false;
-            this.$dispatch('row-deselected', { row_id: this.row_id });
-        }
+        handle_toggle_row_state(event) {
+            if (event.detail.row_id === this.row_id) {
+                this.is_open = event.detail.is_open;
+            }
+        },
     }"
     @deselect-all-rows.window="handle_deselect_all_rows()"
     @select-all-rows.window="handle_select_all_rows()"

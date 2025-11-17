@@ -3,6 +3,10 @@
     {% if sort_key %}@click="sort_by('{{ sort_key }}')"{% endif %}
     class="{% if sort_key %}cursor-pointer{% endif %} {% if breakpoint %}d-none d-{{ breakpoint }}-table-cell{% endif %} {{ extra_class|default:'' }}"
     style="{{ style|default:'' }}"
+    x-init="
+        let index = Array.from($el.parentElement.children).indexOf($el);
+        $dispatch('header-registered', { index: index, breakpoint: '{{ breakpoint|default:'' }}' || null });
+    "
 >
     {{ label }} {% if sort_key %}<i :class="get_sort_icon('{{ sort_key }}')" class="bi"></i>{% endif %}
 </th>
