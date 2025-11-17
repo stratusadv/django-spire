@@ -18,9 +18,7 @@
             <div class="mt-2">
                 <div class="fw-semibold mb-1">Associated Tasks:</div>
                 {% for task_user in task_users %}
-                    <div class="border-bottom py-1">
-                        {{ task_user.task.name }} - ${{ task_user.calculated_cost|floatformat:2 }}
-                    </div>
+                    {% include 'tabular/table/task_user_detail_row.html' with row=task_user is_last=forloop.last %}
                 {% endfor %}
             </div>
         {% endif %}

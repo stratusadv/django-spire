@@ -25,3 +25,8 @@
         {% include 'django_spire/dropdown/ellipsis_table_dropdown.html' with edit_url=edit_url delete_url=delete_url %}
     </td>
 {% endblock %}
+
+{% block child_row %}
+    {% url 'tabular:template:task_user_rows' task_id=row.pk as child_endpoint %}
+    {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint %}
+{% endblock %}

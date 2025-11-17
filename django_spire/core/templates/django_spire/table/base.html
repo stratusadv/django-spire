@@ -1,7 +1,6 @@
 <div
     x-data="{
         endpoint: '{{ endpoint }}',
-        child_endpoint: '{{ child_endpoint|default:'' }}'.replace(/\/\d+\//, '/{id}/'),
         page_size: parseInt('{{ page_size|default:25 }}'),
         shared_payload: {},
 
@@ -27,14 +26,13 @@
         sort_column: {% if sort_column %}'{{ sort_column }}'{% else %}null{% endif %},
         sort_direction: '{{ sort_direction|default:'asc' }}',
 
-        child_rows: {},
-        is_child_row_loading: {},
         is_row_open: {},
 
         {% block table_xdata %}{% endblock %}
 
         async init() {
             await this.$nextTick();
+
             this.reset_scroll_position();
             this.scan_column_breakpoints();
             this.setup_row_observer();
@@ -47,20 +45,6 @@
             if (this.has_next) {
                 setTimeout(() => this.setup_observer(), 500);
             }
-        },
-
-        build_child_url(params) {
-            let url = this.child_endpoint;
-
-            if (typeof params === 'object') {
-                for (let [key, value] of Object.entries(params)) {
-                    url = url.replace(`{${key}}`, value);
-                }
-            } else {
-                url = url.replace(/\{(\w+)\}/, params);
-            }
-
-            return url;
         },
 
         should_load_initial_data() {
@@ -216,6 +200,7 @@
             this.is_loading = true;
 
             if (!this.$refs.table_body) {
+                console.error('Table body not found');
                 this.cleanup_loading_state();
                 return;
             }
@@ -262,34 +247,6 @@
             this.is_row_open[row_id] = !this.is_row_open[row_id];
 
             this.$dispatch('toggle-row-state', { row_id: row_id, is_open: this.is_row_open[row_id] });
-
-            if (this.is_row_open[row_id] && !this.child_rows[row_id] && this.child_endpoint) {
-                this.load_child_rows(row_id);
-            }
-        },
-
-        async load_child_rows(parent_id) {
-            if (this.is_child_row_loading[parent_id]) {
-                return;
-            }
-
-            this.is_child_row_loading[parent_id] = true;
-            this.$dispatch('toggle-row-state', { row_id: parent_id, is_open: true, is_loading: true });
-
-            let url = this.build_child_url(parent_id);
-            let view = new ViewGlue(url, this.$refs.shared_payload ? JSON.parse(this.$refs.shared_payload.textContent) : {});
-
-            let container = document.createElement('div');
-            await view.render_inner(container);
-
-            this.child_rows[parent_id] = container.innerHTML;
-
-            this.$nextTick(() => {
-                this.$dispatch('update-child-row', { parent_id: parent_id, content: this.child_rows[parent_id] });
-            });
-
-            this.is_child_row_loading[parent_id] = false;
-            this.$dispatch('toggle-row-state', { row_id: parent_id, is_open: true, is_loading: false });
         },
 
         async refresh_table() {
@@ -311,10 +268,8 @@
         },
 
         reset_table_state() {
-            this.child_rows = {};
             this.current_page = 1;
             this.has_next = true;
-            this.is_child_row_loading = {};
             this.is_row_open = {};
         },
 
@@ -375,6 +330,8 @@
     @total-count-updated.window="handle_total_count_updated($event)"
 >
     <script type="application/json" x-ref="shared_payload">{% if shared_payload %}{{ shared_payload|safe }}{% else %}{}{% endif %}</script>
+
+    {% block table_toolbar %}{% endblock %}
 
     {% block table_container %}
         <div

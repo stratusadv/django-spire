@@ -16,7 +16,21 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-def tabular_rows_view(request: WSGIRequest) -> TemplateResponse:
+def task_detail_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
+    task = get_object_or_404(Task, id=task_id)
+
+    context_data = {
+        'task': task,
+    }
+
+    return TemplateResponse(
+        request,
+        context=context_data,
+        template='tabular/table/task_detail_rows.html'
+    )
+
+
+def task_rows_view(request: WSGIRequest) -> TemplateResponse:
     sort_column = request.GET.get('sort', 'name')
     sort_direction = request.GET.get('direction', 'asc')
 
@@ -40,11 +54,34 @@ def tabular_rows_view(request: WSGIRequest) -> TemplateResponse:
         request,
         queryset=tasks,
         queryset_name='tasks',
-        template='tabular/table/rows.html'
+        template='tabular/table/task_rows.html'
     )
 
 
-def tabular_child_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
+def task_user_detail_rows_view(request: WSGIRequest, user_id: int) -> TemplateResponse:
+    user = get_object_or_404(User, id=user_id)
+
+    task_users = (
+        TaskUser
+        .objects
+        .filter(user=user)
+        .select_related('task')
+        .annotate_user_cost()
+    )
+
+    context_data = {
+        'user': user,
+        'task_users': task_users,
+    }
+
+    return TemplateResponse(
+        request,
+        context=context_data,
+        template='tabular/table/task_user_detail_rows.html'
+    )
+
+
+def task_user_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
     task = get_object_or_404(
         Task.objects.prefetch_related('users', 'users__user'),
         id=task_id
@@ -66,28 +103,5 @@ def tabular_child_rows_view(request: WSGIRequest, task_id: int) -> TemplateRespo
     return TemplateResponse(
         request,
         context=context_data,
-        template='tabular/table/child_rows.html'
-    )
-
-
-def user_details_view(request: WSGIRequest, user_id: int) -> TemplateResponse:
-    user = get_object_or_404(User, id=user_id)
-
-    task_users = (
-        TaskUser
-        .objects
-        .filter(user=user)
-        .select_related('task')
-        .annotate_user_cost()
-    )
-
-    context_data = {
-        'user': user,
-        'task_users': task_users,
-    }
-
-    return TemplateResponse(
-        request,
-        context=context_data,
-        template='tabular/table/user_details.html'
+        template='tabular/table/task_user_rows.html'
     )

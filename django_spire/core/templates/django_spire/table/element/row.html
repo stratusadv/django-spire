@@ -16,7 +16,6 @@
         row_id: '{{ row.pk }}',
         is_checked: false,
         is_open: false,
-        is_loading: false,
         has_children: {% block row_has_children %}false{% endblock %},
 
         init() {
@@ -26,7 +25,6 @@
         handle_toggle_row_state(event) {
             if (event.detail.row_id === this.row_id) {
                 this.is_open = event.detail.is_open;
-                this.is_loading = event.detail.is_loading || false;
             }
         },
 
@@ -63,11 +61,7 @@
     </td>
 
     <td>
-        <template x-if="has_children && is_loading">
-            <i class="bi bi-arrow-clockwise spin"></i>
-        </template>
-
-        <template x-if="has_children && !is_loading">
+        <template x-if="has_children">
             <i
                 :class="is_open ? 'bi-chevron-down' : 'bi-chevron-right'"
                 @click="$dispatch('toggle-row', { row_id: row_id })"
@@ -84,46 +78,18 @@
     x-data="{
         row_id: '{{ row.pk }}',
         is_open: false,
-        has_loaded: false,
-        pending_open: false,
 
         handle_toggle_row_state(event) {
-            if (event.detail.row_id !== this.row_id) return;
-
-            if (event.detail.is_open) {
-                if (this.has_loaded) {
-                    this.is_open = true;
-                } else {
-                    this.pending_open = true;
-                }
-            } else {
-                this.is_open = false;
-                this.pending_open = false;
-            }
-        },
-
-        handle_update_child_row(event) {
-            if (event.detail.parent_id !== this.row_id || !this.$refs.child_container) return;
-
-            this.$refs.child_container.innerHTML = event.detail.content;
-            this.has_loaded = true;
-
-            if (this.pending_open) {
-                this.is_open = true;
-                this.pending_open = false;
+            if (event.detail.row_id === this.row_id) {
+                this.is_open = event.detail.is_open;
             }
         }
     }"
     @toggle-row-state.window="handle_toggle_row_state($event)"
-    @update-child-row.window="handle_update_child_row($event)"
 >
     <td class="p-0" x-effect="$el.setAttribute('colspan', column_count)">
-        <div
-            x-show="is_open"
-            x-collapse
-            x-cloak
-        >
-            <div x-ref="child_container"></div>
+        <div x-show="is_open" x-cloak>
+            {% block child_row %}{% endblock %}
         </div>
     </td>
 </tr>

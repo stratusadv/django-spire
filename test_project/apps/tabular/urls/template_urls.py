@@ -6,7 +6,8 @@ from test_project.apps.tabular.views import template_views
 app_name = 'template'
 
 urlpatterns = [
-    path('api/rows/', template_views.tabular_rows_view, name='rows'),
-    path('api/<int:task_id>/children/', template_views.tabular_child_rows_view, name='child_rows'),
-    path('api/user/<int:user_id>/details/', template_views.user_details_view, name='user_details'),
+    path('api/task/<int:task_id>/detail/rows/', template_views.task_detail_rows_view, name='task_detail_rows'),
+    path('api/task/<int:task_id>/user/rows/', template_views.task_user_rows_view, name='task_user_rows'),
+    path('api/task/rows/', template_views.task_rows_view, name='task_rows'),
+    path('api/user/<int:user_id>/task/detail/rows/', template_views.task_user_detail_rows_view, name='task_user_detail_rows'),
 ]

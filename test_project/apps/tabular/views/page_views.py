@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
+from django.urls import reverse
 
 import django_glue as dg
 
-from django_spire.contrib.generic_views.urls import spire_reverse
 from django_spire.contrib.session.controller import SessionController
 
 from test_project.apps.queryset_filtering.choices import TaskStatusChoices
@@ -64,8 +64,7 @@ def table_page(request: WSGIRequest):
     dg.glue_query_set(request, 'users', User.objects.all())
 
     context_data = {
-        'endpoint': spire_reverse('tabular:template:rows'),
-        'child_endpoint': spire_reverse('tabular:template:child_rows'),
+        'endpoint': reverse('tabular:template:task_rows'),
         'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),
         'status_choices': json.dumps(TaskStatusChoices.choices),
     }

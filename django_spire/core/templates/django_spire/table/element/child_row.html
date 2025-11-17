@@ -1,0 +1,37 @@
+<div
+    x-data="{
+        is_loading: false,
+        has_loaded: false,
+        row_id: '{{ row.pk }}',
+        endpoint: '{{ child_endpoint }}',
+
+        async load_children() {
+            if (this.has_loaded || this.is_loading) return;
+
+            this.is_loading = true;
+
+            let view = new ViewGlue(this.endpoint, {});
+            await view.render_inner(this.$refs.child_container);
+
+            this.has_loaded = true;
+            this.is_loading = false;
+        },
+
+        handle_toggle_row_state(event) {
+            if (event.detail.row_id === this.row_id && event.detail.is_open) {
+                this.load_children();
+            }
+        }
+    }"
+    @toggle-row-state.window="handle_toggle_row_state($event)"
+>
+    <div x-show="is_loading" class="p-3">
+        <div class="mb-2">
+            <div class="skeleton-box" style="height: 20px; width: 80%; margin-left: 20px;"></div>
+            <div class="skeleton-box" style="height: 20px; width: 80%; margin-left: 20px;"></div>
+            <div class="skeleton-box" style="height: 20px; width: 80%; margin-left: 20px;"></div>
+        </div>
+    </div>
+
+    <div x-show="!is_loading" x-ref="child_container"></div>
+</div>
