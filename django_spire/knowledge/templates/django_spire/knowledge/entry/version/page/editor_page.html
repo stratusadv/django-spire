@@ -1,6 +1,7 @@
 {% extends 'django_spire/knowledge/page/full_page.html' %}
 
 {% load static %}
+{% load spire_core_tags %}
 
 {% block base_body_additional_top_js %}
     {{ block.super }}
@@ -46,8 +47,8 @@
     <div class="row">
         <div class="col-12 mb-3">
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Tags' %}
-            {% for tag in entry.tags.all %}
-            	<span class="badge bg-secondary">{{ tag.name }}</span>
+            {% for tag, weight in entry.simplified_and_weighted_tag_dict|safe_dict_items %}
+                {% include 'django_spire/tag/element/tag.html' %}
             {% endfor %}
         </div>
     </div>

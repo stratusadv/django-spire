@@ -5,16 +5,15 @@ from typing import TYPE_CHECKING
 from django.core.handlers.wsgi import WSGIRequest
 
 from django_spire.ai.chat.message_intel import DefaultMessageIntel, BaseMessageIntel
+from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
+from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchBot
 from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
-from django_spire.knowledge.intelligence.decoders.collection_decoder import get_collection_decoder
-from django_spire.knowledge.intelligence.decoders.entry_decoder import get_entry_decoder
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from dandy.llm.request.message import MessageHistory
-
 
 NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
     text='Sorry, I could not find any information on that.'
@@ -22,25 +21,39 @@ NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
 
 
 def knowledge_search_workflow(
-    request: WSGIRequest,
-    user_input: str,
-    message_history: MessageHistory | None = None,
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory | None = None,
 ) -> BaseMessageIntel | None:
-    collection_decoder = get_collection_decoder()
-    collections = collection_decoder.process(user_input).values
+    user_tag_set = TagSetBot().process(user_input)
 
-    if collections[0] is None:
-        return NO_KNOWLEDGE_MESSAGE_INTEL
+    collections_scores = {}
 
-    entries = []
+    for collection in Collection.objects.all().annotate_entry_count():
+        score = collection.services.tag.get_score_percentage_from_aggregated_tag_set_weighted(user_tag_set)
+        if score > 0.05:
+            collections_scores[collection] = score
+
+    collections = sorted(
+        collections_scores,
+        key=collections_scores.get,
+        reverse=True
+    )[:5]
+
+    entries_scores = {}
 
     for collection in collections:
         if collection.entry_count > 0:
-            entry_decoder = get_entry_decoder(collection=collection)
+            for entry in collection.entries.all():
+                score = entry.services.tag.get_score_percentage_from_tag_set_weighted(user_tag_set)
+                if score > 0.05:
+                    entries_scores[entry] = score
 
-            entries.extend(entry_decoder.process(user_input).values)
-
-    entries = [entry for entry in entries if entry is not None]
+    entries = sorted(
+        entries_scores,
+        key=entries_scores.get,
+        reverse=True
+    )[:5]
 
     if not entries:
         return NO_KNOWLEDGE_MESSAGE_INTEL

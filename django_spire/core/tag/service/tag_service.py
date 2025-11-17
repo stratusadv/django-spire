@@ -5,8 +5,9 @@ from django.db.models import QuerySet
 
 from django_spire.contrib.constructor.django_model_constructor import TypeDjangoModel
 from django_spire.contrib.service import BaseDjangoModelService
-from django_spire.core.tags import tools
-from django_spire.core.tags.models import Tag
+from django_spire.core.tag import tools
+from django_spire.core.tag.models import Tag
+from django_spire.core.tag.tools import get_score_percentage_from_tag_set_weighted
 
 
 class BaseTagService(
@@ -37,15 +38,11 @@ class BaseTagService(
     def get_matching_percentage_of_model_tags_from_tag_set(self, tag_set: set[str]) -> float:
         return tools.get_matching_b_percentage_from_tag_sets(tag_set, self.obj.tag_set)
 
-    def get_score_percentage_of_tag_set(self, tag_set: set[str]) -> float:
-        total_points = len(self.obj.simplified_tag_set)
-        weighted_points = sum(
-            weight
-            for tag, weight in self.obj.simplified_and_weighted_tag_dict.items()
-            if tag in tag_set
+    def get_score_percentage_from_tag_set_weighted(self, tag_set: set[str]) -> float:
+        return get_score_percentage_from_tag_set_weighted(
+            tag_set_actual=tag_set,
+            tag_set_reference=self.obj.tag_set
         )
-
-        return weighted_points / total_points
 
     def get_simplified_and_weighted_tag_dict_above_minimum(self, minimum_weight: int = 1) -> dict[str, int]:
         above_minimum_tag_dict = self.obj.simplified_and_weighted_tag_dict

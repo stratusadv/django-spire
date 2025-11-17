@@ -25,7 +25,9 @@ class EntrySearchBot(Bot):
         entry_prompt.line_break()
         entry_prompt.text(f'{user_input}')
         entry_prompt.line_break()
-        entry_prompt.sub_heading(f'Knowledge Entry: {entry.name}')
+        entry_prompt.sub_heading('Knowledge Entry')
+        entry_prompt.line_break()
+        entry_prompt.text(f'0: # {entry.name}')
         entry_prompt.line_break()
 
         for version_block in entry.current_version.blocks.all():

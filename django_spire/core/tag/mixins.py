@@ -1,10 +1,10 @@
 from django.db import models
 
-from django_spire.core.tags.models import Tag
-from django_spire.core.tags.tools import simplify_tag_set_to_list, simplify_and_weight_tag_set
+from django_spire.core.tag.models import Tag
+from django_spire.core.tag.tools import simplify_and_weight_tag_set_to_dict, simplify_tag_set
 
 
-class TagsModelMixin(models.Model):
+class TagModelMixin(models.Model):
     tags = models.ManyToManyField(Tag, related_name='+', null=True, blank=True, editable=False)
 
     class Meta:
@@ -16,8 +16,8 @@ class TagsModelMixin(models.Model):
 
     @property
     def simplified_tag_set(self) -> set[str]:
-        return set(simplify_tag_set_to_list(self.tag_set))
+        return simplify_tag_set(self.tag_set)
 
     @property
     def simplified_and_weighted_tag_dict(self) -> dict[str, int]:
-        return simplify_and_weight_tag_set(self.tag_set)
+        return simplify_and_weight_tag_set_to_dict(self.tag_set)

@@ -5,7 +5,7 @@ from django.db import models
 from django_spire.auth.group.models import AuthGroup
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
-from django_spire.core.tags.mixins import TagsModelMixin
+from django_spire.core.tag.mixins import TagModelMixin
 from django_spire.contrib.utils import truncate_string
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.querysets import CollectionQuerySet
@@ -16,7 +16,7 @@ from django_spire.knowledge.collection.services.service import CollectionGroupSe
 class Collection(
     HistoryModelMixin,
     OrderingModelMixin,
-    TagsModelMixin,
+    TagModelMixin,
 ):
     parent = models.ForeignKey(
         'self',

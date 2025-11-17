@@ -1,5 +1,7 @@
 {% extends 'django_spire/knowledge/page/full_page.html' %}
 
+{% load spire_core_tags %}
+
 {% block full_page_sub_navigation_title %}
     {{ collection.name_short }}
 {% endblock %}
@@ -49,16 +51,16 @@
     <div class="row">
         <div class="col-12 col-lg-8 mx-auto pb-4">
             Tags:
-            {% for tag, weight in collection.tag_dict_weighted.items %}
-                <span class="badge bg-secondary">{{ tag }} {{ weight }}</span>
+            {% for tag, weight in collection.simplified_and_weighted_tag_dict|safe_dict_items %}
+                {% include 'django_spire/tag/element/tag.html' %}
             {% endfor %}
         </div>
     </div>
     <div class="row">
         <div class="col-12 col-lg-8 mx-auto pb-4">
             Aggregated Tags:
-            {% for tag in collection.services.tag.get_aggregated_tag_set %}
-                <span class="badge bg-secondary">{{ tag }}</span>
+            {% for tag, weight in collection.services.tag.get_simplified_and_weighted_aggregated_tag_set|safe_dict_items %}
+                {% include 'django_spire/tag/element/tag.html' %}
             {% endfor %}
         </div>
     </div>
