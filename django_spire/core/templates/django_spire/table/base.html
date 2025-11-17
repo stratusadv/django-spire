@@ -288,7 +288,7 @@
     @clear-rows.window="if (!$event.detail || $event.detail.table_id === table_id) handle_rows_cleared()"
     @filter-applied.window="if (!$event.detail || $event.detail.table_id === table_id) refresh_table()"
     @header-mounted="handle_header_mounted($event)"
-    @header-registered.window="if (!$event.detail || $event.detail.table_id === table_id) handle_header_registered($event)"
+    @header-registered="handle_header_registered($event)"
     @row-deselected.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_deselected($event)"
     @row-mounted.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_mounted($event)"
     @row-selected.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_selected($event)"

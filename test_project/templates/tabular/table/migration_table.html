@@ -9,5 +9,5 @@
 {% endblock %}
 
 {% block table_header_end %}
-    <th style="min-width: 70px; width: 70px;">Status</th>
+    {% include 'django_spire/table/element/header.html' with sort_key='status' label='Status' breakpoint='md' style='min-width: 180px; width: 180px;' %}
 {% endblock %}
