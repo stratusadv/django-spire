@@ -4,6 +4,11 @@
         has_loaded: false,
         row_id: '{{ row.pk }}',
         endpoint: '{{ child_endpoint }}',
+        table_id: null,
+
+        init() {
+            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+        },
 
         async load_children() {
             if (this.has_loaded || this.is_loading) return;
@@ -18,7 +23,7 @@
         },
 
         handle_toggle_row_state(event) {
-            if (event.detail.row_id === this.row_id && event.detail.is_open) {
+            if (event.detail.row_id === this.row_id && event.detail.is_open && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
                 this.load_children();
             }
         }

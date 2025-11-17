@@ -3,11 +3,16 @@
     data-row-id="{{ row.pk }}"
     x-data="{
         row_id: '{{ row.pk }}',
+        table_id: null,
         is_open: false,
         has_children: true,
 
+        init() {
+            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+        },
+
         handle_toggle_row_state(event) {
-            if (event.detail.row_id === this.row_id) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
                 this.is_open = event.detail.is_open;
             }
         }
@@ -18,7 +23,7 @@
         <template x-if="has_children">
             <i
                 :class="is_open ? 'bi-chevron-down' : 'bi-chevron-right'"
-                @click="$dispatch('toggle-row', { row_id: row_id })"
+                @click="$dispatch('toggle-row', { row_id: row_id, table_id: table_id })"
                 class="bi cursor-pointer text-primary"
             ></i>
         </template>

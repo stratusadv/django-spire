@@ -53,6 +53,18 @@ def list_page(request: WSGIRequest):
     )
 
 
+def migration_table_page(request: WSGIRequest):
+    context_data = {
+        'endpoint': reverse('tabular:template:migration_rows'),
+    }
+
+    return TemplateResponse(
+        request=request,
+        context=context_data,
+        template='tabular/page/migration_table_page.html',
+    )
+
+
 def table_page(request: WSGIRequest):
     Task.objects.process_session_filter(
         request=request,
@@ -64,7 +76,8 @@ def table_page(request: WSGIRequest):
     dg.glue_query_set(request, 'users', User.objects.all())
 
     context_data = {
-        'endpoint': reverse('tabular:template:task_rows'),
+        'task_endpoint': reverse('tabular:template:task_rows'),
+        'migration_endpoint': reverse('tabular:template:migration_rows'),
         'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),
         'status_choices': json.dumps(TaskStatusChoices.choices),
     }

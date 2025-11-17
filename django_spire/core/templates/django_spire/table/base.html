@@ -9,6 +9,7 @@
         skeleton_row: parseInt('{{ page_size|default:25 }}'),
         sort_column: {% if sort_column %}'{{ sort_column }}'{% else %}null{% endif %},
         sort_direction: '{{ sort_direction|default:'asc' }}',
+        table_id: $id('table'),
         total_count: parseInt('{{ total_count|default:0 }}'),
 
         any_row_has_children: false,
@@ -98,7 +99,7 @@
             let view = new ViewGlue(url, this.$refs.shared_payload ? JSON.parse(this.$refs.shared_payload.textContent) : {});
 
             if (next_page === 1) {
-                this.$dispatch('clear-rows');
+                this.$dispatch('clear-rows', { table_id: this.table_id });
                 this.$refs.table_body.innerHTML = '';
             }
 
@@ -152,10 +153,10 @@
             this.select_all = !this.select_all;
 
             if (this.select_all) {
-                this.$dispatch('select-all-rows');
+                this.$dispatch('select-all-rows', { table_id: this.table_id });
             } else {
                 this.selected_rows.clear();
-                this.$dispatch('deselect-all-rows');
+                this.$dispatch('deselect-all-rows', { table_id: this.table_id });
             }
         },
 
@@ -163,7 +164,7 @@
             let row_id = event.detail.row_id;
             this.is_row_open[row_id] = !this.is_row_open[row_id];
 
-            this.$dispatch('toggle-row-state', { row_id: row_id, is_open: this.is_row_open[row_id] });
+            this.$dispatch('toggle-row-state', { row_id: row_id, is_open: this.is_row_open[row_id], table_id: this.table_id });
         },
 
         handle_total_count_updated(event) {
@@ -284,15 +285,15 @@
             }
         },
     }"
-    @clear-rows.window="handle_rows_cleared()"
-    @filter-applied.window="refresh_table()"
+    @clear-rows.window="if (!$event.detail || $event.detail.table_id === table_id) handle_rows_cleared()"
+    @filter-applied.window="if (!$event.detail || $event.detail.table_id === table_id) refresh_table()"
     @header-mounted="handle_header_mounted($event)"
-    @header-registered.window="handle_header_registered($event)"
-    @row-deselected.window="handle_row_deselected($event)"
-    @row-mounted.window="handle_row_mounted($event)"
-    @row-selected.window="handle_row_selected($event)"
-    @toggle-row.window="handle_toggle_row($event)"
-    @total-count-updated.window="handle_total_count_updated($event)"
+    @header-registered.window="if (!$event.detail || $event.detail.table_id === table_id) handle_header_registered($event)"
+    @row-deselected.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_deselected($event)"
+    @row-mounted.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_mounted($event)"
+    @row-selected.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_selected($event)"
+    @toggle-row.window="if (!$event.detail || $event.detail.table_id === table_id) handle_toggle_row($event)"
+    @total-count-updated.window="if (!$event.detail || $event.detail.table_id === table_id) handle_total_count_updated($event)"
 >
     <script type="application/json" x-ref="shared_payload">{% if shared_payload %}{{ shared_payload|safe }}{% else %}{}{% endif %}</script>
 
@@ -303,6 +304,7 @@
             class="position-relative table-container"
             style="max-height: {{ table_height|default:'600px' }}; overflow-y: auto; overflow-x: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
             x-ref="table_container"
+            :data-table-id="table_id"
         >
             <table
                 class="table table-striped table-hover fs-7 w-100 {% block table_class %}{% endblock %}"
@@ -337,7 +339,7 @@
 
                 {% include 'django_spire/table/element/refreshing_skeleton.html' %}
 
-                <tbody x-ref="table_body" x-show="!is_refreshing">
+                <tbody x-ref="table_body" x-show="!is_refreshing" :data-table-id="table_id">
                     {% block table_body %}
                     {% endblock %}
                 </tbody>

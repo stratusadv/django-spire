@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import User
+from django.db.migrations.recorder import MigrationRecorder
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
@@ -14,6 +15,31 @@ from test_project.apps.queryset_filtering.models import Task, TaskUser
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+
+
+def migration_rows_view(request: WSGIRequest) -> TemplateResponse:
+    sort_column = request.GET.get('sort', 'applied')
+    sort_direction = request.GET.get('direction', 'desc')
+
+    migrations = MigrationRecorder.Migration.objects.all()
+
+    sort_mapping = {
+        'app': 'app',
+        'name': 'name',
+        'applied': 'applied',
+    }
+
+    sort_field = sort_mapping.get(sort_column, 'applied')
+    order_by = f"{'-' if sort_direction == 'desc' else ''}{sort_field}"
+
+    migrations = migrations.order_by(order_by)
+
+    return table_view(
+        request,
+        queryset=migrations,
+        queryset_name='migrations',
+        template='tabular/table/migration_rows.html'
+    )
 
 
 def task_detail_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:

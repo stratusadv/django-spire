@@ -2,7 +2,8 @@
     <div
         x-data="{
             init() {
-                this.$dispatch('total-count-updated', { total_count: {{ total_count }} });
+                let table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+                this.$dispatch('total-count-updated', { total_count: {{ total_count }}, table_id: table_id });
             }
         }"
         style="display: none;"
@@ -14,42 +15,48 @@
     data-row-id="{{ row.pk }}"
     x-data="{
         row_id: '{{ row.pk }}',
+        table_id: null,
         is_checked: false,
         is_open: false,
         has_children: {% block row_has_children %}false{% endblock %},
 
         init() {
-            this.$dispatch('row-mounted', { row_id: this.row_id, row_element: this.$el });
+            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+            this.$dispatch('row-mounted', { row_id: this.row_id, row_element: this.$el, table_id: this.table_id });
         },
 
         handle_checkbox_change() {
             this.is_checked = !this.is_checked;
 
             if (this.is_checked) {
-                this.$dispatch('row-selected', { row_id: this.row_id });
+                this.$dispatch('row-selected', { row_id: this.row_id, table_id: this.table_id });
             } else {
-                this.$dispatch('row-deselected', { row_id: this.row_id });
+                this.$dispatch('row-deselected', { row_id: this.row_id, table_id: this.table_id });
             }
         },
 
-        handle_deselect_all_rows() {
-            this.is_checked = false;
-            this.$dispatch('row-deselected', { row_id: this.row_id });
+        handle_deselect_all_rows(event) {
+            if (!event.detail || event.detail.table_id === this.table_id) {
+                this.is_checked = false;
+                this.$dispatch('row-deselected', { row_id: this.row_id, table_id: this.table_id });
+            }
         },
 
-        handle_select_all_rows() {
-            this.is_checked = true;
-            this.$dispatch('row-selected', { row_id: this.row_id });
+        handle_select_all_rows(event) {
+            if (!event.detail || event.detail.table_id === this.table_id) {
+                this.is_checked = true;
+                this.$dispatch('row-selected', { row_id: this.row_id, table_id: this.table_id });
+            }
         },
 
         handle_toggle_row_state(event) {
-            if (event.detail.row_id === this.row_id) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
                 this.is_open = event.detail.is_open;
             }
         },
     }"
-    @deselect-all-rows.window="handle_deselect_all_rows()"
-    @select-all-rows.window="handle_select_all_rows()"
+    @deselect-all-rows.window="handle_deselect_all_rows($event)"
+    @select-all-rows.window="handle_select_all_rows($event)"
     @toggle-row-state.window="handle_toggle_row_state($event)"
 >
     <td>
@@ -64,7 +71,7 @@
         <template x-if="has_children">
             <i
                 :class="is_open ? 'bi-chevron-down' : 'bi-chevron-right'"
-                @click="$dispatch('toggle-row', { row_id: row_id })"
+                @click="$dispatch('toggle-row', { row_id: row_id, table_id: table_id })"
                 class="bi cursor-pointer"
             ></i>
         </template>
@@ -77,10 +84,15 @@
     class="align-middle"
     x-data="{
         row_id: '{{ row.pk }}',
+        table_id: null,
         is_open: false,
 
+        init() {
+            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+        },
+
         handle_toggle_row_state(event) {
-            if (event.detail.row_id === this.row_id) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
                 this.is_open = event.detail.is_open;
             }
         }
