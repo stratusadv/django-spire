@@ -82,14 +82,14 @@
 }
 
 .side-navigation-fade-bottom {
-    background: linear-gradient(to top, var(--app-side-navigation-bg-color) 0%, var(--app-side-navigation-bg-color) 50%, transparent 100%);
-    height: 100px;
+    background: linear-gradient(to top, var(--app-side-navigation-bg-color) 0%, transparent 100%);
+    height: 60px;
     pointer-events: none;
 }
 
 .side-navigation-fade-top {
-    background: linear-gradient(to bottom, var(--app-side-navigation-bg-color) 0%, var(--app-side-navigation-bg-color) 50%, transparent 100%);
-    height: 75px;
+    background: linear-gradient(to bottom, var(--app-side-navigation-bg-color) 0%, transparent 100%);
+    height: 60px;
     pointer-events: none;
 }
 

@@ -4,7 +4,6 @@ import json
 
 from typing import TYPE_CHECKING
 
-from django.conf import settings
 from django.http import HttpResponse
 from django.utils.timezone import now
 
@@ -12,6 +11,7 @@ from django_spire.ai.chat.choices import MessageResponseType
 from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.models import Chat
 from django_spire.ai.chat.responses import MessageResponse, MessageResponseGroup
+from django_spire.conf import settings
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -59,10 +59,12 @@ def request_message_render_view(request: WSGIRequest) -> HttpResponse:
 
     chat.add_message_response(user_message_response)
 
+    persona_name = getattr(settings, 'DJANGO_SPIRE_AI_PERSONA_NAME', 'AI Assistant')
+
     message_response_group.add_message_response(
         MessageResponse(
             type=MessageResponseType.LOADING_RESPONSE,
-            sender='Spire',
+            sender=persona_name,
             message_intel=DefaultMessageIntel(
                 text=body_data['message_body']
             ),
@@ -74,7 +76,7 @@ def request_message_render_view(request: WSGIRequest) -> HttpResponse:
         message_response_group.render_to_html_string(
             context_data={
                 "chat_id": chat.id,
-                "chat_workflow_name": settings.AI_PERSONA_NAME,
+                "chat_workflow_name": persona_name,
             }
         )
     )

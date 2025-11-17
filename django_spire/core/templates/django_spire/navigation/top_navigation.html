@@ -37,49 +37,53 @@
                     </div>
                 {% endblock %}
 
-                {% block notification_icon %}
-                    <div>
-                        {% include 'django_spire/notification/app/element/notification_bell.html' %}
-                    </div>
-                {% endblock %}
+                {% if request.user.is_authenticated %}
+                    {% block notification_icon %}
+                        <div>
+                            {% include 'django_spire/notification/app/element/notification_bell.html' %}
+                        </div>
+                    {% endblock %}
+                {% endif %}
 
-                <div class="dropdown">
-                    <i
-                        class="bi bi-person-circle fs-2 mx-2 cursor-pointer"
-                        id="dropdownMenuButton1"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                    >
-                    </i>
-                    <ul class="dropdown-menu py-0 bg-app-layer-one" aria-labelledby="dropdownMenuButton1">
-                        {% if request.user.is_superuser %}
-                            <li class="py-0  ">
-                                <a class="dropdown-item fs--1 bg-app-layer-three-hover"
-                                   href="{% url 'admin:index' %}" target="_blank">
-                                    Admin Panel
+                {% if request.user.is_authenticated %}
+                    <div class="dropdown">
+                        <i
+                            class="bi bi-person-circle fs-2 mx-2 cursor-pointer"
+                            id="dropdownMenuButton1"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                        </i>
+                        <ul class="dropdown-menu py-0 bg-app-layer-one" aria-labelledby="dropdownMenuButton1">
+                            {% if request.user.is_superuser %}
+                                <li class="py-0">
+                                    <a class="dropdown-item fs--1 bg-app-layer-three-hover"
+                                       href="{% url 'admin:index' %}" target="_blank">
+                                        Admin Panel
+                                    </a>
+                                </li>
+                                <li class="py-0">
+                                    <a class="dropdown-item fs--1 bg-app-layer-three-hover"
+                                       href="{% url 'django_spire:theme:page:dashboard' %}" target="_blank">
+                                        Theme Dashboard
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="py-0">
+                                <a href="{% url 'django_spire:auth:admin:password_change' %}"
+                                   class="dropdown-item fs--1 bg-app-layer-three-hover">
+                                    Change Password
                                 </a>
                             </li>
-                            <li class="py-0  ">
-                                <a class="dropdown-item fs--1 bg-app-layer-three-hover"
-                                   href="{% url 'django_spire:theme:page:dashboard' %}" target="_blank">
-                                    Theme Dashboard
+                            <li class="py-0">
+                                <a href="{% url 'django_spire:auth:redirect:logout' %}"
+                                   class="dropdown-item fs--1 bg-app-layer-three-hover">
+                                    Logout
                                 </a>
                             </li>
-                        {% endif %}
-                        <li class="py-0">
-                            <a href="{% url 'django_spire:auth:admin:password_change' %}"
-                               class="dropdown-item fs--1 bg-app-layer-three-hover">
-                                Change Password
-                            </a>
-                        </li>
-                        <li class="py-0">
-                            <a href="{% url 'django_spire:auth:redirect:logout' %}"
-                               class="dropdown-item fs--1 bg-app-layer-three-hover">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                        </ul>
+                    </div>
+                {% endif %}
 
                 <div class="col-auto d-lg-none">
                     {% include 'django_spire/navigation/mobile_navigation.html' %}

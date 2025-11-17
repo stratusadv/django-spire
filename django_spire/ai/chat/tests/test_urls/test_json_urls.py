@@ -20,4 +20,4 @@ class ChatJsonUrlTests(BaseTestCase):
             content_type='application/json'
         )
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200

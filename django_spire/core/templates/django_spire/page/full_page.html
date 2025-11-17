@@ -25,7 +25,8 @@
             info_nav_max_width: 600,
             info_nav_min_width: 200,
             info_nav_width: 400,
-            is_mobile: window.innerWidth < 992,
+            is_mobile: false,
+            is_narrow_viewport: false,
             is_resizing_info: false,
             is_resizing_sub: false,
             resize_start_width: 0,
@@ -37,7 +38,36 @@
             sub_nav_min_width: 300,
             sub_nav_width: 300,
 
+            is_touch_device() {
+                return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+            },
+
+            update_viewport_state() {
+                const was_narrow = this.is_narrow_viewport;
+                const is_now_narrow = window.innerWidth < 992;
+                this.is_narrow_viewport = is_now_narrow;
+
+                if (!was_narrow && is_now_narrow) {
+                    this.show_sub_nav = false;
+                    this.show_info_nav = false;
+                }
+
+                if (was_narrow && !is_now_narrow) {
+                    this.$nextTick(() => {
+                        this.show_sub_nav = false;
+                        this.show_info_nav = false;
+                    });
+                }
+
+                if (!this.is_narrow_viewport) {
+                    this.show_info_nav = false;
+                }
+            },
+
             init() {
+                this.is_mobile = this.is_touch_device();
+                this.update_viewport_state();
+
                 const urlParams = new URLSearchParams(window.location.search);
 
                 if (urlParams.has('show_sub_nav')) {
@@ -46,12 +76,12 @@
                     this.show_sub_nav = window.innerWidth >= 992
                 }
 
+                if (window.innerWidth < 992) {
+                    this.show_info_nav = false;
+                }
+
                 window.addEventListener('resize', () => {
-                    this.is_mobile = window.innerWidth < 992
-                    if (this.is_mobile) {
-                        this.show_sub_nav = false
-                        this.show_info_nav = false
-                    }
+                    this.update_viewport_state();
                 })
             },
 
@@ -74,10 +104,18 @@
                 }
             },
 
+            close_info() {
+                this.show_info_nav = false
+            },
+
+            close_sub() {
+                this.show_sub_nav = false
+            },
+
             toggle_info() {
                 this.show_info_nav = !this.show_info_nav
 
-                if (this.is_mobile) {
+                if (this.is_mobile && this.is_narrow_viewport) {
                     this.show_sub_nav = false
                 }
             },
@@ -85,7 +123,7 @@
             toggle_sub() {
                 this.show_sub_nav = !this.show_sub_nav
 
-                if (this.is_mobile) {
+                if (this.is_mobile && this.is_narrow_viewport) {
                     this.show_info_nav = false
                 }
             }
@@ -108,27 +146,20 @@
 
             <div class="row">
                 <div
-                    :class="is_mobile ? '' : 'position-relative col-auto'"
-                    :style="is_mobile ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1040;' : (sub_nav_has_been_resized ? `width: ${sub_nav_width}px; min-width: ${sub_nav_width}px; max-width: ${sub_nav_width}px;` : `min-width: ${sub_nav_min_width}px;`)"
+                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto'"
+                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1040;' : (sub_nav_has_been_resized ? `width: ${sub_nav_width}px; min-width: ${sub_nav_width}px; max-width: ${sub_nav_width}px;` : `min-width: ${sub_nav_min_width}px;`)"
                     x-ref="sub_nav_container"
                     x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
-                    x-transition:enter="side-panel-transition-enter"
-                    x-transition:enter-end="side-panel-transition-enter-end"
-                    x-transition:enter-start="side-panel-transition-enter-start-left"
-                    x-transition:leave="side-panel-transition-leave"
-                    x-transition:leave-end="side-panel-transition-leave-end-left"
-                    x-transition:leave-start="side-panel-transition-leave-start"
+                    x-transition
                 >
                     <div
-                        :style="is_mobile ? 'height: 100vh;' : ''"
+                        :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
                         class="row sticky-top border-end border-app-primary side-panel overflow-y-auto"
                     >
                         <div class="col">
                             <div class="row pb-2 align-items-center">
                                 <div class="col-auto px-1" style="visibility: hidden;">
-                                    <button class="btn-close-panel" type="button">
-                                        <i class="bi bi-x-lg f5"></i>
-                                    </button>
+                                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-x-lg' %}
                                 </div>
                                 <div class="col h5 text-app-primary text-center text-nowrap overflow-hidden text-truncate mb-0" style="min-width: 0;">
                                     {% block full_page_sub_navigation_title %}
@@ -139,18 +170,16 @@
                                     {% endblock %}
                                 </div>
                                 <div class="col-auto px-1">
-                                    <button
-                                        @click="show_sub_nav = false"
-                                        class="btn-close-panel"
-                                        type="button"
-                                    >
-                                        <i class="bi bi-x-lg f5"></i>
-                                    </button>
+                                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-x-lg' x_button_click='close_sub()' %}
                                 </div>
                             </div>
 
                             <div class="row">
-                                <div class="col" x-ref="full_page_sub_navigation">
+                                <div
+                                    @click.capture="if (is_narrow_viewport && $event.target.closest('[data-closes-nav]')) { $nextTick(() => { show_sub_nav = false }) }"
+                                    class="col"
+                                    x-ref="full_page_sub_navigation"
+                                >
                                     {% block full_page_sub_navigation %}
                                     {% endblock %}
                                 </div>
@@ -168,7 +197,7 @@
 
                 <div
                     class="panel-toggle-container panel-toggle-container-left"
-                    x-show="has_content($refs.full_page_sub_navigation) && !show_sub_nav && !(is_mobile && show_info_nav)"
+                    x-show="has_content($refs.full_page_sub_navigation) && !show_sub_nav && !((is_mobile && is_narrow_viewport) && show_info_nav)"
                 >
                     {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
                 </div>
@@ -183,24 +212,19 @@
 
                 <div
                     class="col-auto panel-toggle-container panel-toggle-container-right"
-                    x-show="has_content($refs.full_page_info_navigation) && !show_info_nav && !(is_mobile && show_sub_nav)"
+                    x-show="has_content($refs.full_page_info_navigation) && !show_info_nav && !((is_mobile && is_narrow_viewport) && show_sub_nav)"
                 >
                     {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
                 </div>
 
                 <div
-                    :class="is_mobile ? '' : 'position-relative col-auto'"
-                    :style="is_mobile ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;`"
+                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto'"
+                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : (show_info_nav ? `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;` : 'margin-left: 0px; z-index: 1040;')"
                     x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
-                    x-transition:enter="side-panel-transition-enter"
-                    x-transition:enter-end="side-panel-transition-enter-end"
-                    x-transition:enter-start="side-panel-transition-enter-start-right"
-                    x-transition:leave="side-panel-transition-leave"
-                    x-transition:leave-end="side-panel-transition-leave-end-right"
-                    x-transition:leave-start="side-panel-transition-leave-start"
+                    x-transition
                 >
                     <div
-                        :style="is_mobile ? 'height: 100vh;' : ''"
+                        :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
                         class="row sticky-top border-start border-app-primary side-panel overflow-y-auto bg-app-layer-one"
                     >
                         <div class="col">
@@ -216,18 +240,16 @@
                                 </div>
 
                                 <div class="col-auto px-1">
-                                    <button
-                                        @click="show_info_nav = false"
-                                        class="btn-close-panel"
-                                        type="button"
-                                    >
-                                        <i class="bi bi-x-lg"></i>
-                                    </button>
+                                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-x-lg' x_button_click="close_info()" %}
                                 </div>
                             </div>
 
                             <div class="row">
-                                <div class="col" x-ref="full_page_info_navigation">
+                                <div
+                                    x-on:click.capture="if (is_narrow_viewport) { $nextTick(() => { show_info_nav = false }) }"
+                                    class="col"
+                                    x-ref="full_page_info_navigation"
+                                >
                                     {% block full_page_info_navigation %}
                                     {% endblock %}
                                 </div>
