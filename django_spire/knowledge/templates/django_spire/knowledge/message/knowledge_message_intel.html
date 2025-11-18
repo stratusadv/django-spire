@@ -4,19 +4,27 @@
     {% for entry_intel in message_intel.entries_intel %}
 
         <div class="row">
-            <div class="col pt-2">
-                <a href="{% url 'django_spire:knowledge:entry:version:page:editor' pk=entry_intel.entry_id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}" target="_blank">
+            <div class="col">
+                {{ entry_intel.relevant_text }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col pt-1 pb-3 fs-7">
+                <a href="{% url 'django_spire:knowledge:entry:version:page:editor' pk=entry_intel.entry.id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}"
+                   target="_blank">
                     {{ entry_intel.relevant_heading_text }}
                 </a>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col pb-2">
-                {{ entry_intel.relevant_subject_text }}
-            </div>
-        </div>
-
     {% endfor %}
+
+    <div class="row">
+        <div class="col">
+            Is there anything else I can help with?
+        </div>
+    </div>
+
 
 {% endblock %}

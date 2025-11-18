@@ -3,7 +3,7 @@ from typing import Sequence, Self
 from django.db import models
 from django.utils.text import slugify
 
-from django_spire.core.tags.querysets import TagQuerySet
+from django_spire.core.tag.querysets import TagQuerySet
 
 
 class Tag(models.Model):
