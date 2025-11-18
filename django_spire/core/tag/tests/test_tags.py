@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from django_spire.core.tags.models import Tag
+from django_spire.core.tag.models import Tag
 from django_spire.knowledge.collection.models import Collection
 
 
