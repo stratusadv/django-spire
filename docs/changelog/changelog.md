@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.22.0
+
+### Features
+
+- Heavily improved Knowledge system and tagging.
+
 ## v0.21.1
 
 ### Fixes
