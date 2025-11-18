@@ -563,7 +563,7 @@ wheels = [
 
 [[package]]
 name = "dandy"
-version = "1.3.0"
+version = "1.3.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bottle" },
@@ -571,9 +571,9 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d0/19/efed51f7c341cc9eeb927f94b205d003259b1517a82ea84b6a7f5eb283fd/dandy-1.3.0.tar.gz", hash = "sha256:36193608e642d724c8f7198d5d53ff889728c1c0050c6c51a9b3f5e792dc775e", size = 51581, upload-time = "2025-11-03T21:30:27.746Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/8c/1aa3d96839bc94c6d2fab66d636e7824bdc9e4d8aed264d5f1c84edb9ff3/dandy-1.3.5.tar.gz", hash = "sha256:0a4f009bcb49b30a2f75ac5ff46dbb9548e4bcc738143ba8c3484a10a5b18642", size = 51774, upload-time = "2025-11-17T04:53:59.075Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/ce/64b28454bc208ab63403fa2a653e3426acb5032f209554edc6cd08f79fb1/dandy-1.3.0-py3-none-any.whl", hash = "sha256:0552478567777721237c7b903a26bdc8798a67278b11097d049aed3190e4dac4", size = 84635, upload-time = "2025-11-03T21:30:26.767Z" },
+    { url = "https://files.pythonhosted.org/packages/60/9f/cb4adb9460f561e91b7157700ef1190b84cd9026d51d4fd19e61b137c3c9/dandy-1.3.5-py3-none-any.whl", hash = "sha256:bfeee48e7489fdd141a1771459a4c49f0fc9a9ea2904ea6b182b395c22b54240", size = 85010, upload-time = "2025-11-17T04:53:57.867Z" },
 ]
 
 [[package]]
@@ -724,7 +724,7 @@ requires-dist = [
     { name = "botocore", specifier = ">=1.34.0" },
     { name = "build", marker = "extra == 'development'" },
     { name = "crispy-bootstrap5", specifier = "==2024.10" },
-    { name = "dandy", specifier = ">=1.3.0" },
+    { name = "dandy", specifier = ">=1.3.5" },
     { name = "django", specifier = ">=5.1.8" },
     { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-crispy-forms", specifier = "==2.3" },
