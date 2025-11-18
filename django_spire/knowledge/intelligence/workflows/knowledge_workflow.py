@@ -7,8 +7,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django_spire.ai.chat.message_intel import DefaultMessageIntel, BaseMessageIntel
 from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchBot
-from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
+from django_spire.knowledge.intelligence.bots.entries_search_llm_bot import EntriesSearchBot
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
 
 if TYPE_CHECKING:
@@ -27,42 +26,51 @@ def knowledge_search_workflow(
 ) -> BaseMessageIntel | None:
     user_tag_set = TagSetBot().process(user_input)
 
-    collections_scores = {}
+    def get_top_scored_from_dict_to_list(
+            scored_dict: dict[str, float],
+            score_floor: float = 0.05
+    ) -> list:
+        if not scored_dict:
+            return []
 
-    for collection in Collection.objects.all().annotate_entry_count():
-        score = collection.services.tag.get_score_percentage_from_aggregated_tag_set_weighted(user_tag_set)
-        if score > 0.05:
-            collections_scores[collection] = score
+        min_score = min(scored_dict.values())
+        max_score = max(scored_dict.values())
 
-    collections = sorted(
-        collections_scores,
-        key=collections_scores.get,
-        reverse=True
-    )[:5]
+        if min_score == 0 and max_score == 0:
+            return []
 
-    entries_scores = {}
+        median_score = (max_score - min_score) / 2
 
-    for collection in collections:
-        if collection.entry_count > 0:
-            for entry in collection.entries.all():
-                score = entry.services.tag.get_score_percentage_from_tag_set_weighted(user_tag_set)
-                if score > 0.05:
-                    entries_scores[entry] = score
+        top_scored_list = []
 
-    entries = sorted(
-        entries_scores,
-        key=entries_scores.get,
-        reverse=True
-    )[:5]
+        for key, value in scored_dict.items():
+            if value >= score_floor and value >= median_score:
+                top_scored_list.append(key)
+
+        return top_scored_list
+
+    collections = get_top_scored_from_dict_to_list({
+        collection: collection.services.tag.get_score_percentage_from_aggregated_tag_set_weighted(
+            user_tag_set
+        )
+        for collection in Collection.objects.all().annotate_entry_count()
+    })
+
+    entries = get_top_scored_from_dict_to_list({
+        entry: entry.services.tag.get_score_percentage_from_tag_set_weighted(user_tag_set)
+        for collection in collections
+        for entry in collection.entries.all()
+    })
 
     if not entries:
         return NO_KNOWLEDGE_MESSAGE_INTEL
 
-    entries_intel = EntriesIntel(entry_intel_list=[])
+    entries_intel = EntriesSearchBot(llm_temperature=0.0).process(
+        user_input=user_input,
+        entries=entries
+    )
 
-    for entry in entries:
-        entries_intel.append(
-            EntrySearchBot().process(user_input=user_input, entry=entry)
-        )
-
-    return KnowledgeMessageIntel(body=f'Entries: {entries_intel}', entries_intel=entries_intel)
+    return KnowledgeMessageIntel(
+        body=f'{" ".join([str(entry) for entry in entries_intel])}',
+        entries_intel=entries_intel,
+    )

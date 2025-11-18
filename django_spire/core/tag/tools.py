@@ -31,6 +31,9 @@ def get_score_percentage_from_tag_set_weighted(tag_set_actual: set[str], tag_set
         if tag in tag_set_actual
     )
 
+    if weighted_points == 0 or total_points == 0:
+        return 0.0
+
     return (weighted_points / total_points) * multiplier
 
 
