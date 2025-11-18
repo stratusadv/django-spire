@@ -4,7 +4,9 @@
 
 ### Features
 
-- Heavily improved Knowledge system and tagging.
+- Tagging system functionality is refactored and enhanced to include scoring and weighting.
+- Knowledge now uses multiple methods of tagging for interactions with AI.
+- AI Chat now searches knowledge almost 10x faster and more accurately.
 
 ## v0.21.1
 
