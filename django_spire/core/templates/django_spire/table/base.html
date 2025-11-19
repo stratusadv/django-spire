@@ -337,14 +337,18 @@
                     </tr>
                 </thead>
 
-                {% include 'django_spire/table/element/refreshing_skeleton.html' %}
+                {% block refreshing_skeleton %}
+                    {% include 'django_spire/table/element/refreshing_skeleton.html' %}
+                {% endblock %}
 
                 <tbody x-ref="table_body" x-show="!is_refreshing" :data-table-id="table_id">
                     {% block table_body %}
                     {% endblock %}
                 </tbody>
 
-                {% include 'django_spire/table/element/loading_skeleton.html' %}
+                {% block loading_skeleton %}
+                    {% include 'django_spire/table/element/loading_skeleton.html' %}
+                {% endblock %}
             </table>
 
             {% block trigger %}

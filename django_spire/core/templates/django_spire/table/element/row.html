@@ -11,7 +11,7 @@
 {% endif %}
 
 <tr
-    class="align-middle"
+    class="align-middle {% block unified_row_background_colour %}{% endblock %}"
     data-row-id="{{ row.pk }}"
     x-data="{
         row_id: '{{ row.pk }}',
