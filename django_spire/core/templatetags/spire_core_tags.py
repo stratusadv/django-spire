@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 import string
+from typing import Any
 
 from typing_extensions import Sequence, TYPE_CHECKING, TypeVar
 
@@ -46,6 +47,17 @@ def content_type_url(url_name: str, obj: T, **kwargs) -> str:
     kwargs['app_label'] = obj._meta.app_label
     kwargs['model_name'] = obj._meta.model_name
     return reverse(url_name, kwargs=kwargs)
+
+
+@register.filter
+def safe_dict_items(dictionary: dict) -> Any:
+    """
+    Explicitly call .items() on a dictionary, bypassing key lookup.
+    Use when the dict has a key named 'items' and you need the method.
+    """
+    if hasattr(dictionary, 'items'):
+        return dictionary.items()
+    return []
 
 
 @register.filter

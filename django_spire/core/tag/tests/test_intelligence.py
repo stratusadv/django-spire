@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from django_spire.core.tags.intelligence.tag_set_bot import TagSetBot
+from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
 
 TEST_INPUT = """
     I love reading books about science fiction, fantasy, and adventure, especially ones

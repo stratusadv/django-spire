@@ -16,8 +16,8 @@ LLM_CONFIGS = {
         'API_KEY': os.getenv('AI_API_KEY'),
         'MODEL': 'stratus.smart',
         'TEMPERATURE': 0.1,
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
+        'MAX_INPUT_TOKENS': 32000,
+        'MAX_OUTPUT_TOKENS': 32000,
     },
     'BASIC': {
         'MODEL': 'stratus.smart',

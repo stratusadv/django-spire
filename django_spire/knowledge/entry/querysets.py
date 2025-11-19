@@ -30,3 +30,8 @@ class EntryQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
                 current_version__status=EntryVersionStatusChoices.DRAFT
             )
         )
+
+    def get_by_version_block_id(self, version_block_id: int) -> Entry:
+        return self.get(
+            current_version__block__id=version_block_id
+        )

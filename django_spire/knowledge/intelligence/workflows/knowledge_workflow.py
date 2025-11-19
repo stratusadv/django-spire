@@ -5,16 +5,14 @@ from typing import TYPE_CHECKING
 from django.core.handlers.wsgi import WSGIRequest
 
 from django_spire.ai.chat.message_intel import DefaultMessageIntel, BaseMessageIntel
-from django_spire.knowledge.intelligence.bots.entry_search_llm_bot import EntrySearchBot
-from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
+from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
+from django_spire.knowledge.collection.models import Collection
+from django_spire.knowledge.intelligence.bots.entries_search_llm_bot import EntriesSearchBot
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
-from django_spire.knowledge.intelligence.decoders.collection_decoder import get_collection_decoder
-from django_spire.knowledge.intelligence.decoders.entry_decoder import get_entry_decoder
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from dandy.llm.request.message import MessageHistory
-
 
 NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
     text='Sorry, I could not find any information on that.'
@@ -22,34 +20,57 @@ NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
 
 
 def knowledge_search_workflow(
-    request: WSGIRequest,
-    user_input: str,
-    message_history: MessageHistory | None = None,
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory | None = None,
 ) -> BaseMessageIntel | None:
-    collection_decoder = get_collection_decoder()
-    collections = collection_decoder.process(user_input).values
+    user_tag_set = TagSetBot().process(user_input)
 
-    if collections[0] is None:
-        return NO_KNOWLEDGE_MESSAGE_INTEL
+    def get_top_scored_from_dict_to_list(
+            scored_dict: dict[str, float],
+            score_floor: float = 0.05
+    ) -> list:
+        if not scored_dict:
+            return []
 
-    entries = []
+        min_score = min(scored_dict.values())
+        max_score = max(scored_dict.values())
 
-    for collection in collections:
-        if collection.entry_count > 0:
-            entry_decoder = get_entry_decoder(collection=collection)
+        if min_score == 0 and max_score == 0:
+            return []
 
-            entries.extend(entry_decoder.process(user_input).values)
+        median_score = (max_score - min_score) / 2
 
-    entries = [entry for entry in entries if entry is not None]
+        top_scored_list = []
+
+        for key, value in scored_dict.items():
+            if value >= score_floor and value >= median_score:
+                top_scored_list.append(key)
+
+        return top_scored_list
+
+    collections = get_top_scored_from_dict_to_list({
+        collection: collection.services.tag.get_score_percentage_from_aggregated_tag_set_weighted(
+            user_tag_set
+        )
+        for collection in Collection.objects.all().annotate_entry_count()
+    })
+
+    entries = get_top_scored_from_dict_to_list({
+        entry: entry.services.tag.get_score_percentage_from_tag_set_weighted(user_tag_set)
+        for collection in collections
+        for entry in collection.entries.all()
+    })
 
     if not entries:
         return NO_KNOWLEDGE_MESSAGE_INTEL
 
-    entries_intel = EntriesIntel(entry_intel_list=[])
+    entries_intel = EntriesSearchBot(llm_temperature=0.0).process(
+        user_input=user_input,
+        entries=entries
+    )
 
-    for entry in entries:
-        entries_intel.append(
-            EntrySearchBot().process(user_input=user_input, entry=entry)
-        )
-
-    return KnowledgeMessageIntel(body=f'Entries: {entries_intel}', entries_intel=entries_intel)
+    return KnowledgeMessageIntel(
+        body=f'{" ".join([str(entry) for entry in entries_intel])}',
+        entries_intel=entries_intel,
+    )
