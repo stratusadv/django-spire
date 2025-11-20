@@ -13,6 +13,7 @@
         total_count: parseInt('{{ total_count|default:0 }}'),
 
         any_row_has_children: false,
+        average_row_height: 0,
         column_breakpoints: [],
         column_count: 0,
         is_loading: false,
@@ -136,6 +137,10 @@
 
             if (event.detail.row_element) {
                 this.apply_column_breakpoints(event.detail.row_element);
+
+                if (this.average_row_height === 0) {
+                    this.average_row_height = event.detail.row_element.offsetHeight;
+                }
             }
         },
 
@@ -206,6 +211,8 @@
         },
 
         async refresh_table() {
+            this.skeleton_count = this.loaded_count > 0 ? this.loaded_count : this.skeleton_row;
+
             this.is_refreshing = true;
             await this.$nextTick();
 
@@ -221,6 +228,7 @@
             }
 
             this.is_refreshing = false;
+            this.skeleton_count = this.skeleton_row;
         },
 
         reset_scroll_position() {
