@@ -1,5 +1,4 @@
 <tbody x-cloak x-show="is_refreshing">
-    <span x-text="skeleton_count"></span>
     <template x-if="column_count > 0">
         <template x-for="i in skeleton_count" :key="i">
             <tr class="skeleton-row" :style="average_row_height > 0 ? `height: ${average_row_height}px;` : ''">

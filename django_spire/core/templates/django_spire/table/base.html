@@ -218,9 +218,12 @@
             }
 
             this.disconnect_observer();
+
             this.prevent_auto_load = true;
+            this.skeleton_count = this.page_size;
             this.is_refreshing = true;
             this.select_all = false;
+
             await this.$nextTick();
 
             this.reset_table_state();
@@ -230,11 +233,14 @@
 
             await this.$nextTick();
             await new Promise(resolve => setTimeout(resolve, 150));
+
             this.is_refreshing = false;
+            this.skeleton_count = 0;
 
             if (this.has_next) {
                 setTimeout(() => {
                     this.setup_observer();
+
                     setTimeout(() => {
                         this.prevent_auto_load = false;
                     }, 100);
@@ -361,26 +367,22 @@
                     </tr>
                 </thead>
 
-                {% block refreshing_skeleton %}
-                    {% include 'django_spire/table/element/refreshing_skeleton.html' %}
-                {% endblock %}
-
                 <tbody
                     x-ref="table_body"
                     x-show="!is_refreshing"
                     :data-table-id="table_id"
                 >
+                    {% block refreshing_skeleton %}
+                        {% include 'django_spire/table/element/refreshing_skeleton.html' %}
+                    {% endblock %}
+
                     {% block table_body %}
                     {% endblock %}
+
+                    {% block loading_skeleton %}
+                        {% include 'django_spire/table/element/loading_skeleton.html' %}
+                    {% endblock %}
                 </tbody>
-
-                {% block no_data_item %}
-                    {% include 'django_spire/table/item/no_data_item.html' %}
-                {% endblock %}
-
-                {% block loading_skeleton %}
-                    {% include 'django_spire/table/element/loading_skeleton.html' %}
-                {% endblock %}
             </table>
 
             {% block trigger %}
