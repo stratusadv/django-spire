@@ -182,6 +182,7 @@
             }
 
             this.is_loading = true;
+            this.skeleton_count = this.page_size;
 
             if (!this.$refs.table_body) {
                 this.cleanup_loading_state();
@@ -211,6 +212,10 @@
         },
 
         async refresh_table() {
+            if (this.is_refreshing || this.is_loading) {
+                return;
+            }
+
             this.skeleton_count = this.loaded_count > 0 ? this.loaded_count : this.skeleton_row;
 
             this.is_refreshing = true;
@@ -277,6 +282,10 @@
         },
 
         async sort_by(column) {
+            if (this.is_refreshing || this.is_loading) {
+                return;
+            }
+
             if (this.sort_column === column) {
                 this.sort_direction = this.sort_direction === 'asc' ? 'desc' : 'asc';
             } else {

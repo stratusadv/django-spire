@@ -1,0 +1,13 @@
+<tbody x-cloak x-show="is_loading && !is_refreshing">
+    <template x-if="column_count > 0">
+        <template x-for="i in skeleton_count" :key="i">
+            <tr class="skeleton-row" :style="average_row_height > 0 ? `height: ${average_row_height}px;` : ''">
+                <template x-for="j in column_count" :key="j">
+                    <td class="align-middle">
+                        <div class="skeleton-box" style="height: 25px; width: 90%;"></div>
+                    </td>
+                </template>
+            </tr>
+        </template>
+    </template>
+</tbody>
