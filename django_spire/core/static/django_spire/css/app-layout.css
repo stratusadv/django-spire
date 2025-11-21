@@ -1,15 +1,1 @@
-:root {
-    --app-footer-height: 70px;
-    --app-mobile-navigation-width: 250px;
-    --app-side-navigation-width: 250px;
-    --app-side-navigation-top-content-height: 230px;
-    --app-top-navigation-height: 80px;
-
-    --app-content-height: calc(100vh - var(--app-top-navigation-height) );
-    --app-side-panel-height: calc(100vh - var(--app-top-navigation-height) - 1vh);
-}
-
-.vh-minus-top-nav {
-    height: calc(100vh - var(--app-top-navigation-height));
-}
-
+:root{--app-footer-height: 70px;--app-mobile-navigation-width: 250px;--app-side-navigation-width: 250px;--app-side-navigation-top-content-height: 230px;--app-top-navigation-height: 80px;--app-content-height: calc(100vh - var(--app-top-navigation-height));--app-side-panel-height: calc(100vh - var(--app-top-navigation-height) - 1vh)}.vh-minus-top-nav{height:calc(100vh - var(--app-top-navigation-height))}

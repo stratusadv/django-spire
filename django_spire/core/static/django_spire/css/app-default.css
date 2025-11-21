@@ -1,17 +1,1 @@
-a {
-    color: var(--app-default-link-color);
-    text-decoration: none;
-}
-
-a:hover {
-    color: var(--app-default-link-hover-color);
-}
-
-a:visited:hover {
-    color: var(--app-default-link-hover-color);
-}
-
-body {
-    color: var(--app-default-text-color);
-    scrollbar-color: var(--app-bg-secondary) transparent;
-}
+a{color:var(--app-default-link-color);text-decoration:none}a:hover{color:var(--app-default-link-hover-color)}a:visited:hover{color:var(--app-default-link-hover-color)}body{color:var(--app-default-text-color);scrollbar-color:var(--app-bg-secondary) transparent}

@@ -1,0 +1,90 @@
+$ayu-light-colors: (
+    primary: #0066cc,
+    primary-soft: #f0f6ff,
+    primary-dark: #0052a3,
+    secondary: #828c99,
+    secondary-soft: #f8f9fa,
+    secondary-dark: #6b7280,
+    accent: #ff6a00,
+    accent-soft: #fff4ed,
+    accent-dark: #cc5500,
+    success: #86b300,
+    success-soft: #f6faf0,
+    success-dark: #6d8f00,
+    warning: #f29718,
+    warning-soft: #fefaf0,
+    warning-dark: #e6851a,
+    danger: #ff3333,
+    danger-soft: #fff5f5,
+    danger-dark: #cc1f1f
+);
+
+$ayu-light-layers: (
+    layer-one: #fafafa,
+    layer-two: #f3f4f5,
+    layer-three: #edeff1,
+    layer-four: #d9dce0,
+    alt-layer-one: #ffffff,
+    alt-layer-two: #fcfcfc,
+    alt-layer-three: #f7f8f9,
+    alt-layer-four: #eff1f3
+);
+
+$ayu-light-text: (
+    default-attribute-title-color: #828c99,
+    default-button-text-color: #fafafa,
+    default-text-color: #5c6773,
+    default-alt-text-color: #6b7280,
+    default-link-color: #0066cc,
+    default-link-hover-color: #ff6a00,
+    inverted-text-color: #fafafa,
+    inverted-alt-text-color: #f3f4f5
+);
+
+$ayu-light-navigation: (
+    side-navigation-bg-color: #5c6773,
+    side-navigation-text-color: #fafafa,
+    side-navigation-link-color: #fafafa,
+    side-navigation-link-hover-color: #59c2ff,
+    top-navigation-bg-color: #fafafa,
+    top-navigation-text-color: #5c6773,
+    top-navigation-link-color: #0066cc,
+    top-navigation-link-hover-color: #ff6a00,
+    footer-bg-color: #f3f4f5,
+    footer-text-color: #5c6773,
+    footer-link-color: #0066cc,
+    footer-link-hover-color: #ff6a00
+);
+
+$ayu-light-table: (
+    table-row-color: #fafafa,
+    table-row-alt-color: #f3f4f5,
+    table-row-hover-color: #edeff1
+);
+
+:root {
+    @each $name, $value in $ayu-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #f0f0f0;
+    --bs-border-color: #edeff1;
+    --app-border-translucent-light: rgba(217, 220, 224, 0.175);
+    --app-focus-ring-primary: rgba(0, 102, 204, 0.25);
+}

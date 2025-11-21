@@ -1,0 +1,101 @@
+$tokyonight-dark-colors: (
+    primary: #7aa2f7,
+    primary-soft: #1a2433,
+    primary-dark: #5a80d4,
+    secondary: #9aa5ce,
+    secondary-soft: #272d3e,
+    secondary-dark: #7c88b5,
+    accent: #f7768e,
+    accent-soft: #2f2026,
+    accent-dark: #e85d75,
+    success: #9ece6a,
+    success-soft: #1f2e20,
+    success-dark: #7fb347,
+    warning: #e0af68,
+    warning-soft: #342f20,
+    warning-dark: #d49c3d,
+    danger: #f7768e,
+    danger-soft: #2f2026,
+    danger-dark: #e85d75
+);
+
+$tokyonight-dark-layers: (
+    layer-one: #16161e,
+    layer-two: #24283b,
+    layer-three: #2f3349,
+    layer-four: #3b4261,
+    alt-layer-one: #1a1b26,
+    alt-layer-two: #1f2335,
+    alt-layer-three: #292e42,
+    alt-layer-four: #3b4261
+);
+
+$tokyonight-dark-text: (
+    default-attribute-title-color: #c0caf5,
+    default-button-text-color: #1a1b26,
+    default-text-color: #c0caf5,
+    default-alt-text-color: #a9b1d6,
+    default-link-color: #7aa2f7,
+    default-link-hover-color: #bb9af7,
+    inverted-text-color: #1a1b26,
+    inverted-alt-text-color: #24283b
+);
+
+$tokyonight-dark-navigation: (
+    side-navigation-bg-color: #16161e,
+    side-navigation-text-color: #c0caf5,
+    side-navigation-link-color: #c0caf5,
+    side-navigation-link-hover-color: #7aa2f7,
+    top-navigation-bg-color: #16161e,
+    top-navigation-text-color: #c0caf5,
+    top-navigation-link-color: #7aa2f7,
+    top-navigation-link-hover-color: #bb9af7,
+    footer-bg-color: #16161e,
+    footer-text-color: #c0caf5,
+    footer-link-color: #7aa2f7,
+    footer-link-hover-color: #bb9af7
+);
+
+$tokyonight-dark-table: (
+    table-row-color: #1a1b26,
+    table-row-alt-color: #24283b,
+    table-row-hover-color: #2f3349
+);
+
+$tokyonight-dark-shadows: (
+    shadow-light: rgba(0, 0, 0, 0.3),
+    shadow-medium: rgba(0, 0, 0, 0.5),
+    shadow-heavy: rgba(0, 0, 0, 0.7),
+    shadow-navigation: rgba(0, 0, 0, 0.9)
+);
+
+[data-theme='dark'] {
+    @each $name, $value in $tokyonight-dark-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-dark-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-dark-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-dark-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-dark-table {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-dark-shadows {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #24283b;
+    --bs-border-color: #3b4261;
+    --app-border-translucent-light: rgba(59, 66, 97, 0.3);
+    --app-focus-ring-primary: rgba(122, 162, 247, 0.25);
+}

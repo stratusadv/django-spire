@@ -1,0 +1,19 @@
+$input-types: datetime-local, date, time, week, month;
+
+@each $type in $input-types {
+    input[type='#{$type}'] {
+        &::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            border: none;
+            opacity: 0.75;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+[data-theme='dark'] input {
+    color-scheme: dark;
+}

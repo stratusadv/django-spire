@@ -1,0 +1,90 @@
+$onedark-light-colors: (
+    primary: #4078f2,
+    primary-soft: #f0f4ff,
+    primary-dark: #2d5df0,
+    secondary: #6c6f93,
+    secondary-soft: #f5f5f7,
+    secondary-dark: #50536b,
+    accent: #e45649,
+    accent-soft: #fdf2f2,
+    accent-dark: #ca1243,
+    success: #50a14f,
+    success-soft: #f0f9f0,
+    success-dark: #2d8f47,
+    warning: #c18401,
+    warning-soft: #fffbf0,
+    warning-dark: #a06c00,
+    danger: #e45649,
+    danger-soft: #fdf2f2,
+    danger-dark: #ca1243
+);
+
+$onedark-light-layers: (
+    layer-one: #fafafa,
+    layer-two: #f0f0f1,
+    layer-three: #e5e5e6,
+    layer-four: #d4d4d6,
+    alt-layer-one: #ffffff,
+    alt-layer-two: #f8f8f9,
+    alt-layer-three: #eeeeef,
+    alt-layer-four: #e0e0e2
+);
+
+$onedark-light-text: (
+    default-attribute-title-color: #6c6f93,
+    default-button-text-color: #fafafa,
+    default-text-color: #383a42,
+    default-alt-text-color: #4f5368,
+    default-link-color: #4078f2,
+    default-link-hover-color: #a626a4,
+    inverted-text-color: #fafafa,
+    inverted-alt-text-color: #f0f0f1
+);
+
+$onedark-light-navigation: (
+    side-navigation-bg-color: #383a42,
+    side-navigation-text-color: #fafafa,
+    side-navigation-link-color: #fafafa,
+    side-navigation-link-hover-color: #61afef,
+    top-navigation-bg-color: #fafafa,
+    top-navigation-text-color: #383a42,
+    top-navigation-link-color: #4078f2,
+    top-navigation-link-hover-color: #a626a4,
+    footer-bg-color: #f0f0f1,
+    footer-text-color: #383a42,
+    footer-link-color: #4078f2,
+    footer-link-hover-color: #a626a4
+);
+
+$onedark-light-table: (
+    table-row-color: #fafafa,
+    table-row-alt-color: #f0f0f1,
+    table-row-hover-color: #e5e5e6
+);
+
+:root {
+    @each $name, $value in $onedark-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $onedark-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $onedark-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $onedark-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $onedark-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #e5e5e6;
+    --bs-border-color: #e5e5e6;
+    --app-border-translucent-light: rgba(212, 212, 214, 0.175);
+    --app-focus-ring-primary: rgba(64, 120, 242, 0.25);
+}

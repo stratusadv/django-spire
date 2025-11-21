@@ -1,0 +1,90 @@
+$rosepine-light-colors: (
+    primary: #907aa9,
+    primary-soft: #f2e9e1,
+    primary-dark: #56526e,
+    secondary: #797593,
+    secondary-soft: #f2e9e1,
+    secondary-dark: #56526e,
+    accent: #d7827e,
+    accent-soft: #f4ede8,
+    accent-dark: #b4637a,
+    success: #286983,
+    success-soft: #e3f0f4,
+    success-dark: #1f5564,
+    warning: #ea9d34,
+    warning-soft: #fef6e7,
+    warning-dark: #b77c25,
+    danger: #d7827e,
+    danger-soft: #f4ede8,
+    danger-dark: #b4637a
+);
+
+$rosepine-light-layers: (
+    layer-one: #fffaf3,
+    layer-two: #f2e9e1,
+    layer-three: #e6ddd6,
+    layer-four: #cecacd,
+    alt-layer-one: #fdf8f2,
+    alt-layer-two: #f5ebe3,
+    alt-layer-three: #e9dfd8,
+    alt-layer-four: #d6d2d5
+);
+
+$rosepine-light-text: (
+    default-attribute-title-color: #797593,
+    default-button-text-color: #faf4ed,
+    default-text-color: #575279,
+    default-alt-text-color: #6e6a86,
+    default-link-color: #907aa9,
+    default-link-hover-color: #d7827e,
+    inverted-text-color: #fffaf3,
+    inverted-alt-text-color: #f2e9e1
+);
+
+$rosepine-light-navigation: (
+    side-navigation-bg-color: #56526e,
+    side-navigation-text-color: #faf4ed,
+    side-navigation-link-color: #faf4ed,
+    side-navigation-link-hover-color: #ebbcba,
+    top-navigation-bg-color: #fffaf3,
+    top-navigation-text-color: #575279,
+    top-navigation-link-color: #907aa9,
+    top-navigation-link-hover-color: #d7827e,
+    footer-bg-color: #f2e9e1,
+    footer-text-color: #575279,
+    footer-link-color: #907aa9,
+    footer-link-hover-color: #d7827e
+);
+
+$rosepine-light-table: (
+    table-row-color: #faf4ed,
+    table-row-alt-color: #f2e9e1,
+    table-row-hover-color: #e6ddd6
+);
+
+:root {
+    @each $name, $value in $rosepine-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #e6ddd6;
+    --bs-border-color: #e6ddd6;
+    --app-border-translucent-light: rgba(206, 202, 205, 0.175);
+    --app-focus-ring-primary: rgba(144, 122, 169, 0.25);
+}

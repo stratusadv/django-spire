@@ -1,0 +1,90 @@
+$gruvbox-light-colors: (
+    primary: #b57614,
+    primary-soft: #f7f3e9,
+    primary-dark: #8f5902,
+    secondary: #665c54,
+    secondary-soft: #f2efea,
+    secondary-dark: #504945,
+    accent: #af3a03,
+    accent-soft: #f5e8e0,
+    accent-dark: #9d0006,
+    success: #79740e,
+    success-soft: #f0f2e4,
+    success-dark: #6f6c0d,
+    warning: #b57614,
+    warning-soft: #f7f3e9,
+    warning-dark: #8f5902,
+    danger: #af3a03,
+    danger-soft: #f5e8e0,
+    danger-dark: #9d0006
+);
+
+$gruvbox-light-layers: (
+    layer-one: #fbf1c7,
+    layer-two: #f2e5bc,
+    layer-three: #ebdbb2,
+    layer-four: #d5c4a1,
+    alt-layer-one: #f9f5d7,
+    alt-layer-two: #f0e9c7,
+    alt-layer-three: #e5d5b1,
+    alt-layer-four: #d0bfa5
+);
+
+$gruvbox-light-text: (
+    default-attribute-title-color: #665c54,
+    default-button-text-color: #fbf1c7,
+    default-text-color: #3c3836,
+    default-alt-text-color: #504945,
+    default-link-color: #b57614,
+    default-link-hover-color: #af3a03,
+    inverted-text-color: #fbf1c7,
+    inverted-alt-text-color: #f2e5bc
+);
+
+$gruvbox-light-navigation: (
+    side-navigation-bg-color: #3c3836,
+    side-navigation-text-color: #fbf1c7,
+    side-navigation-link-color: #fbf1c7,
+    side-navigation-link-hover-color: #fabd2f,
+    top-navigation-bg-color: #fbf1c7,
+    top-navigation-text-color: #3c3836,
+    top-navigation-link-color: #b57614,
+    top-navigation-link-hover-color: #af3a03,
+    footer-bg-color: #f2e5bc,
+    footer-text-color: #3c3836,
+    footer-link-color: #b57614,
+    footer-link-hover-color: #af3a03
+);
+
+$gruvbox-light-table: (
+    table-row-color: #fbf1c7,
+    table-row-alt-color: #f2e5bc,
+    table-row-hover-color: #ebdbb2
+);
+
+:root {
+    @each $name, $value in $gruvbox-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #ebdbb2;
+    --bs-border-color: #ebdbb2;
+    --app-border-translucent-light: rgba(189, 174, 147, 0.175);
+    --app-focus-ring-primary: rgba(181, 118, 20, 0.25);
+}

@@ -1,0 +1,101 @@
+$default-dark-colors: (
+    primary: #0097c9,
+    primary-soft: #0a252f,
+    primary-dark: #00b8e6,
+    secondary: #797c7d,
+    secondary-soft: #2a2c2d,
+    secondary-dark: #949799,
+    accent: #0097c9,
+    accent-soft: #0a252f,
+    accent-dark: #00b8e6,
+    success: #10b981,
+    success-soft: #0a2e20,
+    success-dark: #34d399,
+    warning: #f59e0b,
+    warning-soft: #3d2d14,
+    warning-dark: #fbbf24,
+    danger: #ef4444,
+    danger-soft: #3d1a1a,
+    danger-dark: #f87171
+);
+
+$default-dark-layers: (
+    layer-one: #181818,
+    layer-two: #232526,
+    layer-three: #2d3031,
+    layer-four: #3a3d3e,
+    alt-layer-one: #0f0f0f,
+    alt-layer-two: #1f2122,
+    alt-layer-three: #292c2d,
+    alt-layer-four: #343738
+);
+
+$default-dark-text: (
+    default-attribute-title-color: #ffffff,
+    default-button-text-color: #181818,
+    default-text-color: #ffffff,
+    default-alt-text-color: #d1d5db,
+    default-link-color: #0097c9,
+    default-link-hover-color: #00b8e6,
+    inverted-text-color: #181818,
+    inverted-alt-text-color: #232526
+);
+
+$default-dark-navigation: (
+    side-navigation-bg-color: #0f0f0f,
+    side-navigation-text-color: #ffffff,
+    side-navigation-link-color: #ffffff,
+    side-navigation-link-hover-color: #0097c9,
+    top-navigation-bg-color: #0f0f0f,
+    top-navigation-text-color: #ffffff,
+    top-navigation-link-color: #0097c9,
+    top-navigation-link-hover-color: #00b8e6,
+    footer-bg-color: #0f0f0f,
+    footer-text-color: #ffffff,
+    footer-link-color: #0097c9,
+    footer-link-hover-color: #00b8e6
+);
+
+$default-dark-table: (
+    table-row-color: #181818,
+    table-row-alt-color: #232526,
+    table-row-hover-color: #2d3031
+);
+
+$default-dark-shadows: (
+    shadow-light: rgba(0, 0, 0, 0.3),
+    shadow-medium: rgba(0, 0, 0, 0.5),
+    shadow-heavy: rgba(0, 0, 0, 0.7),
+    shadow-navigation: rgba(0, 0, 0, 0.9)
+);
+
+[data-theme='dark'] {
+    @each $name, $value in $default-dark-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-dark-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-dark-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-dark-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-dark-table {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-dark-shadows {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #232526;
+    --bs-border-color: #3a3d3e;
+    --app-border-translucent-light: rgba(58, 61, 62, 0.3);
+    --app-focus-ring-primary: rgba(0, 151, 201, 0.25);
+}

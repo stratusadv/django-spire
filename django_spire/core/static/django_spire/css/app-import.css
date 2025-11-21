@@ -1,13 +1,1 @@
-@import url('app-default.css');
-@import url('app-layout.css');
-@import url('app-theme.css');
-@import url('app-background.css');
-@import url('app-border.css');
-@import url('app-button.css');
-@import url('app-offcanvas.css');
-@import url('app-navigation.css');
-@import url('app-page.css');
-@import url('app-side-panel.css');
-@import url('app-text.css');
-@import url('app-template.css');
-@import url('app-override.css');
+@import url("app-default.css");@import url("app-layout.css");@import url("app-theme.css");@import url("app-background.css");@import url("app-border.css");@import url("app-button.css");@import url("app-offcanvas.css");@import url("app-navigation.css");@import url("app-page.css");@import url("app-side-panel.css");@import url("app-text.css");@import url("app-template.css");@import url("app-override.css")

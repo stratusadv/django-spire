@@ -1,0 +1,111 @@
+.item-select:hover {
+    background-color: var(--app-primary);
+    cursor: pointer;
+}
+
+.item-container {
+    &:first-child {
+        padding-top: 0 !important;
+    }
+
+    &:last-child {
+        padding-bottom: 0 !important;
+        border: none !important;
+    }
+}
+
+.no-select {
+    user-select: none;
+}
+
+.tab-item::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--app-primary);
+}
+
+.footer {
+    background-color: var(--app-footer-bg-color) !important;
+    color: var(--app-footer-text-color) !important;
+
+    a {
+        color: var(--app-footer-link-color) !important;
+
+        &:hover {
+            color: var(--app-footer-link-hover-color) !important;
+        }
+    }
+}
+
+.navbar-nav-scroll {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.top-navigation {
+    background-color: var(--app-top-navigation-bg-color) !important;
+    color: var(--app-top-navigation-text-color) !important;
+
+    a {
+        color: var(--app-top-navigation-link-color) !important;
+
+        &:hover {
+            color: var(--app-top-navigation-link-hover-color) !important;
+        }
+    }
+}
+
+.side-navigation {
+    background-color: var(--app-side-navigation-bg-color) !important;
+    border-color: var(--bs-border-color);
+    border-right-style: solid;
+    border-right-width: 1px;
+    color: var(--app-side-navigation-text-color) !important;
+    width: var(--app-side-navigation-width);
+
+    a {
+        color: var(--app-side-navigation-link-color) !important;
+        display: block;
+        padding: 0.75rem 1rem;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        &.active {
+            color: var(--app-side-navigation-link-color) !important;
+        }
+
+        &:hover {
+            color: var(--app-side-navigation-link-hover-color) !important;
+        }
+    }
+}
+
+@mixin side-navigation-fade($direction, $color-stop) {
+    .side-navigation-fade-#{$direction} {
+        background: linear-gradient(to $color-stop, var(--app-side-navigation-bg-color) 0%, transparent 100%);
+        height: 60px;
+        pointer-events: none;
+    }
+}
+
+@include side-navigation-fade(bottom, top);
+@include side-navigation-fade(top, bottom);
+
+.vh-minus-top-nav {
+    height: calc(100vh - var(--app-top-navigation-height));
+}
+
+.w-side-navigation-img {
+    width: calc(var(--app-side-navigation-width) - 20px);
+}
+
+.w-mobile-navigation {
+    width: var(--app-mobile-navigation-width);
+}
+
+.w-mobile-navigation-img {
+    width: calc(var(--app-mobile-navigation-width) - 20px);
+}

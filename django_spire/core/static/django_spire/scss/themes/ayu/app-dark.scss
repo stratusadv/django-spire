@@ -1,0 +1,101 @@
+$ayu-dark-colors: (
+    primary: #59c2ff,
+    primary-soft: #0f232e,
+    primary-dark: #39bae6,
+    secondary: #5c6773,
+    secondary-soft: #262d35,
+    secondary-dark: #4d5562,
+    accent: #ff8f40,
+    accent-soft: #3d2414,
+    accent-dark: #ff7733,
+    success: #95e6cb,
+    success-soft: #1a2e2a,
+    success-dark: #7fd4b4,
+    warning: #ffb454,
+    warning-soft: #3d2f14,
+    warning-dark: #ffa940,
+    danger: #f07178,
+    danger-soft: #3d2426,
+    danger-dark: #ed5a61
+);
+
+$ayu-dark-layers: (
+    layer-one: #0d1017,
+    layer-two: #1f2430,
+    layer-three: #272d38,
+    layer-four: #3e4b59,
+    alt-layer-one: #0a0e14,
+    alt-layer-two: #1a1f29,
+    alt-layer-three: #232834,
+    alt-layer-four: #343a46
+);
+
+$ayu-dark-text: (
+    default-attribute-title-color: #bfbdb6,
+    default-button-text-color: #0f1419,
+    default-text-color: #bfbdb6,
+    default-alt-text-color: #acaaa2,
+    default-link-color: #59c2ff,
+    default-link-hover-color: #ffd580,
+    inverted-text-color: #0f1419,
+    inverted-alt-text-color: #262d35
+);
+
+$ayu-dark-navigation: (
+    side-navigation-bg-color: #0d1017,
+    side-navigation-text-color: #bfbdb6,
+    side-navigation-link-color: #bfbdb6,
+    side-navigation-link-hover-color: #59c2ff,
+    top-navigation-bg-color: #0d1017,
+    top-navigation-text-color: #bfbdb6,
+    top-navigation-link-color: #59c2ff,
+    top-navigation-link-hover-color: #ffd580,
+    footer-bg-color: #0d1017,
+    footer-text-color: #bfbdb6,
+    footer-link-color: #59c2ff,
+    footer-link-hover-color: #ffd580
+);
+
+$ayu-dark-table: (
+    table-row-color: #0f1419,
+    table-row-alt-color: #1f2430,
+    table-row-hover-color: #272d38
+);
+
+$ayu-dark-shadows: (
+    shadow-light: rgba(0, 0, 0, 0.3),
+    shadow-medium: rgba(0, 0, 0, 0.5),
+    shadow-heavy: rgba(0, 0, 0, 0.7),
+    shadow-navigation: rgba(0, 0, 0, 0.9)
+);
+
+[data-theme='dark'] {
+    @each $name, $value in $ayu-dark-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-dark-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-dark-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-dark-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-dark-table {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $ayu-dark-shadows {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #1f2430;
+    --bs-border-color: #3e4b59;
+    --app-border-translucent-light: rgba(62, 75, 89, 0.3);
+    --app-focus-ring-primary: rgba(89, 194, 255, 0.25);
+}

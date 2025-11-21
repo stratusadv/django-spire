@@ -1,0 +1,17 @@
+a {
+    color: var(--app-default-link-color);
+    text-decoration: none;
+
+    &:hover {
+        color: var(--app-default-link-hover-color);
+    }
+
+    &:visited:hover {
+        color: var(--app-default-link-hover-color);
+    }
+}
+
+body {
+    color: var(--app-default-text-color);
+    scrollbar-color: var(--app-bg-secondary) transparent;
+}

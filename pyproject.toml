@@ -62,12 +62,16 @@ dependencies = [
     "twilio"
 ]
 
+[project.scripts]
+build-css = "build_css:compile_scss_files"
+
 [project.optional-dependencies]
 development = [
     "build",
     "django-browser-reload",
     "django-debug-toolbar",
     "django-watchfiles",
+    "libsass",
     "pip",
     "pyinstrument",
     "pyrefly",

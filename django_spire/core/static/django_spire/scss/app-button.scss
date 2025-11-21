@@ -1,0 +1,195 @@
+:root {
+    --app-btn-primary: var(--app-primary);
+    --app-btn-primary-soft: var(--app-primary-soft);
+    --app-btn-primary-dark: var(--app-primary-dark);
+
+    --app-btn-secondary: var(--app-secondary);
+    --app-btn-secondary-soft: var(--app-secondary-soft);
+    --app-btn-secondary-dark: var(--app-secondary-dark);
+
+    --app-btn-accent: var(--app-accent);
+    --app-btn-accent-soft: var(--app-accent-soft);
+    --app-btn-accent-dark: var(--app-accent-dark);
+
+    --app-btn-success: var(--app-success);
+    --app-btn-success-soft: var(--app-success-soft);
+    --app-btn-success-dark: var(--app-success-dark);
+
+    --app-btn-warning: var(--app-warning);
+    --app-btn-warning-soft: var(--app-warning-soft);
+    --app-btn-warning-dark: var(--app-warning-dark);
+
+    --app-btn-danger: var(--app-danger);
+    --app-btn-danger-soft: var(--app-danger-soft);
+    --app-btn-danger-dark: var(--app-danger-dark);
+
+    --app-btn-layer-one: var(--app-layer-one);
+    --app-btn-layer-two: var(--app-layer-two);
+    --app-btn-layer-three: var(--app-layer-three);
+    --app-btn-layer-four: var(--app-layer-four);
+
+    --app-btn-alt-layer-one: var(--app-alt-layer-one);
+    --app-btn-alt-layer-two: var(--app-alt-layer-two);
+    --app-btn-alt-layer-three: var(--app-alt-layer-three);
+    --app-btn-alt-layer-four: var(--app-alt-layer-four);
+}
+
+@mixin button-variant($color, $color-dark) {
+    background-color: var(#{$color}) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+
+    &:hover {
+        background-color: var(#{$color-dark}) !important;
+    }
+}
+
+@mixin button-variant-dark($color, $color-dark) {
+    background-color: var(#{$color-dark}) !important;
+    color: var(--app-default-button-text-color) !important;
+    border: none;
+
+    &:hover {
+        background-color: var(#{$color}) !important;
+    }
+}
+
+@mixin button-outlined($color) {
+    color: var(#{$color}) !important;
+    border: 1px solid var(#{$color}) !important;
+
+    &:hover {
+        background-color: var(#{$color}) !important;
+        color: var(--app-default-button-text-color) !important;
+    }
+}
+
+@mixin button-layer($layer, $text-color: --app-default-button-text-color) {
+    background-color: var(#{$layer}) !important;
+    color: var(#{$text-color}) !important;
+    border: none;
+}
+
+.btn {
+    position: relative;
+    transition: top 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 2px 2px 4px 0px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
+
+    &:hover {
+        top: -1px;
+        box-shadow: 3px 3px 4px 0px rgba(0, 0, 0, 0.3) !important;
+    }
+}
+
+.btn-app-primary {
+    @include button-variant(--app-btn-primary, --app-btn-primary-dark);
+}
+
+.btn-app-primary-dark {
+    @include button-variant-dark(--app-btn-primary, --app-btn-primary-dark);
+}
+
+.btn-app-primary-outlined {
+    @include button-outlined(--app-btn-primary);
+}
+
+.btn-app-primary-dark-outlined {
+    @include button-outlined(--app-btn-primary-dark);
+}
+
+.btn-app-secondary {
+    @include button-variant(--app-btn-secondary, --app-btn-secondary-dark);
+}
+
+.btn-app-secondary-dark {
+    @include button-variant-dark(--app-btn-secondary, --app-btn-secondary-dark);
+}
+
+.btn-app-secondary-outlined {
+    @include button-outlined(--app-btn-secondary);
+}
+
+.btn-app-accent {
+    @include button-variant(--app-btn-accent, --app-btn-accent-dark);
+}
+
+.btn-app-accent-dark {
+    @include button-variant-dark(--app-btn-accent, --app-btn-accent-dark);
+}
+
+.btn-app-accent-outlined {
+    @include button-outlined(--app-btn-accent);
+}
+
+.btn-app-danger {
+    @include button-variant(--app-btn-danger, --app-btn-danger-dark);
+
+    &:hover {
+        color: var(--app-default-button-text-color) !important;
+    }
+}
+
+.btn-app-danger-dark {
+    @include button-variant-dark(--app-btn-danger, --app-btn-danger-dark);
+}
+
+.btn-app-danger-outlined {
+    @include button-outlined(--app-btn-danger);
+}
+
+.btn-app-success {
+    @include button-variant(--app-btn-success, --app-btn-success-dark);
+}
+
+.btn-app-success-dark {
+    @include button-variant-dark(--app-btn-success, --app-btn-success-dark);
+}
+
+.btn-app-success-outlined {
+    @include button-outlined(--app-btn-success);
+}
+
+.btn-app-warning {
+    @include button-variant(--app-btn-warning, --app-btn-warning-dark);
+}
+
+.btn-app-warning-dark {
+    @include button-variant-dark(--app-btn-warning, --app-btn-warning-dark);
+}
+
+.btn-app-warning-outlined {
+    @include button-outlined(--app-btn-warning);
+}
+
+.btn-app-layer-one {
+    @include button-layer(--app-layer-one);
+}
+
+.btn-app-layer-two {
+    @include button-layer(--app-layer-two);
+}
+
+.btn-app-layer-three {
+    @include button-layer(--app-layer-three);
+}
+
+.btn-app-layer-four {
+    @include button-layer(--app-layer-four);
+}
+
+.btn-app-alt-layer-one {
+    @include button-layer(--app-btn-alt-layer-one, --app-default-alt-text-color);
+}
+
+.btn-app-alt-layer-two {
+    @include button-layer(--app-btn-alt-layer-two, --app-default-alt-text-color);
+}
+
+.btn-app-alt-layer-three {
+    @include button-layer(--app-btn-alt-layer-three, --app-default-alt-text-color);
+}
+
+.btn-app-alt-layer-four {
+    @include button-layer(--app-alt-layer-four, --app-default-alt-text-color);
+}

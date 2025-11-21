@@ -1,0 +1,69 @@
+:root {
+    --app-border-primary: var(--app-primary);
+    --app-border-primary-soft: var(--app-primary-soft);
+    --app-border-primary-dark: var(--app-primary-dark);
+
+    --app-border-secondary: var(--app-secondary-dark);
+    --app-border-secondary-soft: var(--app-secondary-dark);
+    --app-border-secondary-dark: var(--app-secondary-dark);
+
+    --app-border-accent: var(--app-accent);
+    --app-border-accent-soft: var(--app-accent);
+    --app-border-accent-dark: var(--app-accent);
+
+    --app-border-success: var(--app-success);
+    --app-border-success-outlined: var(--app-success);
+    --app-border-success-dark: var(--app-success);
+
+    --app-border-warning: var(--app-warning);
+    --app-border-warning-soft: var(--app-warning);
+    --app-border-warning-dark: var(--app-warning);
+
+    --app-border-danger: var(--app-danger);
+    --app-border-danger-soft: var(--app-danger);
+    --app-border-danger-dark: var(--app-danger);
+
+    --app-border-layer-one: var(--app-layer-one);
+    --app-border-layer-two: var(--app-layer-two);
+    --app-border-layer-three: var(--app-layer-three);
+    --app-border-layer-four: var(--app-layer-four);
+
+    --app-border-alt-layer-one: var(--app-alt-layer-one);
+    --app-border-alt-layer-two: var(--app-alt-layer-two);
+    --app-border-alt-layer-three: var(--app-alt-layer-three);
+    --app-border-alt-layer-four: var(--app-alt-layer-four);
+}
+
+@mixin border-variant($name, $var) {
+    .border-app-#{$name} {
+        border-color: var($var) !important;
+    }
+}
+
+.border-app-none {
+}
+
+@include border-variant('primary', --app-border-primary);
+@include border-variant('primary-soft', --app-border-primary-soft);
+@include border-variant('primary-dark', --app-border-primary-dark);
+
+@include border-variant('secondary', --app-border-secondary);
+@include border-variant('secondary-soft', --app-border-secondary-soft);
+@include border-variant('secondary-dark', --app-border-secondary-dark);
+
+@include border-variant('accent', --app-border-accent);
+@include border-variant('accent-soft', --app-border-accent-soft);
+@include border-variant('accent-dark', --app-border-accent-dark);
+
+@include border-variant('warning', --app-border-warning);
+@include border-variant('warning-soft', --app-border-warning-soft);
+@include border-variant('warning-dark', --app-border-warning-dark);
+
+@include border-variant('danger', --app-border-danger);
+@include border-variant('danger-soft', --app-border-danger-soft);
+@include border-variant('danger-dark', --app-border-danger-dark);
+
+@each $layer in one, two, three, four {
+    @include border-variant('layer-#{$layer}', --app-border-layer-#{$layer});
+    @include border-variant('alt-layer-#{$layer}', --app-border-alt-layer-#{$layer});
+}

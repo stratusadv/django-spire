@@ -1,0 +1,101 @@
+$gruvbox-dark-colors: (
+    primary: #fabd2f,
+    primary-soft: #312a1a,
+    primary-dark: #d79921,
+    secondary: #a89984,
+    secondary-soft: #423d38,
+    secondary-dark: #928374,
+    accent: #fe8019,
+    accent-soft: #3d2410,
+    accent-dark: #d65d0e,
+    success: #b8bb26,
+    success-soft: #2a2e1a,
+    success-dark: #98971a,
+    warning: #fabd2f,
+    warning-soft: #312a1a,
+    warning-dark: #d79921,
+    danger: #fb4934,
+    danger-soft: #3d1a17,
+    danger-dark: #cc241d
+);
+
+$gruvbox-dark-layers: (
+    layer-one: #282828,
+    layer-two: #3c3836,
+    layer-three: #504945,
+    layer-four: #665c54,
+    alt-layer-one: #1d2021,
+    alt-layer-two: #32302f,
+    alt-layer-three: #45403d,
+    alt-layer-four: #5a524c
+);
+
+$gruvbox-dark-text: (
+    default-attribute-title-color: #ebdbb2,
+    default-button-text-color: #282828,
+    default-text-color: #ebdbb2,
+    default-alt-text-color: #d5c4a1,
+    default-link-color: #fabd2f,
+    default-link-hover-color: #fe8019,
+    inverted-text-color: #282828,
+    inverted-alt-text-color: #3c3836
+);
+
+$gruvbox-dark-navigation: (
+    side-navigation-bg-color: #1d2021,
+    side-navigation-text-color: #ebdbb2,
+    side-navigation-link-color: #ebdbb2,
+    side-navigation-link-hover-color: #fabd2f,
+    top-navigation-bg-color: #1d2021,
+    top-navigation-text-color: #ebdbb2,
+    top-navigation-link-color: #fabd2f,
+    top-navigation-link-hover-color: #fe8019,
+    footer-bg-color: #1d2021,
+    footer-text-color: #ebdbb2,
+    footer-link-color: #fabd2f,
+    footer-link-hover-color: #fe8019
+);
+
+$gruvbox-dark-table: (
+    table-row-color: #282828,
+    table-row-alt-color: #3c3836,
+    table-row-hover-color: #504945
+);
+
+$gruvbox-dark-shadows: (
+    shadow-light: rgba(0, 0, 0, 0.3),
+    shadow-medium: rgba(0, 0, 0, 0.5),
+    shadow-heavy: rgba(0, 0, 0, 0.7),
+    shadow-navigation: rgba(0, 0, 0, 0.9)
+);
+
+[data-theme='dark'] {
+    @each $name, $value in $gruvbox-dark-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-dark-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-dark-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-dark-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-dark-table {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $gruvbox-dark-shadows {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #3c3836;
+    --bs-border-color: #665c54;
+    --app-border-translucent-light: rgba(102, 92, 84, 0.3);
+    --app-focus-ring-primary: rgba(250, 189, 47, 0.25);
+}

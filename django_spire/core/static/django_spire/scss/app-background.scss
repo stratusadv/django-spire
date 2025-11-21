@@ -1,0 +1,164 @@
+:root {
+    --app-bg-primary: var(--app-primary);
+    --app-bg-primary-soft: var(--app-primary-soft);
+    --app-bg-primary-dark: var(--app-primary-dark);
+
+    --app-bg-secondary: var(--app-secondary);
+    --app-bg-secondary-soft: var(--app-secondary-soft);
+    --app-bg-secondary-dark: var(--app-secondary-dark);
+
+    --app-bg-accent: var(--app-accent);
+    --app-bg-accent-soft: var(--app-accent-soft);
+    --app-bg-accent-dark: var(--app-accent-dark);
+
+    --app-bg-success: var(--app-success);
+    --app-bg-success-soft: var(--app-success-soft);
+    --app-bg-success-dark: var(--app-success-dark);
+
+    --app-bg-warning: var(--app-warning);
+    --app-bg-warning-soft: var(--app-warning-soft);
+    --app-bg-warning-dark: var(--app-warning-dark);
+
+    --app-bg-danger: var(--app-danger);
+    --app-bg-danger-soft: var(--app-danger-soft);
+    --app-bg-danger-dark: var(--app-danger-dark);
+
+    --app-bg-layer-one: var(--app-layer-one);
+    --app-bg-layer-two: var(--app-layer-two);
+    --app-bg-layer-three: var(--app-layer-three);
+    --app-bg-layer-four: var(--app-layer-four);
+
+    --app-bg-alt-layer-one: var(--app-alt-layer-one);
+    --app-bg-alt-layer-two: var(--app-alt-layer-two);
+    --app-bg-alt-layer-three: var(--app-alt-layer-three);
+    --app-bg-alt-layer-four: var(--app-alt-layer-four);
+
+    --app-bg-card-header: var(--app-card-header);
+
+    --app-bg-side-navigation: var(--app-side-navigation-bg-color);
+
+    --app-bg-top-navigation: var(--app-top-navigation-bg-color);
+
+    --app-bg-footer: var(--app-footer-bg-color);
+
+    --app-bg-table-row: var(--app-table-row-color);
+    --app-bg-table-row-alt: var(--app-table-row-alt-color);
+    --app-bg-table-row-hover: var(--app-table-row-hover-color);
+}
+
+@mixin bg-variant($name, $var, $hover: false) {
+    @if $hover {
+        .bg-app-#{$name}-hover:hover {
+            background-color: var($var) !important;
+        }
+    } @else {
+        .bg-app-#{$name} {
+            background-color: var($var) !important;
+        }
+    }
+}
+
+@mixin bg-variant-with-text($name, $var, $text-var, $hover: false) {
+    @if $hover {
+        .bg-app-#{$name}-hover:hover {
+            background-color: var($var) !important;
+            color: var($text-var) !important;
+        }
+    } @else {
+        .bg-app-#{$name} {
+            background-color: var($var) !important;
+            color: var($text-var) !important;
+        }
+    }
+}
+
+@mixin bg-opacity-variants($name, $var) {
+    @each $opacity in 10, 25, 50, 75, 90 {
+        .bg-app-#{$name}-opacity-#{$opacity} {
+            background-color: color-mix(in srgb, var(#{$var}) #{$opacity + unquote('%')}, transparent) !important;
+        }
+    }
+}
+
+@include bg-variant('primary', --app-bg-primary);
+@include bg-variant('primary', --app-bg-primary, true);
+@include bg-variant('primary-soft', --app-bg-primary-soft);
+@include bg-variant('primary-soft', --app-bg-primary-soft, true);
+@include bg-variant('primary-dark', --app-bg-primary-dark);
+@include bg-variant('primary-dark', --app-bg-primary-dark, true);
+@include bg-opacity-variants('primary', --app-bg-primary);
+
+@include bg-variant('secondary', --app-bg-secondary);
+@include bg-variant('secondary', --app-bg-secondary, true);
+@include bg-variant('secondary-soft', --app-bg-secondary-soft);
+@include bg-variant('secondary-soft', --app-bg-secondary-soft, true);
+@include bg-variant('secondary-dark', --app-bg-secondary-dark);
+@include bg-variant('secondary-dark', --app-bg-secondary-dark, true);
+@include bg-opacity-variants('secondary', --app-bg-secondary);
+
+@include bg-variant('accent', --app-bg-accent);
+@include bg-variant('accent', --app-bg-accent, true);
+@include bg-variant('accent-soft', --app-bg-accent-soft);
+@include bg-variant('accent-soft', --app-bg-accent-soft, true);
+@include bg-variant('accent-dark', --app-bg-accent-dark);
+@include bg-variant('accent-dark', --app-bg-accent-dark, true);
+@include bg-opacity-variants('accent', --app-bg-accent);
+
+@include bg-variant('success', --app-bg-success);
+@include bg-variant('success', --app-bg-success, true);
+@include bg-variant('success-soft', --app-bg-success-soft);
+@include bg-variant('success-soft', --app-bg-success-soft, true);
+@include bg-variant('success-dark', --app-bg-success-dark);
+@include bg-variant('success-dark', --app-bg-success-dark, true);
+@include bg-opacity-variants('success', --app-bg-success);
+
+@include bg-variant('warning', --app-bg-warning);
+@include bg-variant('warning', --app-bg-warning, true);
+@include bg-variant('warning-soft', --app-bg-warning-soft);
+@include bg-variant('warning-soft', --app-bg-warning-soft, true);
+@include bg-variant('warning-dark', --app-bg-warning-dark);
+@include bg-variant('warning-dark', --app-bg-warning-dark, true);
+@include bg-opacity-variants('warning', --app-bg-warning);
+
+@include bg-variant('danger', --app-bg-danger);
+@include bg-variant('danger', --app-bg-danger, true);
+@include bg-variant('danger-soft', --app-bg-danger-soft);
+@include bg-variant('danger-soft', --app-bg-danger-soft, true);
+@include bg-variant('danger-dark', --app-bg-danger-dark);
+@include bg-variant('danger-dark', --app-bg-danger-dark, true);
+@include bg-opacity-variants('danger', --app-bg-danger);
+
+@each $layer in one, two, three, four {
+    @include bg-variant('layer-#{$layer}', --app-bg-layer-#{$layer});
+    @include bg-variant('layer-#{$layer}', --app-bg-layer-#{$layer}, true);
+    @include bg-opacity-variants('layer-#{$layer}', --app-bg-layer-#{$layer});
+}
+
+@each $layer in one, two, three, four {
+    @include bg-variant-with-text('alt-layer-#{$layer}', --app-bg-alt-layer-#{$layer}, --app-default-alt-text-color);
+    @include bg-variant-with-text('alt-layer-#{$layer}', --app-bg-alt-layer-#{$layer}, --app-default-alt-text-color, true);
+}
+
+.bg-app-card-header {
+    background-color: var(--app-bg-card-header) !important;
+}
+
+@include bg-variant('side-navigation', --app-bg-side-navigation);
+@include bg-variant('side-navigation', --app-bg-side-navigation, true);
+
+@include bg-variant('top-navigation', --app-bg-top-navigation);
+@include bg-variant('top-navigation', --app-bg-top-navigation, true);
+
+@include bg-variant('footer', --app-bg-footer);
+@include bg-variant('footer', --app-bg-footer, true);
+
+@include bg-variant('table-row', --app-bg-table-row);
+@include bg-variant('table-row', --app-bg-table-row, true);
+
+@include bg-variant-with-text('table-row-alt', --app-bg-table-row-alt, --app-default-alt-text-color);
+@include bg-variant-with-text('table-row-alt', --app-bg-table-row-alt, --app-default-alt-text-color, true);
+
+.bg-app-table-row-hover,
+.bg-app-table-row-hover:hover {
+    background-color: var(--app-bg-table-row-hover) !important;
+}

@@ -1,0 +1,154 @@
+:root {
+    --app-text-primary: var(--app-primary);
+    --app-text-primary-soft: var(--app-primary-soft);
+    --app-text-primary-dark: var(--app-primary-dark);
+
+    --app-text-secondary: var(--app-secondary);
+    --app-text-secondary-soft: var(--app-secondary-soft);
+    --app-text-secondary-dark: var(--app-secondary-dark);
+
+    --app-text-accent: var(--app-accent);
+    --app-text-accent-soft: var(--app-accent-soft);
+    --app-text-accent-dark: var(--app-accent-dark);
+
+    --app-text-success: var(--app-success);
+    --app-text-success-soft: var(--app-success-soft);
+    --app-text-success-dark: var(--app-success-dark);
+
+    --app-text-warning: var(--app-warning);
+    --app-text-warning-soft: var(--app-warning-soft);
+    --app-text-warning-dark: var(--app-warning-dark);
+
+    --app-text-danger: var(--app-danger);
+    --app-text-danger-soft: var(--app-danger-soft);
+    --app-text-danger-dark: var(--app-danger-dark);
+
+    --app-text-layer-one: var(--app-layer-one);
+    --app-text-layer-two: var(--app-layer-two);
+    --app-text-layer-three: var(--app-layer-three);
+    --app-text-layer-four: var(--app-layer-four);
+
+    --app-text-alt-layer-one: var(--app-alt-layer-one);
+    --app-text-alt-layer-two: var(--app-alt-layer-two);
+    --app-text-alt-layer-three: var(--app-alt-layer-three);
+    --app-text-alt-layer-four: var(--app-alt-layer-four);
+
+    --app-text-side-navigation: var(--app-side-navigation-text-color);
+    --app-link-side-navigation: var(--app-side-navigation-link-color);
+    --app-link-side-navigation-hover: var(--app-side-navigation-link-hover-color);
+
+    --app-text-top-navigation: var(--app-top-navigation-text-color);
+    --app-link-top-navigation: var(--app-top-navigation-link-color);
+    --app-link-top-navigation-hover: var(--app-top-navigation-link-hover-color);
+
+    --app-text-footer: var(--app-footer-text-color);
+    --app-link-footer: var(--app-footer-link-color);
+    --app-link-footer-hover: var(--app-footer-link-hover-color);
+
+    --app-text-inverted: var(--app-inverted-text-color);
+    --app-text-inverted-alt: var(--app-inverted-alt-text-color);
+}
+
+@mixin text-variant($name, $var, $hover: false) {
+    @if $hover {
+        .text-app-#{$name}-hover:hover {
+            color: var($var) !important;
+        }
+    } @else {
+        .text-app-#{$name} {
+            color: var($var) !important;
+        }
+    }
+}
+
+@mixin text-opacity-variants($name, $var) {
+    @each $opacity in 10, 25, 50, 75, 90 {
+        .text-app-#{$name}-opacity-#{$opacity} {
+            color: color-mix(in srgb, var(#{$var}) #{$opacity + unquote('%')}, transparent) !important;
+        }
+    }
+}
+
+.text-alt-color,
+.text-alt-color-hover:hover {
+    color: var(--app-default-alt-text-color) !important;
+}
+
+.text-app-attribute-color,
+.text-app-attribute-color-hover:hover {
+    color: var(--app-default-attribute-title-color) !important;
+}
+
+.text-app-default-link-color,
+.text-app-default-link-color:hover {
+    color: var(--app-default-link-color) !important;
+}
+
+.text-app-default-text-color,
+.text-app-default-text-color:hover {
+    color: var(--app-default-text-color) !important;
+}
+
+@include text-variant('inverted', --app-text-inverted);
+@include text-variant('inverted', --app-text-inverted, true);
+@include text-variant('inverted-alt', --app-text-inverted-alt);
+@include text-variant('inverted-alt', --app-text-inverted-alt, true);
+
+@each $color in primary, secondary, accent, success, warning, danger {
+    @include text-variant($color, --app-text-#{$color});
+    @include text-variant($color, --app-text-#{$color}, true);
+    @include text-variant('#{$color}-soft', --app-text-#{$color}-soft);
+    @include text-variant('#{$color}-soft', --app-text-#{$color}-soft, true);
+    @include text-variant('#{$color}-dark', --app-text-#{$color}-dark);
+    @include text-variant('#{$color}-dark', --app-text-#{$color}-dark, true);
+    @include text-opacity-variants($color, --app-text-#{$color});
+}
+
+@each $layer in one, two, three, four {
+    @include text-variant('layer-#{$layer}', --app-text-layer-#{$layer});
+    @include text-variant('layer-#{$layer}', --app-text-layer-#{$layer}, true);
+    @include text-variant('alt-layer-#{$layer}', --app-text-alt-layer-#{$layer});
+    @include text-variant('alt-layer-#{$layer}', --app-text-alt-layer-#{$layer}, true);
+}
+
+.text-app-side-navigation {
+    color: var(--app-text-side-navigation) !important;
+}
+
+.text-app-link-side-navigation {
+    color: var(--app-link-side-navigation) !important;
+
+    &:hover {
+        color: var(--app-link-side-navigation-hover) !important;
+    }
+}
+
+.text-app-top-navigation {
+    color: var(--app-text-top-navigation) !important;
+}
+
+.text-app-link-top-navigation {
+    color: var(--app-link-top-navigation) !important;
+
+    &:hover {
+        color: var(--app-link-top-navigation-hover) !important;
+    }
+}
+
+.text-app-footer {
+    color: var(--app-text-footer) !important;
+}
+
+.text-app-link-footer {
+    color: var(--app-link-footer) !important;
+
+    &:hover {
+        color: var(--app-link-footer-hover) !important;
+    }
+}
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

@@ -1,0 +1,90 @@
+$nord-light-colors: (
+    primary: #5e81ac,
+    primary-soft: #e5eaf2,
+    primary-dark: #4c6794,
+    secondary: #4c566a,
+    secondary-soft: #e3e6ec,
+    secondary-dark: #3b4252,
+    accent: #bf616a,
+    accent-soft: #f2e5e7,
+    accent-dark: #a54e56,
+    success: #a3be8c,
+    success-soft: #eff4ea,
+    success-dark: #8fa876,
+    warning: #ebcb8b,
+    warning-soft: #faf7ee,
+    warning-dark: #d4b066,
+    danger: #bf616a,
+    danger-soft: #f2e5e7,
+    danger-dark: #a54e56
+);
+
+$nord-light-layers: (
+    layer-one: #eceff4,
+    layer-two: #e5e9f0,
+    layer-three: #d8dee9,
+    layer-four: #bdc6d6,
+    alt-layer-one: #f0f4f8,
+    alt-layer-two: #eaeef4,
+    alt-layer-three: #dfe5ef,
+    alt-layer-four: #c8d0df
+);
+
+$nord-light-text: (
+    default-attribute-title-color: #4c566a,
+    default-button-text-color: #eceff4,
+    default-text-color: #2e3440,
+    default-alt-text-color: #3b4252,
+    default-link-color: #5e81ac,
+    default-link-hover-color: #bf616a,
+    inverted-text-color: #eceff4,
+    inverted-alt-text-color: #e5e9f0
+);
+
+$nord-light-navigation: (
+    side-navigation-bg-color: #2e3440,
+    side-navigation-text-color: #eceff4,
+    side-navigation-link-color: #eceff4,
+    side-navigation-link-hover-color: #88c0d0,
+    top-navigation-bg-color: #eceff4,
+    top-navigation-text-color: #2e3440,
+    top-navigation-link-color: #5e81ac,
+    top-navigation-link-hover-color: #bf616a,
+    footer-bg-color: #e5e9f0,
+    footer-text-color: #2e3440,
+    footer-link-color: #5e81ac,
+    footer-link-hover-color: #bf616a
+);
+
+$nord-light-table: (
+    table-row-color: #eceff4,
+    table-row-alt-color: #e5e9f0,
+    table-row-hover-color: #d8dee9
+);
+
+:root {
+    @each $name, $value in $nord-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #d8dee9;
+    --bs-border-color: #d8dee9;
+    --app-border-translucent-light: rgba(189, 198, 214, 0.175);
+    --app-focus-ring-primary: rgba(94, 129, 172, 0.25);
+}

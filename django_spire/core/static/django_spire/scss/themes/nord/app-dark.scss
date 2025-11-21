@@ -1,0 +1,101 @@
+$nord-dark-colors: (
+    primary: #81a1c1,
+    primary-soft: #1f3140,
+    primary-dark: #5e81ac,
+    secondary: #d8dee9,
+    secondary-soft: #424952,
+    secondary-dark: #e5e9f0,
+    accent: #bf616a,
+    accent-soft: #3d2a2d,
+    accent-dark: #a54e56,
+    success: #a3be8c,
+    success-soft: #232e24,
+    success-dark: #8fa876,
+    warning: #ebcb8b,
+    warning-soft: #3d3527,
+    warning-dark: #d4b066,
+    danger: #bf616a,
+    danger-soft: #3d2a2d,
+    danger-dark: #a54e56
+);
+
+$nord-dark-layers: (
+    layer-one: #2e3440,
+    layer-two: #3b4252,
+    layer-three: #434c5e,
+    layer-four: #4c566a,
+    alt-layer-one: #242933,
+    alt-layer-two: #353b48,
+    alt-layer-three: #3e4758,
+    alt-layer-four: #475164
+);
+
+$nord-dark-text: (
+    default-attribute-title-color: #eceff4,
+    default-button-text-color: #2e3440,
+    default-text-color: #eceff4,
+    default-alt-text-color: #d8dee9,
+    default-link-color: #81a1c1,
+    default-link-hover-color: #bf616a,
+    inverted-text-color: #2e3440,
+    inverted-alt-text-color: #3b4252
+);
+
+$nord-dark-navigation: (
+    side-navigation-bg-color: #2e3440,
+    side-navigation-text-color: #eceff4,
+    side-navigation-link-color: #eceff4,
+    side-navigation-link-hover-color: #88c0d0,
+    top-navigation-bg-color: #2e3440,
+    top-navigation-text-color: #eceff4,
+    top-navigation-link-color: #81a1c1,
+    top-navigation-link-hover-color: #bf616a,
+    footer-bg-color: #2e3440,
+    footer-text-color: #eceff4,
+    footer-link-color: #81a1c1,
+    footer-link-hover-color: #bf616a
+);
+
+$nord-dark-table: (
+    table-row-color: #2e3440,
+    table-row-alt-color: #3b4252,
+    table-row-hover-color: #434c5e
+);
+
+$nord-dark-shadows: (
+    shadow-light: rgba(0, 0, 0, 0.3),
+    shadow-medium: rgba(0, 0, 0, 0.5),
+    shadow-heavy: rgba(0, 0, 0, 0.7),
+    shadow-navigation: rgba(0, 0, 0, 0.9)
+);
+
+[data-theme='dark'] {
+    @each $name, $value in $nord-dark-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-dark-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-dark-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-dark-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-dark-table {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $nord-dark-shadows {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #3b4252;
+    --bs-border-color: #4c566a;
+    --app-border-translucent-light: rgba(76, 86, 106, 0.3);
+    --app-focus-ring-primary: rgba(129, 161, 193, 0.25);
+}

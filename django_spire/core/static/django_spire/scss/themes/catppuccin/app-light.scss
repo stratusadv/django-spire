@@ -1,0 +1,90 @@
+$catppuccin-light-colors: (
+    primary: #8839ef,
+    primary-soft: #ede2f3,
+    primary-dark: #6c2fb3,
+    secondary: #6c6f85,
+    secondary-soft: #e6e9ef,
+    secondary-dark: #5c5f77,
+    accent: #d20f39,
+    accent-soft: #f2d7dd,
+    accent-dark: #a50e2f,
+    success: #40a02b,
+    success-soft: #def2d5,
+    success-dark: #357a22,
+    warning: #df8e1d,
+    warning-soft: #f6e8d0,
+    warning-dark: #c47319,
+    danger: #d20f39,
+    danger-soft: #f2d7dd,
+    danger-dark: #a50e2f
+);
+
+$catppuccin-light-layers: (
+    layer-one: #eff1f5,
+    layer-two: #e6e9ef,
+    layer-three: #dce0e8,
+    layer-four: #bcc0cc,
+    alt-layer-one: #cdd6f4,
+    alt-layer-two: #bac2de,
+    alt-layer-three: #a6adc8,
+    alt-layer-four: #9399b2
+);
+
+$catppuccin-light-text: (
+    default-attribute-title-color: #6c6f85,
+    default-button-text-color: #eff1f5,
+    default-text-color: #4c4f69,
+    default-alt-text-color: #5c5f77,
+    default-link-color: #8839ef,
+    default-link-hover-color: #d20f39,
+    inverted-text-color: #eff1f5,
+    inverted-alt-text-color: #e6e9ef
+);
+
+$catppuccin-light-navigation: (
+    side-navigation-bg-color: #4c4f69,
+    side-navigation-text-color: #eff1f5,
+    side-navigation-link-color: #eff1f5,
+    side-navigation-link-hover-color: #cba6f7,
+    top-navigation-bg-color: #eff1f5,
+    top-navigation-text-color: #4c4f69,
+    top-navigation-link-color: #8839ef,
+    top-navigation-link-hover-color: #d20f39,
+    footer-bg-color: #e6e9ef,
+    footer-text-color: #4c4f69,
+    footer-link-color: #8839ef,
+    footer-link-hover-color: #d20f39
+);
+
+$catppuccin-light-table: (
+    table-row-color: #eff1f5,
+    table-row-alt-color: #e6e9ef,
+    table-row-hover-color: #dce0e8
+);
+
+:root {
+    @each $name, $value in $catppuccin-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $catppuccin-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $catppuccin-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $catppuccin-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $catppuccin-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #dce0e8;
+    --bs-border-color: #dce0e8;
+    --app-border-translucent-light: rgba(188, 192, 204, 0.175);
+    --app-focus-ring-primary: rgba(136, 57, 239, 0.25);
+}

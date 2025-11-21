@@ -1,18 +1,1 @@
-.theme-toggle {
-    background: var(--app-layer-one);
-    border: 1px solid var(--app-secondary-soft);
-    color: var(--app-default-text-color);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.theme-toggle:hover {
-    transform: scale(1.1);
-    background: var(--app-layer-two);
-}
+.theme-toggle{background:var(--app-layer-one);border:1px solid var(--app-secondary-soft);color:var(--app-default-text-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s ease}.theme-toggle:hover{transform:scale(1.1);background:var(--app-layer-two)}

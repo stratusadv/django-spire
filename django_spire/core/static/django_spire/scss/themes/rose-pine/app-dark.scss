@@ -1,0 +1,101 @@
+$rosepine-dark-colors: (
+    primary: #c4a7e7,
+    primary-soft: #26202f,
+    primary-dark: #907aa9,
+    secondary: #908caa,
+    secondary-soft: #3a3649,
+    secondary-dark: #6e6a86,
+    accent: #eb6f92,
+    accent-soft: #2f2026,
+    accent-dark: #b4637a,
+    success: #31748f,
+    success-soft: #1a2c35,
+    success-dark: #286983,
+    warning: #f6c177,
+    warning-soft: #3d3319,
+    warning-dark: #ea9d34,
+    danger: #eb6f92,
+    danger-soft: #2f2026,
+    danger-dark: #b4637a
+);
+
+$rosepine-dark-layers: (
+    layer-one: #1f1d2e,
+    layer-two: #26233a,
+    layer-three: #403d52,
+    layer-four: #6e6a86,
+    alt-layer-one: #191724,
+    alt-layer-two: #21202e,
+    alt-layer-three: #393748,
+    alt-layer-four: #524f67
+);
+
+$rosepine-dark-text: (
+    default-attribute-title-color: #e0def4,
+    default-button-text-color: #191724,
+    default-text-color: #e0def4,
+    default-alt-text-color: #c4c1d4,
+    default-link-color: #c4a7e7,
+    default-link-hover-color: #eb6f92,
+    inverted-text-color: #191724,
+    inverted-alt-text-color: #26233a
+);
+
+$rosepine-dark-navigation: (
+    side-navigation-bg-color: #1f1d2e,
+    side-navigation-text-color: #e0def4,
+    side-navigation-link-color: #e0def4,
+    side-navigation-link-hover-color: #c4a7e7,
+    top-navigation-bg-color: #1f1d2e,
+    top-navigation-text-color: #e0def4,
+    top-navigation-link-color: #c4a7e7,
+    top-navigation-link-hover-color: #eb6f92,
+    footer-bg-color: #1f1d2e,
+    footer-text-color: #e0def4,
+    footer-link-color: #c4a7e7,
+    footer-link-hover-color: #eb6f92
+);
+
+$rosepine-dark-table: (
+    table-row-color: #191724,
+    table-row-alt-color: #26233a,
+    table-row-hover-color: #403d52
+);
+
+$rosepine-dark-shadows: (
+    shadow-light: rgba(0, 0, 0, 0.3),
+    shadow-medium: rgba(0, 0, 0, 0.5),
+    shadow-heavy: rgba(0, 0, 0, 0.7),
+    shadow-navigation: rgba(0, 0, 0, 0.9)
+);
+
+[data-theme='dark'] {
+    @each $name, $value in $rosepine-dark-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-dark-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-dark-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-dark-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-dark-table {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $rosepine-dark-shadows {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #26233a;
+    --bs-border-color: #6e6a86;
+    --app-border-translucent-light: rgba(110, 106, 134, 0.3);
+    --app-focus-ring-primary: rgba(196, 167, 231, 0.25);
+}

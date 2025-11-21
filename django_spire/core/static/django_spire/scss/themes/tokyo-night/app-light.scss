@@ -1,0 +1,90 @@
+$tokyonight-light-colors: (
+    primary: #3d59a1,
+    primary-soft: #e1e2e7,
+    primary-dark: #2e4374,
+    secondary: #6f7bb6,
+    secondary-soft: #ececed,
+    secondary-dark: #5a6aa0,
+    accent: #f52a65,
+    accent-soft: #fde7ec,
+    accent-dark: #d91e56,
+    success: #587539,
+    success-soft: #e7ede0,
+    success-dark: #485e2f,
+    warning: #8c6c3e,
+    warning-soft: #f3efea,
+    warning-dark: #76542b,
+    danger: #f52a65,
+    danger-soft: #fde7ec,
+    danger-dark: #d91e56
+);
+
+$tokyonight-light-layers: (
+    layer-one: #d5d6db,
+    layer-two: #dfe0e5,
+    layer-three: #e9eaef,
+    layer-four: #c4c8da,
+    alt-layer-one: #e1e2e7,
+    alt-layer-two: #ececed,
+    alt-layer-three: #f7f7f8,
+    alt-layer-four: #d6d6d8
+);
+
+$tokyonight-light-text: (
+    default-attribute-title-color: #6f7bb6,
+    default-button-text-color: #d5d6db,
+    default-text-color: #343b58,
+    default-alt-text-color: #4c505e,
+    default-link-color: #3d59a1,
+    default-link-hover-color: #f52a65,
+    inverted-text-color: #d5d6db,
+    inverted-alt-text-color: #dfe0e5
+);
+
+$tokyonight-light-navigation: (
+    side-navigation-bg-color: #343b58,
+    side-navigation-text-color: #d5d6db,
+    side-navigation-link-color: #d5d6db,
+    side-navigation-link-hover-color: #7aa2f7,
+    top-navigation-bg-color: #d5d6db,
+    top-navigation-text-color: #343b58,
+    top-navigation-link-color: #3d59a1,
+    top-navigation-link-hover-color: #f52a65,
+    footer-bg-color: #dfe0e5,
+    footer-text-color: #343b58,
+    footer-link-color: #3d59a1,
+    footer-link-hover-color: #f52a65
+);
+
+$tokyonight-light-table: (
+    table-row-color: #d5d6db,
+    table-row-alt-color: #dfe0e5,
+    table-row-hover-color: #e9eaef
+);
+
+:root {
+    @each $name, $value in $tokyonight-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $tokyonight-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #dfe0e5;
+    --bs-border-color: #e9eaef;
+    --app-border-translucent-light: rgba(196, 200, 218, 0.175);
+    --app-focus-ring-primary: rgba(61, 89, 161, 0.25);
+}

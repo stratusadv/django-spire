@@ -1,0 +1,90 @@
+$palenight-light-colors: (
+    primary: #4A90E2,
+    primary-soft: #f0f4ff,
+    primary-dark: #2971cc,
+    secondary: #8087a2,
+    secondary-soft: #f5f6f9,
+    secondary-dark: #676e95,
+    accent: #F76D47,
+    accent-soft: #fff4f1,
+    accent-dark: #e55100,
+    success: #7CB342,
+    success-soft: #f1f8e9,
+    success-dark: #558b2f,
+    warning: #FB8C00,
+    warning-soft: #fff8e1,
+    warning-dark: #e65100,
+    danger: #E53935,
+    danger-soft: #ffebee,
+    danger-dark: #c62828
+);
+
+$palenight-light-layers: (
+    layer-one: #fafafa,
+    layer-two: #f5f6f9,
+    layer-three: #eeeff2,
+    layer-four: #d3d7e3,
+    alt-layer-one: #ffffff,
+    alt-layer-two: #fcfcfd,
+    alt-layer-three: #f8f9fc,
+    alt-layer-four: #f0f1f5
+);
+
+$palenight-light-text: (
+    default-attribute-title-color: #8087a2,
+    default-button-text-color: #fafafa,
+    default-text-color: #4e5579,
+    default-alt-text-color: #676e95,
+    default-link-color: #4A90E2,
+    default-link-hover-color: #7986CB,
+    inverted-text-color: #fafafa,
+    inverted-alt-text-color: #f5f6f9
+);
+
+$palenight-light-navigation: (
+    side-navigation-bg-color: #4e5579,
+    side-navigation-text-color: #fafafa,
+    side-navigation-link-color: #fafafa,
+    side-navigation-link-hover-color: #82aaff,
+    top-navigation-bg-color: #fafafa,
+    top-navigation-text-color: #4e5579,
+    top-navigation-link-color: #4A90E2,
+    top-navigation-link-hover-color: #7986CB,
+    footer-bg-color: #f5f6f9,
+    footer-text-color: #4e5579,
+    footer-link-color: #4A90E2,
+    footer-link-hover-color: #7986CB
+);
+
+$palenight-light-table: (
+    table-row-color: #fafafa,
+    table-row-alt-color: #f5f6f9,
+    table-row-hover-color: #eeeff2
+);
+
+:root {
+    @each $name, $value in $palenight-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $palenight-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $palenight-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $palenight-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $palenight-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #e9eaef;
+    --bs-border-color: #eeeff2;
+    --app-border-translucent-light: rgba(211, 215, 227, 0.175);
+    --app-focus-ring-primary: rgba(74, 144, 226, 0.25);
+}

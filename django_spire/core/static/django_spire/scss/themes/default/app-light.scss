@@ -1,0 +1,101 @@
+$default-light-colors: (
+    primary: #0097c9,
+    primary-soft: #e6f7fd,
+    primary-dark: #007ba3,
+    secondary: #797c7d,
+    secondary-soft: #f5f5f6,
+    secondary-dark: #5c5f60,
+    accent: #0097c9,
+    accent-soft: #e6f7fd,
+    accent-dark: #007ba3,
+    success: #059669,
+    success-soft: #ecfdf5,
+    success-dark: #047857,
+    warning: #d97706,
+    warning-soft: #fffbeb,
+    warning-dark: #b45309,
+    danger: #dc2626,
+    danger-soft: #fef2f2,
+    danger-dark: #b91c1c
+);
+
+$default-light-layers: (
+    layer-one: #ffffff,
+    layer-two: #fafafa,
+    layer-three: #f5f5f6,
+    layer-four: #ededee,
+    alt-layer-one: #ffffff,
+    alt-layer-two: #fefefe,
+    alt-layer-three: #fcfcfc,
+    alt-layer-four: #f8f9fa
+);
+
+$default-light-text: (
+    default-attribute-title-color: #797c7d,
+    default-button-text-color: #ffffff,
+    default-text-color: #181818,
+    default-alt-text-color: #5c5f60,
+    default-link-color: #0097c9,
+    default-link-hover-color: #007ba3,
+    inverted-text-color: #ffffff,
+    inverted-alt-text-color: #fafafa
+);
+
+$default-light-navigation: (
+    side-navigation-bg-color: #181818,
+    side-navigation-text-color: #ffffff,
+    side-navigation-link-color: #ffffff,
+    side-navigation-link-hover-color: #0097c9,
+    top-navigation-bg-color: #ffffff,
+    top-navigation-text-color: #181818,
+    top-navigation-link-color: #0097c9,
+    top-navigation-link-hover-color: #007ba3,
+    footer-bg-color: #f5f5f6,
+    footer-text-color: #181818,
+    footer-link-color: #0097c9,
+    footer-link-hover-color: #007ba3
+);
+
+$default-light-table: (
+    table-row-color: #ffffff,
+    table-row-alt-color: #fafafa,
+    table-row-hover-color: #f5f5f6
+);
+
+$default-light-shadows: (
+    shadow-light: rgba(24, 24, 24, 0.1),
+    shadow-medium: rgba(24, 24, 24, 0.15),
+    shadow-heavy: rgba(24, 24, 24, 0.25),
+    shadow-navigation: rgba(24, 24, 24, 0.3)
+);
+
+:root {
+    @each $name, $value in $default-light-colors {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-light-layers {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-light-text {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-light-navigation {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-light-table {
+        --app-#{$name}: #{$value};
+    }
+
+    @each $name, $value in $default-light-shadows {
+        --app-#{$name}: #{$value};
+    }
+
+    --app-card-header: #f5f5f6;
+    --bs-border-color: #ededee;
+    --app-border-translucent-light: rgba(121, 124, 125, 0.175);
+    --app-focus-ring-primary: rgba(0, 151, 201, 0.25);
+}
