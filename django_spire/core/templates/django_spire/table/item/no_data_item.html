@@ -1,0 +1,11 @@
+<tbody x-show="!is_loading && !is_refreshing && loaded_count === 0 && total_count === 0" x-transition style="display: none;">
+    <tr>
+        <td class="text-center text-app-secondary py-4" x-effect="$el.setAttribute('colspan', column_count)">
+            <span class="fs-6">
+                {% block table_no_data %}
+                    No data available
+                {% endblock %}
+            </span>
+        </td>
+    </tr>
+</tbody>

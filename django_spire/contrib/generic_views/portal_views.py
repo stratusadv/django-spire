@@ -288,9 +288,10 @@ def table_view(
     page_size = (
         context_data.get('page_size')
         if 'page_size' in context_data
-        else int(request.GET.get('page_size', default_page_size))
+        else request.GET.get('page_size', default_page_size)
     )
 
+    page_size = int(page_size)
     offset = (page - 1) * page_size
 
     total_count = queryset.count()

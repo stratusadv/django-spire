@@ -32,7 +32,7 @@
     </div>
 
     <div class="ms-4 mt-2" x-show="is_open" x-cloak>
-        {% url 'tabular:template:task_detail_rows' task_id=row.task.pk as child_endpoint %}
+        {% url 'tabular:template:detail_rows' task_id=row.task.pk as child_endpoint %}
         {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint %}
     </div>
 </div>

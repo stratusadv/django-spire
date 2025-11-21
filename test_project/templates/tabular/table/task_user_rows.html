@@ -1,5 +1,0 @@
-<div class="bg-app-layer-one px-3 py-4">
-    {% for task_user in task_users %}
-        {% include 'tabular/table/task_user_row.html' with row=task_user is_last=forloop.last total_count=task_users|length %}
-    {% endfor %}
-</div>

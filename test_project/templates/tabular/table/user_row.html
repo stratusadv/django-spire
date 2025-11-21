@@ -40,7 +40,7 @@
     </div>
 
     <div class="ms-4 mt-2" x-show="is_open" x-cloak>
-        {% url 'tabular:template:task_user_detail_rows' user_id=row.user.pk as child_endpoint %}
+        {% url 'tabular:template:user_detail_rows' user_id=row.user.pk as child_endpoint %}
         {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint %}
     </div>
 </div>

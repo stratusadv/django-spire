@@ -24,6 +24,7 @@
         select_all: false,
         selected_rows: new Set(),
         skeleton_count: 0,
+        prevent_auto_load: false,
 
         {% block table_xdata %}{% endblock %}
 
@@ -72,7 +73,7 @@
         async check_container_height() {
             let table_container = this.$refs.table_container;
 
-            if (table_container && this.has_next && !this.is_refreshing) {
+            if (table_container && this.has_next && !this.is_refreshing && !this.prevent_auto_load) {
                 if (table_container.scrollHeight <= table_container.clientHeight) {
                     await this.load_more();
                 }
@@ -216,9 +217,10 @@
                 return;
             }
 
-            this.skeleton_count = this.loaded_count > 0 ? this.loaded_count : this.skeleton_row;
-
+            this.disconnect_observer();
+            this.prevent_auto_load = true;
             this.is_refreshing = true;
+            this.select_all = false;
             await this.$nextTick();
 
             this.reset_table_state();
@@ -226,14 +228,18 @@
             let result = await this.fetch_rows(1);
             this.update_counts_after_refresh(result);
 
-            this.disconnect_observer();
+            await this.$nextTick();
+            await new Promise(resolve => setTimeout(resolve, 150));
+            this.is_refreshing = false;
 
             if (this.has_next) {
-                setTimeout(() => this.setup_observer(), 100);
+                setTimeout(() => {
+                    this.setup_observer();
+                    setTimeout(() => {
+                        this.prevent_auto_load = false;
+                    }, 100);
+                }, 500);
             }
-
-            this.is_refreshing = false;
-            this.skeleton_count = this.skeleton_row;
         },
 
         reset_scroll_position() {
@@ -266,7 +272,7 @@
             this.observer = new IntersectionObserver(
                 (entries) => {
                     entries.forEach(async entry => {
-                        if (entry.isIntersecting && this.has_next && !this.is_loading) {
+                        if (entry.isIntersecting && this.has_next && !this.is_loading && !this.prevent_auto_load) {
                             await this.load_more();
                         }
                     });
@@ -319,7 +325,7 @@
     {% block table_container %}
         <div
             class="position-relative table-container"
-            style="max-height: {{ table_height|default:'600px' }}; overflow-y: auto; overflow-x: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+            style="height: {{ table_height|default:'600px' }}; overflow-y: auto; overflow-x: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
             x-ref="table_container"
             :data-table-id="table_id"
         >
@@ -337,6 +343,7 @@
                                 <th style="min-width: 30px; width: 30px;">
                                     <input
                                         :checked="select_all"
+                                        :disabled="is_refreshing || is_loading"
                                         @change="handle_toggle_all()"
                                         type="checkbox"
                                     >
@@ -358,10 +365,18 @@
                     {% include 'django_spire/table/element/refreshing_skeleton.html' %}
                 {% endblock %}
 
-                <tbody x-ref="table_body" x-show="!is_refreshing" :data-table-id="table_id">
+                <tbody
+                    x-ref="table_body"
+                    x-show="!is_refreshing"
+                    :data-table-id="table_id"
+                >
                     {% block table_body %}
                     {% endblock %}
                 </tbody>
+
+                {% block no_data_item %}
+                    {% include 'django_spire/table/item/no_data_item.html' %}
+                {% endblock %}
 
                 {% block loading_skeleton %}
                     {% include 'django_spire/table/element/loading_skeleton.html' %}

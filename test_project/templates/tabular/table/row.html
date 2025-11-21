@@ -27,6 +27,6 @@
 {% endblock %}
 
 {% block child_row %}
-    {% url 'tabular:template:task_user_rows' task_id=row.pk as child_endpoint %}
+    {% url 'tabular:template:user_rows' task_id=row.pk as child_endpoint %}
     {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint %}
 {% endblock %}

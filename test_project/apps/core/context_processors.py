@@ -33,6 +33,6 @@ def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'QuerySet Filtering', 'icon': 'bi bi-filter', 'url': reverse('queryset_filtering:page:list')},
             {'title': 'Wizard', 'icon': 'bi bi-magic', 'url': reverse('wizard:home')},
             {'heading': 'Examples'},
-            {'title': 'Tabular', 'icon': 'bi bi-table', 'url': reverse('tabular:page:table')},
+            {'title': 'Tabular', 'icon': 'bi bi-table', 'url': reverse('tabular:page:list')},
         ]
     }

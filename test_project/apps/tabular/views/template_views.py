@@ -42,7 +42,7 @@ def migration_rows_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-def task_detail_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
+def detail_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
     task = get_object_or_404(Task, id=task_id)
 
     context_data = {
@@ -52,11 +52,11 @@ def task_detail_rows_view(request: WSGIRequest, task_id: int) -> TemplateRespons
     return TemplateResponse(
         request,
         context=context_data,
-        template='tabular/table/task_detail_rows.html'
+        template='tabular/table/detail_rows.html'
     )
 
 
-def task_rows_view(request: WSGIRequest) -> TemplateResponse:
+def rows_view(request: WSGIRequest) -> TemplateResponse:
     sort_column = request.GET.get('sort', 'name')
     sort_direction = request.GET.get('direction', 'asc')
 
@@ -80,11 +80,11 @@ def task_rows_view(request: WSGIRequest) -> TemplateResponse:
         request,
         queryset=tasks,
         queryset_name='tasks',
-        template='tabular/table/task_rows.html'
+        template='tabular/table/rows.html'
     )
 
 
-def task_user_detail_rows_view(request: WSGIRequest, user_id: int) -> TemplateResponse:
+def user_detail_rows_view(request: WSGIRequest, user_id: int) -> TemplateResponse:
     user = get_object_or_404(User, id=user_id)
 
     task_users = (
@@ -103,11 +103,11 @@ def task_user_detail_rows_view(request: WSGIRequest, user_id: int) -> TemplateRe
     return TemplateResponse(
         request,
         context=context_data,
-        template='tabular/table/task_user_detail_rows.html'
+        template='tabular/table/user_detail_rows.html'
     )
 
 
-def task_user_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
+def user_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
     task = get_object_or_404(
         Task.objects.prefetch_related('users', 'users__user'),
         id=task_id
@@ -129,5 +129,5 @@ def task_user_rows_view(request: WSGIRequest, task_id: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context_data,
-        template='tabular/table/task_user_rows.html'
+        template='tabular/table/user_rows.html'
     )
