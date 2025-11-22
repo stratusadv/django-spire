@@ -3,7 +3,7 @@
         x-data="{
             init() {
                 let table_id = this.$el.closest('[data-table-id]').dataset.tableId;
-                this.$dispatch('total-count-updated', { total_count: {{ total_count }}, table_id: table_id });
+                this.$dispatch('total-count-updated', { total_count: {{ total_count }}, batch_size: {{ batch_size|default:25 }}, table_id: table_id });
             }
         }"
         style="display: none;"
@@ -80,28 +80,8 @@
     {% block table_cells %}{% endblock %}
 </tr>
 
-<tr
-    class="align-middle"
-    x-data="{
-        row_id: '{{ row.pk }}',
-        table_id: null,
-        is_open: false,
-
-        init() {
-            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
-        },
-
-        handle_toggle_row_state(event) {
-            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
-                this.is_open = event.detail.is_open;
-            }
-        }
-    }"
-    @toggle-row-state.window="handle_toggle_row_state($event)"
->
+<tr class="align-middle">
     <td class="p-0" x-effect="$el.setAttribute('colspan', column_count)">
-        <div x-show="is_open" x-cloak>
-            {% block child_row %}{% endblock %}
-        </div>
+        {% block child_row %}{% endblock %}
     </td>
 </tr>

@@ -281,22 +281,22 @@ def table_view(
     if context_data is None:
         context_data = {}
 
-    default_page_size = 25
+    default_batch_size = 25
 
     page = int(request.GET.get('page', 1))
 
-    page_size = (
-        context_data.get('page_size')
-        if 'page_size' in context_data
-        else request.GET.get('page_size', default_page_size)
+    batch_size = (
+        context_data.get('batch_size')
+        if 'batch_size' in context_data
+        else request.GET.get('batch_size', default_batch_size)
     )
 
-    page_size = int(page_size)
-    offset = (page - 1) * page_size
+    batch_size = int(batch_size)
+    offset = (page - 1) * batch_size
 
     total_count = queryset.count()
-    object_list = queryset[offset:offset + page_size]
-    has_next = offset + page_size < total_count
+    object_list = queryset[offset:offset + batch_size]
+    has_next = offset + batch_size < total_count
 
     base_context_data = {
         queryset_name: object_list,

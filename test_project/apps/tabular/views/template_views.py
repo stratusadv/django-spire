@@ -76,8 +76,11 @@ def rows_view(request: WSGIRequest) -> TemplateResponse:
         .sort_by_column(sort_column, sort_direction)
     )
 
+    context_data = {'batch_size': 10}
+
     return table_view(
         request,
+        context_data=context_data,
         queryset=tasks,
         queryset_name='tasks',
         template='tabular/table/rows.html'

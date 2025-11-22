@@ -1,46 +1,20 @@
-<div
-    class="ps-4 {% if total_count > 1 and not is_last %}border-bottom pb-3 mb-3{% endif %}"
-    data-row-id="{{ row.pk }}"
-    x-data="{
-        row_id: '{{ row.pk }}',
-        table_id: null,
-        is_open: false,
-        has_children: true,
+{% extends 'django_spire/table/element/expandable_row.html' %}
 
-        init() {
-            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
-        },
+{% block row_header %}
+    <i class="bi bi-arrow-return-right text-muted"></i>
+    <strong>{{ row.user.get_full_name|default:row.user.username }}</strong>
+    <span class="badge bg-secondary">{{ row.get_role_display }}</span>
+{% endblock %}
 
-        handle_toggle_row_state(event) {
-            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
-                this.is_open = event.detail.is_open;
-            }
-        }
-    }"
-    @toggle-row-state.window="handle_toggle_row_state($event)"
->
-    <div class="d-flex align-items-center gap-2">
-        <template x-if="has_children">
-            <i
-                :class="is_open ? 'bi-chevron-down' : 'bi-chevron-right'"
-                @click="$dispatch('toggle-row', { row_id: row_id, table_id: table_id })"
-                class="bi cursor-pointer text-primary"
-            ></i>
-        </template>
-
-        <i class="bi bi-arrow-return-right text-muted"></i>
-        <strong>{{ row.user.get_full_name|default:row.user.username }}</strong>
-        <span class="badge bg-secondary">{{ row.get_role_display }}</span>
-    </div>
-
+{% block row_content %}
     <div class="ms-4 small text-muted">
         <div class="d-none d-lg-block">Price: ${{ row.calculated_price|floatformat:2 }}</div>
         <div>Cost: ${{ row.calculated_cost|floatformat:2 }}</div>
         <div class="d-none d-md-block">{{ row.created_datetime|date:"M d, Y" }}</div>
     </div>
+{% endblock %}
 
-    <div class="ms-4 mt-2" x-show="is_open" x-cloak>
-        {% url 'tabular:template:user_detail_rows' user_id=row.user.pk as child_endpoint %}
-        {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint %}
-    </div>
-</div>
+{% block child_row %}
+    {% url 'tabular:template:user_detail_rows' user_id=row.user.pk as child_endpoint %}
+    {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint wrapper_class='ms-4 mt-2' %}
+{% endblock %}
