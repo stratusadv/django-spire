@@ -18,7 +18,7 @@
         table_id: null,
         is_checked: false,
         is_open: false,
-        has_children: {% block row_has_children %}false{% endblock %},
+        has_children: false,
 
         init() {
             this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
@@ -32,6 +32,12 @@
                 this.$dispatch('row-selected', { row_id: this.row_id, table_id: this.table_id });
             } else {
                 this.$dispatch('row-deselected', { row_id: this.row_id, table_id: this.table_id });
+            }
+        },
+
+        handle_child_registered(event) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
+                this.has_children = true;
             }
         },
 
@@ -55,6 +61,7 @@
             }
         },
     }"
+    @child-registered.window="handle_child_registered($event)"
     @deselect-all-rows.window="handle_deselect_all_rows($event)"
     @select-all-rows.window="handle_select_all_rows($event)"
     @toggle-row-state.window="handle_toggle_row_state($event)"
@@ -80,7 +87,7 @@
     {% block table_cells %}{% endblock %}
 </tr>
 
-<tr class="align-middle">
+<tr class="align-middle" data-row-id="{{ row.pk }}">
     <td class="p-0" x-effect="$el.setAttribute('colspan', column_count)">
         {% block child_row %}{% endblock %}
     </td>

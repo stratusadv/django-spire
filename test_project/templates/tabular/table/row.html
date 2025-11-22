@@ -1,7 +1,5 @@
 {% extends 'django_spire/table/element/row.html' %}
 
-{% block row_has_children %}{{ row.user_count|default:0 }} > 0{% endblock %}
-
 {% block table_cells %}
     <td width="40%">
         <div class="fw-medium">{{ row.name|truncatechars:75 }}</div>
@@ -27,6 +25,8 @@
 {% endblock %}
 
 {% block child_row %}
-    {% url 'tabular:template:user_rows' task_id=row.pk as child_endpoint %}
-    {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint %}
+    {% if row.user_count %}
+        {% url 'tabular:template:user_rows' task_id=row.pk as child_endpoint %}
+        {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint %}
+    {% endif %}
 {% endblock %}

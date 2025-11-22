@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block child_row %}
-    {% url 'tabular:template:detail_rows' task_id=row.task.pk as child_endpoint %}
-    {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint wrapper_class='ms-4 mt-2' %}
+    {% if row.task %}
+        {% url 'tabular:template:detail_rows' task_id=row.task.pk as child_endpoint %}
+        {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint wrapper_class='ms-4 mt-2' %}
+    {% endif %}
 {% endblock %}

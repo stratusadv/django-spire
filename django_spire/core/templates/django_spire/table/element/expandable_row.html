@@ -1,14 +1,21 @@
 <div
     class="{% block row_class %}{% endblock %}"
-    data-row-id="{{ row.pk }}"
     x-data="{
-        row_id: '{{ row.pk }}',
+        row_id: null,
         table_id: null,
         is_open: false,
-        has_children: {% block row_has_children %}true{% endblock %},
+        has_children: false,
 
         init() {
+            this.row_id = this.$id('expandable-row');
+            this.$el.setAttribute('data-row-id', this.row_id);
             this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+        },
+
+        handle_child_registered(event) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
+                this.has_children = true;
+            }
         },
 
         handle_toggle_row_state(event) {
@@ -17,6 +24,7 @@
             }
         }
     }"
+    @child-registered.window="handle_child_registered($event)"
     @toggle-row-state.window="handle_toggle_row_state($event)"
 >
     <div class="d-flex align-items-center gap-2">

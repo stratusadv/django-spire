@@ -4,13 +4,21 @@
         is_loading: false,
         is_open: false,
         has_loaded: false,
-        row_id: '{{ row.pk }}',
+        row_id: null,
         endpoint: '{{ child_endpoint }}',
         table_id: null,
 
         init() {
             this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
-            this.$dispatch('child-registered', { row_id: this.row_id, table_id: this.table_id });
+
+            let parent = this.$el.closest('[data-row-id]');
+            this.row_id = parent ? parent.dataset.rowId : null;
+
+            this.$nextTick(() => {
+                if (this.row_id) {
+                    this.$dispatch('child-registered', { row_id: this.row_id, table_id: this.table_id });
+                }
+            });
         },
 
         async load_children() {
