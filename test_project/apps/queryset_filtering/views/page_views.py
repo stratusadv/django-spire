@@ -1,14 +1,15 @@
+import django_glue as dg
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
-import django_glue as dg
-
 from django_spire.contrib.session.controller import SessionController
 from test_project.apps.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
-from test_project.apps.queryset_filtering.models import Task
 from test_project.apps.queryset_filtering.forms import TaskListFilterForm
+from test_project.apps.queryset_filtering.models import Task
 
 
+@login_required
 def list_page(request):
 
     """

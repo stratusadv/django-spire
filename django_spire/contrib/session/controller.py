@@ -75,7 +75,6 @@ class SessionController:
         self._set_modified()
 
     def _clean(self) -> None:
-
         if self._TIMEOUT_KEY in self.data and self.is_expired:
             self.request.session.pop(self.session_key)
             self._set_modified()

@@ -1,7 +1,6 @@
-from enum import Enum
+from enum import StrEnum
 
 
-# Todo: Change to string enum
-class SessionFilterActionEnum(Enum):
+class SessionFilterActionEnum(StrEnum):
     CLEAR = 'Clear'
     FILTER = 'Filter'

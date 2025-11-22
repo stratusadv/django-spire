@@ -22,24 +22,35 @@ class SessionFilterQuerySetMixin(QuerySet):
     ) -> QuerySet:
         # Session keys must match to process new queryset data
 
-        action = request.GET.get('action')
+        try:
+            action = SessionFilterActionEnum(request.GET.get('action'))
+        except ValueError:
+            action = None
+
         form = form_class(request.GET)
 
         if form.is_valid():
             session = SessionController(request=request, session_key=session_key)
 
-            # Todo: Change actions into an enum
-            if action == SessionFilterActionEnum.CLEAR.value:
+            if action == SessionFilterActionEnum.CLEAR:
                 session.purge()
                 return self
 
-            # The user has submitted the filter form
-            if action == SessionFilterActionEnum.FILTER.value and session_key == request.GET.get('session_filter_key'):
-
+            # Apply filters when the user submits the filter form
+            if (
+                    action == SessionFilterActionEnum.FILTER
+                    and session_key == request.GET.get('session_filter_key')
+            ):
                 # Update session data
                 for key, value in form.cleaned_data.items():
                     session.add_data(key, value)
 
+            # If the session is expired, return the unfiltered queryset
+            if session.is_expired:
+                return self
+
+            # When no new filter data is applied and session is NOT yet expired,
+            # return the original queryset
             return self.bulk_filter(session.data)
         else:
             show_form_errors(request, form)
