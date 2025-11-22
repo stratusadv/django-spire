@@ -15,7 +15,9 @@
     {% block table_xdata %}{% endblock %}
 
     apply_column_breakpoints(row_element) {
-        if (this.responsive_mode !== 'collapse') return;
+        if (this.responsive_mode !== 'collapse') {
+            return;
+        }
 
         let cells = Array.from(row_element.children);
 
@@ -36,25 +38,6 @@
         this.column_breakpoints[event.detail.index] = event.detail.breakpoint;
     },
 
-    handle_item_mounted(event) {
-        // Override base - table uses row-mounted instead
-    },
-
-    handle_items_cleared() {
-        // Override base - table uses clear-rows instead
-    },
-
-    handle_total_count_updated(event) {
-        // Override base - table requires table_id match
-        if (event.detail.table_id === this.table_id) {
-            this.total_count = event.detail.total_count;
-
-            if (event.detail.batch_size) {
-                this.batch_size = event.detail.batch_size;
-            }
-        }
-    },
-
     handle_row_deselected(event) {
         if (event.detail.table_id === this.table_id) {
             this.selected_rows.delete(event.detail.row_id);
@@ -62,15 +45,17 @@
     },
 
     handle_row_mounted(event) {
-        if (event.detail.table_id === this.table_id) {
-            this.loaded_count++;
+        if (event.detail.table_id !== this.table_id) {
+            return;
+        }
 
-            if (event.detail.row_element) {
-                this.apply_column_breakpoints(event.detail.row_element);
+        this.loaded_count++;
 
-                if (this.average_row_height === 0) {
-                    this.average_row_height = event.detail.row_element.offsetHeight;
-                }
+        if (event.detail.row_element) {
+            this.apply_column_breakpoints(event.detail.row_element);
+
+            if (this.average_row_height === 0) {
+                this.average_row_height = event.detail.row_element.offsetHeight;
             }
         }
     },
@@ -81,10 +66,22 @@
         }
     },
 
-    handle_rows_cleared() {
+    handle_row_cleared() {
         this.loaded_count = 0;
         this.selected_rows.clear();
         this.select_all = false;
+    },
+
+    handle_table_total_count_updated(event) {
+        if (event.detail.table_id !== this.table_id) {
+            return;
+        }
+
+        this.total_count = event.detail.total_count;
+
+        if (event.detail.batch_size) {
+            this.batch_size = event.detail.batch_size;
+        }
     },
 
     handle_toggle_all() {
@@ -99,12 +96,18 @@
     },
 
     handle_toggle_row(event) {
-        if (event.detail.table_id === this.table_id) {
-            let row_id = event.detail.row_id;
-            this.is_row_open[row_id] = !this.is_row_open[row_id];
-
-            this.$dispatch('toggle-row-state', { row_id: row_id, is_open: this.is_row_open[row_id], table_id: this.table_id });
+        if (event.detail.table_id !== this.table_id) {
+            return;
         }
+
+        let row_id = event.detail.row_id;
+        this.is_row_open[row_id] = !this.is_row_open[row_id];
+
+        this.$dispatch('toggle-row-state', {
+            is_open: this.is_row_open[row_id],
+            row_id: row_id,
+            table_id: this.table_id
+        });
     },
 
     async refresh_table() {
@@ -112,35 +115,44 @@
     },
 {% endblock %}
 
+{% block handle_item_mounted %}
+    // Tables use row-mounted instead of item-mounted
+{% endblock %}
+
+{% block handle_item_cleared %}
+    // Tables use row-cleared instead of item-cleared
+{% endblock %}
+
+{% block handle_total_count_updated %}
+    // Tables use table-specific handler with table_id matching
+{% endblock %}
+
 {% block scroll_reset_state %}
-    this.loaded_count = 0;
     this.selected_rows.clear();
     this.select_all = false;
     this.is_row_open = {};
 {% endblock %}
 
-{% block scroll_init %}
-{% endblock %}
-
-{% block scroll_events %}
-    @clear-rows.window="if ($event.detail.table_id === table_id) handle_rows_cleared()"
+{% block scroll_event %}
     @header-mounted="handle_header_mounted($event)"
     @header-registered="handle_header_registered($event)"
     @row-deselected.window="handle_row_deselected($event)"
     @row-mounted.window="handle_row_mounted($event)"
     @row-selected.window="handle_row_selected($event)"
+    @row-cleared.window="if ($event.detail.table_id === table_id) handle_row_cleared()"
+    @table-total-count-updated.window="handle_table_total_count_updated($event)"
     @toggle-row.window="handle_toggle_row($event)"
 {% endblock %}
 
 {% block scroll_container %}
     <div
         class="position-relative table-container"
-        style="height: {{ table_height|default:'600px' }}; overflow-y: auto; overflow-x: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+        style="height: {{ table_height|default:'600px' }}; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
         x-ref="scroll_container"
         :data-table-id="table_id"
     >
         <table
-            class="table table-striped table-hover fs-7 w-100 {% block table_class %}{% endblock %}"
+            class="table table-hover table-striped fs-7 w-100 {% block table_class %}{% endblock %}"
             :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;')"
         >
             <thead class="z-1 {% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
@@ -153,7 +165,7 @@
                             <th style="min-width: 30px; width: 30px;">
                                 <input
                                     :checked="select_all"
-                                    :disabled="is_refreshing || is_loading"
+                                    :disabled="is_loading || is_refreshing"
                                     @change="handle_toggle_all()"
                                     type="checkbox"
                                 >
@@ -176,8 +188,7 @@
                 x-show="!is_refreshing"
                 :data-table-id="table_id"
             >
-                {% block table_body %}
-                {% endblock %}
+                {% block table_body %}{% endblock %}
             </tbody>
 
             {% block refreshing_skeleton %}
@@ -186,6 +197,10 @@
 
             {% block loading_skeleton %}
                 {% include 'django_spire/table/element/loading_skeleton.html' %}
+            {% endblock %}
+
+            {% block no_data %}
+                {% include 'django_spire/table/item/no_data_item.html' %}
             {% endblock %}
         </table>
 
@@ -196,5 +211,19 @@
 {% endblock %}
 
 {% block scroll_footer %}
-    {% include 'django_spire/table/element/footer.html' %}
+    <div class="row mt-3">
+        <div class="col text-start">
+            <span class="fs-7 text-app-secondary">
+                Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> rows
+            </span>
+        </div>
+
+        <div class="col-auto text-end">
+            <span class="fs-7 text-app-secondary" x-cloak x-show="selected_rows.size > 0">
+                <span x-text="selected_rows.size"></span> selected
+            </span>
+
+            {% block footer_table_action %}{% endblock %}
+        </div>
+    </div>
 {% endblock %}

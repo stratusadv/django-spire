@@ -1,30 +1,18 @@
 <div
-    class="position-relative"
-    style="height: {{ scroll_height|default:'300px' }};"
     x-data="{
         batch_size: 25,
         current_page: 0,
         endpoint: '',
         has_next: true,
+        scroll_id: null,
         total_count: 0,
 
         is_loading: false,
         loaded_count: 0,
         observer: null,
 
-        handle_item_mounted(event) {
-            this.loaded_count++;
-        },
-
-        handle_total_count_updated(event) {
-            this.total_count = event.detail.total_count;
-
-            if (event.detail.batch_size) {
-                this.batch_size = event.detail.batch_size;
-            }
-        },
-
         async init() {
+            this.scroll_id = $id('scroll');
             this.endpoint = this.$el.dataset.endpoint || '';
             this.batch_size = parseInt(this.$el.dataset.batchSize || '25');
 
@@ -38,6 +26,25 @@
 
             if (this.has_next) {
                 setTimeout(() => this.setup_observer(), 500);
+            }
+        },
+
+        handle_item_mounted(event) {
+            if (event.detail.scroll_id && event.detail.scroll_id !== this.scroll_id) {
+                return;
+            }
+            this.loaded_count++;
+        },
+
+        handle_total_count_updated(event) {
+            if (event.detail.scroll_id && event.detail.scroll_id !== this.scroll_id) {
+                return;
+            }
+
+            this.total_count = event.detail.total_count;
+
+            if (event.detail.batch_size) {
+                this.batch_size = event.detail.batch_size;
             }
         },
 
@@ -97,27 +104,38 @@
             this.observer.observe(trigger);
         },
     }"
-    data-endpoint="{{ endpoint }}"
     data-batch-size="{{ batch_size|default:25 }}"
+    data-endpoint="{{ endpoint }}"
+    :data-scroll-id="scroll_id"
     @item-mounted.window="handle_item_mounted($event)"
     @total-count-updated.window="handle_total_count_updated($event)"
 >
-    <div
-        class="h-100"
-        style="overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
-        x-ref="scroll_container"
-    >
-        <div x-ref="content_container"></div>
+    <div class="position-relative" style="height: {{ scroll_height|default:'300px' }};">
+        <div
+            class="h-100"
+            style="overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+            x-ref="scroll_container"
+        >
+            <div x-ref="content_container"></div>
 
-        <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
+            <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
+        </div>
+
+        <template x-if="is_loading">
+            <div
+                class="position-absolute d-flex justify-content-center align-items-center"
+                style="top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.7);"
+            >
+                <div class="spinner-border" role="status"></div>
+            </div>
+        </template>
     </div>
 
-    <template x-if="is_loading">
-        <div
-            class="position-absolute d-flex justify-content-center align-items-center"
-            style="top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.7);"
-        >
-            <div class="spinner-border" role="status"></div>
+    <div class="row mt-4">
+        <div class="col text-start">
+            <span class="small text-muted">
+                Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> items
+            </span>
         </div>
-    </template>
+    </div>
 </div>

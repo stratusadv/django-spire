@@ -2,17 +2,30 @@
     <div
         x-data="{
             init() {
-                this.$dispatch('total-count-updated', { total_count: {{ total_count|default:0 }}, batch_size: {{ batch_size|default:25 }} });
+                let scroll_container = this.$el.closest('[data-scroll-id]');
+                let scroll_id = scroll_container ? scroll_container.dataset.scrollId : null;
+
+                this.$dispatch('total-count-updated', {
+                    batch_size: {{ batch_size|default:25 }},
+                    scroll_id: scroll_id,
+                    total_count: {{ total_count|default:0 }}
+                });
             }
         }"
     ></div>
 {% endif %}
 
 <div
-    class="border-bottom pb-3 mb-3 {% block item_class %}{% endblock %}"
+    class="border-bottom mb-3 pb-3 {% block item_class %}{% endblock %}"
     x-data="{
         init() {
-            this.$dispatch('item-mounted', { item_element: this.$el });
+            let scroll_container = this.$el.closest('[data-scroll-id]');
+            let scroll_id = scroll_container ? scroll_container.dataset.scrollId : null;
+
+            this.$dispatch('item-mounted', {
+                item_element: this.$el,
+                scroll_id: scroll_id
+            });
         }
     }"
 >

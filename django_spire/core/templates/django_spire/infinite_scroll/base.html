@@ -17,27 +17,6 @@
         prevent_auto_load: false,
         skeleton_count: 0,
 
-        // Overridable handler(s) must come BEFORE scroll_xdata block
-        handle_item_mounted(event) {
-            this.loaded_count++;
-
-            if (event.detail.item_element && this.average_item_height === 0) {
-                this.average_item_height = event.detail.item_element.offsetHeight;
-            }
-        },
-
-        handle_items_cleared() {
-            this.loaded_count = 0;
-        },
-
-        handle_total_count_updated(event) {
-            this.total_count = event.detail.total_count;
-
-            if (event.detail.batch_size) {
-                this.batch_size = event.detail.batch_size;
-            }
-        },
-
         {% block scroll_xdata %}{% endblock %}
 
         async init() {
@@ -130,6 +109,32 @@
                 return 'bi-chevron-expand';
             }
             return this.sort_direction === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down';
+        },
+
+        handle_item_mounted(event) {
+            {% block handle_item_mounted %}
+                this.loaded_count++;
+
+                if (event.detail.item_element && this.average_item_height === 0) {
+                    this.average_item_height = event.detail.item_element.offsetHeight;
+                }
+            {% endblock %}
+        },
+
+        handle_item_cleared() {
+            {% block handle_item_cleared %}
+                this.loaded_count = 0;
+            {% endblock %}
+        },
+
+        handle_total_count_updated(event) {
+            {% block handle_total_count_updated %}
+                this.total_count = event.detail.total_count;
+
+                if (event.detail.batch_size) {
+                    this.batch_size = event.detail.batch_size;
+                }
+            {% endblock %}
         },
 
         async load_more() {
@@ -275,11 +280,11 @@
             }
         },
     }"
-    @clear-items.window="handle_items_cleared()"
     @filter-applied.window="refresh()"
     @item-mounted.window="handle_item_mounted($event)"
+    @item-cleared.window="handle_item_cleared()"
     @total-count-updated.window="handle_total_count_updated($event)"
-    {% block scroll_events %}{% endblock %}
+    {% block scroll_event %}{% endblock %}
 >
     <script type="application/json" x-ref="shared_payload">{% if shared_payload %}{{ shared_payload|safe }}{% else %}{}{% endif %}</script>
 
@@ -310,12 +315,6 @@
     {% endblock %}
 
     {% block scroll_footer %}
-        <div class="row mt-3">
-            <div class="col text-start">
-                <span class="fs-7 text-app-secondary">
-                    Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> items
-                </span>
-            </div>
-        </div>
+        {% include 'django_spire/infinite_scroll/element/footer.html' %}
     {% endblock %}
 </div>
