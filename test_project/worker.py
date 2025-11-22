@@ -47,7 +47,7 @@ wo.add_job(
     name="Convert Files to Model Objects",
     method=Entry.services.automation.convert_files_to_model_objects,
     group='Knowledge Base',
-    cron='* * * * 6'
+    cron='0 0 * * 6'
 )
 
 

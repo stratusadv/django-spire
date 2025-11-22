@@ -62,10 +62,10 @@ class MarkdownConverter(BaseConverter):
         return [
             models.EntryVersionBlock.services.factory.create_validated_block(
                 entry_version=self.entry_version,
-                block_type=MARKO_BLOCK_TYPE_TO_BLOCK_CHOICES[marko_block.__class__],
-                block_data=self._marko_block_to_editor_block_data_dict(marko_block),
-                block_order=order,
-                block_tunes={}
+                type=MARKO_BLOCK_TYPE_TO_BLOCK_CHOICES[marko_block.__class__],
+                data=self._marko_block_to_editor_block_data_dict(marko_block),
+                order=order,
+                tunes={}
             )
             for order, marko_block in enumerate(marko_blocks)
         ]

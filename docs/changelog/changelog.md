@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.22.2
+
+### Fixes
+- Fixed knowledge base file conversion bug.
+
 ## v0.22.1
 
 ### Fixes
