@@ -35,4 +35,3 @@ class Tag(models.Model):
         db_table = 'django_spire_core_tag'
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
-

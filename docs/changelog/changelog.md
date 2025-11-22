@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.22.1
+
+### Fixes
+
+- Fixed migration file issues with `django_spire_core` and sub-app `tag` model.
+
 ## v0.22.0
 
 ### Features
