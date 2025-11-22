@@ -1,0 +1,20 @@
+{% if forloop.first %}
+    <div
+        x-data="{
+            init() {
+                this.$dispatch('total-count-updated', { total_count: {{ total_count|default:0 }}, batch_size: {{ batch_size|default:25 }} });
+            }
+        }"
+    ></div>
+{% endif %}
+
+<div
+    class="border-bottom pb-3 mb-3 {% block item_class %}{% endblock %}"
+    x-data="{
+        init() {
+            this.$dispatch('item-mounted', { item_element: this.$el });
+        }
+    }"
+>
+    {% block item_content %}{% endblock %}
+</div>

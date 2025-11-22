@@ -7,4 +7,5 @@ app_name = 'page'
 
 urlpatterns = [
     path('list/', page_views.list_page, name='list'),
+    path('list/items/', page_views.list_items_view, name='list_items')
 ]

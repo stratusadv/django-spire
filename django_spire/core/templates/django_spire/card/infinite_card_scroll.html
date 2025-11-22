@@ -1,0 +1,129 @@
+<div
+    class="position-relative"
+    style="height: {{ scroll_height|default:'300px' }};"
+    x-data="{
+        batch_size: 25,
+        current_page: 0,
+        endpoint: '',
+        has_next: true,
+        total_count: 0,
+
+        is_loading: false,
+        loaded_count: 0,
+        observer: null,
+
+        handle_item_mounted(event) {
+            this.loaded_count++;
+        },
+
+        handle_total_count_updated(event) {
+            this.total_count = event.detail.total_count;
+
+            if (event.detail.batch_size) {
+                this.batch_size = event.detail.batch_size;
+            }
+        },
+
+        async init() {
+            this.endpoint = this.$el.dataset.endpoint || '';
+            this.batch_size = parseInt(this.$el.dataset.batchSize || '25');
+
+            await this.$nextTick();
+
+            if (this.$refs.scroll_container) {
+                this.$refs.scroll_container.scrollTop = 0;
+            }
+
+            await this.load_more();
+
+            if (this.has_next) {
+                setTimeout(() => this.setup_observer(), 500);
+            }
+        },
+
+        async load_more() {
+            if (!this.endpoint || this.is_loading) {
+                return;
+            }
+
+            this.is_loading = true;
+
+            let params = new URLSearchParams({
+                page: this.current_page + 1,
+                batch_size: this.batch_size
+            });
+
+            let url = `${this.endpoint}?${params}`;
+            let view = new ViewGlue(url, {});
+
+            let previous_count = this.loaded_count;
+
+            await view.render_insert_adjacent(this.$refs.content_container, {}, 'beforeend');
+
+            let added = this.loaded_count - previous_count;
+
+            if (added > 0) {
+                this.current_page++;
+            }
+
+            if (added < this.batch_size) {
+                this.has_next = false;
+                if (this.observer) {
+                    this.observer.disconnect();
+                }
+            }
+
+            this.is_loading = false;
+        },
+
+        setup_observer() {
+            let trigger = this.$refs.infinite_scroll_trigger;
+
+            if (!trigger) {
+                return;
+            }
+
+            this.observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(async entry => {
+                        if (entry.isIntersecting && this.has_next && !this.is_loading) {
+                            await this.load_more();
+                        }
+                    });
+                },
+                { root: null, rootMargin: '200px', threshold: 0.01 }
+            );
+
+            this.observer.observe(trigger);
+        },
+    }"
+    data-endpoint="{{ endpoint }}"
+    data-batch-size="{{ batch_size|default:25 }}"
+    @item-mounted.window="handle_item_mounted($event)"
+    @total-count-updated.window="handle_total_count_updated($event)"
+>
+    <div
+        class="h-100"
+        style="overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+        x-ref="scroll_container"
+    >
+        <div x-ref="content_container"></div>
+
+        <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
+    </div>
+
+    <template x-if="is_loading">
+        <div
+            class="position-absolute d-flex justify-content-center align-items-center"
+            style="top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.7);"
+        >
+            <div class="spinner-border" role="status"></div>
+        </div>
+    </template>
+
+    <div class="pt-2 text-end">
+        <span class="fs-7 text-app-secondary">
+            <span x-text="loaded_count"></span> of <span x-text="total_count"></span>
+        </span>
+    </div>
+</div>
