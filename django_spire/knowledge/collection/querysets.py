@@ -24,24 +24,21 @@ class CollectionQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
     def by_parent_id(self, parent_id: int) -> QuerySet[Collection]:
         return self.filter(parent_id=parent_id)
 
+    def by_parent_ids(self, parent_ids: list[int]) -> QuerySet[Collection]:
+        return self.filter(parent_id__in=parent_ids)
+
     def childless(self) -> QuerySet[Collection]:
         return self.annotate(child_count=Count('child')).filter(child_count=0)
 
-    def exclude_children(self, collection: Collection) -> QuerySet[Collection]:
-        descendant_ids = set()
-        current_level_ids = [collection.id]
+    def children(self, collection_id: int) -> QuerySet[Collection]:
+        return self.filter(
+            id__in=self.model.services.tool.get_children_ids(parent_id=collection_id)
+        )
 
-        while current_level_ids:
-            children = self.filter(parent_id__in=current_level_ids)
-            child_ids = list(children.values_list('id', flat=True))
-
-            if not child_ids:
-                break
-
-            descendant_ids.update(child_ids)
-            current_level_ids = child_ids
-
-        return self.exclude(id__in=descendant_ids)
+    def exclude_children(self, collection_id: int) -> QuerySet[Collection]:
+        return self.exclude(
+            id__in=self.model.services.tool.get_children_ids(parent_id=collection_id)
+        )
 
     def parentless(self) -> QuerySet[Collection]:
         return self.filter(parent_id__isnull=True)

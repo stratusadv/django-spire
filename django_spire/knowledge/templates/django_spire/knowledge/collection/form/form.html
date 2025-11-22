@@ -11,7 +11,6 @@
             await this.collection.get()
             this.collection.glue_fields.parent.choices = await this.collection_query_set.to_choices()
             this.collection.glue_fields.parent.label = 'Parent Collection'
-            console.log(this.collection.parent)
 
             if (!this.collection.parent) {
                 this.collection.parent = {{ collection_parent_pk|default:'null' }}
