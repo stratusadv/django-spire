@@ -1,0 +1,94 @@
+{% if forloop.first %}
+    <div
+        x-data="{
+            init() {
+                let table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+                this.$dispatch('total-count-updated', { total_count: {{ total_count }}, batch_size: {{ batch_size|default:25 }}, table_id: table_id });
+            }
+        }"
+        style="display: none;"
+    ></div>
+{% endif %}
+
+<tr
+    class="align-middle {% block unified_row_background_colour %}{% endblock %}"
+    data-row-id="{{ row.pk }}"
+    x-data="{
+        row_id: '{{ row.pk }}',
+        table_id: null,
+        is_checked: false,
+        is_open: false,
+        has_children: false,
+
+        init() {
+            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+            this.$dispatch('row-mounted', { row_id: this.row_id, row_element: this.$el, table_id: this.table_id });
+        },
+
+        handle_checkbox_change() {
+            this.is_checked = !this.is_checked;
+
+            if (this.is_checked) {
+                this.$dispatch('row-selected', { row_id: this.row_id, table_id: this.table_id });
+            } else {
+                this.$dispatch('row-deselected', { row_id: this.row_id, table_id: this.table_id });
+            }
+        },
+
+        handle_child_registered(event) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
+                this.has_children = true;
+            }
+        },
+
+        handle_deselect_all_rows(event) {
+            if (!event.detail || event.detail.table_id === this.table_id) {
+                this.is_checked = false;
+                this.$dispatch('row-deselected', { row_id: this.row_id, table_id: this.table_id });
+            }
+        },
+
+        handle_select_all_rows(event) {
+            if (!event.detail || event.detail.table_id === this.table_id) {
+                this.is_checked = true;
+                this.$dispatch('row-selected', { row_id: this.row_id, table_id: this.table_id });
+            }
+        },
+
+        handle_toggle_row_state(event) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
+                this.is_open = event.detail.is_open;
+            }
+        },
+    }"
+    @child-registered.window="handle_child_registered($event)"
+    @deselect-all-rows.window="handle_deselect_all_rows($event)"
+    @select-all-rows.window="handle_select_all_rows($event)"
+    @toggle-row-state.window="handle_toggle_row_state($event)"
+>
+    <td>
+        <input
+            :checked="is_checked"
+            @change="handle_checkbox_change()"
+            type="checkbox"
+        >
+    </td>
+
+    <td>
+        <template x-if="has_children">
+            <i
+                :class="is_open ? 'bi-chevron-down' : 'bi-chevron-right'"
+                @click="$dispatch('toggle-row', { row_id: row_id, table_id: table_id })"
+                class="bi cursor-pointer"
+            ></i>
+        </template>
+    </td>
+
+    {% block table_cells %}{% endblock %}
+</tr>
+
+<tr class="align-middle" data-row-id="{{ row.pk }}">
+    <td class="p-0" x-effect="$el.setAttribute('colspan', column_count)">
+        {% block child_row %}{% endblock %}
+    </td>
+</tr>

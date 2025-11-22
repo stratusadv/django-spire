@@ -1,0 +1,409 @@
+<div
+    x-data="{
+        current_page: parseInt('{{ current_page|default:0 }}'),
+        endpoint: '{{ endpoint }}',
+        has_next: {{ has_next|default:'true'|yesno:'true,false' }},
+        batch_size: parseInt('{{ batch_size|default:25 }}'),
+        responsive_mode: '{{ responsive_mode|default:"collapse" }}',
+        shared_payload: {},
+        skeleton_row: parseInt('{{ batch_size|default:25 }}'),
+        sort_column: {% if sort_column %}'{{ sort_column }}'{% else %}null{% endif %},
+        sort_direction: '{{ sort_direction|default:'asc' }}',
+        table_id: $id('table'),
+        total_count: parseInt('{{ total_count|default:0 }}'),
+
+        any_row_has_children: false,
+        average_row_height: 0,
+        column_breakpoints: [],
+        column_count: 0,
+        is_loading: false,
+        is_refreshing: false,
+        is_row_open: {},
+        loaded_count: 0,
+        observer: null,
+        select_all: false,
+        selected_rows: new Set(),
+        skeleton_count: 0,
+        prevent_auto_load: false,
+
+        {% block table_xdata %}{% endblock %}
+
+        async init() {
+            await this.$nextTick();
+            this.reset_scroll_position();
+
+            if (this.should_load_initial_data()) {
+                this.skeleton_count = this.skeleton_row;
+                await this.load_more();
+            }
+
+            if (this.has_next) {
+                setTimeout(() => this.setup_observer(), 500);
+            }
+        },
+
+        apply_column_breakpoints(row_element) {
+            if (this.responsive_mode !== 'collapse') return;
+
+            let cells = Array.from(row_element.children);
+
+            cells.forEach((cell, index) => {
+                let breakpoint = this.column_breakpoints[index];
+
+                if (breakpoint && cell.tagName === 'TD') {
+                    cell.classList.add('d-none', `d-${breakpoint}-table-cell`);
+                }
+            });
+        },
+
+        build_request_params(next_page) {
+            let params = new URLSearchParams({
+                page: next_page,
+                batch_size: this.batch_size
+            });
+
+            if (this.sort_column) {
+                params.set('sort', this.sort_column);
+                params.set('direction', this.sort_direction);
+            }
+
+            return params;
+        },
+
+        async check_container_height() {
+            let table_container = this.$refs.table_container;
+            let trigger = this.$refs.infinite_scroll_trigger;
+
+            if (!table_container || !trigger || !this.has_next || this.is_refreshing || this.prevent_auto_load || this.is_loading) {
+                return;
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            let container_rect = table_container.getBoundingClientRect();
+            let trigger_rect = trigger.getBoundingClientRect();
+
+            if (trigger_rect.top <= container_rect.bottom) {
+                await this.load_more();
+            }
+        },
+
+        cleanup_loading_state() {
+            this.is_loading = false;
+            this.skeleton_count = 0;
+        },
+
+        disconnect_observer() {
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+        },
+
+        async fetch_rows(next_page) {
+            if (!this.endpoint) {
+                return { success: false, error: 'No endpoint provided' };
+            }
+
+            let params = this.build_request_params(next_page);
+            let url = `${this.endpoint}?${params}`;
+            let view = new ViewGlue(url, this.$refs.shared_payload ? JSON.parse(this.$refs.shared_payload.textContent) : {});
+
+            if (next_page === 1) {
+                this.$dispatch('clear-rows', { table_id: this.table_id });
+                this.$refs.table_body.innerHTML = '';
+            }
+
+            let previous_count = this.loaded_count;
+
+            await view.render_insert_adjacent(this.$refs.table_body, {}, 'beforeend');
+
+            let added = this.loaded_count - previous_count;
+
+            return { success: true, added: added };
+        },
+
+        get_sort_icon(column) {
+            if (this.sort_column !== column) {
+                return 'bi-chevron-expand';
+            }
+            return this.sort_direction === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down';
+        },
+
+        handle_header_mounted(event) {
+            this.column_count = event.detail.count;
+        },
+
+        handle_header_registered(event) {
+            this.column_breakpoints[event.detail.index] = event.detail.breakpoint;
+        },
+
+        handle_row_deselected(event) {
+            this.selected_rows.delete(event.detail.row_id);
+        },
+
+        handle_row_mounted(event) {
+            this.loaded_count++;
+
+            if (event.detail.row_element) {
+                this.apply_column_breakpoints(event.detail.row_element);
+
+                if (this.average_row_height === 0) {
+                    this.average_row_height = event.detail.row_element.offsetHeight;
+                }
+            }
+        },
+
+        handle_row_selected(event) {
+            this.selected_rows.add(event.detail.row_id);
+        },
+
+        handle_rows_cleared() {
+            this.loaded_count = 0;
+            this.selected_rows.clear();
+            this.select_all = false;
+        },
+
+        handle_toggle_all() {
+            this.select_all = !this.select_all;
+
+            if (this.select_all) {
+                this.$dispatch('select-all-rows', { table_id: this.table_id });
+            } else {
+                this.selected_rows.clear();
+                this.$dispatch('deselect-all-rows', { table_id: this.table_id });
+            }
+        },
+
+        handle_toggle_row(event) {
+            let row_id = event.detail.row_id;
+            this.is_row_open[row_id] = !this.is_row_open[row_id];
+
+            this.$dispatch('toggle-row-state', { row_id: row_id, is_open: this.is_row_open[row_id], table_id: this.table_id });
+        },
+
+        handle_total_count_updated(event) {
+            this.total_count = event.detail.total_count;
+
+            if (event.detail.batch_size) {
+                this.batch_size = event.detail.batch_size;
+            }
+        },
+
+        async load_more() {
+            if (!this.endpoint) {
+                return;
+            }
+
+            this.is_loading = true;
+            this.skeleton_count = this.batch_size;
+
+            if (!this.$refs.table_body) {
+                this.cleanup_loading_state();
+                return;
+            }
+
+            let result = await this.fetch_rows(this.current_page + 1);
+
+            if (!result.success) {
+                this.cleanup_loading_state();
+                return;
+            }
+
+            if (result.added > 0) {
+                this.current_page++;
+            }
+
+            if (result.added < this.batch_size) {
+                this.has_next = false;
+                this.disconnect_observer();
+            }
+
+            this.cleanup_loading_state();
+
+            await this.$nextTick();
+            await this.check_container_height();
+        },
+
+        async refresh_table() {
+            if (this.is_refreshing || this.is_loading) {
+                return;
+            }
+
+            this.disconnect_observer();
+
+            this.prevent_auto_load = true;
+            this.skeleton_count = this.batch_size;
+            this.is_refreshing = true;
+            this.select_all = false;
+
+            await this.$nextTick();
+
+            this.reset_table_state();
+
+            let result = await this.fetch_rows(1);
+            this.update_counts_after_refresh(result);
+
+            await this.$nextTick();
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            this.is_refreshing = false;
+            this.skeleton_count = 0;
+
+            if (this.has_next) {
+                setTimeout(() => {
+                    this.setup_observer();
+
+                    setTimeout(() => {
+                        this.prevent_auto_load = false;
+                    }, 100);
+                }, 500);
+            }
+        },
+
+        reset_scroll_position() {
+            requestAnimationFrame(() => {
+                if (this.$refs.table_container) {
+                    this.$refs.table_container.scrollTop = 0;
+                }
+            });
+        },
+
+        reset_table_state() {
+            this.current_page = 1;
+            this.has_next = true;
+            this.is_row_open = {};
+        },
+
+        async setup_observer() {
+            let trigger = this.$refs.infinite_scroll_trigger;
+
+            if (!trigger) {
+                return;
+            }
+
+            let options = {
+                root: null,
+                rootMargin: '200px',
+                threshold: 0.01
+            };
+
+            this.observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(async entry => {
+                        if (entry.isIntersecting && this.has_next && !this.is_loading && !this.prevent_auto_load) {
+                            await this.load_more();
+                        }
+                    });
+                },
+                options
+            );
+
+            this.observer.observe(trigger);
+        },
+
+        should_load_initial_data() {
+            return this.loaded_count === 0 && this.current_page === 0;
+        },
+
+        async sort_by(column) {
+            if (this.is_refreshing || this.is_loading) {
+                return;
+            }
+
+            if (this.sort_column === column) {
+                this.sort_direction = this.sort_direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sort_column = column;
+                this.sort_direction = 'asc';
+            }
+
+            await this.refresh_table();
+        },
+
+        update_counts_after_refresh(result) {
+            if (result && result.added < this.batch_size) {
+                this.has_next = false;
+            }
+        },
+    }"
+    @clear-rows.window="if (!$event.detail || $event.detail.table_id === table_id) handle_rows_cleared()"
+    @filter-applied.window="if (!$event.detail || $event.detail.table_id === table_id) refresh_table()"
+    @header-mounted="handle_header_mounted($event)"
+    @header-registered="handle_header_registered($event)"
+    @row-deselected.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_deselected($event)"
+    @row-mounted.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_mounted($event)"
+    @row-selected.window="if (!$event.detail || $event.detail.table_id === table_id) handle_row_selected($event)"
+    @toggle-row.window="if (!$event.detail || $event.detail.table_id === table_id) handle_toggle_row($event)"
+    @total-count-updated.window="if (!$event.detail || $event.detail.table_id === table_id) handle_total_count_updated($event)"
+>
+    <script type="application/json" x-ref="shared_payload">{% if shared_payload %}{{ shared_payload|safe }}{% else %}{}{% endif %}</script>
+
+    {% block table_toolbar %}{% endblock %}
+
+    {% block table_container %}
+        <div
+            class="position-relative table-container"
+            style="height: {{ table_height|default:'600px' }}; overflow-y: auto; overflow-x: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+            x-ref="table_container"
+            :data-table-id="table_id"
+        >
+            <table
+                class="table table-striped table-hover fs-7 w-100 {% block table_class %}{% endblock %}"
+                :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;')"
+            >
+                <thead class="z-1 {% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
+                    <tr
+                        x-init="column_count = $el.children.length; $dispatch('header-mounted', { count: column_count })"
+                        x-ref="header_row"
+                    >
+                        {% block table_header_container %}
+                            {% block table_header_start %}
+                                <th style="min-width: 30px; width: 30px;">
+                                    <input
+                                        :checked="select_all"
+                                        :disabled="is_refreshing || is_loading"
+                                        @change="handle_toggle_all()"
+                                        type="checkbox"
+                                    >
+                                </th>
+
+                                <th style="min-width: 30px; width: 30px;"></th>
+                            {% endblock %}
+
+                            {% block table_header %}{% endblock %}
+
+                            {% block table_header_end %}
+                                <th style="min-width: 70px; width: 70px;">Actions</th>
+                            {% endblock %}
+                        {% endblock %}
+                    </tr>
+                </thead>
+
+                <tbody
+                    x-ref="table_body"
+                    x-show="!is_refreshing"
+                    :data-table-id="table_id"
+                >
+                    {% block refreshing_skeleton %}
+                        {% include 'django_spire/table/element/refreshing_skeleton.html' %}
+                    {% endblock %}
+
+                    {% block table_body %}
+                    {% endblock %}
+
+                    {% block loading_skeleton %}
+                        {% include 'django_spire/table/element/loading_skeleton.html' %}
+                    {% endblock %}
+                </tbody>
+            </table>
+
+            {% block trigger %}
+                {% include 'django_spire/table/element/trigger.html' %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block table_footer %}
+        {% include 'django_spire/table/element/footer.html' %}
+    {% endblock %}
+</div>

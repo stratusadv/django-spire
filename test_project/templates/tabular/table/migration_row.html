@@ -1,0 +1,19 @@
+{% extends 'django_spire/table/element/row.html' %}
+
+{% block table_cells %}
+    <td>
+        <div class="fw-medium">{{ row.app }}</div>
+    </td>
+
+    <td>
+        <div class="text-muted font-monospace small">{{ row.name }}</div>
+    </td>
+
+    <td>
+        {{ row.applied|date:"M d, Y g:i A" }}
+    </td>
+
+    <td>
+        <span class="badge bg-success">Applied</span>
+    </td>
+{% endblock %}

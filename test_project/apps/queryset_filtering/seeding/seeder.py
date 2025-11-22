@@ -11,8 +11,8 @@ class TaskModelSeeder(DjangoModelSeeder):
 
     fields = {
         'id': 'exclude',
-        'name': ('llm', 'Things that you do at home when no one is looking.'),
-        'description': ('llm', 'Describe the things you do.'),
+        'name': ('faker'),
+        'description': ('faker'),
         'created_datetime': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'}),
         'is_active': True,
         'is_deleted': False,
@@ -39,9 +39,9 @@ class TaskUserModelSeeder(DjangoModelSeeder):
 
     @classmethod
     def seed_database(
-            cls,
-            count = 1,
-            fields: dict | None = None
+        cls,
+        count = 1,
+        fields: dict | None = None
     ) -> list[Model]:
         if fields is None:
             fields = {}

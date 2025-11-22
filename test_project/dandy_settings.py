@@ -8,9 +8,6 @@ BASE_PATH = Path.resolve(Path(__file__)).parent.parent
 DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
 
 
-
-
-
 LLM_CONFIGS = {
     'DEFAULT': {
         'TYPE': 'openai',

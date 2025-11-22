@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
@@ -8,8 +12,11 @@ from test_project.apps.queryset_filtering.constants import TASK_FILTERING_SESSIO
 from test_project.apps.queryset_filtering.models import Task
 from test_project.apps.queryset_filtering.forms import TaskListFilterForm
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
-def list_page(request):
+
+def list_page(request: WSGIRequest):
 
     """
         - Test glue multi select field in other projects.

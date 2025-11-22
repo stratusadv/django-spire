@@ -1,15 +1,17 @@
 from __future__ import annotations
 
-from django.core.handlers.wsgi import WSGIRequest
+from typing import Any, TYPE_CHECKING
+
 from django.urls import reverse
-from typing_extensions import Any
 from django_spire.core.context_processors import django_spire as django_spire_default
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 # Demonstrating how to override the default django spire context processor data
 def django_spire(request: WSGIRequest) -> dict[str, Any]:
-    context_data = django_spire_default(request)
-    return context_data
+    return django_spire_default(request)
 
 
 def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
@@ -31,6 +33,6 @@ def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'QuerySet Filtering', 'icon': 'bi bi-filter', 'url': reverse('queryset_filtering:page:list')},
             {'title': 'Wizard', 'icon': 'bi bi-magic', 'url': reverse('wizard:home')},
             {'heading': 'Examples'},
-            {'title': 'Tabular', 'icon': 'bi bi-table', 'url': reverse('tabular:home')},
+            {'title': 'Tabular', 'icon': 'bi bi-table', 'url': reverse('tabular:page:list')},
         ]
     }

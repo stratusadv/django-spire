@@ -1,0 +1,18 @@
+{% extends 'django_spire/page/full_page.html' %}
+{% load static %}
+
+{% block base_head_additional_js %}
+    <script src="{% static 'django_spire/js/session_controller.js' %}?v={{ DJANGO_SPIRE_VERSION }}" type="application/javascript"></script>
+{% endblock %}
+
+{% block full_page_content %}
+    <div class="row">
+        <div class="col-12 mb-4">
+            {% include 'tabular/card/list_card.html' %}
+        </div>
+
+        <div class="col-12">
+            {% include 'tabular/card/migration_list_card.html' %}
+        </div>
+    </div>
+{% endblock %}

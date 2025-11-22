@@ -1,0 +1,13 @@
+{% extends 'django_spire/table/base.html' %}
+
+{% block table_header %}
+    {% include 'django_spire/table/element/header.html' with sort_key='app' label='App' style='min-width: 200px; width: 20%;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='name' label='Migration Name' style='min-width: 300px; width: 40%;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='applied' label='Applied Date' breakpoint='md' style='min-width: 180px; width: 180px;' %}
+{% endblock %}
+
+{% block table_header_end %}
+    {% include 'django_spire/table/element/header.html' with sort_key='status' label='Status' breakpoint='md' style='min-width: 180px; width: 180px;' %}
+{% endblock %}

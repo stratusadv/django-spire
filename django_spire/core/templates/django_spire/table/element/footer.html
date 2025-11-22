@@ -1,0 +1,17 @@
+<div class="row mt-3">
+    <div class="col-6 text-start">
+        <span class="fs-7 text-app-secondary">
+            Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> rows
+        </span>
+    </div>
+
+    <div class="col-md-6 text-end" style="min-height: 2rem;">
+        {% block toolbar_action %}
+            <span class="fs-7 text-app-secondary" x-cloak x-show="selected_rows.size > 0">
+                <span x-text="selected_rows.size"></span> selected
+            </span>
+
+            {% block table_toolbar_button %}{% endblock %}
+        {% endblock %}
+    </div>
+</div>

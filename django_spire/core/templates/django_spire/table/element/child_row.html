@@ -1,0 +1,59 @@
+<div
+    class="{{ wrapper_class|default:'' }}"
+    x-data="{
+        is_loading: false,
+        is_open: false,
+        has_loaded: false,
+        row_id: null,
+        endpoint: '{{ child_endpoint }}',
+        table_id: null,
+
+        init() {
+            this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
+
+            let parent = this.$el.closest('[data-row-id]');
+            this.row_id = parent ? parent.dataset.rowId : null;
+
+            this.$nextTick(() => {
+                if (this.row_id) {
+                    this.$dispatch('child-registered', { row_id: this.row_id, table_id: this.table_id });
+                }
+            });
+        },
+
+        async load_children() {
+            if (this.has_loaded || this.is_loading) return;
+
+            this.is_loading = true;
+
+            let view = new ViewGlue(this.endpoint, {});
+            await view.render_inner(this.$refs.child_container);
+
+            this.has_loaded = true;
+            this.is_loading = false;
+        },
+
+        handle_toggle_row_state(event) {
+            if (event.detail.row_id === this.row_id && (!event.detail.table_id || event.detail.table_id === this.table_id)) {
+                this.is_open = event.detail.is_open;
+
+                if (this.is_open) {
+                    this.load_children();
+                }
+            }
+        }
+    }"
+    @toggle-row-state.window="handle_toggle_row_state($event)"
+    x-show="is_open"
+    x-cloak
+>
+    <div x-show="is_loading" class="p-3">
+        <div class="mb-2">
+            <div class="skeleton-box" style="height: 20px; width: 80%; margin-left: 20px;"></div>
+            <div class="skeleton-box" style="height: 20px; width: 80%; margin-left: 20px;"></div>
+            <div class="skeleton-box" style="height: 20px; width: 80%; margin-left: 20px;"></div>
+        </div>
+    </div>
+
+    <div x-show="!is_loading" x-ref="child_container"></div>
+</div>
