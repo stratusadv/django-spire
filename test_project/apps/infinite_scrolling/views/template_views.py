@@ -4,11 +4,13 @@ from typing import TYPE_CHECKING
 
 from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
 
+from test_project.apps.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
+from test_project.apps.infinite_scrolling.forms import InfiniteScrollingListFilterForm
 from test_project.apps.infinite_scrolling.models import InfiniteScrolling
 
 if TYPE_CHECKING:
-    from django.template.response import TemplateResponse
     from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
 
 def items_view(request: WSGIRequest) -> TemplateResponse:
@@ -16,6 +18,11 @@ def items_view(request: WSGIRequest) -> TemplateResponse:
         InfiniteScrolling
         .objects
         .active()
+        .process_session_filter(
+            request=request,
+            session_key=INFINITE_SCROLLING_FILTERING_SESSION_KEY,
+            form_class=InfiniteScrollingListFilterForm,
+        )
         .order_by('-created_datetime')
     )
 
@@ -36,12 +43,21 @@ def rows_view(request: WSGIRequest) -> TemplateResponse:
     sort_column = request.GET.get('sort', 'name')
     sort_direction = request.GET.get('direction', 'asc')
 
-    infinite_scrollings = InfiniteScrolling.objects.active()
+    infinite_scrollings = (
+        InfiniteScrolling
+        .objects
+        .active()
+        .process_session_filter(
+            request=request,
+            session_key=INFINITE_SCROLLING_FILTERING_SESSION_KEY,
+            form_class=InfiniteScrollingListFilterForm,
+        )
+    )
 
     sort_mapping = {
-        'name': 'name',
-        'description': 'description',
         'created': 'created_datetime',
+        'description': 'description',
+        'name': 'name',
     }
 
     sort_field = sort_mapping.get(sort_column, 'name')

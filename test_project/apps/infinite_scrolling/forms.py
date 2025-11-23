@@ -16,3 +16,7 @@ class InfiniteScrollingForm(forms.ModelForm):
     class Meta:
         model = models.InfiniteScrolling
         exclude: ClassVar = []
+
+
+class InfiniteScrollingListFilterForm(forms.Form):
+    search = forms.CharField(required=False)

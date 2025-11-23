@@ -6,8 +6,14 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.generic_views import portal_views
+import django_glue as dg
 
+from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.session.controller import SessionController
+from django_spire.core.shortcuts import get_object_or_null_obj
+
+from test_project.apps.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
+from test_project.apps.infinite_scrolling.forms import InfiniteScrollingListFilterForm
 from test_project.apps.infinite_scrolling.models import InfiniteScrolling
 
 if TYPE_CHECKING:
@@ -57,8 +63,19 @@ def detail_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def list_page_view(request: WSGIRequest) -> TemplateResponse:
+    infinite_scrolling = get_object_or_null_obj(InfiniteScrolling, pk=0)
+
+    InfiniteScrolling.objects.process_session_filter(
+        request=request,
+        session_key=INFINITE_SCROLLING_FILTERING_SESSION_KEY,
+        form_class=InfiniteScrollingListFilterForm,
+    )
+
+    dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling)
+
     context_data = {
         'endpoint': reverse('infinite_scrolling:template:items'),
+        'filter_session': SessionController(request, INFINITE_SCROLLING_FILTERING_SESSION_KEY),
     }
 
     return TemplateResponse(
@@ -69,8 +86,19 @@ def list_page_view(request: WSGIRequest) -> TemplateResponse:
 
 
 def table_page_view(request: WSGIRequest) -> TemplateResponse:
+    infinite_scrolling = get_object_or_null_obj(InfiniteScrolling, pk=0)
+
+    InfiniteScrolling.objects.process_session_filter(
+        request=request,
+        session_key=INFINITE_SCROLLING_FILTERING_SESSION_KEY,
+        form_class=InfiniteScrollingListFilterForm,
+    )
+
+    dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling)
+
     context_data = {
         'endpoint': reverse('infinite_scrolling:template:rows'),
+        'filter_session': SessionController(request, INFINITE_SCROLLING_FILTERING_SESSION_KEY),
     }
 
     return TemplateResponse(

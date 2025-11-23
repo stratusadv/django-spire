@@ -15,5 +15,7 @@
         {% include 'infinite_scrolling/form/list_filter_form.html' %}
     </div>
 
-    {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height='600px' batch_size=10 endpoint=endpoint %}
+    <div class="my-4">
+        {% include 'infinite_scrolling/table/table.html' with endpoint=endpoint %}
+    </div>
 {% endblock %}
