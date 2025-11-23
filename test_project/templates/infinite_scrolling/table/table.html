@@ -1,0 +1,9 @@
+{% extends 'django_spire/table/base.html' %}
+
+{% block table_header %}
+    {% include 'django_spire/table/element/header.html' with sort_key='name' label='Name' style='min-width: 250px; width: 25%;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='description' label='Description' style='min-width: 300px; width: 45%;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='created' label='Created' breakpoint='md' style='min-width: 150px; width: 150px;' %}
+{% endblock %}

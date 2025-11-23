@@ -1,0 +1,23 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fs-1 fw-semi-bold pt-4">Infinite Scrolling - Cards</h1>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            {% include 'infinite_scrolling/card/infinite_scrolling_card.html' with card_title='Recent Items' batch_size=5 %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'infinite_scrolling/card/infinite_scrolling_card.html' with card_title='All Items' batch_size=10 %}
+        </div>
+
+        <div class="col-12">
+            {% include 'infinite_scrolling/card/infinite_scrolling_card.html' with card_title='Full Width Card' batch_size=15 scroll_height='400px' %}
+        </div>
+    </div>
+{% endblock %}

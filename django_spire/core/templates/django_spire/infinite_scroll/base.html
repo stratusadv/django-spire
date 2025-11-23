@@ -1,0 +1,333 @@
+<div
+    x-data="{
+        batch_size: parseInt('{{ batch_size|default:25 }}'),
+        current_page: parseInt('{{ current_page|default:0 }}'),
+        endpoint: '{{ endpoint }}',
+        has_next: {{ has_next|default:'true'|yesno:'true,false' }},
+        shared_payload: {},
+        sort_column: {% if sort_column %}'{{ sort_column }}'{% else %}null{% endif %},
+        sort_direction: '{{ sort_direction|default:'asc' }}',
+        total_count: parseInt('{{ total_count|default:0 }}'),
+
+        average_item_height: 0,
+        is_loading: false,
+        is_refreshing: false,
+        loaded_count: 0,
+        loading_timer: null,
+        observer: null,
+        prevent_auto_load: false,
+        show_loading: false,
+        skeleton_count: 0,
+
+        {% block scroll_xdata %}{% endblock %}
+
+        async init() {
+            await this.$nextTick();
+
+            this.reset_scroll_position();
+            this.load_shared_payload();
+
+            if (this.should_load_initial_data()) {
+                this.skeleton_count = this.batch_size;
+                await this.load_more();
+            }
+
+            if (this.has_next) {
+                setTimeout(() => this.setup_observer(), 500);
+            }
+
+            {% block scroll_init %}{% endblock %}
+        },
+
+        build_request_params(next_page) {
+            let params = new URLSearchParams({
+                page: next_page,
+                batch_size: this.batch_size
+            });
+
+            if (this.sort_column) {
+                params.set('sort', this.sort_column);
+                params.set('direction', this.sort_direction);
+            }
+
+            {% block scroll_build_params %}{% endblock %}
+
+            return params;
+        },
+
+        async check_container_height() {
+            let scroll_container = this.$refs.scroll_container;
+            let trigger = this.$refs.infinite_scroll_trigger;
+
+            if (!scroll_container || !trigger || !this.has_next || this.is_refreshing || this.prevent_auto_load || this.is_loading) {
+                return;
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            let container_rect = scroll_container.getBoundingClientRect();
+            let trigger_rect = trigger.getBoundingClientRect();
+
+            if (trigger_rect.top <= container_rect.bottom) {
+                await this.load_more();
+            }
+        },
+
+        cleanup_loading_state() {
+            if (this.loading_timer) {
+                clearTimeout(this.loading_timer);
+                this.loading_timer = null;
+            }
+            this.is_loading = false;
+            this.show_loading = false;
+            this.skeleton_count = 0;
+        },
+
+        disconnect_observer() {
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+        },
+
+        async fetch_items(next_page) {
+            if (!this.endpoint) {
+                return { success: false, error: 'No endpoint provided' };
+            }
+
+            let params = this.build_request_params(next_page);
+            let url = `${this.endpoint}?${params}`;
+            let view = new ViewGlue(url, this.shared_payload);
+
+            if (next_page === 1) {
+                this.$refs.content_container.innerHTML = '';
+            }
+
+            let previous_count = this.loaded_count;
+
+            await view.render_insert_adjacent(this.$refs.content_container, {}, 'beforeend');
+
+            let added = this.loaded_count - previous_count;
+
+            return { success: true, added: added };
+        },
+
+        get_sort_icon(column) {
+            if (this.sort_column !== column) {
+                return 'bi-chevron-expand';
+            }
+            return this.sort_direction === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down';
+        },
+
+        handle_item_mounted(event) {
+            {% block handle_item_mounted %}
+                this.loaded_count++;
+
+                if (event.detail.item_element && this.average_item_height === 0) {
+                    this.average_item_height = event.detail.item_element.offsetHeight;
+                }
+            {% endblock %}
+        },
+
+        handle_item_cleared() {
+            {% block handle_item_cleared %}
+                this.loaded_count = 0;
+            {% endblock %}
+        },
+
+        handle_total_count_updated(event) {
+            {% block handle_total_count_updated %}
+                this.total_count = event.detail.total_count;
+
+                if (event.detail.batch_size) {
+                    this.batch_size = event.detail.batch_size;
+                }
+            {% endblock %}
+        },
+
+        async load_more() {
+            if (!this.endpoint || this.is_loading) {
+                return;
+            }
+
+            this.is_loading = true;
+            this.skeleton_count = this.batch_size;
+
+            this.loading_timer = setTimeout(() => {
+                this.show_loading = true;
+            }, 200);
+
+            if (!this.$refs.content_container) {
+                this.cleanup_loading_state();
+                return;
+            }
+
+            let result = await this.fetch_items(this.current_page + 1);
+
+            if (!result.success) {
+                this.cleanup_loading_state();
+                return;
+            }
+
+            if (result.added > 0) {
+                this.current_page++;
+            }
+
+            if (result.added < this.batch_size) {
+                this.has_next = false;
+                this.disconnect_observer();
+            }
+
+            this.cleanup_loading_state();
+
+            await this.$nextTick();
+            await this.check_container_height();
+        },
+
+        load_shared_payload() {
+            if (this.$refs.shared_payload) {
+                this.shared_payload = JSON.parse(this.$refs.shared_payload.textContent);
+            }
+        },
+
+        async refresh() {
+            if (this.is_refreshing || this.is_loading) {
+                return;
+            }
+
+            this.disconnect_observer();
+
+            this.prevent_auto_load = true;
+            this.skeleton_count = this.batch_size;
+            this.is_refreshing = true;
+            this.show_loading = true;
+
+            await this.$nextTick();
+
+            this.reset_state();
+
+            let result = await this.fetch_items(1);
+            this.update_counts_after_refresh(result);
+
+            await this.$nextTick();
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            this.is_refreshing = false;
+            this.show_loading = false;
+            this.skeleton_count = 0;
+
+            if (this.has_next) {
+                setTimeout(() => {
+                    this.setup_observer();
+
+                    setTimeout(() => {
+                        this.prevent_auto_load = false;
+                    }, 100);
+                }, 500);
+            }
+        },
+
+        reset_scroll_position() {
+            requestAnimationFrame(() => {
+                if (this.$refs.scroll_container) {
+                    this.$refs.scroll_container.scrollTop = 0;
+                }
+            });
+        },
+
+        reset_state() {
+            this.current_page = 0;
+            this.has_next = true;
+            this.loaded_count = 0;
+            {% block scroll_reset_state %}{% endblock %}
+        },
+
+        async setup_observer() {
+            let trigger = this.$refs.infinite_scroll_trigger;
+
+            if (!trigger) {
+                return;
+            }
+
+            let options = {
+                root: null,
+                rootMargin: '200px',
+                threshold: 0.01
+            };
+
+            this.observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(async entry => {
+                        if (entry.isIntersecting && this.has_next && !this.is_loading && !this.prevent_auto_load) {
+                            await this.load_more();
+                        }
+                    });
+                },
+                options
+            );
+
+            this.observer.observe(trigger);
+        },
+
+        should_load_initial_data() {
+            return this.loaded_count === 0 && this.current_page === 0;
+        },
+
+        async sort_by(column) {
+            if (this.is_refreshing || this.is_loading) {
+                return;
+            }
+
+            if (this.sort_column === column) {
+                this.sort_direction = this.sort_direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sort_column = column;
+                this.sort_direction = 'asc';
+            }
+
+            await this.refresh();
+        },
+
+        update_counts_after_refresh(result) {
+            if (result && result.added < this.batch_size) {
+                this.has_next = false;
+            }
+        },
+    }"
+    @filter-applied.window="refresh()"
+    @item-mounted.window="handle_item_mounted($event)"
+    @item-cleared.window="handle_item_cleared()"
+    @total-count-updated.window="handle_total_count_updated($event)"
+    {% block scroll_event %}{% endblock %}
+>
+    <script type="application/json" x-ref="shared_payload">{% if shared_payload %}{{ shared_payload|safe }}{% else %}{}{% endif %}</script>
+
+    {% block scroll_toolbar %}{% endblock %}
+
+    {% block scroll_container %}
+        <div
+            class="position-relative {% block scroll_container_class %}{% endblock %}"
+            style="height: {{ container_height|default:'600px' }}; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+            x-ref="scroll_container"
+        >
+            {% block scroll_content_wrapper %}
+                <div x-ref="content_container">
+                    {% block scroll_content %}{% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block scroll_loading %}
+                <div x-cloak x-show="show_loading && !is_refreshing" class="py-3 text-center">
+                    <div class="spinner-border text-app-primary" role="status"></div>
+                </div>
+            {% endblock %}
+
+            {% block scroll_trigger %}
+                <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+
+    {% block scroll_footer %}
+        {% include 'django_spire/infinite_scroll/element/footer.html' %}
+    {% endblock %}
+</div>

@@ -15,6 +15,7 @@ urlpatterns = [
     path('file/', include('test_project.apps.file.urls', namespace='file')),
     path('history/', include('test_project.apps.history.urls', namespace='history')),
     path('home/', include('test_project.apps.home.urls', namespace='home')),
+    path('infinite_scrolling/', include('test_project.apps.infinite_scrolling.urls', namespace='infinite_scrolling')),
     path('notification/', include('test_project.apps.notification.urls', namespace='notification')),
     path('order/', include('test_project.apps.ordering.urls', namespace='order')),
     path('tabular/', include('test_project.apps.tabular.urls', namespace='tabular')),

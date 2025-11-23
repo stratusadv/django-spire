@@ -1,0 +1,24 @@
+{% extends 'django_spire/item/infinite_scroll_item.html' %}
+
+{% block item_content %}
+    <div class="row">
+        <div class="col-3">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=task.name %}
+        </div>
+
+        <div class="col-3">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' attribute_value=task.get_status_display %}
+        </div>
+
+        <div class="col-3">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Users' %}
+            {% for user_initial in task.user_initials %}
+                {{ user_initial }}
+            {% endfor %}
+        </div>
+
+        <div class="col-12 fs--2 text-muted">
+            {{ task.description }}
+        </div>
+    </div>
+{% endblock %}

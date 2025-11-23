@@ -1,46 +1,91 @@
 {% include 'django_spire/auth/group/navigation/accordion/permission_nav_accordion.html' %}
 
-{% for app in test_project_apps %}
-    {% if app.heading %}
-        {% include 'django_spire/navigation/elements/nav_title_divider.html' with divider_text=app.heading %}
-    {% elif app.title %}
-        {% include 'django_spire/navigation/elements/nav_link.html' with link_text=app.title link_icon=app.icon link_url=app.url %}
-    {% endif %}
-{% endfor %}
+{% include 'django_spire/navigation/elements/nav_title_divider.html' with divider_text='Django Spire' %}
+
+{% url 'ai:home' as ai_home_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Ai Home' link_icon='bi bi-robot' link_url=ai_home_url %}
+
+{% url 'django_spire:ai:chat:page:home' as ai_chat_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Ai Chat' link_icon='bi bi-chat-heart' link_url=ai_chat_url %}
+
+{% url 'comment:home' as comment_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Comment' link_icon='bi bi-chat-text' link_url=comment_url %}
+
+{% url 'help_desk:home' as help_desk_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Help Desk' link_icon='bi bi-headset' link_url=help_desk_url %}
+
+{% url 'history:home' as history_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='History' link_icon='bi bi-clock-history' link_url=history_url %}
+
+{% url 'home:page:home' as home_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Home' link_icon='bi bi-house-door' link_url=home_url %}
+
+{% url 'ordering:page:demo' as ordering_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Ordering' link_icon='bi bi-list-ol' link_url=ordering_url %}
+
+{% url 'django_spire:knowledge:page:home' as knowledge_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Knowledge' link_icon='bi bi-journal-bookmark' link_url=knowledge_url %}
+
+{% url 'notification:page:list' as notification_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Notification' link_icon='bi bi-bell' link_url=notification_url %}
+
+{% url 'django_spire:theme:page:dashboard' as theme_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Theme' link_icon='bi bi-brush' link_url=theme_url %}
+
+{% url 'queryset_filtering:page:list' as queryset_filtering_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='QuerySet Filtering' link_icon='bi bi-filter' link_url=queryset_filtering_url %}
+
+{% url 'wizard:home' as wizard_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Wizard' link_icon='bi bi-magic' link_url=wizard_url %}
+
+{% include 'django_spire/navigation/elements/nav_title_divider.html' with divider_text='Examples' %}
+
+{% url 'infinite_scrolling:page:cards' as is_cards_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='IS - Cards' link_icon='bi bi-grid-3x3-gap' link_url=is_cards_url %}
+
+{% url 'infinite_scrolling:page:list' as is_list_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='IS - List' link_icon='bi bi-list-ul' link_url=is_list_url %}
+
+{% url 'infinite_scrolling:page:table' as is_table_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='IS - Table' link_icon='bi bi-table' link_url=is_table_url %}
+
+{% url 'tabular:page:list' as tabular_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Tabular' link_icon='bi bi-table' link_url=tabular_url %}
 
 {% include 'django_spire/navigation/elements/nav_title_divider.html' with divider_text='Scrolling' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Dashboard' link_icon='bi bi-speedometer2' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Analytics' link_icon='bi bi-bar-chart' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Reports' link_icon='bi bi-file-earmark-text' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Customers' link_icon='bi bi-people' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Products' link_icon='bi bi-box' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Orders' link_icon='bi bi-cart' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Inventory' link_icon='bi bi-stack' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Shipping' link_icon='bi bi-truck' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Payments' link_icon='bi bi-credit-card' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Invoices' link_icon='bi bi-receipt' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Billing' link_icon='bi bi-cash' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Subscriptions' link_icon='bi bi-calendar-check' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Marketing' link_icon='bi bi-megaphone' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Campaigns' link_icon='bi bi-broadcast' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Email' link_icon='bi bi-envelope' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Social Media' link_icon='bi bi-share' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Content' link_icon='bi bi-file-text' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Blog Posts' link_icon='bi bi-journal' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Pages' link_icon='bi bi-file-earmark' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Media Library' link_icon='bi bi-images' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Categories' link_icon='bi bi-tags' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Tags' link_icon='bi bi-tag' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Comments' link_icon='bi bi-chat-left-text' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Reviews' link_icon='bi bi-star' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Support' link_icon='bi bi-life-preserver' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Tickets' link_icon='bi bi-ticket' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Knowledge Base' link_icon='bi bi-book' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Documentation' link_icon='bi bi-file-earmark-richtext' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='API' link_icon='bi bi-code-square' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Webhooks' link_icon='bi bi-arrow-repeat' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Integrations' link_icon='bi bi-plug' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Security' link_icon='bi bi-shield-lock' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Audit Logs' link_icon='bi bi-list-check' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Activity' link_icon='bi bi-clock-history' %}
-    {% include 'django_spire/navigation/elements/nav_link.html' with link_text='End of Nav Links' link_icon='bi bi-sign-dead-end' %}
+
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Dashboard' link_icon='bi bi-speedometer2' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Analytics' link_icon='bi bi-bar-chart' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Reports' link_icon='bi bi-file-earmark-text' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Customers' link_icon='bi bi-people' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Products' link_icon='bi bi-box' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Orders' link_icon='bi bi-cart' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Inventory' link_icon='bi bi-stack' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Shipping' link_icon='bi bi-truck' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Payments' link_icon='bi bi-credit-card' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Invoices' link_icon='bi bi-receipt' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Billing' link_icon='bi bi-cash' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Subscriptions' link_icon='bi bi-calendar-check' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Marketing' link_icon='bi bi-megaphone' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Campaigns' link_icon='bi bi-broadcast' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Email' link_icon='bi bi-envelope' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Social Media' link_icon='bi bi-share' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Content' link_icon='bi bi-file-text' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Blog Posts' link_icon='bi bi-journal' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Pages' link_icon='bi bi-file-earmark' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Media Library' link_icon='bi bi-images' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Categories' link_icon='bi bi-tags' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Tags' link_icon='bi bi-tag' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Comments' link_icon='bi bi-chat-left-text' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Reviews' link_icon='bi bi-star' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Support' link_icon='bi bi-life-preserver' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Tickets' link_icon='bi bi-ticket' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Knowledge Base' link_icon='bi bi-book' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Documentation' link_icon='bi bi-file-earmark-richtext' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='API' link_icon='bi bi-code-square' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Webhooks' link_icon='bi bi-arrow-repeat' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Integrations' link_icon='bi bi-plug' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Security' link_icon='bi bi-shield-lock' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Audit Logs' link_icon='bi bi-list-check' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Activity' link_icon='bi bi-clock-history' %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='End of Nav Links' link_icon='bi bi-sign-dead-end' %}

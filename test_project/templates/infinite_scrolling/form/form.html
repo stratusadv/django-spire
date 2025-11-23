@@ -1,0 +1,26 @@
+<form
+    method="post"
+    x-data="{
+        infinite_scrolling: new ModelObjectGlue('infinite_scrolling'),
+
+        async init() {
+            await this.infinite_scrolling.get();
+        }
+    }"
+>
+    {% csrf_token %}
+
+    <div class="row g-2">
+        <div class="col-12">
+            {% include 'django_glue/form/field/char_field.html' with glue_model_field='infinite_scrolling.name' %}
+        </div>
+
+        <div class="col-12">
+            {% include 'django_glue/form/field/text_field.html' with glue_model_field='infinite_scrolling.description' %}
+        </div>
+
+        <div class="col-12">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        </div>
+    </div>
+</form>
