@@ -9,7 +9,9 @@
 
         is_loading: false,
         loaded_count: 0,
+        loading_timer: null,
         observer: null,
+        show_loading: false,
 
         async init() {
             this.scroll_id = $id('scroll');
@@ -55,6 +57,10 @@
 
             this.is_loading = true;
 
+            this.loading_timer = setTimeout(() => {
+                this.show_loading = true;
+            }, 200);
+
             let params = new URLSearchParams({
                 page: this.current_page + 1,
                 batch_size: this.batch_size
@@ -80,7 +86,12 @@
                 }
             }
 
+            if (this.loading_timer) {
+                clearTimeout(this.loading_timer);
+                this.loading_timer = null;
+            }
             this.is_loading = false;
+            this.show_loading = false;
         },
 
         setup_observer() {
@@ -121,19 +132,19 @@
             <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
         </div>
 
-        <template x-if="is_loading">
+        <template x-if="show_loading">
             <div
                 class="position-absolute d-flex justify-content-center align-items-center"
-                style="top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.7);"
+                style="top: 0; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--app-layer-one) 85%, transparent);"
             >
-                <div class="spinner-border" role="status"></div>
+                <div class="spinner-border text-app-primary" role="status"></div>
             </div>
         </template>
     </div>
 
-    <div class="row mt-4">
+    <div class="row mt-3">
         <div class="col text-start">
-            <span class="small text-muted">
+            <span class="fs-7 text-app-secondary">
                 Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> items
             </span>
         </div>

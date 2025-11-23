@@ -1,0 +1,15 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fs-1 fw-semi-bold pt-4">Infinite Scrolling - Table</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% include 'infinite_scrolling/table/table.html' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'django_spire/container/infinite_scroll_container.html' %}
+
+{% block container_title %}Infinite Scrollings{% endblock %}
+
+{% block container_button %}
+    <a class="btn btn-app-primary" href="{% url 'infinite_scrolling:form:create' %}">
+        <i class="bi bi-plus me-1"></i>Create
+    </a>
+{% endblock %}
+
+{% block container_class %}px-md-3{% endblock %}

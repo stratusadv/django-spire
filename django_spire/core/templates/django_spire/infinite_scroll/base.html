@@ -13,8 +13,10 @@
         is_loading: false,
         is_refreshing: false,
         loaded_count: 0,
+        loading_timer: null,
         observer: null,
         prevent_auto_load: false,
+        show_loading: false,
         skeleton_count: 0,
 
         {% block scroll_xdata %}{% endblock %}
@@ -72,7 +74,12 @@
         },
 
         cleanup_loading_state() {
+            if (this.loading_timer) {
+                clearTimeout(this.loading_timer);
+                this.loading_timer = null;
+            }
             this.is_loading = false;
+            this.show_loading = false;
             this.skeleton_count = 0;
         },
 
@@ -145,6 +152,10 @@
             this.is_loading = true;
             this.skeleton_count = this.batch_size;
 
+            this.loading_timer = setTimeout(() => {
+                this.show_loading = true;
+            }, 200);
+
             if (!this.$refs.content_container) {
                 this.cleanup_loading_state();
                 return;
@@ -188,6 +199,7 @@
             this.prevent_auto_load = true;
             this.skeleton_count = this.batch_size;
             this.is_refreshing = true;
+            this.show_loading = true;
 
             await this.$nextTick();
 
@@ -200,6 +212,7 @@
             await new Promise(resolve => setTimeout(resolve, 150));
 
             this.is_refreshing = false;
+            this.show_loading = false;
             this.skeleton_count = 0;
 
             if (this.has_next) {
@@ -303,8 +316,8 @@
             {% endblock %}
 
             {% block scroll_loading %}
-                <div x-cloak x-show="is_loading && !is_refreshing" class="text-center py-3">
-                    <div class="spinner-border" role="status"></div>
+                <div x-cloak x-show="show_loading && !is_refreshing" class="py-3 text-center">
+                    <div class="spinner-border text-app-primary" role="status"></div>
                 </div>
             {% endblock %}
 

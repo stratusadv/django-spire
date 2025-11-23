@@ -23,20 +23,27 @@
 {% block scroll_container %}
     <div class="row {% block container_class %}{% endblock %}">
         <div class="col-12 {% block container_content_class %}{% endblock %}">
-            <div
-                class="position-relative mt-3 p-3"
-                style="height: calc(100vh - {{ container_offset|default:'350' }}px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
-                x-ref="scroll_container"
-            >
-                <div x-ref="content_container">
-                    {% block container_content %}{% endblock %}
+            <div class="position-relative mt-3">
+                <div
+                    class="p-3"
+                    style="height: calc(100vh - {{ container_offset|default:'350' }}px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+                    x-ref="scroll_container"
+                >
+                    <div x-ref="content_container">
+                        {% block container_content %}{% endblock %}
+                    </div>
+
+                    <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
                 </div>
 
-                <div x-cloak x-show="is_loading && !is_refreshing" class="py-3 text-center">
-                    <div class="spinner-border" role="status"></div>
-                </div>
-
-                <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
+                <template x-if="show_loading && !is_refreshing">
+                    <div
+                        class="position-absolute d-flex justify-content-center align-items-center"
+                        style="top: 0; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--app-layer-one) 85%, transparent);"
+                    >
+                        <div class="spinner-border text-app-primary" role="status"></div>
+                    </div>
+                </template>
             </div>
         </div>
     </div>

@@ -33,6 +33,9 @@ def test_project(request: WSGIRequest) -> dict[str, list[dict[str, str]]]:
             {'title': 'QuerySet Filtering', 'icon': 'bi bi-filter', 'url': reverse('queryset_filtering:page:list')},
             {'title': 'Wizard', 'icon': 'bi bi-magic', 'url': reverse('wizard:home')},
             {'heading': 'Examples'},
+            {'title': 'IS - Cards', 'icon': 'bi bi-grid-3x3-gap', 'url': reverse('infinite_scrolling:page:cards')},
+            {'title': 'IS - List', 'icon': 'bi bi-list-ul', 'url': reverse('infinite_scrolling:page:list')},
+            {'title': 'IS - Table', 'icon': 'bi bi-table', 'url': reverse('infinite_scrolling:page:table')},
             {'title': 'Tabular', 'icon': 'bi bi-table', 'url': reverse('tabular:page:list')},
         ]
     }

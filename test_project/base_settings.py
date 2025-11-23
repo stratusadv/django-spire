@@ -121,6 +121,7 @@ INSTALLED_APPS += [
     'test_project.apps.file',
     'test_project.apps.help_desk',
     'test_project.apps.home',
+    'test_project.apps.infinite_scrolling',
     'test_project.apps.landing',
     'test_project.apps.ordering',
     'test_project.apps.history',

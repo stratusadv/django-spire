@@ -1,0 +1,28 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Infinite Scrolling Details
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.infinite_scrolling.change_infinite_scrolling %}
+        <div class="d-flex gap-2">
+            {% url 'infinite_scrolling:form:update_modal' pk=infinite_scrolling.pk as update_url %}
+            {% include 'django_spire/button/secondary_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_modal_url=update_url button_class='btn-sm' %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="row g-2">
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=infinite_scrolling.name %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Created' attribute_value=infinite_scrolling.created_datetime|date:"M d, Y g:i A" %}
+        </div>
+        <div class="col-12">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=infinite_scrolling.description|linebreaksbr %}
+        </div>
+    </div>
+{% endblock %}

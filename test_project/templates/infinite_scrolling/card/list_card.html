@@ -1,0 +1,15 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}Infinite Scrollings{% endblock %}
+
+{% block card_button %}
+    {% if perms.infinite_scrolling.add_infinite_scrolling %}
+        <button class="btn btn-app-primary-dark" type="button" @click="dispatch_modal_view('{% url 'infinite_scrolling:form:create_modal' %}')">
+            <i class="bi bi-plus-lg me-1"></i>New Infinite Scrolling
+        </button>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height='600px' batch_size=10 %}
+{% endblock %}
