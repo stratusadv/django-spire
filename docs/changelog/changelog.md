@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.22.4
+
+### Changes
+- Knowledge base editor CSS theme support.
+
 ## v0.22.3
 
 ### Fixes

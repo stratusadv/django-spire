@@ -1,0 +1,93 @@
+.ce-popover__container {
+    background-color: var(--app-layer-one);
+    border: 1px solid var(--bs-border-color) !important;
+}
+
+.ce-toolbar__plus,
+.ce-toolbar__settings-btn,
+.ce-popover-item__title,
+.ce-popover-item__icon,
+.cdx-search-field__input {
+    color: var(--app-default-text-color);
+}
+
+.cdx-search-field.ce-popover__search {
+    background-color: var(--app-layer-two);
+    border-color: var(--bs-border-color);
+}
+
+.ce-popover-item--active  {
+    background-color: var(--app-bg-accent-soft) !important;
+}
+
+.ce-popover-item--active .ce-popover-item__title,
+.ce-popover-item--active .ce-popover-item__icon {
+    color: var(--app-accent-dark) !important;
+}
+
+.cdx-block,
+.ce-block {
+    color: var(--app-default-text-color);
+}
+
+.ce-inline-toolbar,
+.ce-conversion-tool__icon,
+.ce-popover-item__icon {
+    color: var(--app-default-text-color);
+    background-color: inherit;
+    border-color: var(--bs-border-color);
+}
+
+.ce-popover,
+.ce-conversion-toolbar,
+.ce-inline-toolbar {
+    background-color: var(--app-layer-one);
+    border-color: var(--bs-border-color);
+    box-shadow: 0 3px 15px -3px var(--bs-border-color);
+}
+
+.ce-inline-tool:hover,
+.ce-inline-toolbar__dropdown:hover,
+.ce-toolbar__plus:hover,
+.ce-toolbar__settings-btn:hover,
+.ce-conversion-tool:hover,
+.ce-popover-item:hover {
+    background-color: var(--app-layer-three) !important;
+}
+
+*::selection,
+.ce-block.ce-block--selected .ce-block__content {
+    background-color: var(--app-bg-accent-soft) !important;
+}
+
+.ce-popover__items {
+    scrollbar-color: var(--bs-border-color) var(--app-layer-one);
+
+    /* Safari and Chrome */
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--app-layer-one);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--bs-border-color);
+        border-radius: 4px;
+    }
+
+}
+
+.ce-popover-item-separator__line {
+    background: var(--bs-border-color) !important;
+}
+
+@media (max-width: 650px) {
+    .ce-toolbar__settings-btn,
+    .ce-toolbar__plus {
+        background-color: var(--app-layer-one);
+        border-color: var(--bs-border-color);
+        box-shadow: 0 3px 15px -3px var(--bs-border-color);
+    }
+}
