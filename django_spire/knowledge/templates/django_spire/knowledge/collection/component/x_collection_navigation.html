@@ -16,13 +16,6 @@
                 :class="{'ms-4': collection.parent.id !== -1}"
                 class="mb-1 collection"
             >
-                <div x-data="{
-                    init() {
-                        console.log(collection)
-                     }
-                }">
-
-                </div>
                 {% include 'django_spire/knowledge/sub_navigation/item/collection_sub_navigation_item.html' %}
 
                 <div x-show="is_expanded(collection.id)" class="my-1">

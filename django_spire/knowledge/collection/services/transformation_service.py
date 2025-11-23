@@ -19,11 +19,11 @@ if TYPE_CHECKING:
 class CollectionTransformationService(BaseDjangoModelService['Collection']):
     obj: Collection
 
-    def to_hierarchy_json(self, request: WSGIRequest, parent_id: int | None = None) -> str:
+    def to_hierarchy_json(self, request: WSGIRequest, parent_id: int) -> str:
         collections = (
             self.obj_class.objects
             .active()
-            .by_parent_id(parent_id=parent_id)
+            .children(collection_id=parent_id)
             .request_user_has_access(request)
             .select_related('parent')
         )

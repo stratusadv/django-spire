@@ -75,7 +75,6 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
                     if (block_id) {
                         setTimeout(() => {
                             const element = document.querySelector(`[data-id="${block_id}"]`)
-                            console.log('element', element)
                             if (element) {
                                 element.scrollIntoView({behavior: 'smooth', block: 'center'})
                                 element.style.transition = 'background-color 1s ease'

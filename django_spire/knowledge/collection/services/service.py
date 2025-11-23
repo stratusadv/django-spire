@@ -11,6 +11,8 @@ from django_spire.knowledge.collection.services.ordering_service import \
 from django_spire.knowledge.collection.services.processor_service import \
     CollectionProcessorService
 from django_spire.knowledge.collection.services.tag_service import CollectionTagService
+from django_spire.knowledge.collection.services.tool_services import \
+    CollectionToolService
 from django_spire.knowledge.collection.services.transformation_service import \
     CollectionTransformationService
 
@@ -24,6 +26,7 @@ class CollectionService(BaseDjangoModelService['Collection']):
     ordering = CollectionOrderingService()
     processor = CollectionProcessorService()
     tag = CollectionTagService()
+    tool = CollectionToolService()
     transformation = CollectionTransformationService()
 
     def save_model_obj(self, **field_data) -> tuple[Collection, bool]:

@@ -38,7 +38,7 @@ def form_view(
             .active()
             .request_user_has_access(request)
             .exclude(pk=collection.pk)
-            .exclude_children(collection=collection)
+            .exclude_children(collection_id=pk)
         ),
         fields=['name']
     )
@@ -66,7 +66,7 @@ def form_view(
             if collection.parent_id:
                 return_url = reverse(
                     'django_spire:knowledge:collection:page:top_level',
-                    kwargs={'pk': collection.parent_id}
+                    kwargs={'pk': collection.services.tool.get_root_collection_pk()}
                 )
             else:
                 return_url = reverse('django_spire:knowledge:page:home')
