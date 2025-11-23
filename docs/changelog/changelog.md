@@ -3,7 +3,7 @@
 ## v0.22.4
 
 ### Changes
-- EditorJS CSS theme support.
+- Knowledge base editor CSS theme support.
 
 ## v0.22.3
 
