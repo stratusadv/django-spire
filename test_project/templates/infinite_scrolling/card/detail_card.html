@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="row g-2">
+    <div class="row g-2" data-testid="detail-card-content">
         <div class="col-12 col-md-6">
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=infinite_scrolling.name %}
         </div>

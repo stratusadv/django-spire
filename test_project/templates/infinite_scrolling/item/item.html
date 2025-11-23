@@ -1,7 +1,7 @@
 {% extends 'django_spire/item/infinite_scroll_item.html' %}
 
 {% block item_content %}
-    <div class="align-items-center row">
+    <div class="align-items-center row" data-testid="infinite-scrolling-item">
         <div class="col-12 col-md-3">
             {% url 'infinite_scrolling:page:detail' pk=infinite_scrolling.pk as detail_url %}
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Infinite Scrolling' attribute_value=infinite_scrolling.name attribute_href=detail_url %}
