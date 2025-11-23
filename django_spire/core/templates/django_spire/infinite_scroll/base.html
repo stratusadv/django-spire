@@ -197,16 +197,37 @@
             this.disconnect_observer();
 
             this.prevent_auto_load = true;
-            this.skeleton_count = this.batch_size;
             this.is_refreshing = true;
             this.show_loading = true;
 
             await this.$nextTick();
 
+            let target_count = this.loaded_count;
+            let target_pages = target_count > 0 ? Math.ceil(target_count / this.batch_size) : 1;
+
+            this.skeleton_count = target_count > 0 ? target_count : this.batch_size;
+
             this.reset_state();
 
-            let result = await this.fetch_items(1);
-            this.update_counts_after_refresh(result);
+            let pages_to_fetch = Math.max(1, target_pages);
+            let should_continue = true;
+
+            for (let page = 1; page <= pages_to_fetch && should_continue; page++) {
+                let result = await this.fetch_items(page);
+
+                if (!result.success) {
+                    break;
+                }
+
+                if (result.added > 0) {
+                    this.current_page = page;
+                }
+
+                if (result.added < this.batch_size) {
+                    this.has_next = false;
+                    should_continue = false;
+                }
+            }
 
             await this.$nextTick();
             await new Promise(resolve => setTimeout(resolve, 150));
@@ -285,12 +306,6 @@
             }
 
             await this.refresh();
-        },
-
-        update_counts_after_refresh(result) {
-            if (result && result.added < this.batch_size) {
-                this.has_next = false;
-            }
         },
     }"
     @filter-applied.window="refresh()"
