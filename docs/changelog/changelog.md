@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.22.4
+
+### Changes
+- EditorJS CSS theme support.
+
 ## v0.22.3
 
 ### Fixes
