@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import ClassVar
+from typing import ClassVar
 
 from django import forms
 

@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import json
 
+from typing import TYPE_CHECKING, TypeVar
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
-from typing_extensions import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from django.db.models import QuerySet
     from django.http import HttpRequest
-    from typing_extensions import Any
 
 
 T = TypeVar('T', bound=Model)

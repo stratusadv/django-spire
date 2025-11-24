@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import functools
-from typing import Sequence
 
-from typing_extensions import TYPE_CHECKING
+from typing import Sequence, TYPE_CHECKING
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.template.response import TemplateResponse
-from typing_extensions import TYPE_CHECKING
 
 from django_spire.consts import MAINTENANCE_MODE_SETTINGS_NAME
 

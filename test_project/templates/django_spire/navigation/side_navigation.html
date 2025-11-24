@@ -1,0 +1,8 @@
+{% extends 'django_spire/navigation/side_navigation.html' %}
+{% load static %}
+
+{% block side_navigation_img %}
+    <a href="{% url 'home:page:home' %}" class="p-0 m-0">
+        <img class="my-2" height="50px" src="{% static 'logo.png' %}" alt="Test Project Logo">
+    </a>
+{% endblock %}

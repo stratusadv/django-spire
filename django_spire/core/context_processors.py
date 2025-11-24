@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.conf import settings

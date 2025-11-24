@@ -7,7 +7,7 @@ from django.db.migrations.recorder import MigrationRecorder
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
-from django_spire.contrib.generic_views.portal_views import table_view
+from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
 
 from test_project.apps.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
 from test_project.apps.queryset_filtering.forms import TaskListFilterForm
@@ -34,7 +34,7 @@ def migration_rows_view(request: WSGIRequest) -> TemplateResponse:
 
     migrations = migrations.order_by(order_by)
 
-    return table_view(
+    return infinite_scrolling_view(
         request,
         queryset=migrations,
         queryset_name='migrations',
@@ -78,7 +78,7 @@ def rows_view(request: WSGIRequest) -> TemplateResponse:
 
     context_data = {'batch_size': 10}
 
-    return table_view(
+    return infinite_scrolling_view(
         request,
         context_data=context_data,
         queryset=tasks,

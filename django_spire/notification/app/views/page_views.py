@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.decorators import login_required
-from typing_extensions import TYPE_CHECKING
 
 from django_spire.contrib.generic_views import portal_views
 

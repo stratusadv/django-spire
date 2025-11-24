@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 from django import forms
 

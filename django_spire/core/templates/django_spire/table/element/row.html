@@ -3,7 +3,11 @@
         x-data="{
             init() {
                 let table_id = this.$el.closest('[data-table-id]').dataset.tableId;
-                this.$dispatch('total-count-updated', { total_count: {{ total_count }}, batch_size: {{ batch_size|default:25 }}, table_id: table_id });
+                this.$dispatch('table-total-count-updated', {
+                    batch_size: {{ batch_size|default:25 }},
+                    table_id: table_id,
+                    total_count: {{ total_count }}
+                });
             }
         }"
         style="display: none;"
@@ -11,18 +15,22 @@
 {% endif %}
 
 <tr
-    class="align-middle {% block unified_row_background_colour %}{% endblock %}"
+    class="align-middle {% block row_class %}{% endblock %}"
     data-row-id="{{ row.pk }}"
     x-data="{
-        row_id: '{{ row.pk }}',
-        table_id: null,
+        has_children: false,
         is_checked: false,
         is_open: false,
-        has_children: false,
+        row_id: '{{ row.pk }}',
+        table_id: null,
 
         init() {
             this.table_id = this.$el.closest('[data-table-id]').dataset.tableId;
-            this.$dispatch('row-mounted', { row_id: this.row_id, row_element: this.$el, table_id: this.table_id });
+            this.$dispatch('row-mounted', {
+                row_element: this.$el,
+                row_id: this.row_id,
+                table_id: this.table_id
+            });
         },
 
         handle_checkbox_change() {
@@ -84,7 +92,7 @@
         </template>
     </td>
 
-    {% block table_cells %}{% endblock %}
+    {% block table_cell %}{% endblock %}
 </tr>
 
 <tr class="align-middle" data-row-id="{{ row.pk }}">

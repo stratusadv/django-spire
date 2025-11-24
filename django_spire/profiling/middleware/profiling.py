@@ -5,7 +5,7 @@ import threading
 import time
 
 from pathlib import Path
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.utils.deprecation import MiddlewareMixin
@@ -18,7 +18,7 @@ except ImportError:
     Profiler = None
 
 if TYPE_CHECKING:
-    from typing_extensions import Any, Callable
+    from typing import Any, Callable
 
     from django.http import HttpRequest, HttpResponse
 

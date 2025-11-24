@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from django.http import HttpResponseRedirect
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, redirect
@@ -17,9 +16,9 @@ import django_glue as dg
 
 from test_project.apps.ordering import forms, models
 
-
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+    from django.http import HttpResponseRedirect
 
 
 @permission_required('apps.change_appsordering')

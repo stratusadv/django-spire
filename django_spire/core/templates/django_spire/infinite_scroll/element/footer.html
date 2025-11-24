@@ -1,0 +1,11 @@
+<div class="row {{ footer_class|default:'mt-3' }}">
+    <div class="col text-start">
+        <span class="fs-7 text-app-secondary">
+            Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> {{ footer_label|default:'items' }}
+        </span>
+    </div>
+
+    <div class="col-auto text-end">
+        {% block footer_action %}{% endblock %}
+    </div>
+</div>
