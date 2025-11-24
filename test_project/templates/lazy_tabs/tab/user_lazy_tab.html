@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block tab_triggers %}
-    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Profile' %}
-    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Activity' %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with tab_number=1 trigger_title='Profile' %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with tab_number=2 trigger_title='Activity' %}
 {% endblock %}
 
 {% block tab_sections %}

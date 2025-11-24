@@ -1,13 +1,14 @@
 <li>
     <button
-        :id="$id('tab', which_tab($el.parentElement, $refs.tablist))"
-        @click="select($el.id)"
-        @focus="select($el.id)"
-        type="button"
-        role="tab"
+        @click="select(which_tab($el))"
+        @focus="select(which_tab($el))"
+        :aria-selected="is_selected(which_tab($el))"
         class="bg-transparent h-100 mb-1 position-relative px-3"
-        :class="is_selected($el.id) ? 'tab-item text-app-default-link-color' : 'text-app-secondary'"
+        :class="is_selected(which_tab($el)) ? 'tab-item text-app-default-link-color' : 'text-app-secondary'"
+        data-tab-number="{{ tab_number }}"
+        role="tab"
         style="border: none;"
+        type="button"
     >
         {{ trigger_title }}
     </button>

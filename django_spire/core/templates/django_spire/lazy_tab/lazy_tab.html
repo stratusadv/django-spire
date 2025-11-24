@@ -2,61 +2,63 @@
     x-data="{
         loaded_tabs: new Set(),
         loading_tabs: new Set(),
-        selected_id: null,
+        selected_tab: 1,
         tab_id: '{{ tab_id|default:'tab' }}',
 
         init() {
-            let query_tab = this.get_url_param();
-            query_tab = parseInt(query_tab, 10);
+            let url_tab = this.get_url_param();
 
-            if (!isNaN(query_tab)) {
-                this.$nextTick(() => this.select(this.$id('tab', query_tab)));
-            } else {
-                this.$nextTick(() => this.select(this.$id('tab', 1)));
+            if (url_tab) {
+                this.selected_tab = url_tab;
             }
+
+            this.$nextTick(() => this.load_tab_content(this.selected_tab));
         },
 
-        select(id) {
-            this.selected_id = id;
-            this.update_url(id);
-            this.update_cookie(id);
-            this.load_tab_content(id);
+        select(tab_number) {
+            this.selected_tab = tab_number;
+            this.update_url(tab_number);
+            this.load_tab_content(tab_number);
+
+            this.$dispatch('tab-changed', {
+                tab_id: this.tab_id,
+                tab_number: tab_number
+            });
         },
 
-        is_selected(id) {
-            return this.selected_id === id;
+        is_selected(tab_number) {
+            return this.selected_tab === tab_number;
         },
 
-        is_loaded(id) {
-            return this.loaded_tabs.has(id);
+        is_loaded(tab_number) {
+            return this.loaded_tabs.has(tab_number);
         },
 
-        is_loading(id) {
-            return this.loading_tabs.has(id);
+        is_loading(tab_number) {
+            return this.loading_tabs.has(tab_number);
         },
 
-        async load_tab_content(id) {
-            if (this.is_loaded(id) || this.is_loading(id)) {
+        async load_tab_content(tab_number) {
+            if (this.is_loaded(tab_number) || this.is_loading(tab_number)) {
                 return;
             }
 
-            let tab_number = parseInt(id.split('-').pop(), 10);
             let endpoint = this.get_tab_endpoint(tab_number);
-            let target_ref = this.get_tab_ref(tab_number);
+            let target_ref = this.$refs[`tab_content_${tab_number}`];
 
-            if (!endpoint || !this.$refs[target_ref]) {
-                this.loaded_tabs.add(id);
+            if (!endpoint || !target_ref) {
+                this.loaded_tabs.add(tab_number);
                 return;
             }
 
-            this.loading_tabs.add(id);
+            this.loading_tabs.add(tab_number);
 
             toggle_loading_overlay();
             let view = new ViewGlue(endpoint);
-            await view.render_inner(this.$refs[target_ref]);
-            this.loaded_tabs.add(id);
+            await view.render_inner(target_ref);
 
-            this.loading_tabs.delete(id);
+            this.loading_tabs.delete(tab_number);
+            this.loaded_tabs.add(tab_number);
             toggle_loading_overlay();
         },
 
@@ -65,36 +67,28 @@
             {% endblock %}
         },
 
-        get_tab_ref(tab_number) {
-            return `tab_content_${tab_number}`;
-        },
-
         get_url_param() {
             let url = new URL(window.location);
-            return url.searchParams.get(this.tab_id) || '';
-        },
+            let value = url.searchParams.get(this.tab_id);
+            let parsed = parseInt(value, 10);
 
-        which_tab(el, parent) {
-            return Array.from(parent.children).indexOf(el) + 1;
-        },
-
-        update_url(id) {
-            let tab_id = id.split('-').pop();
-            tab_id = parseInt(tab_id, 10);
-
-            if (!isNaN(tab_id)) {
-                let url = new URL(window.location);
-                url.searchParams.set(this.tab_id, tab_id);
-                window.history.replaceState({}, '', url);
+            if (!isNaN(parsed) && parsed > 0) {
+                return parsed;
             }
+
+            return null;
         },
 
-        update_cookie(id) {
-            let tab_id = id.split('-').pop();
-            document.cookie = `${this.tab_id}=${tab_id}; path=/; SameSite=None; Secure`;
+        update_url(tab_number) {
+            let url = new URL(window.location);
+            url.searchParams.set(this.tab_id, tab_number);
+            window.history.replaceState({}, '', url);
+        },
+
+        which_tab(el) {
+            return parseInt(el.dataset.tabNumber, 10);
         }
     }"
-    x-id="['tab']"
 >
     <ul
         @keydown.right.prevent.stop="$focus.wrap().next()"
@@ -103,8 +97,7 @@
         @keydown.left.prevent.stop="$focus.wrap().prev()"
         @keydown.end.prevent.stop="$focus.last()"
         @keydown.page-down.prevent.stop="$focus.last()"
-        class="d-flex list-unstyled border-bottom border-1"
-        x-ref="tablist"
+        class="border-1 border-bottom d-flex list-unstyled"
         role="tablist"
     >
         {% block tab_triggers %}

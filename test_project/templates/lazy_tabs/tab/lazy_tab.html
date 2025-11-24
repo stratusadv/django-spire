@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block tab_triggers %}
-    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Overview' %}
-    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Details' %}
-    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Settings' %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with tab_number=1 trigger_title='Overview' %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with tab_number=2 trigger_title='Details' %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with tab_number=3 trigger_title='Settings' %}
 {% endblock %}
 
 {% block tab_sections %}
