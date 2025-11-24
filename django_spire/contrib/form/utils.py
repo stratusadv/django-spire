@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from django.forms import Form
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.contrib import messages
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+    from django.forms import Form
 
 
 def show_form_errors(request: WSGIRequest, *forms: Form) -> None:

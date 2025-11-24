@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+from typing import ClassVar
+
 from django.utils.timezone import localtime
-from typing_extensions import ClassVar
 
 from django import forms
 
 from django_spire.notification import models
 from django_spire.notification.app.models import AppNotification
-from django_spire.notification.choices import NotificationStatusChoices, \
+from django_spire.notification.choices import (
+    NotificationStatusChoices,
     NotificationTypeChoices
+)
 from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.sms.models import SmsNotification
 

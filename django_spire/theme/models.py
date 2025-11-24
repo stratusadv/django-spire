@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing_extensions import ClassVar
+from typing import ClassVar
 
 from django_spire.theme.enums import ThemeFamily, ThemeMode
 

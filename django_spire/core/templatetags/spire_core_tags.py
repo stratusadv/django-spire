@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import random
 import string
-from typing import Any
 
-from typing_extensions import Sequence, TYPE_CHECKING, TypeVar
+from typing import Any, Sequence, TYPE_CHECKING, TypeVar
 
 from django import template
 from django.db.models import Model

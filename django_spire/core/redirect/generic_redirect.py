@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import Any
+from typing import Any
 
 from django.http import HttpResponse
 from django.urls import reverse

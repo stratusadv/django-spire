@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from unittest.mock import patch
-from typing_extensions import Any
 
 from django.test import TestCase, RequestFactory
 
