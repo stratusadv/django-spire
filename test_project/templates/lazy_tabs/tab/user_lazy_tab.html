@@ -1,0 +1,19 @@
+{% extends 'django_spire/lazy_tab/lazy_tab.html' %}
+
+{% block tab_endpoints %}
+    let endpoints = {
+        1: '{{ tab_profile_endpoint }}',
+        2: '{{ tab_activity_endpoint }}',
+    };
+    return endpoints[tab_number] || null;
+{% endblock %}
+
+{% block tab_triggers %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Profile' %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Activity' %}
+{% endblock %}
+
+{% block tab_sections %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_section_element.html' with tab_number=1 %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_section_element.html' with tab_number=2 %}
+{% endblock %}

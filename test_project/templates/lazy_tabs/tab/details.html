@@ -1,0 +1,17 @@
+<div class="py-3">
+    <h5 class="fw-semi-bold mb-3">Details</h5>
+    <p class="text-app-secondary">
+        This is the Details tab content. It was loaded on demand when you clicked the tab.
+    </p>
+    <div class="row g-3 mt-2">
+        <div class="col-12">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value='Lazy tabs load their content only when selected, improving initial page load performance.' %}
+        </div>
+        <div class="col-md-6">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Category' attribute_value='UI Components' %}
+        </div>
+        <div class="col-md-6">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Version' attribute_value='1.0.0' %}
+        </div>
+    </div>
+</div>

@@ -40,6 +40,9 @@
 
 {% include 'django_spire/navigation/elements/nav_title_divider.html' with divider_text='Examples' %}
 
+{% url 'lazy_tabs:page:demo' as is_lazy_tabs_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Lazy Tabs' link_icon='bi bi-table' link_url=is_lazy_tabs_url %}
+
 {% url 'infinite_scrolling:page:cards' as is_cards_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='IS - Cards' link_icon='bi bi-grid-3x3-gap' link_url=is_cards_url %}
 

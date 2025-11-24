@@ -1,0 +1,7 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}Lazy Loaded Tabs{% endblock %}
+
+{% block card_title_content %}
+    {% include 'lazy_tabs/tab/lazy_tab.html' with tab_id='demo_tab' %}
+{% endblock %}

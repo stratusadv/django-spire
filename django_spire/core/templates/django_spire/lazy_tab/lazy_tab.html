@@ -1,0 +1,121 @@
+<div
+    x-data="{
+        loaded_tabs: new Set(),
+        loading_tabs: new Set(),
+        selected_id: null,
+        tab_id: '{{ tab_id|default:'tab' }}',
+
+        init() {
+            let query_tab = this.get_url_param();
+            query_tab = parseInt(query_tab, 10);
+
+            if (!isNaN(query_tab)) {
+                this.$nextTick(() => this.select(this.$id('tab', query_tab)));
+            } else {
+                this.$nextTick(() => this.select(this.$id('tab', 1)));
+            }
+        },
+
+        select(id) {
+            this.selected_id = id;
+            this.update_url(id);
+            this.update_cookie(id);
+            this.load_tab_content(id);
+        },
+
+        is_selected(id) {
+            return this.selected_id === id;
+        },
+
+        is_loaded(id) {
+            return this.loaded_tabs.has(id);
+        },
+
+        is_loading(id) {
+            return this.loading_tabs.has(id);
+        },
+
+        async load_tab_content(id) {
+            if (this.is_loaded(id) || this.is_loading(id)) {
+                return;
+            }
+
+            let tab_number = parseInt(id.split('-').pop(), 10);
+            let endpoint = this.get_tab_endpoint(tab_number);
+            let target_ref = this.get_tab_ref(tab_number);
+
+            if (!endpoint || !this.$refs[target_ref]) {
+                this.loaded_tabs.add(id);
+                return;
+            }
+
+            this.loading_tabs.add(id);
+
+            toggle_loading_overlay();
+            let view = new ViewGlue(endpoint);
+            await view.render_inner(this.$refs[target_ref]);
+            this.loaded_tabs.add(id);
+
+            this.loading_tabs.delete(id);
+            toggle_loading_overlay();
+        },
+
+        get_tab_endpoint(tab_number) {
+            {% block tab_endpoints %}
+            {% endblock %}
+        },
+
+        get_tab_ref(tab_number) {
+            return `tab_content_${tab_number}`;
+        },
+
+        get_url_param() {
+            let url = new URL(window.location);
+            return url.searchParams.get(this.tab_id) || '';
+        },
+
+        which_tab(el, parent) {
+            return Array.from(parent.children).indexOf(el) + 1;
+        },
+
+        update_url(id) {
+            let tab_id = id.split('-').pop();
+            tab_id = parseInt(tab_id, 10);
+
+            if (!isNaN(tab_id)) {
+                let url = new URL(window.location);
+                url.searchParams.set(this.tab_id, tab_id);
+                window.history.replaceState({}, '', url);
+            }
+        },
+
+        update_cookie(id) {
+            let tab_id = id.split('-').pop();
+            document.cookie = `${this.tab_id}=${tab_id}; path=/; SameSite=None; Secure`;
+        }
+    }"
+    x-id="['tab']"
+>
+    <ul
+        @keydown.right.prevent.stop="$focus.wrap().next()"
+        @keydown.home.prevent.stop="$focus.first()"
+        @keydown.page-up.prevent.stop="$focus.first()"
+        @keydown.left.prevent.stop="$focus.wrap().prev()"
+        @keydown.end.prevent.stop="$focus.last()"
+        @keydown.page-down.prevent.stop="$focus.last()"
+        class="d-flex list-unstyled border-bottom border-1"
+        x-ref="tablist"
+        role="tablist"
+    >
+        {% block tab_triggers %}
+        {% endblock %}
+    </ul>
+
+    {% block tab_function_area %}
+    {% endblock %}
+
+    <div>
+        {% block tab_sections %}
+        {% endblock %}
+    </div>
+</div>
