@@ -1,7 +1,0 @@
-{% extends 'django_spire/card/title_card.html' %}
-
-{% block card_title %}{{ card_title }}{% endblock %}
-
-{% block card_title_content %}
-    {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height=scroll_height %}
-{% endblock %}

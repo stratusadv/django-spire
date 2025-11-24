@@ -32,6 +32,18 @@ def cards_page_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
+def container_page_view(request: WSGIRequest) -> TemplateResponse:
+    context_data = {
+        'endpoint': reverse('infinite_scrolling:template:items'),
+    }
+
+    return TemplateResponse(
+        request=request,
+        context=context_data,
+        template='infinite_scrolling/page/container_page.html',
+    )
+
+
 def delete_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     infinite_scrolling = get_object_or_404(InfiniteScrolling, pk=pk)
 

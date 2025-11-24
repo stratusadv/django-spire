@@ -1,1 +1,9 @@
-{% include 'infinite_scrolling/form/form.html' %}
+{% extends 'django_spire/modal/content/modal_title_content.html' %}
+
+{% block modal_content_title %}
+    {{ infinite_scrolling.name|default:'Create Infinite Scrolling' }}
+{% endblock %}
+
+{% block modal_content_content %}
+    {% include 'infinite_scrolling/form/form.html' %}
+{% endblock %}

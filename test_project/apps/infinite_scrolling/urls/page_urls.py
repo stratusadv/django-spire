@@ -7,6 +7,7 @@ app_name = 'page'
 
 urlpatterns = [
     path('cards/', page_views.cards_page_view, name='cards'),
+    path('container/', page_views.container_page_view, name='container'),
     path('list/', page_views.list_page_view, name='list'),
     path('table/', page_views.table_page_view, name='table'),
     path('<int:pk>/detail/', page_views.detail_page_view, name='detail'),

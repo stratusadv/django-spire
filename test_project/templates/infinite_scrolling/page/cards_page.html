@@ -9,15 +9,15 @@
 
     <div class="row g-3">
         <div class="col-md-6">
-            {% include 'infinite_scrolling/card/infinite_scrolling_card.html' with card_title='Recent Items' %}
+            {% include 'django_spire/card/infinite_scroll_card.html' with card_title='Recent Items' %}
         </div>
 
         <div class="col-md-6">
-            {% include 'infinite_scrolling/card/infinite_scrolling_card.html' with card_title='All Items' %}
+            {% include 'django_spire/card/infinite_scroll_card.html' with card_title='All Items' %}
         </div>
 
         <div class="col-12">
-            {% include 'infinite_scrolling/card/infinite_scrolling_card.html' with card_title='Full Width Card' scroll_height='400px' %}
+            {% include 'django_spire/card/infinite_scroll_card.html' with card_title='Full Width Card' scroll_height='500px' %}
         </div>
     </div>
 {% endblock %}

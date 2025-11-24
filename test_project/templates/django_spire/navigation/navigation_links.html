@@ -43,6 +43,9 @@
 {% url 'infinite_scrolling:page:cards' as is_cards_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='IS - Cards' link_icon='bi bi-grid-3x3-gap' link_url=is_cards_url %}
 
+{% url 'infinite_scrolling:page:container' as is_container_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='IS - Container' link_icon='bi bi-grid-3x3-gap' link_url=is_container_url %}
+
 {% url 'infinite_scrolling:page:list' as is_list_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='IS - List' link_icon='bi bi-list-ul' link_url=is_list_url %}
 
