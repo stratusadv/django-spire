@@ -3,6 +3,10 @@
 {% load static %}
 {% load spire_core_tags %}
 
+{% block base_head_additional_css %}
+    <link href="{% static 'django_spire/knowledge/css/editor.css' %}?v={{ DJANGO_SPIRE_VERSION }}" rel="stylesheet">
+{% endblock %}
+
 {% block base_body_additional_top_js %}
     {{ block.super }}
 

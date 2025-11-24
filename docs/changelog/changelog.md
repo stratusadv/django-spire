@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.22.4
+
+### Changes
+- Knowledge base editor CSS theme support.
+
+## v0.22.3
+
+### Fixes
+- Fixed knowledge base navigation missing child collections bug.
+
 ## v0.22.2
 
 ### Fixes
