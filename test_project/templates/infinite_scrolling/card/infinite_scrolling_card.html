@@ -1,7 +1,7 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% block card_title %}{{ card_title|default:'Infinite Scrolling Items' }}{% endblock %}
+{% block card_title %}{{ card_title }}{% endblock %}
 
 {% block card_title_content %}
-    {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height=scroll_height|default:'300px' batch_size=batch_size|default:10 %}
+    {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height=scroll_height %}
 {% endblock %}

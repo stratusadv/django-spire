@@ -35,7 +35,6 @@ def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         infinite_scrolling.add_activity(
             user=request.user,
             verb='deleted',
-            device=request.device,
             information=f'{request.user.get_full_name()} deleted a infinite_scrolling.'
         )
 
@@ -97,6 +96,23 @@ def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     infinite_scrolling = get_object_or_null_obj(models.InfiniteScrolling, pk=pk)
 
     dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling)
+
+    if request.method == 'POST':
+        form = forms.InfiniteScrollingForm(request.POST, instance=infinite_scrolling)
+
+        if form.is_valid():
+            infinite_scrolling.services.factory.save_model_obj(
+                user=request.user,
+                obj=infinite_scrolling,
+                **form.cleaned_data
+            )
+
+            fallback = reverse('infinite_scrolling:page:list')
+            return_url = safe_redirect_url(request, fallback=fallback)
+
+            return redirect(return_url)
+
+        show_form_errors(request, form)
 
     context_data = {
         'infinite_scrolling': infinite_scrolling
