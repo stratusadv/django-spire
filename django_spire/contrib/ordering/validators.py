@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-
-from typing_extensions import TYPE_CHECKING
-
-from django.db.models import QuerySet
+from typing import TYPE_CHECKING
 
 from django_spire.contrib.ordering.exceptions import OrderingMixinException
 
 if TYPE_CHECKING:
-    from typing import Callable
-    from django.db.models import Model
+    from django.db.models import Model, QuerySet
 
 
 class OrderingMixinValidator:
@@ -37,9 +33,9 @@ class OrderingMixinValidator:
         Validates that the destination and origin and insertion objects and position are valid.
         Returns tuple of validity and applicable error messages.
         """
-        self._validate_position()
 
-        return False if self._errors else True
+        self._validate_position()
+        return not self._errors
 
     def _validate_position(self):
         """Ensure position is valid."""

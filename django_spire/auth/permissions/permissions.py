@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import Permission, Group, User
 from django.contrib.contenttypes.models import ContentType

@@ -1,6 +1,6 @@
 {% extends 'django_spire/table/element/row.html' %}
 
-{% block table_cells %}
+{% block table_cell %}
     <td width="40%">
         <div class="fw-medium">{{ row.name|truncatechars:75 }}</div>
         <div class="small text-muted">{{ row.description }}</div>

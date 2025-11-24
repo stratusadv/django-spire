@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
+
 from urllib.parse import parse_qs, unquote, urlencode, urlparse, urlunparse
 
 from django.urls import reverse, NoReverseMatch

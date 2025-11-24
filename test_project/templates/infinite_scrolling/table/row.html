@@ -1,0 +1,20 @@
+{% extends 'django_spire/table/element/row.html' %}
+
+{% block table_cell %}
+    <td data-testid="table-cell-name">
+        <div class="fw-medium">{{ row.name }}</div>
+    </td>
+
+    <td data-testid="table-cell-description">
+        <div class="text-app-secondary">{{ row.description|truncatechars:80 }}</div>
+    </td>
+
+    <td data-testid="table-cell-created">{{ row.created_datetime|date:"M d, Y" }}</td>
+
+    <td data-testid="table-cell-actions">
+        {% url 'infinite_scrolling:form:update_modal' pk=row.pk as edit_url %}
+        {% url 'infinite_scrolling:form:delete_modal' pk=row.pk as delete_url %}
+
+        {% include 'django_spire/dropdown/ellipsis_table_dropdown.html' with edit_url=edit_url delete_url=delete_url %}
+    </td>
+{% endblock %}

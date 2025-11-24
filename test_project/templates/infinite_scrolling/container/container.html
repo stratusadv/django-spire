@@ -1,0 +1,9 @@
+{% extends 'django_spire/container/infinite_scroll_container.html' %}
+
+{% block container_button %}
+    {% if perms.infinite_scrolling.add_infinite_scrolling %}
+        <button class="btn btn-app-primary-dark" type="button" @click="dispatch_modal_view('{% url 'infinite_scrolling:form:create_modal' %}')">
+            <i class="bi bi-plus-lg me-1"></i>New Infinite Scrolling
+        </button>
+    {% endif %}
+{% endblock %}

@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 import json
-from typing_extensions import TYPE_CHECKING
+
+from typing import TYPE_CHECKING
 
 from django_spire.notification.app.models import AppNotification
 

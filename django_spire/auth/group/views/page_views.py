@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
 

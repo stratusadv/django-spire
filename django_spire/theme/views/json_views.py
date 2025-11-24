@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from http import HTTPStatus
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page

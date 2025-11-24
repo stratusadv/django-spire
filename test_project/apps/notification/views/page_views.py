@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django_glue import glue_model_object
-from typing_extensions import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -15,6 +16,7 @@ from django_spire.notification.choices import (
     NotificationTypeChoices,
     NotificationPriorityChoices,
 )
+
 from test_project.apps.notification.forms import NotificationForm
 
 if TYPE_CHECKING:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import Any, Callable, TYPE_CHECKING
+from typing import Any, Callable, TYPE_CHECKING
 
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
@@ -121,34 +121,40 @@ def delete_form_view(
 def infinite_scrolling_view(
     request: WSGIRequest,
     *,
-    context_data: dict[str, Any],
     queryset: QuerySet | list,
     queryset_name: str,
-    template: str
+    template: str,
+    context_data: dict[str, Any] | None = None
 ) -> TemplateResponse:
     if context_data is None:
         context_data = {}
 
-    current_page = int(request.GET.get('page', 1))
-    page_size = int(request.GET.get('page_size', 10))
+    default_batch_size = 25
 
-    start = (current_page - 1) * page_size
-    end = start + page_size
+    page = int(request.GET.get('page', 1))
 
-    object_list = queryset[start:end]
+    batch_size = (
+        context_data.get('batch_size')
+        if 'batch_size' in context_data
+        else request.GET.get('batch_size', default_batch_size)
+    )
 
-    length = (
+    batch_size = int(batch_size)
+    offset = (page - 1) * batch_size
+
+    total_count = (
         queryset.count()
         if isinstance(queryset, QuerySet)
         else len(queryset)
     )
 
-    has_next = end < length
+    object_list = queryset[offset:offset + batch_size]
+    has_next = offset + batch_size < total_count
 
     base_context_data = {
-        'current_page': current_page,
+        'batch_size': batch_size,
         'has_next': has_next,
-        'page_size': page_size,
+        'total_count': total_count,
         queryset_name: object_list
     }
 
@@ -266,49 +272,6 @@ def model_form_view(
         obj=obj,
         breadcrumbs_func=breadcrumbs_func,
         verb=verb,
-        template=template
-    )
-
-
-def table_view(
-    request: WSGIRequest,
-    *,
-    queryset: QuerySet,
-    queryset_name: str,
-    template: str,
-    context_data: dict[str, Any] | None = None
-) -> TemplateResponse:
-    if context_data is None:
-        context_data = {}
-
-    default_batch_size = 25
-
-    page = int(request.GET.get('page', 1))
-
-    batch_size = (
-        context_data.get('batch_size')
-        if 'batch_size' in context_data
-        else request.GET.get('batch_size', default_batch_size)
-    )
-
-    batch_size = int(batch_size)
-    offset = (page - 1) * batch_size
-
-    total_count = queryset.count()
-    object_list = queryset[offset:offset + batch_size]
-    has_next = offset + batch_size < total_count
-
-    base_context_data = {
-        queryset_name: object_list,
-        'has_next': has_next,
-        'total_count': total_count,
-    }
-
-    context_data.update(base_context_data)
-
-    return TemplateResponse(
-        request,
-        context=context_data,
         template=template
     )
 
