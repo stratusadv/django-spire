@@ -3,5 +3,7 @@
 {% block card_title %}User Information{% endblock %}
 
 {% block card_title_content %}
-    {% include 'lazy_tabs/tab/user_lazy_tab.html' with tab_id='user_tab' %}
+    <div data-testid="user-tabs">
+        {% include 'lazy_tabs/tab/user_lazy_tab.html' with tab_id='user_tab' %}
+    </div>
 {% endblock %}
