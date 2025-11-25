@@ -2,23 +2,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import django_glue as dg
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
-
 from django_spire.contrib.generic_views import portal_views
 from django_spire.contrib.session.controller import SessionController
-
 from test_project.apps.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
-from test_project.apps.queryset_filtering.models import Task
 from test_project.apps.queryset_filtering.forms import TaskListFilterForm
+from test_project.apps.queryset_filtering.models import Task
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
+@login_required
 def list_page(request: WSGIRequest):
 
     """

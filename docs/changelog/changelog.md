@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.23.1
+
+### Fixes
+
+- Fix queryest session filtering when a session resumes.
+- Add a session controller condition so that, when a session is expired, it returns an unfiltered queryest.
+
 ## v0.23.0
 
 ### Breaking
