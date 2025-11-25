@@ -2,9 +2,10 @@
 
 ## v0.23.1
 
-### Changes
+### Fixes
 
-- Handle query parameters more gracefully in infinite scroll
+- Fix queryest session filtering when a session resumes.
+- Add a session controller condition so that, when a session is expired, it returns an unfiltered queryest.
 
 ## v0.23.0
 
