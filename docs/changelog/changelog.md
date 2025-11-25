@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.2
+
+### Changes
+
+- Handle query parameters more gracefully in infinite scroll
+
 ## v0.23.1
 
 ### Fixes
