@@ -1,0 +1,12 @@
+{% extends 'core/page/full_page.html' %}
+
+{% block page_content %}
+    <form
+        action="{% url 'queryset_filtering:form:update' pk=task.pk|default:0 %}"
+        method="post"
+    >
+        {% csrf_token %}
+
+        {% include 'queryset_filtering/card/form_card.html' %}
+    </form>
+{% endblock %}

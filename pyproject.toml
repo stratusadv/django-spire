@@ -69,9 +69,12 @@ development = [
     "django-debug-toolbar",
     "django-watchfiles",
     "pip",
+    "playwright",
     "pyinstrument",
     "pyrefly",
     "pytest",
+    "pytest-django",
+    "pytest-playwright",
     "setuptools",
     "twine"
 ]
@@ -176,6 +179,10 @@ include = [
     ".dev",
     "workspaces",
 ]
+
+[tool.pytest.ini_options]
+django_find_project = false
+markers = ["playwright: Playwright browser tests"]
 
 [tool.ruff]
 extend = "ruff.toml"

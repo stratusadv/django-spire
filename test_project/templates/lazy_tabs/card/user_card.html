@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}User Information{% endblock %}
+
+{% block card_title_content %}
+    <div data-testid="user-tabs">
+        {% include 'lazy_tabs/tab/user_lazy_tab.html' with tab_id='user_tab' %}
+    </div>
+{% endblock %}

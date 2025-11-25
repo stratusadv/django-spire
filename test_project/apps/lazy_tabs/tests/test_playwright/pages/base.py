@@ -1,0 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from playwright.sync_api import Page
+
+
+class BasePage:
+    def __init__(self, page: Page, base_url: str) -> None:
+        self.page = page
+        self.base_url = base_url
+
+    def goto(self, url: str) -> None:
+        self.page.goto(url)
+
+    def wait_for_load_state(self, state: str = 'networkidle') -> None:
+        self.page.wait_for_load_state(state)

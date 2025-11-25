@@ -6,6 +6,11 @@ import sys
 
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+env_file = Path(__file__).parent / 'development.env'
+load_dotenv(env_file)
+
 logging.basicConfig(
     format='[%(asctime)-15s] Django Spire: "%(message)s"',
     datefmt='%d/%b/%Y %H:%M:%S'
@@ -121,7 +126,9 @@ INSTALLED_APPS += [
     'test_project.apps.file',
     'test_project.apps.help_desk',
     'test_project.apps.home',
+    'test_project.apps.infinite_scrolling',
     'test_project.apps.landing',
+    'test_project.apps.lazy_tabs',
     'test_project.apps.ordering',
     'test_project.apps.history',
     'test_project.apps.notification',
@@ -186,7 +193,6 @@ TEMPLATES = [
                 'django_glue.context_processors.django_glue',
                 'django_spire.core.context_processors.django_spire',
                 'django_spire.core.context_processors.theme_context',
-                'test_project.apps.core.context_processors.test_project',
                 'test_project.apps.core.context_processors.django_spire',
             ],
             'builtins': [

@@ -1,0 +1,7 @@
+{% extends 'django_spire/container/infinite_scroll_container.html' %}
+
+{% block container_title %}Tasks{% endblock %}
+
+{% block container_filter_section %}
+    {% include 'queryset_filtering/form/list_filter_form.html' %}
+{% endblock %}

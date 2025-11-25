@@ -1,0 +1,12 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <form
+        action="{% url 'tabular:form:update' pk=task.pk|default:0 %}"
+        method="post"
+    >
+        {% csrf_token %}
+
+        {% include 'tabular/card/form_card.html' %}
+    </form>
+{% endblock %}

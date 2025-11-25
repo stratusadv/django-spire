@@ -1,0 +1,17 @@
+<div class="bg-app-layer-three p-3">
+    <div class="mb-2">
+        <strong class="text-app-primary">Task Details</strong>
+    </div>
+
+    <div class="small">
+        <div class="mb-1">
+            <span class="text-muted">Name:</span> {{ task.name }}
+        </div>
+        <div class="mb-1">
+            <span class="text-muted">Status:</span> {{ task.get_status_display }}
+        </div>
+        <div class="mb-1">
+            <span class="text-muted">Description:</span> {{ task.description }}
+        </div>
+    </div>
+</div>

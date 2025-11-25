@@ -1,0 +1,11 @@
+{% extends 'django_spire/lazy_tab/lazy_tab.html' %}
+
+{% block tab_trigger %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Profile' endpoint=tab_profile_endpoint %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_trigger_element.html' with trigger_title='Activity' endpoint=tab_activity_endpoint %}
+{% endblock %}
+
+{% block tab_section %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_section_element.html' %}
+    {% include 'django_spire/lazy_tab/element/lazy_tab_section_element.html' %}
+{% endblock %}

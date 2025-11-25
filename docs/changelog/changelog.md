@@ -1,11 +1,50 @@
 # Changelog
 
-## v0.22.1
+## v0.23.1
 
 ### Fixes
 
 - Fix queryest session filtering when a session resumes.
 - Add a session controller condition so that, when a session is expired, it returns an unfiltered queryest.
+
+## v0.23.0
+
+### Breaking
+
+- infinite_scrolling_view and its subsequent templates have been refactored
+
+### Changes
+
+- The ability to capture form errors and pass them to context data
+
+### Features
+
+- Infinite loading cards, containers, pages and tables
+- Tables
+- Lazy-loaded tabs
+
+## v0.22.4
+
+### Changes
+
+- Knowledge base editor CSS theme support.
+
+## v0.22.3
+
+### Fixes
+
+- Fixed knowledge base navigation missing child collections bug.
+
+## v0.22.2
+
+### Fixes
+- Fixed knowledge base file conversion bug.
+
+## v0.22.1
+
+### Fixes
+
+- Fixed migration file issues with `django_spire_core` and sub-app `tag` model.
 
 ## v0.22.0
 

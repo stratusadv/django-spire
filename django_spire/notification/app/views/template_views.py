@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 
-from django.contrib.auth.models import AnonymousUser
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
+from django.contrib.auth.models import AnonymousUser
 from django.template.response import TemplateResponse
 
 from django_spire.notification.app.models import AppNotification

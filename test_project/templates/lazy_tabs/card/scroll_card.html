@@ -1,0 +1,7 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}Infinite Scrolling in Tabs{% endblock %}
+
+{% block card_title_content %}
+    {% include 'lazy_tabs/tab/scroll_lazy_tab.html' %}
+{% endblock %}

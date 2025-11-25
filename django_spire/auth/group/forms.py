@@ -5,9 +5,6 @@ import json
 from django import forms
 from django.contrib.auth.models import Group, User
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Column, Layout, Row, Submit
-
 from django_spire.auth.group.factories import bulk_create_groups_from_names
 
 
@@ -28,8 +25,10 @@ class GroupNamesForm(forms.Form):
 class GroupForm(forms.ModelForm):
     def clean_name(self):
         name = self.cleaned_data['name']
+
         if name.lower() == 'all users':
-            raise forms.ValidationError('"All Users" is a reserved name. Please choose another name.')
+            message = '"All Users" is a reserved name. Please choose another name.'
+            raise forms.ValidationError(message)
 
         return name
     class Meta:

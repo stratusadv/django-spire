@@ -1,0 +1,13 @@
+{% extends 'django_spire/table/base.html' %}
+
+{% block table_header %}
+    {% include 'django_spire/table/element/header.html' with sort_key='name' label='Task Name' style='min-width: 250px; width: 45%;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='status' label='Status' style='min-width: 120px; width: 120px;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='quantity' label='Users' breakpoint='lg' style='min-width: 100px; width: 100px;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='cost' label='Cost' breakpoint='md' style='min-width: 120px; width: 120px;' %}
+
+    {% include 'django_spire/table/element/header.html' with sort_key='date' label='Date' breakpoint='lg' style='min-width: 140px; width: 140px;' %}
+{% endblock %}

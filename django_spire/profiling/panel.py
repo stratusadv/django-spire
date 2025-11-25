@@ -6,7 +6,7 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from debug_toolbar.panels import Panel
 from django.conf import settings
@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django_spire.profiling import lock
 
 if TYPE_CHECKING:
-    from typing_extensions import Any
+    from typing import Any
 
 
 @dataclass

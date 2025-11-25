@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
-
-from test_project.apps.model_and_service.models import Adult
+from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
@@ -18,7 +16,7 @@ if TYPE_CHECKING:
 def test_model_detail_view(request: WSGIRequest) -> TemplateResponse:
     test_model = generate_test_model()
 
-    user, created = User.objects.get_or_create(
+    user, _ = User.objects.get_or_create(
         username="test_user",
         defaults={"password": "test_password"}
     )

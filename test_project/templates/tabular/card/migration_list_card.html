@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Database Migrations
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'tabular/table/migration_table.html' with endpoint=migration_endpoint %}
+{% endblock %}

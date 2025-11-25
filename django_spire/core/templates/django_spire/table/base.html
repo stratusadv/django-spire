@@ -1,0 +1,221 @@
+{% extends 'django_spire/infinite_scroll/base.html' %}
+
+{% block scroll_xdata %}
+    responsive_mode: '{{ responsive_mode|default:"collapse" }}',
+    table_id: $id('table'),
+
+    any_row_has_children: false,
+    average_row_height: 0,
+    column_breakpoints: [],
+    column_count: 0,
+    is_row_open: {},
+    select_all: false,
+    selected_rows: new Set(),
+
+    {% block table_xdata %}{% endblock %}
+
+    apply_column_breakpoints(row_element) {
+        if (this.responsive_mode !== 'collapse') {
+            return;
+        }
+
+        let cells = Array.from(row_element.children);
+
+        cells.forEach((cell, index) => {
+            let breakpoint = this.column_breakpoints[index];
+
+            if (breakpoint && cell.tagName === 'TD') {
+                cell.classList.add('d-none', `d-${breakpoint}-table-cell`);
+            }
+        });
+    },
+
+    handle_header_mounted(event) {
+        this.column_count = event.detail.count;
+    },
+
+    handle_header_registered(event) {
+        this.column_breakpoints[event.detail.index] = event.detail.breakpoint;
+    },
+
+    handle_row_deselected(event) {
+        if (event.detail.table_id === this.table_id) {
+            this.selected_rows.delete(event.detail.row_id);
+        }
+    },
+
+    handle_row_mounted(event) {
+        if (event.detail.table_id !== this.table_id) {
+            return;
+        }
+
+        this.loaded_count++;
+
+        if (event.detail.row_element) {
+            this.apply_column_breakpoints(event.detail.row_element);
+
+            if (this.average_row_height === 0) {
+                this.average_row_height = event.detail.row_element.offsetHeight;
+            }
+        }
+    },
+
+    handle_row_selected(event) {
+        if (event.detail.table_id === this.table_id) {
+            this.selected_rows.add(event.detail.row_id);
+        }
+    },
+
+    handle_row_cleared() {
+        this.loaded_count = 0;
+        this.selected_rows.clear();
+        this.select_all = false;
+    },
+
+    handle_table_total_count_updated(event) {
+        if (event.detail.table_id !== this.table_id) {
+            return;
+        }
+
+        this.total_count = event.detail.total_count;
+
+        if (event.detail.batch_size) {
+            this.batch_size = event.detail.batch_size;
+        }
+    },
+
+    handle_toggle_all() {
+        this.select_all = !this.select_all;
+
+        if (this.select_all) {
+            this.$dispatch('select-all-rows', { table_id: this.table_id });
+        } else {
+            this.selected_rows.clear();
+            this.$dispatch('deselect-all-rows', { table_id: this.table_id });
+        }
+    },
+
+    handle_toggle_row(event) {
+        if (event.detail.table_id !== this.table_id) {
+            return;
+        }
+
+        let row_id = event.detail.row_id;
+        this.is_row_open[row_id] = !this.is_row_open[row_id];
+
+        this.$dispatch('toggle-row-state', {
+            is_open: this.is_row_open[row_id],
+            row_id: row_id,
+            table_id: this.table_id
+        });
+    },
+
+    async refresh_table() {
+        await this.refresh();
+    },
+{% endblock %}
+
+{% block handle_item_mounted %}{% endblock %}
+{% block handle_item_cleared %}{% endblock %}
+{% block handle_total_count_updated %}{% endblock %}
+
+{% block scroll_reset_state %}
+    this.selected_rows.clear();
+    this.select_all = false;
+    this.is_row_open = {};
+{% endblock %}
+
+{% block scroll_event %}
+    @header-mounted="handle_header_mounted($event)"
+    @header-registered="handle_header_registered($event)"
+    @row-deselected.window="handle_row_deselected($event)"
+    @row-mounted.window="handle_row_mounted($event)"
+    @row-selected.window="handle_row_selected($event)"
+    @row-cleared.window="if ($event.detail.table_id === table_id) handle_row_cleared()"
+    @table-total-count-updated.window="handle_table_total_count_updated($event)"
+    @toggle-row.window="handle_toggle_row($event)"
+{% endblock %}
+
+{% block scroll_container %}
+    <div
+        class="position-relative table-container"
+        style="height: {{ table_height|default:'600px' }}; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+        x-ref="scroll_container"
+        :data-table-id="table_id"
+    >
+        <table
+            class="table table-hover table-striped fs-7 w-100 {% block table_class %}{% endblock %}"
+            :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;')"
+        >
+            <thead class="{% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
+                <tr
+                    x-init="column_count = $el.children.length; $dispatch('header-mounted', { count: column_count })"
+                    x-ref="header_row"
+                >
+                    {% block table_header_container %}
+                        {% block table_header_start %}
+                            <th style="min-width: 30px; width: 30px;">
+                                <input
+                                    :checked="select_all"
+                                    :disabled="is_loading || is_refreshing"
+                                    @change="handle_toggle_all()"
+                                    type="checkbox"
+                                >
+                            </th>
+
+                            <th style="min-width: 30px; width: 30px;"></th>
+                        {% endblock %}
+
+                        {% block table_header %}{% endblock %}
+
+                        {% block table_header_end %}
+                            <th style="min-width: 70px; width: 70px;">Actions</th>
+                        {% endblock %}
+                    {% endblock %}
+                </tr>
+            </thead>
+
+            <tbody
+                x-ref="content_container"
+                x-show="!is_refreshing"
+                :data-table-id="table_id"
+            >
+                {% block table_body %}{% endblock %}
+            </tbody>
+
+            {% block refreshing_skeleton %}
+                {% include 'django_spire/table/element/refreshing_skeleton.html' %}
+            {% endblock %}
+
+            {% block loading_skeleton %}
+                {% include 'django_spire/table/element/loading_skeleton.html' %}
+            {% endblock %}
+
+            {% block no_data %}
+                {% include 'django_spire/table/item/no_data_item.html' %}
+            {% endblock %}
+        </table>
+
+        {% block trigger %}
+            {% include 'django_spire/table/element/trigger.html' %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block scroll_footer %}
+    <div class="row mt-3">
+        <div class="col text-start">
+            <span class="fs-7 text-app-secondary">
+                Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> rows
+            </span>
+        </div>
+
+        <div class="col-auto text-end">
+            <span class="fs-7 text-app-secondary" x-cloak x-show="selected_rows.size > 0">
+                <span x-text="selected_rows.size"></span> selected
+            </span>
+
+            {% block footer_table_action %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

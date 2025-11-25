@@ -1,0 +1,22 @@
+{% extends 'django_spire/table/element/expandable_row.html' %}
+
+{% block row_header %}
+    <i class="bi bi-arrow-return-right text-muted"></i>
+    <strong>{{ row.user.get_full_name|default:row.user.username }}</strong>
+    <span class="badge bg-secondary">{{ row.get_role_display }}</span>
+{% endblock %}
+
+{% block row_content %}
+    <div class="ms-4 small text-muted">
+        <div class="d-none d-lg-block">Price: ${{ row.calculated_price|floatformat:2 }}</div>
+        <div>Cost: ${{ row.calculated_cost|floatformat:2 }}</div>
+        <div class="d-none d-md-block">{{ row.created_datetime|date:"M d, Y" }}</div>
+    </div>
+{% endblock %}
+
+{% block child_row %}
+    {% if row.user %}
+        {% url 'tabular:template:user_detail_rows' user_id=row.user.pk as child_endpoint %}
+        {% include 'django_spire/table/element/child_row.html' with child_endpoint=child_endpoint wrapper_class='ms-4 mt-2' %}
+    {% endif %}
+{% endblock %}

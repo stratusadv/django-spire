@@ -1,0 +1,9 @@
+{% extends 'django_spire/infinite_scroll/element/footer.html' %}
+
+{% block footer_action %}
+    <span class="fs-7 text-app-secondary" x-cloak x-show="selected_rows.size > 0">
+        <span x-text="selected_rows.size"></span> selected
+    </span>
+
+    {% block footer_table_action %}{% endblock %}
+{% endblock %}

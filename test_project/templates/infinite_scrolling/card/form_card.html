@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    {% if infinite_scrolling.pk %}Edit Infinite Scrolling{% else %}Create Infinite Scrolling{% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'infinite_scrolling/form/form.html' %}
+{% endblock %}
