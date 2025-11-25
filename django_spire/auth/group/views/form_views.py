@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.template.response import TemplateResponse
 from django.urls import reverse
 
 import django_glue as dg
+
 from django_spire.auth.group import models, forms
 from django_spire.auth.group.utils import set_group_users
 from django_spire.auth.permissions.decorators import permission_required
@@ -16,12 +15,17 @@ from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
 
 @permission_required('django_spire_auth_group.change_authgroup')
 def form_view(
-        request: WSGIRequest,
-        pk: int = 0
+    request: WSGIRequest,
+    pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_null_obj(models.AuthGroup, pk=pk)
 
@@ -36,8 +40,8 @@ def form_view(
 
             return_url = reverse('django_spire:auth:group:page:list')
             return HttpResponseRedirect(return_url)
-        else:
-            show_form_errors(request, form)
+
+        show_form_errors(request, form)
 
     form = forms.GroupForm(instance=group)
 
@@ -54,11 +58,12 @@ def form_view(
 
 @permission_required('django_spire_auth_group.add_authgroup')
 def user_form_view(
-        request: WSGIRequest,
-        pk: int
+    request: WSGIRequest,
+    pk: int
 ) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     user_choices = AuthUser.services.get_user_choices()
+
     selected_user_ids = list(
         AuthUser.objects
         .filter(groups=group)
@@ -84,8 +89,8 @@ def user_form_view(
 
             return_url = reverse('django_spire:auth:group:page:detail', kwargs={'pk': pk})
             return HttpResponseRedirect(return_url)
-        else:
-            show_form_errors(request, form)
+
+        show_form_errors(request, form)
 
     form = forms.GroupUserForm()
 
@@ -124,9 +129,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('django_spire_auth_group.delete_authgroup')
 def group_remove_user_form_view(
-        request: WSGIRequest,
-        group_pk: int,
-        pk: int
+    request: WSGIRequest,
+    group_pk: int,
+    pk: int
 ) -> HttpResponseRedirect | TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=group_pk)
     user = get_object_or_404(AuthUser, pk=pk)
@@ -147,7 +152,10 @@ def group_remove_user_form_view(
             )
 
             return HttpResponseRedirect(
-                reverse('django_spire:auth:group:page:detail', kwargs={'pk': group_pk})
+                reverse(
+                    'django_spire:auth:group:page:detail',
+                    kwargs={'pk': group_pk}
+                )
             )
 
     form = DeleteConfirmationForm(request.GET, obj=user)

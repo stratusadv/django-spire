@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 def form_errors_as_list(form: Form) -> list[str]:
     form_errors = []
+
     for field_name, error_list in form.errors.items():
         for error in error_list.data:
             error_message = ''
@@ -25,7 +26,8 @@ def form_errors_as_list(form: Form) -> list[str]:
                 error_message += f'{" ".join(error.messages)}'
 
             else:
-                raise Exception('Error message not found.')
+                message = 'Error message not found.'
+                raise Exception(message)
 
             form_errors.append(error_message)
 
