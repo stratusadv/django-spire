@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.urls import reverse
 
-from test_project.apps.infinite_scrolling.tests.test_playwright.pages.base import BasePage
+from django_spire.testing.playwright import BasePage
 
 if TYPE_CHECKING:
     from playwright.sync_api import Locator, Page
@@ -20,13 +20,10 @@ class InfiniteScrollingDetailPage(BasePage):
     def detail_content(self) -> Locator:
         return self.page.get_by_test_id('detail-card-content')
 
-    def goto_page(self) -> None:
-        self.goto(self.url)
-        self.detail_content.wait_for()
-
-    def has_text(self, text: str) -> bool:
-        return self.page.locator('body').inner_text().__contains__(text)
-
     def get_attribute_value(self, attribute_title: str) -> str:
         attribute_section = self.page.locator(f'.fs-7:has-text("{attribute_title}")').locator('..')
         return attribute_section.locator('.fs-6').inner_text()
+
+    def goto_page(self) -> None:
+        self.goto(self.url)
+        self.detail_content.wait_for()

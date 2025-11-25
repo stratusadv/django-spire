@@ -115,17 +115,9 @@
     },
 {% endblock %}
 
-{% block handle_item_mounted %}
-    // Tables use row-mounted instead of item-mounted
-{% endblock %}
-
-{% block handle_item_cleared %}
-    // Tables use row-cleared instead of item-cleared
-{% endblock %}
-
-{% block handle_total_count_updated %}
-    // Tables use table-specific handler with table_id matching
-{% endblock %}
+{% block handle_item_mounted %}{% endblock %}
+{% block handle_item_cleared %}{% endblock %}
+{% block handle_total_count_updated %}{% endblock %}
 
 {% block scroll_reset_state %}
     this.selected_rows.clear();
@@ -155,7 +147,7 @@
             class="table table-hover table-striped fs-7 w-100 {% block table_class %}{% endblock %}"
             :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;')"
         >
-            <thead class="z-1 {% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
+            <thead class="{% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
                 <tr
                     x-init="column_count = $el.children.length; $dispatch('header-mounted', { count: column_count })"
                     x-ref="header_row"

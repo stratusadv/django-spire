@@ -4,8 +4,9 @@ import pytest
 
 from typing import TYPE_CHECKING
 
+from django_spire.testing.playwright import EllipsisDropdown
+
 from test_project.apps.infinite_scrolling.models import InfiniteScrolling
-from test_project.apps.infinite_scrolling.tests.test_playwright.components.dropdown import EllipsisDropdown
 
 if TYPE_CHECKING:
     from test_project.apps.infinite_scrolling.tests.test_playwright.pages.list_page import InfiniteScrollingListPage

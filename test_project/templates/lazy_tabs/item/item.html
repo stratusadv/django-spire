@@ -1,0 +1,17 @@
+{% extends 'django_spire/item/infinite_scroll_item.html' %}
+
+{% block item_content %}
+    <div class="align-items-center row">
+        <div class="col-12 col-md-4">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=item.name %}
+        </div>
+
+        <div class="col-12 col-md-5">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=item.description|truncatechars:100 %}
+        </div>
+
+        <div class="col-12 col-md-3">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Created' attribute_value=item.created_datetime|date:"M d, Y" %}
+        </div>
+    </div>
+{% endblock %}

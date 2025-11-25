@@ -1,14 +1,14 @@
 <li>
     <button
-        @click="select(which_tab($el))"
-        @focus="select(which_tab($el))"
-        :aria-selected="is_selected(which_tab($el))"
+        @click="select($el)"
+        @focus="select($el)"
+        :aria-selected="is_trigger_selected($el)"
         class="bg-transparent h-100 mb-1 position-relative px-3"
-        :class="is_selected(which_tab($el)) ? 'tab-item text-app-default-link-color' : 'text-app-secondary'"
-        data-tab-number="{{ tab_number }}"
+        :class="is_trigger_selected($el) ? 'tab-item text-app-default-link-color' : 'text-app-secondary'"
         role="tab"
         style="border: none;"
         type="button"
+        x-init="$dispatch('register-trigger', { el: $el, endpoint: '{{ endpoint|default:'' }}' })"
     >
         {{ trigger_title }}
     </button>

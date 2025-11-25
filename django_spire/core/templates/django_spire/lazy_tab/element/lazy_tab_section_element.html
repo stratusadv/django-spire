@@ -1,13 +1,14 @@
 <section
     role="tabpanel"
     x-cloak
-    x-show="is_selected({{ tab_number }})"
+    x-init="$dispatch('register-section', { el: $el })"
+    x-show="is_section_selected($el)"
 >
-    <div x-ref="tab_content_{{ tab_number }}">
+    <div x-ref="content">
         {% block lazy_tab_section_loading %}
             <div
                 class="align-items-center d-flex justify-content-center py-5"
-                x-show="is_loading({{ tab_number }})"
+                x-show="is_section_loading($el)"
             >
                 <div class="spinner-border text-app-primary" role="status">
                     <span class="visually-hidden">Loading...</span>

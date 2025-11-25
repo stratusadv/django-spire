@@ -16,6 +16,8 @@ def demo_page_view(request: WSGIRequest) -> TemplateResponse:
         'tab_settings_endpoint': reverse('lazy_tabs:template:tab_settings'),
         'tab_profile_endpoint': reverse('lazy_tabs:template:tab_profile'),
         'tab_activity_endpoint': reverse('lazy_tabs:template:tab_activity'),
+        'tab_items_endpoint': reverse('lazy_tabs:template:tab_items'),
+        'tab_table_endpoint': reverse('lazy_tabs:template:tab_table'),
     }
 
     return TemplateResponse(

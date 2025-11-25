@@ -2,22 +2,52 @@
     x-data="{
         loaded_tabs: new Set(),
         loading_tabs: new Set(),
+        sections: [],
         selected_tab: 1,
-        tab_id: '{{ tab_id|default:'tab' }}',
+        tab_id: '{{ tab_id|default:'' }}',
+        triggers: [],
+        use_url_params: {{ tab_id|yesno:'true,false' }},
 
         init() {
-            let url_tab = this.get_url_param();
-
-            if (url_tab) {
-                this.selected_tab = url_tab;
+            if (!this.tab_id) {
+                this.tab_id = this.$id('lazy-tab');
             }
 
-            this.$nextTick(() => this.load_tab_content(this.selected_tab));
+            if (this.use_url_params) {
+                let url_tab = this.get_url_param();
+
+                if (url_tab) {
+                    this.selected_tab = url_tab;
+                }
+            }
         },
 
-        select(tab_number) {
+        register_trigger(detail) {
+            this.triggers.push({
+                el: detail.el,
+                endpoint: detail.endpoint || null
+            });
+        },
+
+        register_section(detail) {
+            this.sections.push({
+                el: detail.el,
+                content_el: detail.el.firstElementChild
+            });
+
+            if (this.triggers.length === this.sections.length && !this.is_loaded(this.selected_tab)) {
+                this.$nextTick(() => this.load_tab_content(this.selected_tab));
+            }
+        },
+
+        select(el) {
+            let tab_number = this.get_trigger_index(el);
             this.selected_tab = tab_number;
-            this.update_url(tab_number);
+
+            if (this.use_url_params) {
+                this.update_url(tab_number);
+            }
+
             this.load_tab_content(tab_number);
 
             this.$dispatch('tab-changed', {
@@ -26,8 +56,22 @@
             });
         },
 
-        is_selected(tab_number) {
-            return this.selected_tab === tab_number;
+        get_trigger_index(el) {
+            let index = this.triggers.findIndex(t => t.el === el);
+            return index + 1;
+        },
+
+        get_section_index(el) {
+            let index = this.sections.findIndex(s => s.el === el);
+            return index + 1;
+        },
+
+        is_trigger_selected(el) {
+            return this.selected_tab === this.get_trigger_index(el);
+        },
+
+        is_section_selected(el) {
+            return this.selected_tab === this.get_section_index(el);
         },
 
         is_loaded(tab_number) {
@@ -38,15 +82,19 @@
             return this.loading_tabs.has(tab_number);
         },
 
+        is_section_loading(el) {
+            return this.loading_tabs.has(this.get_section_index(el));
+        },
+
         async load_tab_content(tab_number) {
             if (this.is_loaded(tab_number) || this.is_loading(tab_number)) {
                 return;
             }
 
-            let endpoint = this.get_tab_endpoint(tab_number);
-            let target_ref = this.$refs[`tab_content_${tab_number}`];
+            let trigger = this.triggers[tab_number - 1];
+            let section = this.sections[tab_number - 1];
 
-            if (!endpoint || !target_ref) {
+            if (!trigger || !trigger.endpoint || !section) {
                 this.loaded_tabs.add(tab_number);
                 return;
             }
@@ -54,17 +102,14 @@
             this.loading_tabs.add(tab_number);
 
             toggle_loading_overlay();
-            let view = new ViewGlue(endpoint);
-            await view.render_inner(target_ref);
+
+            let view = new ViewGlue(trigger.endpoint);
+            await view.render_inner(section.content_el);
 
             this.loading_tabs.delete(tab_number);
             this.loaded_tabs.add(tab_number);
-            toggle_loading_overlay();
-        },
 
-        get_tab_endpoint(tab_number) {
-            {% block tab_endpoints %}
-            {% endblock %}
+            toggle_loading_overlay();
         },
 
         get_url_param() {
@@ -83,32 +128,30 @@
             let url = new URL(window.location);
             url.searchParams.set(this.tab_id, tab_number);
             window.history.replaceState({}, '', url);
-        },
-
-        which_tab(el) {
-            return parseInt(el.dataset.tabNumber, 10);
         }
     }"
+    @register-section="register_section($event.detail)"
+    @register-trigger="register_trigger($event.detail)"
 >
     <ul
-        @keydown.right.prevent.stop="$focus.wrap().next()"
-        @keydown.home.prevent.stop="$focus.first()"
-        @keydown.page-up.prevent.stop="$focus.first()"
-        @keydown.left.prevent.stop="$focus.wrap().prev()"
         @keydown.end.prevent.stop="$focus.last()"
+        @keydown.home.prevent.stop="$focus.first()"
+        @keydown.left.prevent.stop="$focus.wrap().prev()"
         @keydown.page-down.prevent.stop="$focus.last()"
+        @keydown.page-up.prevent.stop="$focus.first()"
+        @keydown.right.prevent.stop="$focus.wrap().next()"
         class="border-1 border-bottom d-flex list-unstyled"
         role="tablist"
     >
-        {% block tab_triggers %}
+        {% block tab_trigger %}
         {% endblock %}
     </ul>
 
-    {% block tab_function_area %}
+    {% block tab_function %}
     {% endblock %}
 
     <div>
-        {% block tab_sections %}
+        {% block tab_section %}
         {% endblock %}
     </div>
 </div>
