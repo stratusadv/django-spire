@@ -1,0 +1,17 @@
+<div class="py-3">
+    <h5 class="fw-semi-bold mb-3">Activity</h5>
+    <p class="text-app-secondary">
+        Recent activity for this user, loaded lazily.
+    </p>
+    <div class="row g-3 mt-2">
+        <div class="col-12">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Login' attribute_value='Nov 24, 2025 10:30 AM' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Action' attribute_value='Updated profile settings' %}
+        </div>
+        <div class="col-12">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Session Count' attribute_value='42 sessions this month' %}
+        </div>
+    </div>
+</div>

@@ -12,6 +12,7 @@ import django_glue as dg
 
 from django_spire.contrib.session.controller import SessionController
 from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.core.table.enums import ResponsiveMode
 
 from test_project.apps.queryset_filtering.choices import TaskStatusChoices
 from test_project.apps.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
@@ -35,6 +36,7 @@ def list_page(request: WSGIRequest):
     dg.glue_query_set(request, 'users', User.objects.all())
 
     context_data = {
+        'responsive_mode': ResponsiveMode.SCROLL,
         'task_endpoint': reverse('tabular:template:rows'),
         'migration_endpoint': reverse('tabular:template:migration_rows'),
         'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),

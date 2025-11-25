@@ -1,7 +1,7 @@
 <th
     data-breakpoint="{{ breakpoint|default:'' }}"
     {% if sort_key %}@click="sort_by('{{ sort_key }}')"{% endif %}
-    class="{% if sort_key %}cursor-pointer{% endif %} {% if breakpoint %}d-none d-{{ breakpoint }}-table-cell{% endif %} user-select-none {{ extra_class|default:'' }}"
+    class="{% if sort_key %}cursor-pointer{% endif %} {% if breakpoint and responsive_mode != 'scroll' %}d-none d-{{ breakpoint }}-table-cell{% endif %} user-select-none {{ extra_class|default:'' }}"
     style="{{ style|default:'' }}"
     x-init="let index = Array.from($el.parentElement.children).indexOf($el); $dispatch('header-registered', { index: index, breakpoint: '{{ breakpoint|default:'' }}' || null });"
 >
