@@ -1,13 +1,31 @@
 # Changelog
 
+## v0.23.0
+
+### Breaking
+
+- infinite_scrolling_view and its subsequent templates have been refactored
+
+### Changes
+
+- The ability to capture form errors and pass them to context data
+
+### Features
+
+- Infinite loading cards, containers, pages and tables
+- Tables
+- Lazy-loaded tabs
+
 ## v0.22.4
 
 ### Changes
+
 - Knowledge base editor CSS theme support.
 
 ## v0.22.3
 
 ### Fixes
+
 - Fixed knowledge base navigation missing child collections bug.
 
 ## v0.22.2
