@@ -1,30 +1,32 @@
 {% extends 'django_spire/ai/chat/message/message.html' %}
 
 {% block message_content %}
-    {% for entry_intel in message_intel.entries_intel %}
-
-        <div class="row">
-            <div class="col">
-                {{ entry_intel.relevant_text|linebreaksbr }}
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col pt-1 pb-3 fs-7">
-                <a href="{% url 'django_spire:knowledge:entry:version:page:editor' pk=entry_intel.entry.id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}"
-                   target="_blank">
-                    {{ entry_intel.relevant_heading_text }}
-                </a>
-            </div>
-        </div>
-
-    {% endfor %}
-
     <div class="row">
         <div class="col">
-            Is there anything else I can help with?
+            {{ message_intel.answer_intel.answer|linebreaksbr }}
         </div>
     </div>
 
+    <div class="row mt-2 p-1" x-data="{show_resources: false}">
+        <div class="col-auto mx-2 ps-1 pe-2 py-1 fs-7 rounded-3 border border-primary-subtle">
+            <span class="text-muted cursor-pointer" x-on:click="show_resources = !show_resources">
+                <i class="bi bi-caret-right" x-show="!show_resources"></i>
+                <i class="bi bi-caret-down" x-show="show_resources"></i>
+                Sources
+            </span>
+
+            <ul class="my-0 me-3" x-show="show_resources">
+                {% for entry_intel in message_intel.entries_intel %}
+                    <li class="pb-1">
+                        <a href="{% url 'django_spire:knowledge:entry:version:page:editor' pk=entry_intel.entry.id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}"
+                           target="_blank">
+                            {{ entry_intel.relevant_heading_text }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
 
 {% endblock %}

@@ -74,13 +74,13 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
 
                     if (block_id) {
                         setTimeout(() => {
-                            const element = document.querySelector(`[data-id="${block_id}"]`)
+                            const element = document.querySelector(`[data-id="${block_id}"]`)?.firstElementChild
                             if (element) {
                                 element.scrollIntoView({behavior: 'smooth', block: 'center'})
-                                element.style.transition = 'background-color 1s ease'
-                                element.classList.add('bg-app-accent-soft', 'mx-3', 'rounded-3')
+                                element.style.transition = 'background-color 1s ease, padding 1s ease'
+                                element.classList.add('bg-app-accent-soft', 'ps-2', 'rounded-3')
                                 setTimeout(() => {
-                                    element.classList.remove('bg-app-accent-soft')
+                                    element.classList.remove('bg-app-accent-soft', 'ps-2')
                                 }, 4000)
                             }
                         }, 100)
