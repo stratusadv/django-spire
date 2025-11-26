@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.3
+
+### Changes
+
+- Cleaned up the knowledge to ai chat work flow and improved the message result.
+
 ## v0.23.2
 
 ### Changes
