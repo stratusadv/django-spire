@@ -7,7 +7,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django_spire.ai.chat.message_intel import DefaultMessageIntel, BaseMessageIntel
 from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
 from django_spire.knowledge.collection.models import Collection
-from django_spire.knowledge.intelligence.bots.entries_search_llm_bot import EntriesSearchBot
+from django_spire.knowledge.intelligence.bots.knowledge_search_llm_bot import KnowledgeSearchBot
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
 
 if TYPE_CHECKING:
@@ -65,12 +65,11 @@ def knowledge_search_workflow(
     if not entries:
         return NO_KNOWLEDGE_MESSAGE_INTEL
 
-    entries_intel = EntriesSearchBot(llm_temperature=0.0).process(
+    knowledge_answer_intel = KnowledgeSearchBot(llm_temperature=0.0).process(
         user_input=user_input,
         entries=entries
     )
 
     return KnowledgeMessageIntel(
-        body=f'{" ".join([str(entry) for entry in entries_intel])}',
-        entries_intel=entries_intel,
+        knowledge_answer_intel=knowledge_answer_intel,
     )

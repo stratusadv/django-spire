@@ -1,29 +1,31 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from dandy import Bot, Prompt
 
-from django_spire.knowledge.intelligence.intel.entry_intel import EntriesIntel
+from django_spire.knowledge.intelligence.intel.knowledge_answer_intel import KnowledgeAnswerIntel
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry
 
 
-class EntriesSearchBot(Bot):
+class KnowledgeSearchBot(Bot):
     llm_role = 'Knowledge Entry Search Assistant'
-    llm_task = 'Read through the knowledge and return information and the block id that relevant to the information request.'
+    llm_task = 'Read through the knowledge and return an answer and the block ids.'
     llm_guidelines = (
         Prompt()
         .list([
-            'Please read through all the blocks and return 2 of the most relevant ones.',
-            'You can add any of the text in the knowledge entries to the 2 responses if it helps.',
+            'Make sure the answer is relevant and reflects knowledge entries.',
+            'Do not make up information use the provided knowledge entries as a source of truth.',
+            'Also return 1 to 4 of the most relevant knowledge entries.',
             'Make sure the relevant heading text is from a heading with mark down formatting.',
             'When returning the relevant heading remove any of the markdown formating characters.',
         ])
     )
-    llm_intel_class = EntriesIntel
+    llm_intel_class = KnowledgeAnswerIntel
 
-    def process(self, user_input: str, entries: list[Entry]) -> EntriesIntel:
+    def process(self, user_input: str, entries: list[Entry]) -> KnowledgeAnswerIntel:
 
         entry_prompt = Prompt()
         entry_prompt.sub_heading('Information Request')
