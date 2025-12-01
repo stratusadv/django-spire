@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import json
 from abc import abstractmethod
 from typing import Type
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
 from django.forms import Form
-
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.queryset.enums import SessionFilterActionEnum
 from django_spire.contrib.session.controller import SessionController
@@ -18,16 +18,24 @@ class SessionFilterQuerySetMixin(QuerySet):
             self,
             request: WSGIRequest,
             session_key: str,
-            form_class: Type[Form]
+            form_class: Type[Form],
+            is_from_body: bool = False,
     ) -> QuerySet:
         # Session keys must match to process new queryset data
 
         try:
-            action = SessionFilterActionEnum(request.GET.get('action'))
+            if is_from_body:
+                action = json.loads(request.body.decode()).get('action')
+                action = SessionFilterActionEnum(action)
+            else:
+                action = SessionFilterActionEnum(request.GET.get('action'))
         except ValueError:
             action = None
 
-        form = form_class(request.GET)
+        if is_from_body:
+            form = form_class(json.loads(request.body.decode()))
+        else:
+            form = form_class(request.GET)
 
         if form.is_valid():
             session = SessionController(request=request, session_key=session_key)
@@ -36,11 +44,17 @@ class SessionFilterQuerySetMixin(QuerySet):
                 session.purge()
                 return self
 
+            if is_from_body:
+                session_key_value = json.loads(request.body.decode()).get('session_filter_key')
+            else:
+                session_key_value = request.GET.get('session_filter_key')
+
             # Apply filters when the user submits the filter form
             if (
                     action == SessionFilterActionEnum.FILTER
-                    and session_key == request.GET.get('session_filter_key')
+                    and session_key == session_key_value
             ):
+
                 # Update session data
                 for key, value in form.cleaned_data.items():
                     session.add_data(key, value)
@@ -55,7 +69,6 @@ class SessionFilterQuerySetMixin(QuerySet):
         else:
             show_form_errors(request, form)
             return self
-
 
     @abstractmethod
     def bulk_filter(self, filter_data: dict) -> QuerySet:
