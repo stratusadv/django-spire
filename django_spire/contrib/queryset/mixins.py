@@ -23,19 +23,14 @@ class SessionFilterQuerySetMixin(QuerySet):
     ) -> QuerySet:
         # Session keys must match to process new queryset data
 
+        data = json.loads(request.body.decode('utf-8')) if is_from_body else request.GET
+
         try:
-            if is_from_body:
-                action = json.loads(request.body.decode()).get('action')
-                action = SessionFilterActionEnum(action)
-            else:
-                action = SessionFilterActionEnum(request.GET.get('action'))
+            action = SessionFilterActionEnum(data.get('action'))
         except ValueError:
             action = None
 
-        if is_from_body:
-            form = form_class(json.loads(request.body.decode()))
-        else:
-            form = form_class(request.GET)
+        form = form_class(data)
 
         if form.is_valid():
             session = SessionController(request=request, session_key=session_key)
@@ -44,15 +39,10 @@ class SessionFilterQuerySetMixin(QuerySet):
                 session.purge()
                 return self
 
-            if is_from_body:
-                session_key_value = json.loads(request.body.decode()).get('session_filter_key')
-            else:
-                session_key_value = request.GET.get('session_filter_key')
-
             # Apply filters when the user submits the filter form
             if (
                     action == SessionFilterActionEnum.FILTER
-                    and session_key == session_key_value
+                    and session_key == data.get('session_filter_key')
             ):
 
                 # Update session data
