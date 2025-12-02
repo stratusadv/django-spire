@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.4
+
+### Changes
+
+- Added a boolean flag to the process session filter to retrieve data from the body
+
 ## v0.23.3
 
 ### Changes
