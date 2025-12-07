@@ -1,6 +1,6 @@
 <div
     x-data="{
-        batch_size: 25,
+        batch_size: 50,
         current_page: 0,
         endpoint: '',
         has_next: true,
@@ -16,7 +16,7 @@
         async init() {
             this.scroll_id = $id('scroll');
             this.endpoint = this.$el.dataset.endpoint || '';
-            this.batch_size = parseInt(this.$el.dataset.batchSize || '25');
+            this.batch_size = parseInt(this.$el.dataset.batchSize || '50');
 
             await this.$nextTick();
 
@@ -116,7 +116,7 @@
             this.observer.observe(trigger);
         },
     }"
-    data-batch-size="{{ batch_size|default:25 }}"
+    data-batch-size="{{ batch_size|default:50 }}"
     data-endpoint="{{ endpoint }}"
     :data-scroll-id="scroll_id"
     @item-mounted.window="handle_item_mounted($event)"

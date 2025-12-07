@@ -7,6 +7,8 @@ from django_spire.contrib.progress.tracker import ProgressTracker
 if TYPE_CHECKING:
     from typing import Any
 
+    from django_spire.contrib.progress.enums import ProgressStatus
+
 
 class ProgressTrackingMixin:
     _tracker: ProgressTracker | None = None
@@ -17,19 +19,18 @@ class ProgressTrackingMixin:
     @property
     def tracker(self) -> ProgressTracker:
         if self._tracker is None:
-            key = self.get_tracker_key()
-            self._tracker = ProgressTracker(key)
+            self._tracker = ProgressTracker(self.get_tracker_key())
 
         return self._tracker
 
+    def progress_error(self, message: str) -> None:
+        self.tracker.error(message)
+
     def update_progress(
         self,
-        step: str,
+        status: ProgressStatus,
         message: str,
         progress: int,
         **kwargs: Any
     ) -> None:
-        self.tracker.update(step, message, progress, **kwargs)
-
-    def progress_error(self, message: str) -> None:
-        self.tracker.error(message)
+        self.tracker.update(status, message, progress, **kwargs)

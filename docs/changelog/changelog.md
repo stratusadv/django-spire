@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.23.5
+
+### Changes
+
+- Update the progress tracker and handle futures
+- Change height of skeleton loading element
+- Update infinite scrolling default batch size to 50
+
 ## v0.23.4
 
 ### Changes

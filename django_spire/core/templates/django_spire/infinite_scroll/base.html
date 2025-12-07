@@ -1,6 +1,6 @@
 <div
     x-data="{
-        batch_size: parseInt('{{ batch_size|default:25 }}'),
+        batch_size: parseInt('{{ batch_size|default:50 }}'),
         current_page: parseInt('{{ current_page|default:0 }}'),
         endpoint: '{{ endpoint }}',
         has_next: {{ has_next|default:'true'|yesno:'true,false' }},

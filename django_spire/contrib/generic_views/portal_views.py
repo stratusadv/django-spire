@@ -129,7 +129,7 @@ def infinite_scrolling_view(
     if context_data is None:
         context_data = {}
 
-    default_batch_size = 25
+    default_batch_size = 50
 
     page = int(request.GET.get('page', 1))
 
