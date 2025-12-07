@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.6
+
+### Changes
+
+- Update the progress tracker to use POST
+
 ## v0.23.5
 
 ### Changes
