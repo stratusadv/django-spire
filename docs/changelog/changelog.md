@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.7
+
+### Changes
+
+- Update the progress tracker to use polling
+
 ## v0.23.6
 
 ### Changes
