@@ -1,5 +1,6 @@
 import base64
 import uuid
+
 from io import BytesIO
 
 from PIL import Image
@@ -7,7 +8,7 @@ from PIL import Image
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from django_spire.notification.sms.exceptions import SmsTemporaryMediaException
+from django_spire.notification.sms.exceptions import SmsTemporaryMediaError
 from django_spire.notification.sms.models import SmsTemporaryMedia
 
 
@@ -19,7 +20,8 @@ def external_temporary_media_view(request, external_access_key: uuid.UUID) -> Ht
         temporary_media = None
 
     if temporary_media is None or temporary_media.content == '':
-        raise SmsTemporaryMediaException("Content for Temporary Media cannot be empty")
+        message = 'Content for Temporary Media cannot be empty'
+        raise SmsTemporaryMediaError(message)
 
     image = Image.open(
         BytesIO(base64.b64decode(temporary_media.content))

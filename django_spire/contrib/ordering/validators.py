@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.ordering.exceptions import OrderingMixinException
+from django_spire.contrib.ordering.exceptions import OrderingMixinError
 
 if TYPE_CHECKING:
     from django.db.models import Model, QuerySet
@@ -21,11 +21,11 @@ class OrderingMixinValidator:
         self._origin_objects = origin_objects
         self._obj = obj
 
-        self._errors: list[OrderingMixinException] = []
+        self._errors: list[OrderingMixinError] = []
 
     @property
-    def errors(self) -> list[OrderingMixinException]:
-        """Returns list of OrderingMixinException errors."""
+    def errors(self) -> list[OrderingMixinError]:
+        """Returns list of OrderingMixinError errors."""
         return self._errors
 
     def validate(self) -> bool:
@@ -40,7 +40,7 @@ class OrderingMixinValidator:
     def _validate_position(self):
         """Ensure position is valid."""
         if self._position < 0 or not isinstance(self._position, int):
-            self._errors.append(OrderingMixinException('Position must be a positive number.'))
+            self._errors.append(OrderingMixinError('Position must be a positive number.'))
 
         if self._position > len(self._destination_objects):
-            self._errors.append(OrderingMixinException('Position must be less than the number of destination objects.'))
+            self._errors.append(OrderingMixinError('Position must be less than the number of destination objects.'))

@@ -3,6 +3,7 @@ from django.urls import path, include
 
 app_name = 'django_spire'
 
+
 urlpatterns = []
 
 for app_config in apps.get_app_configs():
@@ -18,4 +19,5 @@ for app_config in apps.get_app_configs():
         )
 
 if len(urlpatterns) == 0:
-    raise Exception('You need to have at least one app installed to use Django Spire.')
+    message = 'You need to have at least one app installed to use Django Spire.'
+    raise Exception(message)

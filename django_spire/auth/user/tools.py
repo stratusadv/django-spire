@@ -1,5 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.contrib.auth.models import Group
-from django_spire.auth.user.models import AuthUser
+
+if TYPE_CHECKING:
+    from django_spire.auth.user.models import AuthUser
 
 
 def add_user_to_all_user_group(user: AuthUser):

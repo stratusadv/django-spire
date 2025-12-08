@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.auth.permissions.consts import VALID_PERMISSION_LEVELS, PERMISSIONS_LEVEL_CHOICES
+from django_spire.auth.permissions.consts import (
+    PERMISSIONS_LEVEL_CHOICES,
+    VALID_PERMISSION_LEVELS
+)
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import Group, User
@@ -31,7 +34,8 @@ def codename_list_to_perm_level(codenames_list: list[str]) -> int:
 def perm_level_to_int(perm_level: VALID_PERMISSION_LEVELS | str) -> int:
     if isinstance(perm_level, int) and 4 >= perm_level >= 0:
         return perm_level
-    elif isinstance(perm_level, str):
+
+    if isinstance(perm_level, str):
         for perm in PERMISSIONS_LEVEL_CHOICES:
             if perm_level.lower() == perm[1].lower():
                 return perm[0]

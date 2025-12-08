@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Any, TypedDict
 
 
 class BreadcrumbDict(TypedDict):
@@ -9,7 +9,7 @@ class BreadcrumbDict(TypedDict):
 
 
 class BreadcrumbItem:
-    def __init__(self, name: str, href: str | None = None):
+    def __init__(self, name: str, href: str | None = None) -> None:
         self.name = name
         self.href = href
 
@@ -18,20 +18,17 @@ class BreadcrumbItem:
 
 
 class Breadcrumbs:
-    def __init__(self, branch_slug: str | None = None):
+    def __init__(self, branch_slug: str | None = None) -> None:
         self.data: list[BreadcrumbItem] = []
         self.index: int = 0
 
-    def __add__(self, other):
+    def __add__(self, other: Breadcrumbs) -> Breadcrumbs:
         self.data += other.data
         return self
 
-    def __iter__(self):
+    def __iter__(self) -> Breadcrumbs:
         self.index = 0
         return self
-
-    def __str__(self) -> str:
-        return str(self.data)
 
     def __len__(self) -> int:
         return len(self.data)
@@ -44,7 +41,10 @@ class Breadcrumbs:
         self.index += 1
         return breadcrumb_item.to_dict()
 
-    def add_base_breadcrumb(self, model) -> None:
+    def __str__(self) -> str:
+        return str(self.data)
+
+    def add_base_breadcrumb(self, model: Any) -> None:
         if hasattr(model, 'base_breadcrumb'):
             self += model.base_breadcrumb()
 
@@ -52,13 +52,7 @@ class Breadcrumbs:
         breadcrumb_item = BreadcrumbItem(name=name, href=href)
         self.data.append(breadcrumb_item)
 
-    def add_obj_breadcrumbs(self, obj) -> None:
-        # Expects a breadcrumb object to be returned from the object
-        if hasattr(obj, 'breadcrumbs'):
-            object_breadcrumbs = obj.breadcrumbs()
-            self.data += object_breadcrumbs.data
-
-    def add_form_breadcrumbs(self, obj) -> None:
+    def add_form_breadcrumbs(self, obj: Any) -> None:
         self.add_obj_breadcrumbs(obj)
 
         if obj.pk is None:
@@ -67,10 +61,16 @@ class Breadcrumbs:
         else:
             self.add_breadcrumb(name='Edit')
 
-    def remove(self, index: int):
+    def add_obj_breadcrumbs(self, obj: Any) -> None:
+        # It expects a breadcrumb object to be returned from the object
+        if hasattr(obj, 'breadcrumbs'):
+            object_breadcrumbs = obj.breadcrumbs()
+            self.data += object_breadcrumbs.data
+
+    def remove(self, index: int) -> Breadcrumbs:
         del self.data[index]
         return self
 
-    def reverse(self):
+    def reverse(self) -> Breadcrumbs:
         self.data.reverse()
         return self

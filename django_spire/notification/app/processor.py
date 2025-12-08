@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from django.utils.timezone import now
 
-from django_spire.notification.app.exceptions import AppNotificationException
-from django_spire.notification.choices import NotificationTypeChoices, \
+from django_spire.notification.app.exceptions import AppNotificationError
+from django_spire.notification.choices import (
+    NotificationTypeChoices,
     NotificationStatusChoices
-from django_spire.notification.exceptions import NotificationException
+)
+from django_spire.notification.exceptions import NotificationError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 
@@ -12,15 +16,14 @@ class AppNotificationProcessor(BaseNotificationProcessor):
     def process(self, notification: Notification):
         try:
             if notification.type != NotificationTypeChoices.APP:
-                raise NotificationException(
+                raise NotificationError(
                     f'AppNotificationProcessor only processes '
                     f'App notifications. Was provided {notification.type}'
                 )
 
             if notification.user_id is None:
-                raise AppNotificationException(
-                    'AppNotifications must have a user associated with them'
-                )
+                message = 'AppNotifications must have a user associated with them'
+                raise AppNotificationError(message)
 
         except Exception as e:
             notification.status = NotificationStatusChoices.ERRORED
@@ -39,15 +42,14 @@ class AppNotificationProcessor(BaseNotificationProcessor):
         for notification in notifications:
             try:
                 if notification.type != NotificationTypeChoices.APP:
-                    raise NotificationException(
+                    raise NotificationError(
                         f'AppNotificationProcessor only processes '
                         f'App notifications. Was provided {notification.type}'
                     )
 
                 if notification.user_id is None:
-                    raise AppNotificationException(
-                        'AppNotifications must have a user associated with them'
-                    )
+                    message = 'AppNotifications must have a user associated with them'
+                    raise AppNotificationError(message)
 
                 notification.status = NotificationStatusChoices.SENT
                 notification.sent_datetime = now()

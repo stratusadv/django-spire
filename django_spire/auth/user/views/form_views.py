@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 import django_glue as dg
-from django.contrib.auth.decorators import login_required
+
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -16,10 +16,8 @@ from django_spire.auth.user import forms
 from django_spire.auth.user.models import AuthUser
 from django_spire.auth.user.tools import add_user_to_all_user_group
 from django_spire.contrib import Breadcrumbs
-from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm, ConfirmationForm
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
-from django_spire.core.redirect import safe_redirect_url
 from django_spire.history.activity.utils import add_form_activity
 
 
@@ -74,7 +72,12 @@ def form_view(request, pk):
             portal_user = form.save()
             add_form_activity(portal_user, pk, request.user)
 
-            return HttpResponseRedirect(reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk}))
+            return HttpResponseRedirect(
+                reverse(
+                    'django_spire:auth:user:page:detail',
+                    kwargs={'pk': pk}
+                )
+            )
     else:
         form = forms.UserForm(instance=portal_user)
 
@@ -104,8 +107,8 @@ def group_form_view(request, pk):
         if form.is_valid():
             user.groups.set(form.cleaned_data['group_list'])
             return HttpResponseRedirect(reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk}))
-        else:
-            show_form_errors(request, form)
+
+        show_form_errors(request, form)
 
     form = forms.UserGroupForm()
 

@@ -1,11 +1,19 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from django.apps import apps
-from django.contrib.auth.models import User, Group
 
-from django_spire.auth.permissions.permissions import ModelPermission, UserPermissionHelper, GroupPermissions
+from django_spire.auth.permissions.permissions import (
+    GroupPermissions,
+    ModelPermission,
+    UserPermissionHelper
+)
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from django.contrib.auth.models import User, Group
 
 
 def generate_model_permissions() -> list[ModelPermission]:
@@ -66,7 +74,7 @@ def generate_group_perm_data(
 
 
 def generate_special_role_data(
-        group_permissions: GroupPermissions
+    group_permissions: GroupPermissions
 ) -> list[dict[str, Any]]:
     special_role_data = []
 

@@ -1,5 +1,6 @@
-class OrderingMixinExceptionGroup(Exception):
+class OrderingMixinGroupError(Exception):
     pass
 
-class OrderingMixinException(Exception):
+
+class OrderingMixinError(Exception):
     pass

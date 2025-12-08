@@ -1,5 +1,5 @@
-from django_spire.exceptions import DjangoSpireException
+from django_spire.exceptions import DjangoSpireError
 
 
-class AppNotificationException(DjangoSpireException):
+class AppNotificationError(DjangoSpireError):
     pass

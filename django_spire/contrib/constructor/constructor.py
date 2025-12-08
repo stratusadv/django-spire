@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Any, Generic, TypeVar
 
-from django_spire.contrib.constructor.exceptions import ConstructorException
+from django_spire.contrib.constructor.exceptions import ConstructorError
 
 
 TypeAny = TypeVar('TypeAny', bound=Any, covariant=True)
@@ -23,22 +23,22 @@ class BaseConstructor(
 
         self._obj_mro_type_names = [cls.__name__ for cls in obj.__class__.__mro__]
 
-        if not self._obj_type_name in self._obj_mro_type_names:
-            raise ConstructorException(
-                f'{self.__class__.__name__} was instantiated with obj type "{obj.__class__.__name__}" and failed as it was expecting "{self._obj_type_name}".'
-            )
+        if self._obj_type_name not in self._obj_mro_type_names:
+            message = f'{self.__class__.__name__} was instantiated with obj type "{obj.__class__.__name__}" and failed as it was expecting "{self._obj_type_name}".'
+            raise ConstructorError(message)
 
         self._obj_type: type[TypeAny] = obj.__class__
 
         if self._obj_type is None or self._obj_type is ...:
-            raise ConstructorException(
-                f'{self.__class__.__name__} top class attribute must have an annotated type.')
+            message = f'{self.__class__.__name__} top class attribute must have an annotated type.'
+            raise ConstructorError(message)
 
         self.obj: TypeAny = obj
 
         if ABC not in self.__class__.__bases__:
             if not self._obj_is_valid:
-                raise ConstructorException(f'{self._obj_type_name} failed to validate on {self.__class__.__name__}')
+                message = f'{self._obj_type_name} failed to validate on {self.__class__.__name__}'
+                raise ConstructorError(message)
 
         self.__post_init__()
 
@@ -47,8 +47,8 @@ class BaseConstructor(
 
         if ABC not in cls.__bases__:
             if 'obj' not in cls.__annotations__:
-                raise ConstructorException(
-                    f'{cls.__name__} must have an "obj" attribute annotated with a type.')
+                message = f'{cls.__name__} must have an "obj" attribute annotated with a type.'
+                raise ConstructorError(message)
 
             # Typing Does not work properly for services if you override __get__ in the BaseService class.
             # This is a workaround and should be fixed in future versions of the python lsp.
@@ -82,5 +82,5 @@ class BaseConstructor(
 
     def _validate_base_service_target_or_error(self, target: BaseConstructor):
         if self._obj_type_name not in target._obj_mro_type_names:
-            raise ConstructorException(
-                f'{target.__class__.__name__} must use the same obj type as {self.__class__.__name__}. {self._obj_type_name} is not in {target._obj_mro_type_names}')
+            message = f'{target.__class__.__name__} must use the same obj type as {self.__class__.__name__}. {self._obj_type_name} is not in {target._obj_mro_type_names}'
+            raise ConstructorError(message)

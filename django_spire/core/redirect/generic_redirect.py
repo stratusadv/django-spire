@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from operator import attrgetter
 from typing import Any
 
 from django.http import HttpResponse
@@ -7,8 +8,6 @@ from django.urls import reverse
 
 
 def reverse_generic_relation(content_object: Any, **kwargs) -> HttpResponse | None:
-    from operator import attrgetter
-
     model_name = content_object.__class__.__name__.lower()
 
     CONTENT_OBJECT_URL_MAP = {

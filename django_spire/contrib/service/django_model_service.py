@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import logging
+
 from abc import ABC
-from typing import Type, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from django.db import transaction
 from django.db.models import Model
 
 from django_spire.contrib.constructor.django_model_constructor import BaseDjangoModelConstructor
-from django_spire.contrib.service.exceptions import ServiceException
+from django_spire.contrib.service.exceptions import ServiceError
+
 
 TypeDjangoModel = TypeVar('TypeDjangoModel', bound=Model, covariant=True)
 
@@ -65,7 +67,8 @@ class BaseDjangoModelService(
         new_model_obj_was_created = False
 
         if not field_data:
-            raise ServiceException(f'Field data is required to save on {self.obj.__class__.__name__}')
+            message = f'Field data is required to save on {self.obj.__class__.__name__}'
+            raise ServiceError(message)
 
         touched_fields = self.validate_model_obj(**field_data)
 

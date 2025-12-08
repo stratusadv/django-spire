@@ -31,6 +31,7 @@ class GroupForm(forms.ModelForm):
             raise forms.ValidationError(message)
 
         return name
+
     class Meta:
         model = Group
         exclude = ['permissions']

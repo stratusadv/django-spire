@@ -1,2 +1,2 @@
-class DjangoSpireException(Exception):
+class DjangoSpireError(Exception):
     pass

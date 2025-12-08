@@ -56,7 +56,7 @@ def get_object_or_none(model: type[T], pk: int, **kwargs) -> Model:
         return None
 
 
-def process_request_body(request: HttpRequest, key='data') -> Any:
+def process_request_body(request: HttpRequest, key: str = 'data') -> Any:
     """
     Processes the HTTP request body and returns the 'data' field from the parsed JSON.
 
@@ -68,8 +68,8 @@ def process_request_body(request: HttpRequest, key='data') -> Any:
 
     if key:
         return json.loads(body_unicode)[key]
-    else:
-        return json.loads(body_unicode)
+
+    return json.loads(body_unicode)
 
 
 def model_object_from_app_label(
