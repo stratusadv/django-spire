@@ -231,18 +231,6 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
         assert field_info.default is None
 
-    # def test_field_with_default(self):
-    #     class Model(models.Model):
-    #         char_field = models.CharField(max_length=10, default="abc")
-    #
-    #         class Meta:
-    #             managed = False
-    #
-    #     field = Model._meta.get_field('char_field')
-    #     _, field_info = DjangoToPydanticFieldConverter(field).build_field()
-    #
-    #     self.assertEqual(field_info.default, "abc")
-
     def test_help_text_becomes_description(self) -> None:
         class Model2(models.Model):
             char_field = models.CharField(max_length=10, help_text='hello')

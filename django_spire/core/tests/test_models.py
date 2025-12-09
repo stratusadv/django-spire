@@ -15,13 +15,23 @@ class DummyModel(models.Model):
 
     @classmethod
     def create_table(cls) -> None:
+        vendor = connection.vendor
+
         with connection.cursor() as cursor:
-            query = '''
-                CREATE TABLE IF NOT EXISTS django_spire_core_dummymodel (
-                    id SERIAL PRIMARY KEY,
-                    name VARCHAR(255) DEFAULT ''
-                )
-            '''
+            if vendor == 'sqlite':
+                query = '''
+                    CREATE TABLE IF NOT EXISTS django_spire_core_dummymodel (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name VARCHAR(255) DEFAULT ''
+                    )
+                '''
+            else:
+                query = '''
+                    CREATE TABLE IF NOT EXISTS django_spire_core_dummymodel (
+                        id SERIAL PRIMARY KEY,
+                        name VARCHAR(255) DEFAULT ''
+                    )
+                '''
 
             cursor.execute(query)
 

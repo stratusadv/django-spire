@@ -1,12 +1,12 @@
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+
 from test_project.apps.queryset_filtering.seeding.seeder import TaskModelSeeder
 from test_project.apps.queryset_filtering.tests.factories import create_test_task
 
 
 class TaskListFilteringTestCase(BaseTestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -23,4 +23,4 @@ class TaskListFilteringTestCase(BaseTestCase):
     def test_queryset_filtering(self):
         url = reverse('queryset_filtering:page:list')
         response = self.client.get(f'{url}?session_filter_key=task_list_filter&search_value=&name=&status=com')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200

@@ -103,13 +103,15 @@ class TestCommentModel(BaseTestCase):
             user=self.super_user,
             information='First'
         )
+
         comment2 = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             information='Second'
         )
-        comments = list(Comment.objects.all()[:2])
+
+        comments = list(Comment.objects.order_by('-pk')[:2])
         assert comments == [comment2, comment1]
 
 
