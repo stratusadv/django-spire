@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from unittest import TestCase
 
 from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
+
 
 TEST_INPUT = """
     I love reading books about science fiction, fantasy, and adventure, especially ones
@@ -13,16 +16,13 @@ TEST_INPUT = """
 
 
 class TestTagIntelligence(TestCase):
-    def setUp(self):
-        pass
-
     def test_tag_set_bot(self):
         tag_set = TagSetBot().process(TEST_INPUT)
 
-        self.assertIn('science', tag_set)
-        self.assertIn('artificial', tag_set)
-        self.assertIn('fantasy', tag_set)
+        assert 'science' in tag_set
+        assert 'artificial' in tag_set
+        assert 'fantasy' in tag_set
 
-        self.assertNotIn('camping', tag_set)
-        self.assertNotIn('art', tag_set)
-        self.assertNotIn('hate', tag_set)
+        assert 'camping' not in tag_set
+        assert 'art' not in tag_set
+        assert 'hate' not in tag_set

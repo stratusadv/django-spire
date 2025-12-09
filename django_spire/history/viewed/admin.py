@@ -13,7 +13,7 @@ class ViewAdmin(admin.ModelAdmin):
         'id', 'content_object_link', 'user_link', 'created_datetime'
     )
     list_filter = ('created_datetime',)
-    search_fields = ('id', 'user__first_name', 'user__last_name', 'content_type__model',)
+    search_fields = ('id', 'user__first_name', 'user__last_name', 'content_type__model')
     ordering = ('-created_datetime',)
 
     def content_object_link(self, view: Viewed) -> str:

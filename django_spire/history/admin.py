@@ -18,7 +18,7 @@ class HistoryEventAdmin(admin.ModelAdmin):
     )
 
     list_filter = ('event', 'created_datetime')
-    search_fields = ('id', 'content_type__model',)
+    search_fields = ('id', 'content_type__model')
     ordering = ('-created_datetime',)
 
     def content_object_link(self, history_event: models.HistoryEvent) -> str:

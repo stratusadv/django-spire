@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.notification.sms.tools import format_to_international_phone_number
 
 
 class TestSMSTools(BaseTestCase):
-
     def test_local_to_international_phone_number(self):
         phone_numbers = (
             '622 415 2736',
@@ -19,6 +20,7 @@ class TestSMSTools(BaseTestCase):
             '368.447-9514',
             '4563219876'
         )
+
         expected_phone_numbers = (
             '+16224152736',
             '+18815534599',
@@ -33,8 +35,9 @@ class TestSMSTools(BaseTestCase):
             '+13684479514',
             '+14563219876'
         )
+
         formatted_phone_numbers = [format_to_international_phone_number(phone_number) for phone_number in phone_numbers]
-        self.assertSequenceEqual(formatted_phone_numbers, expected_phone_numbers)
+        assert formatted_phone_numbers == expected_phone_numbers
 
     def test_invalid_phone_number(self):
         phone_numbers = (

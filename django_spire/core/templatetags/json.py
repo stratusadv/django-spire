@@ -1,7 +1,11 @@
+from __future__ import annotations
+
+import json
+
 from typing import Sequence
 
 from django import template
-import json
+
 
 register = template.Library()
 

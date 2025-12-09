@@ -20,7 +20,7 @@ def django_to_pydantic_model(
 ):
     if not issubclass(model_class, models.Model):
         message = 'model_class must be a subclass of django.db.models.Model'
-        raise ValueError(message)
+        raise TypeError(message)
 
     if include_fields is None:
         include_fields = []

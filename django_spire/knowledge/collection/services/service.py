@@ -4,17 +4,12 @@ from django_spire.contrib.service import BaseDjangoModelService
 
 from typing import TYPE_CHECKING
 
-from django_spire.knowledge.collection.services.factory_service import \
-    CollectionGroupFactoryService
-from django_spire.knowledge.collection.services.ordering_service import \
-    CollectionOrderingService
-from django_spire.knowledge.collection.services.processor_service import \
-    CollectionProcessorService
+from django_spire.knowledge.collection.services.factory_service import CollectionGroupFactoryService
+from django_spire.knowledge.collection.services.ordering_service import CollectionOrderingService
+from django_spire.knowledge.collection.services.processor_service import CollectionProcessorService
 from django_spire.knowledge.collection.services.tag_service import CollectionTagService
-from django_spire.knowledge.collection.services.tool_services import \
-    CollectionToolService
-from django_spire.knowledge.collection.services.transformation_service import \
-    CollectionTransformationService
+from django_spire.knowledge.collection.services.tool_services import CollectionToolService
+from django_spire.knowledge.collection.services.transformation_service import CollectionTransformationService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.collection.models import Collection, CollectionGroup

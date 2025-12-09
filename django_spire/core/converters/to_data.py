@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import random
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from faker import Faker

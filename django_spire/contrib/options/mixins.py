@@ -27,11 +27,11 @@ class OptionsModelMixin(models.Model):
         request.session['user_options'] = self.options.to_dict()
 
     def update_option(
-            self,
-            section_name: str,
-            option_key: str,
-            value: str | bool | int,
-            commit=True
+        self,
+        section_name: str,
+        option_key: str,
+        value: str | bool | int,
+        commit: bool = True
     ):
         self._sync_options()
         self.options.update_setting(section_name, option_key, value)

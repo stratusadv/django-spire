@@ -7,7 +7,7 @@ def create_user(
     username: str,
     **kwargs
 ) -> AuthUser:
-    user, created = AuthUser.objects.get_or_create(
+    user, _ = AuthUser.objects.get_or_create(
         username=username,
         defaults={
             **kwargs
