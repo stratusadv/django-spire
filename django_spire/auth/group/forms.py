@@ -12,6 +12,12 @@ class GroupNamesField(forms.CharField):
     """Receives a list of group names as a json string"""
 
     def clean(self, value) -> list[str]:
+        value = super().clean(value)
+
+        if value in (None, ''):
+            message = 'This field is required.'
+            raise forms.ValidationError(message)
+
         return json.loads(value)
 
 

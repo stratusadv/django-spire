@@ -69,6 +69,15 @@ class EditUserForm(forms.ModelForm):
 
 
 class RegisterUserForm(forms.ModelForm):
+    def clean_email(self) -> str:
+        email = self.cleaned_data.get('email')
+
+        if not email:
+            message = 'Email is required.'
+            raise forms.ValidationError(message)
+
+        return email
+
     def clean_password(self) -> str:
         password = self.cleaned_data.get('password')
 
