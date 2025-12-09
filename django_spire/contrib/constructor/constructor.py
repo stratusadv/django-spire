@@ -15,7 +15,7 @@ class BaseConstructor(
 ):
     def __init__(self, obj: Any = None):
         self._obj_type_name: str = str(
-            list(self.__class__.__annotations__.values())[0]
+            next(iter(self.__class__.__annotations__.values()))
         ).split('.')[-1]
 
         if obj is None:
@@ -63,11 +63,11 @@ class BaseConstructor(
 
                     self._validate_base_service_target_or_error(target)
 
-                    return cls(getattr(target, 'obj'))
+                    return cls(target.obj)
 
                 return cls(target)
 
-            setattr(cls, '__get__', __get__)
+            cls.__get__ = __get__
 
     def __post_init__(self):
         pass

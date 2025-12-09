@@ -31,4 +31,5 @@ class BaseEditorJsBlockData(BaseModel):
             NotImplementedError: If the method is not implemented in a subclass.
 
         """
+
         raise NotImplementedError

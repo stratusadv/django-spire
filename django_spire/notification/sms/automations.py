@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.notification.sms.models import SmsTemporaryMedia
 from django_spire.notification.sms.tools import update_unsent_notification_status_for_deleted_temporary_media
 

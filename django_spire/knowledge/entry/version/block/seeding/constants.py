@@ -1,7 +1,5 @@
-from django_spire.knowledge.entry.version.block.data.heading_data import \
-    HeadingEditorBlockData
-from django_spire.knowledge.entry.version.block.data.text_data import \
-    TextEditorBlockData
+from django_spire.knowledge.entry.version.block.data.heading_data import HeadingEditorBlockData
+from django_spire.knowledge.entry.version.block.data.text_data import TextEditorBlockData
 
 LADDER_SAFETY_BLOCKS = [
     HeadingEditorBlockData(text='Ladder Safety: A Journey Through the Heights',

@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import django_glue as dg
 
-from django.core.handlers.wsgi import WSGIRequest
+from typing import TYPE_CHECKING
+
 from django.http import HttpResponseRedirect
-from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
@@ -16,12 +18,16 @@ from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
+
 
 @AppAuthController('knowledge').permission_required('can_add')
 def form_view(
-        request: WSGIRequest,
-        collection_pk: int,
-        pk: int = 0,
+    request: WSGIRequest,
+    collection_pk: int,
+    pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     entry = get_object_or_null_obj(Entry, pk=pk)
     collection = Collection.objects.get(pk=collection_pk)
@@ -70,8 +76,8 @@ def form_view(
 
 @AppAuthController('knowledge').permission_required('can_add')
 def import_form_view(
-        request: WSGIRequest,
-        collection_pk: int
+    request: WSGIRequest,
+    collection_pk: int
 ) -> TemplateResponse | HttpResponseRedirect:
     dg.glue_query_set(
         request,
@@ -88,13 +94,15 @@ def import_form_view(
                 related_field=None,
                 app_name='knowledge'
             )
+
             file_objects = file_uploader.upload(request.FILES.getlist('import_files'))
 
-            _ = Entry.services.factory.create_from_files(
+            Entry.services.factory.create_from_files(
                 author=request.user,
                 collection=Collection.objects.get(pk=collection_pk),
                 files=file_objects
             )
+
             return HttpResponseRedirect(
                 reverse(
                     'django_spire:knowledge:entry:template:file_list',

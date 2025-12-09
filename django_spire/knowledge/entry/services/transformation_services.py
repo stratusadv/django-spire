@@ -19,6 +19,7 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
     @staticmethod
     def queryset_to_navigation_list(queryset: QuerySet[Entry]) -> list[dict[str, str]]:
         json_list = []
+
         for entry in queryset:
             json_list.append(entry.services.transformation.to_dict())
 

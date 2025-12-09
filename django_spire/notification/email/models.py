@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db import models
 
 from django_spire.file.models import File
@@ -9,7 +11,9 @@ class EmailNotification(models.Model):
     """
     It is important to note size limits for email content contained in this model. E.g., Sendgrid has a hard total email
     limit of 30mb (and a recommended limit of 10mb for attachments): https://www.twilio.com/docs/sendgrid/ui/sending-email/attachments-with-digioh#-Limitations
+
     """
+
     notification = models.OneToOneField(
         Notification,
         editable=False,

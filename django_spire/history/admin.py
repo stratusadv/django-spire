@@ -10,8 +10,13 @@ from django_spire.history import models
 @admin.register(models.HistoryEvent)
 class HistoryEventAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'content_object_link', 'content_type', 'created_datetime', 'event_verbose'
+        'id',
+        'content_object_link',
+        'content_type',
+        'created_datetime',
+        'event_verbose'
     )
+
     list_filter = ('event', 'created_datetime')
     search_fields = ('id', 'content_type__model',)
     ordering = ('-created_datetime',)

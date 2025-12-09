@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.core.mail import EmailMessage
 
-from django_spire.file.models import File
-from django_spire.notification.models import Notification
+if TYPE_CHECKING:
+    from django_spire.notification.models import Notification
 
 
 class EmailHelper:
@@ -29,6 +31,7 @@ class EmailHelper:
         self.fail_silently = fail_silently
 
         self.attachments = []
+
         for attachment in list(email.attachments.all()):
             with attachment.file.open('rb') as f:
                 self.attachments.append((attachment.name, f.read(), attachment.type))
@@ -44,7 +47,6 @@ class SendGridEmailHelper(EmailHelper):
 
         if notification.email.template_id == '':
             self.template_id = settings.SENDGRID_TEMPLATE_ID
-
         else:
             self.template_id = notification.email.template_id
 

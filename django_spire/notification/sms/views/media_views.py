@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import base64
-import uuid
 
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 from PIL import Image
 
@@ -10,6 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django_spire.notification.sms.exceptions import SmsTemporaryMediaError
 from django_spire.notification.sms.models import SmsTemporaryMedia
+
+if TYPE_CHECKING:
+    import uuid
 
 
 @csrf_exempt

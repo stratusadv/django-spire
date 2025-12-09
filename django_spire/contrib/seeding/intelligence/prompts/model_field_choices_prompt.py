@@ -1,6 +1,12 @@
+from __future__ import annotations
+
 from dandy import Prompt
-from django.db.models.enums import TextChoices
-from django.db.models.fields import Field
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.fields import Field
+    from django.db.models.enums import TextChoices
 
 
 def model_field_choices_prompt(

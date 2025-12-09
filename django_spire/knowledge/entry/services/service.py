@@ -2,21 +2,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.ordering.services.service import OrderingService
 from django_spire.contrib.service import BaseDjangoModelService
-from django_spire.knowledge.entry.services.automation_service import \
-    EntryAutomationService
+from django_spire.knowledge.entry.services.automation_service import EntryAutomationService
 from django_spire.knowledge.entry.services.factory_service import EntryFactoryService
-from django_spire.knowledge.entry.services.processor_service import \
-    EntryProcessorService
+from django_spire.knowledge.entry.services.processor_service import EntryProcessorService
 from django_spire.knowledge.entry.services.tag_service import EntryTagService
 from django_spire.knowledge.entry.services.tool_service import EntryToolService
-from django_spire.knowledge.entry.services.transformation_services import \
-    EntryTransformationService
+from django_spire.knowledge.entry.services.transformation_services import EntryTransformationService
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 if TYPE_CHECKING:
+    from django_spire.auth.user.models import AuthUser
     from django_spire.knowledge.entry.models import Entry
 
 

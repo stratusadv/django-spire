@@ -1,8 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django_spire.notification.app.processor import AppNotificationProcessor
 from django_spire.notification.email.processor import EmailNotificationProcessor
-from django_spire.notification.models import Notification
 from django_spire.notification.processors.notification import NotificationProcessor
 from django_spire.notification.sms.processor import SMSNotificationProcessor
+
+if TYPE_CHECKING:
+    from django_spire.notification.models import Notification
 
 
 class NotificationManager:

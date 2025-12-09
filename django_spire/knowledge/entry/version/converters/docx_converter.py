@@ -7,16 +7,13 @@ from typing import TYPE_CHECKING
 from markitdown import MarkItDown
 
 from django_spire.knowledge.entry.version.consts import MARKDOWN_AI_CHUNK_SIZE
-from django_spire.knowledge.entry.version.converters.converter import \
-    BaseConverter
-from django_spire.knowledge.entry.version.block import models
-from django_spire.knowledge.entry.version.converters.markdown_converter import \
-    MarkdownConverter
-from django_spire.knowledge.entry.version.intelligence.bots.markdown_format_llm_bot import \
-    MarkdownFormatLlmBot
+from django_spire.knowledge.entry.version.converters.converter import BaseConverter
+from django_spire.knowledge.entry.version.converters.markdown_converter import MarkdownConverter
+from django_spire.knowledge.entry.version.intelligence.bots.markdown_format_llm_bot import MarkdownFormatLlmBot
 
 if TYPE_CHECKING:
     from django_spire.file.models import File
+    from django_spire.knowledge.entry.version.block import models
 
 
 class DocxConverter(BaseConverter):

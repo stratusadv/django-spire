@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from dandy import BaseIntel, BaseListIntel
 
 from django_spire.knowledge.entry.models import Entry

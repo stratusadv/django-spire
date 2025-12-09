@@ -3,11 +3,9 @@ from __future__ import annotations
 import json
 
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.data.text_data import \
-    TextEditorBlockData
+from django_spire.knowledge.entry.version.block.data.text_data import TextEditorBlockData
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
-from django_spire.knowledge.entry.version.tests.factories import \
-    create_test_entry_version
+from django_spire.knowledge.entry.version.tests.factories import create_test_entry_version
 
 
 def create_test_block_form_data(**kwargs) -> dict:

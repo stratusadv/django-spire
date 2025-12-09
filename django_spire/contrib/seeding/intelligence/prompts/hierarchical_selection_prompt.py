@@ -1,8 +1,12 @@
-from random import shuffle
+from __future__ import annotations
 
-from django.db.models import Model
+from random import shuffle
+from typing import TYPE_CHECKING
 
 from dandy import Prompt
+
+if TYPE_CHECKING:
+    from django.db.models import Model
 
 
 def hierarchical_selection_prompt(

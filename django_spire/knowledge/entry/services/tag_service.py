@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry
 
 
-
 class EntryTagService(BaseTagService['Entry']):
     obj: Entry
 

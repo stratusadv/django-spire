@@ -18,7 +18,7 @@ class BreadcrumbItem:
 
 
 class Breadcrumbs:
-    def __init__(self, branch_slug: str | None = None) -> None:
+    def __init__(self) -> None:
         self.data: list[BreadcrumbItem] = []
         self.index: int = 0
 

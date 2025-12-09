@@ -14,37 +14,39 @@ class ThemeModelTests(TestCase):
     def test_dataclass_fields(self) -> None:
         theme_fields = {f.name: f.type for f in fields(Theme)}
 
-        self.assertEqual(set(theme_fields.keys()), {'family', 'mode'})
-        self.assertEqual(theme_fields['family'], 'ThemeFamily')
-        self.assertEqual(theme_fields['mode'], 'ThemeMode')
+        assert set(theme_fields.keys()) == {'family', 'mode'}
+        assert theme_fields['family'] == 'ThemeFamily'
+        assert theme_fields['mode'] == 'ThemeMode'
 
     def test_class_variables(self) -> None:
-        self.assertEqual(Theme.DEFAULT_FAMILY, ThemeFamily.DEFAULT)
-        self.assertEqual(Theme.DEFAULT_MODE, ThemeMode.LIGHT)
-        self.assertEqual(Theme.SEPARATOR, '-')
+        assert Theme.DEFAULT_FAMILY == ThemeFamily.DEFAULT
+        assert Theme.DEFAULT_MODE == ThemeMode.LIGHT
+        assert Theme.SEPARATOR == '-'
 
         for family in ThemeFamily:
-            self.assertIn(family, Theme.FAMILY_DISPLAY_NAMES)
+            assert family in Theme.FAMILY_DISPLAY_NAMES
 
     def test_theme_initialization_with_enums(self) -> None:
         theme = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)
-        self.assertEqual(theme.family, ThemeFamily.GRUVBOX)
-        self.assertEqual(theme.mode, ThemeMode.DARK)
+        assert theme.family == ThemeFamily.GRUVBOX
+        assert theme.mode == ThemeMode.DARK
 
     def test_theme_initialization_with_strings(self) -> None:
         theme = Theme(family='gruvbox', mode='dark')
-        self.assertEqual(theme.family, ThemeFamily.GRUVBOX)
-        self.assertEqual(theme.mode, ThemeMode.DARK)
+        assert theme.family == ThemeFamily.GRUVBOX
+        assert theme.mode == ThemeMode.DARK
 
     def test_theme_initialization_invalid_family(self) -> None:
         with pytest.raises(ValueError) as ctx:
             Theme(family='invalid-family', mode='dark')
-        self.assertIn('Invalid theme family', str(ctx.value))
+
+        assert 'Invalid theme family' in str(ctx.value)
 
     def test_theme_initialization_invalid_mode(self) -> None:
         with pytest.raises(ValueError) as ctx:
             Theme(family='gruvbox', mode='invalid-mode')
-        self.assertIn('Invalid theme mode', str(ctx.value))
+
+        assert 'Invalid theme mode' in str(ctx.value)
 
     def test_from_string_valid(self) -> None:
         cases = [
@@ -57,23 +59,23 @@ class ThemeModelTests(TestCase):
         for string, family, mode in cases:
             with self.subTest(string=string):
                 theme = Theme.from_string(string)
-                self.assertEqual(theme.family, family)
-                self.assertEqual(theme.mode, mode)
+                assert theme.family == family
+                assert theme.mode == mode
 
     def test_from_string_empty_with_default(self) -> None:
         default = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)
         theme = Theme.from_string('', default=default)
-        self.assertEqual(theme, default)
+        assert theme == default
 
     def test_from_string_empty_without_default(self) -> None:
         theme = Theme.from_string('')
-        self.assertEqual(theme.family, Theme.DEFAULT_FAMILY)
-        self.assertEqual(theme.mode, Theme.DEFAULT_MODE)
+        assert theme.family == Theme.DEFAULT_FAMILY
+        assert theme.mode == Theme.DEFAULT_MODE
 
     def test_from_string_invalid_with_default(self) -> None:
         default = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)
         theme = Theme.from_string('invalid', default=default)
-        self.assertEqual(theme, default)
+        assert theme == default
 
     def test_from_string_invalid_without_default(self) -> None:
         with pytest.raises(ValueError):
@@ -83,35 +85,35 @@ class ThemeModelTests(TestCase):
         available = Theme.get_available()
 
         count = len(ThemeFamily) * len(ThemeMode)
-        self.assertEqual(len(available), count)
+        assert len(available) == count
 
         for family in ThemeFamily:
             for mode in ThemeMode:
                 theme = Theme(family=family, mode=mode)
-                self.assertIn(theme, available)
+                assert theme in available
 
     def test_get_default(self) -> None:
         default = Theme.get_default()
-        self.assertEqual(default.family, Theme.DEFAULT_FAMILY)
-        self.assertEqual(default.mode, Theme.DEFAULT_MODE)
+        assert default.family == Theme.DEFAULT_FAMILY
+        assert default.mode == Theme.DEFAULT_MODE
 
     def test_display_property(self) -> None:
         theme = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)
-        self.assertEqual(theme.display, 'Gruvbox - Dark')
+        assert theme.display == 'Gruvbox - Dark'
 
         theme = Theme(family=ThemeFamily.ONE_DARK, mode=ThemeMode.LIGHT)
-        self.assertEqual(theme.display, 'One Dark Pro - Light')
+        assert theme.display == 'One Dark Pro - Light'
 
     def test_family_display_property(self) -> None:
         theme = Theme(family=ThemeFamily.ONE_DARK, mode=ThemeMode.DARK)
-        self.assertEqual(theme.family_display, 'One Dark Pro')
+        assert theme.family_display == 'One Dark Pro'
 
     def test_is_dark_property(self) -> None:
         dark = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)
-        self.assertTrue(dark.is_dark)
+        assert dark.is_dark
 
         light = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.LIGHT)
-        self.assertFalse(light.is_dark)
+        assert not light.is_dark
 
     def test_stylesheet_property(self) -> None:
         cases = [
@@ -124,7 +126,7 @@ class ThemeModelTests(TestCase):
         for family, mode, path in cases:
             with self.subTest(family=family, mode=mode):
                 theme = Theme(family=family, mode=mode)
-                self.assertEqual(theme.stylesheet, path)
+                assert theme.stylesheet == path
 
     def test_value_property(self) -> None:
         cases = [
@@ -137,7 +139,7 @@ class ThemeModelTests(TestCase):
         for family, mode, value in cases:
             with self.subTest(family=family, mode=mode):
                 theme = Theme(family=family, mode=mode)
-                self.assertEqual(theme.value, value)
+                assert theme.value == value
 
     def test_to_dict(self) -> None:
         theme = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)
@@ -153,15 +155,15 @@ class ThemeModelTests(TestCase):
             'stylesheet'
         }
 
-        self.assertEqual(set(result.keys()), keys)
+        assert set(result.keys()) == keys
 
-        self.assertEqual(result['display'], 'Gruvbox - Dark')
-        self.assertEqual(result['family'], 'gruvbox')
-        self.assertEqual(result['family_display'], 'Gruvbox')
-        self.assertEqual(result['full'], 'gruvbox-dark')
-        self.assertTrue(result['is_dark'])
-        self.assertEqual(result['mode'], 'dark')
-        self.assertEqual(result['stylesheet'], 'django_spire/css/themes/gruvbox/app-dark.css')
+        assert result['display'] == 'Gruvbox - Dark'
+        assert result['family'] == 'gruvbox'
+        assert result['family_display'] == 'Gruvbox'
+        assert result['full'] == 'gruvbox-dark'
+        assert result['is_dark']
+        assert result['mode'] == 'dark'
+        assert result['stylesheet'] == 'django_spire/css/themes/gruvbox/app-dark.css'
 
     def test_theme_immutability(self) -> None:
         theme = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)

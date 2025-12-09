@@ -20,12 +20,12 @@ class ThemeContextProcessorTests(TestCase):
         with patch('django_spire.conf.settings.DJANGO_SPIRE_DEFAULT_THEME', 'gruvbox-dark'):
             context = theme_context(request)
 
-        self.assertEqual(context['DJANGO_SPIRE_DEFAULT_THEME'], 'gruvbox-dark')
-        self.assertIn('theme', context)
+        assert context['DJANGO_SPIRE_DEFAULT_THEME'] == 'gruvbox-dark'
+        assert 'theme' in context
 
         data = context['theme']
-        self.assertEqual(data['family'], 'gruvbox')
-        self.assertEqual(data['mode'], 'dark')
+        assert data['family'] == 'gruvbox'
+        assert data['mode'] == 'dark'
 
     def test_theme_context_with_cookie(self) -> None:
         request = self.factory.get('/')
@@ -34,10 +34,10 @@ class ThemeContextProcessorTests(TestCase):
 
         context = theme_context(request)
 
-        self.assertIn('theme', context)
+        assert 'theme' in context
         data = context['theme']
-        self.assertEqual(data['family'], 'one-dark')
-        self.assertEqual(data['mode'], 'light')
+        assert data['family'] == 'one-dark'
+        assert data['mode'] == 'light'
 
     def test_theme_context_invalid_cookie(self) -> None:
         request = self.factory.get('/')
@@ -48,18 +48,19 @@ class ThemeContextProcessorTests(TestCase):
             context = theme_context(request)
 
         data = context['theme']
-        self.assertEqual(data['family'], 'gruvbox')
-        self.assertEqual(data['mode'], 'dark')
+        assert data['family'] == 'gruvbox'
+        assert data['mode'] == 'dark'
 
     def test_theme_context_path_setting(self) -> None:
         request = self.factory.get('/')
         request.COOKIES = {}
 
         path = '/custom/path/{family}/{mode}.css'
+
         with patch('django_spire.conf.settings.DJANGO_SPIRE_THEME_PATH', path):
             context = theme_context(request)
 
-        self.assertEqual(context['DJANGO_SPIRE_THEME_PATH'], path)
+        assert context['DJANGO_SPIRE_THEME_PATH'] == path
 
 
 class ThemeContextProcessorIntegrationTests(BaseTestCase):
@@ -71,7 +72,7 @@ class ThemeContextProcessorIntegrationTests(BaseTestCase):
         cookie_name = get_theme_cookie_name()
         self.client.cookies[cookie_name] = 'gruvbox-dark'
         response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
     def test_theme_context_with_media_root_override(self) -> None:
         request = self.factory.get('/')
@@ -80,5 +81,5 @@ class ThemeContextProcessorIntegrationTests(BaseTestCase):
 
         context = theme_context(request)
         data = context['theme']
-        self.assertEqual(data['family'], 'material')
-        self.assertEqual(data['mode'], 'light')
+        assert data['family'] == 'material'
+        assert data['mode'] == 'light'

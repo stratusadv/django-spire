@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.db import models
 
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.data.data import BaseEditorJsBlockData
 from django_spire.knowledge.entry.version.block.data.maps import EDITOR_JS_BLOCK_DATA_MAP
-from django_spire.knowledge.entry.version.block.querysets import \
-    EntryVersionBlockQuerySet
-from django_spire.knowledge.entry.version.block.services.service import \
-    EntryVersionBlockService
+from django_spire.knowledge.entry.version.block.querysets import EntryVersionBlockQuerySet
+from django_spire.knowledge.entry.version.block.services.service import EntryVersionBlockService
 from django_spire.knowledge.entry.version.models import EntryVersion
+
+if TYPE_CHECKING:
+    from django_spire.knowledge.entry.version.block.data.data import BaseEditorJsBlockData
 
 
 class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):

@@ -5,7 +5,6 @@ from django_spire.knowledge.entry.version.views import json_views
 
 app_name = 'json'
 
-
 urlpatterns = [
     path(
         '<int:pk>/update_blocks/',

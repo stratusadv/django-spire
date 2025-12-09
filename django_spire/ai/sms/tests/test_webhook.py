@@ -25,14 +25,14 @@ class SmsWebhookTests(BaseTestCase):
             }
         )
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         conversation = SmsConversation.objects.get(phone_number='+15551234567')
-        self.assertEqual(conversation.messages.count(), 2)  # Inbound and outbound
+        assert conversation.messages.count() == 2  # Inbound and outbound
 
         inbound_message = conversation.messages.filter(is_inbound=True).first()
-        self.assertEqual(inbound_message.body, 'Hello')
-        self.assertEqual(inbound_message.twilio_sid, 'SM123456789')
+        assert inbound_message.body == 'Hello'
+        assert inbound_message.twilio_sid == 'SM123456789'
 
         outbound_message = conversation.messages.filter(is_inbound=False).first()
-        self.assertTrue(len(outbound_message.body) > 0)
+        assert len(outbound_message.body) > 0

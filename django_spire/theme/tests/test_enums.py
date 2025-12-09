@@ -21,9 +21,9 @@ class ThemeEnumTests(TestCase):
         }
 
         actual = {family.value for family in ThemeFamily}
-        self.assertEqual(actual, expected)
+        assert actual == expected
 
     def test_theme_modes(self) -> None:
         expected = {'dark', 'light'}
         actual = {mode.value for mode in ThemeMode}
-        self.assertEqual(actual, expected)
+        assert actual == expected

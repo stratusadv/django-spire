@@ -1,7 +1,13 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from django_spire.contrib.seeding.field.cleaners import normalize_seeder_fields
 from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
+
+if TYPE_CHECKING:
+    from typing_extensions import Any
 
 
 class BaseFieldSeeder(ABC):
@@ -9,16 +15,16 @@ class BaseFieldSeeder(ABC):
     seed_keywords = FieldSeederTypesEnum._value2member_map_.keys()
 
     def __init__(
-            self,
-            fields: dict = None,
-            default_to: str = "llm"
-    ):
+        self,
+        fields: dict | None = None,
+        default_to: str = 'llm'
+    ) -> None:
 
         self.fields = self._normalize_fields(fields or {})
         self.default_to = default_to
 
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
 
         if cls.keyword is None:
@@ -35,9 +41,9 @@ class BaseFieldSeeder(ABC):
         }
 
     @property
-    def seeder_fields(self):
+    def seeder_fields(self) -> dict:
         return self.filter_fields(self.keyword)
 
     @abstractmethod
-    def seed(self, model_seeder_cls, count: int):
+    def seed(self, model_seeder_cls: Any, count: int) -> list[dict]:
         pass

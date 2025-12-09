@@ -39,6 +39,7 @@ class BulkTwilioSMSHelper:
         self._find_notification_segments()
 
         sent_segments = 0
+
         for notification, segments in self.notification_segments.items():
             try:
                 TwilioSMSHelper(notification, self.client).send()
@@ -59,10 +60,10 @@ class BulkTwilioSMSHelper:
                     notification.status_message = str(e)
                     notification.status = NotificationStatusChoices.ERRORED
                     raise e
-                else:
-                    notification.status_message = str(e)
-                    notification.status = NotificationStatusChoices.FAILED
-                    raise e
+
+                notification.status_message = str(e)
+                notification.status = NotificationStatusChoices.FAILED
+                raise e
 
 
 class TwilioSMSHelper:

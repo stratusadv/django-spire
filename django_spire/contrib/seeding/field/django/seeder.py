@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from dandy import BaseIntel, Prompt
 
 from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
@@ -7,11 +9,14 @@ from django_spire.contrib.seeding.field.base import BaseFieldSeeder
 from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
 from django_spire.contrib.seeding.intelligence.bots.field_seeding_bots import LlmFieldSeedingBot
 
+if TYPE_CHECKING:
+    from typing_extensions import Any
+
 
 class DjangoFieldLlmSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.LLM
 
-    def seed(self, model_seeder, count: int = 1,) -> list[dict]:
+    def seed(self, model_seeder: Any, count: int = 1) -> list[dict]:
 
         include_fields = list(self.seeder_fields.keys())
 
@@ -31,10 +36,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
         base_prompt = (
             Prompt()
             .heading('General Seeding Rules')
-            .list(
-                [
-                    'Create data for each field provided.'
-                ])
+            .list(['Create data for each field provided.'])
             .heading('Field Rules & Context')
             .prompt(self.field_prompt)
         )
@@ -115,7 +117,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 class DjangoFieldFakerSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.FAKER
 
-    def seed(self, model_seeder, count = 1) -> list[dict]:
+    def seed(self, model_seeder: Any, count: int = 1) -> list[dict]:
         data = []
 
         for _ in range(count):

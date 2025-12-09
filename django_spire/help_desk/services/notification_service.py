@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db.models import Q
-from typing import TYPE_CHECKING
-
 from django.urls import reverse
 
 from django_spire.contrib.service import BaseDjangoModelService
@@ -63,9 +63,9 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         return content_map[event_type]
 
     def _get_ticket_event_notification_body(
-            self,
-            event_type: TicketEventType,
-            notification_type: NotificationTypeChoices,
+        self,
+        event_type: TicketEventType,
+        notification_type: NotificationTypeChoices,
     ) -> str:
         content_map = {
             TicketEventType.NEW: {
@@ -104,12 +104,12 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         return path
 
     def _create_ticket_event_notification_for_user(
-            self,
-            notification_type: NotificationTypeChoices,
-            body: str,
-            title: str,
-            url: str,
-            user: User,
+        self,
+        notification_type: NotificationTypeChoices,
+        body: str,
+        title: str,
+        url: str,
+        user: User,
     ) -> EmailNotification | AppNotification:
         base_notification = Notification(
             content_type=ContentType.objects.get_for_model(self.obj),
@@ -128,22 +128,25 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
                     settings.DEVELOPMENT_EMAIL if settings.DEBUG else user.email
                 )
             )
-        elif notification_type == NotificationTypeChoices.APP:
+
+        if notification_type == NotificationTypeChoices.APP:
             return AppNotification(notification=base_notification)
-        else:
-            raise TicketEventNotificationTypeNotSupportedError(notification_type)
+
+        raise TicketEventNotificationTypeNotSupportedError(notification_type)
 
     def _create_ticket_event_notifications(
-            self,
-            users: list[User],
-            notification_type: NotificationTypeChoices,
-            event_type: TicketEventType,
+        self,
+        users: list[User],
+        notification_type: NotificationTypeChoices,
+        event_type: TicketEventType
     ):
         title = self._get_ticket_event_notification_title(event_type)
+
         body = self._get_ticket_event_notification_body(
             event_type=event_type,
             notification_type=notification_type,
         )
+
         url = self._get_ticket_notification_url(notification_type)
 
         notifications = [

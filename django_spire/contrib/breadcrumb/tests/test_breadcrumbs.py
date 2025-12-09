@@ -196,8 +196,3 @@ class TestBreadcrumbs(TestCase):
         result = str(breadcrumbs)
 
         assert 'BreadcrumbItem' in result or '[' in result
-
-    def test_with_branch_slug(self) -> None:
-        breadcrumbs = Breadcrumbs(branch_slug='test-branch')
-
-        assert len(breadcrumbs) == 0
