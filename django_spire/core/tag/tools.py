@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def get_matching_tag_set_from_tag_sets(tag_set_a: set[str], tag_set_b: set[str]) -> set[str]:
     return tag_set_a.intersection(tag_set_b)
 

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from django_spire.knowledge.entry import models as entry_models
 from django_spire.knowledge.entry.version import models as entry_version_models
-from django_spire.knowledge.entry.version.block import models as \
-    entry_version_block_models
+from django_spire.knowledge.entry.version.block import models as entry_version_block_models
 from django_spire.knowledge.collection import models as collection_models
 
 # Must assert to stop unused import removals.

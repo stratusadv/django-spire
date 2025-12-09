@@ -22,9 +22,9 @@ if TYPE_CHECKING:
 
 @AppAuthController('knowledge').permission_required('can_add')
 def form_view(
-        request: WSGIRequest,
-        pk: int = 0,
-        parent_pk: int = None,
+    request: WSGIRequest,
+    pk: int = 0,
+    parent_pk: int = None
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=pk)
 
@@ -55,7 +55,7 @@ def form_view(
         if form.is_valid():
             collection, _ = collection.services.save_model_obj(**form.cleaned_data)
 
-            _ = CollectionGroup.services.factory.replace_groups(
+            CollectionGroup.services.factory.replace_groups(
                 request=request,
                 group_pks=dict(request.POST).get('groups'),
                 collection=collection,

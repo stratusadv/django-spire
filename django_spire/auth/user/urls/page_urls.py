@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from django.urls import path
 
 from django_spire.auth.user.views import page_views
+
 
 app_name = 'page'
 

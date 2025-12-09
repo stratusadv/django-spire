@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 from collections import defaultdict
 
 from django_spire.notification.app.processor import AppNotificationProcessor
-from django_spire.notification.choices import NotificationStatusChoices, \
+from django_spire.notification.choices import (
+    NotificationStatusChoices,
     NotificationTypeChoices
+)
 from django_spire.notification.email.processor import EmailNotificationProcessor
-from django_spire.notification.exceptions import NotificationException
+from django_spire.notification.exceptions import NotificationError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 from django_spire.notification.sms.processor import SMSNotificationProcessor
@@ -13,10 +17,13 @@ from django_spire.notification.sms.processor import SMSNotificationProcessor
 class NotificationProcessor(BaseNotificationProcessor):
     def process(self, notification: Notification):
         processor = self._get_processor(notification.type)
+
         if processor is None:
             notification.status = NotificationStatusChoices.FAILED
             notification.save()
-            raise NotificationException(f'Unknown notification type: {notification.type}')
+
+            message = f'Unknown notification type: {notification.type}'
+            raise NotificationError(message)
 
         processor().process(notification)
 
@@ -45,10 +52,10 @@ class NotificationProcessor(BaseNotificationProcessor):
         if notification_type == NotificationTypeChoices.APP:
             return AppNotificationProcessor
 
-        elif notification_type == NotificationTypeChoices.EMAIL:
+        if notification_type == NotificationTypeChoices.EMAIL:
             return EmailNotificationProcessor
 
-        elif notification_type == NotificationTypeChoices.SMS:
+        if notification_type == NotificationTypeChoices.SMS:
             return SMSNotificationProcessor
 
         return None

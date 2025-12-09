@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from dandy.recorder import recorder_to_html_file
 from dandy import SqliteCache, generate_cache_key
@@ -6,12 +9,15 @@ from dandy import SqliteCache, generate_cache_key
 from django_spire.contrib.seeding.field.override import FieldOverride
 from django_spire.contrib.seeding.model.config import FieldsConfig
 
+if TYPE_CHECKING:
+    from typing import Any
+
 
 class classproperty:
-    def __init__(self, fget):
+    def __init__(self, fget: Any) -> None:
         self.fget = fget
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: Any, owner: Any) -> Any:
         return self.fget(owner)
 
 
@@ -33,30 +39,33 @@ class BaseModelSeeder(ABC):
     _field_config: FieldsConfig = None
 
     @classproperty
-    def override(cls):
+    def override(cls) -> FieldOverride:
         return cls.override_class(seeder_class=cls)
 
     @classmethod
     def get_field_config(cls) -> FieldsConfig:
         if cls._field_config is None:
             if cls.model_class is None:
-                raise ValueError('model_class must be defined before using seeder.')
+                message = 'model_class must be defined before using seeder.'
+                raise ValueError(message)
 
             raw_fields = cls.__dict__.get('fields', {})
+
             cls._field_config = cls.field_config_class(
                 raw_fields=raw_fields,
                 field_names=cls.field_names(),
                 default_to=cls.default_to,
                 model_class=cls.model_class,
             )
+
         return cls._field_config
 
     @classmethod
-    def resolved_fields(cls):
+    def resolved_fields(cls) -> dict:
         return cls.get_field_config().fields
 
     @classmethod
-    def clear_cache(cls):
+    def clear_cache(cls) -> None:
         SqliteCache.clear(cache_name=cls.cache_name)
 
     @classmethod
@@ -68,7 +77,7 @@ class BaseModelSeeder(ABC):
     @recorder_to_html_file('model_seeder')
     def seed_data(
         cls,
-        count=1,
+        count: int = 1,
         fields: dict | None = None,
     ) -> list[dict]:
         field_config = (

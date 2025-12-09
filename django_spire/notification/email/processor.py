@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from django.utils.timezone import now
+
 from sendgrid import SendGridException
 
-from django_spire.notification.choices import NotificationTypeChoices, \
-    NotificationStatusChoices
+from django_spire.notification.choices import (
+    NotificationStatusChoices,
+    NotificationTypeChoices
+)
 from django_spire.notification.email.helper import SendGridEmailHelper
-from django_spire.notification.exceptions import NotificationException
+from django_spire.notification.exceptions import NotificationError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 
@@ -16,7 +21,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
 
         try:
             if notification.type != NotificationTypeChoices.EMAIL:
-                raise NotificationException(
+                raise NotificationError(
                     f"EmailNotificationProcessor only processes "
                     f"Email notifications. Was provided {notification.type}"
                 )
@@ -41,7 +46,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
         for notification in notifications:
             try:
                 if notification.type != NotificationTypeChoices.EMAIL:
-                    raise NotificationException(
+                    raise NotificationError(
                         f"EmailNotificationProcessor only processes "
                         f"Email notifications. Was provided {notification.type}"
                     )
@@ -56,10 +61,12 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
                     notification.status = NotificationStatusChoices.ERRORED
                 else:
                     notification.status = NotificationStatusChoices.FAILED
+
                     Notification.objects.bulk_update(
                         notifications,
                         ['status', 'sent_datetime', 'status_message']
                     )
+
                     raise e
 
         Notification.objects.bulk_update(

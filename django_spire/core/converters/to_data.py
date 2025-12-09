@@ -1,18 +1,28 @@
-from django.db import models
+from __future__ import annotations
+
+import os
+import random
+
+from typing import TYPE_CHECKING
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from faker import Faker
-import random
-import os
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from django.db import models
 
 
 class DjangoFieldToFakerData:
     def __init__(
-            self,
-            model_field: models.Field,
-            faker_method: tuple | None = None
+        self,
+        model_field: models.Field,
+        faker_method: tuple | None = None
     ):
         if isinstance(faker_method, str):
             faker_method = (faker_method,)
+
         self.model_field = model_field
         self.faker_method = faker_method
         self.faker = Faker()
@@ -40,22 +50,28 @@ class DjangoFieldToFakerData:
     def convert(self):
         if self.faker_method:
             result = self._use_faker_with_method()
+
             if result is not None:
                 return result
 
         converter = self.field_converters.get(self.model_field.get_internal_type())
+
         if converter is None:
-            raise Exception(f'No handler for {self.model_field.get_internal_type()}')
+            message = f'No handler for {self.model_field.get_internal_type()}'
+            raise Exception(message)
+
         return converter()
 
     def _get_min_max_from_validators(self):
         min_value = 0
         max_value = 10000
+
         for validator in self.model_field.validators:
             if isinstance(validator, MinValueValidator):
                 min_value = validator.limit_value
             elif isinstance(validator, MaxValueValidator):
                 max_value = validator.limit_value
+
         return min_value, max_value
 
     def _use_faker_with_method(self):
@@ -64,6 +80,7 @@ class DjangoFieldToFakerData:
             kwargs = self.faker_method[1] if len(self.faker_method) > 1 and isinstance(self.faker_method[1], dict) else {}
 
             method = getattr(self.faker, method_name, None)
+
             if callable(method):
                 return method(**kwargs)
 
@@ -78,8 +95,6 @@ class DjangoFieldToFakerData:
         if self.model_field.choices:
             choices = [choice[0] for choice in self.model_field.choices]
             return self.faker.random_element(elements=choices)
-
-
 
         return self.faker.text(max_nb_chars=max_length)
 
@@ -126,6 +141,10 @@ class DjangoFieldToFakerData:
         return os.urandom(16)
 
 
-def fake_model_field_value(model_class, field_name: str, faker_method=None):
+def fake_model_field_value(
+    model_class: type[models.Model],
+    field_name: str,
+    faker_method: str | tuple | None = None
+) -> Any:
     field = model_class._meta.get_field(field_name)
     return DjangoFieldToFakerData(field, faker_method).convert()

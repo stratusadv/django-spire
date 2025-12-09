@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 from django.apps import apps
-from django.urls import path, include
+from django.urls import include, path
+
+from django_spire.exceptions import DjangoSpireConfigurationError
+
 
 app_name = 'django_spire'
 
@@ -18,4 +23,5 @@ for app_config in apps.get_app_configs():
         )
 
 if len(urlpatterns) == 0:
-    raise Exception('You need to have at least one app installed to use Django Spire.')
+    message = 'You need to have at least one app installed to use Django Spire.'
+    raise DjangoSpireConfigurationError(message)

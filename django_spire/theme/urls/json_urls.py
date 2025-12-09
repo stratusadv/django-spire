@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from django.urls import path
 
 from django_spire.theme.views import json_views
+
 
 app_name = 'json'
 

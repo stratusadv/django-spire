@@ -1,12 +1,16 @@
 from __future__ import annotations
 
-from django.core.handlers.wsgi import WSGIRequest
+from typing import TYPE_CHECKING
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.entry.version.models import EntryVersion
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 @AppAuthController('knowledge').permission_required('can_change')

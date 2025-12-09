@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.contrib.sites.models import Site
 from django.db import models
 from django.urls import reverse
@@ -5,8 +7,10 @@ from django.utils.timezone import now
 
 from django_spire.notification.models import Notification
 from django_spire.notification.sms.choices import SmsMediaContentTypeChoices
-from django_spire.notification.sms.querysets import SmsNotificationQuerySet, \
+from django_spire.notification.sms.querysets import (
+    SmsNotificationQuerySet,
     SmsTemporaryMediaQuerySet
+)
 
 
 class SmsTemporaryMedia(models.Model):

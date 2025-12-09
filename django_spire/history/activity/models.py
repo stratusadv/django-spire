@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -12,9 +14,10 @@ class Activity(models.Model):
         ContentType,
         related_name='activities',
         related_query_name='activity',
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         editable=False
     )
+
     object_id = models.PositiveIntegerField(editable=False)
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -47,9 +50,7 @@ class Activity(models.Model):
         return f'{self.user} - {self.verb}'
 
     def add_subscriber(self, subscriber: User) -> None:
-        self.subscribers.create(
-            user=subscriber
-        )
+        self.subscribers.create(subscriber=subscriber)
 
     class Meta:
         db_table = 'django_spire_history_activity'
@@ -78,7 +79,7 @@ class ActivitySubscriber(models.Model):
 
     def __str__(self):
         return f'{self.activity} - {self.subscriber}'
-    
+
     class Meta:
         db_table = 'django_spire_history_activity_subscriber'
         verbose_name = 'Activity Subscriber'

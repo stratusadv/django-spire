@@ -10,20 +10,21 @@ from django_spire.auth.group.utils import (
     codename_to_perm_level,
     perm_level_to_string
 )
-from django_spire.auth.permissions.consts import VALID_PERMISSION_LEVELS
 from django_spire.core.utils import get_object_from_module_string
 
 if TYPE_CHECKING:
-    from django.db.models import QuerySet, Model
+    from django.db.models import Model, QuerySet
+
+    from django_spire.auth.permissions.consts import VALID_PERMISSION_LEVELS
 
 
 class ModelPermission:
     def __init__(
-            self,
-            name: str,
-            model_class_path: str,
-            is_proxy_model: bool,
-            verbose_name: str | None = None,
+        self,
+        name: str,
+        model_class_path: str,
+        is_proxy_model: bool,
+        verbose_name: str | None = None
     ):
         self.name = name
         self.model_class_path = model_class_path
@@ -90,9 +91,8 @@ class ModelPermissions:
 
 class GroupPermissions:
     def __init__(self, group: Group, model_permission: ModelPermission):
-        """
-            Helper to use Django Groups as a cascading permission structure.
-        """
+        """Helper to use Django Groups as a cascading permission structure."""
+
         self.group = group
         self.model_permissions = ModelPermissions(model_permission)
         self.group_perms = self.group.permissions.all()
@@ -169,9 +169,8 @@ class GroupPermissions:
 
 class UserPermissionHelper:
     def __init__(self, user: User, model_permission: ModelPermission):
-        """
-            Helper to query user's current cascading permissions
-        """
+        """Helper to query user's current cascading permissions"""
+
         self.user = user
         self.model_permissions = ModelPermissions(model_permission)
         self.user_perms = self.get_user_perms()

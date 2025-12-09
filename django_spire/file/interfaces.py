@@ -15,6 +15,7 @@ from django_spire.file.utils import random_64_char_token
 
 if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile
+
     from django_spire.file.mixins import FileModelMixin
 
 

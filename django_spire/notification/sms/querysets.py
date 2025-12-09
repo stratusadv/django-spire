@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.history.querysets import HistoryQuerySet
 from django_spire.notification.querysets import NotificationContentObjectQuerySet
 

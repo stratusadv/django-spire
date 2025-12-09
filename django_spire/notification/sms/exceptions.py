@@ -1,17 +1,19 @@
-from django_spire.exceptions import DjangoSpireException
+from __future__ import annotations
+
+from django_spire.exceptions import DjangoSpireError
 
 
-class SmsNotificationException(DjangoSpireException):
+class SmsNotificationError(DjangoSpireError):
     pass
 
 
-class SmsTemporaryMediaException(SmsNotificationException):
+class SmsTemporaryMediaError(SmsNotificationError):
     pass
 
 
-class TwilioException(Exception):
+class TwilioError(Exception):
     pass
 
 
-class TwilioAPIConcurrentException(TwilioException):
+class TwilioAPIConcurrentError(TwilioError):
     pass

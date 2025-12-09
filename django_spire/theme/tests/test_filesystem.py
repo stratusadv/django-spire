@@ -21,7 +21,7 @@ class ThemeFilesystemValidationTests(TestCase):
         if not self.base_path.exists():
             self.skipTest(f'Themes directory does not exist: {self.base_path}. Create it to enable filesystem validation tests.')
 
-        self.assertTrue(self.base_path.is_dir(), f'Themes path is not a directory: {self.base_path}')
+        assert self.base_path.is_dir(), f'Themes path is not a directory: {self.base_path}'
 
     def test_all_theme_families_have_directories(self) -> None:
         if not self.base_path.exists():
@@ -175,7 +175,4 @@ class ThemeFilesystemValidationTests(TestCase):
                     file = directory / filename
 
                     if file.exists():
-                        self.assertEqual(
-                            file.name, filename,
-                            f'Filename {file.name} does not match expected {filename}'
-                        )
+                        assert file.name == filename, f'Filename {file.name} does not match expected {filename}'

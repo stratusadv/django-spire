@@ -13,12 +13,12 @@ if TYPE_CHECKING:
 
 
 def permission_required_decorator_function(
-        permissions: str | Sequence[str],
-        method,
-        request: WSGIRequest,
-        *args,
-        all_required: bool = True,
-        **kwargs
+    permissions: str | Sequence[str],
+    method,
+    request: WSGIRequest,
+    *args,
+    all_required: bool = True,
+    **kwargs
 ):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('django_spire:auth:admin:login'))
@@ -40,8 +40,8 @@ def permission_required_decorator_function(
 
 
 def permission_required(
-        *permissions: str,
-        all_required: bool = True
+    *permissions: str,
+    all_required: bool = True
 ):
     def decorator(method):
         @functools.wraps(method)

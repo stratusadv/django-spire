@@ -1,22 +1,26 @@
 from __future__ import annotations
 
 import logging
+
 from abc import ABC
-from typing import Type, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from django.db import transaction
 from django.db.models import Model
 
 from django_spire.contrib.constructor.django_model_constructor import BaseDjangoModelConstructor
-from django_spire.contrib.service.exceptions import ServiceException
+from django_spire.contrib.service.exceptions import ServiceError
 
-TypeDjangoModel = TypeVar('TypeDjangoModel', bound=Model, covariant=True)
+
+log = logging.getLogger(__name__)
+
+TypeDjangoModel_co = TypeVar('TypeDjangoModel_co', bound=Model, covariant=True)
 
 
 class BaseDjangoModelService(
-    BaseDjangoModelConstructor[TypeDjangoModel],
+    BaseDjangoModelConstructor[TypeDjangoModel_co],
     ABC,
-    Generic[TypeDjangoModel]
+    Generic[TypeDjangoModel_co]
 ):
     def _get_concrete_fields(self) -> dict:
         return {
@@ -33,7 +37,7 @@ class BaseDjangoModelService(
 
         for field, value in field_data.items():
             if field not in allowed:
-                logging.warning(f'Field {field!r} is not valid for {self.obj.__class__.__name__}')
+                log.warning(f'Field {field!r} is not valid for {self.obj.__class__.__name__}')
                 continue
 
             model_field = concrete_fields.get(field.removesuffix("_id"), None)
@@ -51,12 +55,8 @@ class BaseDjangoModelService(
         concrete_fields = self._get_concrete_fields()
         touched_fields = self._get_touched_fields(concrete_fields, **field_data)
 
-        try:
-            self.obj.full_clean(
-                exclude=[field for field in concrete_fields if field not in touched_fields]
-            )
-        except:
-            raise
+        exclude = [field for field in concrete_fields if field not in touched_fields]
+        self.obj.full_clean(exclude=exclude)
 
         return touched_fields
 
@@ -65,7 +65,8 @@ class BaseDjangoModelService(
         new_model_obj_was_created = False
 
         if not field_data:
-            raise ServiceException(f'Field data is required to save on {self.obj.__class__.__name__}')
+            message = f'Field data is required to save on {self.obj.__class__.__name__}'
+            raise ServiceError(message)
 
         touched_fields = self.validate_model_obj(**field_data)
 
@@ -77,7 +78,7 @@ class BaseDjangoModelService(
             self.obj.save(update_fields=touched_fields)
 
         else:
-            logging.warning(
-                f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.')
+            message = f'{self.obj.__class__.__name__} is not a new object or there was no touched fields to update.'
+            log.warning(message)
 
         return self.obj, new_model_obj_was_created

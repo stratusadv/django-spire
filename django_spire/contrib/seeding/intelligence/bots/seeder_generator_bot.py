@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dandy import Bot, LlmConfigOptions
 
 from django_spire.contrib.seeding.intelligence.intel import SourceIntel

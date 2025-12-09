@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.apps import AppConfig
 from django.conf import settings
 
@@ -20,8 +22,8 @@ class FileConfig(AppConfig):
                 f'using "{self.label}".'
             )
 
-        elif not isinstance(getattr(settings, 'BASE_FOLDER_NAME'), str):
-            raise ValueError(
+        if not isinstance(settings.BASE_FOLDER_NAME, str):
+            raise TypeError(
                 f'"BASE_FOLDER_NAME" must be a string in the django settings when '
                 f'using "{self.label}".'
             )

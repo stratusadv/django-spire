@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from django_spire.knowledge.entry.version.block.data.list.choices import \
-    OrderedListCounterType
+from django_spire.knowledge.entry.version.block.data.list.choices import OrderedListCounterType
 
 
 class ChecklistItemMeta(BaseModel):

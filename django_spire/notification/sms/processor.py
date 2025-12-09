@@ -1,15 +1,21 @@
+from __future__ import annotations
+
 from django.utils.timezone import now
 from django.conf import settings
 
 from twilio.rest import Client
 
-from django_spire.notification.choices import NotificationTypeChoices, \
+from django_spire.notification.choices import (
+    NotificationTypeChoices,
     NotificationStatusChoices
-from django_spire.notification.exceptions import NotificationException
+)
+from django_spire.notification.exceptions import NotificationError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
-from django_spire.notification.sms.exceptions import TwilioException, \
-    TwilioAPIConcurrentException
+from django_spire.notification.sms.exceptions import (
+    TwilioAPIConcurrentError,
+    TwilioError
+)
 from django_spire.notification.sms.helper import TwilioSMSHelper, BulkTwilioSMSHelper
 
 
@@ -20,7 +26,7 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
 
         try:
             if notification.type != NotificationTypeChoices.SMS:
-                raise NotificationException(
+                raise NotificationError(
                     f'SMSNotificationProcessor only processes '
                     f'SMS notifications. Was provided {notification.type}'
                 )
@@ -32,14 +38,14 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
             notification.sent_datetime = now()
         except Exception as e:
             # Requeue notification as api concurrency is full
-            if isinstance(e, TwilioAPIConcurrentException):
+            if isinstance(e, TwilioAPIConcurrentError):
                 notification.status = NotificationStatusChoices.PENDING
                 notification.save()
                 return
 
             notification.status_message = str(e)
 
-            if isinstance(e, TwilioException):
+            if isinstance(e, TwilioError):
                 notification.status = NotificationStatusChoices.ERRORED
             else:
                 notification.status = NotificationStatusChoices.FAILED
@@ -51,7 +57,7 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
         twilio_sms_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
         for notification in notifications:
             if notification.type != NotificationTypeChoices.SMS:
-                raise NotificationException(
+                raise NotificationError(
                     f'SMSNotificationProcessor only processes '
                     f'SMS notifications. Was provided {notification.type}'
                 )

@@ -1,5 +1,7 @@
-from django_spire.exceptions import DjangoSpireException
+from __future__ import annotations
+
+from django_spire.exceptions import DjangoSpireError
 
 
-class NotificationException(DjangoSpireException):
+class NotificationError(DjangoSpireError):
     pass

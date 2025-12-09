@@ -11,6 +11,7 @@ from django_spire.file.models import File
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
+
     from django_spire.knowledge.entry.models import Entry
 
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django_spire.contrib.seeding import DjangoModelSeeder
 from django_spire.contrib.seeding.model.django.tests.test_seeder import Product
 

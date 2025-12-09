@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.contrib import admin
-from django.db.models import QuerySet
 from django.contrib import messages
 
 from .models import Collection, CollectionGroup
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 @admin.register(Collection)

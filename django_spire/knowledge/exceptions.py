@@ -1,4 +1,5 @@
 from __future__ import annotations
 
-class KnowledgeBaseConversionException(Exception):
+
+class KnowledgeBaseConversionError(Exception):
     pass

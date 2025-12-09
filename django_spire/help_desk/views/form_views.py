@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import django_glue as dg
+
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 
@@ -34,7 +37,7 @@ def ticket_create_form_view(request):
         request,
         form=form,
         template='django_spire/help_desk/page/ticket_form_page.html',
-        verb=f'Create',
+        verb='Create',
         obj=ticket,
         context_data={
             'form_action_url': reverse('django_spire:help_desk:form:create'),

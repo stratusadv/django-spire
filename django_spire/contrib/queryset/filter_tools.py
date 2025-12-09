@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from django.db.models import QuerySet
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 def filter_by_lookup_map(
-        queryset: QuerySet,
-        lookup_map: dict,
-        data: dict,
-        extra_filters: dict | None = None
+    queryset: QuerySet,
+    lookup_map: dict,
+    data: dict,
+    extra_filters: dict | None = None
 ):
     """
     Filters a given queryset based on a lookup map and provided data. Additional filters
@@ -23,7 +26,9 @@ def filter_by_lookup_map(
 
     Returns:
         QuerySet: The filtered queryset.
+
     """
+
     if extra_filters is None:
         extra_filters = {}
 

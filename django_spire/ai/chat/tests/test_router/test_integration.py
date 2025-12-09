@@ -1,23 +1,39 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
+from dandy.llm.request.message import MessageHistory
 from django.contrib.auth.models import Permission, User
 from django.test import RequestFactory, override_settings
 
+from django_spire.ai.chat.intelligence.decoders.intent_decoder import generate_intent_decoder
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import chat_workflow
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
 from django_spire.ai.chat.router import BaseChatRouter
 from django_spire.core.tests.test_cases import BaseTestCase
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+
 
 class KnowledgeRouter(BaseChatRouter):
-    def workflow(self, request, user_input, message_history=None) -> DefaultMessageIntel:
+    def workflow(
+        self,
+        _request: WSGIRequest,
+        _user_input: str,
+        _message_history: MessageHistory | None = None
+    ) -> DefaultMessageIntel:
         return DefaultMessageIntel(text='Knowledge search result')
 
 
 class SupportRouter(BaseChatRouter):
-    def workflow(self, request, user_input, message_history=None) -> DefaultMessageIntel:
+    def workflow(
+        self,
+        _request: WSGIRequest,
+        _user_input: str,
+        _message_history: MessageHistory | None = None
+    ) -> DefaultMessageIntel:
         return DefaultMessageIntel(text='Support response')
 
 
@@ -95,8 +111,6 @@ class TestRouterIntegration(BaseTestCase):
         }
     )
     def test_intent_excluded_without_permission(self) -> None:
-        from django_spire.ai.chat.intelligence.decoders.intent_decoder import generate_intent_decoder
-
         regular_user = User.objects.create_user(username='regular', password='test')
 
         request = self.factory.get('/')
@@ -113,8 +127,6 @@ class TestRouterIntegration(BaseTestCase):
         }
     )
     def test_end_to_end_workflow(self) -> None:
-        from dandy.llm.request.message import MessageHistory
-
         message_history = MessageHistory()
         message_history.add_message(role='user', content='Previous message')
 
@@ -145,3 +157,71 @@ class TestRouterIntegration(BaseTestCase):
             )
 
             assert isinstance(result, DefaultMessageIntel)
+
+    @override_settings(
+        DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER='KNOWLEDGE',
+        DJANGO_SPIRE_AI_CHAT_ROUTERS={
+            'KNOWLEDGE': 'django_spire.ai.chat.tests.test_router.test_integration.KnowledgeRouter',
+            'SUPPORT': 'django_spire.ai.chat.tests.test_router.test_integration.SupportRouter',
+        }
+    )
+    def test_router_selection_by_key(self) -> None:
+        result = chat_workflow(
+            request=self.request,
+            user_input='Test',
+            message_history=None
+        )
+
+        assert isinstance(result, DefaultMessageIntel)
+        assert result.text == 'Knowledge search result'
+
+    @override_settings(
+        DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER='SUPPORT',
+        DJANGO_SPIRE_AI_CHAT_ROUTERS={
+            'SUPPORT': 'django_spire.ai.chat.tests.test_router.test_integration.SupportRouter',
+        }
+    )
+    def test_workflow_with_none_message_history(self) -> None:
+        result = chat_workflow(
+            request=self.request,
+            user_input='Test input',
+            message_history=None
+        )
+
+        assert isinstance(result, DefaultMessageIntel)
+        assert result.text == 'Support response'
+
+    @override_settings(
+        DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER='SUPPORT',
+        DJANGO_SPIRE_AI_CHAT_ROUTERS={
+            'SUPPORT': 'django_spire.ai.chat.tests.test_router.test_integration.SupportRouter',
+        }
+    )
+    def test_workflow_preserves_user_input(self) -> None:
+        test_input = 'This is a specific test input'
+
+        with patch.object(SupportRouter, 'workflow', wraps=SupportRouter().workflow) as mock_workflow:
+            mock_workflow.return_value = DefaultMessageIntel(text='Response')
+
+            chat_workflow(
+                request=self.request,
+                user_input=test_input,
+                message_history=None
+            )
+
+    @override_settings(
+        DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER='KNOWLEDGE',
+        DJANGO_SPIRE_AI_CHAT_ROUTERS={
+            'KNOWLEDGE': 'django_spire.ai.chat.tests.test_router.test_integration.KnowledgeRouter',
+        },
+        DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS={}
+    )
+    def test_workflow_without_intent_routers(self) -> None:
+        result = chat_workflow(
+            request=self.request,
+            user_input='Test',
+            message_history=None
+        )
+
+        assert isinstance(result, DefaultMessageIntel)
+        assert result.text == 'Knowledge search result'

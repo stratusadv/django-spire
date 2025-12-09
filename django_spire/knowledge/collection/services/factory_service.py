@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.core.handlers.wsgi import WSGIRequest
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+
     from django_spire.knowledge.collection.models import Collection, CollectionGroup
 
 
@@ -15,10 +16,10 @@ class CollectionGroupFactoryService(BaseDjangoModelService['CollectionGroup']):
     obj: CollectionGroup
 
     def replace_groups(
-            self,
-            request: WSGIRequest,
-            group_pks: list[int] | None,
-            collection: Collection
+        self,
+        request: WSGIRequest,
+        group_pks: list[int] | None,
+        collection: Collection
     ) -> list[CollectionGroup]:
         if not AppAuthController('knowledge', request).can_change_collection_groups():
             return []

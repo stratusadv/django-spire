@@ -1,17 +1,25 @@
+from __future__ import annotations
+
 import time
+
 from collections import defaultdict
 
 from django.utils.timezone import now
-from twilio.rest.api.v2010.account.message import MessageInstance
-from twilio.rest import Client
 
 from django.conf import settings
 
 from django_spire.notification.choices import NotificationStatusChoices
-from django_spire.notification.models import Notification
 from django_spire.notification.sms.consts import TWILIO_UNSUCCESSFUL_STATUSES
-from django_spire.notification.sms.exceptions import TwilioException, \
-    TwilioAPIConcurrentException
+from django_spire.notification.sms.exceptions import (
+    TwilioAPIConcurrentError,
+    TwilioError
+)
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django_spire.notification.models import Notification
+    from twilio.rest.api.v2010.account.message import MessageInstance
+    from twilio.rest import Client
 
 
 class BulkTwilioSMSHelper:
@@ -31,6 +39,7 @@ class BulkTwilioSMSHelper:
         self._find_notification_segments()
 
         sent_segments = 0
+
         for notification, segments in self.notification_segments.items():
             try:
                 TwilioSMSHelper(notification, self.client).send()
@@ -44,18 +53,17 @@ class BulkTwilioSMSHelper:
                     sent_segments = 0
 
             except Exception as e:
-                if isinstance(e, TwilioAPIConcurrentException):
+                if isinstance(e, TwilioAPIConcurrentError):
                     notification.status = NotificationStatusChoices.PENDING
 
-                if isinstance(e, TwilioException):
+                if isinstance(e, TwilioError):
                     notification.status_message = str(e)
                     notification.status = NotificationStatusChoices.ERRORED
                     raise e
 
-                else:
-                    notification.status_message = str(e)
-                    notification.status = NotificationStatusChoices.FAILED
-                    raise e
+                notification.status_message = str(e)
+                notification.status = NotificationStatusChoices.FAILED
+                raise e
 
 
 class TwilioSMSHelper:
@@ -76,7 +84,8 @@ class TwilioSMSHelper:
                 media_url=[self.notification.sms.media_url] if self.notification.sms.media_url else [],
             )
         except Exception as e:
-            raise TwilioException(f'Twilio Exception: {str(e)}')
+            message = f'Twilio Error: {e!s}'
+            raise TwilioError(message)
 
     def send(self):
         response = self._attempt_send()
@@ -84,15 +93,15 @@ class TwilioSMSHelper:
 
     def _handle_response(self, response: MessageInstance):
         if response.error_code == 429:
-            raise TwilioAPIConcurrentException(
-                'Twilio API concurrent request limit exceeded.'
-            )
+            message = 'Twilio API concurrent request limit exceeded.'
+            raise TwilioAPIConcurrentError(message)
+
         if response.status in TWILIO_UNSUCCESSFUL_STATUSES:
             retry_response = self._attempt_send()
 
             if retry_response.status in TWILIO_UNSUCCESSFUL_STATUSES:
-                raise TwilioException(
-                    f'Twilio Exception: code={retry_response.error_code}, '
+                raise TwilioError(
+                    f'Twilio Error: code={retry_response.error_code}, '
                     f'message={retry_response.error_message}'
                 )
 
@@ -105,8 +114,7 @@ class TwilioSMSHelper:
         elif len(cleaned_number) == 11 and cleaned_number.startswith('1'):
             formatted_number = cleaned_number
         else:
-            raise TwilioException(
-                f'Invalid phone number format: {phone_number}.'
-            )
+            message = f'Invalid phone number format: {phone_number}.'
+            raise TwilioError(message)
 
         return '+' + formatted_number

@@ -21,13 +21,17 @@ def file_multiple_upload_ajax(request: WSGIRequest) -> JsonResponse:
             'files': [file.to_dict() for file in files]
         })
 
+    return None
+
 
 @login_required()
 def file_single_upload_ajax(request: WSGIRequest) -> JsonResponse:
     if request.method == 'POST':
         file_uploader = SingleFileUploader(request.POST.get('related_field', ''))
-        file = file_uploader.upload(list(request.FILES.values())[0])
+        file = file_uploader.upload(next(iter(request.FILES.values())))
 
         return JsonResponse({
             'file': file.to_dict()
         })
+
+    return None

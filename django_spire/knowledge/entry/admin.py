@@ -1,10 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.contrib import admin, messages
-from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.http import urlencode
 
 from django_spire.knowledge.entry.models import Entry
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
 
 
 @admin.register(Entry)

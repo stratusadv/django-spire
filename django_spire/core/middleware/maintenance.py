@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.conf import settings
-from django.template.response import TemplateResponse
+# from django.conf import settings
+# from django.template.response import TemplateResponse
 
-from django_spire.consts import MAINTENANCE_MODE_SETTINGS_NAME
+# from django_spire.consts import MAINTENANCE_MODE_SETTINGS_NAME
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
