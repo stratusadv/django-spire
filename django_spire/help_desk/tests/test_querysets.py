@@ -8,6 +8,7 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 class HelpDeskTicketQuerySetTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.ticket1 = create_test_helpdesk_ticket(description='Ticket 1')
         self.ticket2 = create_test_helpdesk_ticket(description='Ticket 2')
 

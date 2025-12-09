@@ -169,6 +169,7 @@ class LoginViewTestCase(BaseTestCase):
 class PasswordChangeViewTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser')
         self.user.set_password('oldpassword123')
         self.user.save()
@@ -302,6 +303,7 @@ class PasswordChangeDoneViewTestCase(BaseTestCase):
 class PasswordResetViewTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser', email='test@example.com')
 
     def test_password_reset_page_loads(self) -> None:

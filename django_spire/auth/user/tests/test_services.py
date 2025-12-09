@@ -9,6 +9,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class AuthUserServiceTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user1 = create_user(
             username='user1',
             first_name='Alice',

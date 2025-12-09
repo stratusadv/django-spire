@@ -8,6 +8,7 @@ from django_spire.knowledge.entry.models import Entry
 class EntryFactoryServiceTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.collection = create_test_collection()
 
     def test_create_from_files_empty_list(self):

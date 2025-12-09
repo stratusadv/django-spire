@@ -9,6 +9,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class TestCommentModel(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.content_type = ContentType.objects.get_for_model(self.super_user)
         self.comment = Comment.objects.create(
             content_type=self.content_type,
@@ -115,6 +116,7 @@ class TestCommentModel(BaseTestCase):
 class TestCommentRelationships(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.content_type = ContentType.objects.get_for_model(self.super_user)
         self.comment = Comment.objects.create(
             content_type=self.content_type,
@@ -178,6 +180,7 @@ class TestCommentRelationships(BaseTestCase):
 class TestCommentDefaults(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.content_type = ContentType.objects.get_for_model(self.super_user)
         self.comment = Comment.objects.create(
             content_type=self.content_type,

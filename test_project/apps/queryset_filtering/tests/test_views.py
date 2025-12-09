@@ -9,6 +9,7 @@ class TaskListFilteringTestCase(BaseTestCase):
 
     def setUp(self):
         super().setUp()
+
         TaskModelSeeder.seed_database(count=20)
         create_test_task(name='Buy Eggs')
         create_test_task(name='Cook Eggs')

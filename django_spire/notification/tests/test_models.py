@@ -12,6 +12,7 @@ from django_spire.notification.tests.factories import create_test_notification
 class NotificationModelTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.notification = create_test_notification()
 
     def test_default_status_is_pending(self):

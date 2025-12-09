@@ -10,6 +10,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class GroupPageViewsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
 
     def test_list_view_requires_permission(self) -> None:
@@ -105,6 +106,7 @@ class GroupPageViewsTestCase(BaseTestCase):
 class GroupFormViewsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
 
     def test_add_form_view_get(self) -> None:
@@ -263,6 +265,7 @@ class GroupFormViewsTestCase(BaseTestCase):
 class GroupJsonViewsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
 
     def test_permission_form_ajax_invalid_app(self) -> None:

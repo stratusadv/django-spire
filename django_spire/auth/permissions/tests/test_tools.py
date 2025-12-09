@@ -108,6 +108,7 @@ class GenerateModelKeyPermissionMapTestCase(BaseTestCase):
 class GenerateUserPermDataTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser')
 
     def test_returns_list(self) -> None:
@@ -181,6 +182,7 @@ class GenerateUserPermDataTestCase(BaseTestCase):
 class GenerateGroupPermDataTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
 
     def test_returns_list(self) -> None:
@@ -252,6 +254,7 @@ class GenerateGroupPermDataTestCase(BaseTestCase):
 class GenerateSpecialRoleDataTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
         self.model_permission = ModelPermission(
             name='group',

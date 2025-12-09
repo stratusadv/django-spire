@@ -9,6 +9,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class TestCommentForm(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.content_type = ContentType.objects.get_for_model(self.super_user)
 
     def test_valid_form(self) -> None:

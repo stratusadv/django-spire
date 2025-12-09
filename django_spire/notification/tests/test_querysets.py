@@ -16,6 +16,7 @@ from django_spire.notification.tests.factories import create_test_notification
 class NotificationQuerySetTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.user = create_user(username='test_notification_user')
         self.notification = create_test_notification(user=self.user)
 

@@ -9,6 +9,7 @@ from django_spire.knowledge.collection.tests.factories import create_test_collec
 class CollectionFormUrlsTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.collection = create_test_collection()
 
     def test_create_form_view_url_path(self):

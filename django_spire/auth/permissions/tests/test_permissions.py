@@ -72,6 +72,7 @@ class ModelPermissionTestCase(BaseTestCase):
 class ModelPermissionsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
@@ -148,6 +149,7 @@ class ModelPermissionsTestCase(BaseTestCase):
 class GroupPermissionsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
         self.model_permission = ModelPermission(
             name='group',
@@ -239,6 +241,7 @@ class GroupPermissionsTestCase(BaseTestCase):
 class UserPermissionHelperTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser')
         self.group = AuthGroup.objects.create(name='Test Group')
         self.model_permission = ModelPermission(

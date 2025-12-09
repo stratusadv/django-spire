@@ -13,6 +13,7 @@ from django_spire.help_desk.models import HelpDeskTicket
 class BaseHelpDeskAuthControllerTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.factory = RequestFactory()
         self.user = create_user(username='test_helpdesk_auth_user')
         self.request = self.factory.get('/')

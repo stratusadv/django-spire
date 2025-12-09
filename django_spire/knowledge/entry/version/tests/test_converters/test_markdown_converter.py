@@ -9,6 +9,7 @@ from django_spire.knowledge.entry.version.tests.factories import create_test_ent
 class MarkdownConverterTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.entry_version = create_test_entry_version()
         self.converter = MarkdownConverter(entry_version=self.entry_version)
 

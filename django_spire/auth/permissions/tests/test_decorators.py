@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.factory = RequestFactory()
         self.user = create_user(username='testuser')
         self.user.set_password('password')
@@ -180,6 +181,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
 class PermissionRequiredDecoratorTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.factory = RequestFactory()
         self.user = create_user(username='testuser')
         self.user.set_password('password')

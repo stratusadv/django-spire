@@ -11,6 +11,7 @@ from django_spire.knowledge.entry.version.tests.factories import create_test_ent
 class EntryFormUrlsTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.collection = create_test_collection()
         self.test_entry = create_test_entry(collection=self.collection)
         self.test_entry_version = create_test_entry_version(entry=self.test_entry)

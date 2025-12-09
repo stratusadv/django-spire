@@ -20,6 +20,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class SetGroupUsersTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
         self.user1 = create_user(username='user1')
         self.user2 = create_user(username='user2')
@@ -286,6 +287,7 @@ class PermLevelToDjangoPermissionTestCase(BaseTestCase):
 class HasAppPermissionTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser')
 
     def test_user_without_permission(self) -> None:

@@ -35,6 +35,7 @@ class DummyModelMixin:
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
+
         DummyModel.create_table()
 
     @classmethod

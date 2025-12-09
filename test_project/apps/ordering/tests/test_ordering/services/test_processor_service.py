@@ -6,6 +6,7 @@ class TestOrderingProcessorService(BaseTestCase):
     def setUp(self):
         self.test_duck = create_test_duck()
         self.test_other_duck = create_test_duck(name='Duckworth IV', order=1)
+
         super().setUp()
 
     def test_reorder_existing(self):

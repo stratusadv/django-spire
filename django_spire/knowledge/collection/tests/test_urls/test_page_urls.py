@@ -9,6 +9,7 @@ from django_spire.knowledge.collection.tests.factories import create_test_collec
 class CollectionPageUrlsTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.test_collection = create_test_collection()
 
     def test_top_level_view_url_path(self):

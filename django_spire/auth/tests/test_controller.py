@@ -41,6 +41,7 @@ class TestAuthController(BaseAuthController):
 class BaseAuthControllerTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.factory = RequestFactory()
         self.user = create_user(username='testuser')
         self.controller = BaseAuthController()
@@ -90,6 +91,7 @@ class BaseAuthControllerTestCase(BaseTestCase):
 class BaseAuthControllerPermissionRequiredTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.factory = RequestFactory()
         self.user = create_user(username='testuser')
         self.controller = TestAuthController()

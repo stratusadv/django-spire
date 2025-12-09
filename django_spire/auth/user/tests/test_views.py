@@ -11,6 +11,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class UserPageViewsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(
             username='testuser',
             first_name='Test',
@@ -116,6 +117,7 @@ class UserPageViewsTestCase(BaseTestCase):
 class UserFormViewsTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(
             username='testuser',
             first_name='Test',

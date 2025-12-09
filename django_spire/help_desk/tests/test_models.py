@@ -12,6 +12,7 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 class HelpDeskTicketModelTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.ticket = create_test_helpdesk_ticket()
 
     def test_str(self):

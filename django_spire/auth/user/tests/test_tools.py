@@ -10,6 +10,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class AddUserToAllUserGroupTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser')
 
     def test_creates_all_users_group_if_not_exists(self) -> None:

@@ -8,6 +8,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class GroupQuerySetTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group_c = AuthGroup.objects.create(name='Charlie Group')
         self.group_a = AuthGroup.objects.create(name='Alpha Group')
         self.group_b = AuthGroup.objects.create(name='Beta Group')

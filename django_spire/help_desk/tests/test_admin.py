@@ -12,6 +12,7 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 class HelpDeskTicketAdminTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.site = AdminSite()
         self.admin = HelpDeskTicketAdmin(HelpDeskTicket, self.site)
         self.factory = RequestFactory()

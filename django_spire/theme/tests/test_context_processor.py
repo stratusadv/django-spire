@@ -66,6 +66,7 @@ class ThemeContextProcessorTests(TestCase):
 class ThemeContextProcessorIntegrationTests(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.factory = RequestFactory()
 
     def test_theme_context_with_authenticated_client(self) -> None:

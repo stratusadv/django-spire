@@ -191,6 +191,7 @@ class GroupNamesFormTestCase(BaseTestCase):
 class GroupUserFormTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user1 = create_user(username='user1', first_name='User', last_name='One')
         self.user2 = create_user(username='user2', first_name='User', last_name='Two')
         self.user3 = create_user(username='user3', first_name='User', last_name='Three')

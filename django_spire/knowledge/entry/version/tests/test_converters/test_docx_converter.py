@@ -13,6 +13,7 @@ from django_spire.knowledge.entry.version.tests.factories import create_test_ent
 class DocxConverterTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.test_entry_version = create_test_entry_version()
 
     @patch(

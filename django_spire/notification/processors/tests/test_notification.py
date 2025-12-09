@@ -19,6 +19,7 @@ from django_spire.notification.processors.notification import NotificationProces
 class NotificationProcessorTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.user = create_user(username='test_processor_user')
         self.processor = NotificationProcessor()
 

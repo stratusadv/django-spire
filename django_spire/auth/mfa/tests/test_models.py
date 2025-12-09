@@ -11,6 +11,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class MfaCodeModelTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser')
 
     def test_generate_code_creates_valid_code(self) -> None:
@@ -164,6 +165,7 @@ class MfaCodeModelTestCase(BaseTestCase):
 class MfaCodeQuerySetTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.user = create_user(username='testuser')
 
     def test_valid_code_returns_unexpired(self) -> None:

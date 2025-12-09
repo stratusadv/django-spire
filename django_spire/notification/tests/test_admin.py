@@ -11,6 +11,7 @@ from django_spire.notification.tests.factories import create_test_notification
 class NotificationAdminTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.site = AdminSite()
         self.admin = NotificationAdmin(Notification, self.site)
         self.notification = create_test_notification()

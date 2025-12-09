@@ -10,6 +10,7 @@ from django_spire.knowledge.entry.tests.factories import create_test_entry
 class EntryJsonUrlsTests(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.collection = create_test_collection()
         self.test_entry = create_test_entry(collection=self.collection)
 

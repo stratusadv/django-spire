@@ -9,6 +9,7 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 class HelpDeskPageViewsTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
+
         self.test_ticket = create_test_helpdesk_ticket()
 
     def test_ticket_delete_view(self):

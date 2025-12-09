@@ -11,6 +11,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class AuthGroupModelTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
         self.group = AuthGroup.objects.create(name='Test Group')
 
     def test_str_representation(self) -> None:
