@@ -16,25 +16,21 @@ def create_test_block_form_data(**kwargs) -> dict:
         'data': {'text': 'test text'},
         'tunes': {}
     }
-
     data.update(kwargs)
     return data
 
 
 def create_test_version_block(**kwargs) -> EntryVersionBlock:
     data = {
-        'version': create_test_entry_version(),
+        'version': kwargs.pop('version', None) or create_test_entry_version(),
         'order': 1,
         'type': BlockTypeChoices.TEXT,
         '_block_data': json.dumps({}),
         '_text_data': ''
     }
-
     data.update(kwargs)
     version_block = EntryVersionBlock.objects.create(**data)
-    version_block.editor_js_block_data = TextEditorBlockData(
-        text='',
-    )
+    version_block.editor_js_block_data = TextEditorBlockData(text='')
     version_block.save()
 
     return version_block

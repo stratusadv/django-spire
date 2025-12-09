@@ -8,6 +8,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+
 from django_glue.utils import serialize_to_json
 
 from django_spire.auth.group.models import AuthGroup
@@ -19,10 +20,15 @@ from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.history.activity.utils import add_form_activity
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
 
 
 @permission_required('django_spire_auth_user.add_authuser')
-def register_form_view(request):
+def register_form_view(request: WSGIRequest) -> TemplateResponse:
     portal_user = AuthUser()
     dg.glue_model_object(request, 'portal_user', portal_user, 'view')
 
@@ -42,7 +48,7 @@ def register_form_view(request):
         user_form = forms.RegisterUserForm(instance=portal_user)
 
     context_data = {
-        # Todo: Function that takes in all of the forms and dumps the data here?
+        # TODO: Function that takes in all of the forms and dumps the data here?
         'user_form_data': json.dumps(user_form.data, cls=DjangoJSONEncoder),
     }
 
@@ -61,7 +67,7 @@ def register_form_view(request):
 
 
 @permission_required('django_spire_auth_user.change_authuser')
-def form_view(request, pk):
+def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     portal_user = get_object_or_404(AuthUser, pk=pk)
     dg.glue_model_object(request, 'portal_user', portal_user, 'view')
 
@@ -96,7 +102,7 @@ def form_view(request, pk):
 
 
 @permission_required('django_spire_auth_group.change_authgroup')
-def group_form_view(request, pk):
+def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     user = get_object_or_404(AuthUser, pk=pk)
     dg.glue_query_set(request, 'group_choices', AuthGroup.objects.all())
     selected_group_ids = [group.pk for group in user.groups.all()]

@@ -40,7 +40,7 @@ class BulkCreateGroupsFromNamesTestCase(BaseTestCase):
 
     def test_groups_are_persisted(self) -> None:
         bulk_create_groups_from_names(['Persisted Group'])
-        assert AuthGroup.objects.filter(name='Persisted Group').exists() is True
+        assert AuthGroup.objects.filter(name='Persisted Group').exists()
 
     def test_mixed_existing_and_new(self) -> None:
         AuthGroup.objects.create(name='Existing 1')
@@ -74,9 +74,73 @@ class BulkCreateGroupsFromNamesTestCase(BaseTestCase):
 
     def test_returns_group_instances(self) -> None:
         groups = bulk_create_groups_from_names(['Test Group'])
-        assert isinstance(groups[0], AuthGroup) is True
+        assert isinstance(groups[0], AuthGroup)
 
     def test_groups_have_primary_keys(self) -> None:
         groups = bulk_create_groups_from_names(['PK Test Group'])
         for group in groups:
             assert group.pk is not None
+
+    def test_duplicate_names_in_input_list(self) -> None:
+        names = ['Duplicate', 'Duplicate', 'Duplicate']
+        groups = bulk_create_groups_from_names(names)
+        assert AuthGroup.objects.filter(name='Duplicate').count() >= 1
+
+    def test_empty_string_name(self) -> None:
+        names = ['', 'Valid Group']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) >= 1
+
+    def test_very_long_name(self) -> None:
+        long_name = 'A' * 150
+        groups = bulk_create_groups_from_names([long_name])
+        assert len(groups) == 1
+        assert groups[0].name == long_name
+
+    def test_name_with_only_whitespace(self) -> None:
+        names = ['   ', '\t\t', '\n\n']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) == 3
+
+    def test_name_with_leading_trailing_whitespace(self) -> None:
+        names = ['  Leading', 'Trailing  ', '  Both  ']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) == 3
+
+    def test_case_sensitive_names(self) -> None:
+        names = ['group', 'Group', 'GROUP']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) == 3
+
+    def test_numeric_names(self) -> None:
+        names = ['123', '456', '789']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) == 3
+
+    def test_mixed_alphanumeric_names(self) -> None:
+        names = ['Group1', '2Group', 'Gr0up3']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) == 3
+
+    def test_names_with_newlines(self) -> None:
+        names = ['Group\nWith\nNewlines']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) == 1
+
+    def test_names_with_null_characters(self) -> None:
+        names = ['Group\x00Name']
+        groups = bulk_create_groups_from_names(names)
+        assert len(groups) == 1
+
+    def test_preserves_order_of_creation(self) -> None:
+        names = ['First', 'Second', 'Third']
+        groups = bulk_create_groups_from_names(names)
+        group_names = [g.name for g in groups]
+        assert group_names == names
+
+    def test_does_not_modify_existing_groups(self) -> None:
+        existing = AuthGroup.objects.create(name='Existing')
+        original_pk = existing.pk
+        bulk_create_groups_from_names(['Existing', 'New'])
+        existing.refresh_from_db()
+        assert existing.pk == original_pk

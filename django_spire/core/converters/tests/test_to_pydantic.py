@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import enum
 
-from typing_extensions import get_args, get_origin, Union
+from typing import get_args, get_origin, Union
 from unittest import TestCase
 
 from pydantic import BaseModel

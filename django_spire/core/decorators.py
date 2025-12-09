@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import wraps
 
-from typing_extensions import Callable, ParamSpec, TypeVar
+from typing import Callable, ParamSpec, TypeVar
 
 from django.db import connections
 from django.http import HttpRequest, HttpResponse, JsonResponse

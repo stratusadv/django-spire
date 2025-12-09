@@ -6,7 +6,7 @@ from django_spire.contrib.seeding.field.base import BaseFieldSeeder
 from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
 
 if TYPE_CHECKING:
-    from typing_extensions import Any
+    from typing import Any
 
 
 class CallableFieldSeeder(BaseFieldSeeder):

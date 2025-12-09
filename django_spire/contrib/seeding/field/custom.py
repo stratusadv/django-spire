@@ -10,7 +10,7 @@ from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
 
 if TYPE_CHECKING:
     from datetime import datetime
-    from typing_extensions import Any
+    from typing import Any
 
     from django.db.models import Model
 

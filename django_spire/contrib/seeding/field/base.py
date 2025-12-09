@@ -7,7 +7,7 @@ from django_spire.contrib.seeding.field.cleaners import normalize_seeder_fields
 from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
 
 if TYPE_CHECKING:
-    from typing_extensions import Any
+    from typing import Any
 
 
 class BaseFieldSeeder(ABC):

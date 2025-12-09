@@ -11,6 +11,15 @@ class CollectionPageUrlsTests(BaseTestCase):
         super().setUp()
         self.test_collection = create_test_collection()
 
+    def test_top_level_view_url_path(self):
+        response = self.client.get(
+            reverse(
+                'django_spire:knowledge:collection:page:top_level',
+                kwargs={'pk': self.test_collection.pk}
+            )
+        )
+        assert response.status_code == 200
+
     def test_delete_view_url_path(self):
         response = self.client.get(
             reverse(
@@ -18,12 +27,10 @@ class CollectionPageUrlsTests(BaseTestCase):
                 kwargs={'pk': self.test_collection.pk}
             )
         )
-
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
     def test_list_view_url_path(self):
         response = self.client.get(
             reverse('django_spire:knowledge:page:home')
         )
-
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200

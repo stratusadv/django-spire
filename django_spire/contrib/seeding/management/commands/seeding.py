@@ -11,7 +11,7 @@ from django_spire.contrib.seeding.intelligence.bots.seeder_generator_bot import 
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
-    from typing_extensions import Any
+    from typing import Any
 
 
 _SEEDING_OUTPUT_PATH = Path(settings.BASE_PATH, '.seeding_generator_output')

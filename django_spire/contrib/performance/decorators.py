@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import time
 
-from typing_extensions import Callable, ParamSpec, TypeVar
+from typing import Callable, ParamSpec, TypeVar
 
 from django.conf import settings
 

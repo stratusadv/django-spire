@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django.db.models import QuerySet
 from django.utils.timezone import localtime

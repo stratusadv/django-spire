@@ -6,7 +6,7 @@ from django_spire.contrib.seeding.field.cleaners import normalize_seeder_fields
 from django_spire.contrib.seeding.model.enums import ModelSeederDefaultsEnum
 
 if TYPE_CHECKING:
-    from typing_extensions import Any, Self
+    from typing import Any, Self
 
 
 class FieldsConfig:

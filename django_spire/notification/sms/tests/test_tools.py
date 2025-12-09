@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.notification.sms.tools import format_to_international_phone_number
 
@@ -36,7 +38,10 @@ class TestSMSTools(BaseTestCase):
             '+14563219876'
         )
 
-        formatted_phone_numbers = [format_to_international_phone_number(phone_number) for phone_number in phone_numbers]
+        formatted_phone_numbers = tuple(
+            format_to_international_phone_number(phone_number)
+            for phone_number in phone_numbers
+        )
         assert formatted_phone_numbers == expected_phone_numbers
 
     def test_invalid_phone_number(self):
@@ -46,13 +51,19 @@ class TestSMSTools(BaseTestCase):
             '1',
             '12345678901234567890',
             '',
-            '32145698765', # excess 1 digit
-            '403000123', # missing 1 digit
-            '36800012', # missing 2 digits
+            '32145698765',
+            '403000123',
+            '36800012',
         )
+
         for phone_number in phone_numbers:
-            self.assertRaises(
-                ValueError,
-                format_to_international_phone_number,
-                phone_number
-            )
+            with pytest.raises(ValueError):
+                format_to_international_phone_number(phone_number)
+
+    def test_format_with_country_code(self):
+        result = format_to_international_phone_number('5551234567', country_code='1')
+        assert result == '+15551234567'
+
+    def test_format_already_has_country_code(self):
+        result = format_to_international_phone_number('15551234567', country_code='1')
+        assert result == '+15551234567'

@@ -18,20 +18,21 @@ def create_user(
 
 
 def create_super_user(password: str = 'stratus', **kwargs) -> AuthUser:
-    user, created = AuthUser.objects.get_or_create(
+    defaults = {
+        'email': 'bobert@stratusadv.com',
+        'first_name': 'Bob',
+        'last_name': 'Robertson',
+        'is_superuser': True,
+        'is_staff': True,
+        **kwargs
+    }
+
+    user, _ = AuthUser.objects.update_or_create(
         username='stratus',
-        defaults={
-            'email': 'bobert@stratusadv.com',
-            'first_name': 'Bob',
-            'last_name': 'Robertson',
-            'is_superuser': True,
-            'is_staff': True,
-            **kwargs
-        }
+        defaults=defaults
     )
 
-    if created:
-        user.set_password(password)
-        user.save()
+    user.set_password(password)
+    user.save()
 
     return user

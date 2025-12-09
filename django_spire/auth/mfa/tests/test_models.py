@@ -34,7 +34,7 @@ class MfaCodeModelTestCase(BaseTestCase):
 
     def test_is_valid_returns_true_for_unexpired(self) -> None:
         mfa_code = MfaCode.generate_code(self.user)
-        assert mfa_code.is_valid() is True
+        assert mfa_code.is_valid()
 
     def test_is_valid_returns_false_for_expired(self) -> None:
         mfa_code = MfaCode.objects.create(
@@ -42,7 +42,7 @@ class MfaCodeModelTestCase(BaseTestCase):
             code='123456',
             expiration_datetime=localtime() - relativedelta.relativedelta(minutes=1)
         )
-        assert mfa_code.is_valid() is False
+        assert not mfa_code.is_valid()
 
     def test_is_valid_boundary_expired(self) -> None:
         mfa_code = MfaCode.objects.create(
@@ -50,19 +50,19 @@ class MfaCodeModelTestCase(BaseTestCase):
             code='123456',
             expiration_datetime=localtime() - relativedelta.relativedelta(seconds=1)
         )
-        assert mfa_code.is_valid() is False
+        assert not mfa_code.is_valid()
 
     def test_set_expired(self) -> None:
         mfa_code = MfaCode.generate_code(self.user)
-        assert mfa_code.is_valid() is True
+        assert mfa_code.is_valid()
         mfa_code.set_expired()
-        assert mfa_code.is_valid() is False
+        assert not mfa_code.is_valid()
 
     def test_set_expired_persists(self) -> None:
         mfa_code = MfaCode.generate_code(self.user)
         mfa_code.set_expired()
         mfa_code.refresh_from_db()
-        assert mfa_code.is_valid() is False
+        assert not mfa_code.is_valid()
 
     def test_str_representation(self) -> None:
         mfa_code = MfaCode.generate_code(self.user)
@@ -96,7 +96,7 @@ class MfaCodeModelTestCase(BaseTestCase):
         mfa_code = MfaCode.generate_code(self.user)
         code_pk = mfa_code.pk
         self.user.delete()
-        assert MfaCode.objects.filter(pk=code_pk).exists() is False
+        assert not MfaCode.objects.filter(pk=code_pk).exists()
 
     def test_meta_db_table(self) -> None:
         assert MfaCode._meta.db_table == 'django_spire_authentication_mfa_code'
@@ -104,6 +104,61 @@ class MfaCodeModelTestCase(BaseTestCase):
     def test_meta_verbose_name(self) -> None:
         assert MfaCode._meta.verbose_name == 'MFA Code'
         assert MfaCode._meta.verbose_name_plural == 'MFA Codes'
+
+    def test_code_length_is_six(self) -> None:
+        mfa_code = MfaCode.generate_code(self.user)
+        assert len(str(mfa_code.code)) <= 6
+        assert int(mfa_code.code) <= 999999
+
+    def test_code_is_string(self) -> None:
+        mfa_code = MfaCode.generate_code(self.user)
+        assert isinstance(mfa_code.code, (str, int))
+
+    def test_code_field_max_length(self) -> None:
+        max_length = MfaCode._meta.get_field('code').max_length
+        assert max_length == 6
+
+    def test_code_field_is_unique(self) -> None:
+        assert MfaCode._meta.get_field('code').unique
+
+    def test_code_field_is_not_editable(self) -> None:
+        assert not MfaCode._meta.get_field('code').editable
+
+    def test_expiration_field_is_not_editable(self) -> None:
+        assert not MfaCode._meta.get_field('expiration_datetime').editable
+
+    def test_user_foreign_key(self) -> None:
+        mfa_code = MfaCode.generate_code(self.user)
+        assert mfa_code.user_id == self.user.pk
+
+    def test_user_related_name(self) -> None:
+        mfa_code = MfaCode.generate_code(self.user)
+        assert mfa_code in self.user.mfa_codes.all()
+
+    def test_generate_code_creates_unique_codes(self) -> None:
+        codes = set()
+        for _ in range(100):
+            mfa_code = MfaCode.generate_code(self.user)
+            codes.add(mfa_code.code)
+            mfa_code.delete()
+        assert len(codes) > 90
+
+    def test_is_valid_exact_expiration_time(self) -> None:
+        mfa_code = MfaCode.objects.create(
+            user=self.user,
+            code='654321',
+            expiration_datetime=localtime()
+        )
+        assert not mfa_code.is_valid()
+
+    def test_code_with_leading_zeros(self) -> None:
+        mfa_code = MfaCode.objects.create(
+            user=self.user,
+            code='000123',
+            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=5)
+        )
+        assert mfa_code.code == '000123'
+        assert len(mfa_code.code) == 6
 
 
 class MfaCodeQuerySetTestCase(BaseTestCase):
@@ -149,5 +204,28 @@ class MfaCodeQuerySetTestCase(BaseTestCase):
         user2 = create_user(username='testuser2')
         code1 = MfaCode.generate_code(self.user)
         MfaCode.generate_code(user2)
+        result = MfaCode.objects.valid_code(self.user)
+        assert result == code1
+
+    def test_valid_code_ignores_other_users_codes(self) -> None:
+        user2 = create_user(username='testuser2')
+        MfaCode.generate_code(user2)
+        result = MfaCode.objects.valid_code(self.user)
+        assert result is None
+
+    def test_valid_code_after_expiring_previous(self) -> None:
+        code1 = MfaCode.generate_code(self.user)
+        code1.set_expired()
+        code2 = MfaCode.generate_code(self.user)
+        result = MfaCode.objects.valid_code(self.user)
+        assert result == code2
+
+    def test_valid_code_multiple_valid_returns_first(self) -> None:
+        code1 = MfaCode.generate_code(self.user)
+        MfaCode.objects.create(
+            user=self.user,
+            code='999999',
+            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=10)
+        )
         result = MfaCode.objects.valid_code(self.user)
         assert result == code1

@@ -57,6 +57,18 @@ class SetGroupUsersTestCase(BaseTestCase):
         assert self.user1 in other_group.user_set.all()
         assert self.user1 in self.group.user_set.all()
 
+    def test_set_group_users_with_queryset(self) -> None:
+        from django_spire.auth.user.models import AuthUser
+        users = AuthUser.objects.filter(pk__in=[self.user1.pk, self.user2.pk])
+        set_group_users(self.group, list(users))
+        assert self.group.user_set.count() == 2
+
+    def test_set_group_users_clears_all_then_sets(self) -> None:
+        self.group.user_set.add(self.user1, self.user2, self.user3)
+        set_group_users(self.group, [self.user1])
+        assert self.group.user_set.count() == 1
+        assert self.user1 in self.group.user_set.all()
+
 
 class CodenameToPermLevelTestCase(BaseTestCase):
     def test_view_codename(self) -> None:
@@ -80,6 +92,27 @@ class CodenameToPermLevelTestCase(BaseTestCase):
     def test_complex_model_name(self) -> None:
         assert codename_to_perm_level('view_my_complex_model') == 1
         assert codename_to_perm_level('delete_my_complex_model') == 4
+
+    def test_uppercase_prefix(self) -> None:
+        assert codename_to_perm_level('VIEW_model') == 1
+
+    def test_mixed_case_prefix(self) -> None:
+        assert codename_to_perm_level('View_model') == 1
+
+    def test_empty_codename(self) -> None:
+        assert codename_to_perm_level('') == 0
+
+    def test_underscore_only(self) -> None:
+        assert codename_to_perm_level('_') == 0
+
+    def test_no_underscore(self) -> None:
+        assert codename_to_perm_level('viewmodel') == 0
+
+    def test_multiple_underscores(self) -> None:
+        assert codename_to_perm_level('view_my_model_name') == 1
+
+    def test_special_characters(self) -> None:
+        assert codename_to_perm_level('view_model@special') == 1
 
 
 class CodenameListToPermLevelTestCase(BaseTestCase):
@@ -108,6 +141,17 @@ class CodenameListToPermLevelTestCase(BaseTestCase):
     def test_mixed_valid_invalid(self) -> None:
         codenames = ['view_model', 'invalid_model', 'delete_model']
         assert codename_list_to_perm_level(codenames) == 4
+
+    def test_all_invalid(self) -> None:
+        codenames = ['invalid_model', 'unknown_model', 'fake_model']
+        assert codename_list_to_perm_level(codenames) == 0
+
+    def test_single_delete(self) -> None:
+        assert codename_list_to_perm_level(['delete_model']) == 4
+
+    def test_view_and_add(self) -> None:
+        codenames = ['view_model', 'add_model']
+        assert codename_list_to_perm_level(codenames) == 2
 
 
 class PermLevelToIntTestCase(BaseTestCase):
@@ -156,6 +200,12 @@ class PermLevelToIntTestCase(BaseTestCase):
         assert perm_level_to_int('') == 0
         assert perm_level_to_int('random') == 0
 
+    def test_whitespace_string(self) -> None:
+        assert perm_level_to_int('  view  ') == 0
+
+    def test_string_with_numbers(self) -> None:
+        assert perm_level_to_int('view1') == 0
+
 
 class PermLevelToStringTestCase(BaseTestCase):
     def test_level_zero(self) -> None:
@@ -188,6 +238,12 @@ class PermLevelToStringTestCase(BaseTestCase):
         assert perm_level_to_string('change') == 'Change'
         assert perm_level_to_string('delete') == 'Delete'
 
+    def test_very_high_number(self) -> None:
+        assert perm_level_to_string(999) == 'None'
+
+    def test_very_low_number(self) -> None:
+        assert perm_level_to_string(-999) == 'None'
+
 
 class PermLevelToDjangoPermissionTestCase(BaseTestCase):
     def test_view_permission(self) -> None:
@@ -218,6 +274,14 @@ class PermLevelToDjangoPermissionTestCase(BaseTestCase):
         result = perm_level_to_django_permission(1, 'app', 'my_model_name')
         assert result == 'app.view_my_model_name'
 
+    def test_string_perm_level(self) -> None:
+        result = perm_level_to_django_permission('view', 'app', 'model')
+        assert result == 'app.view_model'
+
+    def test_uppercase_string_perm_level(self) -> None:
+        result = perm_level_to_django_permission('DELETE', 'app', 'model')
+        assert result == 'app.delete_model'
+
 
 class HasAppPermissionTestCase(BaseTestCase):
     def setUp(self) -> None:
@@ -238,6 +302,16 @@ class HasAppPermissionTestCase(BaseTestCase):
             result = has_app_permission(self.user, 'app', 'model', action)
             assert result is False
 
+    def test_superuser_all_actions(self) -> None:
+        superuser = create_super_user()
+        for action in ['view', 'add', 'change', 'delete']:
+            result = has_app_permission(superuser, 'app', 'model', action)
+            assert result is True
+
+    def test_invalid_action(self) -> None:
+        result = has_app_permission(self.user, 'app', 'model', 'invalid')
+        assert result is False
+
 
 class HasAppPermissionOr404TestCase(BaseTestCase):
     def setUp(self) -> None:
@@ -252,3 +326,14 @@ class HasAppPermissionOr404TestCase(BaseTestCase):
         superuser = create_super_user()
         result = has_app_permission_or_404(superuser, 'any_app', 'any_model', 'delete')
         assert result is True
+
+    def test_raises_for_all_actions(self) -> None:
+        for action in ['view', 'add', 'change', 'delete']:
+            with pytest.raises(PermissionError):
+                has_app_permission_or_404(self.user, 'app', 'model', action)
+
+    def test_superuser_all_actions_pass(self) -> None:
+        superuser = create_super_user()
+        for action in ['view', 'add', 'change', 'delete']:
+            result = has_app_permission_or_404(superuser, 'app', 'model', action)
+            assert result is True

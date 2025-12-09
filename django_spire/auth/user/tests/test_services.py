@@ -30,14 +30,14 @@ class AuthUserServiceTestCase(BaseTestCase):
 
     def test_get_user_choices_returns_list(self) -> None:
         choices = AuthUser.services.get_user_choices()
-        assert isinstance(choices, list) is True
+        assert isinstance(choices, list)
 
     def test_get_user_choices_format(self) -> None:
         choices = AuthUser.services.get_user_choices()
         for choice in choices:
             assert len(choice) == 2
-            assert isinstance(choice[0], int) is True
-            assert isinstance(choice[1], str) is True
+            assert isinstance(choice[0], int)
+            assert isinstance(choice[1], str)
 
     def test_get_user_choices_excludes_inactive(self) -> None:
         choices = AuthUser.services.get_user_choices()
@@ -108,3 +108,92 @@ class AuthUserServiceTestCase(BaseTestCase):
 
         assert any(c[0] == self.user1.pk for c in choices1)
         assert any(c[0] == self.user1.pk for c in choices2)
+
+    def test_get_user_choices_empty_name(self) -> None:
+        user = create_user(username='emptyname', first_name='', last_name='')
+        choices = AuthUser.services.get_user_choices()
+        user_choice = next((c for c in choices if c[0] == user.pk), None)
+        assert user_choice is not None
+        assert user_choice[1] == ''
+
+    def test_get_user_choices_unicode_name(self) -> None:
+        user = create_user(username='unicode', first_name='Tëst', last_name='Üsér')
+        choices = AuthUser.services.get_user_choices()
+        user_choice = next((c for c in choices if c[0] == user.pk), None)
+        assert user_choice is not None
+        assert 'Tëst' in user_choice[1]
+        assert 'Üsér' in user_choice[1]
+
+    def test_get_user_choices_first_name_only(self) -> None:
+        user = create_user(username='firstonly', first_name='First', last_name='')
+        choices = AuthUser.services.get_user_choices()
+        user_choice = next((c for c in choices if c[0] == user.pk), None)
+        assert user_choice is not None
+        assert 'First' in user_choice[1]
+
+    def test_get_user_choices_last_name_only(self) -> None:
+        user = create_user(username='lastonly', first_name='', last_name='Last')
+        choices = AuthUser.services.get_user_choices()
+        user_choice = next((c for c in choices if c[0] == user.pk), None)
+        assert user_choice is not None
+        assert 'Last' in user_choice[1]
+
+    def test_get_user_choices_by_group_nonexistent_group(self) -> None:
+        group = AuthGroup.objects.create(name='Temp Group')
+        group_pk = group.pk
+        group.delete()
+        new_group = AuthGroup(pk=group_pk, name='Fake')
+        choices = AuthUser.services.get_user_choices_by_group(new_group)
+        assert len(choices) == 0
+
+    def test_get_user_choices_many_users(self) -> None:
+        for i in range(50):
+            create_user(username=f'manyuser{i}', first_name=f'User{i}', last_name='Test')
+        choices = AuthUser.services.get_user_choices()
+        assert len(choices) >= 50
+
+    def test_get_user_choices_by_group_after_user_removal(self) -> None:
+        group = AuthGroup.objects.create(name='Removal Group')
+        self.user1.groups.add(group)
+
+        choices_before = AuthUser.services.get_user_choices_by_group(group)
+        assert any(c[0] == self.user1.pk for c in choices_before)
+
+        self.user1.groups.remove(group)
+
+        choices_after = AuthUser.services.get_user_choices_by_group(group)
+        assert not any(c[0] == self.user1.pk for c in choices_after)
+
+    def test_get_user_choices_by_group_after_user_deactivation(self) -> None:
+        group = AuthGroup.objects.create(name='Deactivation Group')
+        self.user1.groups.add(group)
+
+        choices_before = AuthUser.services.get_user_choices_by_group(group)
+        assert any(c[0] == self.user1.pk for c in choices_before)
+
+        self.user1.is_active = False
+        self.user1.save()
+
+        choices_after = AuthUser.services.get_user_choices_by_group(group)
+        assert not any(c[0] == self.user1.pk for c in choices_after)
+
+    def test_service_obj_class_is_auth_user(self) -> None:
+        assert AuthUser.services.obj_class == AuthUser
+
+    def test_get_user_choices_order(self) -> None:
+        choices = AuthUser.services.get_user_choices()
+        assert len(choices) > 0
+
+    def test_get_user_choices_by_group_returns_list(self) -> None:
+        group = AuthGroup.objects.create(name='List Group')
+        choices = AuthUser.services.get_user_choices_by_group(group)
+        assert isinstance(choices, list)
+
+    def test_get_user_choices_by_group_format(self) -> None:
+        group = AuthGroup.objects.create(name='Format Group')
+        self.user1.groups.add(group)
+        choices = AuthUser.services.get_user_choices_by_group(group)
+        for choice in choices:
+            assert len(choice) == 2
+            assert isinstance(choice[0], int)
+            assert isinstance(choice[1], str)
