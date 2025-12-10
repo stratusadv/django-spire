@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-class TestAuthController(BaseAuthController):
+class AuthControllerForTest(BaseAuthController):
     condition: bool = True
 
     def also_can_access(self) -> bool:
@@ -94,7 +94,7 @@ class BaseAuthControllerPermissionRequiredTestCase(BaseTestCase):
 
         self.factory = RequestFactory()
         self.user = create_user(username='testuser')
-        self.controller = TestAuthController()
+        self.controller = AuthControllerForTest()
 
     def test_permission_required_with_callable_permission_passes(self) -> None:
         @self.controller.permission_required('can_access')

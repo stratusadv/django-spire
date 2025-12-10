@@ -88,12 +88,10 @@ class DjangoToPydanticFieldConverter:
         return str
 
     def _build_date_field(self) -> type:
-        self.kwargs['example'] = '2022-01-01'
         self.kwargs['json_schema_extra']['example'] = '2022-01-01'
         return self._base_type()
 
     def _build_date_time_field(self) -> type:
-        self.kwargs['example'] = '2022-01-01 13:37:00'
         self.kwargs['json_schema_extra']['example'] = '2022-01-01 13:37:00'
         return self._base_type()
 
@@ -126,13 +124,12 @@ class DjangoToPydanticFieldConverter:
 
     def _build_metadata(self):
         # Cannot set a default when providing option to the LLM
+
         # if self.model_field.default is not models.NOT_PROVIDED:
         #     if callable(self.model_field.default):
         #         self.kwargs['default'] = self.model_field.default()
         #     else:
         #         self.kwargs['default'] = self.model_field.default
-
-        self.kwargs['required'] = not self.model_field.null
 
         if self.model_field.null and self.model_field.default is models.NOT_PROVIDED:
             self.kwargs['default'] = None
@@ -141,6 +138,7 @@ class DjangoToPydanticFieldConverter:
             self.kwargs['description'] = str(self.model_field.help_text)
 
         self.kwargs['json_schema_extra'] = {
+            'required': self.bool_to_json_schema(not self.model_field.null),
             'is_unique': self.bool_to_json_schema(self.model_field.unique),
             # 'is_required': self.bool_to_json_schema(not self.model_field.null),
             'field_name': self.model_field.name
@@ -165,6 +163,7 @@ class DjangoToPydanticFieldConverter:
 
     def _wrap_nullable(self):
         pass
+
         # This works better for the LLM
         # if self.model_field.null:
         #     self.field_type = Optional[self.field_type]

@@ -37,11 +37,11 @@ class DjangoModelSeeder(BaseModelSeeder):
         super().__init_subclass__(**kwargs)
 
         if cls.model_class is None:
-            message = "Seeds must have a model class"
+            message = 'Seeds must have a model class'
             raise ValueError(message)
 
         if cls.fields is None:
-            message = "Seeds must have fields"
+            message = 'Seeds must have fields'
             raise ValueError(message)
 
     @classmethod

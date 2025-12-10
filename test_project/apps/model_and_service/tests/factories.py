@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from django.utils import timezone
+
 from test_project.apps.model_and_service.models import Adult, Kid
 
 
@@ -9,7 +13,7 @@ def create_adult(**kwargs) -> Adult:
         'personality_type': 'ext',
         'email': 'john.doe@example.com',
         'favorite_number': 42,
-        'anniversary_datetime': '2025-06-21 10:00:00',
+        'anniversary_datetime': timezone.make_aware(timezone.datetime(2025, 6, 21, 10, 0, 0)),
         'birth_date': '1990-01-01',
         'weight_lbs': 175.5,
         'bed_time': '20:00',

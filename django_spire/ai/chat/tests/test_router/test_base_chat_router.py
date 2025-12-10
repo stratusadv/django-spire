@@ -33,9 +33,9 @@ class TestBaseChatRouter(BaseTestCase):
 
             def workflow(
                 self,
-                _request: WSGIRequest,
-                _user_input: str,
-                _message_history: MessageHistory | None = None
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
             ) -> BaseMessageIntel:
                 self.workflow_called = True
                 return DefaultMessageIntel(text='Test response')
@@ -55,9 +55,9 @@ class TestBaseChatRouter(BaseTestCase):
         class InvalidRouter(BaseChatRouter):
             def workflow(
                 self,
-                _request: WSGIRequest,
-                _user_input: str,
-                _message_history: MessageHistory | None = None
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
             ) -> str:
                 return 'Invalid return type'
 
@@ -76,9 +76,9 @@ class TestBaseChatRouter(BaseTestCase):
         class NoneRouter(BaseChatRouter):
             def workflow(
                 self,
-                _request: WSGIRequest,
-                _user_input: str,
-                _message_history: MessageHistory | None = None
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
             ) -> None:
                 return None
 
@@ -133,9 +133,9 @@ class TestBaseChatRouter(BaseTestCase):
         class CustomRouter(BaseChatRouter):
             def workflow(
                 self,
-                _request: WSGIRequest,
-                _user_input: str,
-                _message_history: MessageHistory | None = None
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
             ) -> CustomMessageIntel:
                 return CustomMessageIntel(custom_field='Custom value')
 
@@ -153,9 +153,9 @@ class TestBaseChatRouter(BaseTestCase):
         class EmptyInputRouter(BaseChatRouter):
             def workflow(
                 self,
-                _request: WSGIRequest,
+                request: WSGIRequest,
                 user_input: str,
-                _message_history: MessageHistory | None = None
+                message_history: MessageHistory | None = None
             ) -> DefaultMessageIntel:
                 return DefaultMessageIntel(text=f'Received: {user_input}')
 

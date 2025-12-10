@@ -18,9 +18,6 @@ if TYPE_CHECKING:
     from test_project.apps.infinite_scrolling.models import InfiniteScrolling
 
 
-pytest_plugins = ['django_spire.testing.playwright.fixtures']
-
-
 @pytest.fixture
 def card_page(authenticated_page: Page, live_server: _LiveServer) -> InfiniteScrollingCardPage:
     return InfiniteScrollingCardPage(authenticated_page, live_server.url)

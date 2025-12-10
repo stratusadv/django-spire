@@ -27,7 +27,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
     def url_link(self, notification: models.Notification) -> str:
         if notification.url:
-            return format_html(f'<a href="{notification.url}" target="_blank">Link</a>')
+            return format_html('<a href="{}" target="_blank">Link</a>', notification.url)
 
         return 'No URL'
 

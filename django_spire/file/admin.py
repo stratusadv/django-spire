@@ -23,13 +23,13 @@ class FileAdmin(admin.ModelAdmin):
                 args=[file.object_id]
             )
 
-            return format_html(f'<a href="{url}">{file.content_object}</a>')
+            return format_html('<a href="{}">{}</a>', url, file.content_object)
 
         return 'No Related Object'
 
     content_object_link.short_description = 'Content Object'
 
     def file_link(self, file: models.File) -> str:
-        return format_html(f'<a href="{file.file.url}" download>{file.name}</a>')
+        return format_html('<a href="{}" download>{}</a>', file.file.url, file.name)
 
     file_link.short_description = 'File Download Link'

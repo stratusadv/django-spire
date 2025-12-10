@@ -97,7 +97,7 @@ class TestDjangoModelToPydanticModel(TestCase):
                 return 'model'
 
         PydanticModel = django_to_pydantic_model(SimpleModel2, exclude_fields=['field2'])
-        fields = PydanticModel.__fields__
+        fields = PydanticModel.model_fields
         assert 'id' in fields
         assert 'field1' in fields
         assert 'field3' in fields
@@ -122,7 +122,7 @@ class TestDjangoModelToPydanticModel(TestCase):
             exclude_fields=['field2']
         )
 
-        fields = PydanticModel.__fields__
+        fields = PydanticModel.model_fields
         assert 'id' in fields
         assert 'field1' in fields
         assert 'field3' in fields
@@ -142,7 +142,7 @@ class TestDjangoModelToPydanticModel(TestCase):
                 return 'model'
 
         PydanticModel = django_to_pydantic_model(SimpleModel1, include_fields=['id', 'field1', 'field3'])
-        fields = PydanticModel.__fields__
+        fields = PydanticModel.model_fields
         assert 'id' in fields
         assert 'field1' in fields
         assert 'field3' in fields

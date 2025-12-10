@@ -18,9 +18,9 @@ if TYPE_CHECKING:
 class MockRouter(BaseChatRouter):
     def workflow(
         self,
-        _request: WSGIRequest,
-        _user_input: str,
-        _message_history: MessageHistory | None = None
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory | None = None
     ) -> DefaultMessageIntel:
         return DefaultMessageIntel(text='Mock response')
 

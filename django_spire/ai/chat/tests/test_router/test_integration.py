@@ -20,9 +20,9 @@ if TYPE_CHECKING:
 class KnowledgeRouter(BaseChatRouter):
     def workflow(
         self,
-        _request: WSGIRequest,
-        _user_input: str,
-        _message_history: MessageHistory | None = None
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory | None = None
     ) -> DefaultMessageIntel:
         return DefaultMessageIntel(text='Knowledge search result')
 
@@ -30,9 +30,9 @@ class KnowledgeRouter(BaseChatRouter):
 class SupportRouter(BaseChatRouter):
     def workflow(
         self,
-        _request: WSGIRequest,
-        _user_input: str,
-        _message_history: MessageHistory | None = None
+        request: WSGIRequest,
+        user_input: str,
+        message_history: MessageHistory | None = None
     ) -> DefaultMessageIntel:
         return DefaultMessageIntel(text='Support response')
 
