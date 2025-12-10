@@ -25,7 +25,6 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
 
         entry_blocks_to_add = []
         entry_blocks_to_update = []
-        entry_blocks_to_delete = []
 
         handled_block_ids = []
 
@@ -54,9 +53,11 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
 
                 handled_block_ids.append(block_data['id'])
 
-        for entry_block in old_entry_blocks:
-            if entry_block.id not in handled_block_ids:
-                entry_blocks_to_delete.append(entry_block.id)
+        entry_blocks_to_delete = [
+            entry_block.id
+            for entry_block in old_entry_blocks
+            if entry_block.id not in handled_block_ids
+        ]
 
         with transaction.atomic():
             EntryVersionBlock.objects.filter(id__in=entry_blocks_to_delete).delete()

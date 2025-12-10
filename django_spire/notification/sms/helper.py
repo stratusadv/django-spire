@@ -11,8 +11,10 @@ from django.conf import settings
 from django_spire.notification.choices import NotificationStatusChoices
 from django_spire.notification.sms.consts import TWILIO_UNSUCCESSFUL_STATUSES
 from django_spire.notification.sms.exceptions import (
+    InvalidPhoneNumberError,
     TwilioAPIConcurrentError,
-    TwilioError
+    TwilioError,
+    TwilioResponseError
 )
 from typing import TYPE_CHECKING
 
@@ -59,11 +61,11 @@ class BulkTwilioSMSHelper:
                 if isinstance(e, TwilioError):
                     notification.status_message = str(e)
                     notification.status = NotificationStatusChoices.ERRORED
-                    raise e
+                    raise
 
                 notification.status_message = str(e)
                 notification.status = NotificationStatusChoices.FAILED
-                raise e
+                raise
 
 
 class TwilioSMSHelper:
@@ -77,15 +79,17 @@ class TwilioSMSHelper:
 
     def _attempt_send(self) -> MessageInstance:
         try:
+            media_url = self.notification.sms.media_url
+
             return self.client.messages.create(
                 to=self.to_phone_number,
                 from_=settings.TWILIO_PHONE_NUMBER,
                 body=self.message,
-                media_url=[self.notification.sms.media_url] if self.notification.sms.media_url else [],
+                media_url=[media_url] if media_url else [],
             )
         except Exception as e:
             message = f'Twilio Error: {e!s}'
-            raise TwilioError(message)
+            raise TwilioError(message) from e
 
     def send(self):
         response = self._attempt_send()
@@ -93,16 +97,15 @@ class TwilioSMSHelper:
 
     def _handle_response(self, response: MessageInstance):
         if response.error_code == 429:
-            message = 'Twilio API concurrent request limit exceeded.'
-            raise TwilioAPIConcurrentError(message)
+            raise TwilioAPIConcurrentError
 
         if response.status in TWILIO_UNSUCCESSFUL_STATUSES:
             retry_response = self._attempt_send()
 
             if retry_response.status in TWILIO_UNSUCCESSFUL_STATUSES:
-                raise TwilioError(
-                    f'Twilio Error: code={retry_response.error_code}, '
-                    f'message={retry_response.error_message}'
+                raise TwilioResponseError(
+                    retry_response.error_code,
+                    retry_response.error_message
                 )
 
     @staticmethod
@@ -114,7 +117,6 @@ class TwilioSMSHelper:
         elif len(cleaned_number) == 11 and cleaned_number.startswith('1'):
             formatted_number = cleaned_number
         else:
-            message = f'Invalid phone number format: {phone_number}.'
-            raise TwilioError(message)
+            raise InvalidPhoneNumberError(phone_number)
 
         return '+' + formatted_number

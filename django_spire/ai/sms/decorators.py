@@ -3,13 +3,19 @@ from __future__ import annotations
 import functools
 import os
 
+from typing import TYPE_CHECKING, Callable
+
 from django.http import HttpResponseForbidden
 from twilio.request_validator import RequestValidator
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.http import HttpResponse
 
-def twilio_auth_required(func):
+
+def twilio_auth_required(func: Callable[..., HttpResponse]) -> Callable[..., HttpResponse]:
     @functools.wraps(func)
-    def decorated_function(request, *args, **kwargs):
+    def decorated_function(request: WSGIRequest, *args, **kwargs) -> HttpResponse:
         request_validator = RequestValidator(os.environ.get('TWILIO_AUTH_TOKEN', ''))
 
         absolute_uri = request.build_absolute_uri()

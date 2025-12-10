@@ -18,7 +18,7 @@ class NotificationPushConfigTests(BaseTestCase):
 
     def test_required_apps(self):
         expected = ('django_spire_core', 'django_spire_notification')
-        assert NotificationPushConfig.REQUIRED_APPS == expected
+        assert expected == NotificationPushConfig.REQUIRED_APPS
 
     def test_app_is_installed(self):
         assert apps.is_installed('django_spire.notification.push')

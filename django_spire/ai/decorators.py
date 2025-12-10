@@ -4,7 +4,7 @@ import json
 import traceback
 import uuid
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, TypeVar
 
 from dandy import Recorder
 from django.utils.timezone import now
@@ -15,16 +15,19 @@ if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractBaseUser
 
 
+T = TypeVar('T')
+
+
 def log_ai_interaction_from_recorder(
     user: AbstractBaseUser | None = None,
     actor: str | None = None
-):
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
     if user is None and actor is None:
         message = 'user or actor must be provided'
         raise ValueError(message)
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        def wrapper(*args, **kwargs) -> T:
             recording_uuid = f'Recording-{uuid.uuid4()}'
 
             ai_usage, _ = AiUsage.objects.get_or_create(
@@ -41,7 +44,6 @@ def log_ai_interaction_from_recorder(
             try:
                 Recorder.start_recording(recording_uuid)
                 return func(*args, **kwargs)
-
             except Exception as e:
                 ai_usage.was_successful = False
 
@@ -55,7 +57,6 @@ def log_ai_interaction_from_recorder(
                 ai_interaction.stack_trace = stack_trace
 
                 raise
-
             finally:
                 Recorder.stop_recording(recording_uuid)
 

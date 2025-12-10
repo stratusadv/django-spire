@@ -16,9 +16,11 @@ from django_spire.notification.sms.models import SmsTemporaryMedia
 if TYPE_CHECKING:
     import uuid
 
+    from django.core.handlers.wsgi import WSGIRequest
+
 
 @csrf_exempt
-def external_temporary_media_view(request, external_access_key: uuid.UUID) -> HttpResponse:
+def external_temporary_media_view(request: WSGIRequest, external_access_key: uuid.UUID) -> HttpResponse:
     try:
         temporary_media = SmsTemporaryMedia.objects.get(external_access_key=external_access_key)
     except SmsTemporaryMedia.DoesNotExist:
@@ -31,6 +33,7 @@ def external_temporary_media_view(request, external_access_key: uuid.UUID) -> Ht
     image = Image.open(
         BytesIO(base64.b64decode(temporary_media.content))
     )
+
     image = image.convert('P', palette=Image.ADAPTIVE, colors=32)
 
     buffer = BytesIO()

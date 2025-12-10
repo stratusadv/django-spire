@@ -38,12 +38,14 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
 
         if days > 0:
             return f"{int(days)} day{'s' if days != 1 else ''} ago"
-        elif hours > 0:
+
+        if hours > 0:
             return f"{int(hours)} hour{'s' if hours != 1 else ''} ago"
-        elif minutes > 0:
+
+        if minutes > 0:
             return f"{int(minutes)} minute{'s' if minutes != 1 else ''} ago"
-        else:
-            return "just now"
+
+        return 'just now'
 
     def as_dict(self) -> dict:
         return {

@@ -10,9 +10,7 @@ from django.db.models import Q
 from django.urls import reverse
 
 from django_spire.contrib.service import BaseDjangoModelService
-from django_spire.help_desk.exceptions import (
-    TicketEventNotificationTypeNotSupportedError,
-)
+from django_spire.help_desk.exceptions import TicketEventNotificationTypeNotSupportedError
 from django_spire.help_desk.enums import TicketEventType
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.choices import NotificationTypeChoices
@@ -86,14 +84,11 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         try:
             return content_map[event_type][notification_type]
         except KeyError:
-            raise TicketEventNotificationTypeNotSupportedError(
-                f'Combination of event type and notification type not supported: '
-                f'Event type {event_type} - Notification type {notification_type}'
-            )
+            raise TicketEventNotificationTypeNotSupportedError(event_type, notification_type) from None
 
     def _get_ticket_notification_url(
-            self,
-            notification_type: NotificationTypeChoices
+        self,
+        notification_type: NotificationTypeChoices
     ) -> str:
         path = reverse('django_spire:help_desk:page:detail', kwargs={'pk': self.obj.pk})
 
@@ -132,7 +127,7 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         if notification_type == NotificationTypeChoices.APP:
             return AppNotification(notification=base_notification)
 
-        raise TicketEventNotificationTypeNotSupportedError(notification_type)
+        raise TicketEventNotificationTypeNotSupportedError(None, notification_type)
 
     def _create_ticket_event_notifications(
         self,
@@ -167,6 +162,7 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
                 if notification
             ]
         )
+
         NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP[notification_type].objects.bulk_create(
             notifications
         )

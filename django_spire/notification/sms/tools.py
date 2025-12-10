@@ -35,6 +35,7 @@ def format_to_international_phone_number(phone_number: str, country_code: str='1
 
     # Get all digit characters
     digit_number = re.sub(r'\D', '', main_number)
+
     if digit_number.startswith(country_code) and len(digit_number) == 10 + len(country_code):
         digit_number = digit_number[len(country_code):]
 
