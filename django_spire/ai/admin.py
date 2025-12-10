@@ -30,17 +30,17 @@ class AiUsageAdmin(AiUsageAdminMixin):
         return [field.name for field in self.model._meta.fields]
 
     def view_interactions_link(
-            self,
-            ai_usage: models.AiUsage,
-            was_successful: bool | None = None,
+        self,
+        ai_usage: models.AiUsage,
+        was_successful: bool | None = None
     ) -> str:
         was_successful_filter = '' if was_successful is None else f'&was_successful__exact={int(was_successful)}'
 
         url = (
-                reverse("admin:django_spire_ai_aiinteraction_changelist")
-                + "?"
-                + urlencode({"ai_usage__id": f"{ai_usage.id}"})
-                + was_successful_filter
+            reverse("admin:django_spire_ai_aiinteraction_changelist")
+            + "?"
+            + urlencode({"ai_usage__id": f"{ai_usage.id}"})
+            + was_successful_filter
         )
 
         if was_successful is None:
@@ -57,16 +57,16 @@ class AiUsageAdmin(AiUsageAdminMixin):
     view_interactions_link.short_description = "All"
 
     def view_successful_interactions_link(
-            self,
-            ai_usage: models.AiUsage,
+        self,
+        ai_usage: models.AiUsage
     ) -> str:
         return self.view_interactions_link(ai_usage, was_successful=True)
 
     view_successful_interactions_link.short_description = "Successful"
 
     def view_failed_interactions_link(
-            self,
-            ai_usage: models.AiUsage,
+        self,
+        ai_usage: models.AiUsage
     ) -> str:
         return self.view_interactions_link(ai_usage, was_successful=False)
 

@@ -58,13 +58,11 @@ class ModelPermissions:
         self,
         perm_level: VALID_PERMISSION_LEVELS | None
     ) -> list[Permission]:
-        permission_list = []
-
-        for perm in self.permissions:
-            if codename_to_perm_level(perm.codename) <= perm_level:
-                permission_list.append(perm)
-
-        return permission_list
+        return [
+            perm
+            for perm in self.permissions
+            if codename_to_perm_level(perm.codename) <= perm_level
+        ]
 
     def get_special_role(self, codename: str) -> Permission | None:
         for perm in self.permissions:
@@ -105,18 +103,14 @@ class GroupPermissions:
             self.set_group_perms()
 
     def has_special_role(self, codename: str) -> bool:
-        for perm in self.group_perms:
-            if perm.codename == codename:
-                return True
-
-        return False
+        return any(perm.codename == codename for perm in self.group_perms)
 
     def perm_level(self) -> VALID_PERMISSION_LEVELS:
-        codename_list = []
-
-        for perm in self.group_perms:
-            if perm.codename.split('_')[-1] == self.model_permissions.model_name:
-                codename_list.append(perm.codename)
+        codename_list = [
+            perm.codename
+            for perm in self.group_perms
+            if perm.codename.split('_')[-1] == self.model_permissions.model_name
+        ]
 
         return codename_list_to_perm_level(codename_list)
 
@@ -179,11 +173,11 @@ class UserPermissionHelper:
         return Permission.objects.filter(group__user=self.user).distinct()
 
     def perm_level(self) -> VALID_PERMISSION_LEVELS:
-        codename_list = []
-
-        for perm in self.user_perms:
-            if perm.codename.split('_')[-1] == self.model_permissions.model_name:
-                codename_list.append(perm.codename)
+        codename_list = [
+            perm.codename
+            for perm in self.user_perms
+            if perm.codename.split('_')[-1] == self.model_permissions.model_name
+        ]
 
         return codename_list_to_perm_level(codename_list)
 

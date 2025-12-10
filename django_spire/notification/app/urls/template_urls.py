@@ -9,6 +9,6 @@ app_name = 'django_spire_notification'
 
 urlpatterns = [
     path('notficiation/dropdown/template/',
-         template_views.notification_dropdown_template_view,
-         name='notification_dropdown')
+        template_views.notification_dropdown_template_view,
+        name='notification_dropdown')
 ]

@@ -29,11 +29,10 @@ class CollectionGroupFactoryService(BaseDjangoModelService['CollectionGroup']):
 
         old_collection_groups = list(collection.groups.all())
 
-        new_collection_groups = []
-        for group_pk in group_pks:
-            new_collection_groups.append(
-                self.obj_class(auth_group_id=group_pk, collection=collection)
-            )
+        new_collection_groups = [
+            self.obj_class(auth_group_id=group_pk, collection=collection)
+            for group_pk in group_pks
+        ]
 
         self.obj_class.objects.bulk_create(new_collection_groups)
 

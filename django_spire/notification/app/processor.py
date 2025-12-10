@@ -2,34 +2,35 @@ from __future__ import annotations
 
 from django.utils.timezone import now
 
-from django_spire.notification.app.exceptions import AppNotificationError
+from django_spire.notification.app.exceptions import MissingUserError
 from django_spire.notification.choices import (
     NotificationTypeChoices,
     NotificationStatusChoices
 )
-from django_spire.notification.exceptions import NotificationError
+from django_spire.notification.exceptions import InvalidNotificationTypeError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 
 
 class AppNotificationProcessor(BaseNotificationProcessor):
+    def _validate_notification_type(self, notification: Notification):
+        if notification.type != NotificationTypeChoices.APP:
+            raise InvalidNotificationTypeError(NotificationTypeChoices.APP, notification.type)
+
+    def _validate_user(self, notification: Notification):
+        if notification.user_id is None:
+            raise MissingUserError
+
     def process(self, notification: Notification):
         try:
-            if notification.type != NotificationTypeChoices.APP:
-                raise NotificationError(
-                    f'AppNotificationProcessor only processes '
-                    f'App notifications. Was provided {notification.type}'
-                )
-
-            if notification.user_id is None:
-                message = 'AppNotifications must have a user associated with them'
-                raise AppNotificationError(message)
-
+            self._validate_notification_type(notification)
+            self._validate_user(notification)
         except Exception as e:
             notification.status = NotificationStatusChoices.ERRORED
             notification.status_message = str(e)
             notification.save()
-            raise e
+
+            raise
 
         notification.status = NotificationStatusChoices.SENT
         notification.sent_datetime = now()
@@ -41,15 +42,8 @@ class AppNotificationProcessor(BaseNotificationProcessor):
 
         for notification in notifications:
             try:
-                if notification.type != NotificationTypeChoices.APP:
-                    raise NotificationError(
-                        f'AppNotificationProcessor only processes '
-                        f'App notifications. Was provided {notification.type}'
-                    )
-
-                if notification.user_id is None:
-                    message = 'AppNotifications must have a user associated with them'
-                    raise AppNotificationError(message)
+                self._validate_notification_type(notification)
+                self._validate_user(notification)
 
                 notification.status = NotificationStatusChoices.SENT
                 notification.sent_datetime = now()
@@ -62,7 +56,7 @@ class AppNotificationProcessor(BaseNotificationProcessor):
                     notifications,
                     ['status', 'sent_datetime', 'status_message']
                 )
-                raise e
+                raise
 
         Notification.objects.bulk_update(
             notifications,

@@ -32,20 +32,16 @@ def detail_page(authenticated_page: Page, live_server: _LiveServer, infinite_scr
 
 
 @pytest.fixture
-def infinite_scrolling_data(transactional_db: None) -> list[InfiniteScrolling]:
+def infinite_scrolling_data(_transactional_db: None) -> list[InfiniteScrolling]:
     from test_project.apps.infinite_scrolling.models import InfiniteScrolling
 
-    items = []
-
-    for i in range(30):
-        items.append(
-            InfiniteScrolling.objects.create(
-                name=f'Test Item {i}',
-                description=f'Description for item {i}'
-            )
+    return [
+        InfiniteScrolling.objects.create(
+            name=f'Test Item {i}',
+            description=f'Description for item {i}'
         )
-
-    return items
+        for i in range(30)
+    ]
 
 
 @pytest.fixture

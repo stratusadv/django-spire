@@ -10,10 +10,13 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
     from django.core.handlers.wsgi import WSGIRequest
 
+    from django_spire.contrib.breadcrumb import Breadcrumbs
+
+
 
 @AppAuthController('knowledge').permission_required('can_view')
 def home_view(request: WSGIRequest) -> TemplateResponse:
-    def breadcrumbs_func(breadcrumbs):
+    def breadcrumbs_func(breadcrumbs: Breadcrumbs):
         breadcrumbs.add_breadcrumb(name='Knowledge')
 
     return portal_views.list_view(

@@ -20,11 +20,11 @@ class CustomFieldSeeder(BaseFieldSeeder):
 
     def in_order(self, values: list, index: int) -> Any:
         if not values:
-            raise ValueError(
-                "Cannot select from empty values list. "
-                "Make sure the related model has existing records before seeding foreign keys."
-            )
-        index = index % len(values)  # Index loops back on itself
+            message = 'Cannot select from empty values list. Make sure the related model has existing records before seeding foreign keys.'
+            raise ValueError(message)
+
+        # Index loops back on itself
+        index = index % len(values)
         return values[index]
 
     def date_time_between(self, start_date: str, end_date: str) -> datetime:

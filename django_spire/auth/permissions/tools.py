@@ -21,10 +21,10 @@ def generate_model_permissions() -> list[ModelPermission]:
 
     for app_config in apps.get_app_configs():
         if hasattr(app_config, 'MODEL_PERMISSIONS'):
-            for model_permission in app_config.MODEL_PERMISSIONS:
-                model_permissions.append(
-                    ModelPermission(**model_permission)
-                )
+            model_permissions.extend(
+                ModelPermission(**model_permission)
+                for model_permission in app_config.MODEL_PERMISSIONS
+            )
 
     return model_permissions
 
@@ -76,15 +76,13 @@ def generate_group_perm_data(
 def generate_special_role_data(
     group_permissions: GroupPermissions
 ) -> list[dict[str, Any]]:
-    special_role_data = []
-
     model_permissions = group_permissions.model_permissions
 
-    for special_role in model_permissions.special_role_list():
-        special_role_data.append({
+    return [
+        {
             'name': special_role.name,
             'codename': special_role.codename,
             'has_access': group_permissions.has_special_role(special_role.codename)
-        })
-
-    return special_role_data
+        }
+        for special_role in model_permissions.special_role_list()
+    ]

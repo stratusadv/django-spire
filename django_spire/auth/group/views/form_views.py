@@ -22,6 +22,8 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.template.response import TemplateResponse
 
+    from django_spire.contrib.breadcrumb.models import Breadcrumbs
+
 
 @permission_required('django_spire_auth_group.change_authgroup')
 def form_view(
@@ -95,7 +97,7 @@ def user_form_view(
 
     form = forms.GroupUserForm()
 
-    def crumbs(breadcrumbs) -> None:
+    def crumbs(breadcrumbs: Breadcrumbs) -> None:
         breadcrumbs.add_breadcrumb(name='Edit Users')
 
     context_data = {
@@ -161,7 +163,7 @@ def group_remove_user_form_view(
 
     form = DeleteConfirmationForm(request.GET, obj=user)
 
-    def get_breadcrumbs(breadcrumbs) -> None:
+    def get_breadcrumbs(breadcrumbs: Breadcrumbs) -> None:
         breadcrumbs = group.breadcrumbs()
         breadcrumbs.add_breadcrumb(name=user.get_full_name())
         breadcrumbs.add_breadcrumb(name='Remove')

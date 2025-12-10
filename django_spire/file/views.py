@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 @login_required()
-def file_multiple_upload_ajax(request: WSGIRequest) -> JsonResponse:
+def file_multiple_upload_ajax(request: WSGIRequest) -> JsonResponse | None:
     if request.method == 'POST':
         file_uploader = MultiFileUploader(request.POST.get('related_field', ''))
         files = file_uploader.upload(list(request.FILES.values()))
@@ -25,7 +25,7 @@ def file_multiple_upload_ajax(request: WSGIRequest) -> JsonResponse:
 
 
 @login_required()
-def file_single_upload_ajax(request: WSGIRequest) -> JsonResponse:
+def file_single_upload_ajax(request: WSGIRequest) -> JsonResponse | None:
     if request.method == 'POST':
         file_uploader = SingleFileUploader(request.POST.get('related_field', ''))
         file = file_uploader.upload(next(iter(request.FILES.values())))
