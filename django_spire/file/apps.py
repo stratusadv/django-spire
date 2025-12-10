@@ -17,15 +17,11 @@ class FileConfig(AppConfig):
 
     def ready(self) -> None:
         if not hasattr(settings, 'BASE_FOLDER_NAME'):
-            raise ValueError(
-                f'"BASE_FOLDER_NAME" must be set in the django settings when '
-                f'using "{self.label}".'
-            )
+            message = f'"BASE_FOLDER_NAME" must be set in the django settings when using "{self.label}".'
+            raise ValueError(message)
 
         if not isinstance(settings.BASE_FOLDER_NAME, str):
-            raise TypeError(
-                f'"BASE_FOLDER_NAME" must be a string in the django settings when '
-                f'using "{self.label}".'
-            )
+            message = f'"BASE_FOLDER_NAME" must be a string in the django settings when using "{self.label}".'
+            raise TypeError(message)
 
         check_required_apps(self.label)
