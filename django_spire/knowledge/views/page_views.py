@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from django_spire.contrib.breadcrumb import Breadcrumbs
 
 
-
 @AppAuthController('knowledge').permission_required('can_view')
 def home_view(request: WSGIRequest) -> TemplateResponse:
     def breadcrumbs_func(breadcrumbs: Breadcrumbs):

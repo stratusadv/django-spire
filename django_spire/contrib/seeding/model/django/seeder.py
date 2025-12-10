@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TypeVar, TYPE_CHECKING
 
+from django.db.models.base import Model
 from django.db.models import ForeignKey
 
 from django_spire.contrib.seeding.field.callable import CallableFieldSeeder
@@ -13,7 +14,9 @@ from django_spire.contrib.seeding.model.django.config import DjangoModelFieldsCo
 
 if TYPE_CHECKING:
     from dandy import Prompt
-    from django.db.models.base import Model
+
+
+TypeModel = TypeVar('TypeModel', bound=Model)
 
 
 class DjangoModelSeeder(BaseModelSeeder):
@@ -54,6 +57,6 @@ class DjangoModelSeeder(BaseModelSeeder):
         cls,
         count: int = 1,
         fields: dict | None = None
-    ) -> list[Model]:
+    ) -> list[TypeModel]:
         model_objects = cls.seed(count, fields)
         return cls.model_class.objects.bulk_create(model_objects)
