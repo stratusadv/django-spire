@@ -11,6 +11,8 @@ from django.conf import settings
 P = ParamSpec('P')
 R = TypeVar('R')
 
+log = logging.getLogger(__name__)
+
 
 def performance_timer(func: Callable[P, R]) -> Callable[P, R]:
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -20,7 +22,7 @@ def performance_timer(func: Callable[P, R]) -> Callable[P, R]:
             end_time = time.perf_counter()
 
             message = f'{end_time - start_time:.4f} seconds runtime for "{func.__module__}.{func.__qualname__}"'
-            logging.warning(message)
+            log.warning(message)
 
             return result
 

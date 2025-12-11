@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.shortcuts import get_object_or_404
 
 from django_spire.auth.permissions.decorators import permission_required
@@ -8,9 +10,13 @@ from django_spire.contrib.pagination.pagination import paginate_list
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.generic_views import portal_views
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
+
 
 @permission_required('django_spire_auth_user.view_authuser')
-def detail_view(request, pk):
+def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     user = get_object_or_404(AuthUser, pk=pk)
     group_list = user.groups.all()
 
@@ -30,7 +36,7 @@ def detail_view(request, pk):
 
 
 @permission_required('django_spire_auth_user.view_authuser')
-def list_view(request):
+def list_view(request: WSGIRequest) -> TemplateResponse:
     active_user_list = AuthUser.objects.filter(is_active=True).prefetch_related('groups').order_by('first_name', 'last_name')
     inactive_user_list = AuthUser.objects.filter(is_active=False).prefetch_related('groups').order_by('first_name', 'last_name')
 

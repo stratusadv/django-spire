@@ -14,5 +14,5 @@ register = template.Library()
 def to_json(value: dict | Sequence) -> str:
     try:
         return json.dumps(value)
-    except (TypeError, ValueError) as e:
+    except (TypeError, ValueError):
         return ''

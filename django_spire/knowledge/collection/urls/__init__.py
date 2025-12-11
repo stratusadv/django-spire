@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from django.urls import include, path
 
 from django_spire.knowledge.collection import views
+
 
 app_name = 'collection'
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.db import models
 from django_spire.contrib.options.options import Options
 
+
 DEFAULT_OPTIONS = Options(sections=[])
 
 

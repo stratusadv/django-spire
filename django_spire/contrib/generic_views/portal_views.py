@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 from django.db.models import QuerySet, Model
 from django.http import HttpResponseRedirect
@@ -10,6 +10,8 @@ from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from django.core.handlers.wsgi import WSGIRequest
     from django.forms import BaseForm
 

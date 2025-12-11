@@ -6,8 +6,11 @@ from dandy import Prompt
 
 from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
 from django_spire.core.tag.service.tag_service import BaseTagService
-from django_spire.core.tag.tools import simplify_tag_set, simplify_and_weight_tag_set_to_dict, \
-    get_score_percentage_from_tag_set_weighted
+from django_spire.core.tag.tools import (
+    get_score_percentage_from_tag_set_weighted,
+    simplify_and_weight_tag_set_to_dict,
+    simplify_tag_set
+)
 
 if TYPE_CHECKING:
     from django_spire.knowledge.collection.models import Collection

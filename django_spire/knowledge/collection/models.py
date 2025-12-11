@@ -9,8 +9,10 @@ from django_spire.core.tag.mixins import TagModelMixin
 from django_spire.contrib.utils import truncate_string
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.querysets import CollectionQuerySet
-from django_spire.knowledge.collection.services.service import CollectionGroupService, \
+from django_spire.knowledge.collection.services.service import (
+    CollectionGroupService,
     CollectionService
+)
 
 
 class Collection(
