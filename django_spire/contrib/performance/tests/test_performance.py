@@ -34,7 +34,7 @@ class TestPerformanceTimer(TestCase):
         def sample_func() -> str:
             return 'result'
 
-        with patch('django_spire.contrib.performance.decorators.logging.warning') as mock_warning:
+        with patch('django_spire.contrib.performance.decorators.log.warning') as mock_warning:
             sample_func()
 
             mock_warning.assert_called_once()
@@ -45,7 +45,7 @@ class TestPerformanceTimer(TestCase):
         def sample_func() -> str:
             return 'result'
 
-        with patch('django_spire.contrib.performance.decorators.logging.warning') as mock_warning:
+        with patch('django_spire.contrib.performance.decorators.log.warning') as mock_warning:
             sample_func()
 
             mock_warning.assert_not_called()
@@ -56,7 +56,7 @@ class TestPerformanceTimer(TestCase):
         def sample_func() -> str:
             return 'result'
 
-        with patch('django_spire.contrib.performance.decorators.logging.warning') as mock_warning:
+        with patch('django_spire.contrib.performance.decorators.log.warning') as mock_warning:
             sample_func()
 
             log_message = mock_warning.call_args[0][0]
@@ -69,7 +69,7 @@ class TestPerformanceTimer(TestCase):
         def sample_func() -> str:
             return 'result'
 
-        with patch('django_spire.contrib.performance.decorators.logging.warning') as mock_warning:
+        with patch('django_spire.contrib.performance.decorators.log.warning') as mock_warning:
             sample_func()
 
             log_message = mock_warning.call_args[0][0]
