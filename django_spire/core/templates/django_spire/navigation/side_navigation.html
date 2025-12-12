@@ -33,10 +33,7 @@
         {% endblock %}
     </div>
 
-    <div
-        class="position-relative"
-        style="height: calc(100vh - var(--app-side-navigation-top-content-height));"
-    >
+    <div class="position-relative">
         <div
             class="position-absolute top-0 start-0 w-100 z-1 side-navigation-fade-top"
             x-show="show_top_fade"
@@ -44,7 +41,7 @@
         </div>
 
         <div
-            class="navbar-nav-scroll scrollbar-hidden px-2 pb-4 h-100"
+            class="navbar-nav-scroll scrollbar-hidden px-2 px-1 h-100"
             x-ref="scroll_container"
             @scroll="check_scroll()"
         >

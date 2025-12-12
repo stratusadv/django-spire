@@ -83,7 +83,7 @@
 
 .side-navigation-fade-bottom {
     background: linear-gradient(to top, var(--app-side-navigation-bg-color) 0%, var(--app-side-navigation-bg-color) 20%, transparent 75%);
-    height: 300px;
+    height: 20%;
     pointer-events: none;
 }
 
