@@ -1,8 +1,21 @@
 {% load static %}
 
 <div
-    class="navbar sticky-top bg-app-side-navigation d-block"
-    style="width: 100%; height: 100vh"
+    class="navbar sticky-top bg-app-side-navigation d-block w-100 vh-100"
+    x-data="{
+        show_top_fade: false,
+        show_bottom_fade: false,
+
+        check_scroll() {
+            let element = this.$refs.scroll_container;
+            let has_scroll = element.scrollHeight > element.clientHeight;
+            let is_at_top = element.scrollTop <= 20;
+            let is_at_bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 20;
+            this.show_top_fade = has_scroll && !is_at_top;
+            this.show_bottom_fade = has_scroll && !is_at_bottom;
+        }
+    }"
+    x-init="$nextTick(() => { check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
 >
     <div class="text-center pt-2">
         {% block side_navigation_top_content %}
@@ -23,23 +36,9 @@
     <div
         class="position-relative"
         style="height: calc(100vh - var(--app-side-navigation-top-content-height));"
-        x-data="{
-            show_top_fade: false,
-            show_bottom_fade: false,
-            check_scroll() {
-                let element = this.$refs.scroll_container;
-                let has_scroll = element.scrollHeight > element.clientHeight;
-                let is_at_top = element.scrollTop <= 20;
-                let is_at_bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 20;
-                this.show_top_fade = has_scroll && !is_at_top;
-                this.show_bottom_fade = has_scroll && !is_at_bottom;
-            }
-        }"
-        x-init="$nextTick(() => { check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
     >
         <div
-            class="position-absolute top-0 start-0 w-100 side-navigation-fade-top"
-            style="z-index: 10;"
+            class="position-absolute top-0 start-0 w-100 z-1 side-navigation-fade-top"
             x-show="show_top_fade"
         >
         </div>
@@ -55,8 +54,7 @@
         </div>
 
         <div
-            class="position-absolute bottom-0 start-0 w-100 side-navigation-fade-bottom"
-            style="z-index: 10;"
+            class="position-absolute bottom-0 start-0 w-100 z-1 side-navigation-fade-bottom"
             x-show="show_bottom_fade"
         >
         </div>
