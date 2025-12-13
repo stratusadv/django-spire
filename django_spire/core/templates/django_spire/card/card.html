@@ -1,5 +1,8 @@
-<div class="card ms-0 shadow-sm rounded-3 bg-app-layer-two {% block card_class %}{% endblock %}">
-    <div class="{% block card_padding %}p-3{% endblock %}">
+<div
+    class="card ms-0 shadow-sm rounded-3 bg-app-layer-two {% block card_class %}{% endblock %}"
+    style="{% block card_style %}{% endblock %}"
+>
+    <div class="{% block card_padding %}p-3{% endblock %}" style="{% block card_body_style %}{% endblock %}">
         {% block card_content %}{% endblock %}
     </div>
 

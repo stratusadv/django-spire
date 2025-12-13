@@ -1,7 +1,12 @@
 {% extends 'django_spire/card/card.html' %}
 
+{% block card_padding %}p-3 h-100{% endblock %}
+
+{% block card_body_style %}display: flex; flex-direction: column; overflow: hidden;{% endblock %}
+
 {% block card_content %}
     <div
+        class="d-flex flex-column flex-grow-1 overflow-hidden"
         x-data="{
             card_title_dropdown: false,
             toggle_card_title_dropdown() {
@@ -9,8 +14,8 @@
             }
         }"
     >
-        <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom">
-            <div class="col">
+        <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom flex-shrink-0" style="min-height: 38px;">
+            <div class="col d-flex align-items-center">
                 <div class="card-title text-uppercase mb-0">
                     {% block card_title %}
                     {% endblock %}
@@ -20,11 +25,11 @@
                 {% block card_button %}{% endblock %}
             </div>
         </div>
-        <div x-show="card_title_dropdown" x-cloak x-collapse>
+        <div x-show="card_title_dropdown" x-cloak x-collapse class="flex-shrink-0">
             {% block card_dropdown_content %}
             {% endblock %}
         </div>
-        <div style="{% block card_title_content_style %}{% endblock %}">
+        <div class="flex-grow-1 overflow-hidden" style="{% block card_title_content_style %}{% endblock %}">
             {% block card_title_content %}
             {% endblock %}
         </div>

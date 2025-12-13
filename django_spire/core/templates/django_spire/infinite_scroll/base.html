@@ -1,4 +1,5 @@
 <div
+    class="{% block scroll_wrapper_class %}{% endblock %}"
     x-data="{
         batch_size: parseInt('{{ batch_size|default:50 }}'),
         current_page: parseInt('{{ current_page|default:0 }}'),

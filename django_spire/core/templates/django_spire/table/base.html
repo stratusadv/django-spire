@@ -1,5 +1,7 @@
 {% extends 'django_spire/infinite_scroll/base.html' %}
 
+{% block scroll_wrapper_class %}d-flex flex-column{% if not table_height %} h-100{% endif %}{% endblock %}
+
 {% block scroll_xdata %}
     responsive_mode: '{{ responsive_mode|default:"collapse" }}',
     table_id: $id('table'),
@@ -138,8 +140,8 @@
 
 {% block scroll_container %}
     <div
-        class="position-relative table-container"
-        style="height: {{ table_height|default:'600px' }}; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+        class="position-relative table-container {% if not table_height %}flex-grow-1 min-height-0{% endif %}"
+        style="height: {{ table_height|default:'600px' }}; max-height: 100%; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
         x-ref="scroll_container"
         :data-table-id="table_id"
     >
