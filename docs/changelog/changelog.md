@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.23.8
+
+### Changes
+
+- Change testing framework from unittest to pytest
+- Improve typing, ruff adherence, code consistency
+- CSS fixes
+
 ## v0.23.7
 
 ### Changes
