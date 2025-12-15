@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.9
+
+### Changes
+
+- Better flexibility and support for card styles/classes
+
 ## v0.23.8
 
 ### Changes
