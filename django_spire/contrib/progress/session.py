@@ -31,7 +31,7 @@ class ProgressSession:
     _COMPLETION_INCREMENT = 3.0
     _COMPLETION_INTERVAL = 0.03
     _MAX_SIMULATED_PERCENT = 85
-    _SIMULATION_INTERVAL = 0.1
+    _SIMULATION_INTERVAL = 0.15
 
     def __init__(self, session_id: str, tasks: dict[str, str]) -> None:
         self._lock = threading.Lock()
@@ -40,7 +40,7 @@ class ProgressSession:
         self._tasks: dict[str, dict[str, Any]] = {
             task_id: {
                 'complete_message': '',
-                'message': '',
+                'message': 'Waiting...',
                 'name': name,
                 'percent': 0.0,
                 'status': ProgressStatus.PENDING,
@@ -53,10 +53,10 @@ class ProgressSession:
     def _calculate_increment(self, current_percent: float) -> float:
         remaining = self._MAX_SIMULATED_PERCENT - current_percent
         ratio = remaining / self._MAX_SIMULATED_PERCENT
-        eased = ratio * ratio
-        increment = 0.8 * eased
+        eased = ratio * ratio * ratio
+        increment = 0.5 * eased
 
-        return max(increment, 0.05)
+        return max(increment, 0.03)
 
     def _calculate_message_index(self, percent: float) -> int:
         message_index = int((percent / 100) * len(SIMULATION_MESSAGES))
@@ -224,8 +224,15 @@ class ProgressSession:
         self._simulation_threads[task_id] = (stop_event, thread)
         thread.start()
 
-    def stream(self, poll_interval: float = 0.05) -> Generator[str, None, None]:
+    def stream(self, poll_interval: float = 0.1) -> Generator[str, None, None]:
+        with self._lock:
+            data = self.to_dict()
+
+        yield f'{json.dumps(data)}\n'
+
         while True:
+            time.sleep(poll_interval)
+
             with self._lock:
                 data = self.to_dict()
 
@@ -234,8 +241,6 @@ class ProgressSession:
             if self.is_complete or self.has_error:
                 self._delete()
                 break
-
-            time.sleep(poll_interval)
 
     def to_dict(self) -> dict[str, Any]:
         return {

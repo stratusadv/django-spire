@@ -58,7 +58,7 @@
                         </div>
                         <div class="progress" style="height: 4px;">
                             <div
-                                class="progress-bar"
+                                class="progress-bar progress-bar-smooth"
                                 :class="task.status === 'error' ? 'bg-danger' : 'bg-success'"
                                 role="progressbar"
                                 :style="'width: ' + task.percent + '%'"
@@ -75,7 +75,7 @@
                     </div>
                     <div class="progress" style="height: 8px;">
                         <div
-                            class="progress-bar bg-primary"
+                            class="progress-bar progress-bar-smooth bg-primary"
                             role="progressbar"
                             :style="'width: ' + overall_percent + '%'"
                         ></div>
@@ -104,6 +104,9 @@
     </div>
 
     <style>
+        .progress-bar-smooth {
+            transition: width 0.15s ease-out;
+        }
         .spin {
             animation: spin 1s linear infinite;
         }
