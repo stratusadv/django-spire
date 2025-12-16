@@ -31,6 +31,7 @@ class ProgressStream {
 
         let reader = response.body.getReader();
         let decoder = new TextDecoder();
+        let buffer = '';
 
         while (true) {
             let { done, value } = await reader.read();
@@ -39,10 +40,16 @@ class ProgressStream {
                 break;
             }
 
-            let chunk = decoder.decode(value, { stream: true });
-            let lines = chunk.split('\n').filter(line => line.trim());
+            buffer += decoder.decode(value, { stream: true });
+            let lines = buffer.split('\n');
+
+            buffer = lines.pop();
 
             for (let line of lines) {
+                if (!line.trim()) {
+                    continue;
+                }
+
                 let data = JSON.parse(line);
 
                 this.config.on_update(data);
