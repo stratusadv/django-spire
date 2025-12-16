@@ -7,35 +7,36 @@
 
 {% block card_title_content %}
     <div
-        data-stream-url="{% block progress_stream_url %}{% endblock %}"
-        data-redirect-url="{% block progress_redirect_url %}{% endblock %}"
         data-redirect-delay="{% block progress_redirect_delay %}1000{% endblock %}"
+        data-redirect-url="{% block progress_redirect_url %}{% endblock %}"
+        data-stream-url="{% block progress_stream_url %}{% endblock %}"
         x-data="{
-            step: 'starting',
-            message: 'Initializing...',
-            progress: 0,
             has_error: false,
-            stream: null,
-            init() {
-                const stream_url = this.$el.dataset.streamUrl;
-                const redirect_url = this.$el.dataset.redirectUrl;
-                const redirect_delay = parseInt(this.$el.dataset.redirectDelay);
+            message: 'Initializing...',
+            overall_percent: 0,
 
-                this.stream = new ProgressStream(stream_url, {
-                    on_update: (data) => {
-                        this.step = data.step;
-                        this.message = data.message;
-                        this.progress = data.progress;
-                    },
-                    on_complete: (data) => {},
+            async init() {
+                let stream = new ProgressStream(this.$el.dataset.streamUrl, {
+                    on_complete: () => {},
                     on_error: (data) => {
                         this.has_error = true;
-                        this.message = data.message;
+                        this.message = data.message || 'An error occurred';
                     },
-                    redirect_on_complete: redirect_url,
-                    redirect_delay: redirect_delay
+                    on_update: (data) => {
+                        this.overall_percent = data.overall_percent;
+
+                        let tasks = Object.values(data.tasks);
+                        let running_task = tasks.find(t => t.status === 'running');
+
+                        if (running_task) {
+                            this.message = running_task.message;
+                        }
+                    },
+                    redirect_delay: parseInt(this.$el.dataset.redirectDelay),
+                    redirect_url: this.$el.dataset.redirectUrl,
                 });
-                this.stream.start();
+
+                await stream.start();
             }
         }"
     >
@@ -43,14 +44,14 @@
             <div class="col-12" x-show="!has_error">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="fs-6" x-text="message"></span>
-                    {% include 'django_spire/badge/accent_badge.html' with x_badge_text="progress + '%'" %}
+                    {% include 'django_spire/badge/accent_badge.html' with x_badge_text="overall_percent + '%'" %}
                 </div>
                 <div class="progress" style="height: 8px;">
                     <div
                         class="progress-bar bg-app-accent"
                         role="progressbar"
-                        :style="'width: ' + progress + '%'"
-                        :aria-valuenow="progress"
+                        :style="'width: ' + overall_percent + '%'"
+                        :aria-valuenow="overall_percent"
                         aria-valuemin="0"
                         aria-valuemax="100"
                     ></div>

@@ -10,115 +10,106 @@
 
 {% block modal_content_content %}
     <div
-        data-stream-url="{% block progress_stream_url %}{% endblock %}"
-        data-redirect-url="{% block progress_redirect_url %}{% endblock %}"
         data-redirect-delay="{% block progress_redirect_delay %}1000{% endblock %}"
+        data-redirect-url="{% block progress_redirect_url %}{% endblock %}"
+        data-stream-url="{% block progress_stream_url %}{% endblock %}"
         x-data="{
-            tasks: {},
-            task_order: [],
-            overall_progress: 0,
-            message: 'Initializing...',
             has_error: false,
-            stream: null,
+            message: 'Initializing...',
+            overall_percent: 0,
+            tasks: {},
 
-            init() {
-                let stream_url = this.$el.dataset.streamUrl;
-                let redirect_url = this.$el.dataset.redirectUrl;
-                let redirect_delay = parseInt(this.$el.dataset.redirectDelay);
-
-                this.stream = new ProgressStream(stream_url, {
-                    on_update: (data) => {
-                        this.message = data.message;
-                        this.overall_progress = data.progress;
-                        if (data.task_order) {
-                            this.task_order = data.task_order;
-                        }
-                        if (data.tasks) {
-                            this.tasks = data.tasks;
-                        }
-                    },
-                    on_complete: (data) => {
-                        setTimeout(() => {
-                            close_modal();
-                        }, 500);
+            async init() {
+                let stream = new ProgressStream(this.$el.dataset.streamUrl, {
+                    on_complete: () => {
+                        setTimeout(() => close_modal(), 500);
                     },
                     on_error: (data) => {
                         this.has_error = true;
-                        this.message = data.message;
+                        this.message = data.message || 'An error occurred';
                     },
-                    redirect_on_complete: redirect_url,
-                    redirect_delay: redirect_delay
+                    on_update: (data) => {
+                        this.overall_percent = data.overall_percent;
+                        this.tasks = data.tasks;
+                    },
+                    redirect_delay: parseInt(this.$el.dataset.redirectDelay),
+                    redirect_url: this.$el.dataset.redirectUrl,
                 });
-                this.stream.start();
+
+                await stream.start();
             },
 
-            format_task_name(name) {
-                return name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            },
-
-            get_progress_class(step) {
-                if (step === 'complete') return 'bg-success';
-                if (step === 'error') return 'bg-danger';
-                if (step === 'processing') return 'bg-app-accent';
-                return 'bg-secondary';
+            get_status_icon(status) {
+                if (status === 'complete') return 'bi-check-circle-fill text-success';
+                if (status === 'error') return 'bi-x-circle-fill text-danger';
+                if (status === 'running') return 'bi-arrow-repeat text-primary spin';
+                return 'bi-circle text-secondary';
             }
         }"
     >
         <div class="row g-3">
             <div class="col-12" x-show="!has_error">
-                <template x-for="name in task_order" :key="name">
-                    <div class="mb-3" x-show="tasks[name]">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fs-7" x-text="format_task_name(name)"></span>
-                            <span class="fs-7" x-text="tasks[name]?.progress + '%'"></span>
+                <template x-for="(task, task_id) in tasks" :key="task_id">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi me-2" :class="get_status_icon(task.status)"></i>
+                            <span class="fw-medium" x-text="task.name"></span>
+                            <span class="ms-auto fs-7" x-text="task.percent + '%'"></span>
                         </div>
-                        <div class="progress" style="height: 6px;">
+                        <div class="progress" style="height: 4px;">
                             <div
                                 class="progress-bar"
-                                :class="get_progress_class(tasks[name]?.step)"
+                                :class="task.status === 'error' ? 'bg-danger' : 'bg-success'"
                                 role="progressbar"
-                                :style="'width: ' + (tasks[name]?.progress || 0) + '%'"
+                                :style="'width: ' + task.percent + '%'"
                             ></div>
                         </div>
+                        <small class="text-muted" x-text="task.message"></small>
                     </div>
                 </template>
 
                 <div class="mt-4 pt-3 border-top">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fs-6 fw-medium">Overall Progress</span>
-                        <span class="fs-6" x-text="overall_progress + '%'"></span>
+                        <span class="fw-semibold">Overall Progress</span>
+                        <span x-text="overall_percent + '%'"></span>
                     </div>
                     <div class="progress" style="height: 8px;">
                         <div
-                            class="progress-bar bg-app-accent"
+                            class="progress-bar bg-primary"
                             role="progressbar"
-                            :style="'width: ' + overall_progress + '%'"
+                            :style="'width: ' + overall_percent + '%'"
                         ></div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-12" x-show="!has_error">
-                <p class="text-app-secondary mb-0 fs-7">
-                    {% block progress_wait_message %}Processing your request. This may take a moment.{% endblock %}
+                <p class="text-app-secondary mb-0 fs-7 text-center mt-3">
+                    {% block progress_wait_message %}This may take a moment. Please do not close this window.{% endblock %}
                 </p>
             </div>
 
             <div class="col-12" x-show="has_error" x-cloak>
-                <div class="row g-2">
-                    <div class="col-12">
-                        {% include 'django_spire/element/attribute_element.html' with attribute_title='Error' %}
-                        <span class="fs-6 text-app-danger" x-text="message"></span>
-                    </div>
-                    <div class="col-12">
-                        <span @click="close_modal()">
-                            {% block progress_error_button %}
-                                {% include 'django_spire/button/primary_button.html' with button_text='Close' %}
-                            {% endblock %}
-                        </span>
-                    </div>
+                <div class="d-flex align-items-center justify-content-center py-4">
+                    <i class="bi bi-x-circle-fill text-danger me-3 fs-4"></i>
+                    <span class="fs-5" x-text="message"></span>
+                </div>
+                <div class="text-center">
+                    <span @click="close_modal()">
+                        {% block progress_error_button %}
+                            {% include 'django_spire/button/primary_button.html' with button_text='Close' %}
+                        {% endblock %}
+                    </span>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
 {% endblock %}

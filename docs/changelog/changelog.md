@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.10
+
+### Changes
+
+- Update the progress tracker to use `StreamingHttpResponse` and polling
+
 ## v0.23.9
 
 ### Changes
