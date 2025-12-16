@@ -22,7 +22,12 @@ class ProgressStream {
     }
 
     async start() {
-        let response = await fetch(this.url);
+        let response = await fetch(this.url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': get_cookie('csrftoken'),
+            },
+        });
 
         if (!response.ok) {
             this.config.on_error({ message: `HTTP ${response.status}` });
