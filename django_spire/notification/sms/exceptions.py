@@ -1,17 +1,31 @@
-from django_spire.exceptions import DjangoSpireException
+from __future__ import annotations
+
+from django_spire.exceptions import DjangoSpireError
 
 
-class SmsNotificationException(DjangoSpireException):
+class SmsNotificationError(DjangoSpireError):
     pass
 
 
-class SmsTemporaryMediaException(SmsNotificationException):
+class SmsTemporaryMediaError(SmsNotificationError):
     pass
 
 
-class TwilioException(Exception):
+class TwilioError(Exception):
     pass
 
 
-class TwilioAPIConcurrentException(TwilioException):
+class InvalidPhoneNumberError(TwilioError):
+    def __init__(self, phone_number: str) -> None:
+        super().__init__(f'Invalid phone number format: {phone_number}')
+
+
+class TwilioResponseError(TwilioError):
+    def __init__(self, error_code: int | None, error_message: str | None) -> None:
+        super().__init__(
+            f'Twilio Error: code={error_code}, message={error_message}'
+        )
+
+
+class TwilioAPIConcurrentError(TwilioError):
     pass

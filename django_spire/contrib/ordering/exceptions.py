@@ -1,5 +1,9 @@
-class OrderingMixinExceptionGroup(Exception):
+from __future__ import annotations
+
+
+class OrderingMixinGroupError(Exception):
     pass
 
-class OrderingMixinException(Exception):
+
+class OrderingMixinError(Exception):
     pass

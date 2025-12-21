@@ -1,4 +1,9 @@
+from __future__ import annotations
+
 import django_glue as dg
+
+from typing import TYPE_CHECKING
+
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 
@@ -8,9 +13,13 @@ from django_spire.contrib.generic_views import portal_views
 from django_spire.help_desk import forms
 from django_spire.help_desk.models import HelpDeskTicket
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+    from django.template.response import TemplateResponse
+
 
 @AppAuthController('help_desk').permission_required('can_add')
-def ticket_create_form_view(request):
+def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
     ticket = HelpDeskTicket()
 
     dg.glue_model_object(request, 'ticket', ticket)
@@ -34,7 +43,7 @@ def ticket_create_form_view(request):
         request,
         form=form,
         template='django_spire/help_desk/page/ticket_form_page.html',
-        verb=f'Create',
+        verb='Create',
         obj=ticket,
         context_data={
             'form_action_url': reverse('django_spire:help_desk:form:create'),
@@ -43,7 +52,7 @@ def ticket_create_form_view(request):
 
 
 @AppAuthController('help_desk').permission_required('can_change')
-def ticket_update_form_view(request, pk: int):
+def ticket_update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
     dg.glue_model_object(request, 'ticket', ticket)
@@ -52,8 +61,7 @@ def ticket_update_form_view(request, pk: int):
         form = forms.HelpDeskTicketUpdateForm(request.POST, instance=ticket)
 
         if form.is_valid():
-            _, _ = ticket.services.save_model_obj(**form.cleaned_data)
-
+            ticket.services.save_model_obj(**form.cleaned_data)
             return redirect(reverse('django_spire:help_desk:page:list'))
 
         show_form_errors(request, form)

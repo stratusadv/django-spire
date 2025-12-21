@@ -37,9 +37,27 @@
             sub_nav_max_width: 600,
             sub_nav_min_width: 300,
             sub_nav_width: 300,
+            sub_toggle_left: 8,
 
             is_touch_device() {
                 return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+            },
+
+            show_sub_toggle() {
+                return has_content(this.$refs.full_page_sub_navigation) && !this.show_sub_nav && !((this.is_mobile && this.is_narrow_viewport) && this.show_info_nav);
+            },
+
+            show_info_toggle() {
+                return has_content(this.$refs.full_page_info_navigation) && !this.show_info_nav && !((this.is_mobile && this.is_narrow_viewport) && this.show_sub_nav);
+            },
+
+            update_toggle_position() {
+                let side_nav = document.querySelector('.side-navigation');
+                if (side_nav && window.innerWidth >= 992) {
+                    this.sub_toggle_left = side_nav.offsetWidth;
+                } else {
+                    this.sub_toggle_left = 8;
+                }
             },
 
             update_viewport_state() {
@@ -67,6 +85,7 @@
             init() {
                 this.is_mobile = this.is_touch_device();
                 this.update_viewport_state();
+                this.update_toggle_position();
 
                 const urlParams = new URLSearchParams(window.location.search);
 
@@ -82,6 +101,7 @@
 
                 window.addEventListener('resize', () => {
                     this.update_viewport_state();
+                    this.update_toggle_position();
                 })
             },
 
@@ -169,8 +189,10 @@
                                     {% block full_page_sub_navigation_buttons %}
                                     {% endblock %}
                                 </div>
-                                <div class="col-auto px-1">
-                                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-x-lg' x_button_click='close_sub()' %}
+                                <div class="col-auto px-2">
+                                    <a role="button" class="link-secondary" @click="close_sub()">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
                                 </div>
                             </div>
 
@@ -195,14 +217,21 @@
                     </div>
                 </div>
 
-                <div
-                    class="panel-toggle-container panel-toggle-container-left"
-                    x-show="has_content($refs.full_page_sub_navigation) && !show_sub_nav && !((is_mobile && is_narrow_viewport) && show_info_nav)"
-                >
-                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
-                </div>
+                <template x-if="show_sub_toggle()">
+                    <div
+                        class="panel-toggle-container"
+                        :style="{ left: sub_toggle_left + 'px' }"
+                    >
+                        {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
+                    </div>
+                </template>
 
-                <div class="col">
+                <div
+                    class="col pb-2"
+                    :class="{
+                        'ps-5': show_sub_toggle(),
+                    }"
+                >
                     {% block full_page_content %}
                     {% endblock %}
 
@@ -210,12 +239,11 @@
                     {% endblock %}
                 </div>
 
-                <div
-                    class="col-auto panel-toggle-container panel-toggle-container-right"
-                    x-show="has_content($refs.full_page_info_navigation) && !show_info_nav && !((is_mobile && is_narrow_viewport) && show_sub_nav)"
-                >
-                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
-                </div>
+                <template x-if="show_info_toggle()">
+                    <div class="panel-toggle-container panel-toggle-container-right">
+                        {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
+                    </div>
+                </template>
 
                 <div
                     :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto'"
@@ -239,8 +267,10 @@
                                     {% endblock %}
                                 </div>
 
-                                <div class="col-auto px-1">
-                                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-x-lg' x_button_click="close_info()" %}
+                                <div class="col-auto pe-4">
+                                    <a role="button" class="link-secondary" @click="close_info()">
+                                        <i class="bi bi-x-lg"></i>
+                                    </a>
                                 </div>
                             </div>
 

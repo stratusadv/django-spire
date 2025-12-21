@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from django_spire.contrib.service import BaseDjangoModelService
-
 from typing import TYPE_CHECKING
 
+from django_spire.contrib.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.collection.models import Collection

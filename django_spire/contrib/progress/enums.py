@@ -5,6 +5,7 @@ from enum import StrEnum
 
 class ProgressStatus(StrEnum):
     COMPLETE = 'complete'
+    COMPLETING = 'completing'
     ERROR = 'error'
     PENDING = 'pending'
-    PROCESSING = 'processing'
+    RUNNING = 'running'

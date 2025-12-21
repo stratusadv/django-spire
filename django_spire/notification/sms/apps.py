@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.apps import AppConfig
 from django.conf import settings
 
@@ -14,6 +16,7 @@ class NotificationSmsConfig(AppConfig):
 
     def ready(self) -> None:
         if not isinstance(getattr(settings, TWILIO_SMS_BATCH_SIZE_NAME), int):
-            raise ValueError(f'"{TWILIO_SMS_BATCH_SIZE_NAME}" must be set in the django settings when using "{self.label}".')
+            message = f'"{TWILIO_SMS_BATCH_SIZE_NAME}" must be set in the django settings when using "{self.label}".'
+            raise TypeError(message)
 
         check_required_apps(self.label)

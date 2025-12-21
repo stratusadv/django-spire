@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.ordering.exceptions import OrderingMixinExceptionGroup
+from django_spire.contrib.ordering.exceptions import OrderingMixinGroupError
 from django_spire.contrib.ordering.validators import OrderingMixinValidator
 from django_spire.contrib.service import BaseDjangoModelService
 
@@ -55,8 +55,10 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         )
 
         if not ordering_mixin_validator.validate():
-            raise OrderingMixinExceptionGroup(
-                'Ordering validation failed.',
+            message = 'Ordering validation failed.'
+
+            raise OrderingMixinGroupError(
+                message,
                 ordering_mixin_validator.errors
             )
 
@@ -84,8 +86,10 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         )
 
         if not ordering_mixin_validator.validate():
+            message = 'Ordering validation failed.'
+
             raise ExceptionGroup(
-                'Ordering validation failed.',
+                message,
                 ordering_mixin_validator.errors
             )
 

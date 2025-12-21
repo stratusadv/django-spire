@@ -1,6 +1,9 @@
-from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
+from __future__ import annotations
 
 import copy
+
+from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
+
 
 def normalize_seeder_fields(fields: dict) -> dict:
     normalized = {}
@@ -21,14 +24,11 @@ def normalize_seeder_fields(fields: dict) -> dict:
                 else:
                     extra = (extra_value,)
 
-            normalized[k] = (v[0],) + v[1:2] + extra
-
+            normalized[k] = (v[0], *v[1:2], *extra)
         elif callable(v):
             normalized[k] = ("callable", v)
-
         elif isinstance(v, str) and v.lower() in FieldSeederTypesEnum._value2member_map_:
             normalized[k] = (v.lower(),)
-
         else:
             normalized[k] = ("static", v)
 

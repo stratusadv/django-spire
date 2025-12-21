@@ -11,12 +11,13 @@ from django_spire.contrib.form.utils import show_form_errors
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+    from django.db.models import Model
 
 
 def dispatch_modal_delete_form_content(
     request: WSGIRequest,
     *,
-    obj,
+    obj: Model,
     form_action: str,
     context_data: dict | None = None,
     activity_func: callable | None = None,

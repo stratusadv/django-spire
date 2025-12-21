@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from django.urls import include, path
 
-app_name = 'app'
 
+app_name = 'app'
 
 urlpatterns = [
     path('json/', include('django_spire.notification.app.urls.json_urls', namespace='json')),

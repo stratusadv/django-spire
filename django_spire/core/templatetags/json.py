@@ -1,7 +1,11 @@
+from __future__ import annotations
+
+import json
+
 from typing import Sequence
 
 from django import template
-import json
+
 
 register = template.Library()
 
@@ -10,5 +14,5 @@ register = template.Library()
 def to_json(value: dict | Sequence) -> str:
     try:
         return json.dumps(value)
-    except (TypeError, ValueError) as e:
+    except (TypeError, ValueError):
         return ''

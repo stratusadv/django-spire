@@ -183,6 +183,7 @@ include = [
 [tool.pytest.ini_options]
 django_find_project = false
 markers = ["playwright: Playwright browser tests"]
+norecursedirs = ["test_playwright"]
 
 [tool.ruff]
 extend = "ruff.toml"

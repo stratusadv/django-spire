@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING
 
-import json
+from typing import TYPE_CHECKING
 
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.core.decorators import close_db_connections
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
-from django_spire.knowledge.exceptions import KnowledgeBaseConversionException
+from django_spire.knowledge.exceptions import KnowledgeBaseConversionError
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry
@@ -41,11 +40,13 @@ class EntryAutomationService(BaseDjangoModelService['Entry']):
                 file_object.set_deleted()
 
         message = f'Files Converted: {len(file_objects) - len(errored)}'
+
         if errored:
             error_string = f'\n{message}\nFiles Errored:'
+
             for error in errored:
                 error_string += f'    File Name: {error["file"]}\n    Error: {error["error"]}'
 
-            raise KnowledgeBaseConversionException(error_string)
+            raise KnowledgeBaseConversionError(error_string)
 
         return message

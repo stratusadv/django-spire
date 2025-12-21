@@ -14,7 +14,7 @@ class AuthUser(User, ActivityMixin):
     @classmethod
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
-        crumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:list'))
+        crumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
         return crumbs
 
     def breadcrumbs(self) -> Breadcrumbs:

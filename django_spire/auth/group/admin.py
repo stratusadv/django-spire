@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 import django_spire.auth.user.models
+
 from django_spire.auth.group import models
 from django_spire.auth.user.tools import add_user_to_all_user_group
 

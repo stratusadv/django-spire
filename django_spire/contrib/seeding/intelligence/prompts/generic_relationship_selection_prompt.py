@@ -1,7 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model
 
 from dandy import Prompt
+
+if TYPE_CHECKING:
+    from django.db.models import Model
 
 
 def generic_relationship_selection_prompt(

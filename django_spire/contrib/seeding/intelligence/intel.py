@@ -1,10 +1,14 @@
+from __future__ import annotations
+
+from typing import Iterator
+
 from dandy import BaseIntel
 
 
 class SeedingIntel(BaseIntel):
     items: list[dict]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[dict]:
         return iter(self.items)
 
 

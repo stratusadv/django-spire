@@ -15,15 +15,16 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from dandy.llm.request.message import MessageHistory
 
+
 NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
     text='Sorry, I could not find any information on that.'
 )
 
 
 def knowledge_search_workflow(
-        request: WSGIRequest,
-        user_input: str,
-        message_history: MessageHistory | None = None,
+    request: WSGIRequest,
+    user_input: str,
+    message_history: MessageHistory | None = None
 ) -> BaseMessageIntel | None:
     user_tag_set = TagSetBot().process(user_input)
 
@@ -75,8 +76,6 @@ def knowledge_search_workflow(
         user_input=user_input,
         entries=entries
     )
-
-    print(entries_intel_future.result)
 
     return KnowledgeMessageIntel(
         answer_intel=answer_intel_future.result,

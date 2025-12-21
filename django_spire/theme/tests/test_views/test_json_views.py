@@ -22,30 +22,30 @@ class ThemeViewTests(TestCase):
         request = self.factory.get('/django_spire/theme/json/get_config/')
         response = json_views.get_config(request)
 
-        self.assertIsInstance(response, JsonResponse)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        assert isinstance(response, JsonResponse)
+        assert response.status_code == HTTPStatus.OK
 
         data = json.loads(response.content)
-        self.assertTrue(data['success'])
+        assert data['success']
 
         config = data['data']
-        self.assertIn('families', config)
-        self.assertIn('default_family', config)
-        self.assertIn('default_mode', config)
-        self.assertIn('separator', config)
+        assert 'families' in config
+        assert 'default_family' in config
+        assert 'default_mode' in config
+        assert 'separator' in config
 
         for family in ThemeFamily:
-            self.assertIn(family.value, config['families'])
+            assert family.value in config['families']
             family_config = config['families'][family.value]
-            self.assertIn('name', family_config)
-            self.assertIn('modes', family_config)
-            self.assertEqual(set(family_config['modes']), {'dark', 'light'})
+            assert 'name' in family_config
+            assert 'modes' in family_config
+            assert set(family_config['modes']) == {'dark', 'light'}
 
     def test_get_config_cache_header(self) -> None:
         _ = self.factory.get('/django_spire/theme/json/get_config/')
 
         with patch('django_spire.theme.views.json_views.cache_page') as _:
-            self.assertTrue(hasattr(json_views.get_config, '__wrapped__'))
+            assert hasattr(json_views.get_config, '__wrapped__')
 
     def test_set_theme_success(self) -> None:
         request = self.factory.post(
@@ -55,20 +55,20 @@ class ThemeViewTests(TestCase):
         )
         response = json_views.set_theme(request)
 
-        self.assertIsInstance(response, JsonResponse)
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        assert isinstance(response, JsonResponse)
+        assert response.status_code == HTTPStatus.OK
 
         data = json.loads(response.content)
-        self.assertTrue(data['success'])
-        self.assertIn('theme', data)
+        assert data['success']
+        assert 'theme' in data
 
         data = data['theme']
-        self.assertEqual(data['family'], 'gruvbox')
-        self.assertEqual(data['mode'], 'dark')
+        assert data['family'] == 'gruvbox'
+        assert data['mode'] == 'dark'
 
         cookie_name = get_theme_cookie_name()
-        self.assertIn(cookie_name, response.cookies)
-        self.assertEqual(response.cookies[cookie_name].value, 'gruvbox-dark')
+        assert cookie_name in response.cookies
+        assert response.cookies[cookie_name].value == 'gruvbox-dark'
 
     def test_set_theme_missing_theme(self) -> None:
         request = self.factory.post(
@@ -78,11 +78,11 @@ class ThemeViewTests(TestCase):
         )
         response = json_views.set_theme(request)
 
-        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         data = json.loads(response.content)
-        self.assertFalse(data['success'])
-        self.assertIn('error', data)
-        self.assertEqual(data['error'], 'Theme is required')
+        assert not data['success']
+        assert 'error' in data
+        assert data['error'] == 'Theme is required'
 
     def test_set_theme_invalid_theme(self) -> None:
         request = self.factory.post(
@@ -92,11 +92,11 @@ class ThemeViewTests(TestCase):
         )
         response = json_views.set_theme(request)
 
-        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         data = json.loads(response.content)
-        self.assertFalse(data['success'])
-        self.assertIn('error', data)
-        self.assertIn('Invalid theme', data['error'])
+        assert not data['success']
+        assert 'error' in data
+        assert 'Invalid theme' in data['error']
 
 
 class ThemeViewIntegrationTests(BaseTestCase):
@@ -107,14 +107,14 @@ class ThemeViewIntegrationTests(BaseTestCase):
             content_type='application/json'
         )
 
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        assert response.status_code == HTTPStatus.OK
         data = json.loads(response.content)
-        self.assertTrue(data['success'])
+        assert data['success']
 
     def test_get_config_with_authenticated_client(self) -> None:
         response = self.client.get('/django_spire/theme/json/get_config/')
-        self.assertEqual(response.status_code, HTTPStatus.OK)
+        assert response.status_code == HTTPStatus.OK
 
         data = json.loads(response.content)
-        self.assertTrue(data['success'])
-        self.assertIn('families', data['data'])
+        assert data['success']
+        assert 'families' in data['data']

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from django.contrib.admin.options import get_content_type_for_model
-from django.contrib.auth.models import User
 from django.db.models import QuerySet, Q, Model
 from django.utils.timezone import now
 
@@ -11,6 +13,9 @@ from django_spire.notification.choices import (
     NotificationTypeChoices,
     NotificationPriorityChoices,
 )
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 class NotificationQuerySet(HistoryQuerySet):
@@ -108,6 +113,7 @@ class NotificationContentObjectQuerySet(QuerySet):
             ].append(content_object.pk)
 
         queries = Q()
+
         for content_type, object_ids in content_type_to_object_ids.items():
             queries |= Q(
                 notification__content_type=content_type,

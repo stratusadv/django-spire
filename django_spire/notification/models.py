@@ -8,7 +8,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.notification.choices import (
-    NotificationTypeChoices, NotificationPriorityChoices, NotificationStatusChoices,
+    NotificationPriorityChoices,
+    NotificationStatusChoices,
+    NotificationTypeChoices
 )
 from django_spire.notification.querysets import NotificationQuerySet
 

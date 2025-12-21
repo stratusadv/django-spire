@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-
 from pydantic import model_validator, BaseModel
 
 from django_spire.knowledge.entry.version.block.constants import SPACES_PER_INDENT
 from django_spire.knowledge.entry.version.block.data.data import BaseEditorJsBlockData
-from django_spire.knowledge.entry.version.block.data.list.meta import ChecklistItemMeta, \
-    OrderedListItemMeta
-from django_spire.knowledge.entry.version.block.data.list.choices import \
-    ListEditorBlockDataStyle
+from django_spire.knowledge.entry.version.block.data.list.meta import ChecklistItemMeta, OrderedListItemMeta
+from django_spire.knowledge.entry.version.block.data.list.choices import ListEditorBlockDataStyle
 
 
 class ListEditorBlockData(BaseEditorJsBlockData):
@@ -43,10 +40,10 @@ class ListItemEditorBlockData(BaseModel):
     items: list[ListItemEditorBlockData] | None = []
 
     def get_prefix(
-            self,
-            style: ListEditorBlockDataStyle,
-            indent_level: int,
-            index = None
+        self,
+        style: ListEditorBlockDataStyle,
+        indent_level: int,
+        index = None
     ):
         prefix = ' ' * indent_level * SPACES_PER_INDENT
 
@@ -54,10 +51,8 @@ class ListItemEditorBlockData(BaseModel):
             index = index or 0
             start = self.meta.start or 1
             prefix += f'{start + index}.'
-
         elif style == ListEditorBlockDataStyle.CHECKLIST:
             prefix += f'[{"X" if self.meta.checked else " "}]'
-
         else:
             prefix += '-'
 
@@ -69,12 +64,12 @@ class ListItemEditorBlockData(BaseModel):
         indent_level: int,
         index: int
     ) -> str:
-        from django_spire.knowledge.entry.version.converters.markdown_converter import \
-            MarkdownConverter
+        from django_spire.knowledge.entry.version.converters.markdown_converter import MarkdownConverter
 
         prefix = self.get_prefix(style, indent_level, index)
         parsed_content = MarkdownConverter.html_to_markdown(self.content)
         render_string = f'{prefix} {parsed_content}\n'
+
         for i, item in enumerate(self.items):
             render_string += item.render_to_text(style, indent_level + 1, i)
 

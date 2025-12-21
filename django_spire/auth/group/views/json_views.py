@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from django.core.handlers.wsgi import WSGIRequest
+from typing import TYPE_CHECKING
+
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
@@ -9,8 +10,11 @@ from django_spire.auth.group import models
 from django_spire.auth.group.utils import perm_level_to_int, perm_level_to_django_permission
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.permissions import GroupPermissions
-from django_spire.auth.permissions.tools import generate_model_permissions, generate_model_key_permission_map
+from django_spire.auth.permissions.tools import generate_model_key_permission_map
 from django_spire.core.shortcuts import process_request_body
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 @require_POST

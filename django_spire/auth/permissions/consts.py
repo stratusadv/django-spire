@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Literal
 
-from django_spire.auth.group.models import AuthGroup
-from django_spire.auth.user.models import AuthUser
+# from django_spire.auth.group.models import AuthGroup
+# from django_spire.auth.user.models import AuthUser
 
 
 PERMISSIONS_LEVEL_CHOICES = (

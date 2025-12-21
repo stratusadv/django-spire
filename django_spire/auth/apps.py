@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.apps import AppConfig
 
 from django_spire.utils import check_required_apps
@@ -9,7 +11,7 @@ class AuthConfig(AppConfig):
     name = 'django_spire.auth'
 
     REQUIRED_APPS = ('django_spire_core',)
-    
+
     URLPATTERNS_INCLUDE = 'django_spire.auth.urls'
     URLPATTERNS_NAMESPACE = 'auth'
 

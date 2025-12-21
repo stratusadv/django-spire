@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.23.11
+
+### Changes
+
+- Update progress tracker to use POST
+
+## v0.23.10
+
+### Changes
+
+- Update the progress tracker to use `StreamingHttpResponse` and polling
+
+## v0.23.9
+
+### Changes
+
+- Better flexibility and support for card styles/classes
+
+## v0.23.8
+
+### Changes
+
+- Change testing framework from unittest to pytest
+- Improve typing, ruff adherence, code consistency
+- CSS fixes
+
 ## v0.23.7
 
 ### Changes

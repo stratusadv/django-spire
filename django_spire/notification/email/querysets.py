@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 from django.db.models import QuerySet, Value, When, Case, BooleanField
 
 from django_spire.history.querysets import HistoryQuerySet
@@ -8,6 +10,7 @@ from django_spire.notification.querysets import NotificationContentObjectQuerySe
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
+
 
 class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQuerySet):
     def annotate_is_viewed_by_user(self, user: User) -> QuerySet:

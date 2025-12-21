@@ -4,6 +4,7 @@ import pytest
 
 from typing import TYPE_CHECKING
 
+from dandy.llm.request.message import MessageHistory
 from django.test import RequestFactory
 
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
@@ -11,7 +12,6 @@ from django_spire.ai.chat.router import BaseChatRouter
 from django_spire.core.tests.test_cases import BaseTestCase
 
 if TYPE_CHECKING:
-    from dandy.llm.request.message import MessageHistory
     from django.core.handlers.wsgi import WSGIRequest
 
 
@@ -53,7 +53,12 @@ class TestBaseChatRouter(BaseTestCase):
 
     def test_process_validates_workflow_return_type(self) -> None:
         class InvalidRouter(BaseChatRouter):
-            def workflow(self, request, user_input, message_history=None) -> str:
+            def workflow(
+                self,
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
+            ) -> str:
                 return 'Invalid return type'
 
         router = InvalidRouter()
@@ -69,7 +74,12 @@ class TestBaseChatRouter(BaseTestCase):
 
     def test_process_handles_none_return(self) -> None:
         class NoneRouter(BaseChatRouter):
-            def workflow(self, request, user_input, message_history=None) -> None:
+            def workflow(
+                self,
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
+            ) -> None:
                 return None
 
         router = NoneRouter()
@@ -83,12 +93,15 @@ class TestBaseChatRouter(BaseTestCase):
         assert result.text == 'I apologize, but I was unable to process your request.'
 
     def test_process_accepts_all_parameters(self) -> None:
-        from dandy.llm.request.message import MessageHistory
-
         class ParamTestRouter(BaseChatRouter):
             received_params = {}
 
-            def workflow(self, request, user_input, message_history=None) -> DefaultMessageIntel:
+            def workflow(
+                self,
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
+            ) -> DefaultMessageIntel:
                 self.received_params = {
                     'request': request,
                     'user_input': user_input,
@@ -108,3 +121,50 @@ class TestBaseChatRouter(BaseTestCase):
         assert router.received_params['request'] == self.request
         assert router.received_params['user_input'] == 'Test input'
         assert router.received_params['message_history'] == message_history
+
+    def test_process_returns_base_message_intel_subclass(self) -> None:
+        class CustomMessageIntel(BaseMessageIntel):
+            _template: str = 'django_spire/ai/chat/message/default_message.html'
+            custom_field: str
+
+            def render_to_str(self) -> str:
+                return self.custom_field
+
+        class CustomRouter(BaseChatRouter):
+            def workflow(
+                self,
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
+            ) -> CustomMessageIntel:
+                return CustomMessageIntel(custom_field='Custom value')
+
+        router = CustomRouter()
+        result = router.process(
+            request=self.request,
+            user_input='Hello',
+            message_history=None
+        )
+
+        assert isinstance(result, CustomMessageIntel)
+        assert result.custom_field == 'Custom value'
+
+    def test_process_with_empty_user_input(self) -> None:
+        class EmptyInputRouter(BaseChatRouter):
+            def workflow(
+                self,
+                request: WSGIRequest,
+                user_input: str,
+                message_history: MessageHistory | None = None
+            ) -> DefaultMessageIntel:
+                return DefaultMessageIntel(text=f'Received: {user_input}')
+
+        router = EmptyInputRouter()
+        result = router.process(
+            request=self.request,
+            user_input='',
+            message_history=None
+        )
+
+        assert isinstance(result, DefaultMessageIntel)
+        assert result.text == 'Received: '

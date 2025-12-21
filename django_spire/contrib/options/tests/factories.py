@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from django_spire.contrib.options.mixins import OptionsModelMixin
+from typing import TYPE_CHECKING
+
 from django_spire.contrib.options.options import Options, Option, OptionSection
 from django_spire.auth.user.tests.factories import create_user
+
+if TYPE_CHECKING:
+    from django_spire.contrib.options.mixins import OptionsModelMixin
 
 
 def create_test_options() -> Options:

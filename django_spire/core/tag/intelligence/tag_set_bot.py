@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dandy import Bot, Prompt, BaseListIntel
 from django.utils.text import slugify
 

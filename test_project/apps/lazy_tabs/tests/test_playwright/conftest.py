@@ -11,9 +11,6 @@ if TYPE_CHECKING:
     from pytest_django.plugin import _LiveServer
 
 
-pytest_plugins = ['django_spire.testing.playwright.fixtures']
-
-
 @pytest.fixture
 def demo_page(authenticated_page: Page, live_server: _LiveServer) -> LazyTabsDemoPage:
     return LazyTabsDemoPage(authenticated_page, live_server.url)

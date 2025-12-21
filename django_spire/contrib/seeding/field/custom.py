@@ -1,36 +1,46 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.utils import timezone
 from faker import Faker
 
 from django_spire.contrib.seeding.field.base import BaseFieldSeeder
 from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
 
+if TYPE_CHECKING:
+    from datetime import datetime
+    from typing import Any
+
+    from django.db.models import Model
+
 
 class CustomFieldSeeder(BaseFieldSeeder):
     keyword = FieldSeederTypesEnum.CUSTOM
 
-    def in_order(self, values: list, index: int) -> any:
+    def in_order(self, values: list, index: int) -> Any:
         if not values:
-            raise ValueError(
-                "Cannot select from empty values list. "
-                "Make sure the related model has existing records before seeding foreign keys."
-            )
-        index = index % len(values)  # Index loops back on itself
+            message = 'Cannot select from empty values list. Make sure the related model has existing records before seeding foreign keys.'
+            raise ValueError(message)
+
+        # Index loops back on itself
+        index = index % len(values)
         return values[index]
 
-    def date_time_between(self, start_date: str, end_date: str):
+    def date_time_between(self, start_date: str, end_date: str) -> datetime:
         faker = Faker()
         naive_dt = faker.date_time_between(start_date=start_date, end_date=end_date)
         return timezone.make_aware(naive_dt)
 
-    def fk_random(self, model_class, ids: list[int]):
+    def fk_random(self, model_class: type[Model], ids: list[int]) -> int:
         faker = Faker()
         return faker.random_element(elements=ids)
 
-    def fk_in_order(self, model_class, index: int, ids: list[int]):
+    def fk_in_order(self, model_class: type[Model], index: int, ids: list[int]) -> int:
         """Takes a queryset, calls it then returns a random id"""
         return self.in_order(values=ids, index=index)
 
-    def seed(self, manager, count) -> list[dict]:
+    def seed(self, manager: Any, count: int) -> list[dict]:
         data = []
 
         foreign_keys = {}

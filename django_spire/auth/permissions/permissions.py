@@ -10,20 +10,21 @@ from django_spire.auth.group.utils import (
     codename_to_perm_level,
     perm_level_to_string
 )
-from django_spire.auth.permissions.consts import VALID_PERMISSION_LEVELS
 from django_spire.core.utils import get_object_from_module_string
 
 if TYPE_CHECKING:
-    from django.db.models import QuerySet, Model
+    from django.db.models import Model, QuerySet
+
+    from django_spire.auth.permissions.consts import VALID_PERMISSION_LEVELS
 
 
 class ModelPermission:
     def __init__(
-            self,
-            name: str,
-            model_class_path: str,
-            is_proxy_model: bool,
-            verbose_name: str | None = None,
+        self,
+        name: str,
+        model_class_path: str,
+        is_proxy_model: bool,
+        verbose_name: str | None = None
     ):
         self.name = name
         self.model_class_path = model_class_path
@@ -57,13 +58,11 @@ class ModelPermissions:
         self,
         perm_level: VALID_PERMISSION_LEVELS | None
     ) -> list[Permission]:
-        permission_list = []
-
-        for perm in self.permissions:
-            if codename_to_perm_level(perm.codename) <= perm_level:
-                permission_list.append(perm)
-
-        return permission_list
+        return [
+            perm
+            for perm in self.permissions
+            if codename_to_perm_level(perm.codename) <= perm_level
+        ]
 
     def get_special_role(self, codename: str) -> Permission | None:
         for perm in self.permissions:
@@ -90,9 +89,8 @@ class ModelPermissions:
 
 class GroupPermissions:
     def __init__(self, group: Group, model_permission: ModelPermission):
-        """
-            Helper to use Django Groups as a cascading permission structure.
-        """
+        """Helper to use Django Groups as a cascading permission structure."""
+
         self.group = group
         self.model_permissions = ModelPermissions(model_permission)
         self.group_perms = self.group.permissions.all()
@@ -105,18 +103,14 @@ class GroupPermissions:
             self.set_group_perms()
 
     def has_special_role(self, codename: str) -> bool:
-        for perm in self.group_perms:
-            if perm.codename == codename:
-                return True
-
-        return False
+        return any(perm.codename == codename for perm in self.group_perms)
 
     def perm_level(self) -> VALID_PERMISSION_LEVELS:
-        codename_list = []
-
-        for perm in self.group_perms:
-            if perm.codename.split('_')[-1] == self.model_permissions.model_name:
-                codename_list.append(perm.codename)
+        codename_list = [
+            perm.codename
+            for perm in self.group_perms
+            if perm.codename.split('_')[-1] == self.model_permissions.model_name
+        ]
 
         return codename_list_to_perm_level(codename_list)
 
@@ -169,9 +163,8 @@ class GroupPermissions:
 
 class UserPermissionHelper:
     def __init__(self, user: User, model_permission: ModelPermission):
-        """
-            Helper to query user's current cascading permissions
-        """
+        """Helper to query user's current cascading permissions"""
+
         self.user = user
         self.model_permissions = ModelPermissions(model_permission)
         self.user_perms = self.get_user_perms()
@@ -180,11 +173,11 @@ class UserPermissionHelper:
         return Permission.objects.filter(group__user=self.user).distinct()
 
     def perm_level(self) -> VALID_PERMISSION_LEVELS:
-        codename_list = []
-
-        for perm in self.user_perms:
-            if perm.codename.split('_')[-1] == self.model_permissions.model_name:
-                codename_list.append(perm.codename)
+        codename_list = [
+            perm.codename
+            for perm in self.user_perms
+            if perm.codename.split('_')[-1] == self.model_permissions.model_name
+        ]
 
         return codename_list_to_perm_level(codename_list)
 

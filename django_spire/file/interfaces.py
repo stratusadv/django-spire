@@ -5,16 +5,16 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from django.conf import settings
-from django.core.files.base import ContentFile
-
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 
 from django_spire.file.models import File
 from django_spire.file.utils import random_64_char_token
 
 if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile
+
     from django_spire.file.mixins import FileModelMixin
 
 
@@ -26,7 +26,7 @@ class FileFormatter:
     type: str = ...
     app_name: str = 'Uncategorized'
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.name = self._format_name()
         self.type = self._parse_type()
 
@@ -60,6 +60,10 @@ class FileFormatter:
 
         return file_obj
 
+    def save_file(self, file_obj: File) -> None:
+        file_path = self.location + '.' + self.type
+        file_obj.file.save(file_path, ContentFile(self.file.read()), save=False)
+
     def size_verbose(self) -> str:
         if self.file.size < 512000:
             value = round(self.file.size / 1000, 2)
@@ -75,10 +79,6 @@ class FileFormatter:
             ext = '>1.00 Tb'
 
         return str(value) + ext
-
-    def save_file(self, file_obj: File):
-        file_path = self.location + '.' + self.type
-        file_obj.file.save(file_path, ContentFile(self.file.read()), save=False)
 
 
 @dataclass
@@ -116,7 +116,7 @@ class FileUploader(ABC):
     related_field: str | None
     app_name: str = 'Uncategorized'
 
-    def null_file_obj(self, file):
+    def null_file_obj(self, file: InMemoryUploadedFile) -> File:
         formatted_file = FileFormatter(
             file=file,
             related_field=self.related_field,
@@ -135,12 +135,7 @@ class FileUploader(ABC):
 
 @dataclass
 class SingleFileUploader(FileUploader):
-    def upload(self, file: InMemoryUploadedFile) -> File:
-        file = self.null_file_obj(file)
-        file.save()
-        return file
-
-    def delete_old_files(self, content_object: FileModelMixin):
+    def delete_old_files(self, content_object: FileModelMixin) -> None:
         old_files = content_object.files.active().related_field(self.related_field)
 
         for file in old_files:
@@ -149,9 +144,14 @@ class SingleFileUploader(FileUploader):
 
         File.objects.bulk_update(old_files, ['is_active', 'is_deleted'])
 
+    def upload(self, file: InMemoryUploadedFile) -> File:
+        file = self.null_file_obj(file)
+        file.save()
+        return file
+
     def upload_from_form_field(
         self,
-        form_data,
+        form_data: dict,
         content_object: FileModelMixin
     ) -> File:
         try:

@@ -9,8 +9,8 @@ from django_spire.knowledge.entry.version.models import EntryVersion
 
 def create_test_entry_version(**kwargs) -> EntryVersion:
     data = {
-        'entry': create_test_entry(),
-        'author': create_user(username=random_string(k=10)),
+        'entry': kwargs.pop('entry', None) or create_test_entry(),
+        'author': kwargs.pop('author', None) or create_user(username=random_string(k=10)),
         'is_deleted': False,
         'is_active': True
     }

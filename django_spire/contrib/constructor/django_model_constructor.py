@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Type, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from django.db.models import Model
 
 from django_spire.contrib.constructor.constructor import BaseConstructor
+
 
 TypeDjangoModel = TypeVar('TypeDjangoModel', bound=Model, covariant=True)
 
@@ -17,11 +18,11 @@ class BaseDjangoModelConstructor(
 ):
     @property
     def _model_obj_id_is_empty(self) -> bool:
-        return self.obj.id is None or self.obj.id == 0 or self.obj.id == ''
+        return self.obj.id is None or self.obj.id in {0, ''}
 
     @property
     def _model_obj_pk_is_empty(self) -> bool:
-        return self.obj.pk is None or self.obj.pk == 0 or self.obj.pk == ''
+        return self.obj.pk is None or self.obj.pk in {0, ''}
 
     @property
     def model_obj_is_created(self) -> bool:
@@ -32,7 +33,7 @@ class BaseDjangoModelConstructor(
         return self._model_obj_id_is_empty or self._model_obj_pk_is_empty
 
     @property
-    def obj_class(self) -> Type[TypeDjangoModel]:
+    def obj_class(self) -> type[TypeDjangoModel]:
         return super().obj_class
 
     @property

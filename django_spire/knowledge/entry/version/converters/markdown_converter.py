@@ -1,25 +1,24 @@
 from __future__ import annotations
 
 import logging
+import marko
 import re
+
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-import marko
 from bs4 import BeautifulSoup
 from django.core.files.storage import default_storage
 from markitdown.converters import HtmlConverter
 from marko.block import Heading, List, ListItem, Paragraph, BlankLine
-from marko.element import Element
 
 from django_spire.knowledge.entry.version.block import models
 from django_spire.knowledge.entry.version.block.choices import BlockTypeChoices
-from django_spire.knowledge.entry.version.block.data.list.choices import \
-    ListEditorBlockDataStyle
-from django_spire.knowledge.entry.version.converters.converter import \
-    BaseConverter
+from django_spire.knowledge.entry.version.block.data.list.choices import ListEditorBlockDataStyle
+from django_spire.knowledge.entry.version.converters.converter import BaseConverter
 
 if TYPE_CHECKING:
+    from marko.element import Element
     from django_spire.knowledge.entry.version.models import EntryVersion
     from django_spire.file.models import File
     from marko.block import BlockElement
@@ -54,8 +53,8 @@ class MarkdownConverter(BaseConverter):
             return self.convert_markdown_to_blocks(f.read())
 
     def convert_markdown_to_blocks(
-            self,
-            markdown_content: str
+        self,
+        markdown_content: str
     ) -> list[models.EntryVersionBlock]:
         marko_blocks = marko.parse(markdown_content).children
 
@@ -124,9 +123,9 @@ class MarkdownConverter(BaseConverter):
 
     @classmethod
     def _marko_list_item_block_to_editor_block_data_dict(
-            cls,
-            marko_list_item_block: ListItem,
-            parent_marko_list_block: List | None = None,
+        cls,
+        marko_list_item_block: ListItem,
+        parent_marko_list_block: List | None = None
     ):
         list_item_editor_block_data_kwargs = {
             'items': [],
@@ -165,6 +164,7 @@ class MarkdownConverter(BaseConverter):
         list_item_editor_block_data_kwargs['content'] = content
 
         list_editor_block_data_style = None
+
         if parent_marko_list_block:
             # We determine the entire list style from the top level list items for simplicity.
             # If parent_marko_list_block is present, it means we are processing the top level list.
@@ -182,17 +182,17 @@ class MarkdownConverter(BaseConverter):
         if isinstance(marko_block, BlankLine):
             return { 'text': '' }
 
-        elif isinstance(marko_block, Paragraph):
+        if isinstance(marko_block, Paragraph):
             editor_block_text_string = cls._remove_outer_html_tags(marko.render(marko_block))
             return { 'text': editor_block_text_string }
 
-        elif isinstance(marko_block, Heading):
+        if isinstance(marko_block, Heading):
             return {
                 'text': cls._remove_outer_html_tags(marko.render(marko_block)),
                 'level': marko_block.level,
             }
 
-        elif isinstance(marko_block, List):
+        if isinstance(marko_block, List):
             list_editor_block_data_dict = {
                 'items': [],
                 'style': ListEditorBlockDataStyle.UNORDERED,
@@ -208,12 +208,12 @@ class MarkdownConverter(BaseConverter):
 
             return list_editor_block_data_dict
 
-        else:
-            logging.warning(
-                f'Unsupported marko block type: {marko_block.__class__.__name__!r}. '
-                f'Rendering content to html and adding to markdown as a basic paragraph block.'
-            )
-            return { 'text': marko.render(marko_block) }
+        logging.warning(
+            f'Unsupported marko block type: {marko_block.__class__.__name__!r}. '
+            f'Rendering content to html and adding to markdown as a basic paragraph block.'
+        )
+
+        return { 'text': marko.render(marko_block) }
 
 
     @classmethod

@@ -1,19 +1,13 @@
+from __future__ import annotations
+
 from django_spire.contrib.progress.enums import ProgressStatus
-from django_spire.contrib.progress.mixins import ProgressTrackingMixin
-from django_spire.contrib.progress.runner import TaskProgressUpdater
-from django_spire.contrib.progress.states import TaskState, TrackerState
-from django_spire.contrib.progress.task import ProgressMessages, Task, TaskResult
-from django_spire.contrib.progress.tracker import ProgressTracker
+from django_spire.contrib.progress.tasks import ParallelTask, SequentialTask
+from django_spire.contrib.progress.session import ProgressSession
 
 
 __all__ = [
-    'ProgressMessages',
+    'ParallelTask',
+    'ProgressSession',
     'ProgressStatus',
-    'ProgressTracker',
-    'ProgressTrackingMixin',
-    'Task',
-    'TaskProgressUpdater',
-    'TaskResult',
-    'TaskState',
-    'TrackerState'
+    'SequentialTask',
 ]

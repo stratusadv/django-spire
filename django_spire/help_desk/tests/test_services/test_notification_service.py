@@ -1,13 +1,20 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q, QuerySet
 from django.test import override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.help_desk.models import HelpDeskTicket
 from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.email.models import EmailNotification
+
+if TYPE_CHECKING:
+    from django_spire.help_desk.models import HelpDeskTicket
+
 
 TEST_ADMINS = [
     ('developer1', 'developer1@stratus.com'),
@@ -17,17 +24,17 @@ TEST_ADMINS = [
 
 class HelpDeskTicketNotificationServiceTestCase(BaseTestCase):
     def _assert_user_notification_ticket_integrity(
-            self,
-            ticket: HelpDeskTicket,
-            notification_type: type,
-            users: QuerySet[User]
+        self,
+        ticket: HelpDeskTicket,
+        notification_type: type,
+        users: QuerySet[User]
     ):
         notifications = notification_type.objects.by_users(users)
-        self.assertEqual(len(notifications), len(users))
+        assert len(notifications) == len(users)
 
         for notification in notifications:
-            self.assertEqual(notification.notification.content_object, ticket)
-            self.assertTrue(users.filter(pk=notification.notification.user.pk).exists())
+            assert notification.notification.content_object == ticket
+            assert users.filter(pk=notification.notification.user.pk).exists()
 
     @override_settings(ADMINS=TEST_ADMINS)
     def test_create_new_ticket_notifications(self):

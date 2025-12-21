@@ -78,7 +78,7 @@ def comment_form_view(
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
-            # Todo: Create comment factory.
+            # TODO: Create comment factory.
             if comment_pk == 0:
                 obj.add_comment(
                     user=request.user,

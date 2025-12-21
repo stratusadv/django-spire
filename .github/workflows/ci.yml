@@ -43,6 +43,8 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           settings-module: test_project.sqlite_settings
           sync-extras: development documentation
+          test-runner: pytest
+          test-ignore: test_playwright
 
   security:
     name: Security Scan

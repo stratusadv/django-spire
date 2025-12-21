@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Model
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 
@@ -10,19 +10,21 @@ from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from django.core.handlers.wsgi import WSGIRequest
+    from django.forms import BaseForm
 
 
-# Takes breadcrumb as parameter and returns None
-BreadCrumbCallable = Callable[[Breadcrumbs], None]
+BreadcrumbCallable = Callable[[Breadcrumbs], None]
 
 
 def detail_view(
     request: WSGIRequest,
     *,
     context_data: dict | None = None,
-    breadcrumbs_func: BreadCrumbCallable | None = None,
-    obj,
+    breadcrumbs_func: BreadcrumbCallable | None = None,
+    obj: Model,
     template: str
 ) -> TemplateResponse:
     if context_data is None:
@@ -54,12 +56,11 @@ def delete_form_view(
     request: WSGIRequest,
     *,
     context_data: dict | None = None,
-    obj,
-    activity_func: callable | None = None,
+    obj: Model,
+    activity_func: Callable[[], None] | None = None,
     auto_add_activity: bool = True,
-    breadcrumbs_func: BreadCrumbCallable | None = None,
-    delete_func: callable | None = None,
-    # Present and past tense of verb
+    breadcrumbs_func: BreadcrumbCallable | None = None,
+    delete_func: Callable[[], None] | None = None,
     verbs: tuple[str, str] = ('delete', 'deleted'),
     return_url: str,
     template: str = 'django_spire/page/delete_confirmation_form_page.html'
@@ -171,8 +172,8 @@ def list_view(
     request: WSGIRequest,
     *,
     context_data: dict | None = None,
-    breadcrumbs_func: BreadCrumbCallable | None = None,
-    model,
+    breadcrumbs_func: BreadcrumbCallable | None = None,
+    model: type[Model],
     template: str
 ) -> TemplateResponse:
 
@@ -204,10 +205,10 @@ def list_view(
 def form_view(
     request: WSGIRequest,
     *,
-    form,
+    form: BaseForm,
     context_data: dict | None = None,
-    obj,
-    breadcrumbs_func: BreadCrumbCallable | None = None,
+    obj: Model,
+    breadcrumbs_func: BreadcrumbCallable | None = None,
     verb: str | None = None,
     template: str = 'django_spire/page/form_full_page.html'
 ) -> TemplateResponse:
@@ -251,10 +252,10 @@ def form_view(
 def model_form_view(
     request: WSGIRequest,
     *,
-    form,
+    form: BaseForm,
     context_data: dict | None = None,
-    obj,
-    breadcrumbs_func: BreadCrumbCallable | None = None,
+    obj: Model,
+    breadcrumbs_func: BreadcrumbCallable | None = None,
     verb: str | None = None,
     template: str = 'django_spire/page/form_full_page.html'
 ) -> TemplateResponse:

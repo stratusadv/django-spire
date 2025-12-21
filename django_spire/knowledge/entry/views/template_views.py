@@ -1,4 +1,7 @@
-from django.core.handlers.wsgi import WSGIRequest
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
@@ -6,6 +9,9 @@ from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
+
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 @AppAuthController('knowledge').permission_required('can_view')

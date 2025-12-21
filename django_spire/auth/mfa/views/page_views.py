@@ -5,8 +5,8 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.auth.mfa.utils import get_or_generate_user_mfa_code
 from django_spire.auth.mfa import forms
+from django_spire.auth.mfa.utils import get_or_generate_user_mfa_code
 
 
 def mfa_form_view(request):
@@ -15,6 +15,7 @@ def mfa_form_view(request):
 
     if request.method == 'POST':
         form = forms.MFAForm(mfa_code, request.POST)
+
         if form.is_valid():
             mfa_code.set_expired()
             profile.set_mfa_grace_period()

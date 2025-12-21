@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
+
 from django.db.models import QuerySet, Value, When, Case, BooleanField, IntegerField
 
 from django_spire.history.querysets import HistoryQuerySet

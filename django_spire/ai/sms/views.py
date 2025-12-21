@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django.http import HttpResponse, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -9,11 +11,14 @@ from django_spire.ai.sms.decorators import twilio_auth_required
 from django_spire.ai.sms.intelligence.workflows.sms_conversation_workflow import sms_conversation_workflow
 from django_spire.ai.sms.models import SmsConversation
 
+if TYPE_CHECKING:
+    from django.core.handlers.wsgi import WSGIRequest
+
 
 @csrf_exempt
 @require_POST
 @twilio_auth_required
-def webhook_view(request):
+def webhook_view(request: WSGIRequest):
     from_number = request.POST.get('From', '')
 
     if len(from_number) < 11:
@@ -32,30 +37,24 @@ def webhook_view(request):
         twilio_sid=message_sid,
     )
 
-    try:
-        sms_intel = sms_conversation_workflow(
-            request=request,
-            user_input=body,
-            message_history=conversation.generate_message_history(),
-            actor=from_number,
-        )
+    sms_intel = sms_conversation_workflow(
+        request=request,
+        user_input=body,
+        message_history=conversation.generate_message_history(),
+        actor=from_number,
+    )
 
-        twiml_response = MessagingResponse()
-        twiml_response.message(sms_intel.body)
+    twiml_response = MessagingResponse()
+    twiml_response.message(sms_intel.body)
 
-        conversation.add_message(
-            body=sms_intel.body,
-            is_inbound=False,
-            twilio_sid=message_sid,
-            is_processed=True
-        )
+    conversation.add_message(
+        body=sms_intel.body,
+        is_inbound=False,
+        twilio_sid=message_sid,
+        is_processed=True
+    )
 
-        message.is_processed = True
-        message.save()
+    message.is_processed = True
+    message.save()
 
-        return HttpResponse(twiml_response)
-    except:
-        raise
-
-
-
+    return HttpResponse(twiml_response)

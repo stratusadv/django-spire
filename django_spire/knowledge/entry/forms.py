@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django import forms
 
 from django_spire.knowledge.entry.models import Entry

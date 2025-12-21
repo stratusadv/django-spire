@@ -1,25 +1,30 @@
+from __future__ import annotations
+
 from django.utils.timezone import now
+
 from sendgrid import SendGridException
 
-from django_spire.notification.choices import NotificationTypeChoices, \
-    NotificationStatusChoices
+from django_spire.notification.choices import (
+    NotificationStatusChoices,
+    NotificationTypeChoices
+)
 from django_spire.notification.email.helper import SendGridEmailHelper
-from django_spire.notification.exceptions import NotificationException
+from django_spire.notification.exceptions import InvalidNotificationTypeError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
 
 
 class EmailNotificationProcessor(BaseNotificationProcessor):
+    def _validate_notification_type(self, notification: Notification):
+        if notification.type != NotificationTypeChoices.EMAIL:
+            raise InvalidNotificationTypeError(NotificationTypeChoices.EMAIL, notification.type)
+
     def process(self, notification: Notification):
         notification.status = NotificationStatusChoices.PROCESSING
         notification.save()
 
         try:
-            if notification.type != NotificationTypeChoices.EMAIL:
-                raise NotificationException(
-                    f"EmailNotificationProcessor only processes "
-                    f"Email notifications. Was provided {notification.type}"
-                )
+            self._validate_notification_type(notification)
 
             SendGridEmailHelper(notification).send()
 
@@ -27,11 +32,12 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
             notification.sent_datetime = now()
         except Exception as e:
             notification.status_message = str(e)
+
             if isinstance(e, SendGridException):
                 notification.status = NotificationStatusChoices.ERRORED
             else:
                 notification.status = NotificationStatusChoices.FAILED
-                raise e
+                raise
         finally:
             notification.save()
 
@@ -40,11 +46,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
 
         for notification in notifications:
             try:
-                if notification.type != NotificationTypeChoices.EMAIL:
-                    raise NotificationException(
-                        f"EmailNotificationProcessor only processes "
-                        f"Email notifications. Was provided {notification.type}"
-                    )
+                self._validate_notification_type(notification)
 
                 SendGridEmailHelper(notification).send()
 
@@ -56,11 +58,13 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
                     notification.status = NotificationStatusChoices.ERRORED
                 else:
                     notification.status = NotificationStatusChoices.FAILED
+
                     Notification.objects.bulk_update(
                         notifications,
                         ['status', 'sent_datetime', 'status_message']
                     )
-                    raise e
+
+                    raise
 
         Notification.objects.bulk_update(
             notifications,

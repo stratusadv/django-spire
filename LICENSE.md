@@ -1,4 +1,4 @@
-Copyright (c) 2024 Stratus Advanced Technologies and Contributors.
+Copyright (c) 2025 Stratus Advanced Technologies and Contributors.
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

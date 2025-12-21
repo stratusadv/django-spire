@@ -14,33 +14,33 @@ if TYPE_CHECKING:
 
 
 class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.widget = widgets.MultipleWidget()
 
-    def prepare_value(self, value: list[File] | None):
+    def prepare_value(self, value: list[File] | None) -> str:
         if value is not None:
             return json.dumps([file.to_dict() for file in value])
 
         return json.dumps([])
 
-    def clean(self, data, initial = None) -> dict:
+    def clean(self, data, initial=None) -> dict:
         return data
 
 
 class SingleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.widget = widgets.SingleFileWidget()
 
-    def prepare_value(self, value: File | FileQuerySet | None) -> str | None:
+    def prepare_value(self, value: File | FileQuerySet | None) -> str:
         if isinstance(value, FileQuerySet):
-            value =  value.first()
+            value = value.first()
 
         if value is not None:
             return value.to_json()
 
         return json.dumps(None)
 
-    def clean(self, data, initial = None) -> dict:
+    def clean(self, data, initial=None) -> dict:
         return data

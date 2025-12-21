@@ -1,9 +1,12 @@
+from __future__ import annotations
+
+import pytest
+
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.notification.sms.tools import format_to_international_phone_number
 
 
 class TestSMSTools(BaseTestCase):
-
     def test_local_to_international_phone_number(self):
         phone_numbers = (
             '622 415 2736',
@@ -19,6 +22,7 @@ class TestSMSTools(BaseTestCase):
             '368.447-9514',
             '4563219876'
         )
+
         expected_phone_numbers = (
             '+16224152736',
             '+18815534599',
@@ -33,8 +37,12 @@ class TestSMSTools(BaseTestCase):
             '+13684479514',
             '+14563219876'
         )
-        formatted_phone_numbers = [format_to_international_phone_number(phone_number) for phone_number in phone_numbers]
-        self.assertSequenceEqual(formatted_phone_numbers, expected_phone_numbers)
+
+        formatted_phone_numbers = tuple(
+            format_to_international_phone_number(phone_number)
+            for phone_number in phone_numbers
+        )
+        assert formatted_phone_numbers == expected_phone_numbers
 
     def test_invalid_phone_number(self):
         phone_numbers = (
@@ -43,13 +51,19 @@ class TestSMSTools(BaseTestCase):
             '1',
             '12345678901234567890',
             '',
-            '32145698765', # excess 1 digit
-            '403000123', # missing 1 digit
-            '36800012', # missing 2 digits
+            '32145698765',
+            '403000123',
+            '36800012',
         )
+
         for phone_number in phone_numbers:
-            self.assertRaises(
-                ValueError,
-                format_to_international_phone_number,
-                phone_number
-            )
+            with pytest.raises(ValueError):
+                format_to_international_phone_number(phone_number)
+
+    def test_format_with_country_code(self):
+        result = format_to_international_phone_number('5551234567', country_code='1')
+        assert result == '+15551234567'
+
+    def test_format_already_has_country_code(self):
+        result = format_to_international_phone_number('15551234567', country_code='1')
+        assert result == '+15551234567'

@@ -287,6 +287,10 @@
     color: var(--app-default-text-color);
 }
 
+.table-container thead.sticky-top {
+    z-index: 1;
+}
+
 .ce-block__content [data-placeholder]:empty::before,
 .ce-block__content [data-placeholder][data-empty="true"]::before {
     color: var(--app-primary) !important;

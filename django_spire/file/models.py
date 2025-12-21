@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import json
 
-from django.contrib.contenttypes.models import ContentType
-
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from django_spire.file.queryset import FileQuerySet
@@ -25,10 +24,10 @@ class File(HistoryModelMixin):
 
     objects = FileQuerySet.as_manager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, str | int]:
         return {
             'name': self.name,
             'url': self.file.url,
@@ -45,4 +44,3 @@ class File(HistoryModelMixin):
         indexes = [
             models.Index(fields=['content_type', 'object_id']),
         ]
-

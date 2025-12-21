@@ -18,11 +18,7 @@ class EntryTransformationService(BaseDjangoModelService['Entry']):
 
     @staticmethod
     def queryset_to_navigation_list(queryset: QuerySet[Entry]) -> list[dict[str, str]]:
-        json_list = []
-        for entry in queryset:
-            json_list.append(entry.services.transformation.to_dict())
-
-        return json_list
+        return [entry.services.transformation.to_dict() for entry in queryset]
 
     def to_dict(self):
         site = Site.objects.get_current() if not settings.DEBUG else ''

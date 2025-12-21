@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TypeVar, TYPE_CHECKING
 
-from django.db.models import ForeignKey
 from django.db.models.base import Model
+from django.db.models import ForeignKey
 
 from django_spire.contrib.seeding.field.callable import CallableFieldSeeder
 from django_spire.contrib.seeding.field.custom import CustomFieldSeeder
@@ -37,11 +37,11 @@ class DjangoModelSeeder(BaseModelSeeder):
         super().__init_subclass__(**kwargs)
 
         if cls.model_class is None:
-            message = "Seeds must have a model class"
+            message = 'Seeds must have a model class'
             raise ValueError(message)
 
         if cls.fields is None:
-            message = "Seeds must have fields"
+            message = 'Seeds must have fields'
             raise ValueError(message)
 
     @classmethod
@@ -55,7 +55,7 @@ class DjangoModelSeeder(BaseModelSeeder):
     @classmethod
     def seed_database(
         cls,
-        count=1,
+        count: int = 1,
         fields: dict | None = None
     ) -> list[TypeModel]:
         model_objects = cls.seed(count, fields)

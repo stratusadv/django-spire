@@ -1,11 +1,16 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 
 from django_spire.file.models import File
 
+if TYPE_CHECKING:
+    from django.db import models
 
-def copy_files_from_source_to_target_model_object(source: Any, target: Any) -> list[File]:
+
+def copy_files_from_source_to_target_model_object(source: models.Model, target: models.Model) -> list[File]:
     target_class = target.__class__
     target_content_type = ContentType.objects.get_for_model(target_class)
 
@@ -15,6 +20,7 @@ def copy_files_from_source_to_target_model_object(source: Any, target: Any) -> l
         return []
 
     files_to_create = []
+
     for file in file_list:
         new_file = File(
             content_type=target_content_type,

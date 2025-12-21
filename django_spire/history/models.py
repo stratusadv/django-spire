@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -11,12 +10,13 @@ from django_spire.history.choices import HistoryEventChoices
 
 class HistoryEvent(models.Model):
     content_type = models.ForeignKey(
-        ContentType, 
-        related_name='history_events', 
-        related_query_name='history_event', 
-        on_delete=models.CASCADE, 
+        ContentType,
+        related_name='history_events',
+        related_query_name='history_event',
+        on_delete=models.CASCADE,
         editable=False
     )
+
     object_id = models.PositiveIntegerField(editable=False)
     content_object = GenericForeignKey('content_type', 'object_id')
 

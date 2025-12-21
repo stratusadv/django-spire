@@ -1,6 +1,11 @@
-from django.db.models import Model
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from dandy import Prompt
+
+if TYPE_CHECKING:
+    from django.db.models import Model
 
 
 def objective_prompt(
