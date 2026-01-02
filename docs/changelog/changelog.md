@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23.12
+
+### Changes
+
+- Added support for authenticating views via [HTTP Bearer Authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication#bearer)
+
 ## v0.23.11
 
 ### Changes
