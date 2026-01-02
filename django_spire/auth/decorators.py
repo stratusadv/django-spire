@@ -1,30 +1,19 @@
-import base64
+from typing import Callable
 
-from django.contrib.auth import authenticate, login
+from django.core.handlers.wsgi import WSGIRequest
 from django.http.response import HttpResponse
 
 
-def allow_basic_auth(persist_login=False):
-    def decorator_wrapper(view_func):
-        def view_wrapper(request, *args, **kwargs):
+def bearer_token_auth_required(token: str) -> Callable[[Callable], Callable]:
+    def decorator_wrapper(view_func: Callable) -> Callable:
+        def view_wrapper(request: WSGIRequest, *args, **kwargs) -> HttpResponse:
             if request.user.is_authenticated:
                 return view_func(request, *args, **kwargs)
 
             auth_header_parts = request.META.get('HTTP_AUTHORIZATION', '').split(' ')
 
-            if auth_header_parts[0].lower() == 'basic':
-                username, password = (
-                    base64.b64decode(auth_header_parts[1])
-                    .decode('utf-8')
-                    .split(':')
-                )
-
-                user = authenticate(username=username, password=password)
-                if user is not None and user.is_active:
-                    request.user = user
-                    if persist_login:
-                        login(request, user)
-
+            if auth_header_parts[0].lower() == 'bearer':
+                if auth_header_parts[1] == token:
                     return view_func(request, *args, **kwargs)
 
             return HttpResponse(status=401)
