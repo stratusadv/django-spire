@@ -1,4 +1,3 @@
-
 {% if ticket.purpose == 'app'  %}
     {% include 'django_spire/badge/accent_badge.html' with badge_text=ticket.get_purpose_display %}
 {% elif ticket.purpose == 'comp' %}
