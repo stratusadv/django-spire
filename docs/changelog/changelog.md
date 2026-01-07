@@ -1,22 +1,18 @@
 # Changelog
 
+## v0.23.13
+
+### Changes
+
+- Added optional support for showing success message in `dispatch_modal_delete_form_content`
+- Added editable table height on `table/base.html`
+- Added blocks to include or exclude checkboxes and child rows in `table/element/row.html`
+
 ## v0.23.12
 
 ### Changes
 
 - Added support for authenticating views via [HTTP Bearer Authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication#bearer)
-
-## v0.23.12
-
-### Features
-
-- Base table row element can now exclude action and child row trigger
-
-### Changes
-
-- Table height templating variable restored as min-height override
-
-### Breaking
 
 ## v0.23.11
 
