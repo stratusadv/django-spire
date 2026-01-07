@@ -6,6 +6,18 @@
 
 - Added support for authenticating views via [HTTP Bearer Authentication](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Authentication#bearer)
 
+## v0.23.12
+
+### Features
+
+- Base table row element can now exclude action and child row trigger
+
+### Changes
+
+- Table height templating variable restored as min-height override
+
+### Breaking
+
 ## v0.23.11
 
 ### Changes
@@ -23,6 +35,10 @@
 ### Changes
 
 - Better flexibility and support for card styles/classes
+
+### Breaking
+
+- Table height style templating variable removed
 
 ## v0.23.8
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 
@@ -26,7 +27,8 @@ def dispatch_modal_delete_form_content(
     # Present and past tense of verb
     verbs: tuple[str, str] = ('delete', 'deleted'),
     return_url: str | None = None,
-    template: str = 'django_spire/modal/content/dispatch_modal_delete_confirmation_content.html'
+    template: str = 'django_spire/modal/content/dispatch_modal_delete_confirmation_content.html',
+    show_success_message: bool = False
 ) -> HttpResponseRedirect | TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -44,6 +46,9 @@ def dispatch_modal_delete_form_content(
                 activity_func=activity_func,
                 auto_add_activity=auto_add_activity
             )
+
+            if show_success_message:
+                messages.success(request, f'Successfully deleted {model_name}.')
 
         else:
             show_form_errors(request, form)
