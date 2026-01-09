@@ -1,0 +1,67 @@
+{% load string_formating %}
+
+<div class="row">
+    <div class="col-11 col-md-10 col-lg-8 col-xl-6 mx-auto my-3">
+
+        <div class="row">
+            <div class="col fs-5 text-center">
+                {{ report.title }}
+            </div>
+        </div>
+        {% if report.description %}
+            <div class="row">
+                <div class="col text-center text-muted fs--1 mb-3">
+                    {{ report.description }}
+                </div>
+            </div>
+        {% endif %}
+
+        <form class="form" method="GET">
+            <input class="form-control" type="hidden" name="report_key_stack"
+                   value="{{ request.GET.report_key_stack }}">
+            <input class="form-control" type="hidden" name="report_should_run" value="True">
+
+            {% for argument, params in report_run_arguments.items %}
+                <div class="row">
+                    <div class="col mb-2">
+
+                        <label class="form-label">
+                            {{ argument|underscores_to_spaces|title }}
+                        </label>
+                        {% if params.annotation == 'str' %}
+                            <input class="form-control" type="text" name="{{ argument }}" value="{{ params.default }}">
+                        {% elif params.annotation == 'int' %}
+                            <input class="form-control" type="number" name="{{ argument }}"
+                                   value="{{ params.default }}">
+                        {% elif params.annotation == 'float' %}
+                            <input class="form-control" type="number" name="{{ argument }}"
+                                   value="{{ params.default }}">
+                        {% elif params.annotation == 'bool' %}
+                            <br><input class="form-check-input" type="checkbox" name="{{ argument }}"
+                                       value="{{ params.default }}">
+                        {% elif params.annotation == 'select' %}
+                            <select class="form-select" name="{{ argument }}" aria-selected="{{ params.default }}">
+                                {% for key, val in params.choices %}
+                                    <option value="{{ key }}">{{ val }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="row">
+                <div class="col mt-3 text-center">
+                    <input class="btn btn-primary" type="submit" value="Run Report">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col mt-3 text-center text-muted fs--1">
+                    This report has been informative {{ report_run_count }} times!
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
+

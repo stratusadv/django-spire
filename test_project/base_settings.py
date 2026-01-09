@@ -101,6 +101,9 @@ INSTALLED_APPS += [
 
     'django_spire.knowledge',
 
+    'django_spire.metric',
+    'django_spire.metric.report',
+
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
@@ -200,6 +203,11 @@ TEMPLATES = [
             'debug': DEBUG,
         },
     },
+]
+
+# Report Registry
+DJANGO_SPIRE_REPORT_REGISTRIES = [
+    'test_project.apps.queryset_filtering.reports.task_report_registry.TaskReportRegistry'
 ]
 
 # Storages - We are using Digital Ocean, which uses AWS S3 service

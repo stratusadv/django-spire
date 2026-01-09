@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.24.00
+
+### Features
+
+- New `Report` App added.
+
+
 ## v0.23.12
 
 ### Changes

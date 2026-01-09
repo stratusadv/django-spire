@@ -1,0 +1,31 @@
+@media print {
+    .hide-on-print {
+        display: none !important;
+    }
+
+    @page {
+        margin: 1cm !important;
+    }
+
+    div {
+        page-break-inside: auto !important;
+    }
+
+    .page-break-before {
+        page-break-before: always !important;
+        display: block;
+        height: 1px;
+        clear: both;
+    }
+
+    .table-hover > tbody > tr:hover > * {
+        --bs-table-bg-state: var(--app-table-row-color) !important;
+        background-color: var(--app-table-row-color) !important;
+        color: var(--app-default-text-color) !important;
+    }
+
+}
+
+.table-print {
+    font-family: monospace !important;
+}

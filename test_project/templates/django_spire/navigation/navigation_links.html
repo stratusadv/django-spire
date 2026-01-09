@@ -35,6 +35,9 @@
 {% url 'queryset_filtering:page:list' as queryset_filtering_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='QuerySet Filtering' link_icon='bi bi-filter' link_url=queryset_filtering_url %}
 
+{% url 'django_spire:metric:report:page:report' as report_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Reports' link_icon='bi bi-list-columns' link_url=report_url %}
+
 {% url 'wizard:home' as wizard_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Wizard' link_icon='bi bi-magic' link_url=wizard_url %}
 
