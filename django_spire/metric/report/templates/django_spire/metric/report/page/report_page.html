@@ -27,8 +27,9 @@
         </div>
         {% for report_run in top_ten_report_runs %}
             <div class="row">
-                <div class="col text-center">
-                    <a class="fs--1" href="?report_key_stack={{ report_run.report_key_stack }}"> {{ report_run.report_key_stack }}</a><br>
+                <div class="col text-center pb-2">
+                    <a href="?report_key_stack={{ report_run.report_key_stack }}">{{ report_run.report_key_stack_verbose }}</a><br>
+                    <div class="text-muted fs--1">{{ report_run.run_count }} Total Runs</div>
                 </div>
             </div>
         {% endfor %}

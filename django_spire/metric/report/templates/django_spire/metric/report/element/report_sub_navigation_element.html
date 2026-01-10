@@ -10,7 +10,11 @@
 
                 {% if val|is_dict %}
                     {{ key }}<br>
-                    {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=True sub_nav_value=val key_stack=key_stack|add:key %}
+                    {% if key_stack is None %}
+                        {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=True sub_nav_value=val key_stack=key %}
+                    {% else %}
+                        {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=True sub_nav_value=val key_stack=key_stack|add:'|'|add:key %}
+                    {% endif %}
                 {% else %}
                     <a class="fs--1" href="?report_key_stack={{ key_stack }}|{{ key }}">> {{ key }}</a><br>
                 {% endif %}

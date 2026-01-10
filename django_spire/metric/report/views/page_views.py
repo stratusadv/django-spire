@@ -78,13 +78,21 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                 context_data['report_run_count'] = ReportRun.objects.run_count(report_key_stack)
 
     else:
-        context_data['top_ten_report_runs'] = ReportRun.objects.by_top_ten()
+        top_ten_report_runs = [
+            {
+                **report_run,
+                'report_key_stack_verbose': report_run['report_key_stack'].replace('|', ' > '),
+            } for report_run in
+            ReportRun.objects.by_top_ten()
+        ]
+
+        context_data['top_ten_report_runs'] = top_ten_report_runs
 
     return portal_views.template_view(
         request,
-        page_title = 'Reports',
-        page_description = 'More Reporting Info',
-        breadcrumbs = breadcrumbs,
+        page_title='Reports',
+        page_description='More Reporting Info',
+        breadcrumbs=breadcrumbs,
         context_data=context_data,
         template='django_spire/metric/report/page/report_page.html'
     )
