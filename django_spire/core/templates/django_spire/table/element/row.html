@@ -74,23 +74,27 @@
     @select-all-rows.window="handle_select_all_rows($event)"
     @toggle-row-state.window="handle_toggle_row_state($event)"
 >
-    <td>
-        <input
-            :checked="is_checked"
-            @change="handle_checkbox_change()"
-            type="checkbox"
-        >
-    </td>
+    {% block table_checkbox %}
+        <td>
+            <input
+                :checked="is_checked"
+                @change="handle_checkbox_change()"
+                type="checkbox"
+            >
+        </td>
+    {% endblock %}
 
-    <td>
-        <template x-if="has_children">
-            <i
-                :class="is_open ? 'bi-chevron-down' : 'bi-chevron-right'"
-                @click="$dispatch('toggle-row', { row_id: row_id, table_id: table_id })"
-                class="bi cursor-pointer"
-            ></i>
-        </template>
-    </td>
+    {% block table_child_toggle %}
+        <td>
+            <template x-if="has_children">
+                <i
+                    :class="is_open ? 'bi-chevron-down' : 'bi-chevron-right'"
+                    @click="$dispatch('toggle-row', { row_id: row_id, table_id: table_id })"
+                    class="bi cursor-pointer"
+                ></i>
+            </template>
+        </td>
+    {% endblock %}
 
     {% block table_cell %}{% endblock %}
 </tr>

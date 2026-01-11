@@ -1,0 +1,37 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% load variable_types %}
+
+{% block full_page_sub_navigation_title %}
+    Reports
+{% endblock %}
+
+{% block full_page_sub_navigation %}
+    {% if not report.is_ready %}
+        {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=0 sub_nav_value=registry.report_names_classes %}
+    {% endif %}
+{% endblock %}
+
+{% block full_page_content %}
+    {% if report %}
+        {% if report.is_ready %}
+            {% include 'django_spire/metric/report/print/report_print.html' %}
+        {% else %}
+            {% include 'django_spire/metric/report/form/report_form.html' %}
+        {% endif %}
+    {% else %}
+        <div class="row">
+            <div class="col fs-5 my-3 text-center">
+                Top 10 Reports
+            </div>
+        </div>
+        {% for report_run in top_ten_report_runs %}
+            <div class="row">
+                <div class="col text-center pb-2">
+                    <a href="?report_key_stack={{ report_run.report_key_stack }}">{{ report_run.report_key_stack_verbose }}</a><br>
+                    <div class="text-muted fs--1">{{ report_run.run_count }} Total Runs</div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

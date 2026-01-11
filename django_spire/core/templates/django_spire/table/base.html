@@ -141,7 +141,7 @@
 {% block scroll_container %}
     <div
         class="position-relative table-container flex-grow-1"
-        style="min-height: 200px; overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+        style="min-height: {{ table_height|default:'200px;' }} overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
         x-ref="scroll_container"
         :data-table-id="table_id"
     >

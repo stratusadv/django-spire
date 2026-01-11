@@ -101,6 +101,9 @@ INSTALLED_APPS += [
 
     'django_spire.knowledge',
 
+    'django_spire.metric',
+    'django_spire.metric.report',
+
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
@@ -115,8 +118,6 @@ INSTALLED_APPS += [
 ]
 
 DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'ai_chat': 'django_spire.ai.chat.auth.controller.BaseAiChatAuthController',
-    'help_desk': 'django_spire.help_desk.auth.controller.BaseHelpDeskAuthController',
     'knowledge': 'test_project.apps.knowledge.auth.controller.KnowledgeAuthController',
 }
 
@@ -200,6 +201,11 @@ TEMPLATES = [
             'debug': DEBUG,
         },
     },
+]
+
+# Report Registry
+DJANGO_SPIRE_REPORT_REGISTRIES = [
+    'test_project.apps.queryset_filtering.reports.task_report_registry.TaskReportRegistry'
 ]
 
 # Storages - We are using Digital Ocean, which uses AWS S3 service

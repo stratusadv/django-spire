@@ -1,0 +1,34 @@
+{% load variable_types %}
+
+
+<div class="row">
+    <div class="col {% if depth %}ps-4{% endif %}">
+
+        {% if sub_nav_value|is_dict %}
+
+            {% for key, val in sub_nav_value.items %}
+
+                {% if val|is_dict %}
+
+                    <div class="fs--1 pb-1">{{ key }}</div>
+
+                    {% if key_stack is None %}
+                        {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=True sub_nav_value=val key_stack=key %}
+                    {% else %}
+                        {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=True sub_nav_value=val key_stack=key_stack|add:'|'|add:key %}
+                    {% endif %}
+
+                {% else %}
+                    <div class="fs--1 pb-1">
+                        <a href="?report_key_stack={{ key_stack }}|{{ key }}">> {{ key }}</a>
+                    </div>
+                {% endif %}
+
+            {% endfor %}
+
+        {% endif %}
+
+    </div>
+</div>
+
+
