@@ -5,6 +5,7 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
     'ai_chat': 'django_spire.ai.chat.auth.controller.BaseAiChatAuthController',
     'help_desk': 'django_spire.help_desk.auth.controller.BaseHelpDeskAuthController',
     'knowledge': 'django_spire.knowledge.auth.controller.BaseKnowledgeAuthController',
+    'report': 'django_spire.metric.report.auth.controller.BaseReportAuthController',
 }
 
 # AI Settings
@@ -22,6 +23,8 @@ DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS = {
         'CHAT_ROUTER': 'django_spire.knowledge.intelligence.router.KnowledgeSearchRouter',
     },
 }
+
+DJANGO_SPIRE_REPORT_REGISTRIES = []
 
 # Theme Settings
 DJANGO_SPIRE_DEFAULT_THEME = 'default-light'

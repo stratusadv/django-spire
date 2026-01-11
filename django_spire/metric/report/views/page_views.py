@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from django.urls import reverse
 
-from django_spire.auth.permissions.decorators import permission_required
+from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.utils import get_object_from_module_string
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from django.template.response import TemplateResponse
 
 
-@permission_required('report.view_report')
+@AppAuthController('report').permission_required('can_view')
 def report_view(request: WSGIRequest) -> TemplateResponse:
     breadcrumbs = Breadcrumbs()
 
@@ -56,6 +56,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                 context_data['report_run_arguments'] = report.run_arguments
 
                 context_data['report_run_arguments_values'] = {}
+
                 for argument in report.run_arguments:
                     if context_data['report_run_arguments'][argument]['annotation'] == 'bool':
                         get_request_value = request.GET.get(argument, False)
@@ -82,7 +83,8 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
             {
                 **report_run,
                 'report_key_stack_verbose': report_run['report_key_stack'].replace('|', ' > '),
-            } for report_run in
+            }
+            for report_run in
             ReportRun.objects.by_top_ten()
         ]
 

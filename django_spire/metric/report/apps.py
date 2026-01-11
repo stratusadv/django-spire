@@ -7,7 +7,7 @@ from django_spire.utils import check_required_apps
 
 class ReportConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'report'
+    label = 'django_spire_metric_report'
     name = 'django_spire.metric.report'
 
     MODEL_PERMISSIONS = (

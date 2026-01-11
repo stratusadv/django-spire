@@ -7,7 +7,7 @@ from django_spire.core.tag.tools import simplify_and_weight_tag_set_to_dict, sim
 
 
 class TagModelMixin(models.Model):
-    tags = models.ManyToManyField(Tag, related_name='+', null=True, blank=True, editable=False)
+    tags = models.ManyToManyField(Tag, related_name='+', blank=True, editable=False)
 
     class Meta:
         abstract = True

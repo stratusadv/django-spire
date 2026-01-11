@@ -6,7 +6,8 @@ from test_project.apps.queryset_filtering.reports.task_counting_monthly_report i
 class TaskReportRegistry(ReportRegistry):
     category = 'Queryset Tasks'
     report_names_classes = {
-            'Counting Monthly': TaskCountingMonthlyReport
+            'Counting Monthly': TaskCountingMonthlyReport,
+            'Counting Monthly Again': TaskCountingMonthlyReport
     }
     report_registries = [
         SubTaskReportRegistry
