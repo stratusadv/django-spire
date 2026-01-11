@@ -188,11 +188,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .fs--2 {
-    font-size: .75rem !important;
+    font-size: .70rem !important;
+}
+
+.fs--3 {
+    font-size: .55rem !important;
 }
 
 .fs-7 {
-    font-size: .85rem !important;
+    font-size: .80rem !important;
+}
+
+.fs-8 {
+    font-size: .70rem !important;
+}
+
+.fs-8 {
+    font-size: .55rem !important;
 }
 
 .fw-400 {

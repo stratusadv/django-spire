@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.24.00
+
+### Features
+
+- New `Report` App added for easily creating printable reports.
+  - Located at `django_spire.metric.report` with its own auth controller.
+  - Check out the documentation for more information.
+
 ## v0.23.13
 
 ### Changes

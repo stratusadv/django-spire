@@ -149,14 +149,14 @@
             }
         }"
     >
-        <div class="d-none d-lg-block pe-1 side-navigation">
+        <div class="d-none d-lg-block pe-1 side-navigation hide-on-print">
             {% block full_page_side_navigation %}
                 {% include 'django_spire/navigation/side_navigation.html' %}
             {% endblock %}
         </div>
 
         <div class="container-fluid d-flex flex-column">
-            <div class="row sticky-top">
+            <div class="row sticky-top hide-on-print">
                 <div class="col-12">
                     {% block full_page_top_navigation %}
                         {% include 'django_spire/navigation/top_navigation.html' %}
