@@ -12,3 +12,6 @@ class HistoryQuerySet(QuerySet):
 
     def deleted(self):
         return self.filter(is_deleted=True)
+
+    def not_deleted(self):
+        return self.filter(is_deleted=False)
