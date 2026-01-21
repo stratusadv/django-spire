@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.24.1
+
+### Features
+
+- Added `container_content_inner_class` to `infinite_scroll_container.html` to enable more customizability.
+
 ## v0.24.00
 
 ### Features
