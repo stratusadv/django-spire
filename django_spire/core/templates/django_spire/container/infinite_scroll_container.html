@@ -29,7 +29,7 @@
                     style="height: calc(100vh - {{ container_offset|default:'350' }}px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
                     x-ref="scroll_container"
                 >
-                    <div x-ref="content_container">
+                    <div x-ref="content_container" class="{% block container_content_inner_class %}{% endblock %}">
                         {% block container_content %}{% endblock %}
                     </div>
 
