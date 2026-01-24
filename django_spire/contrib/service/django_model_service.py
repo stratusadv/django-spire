@@ -72,7 +72,7 @@ class BaseDjangoModelService(
         """
         This is the core service method for saving a Django model object with field data provided via kwargs.
         It will update the object with the given kwargs and handle any upstream attribute changes that were applied
-        directly to the model instance (i.e. it can be called without any kwargs, similar to `Model.save()`).
+        directly to the model instance (i.e. it can also be called without any kwargs, similar to `Model.save()`).
 
         Its purpose is to run extra operations related to the model instance that need to run each time
         the model is saved - it is meant to replace the need for overriding `BaseModelForm.save()` or `Model.save()`.
