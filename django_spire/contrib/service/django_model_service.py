@@ -71,7 +71,7 @@ class BaseDjangoModelService(
     def save_model_obj(self, **field_data: dict | None) -> tuple[Model, bool]:
         """
         This is the core service method for saving a Django model object with field data provided via kwargs.
-        It will update the object with the given kwargs and handle any attributes that were applied
+        It will update the object with the given kwargs and handle any upstream attribute changes that were applied
         directly to the model instance (i.e. it can be called without any kwargs, similar to `Model.save()`).
 
         Its purpose is to run extra operations related to the model instance that need to run each time
