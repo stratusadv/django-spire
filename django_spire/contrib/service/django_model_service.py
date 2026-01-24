@@ -83,7 +83,7 @@ class BaseDjangoModelService(
         using logic similar to django's `BaseModelForm._save_m2m()` method. In all cases,
         it treats the incoming `field_data` exactly the same as `cleaned_data` is treated
         in the django code that it is emulating, and therefore does not perform any validation 
-        on the data as it is assumed that field_data has already been validated upstream.
+        on the data or the model instance as it is assumed that field_data has already been validated upstream.
 
         Args:
             **field_data:
