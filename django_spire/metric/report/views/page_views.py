@@ -73,7 +73,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         ReportRun.objects.create(
                             report_key_stack=report_key_stack,
                         )
-                        report.run()
+                        report.run(**context_data['report_run_arguments_values'])
 
                 context_data['report'] = report
                 context_data['report_run_count'] = ReportRun.objects.run_count(report_key_stack)

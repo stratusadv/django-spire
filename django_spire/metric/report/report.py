@@ -61,6 +61,8 @@ class ReportRow:
     page_break: bool = False
     span_all_columns: bool = False
     table_break: bool = False
+    border_top: bool = False
+    border_bottom: bool = False
 
 
 class BaseReport(ABC):
@@ -157,6 +159,8 @@ class BaseReport(ABC):
             page_break: bool = False,
             span_all_columns: bool = False,
             table_break: bool = False,
+            border_top: bool = False,
+            border_bottom: bool = False,
     ):
         if span_all_columns or table_break:
             if len(cell_values) > 1:
@@ -183,5 +187,15 @@ class BaseReport(ABC):
                 page_break=page_break,
                 span_all_columns=span_all_columns,
                 table_break=table_break,
+                border_top=border_top,
+                border_bottom=border_bottom,
             )
         )
+
+    def add_page_break(self):
+        self.add_row(
+            cell_values=[''],
+            span_all_columns=True,
+            page_break=True,
+        )
+

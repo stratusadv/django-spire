@@ -24,7 +24,7 @@ class TaskCountingMonthlyReport(BaseReport):
             show_puppets: bool = True,
             people: int = 0,
     ):
-        self.add_column('People')
+        self.add_column(f'People ({people})')
         self.add_column('Type', type=self.ColumnType.CHOICE)
         self.add_column('Quality', type=self.ColumnType.PERCENT)
         self.add_column('Tasks', type=self.ColumnType.NUMBER)
@@ -50,7 +50,9 @@ class TaskCountingMonthlyReport(BaseReport):
                 random.randint(100_000, 1_999_999),
             ])
 
-        self.add_divider_row('Internal Tasks', page_break=True)
+        self.add_blank_row()
+        self.add_page_break()
+        self.add_divider_row('Internal Tasks')
 
         for _ in range(1, 20):
             self.add_row([
@@ -64,6 +66,8 @@ class TaskCountingMonthlyReport(BaseReport):
                 random.randint(100_000, 1_999_999),
             ])
 
+        self.add_blank_row()
+        self.add_page_break()
         self.add_divider_row('Extra Tasks', page_break=True)
 
         for _ in range(1, 20):
@@ -78,6 +82,7 @@ class TaskCountingMonthlyReport(BaseReport):
                 random.randint(100_000, 1_999_999),
             ])
 
+        self.add_blank_row()
         self.add_footer_row([
             'Totals:',
             '-',
