@@ -32,6 +32,13 @@
             <span x-text="{{ x_attribute_value_postfix }}"></span>
         {% endif %}
     {% endif %}
+
+    {% if show_copy_button %}
+        {% block copy_button %}
+            {% firstof attribute_value or x_attribute_value as value %}
+            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=value copy_func=copy_func %}
+        {% endblock %}
+    {% endif %}
 {% endblock %}
 
 {% if attribute_href or x_attribute_href %}

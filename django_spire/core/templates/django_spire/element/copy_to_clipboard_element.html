@@ -1,0 +1,31 @@
+<span
+    x-data="{
+        clicked: false,
+        copy_value_to_clipboard() {
+            let text = '{{ value }}';
+
+            {% if copy_func %}
+            text = {{ copy_func }}(text);
+            {% endif %}
+
+            navigator.clipboard.writeText(text);
+            this.clicked = true;
+            setTimeout(() => {
+                this.clicked = false;
+            }, 1000);
+        }
+    }"
+>
+    <i
+        @click="copy_value_to_clipboard()"
+        class="bi bi-copy text-app-primary cursor-pointer"
+    ></i>
+    <span
+        class="text-app-primary"
+        x-show="clicked"
+        x-transition:enter.duration.500ms
+        x-transition:leave.duration.500ms
+    >
+        Copied!
+    </span>
+</span>

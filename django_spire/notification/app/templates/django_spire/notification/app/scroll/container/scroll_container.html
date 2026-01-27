@@ -1,0 +1,48 @@
+{% extends 'django_spire/infinite_scroll/base.html' %}
+
+{% block scroll_wrapper_class %}bg-app-layer-two{% endblock %}
+
+{% block scroll_container %}
+    <div class="row">
+        <div class="col-12">
+            <div
+                :style="window.innerWidth < 768
+                ? 'width: 350px; position: fixed; top: 5%; left: 50%; transform: translateX(-50%);'
+                : 'width: 350px'"
+                style="overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+                x-ref="scroll_container"
+            >
+                <div x-ref="content_container">
+                </div>
+
+                <div style="height: 10px;" x-ref="infinite_scroll_trigger"></div>
+            </div>
+
+            <template x-if="show_loading && !is_refreshing">
+                <div
+                    class="position-absolute d-flex justify-content-center align-items-center"
+                    style="top: 0; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--app-layer-one) 85%, transparent);"
+                >
+                    <div class="spinner-border text-app-primary" role="status"></div>
+                </div>
+            </template>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scroll_footer %}
+    <div class="row text-center border-top border-dark-subtle m-0">
+        <div class="col-12">
+            <span class="fs-7 text-app-secondary">
+                Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> {{ footer_label|default:'items' }}
+            </span>
+        </div>
+
+        <div class="col-12 fs-7 text-center py-1">
+            {% if not app_notification_list_url %}
+                {% url "django_spire:notification:app:page:list" as app_notification_list_url %}
+            {% endif %}
+            <a href='{{ app_notification_list_url }}' class="text-decoration-none text-app-secondary my-2">View All</a>
+        </div>
+    </div>
+{% endblock %}
