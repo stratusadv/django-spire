@@ -65,10 +65,7 @@ def task_choices_api(request):
 Frontend receives:
 ```json
 {
-  "id": 1,
-  "name": "Build admin panel",
-  "status": "inp",
-  "available_statuses": [
+  "status_choices": [
     ["new", "New"],
     ["inp", "In Progress"],
     ["com", "Complete"],
