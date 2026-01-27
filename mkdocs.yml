@@ -41,6 +41,7 @@ nav:
           - SMS Conversation: app_guides/ai/sms/overview.md
       - Contrib:
           - Admin: app_guides/contrib/admin.md
+          - Choices: app_guides/contrib/choices.md
       - Core:
           - Shortcuts: app_guides/core/shortcuts.md
           - Filtering: app_guides/core/filtering.md

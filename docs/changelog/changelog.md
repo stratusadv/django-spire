@@ -1,11 +1,5 @@
 # Changelog
 
-## v0.24.2
-
-### Changes
-
-- Overhauled `BaseDjangoModelService.save_model_obj` to be more simple and flexible in its implementation and usage.
-
 ## v0.24.3
 
 ### Features
@@ -18,6 +12,15 @@
 
 ### Fixes
 - Added infinite scrolling to `AppNotification` dropdown and list page.
+
+## v0.24.2
+
+### Features
+- Added `not_deleted()` to `HistoryQuerySet`
+
+### Changes
+
+- Overhauled `BaseDjangoModelService.save_model_obj` to be more simple and flexible in its implementation and usage.
 
 ## v0.24.1
 
