@@ -33,6 +33,11 @@ class SpireModelAdmin(admin.ModelAdmin):
         if cls.model_class is None:
             raise ValueError(f'{cls.__name__} must define model_class')
 
+        if cls.model_class is not None:
+            cls._configure_if_needed()
+
+    @classmethod
+    def _configure_if_needed(cls):
         if not hasattr(cls, '_spire_configured'):
             cls._configure_list_display()
             cls._configure_list_filter()

@@ -7,8 +7,10 @@
 - Added `copy_to_clipboard_element` and added it as an option to include on `attribute_element`.
 - Added `SpireTextChoice` to allow for quick conversion of `models.TextChoices` to glue select field choices through `SpireTextChoices.to_glue_choices()`.
 - Added more flexibility to allow for `ellipses_model_dropdown` template to direct specific views instead of added them to modals.
+- Added new `SpireModelAdmin` to quickly spin up basic admin panels with no boilerplate.
+- Added app guides for `SpireModelAdmin` and `OrderingMixin`
 
-# Fixes
+### Fixes
 - Added infinite scrolling to `AppNotification` dropdown and list page.
 
 ## v0.24.1
