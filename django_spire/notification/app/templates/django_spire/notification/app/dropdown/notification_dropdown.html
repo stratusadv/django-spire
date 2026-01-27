@@ -44,5 +44,5 @@
 {% block dropdown_position %}top-100 end-50{% endblock %}
 
 {% block dropdown_content %}
-    <div x-ref="spire_notification_dropdown_content"></div>
+    <div :style="{ width: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px' }" x-ref="spire_notification_dropdown_content"></div>
 {% endblock %}

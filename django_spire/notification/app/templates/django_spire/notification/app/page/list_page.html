@@ -1,5 +1,5 @@
 {% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_content %}
-    {% include "django_spire/notification/app/card/list_card.html" %}
+    {% include "django_spire/card/infinite_scroll_card.html" with card_title='Notifications' endpoint=notification_endpoint scroll_height='55vh' %}
 {% endblock  %}
