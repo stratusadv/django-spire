@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 from django_spire.contrib.generic_views import portal_views
 
@@ -15,18 +16,9 @@ if TYPE_CHECKING:
 
 @login_required()
 def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
-    app_notification_list = (
-        AppNotification.objects.active()
-        .is_sent()
-        .annotate_is_viewed_by_user(request.user)
-        .select_related('notification')
-        .distinct()
-        .ordered_by_priority_and_sent_datetime()
-    )
-
     return portal_views.list_view(
         request,
-        context_data={'notification_list': app_notification_list},
+        context_data={'notification_endpoint': reverse('django_spire:notification:app:template:scroll_items')},
         model=AppNotification,
         template='django_spire/notification/app/page/list_page.html'
     )

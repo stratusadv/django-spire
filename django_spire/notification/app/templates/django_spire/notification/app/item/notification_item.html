@@ -1,25 +1,26 @@
-<div class="row pt-1 px-3">
-    <div class="col-12">
-            <div class="row bg-app-layer-two-hover rounded">
-                {% if app_notification.notification.url %}
-                    <a href="{{ app_notification.notification.url }}" class="col-12">
-                {% endif %}
-                        <div class="col-12">
-                            <div>
-                                <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span>
-                                {% if not app_notification.viewed %}
-                                    {% include 'django_spire/badge/primary_badge.html' with badge_text='New' %}
-                                {% endif %}
-                            </div>
-                            <span class="fs--1">{{ app_notification.notification.body }}</span><br>
-                            <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
-                        </div>
-                {% if app_notification.notification.url %}
-                    </a>
-                {% endif %}
-            </div>
-    </div>
-    {% if not forloop.last %}
-        <hr class="m-0 mt-1">
+{% extends 'django_spire/item/infinite_scroll_item.html' %}
+
+{% block item_content %}
+    {% if app_notification.notification.url %}
+    <a href="{{ app_notification.notification.url }}"
+    {% else %}
+    <div
     {% endif %}
-</div>
+        class="row bg-app-layer-two-hover rounded m-0"
+    >
+        <div  class="col-12">
+            <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span>
+            {% if not app_notification.viewed %}
+                {% include 'django_spire/badge/primary_badge.html' with badge_text='New' %}
+            {% endif %}
+        </div>
+        <div class="col-12">
+            <span class="fs--1">{{ app_notification.notification.body }}</span><br>
+            <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
+        </div>
+    {% if app_notification.notification.url %}
+    </a>
+    {% else %}
+    </div>
+    {% endif %}
+{% endblock %}

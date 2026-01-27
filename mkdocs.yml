@@ -39,6 +39,9 @@ nav:
           - Usage & Interactions: app_guides/ai/overview.md
           - Chat Assistant: app_guides/ai/chat/overview.md
           - SMS Conversation: app_guides/ai/sms/overview.md
+      - Contrib:
+          - Admin: app_guides/contrib/admin.md
+          - Choices: app_guides/contrib/choices.md
       - Core:
           - Shortcuts: app_guides/core/shortcuts.md
           - Filtering: app_guides/core/filtering.md
@@ -49,6 +52,8 @@ nav:
           - App Notifications: app_guides/notification/app_notifications.md
           - Email Notifications: app_guides/notification/email_notifications.md
           - SMS Notifications: app_guides/notification/sms_notifications.md
+      - Ordering:
+          - Ordering: app_guides/ordering/ordering.md
       - Seeding:
           - Overview: app_guides/seeding/overview.md
           - Getting Started: app_guides/seeding/getting_started.md
@@ -56,7 +61,7 @@ nav:
       - Service Layer:
           - Overview: app_guides/service/overview.md
   - Components:
-      - Accordian: components/accordian.md
+      - Accordion: components/accordian.md
       - Badge: components/badge.md
       - Button: components/button.md
       - Card: components/card.md
@@ -138,3 +143,4 @@ theme:
 watch:
   - django_spire
   - test_project
+  - docs

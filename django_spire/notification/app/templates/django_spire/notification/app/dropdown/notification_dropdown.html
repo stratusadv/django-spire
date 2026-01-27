@@ -4,28 +4,28 @@
     <div x-data="{
         new_notification: false,
         async init(){
-            await this.check_new_notifications()
+            await this.check_new_notifications();
             setInterval(await this.check_new_notifications, 30000);
         },
 
         async check_new_notifications(){
-            let url = '{% url "django_spire:notification:app:json:check_new" %}'
-            let response = await django_glue_fetch(url)
-            this.new_notification = response.has_new_notifications
+            let url = '{% url "django_spire:notification:app:json:check_new" %}';
+            let response = await django_glue_fetch(url);
+            this.new_notification = response.has_new_notifications;
         },
 
         async render_dropdown(){
             let dropdown_content = new ViewGlue(
                 url='{% url "django_spire:notification:app:template:notification_dropdown" %}',
                 shared_payload={app_notification_list_url: '{{ app_notification_list_url|default:"" }}'}
-            )
-            await dropdown_content.render_inner($refs.spire_notification_dropdown_content)
-            await this.mark_notifications_as_viewed()
+            );
+            await dropdown_content.render_inner($refs.spire_notification_dropdown_content);
+            await this.mark_notifications_as_viewed();
         },
 
         async mark_notifications_as_viewed(){
-            let response = await django_glue_fetch('{% url "django_spire:notification:app:json:set_viewed" %}')
-            this.new_notification = false
+            let response = await django_glue_fetch('{% url "django_spire:notification:app:json:set_viewed" %}');
+            this.new_notification = false;
         }
 
     }"
@@ -44,5 +44,5 @@
 {% block dropdown_position %}top-100 end-50{% endblock %}
 
 {% block dropdown_content %}
-    <div x-ref="spire_notification_dropdown_content"></div>
+    <div :style="{ width: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px' }" x-ref="spire_notification_dropdown_content"></div>
 {% endblock %}
