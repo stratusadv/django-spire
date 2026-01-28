@@ -1,5 +1,10 @@
 # Changelog
 
+## vX.XX.X
+
+### Changes
+- Updated `django-glue` requirement to v0.8.12.
+
 ## v0.24.3
 
 ### Features

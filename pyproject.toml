@@ -45,7 +45,7 @@ dependencies = [
     "dandy>=1.3.5",
     "django>=5.1.8",
     "django-crispy-forms==2.3",
-    "django-glue>=0.8.1",
+    "django-glue>=0.8.12",
     "django-sendgrid-v5",
     "django-storages==1.14.5",
     "docutils",
