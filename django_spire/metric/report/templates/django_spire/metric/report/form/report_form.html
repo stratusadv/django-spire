@@ -4,7 +4,7 @@
     <div class="col-11 col-md-10 col-lg-8 col-xl-6 mx-auto my-3">
 
         <div class="row">
-            <div class="col fs-5 text-center">
+            <div class="col h5 text-center text-app-primary">
                 {{ report.title }}
             </div>
         </div>
@@ -23,12 +23,19 @@
 
             {% for argument, params in report_run_arguments.items %}
                 <div class="row">
-                    <div class="col mb-2">
-
+                    <div class="col">
                         <label class="form-label">
-                            {{ argument|underscores_to_spaces|title }}
+                            {{ argument|underscores_to_spaces|title }} <span class="text-danger">*</span>
                         </label>
-                        {% if params.annotation == 'str' %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col mb-2 ps-4">
+                        {% if params.annotation == 'date' %}
+                            <input class="form-control" type="date" name="{{ argument }}" value="{{ params.default|date:'Y-m-d' }}">
+                        {% elif params.annotation == 'datetime' %}
+                            <input class="form-control" type="datetime-local" name="{{ argument }}" value="{{ params.default|date:'Y-m-d\\TH:i:s' }}">
+                        {% elif params.annotation == 'str' %}
                             <input class="form-control" type="text" name="{{ argument }}" value="{{ params.default }}">
                         {% elif params.annotation == 'int' %}
                             <input class="form-control" type="number" name="{{ argument }}"
@@ -37,22 +44,37 @@
                             <input class="form-control" type="number" name="{{ argument }}"
                                    value="{{ params.default }}">
                         {% elif params.annotation == 'bool' %}
-                            <br><input class="form-check-input" type="checkbox" name="{{ argument }}"
-                                       value="{{ params.default }}">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" {% if params.default %}checked{% endif %} id="flexSwitchCheckDefault">
+                            </div>
+                        {% elif params.annotation == 'multi_select' %}
+                            <select class="form-select" multiple size="8" name="{{ argument }}" aria-selected="{{ params.default }}">
+                                {% for key, val in params.choices %}
+                                    <option value="{{ key }}">{{ val }}</option>
+                                {% endfor %}
+                            </select>
                         {% elif params.annotation == 'select' %}
                             <select class="form-select" name="{{ argument }}" aria-selected="{{ params.default }}">
                                 {% for key, val in params.choices %}
                                     <option value="{{ key }}">{{ val }}</option>
                                 {% endfor %}
                             </select>
+                        {% else %}
+                            <br>
+                            <span class="text-danger">Unsupported parameter type: {{ params.annotation }}</span>
                         {% endif %}
                     </div>
                 </div>
             {% endfor %}
 
-            <div class="row">
-                <div class="col mt-3 text-center">
-                    <input class="btn btn-primary" type="submit" value="Run Report">
+            <div x-data="{
+                loading: false
+            }" class="row">
+                <div class="col mt-3 text-center" x-show="!loading">
+                    <input class="btn btn-app-primary" @click="loading = true" type="submit" value="Run Report">
+                </div>
+                <div class="col mt-3 text-center text-app-primary" x-show="loading">
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </div>
             </div>
             <div class="row">

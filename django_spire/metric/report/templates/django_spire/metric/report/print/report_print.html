@@ -2,41 +2,41 @@
 
 <div class="row mb-1 font-monospace">
     <div class="col">
-        <div class="fw-bold">
+        <div class="h5 fw-bold">
             {{ report.title }}
         </div>
     </div>
 </div>
 
-<div class="row mx-0 mb-3 text-muted fw-normal fs--2 border font-monospace">
+<div class="row mx-0 mb-3 text-muted fw-normal fs-print-2 border font-monospace">
     {% if report.description %}
         <div class="col-auto ps-1 pe-3">
-            Description: {{ report.description }}
+            Description: <span class="fw-bold">{{ report.description }}</span>
         </div>
     {% endif %}
-        <div class="col-auto ps-1 pe-3">
-        Printed On: {% now "D, M j, Y" %} at {% now "g:i A" %}
+    <div class="col-auto ps-1 pe-3">
+        Printed On: <span class="fw-bold">{% now "D, M j, Y" %} at {% now "g:i A" %}</span>
     </div>
-        <div class="col-auto ps-1 pe-3">
-        Financially Accurate: {% if report.is_financially_accurate %}True{% else %}False{% endif %}
+    <div class="col-auto ps-1 pe-3">
+        Financially Accurate: <span class="fw-bold">{% if report.is_financially_accurate %}True{% else %}False{% endif %}</span>
     </div>
     {% for argument, value in report_run_arguments_values.items %}
         <div class="col-auto ps-1 pe-3">
-            {{ argument|underscores_to_spaces|title }}: {{ value }}
+            {{ argument|underscores_to_spaces|title }}: <span class="fw-bold">{{ value }}</span>
         </div>
     {% endfor %}
 </div>
 
 <div class="row">
-    <div class="col fs--2">
+    <div class="col fs-print-2">
 
-        <table class="table table-sm table-hover table-print">
+        <table class="table table-sm table-hover table-print align-middle">
             <thead>
             {% for column in report.columns %}
-                <th class="align-text-top {{ column.css_class }}">
+                <th class="align-text-top {{ column.css_class }}" style="border-bottom-width: 4px;">
                     {{ column.title }}
                     {% if column.sub_title %}
-                        <span class="text-muted fw-normal fs--2">
+                        <span class="text-muted fw-normal fs-print-3">
                             <br>{{ column.sub_title }}
                         </span>
                     {% endif %}
@@ -45,12 +45,24 @@
             </thead>
             <tbody>
             {% for row in report.rows %}
+                {% if row.page_break %}
+                    <tr style="page-break-before: always;"></tr>
+                {% endif %}
                 <tr class="{% if row.bold %}fw-bold{% endif %}"
-                    {% if row.page_break %}style="page-break-before: always;"{% endif %}>
+                    style="{% if row.border_top %}border-top-width: 4px;{% endif %}{% if row.border_bottom %}border-bottom-width: 4px;{% endif %}">
                     {% if row.span_all_columns %}
                         <td colspan="{{ report.column_count }}">
                             {% for cell in row.cells %}
-                                {{ cell.value|safe }}
+                                {% if cell.value %}
+                                    {{ cell.value }}
+                                {% else %}
+                                    &nbsp;
+                                {% endif %}
+                                {% if cell.sub_value %}
+                                    <span class="text-muted fw-normal fs-print-3">
+                                        <br>{{ cell.sub_value_verbose }}
+                                    </span>
+                                {% endif %}
                             {% endfor %}
                         </td>
                     {% else %}
@@ -58,8 +70,9 @@
                             <td class="{{ cell.css_class }}">
                                 {{ cell.value_verbose }}
                                 {% if cell.sub_value %}
-                                    <br>
-                                    {{ cell.sub_value_verbose }}
+                                    <span class="text-muted fw-normal fs-print-3">
+                                        <br>{{ cell.sub_value_verbose }}
+                                    </span>
                                 {% endif %}
                             </td>
                         {% endfor %}
