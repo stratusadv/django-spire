@@ -1,8 +1,13 @@
 # Changelog
 
-## vX.XX.X
+## v0.25.0
+
+### Features
+
+- `Report` App has had significant updates and improvements to renderering.
 
 ### Changes
+
 - Updated `django-glue` requirement to v0.8.12.
 
 ## v0.24.3
@@ -16,11 +21,13 @@
 - Added app guides for `SpireModelAdmin` and `OrderingMixin`
 
 ### Fixes
+- 
 - Added infinite scrolling to `AppNotification` dropdown and list page.
 
 ## v0.24.2
 
 ### Features
+- 
 - Added `not_deleted()` to `HistoryQuerySet`
 
 ### Changes
