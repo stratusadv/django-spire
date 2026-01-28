@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.24.4
+
+### Features
+
+- Added `model_app_label` and `model_name` template tags to enable quick access to those Django model metadata
+  properties in templates.
+- Added `button_modal_href` to `base_button` to allow easily wiring up buttons to glue view modals (similar to
+  `ellipsis_dropdown_modal_link_element`).
+
+### Fixes
+
+- Update and fix comment app to enable basic CRUD functionality.
+
 ## v0.24.3
 
 ### Features
@@ -30,10 +43,10 @@
 
 ## v0.24.00
 
-### Features
+### Features[consts.py](../../django_spire/consts.py)
 
 - New `Report` App added for easily creating printable reports.
-  - Located at `django_spire.metric.report` with its own auth controller.
+  - Located at `django_spire.metric.report`[consts.py](../../django_spire/consts.py) with its own auth controller.
   - Check out the documentation for more information.
 
 ## v0.23.13

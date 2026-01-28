@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class CommentModelMixin(models.Model):
     comments = GenericRelation(
-        'comment.Comment',
+        Comment,
         related_query_name='comment',
         editable=False
     )
