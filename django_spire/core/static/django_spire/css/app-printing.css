@@ -1,4 +1,29 @@
+.fs-print-1 {
+    font-size: 1.0rem !important;
+}
+
+.fs-print-2 {
+    font-size: 0.90rem !important;
+}
+
+.fs-print-3 {
+    font-size: 0.70rem !important;
+}
+
 @media print {
+
+    .fs-print-1 {
+        font-size: .80rem !important;
+    }
+
+    .fs-print-2 {
+        font-size: .70rem !important;
+    }
+
+    .fs-print-3 {
+        font-size: .55rem !important;
+    }
+
     .hide-on-print {
         display: none !important;
     }

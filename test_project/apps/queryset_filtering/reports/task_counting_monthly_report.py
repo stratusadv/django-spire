@@ -1,6 +1,7 @@
 import random
+from time import sleep
 
-from django_spire.metric.report.report import BaseReport
+from django_spire.metric.report import BaseReport, helper
 
 
 class TaskCountingMonthlyReport(BaseReport):
@@ -18,13 +19,15 @@ class TaskCountingMonthlyReport(BaseReport):
 
     def run(
             self,
-            start_date: str = '2022-01-01',
+            start_date: str = helper.today.date().isoformat(),
             task_limit: int = 100,
             quality_limit: float = 20.0,
             show_puppets: bool = True,
             people: int = 0,
     ):
-        self.add_column(f'People ({people})')
+        sleep(1.0) # Simulate loading!
+
+        self.add_column(f'People', sub_title=start_date)
         self.add_column('Type', type=self.ColumnType.CHOICE)
         self.add_column('Quality', type=self.ColumnType.PERCENT)
         self.add_column('Tasks', type=self.ColumnType.NUMBER)
@@ -36,7 +39,7 @@ class TaskCountingMonthlyReport(BaseReport):
         types = ['bug', 'feature', 'enhancement', 'documentation']
         names = ['tom', 'jerry', 'sally', 'bob', 'alice']
 
-        self.add_divider_row('Main Tasks')
+        self.add_divider_row('Main Tasks', description='This section shows the main tasks')
 
         for _ in range(1, 60):
             self.add_row([
@@ -48,11 +51,19 @@ class TaskCountingMonthlyReport(BaseReport):
                 random.randint(10, 99),
                 random.randint(10, 99),
                 random.randint(100_000, 1_999_999),
+            ], cell_sub_values=[
+                start_date,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                'Tacos',
             ])
 
         self.add_blank_row()
-        self.add_page_break()
-        self.add_divider_row('Internal Tasks')
+        self.add_divider_row('Internal Tasks', page_break=True)
 
         for _ in range(1, 20):
             self.add_row([
@@ -67,7 +78,6 @@ class TaskCountingMonthlyReport(BaseReport):
             ])
 
         self.add_blank_row()
-        self.add_page_break()
         self.add_divider_row('Extra Tasks', page_break=True)
 
         for _ in range(1, 20):

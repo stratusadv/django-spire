@@ -31,27 +31,28 @@ class ReportCell:
     def css_class(self) -> str:
         return get_text_alignment_css_class(self.type)
 
-    def cell_value_verbose(self, value):
-        if self.type == ColumnType.DOLLAR:
+    @staticmethod
+    def cell_value_verbose(value, cell_type):
+        if cell_type == ColumnType.DOLLAR:
             return f"${float(value):,.2f}"
-        elif self.type == ColumnType.NUMBER:
+        elif cell_type == ColumnType.NUMBER:
             return f"{float(value):,.0f}"
-        elif self.type == ColumnType.PERCENT:
+        elif cell_type == ColumnType.PERCENT:
             return f"{float(value):.1f}%"
-        elif self.type == ColumnType.DECIMAL_1:
+        elif cell_type == ColumnType.DECIMAL_1:
             return f"{float(value):.1f}"
-        elif self.type == ColumnType.DECIMAL_2:
+        elif cell_type == ColumnType.DECIMAL_2:
             return f"{float(value):.2f}"
-        elif self.type == ColumnType.DECIMAL_3:
+        elif cell_type == ColumnType.DECIMAL_3:
             return f"{float(value):.3f}"
 
         return str(value)
 
     def value_verbose(self):
-        return self.cell_value_verbose(self.value)
+        return self.cell_value_verbose(self.value, self.type)
 
     def sub_value_verbose(self):
-        return self.cell_value_verbose(self.sub_value)
+        return self.cell_value_verbose(self.sub_value, self.sub_type)
 
 
 @dataclass
@@ -110,10 +111,19 @@ class BaseReport(ABC):
     def run(self, **kwargs: Any):
         raise NotImplementedError
 
-    def add_blank_row(self):
+    def add_blank_row(
+            self,
+            text: str = '',
+            border_top: bool = False,
+            border_bottom: bool = False
+    ):
         self.add_row(
-            cell_values=['&nbsp;'],
+            cell_values=[
+                text if text != '' else '&nbsp;'
+            ],
             span_all_columns=True,
+            border_top=border_top,
+            border_bottom=border_bottom,
         )
 
     def add_column(
@@ -131,24 +141,30 @@ class BaseReport(ABC):
     def add_divider_row(
             self,
             title: str,
+            description: str | None = None,
             page_break: bool = False,
+            border_bottom: bool = True,
     ):
         self.add_row(
             cell_values=[title],
+            cell_sub_values=[description] if description else None,
             bold=True,
             page_break=page_break,
             span_all_columns=True,
+            border_bottom=border_bottom,
         )
 
     def add_footer_row(
             self,
             cell_values: list[Any],
             cell_sub_values: list[Any] | None = None,
+            border_top: bool = True,
     ):
         self.add_row(
             cell_values=cell_values,
             cell_sub_values=cell_sub_values,
             bold=True,
+            border_top=border_top,
         )
 
     def add_row(
@@ -191,11 +207,3 @@ class BaseReport(ABC):
                 border_bottom=border_bottom,
             )
         )
-
-    def add_page_break(self):
-        self.add_row(
-            cell_values=[''],
-            span_all_columns=True,
-            page_break=True,
-        )
-
