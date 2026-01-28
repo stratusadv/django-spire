@@ -5,6 +5,7 @@ from dataclasses import field
 from typing import Literal, Callable, Any
 
 from django_spire.metric.report.enums import ColumnType
+from django_spire.metric.report.helper import Helper
 from django_spire.metric.report.tools import get_text_alignment_css_class
 
 ColumnLiteralType = Literal['text', 'choice', 'number', 'dollar', 'percent']
@@ -71,6 +72,7 @@ class BaseReport(ABC):
     description: str | None = None
     is_financially_accurate: bool = False
     ColumnType: type[ColumnType] = ColumnType
+    helper: Helper = Helper()
 
     def __init__(self):
         if not self.title:
@@ -100,8 +102,15 @@ class BaseReport(ABC):
             choices_method = getattr(self, f'{name}_choices', None)
 
             if choices_method and isinstance(choices_method, Callable):
-                arguments[name]['choices'] = choices_method()
-                arguments[name]['annotation'] = 'select'
+                choices = tuple(choices_method())
+
+                self.validate_choices(tuple(choices))
+
+                arguments[name]['choices'] = choices
+                if param.annotation.__name__ == 'list':
+                    arguments[name]['annotation'] = 'multi_select'
+                else:
+                    arguments[name]['annotation'] = 'select'
             else:
                 arguments[name]['annotation'] = param.annotation.__name__
 
@@ -114,14 +123,16 @@ class BaseReport(ABC):
     def add_blank_row(
             self,
             text: str = '',
+            page_break: bool = False,
             border_top: bool = False,
             border_bottom: bool = False
     ):
         self.add_row(
             cell_values=[
-                text if text != '' else '&nbsp;'
+                text
             ],
             span_all_columns=True,
+            page_break=page_break,
             border_top=border_top,
             border_bottom=border_bottom,
         )
@@ -207,3 +218,36 @@ class BaseReport(ABC):
                 border_bottom=border_bottom,
             )
         )
+
+    @staticmethod
+    def validate_choices(choices: tuple):
+        if not isinstance(choices, tuple):
+            raise TypeError(f'choices must be a tuple not {type(choices)}')
+        if not all(isinstance(item, tuple) and len(item) == 2 for item in choices):
+            raise ValueError('choices must contain tuples of length 2')
+
+    def to_markdown(self) -> str:
+        markdown = ''
+
+        for column in self.columns:
+            markdown += f'| {column.title} '
+
+        markdown += '|\n'
+
+        for column in self.columns:
+            markdown += '| ' + '-' * len(column.title) + ' '
+
+        markdown += '|\n'
+
+        for row in self.rows:
+            if row.span_all_columns:
+                markdown += f'| {row.cells[0].value}' + '|' * len(self.columns) + '\n'
+                continue
+
+            else:
+                for cell in row.cells:
+                    markdown += f'| {cell.value_verbose()} '
+
+            markdown += '|\n'
+
+        return markdown

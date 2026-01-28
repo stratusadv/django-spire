@@ -6,6 +6,18 @@ from django.utils.timezone import now
 
 class Helper:
     @property
+    def thirty_days_ago(self) -> datetime:
+        return self.today - timedelta(days=30)
+
+    @property
+    def sixty_days_ago(self) -> datetime:
+        return self.today - timedelta(days=60)
+
+    @property
+    def ninety_days_ago(self) -> datetime:
+        return self.today - timedelta(days=90)
+
+    @property
     def today(self) -> datetime:
         return now()
 
@@ -16,6 +28,22 @@ class Helper:
     @property
     def yesterday(self) -> datetime:
         return self.today - timedelta(days=1)
+
+    @property
+    def start_of_current_week(self) -> datetime:
+        return self.today - timedelta(days=self.today.weekday())
+
+    @property
+    def end_of_current_week(self) -> datetime:
+        return self.start_of_week + timedelta(days=6)
+
+    @property
+    def start_of_last_week(self) -> datetime:
+        return self.start_of_week - timedelta(days=6)
+
+    @property
+    def end_of_last_week(self) -> datetime:
+        return self.end_of_week - timedelta(days=6)
 
     @property
     def start_of_current_month(self) -> datetime:
@@ -62,6 +90,3 @@ class Helper:
         day = min(datetime_.day, calendar.monthrange(year, month)[1])
 
         return datetime_.replace(year=year, month=month, day=day)
-
-
-helper = Helper()
