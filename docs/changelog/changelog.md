@@ -8,10 +8,13 @@
   properties in templates.
 - Added `button_modal_href` to `base_button` to allow easily wiring up buttons to glue view modals (similar to
   `ellipsis_dropdown_modal_link_element`).
+- Added optional `activity_user` parameter to `BaseDjangoModelService.save_model_obj` to more easily add activity when
+  saving objects.
 
 ### Fixes
 
 - Update and fix comment app to enable basic CRUD functionality.
+- Fixed `show_form_errors` and `form_errors_as_list` type hinting
 
 ## v0.25.0
 

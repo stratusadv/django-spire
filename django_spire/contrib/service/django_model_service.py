@@ -1,19 +1,17 @@
 from __future__ import annotations
 
 import logging
-
 from abc import ABC
 from itertools import chain
 from typing import Generic, TypeVar
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import Model, Field, AutoField, ForeignObjectRel, FileField
+from django.db.models import Model, AutoField, FileField
 
-from django_spire.contrib.constructor.django_model_constructor import BaseDjangoModelConstructor
+from django_spire.contrib.constructor.django_model_constructor import \
+    BaseDjangoModelConstructor
 from django_spire.contrib.service.exceptions import ServiceError
-
-
 
 log = logging.getLogger(__name__)
 
@@ -68,7 +66,11 @@ class BaseDjangoModelService(
                 field.save_form_data(self.obj, field_data[field.name])
 
     @transaction.atomic
-    def save_model_obj(self, **field_data: dict | None) -> tuple[Model, bool]:
+    def save_model_obj(
+        self,
+        activity_user: User | None = None,
+        **field_data: dict | None,
+    ) -> tuple[Model, bool]:
         """
         This is the core service method for saving a Django model object with field data provided via kwargs.
         It will update the object with the given kwargs and handle any upstream attribute changes that were applied
@@ -85,7 +87,10 @@ class BaseDjangoModelService(
         in the django code that it is emulating, and therefore does not perform any validation 
         on the data or the model instance as it is assumed that field_data has already been validated upstream.
 
+        A `User` can be passed to the optional `activity_user` parameter to add a basic activity record for the object and user.
+
         Args:
+            activity_user: User | None,
             **field_data:
 
         Returns:
@@ -99,4 +104,20 @@ class BaseDjangoModelService(
         self.obj.save()
         self._set_m2m_fields(**field_data)
 
+        if activity_user:
+            if not hasattr(self.obj, 'add_activity'):
+                raise ServiceError(
+                    f'Tried to add activity when saving model object but {self.obj_class.__name__} '
+                    f'has no add_activity.'
+                )
+
+            verb = 'created' if new_model_obj_was_created else 'edited'
+
+            self.obj.add_activity(
+                user=activity_user,
+                verb=verb,
+                information=f'{activity_user.get_full_name()} {verb} {self.obj_class.__name__} {self.obj}'
+            )
+
         return self.obj, new_model_obj_was_created
+

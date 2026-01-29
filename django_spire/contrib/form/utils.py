@@ -6,10 +6,10 @@ from django.contrib import messages
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.forms import Form
+    from django.forms import BaseForm
 
 
-def form_errors_as_list(form: Form) -> list[str]:
+def form_errors_as_list(form: BaseForm) -> list[str]:
     form_errors = []
 
     for field_name, error_list in form.errors.items():
@@ -34,7 +34,7 @@ def form_errors_as_list(form: Form) -> list[str]:
     return form_errors
 
 
-def show_form_errors(request: WSGIRequest, *forms: Form) -> None:
+def show_form_errors(request: WSGIRequest, *forms: BaseForm) -> None:
     for form in forms:
         for error in form_errors_as_list(form):
             messages.error(request=request, message=error)
