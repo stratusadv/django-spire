@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.25.1
+
+### Fixes
+
+- Fixed issue with `Report` App where `annotation` was not casting for the run signature.
+
 ## v0.25.0
 
 ### Features

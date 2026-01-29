@@ -98,6 +98,7 @@ class BaseReport(ABC):
         for name, param in signature.parameters.items():
             arguments[name] = {}
             arguments[name]['default'] = param.default
+            arguments[name]['annotation_class'] = param.annotation
 
             choices_method = getattr(self, f'{name}_choices', None)
 
