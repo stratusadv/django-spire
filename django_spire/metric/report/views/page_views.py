@@ -83,7 +83,12 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         get_request_value = request.GET.getlist(argument, [])
 
                     else:
-                        get_request_value = request.GET.get(argument, None)
+                        value = request.GET.get(argument, None)
+
+                        if value:
+                            get_request_value = context_data['report_run_arguments'][argument]['annotation_class'](value)
+                        else:
+                            get_request_value = value
 
                     context_data['report_run_arguments_values'][argument] = get_request_value
 
