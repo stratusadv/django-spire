@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.24.4
+## v0.25.1
 
 ### Features
 
@@ -13,18 +13,15 @@
 
 - Update and fix comment app to enable basic CRUD functionality.
 
-## v0.24.3
+## v0.25.0
 
 ### Features
 
-- Added `copy_to_clipboard_element` and added it as an option to include on `attribute_element`.
-- Added `SpireTextChoice` to allow for quick conversion of `models.TextChoices` to glue select field choices through `SpireTextChoices.to_glue_choices()`.
-- Added more flexibility to allow for `ellipses_model_dropdown` template to direct specific views instead of added them to modals.
-- Added new `SpireModelAdmin` to quickly spin up basic admin panels with no boilerplate.
-- Added app guides for `SpireModelAdmin` and `OrderingMixin`
+- `Report` App has had significant updates and improvements to renderering.
 
-### Fixes
-- Added infinite scrolling to `AppNotification` dropdown and list page.
+### Changes
+
+- Updated `django-glue` requirement to v0.8.12.
 
 ## v0.24.2
 
@@ -43,10 +40,10 @@
 
 ## v0.24.00
 
-### Features[consts.py](../../django_spire/consts.py)
+### Features
 
 - New `Report` App added for easily creating printable reports.
-  - Located at `django_spire.metric.report`[consts.py](../../django_spire/consts.py) with its own auth controller.
+  - Located at `django_spire.metric.report` with its own auth controller.
   - Check out the documentation for more information.
 
 ## v0.23.13
