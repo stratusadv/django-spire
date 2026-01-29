@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.25.1
+## v0.25.2
 
 ### Features
 
@@ -15,6 +15,12 @@
 
 - Update and fix comment app to enable basic CRUD functionality.
 - Fixed `show_form_errors` and `form_errors_as_list` type hinting
+
+## v0.25.1
+
+### Fixes
+
+- Fixed issue with `Report` App where `annotation` was not casting for the run signature.
 
 ## v0.25.0
 
