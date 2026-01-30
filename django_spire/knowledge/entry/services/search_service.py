@@ -4,9 +4,8 @@ from functools import reduce
 from operator import or_
 from typing import TYPE_CHECKING
 
-from django.contrib.postgres.search import SearchQuery, SearchRank, TrigramSimilarity
-from django.db.models import F, Q, Value
-from django.db.models.functions import Coalesce
+from django.db import connection
+from django.db.models import Q
 
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.knowledge.intelligence.workflows.search_preprocessing_workflow import preprocess_search_query
@@ -41,8 +40,6 @@ class EntrySearchService(BaseDjangoModelService['Entry']):
         if not primary_query:
             return self.obj_class.objects.none()
 
-        search_query = SearchQuery(primary_query, search_type='websearch', config='english')
-
         word_filters = []
 
         for word in all_terms:
@@ -51,6 +48,18 @@ class EntrySearchService(BaseDjangoModelService['Entry']):
                 word_filters.append(Q(_search_text__icontains=word))
 
         combined_word_filter = reduce(or_, word_filters) if word_filters else Q()
+
+        if connection.vendor == 'postgresql':
+            return self._postgres_search(primary_query, combined_word_filter)
+
+        return self._fallback_search(combined_word_filter)
+
+    def _postgres_search(self, primary_query: str, combined_word_filter: Q) -> QuerySet[Entry]:
+        from django.contrib.postgres.search import SearchQuery, SearchRank, TrigramSimilarity
+        from django.db.models import F, Value
+        from django.db.models.functions import Coalesce
+
+        search_query = SearchQuery(primary_query, search_type='websearch', config='english')
 
         return (
             self.obj_class.objects
@@ -73,5 +82,18 @@ class EntrySearchService(BaseDjangoModelService['Entry']):
                 combined_word_filter
             )
             .order_by('-combined_score', '-id')
+            .distinct()
+        )
+
+    def _fallback_search(self, combined_word_filter: Q) -> QuerySet[Entry]:
+        if not combined_word_filter:
+            return self.obj_class.objects.none()
+
+        return (
+            self.obj_class.objects
+            .active()
+            .has_current_version()
+            .filter(combined_word_filter)
+            .order_by('-id')
             .distinct()
         )
