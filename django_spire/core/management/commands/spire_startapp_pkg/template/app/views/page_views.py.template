@@ -4,10 +4,16 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 from django_spire.contrib.generic_views import portal_views
+from django_spire.core.table.enums import ResponsiveMode
+from django_spire.contrib.session.controller import SessionController
+
 
 from ${module_path} import models
+from ${module_path}.forms import ${model_class_name}ListFilterForm
+from ${module_path}.constants import LIST_FILTERING_SESSION_KEY
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -15,7 +21,7 @@ if TYPE_CHECKING:
 
 
 @permission_required('${permission_prefix}.view_${model_instance_name}')
-def ${detail_page_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
+def ${detail_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
     ${context_single_var} = get_object_or_404(models.${model_class_name}, pk=pk)
 
     context_data = {
@@ -31,9 +37,18 @@ def ${detail_page_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 @permission_required('${permission_prefix}.view_${model_instance_name}')
-def ${list_page_view_name}(request: WSGIRequest) -> TemplateResponse:
+def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
+    models.${model_class_name}.objects.process_session_filter(
+        request=request,
+        session_key=LIST_FILTERING_SESSION_KEY,
+        form_class=${model_class_name}ListFilterForm,
+    )
+
     context_data = {
-        '${context_plural_var}': models.${model_class_name}.objects.all()
+        'responsive_mode': ResponsiveMode.SCROLL,
+        '${context_single_var}_rows_endpoint': reverse('${url_reverse_path}:template:rows'),
+        '${context_single_var}_items_endpoint': reverse('${url_reverse_path}:template:items'),
+        'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
     }
 
     return portal_views.list_view(

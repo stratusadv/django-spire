@@ -11,8 +11,7 @@ from django_spire.core.management.commands.spire_startapp_pkg.config import (
 )
 from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
 from django_spire.core.management.commands.spire_startapp_pkg.generator import (
-    AppGenerator,
-    # TemplateGenerator,
+    AppGenerator, TemplateGenerator,
 )
 from django_spire.core.management.commands.spire_startapp_pkg.processor import (
     TemplateEngine,
@@ -70,10 +69,18 @@ class Command(BaseCommand):
         template_builder = TemplateBuilder(reporter)
 
         app_generator = AppGenerator(filesystem, template_processor, reporter, path_config)
-        # template_generator = TemplateGenerator(filesystem, template_processor, reporter, path_config)
+        template_generator = TemplateGenerator(filesystem, template_processor, reporter,
+                                               path_config)
 
         user_inputs = user_input_collector.collect_all_inputs()
         app_path = user_inputs['app_path']
+
+        skip_app_generation = user_inputs['skip_app_generation']
+        skip_template_generation = user_inputs['skip_template_generation']
+
+        if skip_app_generation and skip_template_generation:
+            reporter.write('Skipped file generation.', reporter.style_notice)
+            return
 
         validator.validate_app_format(app_path)
 
@@ -85,34 +92,44 @@ class Command(BaseCommand):
             reporter.style_notice
         )
 
-        missing = registry.get_missing_components(config.components)
+        if not skip_app_generation:
+            missing = registry.get_missing_components(config.components)
 
-        if missing:
-            reporter.report_missing_components(missing)
+            if missing:
+                reporter.report_missing_components(missing)
 
-            template_builder.build_app_tree_structure(
+                template_builder.build_app_tree_structure(
+                    path_resolver.get_base_dir(),
+                    config.components,
+                    registry.get_installed_apps(),
+                    path_config.app_template
+                )
+
+                if reporter.prompt_confirmation('\nProceed with app creation? (y/n): '):
+                    for module in [missing[-1]]:
+                        module_config = config_factory.create_config(module,
+                                                                     user_inputs)
+
+                    app_generator.generate(module_config)
+
+                    reporter.report_installed_apps_suggestion(missing)
+                else:
+                    reporter.write('Skipping app creation.', reporter.style_notice)
+
+            else:
+                reporter.write('All component(s) exist.', reporter.style_success)
+
+        if not skip_template_generation:
+            template_builder.build_html_tree_structure(
                 path_resolver.get_base_dir(),
                 config.components,
                 registry.get_installed_apps(),
-                path_config.app_template
+                path_config.html_template
             )
 
-            # template_builder.build_html_tree_structure(
-            #     path_resolver.get_base_dir(),
-            #     config.components,
-            #     registry.get_installed_apps(),
-            #     path_config.html_template
-            # )
-
-            if not reporter.prompt_confirmation('\nProceed with app creation? (y/n): '):
-                reporter.write('App creation aborted.', reporter.style_error)
+            if not reporter.prompt_confirmation(
+                    '\nProceed with template creation? (y/n): '):
+                reporter.write('Skipping template creation.', reporter.style_notice)
                 return
 
-            for module in [missing[-1]]:
-                module_config = config_factory.create_config(module, user_inputs)
-                app_generator.generate(module_config)
-                # template_generator.generate(module_config)
-
-            reporter.report_installed_apps_suggestion(missing)
-        else:
-            reporter.write('All component(s) exist.', reporter.style_success)
+            template_generator.generate(config)

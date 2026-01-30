@@ -1,9 +1,9 @@
 {% extends 'django_spire/page/full_page.html' %}
 
-{% block page_content %}
+{% block full_page_content %}
     <div class="row">
         <div class="col-12">
-            {% include '${template_directory_path}/card/${list_card_template_name}' %}
+            {% include '${template_directory_path}/card/${list_card_template_name}.html' %}
         </div>
     </div>
 {% endblock %}

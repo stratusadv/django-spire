@@ -591,14 +591,24 @@ class TemplatePaths:
     """
 
     detail_card_template_name: str
+    detail_container_template_name: str
     detail_page_template_name: str
     form_card_template_name: str
+    form_container_template_name: str
     form_page_template_name: str
     form_template_name: str
     item_template_name: str
+    list_items_card_template_name: str
+    list_table_card_template_name: str
     list_card_template_name: str
+    list_container_template_name: str
+    list_items_template_name: str
+    list_filter_form_template_name: str
     list_page_template_name: str
     template_directory_path: str
+    table_row_template_name: str
+    table_rows_template_name: str
+    table_template_name: str
 
     @classmethod
     def build(
@@ -620,15 +630,31 @@ class TemplatePaths:
             else app_name.lower()
         )
 
+        list_display_type = (
+            user_inputs.get('list_display_type', 'items')
+            if user_inputs
+            else 'items'
+        )
+
         return cls(
-            detail_card_template_name=app_name.lower() + '_detail_card',
-            detail_page_template_name=app_name.lower() + '_detail_page',
-            form_card_template_name=app_name.lower() + '_form_card',
-            form_page_template_name=app_name.lower() + '_form_page',
-            form_template_name=app_name.lower() + '_form',
-            item_template_name=app_name.lower() + '_item',
-            list_card_template_name=app_name.lower() + '_list_card',
-            list_page_template_name=app_name.lower() + '_list_page',
+            detail_card_template_name='detail_card',
+            detail_container_template_name='detail_container',
+            detail_page_template_name='detail_page',
+            form_card_template_name='form_card',
+            form_container_template_name='form_container',
+            form_page_template_name='form_page',
+            form_template_name='form',
+            item_template_name='item',
+            list_items_card_template_name=f'list_items_card',
+            list_table_card_template_name=f'list_table_card',
+            list_card_template_name=f'list_{list_display_type}_card',
+            list_container_template_name='list_container',
+            list_filter_form_template_name='list_filter_form',
+            list_items_template_name='list_items',
+            table_row_template_name='row',
+            table_rows_template_name='rows',
+            table_template_name='table',
+            list_page_template_name='list_page',
             template_directory_path=template_path,
         )
 
@@ -747,37 +773,43 @@ class ViewFunctions:
     View function names.
 
     Example:
-        list_page_view_name: 'list_page_view'
-        detail_page_view_name: 'detail_page_view'
-        create_form_view_name: 'create_form_view'
-        update_form_view_name: 'update_form_view'
-        delete_form_view_name: 'delete_form_view'
-        create_modal_form_view_name: 'create_modal_form_view'
-        update_modal_form_view_name: 'update_modal_form_view'
-        delete_modal_form_view_name: 'delete_modal_form_view'
+        list_view_name: 'list_page_view'
+        detail_view_name: 'detail_page_view'
+        create_view_name: 'create_form_view'
+        update_view_name: 'update_form_view'
+        delete_view_name: 'delete_form_view'
+        create_modal_view_name: 'create_modal_form_view'
+        update_modal_view_name: 'update_modal_form_view'
+        delete_modal_view_name: 'delete_modal_form_view'
+        list_items_view_name: 'items_view'
+        rows_view_name: 'rows_view'
 
     """
 
-    create_form_view_name: str
-    create_modal_form_view_name: str
-    delete_form_view_name: str
-    delete_modal_form_view_name: str
-    detail_page_view_name: str
-    list_page_view_name: str
-    update_form_view_name: str
-    update_modal_form_view_name: str
+    create_view_name: str
+    create_modal_view_name: str
+    delete_view_name: str
+    delete_modal_view_name: str
+    detail_view_name: str
+    list_view_name: str
+    update_view_name: str
+    update_modal_view_name: str
+    list_items_view_name: str
+    rows_view_name: str
 
     @classmethod
     def build(cls, components: list[str], **_kwargs) -> ViewFunctions:
         return cls(
-            create_form_view_name='create_form_view',
-            create_modal_form_view_name='create_modal_form_view',
-            delete_form_view_name='delete_form_view',
-            delete_modal_form_view_name='delete_modal_form_view',
-            detail_page_view_name='detail_page_view',
-            list_page_view_name='list_page_view',
-            update_form_view_name='update_form_view',
-            update_modal_form_view_name='update_modal_form_view',
+            create_view_name='create_view',
+            create_modal_view_name='create_modal_view',
+            delete_view_name='delete_form_view',
+            delete_modal_view_name='delete_modal_view',
+            detail_view_name='detail_view',
+            list_view_name='list_view',
+            update_view_name='update_view',
+            update_modal_view_name='update_modal_view',
+            rows_view_name='rows_view',
+            list_items_view_name='items_view',
         )
 
 

@@ -5,7 +5,7 @@ import json
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.queryset.enums import SessionFilterActionEnum
 from django_spire.contrib.session.controller import SessionController
@@ -67,6 +67,18 @@ class SessionFilterQuerySetMixin(QuerySet):
 
 
 class SearchQuerySetMixin(QuerySet):
-    @abstractmethod
     def search(self, value: str | None) -> QuerySet:
-        pass
+        words = value.split(' ')
+
+        filtered_query = self
+
+        char_fields = [
+            field.name for field in self.model._meta.fields
+            if field.get_internal_type() == 'CharField'
+        ]
+
+        for word in words:
+            or_conditions = Q()
+            for field in char_fields:
+                or_conditions |= Q(**{f"{field}__icontains": word})
+            filtered_query = filtered_query.filter(or_conditions)

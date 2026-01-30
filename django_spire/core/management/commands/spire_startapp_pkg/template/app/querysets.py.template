@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 from django.db.models import Q
 
 from django_spire.history.querysets import HistoryQuerySet
+from django_spire.contrib.queryset.mixins import SearchQuerySetMixin, \
+    SessionFilterQuerySetMixin
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -12,9 +14,16 @@ if TYPE_CHECKING:
     from ${module_path}.models import ${model_class_name}
 
 
-class ${queryset_class_name}(HistoryQuerySet):
-    def search(self, search_value: str) -> QuerySet[${model_class_name}]:
-        return self.filter(
-            Q(name__icontains=search_value) |
-            Q(description__icontains=search_value)
-        )
+class ${queryset_class_name}(
+    HistoryQuerySet,
+    SearchQuerySetMixin,
+    SessionFilterQuerySetMixin
+):
+    def bulk_filter(self, filter_data: dict) -> QuerySet[${model_class_name}]:
+        queryset = self
+
+        search = filter_data.get('search', '')
+        if search:
+            queryset = queryset.search(search)
+
+        return queryset
