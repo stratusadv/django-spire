@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.contrib.postgres.search import SearchVector
+from django.db import connection
 
 from django_spire.contrib.service import BaseDjangoModelService
 
@@ -35,12 +35,15 @@ class EntrySearchIndexService(BaseDjangoModelService['Entry']):
         self.obj._search_text = '\n'.join(words)
         self.obj.save(update_fields=['_search_text'])
 
-        self.obj_class.objects.filter(pk=self.obj.pk).update(
-            _search_vector=(
-                SearchVector('name', weight='A', config='english') +
-                SearchVector('_search_text', weight='B', config='english')
+        if connection.vendor == 'postgresql':
+            from django.contrib.postgres.search import SearchVector
+
+            self.obj_class.objects.filter(pk=self.obj.pk).update(
+                _search_vector=(
+                    SearchVector('name', weight='A', config='english') +
+                    SearchVector('_search_text', weight='B', config='english')
+                )
             )
-        )
 
     @classmethod
     def rebuild_all_search_indexes(cls):
