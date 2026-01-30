@@ -36,9 +36,9 @@ class TaskCountingMonthlyReport(BaseReport):
         self.add_column('Type', type=self.ColumnType.CHOICE)
         self.add_column('Quality', type=self.ColumnType.PERCENT)
         self.add_column('Tasks', type=self.ColumnType.NUMBER)
-        self.add_column('Hours', type=self.ColumnType.DECIMAL_1)
-        self.add_column('Days', type=self.ColumnType.DECIMAL_2)
-        self.add_column('Weeks', type=self.ColumnType.DECIMAL_3)
+        self.add_column('Hours', type=self.ColumnType.NUMBER_1)
+        self.add_column('Days', type=self.ColumnType.NUMBER_2)
+        self.add_column('Weeks', type=self.ColumnType.NUMBER_3)
         self.add_column('Value', type=self.ColumnType.DOLLAR)
 
         types = ['bug', 'feature', 'enhancement', 'documentation']
