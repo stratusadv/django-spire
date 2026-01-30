@@ -2,18 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import Prefetch
 
-from django_spire.ai.chat.message_intel import DefaultMessageIntel, BaseMessageIntel
-from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
-from django_spire.knowledge.collection.models import Collection
+from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
+from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.intelligence.bots.knowledge_answer_bot import KnowledgeAnswerBot
 from django_spire.knowledge.intelligence.bots.knowledge_entries_bot import KnowledgeEntriesBot
 from django_spire.knowledge.intelligence.intel.message_intel import KnowledgeMessageIntel
 
 if TYPE_CHECKING:
-    from django.core.handlers.wsgi import WSGIRequest
     from dandy.llm.request.message import MessageHistory
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
@@ -24,52 +23,35 @@ NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
 def knowledge_search_workflow(
     request: WSGIRequest,
     user_input: str,
-    message_history: MessageHistory | None = None
+    message_history: MessageHistory | None = None,
+    max_results: int = 10,
+    use_llm_preprocessing: bool = True,
 ) -> BaseMessageIntel | None:
-    user_tag_set = TagSetBot().process(user_input)
+    from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
-    def get_top_scored_from_dict_to_list(
-            scored_dict: dict[str, float],
-            score_floor: float = 0.05
-    ) -> list:
-        if not scored_dict:
-            return []
-
-        min_score = min(scored_dict.values())
-        max_score = max(scored_dict.values())
-
-        if min_score == 0 and max_score == 0:
-            return []
-
-        median_score = (max_score - min_score) / 2
-
-        top_scored_list = []
-
-        for key, value in scored_dict.items():
-            if value >= score_floor and value >= median_score:
-                top_scored_list.append(key)
-
-        return top_scored_list
-
-    collections = get_top_scored_from_dict_to_list({
-        collection: collection.services.tag.get_score_percentage_from_aggregated_tag_set_weighted(
-            user_tag_set
+    entries = list(
+        Entry.services.search
+        .search(
+            query=user_input,
+            use_llm_preprocessing=use_llm_preprocessing,
         )
-        for collection in Collection.objects.all().annotate_entry_count()
-    })
-
-    entries = get_top_scored_from_dict_to_list({
-        entry: entry.services.tag.get_score_percentage_from_tag_set_weighted(user_tag_set)
-        for collection in collections
-        for entry in collection.entries.all()
-    })
+        .user_has_access(user=request.user)
+        .select_related('current_version', 'current_version__author', 'collection')
+        .prefetch_related(
+            Prefetch(
+                'current_version__blocks',
+                queryset=EntryVersionBlock.objects.active().order_by('order')
+            )
+        )[:max_results]
+    )
 
     if not entries:
         return NO_KNOWLEDGE_MESSAGE_INTEL
 
     answer_intel_future = KnowledgeAnswerBot(llm_temperature=0.5).process_to_future(
         user_input=user_input,
-        entries=entries
+        entries=entries,
+        message_history=message_history,
     )
 
     entries_intel_future = KnowledgeEntriesBot(llm_temperature=0.5).process_to_future(

@@ -13,7 +13,7 @@ from django_spire.contrib.progress.enums import ProgressStatus
 from django_spire.contrib.progress.tasks import ParallelTask, SequentialTask
 
 if TYPE_CHECKING:
-    from typing_extensions import Any, Callable, Generator
+    from typing import Any, Callable, Generator
 
 
 SIMULATION_MESSAGES = [
