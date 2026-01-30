@@ -18,6 +18,9 @@ class EntrySearchIndexService(BaseDjangoModelService['Entry']):
 
         words.append(self.obj.name)
 
+        if self.obj.current_version is None:
+            return
+
         for block in self.obj.current_version.blocks.active().order_by('order'):
             text = block.render_to_text().strip()
 

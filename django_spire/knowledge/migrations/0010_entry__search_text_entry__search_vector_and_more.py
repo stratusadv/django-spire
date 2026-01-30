@@ -2,6 +2,7 @@
 
 import django.contrib.postgres.indexes
 import django.contrib.postgres.search
+from django.contrib.postgres.operations import TrigramExtension
 from django.db import migrations, models
 
 
@@ -13,6 +14,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        TrigramExtension(),
         migrations.AddField(
             model_name='entry',
             name='_search_text',
