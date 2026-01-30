@@ -8,7 +8,7 @@ from django_spire.knowledge.entry.models import Entry
 class EntryForm(forms.ModelForm):
     class Meta:
         model = Entry
-        exclude = ['current_version', 'collection', 'order']
+        fields = ['name']
 
 
 class EntryFilesForm(forms.Form):

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.25.2
+
+### Fixes
+
+- Updated the knowledge base search algorithm
+- Use LLM preprocessing for the knowledge base search algorithm
+
 ## v0.25.1
 
 ### Fixes

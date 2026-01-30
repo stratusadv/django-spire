@@ -247,16 +247,19 @@ window.get_echarts_theme = function() {
     let is_dark = document.documentElement.getAttribute('data-theme') === 'dark';
 
     return {
-        text: styles.getPropertyValue('--app-default-text-color').trim(),
+        bg: styles.getPropertyValue('--app-layer-one').trim(),
+        border: styles.getPropertyValue('--bs-border-color').trim(),
+        danger: styles.getPropertyValue('--app-danger').trim(),
+        is_dark: is_dark,
+        layer_two: styles.getPropertyValue('--app-layer-two').trim(),
+        layer_three: styles.getPropertyValue('--app-layer-three').trim(),
+        layer_four: styles.getPropertyValue('--app-layer-four').trim(),
         primary: styles.getPropertyValue('--app-primary').trim(),
         primary_dark: styles.getPropertyValue('--app-primary-dark').trim(),
         secondary: styles.getPropertyValue('--app-secondary').trim(),
         secondary_dark: styles.getPropertyValue('--app-secondary-dark').trim(),
-        border: styles.getPropertyValue('--bs-border-color').trim(),
-        bg: styles.getPropertyValue('--app-layer-one').trim(),
-        layer_two: styles.getPropertyValue('--app-layer-two').trim(),
-        layer_three: styles.getPropertyValue('--app-layer-three').trim(),
-        layer_four: styles.getPropertyValue('--app-layer-four').trim(),
-        is_dark: is_dark,
+        success: styles.getPropertyValue('--app-success').trim(),
+        text: styles.getPropertyValue('--app-default-text-color').trim(),
+        warning: styles.getPropertyValue('--app-warning').trim(),
     };
 };

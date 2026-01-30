@@ -7,9 +7,8 @@ from typing import TYPE_CHECKING, Callable
 
 # from django_spire.consts import MAINTENANCE_MODE_SETTINGS_NAME
 
-if TYPE_CHECKING:
-    from django.core.handlers.wsgi import WSGIRequest
-    from django.http import HttpResponse
+from django.core.handlers.wsgi import WSGIRequest
+from django.http import HttpResponse
 
 
 class MaintenanceMiddleware:

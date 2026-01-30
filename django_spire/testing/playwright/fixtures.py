@@ -5,14 +5,9 @@ import pytest
 
 from typing import Any, TYPE_CHECKING
 
-from django.contrib.auth import get_user_model
-
 if TYPE_CHECKING:
     from playwright.sync_api import Page
     from pytest_django.plugin import _LiveServer
-
-
-User = get_user_model()
 
 
 def pytest_configure(config: Any) -> None:
@@ -38,6 +33,10 @@ def browser_type_launch_args(browser_type_launch_args: dict[str, Any]) -> dict[s
 
 @pytest.fixture
 def authenticated_page(page: Page, live_server: _LiveServer, transactional_db: None) -> Page:
+    from django.contrib.auth import get_user_model
+
+    User = get_user_model()
+
     User.objects.create_user(
         username='testuser',
         password='testpass123',

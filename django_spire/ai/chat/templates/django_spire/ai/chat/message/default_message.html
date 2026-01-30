@@ -1,5 +1,9 @@
 {% extends 'django_spire/ai/chat/message/message.html' %}
 
+{% load spire_ai_chat_tags %}
+
 {% block message_content %}
-    {{ message_intel.text|linebreaksbr }}
+    <div class="ai-message-content">
+        {{ message_intel.text|render_markdown }}
+    </div>
 {% endblock %}

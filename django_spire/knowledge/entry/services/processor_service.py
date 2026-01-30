@@ -15,4 +15,5 @@ class EntryProcessorService(BaseDjangoModelService['Entry']):
         self.obj.ordering_services.processor.remove_from_objects(
             destination_objects=self.obj.collection.entries.active()
         )
+
         self.obj.set_deleted()

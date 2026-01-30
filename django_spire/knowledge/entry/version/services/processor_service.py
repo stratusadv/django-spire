@@ -63,3 +63,5 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
             EntryVersionBlock.objects.filter(id__in=entry_blocks_to_delete).delete()
             EntryVersionBlock.objects.bulk_update(entry_blocks_to_update, ['order', 'type', '_block_data', '_text_data'])
             EntryVersionBlock.objects.bulk_create(entry_blocks_to_add)
+
+        self.obj.entry.services.search_index.rebuild_search_index()
