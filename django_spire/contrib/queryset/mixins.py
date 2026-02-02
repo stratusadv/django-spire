@@ -82,3 +82,12 @@ class SearchQuerySetMixin(QuerySet):
             for field in char_fields:
                 or_conditions |= Q(**{f"{field}__icontains": word})
             filtered_query = filtered_query.filter(or_conditions)
+
+        return filtered_query
+
+
+class ChoicesQueryMixin(QuerySet):
+    def to_choices(self):
+        return [
+            (obj.pk, str(obj)) for obj in self
+        ]

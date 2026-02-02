@@ -1,7 +1,7 @@
 <form
     method="get"
     action="{% block session_filter_url %}{% endblock %}"
-    class="row border-bottom"
+    class="{% block form_class %}row border-bottom{% endblock %}"
 >
     <div class="col-12">
         <input type="text" hidden value="{% block session_filter_key %}{% endblock %}" name="session_filter_key">

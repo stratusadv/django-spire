@@ -1,6 +1,7 @@
 <a
     class="btn shadow-sm {% block button_class %}{% endblock %} {{ button_class|default:'btn-sm' }}"
     {% block button_attributes %}{% endblock %}
+        {{ button_attributes }}
     {% if button_href %}href="{{ button_href }}{{ button_url_params }}"{% endif %}
     {% if x_button_click or button_modal_href %}@click="{% if button_modal_href %}dispatch_modal_view('{{ button_modal_href }}'){% else %}{{ x_button_click }}{% endif %}"{% endif %}
 >

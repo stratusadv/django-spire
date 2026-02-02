@@ -4,9 +4,8 @@
         {{ badge_class|default:'fs--1' }}
     "
 >
-    {% if badge_text %}
-        {{ badge_text }}
-    {% endif %}
+    {% block badge_text %}{% endblock %}
+    {{ badge_text }}
 
     {% if x_badge_text %}
         <span x-text="{{ x_badge_text }}"></span>
