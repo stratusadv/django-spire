@@ -322,7 +322,8 @@
     {% block scroll_container %}
         <div
             class="position-relative {% block scroll_container_class %}{% endblock %}"
-            style="height: {{ container_height|default:'600px' }}; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+            style="height:
+                    {% block container_height %}{{ container_height|default:'600px' }}{% endblock %}; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
             x-ref="scroll_container"
         >
             {% block scroll_content_wrapper %}
