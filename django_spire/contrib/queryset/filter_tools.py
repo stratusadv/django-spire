@@ -45,7 +45,7 @@ def filter_by_lookup_map(
 def _get_kwarg_name_for_filter_field(
     field: Field[Any, Any] | ForeignObjectRel | GenericForeignKey,
     val: Any
-):
+) -> str:
     if isinstance(val, Sequence):
         if isinstance(field, ForeignKey):
             return f'{field.name}_id__in'
@@ -55,7 +55,17 @@ def _get_kwarg_name_for_filter_field(
         return field.name
 
 
-def filter_by_model_fields(queryset: QuerySet, data: dict):
+def filter_by_model_fields(queryset: QuerySet, data: dict) -> QuerySet:
+    """
+    Filters a given queryset based on the queryset's model fields and provided data.
+    Args:
+        queryset:
+        data:
+
+    Returns:
+        QuerySet: The filtered queryset.
+    """
+
     model_fields = [f for f in queryset.model._meta.get_fields()]
 
     lookup_kwargs = {
