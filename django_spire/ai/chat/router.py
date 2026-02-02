@@ -3,13 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from dandy import Bot, Prompt
 from dandy.recorder import recorder_to_html_file
 
 from django_spire.ai.chat.intelligence.decoders.intent_decoder import generate_intent_decoder
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
-from django_spire.conf import settings
 
 if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
@@ -62,27 +60,19 @@ class SpireChatRouter(BaseChatRouter):
         user_input: str,
         message_history: MessageHistory | None = None
     ) -> BaseMessageIntel:
-        persona_name = getattr(settings, 'DJANGO_SPIRE_AI_PERSONA_NAME', 'AI Assistant')
-
-        system_prompt = (
-            Prompt()
-            .text(f'You are {persona_name}, a helpful AI assistant.')
-            .line_break()
-            .text('Important rules:')
-            .list([
-                f'You should always identify yourself as {persona_name}.',
-                'Please never mention being Qwen, Claude, GPT, or any other model name.',
-                'Be helpful, friendly, and professional.',
-            ])
+        from django_spire.knowledge.intelligence.workflows.knowledge_workflow import (
+            knowledge_search_workflow,
         )
 
-        bot = Bot()
-        bot.llm_role = system_prompt
+        if request.user.has_perm('django_spire_knowledge.view_collection'):
+            return knowledge_search_workflow(
+                request=request,
+                user_input=user_input,
+                message_history=message_history
+            )
 
-        return bot.llm.prompt_to_intel(
-            prompt=user_input,
-            intel_class=DefaultMessageIntel,
-            message_history=message_history,
+        return DefaultMessageIntel(
+            text='Sorry, I could not find any information on that.'
         )
 
     def workflow(

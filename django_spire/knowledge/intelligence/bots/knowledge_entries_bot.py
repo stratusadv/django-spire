@@ -25,7 +25,6 @@ class KnowledgeEntriesBot(Bot):
     llm_intel_class = EntriesIntel
 
     def process(self, user_input: str, entries: list[Entry]) -> EntriesIntel:
-
         entry_prompt = Prompt()
         entry_prompt.sub_heading('User Request')
         entry_prompt.line_break()
@@ -35,11 +34,14 @@ class KnowledgeEntriesBot(Bot):
         entry_prompt.line_break()
 
         for entry in entries:
+            entry_prompt.text(f'Entry: {entry.name}')
+
             for version_block in entry.current_version.blocks.all():
                 if version_block.render_to_text() != '\n':
                     entry_prompt.text(f'{version_block.id}: {version_block.render_to_text()}')
 
+            entry_prompt.line_break()
+
         return self.llm.prompt_to_intel(
             prompt=entry_prompt,
         )
-

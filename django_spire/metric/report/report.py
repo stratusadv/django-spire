@@ -2,13 +2,11 @@ import inspect
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from dataclasses import field
-from typing import Literal, Callable, Any
+from typing import Callable, Any
 
 from django_spire.metric.report.enums import ColumnType
 from django_spire.metric.report.helper import Helper
 from django_spire.metric.report.tools import get_text_alignment_css_class
-
-ColumnLiteralType = Literal['text', 'choice', 'number', 'dollar', 'percent']
 
 
 @dataclass
@@ -35,17 +33,31 @@ class ReportCell:
     @staticmethod
     def cell_value_verbose(value, cell_type):
         if cell_type == ColumnType.DOLLAR:
-            return f"${float(value):,.2f}"
+            return f"${float(value):,.0f}"
+        elif cell_type == ColumnType.DOLLAR_1:
+            return f"${float(value):,.1f}%"
+        elif cell_type == ColumnType.DOLLAR_2:
+            return f"${float(value):,.2f}%"
+        elif cell_type == ColumnType.DOLLAR_3:
+            return f"${float(value):,.3f}%"
+
+        elif cell_type == ColumnType.PERCENT:
+            return f"{float(value):,.0f}%"
+        elif cell_type == ColumnType.PERCENT_1:
+            return f"{float(value):,.1f}%"
+        elif cell_type == ColumnType.PERCENT_2:
+            return f"{float(value):,.2f}%"
+        elif cell_type == ColumnType.PERCENT_3:
+            return f"{float(value):,.3f}%"
+
         elif cell_type == ColumnType.NUMBER:
             return f"{float(value):,.0f}"
-        elif cell_type == ColumnType.PERCENT:
-            return f"{float(value):.1f}%"
-        elif cell_type == ColumnType.DECIMAL_1:
-            return f"{float(value):.1f}"
-        elif cell_type == ColumnType.DECIMAL_2:
-            return f"{float(value):.2f}"
-        elif cell_type == ColumnType.DECIMAL_3:
-            return f"{float(value):.3f}"
+        elif cell_type == ColumnType.NUMBER_1:
+            return f"{float(value):,.1f}"
+        elif cell_type == ColumnType.NUMBER_2:
+            return f"{float(value):,.2f}"
+        elif cell_type == ColumnType.NUMBER_3:
+            return f"{float(value):,.3f}"
 
         return str(value)
 
