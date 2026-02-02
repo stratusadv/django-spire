@@ -68,7 +68,6 @@ class BaseDjangoModelService(
     @transaction.atomic
     def save_model_obj(
         self,
-        activity_user: User | None = None,
         **field_data: dict | None,
     ) -> tuple[Model, bool]:
         """
@@ -104,20 +103,4 @@ class BaseDjangoModelService(
         self.obj.save()
         self._set_m2m_fields(**field_data)
 
-        if activity_user:
-            if not hasattr(self.obj, 'add_activity'):
-                raise ServiceError(
-                    f'Tried to add activity when saving model object but {self.obj_class.__name__} '
-                    f'has no add_activity.'
-                )
-
-            verb = 'created' if new_model_obj_was_created else 'edited'
-
-            self.obj.add_activity(
-                user=activity_user,
-                verb=verb,
-                information=f'{activity_user.get_full_name()} {verb} {self.obj_class.__name__} {self.obj}'
-            )
-
         return self.obj, new_model_obj_was_created
-

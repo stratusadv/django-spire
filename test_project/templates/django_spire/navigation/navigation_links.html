@@ -8,7 +8,7 @@
 {% url 'django_spire:ai:chat:page:home' as ai_chat_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Ai Chat' link_icon='bi bi-chat-heart' link_url=ai_chat_url %}
 
-{% url 'comment:home' as comment_url %}
+{% url 'comment:page:home' as comment_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Comment' link_icon='bi bi-chat-text' link_url=comment_url %}
 
 {% url 'help_desk:home' as help_desk_url %}
