@@ -21,6 +21,8 @@
         {% block base_head_css %}
             <link rel="stylesheet" href="{% static theme.stylesheet %}">
 
+            <link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">
+
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/css/bootstrap.min.css">
             <link rel="stylesheet" href="{% static 'django_spire/css/app-import.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
             <link rel="stylesheet" href="{% static 'django_spire/css/bootstrap-override.css' %}?v={{ DJANGO_SPIRE_VERSION }}">

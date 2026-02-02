@@ -1,0 +1,25 @@
+{
+    "name": "Django Spire Portal",
+    "short_name": "Django Spire",
+    "description": "Django Spire Portal",
+    "icons": [
+        {
+            "src": "android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "android-chrome-256x256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        }
+    ],
+    "lang": "en",
+    "orientation": "portrait",
+    "theme_color": "#4cc8ee",
+    "background_color": "#4cc8ee",
+    "display": "fullscreen",
+    "id": "/",
+    "start_url": "/",
+    "scope": "/"
+}

@@ -45,6 +45,7 @@ nav:
       - Core:
           - Shortcuts: app_guides/core/shortcuts.md
           - Filtering: app_guides/core/filtering.md
+          - PWA Installation: app_guides/core/pwa_installation.md
       - Metric:
           - Report: app_guides/metric/report.md
       - Notification:
