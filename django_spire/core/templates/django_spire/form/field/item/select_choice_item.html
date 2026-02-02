@@ -1,7 +1,7 @@
 <div class="d-flex align-items-center justify-content-center" style="width: 35px;">
     {% block choice_checkmark %}
         <template x-if="value === choice[0]">
-            {% include 'django_spire/contrib/form/field/element/select_checkmark_element.html' %}
+            {% include 'django_spire/form/field/element/select_checkmark_element.html' %}
         </template>
 
         <template x-if="value != choice[0]">

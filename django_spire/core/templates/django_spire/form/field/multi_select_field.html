@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/form/field/base_field.html' %}
+{% extends 'django_spire/form/field/base_field.html' %}
 
 {% block field_content %}
     {# This can be removed and need to insert input fields to have getlist and get effect #}
@@ -83,7 +83,7 @@
                 </span>
 
                 <span class="d-flex align-items-center">
-                    {% include 'django_spire/contrib/form/field/element/select_down_arrow_element.html' %}
+                    {% include 'django_spire/form/field/element/select_down_arrow_element.html' %}
                 </span>
             </button>
         {% endblock %}
@@ -120,7 +120,7 @@
                         @keydown.enter.prevent="remove_choice(choice)"
                 >
                     {% block selected_choice_item %}
-                        {% include 'django_spire/contrib/form/field/item/selected_choice_item.html' %}
+                        {% include 'django_spire/form/field/item/selected_choice_item.html' %}
                     {% endblock %}
                 </div>
             </template>
@@ -140,7 +140,7 @@
                         @keydown.enter.prevent="add_choice(choice)"
                 >
                     {% block choice_item %}
-                        {% include 'django_spire/contrib/form/field/item/select_choice_item.html' %}
+                        {% include 'django_spire/form/field/item/select_choice_item.html' %}
                     {% endblock %}
                 </div>
             </template>

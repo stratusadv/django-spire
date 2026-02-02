@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/form/field/base_field.html' %}
+{% extends 'django_spire/form/field/base_field.html' %}
 
 {% block field_content %}
     <input
@@ -75,7 +75,7 @@
             <span x-text="choice_verbose"></span>
 
             <span class="d-flex align-items-center">
-                {% include 'django_spire/contrib/form/field/element/select_down_arrow_element.html' %}
+                {% include 'django_spire/form/field/element/select_down_arrow_element.html' %}
             </span>
         </button>
 
@@ -110,7 +110,7 @@
                         @keydown.enter.prevent="select_choice(choice)"
                 >
                     {% block choice_item %}
-                        {% include 'django_spire/contrib/form/field/item/select_choice_item.html' %}
+                        {% include 'django_spire/form/field/item/select_choice_item.html' %}
                     {% endblock %}
                 </div>
             </template>

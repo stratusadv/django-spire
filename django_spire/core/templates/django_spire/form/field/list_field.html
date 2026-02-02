@@ -1,4 +1,4 @@
-{% extends "django_spire/contrib/form/field/base_field.html" %}
+{% extends "django_spire/form/field/base_field.html" %}
 
 {% block field_content %}
     <div
@@ -65,7 +65,7 @@
             <div x-ref="component">
                 {% block component_field %}
                     <div class="col-10">
-                        {% include "django_spire/contrib/form/field/search_and_select_field.html" with glue_field=glue_field %}
+                        {% include "django_spire/form/field/search_and_select_field.html" with glue_field=glue_field %}
                     </div>
                 {% endblock %}
             </div>
