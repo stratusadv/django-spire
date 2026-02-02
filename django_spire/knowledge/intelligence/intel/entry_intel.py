@@ -23,3 +23,15 @@ class EntryIntel(BaseIntel):
 
 class EntriesIntel(BaseListIntel[EntryIntel]):
     entry_intel_list: list[EntryIntel]
+
+    @property
+    def unique(self) -> list[EntryIntel]:
+        seen = set()
+        result = []
+
+        for entry_intel in self:
+            if entry_intel.relevant_heading_text not in seen:
+                seen.add(entry_intel.relevant_heading_text)
+                result.append(entry_intel)
+
+        return result

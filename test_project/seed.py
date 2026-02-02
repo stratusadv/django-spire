@@ -31,3 +31,6 @@ from test_project.apps.infinite_scrolling.seeding.seed import *
 
 print('Seeding Lazy Tabs...')
 from test_project.apps.lazy_tabs.seeding.seed import *
+
+print('Seeding Comment Examples...')
+from test_project.apps.comment.seeding.seed import *

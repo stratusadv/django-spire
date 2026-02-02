@@ -7,8 +7,8 @@
             {% include 'comment/card/comment_detail_card.html' %}
         </div>
 
-        <div class="col-4">
-            {% include 'django_spire/history/card/activity_list_card.html' with activity_log=comment.activity_log.prefetch_user %}
+        <div class="col-12">
+            {% include 'django_spire/comment/card/comment_list_card.html' with obj=comment_example %}
         </div>
     </div>
 {% endblock %}
