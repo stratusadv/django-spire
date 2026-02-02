@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.25.3
+
+### Features
+
+- PWA Support has been added to install the application as an App.
+- Added `ios_app_install_element` and added it to the auth `login_page`.
+- Added `andriod_and_chrome_app_install_element` and added it to the auth `login_page`.
+- Added `pwa_installation` file to mk docs to show how to use the new PWA system.
+
 ## v0.25.2
 
 ### Fixes
