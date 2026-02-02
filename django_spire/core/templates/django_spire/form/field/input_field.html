@@ -5,7 +5,7 @@
             {% if input_type %}type="{{ input_type }}"
             {% else %}type="{% block input_type %}text{% endblock %}"{% endif %}
             {% block input_field_attrs %}{{ input_field_attrs }}{% endblock %}
-            class="form-control"
+            class="{% block input_field_class %}{% if input_field_class %}{{ input_field_class }}{% else %}form-control{% endif %}{% endblock %}"
             x-ref="glue_field"
             x-model="value"
             :id="glue_field.id"
