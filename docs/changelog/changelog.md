@@ -8,8 +8,11 @@
   properties in templates.
 - Added `button_modal_href` to `base_button` to allow easily wiring up buttons to glue view modals (similar to
   `ellipsis_dropdown_modal_link_element`).
-- Added optional `activity_user` parameter to `BaseDjangoModelService.save_model_obj` to more easily add activity when
-  saving objects.
+- Added optional template generation to startapp
+- Added extra blocks to various templates for improved customizability
+- Added default implmentation for `SearchQuerySetMixin.search` that does a fuzzy search against all the model's CharFields
+- Added ChoicesQueryMixin that provides a `to_choices` convenience queryset method
+- Added comment documentation and test page
 
 ### Fixes
 
