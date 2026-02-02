@@ -17,26 +17,6 @@ if TYPE_CHECKING:
 
 @permission_required('${permission_prefix}.view_${model_instance_name}')
 def ${list_items_view_name}(request: WSGIRequest) -> TemplateResponse:
-    ${context_plural_var} = (
-        models.${model_class_name}.objects
-        .process_session_filter(
-            request=request,
-            session_key=LIST_FILTERING_SESSION_KEY,
-            form_class=${model_class_name}ListFilterForm,
-        )
-    )
-
-    return portal_views.infinite_scrolling_view(
-        request,
-        context_data={'batch_size': 10},
-        queryset=${context_plural_var},
-        queryset_name='${context_plural_var}',
-        template='${template_directory_path}/item/${list_items_template_name}.html'
-    )
-
-
-@permission_required('${permission_prefix}.view_${model_instance_name}')
-def ${rows_view_name}(request: WSGIRequest) -> TemplateResponse:
     sort_field = request.GET.get('sort', 'name')
     sort_direction = request.GET.get('direction', 'asc')
 
@@ -53,9 +33,7 @@ def ${rows_view_name}(request: WSGIRequest) -> TemplateResponse:
 
     return portal_views.infinite_scrolling_view(
         request,
-        context_data={
-            'batch_size': 10,
-        },
+        context_data={'batch_size': 10,},
         queryset=${context_plural_var},
         queryset_name='${context_plural_var}',
         template='${template_directory_path}/table/${table_rows_template_name}.html'

@@ -9,5 +9,4 @@ app_name = 'template'
 
 urlpatterns = [
     path('items/', template_views.${list_items_view_name}, name='items'),
-    path('rows/', template_views.${rows_view_name}, name='rows'),
 ]

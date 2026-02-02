@@ -46,7 +46,6 @@ def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
 
     context_data = {
         'responsive_mode': ResponsiveMode.SCROLL,
-        '${context_single_var}_rows_endpoint': reverse('${url_reverse_path}:template:rows'),
         '${context_single_var}_items_endpoint': reverse('${url_reverse_path}:template:items'),
         'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
     }

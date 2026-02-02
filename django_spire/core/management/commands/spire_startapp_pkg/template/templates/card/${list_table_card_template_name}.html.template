@@ -12,5 +12,5 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% include '${template_directory_path}/table/${list_table_card_template_name}.html' with endpoint=${context_single_var}_rows_endpoint %}
+    {% include '${template_directory_path}/table/${table_template_name}.html' with endpoint=${context_single_var}_items_endpoint %}
 {% endblock %}
