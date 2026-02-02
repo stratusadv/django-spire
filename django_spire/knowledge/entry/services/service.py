@@ -7,6 +7,8 @@ from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.knowledge.entry.services.automation_service import EntryAutomationService
 from django_spire.knowledge.entry.services.factory_service import EntryFactoryService
 from django_spire.knowledge.entry.services.processor_service import EntryProcessorService
+from django_spire.knowledge.entry.services.search_index_service import EntrySearchIndexService
+from django_spire.knowledge.entry.services.search_service import EntrySearchService
 from django_spire.knowledge.entry.services.tag_service import EntryTagService
 from django_spire.knowledge.entry.services.tool_service import EntryToolService
 from django_spire.knowledge.entry.services.transformation_services import EntryTransformationService
@@ -24,6 +26,8 @@ class EntryService(BaseDjangoModelService['Entry']):
     factory = EntryFactoryService()
     ordering = OrderingService()
     processor = EntryProcessorService()
+    search = EntrySearchService()
+    search_index = EntrySearchIndexService()
     tag = EntryTagService()
     tool = EntryToolService()
     transformation = EntryTransformationService()
@@ -44,5 +48,7 @@ class EntryService(BaseDjangoModelService['Entry']):
             destination_objects=self.obj.collection.entries.active(),
             position=0 if created else self.obj.order,
         )
+
+        self.obj.services.search_index.rebuild_search_index()
 
         return self.obj, created

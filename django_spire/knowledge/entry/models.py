@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from django.urls import reverse
 
@@ -35,6 +37,9 @@ class Entry(
     )
 
     name = models.CharField(max_length=255)
+
+    _search_text = models.TextField(blank=True, default='')
+    _search_vector = SearchVectorField(null=True)
 
     objects = EntryQuerySet.as_manager()
     services = EntryService()
@@ -75,3 +80,16 @@ class Entry(
         verbose_name = 'Entry'
         verbose_name_plural = 'Entries'
         db_table = 'django_spire_knowledge_entry'
+        indexes = [
+            GinIndex(fields=['_search_vector'], name='entry_search_vector_idx'),
+            GinIndex(
+                name='entry_name_trgm_idx',
+                fields=['name'],
+                opclasses=['gin_trgm_ops'],
+            ),
+            GinIndex(
+                name='entry_search_text_trgm_idx',
+                fields=['_search_text'],
+                opclasses=['gin_trgm_ops'],
+            ),
+        ]

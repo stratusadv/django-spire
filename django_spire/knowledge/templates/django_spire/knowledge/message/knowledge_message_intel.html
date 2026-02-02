@@ -1,32 +1,40 @@
 {% extends 'django_spire/ai/chat/message/message.html' %}
 
+{% load spire_ai_chat_tags %}
+
 {% block message_content %}
     <div class="row">
-        <div class="col">
-            {{ message_intel.answer_intel.answer|linebreaksbr }}
+        <div class="col ai-message-content">
+            {{ message_intel.answer_intel.answer|render_markdown }}
         </div>
     </div>
 
-    <div class="row mt-2 p-1" x-data="{show_resources: false}">
-        <div class="col-auto mx-2 ps-1 pe-2 py-1 fs-7 rounded-3 border border-primary-subtle">
-            <span class="text-muted cursor-pointer" x-on:click="show_resources = !show_resources">
-                <i class="bi bi-caret-right" x-show="!show_resources"></i>
-                <i class="bi bi-caret-down" x-show="show_resources"></i>
-                Sources
-            </span>
+    {% if message_intel.entries_intel %}
+        <div class="row mt-2 p-1" x-data="{show_resources: false}">
+            <div class="col-auto mx-2 ps-1 pe-2 py-1 fs-7 rounded-3 border border-primary-subtle">
+                <span class="text-muted cursor-pointer" x-on:click="show_resources = !show_resources">
+                    <i class="bi bi-caret-right" x-show="!show_resources"></i>
+                    <i class="bi bi-caret-down" x-show="show_resources"></i>
+                    Sources
+                </span>
 
-            <ul class="my-0 me-3" x-show="show_resources">
-                {% for entry_intel in message_intel.entries_intel %}
-                    <li class="pb-1">
-                        <a href="{% url 'django_spire:knowledge:entry:version:page:editor' pk=entry_intel.entry.id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}"
-                           target="_blank">
-                            {{ entry_intel.relevant_heading_text }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-
+                <ul class="my-0 me-3" x-show="show_resources">
+                    {% for entry_intel in message_intel.entries_intel.unique %}
+                        {% if entry_intel.entry and entry_intel.entry.id %}
+                            <li class="pb-1">
+                                <a href="{% url 'django_spire:knowledge:entry:version:page:editor' pk=entry_intel.entry.id %}?show_sub_nav=false&block_id={{ entry_intel.relevant_block_id }}"
+                                   target="_blank">
+                                    {{ entry_intel.relevant_heading_text }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="pb-1 text-muted">
+                                {{ entry_intel.relevant_heading_text }} (source unavailable)
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-    </div>
-
+    {% endif %}
 {% endblock %}
