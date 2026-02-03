@@ -30,14 +30,14 @@
                     {% block card_button %}{% endblock %}
                 </div>
             </div>
-            <div x-show="card_title_dropdown" x-cloak x-collapse class="flex-shrink-0">
-                {% block card_dropdown_content %}
-                {% endblock %}
-            </div>
-            <div class="flex-grow-1 d-flex flex-column" style="min-height: 0;">
-                {% block card_title_content %}
-                {% endblock %}
-            </div>
         {% endblock %}
+        <div x-show="card_title_dropdown" x-cloak x-collapse class="flex-shrink-0">
+            {% block card_dropdown_content %}
+            {% endblock %}
+        </div>
+        <div class="flex-grow-1 d-flex flex-column" style="min-height: 0;">
+            {% block card_title_content %}
+            {% endblock %}
+        </div>
     </div>
 {% endblock %}
