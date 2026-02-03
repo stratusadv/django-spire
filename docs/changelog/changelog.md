@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.25.3
+## v0.26.0
 
 ### Features
 

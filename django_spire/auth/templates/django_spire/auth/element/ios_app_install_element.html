@@ -6,14 +6,14 @@
     </button>
 </div>
 
-<div class="modal fade" id="ios-install-app-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="ios-install-app-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-theme="{{ theme.mode }}">
     <div class="modal-dialog">
         <div class="modal-content bg-app-layer-one">
             <div class="modal-header">
                 <img
                     src="{% block app_icon %}{% endblock %}"
                     alt="No Image"
-                    class="border rounded-3 bg-side-bar me-3 shadow"
+                    class="border rounded-3 me-3 shadow"
                     style=" height: 3.0rem; "
                 >
                 <span class="fs-5 fw-semibold">{% block app_title %}{% endblock %}</span>
@@ -22,11 +22,11 @@
             <div class="modal-body">
                 <p>Install the app on your Apple device to easily access it anytime by following the instructions below in the Safari Web Browser.</p>
                 <ol>
-                    <li class="p-2">Tap on the <span class="border border-app-primary p-1 rounded-3"><i class="bi bi-box-arrow-up"></i></span> in your browser bar</li>
+                    <li class="p-2">Tap on the <span class="border border-2 p-1 rounded-3"><i class="bi bi-box-arrow-up"></i></span> in your browser bar</li>
                     <li class="p-2">Select <span class="border border-app-primary p-1 rounded-3">Add to Home Screen</span></li>
                     <li class="p-2">Click <span class="border border-app-primary p-1 rounded-3">Add</span> When Prompted</li>
                 </ol>
-                <p>You will need to close this popup to complete the installation process</p>
+                <p class="m-0">You will need to close this popup to complete the installation process</p>
             </div>
         </div>
     </div>
