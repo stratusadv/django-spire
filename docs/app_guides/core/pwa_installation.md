@@ -1,0 +1,63 @@
+# Progressive Web App Installation
+
+Follow this process to setup your project with Progressive Web App (PWA) support.
+
+### Step 1: Create a `django_spire/favicons/` directory in your `static` or `static_files` directory
+
+### Step 2: Create a `manifest.json` file in the favicons directory.
+
+### Step 3: Copy and paste the content below into the `manifest.json` file.
+
+This will be used to store the related information needed for the PWA system.
+
+```json
+{
+    "name": "Django Spire Portal",
+    "short_name": "Django Spire",
+    "description": "Django Spire Portal",
+    "icons": [
+        {
+            "src": "android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "android-chrome-256x256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        }
+    ],
+    "lang": "en",
+    "orientation": "portrait",
+    "theme_color": "#4cc8ee",
+    "background_color": "#4cc8ee",
+    "display": "fullscreen",
+    "id": "/",
+    "start_url": "/",
+    "scope": "/"
+}
+```
+
+### Step 3: Update the content in the `manifest.json` file to your project's specific details.
+
+### Step 4: Update `base.html` file. 
+
+Include `<link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">` in your `base.html` file.
+
+### Step 3 Override IOS Element Template File
+
+For the IOS PWA element you will need to override the template and extend the blocks with your projects respective information.
+
+#### Example:
+
+```html title='django_spire/auth/element/ios_app_install_element.html'
+{% extends 'templates/django_spire/auth/element/ios_app_install_element.html' %}
+
+{% load static %}
+
+{% block app_icon %}{% static 'favicons/android-chrome-192x192.png' %}{% endblock %}
+
+{% block app_title %}Fancy Test Project{% endblock %}
+```
+
+You should now see an `Install App` button on the login page that when clicked will install your project as a PWA!

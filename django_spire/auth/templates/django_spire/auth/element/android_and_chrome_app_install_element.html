@@ -1,0 +1,33 @@
+<div class="text-center">
+    <button id="android-install-button" class="btn btn-app-primary fs-4 mt-3" hidden>
+        Install App <i class="bi bi-file-arrow-down"></i>
+    </button>
+</div>
+
+<script type="application/javascript">
+    let android_install_prompt = null;
+    let android_install_button = document.querySelector("#android-install-button");
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        android_install_prompt = event;
+        android_install_button.removeAttribute("hidden");
+    });
+
+    android_install_button.addEventListener("click", async () => {
+        if (!android_install_prompt) {
+            return;
+        }
+        const result = await android_install_prompt.prompt();
+        disableInAppInstallPrompt();
+    });
+
+    window.addEventListener("appinstalled", () => {
+        disableInAppInstallPrompt();
+    });
+
+    function disableInAppInstallPrompt() {
+        android_install_prompt = null;
+        android_install_button.setAttribute("hidden", "");
+    }
+</script>
