@@ -1,0 +1,48 @@
+{% load static %}
+
+<div class="text-center">
+    <button id="ios-install-button" class="btn btn-app-primary fs-4 mt-3" data-bs-toggle="modal" data-bs-target="#ios-install-app-modal" hidden>
+        Install App <i class="bi bi-file-arrow-down"></i>
+    </button>
+</div>
+
+<div class="modal fade" id="ios-install-app-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-theme="{{ theme.mode }}">
+    <div class="modal-dialog">
+        <div class="modal-content bg-app-layer-one">
+            <div class="modal-header">
+                <img
+                    src="{% block app_icon %}{% endblock %}"
+                    alt="No Image"
+                    class="border rounded-3 me-3 shadow"
+                    style=" height: 3.0rem; "
+                >
+                <span class="fs-5 fw-semibold">{% block app_title %}{% endblock %}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Install the app on your Apple device to easily access it anytime by following the instructions below in the Safari Web Browser.</p>
+                <ol>
+                    <li class="p-2">Tap on the <span class="border border-2 p-1 rounded-3"><i class="bi bi-box-arrow-up"></i></span> in your browser bar</li>
+                    <li class="p-2">Select <span class="border border-2 p-1 rounded-3">Add to Home Screen</span></li>
+                    <li class="p-2">Click <span class="border border-2 p-1 rounded-3">Add</span> When Prompted</li>
+                </ol>
+                <p class="m-0">You will need to close this popup to complete the installation process</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/javascript">
+    let ios_install_button = document.querySelector("#ios-install-button");
+
+    const isIos = () => {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        return /iphone|ipad|ipod/.test(userAgent);
+    }
+
+    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    if (isIos() && !isInStandaloneMode()) {
+        ios_install_button.removeAttribute("hidden");
+    }
+</script>

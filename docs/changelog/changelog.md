@@ -1,9 +1,13 @@
 # Changelog
 
-## v0.25.3
+## v0.26.0
 
 ### Features
 
+- PWA Support has been added to install the application as an App.
+- Added `ios_app_install_element` and added it to the auth `login_page`.
+- Added `andriod_and_chrome_app_install_element` and added it to the auth `login_page`.
+- Added `pwa_installation` file to mk docs to show how to use the new PWA system.
 - Added `model_app_label` and `model_name` template tags to enable quick access to those Django model metadata
   properties in templates.
 - Added `button_modal_href` to `base_button` to allow easily wiring up buttons to glue view modals (similar to
