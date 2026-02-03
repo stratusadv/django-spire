@@ -66,10 +66,7 @@ class BaseDjangoModelService(
                 field.save_form_data(self.obj, field_data[field.name])
 
     @transaction.atomic
-    def save_model_obj(
-        self,
-        **field_data: dict | None,
-    ) -> tuple[Model, bool]:
+    def save_model_obj(self, **field_data: dict | None) -> tuple[Model, bool]:
         """
         This is the core service method for saving a Django model object with field data provided via kwargs.
         It will update the object with the given kwargs and handle any upstream attribute changes that were applied
@@ -83,13 +80,9 @@ class BaseDjangoModelService(
         then it calls self.obj.save(), then updates the m2m fields on the object instance
         using logic similar to django's `BaseModelForm._save_m2m()` method. In all cases,
         it treats the incoming `field_data` exactly the same as `cleaned_data` is treated
-        in the django code that it is emulating, and therefore does not perform any validation 
+        in the django code that it is emulating, and therefore does not perform any validation
         on the data or the model instance as it is assumed that field_data has already been validated upstream.
-
-        A `User` can be passed to the optional `activity_user` parameter to add a basic activity record for the object and user.
-
         Args:
-            activity_user: User | None,
             **field_data:
 
         Returns:
