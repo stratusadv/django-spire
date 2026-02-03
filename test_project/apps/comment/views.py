@@ -17,7 +17,7 @@ def comment_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     comment = get_object_or_404(models.CommentExample, pk=pk)
 
     context_data = {
-        'comment': comment,
+        'comment_example': comment,
     }
 
     return portal_views.detail_view(
@@ -29,13 +29,13 @@ def comment_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def comment_home_view(request: WSGIRequest) -> TemplateResponse:
-    template = 'comment/page/comment_home_page.html'
+    template = 'comment/page/comment_list_page.html'
     return TemplateResponse(request, template)
 
 
 def comment_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
-        'comments': models.CommentExample.objects.all()
+        'comment_examples': models.CommentExample.objects.all()
     }
 
     return portal_views.list_view(
@@ -44,3 +44,8 @@ def comment_list_view(request: WSGIRequest) -> TemplateResponse:
         context_data=context_data,
         template='comment/page/comment_list_page.html'
     )
+
+
+def comment_form_view(request: WSGIRequest) -> TemplateResponse:
+    template = 'comment/page/comment_form.html'
+    return TemplateResponse(request, template)

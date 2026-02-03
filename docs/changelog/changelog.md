@@ -8,6 +8,17 @@
 - Added `ios_app_install_element` and added it to the auth `login_page`.
 - Added `andriod_and_chrome_app_install_element` and added it to the auth `login_page`.
 - Added `pwa_installation` file to mk docs to show how to use the new PWA system.
+- Added `model_app_label` and `model_name` template tags to enable quick access to those Django model metadata
+  properties in templates.
+- Added `button_modal_href` to `base_button` to allow easily wiring up buttons to glue view modals (similar to
+  `ellipsis_dropdown_modal_link_element`).
+- Added optional `activity_user` parameter to `BaseDjangoModelService.save_model_obj` to more easily add activity when
+  saving objects.
+
+### Fixes
+
+- Update and fix comment app to enable basic CRUD functionality.
+- Fixed `show_form_errors` and `form_errors_as_list` type hinting
 
 ## v0.25.2
 
@@ -49,7 +60,6 @@
 ## v0.24.2
 
 ### Features
-- 
 - Added `not_deleted()` to `HistoryQuerySet`
 
 ### Changes

@@ -4,6 +4,7 @@
             comment: new ModelObjectGlue('comment'),
             async init() {
                 await this.comment.get()
+                this.comment.glue_fields.information.label = 'Message'
             }
         }"
 >

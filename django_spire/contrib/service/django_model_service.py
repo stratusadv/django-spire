@@ -1,19 +1,17 @@
 from __future__ import annotations
 
 import logging
-
 from abc import ABC
 from itertools import chain
 from typing import Generic, TypeVar
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import Model, Field, AutoField, ForeignObjectRel, FileField
+from django.db.models import Model, AutoField, FileField
 
-from django_spire.contrib.constructor.django_model_constructor import BaseDjangoModelConstructor
+from django_spire.contrib.constructor.django_model_constructor import \
+    BaseDjangoModelConstructor
 from django_spire.contrib.service.exceptions import ServiceError
-
-
 
 log = logging.getLogger(__name__)
 
@@ -82,9 +80,8 @@ class BaseDjangoModelService(
         then it calls self.obj.save(), then updates the m2m fields on the object instance
         using logic similar to django's `BaseModelForm._save_m2m()` method. In all cases,
         it treats the incoming `field_data` exactly the same as `cleaned_data` is treated
-        in the django code that it is emulating, and therefore does not perform any validation 
+        in the django code that it is emulating, and therefore does not perform any validation
         on the data or the model instance as it is assumed that field_data has already been validated upstream.
-
         Args:
             **field_data:
 
