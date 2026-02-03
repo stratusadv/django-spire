@@ -1,0 +1,9 @@
+{% for field_name, field_object in form.fields.items %}
+    {{ field_name }}: new {{  }}(
+        'search',
+        {
+            value: '{{ filter_session.search|default:"" }}',
+            name: 'search',
+        }
+    ),
+{% endfor %}

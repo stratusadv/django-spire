@@ -1,0 +1,138 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title_content_container_element_type %}form{% endblock %}
+
+{% block card_title_header_content %}
+    <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom flex-shrink-0" style="min-height: 38px;">
+        {% block card_filter_content %}
+            <div
+                class="row align-items-center g-2"
+                x-data="{
+                    async init() {
+                        this.search_field.hide_label()
+
+
+
+                        this.get_filter_count()
+                    },
+                    field: new GlueBooleanField()
+                    search_field: new GlueCharField(
+                        'search',
+                        {
+                            value: '{{ filter_session.search|default:"" }}',
+                            name: 'search',
+                        }
+                    ),
+                    {% block glue_filter_fields %}
+                    {% endblock %}
+
+                    get_filter_count() {
+                        let count = 0;
+
+                        if (this.work_order.glue_fields.status.value.length > 0) {
+                            count += 1;
+                        }
+                        if (this.work_order.glue_fields.priority.value.length > 0) {
+                            count += 1;
+                        }
+
+                        if (this.asset?.value && this.asset.value.length > 0) {
+                            count += 1;
+                        }
+
+                        if (this.assigned_to?.value && this.assigned_to?.value?.length > 0) {
+                            count += 1;
+                        }
+
+                        if (this.requested_by?.value && this.requested_by?.value?.length > 0) {
+                            count += 1;
+                        }
+
+                        if (this.min_start_datetime?.value) {
+                            count += 1;
+                        }
+
+                        if (this.max_start_datetime?.value) {
+                            count += 1;
+                        }
+
+                        if (this.min_due_datetime?.value) {
+                            count += 1;
+                        }
+
+                        if (this.max_due_datetime?.value) {
+                            count += 1;
+                        }
+
+                        this.filter_count = count
+                    }
+                }"
+        >
+            <div
+                    class="col"
+            >
+                {% include 'django_spire/form/field/search_field.html' with glue_field='search_field' %}
+            </div>
+
+            <template x-teleport="#filter-dropdown">
+                <div class="row">
+                    <div class="col-12 col-lg-4 mb-2">
+                        {% include 'django_spire/form/field/multi_select_field.html' with glue_model_field='work_order.priority' %}
+                    </div>
+                    <div class="col-12 col-lg-4 mb-2">
+                        {% include 'django_spire/form/field/multi_select_field.html' with glue_model_field='work_order.status' %}
+                    </div>
+                    <div class="col-12 col-lg-4 mb-2">
+                        {% include 'django_spire/form/field/multi_select_field.html' with glue_field='asset' %}
+                    </div>
+                    <div class="col-12 col-lg-6 mb-2">
+                        {% include 'django_spire/form/field/multi_select_field.html' with glue_field='assigned_to' %}
+                    </div>
+                    <div class="col-12 col-lg-6 mb-2">
+                        {% include 'django_spire/form/field/multi_select_field.html' with glue_field='requested_by' %}
+                    </div>
+                    <div class="col-12 col-lg-6 mb-2">
+                        {% include 'django_spire/form/field/date_field.html' with glue_field='min_start_datetime' %}
+                    </div>
+                    <div class="col-12 col-lg-6 mb-2">
+                        {% include 'django_spire/form/field/date_field.html' with glue_field='max_start_datetime' %}
+                    </div>
+                    <div class="col-12 col-lg-6 mb-2">
+                        {% include 'django_spire/form/field/date_field.html' with glue_field='min_due_datetime' %}
+                    </div>
+                    <div class="col-12 col-lg-6 mb-2">
+                        {% include 'django_spire/form/field/date_field.html' with glue_field='max_due_datetime' %}
+                    </div>
+                </div>
+            </template>
+
+            <template x-teleport="#filter-buttons">
+                <div class="col">
+                        <span class="me-1 position-relative">
+                            {% include 'django_spire/button/secondary_outlined_button.html' with button_icon='bi bi-funnel-fill' button_attributes='@click="toggle_card_title_dropdown()"' %}
+                            <template x-if="filter_count > 0">
+                                <div
+                                        class="position-absolute bg-black border border-app-secondary rounded-circle justify-content-center align-items-center d-flex text-app-layer-one"
+                                        style="bottom: -10px; right: 0px; font-size: 8px; height: 1rem; width: 1rem;"
+                                        x-text="filter_count"
+                                ></div>
+                            </template>
+                        </span>
+                    <input
+                            type="submit"
+                            name="action"
+                            value="Filter"
+                            class="btn btn-sm btn-app-primary me-1"
+                    >
+                    <input
+                            type="submit"
+                            name="action"
+                            value="Clear"
+                            class="btn btn-sm btn-app-secondary me-1"
+                    >
+                </div>
+            </template>
+        </div>
+        {% endblock %}
+    </div>
+{% endblock %}
