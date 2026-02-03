@@ -59,6 +59,7 @@
 ## v0.24.2
 
 ### Features
+- 
 - Added `not_deleted()` to `HistoryQuerySet`
 
 ### Changes
