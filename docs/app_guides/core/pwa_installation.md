@@ -1,20 +1,14 @@
 # Progressive Web App Installation
 
-Learn the proces on how to use the Progressive Web App (PWA) functionality on a login authentication page.
+Follow this process to setup your project with Progressive Web App (PWA) support.
 
-### Step 1: Create a `django_spire/favicons/` directory in your `core/static` directory
+### Step 1: Create a `django_spire/favicons/` directory in your `static` or `static_files` directory
 
-This is where we will store the `manifest.json` file needed for the PWA system on our login page.
+### Step 2: Create a `manifest.json` file in the favicons directory.
 
-### Step 2 Create a `manifest.json` file in the favicons directory.
+### Step 3: Copy and paste the content below into the `manifest.json` file.
 
 This will be used to store the related information needed for the PWA system.
-
-Make sure to include  
-`<link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">`   
-in your `base.html`
-
-#### Example:
 
 ```json
 {
@@ -44,6 +38,12 @@ in your `base.html`
 }
 ```
 
+### Step 3: Update the content in the `manifest.json` file to your project's specific details.
+
+### Step 4: Update `base.html` file. 
+
+Include `<link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">` in your `base.html` file.
+
 ### Step 3 Override IOS Element Template File
 
 For the IOS PWA element you will need to override the template and extend the blocks with your projects respective information.
@@ -51,7 +51,7 @@ For the IOS PWA element you will need to override the template and extend the bl
 #### Example:
 
 ```html title='django_spire/auth/element/ios_app_install_element.html'
-{% extends 'django_spire/auth/element/ios_app_install_element.html' %}
+{% extends 'templates/django_spire/auth/element/ios_app_install_element.html' %}
 
 {% load static %}
 
@@ -59,3 +59,5 @@ For the IOS PWA element you will need to override the template and extend the bl
 
 {% block app_title %}Fancy Test Project{% endblock %}
 ```
+
+You should now see an `Install App` button on the login page that when clicked will install your project as a PWA!
