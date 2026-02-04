@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fix mkdocs conflict causing build failure.
+- Update PWA installation guide.
 
 ## v0.26.0
 
