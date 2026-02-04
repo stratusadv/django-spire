@@ -32,7 +32,7 @@ def filter_by_lookup_map(
     lookup_kwargs = {
         lookup_map[k]: v
         for k, v in data.items()
-                        if (k in lookup_map) and v not in (None, "", [])
+        if (k in lookup_map) and v not in (None, "", [])
     } | extra_filters
 
     return queryset.filter(**lookup_kwargs)
