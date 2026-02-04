@@ -8,15 +8,17 @@
 - Added `ios_app_install_element` and added it to the auth `login_page`.
 - Added `andriod_and_chrome_app_install_element` and added it to the auth `login_page`.
 - Added `pwa_installation` file to mk docs to show how to use the new PWA system.
+
+- Added optional template generation to startapp.
+- Added ChoicesQueryMixin that provides a `to_choices` convenience queryset method
+- Added default implmentation for `SearchQuerySetMixin.search` that does a fuzzy search against all the model's CharFields
+
 - Added `model_app_label` and `model_name` template tags to enable quick access to those Django model metadata
   properties in templates.
 - Added `button_modal_href` to `base_button` to allow easily wiring up buttons to glue view modals (similar to
   `ellipsis_dropdown_modal_link_element`).
-- Added optional template generation to startapp
-- Added extra blocks to various templates for improved customizability
-- Added default implmentation for `SearchQuerySetMixin.search` that does a fuzzy search against all the model's CharFields
-- Added ChoicesQueryMixin that provides a `to_choices` convenience queryset method
 - Added comment documentation and test page
+- Added extra blocks to various templates for improved customizability
 
 ### Fixes
 
