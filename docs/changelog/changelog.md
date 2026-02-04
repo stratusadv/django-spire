@@ -19,10 +19,11 @@
   `ellipsis_dropdown_modal_link_element`).
 - Added comment documentation and test page
 - Added extra blocks to various templates for improved customizability
+- Added Django Glue form fields to core.
 
 ### Fixes
 
-- Update and fix comment app to enable basic CRUD functionality.
+- Update and fix Comment app to enable basic CRUD functionality.
 - Fixed `show_form_errors` and `form_errors_as_list` type hinting
 
 ## v0.25.2
