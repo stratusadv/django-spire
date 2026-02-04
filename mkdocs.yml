@@ -39,6 +39,8 @@ nav:
           - Usage & Interactions: app_guides/ai/overview.md
           - Chat Assistant: app_guides/ai/chat/overview.md
           - SMS Conversation: app_guides/ai/sms/overview.md
+      - Comment:
+          - Basics: app_guides/comment/basics.md
       - Contrib:
           - Admin: app_guides/contrib/admin.md
           - Choices: app_guides/contrib/choices.md
