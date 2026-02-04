@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.26.1
+
+### Fixes
+
+- Fix mkdocs conflict causing build failure.
+
 ## v0.26.0
 
 ### Features
