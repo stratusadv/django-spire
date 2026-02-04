@@ -32,7 +32,7 @@ def filter_by_lookup_map(
     lookup_kwargs = {
         lookup_map[k]: v
         for k, v in data.items()
-        if (k in lookup_map) and v not in (None, "", [])
+        if k in lookup_map and v not in (None, "", [])
     } | extra_filters
 
     return queryset.filter(**lookup_kwargs)
@@ -73,11 +73,11 @@ def filter_by_model_fields(queryset: QuerySet, data: dict) -> QuerySet:
 
     lookup_kwargs = {
         _get_kwarg_name_for_filter_field(
-            model_field,
-            data[model_field.name]
+            field=model_field,
+            val=data[model_field.name]
         ): data[model_field.name]
         for model_field in model_fields
-        if (model_field.name in data) and data[model_field.name] not in (None, "", [])
+        if model_field.name in data and data[model_field.name] not in (None, "", [])
     }
 
     return queryset.filter(**lookup_kwargs)
