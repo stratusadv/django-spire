@@ -1,0 +1,1 @@
+LIST_FILTERING_SESSION_KEY = 'domain_list_filter'

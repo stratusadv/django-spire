@@ -1,0 +1,1 @@
+LIST_FILTERING_SESSION_KEY = 'signage_list_filter'

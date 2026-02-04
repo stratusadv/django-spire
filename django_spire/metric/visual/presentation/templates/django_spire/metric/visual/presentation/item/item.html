@@ -1,0 +1,36 @@
+{% extends 'django_spire/item/infinite_scroll_item.html' %}
+
+{% block item_content %}
+    <div class="row justify-content-center align-items-center position-relative">
+        <div class="col">
+            <div class="row justify-content-between align-items-center {% block item_row_content_outer_class %}{% endblock %}">
+                <div class="col">
+                    <div class="row align-items-center {% block item_content_gutter %}g-2{% endblock %}">
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                {% url 'metric:visual:presentation:page:detail' pk=presentation.pk as presentation_view_url %}
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Presentation' attribute_value=presentation.name attribute_href=presentation_view_url %}
+                            </div>
+                            <div class="col-6">
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=presentation.description %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto top-0 end-0 position-absolute position-lg-static pt-2 pt-lg-0">
+                    {% url 'metric:visual:presentation:page:detail' pk=presentation.pk as presentation_view_url %}
+
+                    {% if perms.visual_presentation.change_presentation %}
+                        {% url 'metric:visual:presentation:form:update' pk=presentation.pk as presentation_edit_url %}
+                    {% endif %}
+
+                    {% if perms.visual_presentation.delete_presentation %}
+                        {% url 'metric:visual:presentation:form:delete' pk=presentation.pk as presentation_delete_url %}
+                    {% endif %}
+
+                    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=presentation_view_url edit_url=presentation_edit_url delete_url=presentation_delete_url %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

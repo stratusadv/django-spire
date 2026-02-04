@@ -1,0 +1,1 @@
+LIST_FILTERING_SESSION_KEY = 'statistic_list_filter'

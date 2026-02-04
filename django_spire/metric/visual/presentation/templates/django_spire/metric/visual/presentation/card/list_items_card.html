@@ -1,0 +1,16 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Presentations
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.visual_presentation.add_presentation %}
+        {% url 'metric:visual:presentation:form:create' as new_presentation_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_presentation_url %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'metric/visual/presentation/container/list_container.html' with endpoint=presentation_items_endpoint %}
+{% endblock %}

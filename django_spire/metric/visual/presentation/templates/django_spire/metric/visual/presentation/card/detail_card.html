@@ -1,0 +1,24 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Presentation
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.visual_presentation.change_presentation %}
+        {% url 'metric:visual:presentation:form:update' pk=presentation.pk as presentation_edit_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=presentation_edit_url %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="row g-3">
+        <div class="col-12">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=presentation.name %}
+        </div>
+
+        <div class="col-12">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=presentation.description|linebreaksbr %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="row g-3">
+        <div class="col-12">
+            {% include 'metric/visual/card/detail_card.html' %}
+        </div>
+
+        <div class="col-4">
+            {% include 'django_spire/activity/card/list_card.html' with activity_log=visual.activity_log.prefetch_user %}
+        </div>
+    </div>
+{% endblock %}

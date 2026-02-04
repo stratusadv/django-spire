@@ -1,0 +1,16 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Domains
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.metric_domain.add_domain %}
+        {% url 'metric:domain:form:create' as new_domain_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_domain_url %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'metric/domain/container/../container/list_container.html' with endpoint=domain_items_endpoint %}
+{% endblock %}

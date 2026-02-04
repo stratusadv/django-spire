@@ -1,0 +1,16 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Visuals
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.metric_visual.add_visual %}
+        {% url 'metric:visual:form:create' as new_visual_url %}
+        {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_visual_url %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'metric/visual/table/table.html' with endpoint=visual_items_endpoint %}
+{% endblock %}
