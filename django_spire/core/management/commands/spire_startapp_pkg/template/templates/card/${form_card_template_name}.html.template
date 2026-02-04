@@ -5,5 +5,5 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% include '${template_directory_path}/form/${form_template_name}' %}
+    {% include '${template_directory_path}/form/${form_template_name}.html' %}
 {% endblock %}

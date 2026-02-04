@@ -1,24 +1,36 @@
-{% extends 'django_spire/item/item.html' %}
+{% extends 'django_spire/item/infinite_scroll_item.html' %}
 
-{% block item_title %}
-    {% url '${url_reverse_path}:page:detail' pk=${context_single_var}.pk as ${context_single_var}_view_url %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_title='${model_verbose_name}' attribute_value=${context_single_var}.name attribute_href=${context_single_var}_view_url %}
-{% endblock %}
+{% block item_content %}
+    <div class="row justify-content-center align-items-center position-relative">
+        <div class="col">
+            <div class="row justify-content-between align-items-center {% block item_row_content_outer_class %}{% endblock %}">
+                <div class="col">
+                    <div class="row align-items-center {% block item_content_gutter %}g-2{% endblock %}">
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                {% url '${url_reverse_path}:page:detail' pk=${context_single_var}.pk as ${context_single_var}_view_url %}
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='${model_verbose_name}' attribute_value=${context_single_var}.name attribute_href=${context_single_var}_view_url %}
+                            </div>
+                            <div class="col-6">
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=${context_single_var}.description %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto top-0 end-0 position-absolute position-lg-static pt-2 pt-lg-0">
+                    {% url '${url_reverse_path}:page:detail' pk=${context_single_var}.pk as ${context_single_var}_view_url %}
 
-{% block item_row_content %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=${context_single_var}.description %}
-{% endblock %}
+                    {% if perms.${permission_prefix}.change_${model_instance_name} %}
+                        {% url '${url_reverse_path}:form:update' pk=${context_single_var}.pk as ${context_single_var}_edit_url %}
+                    {% endif %}
 
-{% block item_button %}
-    {% url '${url_reverse_path}:page:detail' pk=${context_single_var}.pk as ${context_single_var}_view_url %}
+                    {% if perms.${permission_prefix}.delete_${model_instance_name} %}
+                        {% url '${url_reverse_path}:form:delete' pk=${context_single_var}.pk as ${context_single_var}_delete_url %}
+                    {% endif %}
 
-    {% if perms.${permission_prefix}.change_${model_instance_name} %}
-        {% url '${url_reverse_path}:form:update' pk=${context_single_var}.pk as ${context_single_var}_edit_url %}
-    {% endif %}
-
-    {% if perms.${permission_prefix}.delete_${model_instance_name} %}
-        {% url '${url_reverse_path}:form:delete' pk=${context_single_var}.pk as ${context_single_var}_delete_url %}
-    {% endif %}
-
-    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=${context_single_var}_view_url edit_url=${context_single_var}_edit_url delete_url=${context_single_var}_delete_url %}
+                    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=${context_single_var}_view_url edit_url=${context_single_var}_edit_url delete_url=${context_single_var}_delete_url %}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

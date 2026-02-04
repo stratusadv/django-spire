@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import re
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 
 from django.core.management.base import CommandError
+
+from django_spire.core.management.commands.spire_startapp_pkg.exceptions import \
+    AppExistsError
 
 if TYPE_CHECKING:
     from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
@@ -30,6 +33,8 @@ class UserInputCollector:
         self.reporter = reporter
         self.validator = validator
 
+        self.skip_app_creation = False
+
     def collect_all_inputs(self) -> dict[str, str]:
         """
         Collects all required user inputs for app creation.
@@ -52,13 +57,19 @@ class UserInputCollector:
         db_table_name = self._collect_db_table_name(components, app_name)  # Changed from app_label to components, app_name
         model_permission_path = self._collect_model_permission_path(app_path, model_name)
 
-        permission_data = self._collect_permission_inheritance(components)
+        if not self.skip_app_creation:
+            permission_data = self._collect_permission_inheritance(components)
+        else:
+            permission_data = {}
+
+        template_options = self._collect_template_generation_options(components)
 
         verbose_name, verbose_name_plural = self._derive_verbose_names(model_name, model_name_plural)
 
         return {
             'app_path': app_path,
             'app_name': app_name,
+            'skip_app_generation': self.skip_app_creation,
             'model_name': model_name,
             'model_name_plural': model_name_plural,
             'app_label': app_label,
@@ -67,6 +78,7 @@ class UserInputCollector:
             'verbose_name': verbose_name,
             'verbose_name_plural': verbose_name_plural,
             **permission_data,
+            **template_options
         }
 
     def _collect_app_label(self, components: list[str], app_name: str) -> str:
@@ -79,8 +91,12 @@ class UserInputCollector:
         """
 
         immediate_parent = components[-2] if len(components) > 2 else None
+
         default = immediate_parent.lower() + '_' + app_name.lower() if immediate_parent else app_name.lower()
-        return self._collect_input('Enter the app label', default, '3/8')
+        if self.skip_app_creation:
+            return default
+        else:
+            return self._collect_input('Enter the app label', default, '3/8')
 
     def _collect_app_name(self, components: list[str]) -> str:
         """
@@ -91,7 +107,10 @@ class UserInputCollector:
         """
 
         default = components[-1]
-        return self._collect_input('Enter the app name', default, '2/8')
+        if self.skip_app_creation:
+            return default
+        else:
+            return self._collect_input('Enter the app name', default, '2/8')
 
     def _collect_app_path(self) -> str:
         """
@@ -110,7 +129,12 @@ class UserInputCollector:
             raise CommandError(message)
 
         components = app_path.split('.')
-        self.validator.validate_app_path(components)
+
+        try:
+            self.validator.validate_app_path(components)
+        except AppExistsError as exc:
+            self.reporter.write('\nSkipping app creation.', self.reporter.style_notice)
+            self.skip_app_creation = True
 
         return app_path
 
@@ -125,7 +149,10 @@ class UserInputCollector:
 
         parent_parts = components[1:-1] if len(components) > 1 else []
         default = '_'.join(parent_parts).lower() + '_' + app_name.lower() if parent_parts else app_name.lower()
-        return self._collect_input('Enter the database table name', default, '6/8')
+        if self.skip_app_creation:
+            return default
+        else:
+            return self._collect_input('Enter the database table name', default, '6/8')
 
     def _collect_input(self, prompt: str, default: str, step_number: str) -> str:
         """
@@ -150,7 +177,10 @@ class UserInputCollector:
         """
 
         default = ''.join(word.title() for word in app_name.split('_'))
-        return self._collect_input('Enter the model name', default, '4/8')
+        if self.skip_app_creation:
+            return default
+        else:
+            return self._collect_input('Enter the model name', default, '4/8')
 
     def _collect_model_name_plural(self, model_name: str) -> str:
         """
@@ -161,7 +191,10 @@ class UserInputCollector:
         """
 
         default = model_name + 's'
-        return self._collect_input('Enter the model name plural', default, '5/8')
+        if self.skip_app_creation:
+            return default
+        else:
+            return self._collect_input('Enter the model name plural', default, '5/8')
 
     def _collect_model_permission_path(self, app_path: str, model_name: str) -> str:
         """
@@ -173,7 +206,11 @@ class UserInputCollector:
         """
 
         default = f'{app_path}.models.{model_name}'
-        return self._collect_input('Enter the model permission path', default, '7/8')
+        if self.skip_app_creation:
+            return default
+        else:
+            return self._collect_input('Enter the model permission path', default,
+                                       '7/8')
 
     def _collect_permission_inheritance(self, components: list[str]) -> dict[str, str]:
         """
@@ -253,3 +290,39 @@ class UserInputCollector:
         self.reporter.write('\n[8/8]: Do you want this app to inherit permissions from its parent? (y/n)', self.reporter.style_notice)
         user_input = input('Default is "n": ').strip().lower()
         return user_input == 'y'
+
+    def _collect_template_generation_options(self, components):
+        user_input = {}
+
+        try:
+            self.validator.validate_template_path(components)
+        except AppExistsError:
+            user_input['skip_template_generation'] = True
+            return user_input
+
+        self.reporter.write('\n[Template Creation Wizard]\n\n',
+                            self.reporter.style_success)
+
+        user_input[
+            'skip_template_generation'] = self._collect_skip_template_generation()
+
+        if not user_input['skip_template_generation']:
+            user_input['list_display_type'] = self._collect_input(
+                'How do you want to display items on the list page? (items/table)',
+                'items',
+                '2/2')
+
+        return user_input
+
+    def _collect_skip_template_generation(self):
+        """
+        Prompts the user to generate templates.
+
+        :return: True if user wants to skip template generation, False otherwise.
+        """
+
+        user_input = self._collect_input(
+            'Do you want to generate templates for this app? (y/n)', 'n',
+            '1/2')
+
+        return user_input == 'n'

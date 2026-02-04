@@ -1,13 +1,13 @@
 {% extends 'django_spire/page/full_page.html' %}
 
-{% block page_content %}
+{% block full_page_content %}
     <div class="row g-3">
         <div class="col-12">
-            {% include '${template_directory_path}/card/${detail_card_template_name}' %}
+            {% include '${template_directory_path}/card/${detail_card_template_name}.html' %}
         </div>
 
         <div class="col-4">
-            {% include 'history/card/activity_list_card.html' with activity_log=${context_single_var}.activity_log.prefetch_user %}
+            {% include 'django_spire/activity/card/list_card.html' with activity_log=${context_single_var}.activity_log.prefetch_user %}
         </div>
     </div>
 {% endblock %}

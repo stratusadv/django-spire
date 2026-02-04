@@ -7,7 +7,8 @@
 {% block card_body_style %}display: flex; flex-direction: column; min-height: 0;{% endblock %}
 
 {% block card_content %}
-    <div
+    <{% block card_title_content_container_element_type %}div{% endblock %}
+            {% block card_title_content_container_attributes %}{% endblock %}
         class="d-flex flex-column flex-grow-1"
         style="min-height: 0;"
         x-data="{
@@ -17,17 +18,19 @@
             }
         }"
     >
-        <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom flex-shrink-0" style="min-height: 38px;">
-            <div class="col d-flex align-items-center">
-                <div class="card-title text-uppercase mb-0">
-                    {% block card_title %}
-                    {% endblock %}
+        {% block card_title_header_content %}
+            <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom flex-shrink-0" style="min-height: 38px;">
+                <div class="col d-flex align-items-center">
+                    <div class="card-title text-uppercase mb-0">
+                        {% block card_title %}
+                        {% endblock %}
+                    </div>
+                </div>
+                <div class="{% block card_button_col_class %}col-auto{% endblock %} d-flex">
+                    {% block card_button %}{% endblock %}
                 </div>
             </div>
-            <div class="col-auto d-flex">
-                {% block card_button %}{% endblock %}
-            </div>
-        </div>
+        {% endblock %}
         <div x-show="card_title_dropdown" x-cloak x-collapse class="flex-shrink-0">
             {% block card_dropdown_content %}
             {% endblock %}

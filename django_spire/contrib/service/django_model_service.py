@@ -13,6 +13,7 @@ from django_spire.contrib.constructor.django_model_constructor import \
     BaseDjangoModelConstructor
 from django_spire.contrib.service.exceptions import ServiceError
 
+
 log = logging.getLogger(__name__)
 
 TypeDjangoModel_co = TypeVar('TypeDjangoModel_co', bound=Model, covariant=True)
@@ -82,6 +83,7 @@ class BaseDjangoModelService(
         it treats the incoming `field_data` exactly the same as `cleaned_data` is treated
         in the django code that it is emulating, and therefore does not perform any validation
         on the data or the model instance as it is assumed that field_data has already been validated upstream.
+
         Args:
             **field_data:
 

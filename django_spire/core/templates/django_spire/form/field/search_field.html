@@ -1,0 +1,5 @@
+{% extends 'django_spire/form/field/input_field.html' %}
+
+{% block input_type %}search{% endblock %}
+
+{% block input_field_attrs %}placeholder="{% if search_field_placeholder %}{{ search_field_placeholder }}{% else %}Search...{% endif %}"{% endblock %}

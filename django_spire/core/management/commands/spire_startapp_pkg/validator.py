@@ -4,6 +4,9 @@ from typing import TYPE_CHECKING
 
 from django.core.management.base import CommandError
 
+from django_spire.core.management.commands.spire_startapp_pkg.exceptions import \
+    AppExistsError
+
 if TYPE_CHECKING:
     from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
     from django_spire.core.management.commands.spire_startapp_pkg.registry import AppRegistry
@@ -65,14 +68,24 @@ class AppValidator:
         destination = self._path_resolver.get_app_destination(components)
 
         if self._filesystem.has_content(destination):
-            self._reporter.write('\n', self._reporter.style_notice)
+            message = f'The app already exists at {destination}.'
+            self._reporter.write(f'\n{message}', self._reporter.style_notice)
+            raise AppExistsError(message)
 
-            message = (
-                f'The app already exists at {destination}. '
-                'Please remove the existing app or choose a different name.'
-            )
+    def validate_template_path(self, components: list[str]) -> None:
+        """
+        Validates that an app's template path doesn't already exist.
 
-            raise CommandError(message)
+        :param components: List of app path components.
+        :raises CommandError: If an app already exists at the destination path.
+        """
+
+        destination = self._path_resolver.get_template_destination(components)
+
+        if self._filesystem.has_content(destination):
+            message = f'App templates already exists at {destination}.'
+            self._reporter.write(f'\n{message}', self._reporter.style_notice)
+            raise AppExistsError(message)
 
     def validate_root_app(self, components: list[str]) -> None:
         """

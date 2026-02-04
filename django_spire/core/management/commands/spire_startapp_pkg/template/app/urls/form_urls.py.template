@@ -8,10 +8,10 @@ from ${module_path}.views import form_views
 app_name = 'form'
 
 urlpatterns = [
-    path('create/', form_views.${create_form_view_name}, name='create'),
-    path('<int:pk>/update/', form_views.${update_form_view_name}, name='update'),
-    path('<int:pk>/delete/', form_views.${delete_form_view_name}, name='delete'),
-    path('create/modal/', form_views.${create_modal_form_view_name}, name='create_modal'),
-    path('<int:pk>/update/modal/', form_views.${update_modal_form_view_name}, name='update_modal'),
-    path('<int:pk>/delete/modal/', form_views.${delete_modal_form_view_name}, name='delete_modal'),
+    path('create/', form_views.${create_view_name}, name='create'),
+    path('<int:pk>/update/', form_views.${update_view_name}, name='update'),
+    path('<int:pk>/delete/', form_views.${delete_view_name}, name='delete'),
+    path('create/modal/', form_views.${create_modal_view_name}, name='create_modal'),
+    path('<int:pk>/update/modal/', form_views.${update_modal_view_name}, name='update_modal'),
+    path('<int:pk>/delete/modal/', form_views.${delete_modal_view_name}, name='delete_modal'),
 ]

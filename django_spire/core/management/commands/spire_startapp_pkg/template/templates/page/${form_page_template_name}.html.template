@@ -1,12 +1,12 @@
 {% extends 'django_spire/page/form_full_page.html' %}
 
-{% block page_content %}
+{% block full_page_content %}
     <form method="post">
         {% csrf_token %}
 
         <div class="row g-3">
             <div class="col-12">
-                {% include '${template_directory_path}/card/${form_card_template_name}' %}
+                {% include '${template_directory_path}/card/${form_card_template_name}.html' %}
             </div>
         </div>
     </form>

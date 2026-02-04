@@ -8,4 +8,5 @@ app_name = '${url_namespace}'
 urlpatterns = [
     path('page/', include('${module_path}.urls.page_urls', namespace='page')),
     path('form/', include('${module_path}.urls.form_urls', namespace='form')),
+    path('template/', include('${module_path}.urls.template_urls', namespace='template')),
 ]
