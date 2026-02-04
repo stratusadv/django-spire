@@ -38,20 +38,19 @@ This will be used to store the related information needed for the PWA system.
 }
 ```
 
-### Step 3: Update the content in the `manifest.json` file to your project's specific details.
+### Step 4: Update the content in the `manifest.json` file to your project's specific details.
 
-### Step 4: Update `base.html` file. 
+Make sure that `<link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">` is included in your `base.html` file. 
+(Included in Spire `base.html` by default)
 
-Include `<link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">` in your `base.html` file.
-
-### Step 3 Override IOS Element Template File
+### Step 5: Override IOS Element Template File
 
 For the IOS PWA element you will need to override the template and extend the blocks with your projects respective information.
 
 #### Example:
 
-```html title='django_spire/auth/element/ios_app_install_element.html'
-{% extends 'templates/django_spire/auth/element/ios_app_install_element.html' %}
+```html title='templates/django_spire/auth/element/ios_app_install_element.html'
+{% extends 'django_spire/auth/element/ios_app_install_element.html' %}
 
 {% load static %}
 
