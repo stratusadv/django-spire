@@ -37,4 +37,3 @@ comments are attached to as `obj`:
 ```
 
 You should now have a fully fledged comment list card on your page that has all CRUD functionally.
- 
