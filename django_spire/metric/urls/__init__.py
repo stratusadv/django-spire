@@ -7,4 +7,5 @@ app_name = 'metric'
 
 urlpatterns = [
     path('report/', include('django_spire.metric.report.urls', namespace='report')),
+    path('api/')
 ]

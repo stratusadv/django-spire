@@ -46,6 +46,7 @@ dependencies = [
     "django>=5.1.8",
     "django-crispy-forms==2.3",
     "django-glue>=0.8.12",
+    "django-ninja==1.5.3",
     "django-sendgrid-v5",
     "django-storages==1.14.5",
     "docutils",
@@ -59,7 +60,8 @@ dependencies = [
     "python-dateutil",
     "robit>=0.4.8",
     "typing_extensions",
-    "twilio"
+    "twilio",
+    "uuid>=1.30",
 ]
 
 [project.optional-dependencies]

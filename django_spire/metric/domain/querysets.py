@@ -27,3 +27,18 @@ class DomainQuerySet(
             queryset = queryset.search(search)
 
         return queryset
+
+
+class SubDomainQuerySet(
+    HistoryQuerySet,
+    SearchQuerySetMixin,
+    SessionFilterQuerySetMixin
+):
+    def bulk_filter(self, filter_data: dict) -> QuerySet[Domain]:
+        queryset = self
+
+        search = filter_data.get('search', '')
+        if search:
+            queryset = queryset.search(search)
+
+        return queryset
