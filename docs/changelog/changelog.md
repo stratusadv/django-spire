@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.26.2
+
+### Features
+- Added `humanize_tags.py` to `core/templatetags/`
+- Added `humanize_duration` to `humanize_tags.py` to turn an amount of seconds to a more human readable format
+
 ## v0.26.1
 
 ### Fixes
