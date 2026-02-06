@@ -6,6 +6,8 @@
 
 - Fix mkdocs conflict causing build failure.
 - Update PWA installation guide.
+- Added `humanize_tags.py` to `core/templatetags/`
+- Added `humanize_duration` to `humanize_tags.py` to turn an amount of seconds to a more human readable format
 
 ## v0.26.0
 
