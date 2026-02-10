@@ -1,0 +1,44 @@
+<a
+    {% if icon_href %}href="{{ icon_href }}"{% endif %}
+    class="{% block icon_base_class %}{% endblock %} {{ icon_wrapper_class }} position-relative d-inline-flex align-items-center justify-content-center"
+    x-data="{
+        {% block icon_x_data %}
+        isLoading: false,
+        isActive: false
+        {% endblock %}
+    }"
+    @mousedown="isActive = true"
+    @mouseup="isActive = false"
+    @touchstart="isActive = true"
+    @touchend="isActive = false"
+    @touchcancel="isActive = false"
+    {% if x_icon_click %}@click="isLoading = true; isActive = false; await {{ x_icon_click }}; isLoading = false"{% endif %}
+>
+    {% block icon_content %}
+    <i
+        {% block icon_element_attributes %}
+        class="
+            {% block icon_element_class %}
+            {{ icon }}
+            {{ font_size|default:'fs-2' }}
+            {{ icon_color|default:'text-app-default-text-color' }}
+            {{ hover_class|default:'text-app-primary-hover' }}
+            {{ icon_class }}
+            {% if x_icon_click or icon_href %}cursor-pointer{% endif %}
+            {% endblock %}
+        "
+        :class="{
+            'opacity-50': isLoading
+        }"
+        {% endblock %}
+    ></i>
+
+    {% if not hide_loading %}
+    <span x-show="isLoading" x-transition x-cloak class="position-absolute top-50 start-50 translate-middle">
+        <span class="spinner-border spinner-border-sm" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </span>
+    </span>
+    {% endif %}
+    {% endblock %}
+</a>

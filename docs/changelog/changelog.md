@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.27.0
+
+# Features
+
+- Added support for `pull to refresh` for mobile devices (PWA or not)
+- Added new `icon/responsive_icon.html` as an extendable template for responsive icons
+
 ## v0.26.1
 
 ### Fixes

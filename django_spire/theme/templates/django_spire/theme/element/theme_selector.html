@@ -1,6 +1,6 @@
 <div class="dropdown" x-data="{ families: [] }" x-init="$store.theme.families().then(f => families = f)">
     <i
-        class="bi bi-palette {{ icon_size|default:'fs-2' }} mx-2 cursor-pointer"
+        class="bi bi-palette {{ icon_color|default:'text-app-primary-hover' }} {{ icon_size|default:'fs-2' }} mx-2 cursor-pointer"
         id="theme_dropdown_button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
