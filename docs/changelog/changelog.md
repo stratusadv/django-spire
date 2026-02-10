@@ -6,6 +6,7 @@
 
 - Added support for `pull to refresh` for mobile devices (PWA or not)
 - Added new `icon/responsive_icon.html` as an extendable template for responsive icons
+- Added new `json_response` to remove boiler plate for adding `type` and `message` into responses
 
 ## v0.26.1
 
