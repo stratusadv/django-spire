@@ -9,8 +9,9 @@
 - Added new `json_response` to remove boilerplate for adding `type` and `message` into responses
 - Added global JS convinience methods for dispatching different types of message.
   - Added `notification.js` to `base.html`
-- Added Django Glue helpers to remove try / catch boilerplate (see documentation)
+- Added Django Glue helpers to remove try / catch boilerplate and add in try ability
   - Added `django_glue/helpers.js` to `base.html`
+  - Includes `GlueFetchHelper`, `GlueObjectHelper` and `GlueQuerySetHelper`
 - Added `toggleFullScreen` method into global JS to easily fullscreen capabilities
   - Added `full_screen.js` to `base.html`
 

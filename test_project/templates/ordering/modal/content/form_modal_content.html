@@ -3,7 +3,7 @@
         duck: new ModelObjectGlue('{{ unique_name }}'),
 
         async init() {
-            await this.duck.get()
+            await GlueObjectHelper.tryGlueGet(this.duck, 3);
         }
     }"
     method="post"
