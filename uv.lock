@@ -758,7 +758,7 @@ requires-dist = [
     { name = "botocore", specifier = ">=1.34.0" },
     { name = "build", marker = "extra == 'development'" },
     { name = "crispy-bootstrap5", specifier = "==2024.10" },
-    { name = "dandy", specifier = ">=1.3.5" },
+    { name = "dandy", specifier = "==1.3.5" },
     { name = "django", specifier = ">=5.1.8" },
     { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-crispy-forms", specifier = "==2.3" },
