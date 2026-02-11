@@ -5,8 +5,14 @@
 # Features
 
 - Added support for `pull to refresh` for mobile devices (PWA or not)
-- Added new `icon/responsive_icon.html` as an extendable template for responsive icons
-- Added new `json_response` to remove boiler plate for adding `type` and `message` into responses
+- Added new `icon/responsive_icon.html` as an extendable template for responsive icons and includes tooltips
+- Added new `json_response` to remove boilerplate for adding `type` and `message` into responses
+- Added global JS convinience methods for dispatching different types of message.
+  - Added `notification.js` to `base.html`
+- Added Django Glue helpers to remove try / catch boilerplate (see documentation)
+  - Added `django_glue/helpers.js` to `base.html`
+- Added `toggleFullScreen` method into global JS to easily fullscreen capabilities
+  - Added `full_screen.js` to `base.html`
 
 ## v0.26.1
 

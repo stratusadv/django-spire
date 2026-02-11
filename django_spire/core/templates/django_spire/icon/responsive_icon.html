@@ -13,6 +13,10 @@
     @touchend="isActive = false"
     @touchcancel="isActive = false"
     {% if x_icon_click %}@click="isLoading = true; isActive = false; await {{ x_icon_click }}; isLoading = false"{% endif %}
+    {% if tooltip_text %}
+    data-toggle="tooltip"
+    title="{{ tooltip_text }}"
+    {% endif %}
 >
     {% block icon_content %}
     <i

@@ -93,14 +93,17 @@
             ducks: {{ ducks }},
 
             async reorder_ducks({duck, order}) {
-                let response = null
-                try {
-                    response = await django_glue_fetch(
-                        '{% url "ordering:json:reorder" pk=0 order=9 %}'.replace(0, duck.id).replace(9, order),
-                    )
-                } catch (e) {
-                    window.location.reload()
-                }
+                let url = `{% url "ordering:json:reorder" pk=0 order=0 %}`.replace(/0\/0/, `${duck.id}/${order}`);
+
+                await GlueFetchHelper.tryGlueFetch(url, {
+                    successHandler: () => {
+                        dispatchError('Spooky Error!');
+                        dispatchInfo('Ducks were ordered');
+                        dispatchWarning('Ducks like to swim around');
+                        dispatchSuccess('Ducks re-ordered');
+                    },
+                    errorHandler: () => console.error('boo'),
+                });
             }
          }"
          x-sort="await reorder_ducks({duck: $item, order: $position})"

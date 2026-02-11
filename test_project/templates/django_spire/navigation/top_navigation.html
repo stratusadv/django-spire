@@ -26,7 +26,7 @@
             {% if AuthController.help_desk.can_view %}
                 {% block help_desk_icon %}
                     {% url 'django_spire:help_desk:page:list' as help_desk_url %}
-                    {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='fs-2 mx-2' %}
+                    {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='fs-2 mx-2' tooltip_text='Help Desk' %}
                 {% endblock %}
             {% endif %}
 
