@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.26.2
+
+### Fixes
+
+- Fixed side navigation divider text colour.
+
 ## v0.26.1
 
 ### Fixes
