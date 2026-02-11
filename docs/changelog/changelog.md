@@ -6,8 +6,8 @@
 
 - Added support for `pull to refresh` for mobile devices (PWA or not)
 - Added new `icon/responsive_icon.html` as an extendable template for responsive icons and includes tooltips
-- Added new `json_response` to remove boilerplate for adding `type` and `message` into responses
-- Added global JS convinience methods for dispatching different types of message.
+- Added new `json_response` and subtypes to remove boilerplate for adding `type` and `message` into responses
+- Added global JS convenience methods for dispatching different types of message.
   - Added `notification.js` to `base.html`
 - Added Django Glue helpers to remove try / catch boilerplate and add in try ability
   - Added `django_glue/helpers.js` to `base.html`
@@ -35,7 +35,7 @@
 
 - Added optional template generation to startapp.
 - Added ChoicesQueryMixin that provides a `to_choices` convenience queryset method
-- Added default implmentation for `SearchQuerySetMixin.search` that does a fuzzy search against all the model's CharFields
+- Added default implementation for `SearchQuerySetMixin.search` that does a fuzzy search against all the model's CharFields
 
 - Added `model_app_label` and `model_name` template tags to enable quick access to those Django model metadata
   properties in templates.
