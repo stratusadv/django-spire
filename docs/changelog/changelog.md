@@ -15,6 +15,10 @@
 - Added `toggleFullScreen` method into global JS to easily fullscreen capabilities
   - Added `full_screen.js` to `base.html`
 
+### Fixes
+
+- Fixed side navigation divider text colour.
+
 ## v0.26.1
 
 ### Fixes
