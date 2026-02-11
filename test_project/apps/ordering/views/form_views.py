@@ -71,6 +71,13 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'ordering:page:demo'
     )
 
+    def remove_duck():
+        duck.ordering_services.processor.remove_from_objects(
+            models.Duck.objects.active()
+        )
+
+        duck.set_inactive()
+
     return_url = safe_redirect_url(request, fallback=fallback)
 
     return modal_views.dispatch_modal_delete_form_content(
@@ -78,6 +85,7 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         obj=duck,
         form_action=form_action,
         activity_func=None,
+        delete_func=remove_duck,
         return_url=return_url,
     )
 
