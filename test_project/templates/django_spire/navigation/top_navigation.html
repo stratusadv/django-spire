@@ -25,7 +25,8 @@
         {% block top_navigation_icons %}
             {% if AuthController.help_desk.can_view %}
                 {% block help_desk_icon %}
-                    {% include 'django_spire/help_desk/element/icon.html' %}
+                    {% url 'django_spire:help_desk:page:list' as help_desk_url %}
+                    {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='fs-2 mx-2' tooltip_text='Help Desk' %}
                 {% endblock %}
             {% endif %}
 
@@ -47,7 +48,7 @@
             {% if request.user.is_authenticated %}
                 <div class="dropdown">
                     <i
-                        class="bi bi-person-circle fs-2 mx-2 cursor-pointer"
+                        class="bi bi-person-circle fs-2 mx-2 cursor-pointer text-app-primary-hover"
                         id="dropdownMenuButton1"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"

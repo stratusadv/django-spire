@@ -11,6 +11,172 @@
             height: 100vh;
         }
 
+        /* Pennant Banner Styles */
+        .pennant-banner {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 8px;
+            z-index: 10;
+            animation: banner-sway 4s ease-in-out infinite;
+            transform-origin: top center;
+            padding: 0;
+            margin-bottom: 150px;
+        }
+
+        @keyframes banner-sway {
+            0%, 100% { transform: rotateZ(-1deg); }
+            50% { transform: rotateZ(1deg); }
+        }
+
+        .pennant-rope {
+            position: absolute;
+            top: 0;
+            left: -50px;
+            right: -50px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, #8B7355 20%, #8B7355 80%, transparent 100%);
+            border-radius: 50%;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .pennant {
+            position: relative;
+            margin-top: 0;
+            padding: 30px 24px 80px 24px;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 3px 3px 4px rgba(0,0,0,0.5);
+            clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            animation: pennant-sway 3s ease-in-out infinite;
+        }
+
+        @keyframes pennant-sway {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(5deg); }
+        }
+
+        .pennant:nth-child(odd) {
+            background: #FF6B6B;
+        }
+
+        .pennant:nth-child(even) {
+            background: #4ECDC4;
+        }
+
+        .pennant:nth-child(3n) {
+            background: #FFE66D;
+        }
+
+        /* Cloud Styles */
+        .cloud {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 100px;
+            opacity: 0.8;
+            z-index: 2;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: inherit;
+            border-radius: 100px;
+        }
+
+        .cloud {
+            width: 80px;
+            height: 30px;
+        }
+
+        .cloud::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+
+        .cloud-1 {
+            top: 15%;
+            left: 5%;
+            animation: drift 40s linear infinite;
+        }
+
+        .cloud-2 {
+            top: 30%;
+            right: 10%;
+            animation: drift 60s linear infinite;
+            animation-delay: -20s;
+        }
+
+        .cloud-3 {
+            top: 22%;
+            left: 20%;
+            animation: drift 80s linear infinite;
+            animation-delay: -40s;
+            width: 100px;
+            height: 35px;
+        }
+
+        .cloud-3::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 15px;
+        }
+
+        .cloud-3::after {
+            width: 70px;
+            height: 45px;
+            top: -18px;
+            right: 15px;
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        /* Water Wave Styles */
+        .wave-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            overflow: hidden;
+            z-index: 3;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 60"><path d="M0,30 Q300,10 600,30 T1200,30 L1200,60 L0,60 Z" fill="%231e90ff" opacity="0.3"/><path d="M0,35 Q300,15 600,35 T1200,35 L1200,60 L0,60 Z" fill="%230076d6" opacity="0.5"/></svg>') repeat-x;
+            animation: wave-motion 8s linear infinite;
+        }
+
+        @keyframes wave-motion {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Float Animation */
         @keyframes float {
             0% {
                 transform: translateY(0) rotate(0deg);
@@ -57,58 +223,359 @@
 
         .duck-container {
             display: inline-block;
+            position: relative;
         }
 
-        .duck-name {
-            position: absolute;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index:1;
-        }
-
-        .duck-container:hover .duck-name {
+        .duck-container:hover .duck-delete-btn {
             opacity: 1;
+        }
+
+        /* Duck Name Tag Styles */
+        .duck-name-tag {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 250, 240, 0.95);
+            border: 1px solid rgba(139, 115, 85, 0.4);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #333;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .duck-name-tag::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 8px;
+            background: linear-gradient(to bottom, rgba(139, 115, 85, 0.6), transparent);
+        }
+
+        /* Delete Button Styles */
+        .duck-delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 107, 107, 0.9);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            font-size: 14px;
+            color: white;
+            padding: 0;
+            line-height: 1;
+            z-index: 5;
+        }
+
+        .duck-delete-btn:hover {
+            background: rgba(255, 75, 75, 1);
+            transform: scale(1.1);
+        }
+
+        /* Order Number Badge */
+        .duck-order-badge {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: 3px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            user-select: none;
+            z-index: 7;
+        }
+
+        /* Splash Animation */
+        @keyframes splash {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(0.2);
+            }
+        }
+
+        .splash {
+            position: absolute;
+            font-size: 80px;
+            pointer-events: none;
+            animation: splash 1.2s ease-out forwards;
+            line-height: 1;
+        }
+
+        /* Balloon Button Styles */
+        .balloon-container {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .balloon-container:hover {
+            transform: translateY(-10px) scale(1.1);
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+        }
+
+        .balloon-container:active {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        /* Animated Water Creatures */
+        .water-creature {
+            position: fixed;
+            font-size: 32px;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .shark {
+            bottom: 70px;
+            animation: swim-shark 30s linear infinite;
+        }
+
+        .floatie-person {
+            bottom: 90px;
+            animation: swim-floatie 35s linear infinite;
+            font-size: 28px;
+        }
+
+        @keyframes swim-shark {
+            0% { transform: translateX(-50px); }
+            100% { transform: translateX(calc(100vw + 50px)); }
+        }
+
+        @keyframes swim-floatie {
+            0% { transform: translateX(-50px) rotateY(0deg); }
+            50% { transform: translateX(calc(50vw - 25px)) rotateY(10deg); }
+            100% { transform: translateX(calc(100vw + 50px)) rotateY(0deg); }
+        }
+
+        /* Sky Birds */
+        .sky-bird {
+            position: fixed;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 2;
+            animation: fly-bird 25s linear infinite;
+        }
+
+        .bird-1 {
+            top: 10%;
+            animation: fly-bird 25s linear infinite;
+            animation-delay: 0s;
+        }
+
+        .bird-2 {
+            top: 25%;
+            animation: fly-bird 35s linear infinite;
+            animation-delay: -10s;
+        }
+
+        .bird-3 {
+            top: 18%;
+            animation: fly-bird 40s linear infinite;
+            animation-delay: -20s;
+        }
+
+        @keyframes fly-bird {
+            0% { transform: translateX(-50px); }
+            100% { transform: translateX(calc(100vw + 50px)); }
         }
     </style>
 {% endblock %}
 
 
 {% block full_page_content %}
+    <!-- Pennant Banner -->
     <div class="row">
-        <div x-data @click="dispatch_modal_view('{% url "ordering:form:form_modal_content" pk=0 %}')" class="col-auto">
-            {% include 'django_spire/button/primary_button.html' with button_text='Add Duck' button_icon='bi bi-plus-lg' %}
+        <div class="col-12">
+            <div class="pennant-banner" x-intersect="$el.style.animation = 'banner-sway 4s ease-in-out infinite'">
+                <div class="pennant-rope"></div>
+                <div class="pennant">Get</div>
+                <div class="pennant">your</div>
+                <div class="pennant">ducks</div>
+                <div class="pennant">in a</div>
+                <div class="pennant">row!</div>
+            </div>
         </div>
-        <div style="margin-top: 20%" class="col-12">&nbsp;</div>
     </div>
-    <div class="row"
+
+    <!-- Clouds -->
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+
+    <!-- Sky Birds -->
+    <div class="sky-bird bird-1">🦅</div>
+    <div class="sky-bird bird-2">🕊️</div>
+    <div class="sky-bird bird-3">🦜</div>
+
+    <!-- Wave Animation -->
+    <div class="wave-container">
+        <div class="wave"></div>
+    </div>
+
+    <!-- Water Creatures -->
+    <!-- Sharks -->
+    <div class="water-creature shark">🦈</div>
+    <div class="water-creature shark" style="animation-delay: -8s; bottom: 75px;">🦈</div>
+    <div class="water-creature shark" style="animation-delay: -16s; bottom: 82px;">🦈</div>
+    <div class="water-creature shark" style="animation-delay: -24s; bottom: 78px;">🦈</div>
+
+    <!-- Swimmers -->
+    <div class="water-creature floatie-person">🏊</div>
+    <div class="water-creature floatie-person" style="animation-delay: -10s; bottom: 85px;">🤽</div>
+    <div class="water-creature floatie-person" style="animation-delay: -20s; bottom: 88px;">🏄</div>
+    <div class="water-creature floatie-person" style="animation-delay: -28s; bottom: 86px;">🚣</div>
+
+    <!-- Sea Creatures -->
+    <div class="water-creature shark" style="animation: swim-shark 28s linear infinite; animation-delay: -5s; bottom: 72px;">🐬</div>
+    <div class="water-creature shark" style="animation: swim-shark 32s linear infinite; animation-delay: -12s; bottom: 80px;">🐙</div>
+    <div class="water-creature shark" style="animation: swim-shark 26s linear infinite; animation-delay: -18s; bottom: 76px;">🦑</div>
+    <div class="water-creature shark" style="animation: swim-shark 34s linear infinite; animation-delay: -22s; bottom: 84px;">🐠</div>
+    <div class="water-creature shark" style="animation: swim-shark 30s linear infinite; animation-delay: -30s; bottom: 74px;">🦭</div>
+
+    <!-- Floaties -->
+    <div class="water-creature floatie-person" style="animation-delay: -7s; bottom: 92px;">🏖️</div>
+    <div class="water-creature floatie-person" style="animation-delay: -14s; bottom: 87px;">⛱️</div>
+    <div class="water-creature floatie-person" style="animation-delay: -26s; bottom: 90px;">🛟</div>
+
+    <div class="row">
+        <div x-data @click="dispatch_modal_view('{% url "ordering:form:form_modal_content" pk=0 %}')" class="col-auto balloon-container" title="Add a duck!">
+            <svg width="120" height="160" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+                <!-- Balloon envelope -->
+                <ellipse cx="60" cy="45" rx="42" ry="48" fill="#FF6B9D" opacity="0.9"/>
+                <path d="M 18 45 Q 18 80 40 90 L 80 90 Q 102 80 102 45" fill="#FF6B9D" opacity="0.7"/>
+
+                <!-- Balloon highlights -->
+                <ellipse cx="40" cy="25" rx="15" ry="18" fill="#FFB3D9" opacity="0.6"/>
+
+                <!-- Ropes connecting balloon to basket -->
+                <line x1="30" y1="92" x2="35" y2="120" stroke="#8B7355" stroke-width="1.5" opacity="0.7"/>
+                <line x1="45" y1="95" x2="42" y2="120" stroke="#8B7355" stroke-width="1.5" opacity="0.7"/>
+                <line x1="75" y1="95" x2="78" y2="120" stroke="#8B7355" stroke-width="1.5" opacity="0.7"/>
+                <line x1="90" y1="92" x2="85" y2="120" stroke="#8B7355" stroke-width="1.5" opacity="0.7"/>
+
+                <!-- Basket -->
+                <rect x="30" y="120" width="60" height="35" fill="#D4A574" stroke="#8B7355" stroke-width="2" rx="3"/>
+
+                <!-- Basket weave pattern -->
+                <line x1="40" y1="120" x2="40" y2="155" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+                <line x1="50" y1="120" x2="50" y2="155" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+                <line x1="60" y1="120" x2="60" y2="155" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+                <line x1="70" y1="120" x2="70" y2="155" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+                <line x1="80" y1="120" x2="80" y2="155" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+
+                <line x1="30" y1="130" x2="90" y2="130" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+                <line x1="30" y1="140" x2="90" y2="140" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+                <line x1="30" y1="150" x2="90" y2="150" stroke="#8B7355" stroke-width="1" opacity="0.5"/>
+
+                <!-- Ducks in basket -->
+                <text x="45" y="145" font-size="18" text-anchor="middle">🦆</text>
+                <text x="65" y="145" font-size="18" text-anchor="middle">🦆</text>
+                <text x="75" y="135" font-size="16" text-anchor="middle">🦆</text>
+            </svg>
+        </div>
+        <div style="margin-top: 5%" class="col-12">&nbsp;</div>
+    </div>
+    <div class="row flex-wrap"
          x-data="{
             ducks: {{ ducks }},
+            splashPos: null,
+            splashVisible: false,
 
             async reorder_ducks({duck, order}) {
-                let response = null
-                try {
-                    response = await django_glue_fetch(
-                        '{% url "ordering:json:reorder" pk=0 order=9 %}'.replace(0, duck.id).replace(9, order),
-                    )
-                } catch (e) {
-                    window.location.reload()
-                }
+                let url = `{% url "ordering:json:reorder" pk=0 order=0 %}`.replace(/0\/0/, `${duck.id}/${order}`);
+
+                await GlueFetchHelper.tryGlueFetch(url, {
+                    successHandler: (response) => {
+                        if (response.ducks) {
+                            this.ducks = response.ducks;
+                        }
+                        this.showSplash(duck);
+                    },
+                    errorHandler: () => console.error('boo'),
+                });
+            },
+
+            showSplash(duck) {
+                const duckEl = document.querySelector(`[data-duck-id=\'${duck.id}\']`);
+                if (!duckEl) return;
+
+                const rect = duckEl.getBoundingClientRect();
+                this.splashPos = { x: rect.left + rect.width / 2, y: rect.top + rect.height };
+                this.splashVisible = true;
+                setTimeout(() => this.splashVisible = false, 800);
             }
          }"
          x-sort="await reorder_ducks({duck: $item, order: $position})"
     >
         <template x-for="duck of ducks" :key="duck.id">
-            <div @click="dispatch_modal_view('{% url "ordering:form:form_modal_content" pk=0 %}'.replace(0, duck.id))" class="col-auto duck-container" x-data style="cursor: grab" x-sort:item="duck">
-                <div class="duck-name" x-text="duck.name"></div>
-                    {% include 'ordering/duck/duck.svg' %}
+            <div :data-duck-id="duck.id"
+                 @click="dispatch_modal_view('{% url "ordering:form:form_modal_content" pk=0 %}'.replace(0, duck.id))"
+                 class="col-auto duck-container"
+                 x-data="{ hovered: false }"
+                 @mouseenter="hovered = true"
+                 @mouseleave="hovered = false"
+                 style="cursor: grab; margin-bottom: 50px;"
+                 x-sort:item="duck">
+
+                <!-- Order Badge -->
+                <div class="duck-order-badge" x-text="duck.order"></div>
+
+                <!-- Delete Button -->
+                <button
+                    type="button"
+                    class="duck-delete-btn"
+                    :class="{ 'd-none': !hovered }"
+                    @click.stop="dispatch_modal_view('{% url "ordering:form:delete_form_modal" pk=0 %}'.replace('0', duck.id))"
+                    title="Delete duck">
+                    <i class="bi bi-trash"></i>
+                </button>
+
+                <!-- Duck SVG -->
+                {% include 'ordering/duck/duck.svg' %}
+
+                <!-- Name Tag -->
+                <div class="duck-name-tag" x-text="duck.name"></div>
+            </div>
+        </template>
+
+        <!-- Splash Effect -->
+        <template x-if="splashVisible && splashPos">
+            <div class="splash" :style="`position: fixed; left: ${splashPos.x}px; top: ${splashPos.y}px;`">
+                💦💦💦 ✨🌊✨ 💦💦💦
             </div>
         </template>
     </div>

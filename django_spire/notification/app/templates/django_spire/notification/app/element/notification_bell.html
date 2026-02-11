@@ -2,7 +2,18 @@
 
 {% block notification_dropdown_trigger %}
     <div class="dropdown">
-        <i x-bind='trigger' class="bi bi-bell-fill fs-2 cursor-pointer mx-2"></i>
-        <span x-show="new_notification" x-cloak x-transition style="width: 10px; height: 10px; top: 8px; right: 10px; position: absolute;" class="bg-danger rounded-circle"></span>
+        <i x-bind='trigger' class="bi bi-bell-fill text-app-primary-hover fs-2 cursor-pointer mx-2"></i>
+        <span
+            x-show="new_notification"
+            x-cloak
+            x-transition
+            style="width: 10px; height: 10px; top: 8px; right: 10px; position: absolute;"
+            class="bg-danger rounded-circle"
+        ></span>
+        <span x-show="isLoading" x-transition x-cloak class="text-app-primary position-absolute top-50 start-50 translate-middle">
+            <span class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </span>
+        </span>
     </div>
 {% endblock %}

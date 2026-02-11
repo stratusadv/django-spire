@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.contrib.responses.json_response import success_json_response
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.contrib.form.utils import show_form_errors
@@ -18,7 +19,7 @@ from test_project.apps.ordering import forms, models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.http import HttpResponseRedirect
+    from django.http import HttpResponseRedirect, JsonResponse
 
 
 @permission_required('apps.change_appsordering')
@@ -32,7 +33,7 @@ def create_form_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateRes
 
         if form.is_valid():
             duck.services.save_model_obj(**form.cleaned_data)
-            all_ducks = models.Duck.objects.all().order_by('order')
+            all_ducks = models.Duck.objects.active().order_by('order')
             duck.ordering_services.processor.move_to_position(
                 destination_objects=all_ducks,
                 position=duck.order
@@ -62,22 +63,20 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     duck = get_object_or_404(models.Duck, pk=pk)
 
     form_action = reverse(
-        'ordering:delete_form_modal',
+        'ordering:form:delete_form_modal',
         kwargs={'pk': pk}
     )
 
-    def add_activity() -> None:
-        duck.add_activity(
-            user=request.user,
-            verb='deleted',
-            device=request.device,
-            information=f'{request.user.get_full_name()} deleted a duck on.'
+    fallback = reverse(
+        'ordering:page:demo'
+    )
+
+    def remove_duck():
+        duck.ordering_services.processor.remove_from_objects(
+            models.Duck.objects.active()
         )
 
-    fallback = reverse(
-        'ordering:page:demo',
-        kwargs={'pk': duck.apps.pk}
-    )
+        duck.set_inactive()
 
     return_url = safe_redirect_url(request, fallback=fallback)
 
@@ -85,7 +84,8 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=duck,
         form_action=form_action,
-        activity_func=add_activity,
+        activity_func=None,
+        delete_func=remove_duck,
         return_url=return_url,
     )
 

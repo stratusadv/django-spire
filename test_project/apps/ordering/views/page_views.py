@@ -20,9 +20,10 @@ def demo_view(request: WSGIRequest) -> TemplateResponse:
         'ducks': json.dumps([{
                 'name': duck.name,
                 'id': duck.id,
-                'color': duck.color
+                'color': duck.color,
+                'order': duck.order
             }
-            for duck in models.Duck.objects.all().order_by('order')
+            for duck in models.Duck.objects.active().order_by('order')
         ])
     }
 

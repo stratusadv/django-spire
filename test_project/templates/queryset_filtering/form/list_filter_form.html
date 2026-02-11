@@ -7,20 +7,6 @@
     <div
         class="row g-2"
         x-data="{
-            async init() {
-                this.search.set_attribute('placeholder', 'Search...')
-
-                this.task.glue_fields.name.required = false
-                this.task.name = this.session_controller.get_data('name', '')
-
-                this.task.glue_fields.status.required = false
-                this.task.status = this.session_controller.get_data('status', '')
-
-                this.users.choices = await this.user_queryset.to_choices()
-                this.users.value = this.session_controller.get_data('users', '')
-                this.users.required = false
-
-            },
             session_controller: new SessionController('{% session_controller_to_json 'task_list_filter' %}'),
             task: new ModelObjectGlue('task'),
             user_queryset: new QuerySetGlue('users'),
@@ -33,6 +19,22 @@
                     name: 'search',
                 }
             ),
+
+            async init() {
+                this.search.set_attribute('placeholder', 'Search...')
+
+                this.task.glue_fields.name.required = false
+                this.task.name = this.session_controller.get_data('name', '')
+
+                this.task.glue_fields.status.required = false
+                this.task.status = this.session_controller.get_data('status', '')
+
+                this.users.choices = await GlueQuerySetHelper.tryToChoices(this.user_queryset);
+
+                this.users.value = this.session_controller.get_data('users', '')
+                this.users.required = false
+
+            },
         }"
     >
         <div class="col-4">

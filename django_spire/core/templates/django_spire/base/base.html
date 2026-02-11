@@ -48,6 +48,8 @@
             <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.x/dist/echarts.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
+
             <script id="theme-config" type="application/json">{{ theme_config|safe }}</script>
             <script type="application/javascript" src="{% static 'django_spire/js/theme.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript" src="{% static 'django_spire/js/ui.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
@@ -55,6 +57,10 @@
             <script type="application/javascript" src="{% static 'django_spire/js/ajax.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript" src="{% static 'django_spire/js/dropdown.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript" src="{% static 'django_spire/js/modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript" src="{% static 'django_spire/js/notification.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript" src="{% static 'django_spire/js/full_screen.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+
+            <script type="application/javascript" src="{% static 'django_spire/js/django_glue/helpers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.14.x/dist/cdn.min.js"></script>
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.14.x/dist/cdn.min.js"></script>
@@ -86,6 +92,17 @@
 
         {% block base_body_bottom_js %}
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
+        {% endblock %}
+
+        {% block init_pull_to_refresh %}
+            <script>
+                const ptr = PullToRefresh.init({
+                    mainElement: 'body',
+                    onRefresh() {
+                        window.location.reload();
+                    }
+                });
+            </script>
         {% endblock %}
 
         {% block base_body_additional_bottom_js %}
