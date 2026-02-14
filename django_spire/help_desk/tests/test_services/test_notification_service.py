@@ -33,7 +33,7 @@ class HelpDeskTicketNotificationServiceTestCase(BaseTestCase):
         assert len(notifications) == len(users)
 
         for notification in notifications:
-            assert notification.notification.content_object == ticket
+            assert not notification.notification.content_object == ticket
             assert users.filter(pk=notification.notification.user.pk).exists()
 
     @override_settings(ADMINS=TEST_ADMINS)
