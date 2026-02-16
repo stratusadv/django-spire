@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.27.1
+
+# Features
+
+- Added base template files for opencode.
+- Starting agents and skills to work with Django Spire
+- Management Commnad `spire_opencode` to setup opencode files and sync skills/agents
+
+### Changes
+
+- Tweak spire start app templates
+
+
 ## v0.27.0
 
 # Features
