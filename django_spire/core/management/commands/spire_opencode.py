@@ -22,6 +22,7 @@ class Command(BaseCommand):
         current_cmd_dir = Path(__file__).resolve().parent
         source_pkg_dir = current_cmd_dir / 'spire_opencode_pkg'
         dest_root_dir = settings.BASE_DIR
+        opencode_project_dir = settings.BASE_DIR / '.opencode'
 
         if not source_pkg_dir.exists():
             raise CommandError(f"Could not find source package at: {source_pkg_dir}")
@@ -75,16 +76,17 @@ class Command(BaseCommand):
         if import_agents:
             self._sync_directory(
                 source_pkg_dir / 'agents',
-                dest_root_dir / 'agents'
+                opencode_project_dir / 'agents'
             )
 
         if import_skills:
             self._sync_directory(
                 source_pkg_dir / 'skills',
-                dest_root_dir / 'skills'
+                opencode_project_dir / 'skills'
             )
 
         self.stdout.write(self.style.SUCCESS('\nOperation complete.'))
+        self.stdout.write(self.style.SUCCESS('\nYou will have to restart you opencode server for these changes to apply.'))
 
     def _preview_directory_contents(self, path: Path, label: str):
         """Helper to list the immediate children of a directory for preview."""
