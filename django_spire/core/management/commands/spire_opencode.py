@@ -26,6 +26,25 @@ class Command(BaseCommand):
         if not source_pkg_dir.exists():
             raise CommandError(f"Could not find source package at: {source_pkg_dir}")
 
+        # --- WARNING & MANIFEST ---
+        self.stdout.write(self.style.WARNING('!' * 60))
+        self.stdout.write(self.style.WARNING('WARNING: DUPLICATE CONTENT WILL BE OVERWRITTEN'))
+        self.stdout.write(self.style.WARNING(
+            'This command copies files from Spire to your project root.\n'
+            'If you have existing agents or skills with the same names,\n'
+            'their directories will be merged and existing files OVERWRITTEN.'
+        ))
+        self.stdout.write(self.style.WARNING('!' * 60))
+
+        self.stdout.write('\nThe following assets have been found in the Spire package:')
+
+        # List Agents found in source
+        self._preview_directory_contents(source_pkg_dir / 'agents', 'AGENTS')
+
+        # List Skills found in source
+        self._preview_directory_contents(source_pkg_dir / 'skills', 'SKILLS')
+
+
         raw_config = input('Do you want to import opencode.json config? (y/n) (default: n) -> ').strip().lower()
         import_config = raw_config == 'y'
 
@@ -52,21 +71,37 @@ class Command(BaseCommand):
             if should_copy:
                 shutil.copy2(src_file, dest_file)
                 self.stdout.write(self.style.SUCCESS(f'[✔] Copied opencode.json to {dest_file}'))
-        #
-        # if import_agents:
-        #     self._sync_directory(
-        #         source_pkg_dir / 'agents',
-        #         dest_root_dir / 'agents'
-        #     )
-        #
-        # if import_skills:
-        #     self._sync_directory(
-        #         source_pkg_dir / 'skills',
-        #         dest_root_dir / 'skills'
-        #     )
-        #
-        # self.stdout.write(self.style.SUCCESS('\nOperation complete.'))
 
+        if import_agents:
+            self._sync_directory(
+                source_pkg_dir / 'agents',
+                dest_root_dir / 'agents'
+            )
+
+        if import_skills:
+            self._sync_directory(
+                source_pkg_dir / 'skills',
+                dest_root_dir / 'skills'
+            )
+
+        self.stdout.write(self.style.SUCCESS('\nOperation complete.'))
+
+    def _preview_directory_contents(self, path: Path, label: str):
+        """Helper to list the immediate children of a directory for preview."""
+        if not path.exists():
+            return
+
+        self.stdout.write(self.style.SUCCESS(f'\n[{label}]'))
+
+        items = sorted(path.iterdir())
+        if not items:
+            self.stdout.write('  (Empty directory)')
+            return
+
+        for item in items:
+            # Differentiate visually between folders and files
+            prefix = "📂" if item.is_dir() else "📄"
+            self.stdout.write(f'  - {prefix} {item.name}')
 
     def _sync_directory(self, src_path: Path, dest_path: Path):
         """
