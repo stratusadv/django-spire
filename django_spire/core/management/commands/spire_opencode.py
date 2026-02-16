@@ -45,9 +45,11 @@ class Command(BaseCommand):
         # List Skills found in source
         self._preview_directory_contents(source_pkg_dir / 'skills', 'SKILLS')
 
-
         raw_config = input('Do you want to import opencode.json config? (y/n) (default: n) -> ').strip().lower()
         import_config = raw_config == 'y'
+
+        raw_agent_md_import = input('Do you want to import AGENT.md config? (y/n) (default: n) -> ').strip().lower()
+        import_agent_md = raw_agent_md_import == 'y'
 
         raw_agents = input('Do you want to import agents? (y/n) (default: y) -> ').strip().lower()
         import_agents = raw_agents != 'n'
@@ -59,19 +61,15 @@ class Command(BaseCommand):
             src_file = source_pkg_dir / 'opencode.json'
             dest_file = dest_root_dir / 'opencode.json'
 
-            should_copy = True
+            shutil.copy2(src_file, dest_file)
+            self.stdout.write(self.style.SUCCESS(f'[✔] Copied opencode.json to {dest_file}'))
 
-            if dest_file.exists():
-                self.stdout.write(self.style.WARNING(f'[!] Configuration file already exists at: {dest_file}'))
-                overwrite = input('Do you want to overwrite it? (y/n) (default: n) -> ').strip().lower()
+        if import_agent_md:
+            src_file = source_pkg_dir / 'AGENT.md'
+            dest_file = dest_root_dir / 'AGENT.md'
 
-                if overwrite != 'y':
-                    should_copy = False
-                    self.stdout.write(self.style.WARNING('[!] Skipped config overwrite.'))
-
-            if should_copy:
-                shutil.copy2(src_file, dest_file)
-                self.stdout.write(self.style.SUCCESS(f'[✔] Copied opencode.json to {dest_file}'))
+            shutil.copy2(src_file, dest_file)
+            self.stdout.write(self.style.SUCCESS(f'[✔] Copied AGENT.md to {dest_file}'))
 
         if import_agents:
             self._sync_directory(
@@ -118,8 +116,8 @@ class Command(BaseCommand):
             dest_path.mkdir(parents=True, exist_ok=True)
             self.stdout.write(self.style.SUCCESS(f'[+] Created directory: {dest_path}'))
 
-        # Copy files using shutil.copytree with dirs_exist_ok=True (Python 3.8+)
-        # This recursively copies the folder and overwrites files if they exist
+
+        # Recursively copies the folder and overwrites files if they exist
         try:
             shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
             self.stdout.write(self.style.SUCCESS(f'[✔] Synced contents of {src_path.name}'))
