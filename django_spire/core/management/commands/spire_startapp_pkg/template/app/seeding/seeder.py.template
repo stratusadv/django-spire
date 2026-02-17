@@ -14,13 +14,13 @@ class ${seeder_class_name}(DjangoModelSeeder):
     """https://django-spire.stratusadv.com/app_guides/seeding/overview/"""
 
     model_class = models.${model_class_name}
-    default_to = 'faker'
+    default_to = 'llm'
 
     fields: ClassVar = {
         'id': 'exclude',
         'created_datetime': 'exclude',
         'is_active': True,
         'is_deleted': False,
-        # 'name': ('faker', 'company'),
-        # 'status': ('faker'),
+        # 'name': ('llm', 'Super awesome prompt'),
+        # 'status': 'faker',
     }
