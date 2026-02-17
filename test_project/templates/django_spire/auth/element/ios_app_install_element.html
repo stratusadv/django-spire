@@ -2,6 +2,14 @@
 
 {% load static %}
 
-{% block app_icon %}{% static 'favicons/android-chrome-192x192.png' %}{% endblock %}
+{% block app_icon %}{% static 'core/favicon/android-chrome-192x192.png' %}{% endblock %}
 
 {% block app_title %}Fancy Test Project{% endblock %}
+
+{% block alt_text %}Fancy Test Project{% endblock %}
+
+{% block modal_trigger %}
+    {% include 'django_spire/auth/button/ios_install_button.html' with button_type='btn-app-primary-outlined' %}
+{% endblock %}
+
+

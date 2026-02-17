@@ -1,0 +1,9 @@
+<button
+    class="btn fs-6 shadow-sm {{ button_class|default:'btn-lg' }} {{ button_type|default:'app-btn-primary' }}"
+    id="android-install-button"
+    hidden
+>
+    <i class="{{ button_icon|default:'bi bi-file-arrow-down' }}"></i>
+
+    {{ button_text|default:'Install App' }}
+</button>
