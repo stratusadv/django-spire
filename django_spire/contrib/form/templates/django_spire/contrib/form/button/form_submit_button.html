@@ -8,7 +8,7 @@
         // This logic checks for a validate function and calls it if it exists
         if (form.checkValidity() && ('validate_form' in this && await validate_form(form) || !('validate_form' in this))) {
             this.loading = true
-            toggle_loading_overlay()
+            toggleLoadingOverlay()
             form.submit()
         }
         else {

@@ -1,10 +1,14 @@
 <div
-    class="spinner-grow text-app-primary position-fixed top-50 start-50 translate-middle d-none"
+    class="position-fixed top-50 start-50 translate-middle d-none"
     style="z-index: 1025"
     id="loading-icon"
     role="status"
+    aria-label="Loading"
 >
-    <span class="visually-hidden">
-        Loading...
-    </span>
+    <div class="loader-orbital">
+        <div class="loader-ring"></div>
+        <div class="loader-ring loader-ring--delay"></div>
+        <div class="loader-core"></div>
+    </div>
+    <span class="visually-hidden">Loading...</span>
 </div>

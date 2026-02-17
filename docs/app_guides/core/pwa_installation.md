@@ -62,7 +62,7 @@ For the IOS PWA element you will need to override the template and extend the bl
 {% block alt_text %}Stratus ADV{% endblock %}
 
 {% block modal_trigger %}
-    {% include 'django_spire/auth/button/ios_install_button.html' with button_type='btn-app-primary-outlined' %}
+    % include 'django_spire/auth/button/ios_install_button.html' with button_type='btn-app-primary-outlined' %
 {% endblock %}
 ```
 
@@ -77,7 +77,7 @@ If desired, override the android install button. **Note**: If not directly overr
 {% extends 'django_spire/auth/element/android_and_chrome_app_install_element.html' %}
 
 {% block install_button %}
-    {% include 'django_spire/auth/button/android_install_button.html' with button_type='btn-app-primary-outlined' %}
+    % include 'django_spire/auth/button/android_install_button.html' with button_type='btn-app-primary-outlined' %
 {% endblock %}
 ```
 

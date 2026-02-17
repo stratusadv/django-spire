@@ -101,7 +101,7 @@
 
             this.loading_tabs.add(tab_number);
 
-            toggle_loading_overlay();
+            toggleLoadingOverlay();
 
             let view = new ViewGlue(trigger.endpoint);
             await view.render_inner(section.content_el);
@@ -109,7 +109,7 @@
             this.loading_tabs.delete(tab_number);
             this.loaded_tabs.add(tab_number);
 
-            toggle_loading_overlay();
+            toggleLoadingOverlay();
         },
 
         get_url_param() {
