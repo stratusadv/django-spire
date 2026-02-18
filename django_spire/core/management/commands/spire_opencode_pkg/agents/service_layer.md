@@ -1,5 +1,5 @@
 ---
-name: service-layer
+name: Service Layer
 description: Best practices for service layer development.
 ---
 

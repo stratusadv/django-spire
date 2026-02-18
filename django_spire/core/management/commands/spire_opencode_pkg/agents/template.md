@@ -1,5 +1,5 @@
 ---
-name: template
+name: Template
 description: Writing templates
 ---
 

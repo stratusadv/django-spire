@@ -1,5 +1,5 @@
 ---
-name: models
+name: Models
 description: Agent to modify and create django models.
 ---
 
