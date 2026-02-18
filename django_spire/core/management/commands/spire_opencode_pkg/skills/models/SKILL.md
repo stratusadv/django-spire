@@ -3,7 +3,7 @@ name: django-models
 description: Best practice for working with Django models 
 ---
 
-Use the following guidelines when working in model.py files.
+Use the following guidelines when working in models.py files.
 
 # Important Patters
 - Models are where we pull and organize information about our data structures.
@@ -48,5 +48,53 @@ class InventoryBatch(HistoryModelMixin, ActivityMixin):
     name = models.CharField(max_length=255)
 ```
 
-## Character Text Choices
-- Refer to the @text-choices skill.
+## Choice Fields
+---
+name: writing-model-choices
+description: Writing choice classes using Django TextChoices 
+---
+
+### Best Practices
+- The class name should be verbose
+- Label is all capital letters and snakecase
+- Code must be 3 characters
+- When the label cannot be accurately translated, use the verbose implementation. 
+
+
+### Basic Implementation
+This should cover most use cases.
+```python
+from django.db.models import TextChoices
+
+class ProductTypeChoices(TextChoices):
+    RAW = 'raw'
+    WORK_IN_PROGRESS = 'wip'
+    FINISHED_GOOD = 'fin'
+```
+
+### Verbose Implementation
+Use when we need to specifically define the text output of the label.
+
+```python
+from django.db.models import TextChoices
+
+class ProductTypeChoices(TextChoices):
+    RAW = 'raw', 'Raw'
+    WORK_IN_PROGRESS = 'wip', 'Work in Progress'
+    FINISHED_GOOD = 'fin', 'Finished Good'
+```
+
+### Model Implementation 
+- The max length must always match the code length. If implemented properly, it will be 3.
+
+```python
+from django.db import models
+class Product(models.Model):
+
+    unit_of_measure = models.CharField(
+        max_length=3,
+        choices=ProductUnitOfMeasureChoices.choices,
+        default=ProductUnitOfMeasureChoices.LB
+    )
+
+```

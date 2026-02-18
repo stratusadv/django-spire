@@ -69,8 +69,7 @@ class Command(BaseCommand):
         template_builder = TemplateBuilder(reporter)
 
         app_generator = AppGenerator(filesystem, template_processor, reporter, path_config)
-        template_generator = TemplateGenerator(filesystem, template_processor, reporter,
-                                               path_config)
+        template_generator = TemplateGenerator(filesystem, template_processor, reporter, path_config)
 
         user_inputs = user_input_collector.collect_all_inputs()
         app_path = user_inputs['app_path']
@@ -107,8 +106,7 @@ class Command(BaseCommand):
 
                 if reporter.prompt_confirmation('\nProceed with app creation? (y/n): '):
                     for module in [missing[-1]]:
-                        module_config = config_factory.create_config(module,
-                                                                     user_inputs)
+                        module_config = config_factory.create_config(module, user_inputs)
 
                     app_generator.generate(module_config)
 
@@ -127,8 +125,7 @@ class Command(BaseCommand):
                 path_config.html_template
             )
 
-            if not reporter.prompt_confirmation(
-                    '\nProceed with template creation? (y/n): '):
+            if not reporter.prompt_confirmation('\nProceed with template creation? (y/n): '):
                 reporter.write('Skipping template creation.', reporter.style_notice)
                 return
 
