@@ -20,7 +20,7 @@
             }
         "
         @mouseup.window="is_resizing_sub = false; is_resizing_info = false"
-        class="d-flex min-vh-100 w-100"
+        class="d-flex min-vh-100 w-100 overflow-x-hidden"
         x-data="{
             info_nav_max_width: 600,
             info_nav_min_width: 200,
@@ -37,7 +37,7 @@
             sub_nav_max_width: 600,
             sub_nav_min_width: 300,
             sub_nav_width: 300,
-            sub_toggle_left: 8,
+            sub_toggle_left: 0,
 
             is_touch_device() {
                 return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
@@ -53,10 +53,11 @@
 
             update_toggle_position() {
                 let side_nav = document.querySelector('.side-navigation');
+
                 if (side_nav && window.innerWidth >= 992) {
                     this.sub_toggle_left = side_nav.offsetWidth;
                 } else {
-                    this.sub_toggle_left = 8;
+                    this.sub_toggle_left = 0;
                 }
             },
 
@@ -219,17 +220,19 @@
 
                 <template x-if="show_sub_toggle()">
                     <div
-                        class="panel-toggle-container"
+                        class="panel-toggle-container panel-toggle-container-left"
                         :style="{ left: sub_toggle_left + 'px' }"
+                        @click="toggle_sub()"
                     >
-                        {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
+                        <i class="bi bi-grip-vertical"></i>
                     </div>
                 </template>
 
                 <div
                     class="col pb-2"
                     :class="{
-                        'ps-5': show_sub_toggle(),
+                        'ps-panel-offset': show_sub_toggle(),
+                        'pe-panel-offset': show_sub_toggle(),
                     }"
                 >
                     {% block full_page_content %}
@@ -240,8 +243,11 @@
                 </div>
 
                 <template x-if="show_info_toggle()">
-                    <div class="panel-toggle-container panel-toggle-container-right">
-                        {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
+                    <div
+                        class="panel-toggle-container panel-toggle-container-right"
+                        @click="toggle_info()"
+                    >
+                        <i class="bi bi-grip-vertical"></i>
                     </div>
                 </template>
 

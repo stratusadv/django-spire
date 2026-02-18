@@ -10,7 +10,8 @@
 
 {% block full_page_content %}
     <div
-        class="row"
+        class="row overflow-hidden"
+        style="height: calc(100vh - var(--app-top-navigation-height));"
         x-data="{
             chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
 
@@ -30,6 +31,6 @@
         @deleted_chat.window="load_chat(0)"
         @load-chat.window="load_chat($event.detail.chat_id)"
     >
-        <div class="col" x-ref="chat_dialog"></div>
+        <div class="col h-100" x-ref="chat_dialog"></div>
     </div>
 {% endblock %}
