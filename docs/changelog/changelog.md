@@ -1,8 +1,15 @@
 # Changelog
 
+## v0.27.3
+
+### Changes
+
+- Added `formatDatetimeInput` to format date for glue fields
+  - Added to `base.html`
+
 ## v0.27.2
 
-# Features
+### Features
 
 - `toggleLoadingOverlay` now takes in an optional duration length to stop the animation from persisting on JavaScript and other page errors
   - Separated `toggleLoadingOverlay` from `toggleLoadingSpinner` to make actions distinct
@@ -23,7 +30,7 @@
 
 ## v0.27.1
 
-# Features
+### Features
 
 - Added base template files for opencode.
 - Starting agents and skills to work with Django Spire
@@ -36,7 +43,7 @@
 
 ## v0.27.0
 
-# Features
+### Features
 
 - Added support for `pull to refresh` for mobile devices (PWA or not)
 - Added new `icon/responsive_icon.html` as an extendable template for responsive icons and includes tooltips
