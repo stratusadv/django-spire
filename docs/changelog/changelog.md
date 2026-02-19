@@ -6,9 +6,9 @@
 
 - Added `form_title_card.html` that wraps card_content with form to allow for more flexible form layouts in the card
 
-### Fixes
+### Breaking
 
-- Removed `card_title_content_container_element_type` block from `title_card.html`, as it was only updating the opening html tag and causing issues. 
+- Removed `card_title_content_container_element_type` block from `title_card.html` 
 
 ## v0.27.3
 
