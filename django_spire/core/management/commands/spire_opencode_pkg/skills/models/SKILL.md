@@ -5,17 +5,49 @@ description: Best practice for working with Django models
 
 Use the following guidelines when working in models.py files.
 
-# Important Patters
+# Best Practices
+
+## Important Patters
 - Models are where we pull and organize information about our data structures.
 - Methods on the model do NOT save the data! Any logic that processes or performs actions on the database lives in the service layer.
 - Methods on the model can aggregate and display information related to the model.
 - Breadcrumb classes are on the model. 
 - Model names follow the hierarchy of the directory structure. For example, inventory_batch would have a batch module inside of the inventory module.
 
-# Model Fields 
 
-## Model Foreign Keys
-- Foreign key relationships are always at the top of the model file sorted alphabetically. 
+### Example
+```python
+class InventoryBatch(HistoryModelMixin, ActivityMixin):
+    product = models.ForeignKey(
+        'product.Product',
+        on_delete=models.CASCADE,
+        related_name='batches',
+        related_query_name='batch'
+    )
+    
+    location = models.ForeignKey(
+        'inventory_location.InventoryLocation', # note here how the patter is app_name.ModelName. 
+        on_delete=models.CASCADE,
+        related_name='inventory',
+        related_query_name='inventory',
+        null=True,
+        blank=True
+    ) 
+
+    name = models.CharField(max_length=255)
+
+    unit_of_measure = models.CharField(
+        max_length=3,
+        choices=ProductUnitOfMeasureChoices.choices,
+        default=ProductUnitOfMeasureChoices.LB
+    )
+```
+
+
+## Model Fields 
+
+### Model Foreign Keys
+- Foreign key relationships are always the first fields at the top of the model file sorted alphabetically. 
 - The relationship is aways a string that is of format `'app_name.ModelName'`.
   - Review the related model apps.py file to find the app_label
 - Do not import the related model.
@@ -43,58 +75,35 @@ class InventoryBatch(HistoryModelMixin, ActivityMixin):
         related_query_name='inventory',
         null=True,
         blank=True
-    ) 
-
-    name = models.CharField(max_length=255)
+    )
 ```
 
-## Choice Fields
----
-name: writing-model-choices
-description: Writing choice classes using Django TextChoices 
----
-
-### Best Practices
-- The class name should be verbose
+### Choice Fields
 - Label is all capital letters and snakecase
-- Code must be 3 characters
-- When the label cannot be accurately translated, use the verbose implementation. 
+- The tuple is (code, verbose_name). Code is always 3 characters.
 
-
-### Basic Implementation
-This should cover most use cases.
+### Example
 ```python
+# app/product/choices.py
 from django.db.models import TextChoices
 
-class ProductTypeChoices(TextChoices):
-    RAW = 'raw'
-    WORK_IN_PROGRESS = 'wip'
-    FINISHED_GOOD = 'fin'
-```
-
-### Verbose Implementation
-Use when we need to specifically define the text output of the label.
-
-```python
-from django.db.models import TextChoices
-
-class ProductTypeChoices(TextChoices):
+class ProductTypeChoices(TextChoices):    
     RAW = 'raw', 'Raw'
     WORK_IN_PROGRESS = 'wip', 'Work in Progress'
     FINISHED_GOOD = 'fin', 'Finished Good'
 ```
 
-### Model Implementation 
-- The max length must always match the code length. If implemented properly, it will be 3.
-
 ```python
+# app/product/models.py
 from django.db import models
+from app.product import choices
+
+
 class Product(models.Model):
 
     unit_of_measure = models.CharField(
-        max_length=3,
-        choices=ProductUnitOfMeasureChoices.choices,
-        default=ProductUnitOfMeasureChoices.LB
-    )
-
+      max_length=3,
+      choices=choices.ProductUnitOfMeasureChoices.choices,
+      default=choices.ProductUnitOfMeasureChoices.LB
+  )
 ```

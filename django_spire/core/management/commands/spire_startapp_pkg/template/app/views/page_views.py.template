@@ -38,15 +38,14 @@ def ${detail_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('${permission_prefix}.view_${model_instance_name}')
 def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
-    models.${model_class_name}.objects.process_session_filter(
+    ${context_plural_var} = models.${model_class_name}.objects.process_session_filter(
         request=request,
         session_key=LIST_FILTERING_SESSION_KEY,
         form_class=${model_class_name}ListFilterForm,
     )
 
     context_data = {
-        'responsive_mode': ResponsiveMode.SCROLL,
-        '${context_single_var}_items_endpoint': reverse('${url_reverse_path}:template:items'),
+        '${context_plural_var}': ${context_plural_var}
         'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
     }
 
