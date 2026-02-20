@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.27.8
+
+### Change
+- Add optional template parameters to `notification_bell.html` for icon, color, size, and style customization
+
+
 ## v0.27.7
 
 ### Features

@@ -34,6 +34,10 @@
         :class="{
             'opacity-50': isLoading
         }"
+        {% block icon_attributes %}
+        {{ icon_attributes }}
+        {% endblock %}
+
         {% endblock %}
     ></i>
 
