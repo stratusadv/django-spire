@@ -167,7 +167,7 @@
 
             <div class="row">
                 <div
-                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto'"
+                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto border-end border-app-primary bg-app-layer-one'"
                     :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1040;' : (sub_nav_has_been_resized ? `width: ${sub_nav_width}px; min-width: ${sub_nav_width}px; max-width: ${sub_nav_width}px;` : `min-width: ${sub_nav_min_width}px;`)"
                     x-ref="sub_nav_container"
                     x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
@@ -175,7 +175,7 @@
                 >
                     <div
                         :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
-                        class="row sticky-top border-end border-app-primary side-panel overflow-y-auto"
+                        class="row sticky-top side-panel overflow-y-auto"
                     >
                         <div class="col">
                             <div class="row pb-2 align-items-center">
@@ -212,7 +212,7 @@
                     <div
                         @mousedown="start_resize_sub($event)"
                         class="position-absolute top-0 d-flex align-items-center justify-content-center"
-                        style="cursor: ew-resize; height: 100%; right: -8px; user-select: none; width: 16px; z-index: 1000;"
+                        style="bottom: 0; cursor: ew-resize; right: -8px; user-select: none; width: 16px; z-index: 1000;"
                         x-show="!is_mobile"
                     >
                     </div>
@@ -220,11 +220,11 @@
 
                 <template x-if="show_sub_toggle()">
                     <div
-                        class="panel-toggle-container panel-toggle-container-left"
+                        class="panel-toggle-container panel-toggle-container-left d-flex align-items-center justify-content-center position-fixed"
                         :style="{ left: sub_toggle_left + 'px' }"
                         @click="toggle_sub()"
                     >
-                        <i class="bi bi-grip-vertical"></i>
+                        <i class="bi bi-chevron-bar-right rounded"></i>
                     </div>
                 </template>
 
@@ -244,22 +244,22 @@
 
                 <template x-if="show_info_toggle()">
                     <div
-                        class="panel-toggle-container panel-toggle-container-right"
+                        class="panel-toggle-container panel-toggle-container-right d-flex align-items-center justify-content-center position-fixed"
                         @click="toggle_info()"
                     >
-                        <i class="bi bi-grip-vertical"></i>
+                        <i class="bi bi-chevron-bar-left rounded"></i>
                     </div>
                 </template>
 
                 <div
-                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto'"
-                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : (show_info_nav ? `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;` : 'margin-left: 0px; z-index: 1040;')"
+                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto border-start border-app-primary bg-app-layer-one'"
+                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;`"
                     x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
                     x-transition
                 >
                     <div
                         :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
-                        class="row sticky-top border-start border-app-primary side-panel overflow-y-auto bg-app-layer-one"
+                        class="row sticky-top side-panel overflow-y-auto bg-app-layer-one"
                     >
                         <div class="col">
                             <div class="row pb-2">
@@ -296,7 +296,7 @@
                     <div
                         @mousedown="start_resize_info($event)"
                         class="position-absolute top-0"
-                        style="cursor: ew-resize; height: 100%; left: -8px; user-select: none; width: 16px; z-index: 1000;"
+                        style="bottom: 0; cursor: ew-resize; left: -8px; user-select: none; width: 16px; z-index: 1000;"
                         x-show="!is_mobile"
                     ></div>
                 </div>
