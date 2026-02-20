@@ -1,11 +1,35 @@
 ---
-name: django-models
-description: Best practice for working with Django models 
+name: Models
+description: Agent to modify and create django models.
 ---
 
-Use the following guidelines when working in models.py files.
+# Role
+Follow the workflow and use the context below to configure the models.py file based on the request.
+
+# Workflow
+
+## Locate the correct module
+- Each module inside our app directory has a models.py file.
+- Find the correct models.py file.
+
+## Analyze Relevant Files
+- Review model relationships and understand the purpose of the model.
+
+## Apply changes to models.py
+- Apply changes to the models.py.
+- Only manipulate the files needed that are related to the specified model(s).
+- Adhere to the best practices below when applying changes.
+
+## Review
+- Review model changes and apply model file best practices.
+
+# Constraints 
+- Only modify code related to the model and its downstream effects. 
+- Do not take any extra steps. Stay within the boundaries. 
+
 
 # Best Practices
+Use the following guidelines when working in models.py files.
 
 ## Important Patters
 - Models are where we pull and organize information about our data structures.

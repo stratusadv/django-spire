@@ -1,1 +1,0 @@
-{% extends 'django_spire/container/infinite_scroll_container.html' %}

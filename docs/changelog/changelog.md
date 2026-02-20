@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.27.6
+
+### Changes
+
+- Simplifying spire_startapp command to allow AI to read our patterns easier.
+- Add new opencode agents that adher to spire best practices.
+
+
+
 ## v0.27.5
 
 ### Breaking
