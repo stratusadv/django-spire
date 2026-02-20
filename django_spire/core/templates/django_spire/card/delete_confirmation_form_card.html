@@ -13,11 +13,11 @@
             </div>
         {% endif %}
 
-        <div class="row text-center">
+        <div class="row g-2">
             {% csrf_token %}
             <input hidden id="delete_confirmation_should_delete" value="false" name="should_delete" type="text">
 
-            <div class="col-auto me-3">
+            <div class="col-auto">
                 {% include 'django_spire/button/danger_button.html' with x_button_click='submit_value(true)' button_text='Delete' %}
             </div>
             <div class="col-auto">

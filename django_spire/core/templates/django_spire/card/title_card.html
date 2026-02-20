@@ -2,7 +2,7 @@
 
 {% block card_class %}d-flex flex-column{% endblock %}
 
-{% block card_padding %}p-3 flex-grow-1{% endblock %}
+{% block card_padding %}p-4 flex-grow-1{% endblock %}
 
 {% block card_body_style %}display: flex; flex-direction: column; min-height: 0;{% endblock %}
 
@@ -19,12 +19,12 @@
         }"
     >
         {% block card_title_header_content %}
-            <div class="row justify-content-between align-items-center mb-2 pb-2 border-bottom flex-shrink-0" style="min-height: 38px;">
+            <div class="row justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary-subtle flex-shrink-0" style="min-height: 38px;">
                 <div class="col d-flex align-items-center">
-                    <div class="card-title text-uppercase mb-0">
+                    <span class="fs-6 fw-semibold mb-0">
                         {% block card_title %}
                         {% endblock %}
-                    </div>
+                    </span>
                 </div>
                 <div class="{% block card_button_col_class %}col-auto{% endblock %} d-flex">
                     {% block card_button %}{% endblock %}
