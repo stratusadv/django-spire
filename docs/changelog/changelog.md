@@ -1,90 +1,47 @@
 # Changelog
 
-## v0.27.6
-
-### Changes
-
-- Simplifying spire_startapp command to allow AI to read our patterns easier.
-- Add new opencode agents that adher to spire best practices.
-
-
-
-## v0.27.5
-
-### Breaking
-
-- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility.
-  - Any instances of extending this block will need to include padding and margin now.
-
-## v0.27.4
-
-### Changes
-
-- Added `form_title_card.html` that wraps card_content with form to allow for more flexible form layouts in the card
-
-### Breaking
-
-- Removed `card_title_content_container_element_type` block from `title_card.html` 
-
-## v0.27.3
-
-### Changes
-
-- Added `formatDatetimeInput` to format date for glue fields
-  - Added to `base.html`
-
-## v0.27.2
+## v0.27.7
 
 ### Features
 
-- `toggleLoadingOverlay` now takes in an optional duration length to stop the animation from persisting on JavaScript and other page errors
-  - Separated `toggleLoadingOverlay` from `toggleLoadingSpinner` to make actions distinct
-  - Overhauled defaulting loading spinner
-- Added loading overlay transitions when navigation using the `nav_links` elements
-  - Can be disabled with `disable_overlay` but is defaulted to on.
-- Added guide for `Glue*Helpers` for front and back end (from v0.27.0)
-- Added guide for `*_json_response` for front and back end (from v0.27.0)
-- Added basic `.aiiignore`
-
-### Fixes
-
-- Fixed PWA installation to be more extendable, updated documentation and moved `ios_install_element` to be a `modal`
-
-### Breaking
-
-- `toggle_loading_overlay` renamed to `toggleLoadingOverlay`
-
-## v0.27.1
-
-### Features
-
-- Added base template files for opencode.
-- Starting agents and skills to work with Django Spire
-- Management Command `spire_opencode` to set up opencode files and sync skills/agents
-
-### Changes
-
-- Tweak spire start app templates
-
-
-## v0.27.0
-
-### Features
-
-- Added support for `pull to refresh` for mobile devices (PWA or not)
+- Added support for `pull to refresh` for IOS devices in standalone mode
 - Added new `icon/responsive_icon.html` as an extendable template for responsive icons and includes tooltips
 - Added new `json_response` and subtypes to remove boilerplate for adding `type` and `message` into responses
-- Added global JS convenience methods for dispatching different types of message.
+- Added global JS convenience methods for dispatching different types of message
   - Added `notification.js` to `base.html`
-- Added Django Glue helpers to remove try / catch boilerplate and add in try ability
+- Added Django Glue helpers to remove try / catch boilerplate and add in re-try ability
   - Added `django_glue/helpers.js` to `base.html`
   - Includes `GlueFetchHelper`, `GlueObjectHelper` and `GlueQuerySetHelper`
 - Added `toggleFullScreen` method into global JS to easily fullscreen capabilities
   - Added `full_screen.js` to `base.html`
+- `toggleLoadingOverlay` now takes in an optional duration length to stop the animation from persisting on JavaScript and other page errors
+  - Separated `toggleLoadingOverlay` from `toggleLoadingSpinner` to make actions distinct
+  - Overhauled defaulting loading spinner
+- Added loading overlay transitions when navigation using the `nav_links` elements
+  - Can be disabled with `disable_overlay` but is defaulted to on
+- Added basic `.aiiignore`
+- Added base template files for opencode
+- Starting agents and skills to work with Django Spire
+- Management Command `spire_opencode` to set up opencode files and sync skills/agents
+- Added `formatDatetimeInput` to format date for glue fields
+  - Added to `base.html`
+
+### Changes
+
+- Added `form_title_card.html` that wraps card_content with form to allow for more flexible form layouts in the card
+- Simplified `spire_startapp` command to allow AI to read our patterns easier
+- Added new opencode agents that adhere to spire best practices
 
 ### Fixes
 
-- Fixed side navigation divider text colour.
+- Fixed side navigation divider text colour
+
+### Breaking
+
+- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility
+  - Any instances of extending this block will need to include padding and margin now
+- Removed `card_title_content_container_element_type` block from `title_card.html`
+- `toggle_loading_overlay` renamed to `toggleLoadingOverlay`
 
 ## v0.26.1
 
