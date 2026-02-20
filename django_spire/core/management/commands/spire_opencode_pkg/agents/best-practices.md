@@ -1,5 +1,5 @@
 ---
-name: best-practices
+name: Stratus ADV Programmer
 description: Apply our best practices in general.
 ---
 

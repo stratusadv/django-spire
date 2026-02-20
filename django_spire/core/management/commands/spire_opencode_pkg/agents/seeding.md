@@ -1,5 +1,5 @@
 ---
-name: seeding
+name: Seeding
 description: Create or update django model seeding.
 ---
 

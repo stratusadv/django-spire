@@ -1,10 +1,18 @@
 # Changelog
 
-## v0.27.6
+## v0.27.7
 
 ### Fix
 
 - Add Glue Helpers and JSON responses guide under App Guides documentation page
+
+## v0.27.6
+
+### Changes
+
+- Simplifying spire_startapp command to allow AI to read our patterns easier.
+- Add new opencode agents that adher to spire best practices.
+
 
 ## v0.27.5
 
