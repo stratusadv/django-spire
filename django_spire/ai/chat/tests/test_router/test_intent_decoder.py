@@ -180,7 +180,7 @@ class TestIntentDecoder(BaseTestCase):
             default_callable=None
         )
 
-        assert '' in decoder.mapping
+        assert '' in decoder.llm.mapping
 
     @override_settings(
         DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS={

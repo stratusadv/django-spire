@@ -59,8 +59,12 @@ def preprocess_search_query(
         if cached:
             return cached
 
+    search_bot = SearchPreprocessingBot()
+
+    search_bot.llm.options.temperature = llm_temperature
+
     intel: PreprocessedQueryIntel = (
-        SearchPreprocessingBot(llm_temperature=llm_temperature)
+        search_bot
         .process(query=query)
     )
 

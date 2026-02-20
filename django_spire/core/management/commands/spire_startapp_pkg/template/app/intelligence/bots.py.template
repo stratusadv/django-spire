@@ -6,8 +6,8 @@ from ${module_path}.intelligence import intel, prompts
 
 
 class ${bot_class_name}(Bot):
-    llm_intel_class = intel.${intel_class_name}
-    llm_role = prompts.${instruction_prompt_function_name}()
+    intel_class = intel.${intel_class_name}
+    role = prompts.${instruction_prompt_function_name}()
 
     def process(
         self,

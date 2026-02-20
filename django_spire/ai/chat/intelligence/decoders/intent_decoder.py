@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, TYPE_CHECKING
 
-from dandy import Decoder
+from dandy import Bot
 
 from django_spire.conf import settings
 from django_spire.core.utils import get_callable_from_module_string_and_validate_arguments
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def generate_intent_decoder(
     request: WSGIRequest,
     default_callable: Callable | None = None
-) -> Decoder:
+) -> Bot:
     intent_dict = {}
 
     if hasattr(settings, 'DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS'):
@@ -43,7 +43,19 @@ def generate_intent_decoder(
     if default_callable is not None:
         intent_dict['None of the above choices match the user\'s intent'] = default_callable
 
-    return Decoder(
-        mapping_keys_description='Intent of the User\'s Request',
-        mapping=intent_dict
-    )
+    class DecoderBot(Bot):
+
+        def process(
+                self,
+                prompt,
+                max_return_values: int
+        ):
+
+            return self.llm.decoder.prompt_to_values(
+                prompt=prompt,
+                keys_description='Intent of the User\'s Request',
+                keys_values=intent_dict,
+                max_return_values=max_return_values
+            )
+
+    return DecoderBot
