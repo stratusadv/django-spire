@@ -1,12 +1,57 @@
 # Changelog
 
+## v0.27.5
+
+### Breaking
+
+- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility.
+  - Any instances of extending this block will need to include padding and margin now.
+
+## v0.27.4
+
+### Changes
+
+- Added `form_title_card.html` that wraps card_content with form to allow for more flexible form layouts in the card
+
+### Breaking
+
+- Removed `card_title_content_container_element_type` block from `title_card.html` 
+
+## v0.27.3
+
+### Changes
+
+- Added `formatDatetimeInput` to format date for glue fields
+  - Added to `base.html`
+
+## v0.27.2
+
+### Features
+
+- `toggleLoadingOverlay` now takes in an optional duration length to stop the animation from persisting on JavaScript and other page errors
+  - Separated `toggleLoadingOverlay` from `toggleLoadingSpinner` to make actions distinct
+  - Overhauled defaulting loading spinner
+- Added loading overlay transitions when navigation using the `nav_links` elements
+  - Can be disabled with `disable_overlay` but is defaulted to on.
+- Added guide for `Glue*Helpers` for front and back end (from v0.27.0)
+- Added guide for `*_json_response` for front and back end (from v0.27.0)
+- Added basic `.aiiignore`
+
+### Fixes
+
+- Fixed PWA installation to be more extendable, updated documentation and moved `ios_install_element` to be a `modal`
+
+### Breaking
+
+- `toggle_loading_overlay` renamed to `toggleLoadingOverlay`
+
 ## v0.27.1
 
-# Features
+### Features
 
 - Added base template files for opencode.
 - Starting agents and skills to work with Django Spire
-- Management Commnad `spire_opencode` to setup opencode files and sync skills/agents
+- Management Command `spire_opencode` to set up opencode files and sync skills/agents
 
 ### Changes
 
@@ -15,7 +60,7 @@
 
 ## v0.27.0
 
-# Features
+### Features
 
 - Added support for `pull to refresh` for mobile devices (PWA or not)
 - Added new `icon/responsive_icon.html` as an extendable template for responsive icons and includes tooltips

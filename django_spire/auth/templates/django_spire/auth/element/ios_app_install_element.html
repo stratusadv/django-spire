@@ -1,25 +1,29 @@
+{% extends 'django_spire/modal/center_modal.html' %}
+
 {% load static %}
 
-<div class="text-center">
-    <button id="ios-install-button" class="btn btn-app-primary fs-4 mt-3" data-bs-toggle="modal" data-bs-target="#ios-install-app-modal" hidden>
-        Install App <i class="bi bi-file-arrow-down"></i>
-    </button>
-</div>
+{% block modal_trigger %}
+    {% include 'django_spire/auth/button/ios_install_button.html' with button_type='btn-app-primary' %}
+{% endblock %}
 
-<div class="modal fade" id="ios-install-app-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-theme="{{ theme.mode }}">
-    <div class="modal-dialog">
-        <div class="modal-content bg-app-layer-one">
-            <div class="modal-header">
+{% block modal_content %}
+    {% block install_content %}
+        <div class="row">
+            <div class="col-auto">
                 <img
-                    src="{% block app_icon %}{% endblock %}"
-                    alt="No Image"
+                    src="{% block app_icon %}{% static 'favicons/android-chrome-192x192.png' %}{% endblock %}"
+                    alt="{% block alt_text %}Django Spire{% endblock %}"
                     class="border rounded-3 me-3 shadow"
                     style=" height: 3.0rem; "
                 >
-                <span class="fs-5 fw-semibold">{% block app_title %}{% endblock %}</span>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="col-auto">
+                <span class="fs-5 fw-semibold">{% block app_title %}Django Spire{% endblock %}</span>
+            </div>
+            <div class="col-auto ms-auto">
+                {% include 'django_spire/icon/responsive_icon.html' with x_icon_click='close_modal()' icon='bi bi-x-lg' tooltip_text='Close' %}
+            </div>
+            <div class="col-12">
                 <p>Install the app on your Apple device to easily access it anytime by following the instructions below in the Safari Web Browser.</p>
                 <ol>
                     <li class="p-2">Tap on the <span class="border border-2 p-1 rounded-3"><i class="bi bi-box-arrow-up"></i></span> in your browser bar</li>
@@ -29,10 +33,8 @@
                 <p class="m-0">You will need to close this popup to complete the installation process</p>
             </div>
         </div>
-    </div>
-</div>
-
-<script type="application/javascript">
+    {% endblock %}
+    <script type="application/javascript">
     let ios_install_button = document.querySelector("#ios-install-button");
 
     const isIos = () => {
@@ -45,4 +47,5 @@
     if (isIos() && !isInStandaloneMode()) {
         ios_install_button.removeAttribute("hidden");
     }
-</script>
+    </script>
+{% endblock %}
