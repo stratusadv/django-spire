@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.27.5
+
+### Changes
+
+- Change `infinite_scroll_item.html` item class to block to control bottom margin and padding
+
 ## v0.27.4
 
 ### Changes
