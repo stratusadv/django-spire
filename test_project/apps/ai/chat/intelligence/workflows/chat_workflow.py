@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dandy.recorder import recorder_to_html_file
+from dandy import recorder_to_html_file
 from dandy import Bot
 
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel

@@ -1,20 +1,21 @@
 from __future__ import annotations
 
-from dandy import Bot, LlmConfigOptions, Prompt
+from dandy import Bot, Prompt
 
 from django_spire.ai.prompt.tuning import prompts, intel
 
 
 class PromptTestingBot(Bot):
-    llm_role = Prompt()
-    llm_config_options = LlmConfigOptions(temperature=0.4)
+    role = Prompt()
 
     def process(
         self,
         system_prompt: str,
         user_prompt: str
     ) -> intel.PromptTestingIntel:
-        self.llm_role = system_prompt
+        self.role = system_prompt
+        self.llm.options.temperature = 0.5
+
         return self.llm.prompt_to_intel(
             prompt=user_prompt,
             intel_class=intel.PromptTestingIntel
@@ -22,14 +23,14 @@ class PromptTestingBot(Bot):
 
 
 class SimplePromptTuningBot(Bot):
-    llm_role = prompts.prompt_tuning_instruction_bot_prompt()
-    llm_config_options = LlmConfigOptions(temperature=0.1)
+    role = prompts.prompt_tuning_instruction_bot_prompt()
 
     def process(
         self,
         prompt: str,
         feedback: str
     ) -> intel.PromptTuningIntel:
+        self.llm.options.temperature = 0.2
         return self.llm.prompt_to_intel(
             prompt=prompts.prompt_tuning_input_prompt(prompt, feedback),
             intel_class=intel.PromptTuningIntel
@@ -37,7 +38,7 @@ class SimplePromptTuningBot(Bot):
 
 
 class AdvancedPromptTuningBot(Bot):
-    llm_role = prompts.prompt_tuning_instruction_bot_prompt()
+    role = prompts.prompt_tuning_instruction_bot_prompt()
 
     def process(
         self,
@@ -60,7 +61,7 @@ class AdvancedPromptTuningBot(Bot):
 
 
 class FormattingBot(Bot):
-    llm_role = prompts.formatting_bot_instruction_prompt()
+    role = prompts.formatting_bot_instruction_prompt()
 
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
@@ -70,7 +71,7 @@ class FormattingBot(Bot):
 
 
 class InstructionClarityBot(Bot):
-    llm_role = prompts.instruction_clarity_bot_instruction_prompt()
+    role = prompts.instruction_clarity_bot_instruction_prompt()
 
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
@@ -80,7 +81,7 @@ class InstructionClarityBot(Bot):
 
 
 class PersonaBot(Bot):
-    llm_role = prompts.persona_bot_instruction_prompt()
+    role = prompts.persona_bot_instruction_prompt()
 
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
@@ -90,7 +91,7 @@ class PersonaBot(Bot):
 
 
 class DuplicationRemovalBot(Bot):
-    llm_role = prompts.duplication_removal_bot_instruction_prompt()
+    role = prompts.duplication_removal_bot_instruction_prompt()
 
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(
@@ -100,7 +101,7 @@ class DuplicationRemovalBot(Bot):
 
 
 class ExampleOptimizationBot(Bot):
-    llm_role = prompts.example_optimization_bot_instruction_prompt()
+    role = prompts.example_optimization_bot_instruction_prompt()
 
     def process(self, system_prompt: str) -> intel.PromptTuningIntel:
         return self.llm.prompt_to_intel(

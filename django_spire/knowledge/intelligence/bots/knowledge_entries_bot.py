@@ -11,9 +11,9 @@ if TYPE_CHECKING:
 
 
 class KnowledgeEntriesBot(Bot):
-    llm_role = 'Knowledge Entry Search Assistant'
-    llm_task = 'Read through the knowledge entries and return the most relevant for the user request.'
-    llm_guidelines = (
+    role = 'Knowledge Entry Search Assistant'
+    task = 'Read through the knowledge entries and return the most relevant for the user request.'
+    guidelines = (
         Prompt()
         .list([
             'Return 1 to 5 of the most relevant knowledge entries using block ids.',
@@ -22,7 +22,7 @@ class KnowledgeEntriesBot(Bot):
             'When returning the relevant heading remove any of the markdown formating characters.',
         ])
     )
-    llm_intel_class = EntriesIntel
+    intel_class = EntriesIntel
 
     def process(self, user_input: str, entries: list[Entry]) -> EntriesIntel:
         entry_prompt = Prompt()

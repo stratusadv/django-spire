@@ -10,7 +10,7 @@ def bot_tuning_cli(bot_class: type[Bot], **bot_params):
     Recorder.start_recording(recording_name='prompt_tuning')
 
     bot = bot_class()
-    tuned_prompt = bot.llm_role
+    tuned_prompt = bot.role
     print(tuned_prompt)
     bot_tuning = bot.process(**bot_params)
     print(bot_tuning)
@@ -37,7 +37,7 @@ def bot_tuning_cli(bot_class: type[Bot], **bot_params):
         print('----------------------NEW PROMPT END------------------------------')
         print()
         print('----------------------BOT TUNING START------------------------------')
-        bot.llm_role = Prompt().text(new_prompt.prompt)
+        bot.role = Prompt().text(new_prompt.prompt)
         bot_tuning = bot.process(**bot_params)
         print(bot_tuning)
         print('----------------------BOT TUNING END------------------------------')
