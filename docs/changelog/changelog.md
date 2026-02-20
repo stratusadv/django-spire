@@ -1,5 +1,12 @@
 # Changelog
 
+
+## v0.28.0
+
+### Breaking
+- Refactored to require `Dandy v2.0.0`
+- Codebases must be refactored to this version of Dandy to use spire v0.28.0 and beyond
+
 ## v0.27.7
 
 ### Features
