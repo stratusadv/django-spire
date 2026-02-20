@@ -1,20 +1,26 @@
 # Changelog
 
+## v0.27.7
+
+### Fixes
+
+- Fixed pull to refresh behaviour when page contained scrollable containers
+  - Locked pull to refresh to IOS PWA only
+- Added missing app guides for `json_responses` and `GlueHelpers`
+
 ## v0.27.6
 
 ### Changes
 
-- Simplifying spire_startapp command to allow AI to read our patterns easier.
-- Add new opencode agents that adher to spire best practices.
-
-
+- Simplifying spire_startapp command to allow AI to read our patterns easier
+- Add new opencode agents that adhere to spire best practices
 
 ## v0.27.5
 
 ### Breaking
 
-- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility.
-  - Any instances of extending this block will need to include padding and margin now.
+- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility
+  - Any instances of extending this block will need to include padding and margin now
 
 ## v0.27.4
 
