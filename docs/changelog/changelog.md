@@ -2,9 +2,10 @@
 
 ## v0.27.5
 
-### Changes
+### Breaking
 
-- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility
+- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility.
+  - Any instances of extending this block will need to include padding and margin now.
 
 ## v0.27.4
 
