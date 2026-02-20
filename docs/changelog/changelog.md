@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.27.8
+
+### Features
+- Added `icon_attributes` block to `responsive_icons.html`
+
+### Changes
+- Updated `notification_bell.html` to extend from `responsive_icon.html`
+
+
 ## v0.27.7
 
 ### Features

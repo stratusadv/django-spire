@@ -2,7 +2,7 @@
 
 {% block notification_dropdown_trigger %}
     <div class="dropdown">
-        <i x-bind='trigger' class="bi bi-bell-fill text-app-primary-hover fs-2 cursor-pointer mx-2"></i>
+        {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-bell-fill' icon_class='mx-2' icon_attributes="x-bind='trigger'" %}
         <span
             x-show="new_notification"
             x-cloak
