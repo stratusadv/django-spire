@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from dandy import Bot, Prompt
+
+from django_spire.contrib.programmer.models.intel import intel
+
+
 class ModelUserInputEnrichmentPrompt(Bot):
     role = 'Expert in understanding and explaining in simple terms.'
     task = 'Enrich the users input to provide more context for a Junior Developer to understand.'
@@ -12,4 +19,3 @@ class ModelUserInputEnrichmentPrompt(Bot):
         ])
     )
     intel_class = intel.EnrichedModelUserInput
-

@@ -1,17 +1,15 @@
 from __future__ import annotations
 
+from typing import Type
 from pathlib import Path
-from typing import Any, Type
 
-from dandy import Bot, Prompt, BaseIntel
-from dandy.cli.tui.tui import tui
+from dandy import Bot, Prompt
 from dandy.file.utils import get_directory_listing
 
-from django_spire.contrib.programmer.models import intel
+from django_spire.contrib.programmer.models.intel import intel
 
 
-_RELATIVE_BASE_DIR = Path(Path(__file__).parent).resolve()
-BEST_PRACTICES = Path(_RELATIVE_BASE_DIR, '../best_practices.md')
+_RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent).resolve()
 
 
 # Todo: This makes sense as a general bot...

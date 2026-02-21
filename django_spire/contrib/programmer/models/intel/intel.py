@@ -24,8 +24,7 @@ class FilePathIntel(BaseIntel):
 
 class ModelActionIntel(BaseIntel):
     name: str
-    action: list[str]
-
+    action: list[str] = None
     path: str | None = None
     file: str | None = None
 

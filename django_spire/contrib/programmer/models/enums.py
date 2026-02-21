@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class ModelActionEnum(str, Enum):
-    FIELDS = 'Adjust model fields'
-    METHODS = ''
+    FIELDS = 'fie'
+    METHODS = 'met'
     CREATE = 'cre'
     REVIEW = 'rev'

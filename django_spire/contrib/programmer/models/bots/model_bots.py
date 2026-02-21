@@ -1,12 +1,14 @@
-# Review bot...
+from __future__ import annotations
+
+from pathlib import Path
+
+from dandy import Bot, Prompt
+
+from django_spire.contrib.programmer.models.intel import intel
 
 
-
-
-
-"""
-    Bots that write and reivew model fields.
-"""
+_RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent).resolve()
+BEST_PRACTICES = Path(_RELATIVE_BASE_DIR, '../best_practices.md')
 
 
 class ModelFieldGeneralProgrammerBot(Bot):
@@ -61,7 +63,7 @@ class ModelFieldIdentifierBot(Bot):
 class ModelFieldOrchestrationBot(Bot):
     role = 'An expert at deciding on data structure types.'
     task = 'Find the correct field for the data structure.'
-    intel_class = intel.ModelIntel
+    intel_class = intel.ModelActionIntel
 
     def process(self, user_input: str, model_file: str):
         # Find all fields and enrich the data

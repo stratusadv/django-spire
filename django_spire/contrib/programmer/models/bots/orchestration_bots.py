@@ -1,3 +1,12 @@
+from dandy import Bot, Prompt
+from dandy.cli.tui.tui import tui
+
+from django_spire.contrib.programmer.models.bots.general_bots import HappyUserBot, FeedBackBot, ModelFinderBot
+from django_spire.contrib.programmer.models.bots.model_bots import ModelFieldGeneralProgrammerBot, \
+    ModelFieldOrchestrationBot
+from django_spire.contrib.programmer.models.bots.user_input_bots import ModelUserInputEnrichmentPrompt
+
+
 class ModelOrchestrationBot(Bot):
     role = 'An expert at finding and orchestrating tasks that need to be completed.'
     task = 'Return actions in the correct order they need to be taken.'
@@ -72,7 +81,7 @@ class ModelOrchestrationBot(Bot):
             enriched_user_input = enriched_data.to_prompt()
 
             # Find the model file.
-            model_file = ModelFileFinderBot().process(user_input=enriched_data.model_name)
+            model_file = ModelFinderBot().process(user_input=enriched_data.model_name)
 
             actions = {
                 'Model Fields': ModelFieldOrchestrationBot,
