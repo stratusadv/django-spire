@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from dandy.recorder import recorder_to_html_file
+from dandy import recorder_to_html_file
 
 from django_spire.ai.chat.intelligence.decoders.intent_decoder import generate_intent_decoder
 from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageIntel
@@ -86,7 +86,7 @@ class SpireChatRouter(BaseChatRouter):
             default_callable=self._default_chat_callable,
         )
 
-        intent_process = intent_decoder.process(user_input, max_return_values=1)[0]
+        intent_process = intent_decoder().process(user_input, max_return_values=1)[0]
 
         return intent_process(
             request=request,

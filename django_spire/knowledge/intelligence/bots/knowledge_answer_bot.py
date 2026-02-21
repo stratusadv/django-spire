@@ -31,9 +31,9 @@ def format_marker(marker: MarkerType, label: str | None = None) -> str:
 
 
 class KnowledgeAnswerBot(Bot):
-    llm_role = 'Knowledge Entry Search Assistant'
-    llm_task = 'Read through the knowledge and answer the users request.'
-    llm_guidelines = (
+    role = 'Knowledge Entry Search Assistant'
+    task = 'Read through the knowledge and answer the users request.'
+    guidelines = (
         Prompt()
         .list([
             'Make sure the answer is relevant and reflects knowledge entries.',
@@ -44,7 +44,7 @@ class KnowledgeAnswerBot(Bot):
             f'Content under a [{BlockType.HEADING}] or [{BlockType.SUBHEADING}] belongs to that section.',
         ])
     )
-    llm_intel_class = AnswerIntel
+    intel_class = AnswerIntel
 
     def process(
         self,

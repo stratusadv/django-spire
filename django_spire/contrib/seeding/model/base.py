@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from dandy.recorder import recorder_to_html_file
+from dandy import recorder_to_html_file
 from dandy import SqliteCache, generate_cache_key
 
 from django_spire.contrib.seeding.field.override import FieldOverride
