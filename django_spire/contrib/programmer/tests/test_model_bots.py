@@ -2,10 +2,6 @@ from __future__ import annotations
 
 from django.test import TestCase
 
-from django_spire.contrib.programmer.models import bots
-
-
-
 model_file_data = """
 from __future__ import annotations
 
@@ -110,5 +106,5 @@ class TestModelWritingBot(TestCase):
     def test_model_file_finding_bot(self):
         # Find the file correctly. Needs to be improved and made repeatable.
         model_name = self.enriched_user_input.enriched_model_input[0].model_name
-        model_file = bots.ModelFileFinderBot().process(user_input=model_name)
+        model_file = bots.ModelFinderBot().process(user_input=model_name)
         self.assertIsNotNone(model_file)

@@ -1,23 +1,48 @@
+from __future__ import annotations
+
 from dandy import BaseIntel, BaseListIntel, Prompt
+from django_spire.contrib.programmer.models.enums import ModelActionEnum
 
 
 class FilePathIntel(BaseIntel):
     file_path: str
 
 
+# class ModelActionIntel(BaseIntel):
+#     action: ModelActionEnum
+#     target: str
+#     context: str
+#
+#     def to_prompt(self) -> Prompt:
+#         return (
+#             Prompt()
+#             .text(f'Action: {self.action}')
+#             .text(f'Target: {self.target}')
+#             .text(f'Context: {self.context}')
+#         )
+#
+
+class ModelActionIntel(BaseIntel):
+    name: str
+    action: list[str]
+
+    path: str | None = None
+    file: str | None = None
+
+
 class EnrichedUserInput(BaseIntel):
     model_name: str
-    # ooohhhh, I can add model path here then we have it where we need it :)
-    # model_path: str
-    # model_file: str
     description: list[str]
-    
+
     def to_prompt(self) -> Prompt:
         return (
             Prompt()
             .text(f'Model Name: {self.model_name}')
             .list([d for d in self.description])
         )
+
+    def to_model_intel(self):
+        pass
 
 
 class EnrichedModelUserInput(BaseIntel):
@@ -32,27 +57,8 @@ class EnrichedModelUserInput(BaseIntel):
 
         return prompt
 
-
-class ModelFieldIntel(BaseIntel):
-    action: str
-    field_name: str
-    field_type: str
-    description: str
-    technical_requirements: str
-
-    def to_prompt(self) -> Prompt:
-        return (
-            Prompt()
-            .text(f'Action: {self.action}')
-            .text(f'Field Name: {self.field_name}')
-            .text(f'Field Type: {self.field_type}')
-            .text(f'Description: {self.description}')
-            .text(f'Technical Requirements: {self.technical_requirements}')
-        )
-
-
-class ModelFieldsIntel(BaseListIntel):
-    fields: list[ModelFieldIntel]
+    def model_names_to_prompt(self):
+        return Prompt().list([f'{e.model_name} \n' for e in self.enriched_model_input])
 
 
 class PythonFileIntel(BaseIntel):
