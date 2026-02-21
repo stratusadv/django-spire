@@ -22,7 +22,7 @@ class ModelFileFinderBot(Bot):
     )
     intel_class = intel.FilePathIntel
 
-    def process(self, user_input: str) -> intel.FilePathIntel:
+    def process(self, user_input: str) -> str:
         class ModelNameFormatterBot(Bot):
             role = 'Expert in finding django model names in text.'
             task = 'Return a string of a django model name.'
@@ -38,7 +38,16 @@ class ModelFileFinderBot(Bot):
             .heading('Directories to Choose From')
             .list(directories)
         )
-        return self.llm.prompt_to_intel(prompt)
+        file_path_intel = self.llm.prompt_to_intel(prompt)
+
+        model_file_path = file_path_intel.file_path
+
+        if self.file.exists(model_file_path):
+            model_file = self.file.read(model_file_path)
+        else:
+            model_file = ''
+
+        return model_file
 
 
 class ModelProgrammerBot(Bot):
@@ -75,34 +84,80 @@ class ModelProgrammerBot(Bot):
         return self.llm.prompt_to_intel(models_prompt)
 
 
-class ModelFieldProgrammerBot(Bot):
-    pass
+class ModelFieldIdentifierBot(Bot):
+    role = 'Expert at python, django and data structures.'
+    task = 'Identify each model field and enrich the data.'
+    guidelines = (
+        Prompt()
+        .list([            
+            'Be diligent. The user can be asking about many fields or a single field. We do not want to miss any field changes.',
+            'Field type specific django model fields (eg. character field, text field).',
+            'Description is how the field relates to the model. Give context to make better technical decisions.',
+            'Technical requirements are the arguments that go into the field.',
+            'Focus on the user requests and use the model field for context to make better decisions.'
+        ])
+    )
+    intel_class = intel.ModelFieldsIntel
+    
+    def process(self, user_input: str, model_file: str):
+        prompt = (
+            Prompt()
+            .heading('User Request')
+            .text(user_input)
+            .heading('Djagno Model File')
+            .text(model_file)
+        )
+        return self.llm.prompt_to_intel(prompt)
+
+
+class ModelFieldOrchestrationBot(Bot):
+    role = 'An expert at deciding on data structure types.'
+    task = 'Find the correct field for the data structure.'
+    intel_class = intel
+
+    def process(self, user_input: str, model_file: str):
+        # Find all fields and enrich the data
+        model_fields_intel = ModelFieldIdentifierBot().process(user_input, model_file)
+
+        programmer_bots = {
+            'Choice Field Bot': self,
+            'ForeignKey Bot': self,
+            'Regular Bot (used for all other choices)': self
+        }
+
+        for model_field in model_fields_intel.fields:
+            # Pass enriched data to specific field programmer bots
+            field_programmer_bot = self.llm.decoder.prompt_to_value(
+                prompt=model_field.to_prompt(),
+                keys_description='Bots to program the model field.',
+                keys_values=programmer_bots
+            )
+
+            model_file = field_programmer_bot.process(user_input=model_field.to_prompt(), model_file=model_file)
+
+        return model_file
 
 
 class ModelOrchestrationBot(Bot):
     role = 'An expert at finding and orchestrating tasks that need to be completed.'
     task = 'Return actions in the correct order they need to be taken.'
+    guidelines = (
+        Prompt()
+        .list([
+            'A user will provide you with a request to perform actions on a django model.',
+            'Break down that request into actions a programmer needs to take.',
+            'Use the existing model file as context to help make a better decision.'
+        ])
+    )
 
     def process(self, user_input: str):
-        file_path_intel = ModelFileFinderBot().process(user_input=user_input)
-        model_file_path = file_path_intel.file_path
-
-        if self.file.exists(model_file_path):
-            model_file = self.file.read(model_file_path)
-        else:
-            model_file = ''
+        model_file = ModelFileFinderBot().process(user_input=user_input)
 
         actions = {
-            'Add New Model Fields': 'Add New Model Fields',
-            'Edit Existing Model Fields': 'Edit Existing Model Fields',
-            'Add Methods to the Model': 'Add Methods to the Model',
-            'Edit Methods that are already on the model': 'Edit Methods that are already on the model',
-            'Create a new model file': 'Create a new model file',
-            'Review a model file based on our best practices': 'Review a model file based on our best practices',
-            'Configure default ordering': 'Configure default ordering',
-            'Set the verbose names': 'Set the verbose names',
-            'Set the database table path': 'Set the database table path',
-            'Configure Breadcrumbs': 'Configure Breadcrumbs',
+            'Model Fields': ModelFieldOrchestrationBot,
+            'Model Methods': ModelProgrammerBot,
+            # 'New Model File': ModelProgrammerBot,
+            # 'Review a model file': ModelProgrammerBot,
         }
 
         prompt = (
@@ -112,9 +167,8 @@ class ModelOrchestrationBot(Bot):
             .heading('Typical Order of Events')
             .ordered_list([
                 'Create the model file if it is empty',
-                'Configure meta fields if new file.',
-                'Write or edit fields',
-                'Write or edit methods',
+                'Model Fields',
+                'Model Methods',
                 'Review for best practices'
             ])
             .heading('Model File')
@@ -129,8 +183,8 @@ class ModelOrchestrationBot(Bot):
 
         print(action_bots)
 
-        # model_file = model_file
-        # for bot in action_bots:
-        #     model_file = bot.process(user_input=user_input, model_file=model_file)
-        #
+        for bot in action_bots:
+            model_file_intel = bot().process(user_input=user_input, model_file=model_file)
+            model_file = model_file_intel.python_file
+
         return model_file
