@@ -74,16 +74,23 @@ class TestModelWritingBot(TestCase):
     def test_model_field_identifier_bot(self):
         # Identifies the fields that need to be changed and enriches the data.
         fields = bots.ModelFieldIdentifierBot().process(user_input=self.user_input, model_file=self.model_file)
+        print(fields)
         self.assertIsNotNone(fields)
+
+    def test_model_field_orchestration_bot(self):
+        # Identifies the fields that need to be changed and enriches the data.
+        model_file = bots.ModelFieldOrchestrationBot().process(user_input=self.user_input, model_file=self.model_file)
+        print(model_file)
+        self.assertIsNotNone(model_file)
 
     def test_model_writing_bot(self):
         # Next step is to actually write the fields.
-        model_intel = bots.ModelProgrammerBot().process(user_input=self.user_input)
+        model_intel = bots.ModelFieldGeneralProgrammerBot().process(user_input=self.user_input)
         self.assertIsNotNone(model_intel)
 
     def test_model_review_bot(self):
         # Need to review the model file as a whole to ensure it follows best practices.
-        model_intel = bots.ModelProgrammerBot().process(user_input=self.user_input)
+        model_intel = bots.ModelFieldGeneralProgrammerBot().process(user_input=self.user_input)
         self.assertIsNotNone(model_intel)
 
     def test_model_file_finding_bot(self):

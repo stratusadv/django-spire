@@ -50,7 +50,7 @@ class ModelFileFinderBot(Bot):
         return model_file
 
 
-class ModelProgrammerBot(Bot):
+class ModelFieldGeneralProgrammerBot(Bot):
     role = 'World class python & django developer who focuses on simplicity.'
     task = 'Return a django model python file based on the best practices provided.'
     guidelines = (
@@ -61,18 +61,6 @@ class ModelProgrammerBot(Bot):
     intel_class = intel.PythonFileIntel
 
     def process(self, user_input: str, model_file: str) -> intel.PythonFileIntel:
-        # action_bots = self.llm.decoder.prompt_to_values(
-        #     prompt=prompt,
-        #     keys_description='Actions a programmer takes on a django models.py file.',
-        #     keys_values={
-        #         'Adding or updating model fields': 'fie',
-        #         'writing or editing model methods': 'met',
-        #     }
-        # )
-        #
-        # for action_bot in action_bots.values:
-        #     action_bot().process(prompt=prompt)
-
         models_prompt = (
             Prompt()
             .heading('Make the following changes to the models.py file.')
@@ -86,11 +74,12 @@ class ModelProgrammerBot(Bot):
 
 class ModelFieldIdentifierBot(Bot):
     role = 'Expert at python, django and data structures.'
-    task = 'Identify each model field and enrich the data.'
+    task = 'Identify all model fields and enrich the data.'
     guidelines = (
         Prompt()
         .list([            
             'Be diligent. The user can be asking about many fields or a single field. We do not want to miss any field changes.',
+            'Action is the step needed to take on the model file. Are we adding a field, editing an existing one or removing a field?.',
             'Field type specific django model fields (eg. character field, text field).',
             'Description is how the field relates to the model. Give context to make better technical decisions.',
             'Technical requirements are the arguments that go into the field.',
@@ -120,20 +109,21 @@ class ModelFieldOrchestrationBot(Bot):
         model_fields_intel = ModelFieldIdentifierBot().process(user_input, model_file)
 
         programmer_bots = {
-            'Choice Field Bot': self,
-            'ForeignKey Bot': self,
-            'Regular Bot (used for all other choices)': self
+            'Choice Field Bot': ModelFieldGeneralProgrammerBot,
+            'ForeignKey Bot': ModelFieldGeneralProgrammerBot,
+            'Regular Bot (used for all other choices)': ModelFieldGeneralProgrammerBot
         }
 
+        # Pass enriched data to specific field programmer bots
         for model_field in model_fields_intel.fields:
-            # Pass enriched data to specific field programmer bots
             field_programmer_bot = self.llm.decoder.prompt_to_value(
                 prompt=model_field.to_prompt(),
                 keys_description='Bots to program the model field.',
                 keys_values=programmer_bots
             )
 
-            model_file = field_programmer_bot.process(user_input=model_field.to_prompt(), model_file=model_file)
+            model_file_intel = field_programmer_bot().process(user_input=model_field.to_prompt(), model_file=model_file)
+            model_file = model_file_intel.python_file
 
         return model_file
 
@@ -155,7 +145,7 @@ class ModelOrchestrationBot(Bot):
 
         actions = {
             'Model Fields': ModelFieldOrchestrationBot,
-            'Model Methods': ModelProgrammerBot,
+            'Model Methods': ModelFieldGeneralProgrammerBot,
             # 'New Model File': ModelProgrammerBot,
             # 'Review a model file': ModelProgrammerBot,
         }
@@ -180,8 +170,6 @@ class ModelOrchestrationBot(Bot):
             keys_description='Actions a programmer takes on a django model file',
             keys_values=actions,
         )
-
-        print(action_bots)
 
         for bot in action_bots:
             model_file_intel = bot().process(user_input=user_input, model_file=model_file)
