@@ -1,8 +1,9 @@
 {% load static %}
 
 <div
-    class="navbar sticky-top bg-app-side-navigation d-block w-100 vh-100"
+    class="sticky-top bg-app-side-navigation d-flex flex-column vh-100 w-100"
     x-data="{
+        collapsed: JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false'),
         show_top_fade: false,
         show_bottom_fade: false,
 
@@ -13,27 +14,47 @@
             let is_at_bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 20;
             this.show_top_fade = has_scroll && !is_at_top;
             this.show_bottom_fade = has_scroll && !is_at_bottom;
+        },
+
+        toggle_collapse() {
+            this.collapsed = !this.collapsed;
+            localStorage.setItem('side_nav_collapsed', JSON.stringify(this.collapsed));
+            document.documentElement.style.setProperty(
+                '--app-side-navigation-width',
+                this.collapsed ? '68px' : '240px'
+            );
+            this.$nextTick(() => this.check_scroll());
         }
     }"
     x-init="$nextTick(() => { check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
 >
-    <div class="text-center pt-2">
+    <div class="px-3 d-flex align-items-center gap-2 flex-shrink-0 border-bottom" style="height: 64px;">
         {% block side_navigation_top_content %}
-            <div class="text-center d-flex justify-content-center mb-4">
-                {% block side_navigation_img %}
-                    <a href="/" class="p-0 m-0">
-                        <img
-                            src="{% static 'img/django_spire.svg' %}"
-                            class="w-side-navigation-img"
-                            alt="Django Spire Logo"
-                        >
-                    </a>
-                {% endblock %}
-            </div>
+            {% block side_navigation_img %}
+                <a href="/" class="d-flex align-items-center gap-2 text-decoration-none p-0 m-0 overflow-hidden">
+                    <img
+                        src="{% static 'img/django_spire.svg' %}"
+                        alt="Django Spire Logo"
+                        class="flex-shrink-0"
+                        style="width: 36px; height: 36px; object-fit: contain;"
+                    >
+                    <div class="d-flex flex-column overflow-hidden" x-show="!collapsed" x-transition>
+                        <span class="fw-semibold text-truncate text-app-link-side-navigation" style="font-size: 0.875rem;">
+                            {% block side_navigation_title %}
+                                Django Spire
+                            {% endblock %}
+                        </span>
+                        <span class="text-truncate text-app-side-navigation" style="font-size: 0.75rem;">
+                            {% block side_navigation_subtitle %}
+                            {% endblock %}
+                        </span>
+                    </div>
+                </a>
+            {% endblock %}
         {% endblock %}
     </div>
 
-    <div class="position-relative">
+    <div class="position-relative flex-grow-1 overflow-hidden">
         <div
             class="position-absolute top-0 start-0 w-100 z-1 side-navigation-fade-top"
             x-show="show_top_fade"
@@ -41,13 +62,15 @@
         </div>
 
         <div
-            class="navbar-nav-scroll scrollbar-hidden px-2 px-1 h-100"
+            class="navbar-nav-scroll scrollbar-hidden px-2 py-2 h-100"
             x-ref="scroll_container"
             @scroll="check_scroll()"
         >
-            {% block side_navigation_links %}
-                {% include 'django_spire/navigation/navigation_links.html' %}
-            {% endblock %}
+            <nav class="d-flex flex-column gap-1 pt-1">
+                {% block side_navigation_links %}
+                    {% include 'django_spire/navigation/navigation_links.html' %}
+                {% endblock %}
+            </nav>
         </div>
 
         <div
@@ -56,4 +79,22 @@
         >
         </div>
     </div>
+
+    {% block side_navigation_bottom_content %}
+        <div class="border-top px-2 py-2 mt-auto">
+            <a
+                role="button"
+                class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation"
+                @click="toggle_collapse()"
+                style="font-size: 0.875rem;"
+            >
+                <i
+                    class="bi flex-shrink-0"
+                    :class="collapsed ? 'bi-chevron-right' : 'bi-chevron-left'"
+                >
+                </i>
+                <span x-show="!collapsed" x-transition>Collapse</span>
+            </a>
+        </div>
+    {% endblock %}
 </div>

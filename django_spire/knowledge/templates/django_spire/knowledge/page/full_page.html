@@ -4,6 +4,9 @@
 
 {% block base_head_additional_css %}
     <link href="{% static 'django_spire/knowledge/css/navigation_items.css' %}?v={{ DJANGO_SPIRE_VERSION }}" rel="stylesheet">
+    <style>
+        .panel-toggle-container { display: none !important; }
+    </style>
 {% endblock %}
 
 {% block base_body_top_js %}
@@ -14,15 +17,75 @@
     {{ collection.name_short }}
 {% endblock %}
 
-{% block full_page_sub_navigation_buttons %}
+{% block full_page_sub_navigation_buttons %}{% endblock %}
+
+{% block full_page_sub_navigation %}
     {% if AuthController.knowledge.can_add %}
-        {% url 'django_spire:knowledge:collection:form:create' as create_url %}
-        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+        <div class="px-3 py-3 flex-shrink-0">
+            {% block knowledge_sub_navigation_add_button %}
+                {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+                <a
+                    class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium"
+                    href="{{ create_url }}"
+                    style="height: 36px; font-size: 0.8125rem;"
+                >
+                    <i class="bi bi-plus-lg"></i>
+                    Add
+                </a>
+            {% endblock %}
+        </div>
     {% endif %}
+
+    {% block knowledge_sub_navigation_content %}
+    {% endblock %}
 {% endblock %}
 
 {% block full_page_info_navigation_title %}
     More Info
+{% endblock %}
+
+{% block full_page_info_navigation %}
+    <div class="p-3">
+        {% block knowledge_info_navigation_content %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block full_page_command_bar %}
+    <div class="d-flex align-items-center px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one" style="height: 52px;">
+        <div class="d-flex align-items-center gap-3">
+            {% block knowledge_command_bar_collections %}
+                <a
+                    @click="toggle_sub()"
+                    class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer"
+                    role="button"
+                    style="transition: background-color 0.15s ease; font-size: 0.8125rem;"
+                    :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                >
+                    <i class="bi bi-folder2" style="font-size: 1rem;"></i>
+                    <span class="fw-medium">Collections</span>
+                </a>
+            {% endblock %}
+        </div>
+
+        <div class="d-flex align-items-center gap-3 ms-auto">
+            {% block knowledge_command_bar_buttons %}
+            {% endblock %}
+
+            {% block knowledge_command_bar_info %}
+                <a
+                    @click="toggle_info()"
+                    class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer"
+                    role="button"
+                    style="transition: background-color 0.15s ease; font-size: 0.8125rem;"
+                    :class="show_info_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                >
+                    <i class="bi bi-info-circle" style="font-size: 1rem;"></i>
+                    <span class="fw-medium">More Info</span>
+                </a>
+            {% endblock %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block full_page_content %}

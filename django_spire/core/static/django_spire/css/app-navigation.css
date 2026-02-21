@@ -63,22 +63,29 @@
     border-right-style: solid;
     border-right-width: 1px;
     color: var(--app-side-navigation-text-color) !important;
+    overflow: hidden;
+    transition: width 0.3s ease;
     width: var(--app-side-navigation-width);
 }
 
 .side-navigation a {
     color: var(--app-side-navigation-link-color) !important;
-    display: block;
-    padding: 0.75rem 1rem;
+    text-decoration: none;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.side-navigation a.active {
-    color: var(--app-side-navigation-link-color) !important;
+.side-navigation a:hover {
+    background-color: var(--app-layer-three);
+    color: var(--app-side-navigation-link-hover-color) !important;
 }
 
-.side-navigation a:hover {
-    color: var(--app-side-navigation-link-hover-color) !important;
+.side-navigation a.active {
+    background-color: color-mix(in srgb, var(--app-primary) 10%, transparent);
+    color: var(--app-primary) !important;
+}
+
+.side-navigation a.active i {
+    color: var(--app-primary) !important;
 }
 
 .side-navigation-fade-bottom {

@@ -1,4 +1,4 @@
-<div class="row justify-content-end ps-1 ps-lg-5" data-message-chat-id="{{ chat_id }}" {% if not is_loading %}x-data="{
+<div class="d-flex justify-content-end px-3 py-2" data-message-chat-id="{{ chat_id }}" {% if not is_loading %}x-data="{
         show_message: false,
 
         init() {
@@ -7,5 +7,5 @@
         }
     }" x-show="show_message" x-transition{% endif %}>
 
-    {% include message_intel.template with sender_class="text-end" speech_synthesis_class='justify-content-end' content_class="bg-app-primary-soft" %}
+    {% include message_intel.template with sender_class="text-end" speech_synthesis_class="justify-content-end" content_class="bg-app-primary text-white" avatar_icon="bi-person" avatar_class="bg-app-primary-soft text-app-primary" avatar_order="order-2" %}
 </div>

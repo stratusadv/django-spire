@@ -1,5 +1,5 @@
 <div
-    class="row justify-content-start pe-1 pe-lg-5"
+    class="d-flex justify-content-start px-3 py-2"
     data-message-chat-id="{{ chat_id }}"
     {% if not is_loading %}
         x-data="{
@@ -14,5 +14,5 @@
         x-transition
     {% endif %}
 >
-    {% include message_intel.template with content_class="bg-app-warning-soft" %}
+    {% include message_intel.template with content_class="bg-app-layer-two" avatar_icon="bi-robot" avatar_class="bg-app-layer-two text-app-primary" %}
 </div>

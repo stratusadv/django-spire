@@ -1,40 +1,32 @@
 {% load static %}
 
-<div class="top-navigation row justify-content-between align-items-center p-1 p-md-2 mb-2 border-bottom shadow-sm">
+<div class="top-navigation bg-app-layer-one d-flex justify-content-between align-items-center px-3 border-bottom flex-shrink-0" style="height: 64px;">
     {% block top_navigation_content %}
-        <div class="col">
-            <div class="row">
-                <div class="col">
-                    <a href="/" class="d-block mb-3">
-                    <span class="fs-5 fs-md-1 fw-bold d-lg-block float-start">
-                        {% block top_navigation_title %}
-                            Django Spire
-                        {% endblock %}
-                    </span>
-                    </a>
-                </div>
-            </div>
+        <div class="d-flex align-items-center overflow-hidden">
+            {% block top_navigation_mobile_menu %}
+                {% include 'django_spire/navigation/mobile_navigation.html' %}
+            {% endblock %}
 
-            <div class="row">
-                <div class="col">
-                    {% include 'django_spire/element/breadcrumb_element.html' %}
-                </div>
-            </div>
+            {% block top_navigation_title %}
+            {% endblock %}
+
+            {% block top_navigation_breadcrumb %}
+                {% include 'django_spire/element/breadcrumb_element.html' %}
+            {% endblock %}
         </div>
 
-        <div class="col-auto d-flex">
+        <div class="d-flex align-items-center gap-1">
             {% block top_navigation_icons %}
                 {% if AuthController.help_desk.can_view %}
                     {% block help_desk_icon %}
                         {% url 'django_spire:help_desk:page:list' as help_desk_url %}
-                        {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='fs-2 mx-2' %}
+                        {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' font_size='fs-5' icon_class='mx-1' %}
                     {% endblock %}
                 {% endif %}
 
-
                 {% block theme_selector %}
                     <div>
-                        {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-2' %}
+                        {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-5' %}
                     </div>
                 {% endblock %}
 
@@ -49,7 +41,7 @@
                 {% if request.user.is_authenticated %}
                     <div class="dropdown">
                         <i
-                            class="bi bi-person-circle fs-2 mx-2 cursor-pointer text-app-primary-hover"
+                            class="bi bi-person-circle fs-5 mx-1 cursor-pointer text-app-primary-hover"
                             id="dropdownMenuButton1"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
@@ -85,10 +77,6 @@
                         </ul>
                     </div>
                 {% endif %}
-
-                <div class="col-auto d-lg-none">
-                    {% include 'django_spire/navigation/mobile_navigation.html' %}
-                </div>
             {% endblock %}
         </div>
     {% endblock %}

@@ -1,33 +1,41 @@
 {% load static %}
 
-<div x-data="{ show_mobile_nav: false }">
-    <span
-        class="bi bi-list fs-2 d-lg-none cursor-pointer mx-2"
-        @click="show_mobile_nav = true"
+<div class="d-lg-none" x-data="{ collapsed: false, show_mobile_nav: false }">
+    <i
+        class="bi bi-list fs-4 cursor-pointer me-2"
+        @click="show_mobile_nav = !show_mobile_nav"
+    ></i>
+
+    <div
+        x-show="show_mobile_nav"
+        x-cloak
+        x-transition:enter="transition-opacity"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="position-fixed top-0 start-0 w-100 vh-100 side-navigation overflow-y-auto"
+        style="z-index: 1050;"
     >
-    </span>
-
-    <div class="col-auto d-lg-none">
-        <div
-            class="sidebar side-navigation px-2 w-mobile-navigation"
-            style="display: none;"
-            x-show="show_mobile_nav"
-            :class="{'show': show_mobile_nav}"
-            @click.away="show_mobile_nav = false"
-        >
-            {# Close Button #}
+        <div class="d-flex justify-content-between align-items-center px-3" style="height: 64px;">
+            <span class="fw-semibold">Navigation</span>
             <i
-                class="bi bi-x-lg position-absolute top-0 end-0 m-2"
-                type="button"
+                class="bi bi-x-lg fs-5 cursor-pointer"
                 @click="show_mobile_nav = false"
-            >
-            </i>
-
-            <ul class="nav nav-pills flex-column mt-2 mx-1 p-2">
-                {% block mobile_navigation_links %}
-                    {% include 'django_spire/navigation/navigation_links.html' %}
-                {% endblock %}
-            </ul>
+            ></i>
         </div>
+
+        <ul class="nav nav-pills flex-column mx-1 px-2">
+            {% block mobile_navigation_links %}
+                {% include 'django_spire/navigation/navigation_links.html' %}
+            {% endblock %}
+        </ul>
     </div>
 </div>
+
+<style>
+    .transition-opacity {
+        transition: opacity 0.3s ease;
+    }
+</style>

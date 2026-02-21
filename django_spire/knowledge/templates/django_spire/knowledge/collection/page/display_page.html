@@ -6,16 +6,23 @@
     {{ collection.name_short }}
 {% endblock %}
 
-{% block full_page_sub_navigation_buttons %}
-    {% if AuthController.knowledge.can_add %}
-        {% url 'django_spire:knowledge:collection:form:create_with_parent' parent_pk=collection.id as create_url %}
-        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
-    {% endif %}
+{% block knowledge_sub_navigation_add_button %}
+    {% url 'django_spire:knowledge:collection:form:create_with_parent' parent_pk=collection.id as create_url %}
+    <a
+        class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium"
+        href="{{ create_url }}"
+        style="height: 36px; font-size: 0.8125rem;"
+    >
+        <i class="bi bi-plus-lg"></i>
+        Add
+    </a>
 {% endblock %}
 
-{% block full_page_sub_navigation %}
+{% block knowledge_sub_navigation_content %}
     {% include 'django_spire/knowledge/sub_navigation/widget/collection_entry_sub_navigation_widget.html' with current_collection_id=entry.collection.id current_version_id=current_version.id %}
 {% endblock %}
+
+{% block knowledge_command_bar_info %}{% endblock %}
 
 {% block knowledge_full_page_content %}
     <div class="row">
@@ -50,18 +57,7 @@
     </div>
     <div class="row">
         <div class="col-12 col-lg-8 mx-auto pb-4">
-            Tags:
-            {% for tag, weight in collection.simplified_and_weighted_tag_dict|safe_dict_items %}
-                {% include 'django_spire/tag/element/tag.html' %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12 col-lg-8 mx-auto pb-4">
-            Aggregated Tags:
-            {% for tag, weight in collection.services.tag.get_simplified_and_weighted_aggregated_tag_set|safe_dict_items %}
-                {% include 'django_spire/tag/element/tag.html' %}
-            {% endfor %}
+            Placeholder
         </div>
     </div>
 {% endblock %}

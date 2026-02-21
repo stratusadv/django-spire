@@ -1,10 +1,11 @@
 <div
-    class="row"
+    class="d-flex flex-column h-100"
     x-data="{
         active_chat_id: 0,
         chat_content_type: '',
         chat_load_recent_view: new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
         chat_object_id: '',
+        search_query: '',
 
         init() {
             this.load_recent_chats()
@@ -17,26 +18,44 @@
     }"
     @chat-loaded.window="load_recent_chats()"
     @new-chat-created.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})"
-    @load-chat.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})">
+    @load-chat.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})"
+>
+    <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+        <span class="fw-semibold" style="font-size: 0.875rem;">Chat History</span>
+        <a
+            @click="show_history = false"
+            class="d-flex align-items-center justify-content-center rounded text-muted cursor-pointer"
+            role="button"
+            style="width: 28px; height: 28px; transition: background-color 0.15s ease;"
+        >
+            <i class="bi bi-x-lg" style="font-size: 0.75rem;"></i>
+        </a>
+    </div>
 
-    <div class="col-12 px-0">
-        <div class="px-2 pb-3">
-            <button @click="$dispatch('load-chat', {chat_id: 0})" class="btn btn-app-primary-outlined p-1 w-100" data-closes-nav>
-                <i class="bi bi-plus-lg me-2"></i>New Chat
-            </button>
+    <div class="px-3 py-3 flex-shrink-0">
+        <div class="position-relative">
+            <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem;"></i>
+            <input
+                class="form-control form-control-sm rounded bg-app-layer-two border-app-primary"
+                placeholder="Search conversations..."
+                style="padding-left: 2.25rem; font-size: 0.8125rem; height: 36px;"
+                type="text"
+                x-model="search_query"
+            >
         </div>
+    </div>
 
-        <div class="border-top border-app-primary"></div>
+    <div class="px-3 pb-3 flex-shrink-0">
+        <button
+            @click="$dispatch('load-chat', {chat_id: 0}); show_history = false;"
+            class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium"
+            style="height: 36px; font-size: 0.8125rem;"
+        >
+            <i class="bi bi-plus-lg"></i>
+            New Chat
+        </button>
+    </div>
 
-        <div class="px-3 py-2">
-            <div class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
-                Recent Chats
-            </div>
-        </div>
-
-        <div class="overflow-auto" style="height: calc(100vh - 180px - var(--app-top-navigation-height));">
-            <div class="px-2" x-ref="chat_recent_list">
-            </div>
-        </div>
+    <div class="flex-grow-1 overflow-auto px-2 pb-3" x-ref="chat_recent_list">
     </div>
 </div>

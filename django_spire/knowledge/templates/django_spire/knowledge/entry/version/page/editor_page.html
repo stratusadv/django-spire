@@ -4,6 +4,7 @@
 {% load spire_core_tags %}
 
 {% block base_head_additional_css %}
+    {{ block.super }}
     <link href="{% static 'django_spire/knowledge/css/editor.css' %}?v={{ DJANGO_SPIRE_VERSION }}" rel="stylesheet">
 {% endblock %}
 
@@ -16,11 +17,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.8/dist/header.umd.min.js"></script>
 {% endblock %}
 
-{% block full_page_sub_navigation %}
+{% block knowledge_sub_navigation_content %}
     {% include 'django_spire/knowledge/sub_navigation/widget/collection_entry_sub_navigation_widget.html' with current_collection_id=entry.collection.id current_version_id=current_version.id %}
 {% endblock %}
 
-{% block full_page_info_navigation %}
+{% block knowledge_info_navigation_content %}
     <div class="row">
         <div class="col-12 mb-3">
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Author' attribute_value=entry.current_version.author.get_full_name %}

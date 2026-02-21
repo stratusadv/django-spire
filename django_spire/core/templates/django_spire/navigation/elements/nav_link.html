@@ -1,18 +1,42 @@
 <a
-    class="nav-link mb-0 cursor-pointer rounded d-flex align-items-center py-1 text-app-link-side-navigation ps-1"
+    class="d-flex align-items-center rounded-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation {{ link_class }}"
+    style="font-size: 0.875rem;"
     {% if not disable_overlay %}
     x-data="{
+        current_path: '{{ request.path }}',
+        link_path: '{{ link_url }}',
+
+        is_active() {
+            return this.current_path === this.link_path
+                || this.current_path.startsWith(this.link_path + '/');
+        },
+
         redirect() {
             toggleLoadingSpinner();
 
             window.location = `{{ link_url }}`;
         }
     }"
+    :class="{
+        'active': is_active(),
+        'justify-content-center px-0': collapsed,
+        'gap-2 px-3': !collapsed
+    }"
     @click="redirect()"
+    x-init="$dispatch('accordion-link', { url_path: link_path })"
     {% else %}
     href="{{ link_url }}"
+    :class="{
+        'justify-content-center px-0': collapsed,
+        'gap-2 px-3': !collapsed
+    }"
     {% endif %}
 >
-    <i class="me-2 mx-1 {{ link_icon }}"></i>
-    {{ link_text }}
+    <i class="{{ link_icon }} flex-shrink-0" :style="collapsed ? 'font-size: 1.25rem;' : 'width: 1.25rem;'"></i>
+    <span class="text-truncate" x-show="!collapsed">{{ link_text }}</span>
+    {% if not disable_overlay %}
+        <template x-if="is_active() && !collapsed">
+            <span class="ms-auto flex-shrink-0 rounded-circle bg-app-primary" style="width: 6px; height: 6px;"></span>
+        </template>
+    {% endif %}
 </a>

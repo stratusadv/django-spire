@@ -1,6 +1,12 @@
 {% extends 'django_spire/page/page.html' %}
 
 {% block page_content %}
+    <script>
+        document.documentElement.style.setProperty(
+            '--app-side-navigation-width',
+            JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false') ? '68px' : '240px'
+        );
+    </script>
     <div
         @mousemove.window="
             if (is_resizing_sub && !is_mobile) {
@@ -20,7 +26,7 @@
             }
         "
         @mouseup.window="is_resizing_sub = false; is_resizing_info = false"
-        class="d-flex min-vh-100 w-100 overflow-x-hidden"
+        class="d-flex min-vh-100 w-100"
         x-data="{
             info_nav_max_width: 600,
             info_nav_min_width: 200,
@@ -150,22 +156,26 @@
             }
         }"
     >
-        <div class="d-none d-lg-block pe-1 side-navigation hide-on-print">
+        <div
+            class="d-none d-lg-block side-navigation hide-on-print sticky-top vh-100 align-self-start flex-shrink-0"
+            style="width: var(--app-side-navigation-width, 240px);"
+        >
             {% block full_page_side_navigation %}
                 {% include 'django_spire/navigation/side_navigation.html' %}
             {% endblock %}
         </div>
 
-        <div class="container-fluid d-flex flex-column">
-            <div class="row sticky-top hide-on-print">
-                <div class="col-12">
-                    {% block full_page_top_navigation %}
-                        {% include 'django_spire/navigation/top_navigation.html' %}
-                    {% endblock %}
-                </div>
+        <div class="d-flex flex-column flex-grow-1" style="overflow-x: hidden; min-width: 0;">
+            <div class="sticky-top hide-on-print z-3">
+                {% block full_page_top_navigation %}
+                    {% include 'django_spire/navigation/top_navigation.html' %}
+                {% endblock %}
             </div>
 
-            <div class="row">
+            {% block full_page_command_bar %}
+            {% endblock %}
+
+            <div class="row flex-grow-1 g-0">
                 <div
                     :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto border-end border-app-primary bg-app-layer-one'"
                     :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1040;' : (sub_nav_has_been_resized ? `width: ${sub_nav_width}px; min-width: ${sub_nav_width}px; max-width: ${sub_nav_width}px;` : `min-width: ${sub_nav_min_width}px;`)"
@@ -175,37 +185,36 @@
                 >
                     <div
                         :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
-                        class="row sticky-top side-panel overflow-y-auto"
+                        class="sticky-top side-panel overflow-y-auto d-flex flex-column"
                     >
-                        <div class="col">
-                            <div class="row pb-2 align-items-center">
-                                <div class="col-auto px-1" style="visibility: hidden;">
-                                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-x-lg' %}
-                                </div>
-                                <div class="col h5 text-app-primary text-center text-nowrap overflow-hidden text-truncate mb-0" style="min-width: 0;">
+                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden" style="min-width: 0;">
+                                <span class="fw-semibold text-app-primary text-truncate" style="font-size: 0.875rem;">
                                     {% block full_page_sub_navigation_title %}
                                     {% endblock %}
-                                </div>
-                                <div class="col-auto px-1">
-                                    {% block full_page_sub_navigation_buttons %}
-                                    {% endblock %}
-                                </div>
-                                <div class="col-auto px-2">
-                                    <a role="button" class="link-secondary" @click="close_sub()">
-                                        <i class="bi bi-x-lg"></i>
-                                    </a>
-                                </div>
+                                </span>
                             </div>
-
-                            <div class="row">
-                                <div
-                                    @click.capture="if (is_narrow_viewport && $event.target.closest('[data-closes-nav]')) { $nextTick(() => { show_sub_nav = false }) }"
-                                    class="col"
-                                    x-ref="full_page_sub_navigation"
+                            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                                {% block full_page_sub_navigation_buttons %}
+                                {% endblock %}
+                                <a
+                                    @click="close_sub()"
+                                    class="d-flex align-items-center justify-content-center rounded text-muted cursor-pointer"
+                                    role="button"
+                                    style="width: 28px; height: 28px; transition: background-color 0.15s ease;"
                                 >
-                                    {% block full_page_sub_navigation %}
-                                    {% endblock %}
-                                </div>
+                                    <i class="bi bi-x-lg" style="font-size: 0.75rem;"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
+                            <div
+                                @click.capture="if (is_narrow_viewport && $event.target.closest('[data-closes-nav]')) { $nextTick(() => { show_sub_nav = false }) }"
+                                x-ref="full_page_sub_navigation"
+                            >
+                                {% block full_page_sub_navigation %}
+                                {% endblock %}
                             </div>
                         </div>
                     </div>
@@ -229,7 +238,7 @@
                 </template>
 
                 <div
-                    class="col pb-2"
+                    class="col {% block full_page_content_class %}pt-2 pb-2 ps-2 pe-2{% endblock %}"
                     :class="{
                         'ps-panel-offset': show_sub_toggle(),
                         'pe-panel-offset': show_sub_toggle(),
@@ -259,46 +268,45 @@
                 >
                     <div
                         :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
-                        class="row sticky-top side-panel overflow-y-auto bg-app-layer-one"
+                        class="sticky-top side-panel overflow-y-auto bg-app-layer-one d-flex flex-column"
                     >
-                        <div class="col">
-                            <div class="row pb-2">
-                                <div class="col text-center pt-1 h5 text-app-primary">
-                                    {% block full_page_info_navigation_title %}
-                                    {% endblock %}
-                                </div>
-
-                                <div class="col-auto px-1">
-                                    {% block full_page_info_navigation_buttons %}
-                                    {% endblock %}
-                                </div>
-
-                                <div class="col-auto pe-4">
-                                    <a role="button" class="link-secondary" @click="close_info()">
-                                        <i class="bi bi-x-lg"></i>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div
-                                    x-on:click.capture="if (is_narrow_viewport) { $nextTick(() => { show_info_nav = false }) }"
-                                    class="col"
-                                    x-ref="full_page_info_navigation"
+                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+                            <span class="fw-semibold text-app-primary" style="font-size: 0.875rem;">
+                                {% block full_page_info_navigation_title %}
+                                {% endblock %}
+                            </span>
+                            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                                {% block full_page_info_navigation_buttons %}
+                                {% endblock %}
+                                <a
+                                    @click="close_info()"
+                                    class="d-flex align-items-center justify-content-center rounded text-muted cursor-pointer"
+                                    role="button"
+                                    style="width: 28px; height: 28px; transition: background-color 0.15s ease;"
                                 >
-                                    {% block full_page_info_navigation %}
-                                    {% endblock %}
-                                </div>
+                                    <i class="bi bi-x-lg" style="font-size: 0.75rem;"></i>
+                                </a>
                             </div>
                         </div>
-                    </div>
 
-                    <div
-                        @mousedown="start_resize_info($event)"
-                        class="position-absolute top-0"
-                        style="bottom: 0; cursor: ew-resize; left: -8px; user-select: none; width: 16px; z-index: 1000;"
-                        x-show="!is_mobile"
-                    ></div>
+                        <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
+                            <div
+                                x-on:click.capture="if (is_narrow_viewport) { $nextTick(() => { show_info_nav = false }) }"
+                                x-ref="full_page_info_navigation"
+                            >
+                                {% block full_page_info_navigation %}
+                                {% endblock %}
+                            </div>
+                        </div>
+
+                        <div
+                            @mousedown="start_resize_info($event)"
+                            class="position-absolute top-0 d-flex align-items-center justify-content-center"
+                            style="bottom: 0; cursor: ew-resize; left: -8px; user-select: none; width: 16px; z-index: 1000;"
+                            x-show="!is_mobile"
+                        >
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

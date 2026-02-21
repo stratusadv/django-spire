@@ -91,34 +91,45 @@
         }"
         @send-message.window="send_chat({message_body: $event.detail.message_body})" @speak.window="speak_text($event.detail.text)"
     >
-        <div class="col-12">
-            <div class="row mx-0 border-bottom px-0">
-                <div class="col text-center pb-2" x-text="chat_name">
-                </div>
+        <div class="col-12 d-flex flex-column" style="{{ dialog_height|default:'height: calc(100vh - 52px - var(--app-top-navigation-height));' }}">
+            <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
+                <div class="mx-auto py-3" style="max-width: 56rem;" x-ref="target_div"></div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-12 overflow-y-auto overflow-x-hidden p-2 p-lg-4" style="{{ dialog_height|default:'height: calc(100vh - 90px - var(--app-top-navigation-height));' }}" x-ref="target_div"></div>
-            </div>
+            <div class="flex-shrink-0">
+                <div class="mx-auto px-3 py-3" style="max-width: 56rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <button
+                            @click="speech_listening ? stop_listening() : start_listening()"
+                            class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                            style="width: 38px; height: 38px; border: none; background: var(--app-layer-two); padding: 0; outline: none;"
+                            :class="speech_listening ? 'text-app-primary' : 'text-muted'"
+                        >
+                            <i class="bi" :class="speech_listening ? 'bi-mic-fill' : 'bi-mic'" style="font-size: 1.1rem;"></i>
+                        </button>
 
-            <div class="row px-1 px-lg-3">
-                <div class="col-auto text-center ps-1 pe-1">
-                    <button @click="start_listening()" class="btn btn-app-primary-outlined" x-show="!speech_listening">
-                        <i class="bi bi-mic"></i>
-                    </button>
-                    <button @click="stop_listening()" class="btn btn-app-danger" x-show="speech_listening">
-                        <i class="bi bi-mic-fill"></i>
-                    </button>
-                </div>
+                        <div class="d-flex align-items-center flex-grow-1 rounded-pill ps-3 pe-1" style="height: 44px; border: 1px solid rgba(255,255,255,0.1);">
+                            <input
+                                @keyup.enter="send_chat({message_body: message_body})"
+                                autocomplete="off"
+                                class="form-control border-0 bg-transparent shadow-none px-0"
+                                name="request_message"
+                                placeholder="Ask a question..."
+                                style="font-size: 0.875rem;"
+                                type="text"
+                                x-init="$el.focus()"
+                                x-model="message_body"
+                            >
 
-                <div class="col text-center px-1">
-                    <input @keyup.enter="send_chat({message_body: message_body})" autocomplete="off" class="form-control" name="request_message" type="text" x-init="$el.focus()" x-model="message_body">
-                </div>
-
-                <div class="col-auto text-center ps-1 pe-1">
-                    <button @click="send_chat({message_body: message_body})" class="btn btn-app-primary">
-                        <i class="bi bi-send"></i>
-                    </button>
+                            <button
+                                @click="send_chat({message_body: message_body})"
+                                class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                style="width: 34px; height: 34px; border: none; background: var(--app-primary); color: white;"
+                            >
+                                <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
