@@ -28,7 +28,7 @@ class ModelFileFinderBot(Bot):
             task = 'Return a string of a django model name.'
             guidelines = 'Simply the users request and return the app name and model name of a django model.'
 
-        model_name = ModelNameFormatterBot().process(user_input)
+        model_name = ModelNameFormatterBot().process(prompt=user_input)
         directories = (get_directory_listing(_RELATIVE_BASE_DIR.parent.parent.parent.resolve()))
 
         prompt = (
@@ -128,6 +128,22 @@ class ModelFieldOrchestrationBot(Bot):
         return model_file
 
 
+class ModelUserInputEnrichmentPrompt(Bot):
+    role = 'Expert in understanding and explaining in simple terms.'
+    task = 'Enrich the users input to provide more context for a Junior Developer to understand.'
+    guidelines = (
+        Prompt()
+        .list([
+            'The user is making a request to configure a django model file.',
+            'Identify all models the user has mentioned and describe what they would like accomplished.',
+            'Have one enriched model input for each model mentioned.',
+            'Description on each enriched model is a list of tasks the user has requested.',
+            'STAY AS ACCURATE AS POSSIBLE TO THE USER REQUEST. DO NOT MAKE ANYTHING UP.',
+        ])
+    )
+    intel_class = intel.EnrichedModelUserInput
+
+
 class ModelOrchestrationBot(Bot):
     role = 'An expert at finding and orchestrating tasks that need to be completed.'
     task = 'Return actions in the correct order they need to be taken.'
@@ -140,39 +156,51 @@ class ModelOrchestrationBot(Bot):
         ])
     )
 
-    def process(self, user_input: str):
-        model_file = ModelFileFinderBot().process(user_input=user_input)
+    def process(self, user_input: str) ->list[str]:
+        # Pulls apart the user request to each model file and the changes that need to happen.
+        enriched_prompt_intel = ModelUserInputEnrichmentPrompt().process(prompt=user_input)
 
-        actions = {
-            'Model Fields': ModelFieldOrchestrationBot,
-            'Model Methods': ModelFieldGeneralProgrammerBot,
-            # 'New Model File': ModelProgrammerBot,
-            # 'Review a model file': ModelProgrammerBot,
-        }
+        changed_files = []
 
-        prompt = (
-            Prompt()
-            .heading('User Request')
-            .text(user_input)
-            .heading('Typical Order of Events')
-            .ordered_list([
-                'Create the model file if it is empty',
-                'Model Fields',
-                'Model Methods',
-                'Review for best practices'
-            ])
-            .heading('Model File')
-            .text(model_file)
-        )
+        # Move through each model file.
+        for enriched_data in enriched_prompt_intel.enriched_model_input:
+            enriched_user_input = enriched_data.to_prompt()
 
-        action_bots = self.llm.decoder.prompt_to_values(
-            prompt=prompt,
-            keys_description='Actions a programmer takes on a django model file',
-            keys_values=actions,
-        )
+            # Find the model file.
+            model_file = ModelFileFinderBot().process(user_input=enriched_data.model_name)
 
-        for bot in action_bots:
-            model_file_intel = bot().process(user_input=user_input, model_file=model_file)
-            model_file = model_file_intel.python_file
+            actions = {
+                'Model Fields': ModelFieldOrchestrationBot,
+                'Model Methods': ModelFieldGeneralProgrammerBot,
+                # 'New Model File': ModelProgrammerBot,
+                # 'Review a model file': ModelProgrammerBot,
+            }
 
-        return model_file
+            prompt = (
+                Prompt()
+                .heading('User Request')
+                .text(enriched_user_input)
+                .heading('Typical Order of Events')
+                .ordered_list([
+                    'Create the model file if it is empty',
+                    'Model Fields',
+                    'Model Methods',
+                    'Review for best practices'
+                ])
+                .heading('Model File')
+                .text(model_file)
+            )
+
+            action_bots = self.llm.decoder.prompt_to_values(
+                prompt=prompt,
+                keys_description='Actions a programmer takes on a django model file',
+                keys_values=actions,
+            )
+
+            # Take actions on the model file
+            for bot in action_bots:
+                model_file = bot().process(user_input=enriched_user_input, model_file=model_file)
+
+            changed_files.append(model_file)
+
+        return changed_files

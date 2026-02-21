@@ -60,26 +60,40 @@ class HelpDeskTicket(HistoryModelMixin):
 """
 
 class TestModelWritingBot(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.user_input = 'Add name to the help desk ticket model. Description should be null true'
-        self.model_file = model_file_data
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user_input = 'Add name to the help desk ticket model. Description field should be null true'
+        cls.model_file = model_file_data
+        cls.enriched_user_input_intel = bots.ModelUserInputEnrichmentPrompt().process(prompt=cls.user_input)
+        cls.model_enriched_intel = cls.enriched_user_input_intel.enriched_model_input[0]
+        cls.model_name = cls.model_enriched_intel.model_name
+        cls.enriched_user_input = cls.model_enriched_intel.to_prompt()
+
+    def test_model_user_enrichment_bot(self):
+        # Pulls apart the users request and decides which bots to call to make changes to the model field.
+        # Entry point for CLI
+        enriched_input = bots.ModelUserInputEnrichmentPrompt().process(prompt=self.user_input)
+        print(enriched_input)
+        self.assertIsNotNone(enriched_input)
 
     def test_model_orchestration_bot(self):
         # Pulls apart the users request and decides which bots to call to make changes to the model field.
         # Entry point for CLI
-        model_file = bots.ModelOrchestrationBot().process(user_input=self.user_input)
-        self.assertIsNotNone(model_file)
+        model_files = bots.ModelOrchestrationBot().process(user_input=self.enriched_user_input)
+        print(model_files[0])
+        self.assertIsNotNone(model_files)
 
     def test_model_field_identifier_bot(self):
         # Identifies the fields that need to be changed and enriches the data.
-        fields = bots.ModelFieldIdentifierBot().process(user_input=self.user_input, model_file=self.model_file)
+        fields = bots.ModelFieldIdentifierBot().process(user_input=self.enriched_user_input, model_file=self.model_file)
         print(fields)
         self.assertIsNotNone(fields)
 
     def test_model_field_orchestration_bot(self):
         # Identifies the fields that need to be changed and enriches the data.
-        model_file = bots.ModelFieldOrchestrationBot().process(user_input=self.user_input, model_file=self.model_file)
+        model_file = bots.ModelFieldOrchestrationBot().process(user_input=self.enriched_user_input, model_file=self.model_file)
         print(model_file)
         self.assertIsNotNone(model_file)
 
@@ -95,5 +109,6 @@ class TestModelWritingBot(TestCase):
 
     def test_model_file_finding_bot(self):
         # Find the file correctly. Needs to be improved and made repeatable.
-        model_file = bots.ModelFileFinderBot().process(user_input=self.user_input)
+        model_name = self.enriched_user_input.enriched_model_input[0].model_name
+        model_file = bots.ModelFileFinderBot().process(user_input=model_name)
         self.assertIsNotNone(model_file)
