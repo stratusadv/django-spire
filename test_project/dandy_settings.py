@@ -4,8 +4,7 @@ from pathlib import Path
 
 
 ALLOW_RECORDING_TO_FILE = True
-BASE_PATH = Path.resolve(Path(__file__)).parent.parent
-
+BASE_PATH = Path(__file__).resolve().parent.parent
 
 LLM_CONFIGS = {
     'DEFAULT': {

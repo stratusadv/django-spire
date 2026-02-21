@@ -28,6 +28,7 @@ class EnrichedModelUserInput(BaseIntel):
 
         for enriched_data in self.enriched_model_input:
             prompt.prompt(enriched_data.to_prompt())
+            prompt.line_break()
 
         return prompt
 
@@ -56,3 +57,7 @@ class ModelFieldsIntel(BaseListIntel):
 
 class PythonFileIntel(BaseIntel):
     python_file: str
+
+
+class HappyUser(BaseIntel):
+    is_happy: bool

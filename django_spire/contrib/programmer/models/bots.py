@@ -1,6 +1,10 @@
-from pathlib import Path
+from __future__ import annotations
 
-from dandy import Bot, Prompt
+from pathlib import Path
+from typing import Any, Type
+
+from dandy import Bot, Prompt, BaseIntel
+from dandy.cli.tui.tui import tui
 from dandy.file.utils import get_directory_listing
 
 from django_spire.contrib.programmer.models import intel
@@ -144,6 +148,48 @@ class ModelUserInputEnrichmentPrompt(Bot):
     intel_class = intel.EnrichedModelUserInput
 
 
+class FeedBackBot(Bot):
+    role = 'Expert in taking feedback and applying to improve the situation.'
+    task = 'Take the users feedback and improve the response.'
+    guidelines = (
+        Prompt()
+        .list([
+            'Do you best to improve the response based on the users feedback.'
+        ])
+    )
+
+    def process(
+            self,
+            response: str | Prompt,
+            feedback: str | Prompt,
+            bot: Type[Bot]
+    ) -> Bot:
+
+        prompt = (
+            Prompt()
+            .heading('Task')
+            .text('The user wants to improve the response based on feedback.')
+            .heading('Response')
+            .text(response)
+            .heading('Feedback')
+            .text(feedback)
+        )
+
+        return bot().process(prompt=prompt)
+
+
+class HappyUserBot(Bot):
+    role = 'Decide if the user is happy with the response.'
+    task = 'Return a boolean value based on if the user is ready to proceed.'
+    guidelines = (
+        Prompt()
+        .list([
+            'If the users is providing feedback, they are not ready to proceed.'
+        ])
+    )
+    intel_class = intel.HappyUser
+
+
 class ModelOrchestrationBot(Bot):
     role = 'An expert at finding and orchestrating tasks that need to be completed.'
     task = 'Return actions in the correct order they need to be taken.'
@@ -158,49 +204,72 @@ class ModelOrchestrationBot(Bot):
 
     def process(self, user_input: str) ->list[str]:
         # Pulls apart the user request to each model file and the changes that need to happen.
+
+        start_time = tui.printer.start_task('Enriching User Input', 'enriching')
         enriched_prompt_intel = ModelUserInputEnrichmentPrompt().process(prompt=user_input)
+        tui.printer.end_task(start_time, 'Prompt Enriched!')
 
-        changed_files = []
+        happy = False
+        while not happy:
+            feedback = tui.get_user_input(f'Do you like? \n\n {enriched_prompt_intel.to_prompt()}')
 
-        # Move through each model file.
-        for enriched_data in enriched_prompt_intel.enriched_model_input:
-            enriched_user_input = enriched_data.to_prompt()
+            happy_user_intel = HappyUserBot().process(feedback)
+            if happy_user_intel.is_happy:
+                break
 
-            # Find the model file.
-            model_file = ModelFileFinderBot().process(user_input=enriched_data.model_name)
+            start_time = tui.printer.start_task('Providing Feedback', 'tuning')
 
-            actions = {
-                'Model Fields': ModelFieldOrchestrationBot,
-                'Model Methods': ModelFieldGeneralProgrammerBot,
-                # 'New Model File': ModelProgrammerBot,
-                # 'Review a model file': ModelProgrammerBot,
-            }
-
-            prompt = (
-                Prompt()
-                .heading('User Request')
-                .text(enriched_user_input)
-                .heading('Typical Order of Events')
-                .ordered_list([
-                    'Create the model file if it is empty',
-                    'Model Fields',
-                    'Model Methods',
-                    'Review for best practices'
-                ])
-                .heading('Model File')
-                .text(model_file)
+            enriched_prompt_intel = FeedBackBot().process(
+                response=enriched_prompt_intel.to_prompt(),
+                feedback=feedback,
+                bot=ModelUserInputEnrichmentPrompt
             )
+            tui.printer.end_task(start_time, 'Prompt Enriched!')
 
-            action_bots = self.llm.decoder.prompt_to_values(
-                prompt=prompt,
-                keys_description='Actions a programmer takes on a django model file',
-                keys_values=actions,
-            )
 
-            # Take actions on the model file
-            for bot in action_bots:
-                model_file = bot().process(user_input=enriched_user_input, model_file=model_file)
+        return enriched_prompt_intel.to_prompt()
 
-            changed_files.append(model_file)
+        # changed_files = []
+        #
+        # # Move through each model file.
+        # for enriched_data in enriched_prompt_intel.enriched_model_input:
+        #     enriched_user_input = enriched_data.to_prompt()
+        #
+        #     # Find the model file.
+        #     model_file = ModelFileFinderBot().process(user_input=enriched_data.model_name)
+        #
+        #     actions = {
+        #         'Model Fields': ModelFieldOrchestrationBot,
+        #         'Model Methods': ModelFieldGeneralProgrammerBot,
+        #         # 'New Model File': ModelProgrammerBot,
+        #         # 'Review a model file': ModelProgrammerBot,
+        #     }
+        #
+        #     prompt = (
+        #         Prompt()
+        #         .heading('User Request')
+        #         .text(enriched_user_input)
+        #         .heading('Typical Order of Events')
+        #         .ordered_list([
+        #             'Create the model file if it is empty',
+        #             'Model Fields',
+        #             'Model Methods',
+        #             'Review for best practices'
+        #         ])
+        #         .heading('Model File')
+        #         .text(model_file)
+        #     )
+        #
+        #     action_bots = self.llm.decoder.prompt_to_values(
+        #         prompt=prompt,
+        #         keys_description='Actions a programmer takes on a django model file',
+        #         keys_values=actions,
+        #     )
+        #
+        #     # Take actions on the model file
+        #     for bot in action_bots:
+        #         model_file = bot().process(user_input=enriched_user_input, model_file=model_file)
+        #
+        #     changed_files.append(model_file)
 
-        return changed_files
+        # return changed_files
