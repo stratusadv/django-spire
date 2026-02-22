@@ -19,11 +19,10 @@ class ModelOrchestrationBot(Bot):
         ])
     )
 
-    def process(self, user_input: str) ->intel.ModelsIntel:
-
+    def process(self, prompt: str) ->intel.ModelsIntel:
         # Enrich the users prompt
         start_time = tui.printer.start_task('Enriching User Input', 'enriching')
-        models_intel = ModelEnrichmentPrompt().process(prompt=user_input)
+        models_intel = ModelEnrichmentPrompt().process(prompt=prompt)
         tui.printer.end_task(start_time, 'Prompt Enriched!')
 
         happy = False
@@ -97,13 +96,16 @@ class ModelOrchestrationBot(Bot):
                 .text(model_intel.file)
             )
 
+            start_time = tui.printer.start_task('Deciding model actions', 'model_actions')
             action_bots = self.llm.decoder.prompt_to_values(
                 prompt=prompt,
                 keys_description='Actions a programmer takes on a django model file',
                 keys_values=actions,
             )
+            tui.printer.end_task(start_time, f'Found {len(action_bots)} actions.')
 
             # Take actions on the model file
+            start_time = tui.printer.start_task('Writing changes to file', 'model_actions')
             for bot in action_bots:
                 model_file = bot().process(
                     prompt=models_intel.to_prompt(),
@@ -116,5 +118,6 @@ class ModelOrchestrationBot(Bot):
                 file_path=model_intel.path,
                 content=model_intel.file
             )
+            tui.printer.end_task(start_time, f'Changes made for {model_intel.name}')
 
         return models_intel
