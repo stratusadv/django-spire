@@ -8,7 +8,7 @@ from django_spire.contrib.programmer.models.intel import intel
 
 
 _RELATIVE_BASE_DIR = Path(Path(__file__).parent.parent).resolve()
-BEST_PRACTICES = Path(_RELATIVE_BASE_DIR, '../best_practices.md')
+BEST_PRACTICES = Path(_RELATIVE_BASE_DIR, 'best_practices.md')
 
 
 class ModelFieldGeneralProgrammerBot(Bot):
@@ -21,11 +21,11 @@ class ModelFieldGeneralProgrammerBot(Bot):
     )
     intel_class = intel.PythonFileIntel
 
-    def process(self, user_input: str, model_file: str) -> intel.PythonFileIntel:
+    def process(self, prompt: str, model_file: str) -> intel.PythonFileIntel:
         models_prompt = (
             Prompt()
             .heading('Make the following changes to the models.py file.')
-            .text(user_input)
+            .text(prompt)
             .heading('Djagno Model File')
             .text(model_file)
         )
@@ -47,7 +47,7 @@ class ModelFieldIdentifierBot(Bot):
             'Focus on the user requests and use the model field for context to make better decisions.'
         ])
     )
-    intel_class = intel.ModelActionIntel
+    intel_class = intel.ModelIntel
 
     def process(self, user_input: str, model_file: str):
         prompt = (
@@ -63,7 +63,7 @@ class ModelFieldIdentifierBot(Bot):
 class ModelFieldOrchestrationBot(Bot):
     role = 'An expert at deciding on data structure types.'
     task = 'Find the correct field for the data structure.'
-    intel_class = intel.ModelActionIntel
+    intel_class = intel.ModelIntel
 
     def process(self, user_input: str, model_file: str):
         # Find all fields and enrich the data

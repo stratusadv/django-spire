@@ -1,10 +1,10 @@
 from dandy import Bot, Prompt
 from dandy.cli.tui.tui import tui
 
-from django_spire.contrib.programmer.models.bots.general_bots import HappyUserBot, FeedBackBot, ModelFinderBot
-from django_spire.contrib.programmer.models.bots.model_bots import ModelFieldGeneralProgrammerBot, \
-    ModelFieldOrchestrationBot
-from django_spire.contrib.programmer.models.bots.user_input_bots import ModelUserInputEnrichmentPrompt
+from django_spire.contrib.programmer.models.bots.general_bots import HappyUserBot, FeedBackBot
+from django_spire.contrib.programmer.models.bots.model_bots import ModelFieldGeneralProgrammerBot
+from django_spire.contrib.programmer.models.bots.user_input_bots import ModelEnrichmentPrompt
+from django_spire.contrib.programmer.models.intel import intel
 
 
 class ModelOrchestrationBot(Bot):
@@ -19,17 +19,17 @@ class ModelOrchestrationBot(Bot):
         ])
     )
 
-    def process(self, user_input: str) ->list[str]:
-        # Ensure that we have the correct model files...
+    def process(self, user_input: str) ->intel.ModelsIntel:
 
+        # Enrich the users prompt
         start_time = tui.printer.start_task('Enriching User Input', 'enriching')
-        enriched_prompt_intel = ModelUserInputEnrichmentPrompt().process(prompt=user_input)
+        models_intel = ModelEnrichmentPrompt().process(prompt=user_input)
         tui.printer.end_task(start_time, 'Prompt Enriched!')
 
         happy = False
         while not happy:
-            # Set and find the correct model files.
-            feedback = tui.get_user_input(f'Are these the correct model names? \n\n {enriched_prompt_intel.model_names_to_prompt()}')
+            # Correct model files
+            feedback = tui.get_user_input(f'Are these the correct model names? \n\n {models_intel.names_to_prompt()}')
 
             happy_user_intel = HappyUserBot().process(feedback)
             if happy_user_intel.is_happy:
@@ -43,23 +43,23 @@ class ModelOrchestrationBot(Bot):
                 .text(feedback)
             )
 
-            enriched_prompt_intel = FeedBackBot().process(
-                response=enriched_prompt_intel.to_prompt(),
+            models_intel = FeedBackBot().process(
+                response=models_intel.to_prompt(),
                 feedback=feedback_prompt,
-                bot=ModelUserInputEnrichmentPrompt
+                bot=ModelEnrichmentPrompt
             )
             tui.printer.end_task(start_time, 'Models Adjusted!')
 
-        model_intels = []
-        for enriched_data in enriched_prompt_intel.enriched_model_input:
-            start_time = tui.printer.start_task(f'Locating {enriched_data.model_name}', 'locating')
-            model_intel = ModelFinderBot().process(enriched_data.model_name)
+        # Set the file and path to each model.
+        for model_intel in models_intel.models:
+            start_time = tui.printer.start_task(f'Locating {model_intel.name}', 'locating')
+            model_intel.find()
             tui.printer.end_task(start_time, model_intel.path)
-            model_intels.append(model_intel)
 
+        # Confirm all the tasks the bot should take
         happy = False
         while not happy:
-            feedback = tui.get_user_input(f'Are these the correct model names? \n\n {enriched_prompt_intel.to_prompt()}')
+            feedback = tui.get_user_input(f'Are these the correct actions to take? \n\n {models_intel.to_prompt()}')
 
             happy_user_intel = HappyUserBot().process(feedback)
             if happy_user_intel.is_happy:
@@ -67,24 +67,16 @@ class ModelOrchestrationBot(Bot):
 
             start_time = tui.printer.start_task('Providing Feedback', 'tuning')
 
-            enriched_prompt_intel = FeedBackBot().process(
-                response=enriched_prompt_intel.to_prompt(),
+            models_intel = FeedBackBot().process(
+                response=models_intel.to_prompt(),
                 feedback=feedback,
-                bot=ModelUserInputEnrichmentPrompt
+                bot=ModelEnrichmentPrompt
             )
             tui.printer.end_task(start_time, 'Prompt Enriched!')
 
-        changed_files = []
-
-        # Move through each model file.
-        for enriched_data in enriched_prompt_intel.enriched_model_input:
-            enriched_user_input = enriched_data.to_prompt()
-
-            # Find the model file.
-            model_file = ModelFinderBot().process(user_input=enriched_data.model_name)
-
+        for model_intel in models_intel.models:
             actions = {
-                'Model Fields': ModelFieldOrchestrationBot,
+                'Model Fields': ModelFieldGeneralProgrammerBot,
                 'Model Methods': ModelFieldGeneralProgrammerBot,
                 # 'New Model File': ModelProgrammerBot,
                 # 'Review a model file': ModelProgrammerBot,
@@ -93,7 +85,7 @@ class ModelOrchestrationBot(Bot):
             prompt = (
                 Prompt()
                 .heading('User Request')
-                .text(enriched_user_input)
+                .text(model_intel.to_prompt())
                 .heading('Typical Order of Events')
                 .ordered_list([
                     'Create the model file if it is empty',
@@ -102,7 +94,7 @@ class ModelOrchestrationBot(Bot):
                     'Review for best practices'
                 ])
                 .heading('Model File')
-                .text(model_file)
+                .text(model_intel.file)
             )
 
             action_bots = self.llm.decoder.prompt_to_values(
@@ -113,8 +105,16 @@ class ModelOrchestrationBot(Bot):
 
             # Take actions on the model file
             for bot in action_bots:
-                model_file = bot().process(user_input=enriched_user_input, model_file=model_file)
+                model_file = bot().process(
+                    prompt=models_intel.to_prompt(),
+                    model_file=model_intel.file
+                )
 
-            changed_files.append(model_file)
+                model_intel.file = model_file.python_file
 
-        return changed_files
+            self.file.write(
+                file_path=model_intel.path,
+                content=model_intel.file
+            )
+
+        return models_intel

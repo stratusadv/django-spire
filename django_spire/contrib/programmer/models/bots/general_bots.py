@@ -23,9 +23,9 @@ class ModelFinderBot(Bot):
             'Our software architecture uses a nested hierarchy.'
         ])
     )
-    intel_class = intel.ModelActionIntel
+    intel_class = intel.ModelIntel
 
-    def process(self, model_name: str) -> intel.ModelActionIntel:
+    def process(self, model_name: str) -> intel.ModelIntel:
         directories = (get_directory_listing(_RELATIVE_BASE_DIR.parent.parent.parent.resolve()))
 
         prompt = (

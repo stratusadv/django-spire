@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dandy import BaseIntel, BaseListIntel, Prompt
-from django_spire.contrib.programmer.models.enums import ModelActionEnum
+
+from dandy import BaseIntel, Prompt
 
 
 class FilePathIntel(BaseIntel):
@@ -22,42 +22,37 @@ class FilePathIntel(BaseIntel):
 #         )
 #
 
-class ModelActionIntel(BaseIntel):
+class ModelIntel(BaseIntel):
     name: str
-    action: list[str] = None
+    actions: list[str] = None
     path: str | None = None
     file: str | None = None
 
+    def find(self):
+        from django_spire.contrib.programmer.models.bots.general_bots import ModelFinderBot
+        model_intel = ModelFinderBot().process(self.name)
+        self.path = model_intel.path
+        self.file = model_intel.file
 
-class EnrichedUserInput(BaseIntel):
-    model_name: str
-    description: list[str]
-
-    def to_prompt(self) -> Prompt:
+    def to_prompt(self):
         return (
             Prompt()
-            .text(f'Model Name: {self.model_name}')
-            .list([d for d in self.description])
+            .text(f'Name: {self.name}')
+            .list([a for a in self.actions])
         )
 
-    def to_model_intel(self):
-        pass
-
-
-class EnrichedModelUserInput(BaseIntel):
-    enriched_model_input: list[EnrichedUserInput]
+class ModelsIntel(BaseIntel):
+    models: list[ModelIntel]
 
     def to_prompt(self) -> Prompt:
         prompt = Prompt()
-
-        for enriched_data in self.enriched_model_input:
-            prompt.prompt(enriched_data.to_prompt())
-            prompt.line_break()
-
+        for model in self.models:
+            prompt.prompt(model.to_prompt())
         return prompt
 
-    def model_names_to_prompt(self):
-        return Prompt().list([f'{e.model_name} \n' for e in self.enriched_model_input])
+    def names_to_prompt(self):
+        return Prompt().list([m.name for m in self.models])
+
 
 
 class PythonFileIntel(BaseIntel):
