@@ -1,10 +1,10 @@
 from dandy import Bot, Prompt
 from dandy.cli.tui.tui import tui
 
-from django_spire.contrib.programmer.models.bots.general_bots import HappyUserBot, FeedBackBot
 from django_spire.contrib.programmer.models.bots.model_bots import ModelFieldGeneralProgrammerBot
 from django_spire.contrib.programmer.models.bots.user_input_bots import ModelEnrichmentPrompt
 from django_spire.contrib.programmer.models.intel import intel
+from django_spire.contrib.programmer.tools.bots import HappyUserBot, FeedbackBot
 
 
 class ModelOrchestrationBot(Bot):
@@ -42,7 +42,7 @@ class ModelOrchestrationBot(Bot):
                 .text(feedback)
             )
 
-            models_intel = FeedBackBot().process(
+            models_intel = FeedbackBot().process(
                 response=models_intel.to_prompt(),
                 feedback=feedback_prompt,
                 bot=ModelEnrichmentPrompt
@@ -66,20 +66,21 @@ class ModelOrchestrationBot(Bot):
 
             start_time = tui.printer.start_task('Providing Feedback', 'tuning')
 
-            models_intel = FeedBackBot().process(
+            models_intel = FeedbackBot().process(
                 response=models_intel.to_prompt(),
                 feedback=feedback,
                 bot=ModelEnrichmentPrompt
             )
             tui.printer.end_task(start_time, 'Prompt Enriched!')
 
+        actions = {
+            'Model Fields': ModelFieldGeneralProgrammerBot,
+            'Model Methods': ModelFieldGeneralProgrammerBot,
+            # 'New Model File': ModelProgrammerBot,
+            # 'Review a model file': ModelProgrammerBot,
+        }
+
         for model_intel in models_intel.models:
-            actions = {
-                'Model Fields': ModelFieldGeneralProgrammerBot,
-                'Model Methods': ModelFieldGeneralProgrammerBot,
-                # 'New Model File': ModelProgrammerBot,
-                # 'Review a model file': ModelProgrammerBot,
-            }
 
             prompt = (
                 Prompt()
