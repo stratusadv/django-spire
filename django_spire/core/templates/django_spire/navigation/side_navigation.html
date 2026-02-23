@@ -39,12 +39,12 @@
                         style="width: 36px; height: 36px; object-fit: contain;"
                     >
                     <div class="d-flex flex-column overflow-hidden" x-show="!collapsed" x-transition>
-                        <span class="fw-semibold text-truncate text-app-link-side-navigation" style="font-size: 0.875rem;">
+                        <span class="fw-semibold text-truncate text-app-link-side-navigation fs-7">
                             {% block side_navigation_title %}
                                 Django Spire
                             {% endblock %}
                         </span>
-                        <span class="text-truncate text-app-side-navigation" style="font-size: 0.75rem;">
+                        <span class="text-truncate text-app-side-navigation fs-8">
                             {% block side_navigation_subtitle %}
                             {% endblock %}
                         </span>
@@ -84,13 +84,13 @@
         <div class="border-top px-2 py-2 mt-auto">
             <a
                 role="button"
-                class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation"
+                class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation fs-7"
                 @click="toggle_collapse()"
-                style="font-size: 0.875rem;"
             >
                 <i
                     class="bi flex-shrink-0"
-                    :class="collapsed ? 'bi-chevron-right' : 'bi-chevron-left'"
+                    :class="collapsed ?
+                        'bi-chevron-right' : 'bi-chevron-left'"
                 >
                 </i>
                 <span x-show="!collapsed" x-transition>Collapse</span>

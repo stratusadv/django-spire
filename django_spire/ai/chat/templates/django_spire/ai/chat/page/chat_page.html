@@ -4,8 +4,7 @@
 
 {% block full_page_content %}
     <div
-        class="d-flex flex-column overflow-hidden"
-        style="height: calc(100vh - var(--app-top-navigation-height));"
+        class="d-flex flex-column overflow-hidden vh-minus-top-nav"
         x-data="{
             chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
             is_narrow_viewport: window.innerWidth < 768,
@@ -36,12 +35,12 @@
             <div class="d-flex align-items-center gap-2">
                 <a
                     @click="show_history = !show_history"
-                    class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer"
+                    class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer fs-7"
                     role="button"
-                    style="transition: background-color 0.15s ease; font-size: 0.8125rem;"
+                    style="transition: background-color 0.15s ease;"
                     :class="show_history ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
                 >
-                    <i class="bi bi-clock-history" style="font-size: 1rem;"></i>
+                    <i class="bi bi-clock-history fs-6"></i>
                     <span class="fw-medium">Chat History</span>
                 </a>
             </div>

@@ -57,9 +57,11 @@
     @chat-activated.window="is_active = ($event.detail.chat_id === {{ recent_chat.id }})"
     @click.outside="if (can_rename_chat) cancel_rename_chat()"
     @deleted_chat.window="if (show_recent_chat) show_recent_chat = $event.detail !== {{ recent_chat.id }}"
+    @search-chats.window="show_recent_chat = $event.detail.query === '' || chat_name.toLowerCase().includes($event.detail.query)"
 >
     <div
-        :class="is_active ? 'bg-app-primary-soft' : ''"
+        :class="is_active ?
+            'bg-app-primary-soft' : ''"
         class="d-flex align-items-center justify-content-between px-2 py-1 rounded"
         data-chat-id="{{ recent_chat.id }}"
         style="transition: background-color 0.15s ease;"
@@ -72,8 +74,7 @@
                     'text-app-primary': is_active || can_rename_chat,
                     'text-muted': !is_active && !can_rename_chat
                 }"
-                class="bi me-2"
-                style="flex-shrink: 0;"
+                class="bi me-2 flex-shrink-0"
             ></i>
 
             <template x-if="!can_rename_chat">
@@ -115,7 +116,8 @@
             </template>
         </div>
 
-        <div class="ms-2" style="flex-shrink: 0; visibility: hidden;" :style="can_rename_chat ? '' : 'visibility: visible;'">
+        <div class="ms-2 flex-shrink-0" :class="can_rename_chat ?
+            'invisible' : ''">
             {% include 'django_spire/ai/chat/dropdown/ellipsis_dropdown.html' %}
         </div>
     </div>

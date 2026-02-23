@@ -14,31 +14,35 @@
         async load_recent_chats() {
             await this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
             $dispatch('chat-activated', {chat_id: this.active_chat_id})
+        },
+        search_chats() {
+            $dispatch('search-chats', {query: this.search_query.toLowerCase()})
         }
     }"
-    @chat-loaded.window="load_recent_chats()"
+    @chat-loaded.window="load_recent_chats(); search_chats()"
     @new-chat-created.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})"
     @load-chat.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})"
 >
     <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
-        <span class="fw-semibold" style="font-size: 0.875rem;">Chat History</span>
+        <span class="fw-semibold fs-7">Chat History</span>
         <a
             @click="show_history = false"
             class="d-flex align-items-center justify-content-center rounded text-muted cursor-pointer"
             role="button"
             style="width: 28px; height: 28px; transition: background-color 0.15s ease;"
         >
-            <i class="bi bi-x-lg" style="font-size: 0.75rem;"></i>
+            <i class="bi bi-x-lg fs-8"></i>
         </a>
     </div>
 
     <div class="px-3 py-3 flex-shrink-0">
         <div class="position-relative">
-            <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem;"></i>
+            <i class="bi bi-search position-absolute text-muted fs-7" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
             <input
-                class="form-control form-control-sm rounded bg-app-layer-two border-app-primary"
+                @input.debounce.300ms="search_chats()"
+                class="form-control form-control-sm rounded bg-app-layer-two border-app-primary fs-7"
                 placeholder="Search conversations..."
-                style="padding-left: 2.25rem; font-size: 0.8125rem; height: 36px;"
+                style="padding-left: 2.25rem; height: 36px;"
                 type="text"
                 x-model="search_query"
             >
@@ -48,8 +52,8 @@
     <div class="px-3 pb-3 flex-shrink-0">
         <button
             @click="$dispatch('load-chat', {chat_id: 0}); show_history = false;"
-            class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium"
-            style="height: 36px; font-size: 0.8125rem;"
+            class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium fs-7"
+            style="height: 36px;"
         >
             <i class="bi bi-plus-lg"></i>
             New Chat

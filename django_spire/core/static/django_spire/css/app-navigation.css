@@ -75,43 +75,36 @@
 }
 
 .side-navigation a:hover {
-    background-color: var(--app-layer-three);
+    background-color: color-mix(in srgb, var(--app-side-navigation-link-color) 8%, transparent);
     color: var(--app-side-navigation-link-hover-color) !important;
 }
 
 .side-navigation a.active {
-    background-color: color-mix(in srgb, var(--app-primary) 10%, transparent);
-    color: var(--app-primary) !important;
+    background-color: color-mix(in srgb, var(--app-side-navigation-link-hover-color) 15%, transparent);
+    color: var(--app-side-navigation-link-hover-color) !important;
 }
 
 .side-navigation a.active i {
-    color: var(--app-primary) !important;
+    color: var(--app-side-navigation-link-hover-color) !important;
 }
 
 .side-navigation-fade-bottom {
-    background: linear-gradient(to top, var(--app-side-navigation-bg-color) 0%, var(--app-side-navigation-bg-color) 20%, transparent 75%);
-    height: 20%;
+    background: linear-gradient(to bottom, transparent, var(--app-side-navigation-bg-color));
+    height: 32px;
     pointer-events: none;
 }
 
 .side-navigation-fade-top {
-    background: linear-gradient(to bottom, var(--app-side-navigation-bg-color) 0%, var(--app-side-navigation-bg-color) 20%, transparent 100%);
-    height: 60px;
+    background: linear-gradient(to top, transparent, var(--app-side-navigation-bg-color));
+    height: 32px;
     pointer-events: none;
 }
 
-.vh-minus-top-nav {
-    height: calc(100vh - var(--app-top-navigation-height));
+.scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-.w-side-navigation-img {
-    width: calc(var(--app-side-navigation-width) - 20px);
-}
-
-.w-mobile-navigation {
-    width: var(--app-mobile-navigation-width);
-}
-
-.w-mobile-navigation-img {
-    width: calc(var(--app-mobile-navigation-width) - 20px);
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
 }

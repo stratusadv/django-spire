@@ -31,23 +31,25 @@
 >
     {{ message_intel.text|json_script:response_message_intel_id }}
 
-    <div x-ref="loading_response_message" class="row mt-2 pb-3">
-        <div class="col-auto align-self-center">
-            <div class="row align-items-center">
-                <div class="col-12 fs--1">
-                    {{ chat_workflow_name }}
+    <div x-ref="loading_response_message" class="d-flex justify-content-start px-3 py-2">
+        <div>
+            <div class="d-flex align-items-center gap-1 mb-1">
+                <div
+                    class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 bg-app-primary-soft text-app-primary"
+                    style="width: 20px; height: 20px;"
+                >
+                    <i class="bi bi-robot" style="font-size: 0.65rem;"></i>
                 </div>
-
-                <div class="col-12 px-3 pt-2">
-                    <span class="spinner-border spinner-border-sm text-muted" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </span>
-                    <span class="text-muted" x-show="show_reading">Reading...</span>
-                    <span class="text-muted" x-show="show_typing">Typing...</span>
-                </div>
+                <span class="fw-semibold" style="font-size: 0.6875rem;">{{ chat_workflow_name }}</span>
             </div>
-        </div>
-        <div class="col">
+
+            <div class="chat-bubble d-inline-flex align-items-center gap-2 mw-100 fs-7 bg-app-layer-two text-app-default-text-color chat-bubble-response" style="padding: 8px 14px; line-height: 1.5;">
+                <span class="spinner-border spinner-border-sm text-muted" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </span>
+                <span class="text-muted" x-show="show_reading">Reading...</span>
+                <span class="text-muted" x-show="show_typing">Typing...</span>
+            </div>
         </div>
     </div>
 </div>
