@@ -55,7 +55,7 @@
         <div
             :class="show_message_menu ?
                 'opacity-100' : 'opacity-0'"
-            class="d-flex {{ speech_synthesis_class }}"
+            class="d-flex opacity-0 {{ speech_synthesis_class }}"
             style="margin-top: 2px; transition: opacity 0.15s ease;"
         >
             <div @click="$dispatch('speak', {text: message_intel_str})" class="cursor-pointer text-muted fs-7">

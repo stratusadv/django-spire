@@ -59,7 +59,12 @@ def knowledge_search_workflow(
         entries=entries
     )
 
+    answer_intel = answer_intel_future.result
+
+    if answer_intel.answer.strip() == NO_KNOWLEDGE_ANSWER:
+        return NO_KNOWLEDGE_MESSAGE_INTEL
+
     return KnowledgeMessageIntel(
-        answer_intel=answer_intel_future.result,
+        answer_intel=answer_intel,
         entries_intel=entries_intel_future.result,
     )

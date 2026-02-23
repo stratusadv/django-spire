@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    {% if message_intel.entries_intel %}
+    {% if message_intel.entries_intel.unique %}
         <div class="mt-2 pt-2 border-top" x-data="{show_resources: false}">
             <span class="text-muted cursor-pointer" style="font-size: 0.8rem;" x-on:click="show_resources = !show_resources">
                 <i class="bi bi-caret-right" x-show="!show_resources"></i>

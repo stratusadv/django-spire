@@ -36,7 +36,12 @@ class KnowledgeAnswerBot(Bot):
     guidelines = (
         Prompt()
         .list([
-            'Make sure the answer is relevant and reflects knowledge entries.',
+            'The answer that you provide must be relevant and reflect knowledge entries.',
+            'Do not use general knowledge to answer a question if it does not exist in the knowledge entries.',
+            'Do not attempt to extrapolate an answer if it does not exist in the knowledge entries',
+            'If you cannot provide a direct answer, then say "Sorry, I could not find any information on that."'
+            'You should assume each response is independent and not always related to the previous context. Use your best judgement.',
+            'You should attempt to search the knowledge base for each response when a response does not seem relevant to the previous response',
             'Do not make up information use the provided knowledge entries as a source of truth.',
             'Use line breaks to separate sections of the answer and use 2 if you need to separate the section from the previous.',
             'Use the conversation history to understand context and references like "before that", "my last query", etc.',
