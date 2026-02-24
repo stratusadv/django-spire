@@ -29,6 +29,27 @@
             })
         },
 
+        hide_chat() {
+            let el = this.$el
+            let height = el.offsetHeight
+            let margin = getComputedStyle(el).marginBottom
+
+            el.style.overflow = 'hidden'
+            el.style.maxHeight = height + 'px'
+            el.style.marginBottom = margin
+            el.style.transition = 'none'
+            el.offsetHeight
+
+            el.style.transition = 'max-height 0.3s ease, opacity 0.25s ease, margin-bottom 0.3s ease'
+            el.style.maxHeight = '0px'
+            el.style.opacity = '0'
+            el.style.marginBottom = '0px'
+
+            setTimeout(() => {
+                this.show_recent_chat = false
+            }, 300)
+        },
+
         async rename_chat() {
             if (this.new_chat_name.trim() === '') {
                 this.new_chat_name = this.chat_name
@@ -56,10 +77,12 @@
     x-show="show_recent_chat"
     @chat-activated.window="is_active = ($event.detail.chat_id === {{ recent_chat.id }})"
     @click.outside="if (can_rename_chat) cancel_rename_chat()"
-    @deleted_chat.window="if (show_recent_chat) show_recent_chat = $event.detail !== {{ recent_chat.id }}"
+    @deleted_chat.window="if (show_recent_chat && $event.detail === {{ recent_chat.id }}) hide_chat()"
+    @search-chats.window="show_recent_chat = $event.detail.query === '' || chat_name.toLowerCase().includes($event.detail.query)"
 >
     <div
-        :class="is_active ? 'bg-app-primary-soft' : ''"
+        :class="is_active ?
+            'bg-app-primary-soft' : ''"
         class="d-flex align-items-center justify-content-between px-2 py-1 rounded"
         data-chat-id="{{ recent_chat.id }}"
         style="transition: background-color 0.15s ease;"
@@ -72,13 +95,12 @@
                     'text-app-primary': is_active || can_rename_chat,
                     'text-muted': !is_active && !can_rename_chat
                 }"
-                class="bi me-2"
-                style="flex-shrink: 0;"
+                class="bi me-2 flex-shrink-0"
             ></i>
 
             <template x-if="!can_rename_chat">
                 <div @click="$dispatch('load-chat', {chat_id: {{ recent_chat.id }}})" class="cursor-pointer flex-grow-1 text-truncate" data-closes-nav>
-                    <span class="px-2 fs-7" x-text="chat_name"></span>
+                    <span class="px-2 ds-fs-10" x-text="chat_name"></span>
                 </div>
             </template>
 
@@ -115,7 +137,8 @@
             </template>
         </div>
 
-        <div class="ms-2" style="flex-shrink: 0; visibility: hidden;" :style="can_rename_chat ? '' : 'visibility: visible;'">
+        <div class="ms-2 flex-shrink-0" :class="can_rename_chat ?
+            'invisible' : ''">
             {% include 'django_spire/ai/chat/dropdown/ellipsis_dropdown.html' %}
         </div>
     </div>

@@ -1,8 +1,13 @@
-<div class="row mt-3 fs-7 text-app-side-navigation">
-    <div class="col-auto pe-1">
-        <span class="text-app-side-navigation">{{ divider_text }}</span>
-    </div>
-    <div class="col ps-0 pt-1">
-        <hr class="m-0 mt-2">
-    </div>
+<div
+    class="text-uppercase fw-semibold text-app-side-navigation px-3 pt-3 pb-1"
+    style="font-size: 0.625rem; letter-spacing: 0.1em; opacity: 0.7;"
+    x-show="!collapsed"
+>
+    {{ divider_text }}
 </div>
+<hr
+    class="mx-auto my-2 opacity-50"
+    style="width: 2rem;"
+    x-show="collapsed"
+    x-cloak
+>

@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.28.2
+
+### Changes
+- Improving opencode agents and adding more skills
+
+
+## v0.28.1
+
+### Changes
+- Update the design/CSS on desktop and mobile for side and top navigation, chat and knowledge base
 
 ## v0.28.0
 

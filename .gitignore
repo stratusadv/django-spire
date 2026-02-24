@@ -26,3 +26,5 @@ venv*/
 .qodo
 .dev
 robit.log
+opencode.json
+.opencode/node_modules/
