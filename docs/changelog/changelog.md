@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.28.2
+
+### Changes
+- Improving opencode agents and adding more skills
+
+
 ## v0.28.1
 
 ### Changes
