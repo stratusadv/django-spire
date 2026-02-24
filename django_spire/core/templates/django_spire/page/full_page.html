@@ -1,6 +1,12 @@
 {% extends 'django_spire/page/page.html' %}
 
 {% block page_content %}
+    <script>
+        document.documentElement.style.setProperty(
+            '--app-side-navigation-width',
+            JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false') ? '68px' : '240px'
+        );
+    </script>
     <div
         @mousemove.window="
             if (is_resizing_sub && !is_mobile) {
@@ -37,7 +43,7 @@
             sub_nav_max_width: 600,
             sub_nav_min_width: 300,
             sub_nav_width: 300,
-            sub_toggle_left: 8,
+            sub_toggle_left: 0,
 
             is_touch_device() {
                 return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
@@ -53,10 +59,11 @@
 
             update_toggle_position() {
                 let side_nav = document.querySelector('.side-navigation');
+
                 if (side_nav && window.innerWidth >= 992) {
                     this.sub_toggle_left = side_nav.offsetWidth;
                 } else {
-                    this.sub_toggle_left = 8;
+                    this.sub_toggle_left = 0;
                 }
             },
 
@@ -149,24 +156,28 @@
             }
         }"
     >
-        <div class="d-none d-lg-block pe-1 side-navigation hide-on-print">
+        <div
+            class="d-none d-lg-block side-navigation hide-on-print sticky-top vh-100 align-self-start flex-shrink-0"
+            style="width: var(--app-side-navigation-width, 240px);"
+        >
             {% block full_page_side_navigation %}
                 {% include 'django_spire/navigation/side_navigation.html' %}
             {% endblock %}
         </div>
 
-        <div class="container-fluid d-flex flex-column">
-            <div class="row sticky-top hide-on-print">
-                <div class="col-12">
-                    {% block full_page_top_navigation %}
-                        {% include 'django_spire/navigation/top_navigation.html' %}
-                    {% endblock %}
-                </div>
+        <div class="d-flex flex-column flex-grow-1" style="overflow-x: hidden; min-width: 0;">
+            <div class="sticky-top hide-on-print z-3">
+                {% block full_page_top_navigation %}
+                    {% include 'django_spire/navigation/top_navigation.html' %}
+                {% endblock %}
             </div>
 
-            <div class="row">
+            {% block full_page_command_bar %}
+            {% endblock %}
+
+            <div class="row flex-grow-1 g-0">
                 <div
-                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto'"
+                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto border-end border-app-primary bg-app-layer-one'"
                     :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1040;' : (sub_nav_has_been_resized ? `width: ${sub_nav_width}px; min-width: ${sub_nav_width}px; max-width: ${sub_nav_width}px;` : `min-width: ${sub_nav_min_width}px;`)"
                     x-ref="sub_nav_container"
                     x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
@@ -174,44 +185,43 @@
                 >
                     <div
                         :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
-                        class="row sticky-top border-end border-app-primary side-panel overflow-y-auto"
+                        class="sticky-top side-panel overflow-y-auto d-flex flex-column"
                     >
-                        <div class="col">
-                            <div class="row pb-2 align-items-center">
-                                <div class="col-auto px-1" style="visibility: hidden;">
-                                    {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-x-lg' %}
-                                </div>
-                                <div class="col h5 text-app-primary text-center text-nowrap overflow-hidden text-truncate mb-0" style="min-width: 0;">
+                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden" style="min-width: 0;">
+                                <span class="fw-semibold text-truncate ds-fs-9">
                                     {% block full_page_sub_navigation_title %}
                                     {% endblock %}
-                                </div>
-                                <div class="col-auto px-1">
-                                    {% block full_page_sub_navigation_buttons %}
-                                    {% endblock %}
-                                </div>
-                                <div class="col-auto px-2">
-                                    <a role="button" class="link-secondary" @click="close_sub()">
-                                        <i class="bi bi-x-lg"></i>
-                                    </a>
-                                </div>
+                                </span>
                             </div>
-
-                            <div class="row">
-                                <div
-                                    @click.capture="if (is_narrow_viewport && $event.target.closest('[data-closes-nav]')) { $nextTick(() => { show_sub_nav = false }) }"
-                                    class="col"
-                                    x-ref="full_page_sub_navigation"
+                            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                                {% block full_page_sub_navigation_buttons %}
+                                {% endblock %}
+                                <a
+                                    @click="close_sub()"
+                                    class="d-flex align-items-center justify-content-center rounded text-muted cursor-pointer"
+                                    role="button"
+                                    style="width: 28px; height: 28px; transition: background-color 0.15s ease;"
                                 >
-                                    {% block full_page_sub_navigation %}
-                                    {% endblock %}
-                                </div>
+                                    <i class="bi bi-x-lg ds-fs-11"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
+                            <div
+                                @click.capture="if (is_narrow_viewport && $event.target.closest('[data-closes-nav]')) { $nextTick(() => { show_sub_nav = false }) }"
+                                x-ref="full_page_sub_navigation"
+                            >
+                                {% block full_page_sub_navigation %}
+                                {% endblock %}
                             </div>
                         </div>
                     </div>
                     <div
                         @mousedown="start_resize_sub($event)"
                         class="position-absolute top-0 d-flex align-items-center justify-content-center"
-                        style="cursor: ew-resize; height: 100%; right: -8px; user-select: none; width: 16px; z-index: 1000;"
+                        style="bottom: 0; cursor: ew-resize; right: -8px; user-select: none; width: 16px; z-index: 1000;"
                         x-show="!is_mobile"
                     >
                     </div>
@@ -219,17 +229,19 @@
 
                 <template x-if="show_sub_toggle()">
                     <div
-                        class="panel-toggle-container"
+                        class="panel-toggle-container panel-toggle-container-left d-flex align-items-center justify-content-center position-fixed"
                         :style="{ left: sub_toggle_left + 'px' }"
+                        @click="toggle_sub()"
                     >
-                        {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-right' x_button_click='toggle_sub()' %}
+                        <i class="bi bi-chevron-bar-right rounded"></i>
                     </div>
                 </template>
 
                 <div
-                    class="col pb-2"
+                    class="col {% block full_page_content_class %}pt-2 pb-2 ps-2 pe-2{% endblock %}"
                     :class="{
-                        'ps-5': show_sub_toggle(),
+                        'ps-panel-offset': show_sub_toggle(),
+                        'pe-panel-offset': show_sub_toggle(),
                     }"
                 >
                     {% block full_page_content %}
@@ -240,59 +252,61 @@
                 </div>
 
                 <template x-if="show_info_toggle()">
-                    <div class="panel-toggle-container panel-toggle-container-right">
-                        {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-chevron-left' x_button_click='toggle_info()' %}
+                    <div
+                        class="panel-toggle-container panel-toggle-container-right d-flex align-items-center justify-content-center position-fixed"
+                        @click="toggle_info()"
+                    >
+                        <i class="bi bi-chevron-bar-left rounded"></i>
                     </div>
                 </template>
 
                 <div
-                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto'"
-                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : (show_info_nav ? `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;` : 'margin-left: 0px; z-index: 1040;')"
+                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto border-start border-app-primary bg-app-layer-one'"
+                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;`"
                     x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
                     x-transition
                 >
                     <div
                         :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
-                        class="row sticky-top border-start border-app-primary side-panel overflow-y-auto bg-app-layer-one"
+                        class="sticky-top side-panel overflow-y-auto bg-app-layer-one d-flex flex-column"
                     >
-                        <div class="col">
-                            <div class="row pb-2">
-                                <div class="col text-center pt-1 h5 text-app-primary">
-                                    {% block full_page_info_navigation_title %}
-                                    {% endblock %}
-                                </div>
-
-                                <div class="col-auto px-1">
-                                    {% block full_page_info_navigation_buttons %}
-                                    {% endblock %}
-                                </div>
-
-                                <div class="col-auto pe-4">
-                                    <a role="button" class="link-secondary" @click="close_info()">
-                                        <i class="bi bi-x-lg"></i>
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div
-                                    x-on:click.capture="if (is_narrow_viewport) { $nextTick(() => { show_info_nav = false }) }"
-                                    class="col"
-                                    x-ref="full_page_info_navigation"
+                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+                            <span class="fw-semibold" style="font-size: 0.875rem;">
+                                {% block full_page_info_navigation_title %}
+                                {% endblock %}
+                            </span>
+                            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                                {% block full_page_info_navigation_buttons %}
+                                {% endblock %}
+                                <a
+                                    @click="close_info()"
+                                    class="d-flex align-items-center justify-content-center rounded text-muted cursor-pointer"
+                                    role="button"
+                                    style="width: 28px; height: 28px; transition: background-color 0.15s ease;"
                                 >
-                                    {% block full_page_info_navigation %}
-                                    {% endblock %}
-                                </div>
+                                    <i class="bi bi-x-lg" style="font-size: 0.75rem;"></i>
+                                </a>
                             </div>
                         </div>
-                    </div>
 
-                    <div
-                        @mousedown="start_resize_info($event)"
-                        class="position-absolute top-0"
-                        style="cursor: ew-resize; height: 100%; left: -8px; user-select: none; width: 16px; z-index: 1000;"
-                        x-show="!is_mobile"
-                    ></div>
+                        <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
+                            <div
+                                x-on:click.capture="if (is_narrow_viewport) { $nextTick(() => { show_info_nav = false }) }"
+                                x-ref="full_page_info_navigation"
+                            >
+                                {% block full_page_info_navigation %}
+                                {% endblock %}
+                            </div>
+                        </div>
+
+                        <div
+                            @mousedown="start_resize_info($event)"
+                            class="position-absolute top-0 d-flex align-items-center justify-content-center"
+                            style="bottom: 0; cursor: ew-resize; left: -8px; user-select: none; width: 16px; z-index: 1000;"
+                            x-show="!is_mobile"
+                        >
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

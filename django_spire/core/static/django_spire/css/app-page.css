@@ -12,6 +12,7 @@
 
 @media (min-width: 992px) {
     .full-page-content {
+        transition: width 0.3s ease;
         width: calc(100% - var(--app-side-navigation-width));
     }
 }
