@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "stratus": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Stratus",
+      "options": {
+        "baseURL": "https://ai.api.lc.ca.stratusadv.com:443/v1",
+        "apiKey": "sk-AQRc0egzNglRxaNQbwYrEg"
+      },
+      "models": {
+        "stratus.coder": {
+          "id": "stratus.coder",
+          "name": "Coder",
+          "reasoning": false,
+          "tools": true,
+          "limit": {
+            "context": 22800000,
+            "output": 32000
+          }
+        }
+      }
+    }
+  }
+}
