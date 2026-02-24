@@ -8,6 +8,7 @@ Write or update a template skill Markdown file.
 
 # Important
 - Django spire is a library in django made to build applications easier.
+- When implementing the example use partner as the main object and the partner folder structure.
 
 # Workflow when tasked:
 
