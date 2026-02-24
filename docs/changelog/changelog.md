@@ -4,6 +4,7 @@
 
 ### Changes
 - Improving opencode agents and adding more skills
+- Experimental dandy model programming bot workflow
 
 
 ## v0.28.1
