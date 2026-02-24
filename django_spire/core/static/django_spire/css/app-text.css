@@ -49,6 +49,66 @@
     --app-text-inverted-alt: var(--app-inverted-alt-text-color);
 }
 
+.ds-fs-1 {
+    font-size: 2.5rem !important;
+}
+
+.ds-fs-2 {
+    font-size: 2rem !important;
+}
+
+.ds-fs-3 {
+    font-size: 1.75rem !important;
+}
+
+.ds-fs-4 {
+    font-size: 1.5rem !important;
+}
+
+.ds-fs-5 {
+    font-size: 1.25rem !important;
+}
+
+.ds-fs-6 {
+    font-size: 1.125rem !important;
+}
+
+.ds-fs-7 {
+    font-size: 1rem !important;
+}
+
+.ds-fs-8 {
+    font-size: 0.9375rem !important;
+}
+
+.ds-fs-9 {
+    font-size: 0.875rem !important;
+}
+
+.ds-fs-10 {
+    font-size: 0.8125rem !important;
+}
+
+.ds-fs-11 {
+    font-size: 0.75rem !important;
+}
+
+.ds-fs-12 {
+    font-size: 0.6875rem !important;
+}
+
+.ds-fs-13 {
+    font-size: 0.625rem !important;
+}
+
+.ds-fs-14 {
+    font-size: 0.5625rem !important;
+}
+
+.ds-fs-15 {
+    font-size: 0.5rem !important;
+}
+
 .text-alt-color, .text-alt-color-hover:hover {
     color: var(--app-default-alt-text-color) !important;
 }

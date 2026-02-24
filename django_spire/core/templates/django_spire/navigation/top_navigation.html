@@ -20,13 +20,13 @@
                 {% if AuthController.help_desk.can_view %}
                     {% block help_desk_icon %}
                         {% url 'django_spire:help_desk:page:list' as help_desk_url %}
-                        {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' font_size='fs-5' icon_class='mx-1' %}
+                        {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' font_size='ds-fs-3' icon_class='mx-1' %}
                     {% endblock %}
                 {% endif %}
 
                 {% block theme_selector %}
                     <div>
-                        {% include 'django_spire/theme/element/theme_selector.html' with icon_size='fs-5' %}
+                        {% include 'django_spire/theme/element/theme_selector.html' with icon_size='ds-fs-3' %}
                     </div>
                 {% endblock %}
 
@@ -41,7 +41,7 @@
                 {% if request.user.is_authenticated %}
                     <div class="dropdown">
                         <i
-                            class="bi bi-person-circle fs-5 mx-1 cursor-pointer text-app-primary-hover"
+                            class="bi bi-person-circle ds-fs-3 mx-1 cursor-pointer text-app-primary-hover"
                             id="dropdownMenuButton1"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"

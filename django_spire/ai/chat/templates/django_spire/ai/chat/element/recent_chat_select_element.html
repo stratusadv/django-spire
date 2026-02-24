@@ -100,7 +100,7 @@
 
             <template x-if="!can_rename_chat">
                 <div @click="$dispatch('load-chat', {chat_id: {{ recent_chat.id }}})" class="cursor-pointer flex-grow-1 text-truncate" data-closes-nav>
-                    <span class="px-2 fs-7" x-text="chat_name"></span>
+                    <span class="px-2 ds-fs-10" x-text="chat_name"></span>
                 </div>
             </template>
 

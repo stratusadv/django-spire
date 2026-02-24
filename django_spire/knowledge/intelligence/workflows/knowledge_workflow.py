@@ -15,8 +15,10 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
+NO_KNOWLEDGE_ANSWER = 'Sorry, I could not find any information on that.'
+
 NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
-    text='Sorry, I could not find any information on that.'
+    text=NO_KNOWLEDGE_ANSWER
 )
 
 
@@ -63,6 +65,11 @@ def knowledge_search_workflow(
 
     if answer_intel.answer.strip() == NO_KNOWLEDGE_ANSWER:
         return NO_KNOWLEDGE_MESSAGE_INTEL
+
+    if not answer_intel.is_knowledge_based:
+        return DefaultMessageIntel(
+            text=answer_intel.answer
+        )
 
     return KnowledgeMessageIntel(
         answer_intel=answer_intel,

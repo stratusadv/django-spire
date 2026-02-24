@@ -47,6 +47,8 @@ class KnowledgeAnswerBot(Bot):
             'Use the conversation history to understand context and references like "before that", "my last query", etc.',
             'When a user asks about an article or section by title, summarize the content of that article or section.',
             f'Content under a [{BlockType.HEADING}] or [{BlockType.SUBHEADING}] belongs to that section.',
+            'Set is_knowledge_based to true only if the answer directly references or is derived from the knowledge entries.',
+            'Set is_knowledge_based to false for greetings, small talk, conversational responses, or when the answer does not use knowledge entries.',
         ])
     )
     intel_class = AnswerIntel

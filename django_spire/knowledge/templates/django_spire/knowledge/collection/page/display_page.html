@@ -9,9 +9,9 @@
 {% block knowledge_sub_navigation_add_button %}
     {% url 'django_spire:knowledge:collection:form:create_with_parent' parent_pk=collection.id as create_url %}
     <a
-        class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium"
+        class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium ds-fs-10"
         href="{{ create_url }}"
-        style="height: 36px; font-size: 0.8125rem;"
+        style="height: 36px;"
     >
         <i class="bi bi-plus-lg"></i>
         Add
@@ -58,6 +58,22 @@
     <div class="row">
         <div class="col-12 col-lg-8 mx-auto pb-4">
             Placeholder
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-8 mx-auto pb-4">
+            Tags:
+            {% for tag, weight in collection.simplified_and_weighted_tag_dict|safe_dict_items %}
+                {% include 'django_spire/tag/element/tag.html' %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-8 mx-auto pb-4">
+            Aggregated Tags:
+            {% for tag, weight in collection.services.tag.get_simplified_and_weighted_aggregated_tag_set|safe_dict_items %}
+                {% include 'django_spire/tag/element/tag.html' %}
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

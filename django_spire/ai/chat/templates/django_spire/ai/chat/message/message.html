@@ -49,7 +49,7 @@
             {% endif %}
         </div>
 
-        <div class="chat-bubble d-inline-flex flex-column justify-content-center mw-100 fs-7 {{ content_class }} {{ bubble_shape }}" style="padding: 8px 14px; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">{% spaceless %}{% block message_content %}{{ message_intel.render_to_str|linebreaksbr }}{% endblock %}{% endspaceless %}
+        <div class="chat-bubble d-inline-flex flex-column justify-content-center mw-100 ds-fs-9 {{ content_class }} {{ bubble_shape }}" style="padding: 8px 14px; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">{% spaceless %}{% block message_content %}{{ message_intel.render_to_str|linebreaksbr }}{% endblock %}{% endspaceless %}
         </div>
 
         <div
@@ -58,10 +58,10 @@
             class="d-flex opacity-0 {{ speech_synthesis_class }}"
             style="margin-top: 2px; transition: opacity 0.15s ease;"
         >
-            <div @click="$dispatch('speak', {text: message_intel_str})" class="cursor-pointer text-muted fs-7">
+            <div @click="$dispatch('speak', {text: message_intel_str})" class="cursor-pointer text-muted ds-fs-9">
                 <i class="bi bi-soundwave"></i>
             </div>
-            <div @click="$dispatch('send-message', {message_body: message_intel_str})" class="ms-1 cursor-pointer text-muted fs-7">
+            <div @click="$dispatch('send-message', {message_body: message_intel_str})" class="ms-1 cursor-pointer text-muted ds-fs-9">
                 <i class="bi bi-repeat"></i>
             </div>
         </div>
