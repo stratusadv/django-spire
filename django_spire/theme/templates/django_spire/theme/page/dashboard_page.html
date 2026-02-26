@@ -1,52 +1,80 @@
 {% extends 'django_spire/page/full_page.html' %}
 
+{% block full_page_command_bar %}
+    <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one" style="height: 52px;">
+        <div class="d-flex align-items-center gap-2">
+            <a
+                @click="toggle_sub()"
+                class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
+                role="button"
+                style="transition: background-color 0.15s ease;"
+                :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                x-show="has_content($refs.full_page_sub_navigation)"
+            >
+                <i class="bi bi-layout-sidebar ds-fs-7"></i>
+                <span class="fw-medium">Sub Navigation</span>
+            </a>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a
+                @click="toggle_info()"
+                class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
+                role="button"
+                style="transition: background-color 0.15s ease;"
+                :class="show_info_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                x-show="has_content($refs.full_page_info_navigation)"
+            >
+                <i class="bi bi-layout-sidebar-reverse ds-fs-7"></i>
+                <span class="fw-medium">Info Navigation</span>
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
 {% block full_page_sub_navigation_title %}
     Sub Navigation
 {% endblock %}
 
 {% block full_page_sub_navigation %}
-    as
-    sa
-    sa
-    s
-    a
-    sa
-    as
-    sa
-    as
-    as
-    as
-    as
-    <br>
-    as
-    sa
-    sa
-    as
-    as
-    a
-    <br>
-    sa
-    sa
-    s
-    a
-    s
-    a
-    a
-    <br>
-    as
-    as
-    a
-    s
-    as
-    a
-    sa
-    <br>
-    s
-    <br>
-    a
-    sa
-    sa
-
+    <div class="p-3">
+        <div class="mb-3">
+            <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Components</div>
+            <a href="{% url 'django_spire:theme:page:colors' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+                <i class="bi bi-palette text-muted"></i>
+                Colors
+            </a>
+            <a href="{% url 'django_spire:theme:page:typography' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+                <i class="bi bi-type text-muted"></i>
+                Typography
+            </a>
+            <a href="{% url 'django_spire:theme:page:buttons' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+                <i class="bi bi-hand-index-thumb text-muted"></i>
+                Buttons
+            </a>
+            <a href="{% url 'django_spire:theme:page:badges' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+                <i class="bi bi-tag text-muted"></i>
+                Badges
+            </a>
+            <a href="{% url 'django_spire:theme:page:borders' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+                <i class="bi bi-bounding-box text-muted"></i>
+                Borders
+            </a>
+        </div>
+        <div class="mb-3">
+            <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Integrations</div>
+            <a href="{% url 'django_spire:theme:page:django_glue' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+                <i class="bi bi-file-text text-muted"></i>
+                Django Glue
+            </a>
+        </div>
+        <div>
+            <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Examples</div>
+            <a href="{% url 'django_spire:theme:page:example' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+                <i class="bi bi-grid-1x2 text-muted"></i>
+                Example Page
+            </a>
+        </div>
+    </div>
 {% endblock %}
 
 {% block full_page_content %}
@@ -81,5 +109,24 @@
 {% endblock %}
 
 {% block full_page_info_navigation %}
-    INFORMATION NAV
+    <div class="p-3">
+        <div class="mb-3">
+            <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">About</div>
+            <p class="ds-fs-10 mb-2">
+                The theme dashboard provides an overview of all available design tokens, components, and styles used throughout the application.
+            </p>
+        </div>
+        <div class="mb-3">
+            <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Theme Settings</div>
+            <p class="ds-fs-10 mb-2">
+                Use the theme selector in the top navigation to switch between color families and toggle between light and dark modes.
+            </p>
+        </div>
+        <div>
+            <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Customization</div>
+            <p class="ds-fs-10 mb-0">
+                Each preview card links to a full preview page where you can explore the component in detail alongside its appearance on a card.
+            </p>
+        </div>
+    </div>
 {% endblock %}
