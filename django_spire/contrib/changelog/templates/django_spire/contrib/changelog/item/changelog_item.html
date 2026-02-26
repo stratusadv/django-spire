@@ -1,0 +1,20 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title_col %} d-none{% endblock %}
+
+{% block item_padding %}py-2{% endblock %}
+
+{% block item_row_content %}
+    <div class="col overflow-auto" style="max-height: 300px">
+        <div class="fs--1 text-muted">
+            Version {{ changelog_entry.version }} - {{ changelog_entry.date }} - {{ changelog_entry.type.value|title }}
+        </div>
+        <div class="fs-6">
+            <ul class="mb-0">
+            {% for change in changelog_entry.changes %}
+                <li> <span class="fw-bold">{{ change.app }}</span> - {{ change.description }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
