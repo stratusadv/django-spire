@@ -1,5 +1,12 @@
 # Changelog
 
+
+## v0.28.3
+
+### Changes
+- Added changelog app (taken from tradesman)
+
+
 ## v0.28.2
 
 ### Changes
