@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.28.5
+
+### Changes
+- Added Permission admin panel configuration.
+
 ## v0.28.4
 
 ### Fixes
