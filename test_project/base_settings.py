@@ -53,6 +53,9 @@ TWILIO_SMS_BATCH_SIZE = 100
 # AI Chat Config
 DJANGO_SPIRE_AI_PERSONA_NAME = 'Rubber Ducky'
 
+# Changelog
+DJANGO_SPIRE_CHANGELOG_MODULE = 'changelog.changelog'
+
 # Maintenance Mode
 MAINTENANCE_MODE = True
 
@@ -73,6 +76,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django_spire.contrib.changelog',
     'storages',
 ]
 

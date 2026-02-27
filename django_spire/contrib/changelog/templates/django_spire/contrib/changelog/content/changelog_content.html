@@ -2,6 +2,6 @@
     {% for changelog_entry in changelog %}
         {% include 'django_spire/contrib/changelog/item/changelog_item.html' %}
     {% endfor %}
-    {% else %}
+{% else %}
     {% include 'django_spire/item/no_data_item.html' %}
 {% endif %}
