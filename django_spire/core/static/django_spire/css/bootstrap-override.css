@@ -267,6 +267,16 @@
     color: var(--app-default-text-color);
 }
 
+.table-striped tbody .skeleton-row:nth-of-type(odd) {
+    --bs-table-bg-type: var(--app-table-row-alt-color) !important;
+    background-color: var(--app-table-row-alt-color) !important;
+}
+
+.table-striped tbody .skeleton-row:nth-of-type(even) {
+    --bs-table-bg-type: color-mix(in srgb, var(--app-secondary) 10%, transparent) !important;
+    background-color: color-mix(in srgb, var(--app-secondary) 10%, transparent) !important;
+}
+
 .table-striped tbody tr:nth-of-type(4n+1),
 .table-striped tbody tr:nth-of-type(4n+2) {
     --bs-table-bg-type: var(--app-table-row-alt-color);

@@ -1,4 +1,5 @@
 <div
+    x-cloak
     x-data="{
         loaded_tabs: new Set(),
         loading_tabs: new Set(),
@@ -30,9 +31,31 @@
         },
 
         register_section(detail) {
+            let content_el = detail.el.firstElementChild;
+
+            let observer = new MutationObserver((mutations) => {
+                for (let mutation of mutations) {
+                    for (let node of mutation.addedNodes) {
+                        if (node.nodeType !== 1) continue;
+
+                        node.style.opacity = '0';
+                        node.style.transition = 'none';
+
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                node.style.transition = 'opacity 1000ms ease';
+                                node.style.opacity = '1';
+                            });
+                        });
+                    }
+                }
+            });
+
+            observer.observe(content_el, { childList: true, subtree: true });
+
             this.sections.push({
                 el: detail.el,
-                content_el: detail.el.firstElementChild
+                content_el: content_el
             });
 
             if (this.triggers.length === this.sections.length && !this.is_loaded(this.selected_tab)) {
@@ -101,15 +124,11 @@
 
             this.loading_tabs.add(tab_number);
 
-            toggleLoadingOverlay();
-
             let view = new ViewGlue(trigger.endpoint);
             await view.render_inner(section.content_el);
 
             this.loading_tabs.delete(tab_number);
             this.loaded_tabs.add(tab_number);
-
-            toggleLoadingOverlay();
         },
 
         get_url_param() {
@@ -133,19 +152,37 @@
     @register-section="register_section($event.detail)"
     @register-trigger="register_trigger($event.detail)"
 >
-    <ul
-        @keydown.end.prevent.stop="$focus.last()"
-        @keydown.home.prevent.stop="$focus.first()"
-        @keydown.left.prevent.stop="$focus.wrap().prev()"
-        @keydown.page-down.prevent.stop="$focus.last()"
-        @keydown.page-up.prevent.stop="$focus.first()"
-        @keydown.right.prevent.stop="$focus.wrap().next()"
-        class="border-1 border-bottom d-flex list-unstyled"
-        role="tablist"
-    >
-        {% block tab_trigger %}
-        {% endblock %}
-    </ul>
+    <div class="position-relative">
+        <div
+            class="tab-scroll-fade tab-scroll-fade-left"
+            x-ref="tab_fade_left"
+            x-show="$refs.tablist.scrollLeft > 0"
+            x-cloak
+        ></div>
+
+        <ul
+            @keydown.end.prevent.stop="$focus.last()"
+            @keydown.home.prevent.stop="$focus.first()"
+            @keydown.left.prevent.stop="$focus.wrap().prev()"
+            @keydown.page-down.prevent.stop="$focus.last()"
+            @keydown.page-up.prevent.stop="$focus.first()"
+            @keydown.right.prevent.stop="$focus.wrap().next()"
+            @scroll="$refs.tab_fade_left.style.display = $el.scrollLeft > 0 ? '' : 'none'; $refs.tab_fade_right.style.display = ($el.scrollWidth - $el.scrollLeft - $el.clientWidth) > 1 ? '' : 'none';"
+            class="border-bottom border-1 d-flex flex-nowrap list-unstyled overflow-x-auto tab-scrollbar-hidden"
+            x-ref="tablist"
+            x-init="$nextTick(() => { $refs.tab_fade_right.style.display = ($el.scrollWidth - $el.scrollLeft - $el.clientWidth) > 1 ? '' : 'none'; })"
+            role="tablist"
+        >
+            {% block tab_trigger %}
+            {% endblock %}
+        </ul>
+
+        <div
+            class="tab-scroll-fade tab-scroll-fade-right"
+            x-ref="tab_fade_right"
+            x-cloak
+        ></div>
+    </div>
 
     {% block tab_function %}
     {% endblock %}
