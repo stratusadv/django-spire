@@ -1,19 +1,29 @@
 # Changelog
 
+
+## v0.28.3
+
+### Features
+- Added generic changelog app
+
+
 ## v0.28.4
 
-### Fixes
+### Changes
 - Fix sticky nav, dialog widget
+
 
 ## v0.28.3
 
 ### Changes
 - Improve CSS for navigation, tables, tabs, sub_nav and info_nav
 
+
 ## v0.28.2
 
 ### Changes
 - Improving opencode agents and adding more skills
+
 
 ## v0.28.1
 
@@ -33,6 +43,7 @@
 
 ### Changes
 - Updated `notification_bell.html` to extend from `responsive_icon.html`
+
 
 ## v0.27.7
 
@@ -1357,3 +1368,8 @@ DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS = {
 ### Fixes
 
 - Correct import paths for Ai Seeding Bot.
+
+### Changes
+
+- Added changelog app (taken from tradesman)
+- Improve CSS for navigation, tables, tabs, sub_nav and info_nav
