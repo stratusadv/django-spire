@@ -67,8 +67,7 @@
                     )
 
                     if (was_new_chat) {
-                        this.chat_name = message_body.length > 24 ?
-                            message_body.substring(0, 21) + '...' : message_body
+                        this.chat_name = message_body.length > 24 ? message_body.substring(0, 21) + '...' : message_body
 
                         let message_element = this.$refs.target_div.querySelector('[data-message-chat-id]')
 
@@ -92,7 +91,7 @@
         }"
         @send-message.window="send_chat({message_body: $event.detail.message_body})" @speak.window="speak_text($event.detail.text)"
     >
-        <div class="col-12 d-flex flex-column" style="{{ dialog_height|default:'height: calc(100vh - 52px - var(--app-top-navigation-height));' }}">
+        <div class="col-12 d-flex flex-column" style="{{ dialog_height|default:'height: calc(100dvh - 52px - var(--app-top-navigation-height));' }}">
             <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
                 <div class="mx-auto py-3" style="max-width: 56rem;" x-ref="target_div"></div>
             </div>

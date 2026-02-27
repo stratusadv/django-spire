@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.28.4
+
+### Fixes
+- Fix sticky nav, dialog widget
+
 ## v0.28.3
 
 ### Changes

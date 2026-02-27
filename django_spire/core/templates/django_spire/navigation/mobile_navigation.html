@@ -9,14 +9,10 @@
     <div
         x-show="show_mobile_nav"
         x-cloak
-        x-transition:enter="transition-opacity"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition-opacity"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
+        x-transition.opacity.duration.300ms
+        x-effect="document.body.style.overflow = show_mobile_nav ? 'hidden' : ''"
         class="position-fixed top-0 start-0 w-100 side-navigation overflow-y-auto"
-        style="z-index: 1050; height: 100vh; height: 100dvh; padding-bottom: env(safe-area-inset-bottom, 0px);"
+        style="z-index: 1050; height: 100vh; height: 100dvh; overscroll-behavior: contain; padding-bottom: env(safe-area-inset-bottom, 0px);"
     >
         <div class="d-flex justify-content-between align-items-center px-3" style="height: 64px;">
             <span class="fw-semibold">Navigation</span>
@@ -33,9 +29,3 @@
         </ul>
     </div>
 </div>
-
-<style>
-    .transition-opacity {
-        transition: opacity 0.3s ease;
-    }
-</style>
