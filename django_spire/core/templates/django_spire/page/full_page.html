@@ -1,12 +1,6 @@
 {% extends 'django_spire/page/page.html' %}
 
 {% block page_content %}
-    <script>
-        document.documentElement.style.setProperty(
-            '--app-side-navigation-width',
-            JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false') ? '68px' : '240px'
-        );
-    </script>
     <div
         @mousemove.window="
             if (is_resizing_sub && !is_mobile) {
@@ -43,34 +37,16 @@
             sub_nav_max_width: 600,
             sub_nav_min_width: 300,
             sub_nav_width: 300,
-            sub_toggle_left: 0,
 
             is_touch_device() {
                 return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
-            },
-
-            show_sub_toggle() {
-                return has_content(this.$refs.full_page_sub_navigation) && !this.show_sub_nav && !((this.is_mobile && this.is_narrow_viewport) && this.show_info_nav);
-            },
-
-            show_info_toggle() {
-                return has_content(this.$refs.full_page_info_navigation) && !this.show_info_nav && !((this.is_mobile && this.is_narrow_viewport) && this.show_sub_nav);
-            },
-
-            update_toggle_position() {
-                let side_nav = document.querySelector('.side-navigation');
-
-                if (side_nav && window.innerWidth >= 992) {
-                    this.sub_toggle_left = side_nav.offsetWidth;
-                } else {
-                    this.sub_toggle_left = 0;
-                }
             },
 
             update_viewport_state() {
                 const was_narrow = this.is_narrow_viewport;
                 const is_now_narrow = window.innerWidth < 992;
                 this.is_narrow_viewport = is_now_narrow;
+                this.is_mobile = this.is_touch_device();
 
                 if (!was_narrow && is_now_narrow) {
                     this.show_sub_nav = false;
@@ -90,9 +66,13 @@
             },
 
             init() {
+                document.documentElement.style.setProperty(
+                    '--app-side-navigation-width',
+                    JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false') ? '68px' : '240px'
+                );
+
                 this.is_mobile = this.is_touch_device();
                 this.update_viewport_state();
-                this.update_toggle_position();
 
                 const urlParams = new URLSearchParams(window.location.search);
 
@@ -108,7 +88,6 @@
 
                 window.addEventListener('resize', () => {
                     this.update_viewport_state();
-                    this.update_toggle_position();
                 })
             },
 
@@ -142,7 +121,7 @@
             toggle_info() {
                 this.show_info_nav = !this.show_info_nav
 
-                if (this.is_mobile && this.is_narrow_viewport) {
+                if (this.is_narrow_viewport) {
                     this.show_sub_nav = false
                 }
             },
@@ -150,7 +129,7 @@
             toggle_sub() {
                 this.show_sub_nav = !this.show_sub_nav
 
-                if (this.is_mobile && this.is_narrow_viewport) {
+                if (this.is_narrow_viewport) {
                     this.show_info_nav = false
                 }
             }
@@ -165,26 +144,26 @@
             {% endblock %}
         </div>
 
-        <div class="d-flex flex-column flex-grow-1" style="overflow-x: hidden; min-width: 0;">
+        <div class="d-flex flex-column flex-grow-1" style="overflow-x: clip; min-width: 0;">
             <div class="sticky-top hide-on-print z-3">
                 {% block full_page_top_navigation %}
                     {% include 'django_spire/navigation/top_navigation.html' %}
                 {% endblock %}
-            </div>
 
-            {% block full_page_command_bar %}
-            {% endblock %}
+                {% block full_page_command_bar %}
+                {% endblock %}
+            </div>
 
             <div class="row flex-grow-1 g-0">
                 <div
-                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto border-end border-app-primary bg-app-layer-one'"
-                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1040;' : (sub_nav_has_been_resized ? `width: ${sub_nav_width}px; min-width: ${sub_nav_width}px; max-width: ${sub_nav_width}px;` : `min-width: ${sub_nav_min_width}px;`)"
+                    :class="is_narrow_viewport ? '' : 'position-relative col-auto border-end border-app-primary bg-app-layer-one'"
+                    :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', left: '0', top: '0', zIndex: 1040 } : (sub_nav_has_been_resized ? { width: sub_nav_width + 'px', minWidth: sub_nav_width + 'px', maxWidth: sub_nav_width + 'px' } : { minWidth: sub_nav_min_width + 'px' })"
                     x-ref="sub_nav_container"
                     x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
                     x-transition
                 >
                     <div
-                        :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
+                        :style="is_narrow_viewport ? { height: '100dvh' } : {}"
                         class="sticky-top side-panel overflow-y-auto d-flex flex-column"
                     >
                         <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
@@ -227,22 +206,8 @@
                     </div>
                 </div>
 
-                <template x-if="show_sub_toggle()">
-                    <div
-                        class="panel-toggle-container panel-toggle-container-left d-flex align-items-center justify-content-center position-fixed"
-                        :style="{ left: sub_toggle_left + 'px' }"
-                        @click="toggle_sub()"
-                    >
-                        <i class="bi bi-chevron-bar-right rounded"></i>
-                    </div>
-                </template>
-
                 <div
                     class="col {% block full_page_content_class %}pt-2 pb-2 ps-2 pe-2{% endblock %}"
-                    :class="{
-                        'ps-panel-offset': show_sub_toggle(),
-                        'pe-panel-offset': show_sub_toggle(),
-                    }"
                 >
                     {% block full_page_content %}
                     {% endblock %}
@@ -251,23 +216,14 @@
                     {% endblock %}
                 </div>
 
-                <template x-if="show_info_toggle()">
-                    <div
-                        class="panel-toggle-container panel-toggle-container-right d-flex align-items-center justify-content-center position-fixed"
-                        @click="toggle_info()"
-                    >
-                        <i class="bi bi-chevron-bar-left rounded"></i>
-                    </div>
-                </template>
-
                 <div
-                    :class="(is_mobile && is_narrow_viewport) ? '' : 'position-relative col-auto border-start border-app-primary bg-app-layer-one'"
-                    :style="(is_mobile && is_narrow_viewport) ? 'position: fixed; width: 100vw; height: 100vh; right: 0; top: 0; z-index: 1040;' : `width: ${info_nav_width}px; min-width: ${info_nav_width}px; max-width: ${info_nav_width}px; margin-left: -${info_nav_width}px; z-index: 1040;`"
+                    :class="is_narrow_viewport ? '' : 'position-relative col-auto border-start border-app-primary bg-app-layer-one'"
+                    :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', right: '0', top: '0', zIndex: 1040 } : { width: info_nav_width + 'px', minWidth: info_nav_width + 'px', maxWidth: info_nav_width + 'px', marginLeft: '-' + info_nav_width + 'px', zIndex: 1040 }"
                     x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
                     x-transition
                 >
                     <div
-                        :style="(is_mobile && is_narrow_viewport) ? 'height: 100vh;' : ''"
+                        :style="is_narrow_viewport ? { height: '100dvh' } : {}"
                         class="sticky-top side-panel overflow-y-auto bg-app-layer-one d-flex flex-column"
                     >
                         <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">

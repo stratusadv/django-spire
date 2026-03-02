@@ -35,26 +35,49 @@
         },
         update_cookie(id) {
             let tab_id = id.split('-').pop();
-            document.cookie = `tab=${tab_id}; path=/; SameSite=None; Secure`;
+            document.cookie = `tab=${tab_id}; path=/; SameSite=Lax`;
         }
     }"
     x-id="['tab']"
 >
     {# Tab List #}
-    <ul
-        @keydown.right.prevent.stop="$focus.wrap().next()"
-        @keydown.home.prevent.stop="$focus.first()"
-        @keydown.page-up.prevent.stop="$focus.first()"
-        @keydown.left.prevent.stop="$focus.wrap().prev()"
-        @keydown.end.prevent.stop="$focus.last()"
-        @keydown.page-down.prevent.stop="$focus.last()"
-        class="d-flex list-unstyled border-bottom border-1"
-        x-ref="tablist"
-        role="tablist"
-    >
-        {% block tab_triggers %}
-        {% endblock %}
-    </ul>
+    <div class="position-relative">
+        <div
+            class="tab-scroll-fade tab-scroll-fade-left"
+            x-ref="tab_fade_left"
+            x-show="$refs.tab_scroll.scrollLeft > 0"
+            x-cloak
+        ></div>
+
+        <div
+            class="overflow-x-auto tab-scrollbar-hidden"
+            x-ref="tab_scroll"
+            x-init="$nextTick(() => { $refs.tab_fade_right.style.display = ($el.scrollWidth - $el.scrollLeft - $el.clientWidth) > 1 ? '' : 'none'; })"
+            @scroll="$refs.tab_fade_left.style.display = $el.scrollLeft > 0 ? '' : 'none'; $refs.tab_fade_right.style.display = ($el.scrollWidth - $el.scrollLeft - $el.clientWidth) > 1 ? '' : 'none';"
+        >
+            <ul
+                @keydown.right.prevent.stop="$focus.wrap().next()"
+                @keydown.home.prevent.stop="$focus.first()"
+                @keydown.page-up.prevent.stop="$focus.first()"
+                @keydown.left.prevent.stop="$focus.wrap().prev()"
+                @keydown.end.prevent.stop="$focus.last()"
+                @keydown.page-down.prevent.stop="$focus.last()"
+                class="border-bottom border-1 d-flex flex-nowrap list-unstyled"
+                style="min-width: max-content;"
+                x-ref="tablist"
+                role="tablist"
+            >
+                {% block tab_triggers %}
+                {% endblock %}
+            </ul>
+        </div>
+
+        <div
+            class="tab-scroll-fade tab-scroll-fade-right"
+            x-ref="tab_fade_right"
+            x-cloak
+        ></div>
+    </div>
 
     {% block tab_function_area %}
     {% endblock %}

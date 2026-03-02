@@ -1,10 +1,30 @@
 # Changelog
 
+## v0.28.6
+
+### Changes
+- Added ruff to development dependencies.
+- Updated `ruff.toml` file.
+
+## v0.28.5
+
+### Changes
+- Added Permission admin panel configuration.
+
+## v0.28.4
+
+### Fixes
+- Fix sticky nav, dialog widget
+
+## v0.28.3
+
+### Changes
+- Improve CSS for navigation, tables, tabs, sub_nav and info_nav
+
 ## v0.28.2
 
 ### Changes
 - Improving opencode agents and adding more skills
-
 
 ## v0.28.1
 
@@ -24,7 +44,6 @@
 
 ### Changes
 - Updated `notification_bell.html` to extend from `responsive_icon.html`
-
 
 ## v0.27.7
 
