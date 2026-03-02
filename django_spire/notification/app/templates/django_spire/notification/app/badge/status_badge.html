@@ -1,0 +1,9 @@
+{% if app_notification.notification.status == statuses.PENDING %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text='Pending' %}
+{% elif app_notification.notification.status == statuses.SENT %}
+    {% include 'django_spire/badge/success_badge.html' with badge_text='Sent' %}
+{% elif app_notification.notification.status == statuses.ERRORED %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text='Errored' %}
+{% elif app_notification.notification.status == statuses.FAILED %}
+    {% include 'django_spire/badge/danger_badge.html' with badge_text='Failed' %}
+{% endif %}

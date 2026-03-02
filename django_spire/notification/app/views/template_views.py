@@ -11,6 +11,7 @@ from django_spire.contrib.session.controller import SessionController
 from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSION_KEY_NAME
 from django_spire.notification.app.forms import NotificationListFilterForm
 from django_spire.notification.app.models import AppNotification
+from django_spire.notification.choices import NotificationStatusChoices, NotificationPriorityChoices
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -35,7 +36,7 @@ def _get_base_notification_queryset(request: WSGIRequest, is_apply_filter: bool)
     if isinstance(request.user, AnonymousUser):
         return AppNotification.objects.none()
 
-    notifications = AppNotification.objects.active()
+    notifications = AppNotification.objects.active().select_related('notification')
 
     if is_apply_filter:
         notifications = notifications.process_session_filter(
@@ -45,9 +46,8 @@ def _get_base_notification_queryset(request: WSGIRequest, is_apply_filter: bool)
         )
 
     return (
-        notifications.is_sent()
+        notifications.filter_by_notification_status()
         .annotate_is_viewed_by_user(request.user)
-        .select_related('notification')
         .distinct()
         .ordered_by_priority_and_sent_datetime()
     )
@@ -61,7 +61,10 @@ def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     view = _infinite_scroll_view(request=request, notification_queryset=notifications)
     view.context_data.update({
         'filter_session': filter_session,
+        'statuses': NotificationStatusChoices,
+        'priorities': NotificationPriorityChoices,
     })
+    view.template_name = 'django_spire/notification/app/item/list_page_items.html'
     return view
 
 
