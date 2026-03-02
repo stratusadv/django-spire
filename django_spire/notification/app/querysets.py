@@ -53,6 +53,8 @@ class AppNotificationQuerySet(
     def bulk_filter(self, filter_data: dict) -> QuerySet:
         queryset = self
         filter_map = {
+            'status': 'notification__status',
+            'priority': 'notification__priority',
         }
         if search_term := filter_data.get("search"):
             queryset = queryset.search(search_term)

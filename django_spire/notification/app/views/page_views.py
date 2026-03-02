@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
@@ -11,6 +12,7 @@ from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSI
 from django_spire.notification.app.forms import NotificationListFilterForm
 
 from django_spire.notification.app.models import AppNotification
+from django_spire.notification.choices import NotificationStatusChoices, NotificationPriorityChoices
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -30,6 +32,8 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         context_data={
             'notification_endpoint': reverse('django_spire:notification:app:template:scroll_items'),
             'filter_session': SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME),
+            'status_choices': json.dumps(NotificationStatusChoices.choices[2:]),
+            'priority_choices': json.dumps(NotificationPriorityChoices.choices[::-1]),
         },
         model=AppNotification,
         template='django_spire/notification/app/page/list_page.html'
