@@ -9,29 +9,39 @@ if TYPE_CHECKING:
     from django.forms import BaseForm
 
 
-def form_errors_as_list(form: BaseForm) -> list[str]:
+def form_errors_as_list(*forms: BaseForm) -> list[str]:
     form_errors = []
 
-    for field_name, error_list in form.errors.items():
-        for error in error_list.data:
-            error_message = ''
+    for form in forms:
+        for field_name, error_list in form.errors.items():
+            for error in error_list.data:
+                error_message = ''
 
-            if field_name != '__all__':
-                error_message += f'{field_name.title()}: '
+                if field_name != '__all__':
+                    error_message += f'{field_name.title()}: '
 
-            if hasattr(error, 'message_responses'):
-                error_message += f'{" ".join(error.message_responses)}'
+                if hasattr(error, 'message_responses'):
+                    error_message += f'{" ".join(error.message_responses)}'
 
-            elif hasattr(error, 'messages'):
-                error_message += f'{" ".join(error.messages)}'
+                elif hasattr(error, 'messages'):
+                    error_message += f'{" ".join(error.messages)}'
 
-            else:
-                message = 'Error message not found.'
-                raise Exception(message)
+                else:
+                    message = 'Error message not found.'
+                    raise Exception(message)
 
-            form_errors.append(error_message)
+                form_errors.append(error_message)
 
     return form_errors
+
+
+def form_error_as_str(*form: BaseForm):
+    error_message = ''
+
+    for form in form:
+        error_message += " ".join(form_errors_as_list(form))
+
+    return error_message
 
 
 def show_form_errors(request: WSGIRequest, *forms: BaseForm) -> None:

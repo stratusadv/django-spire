@@ -5,6 +5,7 @@
 ### Changes
 - Added ruff to development dependencies.
 - Updated `ruff.toml` file.
+- Form helper function `form_error_as_str` to easily send back JsonError messages.
 
 ## v0.28.5
 
