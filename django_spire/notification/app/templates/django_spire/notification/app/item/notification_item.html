@@ -1,5 +1,7 @@
 {% extends 'django_spire/item/infinite_scroll_item.html' %}
 
+{% block item_class %}lh-sm py-1{% endblock %}
+
 {% block item_content %}
     {% if app_notification.notification.url %}
     <a href="{{ app_notification.notification.url }}"
