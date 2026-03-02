@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.28.6
+
+### Changes
+- Added ruff to development dependencies.
+- Updated `ruff.toml` file.
+
 ## v0.28.5
 
 ### Changes
