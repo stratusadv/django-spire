@@ -16,6 +16,16 @@
             this.show_bottom_fade = has_scroll && !is_at_bottom;
         },
 
+        save_scroll() {
+            localStorage.setItem('side_nav_scroll', this.$refs.scroll_container.scrollTop);
+        },
+
+        restore_scroll() {
+            let position = parseFloat(localStorage.getItem('side_nav_scroll') || '0');
+            this.$refs.scroll_container.scrollTop = position;
+            this.$refs.scroll_container.style.opacity = '1';
+        },
+
         toggle_collapse() {
             this.collapsed = !this.collapsed;
             localStorage.setItem('side_nav_collapsed', JSON.stringify(this.collapsed));
@@ -26,7 +36,7 @@
             this.$nextTick(() => this.check_scroll());
         }
     }"
-    x-init="$nextTick(() => { check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
+    x-init="$nextTick(() => { restore_scroll(); check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
 >
     <div class="px-3 d-flex align-items-center gap-2 flex-shrink-0 border-bottom" style="height: 64px;">
         {% block side_navigation_top_content %}
@@ -63,8 +73,9 @@
 
         <div
             class="navbar-nav-scroll scrollbar-hidden px-2 py-2 h-100"
+            style="opacity: 0;"
             x-ref="scroll_container"
-            @scroll="check_scroll()"
+            @scroll="check_scroll(); save_scroll()"
         >
             <nav class="d-flex flex-column gap-1 pt-1">
                 {% block side_navigation_links %}

@@ -57,7 +57,7 @@
             {% block knowledge_command_bar_collections %}
                 <a
                     @click="toggle_sub()"
-                    class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
+                    class="text-muted d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                     role="button"
                     style="transition: background-color 0.15s ease;"
                     :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
@@ -75,7 +75,7 @@
             {% block knowledge_command_bar_info %}
                 <a
                     @click="toggle_info()"
-                    class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
+                    class="text-muted d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                     role="button"
                     style="transition: background-color 0.15s ease;"
                     :class="show_info_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"

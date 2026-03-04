@@ -7,7 +7,7 @@
 
         async init(){
             await this.check_new_notifications();
-            setInterval(await this.check_new_notifications, 30000);
+            setInterval(() => this.check_new_notifications(), 30000);
         },
 
         async check_new_notifications(){
@@ -24,9 +24,9 @@
             );
             let element = document.querySelector(`[x-ref='spire_notification_dropdown_content']`);
             await dropdown_content.render_inner(element);
-            await this.mark_notifications_as_viewed();
             this.isLoading = false;
             $dispatch('content-loaded');
+            this.mark_notifications_as_viewed();
         },
 
         async mark_notifications_as_viewed(){
