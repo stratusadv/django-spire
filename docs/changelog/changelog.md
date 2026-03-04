@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.28.7
+
+### Features
+- Created `icon/confirm_icon.html` as an extendable template for action confirmations.
+
+### Changes
+- Updated theme to include `icon/confirm_icon.html` and `icon/responsive_icon.html` elements.
+
 ## v0.28.6
 
 ### Changes
