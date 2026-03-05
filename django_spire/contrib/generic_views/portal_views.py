@@ -57,8 +57,6 @@ def delete_form_view(
     *,
     context_data: dict | None = None,
     obj: Model,
-    activity_func: Callable[[], None] | None = None,
-    auto_add_activity: bool = True,
     breadcrumbs_func: BreadcrumbCallable | None = None,
     delete_func: Callable[[], None] | None = None,
     verbs: tuple[str, str] = ('delete', 'deleted'),
@@ -79,15 +77,6 @@ def delete_form_view(
                     delete_func()
                 else:
                     obj.set_deleted()
-
-                if activity_func is not None:
-                    activity_func()
-                elif hasattr(obj, 'add_activity') and auto_add_activity:
-                    obj.add_activity(
-                        user=request.user,
-                        verb=verbs[1],
-                        information=f'{request.user.get_full_name()} {verbs[1].lower()} {model_name} "{obj}".'
-                    )
 
             return HttpResponseRedirect(return_url)
     else:

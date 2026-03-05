@@ -18,7 +18,7 @@ class InfiniteScrolling(ActivityMixin, HistoryModelMixin):
     objects = querysets.InfiniteScrollingQuerySet().as_manager()
     services = InfiniteScrollingService()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     @classmethod
