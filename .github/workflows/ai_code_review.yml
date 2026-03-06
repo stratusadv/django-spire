@@ -46,7 +46,9 @@ jobs:
           version: "latest"
 
       - name: Install dependencies
-        run: uv sync
+        run: |
+          uv sync
+          uv pip install ruff
 
       - name: Determine PR number
         id: pr
@@ -60,7 +62,11 @@ jobs:
       - name: Fetch PR diff
         id: diff
         run: |
+          echo "PR number: ${{ steps.pr.outputs.number }}"
+          gh pr diff ${{ steps.pr.outputs.number }} --name-only || true
+          echo "---"
           gh pr diff ${{ steps.pr.outputs.number }} > pr_diff.patch
+          echo "Diff size: $(wc -l < pr_diff.patch) lines"
           echo "has_diff=true" >> $GITHUB_OUTPUT
 
       - name: Run AI review
