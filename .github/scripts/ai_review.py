@@ -3,13 +3,12 @@ import os
 import re
 import subprocess
 import sys
-
-import requests
-
 from pathlib import Path
 
-from dandy import BaseIntel, Bot, Prompt
+import requests
 from pydantic import Field
+
+from dandy import BaseIntel, Bot, Prompt
 
 
 GITHUB_API = 'https://api.github.com'
@@ -95,6 +94,9 @@ def run_ruff(changed_files: list[str]) -> list[dict]:
         print('ruff not found, skipping lint step.')
         return []
 
+    if result.stderr:
+        print(f'Ruff stderr: {result.stderr}')
+
     if not result.stdout.strip():
         return []
 
@@ -170,7 +172,11 @@ def main() -> None:
         return
 
     changed_files = get_changed_files_from_diff(diff)
+    print(f'Changed Python files: {changed_files}')
+
     ruff_results = run_ruff(changed_files)
+    print(f'Ruff results: {len(ruff_results)} violation(s)')
+
     ruff_comments = ruff_results_to_review_comments(ruff_results)
     ruff_summary = ruff_results_to_summary(ruff_results)
 
