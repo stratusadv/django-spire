@@ -94,10 +94,12 @@ class CodeReviewBot(Bot):
 
 def get_diff() -> str:
     with open('pr_diff.patch', 'r') as f:
-        diff = f.read()
+        return f.read()
 
+
+def truncate_diff_for_prompt(diff: str) -> str:
     if len(diff) > MAX_DIFF_LENGTH:
-        diff = diff[:MAX_DIFF_LENGTH] + '\n\n... (diff truncated due to size)'
+        return diff[:MAX_DIFF_LENGTH] + '\n\n... (diff truncated due to size)'
 
     return diff
 
@@ -328,7 +330,7 @@ def main() -> None:
 
     try:
         review_intel = CodeReviewBot().process(
-            diff=diff,
+            diff=truncate_diff_for_prompt(diff),
             ruff_summary=ruff_summary,
             opencode_prompt=opencode_prompt,
         )
