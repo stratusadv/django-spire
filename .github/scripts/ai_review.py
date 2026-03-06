@@ -39,6 +39,7 @@ class CodeReviewBot(Bot):
         'Do NOT comment on things that are clearly intentional design decisions.',
         'If the code looks good, return an empty comments list.',
         'Ruff linting results are provided separately, do NOT duplicate them.',
+        'Only reference lines that appear in the diff.',
     ])
     intel_class = CodeReviewIntel
 
@@ -64,6 +65,38 @@ def get_diff() -> str:
         diff = diff[:MAX_DIFF_LENGTH] + '\n\n... (diff truncated due to size)'
 
     return diff
+
+
+def parse_diff_lines(diff: str) -> dict[str, set[int]]:
+    diff_lines = {}
+    current_file = None
+    current_line = 0
+
+    for line in diff.splitlines():
+        file_match = re.match(r'^diff --git a/.+ b/(.+)$', line)
+        if file_match:
+            current_file = file_match.group(1)
+            if current_file not in diff_lines:
+                diff_lines[current_file] = set()
+            continue
+
+        hunk_match = re.match(r'^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@', line)
+        if hunk_match:
+            current_line = int(hunk_match.group(1))
+            continue
+
+        if current_file is None:
+            continue
+
+        if line.startswith('+') and not line.startswith('+++'):
+            diff_lines[current_file].add(current_line)
+            current_line += 1
+        elif line.startswith('-') and not line.startswith('---'):
+            pass
+        else:
+            current_line += 1
+
+    return diff_lines
 
 
 def get_changed_files_from_diff(diff: str) -> list[str]:
@@ -103,26 +136,42 @@ def run_ruff(changed_files: list[str]) -> list[dict]:
     return json.loads(result.stdout)
 
 
-def ruff_results_to_review_comments(ruff_results: list[dict]) -> list[dict]:
-    comments = []
+def ruff_results_to_comments(ruff_results: list[dict], diff_lines: dict[str, set[int]]) -> tuple[list[dict], list[str]]:
+    inline_comments = []
+    body_comments = []
 
     for violation in ruff_results:
-        path = violation.get('filename', '')
+        raw_path = violation.get('filename', '')
         line = violation.get('location', {}).get('row', 0)
         code = violation.get('code', '')
         message = violation.get('message', '')
         url = violation.get('url', '')
 
+        relative_path = make_relative_path(raw_path)
         body = f'**Ruff [{code}]({url})**: {message}'
 
-        comments.append({
-            'path': path,
-            'body': body,
-            'line': line,
-            'side': 'RIGHT',
-        })
+        file_diff_lines = diff_lines.get(relative_path, set())
 
-    return comments
+        if line in file_diff_lines:
+            inline_comments.append({
+                'path': relative_path,
+                'body': body,
+                'line': line,
+                'side': 'RIGHT',
+            })
+        else:
+            body_comments.append(f'`{relative_path}:{line}` — {body}')
+
+    return inline_comments, body_comments
+
+
+def make_relative_path(raw_path: str) -> str:
+    workspace = os.environ.get('GITHUB_WORKSPACE', '')
+
+    if workspace and raw_path.startswith(workspace):
+        return raw_path[len(workspace):].lstrip('/')
+
+    return raw_path
 
 
 def ruff_results_to_summary(ruff_results: list[dict]) -> str:
@@ -141,9 +190,22 @@ def ruff_results_to_summary(ruff_results: list[dict]) -> str:
     return '\n'.join(lines)
 
 
-def post_review_comments(comments: list[dict]) -> None:
-    if not comments:
+def post_review(inline_comments: list[dict], body_lines: list[str]) -> None:
+    if not inline_comments and not body_lines:
         return
+
+    body = 'AI Code Review'
+
+    if body_lines:
+        body += '\n\n**Ruff issues outside of diff:**\n' + '\n'.join(f'- {line}' for line in body_lines)
+
+    payload = {
+        'body': body,
+        'event': 'COMMENT',
+    }
+
+    if inline_comments:
+        payload['comments'] = inline_comments
 
     response = requests.post(
         f'{GITHUB_API}/repos/{REPO_FULL_NAME}/pulls/{PR_NUMBER}/reviews',
@@ -152,16 +214,12 @@ def post_review_comments(comments: list[dict]) -> None:
             'Accept': 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28',
         },
-        json={
-            'body': 'AI Code Review',
-            'event': 'COMMENT',
-            'comments': comments,
-        },
+        json=payload,
         timeout=30,
     )
     response.raise_for_status()
 
-    print(f'Posted {len(comments)} review comment(s).')
+    print(f'Posted review: {len(inline_comments)} inline comment(s), {len(body_lines)} body comment(s).')
 
 
 def main() -> None:
@@ -171,37 +229,45 @@ def main() -> None:
         print('AI review: empty diff, skipping.')
         return
 
+    diff_lines = parse_diff_lines(diff)
+
     changed_files = get_changed_files_from_diff(diff)
     print(f'Changed Python files: {changed_files}')
 
     ruff_results = run_ruff(changed_files)
     print(f'Ruff results: {len(ruff_results)} violation(s)')
 
-    ruff_comments = ruff_results_to_review_comments(ruff_results)
+    ruff_inline, ruff_body = ruff_results_to_comments(ruff_results, diff_lines)
     ruff_summary = ruff_results_to_summary(ruff_results)
-
-    if ruff_comments:
-        print(f'Ruff found {len(ruff_comments)} issue(s).')
-        post_review_comments(ruff_comments)
 
     try:
         review_intel = CodeReviewBot().process(diff=diff, ruff_summary=ruff_summary)
     except Exception as e:
         print(f'AI review failed: {e}', file=sys.stderr)
+        post_review(ruff_inline, ruff_body)
         sys.exit(1)
 
-    ai_comments = [
-        {
-            'path': comment.path,
-            'body': comment.body,
-            'line': comment.line,
-            'side': 'RIGHT',
-        }
-        for comment in review_intel.comments
-    ]
+    ai_inline = []
+    ai_body = []
 
-    if ai_comments:
-        post_review_comments(ai_comments)
+    for comment in review_intel.comments:
+        file_diff_lines = diff_lines.get(comment.path, set())
+
+        if comment.line in file_diff_lines:
+            ai_inline.append({
+                'path': comment.path,
+                'body': comment.body,
+                'line': comment.line,
+                'side': 'RIGHT',
+            })
+        else:
+            ai_body.append(f'`{comment.path}:{comment.line}` — {comment.body}')
+
+    all_inline = ruff_inline + ai_inline
+    all_body = ruff_body + ai_body
+
+    if all_inline or all_body:
+        post_review(all_inline, all_body)
     else:
         print('AI review: no issues found.')
 
