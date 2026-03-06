@@ -3,5 +3,6 @@
 {% block card_title %}{{ card_title }}{% endblock %}
 
 {% block card_title_content %}
+    {% include 'django_spire/filtering/form/filter_form.html' %}
     {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height=scroll_height|default:'300px' %}
 {% endblock %}
