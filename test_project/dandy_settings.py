@@ -12,7 +12,7 @@ LLM_CONFIGS = {
         'HOST': os.getenv('AI_API_HOST'),
         'PORT': int(os.getenv('AI_API_PORT', '443')),
         'API_KEY': os.getenv('AI_API_KEY'),
-        'MODEL': os.getenv('AI_API_MODEL', 'stratus.thinking'),
+        'MODEL': os.getenv('AI_API_MODEL') or 'stratus.thinking',
     },
     'BASIC': {
         'MODEL': 'stratus.smart',
