@@ -29,6 +29,7 @@ jobs:
       AI_API_MODEL: ${{ secrets.AI_API_MODEL }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v5
         with:
