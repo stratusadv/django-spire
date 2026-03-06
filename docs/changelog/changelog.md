@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.28.8
+
+### Changes
+- Knowledge Base UI and UX improvements.
+
 ## v0.28.7
 
 ### Features
