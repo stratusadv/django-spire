@@ -9,14 +9,10 @@ BASE_PATH = Path.resolve(Path(__file__)).parent.parent
 
 LLM_CONFIGS = {
     'DEFAULT': {
-        'TYPE': 'openai',
         'HOST': os.getenv('AI_API_HOST'),
-        'PORT': 443,
+        'PORT': int(os.getenv('AI_API_PORT', '443')),
         'API_KEY': os.getenv('AI_API_KEY'),
-        'MODEL': 'stratus.smart',
-        'TEMPERATURE': 0.1,
-        'MAX_INPUT_TOKENS': 32000,
-        'MAX_OUTPUT_TOKENS': 32000,
+        'MODEL': os.getenv('AI_API_MODEL', 'stratus.thinking'),
     },
     'BASIC': {
         'MODEL': 'stratus.smart',
