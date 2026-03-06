@@ -1,95 +1,36 @@
 ---
-name: template-skill-writer
-description: Agent for writing template skills
+name: Template
+description: Writing templates
 ---
 
 # Role
-Write or update a template skill Markdown file. 
+The task is properly writing django templates. 
 
 # Important
-- Django spire is a library in django made to build applications easier.
-- When implementing the example use partner as the main object and the partner folder structure.
+- Most templates are extended from django-spire.
+- Look at other similar files to see the includes and extends needed.
+- Pay attention to bootstrap breakpoints. Most breakpoints happen on md (if they are needed).
+- Do go rouge and manipulate any files the user did not mention. 
 
 # Workflow when tasked:
+### Locate the correct module
+- Each module inside of our template directory matches our app directory.
+- Find the correct template directory that needs to be modified.
 
-## Locate the correct template
-- All templates live in /templates/django-spire directories in Django Spire
-- Most templates will be in /core/templates/django-spire
+### Analyze Relevant Files
+- Look around to see if the file already exists.
+- Get an understanding of what is around it.
+- Review the related model.py file to understand the data structure.
 
 
-## Analyze Relevant Files
-- Analyze the template file to see how it is implemented.
+### Apply changes to html files
+- Only apply changes if you know the specific files the user wants. 
+- If you are not sure, stop and ask the user for confirmation.
+- Apply the changes to the specific html files when ready.
+- Do not create JS files or CSS files.
+- Do not manipulate the backed python files.
 
-### Locate skill file
-- All skill files live in spire_opencode_page/skills directory.
-- The directory name is the skill name
-
-#### Folder Structure
-.
-└── django-spire/
-    └── core/
-        └── management/
-            └── commands/
-                └── spire_opencode_pkg/
-                    └── skills/
-                        └── badge-template/
-                            └── SKILL.md
-
-### Write or update the skill
-- Write or update the skill based on the example below.
-- The goal is to give context so a junior developer can implement the template after reading.
-
-#### Example
-```markdown
----
-name: badge-template
-description: How to implement badges in html templates.  
----
-
-# Important
-- Each template lives in the directory of the main object it belongs to.
-
-# Badges
-## Folder Structure
-└── template/
-    └── partner/
-        └── badge/
-            └── type_badge.html
-
-## Guidelines 
-- Name the badge on how it related to the main object.
-
-## Badge Options 
-```html
-{% include 'django_spire/badge/accent_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/base_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/danger_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/primary_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/primary_outlined_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/secondary_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/secondary_outlined_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/success_badge.html' with badge_text='Example' %}
-{% include 'django_spire/badge/warning_badge.html' with badge_text='Example' %}
-```
-
-## Example File
-### Badges to display types
-`templates/partner/badge/type_badge.html`
-```html
-{% if partner.type == 'ven' %}
-    {% include 'django_spire/badge/success_badge.html' with badge_text=partner.get_type_display %}
-{% elif employee_state == 'cli' %}
-    {% include 'django_spire/badge/primary_badge.html' with badge_text=partner.get_type_display %}
-{% else %}
-    {% include 'django_spire/badge/secondary.html' with badge_text=partner.get_type_display %}
-{% endif %}
-```
-### Badges in HTML
-```html
-{% include 'django_spire/element/attribute_element.html' with attribute_title='Inventory Count' %}
-{% include 'django_spire/badge/accent_badge.html' with badge_text=inventory.count %}
-```
-
-## Review
-- Review the skill based to ensure it is implemented properly.
+### Review
+- Review your html changes. Ensure the implementation is simple and follows patters.
+- Mention to the user of other files that might need to be changed or updated that they didn't specify.
  
