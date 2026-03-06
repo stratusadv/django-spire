@@ -7,7 +7,7 @@
 {% block card_button %}
     {% if AuthController.knowledge.can_add %}
         {% url 'django_spire:knowledge:collection:form:create' as create_url %}
-        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_url_params='?top_level=True' button_icon="bi bi-plus" %}
+        {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_url_params='?top_level=True&show_sub_nav=False' button_icon="bi bi-plus" %}
     {% endif %}
 {% endblock %}
 
