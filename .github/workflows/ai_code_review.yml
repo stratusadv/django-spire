@@ -1,0 +1,70 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to review (for manual testing)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  ai-review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AI_API_HOST: ${{ secrets.AI_API_HOST }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
+      AI_API_MODEL: ${{ secrets.AI_API_MODEL }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DANDY_SETTINGS_MODULE: ${{ secrets.DANDY_SETTINGS_MODULE }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Determine PR number
+        id: pr
+        run: |
+          if [ -n "${{ inputs.pr_number }}" ]; then
+            echo "number=${{ inputs.pr_number }}" >> $GITHUB_OUTPUT
+          else
+            echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fetch PR diff
+        id: diff
+        run: |
+          gh pr diff ${{ steps.pr.outputs.number }} > pr_diff.patch
+          echo "has_diff=true" >> $GITHUB_OUTPUT
+
+      - name: Run AI review
+        if: steps.diff.outputs.has_diff == 'true'
+        run: uv run python .github/scripts/ai_review.py
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          REPO_FULL_NAME: ${{ github.repository }}
