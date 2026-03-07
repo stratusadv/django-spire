@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.28.8
+
+### Breaking
+- `--app-border-color` must be added to theme as `--bs-border-color` was being overriden by bootstrap.
+
+### Changes
+- Font css has been removed out of `boostrap-extensions` and added to it's own `app-font.css` file
+- Cards now have their own `app-card.css` file
+
 ## v0.28.7
 
 ### Features
