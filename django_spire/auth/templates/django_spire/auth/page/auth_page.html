@@ -3,12 +3,12 @@
 {% load static %}
 
 {% block page_content %}
-    <div class="row justify-content-center mx-auto mt-5">
-        <div class="col-11 col-md-6 col-lg-4 bg-app-layer-one">
-            <div class="px-4 py-5">
+    <div class="row justify-content-center mx-auto mt-6">
+        <div class="col-11 col-md-6 col-lg-4 card">
+            <div class="px-4 py-4">
                 {% block authentication_page_top_content %}
-                    <div class="text-center pb-5">
-                        <a href="/">
+                    <div class="text-center pb-3">
+                        <a class="text-app-default-text-color" href="/">
                             {% block authentication_page_img %}
                                 <img height="120px" class="ms-1" src="{% static 'django_spire/img/django_spire.svg' %}"
                                      alt="">

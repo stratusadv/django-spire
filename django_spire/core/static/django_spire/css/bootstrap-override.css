@@ -185,15 +185,6 @@
     --bs-form-select-focus-box-shadow: 0 0 0 0.25rem var(--app-focus-ring-primary);
 }
 
-.card {
-    border-width: 1px;
-    border-color: var(--bs-border-color);
-}
-
-.card-body {
-    background-color: var(--bs-card-bg);
-}
-
 .list-group-flush .list-group-item {
     border-left: 0;
     border-right: 0;
