@@ -45,7 +45,7 @@ def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
     )
 
     context_data = {
-        '${context_plural_var}': ${context_plural_var}
+        '${context_plural_var}': ${context_plural_var},
         'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
     }
 
