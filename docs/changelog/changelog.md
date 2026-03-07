@@ -4,6 +4,7 @@
 
 ### Breaking
 - `--app-border-color` must be added to theme as `--bs-border-color` was being overriden by bootstrap.
+- Check your app theme before pushing to production!
 
 ### Changes
 - Font css has been removed out of `boostrap-extensions` and added to it's own `app-font.css` file
