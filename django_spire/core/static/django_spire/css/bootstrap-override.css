@@ -11,10 +11,10 @@
     --bs-alert-border-color: var(--app-layer-three);
     --bs-alert-color: var(--app-default-text-color);
 
-    --bs-body-bg: var(--app-default-bg-color);
+    --bs-body-bg: var(--app-layer-one);
     --bs-body-color: var(--app-default-text-color);
 
-    --bs-border-color: var(--app-layer-three);
+    --bs-border-color: var(--app-border-color);
     --bs-border-color-translucent: rgba(0, 0, 0, 0.175);
 
     --bs-breadcrumb-bg: var(--app-layer-two);
