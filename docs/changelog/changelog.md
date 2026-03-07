@@ -9,6 +9,7 @@
 ### Changes
 - Font css has been removed out of `boostrap-extensions` and added to it's own `app-font.css` file
 - Cards now have their own `app-card.css` file
+- Knowledge Base UI and UX improvements.
 
 ## v0.28.7
 
