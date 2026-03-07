@@ -39,7 +39,7 @@ class KnowledgeSearchRouter(BaseChatRouter):
         )
 
         bot = Bot()
-        bot.llm_role = system_prompt
+        bot.role = system_prompt
 
         return bot.llm.prompt_to_intel(
             prompt=user_input,

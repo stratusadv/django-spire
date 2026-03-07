@@ -1,9 +1,9 @@
 :root {
     --app-footer-height: 70px;
     --app-mobile-navigation-width: 250px;
-    --app-side-navigation-width: 250px;
+    --app-side-navigation-width: 240px;
     --app-side-navigation-top-content-height: 100px;
-    --app-top-navigation-height: 80px;
+    --app-top-navigation-height: 64px;
 
     --app-content-height: calc(100vh - var(--app-top-navigation-height) );
     --app-side-panel-height: calc(100vh - var(--app-top-navigation-height) - 1vh);
@@ -13,3 +13,30 @@
     height: calc(100vh - var(--app-top-navigation-height));
 }
 
+.tab-scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.tab-scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-scroll-fade {
+    height: 100%;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 40px;
+    z-index: 1;
+}
+
+.tab-scroll-fade-left {
+    background: linear-gradient(to right, var(--app-layer-one), transparent);
+    left: 0;
+}
+
+.tab-scroll-fade-right {
+    background: linear-gradient(to left, var(--app-layer-one), transparent);
+    right: 0;
+}

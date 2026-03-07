@@ -15,7 +15,6 @@
                     maxWidth: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px',
                 }"
                 x-ref="scroll_container"
-                :data-scroll-id="scroll_id"
             >
                 <div x-ref="content_container">
                     {% block scroll_content %}{% endblock %}

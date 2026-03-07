@@ -31,20 +31,27 @@ def format_marker(marker: MarkerType, label: str | None = None) -> str:
 
 
 class KnowledgeAnswerBot(Bot):
-    llm_role = 'Knowledge Entry Search Assistant'
-    llm_task = 'Read through the knowledge and answer the users request.'
-    llm_guidelines = (
+    role = 'Knowledge Entry Search Assistant'
+    task = 'Read through the knowledge and answer the users request.'
+    guidelines = (
         Prompt()
         .list([
-            'Make sure the answer is relevant and reflects knowledge entries.',
+            'The answer that you provide must be relevant and reflect knowledge entries.',
+            'Do not use general knowledge to answer a question if it does not exist in the knowledge entries.',
+            'Do not attempt to extrapolate an answer if it does not exist in the knowledge entries',
+            'If you cannot provide a direct answer, then say "Sorry, I could not find any information on that."'
+            'You should assume each response is independent and not always related to the previous context. Use your best judgement.',
+            'You should attempt to search the knowledge base for each response when a response does not seem relevant to the previous response',
             'Do not make up information use the provided knowledge entries as a source of truth.',
             'Use line breaks to separate sections of the answer and use 2 if you need to separate the section from the previous.',
             'Use the conversation history to understand context and references like "before that", "my last query", etc.',
             'When a user asks about an article or section by title, summarize the content of that article or section.',
             f'Content under a [{BlockType.HEADING}] or [{BlockType.SUBHEADING}] belongs to that section.',
+            'Set is_knowledge_based to true only if the answer directly references or is derived from the knowledge entries.',
+            'Set is_knowledge_based to false for greetings, small talk, conversational responses, or when the answer does not use knowledge entries.',
         ])
     )
-    llm_intel_class = AnswerIntel
+    intel_class = AnswerIntel
 
     def process(
         self,

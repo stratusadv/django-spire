@@ -1,3 +1,0 @@
-{% for ${context_single_var} in ${context_plural_var} %}
-    {% include '${template_directory_path}/item/${item_template_name}.html' %}
-{% endfor %}

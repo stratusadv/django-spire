@@ -1,8 +1,6 @@
-<div class="text-center">
-    <button id="android-install-button" class="btn btn-app-primary fs-4 mt-3" hidden>
-        Install App <i class="bi bi-file-arrow-down"></i>
-    </button>
-</div>
+{% block install_button %}
+    {% include 'django_spire/auth/button/android_install_button.html' with button_type='btn-app-primary' %}
+{% endblock %}
 
 <script type="application/javascript">
     let android_install_prompt = null;

@@ -3,6 +3,8 @@
 {% block dropdown_trigger %}
     <div x-data="{
         new_notification: false,
+        isLoading: false,
+
         async init(){
             await this.check_new_notifications();
             setInterval(await this.check_new_notifications, 30000);
@@ -15,12 +17,16 @@
         },
 
         async render_dropdown(){
+            this.isLoading = true;
             let dropdown_content = new ViewGlue(
                 url='{% url "django_spire:notification:app:template:notification_dropdown" %}',
                 shared_payload={app_notification_list_url: '{{ app_notification_list_url|default:"" }}'}
             );
-            await dropdown_content.render_inner($refs.spire_notification_dropdown_content);
+            let element = document.querySelector(`[x-ref='spire_notification_dropdown_content']`);
+            await dropdown_content.render_inner(element);
             await this.mark_notifications_as_viewed();
+            this.isLoading = false;
+            $dispatch('content-loaded');
         },
 
         async mark_notifications_as_viewed(){
@@ -44,5 +50,14 @@
 {% block dropdown_position %}top-100 end-50{% endblock %}
 
 {% block dropdown_content %}
-    <div :style="{ width: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px' }" x-ref="spire_notification_dropdown_content"></div>
+    <div
+        x-data="{ hasContent: false }"
+        x-show="hasContent"
+        x-transition
+        x-cloak
+        @content-loaded.window="hasContent = true"
+        :style="{ width: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px' }"
+    >
+        <div x-ref="spire_notification_dropdown_content"></div>
+    </div>
 {% endblock %}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from dandy.recorder import recorder_to_html_file
+from dandy import recorder_to_html_file
 
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import chat_workflow
 from django_spire.ai.sms.intel import SmsIntel

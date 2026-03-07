@@ -1,11 +1,115 @@
 # Changelog
 
+## v0.28.8
+
+### Changes
+- Knowledge Base UI and UX improvements.
+
+## v0.28.7
+
+### Features
+- Created `icon/confirm_icon.html` as an extendable template for action confirmations.
+
+### Changes
+- Updated theme to include `icon/confirm_icon.html` and `icon/responsive_icon.html` elements.
+
+## v0.28.6
+
+### Changes
+- Added ruff to development dependencies.
+- Updated `ruff.toml` file.
+- Form helper function `form_error_as_str` to easily send back JsonError messages.
+
+## v0.28.5
+
+### Changes
+- Added Permission admin panel configuration.
+
+## v0.28.4
+
+### Fixes
+- Fix sticky nav, dialog widget
+
+## v0.28.3
+
+### Changes
+- Improve CSS for navigation, tables, tabs, sub_nav and info_nav
+
+## v0.28.2
+
+### Changes
+- Improving opencode agents and adding more skills
+
+## v0.28.1
+
+### Changes
+- Update the design/CSS on desktop and mobile for side and top navigation, chat and knowledge base
+
+## v0.28.0
+
+### Breaking
+- Refactored to require `Dandy v2.0.0`
+- Codebases must be refactored to this version of Dandy to use spire v0.28.0 and beyond
+
+## v0.27.8
+
+### Features
+- Added `icon_attributes` block to `responsive_icons.html`
+
+### Changes
+- Updated `notification_bell.html` to extend from `responsive_icon.html`
+
+## v0.27.7
+
+### Features
+
+- Added support for `pull to refresh` for IOS devices in standalone mode
+- Added new `icon/responsive_icon.html` as an extendable template for responsive icons and includes tooltips
+- Added new `json_response` and subtypes to remove boilerplate for adding `type` and `message` into responses
+- Added global JS convenience methods for dispatching different types of message
+  - Added `notification.js` to `base.html`
+- Added Django Glue helpers to remove try / catch boilerplate and add in re-try ability
+  - Added `django_glue/helpers.js` to `base.html`
+  - Includes `GlueFetchHelper`, `GlueObjectHelper` and `GlueQuerySetHelper`
+- Added `toggleFullScreen` method into global JS to easily fullscreen capabilities
+  - Added `full_screen.js` to `base.html`
+- `toggleLoadingOverlay` now takes in an optional duration length to stop the animation from persisting on JavaScript and other page errors
+  - Separated `toggleLoadingOverlay` from `toggleLoadingSpinner` to make actions distinct
+  - Overhauled defaulting loading spinner
+- Added loading overlay transitions when navigation using the `nav_links` elements
+  - Can be disabled with `disable_overlay` but is defaulted to on
+- Added basic `.aiiignore`
+- Added base template files for opencode
+- Starting agents and skills to work with Django Spire
+- Management Command `spire_opencode` to set up opencode files and sync skills/agents
+- Added `formatDatetimeInput` to format date for glue fields
+  - Added to `base.html`
+
+### Changes
+
+- Added `form_title_card.html` that wraps card_content with form to allow for more flexible form layouts in the card
+- Simplified `spire_startapp` command to allow AI to read our patterns easier
+- Added new opencode agents that adhere to spire best practices
+
+### Fixes
+
+- Fixed side navigation divider text colour
+
+### Breaking
+
+- Moved `infinite_scroll_item.html` padding and margin into the `item_class` block for better flexibility
+  - Any instances of extending this block will need to include padding and margin now
+- Removed `card_title_content_container_element_type` block from `title_card.html`
+- `toggle_loading_overlay` renamed to `toggleLoadingOverlay`
+
 ## v0.26.1
 
 ### Fixes
 
 - Fix mkdocs conflict causing build failure.
 - Update PWA installation guide.
+- Added `humanize_tags.py` to `core/templatetags/`
+- Added `humanize_duration` to `humanize_tags.py` to turn an amount of seconds to a more human readable format
 
 ## v0.26.0
 
@@ -18,7 +122,7 @@
 
 - Added optional template generation to startapp.
 - Added ChoicesQueryMixin that provides a `to_choices` convenience queryset method
-- Added default implmentation for `SearchQuerySetMixin.search` that does a fuzzy search against all the model's CharFields
+- Added default implementation for `SearchQuerySetMixin.search` that does a fuzzy search against all the model's CharFields
 
 - Added `model_app_label` and `model_name` template tags to enable quick access to those Django model metadata
   properties in templates.

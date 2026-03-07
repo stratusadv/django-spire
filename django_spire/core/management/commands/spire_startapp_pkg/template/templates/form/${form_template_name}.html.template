@@ -1,4 +1,5 @@
-<div
+<form
+    method="post"
     x-data="{
         async init() {
             await this.${glue_model_key}.get()
@@ -6,9 +7,11 @@
         ${glue_model_key}: new ModelObjectGlue('${glue_model_key}')
     }"
 >
+    {% csrf_token %}
+
     {% include 'django_spire/element/divider_element.html' with divider_title='Details' %}
 
-    <div class="row g-3 mb-3">
+    <div class="row g-3">
         <div class="col-12">
             {% include 'django_glue/form/field/char_field.html' with glue_model_field='${glue_model_key}.name' %}
         </div>
@@ -16,7 +19,9 @@
         <div class="col-12">
             {% include 'django_glue/form/field/text_field.html' with glue_model_field='${glue_model_key}.description' %}
         </div>
-    </div>
-</div>
 
-{% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        <div class="col-12">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        </div>
+    </div>
+</form>

@@ -1,13 +1,26 @@
 {% load spire_core_tags %}
 
+<style>
+    .chat-bubble p { margin-bottom: 0; }
+    .chat-bubble hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 8px 0; }
+
+    .chat-bubble-user {
+        border-radius: 16px 16px 4px 16px;
+    }
+
+    .chat-bubble-response {
+        border-radius: 16px 16px 16px 4px;
+    }
+</style>
+
 {% block message %}
     {% generate_id as message_intel_id %}
 
     <div
-        class="col-auto mb-1 {{ message_class }}"
+        class="{{ message_class }}"
+        style="max-width: 85%; min-width: 0;"
         @mouseleave="show_message_menu = false"
         @mouseover="show_message_menu = true"
-        style="max-width: 70%;"
         x-data="{
             message_intel_str: '',
             show_message_menu: false,
@@ -21,30 +34,34 @@
     >
         {{ message_intel.render_to_str|json_script:message_intel_id }}
 
-        <div class="px-1 text-muted {{ sender_class }}" style="font-size: 0.7rem;">
-            {% block message_sender %}
-                <span class="fw-semibold">{{ sender }}</span>
-            {% endblock %}
-
+        <div class="d-flex align-items-center gap-1 mb-1 {{ sender_class }}">
+            {% if avatar_icon %}
+                <div
+                    class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 {{ avatar_class }}"
+                    style="width: 20px; height: 20px;"
+                >
+                    <i class="bi {{ avatar_icon }}" style="font-size: 0.65rem;"></i>
+                </div>
+            {% endif %}
+            <span class="fw-semibold" style="font-size: 0.6875rem;">{{ sender }}</span>
             {% if message_timestamp %}
-                <span>- {{ message_timestamp }}</span>
+                <span class="text-muted" style="font-size: 0.6rem;">{{ message_timestamp }}</span>
             {% endif %}
         </div>
 
-        <div class="d-inline-block px-2 py-1 rounded-3 shadow-sm {{ content_class|default:'border' }}">
-            {% block message_content %}
-                {{ message_intel.render_to_str|linebreaksbr }}
-            {% endblock %}
+        <div class="chat-bubble d-inline-flex flex-column justify-content-center mw-100 ds-fs-9 {{ content_class }} {{ bubble_shape }}" style="padding: 8px 14px; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;">{% spaceless %}{% block message_content %}{{ message_intel.render_to_str|linebreaksbr }}{% endblock %}{% endspaceless %}
         </div>
 
         <div
-            :class="show_message_menu ? 'opacity-100' : 'opacity-0'"
-            class="d-flex justify-content-end"
+            :class="show_message_menu ?
+                'opacity-100' : 'opacity-0'"
+            class="d-flex opacity-0 {{ speech_synthesis_class }}"
+            style="margin-top: 2px; transition: opacity 0.15s ease;"
         >
-            <div @click="$dispatch('speak', {text: message_intel_str})" class="py-1 px-2 cursor-pointer">
+            <div @click="$dispatch('speak', {text: message_intel_str})" class="cursor-pointer text-muted ds-fs-9">
                 <i class="bi bi-soundwave"></i>
             </div>
-            <div @click="$dispatch('send-message', {message_body: message_intel_str})" class="py-1 px-2 cursor-pointer">
+            <div @click="$dispatch('send-message', {message_body: message_intel_str})" class="ms-1 cursor-pointer text-muted ds-fs-9">
                 <i class="bi bi-repeat"></i>
             </div>
         </div>

@@ -11,10 +11,10 @@ class PreprocessedQueryIntel(BaseIntel):
 
 
 class SearchPreprocessingBot(Bot):
-    llm_intel_class = PreprocessedQueryIntel
-    llm_role = 'Search Query Preprocessor'
-    llm_task = 'Process a user search query to optimize it for knowledge base retrieval.'
-    llm_guidelines = (
+    intel_class = PreprocessedQueryIntel
+    role = 'Search Query Preprocessor'
+    task = 'Process a user search query to optimize it for knowledge base retrieval.'
+    guidelines = (
         Prompt()
         .list([
             'Correct any obvious spelling or grammar mistakes while preserving intent.',

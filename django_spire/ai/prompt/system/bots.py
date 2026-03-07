@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from dandy import Bot, LlmConfigOptions
+from dandy import Bot
 
 from django_spire.ai.prompt.system import intel, prompts
 
 
 class RoleSystemPromptBot(Bot):
-    llm_role = prompts.role_bot_prompt()
-    llm_config_options = LlmConfigOptions(temperature=0.5)
+    role = prompts.role_bot_prompt()
 
     def process(self, user_story: str) -> intel.SystemPromptResultIntel:
+        self.llm.options.temperature = 0.5
         return self.llm.prompt_to_intel(
             prompt=prompts.system_user_input_prompt(user_story),
             intel_class=intel.SystemPromptResultIntel
@@ -17,10 +17,10 @@ class RoleSystemPromptBot(Bot):
 
 
 class TaskSystemPromptBot(Bot):
-    llm_role = prompts.task_bot_prompt()
-    llm_config_options = LlmConfigOptions(temperature=0.5)
+    role = prompts.task_bot_prompt()
 
     def process(self, user_story: str) -> intel.SystemPromptResultIntel:
+        self.llm.options.temperature = 0.5
         return self.llm.prompt_to_intel(
             prompt=prompts.system_user_input_prompt(user_story),
             intel_class=intel.SystemPromptResultIntel
@@ -28,10 +28,10 @@ class TaskSystemPromptBot(Bot):
 
 
 class GuidelinesSystemPromptBot(Bot):
-    llm_role = prompts.guidelines_bot_prompt()
-    llm_config_options = LlmConfigOptions(temperature=0.2)
+    role = prompts.guidelines_bot_prompt()
 
     def process(self, user_story: str) -> intel.SystemPromptResultIntel:
+        self.llm.options.temperature = 0.2
         return self.llm.prompt_to_intel(
             prompt=prompts.system_user_input_prompt(user_story),
             intel_class=intel.SystemPromptResultIntel
@@ -39,10 +39,10 @@ class GuidelinesSystemPromptBot(Bot):
 
 
 class OutputFormatSystemPromptBot(Bot):
-    llm_role = prompts.output_format_bot_prompt()
-    llm_config_options = LlmConfigOptions(temperature=0.5)
+    role = prompts.output_format_bot_prompt()
 
     def process(self, user_story: str) -> intel.SystemPromptResultIntel:
+        self.llm.options.temperature = 0.5
         return self.llm.prompt_to_intel(
             prompt=prompts.system_user_input_prompt(user_story),
             intel_class=intel.SystemPromptResultIntel
@@ -50,7 +50,7 @@ class OutputFormatSystemPromptBot(Bot):
 
 
 class SystemPromptBot(Bot):
-    llm_role = prompts.system_prompt_instruction_bot_prompt()
+    role = prompts.system_prompt_instruction_bot_prompt()
 
     def process(self, user_story: str) -> intel.SystemPromptIntel:
         role_bot = RoleSystemPromptBot()

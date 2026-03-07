@@ -3,9 +3,8 @@ import os
 from pathlib import Path
 
 
-ALLOW_DEBUG_RECORDING = True
+ALLOW_RECORDING_TO_FILE = True
 BASE_PATH = Path.resolve(Path(__file__)).parent.parent
-DEFAULT_LLM_PROMPT_RETRY_COUNT: int = 2
 
 
 LLM_CONFIGS = {

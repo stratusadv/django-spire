@@ -6,8 +6,8 @@ from test_project.apps.lazy_tabs.intelligence import intel, prompts
 
 
 class LazyTabsBot(Bot):
-    llm_intel_class = intel.LazyTabsIntel
-    llm_role = prompts.lazy_tabs_instruction_prompt()
+    intel_class = intel.LazyTabsIntel
+    role = prompts.lazy_tabs_instruction_prompt()
 
     def process(
         self,

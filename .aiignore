@@ -1,13 +1,26 @@
-# An .aiignore file follows the same syntax as a .gitignore file.
-# .gitignore documentation: https://git-scm.com/docs/gitignore
-
-# you can ignore files
-.DS_Store
-*.log
-*.tmp
-*.ipynb
-
-# or folders
+.python-version
+*.bat
+*.encrypted
+*.env
+*.db
+*.sql
+*.tar.gz
+*.wav
+*.whl
+*~
+__pycache__/
+.dandy*
+.idea/
+.profile/
+.seeding_generator_output/
+.venv*/
+.qodo/
 dist/
+site/
 build/
-out/
+django_spire.egg-info/
+inspectionProfiles/
+venv*/
+.qodo
+.dev
+robit.log

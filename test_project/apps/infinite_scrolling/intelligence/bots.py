@@ -6,8 +6,8 @@ from test_project.apps.infinite_scrolling.intelligence import intel, prompts
 
 
 class InfiniteScrollingBot(Bot):
-    llm_intel_class = intel.InfiniteScrollingIntel
-    llm_role = prompts.infinite_scrolling_instruction_prompt()
+    intel_class = intel.InfiniteScrollingIntel
+    role = prompts.infinite_scrolling_instruction_prompt()
 
     def process(
         self,

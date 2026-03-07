@@ -7,8 +7,8 @@
 {% block card_body_style %}display: flex; flex-direction: column; min-height: 0;{% endblock %}
 
 {% block card_content %}
-    <{% block card_title_content_container_element_type %}div{% endblock %}
-            {% block card_title_content_container_attributes %}{% endblock %}
+    <div
+        {% block card_title_content_container_attributes %}{% endblock %}
         class="d-flex flex-column flex-grow-1"
         style="min-height: 0;"
         x-data="{

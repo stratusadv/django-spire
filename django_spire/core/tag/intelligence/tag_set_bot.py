@@ -9,9 +9,9 @@ class TagsIntel(BaseListIntel[list[str]]):
 
 
 class TagSetBot(Bot):
-    llm_role = 'Tag Identifier'
-    llm_task = 'Read through the provided content and return a list of tags.'
-    llm_guidelines = (
+    role = 'Tag Identifier'
+    task = 'Read through the provided content and return a list of tags.'
+    guidelines = (
         Prompt()
         .list([
             'Make sure to have enough tags to properly cover all the provided content.',

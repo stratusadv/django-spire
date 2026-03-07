@@ -16,7 +16,7 @@
 {% endif %}
 
 <div
-    class="border-bottom mb-3 pb-3 {% block item_class %}{% endblock %}"
+    class="border-bottom {% block item_class %}mb-3 pb-3{% endblock %}"
     x-data="{
         init() {
             let scroll_container = this.$el.closest('[data-scroll-id]');
