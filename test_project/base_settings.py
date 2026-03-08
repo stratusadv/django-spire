@@ -82,6 +82,8 @@ INSTALLED_APPS += [
     'django_spire.ai.context',
     'django_spire.ai.sms',
 
+    'django_spire.api',
+
     'django_spire.auth',
     'django_spire.auth.mfa',
     'django_spire.auth.group',
@@ -103,6 +105,7 @@ INSTALLED_APPS += [
 
     'django_spire.metric',
     'django_spire.metric.report',
+    'django_spire.metric.domain',
 
     'django_spire.notification',
     'django_spire.notification.app',

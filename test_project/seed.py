@@ -14,6 +14,9 @@ create_super_user()
 print('Seeding Users')
 from django_spire.auth.seeding.seed import *
 
+print('Seeding Api Data...')
+from django_spire.api.seeding.seed import *
+
 print('Seeding Help Desk Data...')
 from test_project.apps.help_desk.seeding.seed import *
 

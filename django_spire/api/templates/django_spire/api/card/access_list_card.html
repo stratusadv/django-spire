@@ -1,0 +1,24 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title_content_style %}{% endblock %}
+
+{% block card_title %}
+    API Access KEYS
+{% endblock %}
+
+{% block card_button %}
+    {% if AuthController.api.can_add %}
+        <div class="col text-end mb-1">
+            {% url 'django_spire:api:form:create' as create_url %}
+            {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% for api_access in api_accesses %}
+        {% include 'django_spire/api/item/access_item.html' %}
+    {% empty %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endfor %}
+{% endblock %}

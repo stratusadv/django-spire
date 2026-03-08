@@ -6,9 +6,8 @@ from django.db import models
 from django.urls import reverse
 
 from django_spire.contrib.breadcrumb import Breadcrumbs
-from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.activity.mixins import ActivityMixin
-
+from django_spire.history.mixins import HistoryModelMixin
 from django_spire.metric.domain import querysets
 from django_spire.metric.domain.services.service import DomainService
 
