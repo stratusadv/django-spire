@@ -3,14 +3,16 @@
 {% block card_title_content_style %}{% endblock %}
 
 {% block card_title %}
-    API Access KEYS
+    Keys
 {% endblock %}
 
 {% block card_button %}
     {% if AuthController.api.can_add %}
         <div class="col text-end mb-1">
+            {% url 'django_spire:api_v1:openapi-view' as api_docs_url %}
+            {% include 'django_spire/button/primary_button.html' with button_text='Api Docs' button_href=api_docs_url button_icon="bi bi-share-fill" button_attributes='target="_blank"' %}
             {% url 'django_spire:api:form:create' as create_url %}
-            {% include 'django_spire/button/primary_button.html' with button_text='Add' button_href=create_url button_icon="bi bi-plus" %}
+            {% include 'django_spire/button/primary_button.html' with button_text='Add Key' button_href=create_url button_icon="bi bi-plus" %}
         </div>
     {% endif %}
 {% endblock %}
