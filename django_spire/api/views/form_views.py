@@ -1,21 +1,16 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
-import django_glue as dg
-
-from typing import TYPE_CHECKING
-
-from django.contrib.auth.hashers import make_password
-from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
-from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 
-from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib.form.utils import show_form_errors
-from django_spire.contrib.generic_views import portal_views
 from django_spire.api import forms
 from django_spire.api.models import ApiAccess
+from django_spire.auth.controller.controller import AppAuthController
+from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
+from django_spire.contrib.form.utils import show_form_errors
+from django_spire.contrib.generic_views import portal_views
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

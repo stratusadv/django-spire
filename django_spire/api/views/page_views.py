@@ -8,7 +8,6 @@ from django.urls import reverse
 from django_spire.api.models import ApiAccess
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
-from django_spire.knowledge.collection.models import Collection
 
 if TYPE_CHECKING:
     from django.template.response import TemplateResponse

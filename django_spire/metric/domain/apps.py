@@ -9,8 +9,8 @@ class DomainConfig(AppConfig):
     name = 'django_spire.metric.domain'
 
     URLPATTERNS_NAMESPACE = 'domain'
-    URLPATTERNS_API_V1 = 'django_spire.metric.domain.api_v1'
-    URLPATTERNS_API_V1_PREFIX = 'metric/domain'
+    API_V1_ROUTER = 'django_spire.metric.domain.api_v1.router'
+    API_V1_ROUTER_PREFIX = 'metric/domain'
 
     MODEL_PERMISSIONS = (
         {

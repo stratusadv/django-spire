@@ -8,6 +8,7 @@ from django_spire.api.choices import ApiAccessLevelChoices
 router = Router()
 
 
-@router.get("/add", auth=ApiKeySecurity(access_level_required=ApiAccessLevelChoices.CHANGE))
-def add(request, a: int, b: int):
-    return {"result": a + b}
+@router.get("", auth=ApiKeySecurity(access_level_required=ApiAccessLevelChoices.VIEW))
+def test(request, value: str) -> str:
+    return f'Test API successfully called with "{value}" as a value.'
+

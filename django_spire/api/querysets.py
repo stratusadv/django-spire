@@ -12,3 +12,6 @@ if TYPE_CHECKING:
 class ApiAccessQuerySet(HistoryQuerySet):
     def is_valid_key(self, key: str) -> bool:
         return self.active().filter(hashed_key=hash_string(key)).exists()
+
+    def get_by_key_or_none(self, key: str) -> ApiAccessQuerySet | None:
+        return self.active().filter(hashed_key=hash_string(key)).first()

@@ -1,5 +1,6 @@
 from django.db import models
 
+from django_spire.api.choices import ApiAccessLevelChoices
 from django_spire.api.querysets import ApiAccessQuerySet
 from django_spire.api.tools import hash_string
 from django_spire.history.mixins import HistoryModelMixin
@@ -9,6 +10,7 @@ class ApiAccess(HistoryModelMixin):
     name = models.CharField(max_length=128)
     hashed_key = models.CharField(max_length=128, editable=False)
     key_hint = models.CharField(max_length=16, editable=False)
+    level = models.PositiveSmallIntegerField(default=ApiAccessLevelChoices.VIEW, choices=ApiAccessLevelChoices, verbose_name='Access Level')
 
     objects = ApiAccessQuerySet.as_manager()
 
