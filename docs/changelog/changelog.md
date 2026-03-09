@@ -4,6 +4,9 @@
 
 ## v0.28.9
 
+### Features
+- Added `formatDateInput` to `date_time_helpers.js` to format date for_glue_fields
+
 ### Changes
 - Added `container_header_content` block to `core/container/container.html` to get around limitations.
 
