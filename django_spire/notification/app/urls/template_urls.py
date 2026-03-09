@@ -13,7 +13,7 @@ urlpatterns = [
         template_views.notification_infinite_scroll_view,
         name='scroll_items'
     ),
-path(
+    path(
         'notficiation/dropdown/scroll/items',
         template_views.dropdown_infinite_scroll_view,
         name='dropdown_scroll_items'
