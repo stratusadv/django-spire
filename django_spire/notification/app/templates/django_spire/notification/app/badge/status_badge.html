@@ -6,4 +6,6 @@
     {% include 'django_spire/badge/danger_badge.html' with badge_text='Errored' %}
 {% elif app_notification.notification.status == statuses.FAILED %}
     {% include 'django_spire/badge/danger_badge.html' with badge_text='Failed' %}
+{% elif app_notification.notification.status == statuses.PROCESSING %}
+    {% include 'django_spire/badge/secondary_badge.html' with badge_text='Processing' %}
 {% endif %}

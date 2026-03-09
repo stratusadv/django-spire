@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -36,7 +37,11 @@ def _get_base_notification_queryset(request: WSGIRequest, is_apply_filter: bool)
     if isinstance(request.user, AnonymousUser):
         return AppNotification.objects.none()
 
-    notifications = AppNotification.objects.active().select_related('notification')
+    notifications = (
+        AppNotification.objects.active()
+        .select_related('notification')
+        .order_by('-created_datetime')
+    )
 
     if is_apply_filter:
         notifications = notifications.process_session_filter(
@@ -45,14 +50,10 @@ def _get_base_notification_queryset(request: WSGIRequest, is_apply_filter: bool)
             form_class=NotificationListFilterForm,
         )
 
-    return (
-        notifications.filter_by_notification_status()
-        .annotate_is_viewed_by_user(request.user)
-        .distinct()
-        .ordered_by_priority_and_sent_datetime()
-    )
+    return notifications
 
 
+@login_required
 def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     notifications = _get_base_notification_queryset(request=request, is_apply_filter=True)
 
@@ -64,16 +65,28 @@ def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
         'statuses': NotificationStatusChoices,
         'priorities': NotificationPriorityChoices,
     })
-    view.template_name = 'django_spire/notification/app/item/list_page_items.html'
     return view
 
 
+@login_required
 def dropdown_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     notifications = _get_base_notification_queryset(request=request, is_apply_filter=False)
 
-    return _infinite_scroll_view(request=request, notification_queryset=notifications)
+    notifications = (
+        notifications
+        .annotate_is_viewed_by_user(request.user)
+        .distinct()
+        .ordered_by_priority_and_sent_datetime()
+     )
+
+    view = _infinite_scroll_view(request=request, notification_queryset=notifications)
+    view.context_data.update({
+        'is_dropdown_item': True,
+    })
+    return view
 
 
+@login_required
 def notification_dropdown_template_view(request: WSGIRequest) -> TemplateResponse:
     body_data = json.loads(request.body.decode('utf-8'))
 

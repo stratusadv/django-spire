@@ -66,7 +66,7 @@ class AppNotificationModelTests(BaseTestCase):
         assert isinstance(self.app_notification.notification, Notification)
 
     def test_default_template(self):
-        assert self.app_notification.template == 'django_spire/notification/app/item/notification_item.html'
+        assert self.app_notification.template == 'django_spire/notification/app/item/list_item.html'
 
     def test_default_context_data(self):
         assert self.app_notification.context_data == {}

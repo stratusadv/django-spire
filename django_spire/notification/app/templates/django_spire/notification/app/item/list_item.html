@@ -10,7 +10,11 @@
     {% endif %}
         class="row bg-app-layer-two-hover rounded m-0"
     >
+        {% if is_dropdown_item %}
+        <div  class="col-12">
+        {% else %}
         <div  class="col-6">
+        {% endif %}
             <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
             {% if not app_notification.viewed %}
                 {% include 'django_spire/badge/primary_badge.html' with badge_text='New' %}
@@ -18,6 +22,7 @@
             <span class="fs--1">{{ app_notification.notification.body }}</span><br>
             <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
         </div>
+        {% if not is_dropdown_item %}
         <div  class="col-3">
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
             {% include 'django_spire/notification/app/badge/status_badge.html' %}
@@ -26,6 +31,7 @@
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Priority' %}
             {% include 'django_spire/notification/app/badge/priority_badge.html' %}
         </div>
+        {% endif %}
     {% if app_notification.notification.url %}
     </a>
     {% else %}

@@ -27,7 +27,7 @@ def create_test_app_notification(**kwargs) -> AppNotification:
         kwargs['notification'] = notification
 
     data = {
-        'template': 'django_spire/notification/app/item/notification_item.html',
+        'template': 'django_spire/notification/app/item/list_item.html',
         'context_data': {},
     }
     data.update(kwargs)
