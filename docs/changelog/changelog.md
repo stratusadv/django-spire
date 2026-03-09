@@ -1,3 +1,5 @@
+
+
 # Changelog
 
 ## v0.28.9
@@ -5,9 +7,18 @@
 ### Features
 - Added `formatDateInput` to `date_time_helpers.js` to format date for_glue_fields
 
+### Changes
+- Added `container_header_content` block to `core/container/container.html` to get around limitations.
+
 ## v0.28.8
 
+### Breaking
+- `--app-border-color` must be added to theme as `--bs-border-color` was being overriden by bootstrap.
+- Check your app theme before pushing to production!
+
 ### Changes
+- Font css has been removed out of `boostrap-extensions` and added to it's own `app-font.css` file
+- Cards now have their own `app-card.css` file
 - Knowledge Base UI and UX improvements.
 
 ## v0.28.7
