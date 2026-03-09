@@ -4,6 +4,7 @@
 
 ## v0.28.9
 
+### Changes
 - Added `container_header_content` block to `core/container/container.html` to get around limitations.
 
 ## v0.28.8
