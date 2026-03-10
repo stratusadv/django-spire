@@ -2,6 +2,17 @@
 
 # Changelog
 
+## v0.28.10
+
+### Fixes
+- Fixed `profile` icon in top nav to have default `text-app-default-text-color` to be consistent with other top nav icons
+- Added safe back and forth navigation to ensure loading spinner is cleared on page navigation
+- Page loading spinner now waits 1 second by default when navigating using the `nav_link.html` element
+
+### Changes
+- Added `x_icon` attribute to `icon/responsive_icon.html` to allow for dynamic icon assignment
+
+
 ## v0.28.9
 
 ### Features
