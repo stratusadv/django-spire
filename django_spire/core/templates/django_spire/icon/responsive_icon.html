@@ -31,9 +31,12 @@
             {% if x_icon_click or icon_href %}cursor-pointer{% endif %}
             {% endblock %}
         "
-        :class="{
-            'opacity-50': isLoading
-        }"
+        :class="[
+            { 'opacity-50': isLoading },
+            {% if x_icon %}
+            `{{ x_icon }}`
+            {% endif %}
+        ]"
         {% block icon_attributes %}
         {{ icon_attributes }}
         {% endblock %}

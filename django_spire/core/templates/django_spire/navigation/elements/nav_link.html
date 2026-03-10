@@ -11,9 +11,22 @@
         },
 
         redirect() {
-            toggleLoadingSpinner();
+            const SPINNER_DELAY = 1000;
+            const url = `{{ link_url }}`;
 
-            window.location = `{{ link_url }}`;
+            let spinnerTimer = setTimeout(() => {
+                toggleLoadingSpinner();
+            }, SPINNER_DELAY);
+
+            fetch(url, { method: 'GET' })
+                .then(() => {
+                    clearTimeout(spinnerTimer);
+                    window.location = url;
+                })
+                .catch(() => {
+                    clearTimeout(spinnerTimer);
+                    window.location = url;
+                });
         }
     }"
     :class="{
