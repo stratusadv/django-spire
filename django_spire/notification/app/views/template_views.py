@@ -33,7 +33,8 @@ def _infinite_scroll_view(request: WSGIRequest, notification_queryset: QuerySet[
     )
 
 
-def _get_base_notification_queryset(request: WSGIRequest, is_apply_filter: bool) -> QuerySet[AppNotification]:
+@login_required
+def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     if isinstance(request.user, AnonymousUser):
         return AppNotification.objects.none()
 
@@ -41,21 +42,12 @@ def _get_base_notification_queryset(request: WSGIRequest, is_apply_filter: bool)
         AppNotification.objects.active()
         .select_related('notification')
         .order_by('-created_datetime')
-    )
-
-    if is_apply_filter:
-        notifications = notifications.process_session_filter(
+        .process_session_filter(
             request=request,
             session_key=NOTIFICATION_FILTERING_SESSION_KEY_NAME,
             form_class=NotificationListFilterForm,
         )
-
-    return notifications
-
-
-@login_required
-def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
-    notifications = _get_base_notification_queryset(request=request, is_apply_filter=True)
+    )
 
     filter_session = SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME)
 
@@ -70,14 +62,16 @@ def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
 
 @login_required
 def dropdown_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
-    notifications = _get_base_notification_queryset(request=request, is_apply_filter=False)
+    if isinstance(request.user, AnonymousUser):
+        return AppNotification.objects.none()
 
     notifications = (
-        notifications
+        AppNotification.objects.active()
+        .select_related('notification')
         .annotate_is_viewed_by_user(request.user)
         .distinct()
         .ordered_by_priority_and_sent_datetime()
-     )
+    )
 
     view = _infinite_scroll_view(request=request, notification_queryset=notifications)
     view.context_data.update({
