@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import abstractmethod
 
 import functools
 
@@ -21,11 +22,11 @@ if TYPE_CHECKING:
 
 
 class BaseAuthController:
-    def __init__(self, request: WSGIRequest | None = None):
+    def __init__(self, request: WSGIRequest | None = None) -> None:
         self._request = request
 
     @property
-    def request(self):
+    def request(self) -> WSGIRequest:
         if self._request is None:
             message = 'AuthController.request is None'
             raise AuthControllerRequestError(message)
@@ -33,17 +34,17 @@ class BaseAuthController:
         return self._request
 
     @request.setter
-    def request(self, value: WSGIRequest):
+    def request(self, value: WSGIRequest) -> None:
         self._request = value
 
     def permission_required(
         self,
         *permissions: str,
         all_required: bool = True
-    ):
-        def decorator(method: Callable[..., Any]):
+    ) -> Callable:
+        def decorator(method: Callable[..., Any]) -> Callable:
             @functools.wraps(method)
-            def wrapper(request: WSGIRequest, *args, **kwargs):
+            def wrapper(request: WSGIRequest, *args, **kwargs) -> Callable:
                 self.request = request
 
                 uncallable_permissions = []
@@ -85,13 +86,15 @@ class AppAuthController:
         app_name: str,
         request: WSGIRequest | None = None,
         **kwargs: dict[str, Any]
-    ):
+    ) -> BaseAuthController:
         if app_name not in settings.DJANGO_SPIRE_AUTH_CONTROLLERS:
             message = f'Controller {app_name} not found in settings.AUTH_CONTROLLERS'
             raise AuthControllerNotFoundError(message)
 
         try:
-            return get_object_from_module_string(settings.DJANGO_SPIRE_AUTH_CONTROLLERS[app_name])(request)
+            return get_object_from_module_string(
+                settings.DJANGO_SPIRE_AUTH_CONTROLLERS[app_name]
+            )(request)
         except ModuleNotFoundError as err:
             message = f'Auth Controller for {app_name} not found'
             raise AuthControllerNotFoundError(message) from err

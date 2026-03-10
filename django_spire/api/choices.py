@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class ApiAccessLevelChoices(models.IntegerChoices):
+class ApiPermissionChoices(models.IntegerChoices):
     """
     Choices for API access levels are required to be in order of least to most restrictive.
     """

@@ -1,8 +1,7 @@
 from django.http import HttpRequest
-from ninja.security import APIKeyQuery, APIKeyHeader
 from ninja.security.apikey import APIKeyBase
 
-from django_spire.api.choices import ApiAccessLevelChoices
+from django_spire.api.choices import ApiPermissionChoices
 from django_spire.api.models import ApiAccess
 
 
@@ -13,21 +12,21 @@ class ApiKeySecurity(APIKeyBase):
     param_name = 'api_key'
     openapi_in = 'query'
 
-    def __init__(self, access_level_required: ApiAccessLevelChoices | None = None):
-        self.access_level_required = access_level_required
+    def __init__(self, permission_required: ApiPermissionChoices | None = None) -> None:
+        self.permission_required = permission_required
         super().__init__()
 
-    def authenticate(self, request, key: str | None) -> bool:
+    def authenticate(self, request: HttpRequest, key: str | None) -> bool:
         if key is None:
             return False
 
         api_access = ApiAccess.objects.get_by_key_or_none(key)
 
         if api_access is not None:
-            if self.access_level_required is None:
+            if self.permission_required is None:
                 return True
-            else:
-                return api_access.level >= self.access_level_required
+
+            return api_access.permission >= self.permission_required
 
         return False
 

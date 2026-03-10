@@ -5,12 +5,15 @@ from uuid import uuid4
 
 from django.urls import reverse
 
+import django_glue as dg
+
 from django_spire.api import forms
 from django_spire.api.models import ApiAccess
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
+from django_spire.core.shortcuts import get_object_or_null_obj
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -18,8 +21,10 @@ if TYPE_CHECKING:
 
 
 @AppAuthController('api').permission_required('can_add')
-def access_create_form_view(request: WSGIRequest) -> TemplateResponse:
-    api_access = ApiAccess()
+def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
+    api_access = get_object_or_null_obj(ApiAccess, pk=pk)
+
+    dg.glue_model_object(request, unique_name='api_access', model_object=api_access)
 
     if request.method == 'POST':
         form = forms.ApiAccessCreateForm(request.POST)
@@ -53,6 +58,7 @@ def access_create_form_view(request: WSGIRequest) -> TemplateResponse:
         form=form,
         verb='Create',
         obj=api_access,
+        template='django_spire/api/page/access_form_page.html',
         context_data={
             'form_action_url': reverse('django_spire:api:form:create'),
         }

@@ -190,3 +190,6 @@ norecursedirs = ["test_playwright"]
 
 [tool.ruff]
 extend = "ruff.toml"
+
+[tool.ty]
+extend = "ty.toml"

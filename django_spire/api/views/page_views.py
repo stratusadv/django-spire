@@ -10,6 +10,7 @@ from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
 
 if TYPE_CHECKING:
+    from django.http import HttpResponseRedirect
     from django.template.response import TemplateResponse
     from django.core.handlers.wsgi import WSGIRequest
 
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 
 @AppAuthController('api').permission_required('can_view')
 def access_list_view(request: WSGIRequest) -> TemplateResponse:
-    def breadcrumbs_func(breadcrumbs: Breadcrumbs):
+    def breadcrumbs_func(breadcrumbs: Breadcrumbs) -> None:
         breadcrumbs.add_breadcrumb(name='Api Access')
 
     return portal_views.list_view(
@@ -32,7 +33,7 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 @AppAuthController('api').permission_required('can_delete')
-def access_delete_view(request: WSGIRequest, pk: int):
+def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateResponse:
     ticket = get_object_or_404(ApiAccess, pk=pk)
 
     return portal_views.delete_form_view(

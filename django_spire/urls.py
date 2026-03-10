@@ -24,7 +24,7 @@ try:
     apps.get_app_config('django_spire_api')
 
     urlpatterns += [
-        path('api_v1/', api_v1.urls, name='api_v1'),
+        path('api/v1/', api_v1.urls, name='api_v1'),
     ]
 
 except LookupError:

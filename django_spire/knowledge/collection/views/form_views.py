@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 def form_view(
     request: WSGIRequest,
     pk: int = 0,
-    parent_pk: int = None
+    parent_pk: int | None = None
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=pk)
 

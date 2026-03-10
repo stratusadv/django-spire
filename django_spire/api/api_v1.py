@@ -1,4 +1,5 @@
 from __future__ import annotations
+from django_spire.api.choices import ApiPermissionChoices
 
 import importlib
 
@@ -14,7 +15,7 @@ api_v1 = NinjaAPI(
     version='1.0',
     urls_namespace='django_spire:api_v1',
     auth=[
-        ApiKeySecurity()
+        ApiKeySecurity(permission_required=ApiPermissionChoices.DELETE)
     ],
     throttle=[
         AnonRateThrottle('1/s'),

@@ -7,7 +7,7 @@
         {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.name %}
     </a>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.get_level_display attribute_title='Level' %}
+        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.get_permission_display attribute_title='Permission' %}
     </div>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
         {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.key_hint attribute_title='Key Hint' %}

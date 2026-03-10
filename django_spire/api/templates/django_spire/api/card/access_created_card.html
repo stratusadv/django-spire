@@ -10,21 +10,29 @@
     {% if AuthController.api.can_add %}
         <div class="col text-end mb-1">
             {% url 'django_spire:api:page:list' as list_url %}
-            {% include 'django_spire/button/primary_button.html' with button_text='Done' button_href=list_url button_icon="bi bi-check" %}
+            {% include 'django_spire/button/danger_button.html' with button_text='Done' button_href=list_url button_icon="bi bi-check" %}
         </div>
     {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
     <div class="row">
-        <div class="col">
-            Access Key "{{ api_access.name }}" was successfully created.
+        <div class="col mb-3">
+            "{{ api_access.name }}" API Key
         </div>
     </div>
     <div class="row">
         <div class="col">
-            Please copy this as it will never appear again:<br>
-            {{ raw_key }}
+            <div class="alert alert-info" role="alert">
+                {{ raw_key }}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <span class="text-app-danger">
+                Make sure to copy this key as it will never be shown again!
+            </span>
         </div>
     </div>
 
