@@ -2,28 +2,11 @@
 
 {% load static %}
 
-{% block card_title_content_style %}max-height: 300px; overflow-y: auto; overflow-x: hidden;{% endblock %}
-
 {% block card_title %}
     Changelog
 {% endblock %}
 
 {% block card_title_content %}
-    <div
-        x-data="{
-            init() {
-                const changelog_content_view = new ViewGlue('{% url "django_spire:changelog:content" %}')
-                changelog_content_view.render_inner($refs.changelog_container)
-            }
-        }"
-        x-ref="changelog_container"
-    >
-        <div
-            class="spinner-border spinner-border-sm"
-            role="status"
-            x-transition
-        >
-        </div>
-        <span>Loading...</span>
-    </div>
+    {% url 'django_spire:changelog:template:rows' as changelog_endpoint %}
+    {% include 'django_spire/infinite_scroll/scroll.html' with endpoint=changelog_endpoint scroll_height='300px' batch_size=20 %}
 {% endblock %}

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
+from django.urls import reverse
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -11,6 +12,6 @@ if TYPE_CHECKING:
 def home_view(request: WSGIRequest) -> TemplateResponse:
     return TemplateResponse(
         request,
-        'home/page/home_page.html',
+        template='home/page/home_page.html',
     )
 

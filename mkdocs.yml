@@ -45,6 +45,7 @@ nav:
           - Admin: app_guides/contrib/admin.md
           - Choices: app_guides/contrib/choices.md
           - JSON Responses: app_guides/contrib/json_responses.md
+          - Changelog: app_guides/contrib/changelog.md
       - Core:
           - Shortcuts: app_guides/core/shortcuts.md
           - Filtering: app_guides/core/filtering.md

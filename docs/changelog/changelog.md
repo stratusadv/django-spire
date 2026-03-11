@@ -6,6 +6,8 @@
 
 ### Features
 - Added generic changelog app
+  - Added documentation guide
+  - Added changelog to test project that parses django-spire changlog
 
 ## v0.28.10
 
@@ -62,15 +64,18 @@
 ### Fixes
 - Fix sticky nav, dialog widget
 
+
 ## v0.28.3
 
 ### Changes
 - Improve CSS for navigation, tables, tabs, sub_nav and info_nav
 
+
 ## v0.28.2
 
 ### Changes
 - Improving opencode agents and adding more skills
+
 
 ## v0.28.1
 
@@ -90,6 +95,7 @@
 
 ### Changes
 - Updated `notification_bell.html` to extend from `responsive_icon.html`
+
 
 ## v0.27.7
 

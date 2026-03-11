@@ -54,7 +54,7 @@ TWILIO_SMS_BATCH_SIZE = 100
 DJANGO_SPIRE_AI_PERSONA_NAME = 'Rubber Ducky'
 
 # Changelog
-DJANGO_SPIRE_CHANGELOG_MODULE = 'changelog.changelog'
+DJANGO_SPIRE_CHANGELOG_MODULE = 'test_project.changelog.changelog.changelog'
 
 # Maintenance Mode
 MAINTENANCE_MODE = True

@@ -1,7 +1,6 @@
-from enum import Enum
+from django.db import models
 
-
-class ChangeLogTypeEnum(Enum):
+class ChangeLogTypeChoices(models.TextChoices):
     BUG_FIX = ('bug', 'Bug Fix')
     CHANGE = ('chan', 'Change')
     FEATURE = ('feat', 'Feature')

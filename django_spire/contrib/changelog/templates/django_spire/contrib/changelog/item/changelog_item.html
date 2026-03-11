@@ -1,20 +1,53 @@
-{% extends 'django_spire/item/item.html' %}
+<div
+    class="position-relative d-flex gap-3 ps-4"
+    style="padding-bottom: 1.5rem;"
+    x-data
+    x-init="$dispatch('item-mounted', { item_element: $el })"
+>
+    <div
+        class="position-absolute top-0 bottom-0"
+        style="left: 0.55rem; width: 2px; background-color: var(--bs-border-color);"
+        aria-hidden="true"
+    ></div>
 
-{% block item_title_col %} d-none{% endblock %}
+    <div
+        class="position-absolute bg-app-layer-two border-app-layer-four z-1 d-flex align-items-center justify-content-center rounded-circle border border-2 flex-shrink-0"
+        style="
+            left: 0;
+            top: 0.375rem;
+            width: 1.125rem;
+            height: 1.125rem;
+        "
+    >
+        <div class="rounded-circle bg-app-primary" style="width: 6px; height: 6px;"></div>
+    </div>
 
-{% block item_padding %}py-2{% endblock %}
+    <div class="flex-grow-1 min-w-0">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="fw-bold text-app-primary-dark">v{{ changelog_entry.version }}</span>
 
-{% block item_row_content %}
-    <div class="col overflow-auto" style="max-height: 300px">
-        <div class="fs--1 text-muted">
-            Version {{ changelog_entry.version }} - {{ changelog_entry.date }} - {{ changelog_entry.type.value|title }}
+            {% if changelog_entry.type == 'bug' %}
+                {% include 'django_spire/badge/danger_badge.html' with badge_text=changelog_entry.type.label %}
+            {% elif changelog_entry.type == 'feat' %}
+                {% include 'django_spire/badge/success_badge.html' with badge_text=changelog_entry.type.label %}
+            {% else %}
+                {% include 'django_spire/badge/primary_badge.html' with badge_text=changelog_entry.type.label %}
+            {% endif %}
+
+            <span class="font-monospace fs-7 text-app-secondary ms-auto">
+                {{ changelog_entry.date|date:"Y-m-d" }}
+            </span>
         </div>
-        <div class="fs-6">
-            <ul class="mb-0">
+
+        <div class="mt-2">
             {% for change in changelog_entry.changes %}
-                <li> <span class="fw-bold">{{ change.app }}</span> - {{ change.description }}</li>
+            <div class="d-flex gap-2 mb-1 align-items-baseline">
+                {% include 'django_spire/badge/secondary_outlined_badge.html' with badge_text=change.app|title %}
+                <span class="fs-7">
+                    {{ change.description }}
+                </span>
+            </div>
             {% endfor %}
-            </ul>
         </div>
     </div>
-{% endblock %}
+</div>
