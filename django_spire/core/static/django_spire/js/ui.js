@@ -3,6 +3,26 @@ let loadingSpinnerTimeout = null;
 
 const DEFAULT_LOADING_DURATION = 60000;
 
+window.addEventListener('popstate', () => {
+    let spinner = document.getElementById('loading-icon');
+    spinner.classList.add('d-none');
+    if (loadingSpinnerTimeout) {
+        clearTimeout(loadingSpinnerTimeout);
+        loadingSpinnerTimeout = null;
+    }
+});
+
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        let spinner = document.getElementById('loading-icon');
+        spinner.classList.add('d-none');
+        if (loadingSpinnerTimeout) {
+            clearTimeout(loadingSpinnerTimeout);
+            loadingSpinnerTimeout = null;
+        }
+    }
+});
+
 /**
  * Toggles paging loading state by darkening screen and displaying loading spinner
  * @param duration {number} - Maximum duration for loading overlay before being removed
