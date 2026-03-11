@@ -28,7 +28,7 @@
     }"
     x-init="$nextTick(() => { check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
 >
-    <div class="px-3 d-flex align-items-center gap-2 flex-shrink-0 border-bottom" style="height: 64px;">
+    <div class="{% block side_navigation_top_content_container_class %}px-3 d-flex align-items-center gap-2 flex-shrink-0 border-bottom{% endblock %}" style="height: 64px;">
         {% block side_navigation_top_content %}
             {% block side_navigation_img %}
                 <a href="/" class="d-flex align-items-center gap-2 text-decoration-none p-0 m-0 overflow-hidden">

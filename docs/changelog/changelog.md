@@ -2,6 +2,12 @@
 
 # Changelog
 
+## v0.28.11
+
+### Fixes
+- Add `side_navigation_top_content_container_class` block to `core/navigation/side_navigation.html` to get around limitations causing certain display issues.
+
+
 ## v0.28.10
 
 ### Fixes
