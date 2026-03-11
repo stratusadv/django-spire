@@ -1,4 +1,8 @@
+<<<<<<< chasem/changelog-management
 __VERSION__ = '0.29.0'
+=======
+__VERSION__ = '0.28.11'
+>>>>>>> main
 
 MAINTENANCE_MODE_SETTINGS_NAME = 'MAINTENANCE_MODE'
 
