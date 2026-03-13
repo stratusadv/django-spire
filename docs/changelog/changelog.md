@@ -1,19 +1,88 @@
+
+
 # Changelog
+
+## v0.29.0
+
+### Features
+- Added generic changelog app
+  - Added documentation guide
+  - Added changelog to test project that parses django-spire changlog
+
+
+## v0.28.11
+
+### Fixes
+- Add `side_navigation_top_content_container_class` block to `core/navigation/side_navigation.html` to get around limitations causing certain display issues.
+
+
+## v0.28.10
+
+### Fixes
+- Fixed `profile` icon in top nav to have default `text-app-default-text-color` to be consistent with other top nav icons
+- Added safe back and forth navigation to ensure loading spinner is cleared on page navigation
+- Page loading spinner now waits 1 second by default when navigating using the `nav_link.html` element
+
+### Changes
+- Added `x_icon` attribute to `icon/responsive_icon.html` to allow for dynamic icon assignment
+
+
+## v0.28.9
+
+### Features
+- Added `formatDateInput` to `date_time_helpers.js` to format date for_glue_fields
+
+### Changes
+- Added `container_header_content` block to `core/container/container.html` to get around limitations.
+
+## v0.28.8
+
+### Breaking
+- `--app-border-color` must be added to theme as `--bs-border-color` was being overriden by bootstrap.
+- Check your app theme before pushing to production!
+
+### Changes
+- Font css has been removed out of `boostrap-extensions` and added to it's own `app-font.css` file
+- Cards now have their own `app-card.css` file
+- Knowledge Base UI and UX improvements.
+
+## v0.28.7
+
+### Features
+- Created `icon/confirm_icon.html` as an extendable template for action confirmations.
+
+### Changes
+- Updated theme to include `icon/confirm_icon.html` and `icon/responsive_icon.html` elements.
+
+## v0.28.6
+
+### Changes
+- Added ruff to development dependencies.
+- Updated `ruff.toml` file.
+- Form helper function `form_error_as_str` to easily send back JsonError messages.
+
+## v0.28.5
+
+### Changes
+- Added Permission admin panel configuration.
 
 ## v0.28.4
 
 ### Fixes
 - Fix sticky nav, dialog widget
 
+
 ## v0.28.3
 
 ### Changes
 - Improve CSS for navigation, tables, tabs, sub_nav and info_nav
 
+
 ## v0.28.2
 
 ### Changes
 - Improving opencode agents and adding more skills
+
 
 ## v0.28.1
 
@@ -33,6 +102,7 @@
 
 ### Changes
 - Updated `notification_bell.html` to extend from `responsive_icon.html`
+
 
 ## v0.27.7
 

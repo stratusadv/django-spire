@@ -1,0 +1,90 @@
+<div
+    class="
+        {% block icon_base_class %}{% endblock %}
+        {{ icon_wrapper_class }}
+        {% if vertical_confirm_icons %} container-fluid {% endif %}
+        no-select
+    "
+    x-data="{
+        {% block icon_x_data %}
+        show_confirm: false
+        {% endblock %}
+    }"
+>
+    {% block icon_content %}
+    <i
+        class="
+            {% block icon_element_class %}
+            {{ icon }}
+            {{ font_size|default:'ds-fs-2' }}
+            {{ icon_color|default:'text-app-default-text-color' }}
+            {{ hover_class|default:'text-app-primary-hover' }}
+            {{ icon_class }}
+            cursor-pointer
+            {% endblock %}
+        "
+        {% block icon_element_attributes %}
+        @click="show_confirm = true"
+        x-show="!show_confirm"
+        x-cloak
+        {{ icon_attributes }}
+        {% endblock %}
+    ></i>
+    {% endblock %}
+
+    {% block confirm_content %}
+    <div
+        class="
+            {% block confirm_content_class %}{% endblock %}
+            {{ confirm_content_wrapper_class }}
+            {% if vertical_confirm_icons %}
+            row justify-content-center align-items-center flex-column g-3 g-lg-1
+            {% endif %}
+            text-center
+        "
+        {% block confirm_content_attributes %}
+        x-show="show_confirm"
+        x-cloak
+        {{ confirm_attributes }}
+        {% endblock %}
+    >
+        {% block confirm_message %}
+        {% if confirm_message %}
+            <div class="{{ confirm_message_class|default:'fs-8' }}">{{ confirm_message }}</div>
+        {% endif %}
+        {% endblock %}
+        <a
+            {% if confirm_icon_href %}href="{{ confirm_icon_href }}"{% endif %}
+            @click="
+                show_confirm = false; {% if x_confirm_icon_click %}await {{ x_confirm_icon_click }};{% endif %}
+            "
+        >
+            <i
+                class="
+                    {% block confirm_icon_element_class %}
+                    {{ confirm_icon|default:'bi bi-check' }}
+                    {{ confirm_font_size|default:'ds-fs-2' }}
+                    {{ confirm_icon_color|default:'text-app-success' }}
+                    {{ confirm_hover_class|default:'text-app-success-dark-hover' }}
+                    {{ confirm_icon_class }}
+                    cursor-pointer
+                    {% endblock %}
+                "
+            ></i>
+        </a>
+        <i
+            class="
+                {% block cancel_icon_element_class %}
+                {{ cancel_icon|default:'bi bi-x' }}
+                {{ cancel_font_size|default:'ds-fs-2' }}
+                {{ cancel_icon_color|default:'text-app-danger' }}
+                {{ cancel_hover_class|default:'text-app-danger-dark-hover' }}
+                {{ cancel_icon_class }}
+                cursor-pointer
+                {% endblock %}
+            "
+            @click="show_confirm = false"
+        ></i>
+    </div>
+    {% endblock %}
+</div>

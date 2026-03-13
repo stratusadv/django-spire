@@ -37,7 +37,8 @@
         >
             <div
                     @click="toggle_editor_readonly();"
-                    class="btn btn-app-primary btn-sm shadow-sm"
+                    class="btn btn-sm shadow-sm px-3"
+                    :class="editor_is_readonly ? 'btn-app-primary-outlined' : 'btn-app-primary'"
             >
                 <i :class="editor_is_readonly ? 'bi bi-pencil' : 'bi bi-check-lg'" class="me-1"></i>
                 <span x-text="editor_is_readonly ? 'Edit' : 'Save'"></span>
