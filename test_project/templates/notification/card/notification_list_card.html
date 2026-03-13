@@ -42,7 +42,7 @@
     <hr class="m-0 mt-1">
 	{% for notification in notifications %}
         <div class="row">
-            {% include 'notification/item/list_item.html' %}
+            {% include 'notification/item/notification_item.html' %}
         </div>
         {% if not forloop.last %}
             <hr class="m-0 mt-1">

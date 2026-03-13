@@ -46,7 +46,7 @@ class AppNotificationSeeder(DjangoModelSeeder):
         'is_active': 'True',
         'is_deleted': 'False',
         'created_datetime': 'exclude',
-        'template': 'django_spire/notification/app/item/list_item.html',
+        'template': 'django_spire/notification/app/item/notification_item.html',
         'context_data': {},
     }
 
