@@ -2,6 +2,13 @@
 
 # Changelog
 
+
+## v0.29.1
+
+### Changes
+- Added notification search and filtering options to list page. 
+
+
 ## v0.29.0
 
 ### Features
