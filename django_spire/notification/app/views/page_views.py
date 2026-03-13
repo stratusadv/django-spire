@@ -32,7 +32,6 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         context_data={
             'notification_endpoint': reverse('django_spire:notification:app:template:scroll_items'),
             'filter_session': SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME),
-            'status_choices': json.dumps(NotificationStatusChoices.choices[2:]),
             'priority_choices': json.dumps(NotificationPriorityChoices.choices[::-1]),
         },
         model=AppNotification,

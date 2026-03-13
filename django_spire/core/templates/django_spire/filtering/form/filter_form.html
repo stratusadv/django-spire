@@ -16,13 +16,6 @@
                     name: 'search',
                 }
             ),
-            status_field: new GlueCharField(
-                'status',
-                {
-                    value: '{{ filter_session.status|default:"" }}',
-                    choices: {{ status_choices|default:'[]' }},
-                }
-            ),
             priority_field: new GlueCharField(
                 'priority',
                 {
@@ -37,13 +30,10 @@
             },
         }"
     >
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-md-8">
             {% include 'django_glue/form/field/char_field.html' with glue_field='search_field' %}
         </div>
-        <div class="col-6 col-md-3">
-            {% include 'django_glue/form/field/select_field.html' with glue_field='status_field' %}
-        </div>
-        <div class="col-6 col-md-3">
+        <div class="col-12 col-md-4">
             {% include 'django_glue/form/field/select_field.html' with glue_field='priority_field' %}
         </div>
     </div>

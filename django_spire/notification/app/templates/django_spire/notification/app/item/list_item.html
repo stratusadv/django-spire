@@ -8,12 +8,12 @@
     {% else %}
     <div
     {% endif %}
-        class="row bg-app-layer-two-hover rounded m-0"
+        class="row bg-app-layer-two-hover rounded m-0 align-items-center"
     >
         {% if is_dropdown_item %}
-        <div  class="col-12">
+        <div class="col-12">
         {% else %}
-        <div  class="col-6">
+        <div class="col-9">
         {% endif %}
             <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
             {% if not app_notification.viewed %}
@@ -23,10 +23,6 @@
             <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
         </div>
         {% if not is_dropdown_item %}
-        <div  class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
-            {% include 'django_spire/notification/app/badge/status_badge.html' %}
-        </div>
         <div  class="col-3">
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Priority' %}
             {% include 'django_spire/notification/app/badge/priority_badge.html' %}
