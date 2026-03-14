@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@login_required
+@login_required()
 def notification_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     notification = get_object_or_404(models.Notification, pk=pk)
 
@@ -37,7 +37,7 @@ def notification_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@login_required
+@login_required()
 def notification_form_view(request, pk: int):
     if pk == 0:
         notification = models.Notification.objects.create(user=request.user)
@@ -65,13 +65,13 @@ def notification_form_view(request, pk: int):
     )
 
 
-@login_required
+@login_required()
 def notification_home_view(request: WSGIRequest) -> TemplateResponse:
     template = 'notification/page/notification_home_page.html'
     return TemplateResponse(request, template)
 
 
-@login_required
+@login_required()
 def notification_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
         'notifications': (

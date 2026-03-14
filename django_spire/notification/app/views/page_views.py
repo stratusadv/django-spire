@@ -21,10 +21,18 @@ if TYPE_CHECKING:
 
 @login_required()
 def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
-    AppNotification.objects.by_user(request.user).process_session_filter(
-        request=request,
-        session_key=NOTIFICATION_FILTERING_SESSION_KEY_NAME,
-        form_class=NotificationListFilterForm,
+    (
+        AppNotification.objects
+        .active()
+        .is_sent()
+        .annotate_is_viewed_by_user(request.user)
+        .select_related('notification')
+        .distinct()
+        .process_session_filter(
+            request=request,
+            session_key=NOTIFICATION_FILTERING_SESSION_KEY_NAME,
+            form_class=NotificationListFilterForm,
+        )
     )
 
     return portal_views.list_view(

@@ -7,19 +7,23 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.template.response import TemplateResponse
 from django.urls import reverse
+
 from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
 from django_spire.contrib.session.controller import SessionController
 from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSION_KEY_NAME
 from django_spire.notification.app.forms import NotificationListFilterForm
 from django_spire.notification.app.models import AppNotification
-from django_spire.notification.choices import NotificationStatusChoices, NotificationPriorityChoices
+from django_spire.notification.choices import NotificationPriorityChoices, NotificationStatusChoices
 
 if TYPE_CHECKING:
-    from django.db.models import QuerySet
     from django.core.handlers.wsgi import WSGIRequest
+    from django.db.models import QuerySet
 
 
-def _infinite_scroll_view(request: WSGIRequest, notification_queryset: QuerySet[AppNotification]) -> TemplateResponse:
+def _infinite_scroll_view(
+    request: WSGIRequest,
+    notification_queryset: QuerySet[AppNotification]
+) -> TemplateResponse:
     body_data = json.loads(request.body.decode('utf-8'))
 
     return infinite_scrolling_view(
@@ -33,23 +37,24 @@ def _infinite_scroll_view(request: WSGIRequest, notification_queryset: QuerySet[
     )
 
 
-@login_required
+@login_required()
 def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     if isinstance(request.user, AnonymousUser):
-        return AppNotification.objects.none()
-
-    notifications = (
-        AppNotification.objects.active()
-        .select_related('notification')
-        .annotate_is_viewed_by_user(request.user)
-        .distinct()
-        .ordered_by_priority_and_sent_datetime()
-        .process_session_filter(
-            request=request,
-            session_key=NOTIFICATION_FILTERING_SESSION_KEY_NAME,
-            form_class=NotificationListFilterForm,
+        notifications = AppNotification.objects.none()
+    else:
+        notifications = (
+            AppNotification.objects.active()
+            .is_sent()
+            .annotate_is_viewed_by_user(request.user)
+            .select_related('notification')
+            .distinct()
+            .ordered_by_priority_and_sent_datetime()
+            .process_session_filter(
+                request=request,
+                session_key=NOTIFICATION_FILTERING_SESSION_KEY_NAME,
+                form_class=NotificationListFilterForm,
+            )
         )
-    )
 
     filter_session = SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME)
 
@@ -62,18 +67,19 @@ def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     return view
 
 
-@login_required
+@login_required()
 def dropdown_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     if isinstance(request.user, AnonymousUser):
-        return AppNotification.objects.none()
-
-    notifications = (
-        AppNotification.objects.active()
-        .select_related('notification')
-        .annotate_is_viewed_by_user(request.user)
-        .distinct()
-        .ordered_by_priority_and_sent_datetime()
-    )
+        notifications = AppNotification.objects.none()
+    else:
+        notifications = (
+            AppNotification.objects.active()
+            .is_sent()
+            .annotate_is_viewed_by_user(request.user)
+            .select_related('notification')
+            .distinct()
+            .ordered_by_priority_and_sent_datetime()
+        )
 
     view = _infinite_scroll_view(request=request, notification_queryset=notifications)
     view.context_data.update({
@@ -82,7 +88,7 @@ def dropdown_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     return view
 
 
-@login_required
+@login_required()
 def notification_dropdown_template_view(request: WSGIRequest) -> TemplateResponse:
     body_data = json.loads(request.body.decode('utf-8'))
 
@@ -90,7 +96,9 @@ def notification_dropdown_template_view(request: WSGIRequest) -> TemplateRespons
         request,
         context={
             'app_notification_list_url': body_data.get('app_notification_list_url'),
-            'notification_endpoint': reverse('django_spire:notification:app:template:dropdown_scroll_items')
+            'notification_endpoint': reverse(
+                'django_spire:notification:app:template:dropdown_scroll_items'
+            )
         },
         template='django_spire/notification/app/dropdown/notification_dropdown_content.html'
     )
