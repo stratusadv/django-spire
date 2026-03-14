@@ -1,7 +1,40 @@
 {% extends 'django_spire/filtering/form/base_session_filter_form.html' %}
 
-{% block filter_type %}filter{% endblock %}
+{% load session_tags %}
 
-{% block submit_button %}
-    {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text='Filter' %}
+{% block session_filter_key %}{{ filter_session.session_key }}{% endblock %}
+
+{% block filter_content %}
+    <div
+        class="row g-2 mb-2"
+        x-data="{
+            search_field: new GlueCharField(
+                'search',
+                {
+                    value: '{{ filter_session.search|default:"" }}',
+                    label: 'Search',
+                    name: 'search',
+                }
+            ),
+            priority_field: new GlueCharField(
+                'priority',
+                {
+                    value: '{{ filter_session.priority|default:"" }}',
+                    choices: {{ priority_choices|default:'[]' }},
+                }
+            ),
+            session_controller: new SessionController('{% session_controller_to_json filter_session.session_key %}'),
+
+            async init() {
+                this.search_field.set_attribute('placeholder', 'Search...')
+            },
+        }"
+    >
+        <div class="col-12 col-md-8">
+            {% include 'django_glue/form/field/char_field.html' with glue_field='search_field' %}
+        </div>
+        <div class="col-12 col-md-4">
+            {% include 'django_glue/form/field/select_field.html' with glue_field='priority_field' %}
+        </div>
+    </div>
 {% endblock %}

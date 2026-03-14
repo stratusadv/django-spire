@@ -29,6 +29,9 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
 
     @property
     def verbose_time_since_delivered(self) -> str:
+        if not self.notification.sent_datetime:
+            return ''
+
         delta = localtime() - self.notification.sent_datetime
 
         seconds = abs(delta.total_seconds())

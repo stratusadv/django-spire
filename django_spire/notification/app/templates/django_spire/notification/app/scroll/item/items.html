@@ -2,4 +2,8 @@
     <div class="col-12 p-0">
         {% include app_notification.template %}
     </div>
+{% empty %}
+    {% if not is_dropdown_item %}
+        {% include 'django_spire/item/no_data_item.html' %}
+    {% endif %}
 {% endfor %}
