@@ -4,7 +4,6 @@
     </div>
 {% empty %}
     {% if not is_dropdown_item %}
-        {#   TODO: Test this condition, evaluate showing errored / failed app notifications     #}
         {% include 'django_spire/item/no_data_item.html' %}
     {% endif %}
 {% endfor %}

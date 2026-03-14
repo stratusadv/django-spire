@@ -41,7 +41,9 @@ def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     notifications = (
         AppNotification.objects.active()
         .select_related('notification')
-        .order_by('-created_datetime')
+        .annotate_is_viewed_by_user(request.user)
+        .distinct()
+        .ordered_by_priority_and_sent_datetime()
         .process_session_filter(
             request=request,
             session_key=NOTIFICATION_FILTERING_SESSION_KEY_NAME,
