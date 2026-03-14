@@ -3,6 +3,12 @@
 # Changelog
 
 
+## v0.29.2
+
+### Fixes
+- Fixed notification filtering to only be on notification list page. 
+
+
 ## v0.29.1
 
 ### Changes
