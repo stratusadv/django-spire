@@ -50,19 +50,9 @@ class AppNotificationQuerySet(
     def is_sent(self) -> QuerySet:
         return self.filter(notification__status=NotificationStatusChoices.SENT)
 
-    def filter_by_notification_status(self) -> QuerySet:
-        return self.filter(
-            notification__status__in=(
-                NotificationStatusChoices.SENT,
-                NotificationStatusChoices.ERRORED,
-                NotificationStatusChoices.FAILED,
-            )
-        )
-
     def bulk_filter(self, filter_data: dict) -> QuerySet:
         queryset = self
         filter_map = {
-            'status': 'notification__status',
             'priority': 'notification__priority',
         }
         if search_term := filter_data.get("search"):
