@@ -19,8 +19,11 @@ Django Spire is a modular Django framework that makes application development sc
 - Generic file and comment systems with content-type relationships
 - Help desk ticketing system with priority and status management
 - Reporting framework with flexible column types and formatting
-- Notification system for email and app notifications
+- Notification system for email, SMS, app, and push notifications
 - Profiling middleware for performance monitoring
+- Tag system with AI-powered tagging
+- Intelligence layers across multiple apps for AI-driven features
+- Service layer pattern for business logic separation
 
 ### Version
 - Current: 0.28.7
@@ -32,17 +35,70 @@ Django Spire is a modular Django framework that makes application development sc
 ```
 django_spire/
 ├── api/                  # API integration (django-ninja)
+│   ├── api_v1.py         # API v1 configuration
+│   ├── auth/             # API authentication
+│   ├── seeding/          # API seeding support
+│   ├── urls/             # API URL routing
+│   └── views/            # API views
 ├── ai/                   # AI/LLM integration
+│   ├── chat/             # Chat system with routers
+│   ├── context/          # Context management
+│   ├── prompt/           # Prompt management
+│   └── sms/              # SMS AI integration
 ├── auth/                 # Authentication system (user, group, MFA, permissions)
+│   ├── user/             # User management
+│   ├── group/            # Group management
+│   ├── mfa/              # Multi-factor authentication
+│   └── controller/       # Authentication controllers
 ├── comment/              # Comment system with generic content types
 ├── contrib/              # Shared utilities and helpers
+│   ├── admin/            # Admin utilities
+│   ├── breadcrumb/       # Breadcrumb navigation
+│   ├── choices/          # Choice utilities
+│   ├── constructor/      # Constructor utilities
+│   ├── form/             # Form utilities
+│   ├── gamification/     # Gamification features
+│   ├── generic_views/    # Generic portal views
+│   ├── help/             # Help template tags
+│   ├── options/          # Options mixins
+│   ├── ordering/         # Ordering utilities
+│   ├── pagination/       # Pagination utilities
+│   ├── performance/      # Performance utilities
+│   ├── progress/         # Progress indicators
+│   ├── queryset/         # QuerySet utilities
+│   ├── responses/        # Response utilities
+│   ├── seeding/          # Intelligent field seeders
+│   ├── service/          # Base service classes
+│   └── session/          # Session controllers
 ├── core/                 # Core framework functionality
+│   ├── tag/              # Tag system with AI intelligence
+│   ├── table/            # Table utilities
+│   ├── redirect/         # Redirect functionality
+│   ├── converters/       # URL converters
+│   ├── forms/            # Core forms
+│   ├── middleware/       # Core middleware
+│   └── management/       # Management commands
+│       ├── spire_opencode/    # Opencode integration
+│       └── spire_startapp/    # App generation templates
 ├── file/                 # File management with generic content types
 ├── help_desk/            # Help desk/ticketing system
 ├── history/              # Model history and activity tracking
-├── knowledge/            # Knowledge base management (entry, version, collection)
+│   ├── activity/         # Activity tracking
+│   └── viewed/           # Viewed tracking
+├── knowledge/            # Knowledge base management
+│   ├── entry/            # Content entries with version history
+│   ├── collection/       # Hierarchical organization
+│   ├── intelligence/     # Knowledge intelligence layer
+│   └── auth/             # Knowledge access control
 ├── metric/               # Metrics and reporting framework
-├── notification/         # Email and app notifications
+│   ├── report/           # Reporting framework
+│   ├── domain/           # Domain metrics with intelligence
+│   └── visual/           # Visual metrics with presentation
+├── notification/         # Notification system
+│   ├── email/            # Email notifications
+│   ├── sms/              # SMS notifications
+│   ├── app/              # App notifications
+│   └── push/             # Push notifications
 ├── profiling/            # User profiling and performance monitoring
 ├── theme/                # Theme management (10+ themes, light/dark modes)
 └── urls.py               # Main URL configuration
@@ -92,49 +148,39 @@ REST API integration using django-ninja with:
 - Rate limiting: anon 1/s, authenticated 150/s
 - Auto-discovery of app routers
 - API key management via admin interface
+- Sub-apps: auth, seeding, urls, views
 
-#### django_spire.help_desk
-Help desk ticketing system with:
-- Ticket creation, priority, status, and purpose tracking
-- Notification service for new ticket creation
-- QuerySet with active/deleted filtering
-- Service layer for business logic
-- Status: READY, IN_PROGRESS, ON_HOLD, RESOLVED, CLOSED
-- Priority: LOW, MEDIUM, HIGH, CRITICAL
+### django_spire.ai
+AI/LLM integration with:
+- **Chat system** (`ai/chat/`):
+  - Intent-based routing
+  - Knowledge search integration
+  - Chat authentication
+  - Intelligence layer with decoders and workflows
+- **SMS AI** (`ai/sms/`):
+  - SMS integration with Twilio
+  - Intelligence workflows
+- **Context management** (`ai/context/`):
+  - Organization prompts
+  - Context seeding
+- **Prompt management** (`ai/prompt/`):
+  - System prompts
+  - Prompt tuning
+  - Prompt documentation
 
-#### django_spire.metric.report
-Reporting framework with:
-- BaseReport abstract class for custom reports
-- Column types: TEXT, NUMBER, DOLLAR, PERCENT (with decimal variants)
-- Report rows with formatting options (bold, page breaks, borders)
-- Report registry for hierarchical report organization
-- ReportRun model for tracking report executions
-- Markdown export capability
+### django_spire.auth
+Authentication system with:
+- **AuthUser** (`auth/user/`): Proxy of Django User with activity tracking
+- **AuthGroup** (`auth/group/`): Proxy of Django Group with activity tracking
+- **MFA** (`auth/mfa/`): Multi-factor authentication (authenticator app, SMS)
+- **Permissions**: Permission-based access control
+- **AuthController** (`auth/controller/`):
+  - BaseAuthController and AppAuthController
+  - Custom permission methods (can_add, can_change, can_delete, can_view)
+  - Decorator-based permission checking
+- Seeding support for auth data
 
-#### django_spire.knowledge
-Knowledge base system with:
-- Entry: Content items with version history
-- Version: Different versions of entries with blocks
-- Collection: Hierarchical organization of entries
-- Generic content relationships
-
-#### django_spire.notification
-Notification system with:
-- Base Notification model for tracking
-- Email notifications with attachments, CC, BCC support
-- SMS notifications (Twilio integration)
-- App notifications (push-style)
-- Automation system for scheduled notifications
-- Throttling support
-
-#### django_spire.file
-File management with:
-- Generic content-type relationships
-- File metadata (name, type, size)
-- History tracking
-- QuerySet with active filtering
-
-#### django_spire.comment
+### django_spire.comment
 Comment system with:
 - Generic content-type relationships
 - Parent-child relationships (replies)
@@ -142,34 +188,249 @@ Comment system with:
 - Edit tracking
 - Username @mention scraping
 - History tracking
+- QuerySet with custom methods
 
-#### django_spire.theme
+### django_spire.file
+File management with:
+- Generic content-type relationships
+- File metadata (name, type, size)
+- History tracking
+- QuerySet with active filtering
+- GenericForeignKey relationships
+- Related field tracking
+
+### django_spire.help_desk
+Help desk ticketing system with:
+- **HelpDeskTicket**: Ticket model with history tracking
+  - Priority: LOW, MEDIUM, HIGH, CRITICAL
+  - Status: READY, IN_PROGRESS, ON_HOLD, RESOLVED, CLOSED
+  - Purpose: Ticket purpose tracking
+- **HelpDeskTicketService**: Business logic service
+  - create() method for ticket creation
+  - Notification service for new ticket alerts
+- **QuerySet**: Custom query methods
+  - active(), deleted() filters
+- Auth controller for access control
+
+### django_spire.history
+History tracking with:
+- **HistoryModelMixin**: Automatic history events on save
+  - CREATED, UPDATED, DELETED, ACTIVE, INACTIVE, UNDELETED
+  - is_active, is_deleted fields
+  - history_events GenericRelation
+- **ActivityMixin** (`history/activity/`): User action tracking
+  - add_activity method
+  - verb, information, target fields
+- **Viewed tracking** (`history/viewed/`):
+  - Tracks model viewing
+  - Viewed mixins and models
+- HistoryEvent choices: CREATED, UPDATED, DELETED, ACTIVE, INACTIVE, UNDELETED
+
+### django_spire.knowledge
+Knowledge base system with:
+- **Entry** (`knowledge/entry/`): Content items with version history
+  - Services for entry management
+  - Converters for data transformation
+  - Intelligence layer for content generation
+- **Version** (`knowledge/entry/version/`): Different versions of entries
+  - Block management
+  - Intelligence for markdown formatting
+  - Services for version control
+- **Block** (`knowledge/entry/version/block/`): Content blocks within versions
+  - Data types (list, etc.)
+  - Services for block operations
+- **Collection** (`knowledge/collection/`): Hierarchical organization
+  - Services for collection management
+- **Intelligence** (`knowledge/intelligence/`):
+  - Bots for content generation
+  - Workflows for automation
+  - Router for intent handling
+- **Auth** (`knowledge/auth/`): Access control for knowledge base
+
+### django_spire.metric
+Metrics and reporting framework with:
+
+**Report** (`metric/report/`):
+- BaseReport abstract class for custom reports
+- Column types: TEXT, NUMBER, DOLLAR, PERCENT (with decimal variants)
+- Report rows with formatting options (bold, page breaks, borders)
+- Report registry for hierarchical report organization
+- ReportRun model for tracking report executions
+- Markdown export capability
+
+**Domain** (`metric/domain/`):
+- Domain-level metrics and statistics
+- Intelligence layer for metric generation
+- Seeding for test data
+- Services for business logic
+- Statistic sub-app for statistical models
+- URLs and views for metric display
+
+**Visual** (`metric/visual/`):
+- Visual metrics and analytics
+- Presentation layer for data visualization
+- Signage sub-app for display screens
+- Intelligence layer for visual generation
+- Seeding for visual test data
+- Services for visual processing
+
+### django_spire.notification
+Notification system with:
+
+**Base Notification**:
+- title, body, created_datetime fields
+- Notification managers and querysets
+
+**Email** (`notification/email/`):
+- Email notifications with attachments (File model)
+- CC, BCC support
+- Template ID and context data
+- Size limits: 30MB hard limit, 10MB recommended
+- SendGrid integration
+
+**SMS** (`notification/sms/`):
+- SMS notifications (Twilio integration)
+- URLs and views for SMS handling
+
+**App** (`notification/app/`):
+- App notifications (push-style within application)
+- Separate from push notifications
+
+**Push** (`notification/push/`):
+- Push notifications
+- Separate from app notifications
+
+**Additional**:
+- Automation system for scheduled notifications (`automations.py`)
+- Throttling support
+- Processors for notification handling
+- Choices for notification types
+
+### django_spire.profiling
+Performance profiling with:
+- ProfilingMiddleware for request tracking
+- ProfilingPanel for debug toolbar
+- Thread locking for concurrent access
+- Templates for profiling display
+
+### django_spire.theme
 Theme management with:
-- 10+ theme families (Default, Ayu, Catppuccin, Gruvbox, Material, Nord, One Dark Pro, Palenight, Rose Pine, Tokyo Night)
-- Light and dark modes
+- **Theme**: Theme class for configuration
+  - from_string() for parsing
+  - get_available(), get_default() methods
+- **Theme families** (10+):
+  1. Default
+  2. Ayu
+  3. Catppuccin
+  4. Gruvbox
+  5. Material
+  6. Nord
+  7. One Dark Pro
+  8. Palenight
+  9. Rose Pine
+  10. Tokyo Night
+- Light and dark modes (ThemeMode.LIGHT, ThemeMode.DARK)
 - CSS stylesheet generation
 - Theme configuration via settings
 
-#### django_spire.auth
-Authentication system with:
-- AuthUser (proxy of Django User with activity tracking)
-- AuthGroup (proxy of Django Group with activity tracking)
-- MFA support (authenticator app, SMS)
-- Permission-based access control
-- Authentication controllers for UI views
+### django_spire.core
+Core framework functionality with:
 
-#### django_spire.history
-History tracking with:
-- HistoryModelMixin for automatic history events
-- HistoryEvent choices: CREATED, UPDATED, DELETED, ACTIVE, INACTIVE, UNDELETED
-- GenericRelation for querying history events
-- ActivityMixin for user action tracking
+**Tag System** (`core/tag/`):
+- Tag model and management
+- Intelligence layer (tag_set_bot.py)
+- Service layer for tag operations
 
-#### django_spire.profiling
-Performance profiling with:
-- Profiling middleware for request tracking
-- Profiling panel for debug toolbar
-- Thread locking for concurrent access
+**Table Utilities** (`core/table/`):
+- Table rendering utilities
+- Table templates and components
+
+**Redirect** (`core/redirect/`):
+- Redirect functionality
+- URL redirection management
+
+**Management Commands**:
+- `spire_opencode`: Opencode integration with agents and skills
+- `spire_startapp`: App generation templates
+- `spire_remove_migration`: Migration cleanup
+
+**Additional**:
+- Converters for URL path converters
+- Forms for core functionality
+- Middleware for core operations
+- Static files with theme support
+- Extensive template system (accordion, badge, button, card, modal, etc.)
+
+### django_spire.contrib
+Shared utilities and helpers:
+
+**Seeding**:
+- Intelligent field seeders (static, LLM, custom, callable)
+- DjangoModelSeeder for automatic model seeding
+- Intelligence bots for automated seeder generation
+- Management command: `python manage.py seeding`
+
+**Service** (`contrib/service/`):
+- BaseDjangoModelService for business logic
+- Separates business logic from models
+- Handles field updates with transaction support
+- File field deferral for proper model saving
+
+**Generic Views** (`contrib/generic_views/`):
+- Portal views for admin UI
+- detail_view, list_view, form_view, delete_form_view
+- Breadcrumb integration
+- Activity tracking
+
+**Admin** (`contrib/admin/`):
+- SpireModelAdmin for automatic admin configuration
+- Auto-configures list_display, list_filter, search_fields
+- Read-only fields for created_datetime, is_active, is_deleted
+
+**Breadcrumb** (`contrib/breadcrumb/`):
+- Breadcrumbs system
+- add_breadcrumb, add_obj_breadcrumb methods
+- Integration with portal views
+
+**Choices** (`contrib/choices/`):
+- Choice utilities and helpers
+
+**Constructor** (`contrib/constructor/`):
+- Constructor utilities
+
+**Form** (`contrib/form/`):
+- Form utilities with templates
+
+**Gamification** (`contrib/gamification/`):
+- Gamification features
+- Static files and templates
+
+**Options** (`contrib/options/`):
+- Options mixins
+
+**Ordering** (`contrib/ordering/`):
+- Ordering utilities with services
+
+**Pagination** (`contrib/pagination/`):
+- Pagination utilities with templatetags
+
+**Performance** (`contrib/performance/`):
+- Performance utilities
+
+**Progress** (`contrib/progress/`):
+- Progress indicators with static files and templates
+
+**QuerySet** (`contrib/queryset/`):
+- QuerySet utilities
+
+**Responses** (`contrib/responses/`):
+- Response utilities
+
+**Session** (`contrib/session/`):
+- Session controllers
+
+**Help** (`contrib/help/`):
+- Help template tags
 
 ## Technology Stack
 
@@ -177,192 +438,46 @@ Performance profiling with:
 - **API Framework**: django-ninja (async-ready, Pydantic-based)
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap 5
 - **Database**: PostgreSQL
-- **Storage**: AWS S3
+- **Storage**: AWS S3 / DigitalOcean
 - **Email**: SendGrid
+- **SMS**: Twilio
 
-## Core Components
+## Core Design Patterns
 
-### django_spire.contrib
+### Intelligence Layer Pattern
+Many apps include an intelligence layer for AI-driven features:
+- `ai/chat/intelligence/`: Decoders, workflows
+- `ai/sms/intelligence/`: Workflows
+- `knowledge/intelligence/`: Bots, workflows, router
+- `metric/domain/intelligence/`: Bots, workflows
+- `metric/visual/intelligence/`: Bots, workflows
+- `core/tag/intelligence/`: Tag set bot
 
-Shared utilities and helpers:
+### Service Layer Pattern
+Business logic is separated into service classes:
+- `contrib/service/`: BaseDjangoModelService
+- `knowledge/entry/services/`
+- `knowledge/collection/services/`
+- `help_desk/services/`
+- `metric/domain/services/`
+- `metric/visual/services/`
+- `auth/user/services/`
 
-- **seeding**: Intelligent field seeders
-  - Static, LLM, custom, and callable field types
-  - DjangoModelSeeder for automatic model seeding
-  - Intelligence bots for automated seeder generation
-  - Management command: `python manage.py seeding`
+### Auth Sub-App Pattern
+Many apps include dedicated auth sub-apps:
+- `knowledge/auth/`
+- `help_desk/auth/`
+- `api/auth/`
+- `ai/chat/auth/`
 
-- **service**: BaseDjangoModelService for business logic
-  - Separates business logic from models
-  - Handles field updates with transaction support
-  - File field deferral for proper model saving
-
-- **generic_views**: Portal views for admin UI
-  - detail_view, list_view, form_view, delete_form_view
-  - Breadcrumb integration
-  - Activity tracking
-
-- **admin**: SpireModelAdmin for automatic admin configuration
-  - Auto-configures list_display, list_filter, search_fields
-  - Read-only fields for created_datetime, is_active, is_deleted
-
-- **breadcrumb**: Breadcrumbs system
-  - add_breadcrumb, add_obj_breadcrumb methods
-  - Integration with portal views
-
-- **contrib/session**: Session controllers
-
-- **contrib/options**: Options mixins
-
-- **contrib/help**: Help template tags
-
-### django_spire.auth
-
-Authentication system with:
-
-- **AuthUser**: Proxy of Django User with activity tracking
-- **AuthGroup**: Proxy of Django Group with activity tracking
-- **MFA**: Multi-factor authentication (authenticator app, SMS)
-- **Permissions**: Permission-based access control
-- **AuthController**: BaseAuthController and AppAuthController
-  - Custom permission methods (can_add, can_change, can_delete, can_view)
-  - Decorator-based permission checking
-
-### django_spire.history
-
-History tracking system with:
-
-- **HistoryModelMixin**: Automatic history events on save
-  - CREATED, UPDATED, DELETED, ACTIVE, INACTIVE, UNDELETED
-  - is_active, is_deleted fields
-  - history_events GenericRelation
-
-- **ActivityMixin**: User action tracking
-  - add_activity method
-  - verb, information, target fields
-
-- **HistoryEvent**: Event model for tracking changes
-  - content_type, object_id for generic relationships
-  - event, created_datetime fields
-
-### django_spire.help_desk
-
-Help desk ticketing system with:
-
-- **HelpDeskTicket**: Ticket model with history tracking
-  - Priority: LOW, MEDIUM, HIGH, CRITICAL
-  - Status: READY, IN_PROGRESS, ON_HOLD, RESOLVED, CLOSED
-  - Purpose: Ticket purpose tracking
-
-- **HelpDeskTicketService**: Business logic service
-  - create() method for ticket creation
-  - Notification service for new ticket alerts
-
-- **QuerySet**: Custom query methods
-  - active(), deleted() filters
-
-### django_spire.metric.report
-
-Reporting framework with:
-
-- **BaseReport**: Abstract base class for custom reports
-  - title, description, columns, rows
-  - add_column(), add_row(), add_divider_row()
-  - to_markdown() export
-
-- **Column types**:
-  - TEXT, NUMBER, DOLLAR, PERCENT (with 1-3 decimal variants)
-  - Left/right alignment based on type
-
-- **ReportRegistry**: Hierarchical organization
-  - add_registry() for nested categories
-  - get_report_from_key_stack() for retrieval
-
-- **ReportRun**: Tracking model
-  - report_key_stack for hierarchy
-  - datetime field for execution time
-
-### django_spire.knowledge
-
-Knowledge base system with:
-
-- **Entry**: Content items with version history
-- **Version**: Different versions of entries
-- **Block**: Content blocks within versions
-- **Collection**: Hierarchical organization
-
-### django_spire.file
-
-File management with:
-
-- **File**: Generic content-type model
-  - content_type, object_id, content_object
-  - file, name, type, size fields
-  - related_field for field association
-
-- **FileQuerySet**: Custom query methods
-  - active() filter
-
-- **GenericForeignKey**: Content-type relationships
-
-### django_spire.comment
-
-Comment system with:
-
-- **Comment**: Generic content-type model
-  - Parent-child relationships (replies)
-  - User references
-  - @mention scraping
-
-- **CommentQuerySet**: Custom query methods
-
-- **History tracking**: CREATED, UPDATED events
-
-### django_spire.theme
-
-Theme management with:
-
-- **Theme**: Theme class for configuration
-  - 10+ theme families
-  - Light and dark modes
-  - CSS stylesheet generation
-  - from_string() for parsing
-  - get_available(), get_default() methods
-
-- **Theme families**: Default, Ayu, Catppuccin, Gruvbox, Material, Nord, One Dark Pro, Palenight, Rose Pine, Tokyo Night
-
-### django_spire.notification
-
-Notification system with:
-
-- **Notification**: Base notification model
-  - title, body, created_datetime
-
-- **EmailNotification**: Email notifications
-  - Attachments (File model)
-  - CC, BCC support
-  - Template ID and context data
-  - Size limits: 30MB hard limit, 10MB recommended
-
-- **SMS notifications**: Twilio integration
-- **App notifications**: Push-style
-
-### django_spire.profiling
-
-Performance profiling with:
-
-- **ProfilingMiddleware**: Request tracking
-- **ProfilingPanel**: Debug toolbar panel
-- **Thread locking**: Concurrent access control
-
-### django_spire.ai
-
-AI/LLM integration with:
-
-- Chat system with routers
-- Intent-based routing
-- Knowledge search integration
-- SMS AI integration
+### Seeding Support Pattern
+Most major apps include seeding support:
+- `knowledge/seeding/`
+- `ai/context/seeding/`
+- `metric/domain/seeding/`
+- `metric/visual/seeding/`
+- `auth/seeding/`
+- `api/seeding/`
 
 ## Testing
 
@@ -382,24 +497,60 @@ test_project/
 ├── apps/                     # Example apps demonstrating framework features
 │   ├── ai/                   # AI integration examples
 │   ├── comment/              # Comment system examples
+│   ├── core/                 # Core context processors
 │   ├── file/                 # File management examples
 │   ├── help_desk/            # Help desk examples
+│   ├── history/              # History tracking examples
 │   ├── home/                 # Home/dashboard app
 │   ├── infinite_scrolling/   # Infinite scrolling examples
+│   ├── knowledge/            # Knowledge base examples
+│   ├── landing/              # Landing page app
 │   ├── lazy_tabs/            # Lazy loading tabs examples
+│   ├── model_and_service/    # Model/service pattern examples
 │   ├── notification/         # Notification examples
 │   ├── ordering/             # Ordering examples
 │   ├── queryset_filtering/   # QuerySet filtering examples
 │   ├── tabular/              # Tabular view examples
-│   ├── wizard/               # Wizard/step-by-step examples
-│   └── model_and_service/    # Model/service pattern examples
+│   └── wizard/               # Wizard/step-by-step examples
 ├── templates/                # Project-level templates
-│   ├── tabular/              # Tabular view templates
-│   ├── card/                 # Card view templates
-│   ├── modal/                # Modal dialog templates
-│   ├── file/                 # File management templates
-│   ├── gamification/         # Gamification templates
-│   └── form/                 # Form templates
+│   ├── ai/
+│   ├── breadcrumb/
+│   ├── comment/
+│   ├── django_spire/
+│   ├── file/
+│   ├── form/
+│   ├── gamification/
+│   ├── help/
+│   ├── help_desk/
+│   ├── history/
+│   ├── home/
+│   ├── infinite_scrolling/
+│   ├── landing/
+│   ├── lazy_tabs/
+│   ├── maintenance/
+│   ├── modal/
+│   │   ├── content/
+│   │   ├── page/
+│   │   ├── modal.html
+│   │   └── modal_wizard.html
+│   ├── model_and_service/
+│   ├── notification/
+│   ├── options/
+│   ├── ordering/
+│   ├── pagination/
+│   ├── permission/
+│   ├── queryset_filtering/
+│   ├── search/
+│   ├── tabular/
+│   │   ├── card/
+│   │   ├── form/
+│   │   ├── item/
+│   │   ├── modal/
+│   │   ├── page/
+│   │   └── table/
+│   ├── user_account/
+│   │   └── profile/
+│   └── wizard/
 ├── static/                   # Static assets (CSS, JS, images, fonts)
 ├── settings files/           # Multiple environment configurations
 │   ├── base_settings.py      # Base settings
@@ -408,7 +559,11 @@ test_project/
 │   └── dandy_settings.py     # Dandy-specific settings
 ├── seed.py                   # Main seeding script
 ├── urls.py                   # Project URL configuration
-└── playwright.config.py      # Playwright E2E test configuration
+├── playwright.config.py      # Playwright E2E test configuration
+├── pytest.ini                # Pytest configuration
+├── worker.py                 # Worker process configuration
+├── asgi.py                   # ASGI configuration
+└── wsgi.py                   # WSGI configuration
 ```
 
 ### Settings Configuration
@@ -420,7 +575,7 @@ test_project/
 - AI chat persona configuration
 - Maintenance mode
 - Debug toolbar integration
-- Static file storage (S3/ DigitalOcean)
+- Static file storage (S3/DigitalOcean)
 - Report registry configuration
 - Custom auth controllers
 
@@ -457,10 +612,24 @@ test_project/
 - Modal-based wizard flows
 - Content progression patterns
 
+#### django_spire.infinite_scrolling
+- Infinite scrolling pagination examples
+- AJAX-based content loading
+
+#### django_spire.ordering
+- Model ordering examples
+- Drag-and-drop ordering
+- Custom ordering services
+
+#### django_spire.model_and_service
+- Model/service pattern examples
+- Business logic separation
+- Service layer implementation
+
 ### URL Structure
 
 ```
-/                           # Landing page
+/                           # Landing page (landing app)
 /ai/                        # AI integration examples
 /comment/                   # Comment examples
 /help_desk/                 # Help desk examples
@@ -468,6 +637,7 @@ test_project/
 /history/                   # History tracking examples
 /home/                      # Home/dashboard
 /infinite_scrolling/        # Infinite scrolling examples
+/knowledge/                 # Knowledge base examples
 /lazy_tabs/                 # Lazy tabs examples
 /notification/              # Notification examples
 /order/                     # Ordering examples
@@ -490,23 +660,31 @@ python test_project/seed.py
 
 This seeds:
 - Superuser creation
-- User data
-- API access keys
+- User data (django_spire.auth)
+- API access keys (django_spire.api)
 - Help desk tickets
 - QuerySet filtering models
 - Infinite scrolling data
 - Lazy tabs data
 - Comment examples
 
+**Optional seeding** (commented out in seed.py):
+- Knowledge data (django_spire.knowledge)
+- AI context data (django_spire.ai.context)
+
 ### Template Patterns
 
 **Tabular Views**:
 - `tabular/page/`: Full page layouts
 - `tabular/card/`: Card-based layouts
-- Supports list, detail, form, and migration views
+- `tabular/form/`: Form layouts
+- `tabular/item/`: Item layouts
+- `tabular/modal/`: Modal layouts
+- `tabular/table/`: Table layouts
 
 **Card Views**:
 - Card-based grid layouts
+- Organized within app-specific template folders (e.g., `comment/card/`, `home/card/`)
 - Responsive design patterns
 - Mobile-friendly layouts
 
@@ -514,6 +692,20 @@ This seeds:
 - Modal dialogs and overlays
 - Modal wizard patterns
 - Content progression in modals
+- `modal/modal.html`: Base modal template
+- `modal/modal_wizard.html`: Wizard modal template
+
+**Additional Template Categories**:
+- `breadcrumb/`: Breadcrumb navigation
+- `form/`: Form templates
+- `gamification/`: Gamification UI
+- `help/`: Help documentation
+- `maintenance/`: Maintenance mode pages
+- `options/`: Options/configuration
+- `pagination/`: Pagination components
+- `permission/`: Permission UI
+- `search/`: Search interfaces
+- `user_account/`: User account/profile pages
 
 ### Testing
 
@@ -525,6 +717,10 @@ This seeds:
 **Pytest Configuration**:
 - `pytest.ini` in test_project root
 - Test discovery and configuration
+
+**Unit Tests**:
+- Located in app `tests/` directories
+- Coverage across all django_spire apps
 
 ### Development
 
@@ -552,6 +748,17 @@ This seeds:
 6. **Environment Configuration**: Use environment variables for sensitive data
 7. **Seeding**: Use seeders for consistent test data generation
 8. **URL Namespacing**: Organize URLs by app with proper namespaces
+9. **Intelligence Layer**: Implement AI-driven features through intelligence sub-apps
+10. **Auth Sub-apps**: Separate access control into dedicated auth sub-apps
+
+### Recommended Example Apps to Add
+
+The following framework components could benefit from dedicated example apps:
+- `django_spire.metric` (reporting framework)
+- `django_spire.auth` (authentication patterns)
+- `django_spire.api` (API usage examples)
+- `django_spire.theme` (theme customization)
+- `django_spire.profiling` (performance profiling)
 
 ## Related Documentation
 
