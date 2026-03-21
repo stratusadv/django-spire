@@ -3,6 +3,12 @@
 # Changelog
 
 
+## v0.29.3
+
+### Fixes
+- Updated `DjangoFieldLlmSeeder` to account for Dandy returning a difference amount of results then asked which was resulting in downstream seeder errors.
+
+
 ## v0.29.2
 
 ### Fixes
