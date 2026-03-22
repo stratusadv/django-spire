@@ -2,6 +2,12 @@
 
 # Changelog
 
+## v0.29.3
+
+### Changes
+- Added `max_choices_length` to `search_and_select_field.html` which limits the number of choices shown in the dropdown.
+- Removed `rows="{% if rows %}{{ rows }}{% else %}3{% endif %}"` from `text_field.html` as it does not work. Rows must be set via glue fields `set_attribute`.
+
 
 ## v0.29.2
 
