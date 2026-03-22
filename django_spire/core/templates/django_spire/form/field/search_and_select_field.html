@@ -16,6 +16,7 @@
             search: '',
             is_search_focused: false,
             choice_verbose: this.placeholder,
+            max_choices_length: {{ max_choices_length|default:'null' }},
 
             init() {
                 this.update_choice();
@@ -30,11 +31,17 @@
             },
 
             get filtered_choices() {
-                return glue_field.choices.filter(choice => {
+                let filtered_choices = glue_field.choices.filter(choice => {
                     let label = choice[1].toLowerCase();
                     let search = this.search.toLowerCase();
                     return label.includes(search);
                 });
+
+                if (this.max_choices_length) {
+                    filtered_choices = filtered_choices.slice(0, this.max_choices_length);
+                }
+
+                return filtered_choices;
             },
 
             focus_input() {
