@@ -1,21 +1,44 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "enabled_providers": [
+    "stratus"
+  ],
+  "model": "stratus/stratus.coder",
   "provider": {
     "stratus": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Stratus",
       "options": {
-        "baseURL": "BASE_URL",
-        "apiKey": "API_KEY"
+        "baseURL": "{env:AI_API_HOST}:443/v1",
+        "apiKey": "{env:AI_API_KEY}"
       },
       "models": {
         "stratus.coder": {
-          "id": "stratus.coder",
+          "id": "{env:LLM_CODING_MODEL}",
           "name": "Coder",
-          "reasoning": false,
-          "tools": true,
+          "options": {
+              "temperature": 1.0,
+              "top_p": 0.95,
+              "top_k": 40
+            },
           "limit": {
-            "context": 22800000,
+            "context": 228000,
+            "output": 32000
+          }
+        },
+        "stratus.reasoning": {
+          "id": "{env:LLM_REASONING_MODEL}",
+          "name": "Reasoning",
+          "options": {
+              "temperature": 0.6,
+              "top_p": 0.95,
+              "top_k": 20,
+              "min_p": 0.0,
+              "presence_penalty": 0.0,
+              "repetition_penalty": 1.0
+            },
+          "limit": {
+            "context": 228000,
             "output": 32000
           }
         }
@@ -23,3 +46,4 @@
     }
   }
 }
+
