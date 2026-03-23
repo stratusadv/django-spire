@@ -2,6 +2,12 @@
 
 # Changelog
 
+## v0.29.4
+
+### Fixes
+- Fixed bug in seeder causing `fk_random` to fail
+
+
 ## v0.29.3
 
 ### Changes
