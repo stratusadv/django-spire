@@ -2,6 +2,11 @@
 
 # Changelog
 
+## v0.29.5
+
+### Change
+- Added `{{ block container_outer_content_class }}` in the infinite scroll container to control the padding of list items
+
 ## v0.29.4
 
 ### Fixes
