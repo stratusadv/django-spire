@@ -2,6 +2,13 @@
     class="{% block x-data_class %}{% endblock %}"
     x-data="{
         show_modal: false,
+        eventData: {},
+
+        setUp(event) {
+            this.dispatch_modal(event.detail.html_content);
+            this.eventData = event.detail.eventData;
+        },
+
         close_modal() {
             this.show_modal = false;
         },
