@@ -2,7 +2,7 @@
 
 # Changelog
 
-## v0.29.5
+## v0.29.6
 
 ### Changes
 - Added `eventData` to pass into `dispatch_modal` and `dispatch_modal_view` to access in modal's `x-data` with `eventData` variable.
