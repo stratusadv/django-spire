@@ -7,6 +7,11 @@
 ### Changes
 - Added `eventData` to pass into `dispatch_modal` and `dispatch_modal_view` to access in modal's `x-data` with `eventData` variable.
 
+## v0.29.5
+
+### Change
+- Added `{{ block container_outer_content_class }}` in the infinite scroll container to control the padding of list items
+
 ## v0.29.4
 
 ### Fixes
