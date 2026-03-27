@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from unittest import TestCase
 
 from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
@@ -16,6 +18,7 @@ TEST_INPUT = """
 
 
 class TestTagIntelligence(TestCase):
+    @pytest.mark.ai
     def test_tag_set_bot(self):
         tag_set = TagSetBot().process(TEST_INPUT)
 
