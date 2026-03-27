@@ -2,6 +2,11 @@
 
 # Changelog
 
+## v0.29.7
+
+### Changes
+- Added an optional `{{ trigger_icon }}` to `tab_trigger_element.html` for displaying icons to the left of the tab name.
+
 ## v0.29.6
 
 ### Changes
