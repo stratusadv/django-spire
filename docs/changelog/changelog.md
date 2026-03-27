@@ -2,7 +2,7 @@
 
 # Changelog
 
-## v0.29.7
+## v0.29.8
 
 ### Changes
 - Added ability to dispatch `refresh-scroll` event to fresh all scrollable containers on the page.
