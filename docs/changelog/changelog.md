@@ -1,6 +1,16 @@
-
-
 # Changelog
+
+## v0.29.9
+
+### Changes
+- A smoother page load when loading a page that contains table.
+- A table column that is being sorted changes its text color.
+
+### Fixes
+- Prevent tapping/clicking from passing through the mobile navigation onto the background page/elements.
+- Prevent table column(s) from shifting when sorting a column or loading a page.
+- Allow the user to scroll the main page when the user is at the top or bottom of a scrollable container.
+- Fix the scrollbar width and gutter on Chromium-based browsers to account for a scrollbar.
 
 ## v0.29.8
 
