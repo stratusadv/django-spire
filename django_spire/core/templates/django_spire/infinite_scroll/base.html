@@ -28,6 +28,8 @@
             this.reset_scroll_position();
             this.load_shared_payload();
 
+            {% block scroll_pre_load %}{% endblock %}
+
             if (this.should_load_initial_data()) {
                 this.skeleton_count = this.batch_size;
                 await this.load_more();
@@ -38,6 +40,8 @@
             }
 
             {% block scroll_init %}{% endblock %}
+
+            this.handle_overscroll();
         },
 
         build_request_params(next_page) {
@@ -135,6 +139,19 @@
             {% endblock %}
         },
 
+        handle_overscroll() {
+            let container = this.$refs.scroll_container;
+
+            if (!container) {
+                return;
+            }
+
+            let at_top = container.scrollTop <= 0;
+            let at_bottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
+
+            container.style.overscrollBehavior = (at_top || at_bottom) ? 'auto' : 'contain';
+        },
+
         handle_total_count_updated(event) {
             {% block handle_total_count_updated %}
                 this.total_count = event.detail.total_count;
@@ -182,6 +199,8 @@
 
             await this.$nextTick();
             await this.check_container_height();
+
+            this.handle_overscroll();
         },
 
         load_shared_payload() {
@@ -246,6 +265,8 @@
                     }, 100);
                 }, 500);
             }
+
+            this.handle_overscroll();
         },
 
         reset_scroll_position() {
@@ -323,8 +344,9 @@
         <div
             class="position-relative {% block scroll_container_class %}{% endblock %}"
             style="height:
-                    {% block container_height %}{{ container_height|default:'600px' }}{% endblock %}; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+                    {% block container_height %}{{ container_height|default:'600px' }}{% endblock %}; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch;"
             x-ref="scroll_container"
+            @scroll="handle_overscroll()"
         >
             {% block scroll_content_wrapper %}
                 <div x-ref="content_container">

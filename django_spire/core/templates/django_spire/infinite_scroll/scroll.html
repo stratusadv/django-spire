@@ -29,6 +29,8 @@
             if (this.has_next) {
                 setTimeout(() => this.setup_observer(), 500);
             }
+
+            this.handle_overscroll();
         },
 
         handle_item_mounted(event) {
@@ -36,6 +38,19 @@
                 return;
             }
             this.loaded_count++;
+        },
+
+        handle_overscroll() {
+            let container = this.$refs.scroll_container;
+
+            if (!container) {
+                return;
+            }
+
+            let at_top = container.scrollTop <= 0;
+            let at_bottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
+
+            container.style.overscrollBehavior = (at_top || at_bottom) ? 'auto' : 'contain';
         },
 
         handle_total_count_updated(event) {
@@ -93,6 +108,8 @@
             }
             this.is_loading = false;
             this.show_loading = false;
+
+            this.handle_overscroll();
         },
 
         setup_observer() {
@@ -115,18 +132,40 @@
 
             this.observer.observe(trigger);
         },
+
+        async reset_and_reload() {
+            this.current_page = 0;
+            this.has_next = true;
+            this.loaded_count = 0;
+            this.total_count = 0;
+
+            this.$refs.content_container.innerHTML = '';
+
+            if (this.observer) {
+                this.observer.disconnect();
+                this.observer = null;
+            }
+
+            await this.load_more();
+
+            if (this.has_next) {
+                setTimeout(() => this.setup_observer(), 500);
+            }
+        },
     }"
     data-batch-size="{{ batch_size|default:50 }}"
     data-endpoint="{{ endpoint }}"
     :data-scroll-id="scroll_id"
     @item-mounted.window="handle_item_mounted($event)"
     @total-count-updated.window="handle_total_count_updated($event)"
+    @refresh-scroll.window="reset_and_reload()"
 >
     <div class="position-relative" style="height: {{ scroll_height|default:'300px' }};">
         <div
             class="h-100"
-            style="overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+            style="overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch;"
             x-ref="scroll_container"
+            @scroll="handle_overscroll()"
         >
             <div x-ref="content_container"></div>
 

@@ -1,5 +1,106 @@
 # Changelog
 
+## v0.29.9
+
+### Changes
+- A smoother page load when loading a page that contains table.
+- A table column that is being sorted changes its text color.
+
+### Fixes
+- Prevent tapping/clicking from passing through the mobile navigation onto the background page/elements.
+- Prevent table column(s) from shifting when sorting a column or loading a page.
+- Allow the user to scroll the main page when the user is at the top or bottom of a scrollable container.
+- Fix the scrollbar width and gutter on Chromium-based browsers to account for a scrollbar.
+
+## v0.29.8
+
+### Changes
+- Added ability to dispatch `refresh-scroll` event to fresh all scrollable containers on the page.
+
+## v0.29.7
+
+### Changes
+- Added an optional `{{ trigger_icon }}` to `tab_trigger_element.html` for displaying icons to the left of the tab name.
+
+## v0.29.6
+
+### Changes
+- Added `eventData` to pass into `dispatch_modal` and `dispatch_modal_view` to access in modal's `x-data` with `eventData` variable.
+
+## v0.29.5
+
+### Change
+- Added `{{ block container_outer_content_class }}` in the infinite scroll container to control the padding of list items
+
+## v0.29.4
+
+### Fixes
+- Fixed bug in seeder causing `fk_random` to fail
+
+
+## v0.29.3
+
+### Changes
+- Added `max_choices_length` to `search_and_select_field.html` which limits the number of choices shown in the dropdown.
+- Removed `rows="{% if rows %}{{ rows }}{% else %}3{% endif %}"` from `text_field.html` as it does not work. Rows must be set via glue fields `set_attribute`.
+
+
+## v0.29.2
+
+### Fixes
+- Fixed notification filtering to only be on notification list page. 
+
+
+## v0.29.1
+
+### Changes
+- Added notification search and filtering options to list page. 
+
+
+## v0.29.0
+
+### Features
+- Added generic changelog app
+  - Added documentation guide
+  - Added changelog to test project that parses django-spire changlog
+
+
+## v0.28.11
+
+### Fixes
+- Add `side_navigation_top_content_container_class` block to `core/navigation/side_navigation.html` to get around limitations causing certain display issues.
+
+
+## v0.28.10
+
+### Fixes
+- Fixed `profile` icon in top nav to have default `text-app-default-text-color` to be consistent with other top nav icons
+- Added safe back and forth navigation to ensure loading spinner is cleared on page navigation
+- Page loading spinner now waits 1 second by default when navigating using the `nav_link.html` element
+
+### Changes
+- Added `x_icon` attribute to `icon/responsive_icon.html` to allow for dynamic icon assignment
+
+
+## v0.28.9
+
+### Features
+- Added `formatDateInput` to `date_time_helpers.js` to format date for_glue_fields
+
+### Changes
+- Added `container_header_content` block to `core/container/container.html` to get around limitations.
+
+## v0.28.8
+
+### Breaking
+- `--app-border-color` must be added to theme as `--bs-border-color` was being overriden by bootstrap.
+- Check your app theme before pushing to production!
+
+### Changes
+- Font css has been removed out of `boostrap-extensions` and added to it's own `app-font.css` file
+- Cards now have their own `app-card.css` file
+- Knowledge Base UI and UX improvements.
+
 ## v0.28.7
 
 ### Features
@@ -25,15 +126,18 @@
 ### Fixes
 - Fix sticky nav, dialog widget
 
+
 ## v0.28.3
 
 ### Changes
 - Improve CSS for navigation, tables, tabs, sub_nav and info_nav
 
+
 ## v0.28.2
 
 ### Changes
 - Improving opencode agents and adding more skills
+
 
 ## v0.28.1
 
@@ -53,6 +157,7 @@
 
 ### Changes
 - Updated `notification_bell.html` to extend from `responsive_icon.html`
+
 
 ## v0.27.7
 

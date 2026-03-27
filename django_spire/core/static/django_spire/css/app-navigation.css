@@ -64,6 +64,7 @@
     border-right-width: 1px;
     color: var(--app-side-navigation-text-color) !important;
     overflow: hidden;
+    white-space: nowrap;
     transition: width 0.3s ease;
     width: var(--app-side-navigation-width);
 }
@@ -72,11 +73,8 @@
     color: var(--app-side-navigation-link-color) !important;
     text-decoration: none;
     transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.side-navigation a:hover {
-    background-color: color-mix(in srgb, var(--app-side-navigation-link-color) 8%, transparent);
-    color: var(--app-side-navigation-link-hover-color) !important;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .side-navigation a.active {
@@ -107,4 +105,18 @@
 
 .scrollbar-hidden::-webkit-scrollbar {
     display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .side-navigation a:hover {
+        background-color: color-mix(in srgb, var(--app-side-navigation-link-color) 8%, transparent);
+        color: var(--app-side-navigation-link-hover-color) !important;
+    }
+}
+
+@media (hover: none) {
+    .side-navigation a:hover,
+    .side-navigation a:active {
+        color: var(--app-side-navigation-link-color) !important;
+    }
 }

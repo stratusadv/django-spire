@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@login_required
+@login_required()
 def list_page(request: WSGIRequest):
 
     """

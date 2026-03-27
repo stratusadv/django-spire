@@ -183,8 +183,12 @@ include = [
 
 [tool.pytest.ini_options]
 django_find_project = false
-markers = ["playwright: Playwright browser tests"]
-norecursedirs = ["test_playwright"]
+markers = [
+    "ai: marks tests that require AI/LLM calls (deselect with '-m \"not ai\"')",
+    "playwright: Playwright browser tests",
+]
+norecursedirs = ["atlassian", "test_playwright"]
+addopts = "-m 'not ai'"
 
 [tool.ruff]
 extend = "ruff.toml"
