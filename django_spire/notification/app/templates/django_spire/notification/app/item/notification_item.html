@@ -1,4 +1,8 @@
+{# Renaming this file means a production admin action must be created to update notification objects with template `notification_item.html`. #}
+
 {% extends 'django_spire/item/infinite_scroll_item.html' %}
+
+{% block item_class %}lh-sm py-{% if is_dropdown_item %}1{% else %}2{% endif %}{% endblock %}
 
 {% block item_content %}
     {% if app_notification.notification.url %}
@@ -6,18 +10,26 @@
     {% else %}
     <div
     {% endif %}
-        class="row bg-app-layer-two-hover rounded m-0"
+        class="row bg-app-layer-two-hover rounded m-0 align-items-center"
     >
-        <div  class="col-12">
-            <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span>
+        {% if is_dropdown_item %}
+        <div class="col-12">
+        {% else %}
+        <div class="col-9">
+        {% endif %}
+            <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
             {% if not app_notification.viewed %}
                 {% include 'django_spire/badge/primary_badge.html' with badge_text='New' %}
             {% endif %}
-        </div>
-        <div class="col-12">
             <span class="fs--1">{{ app_notification.notification.body }}</span><br>
             <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
         </div>
+        {% if not is_dropdown_item %}
+        <div  class="col-3">
+            {% include 'django_spire/element/attribute_element.html' with attribute_title='Priority' %}
+            {% include 'django_spire/notification/app/badge/priority_badge.html' %}
+        </div>
+        {% endif %}
     {% if app_notification.notification.url %}
     </a>
     {% else %}

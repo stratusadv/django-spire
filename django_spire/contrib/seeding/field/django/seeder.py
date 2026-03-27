@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import itertools
+from typing import TYPE_CHECKING, Iterator
 
 from dandy import BaseIntel, Prompt
 
@@ -29,7 +30,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
         class SeedingIntel(BaseIntel):
             items: list[seed_intel_class]
 
-            def __iter__(self):
+            def __iter__(self) -> Iterator[Any]:
                 return iter(self.items)
 
         # Base parts of the prompt that are common between batches
@@ -68,7 +69,10 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
             total_batches = (count + batch_size - 1) // batch_size
 
             for batch_index in range(total_batches):
-                batch_count = batch_size if (batch_index < total_batches - 1) else count - batch_size * batch_index
+                if batch_index < total_batches - 1:
+                    batch_count = batch_size
+                else:
+                    batch_count = count - batch_size * batch_index
 
                 batch_prompt = (
                     Prompt()
@@ -85,12 +89,22 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
                 # Only send max_futures calls at a time or when it's the last batch.
                 if len(futures) >= max_futures or batch_index == total_batches - 1:
-                    print(f'-----> Seeding count {batch_count} for batch {batch_index + 1} of {total_batches}')
+                    print(
+                        f'-----> Seeding count {batch_count} for '
+                        f'batch {batch_index + 1} of {total_batches}'
+                    )
                     for future in futures:
                         intel_data.extend(future.result)
                         completed_futures.append(future)
 
                     futures = []
+
+
+        # Ensure the generated count matches the requested count
+        if len(intel_data) > count:
+            intel_data = intel_data[:count]
+        if len(intel_data) < count:
+            intel_data = itertools.cycle(intel_data)
 
         return intel_data
 

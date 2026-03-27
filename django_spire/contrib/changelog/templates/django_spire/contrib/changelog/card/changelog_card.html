@@ -1,0 +1,12 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% load static %}
+
+{% block card_title %}
+    Changelog
+{% endblock %}
+
+{% block card_title_content %}
+    {% url 'django_spire:changelog:template:rows' as changelog_endpoint %}
+    {% include 'django_spire/infinite_scroll/scroll.html' with endpoint=changelog_endpoint scroll_height='300px' batch_size=20 %}
+{% endblock %}

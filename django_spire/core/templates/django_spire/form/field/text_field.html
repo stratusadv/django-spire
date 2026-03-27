@@ -2,10 +2,9 @@
 
 {% block field_content %}
     <textarea
-            x-ref="glue_field"
-            type="text"
-            class="form-control"
-            x-model.debounce.500ms="value"
-            rows="{% if rows %}{{ rows }}{% else %}3{% endif %}"
+        x-ref="glue_field"
+        type="text"
+        class="form-control"
+        x-model.debounce.500ms="value"
     ></textarea>
 {% endblock %}

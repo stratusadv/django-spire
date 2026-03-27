@@ -7,16 +7,14 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
                 class: Paragraph,
                 inlineToolbar: true,
                 config: {
-                    placeholder: 'Write something awesome!',
                 }
             },
             heading: {
                 class: Header,
                 inlineToolbar: true,
                 config: {
-                    placeholder: 'Enter heading text...',
                     levels: [1, 2, 3, 4, 5, 6],
-                    defaultLevel: 1
+                    defaultLevel: 3,
                 }
             },
             list: {

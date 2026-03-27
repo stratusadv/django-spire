@@ -1,11 +1,11 @@
 {% if status == 'published' %}
-    {% include 'django_spire/badge/success_badge.html' with badge_text='Published' %}
+    {% include 'django_spire/badge/success_badge.html' with badge_text='Published' badge_class='py-2 px-3' %}
 {% endif %}
 
 {% if status == 'draft' %}
-    {% include 'django_spire/badge/warning_badge.html' with badge_text='Draft' %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text='Draft' badge_class='py-2 px-3' %}
 {% endif %}
 
 {% if status == 'archived' %}
-    {% include 'django_spire/badge/secondary_badge.html' with badge_text='Archived' %}
+    {% include 'django_spire/badge/secondary_badge.html' with badge_text='Archived' badge_class='py-2 px-3' %}
 {% endif %}
