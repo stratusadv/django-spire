@@ -7,6 +7,11 @@
 ### Changes
 - Added ability to dispatch `refresh-scroll` event to fresh all scrollable containers on the page.
 
+## v0.29.7
+
+### Changes
+- Added an optional `{{ trigger_icon }}` to `tab_trigger_element.html` for displaying icons to the left of the tab name.
+
 ## v0.29.6
 
 ### Changes
