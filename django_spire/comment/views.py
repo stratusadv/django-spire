@@ -119,18 +119,10 @@ def comment_modal_delete_form_view(
         'model_name': model_name
     })
 
-    def add_activity() -> None:
-        obj.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a comment on "{obj}".',
-        )
-
     return dispatch_modal_delete_form_content(
         request,
         obj=comment,
         form_action=form_action,
-        activity_func=add_activity,
         return_url=return_url,
         show_success_message=True
     )

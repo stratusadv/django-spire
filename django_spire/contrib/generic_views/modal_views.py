@@ -21,8 +21,6 @@ def dispatch_modal_delete_form_content(
     obj: Model,
     form_action: str,
     context_data: dict | None = None,
-    activity_func: callable | None = None,
-    auto_add_activity: bool = True,
     delete_func: callable | None = None,
     # Present and past tense of verb
     verbs: tuple[str, str] = ('delete', 'deleted'),
@@ -41,10 +39,7 @@ def dispatch_modal_delete_form_content(
         if form.is_valid():
             form.save(
                 user=request.user,
-                verbs=verbs,
-                delete_func=delete_func,
-                activity_func=activity_func,
-                auto_add_activity=auto_add_activity
+                delete_func=delete_func
             )
 
             if show_success_message:

@@ -149,9 +149,6 @@ class AuthGroupModelTestCase(BaseTestCase):
         from django.contrib.auth.models import Group
         assert issubclass(AuthGroup, Group)
 
-    def test_group_activity_mixin(self) -> None:
-        assert hasattr(self.group, 'add_activity')
-
     def test_group_empty_name_constraint(self) -> None:
         group = AuthGroup.objects.create(name='')
         assert group.pk is not None

@@ -19,7 +19,6 @@ from django_spire.auth.user.tools import add_user_to_all_user_group
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
-from django_spire.history.activity.utils import add_form_activity
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -38,8 +37,6 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
         if user_form.is_valid():
             user = user_form.save()
             add_user_to_all_user_group(user)
-
-            add_form_activity(user, 0, request.user)
 
             return HttpResponseRedirect(reverse('django_spire:auth:user:page:list'))
 
@@ -76,7 +73,6 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
         if form.is_valid():
             portal_user = form.save()
-            add_form_activity(portal_user, pk, request.user)
 
             return HttpResponseRedirect(
                 reverse(

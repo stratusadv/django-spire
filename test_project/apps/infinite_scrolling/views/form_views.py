@@ -30,13 +30,6 @@ def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         kwargs={'pk': pk}
     )
 
-    def add_activity() -> None:
-        infinite_scrolling.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a infinite_scrolling.'
-        )
-
     fallback = reverse('infinite_scrolling:page:list')
     return_url = safe_redirect_url(request, fallback=fallback)
 
@@ -44,7 +37,6 @@ def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=infinite_scrolling,
         form_action=form_action,
-        activity_func=add_activity,
         return_url=return_url,
     )
 

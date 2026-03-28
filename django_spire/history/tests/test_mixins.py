@@ -16,10 +16,6 @@ class TestActivityMixin(TestCase):
         field = ActivityMixin._meta.get_field('activities')
         assert isinstance(field, GenericRelation)
 
-    def test_add_activity_method_exists(self) -> None:
-        assert hasattr(ActivityMixin, 'add_activity')
-        assert callable(ActivityMixin.add_activity)
-
     def test_creator_property_exists(self) -> None:
         assert hasattr(ActivityMixin, 'creator')
 

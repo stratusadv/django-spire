@@ -26,7 +26,6 @@ class ActivityMixin(models.Model):
         recipient: User = None,
         subscribers: list[User] | None = None
     ) -> Activity:
-
         activity = self.activities.create(
             user=user,
             verb=verb,

@@ -11,7 +11,6 @@ from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import modal_views, portal_views
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
-from django_spire.history.activity.utils import add_form_activity
 
 import django_glue as dg
 
@@ -31,13 +30,6 @@ def ${delete_modal_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse
         kwargs={'pk': pk}
     )
 
-    def add_activity() -> None:
-        ${context_single_var}.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a ${model_instance_name}.'
-        )
-
     fallback = reverse('${url_reverse_path}:page:list')
     return_url = safe_redirect_url(request, fallback=fallback)
 
@@ -45,8 +37,7 @@ def ${delete_modal_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse
         request,
         obj=${context_single_var},
         form_action=form_action,
-        activity_func=add_activity,
-        return_url=return_url,
+        return_url=return_url
     )
 
 
@@ -112,7 +103,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
 
         if form.is_valid():
             ${context_single_var}, _ = ${context_single_var}.services.save_model_obj(**form.cleaned_data)
-            add_form_activity(${context_single_var}, pk, request.user)
 
             return redirect(
                 request.GET.get(

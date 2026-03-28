@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock
-
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from django_spire.history.activity.models import Activity, ActivitySubscriber
-from django_spire.history.activity.utils import add_form_activity
 
 
 class TestActivity(TestCase):
@@ -145,32 +142,3 @@ class TestAddFormActivity(TestCase):
             first_name='Test',
             last_name='User'
         )
-
-    def test_add_form_activity_created(self) -> None:
-        model_object = MagicMock()
-        model_object._meta.verbose_name = 'Test Model'
-        model_object.__str__ = MagicMock(return_value='Test Object')
-        model_object.add_activity = MagicMock()
-
-        add_form_activity(model_object, pk=None, user=self.user)
-
-        model_object.add_activity.assert_called_once()
-        call_kwargs = model_object.add_activity.call_args[1]
-
-        assert call_kwargs['user'] == self.user
-        assert call_kwargs['verb'] == 'updated'
-        assert 'updated' in call_kwargs['information']
-
-    def test_add_form_activity_updated(self) -> None:
-        model_object = MagicMock()
-        model_object._meta.verbose_name = 'Test Model'
-        model_object.__str__ = MagicMock(return_value='Test Object')
-        model_object.add_activity = MagicMock()
-
-        add_form_activity(model_object, pk=1, user=self.user)
-
-        model_object.add_activity.assert_called_once()
-        call_kwargs = model_object.add_activity.call_args[1]
-
-        assert call_kwargs['verb'] == 'created'
-        assert 'created' in call_kwargs['information']

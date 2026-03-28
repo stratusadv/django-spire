@@ -57,7 +57,7 @@ class TestDeleteConfirmationForm(TestCase):
 
         del self.obj.add_activity
 
-        form.save(user=self.user, verbs=('delete', 'deleted'))
+        form.save(user=self.user)
 
         self.obj.set_deleted.assert_called_once()
 
@@ -68,7 +68,7 @@ class TestDeleteConfirmationForm(TestCase):
         delete_func = MagicMock()
         del self.obj.add_activity
 
-        form.save(user=self.user, verbs=('delete', 'deleted'), delete_func=delete_func)
+        form.save(user=self.user, delete_func=delete_func)
 
         delete_func.assert_called_once()
         self.obj.set_deleted.assert_not_called()
@@ -77,7 +77,7 @@ class TestDeleteConfirmationForm(TestCase):
         form = DeleteConfirmationForm(data={'should_delete': True}, obj=self.obj)
         form.is_valid()
 
-        form.save(user=self.user, verbs=('delete', 'deleted'))
+        form.save(user=self.user)
 
         self.obj.add_activity.assert_called_once()
         call_kwargs = self.obj.add_activity.call_args[1]
@@ -85,22 +85,11 @@ class TestDeleteConfirmationForm(TestCase):
         assert call_kwargs['user'] == self.user
         assert call_kwargs['verb'] == 'deleted'
 
-    def test_save_calls_custom_activity_func(self) -> None:
-        form = DeleteConfirmationForm(data={'should_delete': True}, obj=self.obj)
-        form.is_valid()
-
-        activity_func = MagicMock()
-
-        form.save(user=self.user, verbs=('delete', 'deleted'), activity_func=activity_func)
-
-        activity_func.assert_called_once()
-        self.obj.add_activity.assert_not_called()
-
     def test_save_skips_activity_when_disabled(self) -> None:
         form = DeleteConfirmationForm(data={'should_delete': True}, obj=self.obj)
         form.is_valid()
 
-        form.save(user=self.user, verbs=('delete', 'deleted'), auto_add_activity=False)
+        form.save(user=self.user)
 
         self.obj.add_activity.assert_not_called()
 

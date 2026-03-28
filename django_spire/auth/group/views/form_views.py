@@ -16,7 +16,6 @@ from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
-from django_spire.history.activity.utils import add_form_activity
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -39,7 +38,6 @@ def form_view(
 
         if form.is_valid():
             group = form.save()
-            add_form_activity(group, pk, request.user)
 
             return_url = reverse('django_spire:auth:group:page:list')
             return HttpResponseRedirect(return_url)
@@ -81,15 +79,6 @@ def user_form_view(
             user_list = form.cleaned_data.get('users')
             set_group_users(group, user_list)
 
-            group.add_activity(
-                user=request.user,
-                verb='added',
-                information=(
-                    f'{request.user.get_full_name()} added {len(user_list)} users to '
-                    f'the group "{group.name}".'
-                )
-            )
-
             return_url = reverse('django_spire:auth:group:page:detail', kwargs={'pk': pk})
             return HttpResponseRedirect(return_url)
 
@@ -125,7 +114,6 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=group,
         delete_func=group.delete,
-        activity_func=lambda: None,
         return_url=return_url
     )
 
@@ -144,15 +132,6 @@ def group_remove_user_form_view(
 
         if form.is_valid():
             user.groups.remove(group)
-
-            group.add_activity(
-                user=request.user,
-                verb='removed',
-                information=(
-                    f'{request.user.get_full_name()} removed {user.get_full_name()} '
-                    f'from the group "{group.name}".'
-                )
-            )
 
             return HttpResponseRedirect(
                 reverse(

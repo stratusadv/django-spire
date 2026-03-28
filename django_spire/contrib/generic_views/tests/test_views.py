@@ -61,8 +61,6 @@ class TestDispatchModalDeleteFormContent(TestCase):
         request = self.factory.post('/', data={'should_delete': True})
         request.user = self.user
 
-        del self.obj.add_activity
-
         with patch('django_spire.contrib.generic_views.modal_views.safe_redirect_url', return_value='/'):
             response = dispatch_modal_delete_form_content(
                 request,
@@ -88,8 +86,6 @@ class TestDispatchModalDeleteFormContent(TestCase):
     def test_custom_return_url(self) -> None:
         request = self.factory.post('/', data={'should_delete': True})
         request.user = self.user
-
-        del self.obj.add_activity
 
         response = dispatch_modal_delete_form_content(
             request,
@@ -177,8 +173,6 @@ class TestDeleteFormView(TestCase):
         request = self.factory.post('/', data={'should_delete': True})
         request.user = self.user
 
-        del self.obj.add_activity
-
         response = delete_form_view(
             request,
             obj=self.obj,
@@ -191,8 +185,6 @@ class TestDeleteFormView(TestCase):
     def test_post_calls_set_deleted(self) -> None:
         request = self.factory.post('/', data={'should_delete': True})
         request.user = self.user
-
-        del self.obj.add_activity
 
         delete_form_view(
             request,

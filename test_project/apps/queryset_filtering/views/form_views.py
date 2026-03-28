@@ -30,14 +30,6 @@ def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         kwargs={'pk': pk}
     )
 
-    def add_activity() -> None:
-        task.add_activity(
-            user=request.user,
-            verb='deleted',
-            device=request.device,
-            information=f'{request.user.get_full_name()} deleted a task.'
-        )
-
     fallback = reverse('queryset_filtering:page:list')
     return_url = safe_redirect_url(request, fallback=fallback)
 
@@ -45,7 +37,6 @@ def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=task,
         form_action=form_action,
-        activity_func=add_activity,
         return_url=return_url,
     )
 

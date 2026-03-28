@@ -19,19 +19,8 @@ class InfiniteScrollingFactoryService(BaseDjangoModelService['InfiniteScrolling'
         obj: InfiniteScrolling,
         **kwargs
     ) -> InfiniteScrolling:
-        is_new = not obj.pk
-
         for key, value in kwargs.items():
             setattr(obj, key, value)
 
         obj.save()
-
-        verb = 'created' if is_new else 'updated'
-
-        obj.add_activity(
-            user=user,
-            verb=verb,
-            information=f'{user.get_full_name()} {verb} {obj.name}.'
-        )
-
         return obj

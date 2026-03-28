@@ -18,14 +18,5 @@ class TaskService(BaseDjangoModelService['Task']):
         user: User,
         **field_data: dict
     ) -> Task:
-        obj, created = super().save_model_obj(**field_data)
-
-        verb = 'created' if created else 'updated'
-
-        obj.add_activity(
-            user=user,
-            verb=verb,
-            information=f'{user.get_full_name()} {verb} task {obj.name}.'
-        )
-
+        obj, _ = super().save_model_obj(**field_data)
         return obj

@@ -31,7 +31,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
 
         if form.is_valid():
             friend, _ = friend.services.save_model_obj(**form.cleaned_data)
-            add_form_activity(friend, pk, request.user)
 
             return redirect(
                 request.GET.get(
