@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.29.10
+
+### Fixes
+- Fixed missing css classes in non-default theme css files.
+
 ## v0.29.9
 
 ### Changes
