@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.29.11
+
+### Fixes
+- Moved card background coloring css from card-body to card to fix card rounded corner covered issue.
+
 ## v0.29.10
 
 ### Fixes
