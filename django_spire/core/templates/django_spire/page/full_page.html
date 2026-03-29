@@ -49,6 +49,17 @@
                 return window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
             },
 
+            update_command_bar_height() {
+                let sticky_header = $refs.sticky_header
+                let top_nav_height = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-top-navigation-height'))
+                let command_bar_height = sticky_header.offsetHeight - top_nav_height
+
+                document.documentElement.style.setProperty(
+                    '--app-command-bar-height',
+                    Math.max(0, command_bar_height) + 'px'
+                )
+            },
+
             update_viewport_state() {
                 const was_narrow = this.is_narrow_viewport;
                 const is_now_narrow = window.innerWidth < 992;
@@ -75,6 +86,7 @@
             init() {
                 this.is_mobile = this.is_touch_device();
                 this.update_viewport_state();
+                this.update_command_bar_height();
 
                 const urlParams = new URLSearchParams(window.location.search);
 
@@ -147,7 +159,7 @@
         </div>
 
         <div class="d-flex flex-column flex-grow-1" style="overflow-x: clip; min-width: 0;">
-            <div class="sticky-top hide-on-print">
+            <div class="sticky-top hide-on-print" style="z-index: 1045;" x-ref="sticky_header">
                 {% block full_page_top_navigation %}
                     {% include 'django_spire/navigation/top_navigation.html' %}
                 {% endblock %}
@@ -159,11 +171,10 @@
             <div class="row flex-grow-1 g-0">
                 <div
                     :class="is_narrow_viewport ? '' : 'position-relative col-auto border-end border-app-primary bg-app-layer-one'"
-                    :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', left: '0', top: '0', zIndex: 1040 } : (sub_nav_has_been_resized ? { width: sub_nav_width + 'px', minWidth: sub_nav_width + 'px', maxWidth: sub_nav_width + 'px' } : { minWidth: sub_nav_min_width + 'px' })"
+                    :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', left: '0', top: '0', zIndex: 1050 } : (sub_nav_has_been_resized ? { width: sub_nav_width + 'px', minWidth: sub_nav_width + 'px', maxWidth: sub_nav_width + 'px' } : { minWidth: sub_nav_min_width + 'px' })"
                     x-cloak
                     x-ref="sub_nav_container"
                     x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
-                    x-transition
                 >
                     <div
                         :style="is_narrow_viewport ? { height: '100dvh' } : {}"
@@ -222,10 +233,9 @@
 
                 <div
                     :class="is_narrow_viewport ? '' : 'position-relative col-auto border-start border-app-primary bg-app-layer-one'"
-                    :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', right: '0', top: '0', zIndex: 1040 } : { width: info_nav_width + 'px', minWidth: info_nav_width + 'px', maxWidth: info_nav_width + 'px', marginLeft: '-' + info_nav_width + 'px', zIndex: 1040 }"
+                    :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', right: '0', top: '0', zIndex: 1050 } : { width: info_nav_width + 'px', minWidth: info_nav_width + 'px', maxWidth: info_nav_width + 'px', marginLeft: '-' + info_nav_width + 'px' }"
                     x-cloak
                     x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
-                    x-transition
                 >
                     <div
                         :style="is_narrow_viewport ? { height: '100dvh' } : {}"

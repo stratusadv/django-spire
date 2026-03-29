@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.29.12
+
+### Fixes
+- CSS fixes for side/info navigation and command bar
+
+### Changes
+- Added a `flush` command to truncate and cascade databases
+- Added a `HtmlRendererClient` for re-use across projects
+
 ## v0.29.11
 
 ### Fixes
