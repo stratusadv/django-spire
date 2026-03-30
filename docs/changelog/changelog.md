@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.29.13
+
+### Fixes
+- Fix z-index on top navigation bar and notification element
+
 ## v0.29.12
 
 ### Fixes
