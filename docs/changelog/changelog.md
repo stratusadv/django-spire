@@ -4,7 +4,7 @@
 ## v0.29.13
 
 ### Changes
-- Added `{{ block container_subtitle }}` to the container component to allow for additional information below the title.
+- Added condition to `{{ block container_button  }}` to hide it in the container.
 - Added parameters to the humanized duration function to control the minimum unit and the number of units displayed.
 
 ## v0.29.12

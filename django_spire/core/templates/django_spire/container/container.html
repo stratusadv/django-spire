@@ -3,24 +3,17 @@
         {% block container_header_content %}
             <div class="row justify-content-between align-items-end px-md-3 py-2">
                 <div class="col">
-                    <div class="row">
-                        <div class="col-12">
-                            <h1 class="{% block container_title_class %}fs-1 fw-semi-bold{% endblock %}">
-                                {% block container_title %}
-                                {% endblock %}
-                            </h1>
-                        </div>
-                        <div class="col-12 text-app-secondary-opacity-90">
-                            {% block container_subtitle %}{% endblock %}
-                        </div>
-                    </div>
+                    <h1 class="{% block container_title_class %}fs-1 fw-semi-bold{% endblock %}">
+                        {% block container_title %}
+                        {% endblock %}
+                    </h1>
                 </div>
 
                 {% if not hide_button %}
-                    <div class="col-auto">
-                        {% block container_button %}
-                        {% endblock %}
-                    </div>
+                <div class="col-auto">
+                    {% block container_button %}
+                    {% endblock %}
+                </div>
                 {% endif %}
             </div>
         {% endblock %}

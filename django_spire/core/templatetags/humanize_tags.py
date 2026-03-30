@@ -25,7 +25,7 @@ def humanize_duration(
         amount: float,
         start_unit: str = 'second',
         min_unit: str = 'second',
-        included_units: list[str] = list[str],
+        included_units: list[str] | None = None,
 ) -> str:
     if not amount or amount == 0:
         return 'N/A'
