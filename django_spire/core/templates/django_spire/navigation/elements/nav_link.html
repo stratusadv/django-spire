@@ -1,5 +1,6 @@
 <a
     class="d-flex align-items-center rounded-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation ds-fs-9 {{ link_class }}"
+    href="{{ link_url }}"
     {% if not disable_overlay %}
     x-data="{
         current_path: '{{ request.path }}',
@@ -34,10 +35,9 @@
         'justify-content-center px-0': collapsed,
         'gap-2 px-3': !collapsed
     }"
-    @click="redirect()"
+    @click.prevent="redirect()"
     x-init="$dispatch('accordion-link', { url_path: link_path })"
     {% else %}
-    href="{{ link_url }}"
     :class="{
         'justify-content-center px-0': collapsed,
         'gap-2 px-3': !collapsed

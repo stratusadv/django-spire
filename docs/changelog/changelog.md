@@ -1,12 +1,52 @@
-
-
 # Changelog
 
-## v0.29.7
+
+## v0.29.13
 
 ### Changes
 - Added `{{ block container_subtitle }}` to the container component to allow for additional information below the title.
 - Added parameters to the humanized duration function to control the minimum unit and the number of units displayed.
+
+## v0.29.12
+
+### Fixes
+- CSS fixes for side/info navigation and command bar
+
+### Changes
+- Added a `flush` command to truncate and cascade databases
+- Added a `HtmlRendererClient` for re-use across projects
+
+## v0.29.11
+
+### Fixes
+- Moved card background coloring css from card-body to card to fix card rounded corner covered issue.
+
+## v0.29.10
+
+### Fixes
+- Fixed missing css classes in non-default theme css files.
+
+## v0.29.9
+
+### Changes
+- A smoother page load when loading a page that contains table.
+- A table column that is being sorted changes its text color.
+
+### Fixes
+- Prevent tapping/clicking from passing through the mobile navigation onto the background page/elements.
+- Prevent table column(s) from shifting when sorting a column or loading a page.
+- Allow the user to scroll the main page when the user is at the top or bottom of a scrollable container.
+- Fix the scrollbar width and gutter on Chromium-based browsers to account for a scrollbar.
+
+## v0.29.8
+
+### Changes
+- Added ability to dispatch `refresh-scroll` event to fresh all scrollable containers on the page.
+
+## v0.29.7
+
+### Changes
+- Added an optional `{{ trigger_icon }}` to `tab_trigger_element.html` for displaying icons to the left of the tab name.
 
 ## v0.29.6
 

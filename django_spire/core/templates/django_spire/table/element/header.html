@@ -1,8 +1,9 @@
 <th
     data-breakpoint="{{ breakpoint|default:'' }}"
     {% if sort_key %}@click="sort_by('{{ sort_key }}')"{% endif %}
+    {% if sort_key %}:class="sort_column === '{{ sort_key }}' ? 'text-app-primary' : ''"{% endif %}
     class="{% if sort_key %}cursor-pointer{% endif %} {% if breakpoint and responsive_mode != 'scroll' %}d-none d-{{ breakpoint }}-table-cell{% endif %} user-select-none {{ extra_class|default:'' }}"
-    style="{{ style|default:'' }}"
+    style="white-space: nowrap; {{ style|default:'' }}"
     x-init="let index = Array.from($el.parentElement.children).indexOf($el); $dispatch('header-registered', { index: index, breakpoint: '{{ breakpoint|default:'' }}' || null });"
 >
     {{ label }} {% if sort_key %}<i :class="get_sort_icon('{{ sort_key }}')" class="bi"></i>{% endif %}
