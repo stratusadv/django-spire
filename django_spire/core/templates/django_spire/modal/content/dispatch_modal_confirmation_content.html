@@ -1,0 +1,32 @@
+{% extends 'django_spire/modal/content/modal_title_content.html' %}
+
+{% block modal_content_title %}
+	{{ form_title|truncatechars:75 }}
+{% endblock %}
+
+{% block modal_content_content %}
+    <form
+        action="{{ form_action }}"
+        method="post"
+        x-data="{
+            should_confirm: new GlueCharField('should_confirm', {
+                value: true,
+                hidden: true
+            })
+        }"
+    >
+        {% csrf_token %}
+
+        {{ form_description }}
+
+        {% include 'django_glue/form/field/input_field.html' with glue_field='should_confirm' %}
+
+        <div class="d-flex mt-3">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text='Confirm' button_class='btn-app-primary shadow-sm' %}
+
+            <span class="ms-2" @click="close_modal()">
+                {% include 'django_spire/button/secondary_button.html' with button_text='Cancel' button_class='btn' %}
+            </span>
+        </div>
+    </form>
+{% endblock %}
