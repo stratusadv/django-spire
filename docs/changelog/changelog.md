@@ -1,11 +1,16 @@
 # Changelog
 
+## v0.29.14
+
+### Changes
+- Added optional template variable `hide_button` for `container.html` to hide container button is present.
+- Added `humanize_duration_compact` template tag to allow for short form duration humanization
+- Made generic `format_duration` utility function (called by `humanize_duration` and `humanize_duration_compact`) for easy access across projects for consistent duration displays.
 
 ## v0.29.13
 
-### Changes
-- Added condition to `{{ block container_button  }}` to hide it in the container.
-- Added parameters to the humanized duration function to control the minimum unit and the number of units displayed.
+### Fixes
+- Fix z-index on top navigation bar and notification element
 
 ## v0.29.12
 

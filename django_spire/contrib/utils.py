@@ -15,20 +15,9 @@ def format_duration(
         is_short_form: bool = False,
 ) -> str:
     """
-    Converts duration into a readable format.
-
-    Example:
-        >>> format_duration(3662)
-        '1 hour, 1 minute, 2 seconds'
-        >>> format_duration(3661, is_short_form=True)
-        '1h 1m 1s'
-        >>> format_duration(3661, min_unit='m', is_short_form=True)
-        '1h 1m'
-        >>> format_duration(1.5, start_unit='day', included_units=['hour'])
-        '36 hours'
-        >>> format_duration(1.5, start_unit='day', included_units=['hour'], is_short_form=True)
-        '36h'
+    Converts duration into a readable format. (ex. 1h 15m or 1 hour 15 minutes)
     """
+
     if not amount or amount == 0:
         return 'N/A'
 
