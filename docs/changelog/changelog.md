@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.29.14
+
+### Changes
+- Added optional template variable `hide_button` for `container.html` to hide container button is present.
+- Added `humanize_duration_compact` template tag to allow for short form duration humanization
+- Made generic `format_duration` utility function (called by `humanize_duration` and `humanize_duration_compact`) for easy access across projects for consistent duration displays.
+
 ## v0.29.13
 
 ### Fixes
