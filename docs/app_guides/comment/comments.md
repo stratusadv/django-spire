@@ -48,9 +48,7 @@ class BlogPost(CommentModelMixin):
 Add the comment list card to your detail page template, passing the model instance as `obj`:
 
 ```html
-<div class="col-12 col-xl-6">
-    { include 'django_spire/comment/card/comment_list_card.html' with obj=blog_post }
-</div>
+--8<-- "docs/app_guides/comment/templates/comment_list_card.html"
 ```
 
 That's it — the card handles rendering, creation, editing, and deletion.

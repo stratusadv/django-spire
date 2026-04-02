@@ -1,0 +1,41 @@
+{% load pagination_tags %}
+
+{% for order in page.object_list %}
+    {% include 'orders/item/order_item.html' %}
+{% endfor %}
+
+{% if page.has_other_pages %}
+    {% get_elided_page_range page as page_range %}
+
+    <nav>
+        <ul class="pagination">
+            {% if page.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{% pagination_url page.previous_page_number %}">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for page_number in page_range %}
+                {% if page_number == page.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_number }}</span>
+                    </li>
+                {% elif page_number == '...' %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&hellip;</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% pagination_url page_number %}">{{ page_number }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{% pagination_url page.next_page_number %}">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}

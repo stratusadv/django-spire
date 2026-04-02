@@ -42,17 +42,6 @@ nav:
       - Comment:
           - Comments: app_guides/comment/comments.md
           - Tagging: app_guides/comment/tagging.md
-      - Contrib:
-          - Admin: app_guides/contrib/admin.md
-          - Breadcrumbs: app_guides/contrib/breadcrumbs.md
-          - Choices: app_guides/contrib/choices.md
-          - JSON Responses: app_guides/contrib/json_responses.md
-          - Changelog: app_guides/contrib/changelog.md
-      - Core:
-          - Shortcuts: app_guides/core/shortcuts.md
-          - Filtering: app_guides/core/filtering.md
-          - GlueHelpers: app_guides/core/glue_helpers.md
-          - PWA Installation: app_guides/core/pwa_installation.md
       - Help Desk:
           - Tickets: app_guides/help_desk/tickets.md
           - Notifications: app_guides/help_desk/notifications.md
@@ -75,8 +64,23 @@ nav:
           - Faker: app_guides/seeding/faker.md
       - Service Layer:
           - Overview: app_guides/service/overview.md
+  - Contrib:
+      - Admin: app_guides/contrib/admin.md
+      - Breadcrumbs: app_guides/contrib/breadcrumbs.md
+      - Choices: app_guides/contrib/choices.md
+      - JSON Responses: app_guides/contrib/json_responses.md
+      - Changelog: app_guides/contrib/changelog.md
+      - HTML Renderer: app_guides/contrib/html_renderer.md
+      - Pagination: app_guides/contrib/pagination.md
+      - Progress: app_guides/contrib/progress.md
+      - QuerySet Utilities: app_guides/contrib/queryset.md
+  - Core:
+      - Filtering: app_guides/core/filtering.md
+      - Glue Helpers: app_guides/core/glue_helpers.md
+      - PWA Installation: app_guides/core/pwa_installation.md
+      - Shortcuts: app_guides/core/shortcuts.md
   - Components:
-      - Accordion: components/accordian.md
+      - Accordion: components/accordion.md
       - Badge: components/badge.md
       - Button: components/button.md
       - Card: components/card.md
@@ -102,6 +106,9 @@ nav:
       - Archived: changelog/archived_changelog.md
   - About:
       - Contributors: about/contributors.md
+
+exclude_docs: |
+  TEMPLATE_DOC.md
 
 plugins:
   - gen-files:

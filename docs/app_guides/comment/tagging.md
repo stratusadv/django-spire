@@ -84,8 +84,7 @@ Names are returned with spaces replaced by underscores to match the `@mention` f
 The `user_list_from_content_type` template tag retrieves taggable users directly in a template:
 
 ```html
-{ load comment_tags }
-{ user_list_from_content_type blog_post as taggable_users }
+--8<-- "docs/app_guides/comment/templates/tagging_template_tag.html"
 ```
 
 The result can then be passed to the comment form or widget.
