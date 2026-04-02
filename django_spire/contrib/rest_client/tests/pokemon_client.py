@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import TYPE_CHECKING, Optional, ClassVar
+from typing import Optional, ClassVar
 
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ class BasePokemonClient(BaseRestApiClient[TDefaultResponseSchema], ABC):
 class PokemonClient(BasePokemonClient['Pokemon']):
     _base_url_path = 'pokemon'
 
-    def by_id(self, id_or_name: str) -> 'Pokemon':
+    def by_id(self, id_or_name: str) -> 'PokemonRestSchema':
         return self._get(id_or_name).to_single_obj()
 
     def location_area_encounters_by_pokemon_id(self, id_or_name: str) -> list['LocationAreaEncounter']:
@@ -75,7 +75,7 @@ class LocationAreaEncounter(BaseModel):
     version_details: list['VersionEncounterDetail']
 
 
-class Pokemon(BaseModel):
+class PokemonRestSchema(BaseModel):
     id: int
     name: str
     base_experience: Optional[int] = None
@@ -90,6 +90,8 @@ class Pokemon(BaseModel):
     sprites: PokemonSprites
 
     api: ClassVar = PokemonClient()
+
+
 
     def location_area_encounters(self) -> list['LocationAreaEncounter']:
         return self.api.location_area_encounters_by_pokemon_id(f'{self.id}')
