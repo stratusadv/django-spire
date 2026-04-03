@@ -157,11 +157,16 @@ class RestQuerySet(Generic[TSchema]):
             return clone
         raise TypeError(f"Invalid index type: {type(key)}")
 
+    def add_prefetch_params(
+        self,
+        **kwargs,
+    ) -> RestQuerySet[TSchema]:
+        return self._clone(_request_params=kwargs)
+
     def all(
         self,
-        **kwargs
     ) -> RestQuerySet[TSchema]:
-        return self._clone(client_kwargs=kwargs)
+        return self._clone()
 
     def filter(
         self,

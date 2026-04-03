@@ -63,7 +63,7 @@ class PokemonClient(RestModelClient[PokemonRestModel]):
         return PokemonRestModel(**response.json())
 
     def fetch_many(self, **request_params) -> list[PokemonRestModel]:
-        response = self.get(params=request_params)
+        response = self.get(params={'limit': 4} | request_params)
         data = response.json()
 
         return [self.fetch_one(id_or_name=result['name']) for result in data['results']]
