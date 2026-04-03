@@ -1,0 +1,88 @@
+
+from __future__ import annotations
+
+import inspect
+import urllib.parse
+from abc import ABC
+
+import requests
+from django.core.exceptions import ImproperlyConfigured
+from requests.auth import AuthBase
+
+
+class BaseHttpClient(ABC):
+    pass
+
+
+class RestHttpClient(BaseHttpClient, ABC):
+    base_url: str
+    base_path: str = ''
+    base_headers: dict[str, str] = {}
+    auth: AuthBase | None = None
+    timeout: int = 30
+
+    def __init_subclass__(cls, **kwargs):
+        if not inspect.isabstract(cls):
+            required_attributes = ['base_url']
+            for attribute in required_attributes:
+                if getattr(cls, attribute, None) is None:
+                    message = f'{attribute} is required'
+                    raise ImproperlyConfigured(message)
+
+            cls._validate_url(cls.base_url)
+
+    def __init__(self):
+        self._validate_url(self.base_url)
+
+    @staticmethod
+    def _validate_url(url: str) -> None:
+        result = urllib.parse.urlparse(url)
+        if not all([result.scheme, result.netloc]):
+            raise ValueError(f'Invalid URL: {url}')
+
+    def _build_url(self, path: str | None = None) -> str:
+        parts = [self.base_url]
+
+        if self.base_path:
+            parts.append(self.base_path)
+
+        if path:
+            parts.append(path.strip('/'))
+
+        return '/'.join(parts)
+
+    def request(
+        self,
+        method: str,
+        path: str | None = None,
+        headers: dict[str, str] | None = None,
+        **kwargs,
+    ) -> requests.Response:
+        merged_headers = {**self.base_headers, **(headers or {})}
+
+        response = requests.request(
+            method=method,
+            url=self._build_url(path),
+            headers=merged_headers,
+            auth=self.auth,
+            timeout=self.timeout,
+            **kwargs,
+        )
+
+        response.raise_for_status()
+        return response
+
+    def get(self, path: str | None = None, **kwargs) -> requests.Response:
+        return self.request('GET', path, **kwargs)
+
+    def post(self, path: str | None = None, **kwargs) -> requests.Response:
+        return self.request('POST', path, **kwargs)
+
+    def put(self, path: str | None = None, **kwargs) -> requests.Response:
+        return self.request('PUT', path, **kwargs)
+
+    def patch(self, path: str | None = None, **kwargs) -> requests.Response:
+        return self.request('PATCH', path, **kwargs)
+
+    def delete(self, path: str | None = None, **kwargs) -> requests.Response:
+        return self.request('DELETE', path, **kwargs)
