@@ -1,11 +1,16 @@
 # Changelog
 
-## v0.29.13
+## v0.29.14
 
 ### Change
 - Added `dispatch_confirmation_modal_form_content` to handle general confirmation logic, such as "Mark as Completed" actions.
 - Added a generic `ConfirmationForm` template for standardized user confirmations.
 - Added tests for `ConfirmationForm` and views.
+
+## v0.29.13
+
+### Fixes
+- Fix z-index on top navigation bar and notification element
 
 ## v0.29.12
 
