@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class ConfirmationForm(forms.Form):
-    should_confirm = forms.BooleanField(required=False)
+    should_confirm = forms.BooleanField(required=False, initial=False)
 
     def __init__(self, *args, obj = None, field = [], **kwargs):
         if obj is None:
@@ -24,14 +24,12 @@ class ConfirmationForm(forms.Form):
         self,
         user: User,
         verbs: tuple,
+        confirmation_func: Callable | None = None,
         activity_func: Callable | None = None,
         auto_add_activity: bool = True,
-        data: dict = None,
     ):
-        if data:
-            for field, value in data.items():
-                setattr(self.obj, field, value)
-            self.obj.save()
+        if confirmation_func is not None:
+            confirmation_func()
 
         if activity_func is not None:
             activity_func()
@@ -44,7 +42,7 @@ class ConfirmationForm(forms.Form):
 
 
 class DeleteConfirmationForm(forms.Form):
-    should_delete = forms.BooleanField(required=False)
+    should_delete = forms.BooleanField(required=False, initial=False)
 
     def __init__(self, *args, obj = None, **kwargs):
         if obj is None:
@@ -62,7 +60,6 @@ class DeleteConfirmationForm(forms.Form):
         delete_func: Callable | None = None,
         activity_func: Callable | None = None,
         auto_add_activity: bool = True,
-        data: dict = None,
     ) -> None:
         if delete_func is not None:
             delete_func()
