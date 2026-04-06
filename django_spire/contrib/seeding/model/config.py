@@ -2,11 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.conf import settings
+
 from django_spire.contrib.seeding.field.cleaners import normalize_seeder_fields
 from django_spire.contrib.seeding.model.enums import ModelSeederDefaultsEnum
 
 if TYPE_CHECKING:
     from typing import Any, Self
+
+
+def _use_llm() -> bool:
+    return getattr(settings, 'SEEDING_USE_LLM', True)
 
 
 class FieldsConfig:
@@ -22,6 +28,9 @@ class FieldsConfig:
         self.field_names = set(field_names)
         self.model_class = model_class
 
+        if not _use_llm():
+            self.default_to = self._remap_default(self.default_to)
+
         self._excluded = {
             k for k, v in self.raw_fields.items()
             if v in ("exclude", ("exclude",))
@@ -31,11 +40,25 @@ class FieldsConfig:
             k: v for k, v in self.raw_fields.items() if k not in self._excluded
         })
 
+        if not _use_llm():
+            self._remap_llm_to_faker()
+
         self._validate()
         self._assign_defaults()
 
         # Fields need to be in order for caching hash
         self._order_fields()
+
+    def _remap_default(self, default_to: str) -> str:
+        if default_to == ModelSeederDefaultsEnum.LLM:
+            return ModelSeederDefaultsEnum.FAKER
+
+        return default_to
+
+    def _remap_llm_to_faker(self) -> None:
+        for k, v in self.fields.items():
+            if isinstance(v, tuple) and v[0] == 'llm':
+                self.fields[k] = ('faker',)
 
     def _validate(self) -> None:
         unknown = set(self.fields.keys()) - self.field_names
