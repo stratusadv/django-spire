@@ -1,131 +1,168 @@
-import pytest
+"""
+Tests for RestQuerySet using DummyJSON Users API.
+"""
+from django.test import TestCase
 
-from django_spire.contrib.rest.tests.example_pokemon import (
-    PokemonClient,
+from django_spire.contrib.rest.tests.example_users import (
+    DummyJsonUserClient,
 )
 from django_spire.contrib.rest.queryset import RestQuerySet
 
 
-class TestRestSchemaQuerySet:
-    def test_queryset_iteration(self):
-        pokemon_list = list(PokemonClient.objects)
+class TestRestSchemaQuerySet(TestCase):
+    """Test RestQuerySet functionality with DummyJSON Users API."""
 
-        assert len(pokemon_list) <= 4
+    def test_queryset_iteration(self):
+        users = list(DummyJsonUserClient.objects.limit(5))
+
+        self.assertLessEqual(len(users), 5)
+        self.assertGreater(len(users), 0)
 
     def test_first(self):
-        pokemon = PokemonClient.objects.first()
+        user = DummyJsonUserClient.objects.first()
 
-        assert pokemon is not None
+        self.assertIsNotNone(user)
+        # First user should be Emily
+        self.assertEqual(user.firstName, "Emily")
 
     def test_last(self):
-        pokemon = PokemonClient.objects.last()
+        user = DummyJsonUserClient.objects.limit(5).last()
 
-        assert pokemon is not None
+        self.assertIsNotNone(user)
 
     def test_count(self):
-        count = PokemonClient.objects.count()
+        count = DummyJsonUserClient.objects.limit(10).count()
 
-        assert isinstance(count, int)
-        assert count <= 4
+        self.assertIsInstance(count, int)
+        self.assertEqual(count, 10)
 
     def test_exists(self):
-        assert PokemonClient.objects.exists() is True
+        self.assertTrue(DummyJsonUserClient.objects.exists())
 
     def test_chaining_returns_new_queryset(self):
-        qs1 = PokemonClient.objects
+        qs1 = DummyJsonUserClient.objects
         qs2 = qs1.filter(lambda x: True)
-        qs3 = qs2.order_by("name")
-        qs4 = qs3.limit(4)
+        qs3 = qs2.order_by("firstName")
+        qs4 = qs3.limit(5)
 
         # Each should be a new instance (immutability)
-        assert qs1 is not qs2
-        assert qs2 is not qs3
-        assert qs3 is not qs4
-        assert all(isinstance(q, RestQuerySet) for q in [qs1, qs2, qs3, qs4])
+        self.assertIsNot(qs1, qs2)
+        self.assertIsNot(qs2, qs3)
+        self.assertIsNot(qs3, qs4)
+        self.assertTrue(all(isinstance(q, RestQuerySet) for q in [qs1, qs2, qs3, qs4]))
 
     def test_filter_with_predicate(self):
-        qs = PokemonClient.objects
+        qs = DummyJsonUserClient.objects.limit(10)
 
-        # Filter to names starting with 'b'
-        filtered = list(qs.filter(lambda p: p.name.startswith('b')))
+        # Filter to names starting with 'M'
+        filtered = list(qs.filter(lambda u: u.firstName.startswith('M')))
 
-        assert all(p.name.startswith('b') for p in filtered)
+        self.assertTrue(all(u.firstName.startswith('M') for u in filtered))
+        self.assertGreater(len(filtered), 0)
 
     def test_filter_with_kwargs(self):
-        qs = PokemonClient.objects
+        qs = DummyJsonUserClient.objects.limit(10)
 
-        # Get first item and filter by its name
+        # Get first user and filter by username
         first = qs.first()
         if first:
-            filtered = list(qs.filter(name=first.name))
-            assert len(filtered) >= 1
-            assert filtered[0].name == first.name
+            filtered = list(qs.filter(username=first.username))
+            self.assertGreaterEqual(len(filtered), 1)
+            self.assertEqual(filtered[0].username, first.username)
 
     def test_limit(self):
-        pokemon_list = list(PokemonClient.objects.limit(2))
+        users = list(DummyJsonUserClient.objects.limit(3))
 
-        assert len(pokemon_list) <= 2
+        self.assertEqual(len(users), 3)
 
     def test_offset(self):
-        all_pokemon = list(PokemonClient.objects)
-        offset_pokemon = list(PokemonClient.objects.offset(1))
+        all_users = list(DummyJsonUserClient.objects.limit(5))
+        offset_users = list(DummyJsonUserClient.objects.limit(5).offset(1))
 
         # offset(1) should skip the first result
-        if len(all_pokemon) > 1:
-            assert offset_pokemon[0].name == all_pokemon[1].name
+        if len(all_users) > 1:
+            self.assertEqual(offset_users[0].id, all_users[1].id)
 
     def test_order_by_ascending(self):
-        pokemon_list = list(PokemonClient.objects.order_by("name"))
+        users = list(DummyJsonUserClient.objects.limit(10).order_by("firstName"))
 
-        names = [p.name for p in pokemon_list]
-        assert names == sorted(names)
+        first_names = [u.firstName for u in users]
+        self.assertEqual(first_names, sorted(first_names))
 
     def test_order_by_descending(self):
-        pokemon_list = list(PokemonClient.objects.order_by("-name").limit(5))
+        users = list(DummyJsonUserClient.objects.limit(10).order_by("-firstName"))
 
-        names = [p.name for p in pokemon_list]
-        assert names == sorted(names, reverse=True)
+        first_names = [u.firstName for u in users]
+        self.assertEqual(first_names, sorted(first_names, reverse=True))
 
     def test_values_list_flat(self):
-        names = PokemonClient.objects.values_list("name", flat=True)
+        usernames = DummyJsonUserClient.objects.limit(5).values_list("username", flat=True)
 
-        assert isinstance(names, list)
-        assert all(isinstance(n, str) for n in names)
-        assert len(names) <= 3
+        self.assertIsInstance(usernames, list)
+        self.assertTrue(all(isinstance(u, str) for u in usernames))
+        self.assertEqual(len(usernames), 5)
 
     def test_values_list_tuple(self):
-        values = PokemonClient.objects.values_list("name", "weight")
+        values = DummyJsonUserClient.objects.limit(5).values_list("firstName", "lastName")
 
-        assert isinstance(values, list)
-        assert all(isinstance(v, tuple) and len(v) == 2 for v in values)
+        self.assertIsInstance(values, list)
+        self.assertTrue(all(isinstance(v, tuple) and len(v) == 2 for v in values))
 
     def test_indexing(self):
-        client = PokemonClient()
-        first = PokemonClient.objects[0]
+        first = DummyJsonUserClient.objects.limit(10)[0]
 
-        assert first is not None
+        self.assertIsNotNone(first)
+        self.assertEqual(first.firstName, "Emily")
 
     def test_slicing(self):
-        sliced = PokemonClient.objects[0:3]
+        sliced = DummyJsonUserClient.objects[0:3]
 
-        assert isinstance(sliced, RestQuerySet)
+        self.assertIsInstance(sliced, RestQuerySet)
         results = list(sliced)
-        assert len(results) <= 3
+        self.assertLessEqual(len(results), 3)
 
     def test_complex_chain(self):
         """Test a complex chain of operations."""
-
         results = list(
-            PokemonClient.objects
-            .filter(lambda p: p.name is not None)
-            .order_by("name")
-            .limit(3)
+            DummyJsonUserClient.objects
+            .limit(20)
+            .filter(lambda u: u.firstName is not None)
+            .order_by("firstName")
+            .limit(5)
         )
 
-        assert isinstance(results, list)
-        assert len(results) <= 5
+        self.assertIsInstance(results, list)
+        self.assertLessEqual(len(results), 5)
 
         # Should be sorted
         if len(results) > 1:
-            names = [p.name for p in results]
-            assert names == sorted(names)
+            first_names = [u.firstName for u in results]
+            self.assertEqual(first_names, sorted(first_names))
+
+    def test_exclude(self):
+        """Test exclude functionality."""
+        all_users = list(DummyJsonUserClient.objects.limit(10))
+        excluded = list(DummyJsonUserClient.objects.limit(10).exclude(lambda u: u.firstName == "Emily"))
+
+        # Should have fewer users after excluding
+        self.assertLess(len(excluded), len(all_users))
+        # Emily should not be in the excluded list
+        self.assertTrue(all(u.firstName != "Emily" for u in excluded))
+
+    def test_get(self):
+        """Test get() method."""
+        qs = DummyJsonUserClient.objects.limit(10)
+
+        # Get by username
+        user = qs.get(username="emilys")
+
+        self.assertEqual(user.username, "emilys")
+        self.assertEqual(user.firstName, "Emily")
+
+    def test_all(self):
+        """Test all() method returns a new queryset."""
+        qs1 = DummyJsonUserClient.objects
+        qs2 = qs1.all()
+
+        self.assertIsNot(qs1, qs2)
+        self.assertIsInstance(qs2, RestQuerySet)

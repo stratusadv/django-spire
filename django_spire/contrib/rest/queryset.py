@@ -13,15 +13,15 @@ from django.db.models import Manager
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
-    from django_spire.contrib.rest.client.model import RestModelClient
+    from django_spire.contrib.rest.client.schema import RestSchemaClient
 
 TSchema = TypeVar('TSchema', bound=BaseModel)
 
 class RestQuerySet(Generic[TSchema]):
     def __init__(
         self,
-        client: RestModelClient,
-        rest_model_class: type[TSchema],
+        client: RestSchemaClient,
+        schema_class: type[TSchema],
         *,
         # Internal state for cloning
         _request_params: dict[str, Any] | None = None,
@@ -34,7 +34,7 @@ class RestQuerySet(Generic[TSchema]):
     ):
         self.client = client
         self._request_params = _request_params
-        self._rest_model_class = rest_model_class
+        self._schema_class = schema_class
 
         self._filters = _filters or []
         self._excludes = _excludes or []
@@ -50,7 +50,7 @@ class RestQuerySet(Generic[TSchema]):
         """Create a copy with optional overrides. Clears cache unless explicitly passed."""
         return RestQuerySet(
             client=self.client,
-            rest_model_class=self._rest_model_class,
+            schema_class=self._schema_class,
             _request_params=overrides.get('_request_params', self._request_params),
             _filters=overrides.get('_filters', list(self._filters)),
             _excludes=overrides.get('_excludes', list(self._excludes)),
@@ -65,17 +65,10 @@ class RestQuerySet(Generic[TSchema]):
         if self._cached_results is not None:
             return self._cached_results
 
-
-        start = time.perf_counter()
-
         if self._request_params:
             results = self.client.fetch_many(**self._request_params)
         else:
             results = self.client.fetch_many()
-
-        end = time.perf_counter()
-        elapsed = end - start
-        print(f"Query execution time: {elapsed:.6f} seconds")
 
         # Apply filters
         for fn in self._filters:
@@ -137,7 +130,7 @@ class RestQuerySet(Generic[TSchema]):
         return bool(self._evaluate())
 
     def __repr__(self) -> str:
-        return f"<RestSchemaQuerySet [{self._rest_model_class.__name__}]>"
+        return f"<RestSchemaQuerySet [{self._schema_class.__name__}]>"
 
     def __getitem__(self, key: int | slice) -> TSchema | RestQuerySet[TSchema]:
         if isinstance(key, int):
@@ -251,9 +244,9 @@ class RestQuerySet(Generic[TSchema]):
 
         results = list(self.filter(**kwargs) if kwargs else self)
         if len(results) == 0:
-            raise LookupError(f"No {self._rest_model_class.__name__} found")
+            raise LookupError(f"No {self._schema_class.__name__} found")
         if len(results) > 1:
-            raise LookupError(f"Multiple {self._rest_model_class.__name__} found")
+            raise LookupError(f"Multiple {self._schema_class.__name__} found")
         return results[0]
 
     def values_list(self, *fields: str, flat: bool = False) -> list[tuple] | list[Any]:

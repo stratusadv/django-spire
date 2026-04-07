@@ -1,56 +1,63 @@
 """
-Tests for the refactored REST client architecture.
+Tests for the REST client architecture using DummyJSON Users API.
 """
-import pytest
+from django.test import TestCase
 
-from django_spire.contrib.rest.tests.example_pokemon import (
-    PokemonClient,
-    PokemonRestModel,
+from django_spire.contrib.rest.tests.example_users import (
+    DummyJsonUserClient,
+    UserSchema,
 )
 from django_spire.contrib.rest.queryset import RestQuerySet
 
 
-class TestPokemonClient:
-    """Test the Pokemon client with the new architecture."""
+class TestDummyJsonUserClient(TestCase):
+    """Test the DummyJSON User client with the REST architecture."""
 
     def test_client_initialization(self):
-        client = PokemonClient()
-        assert client.base_url == 'https://pokeapi.co/api/v2'
-        assert client.base_path == 'pokemon'
+        client = DummyJsonUserClient()
+        self.assertEqual(client.base_url, 'https://dummyjson.com')
+        self.assertEqual(client.base_path, 'users')
 
-    def test_read_one_by_name(self):
-        client = PokemonClient()
-        pokemon = client.fetch_one("pikachu")
+    def test_fetch_one_by_id(self):
+        client = DummyJsonUserClient()
+        user = client.fetch_one(1)
 
-        assert isinstance(pokemon, PokemonRestModel)
-        assert pokemon.id == 25
-        assert pokemon.name == "pikachu"
-        assert pokemon.weight == 60
+        self.assertIsInstance(user, UserSchema)
+        self.assertEqual(user.id, 1)
+        self.assertEqual(user.firstName, "Emily")
+        self.assertEqual(user.lastName, "Johnson")
+        self.assertEqual(user.username, "emilys")
 
-    def test_read_one_by_id(self):
-        client = PokemonClient()
-        pokemon = client.fetch_one("25")
+    def test_fetch_one_different_user(self):
+        client = DummyJsonUserClient()
+        user = client.fetch_one(2)
 
-        assert isinstance(pokemon, PokemonRestModel)
-        assert pokemon.name == "pikachu"
+        self.assertIsInstance(user, UserSchema)
+        self.assertEqual(user.id, 2)
+        # User 2 should have different data than user 1
+        self.assertNotEqual(user.firstName, "Emily")
 
-    def test_pokemon_has_types(self):
-        client = PokemonClient()
-        pokemon = client.fetch_one("pikachu")
+    def test_fetch_many(self):
+        client = DummyJsonUserClient()
+        users = client.fetch_many(limit=5)
 
-        type_names = [t.type.name for t in pokemon.types]
-        assert "electric" in type_names
+        self.assertIsInstance(users, list)
+        self.assertEqual(len(users), 5)
+        self.assertTrue(all(isinstance(u, UserSchema) for u in users))
+        # First user should be Emily
+        self.assertEqual(users[0].firstName, "Emily")
 
-    def test_read_many(self):
-        client = PokemonClient()
-        pokemon_list = client.fetch_many(limit=5)
+    def test_fetch_many_with_skip(self):
+        client = DummyJsonUserClient()
+        users = client.fetch_many(limit=3, skip=2)
 
-        assert isinstance(pokemon_list, list)
-        assert len(pokemon_list) <= 5
-        assert all(isinstance(p, PokemonRestModel) for p in pokemon_list)
+        self.assertIsInstance(users, list)
+        self.assertEqual(len(users), 3)
+        # Should start from user ID 3 (skipping first 2)
+        self.assertEqual(users[0].id, 3)
 
-    def test_get_queryset(self):
-        client = PokemonClient()
+    def test_objects_descriptor(self):
+        client = DummyJsonUserClient()
         qs = client.objects
 
-        assert isinstance(qs, RestQuerySet)
+        self.assertIsInstance(qs, RestQuerySet)
