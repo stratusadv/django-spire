@@ -9,10 +9,12 @@
                     </h1>
                 </div>
 
+                {% if not hide_button %}
                 <div class="col-auto">
                     {% block container_button %}
                     {% endblock %}
                 </div>
+                {% endif %}
             </div>
         {% endblock %}
 
