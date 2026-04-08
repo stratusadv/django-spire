@@ -20,15 +20,15 @@ def list_items_view(request: WSGIRequest):
 
     # Code in Service Above
 
-    # pirate_rest_schemas = PirateRestSchema.objects.all()
-    # pirate_hat_rest_schemas = pirate_rest_schemas.hats.all()
-    #
-    # for pirate in pirates:
-    #     pirate.hat_type = pirate_hat_rest_schemas.get(id=pirate.pk).hat_type
-    #     pirate.save()
-    #
-    #     pirate_rest_schema = pirate.to_rest_schema()
-    #     pirate_rest_schema.save()
+    pirate_rest_schemas = PirateRestSchema.objects.all()
+    pirate_hat_rest_schemas = pirate_rest_schemas.hats.all()
+
+    for pirate in pirates:
+        pirate.hat_type = pirate_hat_rest_schemas.get(id=pirate.pk).hat_type
+        pirate.save()
+
+        pirate_rest_schema = pirate.to_rest_schema()
+        pirate_rest_schema.save()
 
 
     return portal_views.infinite_scrolling_view(

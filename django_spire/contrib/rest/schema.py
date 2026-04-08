@@ -47,6 +47,11 @@ class RestSchema(BaseModel, Generic[TModel]):
         pass
 
     @classmethod
+    @property
+    def rest_client(cls) -> RestClient:
+        return cls.objects.rest_client
+
+    @classmethod
     def __pydantic_init_subclass__(cls, **kwargs):
         super().__pydantic_init_subclass__(**kwargs)
         # Build merged meta options
