@@ -10,7 +10,26 @@ if TYPE_CHECKING:
 
 
 def list_items_view(request: WSGIRequest):
-    pirates = Pirate.schema.objects.all()
+    pirates = Pirate.objects.all()
+
+    pirate_rest_schemas = PirateRestSchema.objects.all()
+    pirate_hat_schemas = PirateHatRestSchema.objects.all()
+    pirate_sword_schemas = PirateSwordRestSchema.objects.all()
+
+    Pirate.services.processor.update_hat_type()
+
+    # Code in Service Above
+
+    # pirate_rest_schemas = PirateRestSchema.objects.all()
+    # pirate_hat_rest_schemas = pirate_rest_schemas.hats.all()
+    #
+    # for pirate in pirates:
+    #     pirate.hat_type = pirate_hat_rest_schemas.get(id=pirate.pk).hat_type
+    #     pirate.save()
+    #
+    #     pirate_rest_schema = pirate.to_rest_schema()
+    #     pirate_rest_schema.save()
+
 
     return portal_views.infinite_scrolling_view(
         request,

@@ -18,8 +18,6 @@ class Pirate(ActivityMixin, HistoryModelMixin):
 
     services = PirateService()
 
-    schema = PirateSchema
-
     class Meta:
         verbose_name = "Pirate"
         verbose_name_plural = "Pirates"
