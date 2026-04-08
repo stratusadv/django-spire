@@ -18,6 +18,6 @@
 #    users = UserClient.objects.all()
 
 from django_spire.contrib.rest.schema import RestSchema
-from django_spire.contrib.rest.queryset import RestSchemaSet
+from django_spire.contrib.rest.schemaset import RestSchemaSet
 
 __all__ = ['RestSchema', 'RestSchemaSet']

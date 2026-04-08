@@ -5,7 +5,7 @@ from typing import TypeVar, Generic, get_args, get_origin
 
 from pydantic import BaseModel
 
-from django_spire.contrib.rest.queryset import RestSchemaSet
+from django_spire.contrib.rest.schemaset import RestSchemaSet
 from django_spire.contrib.rest.client.http import BaseRestHttpClient
 
 

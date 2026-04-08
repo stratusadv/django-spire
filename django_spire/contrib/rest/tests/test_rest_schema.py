@@ -4,7 +4,7 @@ Tests for the new RestSchema class.
 from django.test import TestCase
 
 from django_spire.contrib.rest.schema import RestSchema
-from django_spire.contrib.rest.queryset import RestSchemaSet
+from django_spire.contrib.rest.schemaset import RestSchemaSet
 
 
 class UserSchema(RestSchema):

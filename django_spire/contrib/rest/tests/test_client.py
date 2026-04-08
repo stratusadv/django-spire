@@ -4,7 +4,7 @@ Tests for the REST client architecture using RestSchema with DummyJSON Users API
 from django.test import TestCase
 
 from django_spire.contrib.rest.tests.example_users import UserSchema
-from django_spire.contrib.rest.queryset import RestSchemaSet
+from django_spire.contrib.rest.schemaset import RestSchemaSet
 
 
 class TestRestSchemaClient(TestCase):

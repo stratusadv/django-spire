@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from django_spire.contrib.rest.client.http import BaseRestHttpClient
 
 if TYPE_CHECKING:
-    from django_spire.contrib.rest.queryset import RestSchemaSet
+    from django_spire.contrib.rest.schemaset import RestSchemaSet
 
 TSchema = TypeVar('TSchema', bound='RestSchema')
 TModel = TypeVar('TModel', bound='BaseModel')
@@ -31,7 +31,7 @@ class RestSchemaManager(Generic[TSchema]):
     def __get__(self, obj: TSchema, owner: type[TSchema]) -> RestSchemaSet[TSchema]: ...
 
     def __get__(self, obj, owner: type[TSchema]) -> RestSchemaSet[TSchema]:
-        from django_spire.contrib.rest.queryset import RestSchemaSet
+        from django_spire.contrib.rest.schemaset import RestSchemaSet
         return RestSchemaSet(schema_class=owner)
 
 

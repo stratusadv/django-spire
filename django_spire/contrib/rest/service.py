@@ -10,7 +10,7 @@ from django_spire.contrib.constructor import BaseDjangoModelConstructor
 
 if TYPE_CHECKING:
     from django_spire.contrib.rest import RestSchema
-    from django_spire.contrib.rest.queryset import RestSchemaSet
+    from django_spire.contrib.rest.schemaset import RestSchemaSet
 
 
 TModel = TypeVar('TModel', bound=Model)
