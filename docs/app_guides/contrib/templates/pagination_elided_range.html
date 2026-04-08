@@ -1,0 +1,9 @@
+{% get_elided_page_range page as page_range %}
+
+{% for page_number in page_range %}
+    {% if page_number == '...' %}
+        <span>&hellip;</span>
+    {% else %}
+        <a href="{% pagination_url page_number %}">{{ page_number }}</a>
+    {% endif %}
+{% endfor %}

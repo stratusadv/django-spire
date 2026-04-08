@@ -1,0 +1,11 @@
+{% extends 'django_spire/auth/element/ios_app_install_element.html' %}
+
+{% load static %}
+
+{% block app_icon %}{% static 'myapp/favicon/android-chrome-192x192.png' %}{% endblock %}
+
+{% block alt_text %}My App{% endblock %}
+
+{% block modal_trigger %}
+    {% include 'django_spire/auth/button/ios_install_button.html' with button_type='btn-app-primary-outlined' %}
+{% endblock %}

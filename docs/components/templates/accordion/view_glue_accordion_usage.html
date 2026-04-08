@@ -1,0 +1,14 @@
+{% extends 'django_spire/accordion/view_glue_accordion.html' %}
+
+{% block view_url %}{% url 'myapp:order:detail_content' pk=order.pk %}{% endblock %}
+
+{% block accordion_toggle %}
+    <div
+        @click="render_or_toggle_show()"
+        class="d-flex justify-content-between align-items-center px-3 py-2"
+        style="cursor: pointer;"
+    >
+        <span class="fw-semibold">Order #{{ order.pk }}</span>
+        <i class="bi" :class="show ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </div>
+{% endblock %}

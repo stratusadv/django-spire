@@ -1,0 +1,14 @@
+{% extends 'django_spire/accordion/accordion.html' %}
+
+{% block accordion_toggle %}
+    <div class="d-flex justify-content-between align-items-center px-3 py-2">
+        <span class="fw-semibold">Project Overview</span>
+        <i class="bi" :class="show_accordion ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </div>
+{% endblock %}
+
+{% block accordion_content %}
+    <div class="px-3 py-2 border-top">
+        Your accordion content goes here.
+    </div>
+{% endblock %}
