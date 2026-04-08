@@ -1,0 +1,23 @@
+<div
+    class="row g-2"
+    x-data="{
+        async init() {
+            await this.task.get();
+        },
+
+        task: new ModelObjectGlue('task')
+    }"
+>
+    <div class="col-12">
+        {% include 'django_glue/form/field/char_field.html' with glue_model_field='task.name' %}
+    </div>
+    <div class="col-12">
+        {% include 'django_glue/form/field/text_field.html' with glue_model_field='task.description' %}
+    </div>
+    <div class="col-12">
+        {% include 'django_glue/form/field/select_field.html' with glue_model_field='task.status' %}
+    </div>
+    <div class="col-12 pt-4">
+        {% include 'core/form/form_submit_button.html' %}
+    </div>
+</div>

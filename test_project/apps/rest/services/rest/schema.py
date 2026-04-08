@@ -1,18 +1,15 @@
-from pydantic import BaseModel
+from django_spire.contrib.rest import RestSchema
 
 
-class UserSchema(BaseModel):
-    """Schema for DummyJSON User API."""
+class PirateSchema(RestSchema):
+    """Schema for DummyJSON User API (mapped as Pirates)."""
     id: int
     firstName: str
     lastName: str
     email: str
     username: str
 
-
-class UsersListResponseSchema(BaseModel):
-    """Response schema for /users endpoint."""
-    users: list[UserSchema]
-    total: int
-    skip: int
-    limit: int
+    class Meta:
+        base_url = 'https://dummyjson.com'
+        base_path = 'users'
+        results_key = 'users'

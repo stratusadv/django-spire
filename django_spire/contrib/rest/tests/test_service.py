@@ -7,7 +7,6 @@ from django.test import TestCase
 
 from django_spire.contrib.rest.service import BaseRestService
 from django_spire.contrib.rest.tests.example_users import (
-    DummyJsonUserClient,
     UserSchema, UserRestService, UserRestServiceWithMapping,
 )
 
@@ -36,9 +35,8 @@ class TestBaseRestService(TestCase):
         assert schema.username == "emilys"
 
     def test_schema_to_model_new(self):
-        # Fetch real user data from API
-        client = DummyJsonUserClient()
-        schema = client.fetch_one(1)
+        # Fetch real user data from API via schema
+        schema = UserSchema.fetch_one(1)
 
         temp_user = User(id=999, username="temp")
         service = UserRestService(temp_user)
@@ -58,8 +56,7 @@ class TestBaseRestService(TestCase):
         user = User(id=999, first_name="Old", last_name="Name", email="old@example.com", username="olduser")
 
         # Fetch real data from API
-        client = DummyJsonUserClient()
-        schema = client.fetch_one(1)
+        schema = UserSchema.fetch_one(1)
 
         service = UserRestService(user)
 
@@ -80,27 +77,33 @@ class TestBaseRestService(TestCase):
 
         assert identifier == "25"
 
-    def test_service_client_access(self):
+    def test_service_schema_class(self):
         user = User(id=1, username="test")
         service = UserRestService(user)
 
-        client = service.client
+        assert service.schema_class is UserSchema
 
-        assert isinstance(client, DummyJsonUserClient)
-        assert client.base_url == 'https://dummyjson.com'
-        assert client.base_path == 'users'
+    def test_service_objects_property(self):
+        user = User(id=1, username="test")
+        service = UserRestService(user)
 
-    def test_service_requires_client(self):
-        with pytest.raises(TypeError, match="must define a 'client' class attribute"):
-            class InvalidService(BaseRestService[User, UserSchema, DummyJsonUserClient]):
-                obj: User
-                # Missing: client = DummyJsonUserClient()
+        # objects property should return a QuerySet
+        qs = service.objects
+        assert hasattr(qs, 'all')
+        assert hasattr(qs, 'filter')
+        assert hasattr(qs, 'first')
+
+    def test_service_extracts_schema_from_generic(self):
+        """Test that schema class is auto-extracted from generic parameter."""
+        class TestService(BaseRestService[User, UserSchema]):
+            obj: User
+
+        self.assertEqual(TestService._schema_class, UserSchema)
 
     def test_valid_service_does_not_raise(self):
         # Should not raise
-        class ValidService(BaseRestService[User, UserSchema, DummyJsonUserClient]):
+        class ValidService(BaseRestService[User, UserSchema]):
             obj: User
-            client = DummyJsonUserClient()
 
             def model_to_schema(self, model: User) -> UserSchema:
                 return UserSchema(
@@ -152,12 +155,12 @@ class TestBaseRestService(TestCase):
         assert converted.last_name == "Johnson"
         assert converted.username == "emilys"
 
-    def test_fetch_from_api(self):
+    def test_fetch_from_api_via_service(self):
         user = User(id=1, username="test")
         service = UserRestService(user)
 
-        # Fetch user 1 from API
-        schema = service.client.fetch_one(1)
+        # Fetch user 1 from API via service.objects
+        schema = service.objects.first()
 
         assert isinstance(schema, UserSchema)
         assert schema.id == 1
@@ -165,11 +168,9 @@ class TestBaseRestService(TestCase):
         assert schema.lastName == "Johnson"
         assert schema.username == "emilys"
 
-    def test_fetch_many_from_api(self):
-        client = DummyJsonUserClient()
-
-        # Fetch first 5 users
-        users = client.fetch_many(limit=5)
+    def test_fetch_many_from_api_via_schema(self):
+        # Fetch first 5 users directly via schema
+        users = UserSchema.fetch_many(limit=5)
 
         assert isinstance(users, list)
         assert len(users) == 5
@@ -202,8 +203,7 @@ class TestBaseRestService(TestCase):
     def test_field_mapping_schema_to_model(self):
         """Test schema_to_model using field_mapping instead of custom method."""
         # Fetch real user data from API
-        client = DummyJsonUserClient()
-        schema = client.fetch_one(1)
+        schema = UserSchema.fetch_one(1)
 
         temp_user = User(id=999, username="temp")
         service = UserRestServiceWithMapping(temp_user)
@@ -224,8 +224,7 @@ class TestBaseRestService(TestCase):
         user = User(id=999, first_name="Old", last_name="Name", email="old@example.com", username="olduser")
 
         # Fetch real data from API
-        client = DummyJsonUserClient()
-        schema = client.fetch_one(1)
+        schema = UserSchema.fetch_one(1)
 
         service = UserRestServiceWithMapping(user)
 

@@ -28,7 +28,7 @@ from django_spire.notification.choices import NotificationTypeChoices
 
 from django_spire.notification.email.models import EmailNotification
 
-from foo.models import Foo # import your models here
+from foo.models import Foo  # import your models here
 
 foo = Foo.objects.get(...)
 

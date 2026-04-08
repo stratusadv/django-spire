@@ -237,7 +237,7 @@ try:
 except OrderingMixinGroupError as e:
     print(e.message)  # 'Ordering validation failed.'
     for error in e.errors:
-        print(error)   # OrderingMixinError details
+        print(error)  # OrderingMixinError details
 ```
 
 ---

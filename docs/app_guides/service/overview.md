@@ -125,7 +125,7 @@ from app.tasks.models import Task
 
 # Instance‑level use – operate on one concrete record
 task = Task.objects.get(pk=42)
-after = task.services.mark_done()  
+after = task.services.mark_done()
 
 # Class‑level use – no row yet, or act on many rows
 # The descriptor fabricates a "null" Task (pk = None) behind the scenes,
@@ -161,9 +161,10 @@ from django_spire.contrib.service import BaseDjangoModelService
 if TYPE_CHECKING:
     from app.tasks.models import Task
 
-class TaskAutomationService(BaseDjangoModelService['Task']):    
+
+class TaskAutomationService(BaseDjangoModelService['Task']):
     obj: Task
-    
+
     def mark_stale(self) -> Task:
         stale_tasks = self.obj_class.objects.filter(created_date__lte='2020-01-01')
         ...        

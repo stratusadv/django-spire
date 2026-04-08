@@ -28,7 +28,7 @@ from django_spire.notification.choices import NotificationTypeChoices
 
 from django_spire.notification.sms.models import SmsNotification
 
-from foo.models import Foo # import your models here
+from foo.models import Foo  # import your models here
 
 foo = Foo.objects.get(...)
 

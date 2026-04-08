@@ -17,11 +17,12 @@ if TYPE_CHECKING:
 
 TSchema = TypeVar('TSchema', bound=BaseModel)
 
-class RestQuerySet(Generic[TSchema]):
+
+class RestSchemaSet(Generic[TSchema]):
     def __init__(
         self,
-        client: RestSchemaClient,
-        schema_class: type[TSchema],
+        client: RestSchemaClient | None = None,
+        schema_class: type[TSchema] | None = None,
         *,
         # Internal state for cloning
         _request_params: dict[str, Any] | None = None,
@@ -46,9 +47,9 @@ class RestQuerySet(Generic[TSchema]):
     def _clone(
         self,
         **overrides
-    ) -> RestQuerySet[TSchema]:
+    ) -> RestSchemaSet[TSchema]:
         """Create a copy with optional overrides. Clears cache unless explicitly passed."""
-        return RestQuerySet(
+        return RestSchemaSet(
             client=self.client,
             schema_class=self._schema_class,
             _request_params=overrides.get('_request_params', self._request_params),
@@ -65,10 +66,21 @@ class RestQuerySet(Generic[TSchema]):
         if self._cached_results is not None:
             return self._cached_results
 
-        if self._request_params:
-            results = self.client.fetch_many(**self._request_params)
+        # Fetch data from either schema_class (new) or client (legacy)
+        if self._schema_class is not None and hasattr(self._schema_class, 'fetch_many'):
+            # New RestSchema pattern
+            if self._request_params:
+                results = self._schema_class.fetch_many(**self._request_params)
+            else:
+                results = self._schema_class.fetch_many()
+        elif self.client is not None:
+            # Legacy RestSchemaClient pattern
+            if self._request_params:
+                results = self.client.fetch_many(**self._request_params)
+            else:
+                results = self.client.fetch_many()
         else:
-            results = self.client.fetch_many()
+            results = []
 
         # Apply filters
         for fn in self._filters:
@@ -130,9 +142,10 @@ class RestQuerySet(Generic[TSchema]):
         return bool(self._evaluate())
 
     def __repr__(self) -> str:
-        return f"<RestSchemaQuerySet [{self._schema_class.__name__}]>"
+        name = self._schema_class.__name__ if self._schema_class else 'Unknown'
+        return f"<RestSchemaSet [{name}]>"
 
-    def __getitem__(self, key: int | slice) -> TSchema | RestQuerySet[TSchema]:
+    def __getitem__(self, key: int | slice) -> TSchema | RestSchemaSet[TSchema]:
         if isinstance(key, int):
             if key < 0:
                 return self._evaluate()[key]
@@ -153,19 +166,19 @@ class RestQuerySet(Generic[TSchema]):
     def add_prefetch_params(
         self,
         **kwargs,
-    ) -> RestQuerySet[TSchema]:
+    ) -> RestSchemaSet[TSchema]:
         return self._clone(_request_params=kwargs)
 
     def all(
         self,
-    ) -> RestQuerySet[TSchema]:
+    ) -> RestSchemaSet[TSchema]:
         return self._clone()
 
     def filter(
         self,
         predicate: Callable[[TSchema], bool] | None = None,
         **kwargs,
-    ) -> RestQuerySet[TSchema]:
+    ) -> RestSchemaSet[TSchema]:
         """
         Filter results by predicate and/or field lookups.
 
@@ -185,7 +198,7 @@ class RestQuerySet(Generic[TSchema]):
         self,
         predicate: Callable[[TSchema], bool] | None = None,
         **kwargs,
-    ) -> RestQuerySet[TSchema]:
+    ) -> RestSchemaSet[TSchema]:
         """Exclude results matching predicate or field lookups."""
         new_excludes = list(self._excludes)
         if predicate:
@@ -194,7 +207,7 @@ class RestQuerySet(Generic[TSchema]):
             new_excludes.append(self._make_predicate(key, value))
         return self._clone(_excludes=new_excludes)
 
-    def order_by(self, *fields: str) -> RestQuerySet[TSchema]:
+    def order_by(self, *fields: str) -> RestSchemaSet[TSchema]:
         """
         Order by fields. Prefix with '-' for descending.
 
@@ -210,10 +223,10 @@ class RestQuerySet(Generic[TSchema]):
                 ordering.append((field, False))
         return self._clone(_ordering=ordering)
 
-    def limit(self, n: int) -> RestQuerySet[TSchema]:
+    def limit(self, n: int) -> RestSchemaSet[TSchema]:
         return self._clone(_limit=n)
 
-    def offset(self, n: int) -> RestQuerySet[TSchema]:
+    def offset(self, n: int) -> RestSchemaSet[TSchema]:
         return self._clone(_offset=n)
 
     def first(self) -> TSchema | None:
@@ -240,13 +253,18 @@ class RestQuerySet(Generic[TSchema]):
         Raises LookupError if zero or multiple results.
         """
         if request_params:
-            return self.client.fetch_one(**request_params)
+            # Direct fetch by ID/params - use schema_class or client
+            if self._schema_class is not None and hasattr(self._schema_class, 'fetch_one'):
+                return self._schema_class.fetch_one(**request_params)
+            elif self.client is not None:
+                return self.client.fetch_one(**request_params)
 
         results = list(self.filter(**kwargs) if kwargs else self)
+        schema_name = self._schema_class.__name__ if self._schema_class else 'object'
         if len(results) == 0:
-            raise LookupError(f"No {self._schema_class.__name__} found")
+            raise LookupError(f"No {schema_name} found")
         if len(results) > 1:
-            raise LookupError(f"Multiple {self._schema_class.__name__} found")
+            raise LookupError(f"Multiple {schema_name} found")
         return results[0]
 
     def values_list(self, *fields: str, flat: bool = False) -> list[tuple] | list[Any]:

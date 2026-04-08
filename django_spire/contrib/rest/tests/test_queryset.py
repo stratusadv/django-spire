@@ -3,44 +3,42 @@ Tests for RestQuerySet using DummyJSON Users API.
 """
 from django.test import TestCase
 
-from django_spire.contrib.rest.tests.example_users import (
-    DummyJsonUserClient,
-)
-from django_spire.contrib.rest.queryset import RestQuerySet
+from django_spire.contrib.rest.tests.example_users import UserSchema
+from django_spire.contrib.rest.queryset import RestSchemaSet
 
 
 class TestRestSchemaQuerySet(TestCase):
     """Test RestQuerySet functionality with DummyJSON Users API."""
 
     def test_queryset_iteration(self):
-        users = list(DummyJsonUserClient.objects.limit(5))
+        users = list(UserSchema.objects.limit(5))
 
         self.assertLessEqual(len(users), 5)
         self.assertGreater(len(users), 0)
 
     def test_first(self):
-        user = DummyJsonUserClient.objects.first()
+        user = UserSchema.objects.first()
 
         self.assertIsNotNone(user)
         # First user should be Emily
         self.assertEqual(user.firstName, "Emily")
 
     def test_last(self):
-        user = DummyJsonUserClient.objects.limit(5).last()
+        user = UserSchema.objects.limit(5).last()
 
         self.assertIsNotNone(user)
 
     def test_count(self):
-        count = DummyJsonUserClient.objects.limit(10).count()
+        count = UserSchema.objects.limit(10).count()
 
         self.assertIsInstance(count, int)
         self.assertEqual(count, 10)
 
     def test_exists(self):
-        self.assertTrue(DummyJsonUserClient.objects.exists())
+        self.assertTrue(UserSchema.objects.exists())
 
     def test_chaining_returns_new_queryset(self):
-        qs1 = DummyJsonUserClient.objects
+        qs1 = UserSchema.objects
         qs2 = qs1.filter(lambda x: True)
         qs3 = qs2.order_by("firstName")
         qs4 = qs3.limit(5)
@@ -49,10 +47,10 @@ class TestRestSchemaQuerySet(TestCase):
         self.assertIsNot(qs1, qs2)
         self.assertIsNot(qs2, qs3)
         self.assertIsNot(qs3, qs4)
-        self.assertTrue(all(isinstance(q, RestQuerySet) for q in [qs1, qs2, qs3, qs4]))
+        self.assertTrue(all(isinstance(q, RestSchemaSet) for q in [qs1, qs2, qs3, qs4]))
 
     def test_filter_with_predicate(self):
-        qs = DummyJsonUserClient.objects.limit(10)
+        qs = UserSchema.objects.limit(10)
 
         # Filter to names starting with 'M'
         filtered = list(qs.filter(lambda u: u.firstName.startswith('M')))
@@ -61,7 +59,7 @@ class TestRestSchemaQuerySet(TestCase):
         self.assertGreater(len(filtered), 0)
 
     def test_filter_with_kwargs(self):
-        qs = DummyJsonUserClient.objects.limit(10)
+        qs = UserSchema.objects.limit(10)
 
         # Get first user and filter by username
         first = qs.first()
@@ -71,60 +69,60 @@ class TestRestSchemaQuerySet(TestCase):
             self.assertEqual(filtered[0].username, first.username)
 
     def test_limit(self):
-        users = list(DummyJsonUserClient.objects.limit(3))
+        users = list(UserSchema.objects.limit(3))
 
         self.assertEqual(len(users), 3)
 
     def test_offset(self):
-        all_users = list(DummyJsonUserClient.objects.limit(5))
-        offset_users = list(DummyJsonUserClient.objects.limit(5).offset(1))
+        all_users = list(UserSchema.objects.limit(5))
+        offset_users = list(UserSchema.objects.limit(5).offset(1))
 
         # offset(1) should skip the first result
         if len(all_users) > 1:
             self.assertEqual(offset_users[0].id, all_users[1].id)
 
     def test_order_by_ascending(self):
-        users = list(DummyJsonUserClient.objects.limit(10).order_by("firstName"))
+        users = list(UserSchema.objects.limit(10).order_by("firstName"))
 
         first_names = [u.firstName for u in users]
         self.assertEqual(first_names, sorted(first_names))
 
     def test_order_by_descending(self):
-        users = list(DummyJsonUserClient.objects.limit(10).order_by("-firstName"))
+        users = list(UserSchema.objects.limit(10).order_by("-firstName"))
 
         first_names = [u.firstName for u in users]
         self.assertEqual(first_names, sorted(first_names, reverse=True))
 
     def test_values_list_flat(self):
-        usernames = DummyJsonUserClient.objects.limit(5).values_list("username", flat=True)
+        usernames = UserSchema.objects.limit(5).values_list("username", flat=True)
 
         self.assertIsInstance(usernames, list)
         self.assertTrue(all(isinstance(u, str) for u in usernames))
         self.assertEqual(len(usernames), 5)
 
     def test_values_list_tuple(self):
-        values = DummyJsonUserClient.objects.limit(5).values_list("firstName", "lastName")
+        values = UserSchema.objects.limit(5).values_list("firstName", "lastName")
 
         self.assertIsInstance(values, list)
         self.assertTrue(all(isinstance(v, tuple) and len(v) == 2 for v in values))
 
     def test_indexing(self):
-        first = DummyJsonUserClient.objects.limit(10)[0]
+        first = UserSchema.objects.limit(10)[0]
 
         self.assertIsNotNone(first)
         self.assertEqual(first.firstName, "Emily")
 
     def test_slicing(self):
-        sliced = DummyJsonUserClient.objects[0:3]
+        sliced = UserSchema.objects[0:3]
 
-        self.assertIsInstance(sliced, RestQuerySet)
+        self.assertIsInstance(sliced, RestSchemaSet)
         results = list(sliced)
         self.assertLessEqual(len(results), 3)
 
     def test_complex_chain(self):
         """Test a complex chain of operations."""
         results = list(
-            DummyJsonUserClient.objects
+            UserSchema.objects
             .limit(20)
             .filter(lambda u: u.firstName is not None)
             .order_by("firstName")
@@ -141,17 +139,18 @@ class TestRestSchemaQuerySet(TestCase):
 
     def test_exclude(self):
         """Test exclude functionality."""
-        all_users = list(DummyJsonUserClient.objects.limit(10))
-        excluded = list(DummyJsonUserClient.objects.limit(10).exclude(lambda u: u.firstName == "Emily"))
+        all_users = list(UserSchema.objects.limit(10))
+        first_user = all_users[0]
+        excluded = list(UserSchema.objects.limit(10).exclude(lambda u: u.id == first_user.id))
 
-        # Should have fewer users after excluding
-        self.assertLess(len(excluded), len(all_users))
-        # Emily should not be in the excluded list
-        self.assertTrue(all(u.firstName != "Emily" for u in excluded))
+        # First user should not be in the excluded list
+        self.assertTrue(all(u.id != first_user.id for u in excluded))
+        # Should still get results (limit is applied after exclude)
+        self.assertGreater(len(excluded), 0)
 
     def test_get(self):
         """Test get() method."""
-        qs = DummyJsonUserClient.objects.limit(10)
+        qs = UserSchema.objects.limit(10)
 
         # Get by username
         user = qs.get(username="emilys")
@@ -161,8 +160,8 @@ class TestRestSchemaQuerySet(TestCase):
 
     def test_all(self):
         """Test all() method returns a new queryset."""
-        qs1 = DummyJsonUserClient.objects
+        qs1 = UserSchema.objects
         qs2 = qs1.all()
 
         self.assertIsNot(qs1, qs2)
-        self.assertIsInstance(qs2, RestQuerySet)
+        self.assertIsInstance(qs2, RestSchemaSet)

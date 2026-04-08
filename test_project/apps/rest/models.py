@@ -1,23 +1,28 @@
 from __future__ import annotations
 
 from django.db import models
+
+from django_spire.contrib.rest.schema import RestSchemaManager
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
-from test_project.apps.rest.services.service import TestRestUserService
+from test_project.apps.rest.services.rest import PirateSchema
+from test_project.apps.rest.services.service import PirateService
 
 
-class TestRestUser(ActivityMixin, HistoryModelMixin):
+class Pirate(ActivityMixin, HistoryModelMixin):
     """Test model for demonstrating REST client/service integration."""
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
     email = models.EmailField()
     username = models.CharField(max_length=150, unique=True)
 
-    services = TestRestUserService()
+    services = PirateService()
+
+    schema = PirateSchema
 
     class Meta:
-        verbose_name = "Test REST User"
-        verbose_name_plural = "Test REST Users"
+        verbose_name = "Pirate"
+        verbose_name_plural = "Pirates"
 
     def __str__(self):
         return self.username

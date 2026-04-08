@@ -5,7 +5,7 @@ from typing import TypeVar, Generic, get_args, get_origin
 
 from pydantic import BaseModel
 
-from django_spire.contrib.rest.queryset import RestQuerySet
+from django_spire.contrib.rest.queryset import RestSchemaSet
 from django_spire.contrib.rest.client.http import BaseRestHttpClient
 
 
@@ -13,11 +13,11 @@ TSchema = TypeVar('TSchema', bound=BaseModel)
 
 
 class RestClientObjectsDescriptor(Generic[TSchema]):
-    def __get__(self, obj, objtype=None) -> RestQuerySet[TSchema]:
+    def __get__(self, obj, objtype=None) -> RestSchemaSet[TSchema]:
         if obj is None:
             # Accessed on class - need to create a temporary instance
             obj = objtype()
-        return RestQuerySet[TSchema](client=obj, schema_class=obj.schema_class)
+        return RestSchemaSet[TSchema](client=obj, schema_class=obj.schema_class)
 
 
 class RestSchemaClient(Generic[TSchema], BaseRestHttpClient, ABC):

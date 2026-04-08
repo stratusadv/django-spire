@@ -1,0 +1,21 @@
+{# Todo: Seems like base item is not working... #}
+
+
+<div class="row border-bottom border-2 pb-2 mb-2">
+    <div class="col-3">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=task.name %}
+    </div>
+    <div class="col-3">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' attribute_value=task.get_status_display %}
+    </div>
+    <div class="col-3">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Users' %}
+        {% for user_initial in task.user_initials %}
+        	{{ user_initial }}
+        {% endfor %}
+
+    </div>
+    <div class="col-12 fs--2 text-muted">
+        {{ task.description }}
+    </div>
+</div>
