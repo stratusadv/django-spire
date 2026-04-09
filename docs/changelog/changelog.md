@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.29.18
+
+### Changes
+- Update django-glue requirement to v0.8.13.
+
 ## v0.29.17
 
 ### Changes
