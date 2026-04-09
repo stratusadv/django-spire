@@ -680,15 +680,15 @@ wheels = [
 
 [[package]]
 name = "django-glue"
-version = "0.8.12"
+version = "0.8.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b6/c2/5a3d3042308a941a73f4117b7c982807968953e34f3136d65ea6729f6816/django_glue-0.8.12.tar.gz", hash = "sha256:2e3db241d113607f1cce600efafbe800ea8b7579e8a085f5cc8404659a106d38", size = 110771, upload-time = "2025-12-15T22:49:12.885Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/01/4a/41d164dd24a9ee69076ad7d81daa1ec32e825c5759b34a275c8a8eb767a4/django_glue-0.8.13.tar.gz", hash = "sha256:20416a9b67f7ab2baa4f48fca6a71276a4b62b67509e3c3b1de1cff89fa2a2d5", size = 111110, upload-time = "2026-04-09T20:03:07.552Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/af/4f/9a3ecaadf1265160c950af205d013f15cf8e61cafa3821e4234d9559f7da/django_glue-0.8.12-py3-none-any.whl", hash = "sha256:de4705b2eb05e350a04ac4f8e27b0ce1cd3530faa7bbd7883ea0e8848096bbb7", size = 147865, upload-time = "2025-12-15T22:49:11.478Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/4c/514a8496e65c3013f5754feb8b9b52595e8758042d1a9afb1bec7fb5f303/django_glue-0.8.13-py3-none-any.whl", hash = "sha256:eaf473c05bca01d6c01b4b307f1d187260ba08b92e1e18ee215eea8c80dfbf6b", size = 148092, upload-time = "2026-04-09T20:03:08.919Z" },
 ]
 
 [[package]]
@@ -777,7 +777,7 @@ requires-dist = [
     { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-crispy-forms", specifier = "==2.3" },
     { name = "django-debug-toolbar", marker = "extra == 'development'" },
-    { name = "django-glue", specifier = ">=0.8.12" },
+    { name = "django-glue", specifier = "==0.8.13" },
     { name = "django-sendgrid-v5" },
     { name = "django-storages", specifier = "==1.14.5" },
     { name = "django-watchfiles", marker = "extra == 'development'" },
@@ -1054,6 +1054,7 @@ wheels = [
 name = "griffelib"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ad/06/eccbd311c9e2b3ca45dbc063b93134c57a1ccc7607c5e545264ad092c4a9/griffelib-2.0.0.tar.gz", hash = "sha256:e504d637a089f5cab9b5daf18f7645970509bf4f53eda8d79ed71cce8bd97934", size = 166312, upload-time = "2026-03-23T21:06:55.954Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/51/c936033e16d12b627ea334aaaaf42229c37620d0f15593456ab69ab48161/griffelib-2.0.0-py3-none-any.whl", hash = "sha256:01284878c966508b6d6f1dbff9b6fa607bc062d8261c5c7253cb285b06422a7f", size = 142004, upload-time = "2026-02-09T19:09:40.561Z" },
 ]
