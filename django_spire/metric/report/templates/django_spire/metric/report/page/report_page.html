@@ -3,16 +3,17 @@
 {% load variable_types %}
 
 {% block full_page_command_bar %}
-    <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one" style="height: 52px;">
+    <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one"
+         style="height: 52px;">
         <div class="d-flex align-items-center gap-2">
             <a
-                @click="toggle_sub()"
-                class="user-select-none d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
-                role="button"
-                style="transition: background-color 0.15s ease;"
-                :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
-                x-cloak
-                x-show="has_content($refs.full_page_sub_navigation)"
+                    @click="toggle_sub()"
+                    class="user-select-none d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
+                    role="button"
+                    style="transition: background-color 0.15s ease;"
+                    :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                    x-cloak
+                    x-show="has_content($refs.full_page_sub_navigation)"
             >
                 <i class="bi bi-layout-sidebar ds-fs-7"></i>
                 <span class="fw-medium">Browse</span>
@@ -28,11 +29,11 @@
 {% endblock %}
 
 {% block full_page_sub_navigation %}
-    <div class="p-3">
-        {% if not report.is_ready %}
+    {% if not report.is_ready %}
+        <div class="p-3">
             {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=0 sub_nav_value=registry.report_names_classes %}
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block full_page_content %}
