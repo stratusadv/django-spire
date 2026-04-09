@@ -1,58 +1,67 @@
 <h2 class="mb-4">Buttons</h2>
-<div class="row fa-tag">
-    <div class="col-6">
-        <h5>Regular Buttons</h5>
-        <div class="mb-2">{% include 'django_spire/button/primary_button.html' with button_text='Primary' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/secondary_button.html' with button_text='Secondary' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/accent_button.html' with button_text='Accent' %}</div>
-        <div class="pt-2 mb-2">{% include 'django_spire/button/success_button.html' with button_text='Success' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/warning_button.html' with button_text='Warning' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/danger_button.html' with button_text='Danger' %}</div>
+<div
+    x-data="{
+        async delay() {
+            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+            await delay(5000);
+        }
+    }"
+>
+    <div class="row fa-tag">
+        <div class="col-6">
+            <h5>Regular Buttons</h5>
+            <div class="mb-2">{% include 'django_spire/button/primary_button.html' with button_text='Primary' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/secondary_button.html' with button_text='Secondary' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/accent_button.html' with button_text='Accent' x_button_click='delay()' %}</div>
+            <div class="pt-2 mb-2">{% include 'django_spire/button/success_button.html' with button_text='Success' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/warning_button.html' with button_text='Warning' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/danger_button.html' with button_text='Danger' x_button_click='delay()' %}</div>
+        </div>
+        <div class="col-6">
+            <h5>Dark Buttons</h5>
+            <div class="mb-2">{% include 'django_spire/button/primary_dark_button.html' with button_text='Primary Dark' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/secondary_dark_button.html' with button_text='Secondary Dark' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/accent_dark_button.html' with button_text='Accent Dark' x_button_click='delay()' %}</div>
+            <div class="pt-2 mb-2">{% include 'django_spire/button/success_dark_button.html' with button_text='Success Dark' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/warning_dark_button.html' with button_text='Warning Dark' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/danger_dark_button.html' with button_text='Danger Dark' x_button_click='delay()' %}</div>
+        </div>
     </div>
-    <div class="col-6">
-        <h5>Dark Buttons</h5>
-        <div class="mb-2">{% include 'django_spire/button/primary_dark_button.html' with button_text='Primary Dark' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/secondary_dark_button.html' with button_text='Secondary Dark' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/accent_dark_button.html' with button_text='Accent Dark' %}</div>
-        <div class="pt-2 mb-2">{% include 'django_spire/button/success_dark_button.html' with button_text='Success Dark' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/warning_dark_button.html' with button_text='Warning Dark' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/danger_dark_button.html' with button_text='Danger Dark' %}</div>
+    <div class="row mt-4">
+        <div class="col-6">
+            <h5>Outlined Buttons</h5>
+            <div class="mb-2">{% include 'django_spire/button/primary_outlined_button.html' with button_text='Primary Outlined' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/primary_dark_outlined_button.html' with button_text='Primary Dark Outlined' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/secondary_outlined_button.html' with button_text='Secondary Outlined' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/accent_outlined_button.html' with button_text='Accent Outlined' x_button_click='delay()' %}</div>
+            <div class="pt-2 mb-2">{% include 'django_spire/button/success_outlined_button.html' with button_text='Success Outlined' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/warning_outlined_button.html' with button_text='Warning Outlined' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/danger_outlined_button.html' with button_text='Danger Outlined' x_button_click='delay()' %}</div>
+        </div>
+        <div class="col-6">
+            <h5>Buttons with Icons</h5>
+            <div class="mb-2">{% include 'django_spire/button/primary_button.html' with button_text='Primary with Icon' button_icon='bi bi-plus' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/secondary_button.html' with button_text='Secondary with Icon' button_icon='bi bi-pencil' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/accent_button.html' with button_text='Accent with Icon' button_icon='bi bi-star' x_button_click='delay()' %}</div>
+            <div class="pt-2 mb-2">{% include 'django_spire/button/success_button.html' with button_text='Success with Icon' button_icon='bi bi-check' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/warning_button.html' with button_text='Warning with Icon' button_icon='bi bi-exclamation-triangle' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/danger_button.html' with button_text='Danger with Icon' button_icon='bi bi-trash' x_button_click='delay()' %}</div>
+        </div>
     </div>
-</div>
-<div class="row mt-4">
-    <div class="col-6">
-        <h5>Outlined Buttons</h5>
-        <div class="mb-2">{% include 'django_spire/button/primary_outlined_button.html' with button_text='Primary Outlined' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/primary_dark_outlined_button.html' with button_text='Primary Dark Outlined' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/secondary_outlined_button.html' with button_text='Secondary Outlined' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/accent_outlined_button.html' with button_text='Accent Outlined' %}</div>
-        <div class="pt-2 mb-2">{% include 'django_spire/button/success_outlined_button.html' with button_text='Success Outlined' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/warning_outlined_button.html' with button_text='Warning Outlined' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/danger_outlined_button.html' with button_text='Danger Outlined' %}</div>
-    </div>
-    <div class="col-6">
-        <h5>Buttons with Icons</h5>
-        <div class="mb-2">{% include 'django_spire/button/primary_button.html' with button_text='Primary with Icon' button_icon='bi bi-plus' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/secondary_button.html' with button_text='Secondary with Icon' button_icon='bi bi-pencil' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/accent_button.html' with button_text='Accent with Icon' button_icon='bi bi-star' %}</div>
-        <div class="pt-2 mb-2">{% include 'django_spire/button/success_button.html' with button_text='Success with Icon' button_icon='bi bi-check' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/warning_button.html' with button_text='Warning with Icon' button_icon='bi bi-exclamation-triangle' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/danger_button.html' with button_text='Danger with Icon' button_icon='bi bi-trash' %}</div>
-    </div>
-</div>
-<div class="row mt-4">
-    <div class="col-6">
-        <h5>Layer Buttons</h5>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer One' button_class='btn-app-layer-one' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer Two' button_class='btn-app-layer-two' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer Three' button_class='btn-app-layer-three' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer Four' button_class='btn-app-layer-four' %}</div>
-    </div>
-    <div class="col-6">
-        <h5>Alternate Layer Buttons</h5>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer One' button_class='btn-app-alt-layer-one' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer Two' button_class='btn-app-alt-layer-two' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer Three' button_class='btn-app-alt-layer-three' %}</div>
-        <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer Four' button_class='btn-app-alt-layer-four' %}</div>
+    <div class="row mt-4">
+        <div class="col-6">
+            <h5>Layer Buttons</h5>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer One' button_class='btn-app-layer-one' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer Two' button_class='btn-app-layer-two' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer Three' button_class='btn-app-layer-three' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Layer Four' button_class='btn-app-layer-four' x_button_click='delay()' %}</div>
+        </div>
+        <div class="col-6">
+            <h5>Alternate Layer Buttons</h5>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer One' button_class='btn-app-alt-layer-one' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer Two' button_class='btn-app-alt-layer-two' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer Three' button_class='btn-app-alt-layer-three' x_button_click='delay()' %}</div>
+            <div class="mb-2">{% include 'django_spire/button/base_button.html' with button_text='Alt Layer Four' button_class='btn-app-alt-layer-four' x_button_click='delay()' %}</div>
+        </div>
     </div>
 </div>
