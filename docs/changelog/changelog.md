@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.29.17
+
+### Changes
+- Allow the top nav. to be targetable by the navigation CSS class
+
+### Fixes
+- Fix changelog to broadcast number of entries
+
 ## v0.29.16
 
 ### Changes
