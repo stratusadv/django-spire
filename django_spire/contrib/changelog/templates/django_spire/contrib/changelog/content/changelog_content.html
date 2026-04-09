@@ -1,3 +1,5 @@
+{% include 'django_spire/infinite_scroll/element/meta.html' %}
+
 {% for changelog_entry in changelog %}
     {% include 'django_spire/contrib/changelog/item/changelog_item.html' %}
 {% empty %}
