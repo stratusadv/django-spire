@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import time
 from typing import (
     TypeVar,
     Generic,
@@ -9,19 +8,14 @@ from typing import (
     Any, TYPE_CHECKING,
 )
 
-from django.db.models import Manager
-from pydantic import BaseModel
+from django_spire.contrib.rest import RestSchema
 
-if TYPE_CHECKING:
-    from django_spire.contrib.rest.client.schema import RestSchemaClient
-
-TSchema = TypeVar('TSchema', bound=BaseModel)
+TSchema = TypeVar('TSchema', bound=RestSchema)
 
 
 class RestSchemaSet(Generic[TSchema]):
     def __init__(
         self,
-        client: RestSchemaClient | None = None,
         schema_class: type[TSchema] | None = None,
         *,
         # Internal state for cloning
@@ -33,7 +27,7 @@ class RestSchemaSet(Generic[TSchema]):
         _offset: int = 0,
         _cached_results: list[TSchema] | None = None,
     ):
-        self.client = client
+        self.rest_client = schema_class.rest_client
         self._request_params = _request_params
         self._schema_class = schema_class
 
@@ -50,7 +44,6 @@ class RestSchemaSet(Generic[TSchema]):
     ) -> RestSchemaSet[TSchema]:
         """Create a copy with optional overrides. Clears cache unless explicitly passed."""
         return RestSchemaSet(
-            client=self.client,
             schema_class=self._schema_class,
             _request_params=overrides.get('_request_params', self._request_params),
             _filters=overrides.get('_filters', list(self._filters)),
@@ -66,21 +59,10 @@ class RestSchemaSet(Generic[TSchema]):
         if self._cached_results is not None:
             return self._cached_results
 
-        # Fetch data from either schema_class (new) or client (legacy)
-        if self._schema_class is not None and hasattr(self._schema_class, 'fetch_many'):
-            # New RestSchema pattern
-            if self._request_params:
-                results = self._schema_class.fetch_many(**self._request_params)
-            else:
-                results = self._schema_class.fetch_many()
-        elif self.client is not None:
-            # Legacy RestSchemaClient pattern
-            if self._request_params:
-                results = self.client.fetch_many(**self._request_params)
-            else:
-                results = self.client.fetch_many()
+        if self._request_params:
+            results = self.rest_client.read(**self._request_params)
         else:
-            results = []
+            results = self.rest_client.read()
 
         # Apply filters
         for fn in self._filters:
@@ -254,10 +236,8 @@ class RestSchemaSet(Generic[TSchema]):
         """
         if request_params:
             # Direct fetch by ID/params - use schema_class or client
-            if self._schema_class is not None and hasattr(self._schema_class, 'fetch_one'):
-                return self._schema_class.fetch_one(**request_params)
-            elif self.client is not None:
-                return self.client.fetch_one(**request_params)
+            if self.rest_client is not None and hasattr(self._schema_class, 'read_one'):
+                return self.rest_client.read_one(**request_params)
 
         results = list(self.filter(**kwargs) if kwargs else self)
         schema_name = self._schema_class.__name__ if self._schema_class else 'object'

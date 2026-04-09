@@ -1,7 +1,7 @@
 from django_spire.contrib.rest import RestSchema
 
 
-class PirateSchema(RestSchema):
+class PirateRestSchema(RestSchema):
     """Schema for DummyJSON User API (mapped as Pirates)."""
     id: int
     firstName: str
@@ -9,12 +9,7 @@ class PirateSchema(RestSchema):
     email: str
     username: str
 
-    objects = PirateRestSchemaSet.as_manager()
-
     class Meta:
         base_url = 'https://dummyjson.com'
         base_path = 'users'
         results_key = 'users'
-
-
-class PirateHatRestSchema(RestSchema):
