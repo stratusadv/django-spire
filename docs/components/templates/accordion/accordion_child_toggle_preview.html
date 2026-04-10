@@ -1,0 +1,15 @@
+<div class="ds-example">
+<p class="ds-example-label">Preview</p>
+<div x-data="{ open: false, toggle() { this.open = !this.open } }" style="max-width: 480px;">
+    <div class="d-flex align-items-center justify-content-between px-3 py-2 border rounded-top"
+         style="background-color: var(--md-code-bg-color);">
+        <span class="fw-semibold">Shipment Notes</span>
+        <button @click="toggle()" class="btn btn-outline-secondary btn-sm">
+            <span x-text="open ? 'Collapse' : 'Expand'">Expand</span>
+        </button>
+    </div>
+    <div x-show="open" x-transition x-cloak class="px-3 py-2 border border-top-0 rounded-bottom">
+        Leave at the back door if no answer. Call before 9 am delivery.
+    </div>
+</div>
+</div>

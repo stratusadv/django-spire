@@ -9,6 +9,9 @@
         :class="is_selected($el.id) ? 'tab-item text-app-default-link-color' : 'text-app-secondary'"
         style="border: none;"
     >
+        {% if trigger_icon %}
+            <i class="{{ trigger_icon }}"></i>
+        {% endif %}
         {{ trigger_title }}
     </button>
 </li>

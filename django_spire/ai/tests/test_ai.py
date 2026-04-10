@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from dandy import BaseIntel, Bot, recorder_to_html_file
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
@@ -15,6 +17,7 @@ class HorseIntel(BaseIntel):
 
 
 class AiDecoratorTestCase(BaseTestCase):
+    @pytest.mark.ai
     def test_ai_interaction_decorator_creates_usage_record(self) -> None:
         initial_count = AiUsage.objects.count()
 
@@ -32,6 +35,7 @@ class AiDecoratorTestCase(BaseTestCase):
         assert horse_intel.first_name != ''
         assert AiUsage.objects.count() >= initial_count
 
+    @pytest.mark.ai
     def test_ai_interaction_decorator_creates_interaction_record(self) -> None:
         initial_count = AiInteraction.objects.count()
 
@@ -48,6 +52,7 @@ class AiDecoratorTestCase(BaseTestCase):
 
         assert AiInteraction.objects.count() > initial_count
 
+    @pytest.mark.ai
     def test_ai_interaction_decorator_requires_user_or_actor(self) -> None:
         try:
             @log_ai_interaction_from_recorder()
@@ -58,6 +63,7 @@ class AiDecoratorTestCase(BaseTestCase):
         else:
             assert False, 'Expected ValueError'
 
+    @pytest.mark.ai
     def test_ai_interaction_decorator_with_actor_only(self) -> None:
         @log_ai_interaction_from_recorder(actor='test_actor_only')
         @recorder_to_html_file('test_actor_only')
@@ -76,6 +82,7 @@ class AiDecoratorTestCase(BaseTestCase):
         assert interaction is not None
         assert interaction.actor == 'test_actor_only'
 
+    @pytest.mark.ai
     def test_ai_interaction_decorator_records_module_and_callable(self) -> None:
         @log_ai_interaction_from_recorder(self.super_user, 'module_test')
         @recorder_to_html_file('module_test')
@@ -94,11 +101,13 @@ class AiDecoratorTestCase(BaseTestCase):
 
 
 class AiUsageModelTestCase(BaseTestCase):
+    @pytest.mark.ai
     def test_ai_usage_str(self) -> None:
         ai_usage = AiUsage.objects.create()
 
         assert 'ai usage' in str(ai_usage)
 
+    @pytest.mark.ai
     def test_ai_usage_default_values(self) -> None:
         ai_usage = AiUsage.objects.create()
 
@@ -109,6 +118,7 @@ class AiUsageModelTestCase(BaseTestCase):
 
 
 class AiInteractionModelTestCase(BaseTestCase):
+    @pytest.mark.ai
     def test_ai_interaction_str(self) -> None:
         ai_usage = AiUsage.objects.create()
         ai_interaction = AiInteraction.objects.create(
@@ -121,6 +131,7 @@ class AiInteractionModelTestCase(BaseTestCase):
         assert 'test_actor' in str(ai_interaction)
         assert 'interaction' in str(ai_interaction)
 
+    @pytest.mark.ai
     def test_ai_interaction_saves_user_info(self) -> None:
         ai_usage = AiUsage.objects.create()
         ai_interaction = AiInteraction.objects.create(
@@ -135,6 +146,7 @@ class AiInteractionModelTestCase(BaseTestCase):
         assert ai_interaction.user_first_name == self.super_user.first_name
         assert ai_interaction.user_last_name == self.super_user.last_name
 
+    @pytest.mark.ai
     def test_ai_interaction_default_values(self) -> None:
         ai_usage = AiUsage.objects.create()
         ai_interaction = AiInteraction.objects.create(

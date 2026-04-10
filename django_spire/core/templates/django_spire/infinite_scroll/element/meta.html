@@ -1,0 +1,14 @@
+<div
+    x-data="{
+        init() {
+            let scroll_container = this.$el.closest('[data-scroll-id]');
+            let scroll_id = scroll_container ? scroll_container.dataset.scrollId : null;
+
+            this.$dispatch('total-count-updated', {
+                batch_size: {{ batch_size|default:50 }},
+                scroll_id: scroll_id,
+                total_count: {{ total_count|default:0 }}
+            });
+        }
+    }"
+></div>

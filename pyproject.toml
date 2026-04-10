@@ -45,7 +45,7 @@ dependencies = [
     "dandy==2.2.0",
     "django>=5.1.8",
     "django-crispy-forms==2.3",
-    "django-glue>=0.8.12",
+    "django-glue==0.8.13",
     "django-ninja==1.6.0b1",
     "django-sendgrid-v5",
     "django-storages==1.14.5",
@@ -60,8 +60,7 @@ dependencies = [
     "python-dateutil",
     "robit>=0.4.8",
     "typing_extensions",
-    "twilio",
-    "uuid>=1.30",
+    "twilio"
 ]
 
 [project.optional-dependencies]
@@ -185,8 +184,12 @@ include = [
 
 [tool.pytest.ini_options]
 django_find_project = false
-markers = ["playwright: Playwright browser tests"]
-norecursedirs = ["test_playwright"]
+markers = [
+    "ai: marks tests that require AI/LLM calls (deselect with '-m \"not ai\"')",
+    "playwright: Playwright browser tests",
+]
+norecursedirs = ["atlassian", "test_playwright"]
+addopts = "-m 'not ai'"
 
 [tool.ruff]
 extend = "ruff.toml"

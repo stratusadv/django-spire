@@ -1,0 +1,17 @@
+{% extends 'django_spire/accordion/accordion.html' %}
+
+{% block accordion_toggle %}
+    {# Empty — the toggle is triggered by a child element instead #}
+{% endblock %}
+
+{% block accordion_child_toggle %}
+    <button @click="toggle()" class="btn btn-outline-secondary btn-sm">
+        <span x-text="show_accordion ? 'Collapse' : 'Expand'"></span>
+    </button>
+{% endblock %}
+
+{% block accordion_content %}
+    <div class="px-3 py-2 border-top">
+        This content is toggled by the button above, not by clicking the header.
+    </div>
+{% endblock %}

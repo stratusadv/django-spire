@@ -7,12 +7,14 @@
     table_id: $id('table'),
 
     any_row_has_children: false,
+    header_locked: false,
     average_row_height: 0,
     column_breakpoints: [],
     column_count: 0,
     is_row_open: {},
     select_all: false,
     selected_rows: new Set(),
+    table_visible: false,
 
     {% block table_xdata %}{% endblock %}
 
@@ -112,9 +114,116 @@
         });
     },
 
+    handle_window_resize() {
+        if (this.header_locked) {
+            this.relock_header_width();
+        }
+    },
+
+    load_header_width() {
+        let header_row = this.$refs.header_row;
+        let table = header_row ? header_row.closest('table') : null;
+
+        if (!header_row || !table) {
+            return;
+        }
+
+        let old_colgroup = table.querySelector('colgroup[data-locked]');
+
+        let colgroup = document.createElement('colgroup');
+        colgroup.setAttribute('data-locked', 'true');
+
+        Array.from(header_row.children).forEach(cell => {
+            let col = document.createElement('col');
+            col.style.width = cell.getBoundingClientRect().width + 'px';
+            colgroup.appendChild(col);
+        });
+
+        if (old_colgroup) {
+            table.replaceChild(colgroup, old_colgroup);
+        } else {
+            table.insertBefore(colgroup, table.firstChild);
+        }
+
+        this.header_locked = true;
+    },
+
+    relock_header_width() {
+        let header_row = this.$refs.header_row;
+        let table = header_row ? header_row.closest('table') : null;
+
+        if (!header_row || !table) {
+            return;
+        }
+
+        let old_colgroup = table.querySelector('colgroup[data-locked]');
+
+        let new_colgroup = document.createElement('colgroup');
+        new_colgroup.setAttribute('data-locked', 'true');
+
+        Array.from(header_row.children).forEach(cell => {
+            let col = document.createElement('col');
+            col.style.width = cell.getBoundingClientRect().width + 'px';
+            new_colgroup.appendChild(col);
+        });
+
+        if (old_colgroup) {
+            table.replaceChild(new_colgroup, old_colgroup);
+        } else {
+            table.insertBefore(new_colgroup, table.firstChild);
+        }
+
+        this.header_locked = true;
+    },
+
+    unlock_header_width() {
+        let header_row = this.$refs.header_row;
+        let table = header_row ? header_row.closest('table') : null;
+
+        if (!header_row || !table) {
+            return;
+        }
+
+        let colgroup = table.querySelector('colgroup[data-locked]');
+
+        if (colgroup) {
+            colgroup.remove();
+        }
+
+        this.header_locked = false;
+    },
+
     async refresh_table() {
         await this.refresh();
     },
+{% endblock %}
+
+{% block scroll_pre_load %}
+    this.skeleton_count = this.batch_size;
+    this.show_loading = true;
+    this.load_header_width();
+    this.table_visible = true;
+{% endblock %}
+
+{% block scroll_init %}
+    let _refresh = this.refresh.bind(this);
+
+    this.refresh = async () => {
+        let container = this.$refs.scroll_container;
+        let locked_height = container ? container.offsetHeight + 'px' : null;
+
+        if (locked_height) {
+            container.style.minHeight = locked_height;
+        }
+
+        this.load_header_width();
+        await _refresh();
+        this.relock_header_width();
+
+        if (container) {
+            container.style.minHeight = '';
+        }
+    };
 {% endblock %}
 
 {% block handle_item_mounted %}{% endblock %}
@@ -130,6 +239,7 @@
 {% block scroll_event %}
     @header-mounted="handle_header_mounted($event)"
     @header-registered="handle_header_registered($event)"
+    @resize.window.debounce.250ms="handle_window_resize()"
     @row-deselected.window="handle_row_deselected($event)"
     @row-mounted.window="handle_row_mounted($event)"
     @row-selected.window="handle_row_selected($event)"
@@ -141,13 +251,14 @@
 {% block scroll_container %}
     <div
         class="position-relative table-container flex-grow-1"
-        style="min-height: {{ table_height|default:'200px;' }} overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
+        style="min-height: {{ table_height|default:'200px;' }} overflow-x: auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-gutter: stable; -webkit-overflow-scrolling: touch;"
         x-ref="scroll_container"
+        @scroll="handle_overscroll()"
         :data-table-id="table_id"
     >
         <table
             class="table table-hover table-striped fs-7 w-100 {% block table_class %}{% endblock %}"
-            :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;')"
+            :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (header_locked || any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;') + '; opacity: ' + (table_visible ? '1' : '0') + '; transition: opacity 150ms ease-in;'"
         >
             <thead class="{% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
                 <tr

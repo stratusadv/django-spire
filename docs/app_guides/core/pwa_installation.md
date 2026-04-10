@@ -1,20 +1,42 @@
-# Progressive Web App Installation
+# PWA Installation
 
-Follow this process to setup your project with Progressive Web App (PWA) support.
+> **Purpose:** Configure your Django Spire project as an installable Progressive Web App, enabling users to add it to their home screen on both iOS and Android/Chrome with native-like behaviour.
 
-### Step 1: Create a `django_spire/favicons/` directory in your `static` or `static_files` directory
+---
 
-### Step 2: Create a `manifest.json` file in the favicons directory.
+## Why PWA?
 
-### Step 3: Copy and paste the content below into the `manifest.json` file.
+Installable web apps close the gap between a website and a native app. **PWA support in Django Spire** provides:
 
-This will be used to store the related information needed for the PWA system.
+- A web manifest that tells browsers how to present your app when installed
+- A built-in iOS install prompt with Safari-specific instructions
+- A built-in Android/Chrome install button that hooks into the browser's `beforeinstallprompt` event
+- Template blocks on both install elements so you can customise icons, text, and button styles without touching core files
+
+---
+
+## Quick Start
+
+### 1. Create the Favicons Directory
+
+Create a `django_spire/favicons/` directory inside your project's `static` or `staticfiles` directory:
+
+```
+your_project/
+└── static/
+    └── django_spire/
+        └── favicons/
+```
+
+### 2. Create `manifest.json`
+
+Add a `manifest.json` file to the favicons directory:
 
 ```json
 {
-    "name": "Django Spire Portal",
-    "short_name": "Django Spire",
-    "description": "Django Spire Portal",
+    "name": "Your App Name",
+    "short_name": "Your App",
+    "description": "Your app description",
     "icons": [
         {
             "src": "android-chrome-192x192.png",
@@ -38,47 +60,70 @@ This will be used to store the related information needed for the PWA system.
 }
 ```
 
-### Step 4: Update the content in the `manifest.json` file to your project's specific details.
+Update the fields to match your project. Ensure `src` values point to icon files that exist in the favicons directory.
 
-- Ensure that `src` points to the path to your installation icons
-- Make sure that `<link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">` is included in your `base.html` file. 
-(Included in Spire `base.html` by default)
+### 3. Verify the Manifest Link
 
-### Step 5: Override IOS Element Template File
+The Django Spire `base.html` includes the manifest link by default:
 
-For the IOS PWA element you will need to override the template and extend the blocks with your projects respective information.
-**Note**: If not directly overriding / changing the 
-`django_spire/auth/button/ios_install_button.html`, ensure that your element is assigned the ID `ios-install-button`
-
-#### Example:
-
-```html title='templates/django_spire/auth/element/ios_app_install_element.html'
-{% extends 'django_spire/auth/element/ios_app_install_element.html' %}
-
-{% load static %}
-
-{% block app_icon %}{% static 'core/favicon/android-chrome-192x192.png' %}{% endblock %}
-
-{% block alt_text %}Stratus ADV{% endblock %}
-
-{% block modal_trigger %}
-    % include 'django_spire/auth/button/ios_install_button.html' with button_type='btn-app-primary-outlined' %
-{% endblock %}
+```html
+--8<-- "docs/app_guides/core/templates/pwa_manifest_link.html"
 ```
 
-### Step 6: Override Android / Chrome Element Template File
+If you are using a custom base template, add this line inside your `<head>` block.
 
-If desired, override the android install button. **Note**: If not directly overriding / changing the 
-`django_spire/auth/button/android_install_button.html`, ensure that your element is assigned the ID `android-install-button`
+---
 
-#### Example:
+## Core Concepts
 
-```html title='templates/django_spire/auth/element/android_and_chrome_app_install_element.html'
-{% extends 'django_spire/auth/element/android_and_chrome_app_install_element.html' %}
+### The iOS Install Element
 
-{% block install_button %}
-    % include 'django_spire/auth/button/android_install_button.html' with button_type='btn-app-primary-outlined' %
-{% endblock %}
+Renders a button and modal that guide iOS users through the manual "Add to Home Screen" flow in Safari. Override the template to supply your app's icon and branding.
+
+**Template path to override:**
+```
+templates/django_spire/auth/element/ios_app_install_element.html
 ```
 
-You should now see an `Install App` button on the login page that when clicked will install your project as a PWA!
+**Available blocks:**
+
+| Block | Description |
+|---|---|
+| `app_icon` | URL of the app icon shown in the modal |
+| `alt_text` | Alt text for the app icon |
+| `modal_trigger` | The button that opens the install instructions modal |
+
+### The Android / Chrome Install Element
+
+Listens for the browser's `beforeinstallprompt` event and shows an install button when the browser determines the app is installable. Override the template to customise the button.
+
+**Template path to override:**
+```
+templates/django_spire/auth/element/android_and_chrome_app_install_element.html
+```
+
+**Available block:**
+
+| Block | Description |
+|---|---|
+| `install_button` | The button shown to Android/Chrome users |
+
+> **Note:** If you are not overriding `android_install_button.html` directly, ensure your custom install button element has the id `android-install-button` so the `beforeinstallprompt` JavaScript can find it.
+
+---
+
+## Main Operations
+
+### Overriding the iOS Install Element
+
+```html
+--8<-- "docs/app_guides/core/templates/pwa_ios_override.html"
+```
+
+### Overriding the Android / Chrome Install Element
+
+```html
+--8<-- "docs/app_guides/core/templates/pwa_android_override.html"
+```
+
+Once both elements are in place, users will see an **Install App** button on the login page. Clicking it installs the project as a PWA on their device.

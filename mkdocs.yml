@@ -40,33 +40,47 @@ nav:
           - Chat Assistant: app_guides/ai/chat/overview.md
           - SMS Conversation: app_guides/ai/sms/overview.md
       - Comment:
-          - Basics: app_guides/comment/basics.md
-      - Contrib:
-          - Admin: app_guides/contrib/admin.md
-          - Choices: app_guides/contrib/choices.md
-          - JSON Responses: app_guides/contrib/json_responses.md
-      - Core:
-          - Shortcuts: app_guides/core/shortcuts.md
-          - Filtering: app_guides/core/filtering.md
-          - GlueHelpers: app_guides/core/glue_helpers.md
-          - PWA Installation: app_guides/core/pwa_installation.md
+          - Comments: app_guides/comment/comments.md
+          - Tagging: app_guides/comment/tagging.md
+      - Help Desk:
+          - Tickets: app_guides/help_desk/tickets.md
+          - Notifications: app_guides/help_desk/notifications.md
+          - Exceptions: app_guides/help_desk/exceptions.md
       - Metric:
           - Report: app_guides/metric/report.md
       - Notification:
-          - Automations: app_guides/notification/automations.md
           - App Notifications: app_guides/notification/app_notifications.md
           - Email Notifications: app_guides/notification/email_notifications.md
           - SMS Notifications: app_guides/notification/sms_notifications.md
+          - Automations: app_guides/notification/automations.md
+          - Processors: app_guides/notification/processors.md
+          - Exceptions: app_guides/notification/exceptions.md
       - Ordering:
           - Ordering: app_guides/ordering/ordering.md
+          - Exceptions: app_guides/ordering/exceptions.md
       - Seeding:
           - Overview: app_guides/seeding/overview.md
           - Getting Started: app_guides/seeding/getting_started.md
           - Faker: app_guides/seeding/faker.md
       - Service Layer:
           - Overview: app_guides/service/overview.md
+  - Contrib:
+      - Admin: app_guides/contrib/admin.md
+      - Breadcrumbs: app_guides/contrib/breadcrumbs.md
+      - Choices: app_guides/contrib/choices.md
+      - JSON Responses: app_guides/contrib/json_responses.md
+      - Changelog: app_guides/contrib/changelog.md
+      - HTML Renderer: app_guides/contrib/html_renderer.md
+      - Pagination: app_guides/contrib/pagination.md
+      - Progress: app_guides/contrib/progress.md
+      - QuerySet Utilities: app_guides/contrib/queryset.md
+  - Core:
+      - Filtering: app_guides/core/filtering.md
+      - Glue Helpers: app_guides/core/glue_helpers.md
+      - PWA Installation: app_guides/core/pwa_installation.md
+      - Shortcuts: app_guides/core/shortcuts.md
   - Components:
-      - Accordion: components/accordian.md
+      - Accordion: components/accordion.md
       - Badge: components/badge.md
       - Button: components/button.md
       - Card: components/card.md
@@ -92,6 +106,9 @@ nav:
       - Archived: changelog/archived_changelog.md
   - About:
       - Contributors: about/contributors.md
+
+exclude_docs: |
+  TEMPLATE_DOC.md
 
 plugins:
   - gen-files:

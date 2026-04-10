@@ -106,11 +106,12 @@ class BaseModelSeeder(ABC):
                 seed_data.append(seeder.seed(cls, count))
 
         formatted_seed_data = [
-            {} for _ in range(max(len(sublist) for sublist in seed_data))
+            {} for _ in range(count)
         ]
+
         for sublist in seed_data:
-            for i, d in enumerate(sublist):
-                formatted_seed_data[i].update(d)
+            for i, data in enumerate(formatted_seed_data):
+                data.update(sublist[i])
 
         if cls.cache_seed:
             cache.set(cache_key, formatted_seed_data)

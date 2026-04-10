@@ -9,6 +9,8 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
     'report': 'django_spire.metric.report.auth.controller.BaseReportAuthController',
 }
 
+DJANGO_SPIRE_CHANGELOG_MODULE = 'changelog.changelog'
+
 # AI Settings
 DJANGO_SPIRE_AI_PERSONA_NAME = 'AI Assistant'
 DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER = 'SPIRE'

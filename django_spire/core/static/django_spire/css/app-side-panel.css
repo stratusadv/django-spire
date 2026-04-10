@@ -2,7 +2,7 @@
     background: var(--app-layer-one);
     border-color: var(--app-primary);
     height: var(--app-side-panel-height);
-    top: var(--app-top-navigation-height);
+    top: calc(var(--app-top-navigation-height) + var(--app-command-bar-height));
 }
 
 .panel-toggle-container {
@@ -76,6 +76,11 @@
 
     .pe-panel-offset {
         padding-right: 2.0rem;
+    }
+
+    .side-panel {
+        height: 100dvh;
+        top: 0;
     }
 
     .side-panel-left,

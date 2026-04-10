@@ -1,5 +1,6 @@
 <a
     class="d-flex align-items-center rounded-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation ds-fs-9 {{ link_class }}"
+    href="{{ link_url }}"
     {% if not disable_overlay %}
     x-data="{
         current_path: '{{ request.path }}',
@@ -11,9 +12,22 @@
         },
 
         redirect() {
-            toggleLoadingSpinner();
+            const SPINNER_DELAY = 1000;
+            const url = `{{ link_url }}`;
 
-            window.location = `{{ link_url }}`;
+            let spinnerTimer = setTimeout(() => {
+                toggleLoadingSpinner();
+            }, SPINNER_DELAY);
+
+            fetch(url, { method: 'GET' })
+                .then(() => {
+                    clearTimeout(spinnerTimer);
+                    window.location = url;
+                })
+                .catch(() => {
+                    clearTimeout(spinnerTimer);
+                    window.location = url;
+                });
         }
     }"
     :class="{
@@ -21,10 +35,9 @@
         'justify-content-center px-0': collapsed,
         'gap-2 px-3': !collapsed
     }"
-    @click="redirect()"
+    @click.prevent="redirect()"
     x-init="$dispatch('accordion-link', { url_path: link_path })"
     {% else %}
-    href="{{ link_url }}"
     :class="{
         'justify-content-center px-0': collapsed,
         'gap-2 px-3': !collapsed

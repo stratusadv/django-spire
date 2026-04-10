@@ -1,0 +1,15 @@
+<div class="ds-example">
+<p class="ds-example-label">Preview</p>
+<div x-data="{ open: false }" class="border rounded overflow-hidden" style="max-width: 480px;">
+    <div @click="open = !open"
+         class="d-flex justify-content-between align-items-center px-3 py-2 user-select-none"
+         style="cursor: pointer; background-color: var(--md-code-bg-color);">
+        <span class="fw-semibold">Project Overview</span>
+        <i class="bi" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </div>
+    <div x-show="open" x-transition x-cloak class="px-3 py-2 border-top">
+        Django Spire is a collection of reusable Django apps and utilities
+        that accelerate building production-ready web applications.
+    </div>
+</div>
+</div>
