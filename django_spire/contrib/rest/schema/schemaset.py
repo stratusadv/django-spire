@@ -5,7 +5,7 @@ from typing import (
     Generic,
     Iterator,
     Callable,
-    Any, TYPE_CHECKING,
+    Any,
 )
 
 from django_spire.contrib.rest import RestSchema
@@ -27,7 +27,6 @@ class RestSchemaSet(Generic[TSchema]):
         _offset: int = 0,
         _cached_results: list[TSchema] | None = None,
     ):
-        self.rest_client = schema_class.rest_client
         self._request_params = _request_params
         self._schema_class = schema_class
 
@@ -60,9 +59,9 @@ class RestSchemaSet(Generic[TSchema]):
             return self._cached_results
 
         if self._request_params:
-            results = self.rest_client.read(**self._request_params)
+            results = self._schema_class.read_many(**self._request_params)
         else:
-            results = self.rest_client.read()
+            results = self._schema_class.read_many()
 
         # Apply filters
         for fn in self._filters:
@@ -145,7 +144,7 @@ class RestSchemaSet(Generic[TSchema]):
             return clone
         raise TypeError(f"Invalid index type: {type(key)}")
 
-    def add_prefetch_params(
+    def with_request_params(
         self,
         **kwargs,
     ) -> RestSchemaSet[TSchema]:
@@ -234,10 +233,13 @@ class RestSchemaSet(Generic[TSchema]):
         Return exactly one result matching kwargs.
         Raises LookupError if zero or multiple results.
         """
-        if request_params:
-            # Direct fetch by ID/params - use schema_class or client
-            if self.rest_client is not None and hasattr(self._schema_class, 'read_one'):
-                return self.rest_client.read_one(**request_params)
+
+        if not self._cached_results:
+            try:
+                # Direct fetch by ID/params - use client from schema class
+                return self._schema_class.read_one(**request_params)
+            except NotImplementedError:
+                pass
 
         results = list(self.filter(**kwargs) if kwargs else self)
         schema_name = self._schema_class.__name__ if self._schema_class else 'object'

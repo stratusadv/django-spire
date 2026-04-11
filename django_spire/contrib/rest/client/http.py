@@ -16,7 +16,6 @@ class BaseRestHttpClient(BaseRestClient, ABC):
     base_url: str
     base_path: str = ''
     base_headers: dict[str, str] = {}
-    auth: AuthBase | None = None
     timeout: int = 30
 
     def __init_subclass__(cls, **kwargs):
@@ -54,20 +53,28 @@ class BaseRestHttpClient(BaseRestClient, ABC):
         method: str,
         path: str | None = None,
         headers: dict[str, str] | None = None,
+        auth: bool | AuthBase | None = True,
         **kwargs,
     ) -> requests.Response:
         merged_headers = {**self.base_headers, **(headers or {})}
+
+        if isinstance(auth, bool):
+            if auth:
+                auth = self.auth
+            else:
+                auth = None
 
         response = requests.request(
             method=method,
             url=self._build_url(path),
             headers=merged_headers,
-            auth=self.auth,
+            auth=auth,
             timeout=self.timeout,
             **kwargs,
         )
 
         response.raise_for_status()
+
         return response
 
     def get(self, path: str | None = None, **kwargs) -> requests.Response:
@@ -84,3 +91,7 @@ class BaseRestHttpClient(BaseRestClient, ABC):
 
     def delete(self, path: str | None = None, **kwargs) -> requests.Response:
         return self.request('DELETE', path, **kwargs)
+
+    @property
+    def auth(self) -> AuthBase | None:
+        return None
