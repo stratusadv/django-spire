@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.30.2
+
+### Fixes
+- Fix broken auth template/URLs
+
 ## v0.30.1
 
 ### Fixes
