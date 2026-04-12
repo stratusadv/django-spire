@@ -4,14 +4,17 @@
 
 ---
 
-- Austin Sauer
 - Brayden Carlson
+- Chase Mossing
 - Nathan Johnson
-- Wesley Howery
 - O'Brien Little
+- Ralph Uy
+- Tyrell Martens
+- Wesley Howery
+- Wesley Waldern
 
 ## Contributors
 
 ---
 
-- Ghosts
+- Austin Sauer

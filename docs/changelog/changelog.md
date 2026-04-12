@@ -1,5 +1,52 @@
 # Changelog
 
+## v0.30.1
+
+### Fixes
+- Added .woff2 fonts with build
+
+## v0.30.0
+
+### Breaking
+- Removed old implementation of file uploading
+
+### Fixes
+- Fixed truncated/relative include and extend paths in templates
+- Our `Site` object will pull from `DJANGO_SITE_NAME` and `DJANGO_SITE_DOMAIN` in our environment variables
+    - This addresses issues using the HTML renderer and password reset functionality
+- Added a guard to the `SessionController` so it wasn't raising errors in the console
+
+### Changes
+- Updated fonts from .ttf to .woff2
+- Added an option in settings to switch between online vs. offline seeding
+- Added `preconnect` and `defer` to improve performance of first page load
+
+## v0.29.18
+
+### Changes
+- Update django-glue requirement to v0.8.13.
+
+## v0.29.17
+
+### Changes
+- Allow the top nav. to be targetable by the navigation CSS class
+
+### Fixes
+- Fix changelog to broadcast number of entries
+
+## v0.29.16
+
+### Changes
+- Updated `base_button.html` to have loading state when using `x_button_click` or `button_modal_href`.
+- Updated button themes page to use loading state.
+
+## v0.29.15
+
+### Change
+- Added `dispatch_confirmation_modal_form_content` to handle general confirmation logic, such as "Mark as Completed" actions.
+- Added a generic `ConfirmationForm` template for standardized user confirmations.
+- Added tests for `ConfirmationForm` and views.
+
 ## v0.29.14
 
 ### Changes

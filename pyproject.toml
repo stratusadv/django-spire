@@ -45,7 +45,7 @@ dependencies = [
     "dandy==2.0.0",
     "django>=5.1.8",
     "django-crispy-forms==2.3",
-    "django-glue>=0.8.12",
+    "django-glue==0.8.13",
     "django-sendgrid-v5",
     "django-storages==1.14.5",
     "docutils",
@@ -121,6 +121,7 @@ django_spire = [
     "**/*.jpg",
     "**/*.jpeg",
     "**/*.ttf",
+    "**/*.woff2"
 ]
 
 [tool.setuptools.dynamic]

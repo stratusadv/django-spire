@@ -1,0 +1,5 @@
+{% extends 'django_spire/auth/element/android_and_chrome_app_install_element.html' %}
+
+{% block install_button %}
+    {% include 'django_spire/auth/button/android_install_button.html' with button_type='btn-app-primary-outlined' %}
+{% endblock %}

@@ -1,0 +1,32 @@
+<div class="ds-example">
+<p class="ds-example-label">Preview (click to simulate a server load)</p>
+<div x-data="{
+    show: false,
+    loaded: false,
+    loading: false,
+    async renderOrToggle() {
+        if (this.loaded) { this.show = !this.show; return; }
+        this.show = true;
+        this.loading = true;
+        await new Promise(r => setTimeout(r, 700));
+        this.loading = false;
+        this.loaded = true;
+    }
+}" style="max-width: 480px;">
+    <div @click="renderOrToggle()"
+         class="d-flex justify-content-between align-items-center px-3 py-2 border rounded user-select-none"
+         style="cursor: pointer; background-color: var(--md-code-bg-color);">
+        <span class="fw-semibold">Shipment Details</span>
+        <span x-show="loading" x-cloak class="spinner-border spinner-border-sm text-secondary" role="status"></span>
+        <i x-show="!loading" class="bi" :class="show && loaded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </div>
+    <div x-show="show && loading" x-cloak class="px-3 py-2 border border-top-0 rounded-bottom text-muted small">
+        Loading&hellip;
+    </div>
+    <div x-show="show && loaded" x-transition x-cloak class="px-3 py-2 border border-top-0 rounded-bottom">
+        <strong>Tracking:</strong> 1Z999AA10123456784<br>
+        <strong>Carrier:</strong> UPS Ground<br>
+        <strong>Est. Delivery:</strong> April 8, 2026
+    </div>
+</div>
+</div>

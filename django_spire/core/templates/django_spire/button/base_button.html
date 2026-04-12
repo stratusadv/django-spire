@@ -1,10 +1,36 @@
 <a
     class="btn shadow-sm {% block button_class %}{% endblock %} {{ button_class|default:'btn-sm' }}"
     {% block button_attributes %}{% endblock %}
-        {{ button_attributes }}
+    {{ button_attributes }}
     {% if button_href %}href="{{ button_href }}{{ button_url_params }}"{% endif %}
-    {% if x_button_click or button_modal_href %}@click="{% if button_modal_href %}dispatch_modal_view('{{ button_modal_href }}'){% else %}{{ x_button_click }}{% endif %}"{% endif %}
+    {% if x_button_click or button_modal_href %}
+        x-data="{
+            is_loading: false,
+            async buttonClickEvent() {
+                if (this.is_loading) return;
+                this.is_loading = true;
+                await {% if button_modal_href %}dispatch_modal_view('{{ button_modal_href }}'){% else %}{{ x_button_click }}{% endif %}
+                this.is_loading = false;
+            }
+        }"
+        @click="buttonClickEvent()"
+    {% endif %}
 >
+    {% if x_button_click or button_modal_href %}
+        <div x-cloak x-show="is_loading">
+            <div
+                x-transition
+                class="{{ loading_class|default:'spinner-border spinner-border-sm me-1' }}"
+                role="status"
+            >
+            </div>
+            <span class="{{ loading_text_class }}">
+                {{ loading_text|default:'Loading...' }}
+            </span>
+        </div>
+        <span x-cloak x-show="!is_loading">
+    {% endif %}
+
     {% if button_icon %}
         <i class="{{ button_icon }}"></i>
     {% endif %}
@@ -13,5 +39,9 @@
 
     {% if x_button_text %}
         <span x-text="{{ x_button_text }}"></span>
+    {% endif %}
+
+    {% if x_button_click or button_modal_href %}
+        </span>
     {% endif %}
 </a>

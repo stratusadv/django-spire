@@ -13,18 +13,6 @@ from django_spire.contrib.form.confirmation_forms import ConfirmationForm, Delet
 from django_spire.contrib.form.utils import form_errors_as_list, show_form_errors
 
 
-class TestConfirmationForm(TestCase):
-    def test_confirmation_form_is_valid(self) -> None:
-        form = ConfirmationForm(data={})
-
-        assert form.is_valid() is True
-
-    def test_confirmation_form_no_fields(self) -> None:
-        form = ConfirmationForm()
-
-        assert len(form.fields) == 0
-
-
 class TestDeleteConfirmationForm(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(

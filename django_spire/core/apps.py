@@ -10,3 +10,6 @@ class DjangoSpireConfig(AppConfig):
 
     URLPATTERNS_INCLUDE = 'django_spire.core.urls'
     URLPATTERNS_NAMESPACE = 'core'
+
+    def ready(self) -> None:
+        import django_spire.core.signals  # noqa: F401, PLC0415
