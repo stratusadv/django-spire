@@ -1,0 +1,16 @@
+{% if celery_tasks %}
+    {% for celery_task in celery_tasks %}
+        <div x-data="{
+            reload_task() {
+                let task_view = new ViewGlue(`/django_spire/celery/task/{{ celery_task.key }}/`)
+                task_view.render_inner(this.$refs.task_div, {})
+            }
+        }" class="row">
+            <div x-ref="task_div" class="col">
+                {% include 'django_spire/celery/task.html' %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    No Tasks
+{% endif %}

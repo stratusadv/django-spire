@@ -24,31 +24,33 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
         length = request.POST.get('length')
 
         if length is not None:
-            task_request = pirate_noise_task.apply_async(
+            length = int(length)
+
+            async_result = pirate_noise_task.apply_async(
                 (length,),
-                eta=datetime.datetime.now() + timedelta(seconds=int(length)+2),
+                eta=datetime.datetime.now() + timedelta(seconds=length+2),
             )
 
             CeleryTask.register(
-                task_id=task_request.id,
+                async_result=async_result,
                 app_label='test_project_celery',
                 reference_name='pirate_noise_task',
             )
 
-            context['task_id'] = task_request.id
+            context['task_id'] = async_result.id
             context['length'] = length
             context['info'] = 'Your Request has been sent successfully!'
 
         check_task_id = request.POST.get('check_task_id')
 
         if check_task_id is not None:
-            task_request = AsyncResult(check_task_id)
+            async_result = AsyncResult(check_task_id)
 
             context['task_id'] = check_task_id
-            context['state'] = task_request.state
+            context['state'] = async_result.state
 
-            if task_request.state == 'SUCCESS':
-                context['result'] = task_request.get(timeout=1)
+            if async_result.state == 'SUCCESS':
+                context['result'] = async_result.get(timeout=1)
 
     return TemplateResponse(
         request,

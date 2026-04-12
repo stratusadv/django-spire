@@ -1,0 +1,21 @@
+<div x-data="{
+    init() {
+        if('{{ celery_task.status }}' === 'PENDING') {
+            setTimeout(() => reload_task(), 3000)
+        }
+    }
+}" class="row">
+    <div class="col">
+        >
+        {{ celery_task.reference_name }}
+        >
+        {{ celery_task.status }}
+        >
+        {{ celery_task.started_datetime }}
+        {% if celery_task.status == 'PENDING' %}
+            <div class="spinner-border spinner-border-sm text-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        {% endif %}
+    </div>
+</div>

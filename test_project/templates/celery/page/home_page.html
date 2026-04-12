@@ -1,5 +1,7 @@
 {% extends 'django_spire/page/full_page.html' %}
 
+{% load celery %}
+
 {% block full_page_content %}
 
     <div class="row mt3">
@@ -60,4 +62,7 @@
         </div>
     </div>
 
+    {% celery_tasks_widget 'test_project_celery' 'pirate_noise_task' %}
+
 {% endblock %}
+
