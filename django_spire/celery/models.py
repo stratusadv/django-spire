@@ -10,7 +10,7 @@ from django_spire.conf import settings
 
 class CeleryTask(models.Model):
     object_hash = models.TextField()
-    task_name = models.TextField()
+    reference_name = models.TextField()
     task_id = models.UUIDField(editable=False)
 
     class StatusChoices(models.TextChoices):
@@ -23,33 +23,37 @@ class CeleryTask(models.Model):
     finished_datetime = models.DateTimeField(null=True, blank=True)
     estimated_completion_datetime = models.DateTimeField(null=True, blank=True)
 
+    @classmethod
     def register(
-            self,
-            celery_task: celery.Task,
+            cls,
+            task_id: str,
             app_label: str,
+            reference_name: str,
             model_object: models.Model | None = None,
-            task_name: str | None = None,
     ) -> None:
-        if app_label is None and model_object is None and  task_name is None:
-            raise ValueError('CeleryTask.register requires `app_label` and `model_object` or `task_name`')
+        object_hash = cls._generate_hash(
+            app_label=app_label,
+            model_object=model_object,
+            reference_name=reference_name,
+        )
+
+        cls.objects.create(
+            object_hash=object_hash,
+            reference_name=reference_name,
+            task_id=task_id,
+        )
 
     @staticmethod
-    def _object_hash(
-            django_model_object: models.Model | None = None,
-            app_label: str | None = None,
-            reference_name: str | None = None,
-    ) -> str | None:
-        hashable_string: str = ''
+    def generate_hash(
+            app_label: str,
+            reference_name: str,
+            model_object: models.Model | None = None,
+    ) -> str:
+        hashable_string = f'{app_label}.{reference_name}'
 
-        if django_model_object:
-            hashable_string = f'{django_model_object.__class__.__name__}.{django_model_object.pk}'
+        if model_object:
+            hashable_string += f'.{model_object.__class__.__name__}.{model_object.pk}'
 
-        elif app_label and reference_name:
-            hashable_string = f'{app_label}.{reference_name}'
+        hashable_string += settings.SECRET_KEY
 
-        if len(hashable_string) > 0:
-            hashable_string += settings.SECRET_KEY
-            return hashlib.md5(hashable_string.encode()).hexdigest()
-
-        return None
-
+        return hashlib.md5(hashable_string.encode()).hexdigest()
