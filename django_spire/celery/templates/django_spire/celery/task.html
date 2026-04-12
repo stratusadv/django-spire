@@ -1,0 +1,49 @@
+{% load humanize %}
+
+<div x-data="{
+    is_processing: '{{ celery_task.is_processing}}',
+    init() {
+        if(this.is_processing === 'True') {
+            const jittered_reload_delay = Math.floor(Math.random() * 2000) + 3000
+            setTimeout(() => reload_task(), jittered_reload_delay)
+        }
+    }
+}"
+     class="toast-header border-0 pe-1 py-1 {% if celery_task.is_processing %}text-app-primary bg-app-layer-three{% elif celery_task.is_successful %}text-app-success bg-app-success-soft{% elif celery_task.is_failed %}text-app-danger bg-app-danger-soft{% endif %}">
+
+    <div class="me-auto fw-semibold">
+        {% if celery_task.is_processing %}
+            <div class="spinner-border spinner-border-sm text-app-info" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        {% elif celery_task.is_successful %}
+            <i class="bi bi-check-circle-fill"></i>
+        {% elif celery_task.is_failed %}
+            <i class="bi bi-exclamation-circle-fill"></i>
+        {% endif %}
+        &nbsp;{{ celery_task.reference_name_display }}
+    </div>
+
+    <div class="text-muted cursor-pointer py-1 px-2" data-bs-dismiss="toast" aria-label="Close"><i
+            class="bi bi-x-lg"></i></div>
+
+</div>
+
+<div class="toast-body fs-7 py-2 text-muted">
+    {% if celery_task.is_processing %}
+        {% if celery_task.is_estimated_complete_soon %}
+            Completing Soon
+        {% else %}
+            Estimated {{ celery_task.estimated_time_remaining_verbose }} remaining
+        {% endif %}
+
+    {% elif celery_task.is_successful %}
+        Completed at {{ celery_task.completed_datetime|date:'g:i a l, F jS' }}
+        <div class="fs-8">Took {{ celery_task.completion_time_verbose }}</div>
+
+    {% elif celery_task.is_failed %}
+        Task Encountered an Error or Took to Long
+        <div class="fs-8">Please try again, if the issues persists contact support</div>
+
+    {% endif %}
+</div>

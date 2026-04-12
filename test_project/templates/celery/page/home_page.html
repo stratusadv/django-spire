@@ -1,0 +1,76 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% load celery %}
+
+{% block full_page_content %}
+
+    <div class="row mt3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-info">
+            This uses our powerful compute to make pirate noises.
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
+            Set your noise length
+            <form method="post">
+                {% csrf_token %}
+                <input type="number" name="length" value="{{ length }}"/>
+                <input type="submit" value="Submit"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
+            {% if info %}
+                {{ info }}
+            {% else %}
+                No Information
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
+            Check Task
+            <form method="post">
+                {% csrf_token %}
+                <input type="text" name="check_task_id" value="{{ task_id }}"/>
+                <input type="submit" value="Submit"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
+            {% if state %}
+                {{ state }}
+            {% else %}
+                No Task State
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
+            {% if result %}
+                {{ result }}
+            {% else %}
+                No Task Result
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
+            <div class="btn btn-app-accent" @click="$dispatch('celery_reload_task_widget')">
+                Celery Reload Task Widget
+            </div>
+        </div>
+    </div>
+
+    {% celery_tasks_widget 'test_project.apps.celery' 'pirate_noise_task' %}
+
+{% endblock %}
+

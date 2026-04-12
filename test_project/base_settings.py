@@ -92,6 +92,7 @@ INSTALLED_APPS += [
     'django_spire.auth.mfa',
     'django_spire.auth.group',
     'django_spire.auth.user',
+    'django_spire.celery',
     'django_spire.contrib.breadcrumb',
     'django_spire.comment',
     'django_spire.core',
@@ -130,6 +131,7 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
 
 INSTALLED_APPS += [
     'test_project.apps.ai',
+    'test_project.apps.celery',
     'test_project.apps.comment',
     'test_project.apps.file',
     'test_project.apps.help_desk',
@@ -244,3 +246,8 @@ STORAGES = {
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
 STATIC_ROOT = str(BASE_DIR / 'static')
+
+# Celery
+
+CELERY_BROKER_URL = f'amqp://{os.getenv("CELERY_AMQP_USER")}:{os.getenv("CELERY_AMQP_PASSWORD")}@{os.getenv("CELERY_AMQP_HOST")}'
+CELERY_RESULT_BACKEND = f'db+postgresql+psycopg2://{os.getenv("CELERY_PGSQL_USER")}:{os.getenv("CELERY_PGSQL_PASSWORD")}@{os.getenv("CELERY_PGSQL_HOST")}:{os.getenv("CELERY_PGSQL_PORT")}/{os.getenv("CELERY_PGSQL_DATABASE")}'
