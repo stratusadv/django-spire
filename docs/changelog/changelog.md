@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.30.0
+
+### Breaking
+- Removed old implementation of file uploading
+
+### Fixes
+- Fixed truncated/relative include and extend paths in templates
+- Our `Site` object will pull from `DJANGO_SITE_NAME` and `DJANGO_SITE_DOMAIN` in our environment variables
+    - This addresses issues using the HTML renderer and password reset functionality
+- Added a guard to the `SessionController` so it wasn't raising errors in the console
+
+### Changes
+- Updated fonts from .ttf to .woff2
+- Added an option in settings to switch between online vs. offline seeding
+- Added `preconnect` and `defer` to improve performance of first page load
+
 ## v0.29.18
 
 ### Changes
