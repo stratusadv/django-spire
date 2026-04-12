@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block page_center_card_content %}
-    {% include 'django_spire/notification/../../../../../core/templates/spire/messages/notification.html' %}
+    {% include 'django_spire/messages/messages.html' %}
 
     {% if form_description %}
         {% include 'django_spire/note/info_note.html' with note_type='Note' note_text=form_description %}
