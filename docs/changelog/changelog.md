@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.30.1
+
+### Fixes
+- Added .woff2 fonts with build
+
 ## v0.30.0
 
 ### Breaking
