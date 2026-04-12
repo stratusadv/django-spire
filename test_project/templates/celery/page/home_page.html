@@ -62,7 +62,15 @@
         </div>
     </div>
 
-    {% celery_tasks_widget 'test_project_celery' 'pirate_noise_task' %}
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
+            <div class="btn btn-app-accent" @click="$dispatch('celery_reload_task_widget')">
+                Celery Reload Task Widget
+            </div>
+        </div>
+    </div>
+
+    {% celery_tasks_widget 'test_project.apps.celery' 'pirate_noise_task' %}
 
 {% endblock %}
 

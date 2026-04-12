@@ -5,6 +5,7 @@ from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from celery.result import AsyncResult
+from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
 from django_spire.celery.models import CeleryTask
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
+@login_required
 def celery_home_view(request: WSGIRequest) -> TemplateResponse:
     template = 'celery/page/home_page.html'
 
@@ -28,13 +30,13 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
 
             async_result = pirate_noise_task.apply_async(
                 (length,),
-                eta=datetime.datetime.now() + timedelta(seconds=length+2),
             )
 
             CeleryTask.register(
                 async_result=async_result,
-                app_label='test_project_celery',
+                app_name='test_project.apps.celery',
                 reference_name='pirate_noise_task',
+                estimated_completion_seconds=length,
             )
 
             context['task_id'] = async_result.id

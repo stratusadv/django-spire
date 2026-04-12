@@ -12,14 +12,23 @@ register = template.Library()
 
 @register.simple_tag
 def celery_tasks_widget(
-        app_label: str,
+        app_name: str,
         reference_name: str,
         model_object: models.Model | None = None,
 ):
-    object_hash = CeleryTask.generate_hash(app_label, reference_name, model_object)
+    CeleryTask.validate_register_arguments(
+        app_name=app_name,
+        reference_name=reference_name,
+    )
+
+    reference_key = CeleryTask.generate_reference_key(
+        app_name=app_name,
+        reference_name=reference_name,
+        model_object=model_object
+    )
 
     context = {
-        'celery_task_object_hash': object_hash,
+        'celery_task_reference_key': reference_key,
     }
 
     return get_template(

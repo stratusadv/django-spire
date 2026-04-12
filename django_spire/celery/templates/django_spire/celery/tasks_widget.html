@@ -1,14 +1,14 @@
-<div x-data="{
+<div
+    x-data="{
         reload_task_widget() {
-            let widget_view = new ViewGlue(`/django_spire/celery/task/list/{{ celery_task_object_hash }}/`)
-            widget_view.render_inner(this.$refs.widget_div, {})
+            let widget_view = new ViewGlue(`/django_spire/celery/task/list/{{ celery_task_reference_key }}/`)
+            widget_view.render_inner($el, {})
         },
         init() {
             this.reload_task_widget()
         }
     }"
-    class="row w-100 border border-danger">
-    <div x-ref="widget_div" class="col">
-        NOT LOADED
-    </div>
+    class="toast-container position-absolute end-0 bottom-0 px-3"
+    @celery_reload_task_widget.window="reload_task_widget()"
+>
 </div>

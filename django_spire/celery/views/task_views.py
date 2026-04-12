@@ -18,8 +18,7 @@ def task_view(request: WSGIRequest, key: str) -> TemplateResponse:
 
     celery_task = get_object_or_404(CeleryTask, key=key)
 
-    celery_task.update_status_from_result()
-    celery_task.save()
+    celery_task.update_from_async_result_and_save()
 
     context = {
         'celery_task': celery_task
@@ -33,10 +32,10 @@ def task_view(request: WSGIRequest, key: str) -> TemplateResponse:
 
 
 @login_required
-def task_list_view(request: WSGIRequest, object_hash: str) -> TemplateResponse:
+def task_list_view(request: WSGIRequest, reference_key: str) -> TemplateResponse:
     template = 'django_spire/celery/task_list.html'
 
-    celery_tasks = CeleryTask.objects.filter(object_hash=object_hash)
+    celery_tasks = CeleryTask.objects.by_pending_and_reference_key(reference_key)
 
     context = {
         'celery_tasks': celery_tasks
