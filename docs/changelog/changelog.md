@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.30.3
+
+### Fixes
+- Fixed login email form using auto capitalizing and autocorrect on mobile devices
+- Added `user-select-none` to `card_title_dropdown` to prevent multiple clicks highlighting all content
+
+### Changes
+- Moved `auth/form/login_form.html` form elements to use `django_spire` templates instead of `django_glue` templates
+
 ## v0.30.2
 
 ### Fixes
