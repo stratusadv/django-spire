@@ -1,7 +1,7 @@
 import hashlib
-import uuid
 from datetime import timedelta
 
+from celery import states
 from celery.result import AsyncResult
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
@@ -13,21 +13,13 @@ from django_spire.conf import settings
 
 
 class CeleryTask(models.Model):
-    key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    task_id = models.UUIDField(editable=False)
     reference_key = models.CharField(max_length=128)
 
     app_name = models.CharField(max_length=128)
     reference_name = models.CharField(max_length=128)
-    task_id = models.UUIDField(editable=False)
 
-    class StatusChoices(models.TextChoices):
-        PENDING = ('PENDING', 'Pending')
-        STARTED = ('STARTED', 'Started')
-        RETRY = ('RETRY', 'Retry')
-        SUCCESS = ('SUCCESS', 'Success')
-        FAILURE = ('FAILURE', 'Failure')
-
-    status = models.CharField(max_length=10, choices=StatusChoices, default=StatusChoices.PENDING)
+    state = models.CharField(max_length=16, choices=((state, state) for state in states.ALL_STATES), default=states.PENDING)
     started_datetime = models.DateTimeField(default=now)
     completed_datetime = models.DateTimeField(null=True, blank=True)
     estimated_completion_datetime = models.DateTimeField(default=now)
@@ -92,15 +84,15 @@ class CeleryTask(models.Model):
 
     @property
     def is_failed(self) -> bool:
-        return self.status == self.StatusChoices.FAILURE
+        return self.state == states.FAILURE
 
     @property
     def is_successful(self) -> bool:
-        return self.status == self.StatusChoices.SUCCESS
+        return self.state == states.SUCCESS
 
     @property
     def is_processing(self) -> bool:
-        return self.status in (self.StatusChoices.PENDING, self.StatusChoices.STARTED, self.StatusChoices.RETRY)
+        return self.state in states.UNREADY_STATES
 
     @staticmethod
     def generate_reference_key(
@@ -182,19 +174,19 @@ class CeleryTask(models.Model):
             raise ValueError(message)
 
     def update_from_async_result(self) -> None:
-        new_status = self.async_result.status
+        new_state = self.async_result.state
 
-        if self.status != self.StatusChoices.SUCCESS and new_status == 'SUCCESS':
+        if self.state != states.SUCCESS and new_state == states.SUCCESS:
             self.completed_datetime = now()
 
-        self.status = new_status
+        self.state = new_state
 
     def update_from_async_result_and_save(self) -> None:
-        current_status = self.status
+        current_state = self.state
 
         self.update_from_async_result()
 
-        if self.status != current_status:
+        if self.state != current_state:
             self.save()
 
     class Meta:

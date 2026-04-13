@@ -3,8 +3,8 @@
         <div
             x-data="{
             reload_task() {
-                let task_view = new ViewGlue(`/django_spire/celery/task/{{ celery_task.key }}/`)
-                task_view.render_inner($el, {})
+                let task_toast_view = new ViewGlue(`{% url 'django_spire:celery:task:toast' celery_task.task_id %}`)
+                task_toast_view.render_inner($el, {})
             },
         }"
             class="toast show mb-3 bg-app-layer-two shadow-sm border-0"
@@ -12,7 +12,7 @@
             aria-live="assertive"
             aria-atomic="true"
         >
-            {% include 'django_spire/celery/task.html' %}
+            {% include 'django_spire/celery/toast/task_toast.html' %}
         </div>
     {% endfor %}
 {% endif %}

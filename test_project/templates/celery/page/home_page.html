@@ -1,6 +1,6 @@
 {% extends 'django_spire/page/full_page.html' %}
 
-{% load celery %}
+{% load django_spire_celery %}
 
 {% block full_page_content %}
 
@@ -64,13 +64,13 @@
 
     <div class="row mt-3">
         <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
-            <div class="btn btn-app-accent" @click="$dispatch('celery_reload_task_widget')">
+            <div class="btn btn-app-accent" @click="$dispatch('django_spire_celery_reload_task_toast_widget')">
                 Celery Reload Task Widget
             </div>
         </div>
     </div>
 
-    {% celery_tasks_widget 'test_project.apps.celery' 'pirate_noise_task' %}
+    {% django_spire_celery_task_toast_widget 'test_project.apps.celery' 'pirate_noise_task' %}
 
 {% endblock %}
 

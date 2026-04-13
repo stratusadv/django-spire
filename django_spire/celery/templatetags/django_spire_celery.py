@@ -11,7 +11,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def celery_tasks_widget(
+def django_spire_celery_task_toast_widget(
         app_name: str,
         reference_name: str,
         model_object: models.Model | None = None,
@@ -24,15 +24,15 @@ def celery_tasks_widget(
     reference_key = CeleryTask.generate_reference_key(
         app_name=app_name,
         reference_name=reference_name,
-        model_object=model_object
+        model_object=model_object,
     )
 
     context = {
-        'celery_task_reference_key': reference_key,
+        'django_spire_celery_task_reference_key': reference_key,
     }
 
     return get_template(
-        'django_spire/celery/tasks_widget.html'
+        'django_spire/celery/toast/task_toast_widget.html'
     ).render(
         context
     )

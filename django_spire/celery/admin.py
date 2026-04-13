@@ -8,33 +8,31 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     list_display = (
         'app_name',
         'reference_name',
-        'status',
+        'state',
         'started_datetime',
         'estimated_completion_datetime',
         'completed_datetime',
     )
-    list_filter = ('app_name', 'reference_name', 'status', 'started_datetime', 'completed_datetime')
-    search_fields = ('app_name', 'reference_name', 'status', 'started_datetime', 'completed_datetime')
+    list_filter = ('app_name', 'reference_name', 'state', 'started_datetime', 'completed_datetime')
+    search_fields = ('app_name', 'reference_name', 'state', 'started_datetime', 'completed_datetime')
     ordering = ('-started_datetime',)
 
     readonly_fields = [
-        'key',
+        'task_id',
         'reference_key',
         'app_name',
         'reference_name',
-        'task_id',
-        'status',
+        'state',
         'started_datetime',
         'estimated_completion_datetime',
         'completed_datetime',
     ]
     fields = [
-        'key',
+        'task_id',
         'reference_key',
         'app_name',
         'reference_name',
-        'task_id',
-        'status',
+        'state',
         'started_datetime',
         'estimated_completion_datetime',
         'completed_datetime',
