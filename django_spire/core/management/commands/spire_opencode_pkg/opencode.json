@@ -3,7 +3,7 @@
   "enabled_providers": [
     "stratus"
   ],
-  "model": "stratus/stratus.coder",
+  "model": "stratus/stratus.reasoning",
   "provider": {
     "stratus": {
       "npm": "@ai-sdk/openai-compatible",
@@ -13,19 +13,6 @@
         "apiKey": "{env:AI_API_KEY}"
       },
       "models": {
-        "stratus.coder": {
-          "id": "{env:LLM_CODING_MODEL}",
-          "name": "Coder",
-          "options": {
-              "temperature": 1.0,
-              "top_p": 0.95,
-              "top_k": 40
-            },
-          "limit": {
-            "context": 228000,
-            "output": 32000
-          }
-        },
         "stratus.reasoning": {
           "id": "{env:LLM_REASONING_MODEL}",
           "name": "Reasoning",
