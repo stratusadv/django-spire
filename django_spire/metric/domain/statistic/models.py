@@ -16,7 +16,6 @@ from django_spire.metric.domain.statistic.services.service import StatisticServi
 
 
 class StatisticGroup(HistoryModelMixin, ActivityMixin):
-    key = models.UUIDField(default=uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
@@ -59,6 +58,8 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
 
 class Statistic(HistoryModelMixin, ActivityMixin):
+    key = models.UUIDField(default=uuid4, editable=False, unique=True)
+
     group = models.ForeignKey(
         StatisticGroup,
         on_delete=models.CASCADE,
@@ -66,9 +67,9 @@ class Statistic(HistoryModelMixin, ActivityMixin):
         related_query_name='statistic',
         editable=False,
     )
+
     name = models.CharField(default='', max_length=255, editable=False)
     value = models.DecimalField(default=0, max_digits=16, decimal_places=4, editable=False)
-    has_initial_value = models.BooleanField(default=False, editable=False)
 
     reference_date = models.DateField(default=now, editable=False)
 

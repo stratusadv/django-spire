@@ -110,7 +110,6 @@ INSTALLED_APPS += [
 
     'django_spire.metric',
     'django_spire.metric.report',
-    'django_spire.metric.domain',
 
     'django_spire.notification',
     'django_spire.notification.app',

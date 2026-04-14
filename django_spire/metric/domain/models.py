@@ -14,7 +14,7 @@ from django_spire.metric.domain.services.service import DomainService
 
 class Domain(HistoryModelMixin, ActivityMixin):
     name = models.CharField(max_length=255)
-    key = models.UUIDField(default=uuid4, editable=False, unique=True)
+    description = models.TextField(default='')
 
     objects = querysets.DomainQuerySet().as_manager()
     services = DomainService()

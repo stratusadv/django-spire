@@ -1,5 +1,6 @@
 import hashlib
 from datetime import timedelta
+from math import ceil
 
 from celery import states
 from celery.result import AsyncResult
@@ -11,6 +12,12 @@ from django.utils.timezone import now
 from django_spire.celery.querysets import CeleryTaskQuerySet
 from django_spire.conf import settings
 
+_CELERY_ESTIMATED_TIME_MULTIPLIER = 1.15
+
+
+def _celery_state_choices() -> list:
+    return [(state, state.title()) for state in states.ALL_STATES]
+
 
 class CeleryTask(models.Model):
     task_id = models.UUIDField(editable=False)
@@ -19,7 +26,7 @@ class CeleryTask(models.Model):
     app_name = models.CharField(max_length=128)
     reference_name = models.CharField(max_length=128)
 
-    state = models.CharField(max_length=16, choices=((state, state) for state in states.ALL_STATES), default=states.PENDING)
+    state = models.CharField(max_length=16, choices=_celery_state_choices, default=states.PENDING)
     started_datetime = models.DateTimeField(default=now)
     completed_datetime = models.DateTimeField(null=True, blank=True)
     estimated_completion_datetime = models.DateTimeField(default=now)
@@ -157,7 +164,8 @@ class CeleryTask(models.Model):
             reference_name=reference_name[:128],
             task_id=async_result.id,
             estimated_completion_datetime=now() + timedelta(
-                seconds=estimated_completion_seconds + 3) if estimated_completion_seconds else None,
+                seconds=ceil(estimated_completion_seconds * _CELERY_ESTIMATED_TIME_MULTIPLIER)
+            ) if estimated_completion_seconds else None,
         )
 
     @staticmethod
