@@ -1,19 +1,23 @@
 from __future__ import annotations
 
+from abc import abstractmethod, ABC
 from typing import (
     TypeVar,
     Generic,
     Iterator,
     Callable,
-    Any,
+    Any, Self, TYPE_CHECKING, Sequence,
 )
 
-from django_spire.contrib.rest import RestSchema
+if TYPE_CHECKING:
+    from django_spire.contrib.rest import RestSchema, BaseRestHttpConnector
 
-TSchema = TypeVar('TSchema', bound=RestSchema)
+TSchema = TypeVar('TSchema', bound='RestSchema')
 
 
-class RestSchemaSet(Generic[TSchema]):
+class RestSchemaSet(ABC, Generic[TSchema]):
+    rest_connector_class: type[BaseRestHttpConnector]
+
     def __init__(
         self,
         schema_class: type[TSchema] | None = None,
@@ -26,9 +30,10 @@ class RestSchemaSet(Generic[TSchema]):
         _limit: int | None = None,
         _offset: int = 0,
         _cached_results: list[TSchema] | None = None,
+        _rest_connector: BaseRestHttpConnector | None = None,
     ):
         self._request_params = _request_params
-        self._schema_class = schema_class
+        self.schema_class = schema_class
 
         self._filters = _filters or []
         self._excludes = _excludes or []
@@ -36,14 +41,21 @@ class RestSchemaSet(Generic[TSchema]):
         self._limit = _limit
         self._offset = _offset
         self._cached_results = _cached_results
+        self._rest_connector = _rest_connector
+        
+    @property
+    def rest_connector(self) -> BaseRestHttpConnector:
+        if self._rest_connector is None:
+            self._rest_connector = self.rest_connector_class()
+        return self._rest_connector
 
     def _clone(
         self,
         **overrides
-    ) -> RestSchemaSet[TSchema]:
+    ) -> Self:
         """Create a copy with optional overrides. Clears cache unless explicitly passed."""
-        return RestSchemaSet(
-            schema_class=self._schema_class,
+        return self.__class__(
+            schema_class=self.schema_class,
             _request_params=overrides.get('_request_params', self._request_params),
             _filters=overrides.get('_filters', list(self._filters)),
             _excludes=overrides.get('_excludes', list(self._excludes)),
@@ -51,6 +63,7 @@ class RestSchemaSet(Generic[TSchema]):
             _limit=overrides.get('_limit', self._limit),
             _offset=overrides.get('_offset', self._offset),
             _cached_results=overrides.get('_cached_results'),
+            _rest_connector=overrides.get('_rest_connector', self._rest_connector),
         )
 
     def _evaluate(self) -> list[TSchema]:
@@ -59,9 +72,22 @@ class RestSchemaSet(Generic[TSchema]):
             return self._cached_results
 
         if self._request_params:
-            results = self._schema_class.read_many(**self._request_params)
+            results = self._read_many(
+                rest_connector=self.rest_connector,
+                **self._request_params
+            )
         else:
-            results = self._schema_class.read_many()
+            results = self._read_many(
+                rest_connector=self.rest_connector,
+            )
+
+
+        # TODO: proper exception
+        if not isinstance(results, Sequence) or isinstance(results, str):
+            raise ValueError(f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}')
+
+        if results and not isinstance(results[0], self.schema_class):
+            raise ValueError(f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}')
 
         # Apply filters
         for fn in self._filters:
@@ -123,10 +149,10 @@ class RestSchemaSet(Generic[TSchema]):
         return bool(self._evaluate())
 
     def __repr__(self) -> str:
-        name = self._schema_class.__name__ if self._schema_class else 'Unknown'
+        name = self.schema_class.__name__ if self.schema_class else 'Unknown'
         return f"<RestSchemaSet [{name}]>"
 
-    def __getitem__(self, key: int | slice) -> TSchema | RestSchemaSet[TSchema]:
+    def __getitem__(self, key: int | slice) -> TSchema | Self:
         if isinstance(key, int):
             if key < 0:
                 return self._evaluate()[key]
@@ -147,19 +173,19 @@ class RestSchemaSet(Generic[TSchema]):
     def with_request_params(
         self,
         **kwargs,
-    ) -> RestSchemaSet[TSchema]:
+    ) -> Self:
         return self._clone(_request_params=kwargs)
 
     def all(
         self,
-    ) -> RestSchemaSet[TSchema]:
+    ) -> Self:
         return self._clone()
 
     def filter(
         self,
         predicate: Callable[[TSchema], bool] | None = None,
         **kwargs,
-    ) -> RestSchemaSet[TSchema]:
+    ) -> Self:
         """
         Filter results by predicate and/or field lookups.
 
@@ -179,7 +205,7 @@ class RestSchemaSet(Generic[TSchema]):
         self,
         predicate: Callable[[TSchema], bool] | None = None,
         **kwargs,
-    ) -> RestSchemaSet[TSchema]:
+    ) -> Self:
         """Exclude results matching predicate or field lookups."""
         new_excludes = list(self._excludes)
         if predicate:
@@ -188,7 +214,7 @@ class RestSchemaSet(Generic[TSchema]):
             new_excludes.append(self._make_predicate(key, value))
         return self._clone(_excludes=new_excludes)
 
-    def order_by(self, *fields: str) -> RestSchemaSet[TSchema]:
+    def order_by(self, *fields: str) -> Self:
         """
         Order by fields. Prefix with '-' for descending.
 
@@ -204,10 +230,10 @@ class RestSchemaSet(Generic[TSchema]):
                 ordering.append((field, False))
         return self._clone(_ordering=ordering)
 
-    def limit(self, n: int) -> RestSchemaSet[TSchema]:
+    def limit(self, n: int) -> Self:
         return self._clone(_limit=n)
 
-    def offset(self, n: int) -> RestSchemaSet[TSchema]:
+    def offset(self, n: int) -> Self:
         return self._clone(_offset=n)
 
     def first(self) -> TSchema | None:
@@ -236,13 +262,22 @@ class RestSchemaSet(Generic[TSchema]):
 
         if not self._cached_results:
             try:
-                # Direct fetch by ID/params - use client from schema class
-                return self._schema_class.read_one(**request_params)
+                # Direct fetch by ID/params - try using _read_one from connector
+                result =  self._read_one(
+                    rest_connector=self.rest_connector,
+                    **request_params
+                )
+
+                if result and not isinstance(result, self.schema_class):
+                    raise ValueError(
+                        f'_read_one for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return an instance of {self.schema_class.__name__}')
+
             except NotImplementedError:
+                # TODO: log warning if request_params are passed signalling that there is no _read_one available to use the params on
                 pass
 
         results = list(self.filter(**kwargs) if kwargs else self)
-        schema_name = self._schema_class.__name__ if self._schema_class else 'object'
+        schema_name = self.schema_class.__name__ if self.schema_class else 'object'
         if len(results) == 0:
             raise LookupError(f"No {schema_name} found")
         if len(results) > 1:
@@ -258,3 +293,18 @@ class RestSchemaSet(Generic[TSchema]):
         if flat:
             return [self._get_attr(item, fields[0]) for item in results]
         return [tuple(self._get_attr(item, f) for f in fields) for item in results]
+    
+    @abstractmethod
+    def _read_many(
+        self,
+        rest_connector: BaseRestHttpConnector,
+        **request_params
+    ) -> list[TSchema]:
+        raise NotImplementedError
+
+    def _read_one(
+        self,
+        rest_connector: BaseRestHttpConnector,
+        **request_params
+    ) -> TSchema:
+        raise NotImplementedError()

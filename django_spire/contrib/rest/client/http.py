@@ -12,7 +12,7 @@ from requests.auth import AuthBase
 from django_spire.contrib.rest.client.client import BaseRestClient
 
 
-class BaseRestHttpClient(BaseRestClient, ABC):
+class BaseRestHttpConnector(BaseRestClient, ABC):
     base_url: str
     base_path: str = ''
     base_headers: dict[str, str] = {}
