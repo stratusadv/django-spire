@@ -16,7 +16,7 @@ TSchema = TypeVar('TSchema', bound='RestSchema')
 
 
 class RestSchemaSet(ABC, Generic[TSchema]):
-    rest_connector_class: type[BaseRestHttpConnector]
+    connector_class: type[BaseRestHttpConnector]
 
     def __init__(
         self,
@@ -30,7 +30,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         _limit: int | None = None,
         _offset: int = 0,
         _cached_results: list[TSchema] | None = None,
-        _rest_connector: BaseRestHttpConnector | None = None,
+        _connector: BaseRestHttpConnector | None = None,
     ):
         self._request_params = _request_params
         self.schema_class = schema_class
@@ -41,13 +41,13 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         self._limit = _limit
         self._offset = _offset
         self._cached_results = _cached_results
-        self._rest_connector = _rest_connector
-        
+        self._connector = _connector
+
     @property
-    def rest_connector(self) -> BaseRestHttpConnector:
-        if self._rest_connector is None:
-            self._rest_connector = self.rest_connector_class()
-        return self._rest_connector
+    def connector(self) -> BaseRestHttpConnector:
+        if self._connector is None:
+            self._connector = self.connector_class()
+        return self._connector
 
     def _clone(
         self,
@@ -63,7 +63,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             _limit=overrides.get('_limit', self._limit),
             _offset=overrides.get('_offset', self._offset),
             _cached_results=overrides.get('_cached_results'),
-            _rest_connector=overrides.get('_rest_connector', self._rest_connector),
+            _connector=overrides.get('_connector', self._connector),
         )
 
     def _evaluate(self) -> list[TSchema]:
@@ -73,18 +73,19 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
         if self._request_params:
             results = self._read_many(
-                rest_connector=self.rest_connector,
+                rest_connector=self.connector,
                 **self._request_params
             )
         else:
             results = self._read_many(
-                rest_connector=self.rest_connector,
+                rest_connector=self.connector,
             )
 
 
         # TODO: proper exception
         if not isinstance(results, Sequence) or isinstance(results, str):
-            raise ValueError(f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}')
+            message = f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}'
+            raise ValueError(message)
 
         if results and not isinstance(results[0], self.schema_class):
             raise ValueError(f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}')
@@ -264,7 +265,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             try:
                 # Direct fetch by ID/params - try using _read_one from connector
                 result =  self._read_one(
-                    rest_connector=self.rest_connector,
+                    rest_connector=self.connector,
                     **request_params
                 )
 

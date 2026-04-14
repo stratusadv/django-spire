@@ -9,10 +9,8 @@ import requests
 from django.core.exceptions import ImproperlyConfigured
 from requests.auth import AuthBase
 
-from django_spire.contrib.rest.client.client import BaseRestClient
 
-
-class BaseRestHttpConnector(BaseRestClient, ABC):
+class BaseRestHttpConnector(ABC):
     base_url: str
     base_path: str = ''
     base_headers: dict[str, str] = {}

@@ -28,9 +28,10 @@ class RestSchema(ABC, BaseModel):
 
         super().__pydantic_init_subclass__(**kwargs)
 
-        obj = getattr(cls, 'objects', None)
+        objects = getattr(cls, 'objects', None)
 
-        if obj is not None and isinstance(obj, RestSchemaSet):
-            cls.objects = obj.__class__(schema_class=cls)
+        if isinstance(objects, RestSchemaSet):
+            cls.objects = objects.__class__(schema_class=cls)
         else:
-            raise ValueError(f'Invalid value assigned to objects class attribute for RestSchema subclass {cls.__name__} - must be an instance of a RestSchemaSet subclass.')
+            message = f'{cls.__name__}.objects must be an instance of a RestSchemaSet subclass.'
+            raise TypeError(message)
