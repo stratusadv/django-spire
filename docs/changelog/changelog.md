@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.30.4
+
+### Fixes
+- Fix verb logic in add_form_activity
+
 ## v0.30.3
 
 ### Fixes

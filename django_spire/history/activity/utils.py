@@ -8,10 +8,7 @@ if TYPE_CHECKING:
 
 
 def add_form_activity(model_object: ActivityMixin, pk: int | bool, user: User) -> None:
-    verb = (
-        'created'
-        if pk else 'updated'
-    )
+    verb = 'updated' if pk else 'created'
 
     information = (
         f'{user.get_full_name()} {verb} '
