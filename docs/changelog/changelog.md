@@ -50,6 +50,9 @@
 
 ## v0.29.16
 
+### Breaking
+- `await` added before `x_button_click`, meaning a function must be passed into it.
+
 ### Changes
 - Updated `base_button.html` to have loading state when using `x_button_click` or `button_modal_href`.
 - Updated button themes page to use loading state.
