@@ -1,0 +1,60 @@
+<UnitListing>
+  <DealerNo>5066</DealerNo>
+  <Misc1Caption>Filter Type</Misc1Caption>
+  <Misc2Caption>Website</Misc2Caption>
+  <Units>
+    <Unit>
+      <StockNumber>13511</StockNumber>
+      <MfrSerialNumber>HHKHW770VL0000178</MfrSerialNumber>
+      <Type>Wheel Loader</Type>
+      <Manufacturer>Hyundai</Manufacturer>
+      <Description>331 Cummins Diesel Wheel Loader</Description>
+      <MakeName>HYUNDAI</MakeName>
+      <ModelName>HL975</ModelName>
+      <Year>2021</Year>
+      <Condition>Used</Condition>
+      <Price>226900.00</Price>
+      <Meter>6078.0000</Meter>
+      <MeterUnit>hours</MeterUnit>
+      <Misc1></Misc1>
+      <Misc2>No</Misc2>
+      <PublicComment></PublicComment>
+      <Location>
+        <Name>Chinook Equipment</Name>
+        <City>Lethbridge County</City>
+        <StateCode>AB</StateCode>
+        <ZipCode>T1J 5X8</ZipCode>
+        <Phone>(403) 329-6011 x</Phone>
+      </Location>
+    </Unit>
+    <Unit>
+      <StockNumber>16992</StockNumber>
+      <MfrSerialNumber>HHKHMT02CE0000094</MfrSerialNumber>
+      <Type>Excavator</Type>
+      <Manufacturer>Hyundai</Manufacturer>
+      <Description>37Hp Yanmar Diecel Excavator</Description>
+      <MakeName>Hyundai</MakeName>
+      <ModelName>HX48AZ</ModelName>
+      <Year>2024</Year>
+      <Condition>New</Condition>
+      <Price>0.00</Price>
+      <Meter>11.0000</Meter>
+      <MeterUnit>hours</MeterUnit>
+      <Misc1>Compact</Misc1>
+      <Misc2></Misc2>
+      <PublicComment>This unit comes equipped with a 9' 2" standard boom.</PublicComment>
+      <Location>
+        <Name>Chinook Equipment</Name>
+        <City>Nisku</City>
+        <StateCode>AB</StateCode>
+        <ZipCode>T9E 1E7</ZipCode>
+        <Phone>(780) 612-8918 x</Phone>
+      </Location>
+      <Images>
+        <Image>Img5066-16992-1.png</Image>
+        <Image>Img5066-16992-2.png</Image>
+        <Image>Img5066-16992-3.png</Image>
+      </Images>
+    </Unit>
+  </Units>
+</UnitListing>

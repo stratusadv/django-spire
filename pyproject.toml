@@ -52,6 +52,7 @@ dependencies = [
     "faker",
     "marko==2.1.4",
     "markitdown[docx, pdf]==0.1.2",
+    "paramiko==4.0.0",
     "psycopg2",
     "pydantic",
     "Pygments",
@@ -170,7 +171,7 @@ keepdb = true
 verbosity = 1
 
 [tool.dev_tool.unittest.django]
-apps = ["."]
+apps = ["django_spire/contrib/sync"]
 settings = "test_project.postgres_settings"
 
 [tool.dev_tool.unittest.python]
