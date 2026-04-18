@@ -1,5 +1,5 @@
 <a
-    class="d-flex align-items-center rounded-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation ds-fs-9 {{ link_class }}"
+    class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation ds-fs-9 {{ link_class }} {% if request.path == link_url %}active{% endif %}"
     href="{{ link_url }}"
     {% if not disable_overlay %}
     x-data="{
@@ -14,6 +14,14 @@
         redirect() {
             const SPINNER_DELAY = 1000;
             const url = `{{ link_url }}`;
+
+            let current_active = this.$el.closest('.bg-app-side-navigation').querySelector('a.active');
+
+            if (current_active) {
+                current_active.classList.remove('active');
+            }
+
+            this.$el.classList.add('active');
 
             let spinnerTimer = setTimeout(() => {
                 toggleLoadingSpinner();
@@ -32,19 +40,19 @@
     }"
     :class="{
         'active': is_active(),
-        'justify-content-center px-0': collapsed,
+        'justify-content-center px-0 gap-0': collapsed,
         'gap-2 px-3': !collapsed
     }"
     @click.prevent="redirect()"
     x-init="$dispatch('accordion-link', { url_path: link_path })"
     {% else %}
     :class="{
-        'justify-content-center px-0': collapsed,
+        'justify-content-center px-0 gap-0': collapsed,
         'gap-2 px-3': !collapsed
     }"
     {% endif %}
 >
-    <i class="{{ link_icon }} flex-shrink-0" :style="collapsed ? 'font-size: 1.25rem;' : 'width: 1.25rem;'"></i>
+    <i class="{{ link_icon }} flex-shrink-0" style="width: 1.25rem;" :style="collapsed ? 'font-size: 1.25rem; width: auto;' : 'width: 1.25rem;'"></i>
     <span class="text-truncate" x-show="!collapsed">{{ link_text }}</span>
     {% if not disable_overlay %}
         <template x-if="is_active() && !collapsed">
