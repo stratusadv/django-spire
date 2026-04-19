@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from inspect import isabstract
 from typing import TYPE_CHECKING, ClassVar, Self
 
 from pydantic import BaseModel
@@ -13,10 +14,9 @@ class RestSchema(ABC, BaseModel):
     """
     Base class for REST API schemas that should map to django models with Django-like .objects API.
 
-    Provides an interface for interacting with external data sources and for translating to
-    and from django model objects.
+    Provides a Django QuerySet - like interface for interacting with external REST-based data sources.
 
-    Subclasses need to assign an instance of a RestSchemaSet subclass to the objects class attr:
+    Subclasses need to assign an instance of a RestSchemaSet subclass to the objects class:
         objects = MySchemaSet
     """
 
@@ -24,14 +24,14 @@ class RestSchema(ABC, BaseModel):
 
     @classmethod
     def __pydantic_init_subclass__(cls, **kwargs):
-        from django_spire.contrib.rest.schema.schemaset import RestSchemaSet
-
         super().__pydantic_init_subclass__(**kwargs)
 
-        objects = getattr(cls, 'objects', None)
+        if not isabstract(cls):
+            from django_spire.contrib.rest.schema.schemaset import RestSchemaSet
+            objects = getattr(cls, 'objects', None)
 
-        if isinstance(objects, RestSchemaSet):
+            if not isinstance(objects, RestSchemaSet):
+                message = f'{cls.__name__}.objects must be an instance of a RestSchemaSet subclass.'
+                raise TypeError(message)
+
             cls.objects = objects.__class__(schema_class=cls)
-        else:
-            message = f'{cls.__name__}.objects must be an instance of a RestSchemaSet subclass.'
-            raise TypeError(message)

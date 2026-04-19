@@ -16,7 +16,7 @@ TSchema = TypeVar('TSchema', bound='RestSchema')
 
 
 class RestSchemaSet(ABC, Generic[TSchema]):
-    connector_class: type[BaseRestHttpConnector]
+    connector: BaseRestHttpConnector
 
     def __init__(
         self,
@@ -30,7 +30,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         _limit: int | None = None,
         _offset: int = 0,
         _cached_results: list[TSchema] | None = None,
-        _connector: BaseRestHttpConnector | None = None,
     ):
         self._request_params = _request_params
         self.schema_class = schema_class
@@ -41,13 +40,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         self._limit = _limit
         self._offset = _offset
         self._cached_results = _cached_results
-        self._connector = _connector
-
-    @property
-    def connector(self) -> BaseRestHttpConnector:
-        if self._connector is None:
-            self._connector = self.connector_class()
-        return self._connector
 
     def _clone(
         self,
@@ -63,7 +55,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             _limit=overrides.get('_limit', self._limit),
             _offset=overrides.get('_offset', self._offset),
             _cached_results=overrides.get('_cached_results'),
-            _connector=overrides.get('_connector', self._connector),
         )
 
     def _evaluate(self) -> list[TSchema]:
@@ -72,14 +63,9 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             return self._cached_results
 
         if self._request_params:
-            results = self._read_many(
-                rest_connector=self.connector,
-                **self._request_params
-            )
+            results = self._read_many(**self._request_params)
         else:
-            results = self._read_many(
-                rest_connector=self.connector,
-            )
+            results = self._read_many()
 
 
         # TODO: proper exception
@@ -110,6 +96,14 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
         self._cached_results = results
         return results
+
+    @classmethod
+    def as_manager(cls) -> Self:
+        """
+        Simply returns an instance of itself with no schema class. Provides no real
+        value other than a more Django model-like objects assignment in RestSchema classes.
+        """
+        return cls()
 
     @staticmethod
     def _get_attr(obj: Any, path: str) -> Any:
@@ -175,6 +169,12 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         self,
         **kwargs,
     ) -> Self:
+        if self._request_params:
+            kwargs = {
+                **self._request_params,
+                **kwargs
+            }
+
         return self._clone(_request_params=kwargs)
 
     def all(
@@ -264,10 +264,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         if not self._cached_results:
             try:
                 # Direct fetch by ID/params - try using _read_one from connector
-                result =  self._read_one(
-                    rest_connector=self.connector,
-                    **request_params
-                )
+                result =  self._read_one(**request_params)
 
                 if result and not isinstance(result, self.schema_class):
                     raise ValueError(
@@ -296,16 +293,8 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         return [tuple(self._get_attr(item, f) for f in fields) for item in results]
     
     @abstractmethod
-    def _read_many(
-        self,
-        rest_connector: BaseRestHttpConnector,
-        **request_params
-    ) -> list[TSchema]:
+    def _read_many(self, **request_params) -> list[TSchema]:
         raise NotImplementedError
 
-    def _read_one(
-        self,
-        rest_connector: BaseRestHttpConnector,
-        **request_params
-    ) -> TSchema:
+    def _read_one(self, **request_params) -> TSchema:
         raise NotImplementedError()
