@@ -1,5 +1,18 @@
 {% load static %}
 
+<script>
+    (function() {
+        let collapsed = JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false');
+
+        document.documentElement.classList.add('side-nav-loading');
+
+        if (collapsed) {
+            document.documentElement.style.setProperty('--app-side-navigation-width', '68px');
+            document.documentElement.classList.add('side-nav-collapsed');
+        }
+    })();
+</script>
+
 <div
     class="sticky-top bg-app-side-navigation d-flex flex-column vh-100 w-100"
     x-data="{
@@ -23,7 +36,6 @@
         restore_scroll() {
             let position = parseFloat(localStorage.getItem('side_nav_scroll') || '0');
             this.$refs.scroll_container.scrollTop = position;
-            this.$refs.scroll_container.style.opacity = '1';
         },
 
         toggle_collapse() {
@@ -33,10 +45,17 @@
                 '--app-side-navigation-width',
                 this.collapsed ? '68px' : '240px'
             );
+
+            if (this.collapsed) {
+                document.documentElement.classList.add('side-nav-collapsed');
+            } else {
+                document.documentElement.classList.remove('side-nav-collapsed');
+            }
+
             this.$nextTick(() => this.check_scroll());
         }
     }"
-    x-init="$nextTick(() => { restore_scroll(); check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
+    x-init="$nextTick(() => { document.documentElement.classList.remove('side-nav-loading'); restore_scroll(); check_scroll(); window.addEventListener('resize', () => check_scroll()); })"
 >
     <div class="{% block side_navigation_top_content_container_class %}px-3 d-flex align-items-center gap-2 flex-shrink-0 border-bottom{% endblock %}" style="height: 64px;">
         {% block side_navigation_top_content %}
@@ -46,7 +65,7 @@
                         src="{% static 'img/django_spire.svg' %}"
                         alt="Django Spire Logo"
                         class="flex-shrink-0"
-                        style="width: 36px; height: 36px; object-fit: contain;"
+                        style="width: 28px; height: 28px; object-fit: contain;"
                     >
                     <div class="d-flex flex-column overflow-hidden" x-show="!collapsed" x-transition>
                         <span class="fw-semibold text-truncate text-app-link-side-navigation ds-fs-9">
@@ -73,7 +92,6 @@
 
         <div
             class="navbar-nav-scroll scrollbar-hidden px-2 py-2 h-100"
-            style="opacity: 0;"
             x-ref="scroll_container"
             @scroll="check_scroll(); save_scroll()"
         >
@@ -98,11 +116,8 @@
                 class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation ds-fs-9"
                 @click="toggle_collapse()"
             >
-                <i
-                    class="bi flex-shrink-0"
-                    :class="collapsed ?
-                        'bi-chevron-right' : 'bi-chevron-left'"
-                >
+                <i class="bi bi-chevron-left flex-shrink-0" style="width: 1.25rem;" x-show="!collapsed"></i>
+                <i class="bi bi-chevron-right flex-shrink-0" style="width: 1.25rem;" x-show="collapsed"></i>
                 </i>
                 <span x-show="!collapsed" x-transition>Collapse</span>
             </a>
