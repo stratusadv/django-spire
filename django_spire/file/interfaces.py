@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.files.base import ContentFile
 
 from django_spire.file.models import File
 from django_spire.file.utils import random_64_char_token
@@ -62,7 +61,8 @@ class FileFormatter:
 
     def save_file(self, file_obj: File) -> None:
         file_path = self.location + '.' + self.type
-        file_obj.file.save(file_path, ContentFile(self.file.read()), save=False)
+        self.file.seek(0)
+        file_obj.file.save(file_path, self.file, save=False)
 
     def size_verbose(self) -> str:
         if self.file.size < 512000:

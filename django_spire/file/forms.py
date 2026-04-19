@@ -2,21 +2,29 @@ from __future__ import annotations
 
 from django import forms
 
-from django_spire.file.fields import MultipleFileField
+from django_spire.file.fields import MultipleFileField, SingleFileField
+from django_spire.file.handlers import SingleFileHandler
 
 
 class FileForm(forms.Form):
     files = MultipleFileField()
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     self.helper = FormHelper(self)
-    #     self.helper.include_media = False
-    #     self.helper.form_enctype = 'multipart/form-data'
-    #     self.helper.layout = Layout(
-    #         Row(
-    #             Column('files', css_class='form-group col-md-6'),
-    #         ),
-    #     )
-    #     self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
+
+class FileFormMixin:
+    def save(self, commit: bool = True):
+        instance = super().save(commit=commit)
+
+        if commit:
+            self._save_file_fields(instance)
+
+        return instance
+
+    def _save_file_fields(self, instance) -> None:
+        for name, field in self.fields.items():
+            if isinstance(field, SingleFileField):
+                handler = SingleFileHandler(related_field=field.related_field)
+                handler.save(self.cleaned_data.get(name), instance)
+
+
+class FileModelForm(FileFormMixin, forms.ModelForm):
+    ...
