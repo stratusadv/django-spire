@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.30.5
+
+### Changes
+- Updated Django Glue helper JS functions to include `await` for success and error handler / helper function calls.
+
 ## v0.30.4
 
 ### Fixes
