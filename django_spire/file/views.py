@@ -4,6 +4,7 @@ import re
 
 from typing import TYPE_CHECKING
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from django_spire.contrib.responses.json_response import (
@@ -40,12 +41,14 @@ def file_upload_ajax_multiple(request: WSGIRequest) -> JsonResponse:
     error = _validate_related_field(related_field)
 
     if error:
+        messages.error(request, error)
         return error_json_response(error)
 
     try:
         factory = FileFactory(related_field=related_field)
         files = factory.create_many(list(request.FILES.values()))
     except (FileValidationError, TypeError, ValueError) as e:
+        messages.error(request, str(e))
         return error_json_response(str(e))
 
     return success_json_response(files=[file.to_dict() for file in files])
@@ -60,17 +63,20 @@ def file_upload_ajax_single(request: WSGIRequest) -> JsonResponse:
     error = _validate_related_field(related_field)
 
     if error:
+        messages.error(request, error)
         return error_json_response(error)
 
     try:
         uploaded_file = next(iter(request.FILES.values()))
     except StopIteration:
+        messages.error(request, 'No file provided')
         return error_json_response('No file provided')
 
     try:
         factory = FileFactory(related_field=related_field)
         file = factory.create(uploaded_file)
     except (FileValidationError, TypeError, ValueError) as e:
+        messages.error(request, str(e))
         return error_json_response(str(e))
 
     return success_json_response(file=file.to_dict())
