@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.generic_views import portal_views
-from test_project.apps.rest.services.rest import PirateRestSchema
+from test_project.apps.rest.rest import PirateRestSchema
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

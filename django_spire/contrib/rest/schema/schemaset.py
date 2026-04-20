@@ -264,7 +264,10 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         if not self._cached_results:
             try:
                 # Direct fetch by ID/params - try using _read_one from connector
-                result =  self._read_one(**request_params)
+                if request_params:
+                    result =  self._read_one(**request_params)
+                else:
+                    result = self._read_one()
 
                 if result and not isinstance(result, self.schema_class):
                     raise ValueError(

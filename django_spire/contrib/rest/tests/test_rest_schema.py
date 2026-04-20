@@ -1,58 +1,19 @@
 """
-Tests for the new RestSchema class.
+Tests for the RestSchema class.
 """
 from django.test import TestCase
 
-from django_spire.contrib.rest.schema import RestSchema
-from django_spire.contrib.rest.schemaset import RestSchemaSet
-
-
-class UserSchema(RestSchema):
-    """Test schema for DummyJSON Users API."""
-    id: int
-    firstName: str
-    lastName: str
-    email: str
-    username: str
-
-    class Meta:
-        base_url = 'https://dummyjson.com'
-        base_path = 'users'
-        results_key = 'users'
+from django_spire.contrib.rest import RestSchemaSet
+from django_spire.contrib.rest.tests.example_users import UserSchema
 
 
 class TestRestSchema(TestCase):
     """Tests for RestSchema base class."""
 
-    def test_meta_configuration(self):
-        """Test that Meta options are properly configured."""
-        self.assertEqual(UserSchema._meta.base_url, 'https://dummyjson.com')
-        self.assertEqual(UserSchema._meta.base_path, 'users')
-        self.assertEqual(UserSchema._meta.results_key, 'users')
-
     def test_objects_returns_queryset(self):
-        """Test that .objects returns a RestQuerySet."""
+        """Test that .objects returns a RestSchemaSet."""
         qs = UserSchema.objects
         self.assertIsInstance(qs, RestSchemaSet)
-
-    def test_fetch_one(self):
-        """Test fetching a single user by ID."""
-        user = UserSchema.fetch_one(1)
-
-        self.assertIsInstance(user, UserSchema)
-        self.assertEqual(user.id, 1)
-        self.assertEqual(user.firstName, "Emily")
-        self.assertEqual(user.lastName, "Johnson")
-        self.assertEqual(user.username, "emilys")
-
-    def test_fetch_many(self):
-        """Test fetching multiple users."""
-        users = UserSchema.fetch_many(limit=5)
-
-        self.assertIsInstance(users, list)
-        self.assertEqual(len(users), 5)
-        self.assertTrue(all(isinstance(u, UserSchema) for u in users))
-        self.assertEqual(users[0].firstName, "Emily")
 
     def test_objects_all(self):
         """Test .objects.all() returns all results."""
@@ -143,28 +104,3 @@ class TestRestSchema(TestCase):
         self.assertIsInstance(sliced, RestSchemaSet)
         users = list(sliced)
         self.assertLessEqual(len(users), 3)
-
-
-class TestRestSchemaWithCustomParsing(TestCase):
-    """Tests for RestSchema with custom parse methods."""
-
-    def test_custom_parse_list_response(self):
-        """Test that parse_list_response can be overridden."""
-
-        class CustomUserSchema(RestSchema):
-            id: int
-            firstName: str
-
-            class Meta:
-                base_url = 'https://dummyjson.com'
-                base_path = 'users'
-
-            @classmethod
-            def parse_list_response(cls, data: dict) -> list[dict]:
-                # Custom extraction from 'users' key
-                return data.get('users', [])[:3]  # Only first 3
-
-        users = CustomUserSchema.fetch_many()
-
-        self.assertEqual(len(users), 3)
-        self.assertIsInstance(users[0], CustomUserSchema)

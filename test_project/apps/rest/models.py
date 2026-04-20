@@ -4,7 +4,6 @@ from django.db import models
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
-from test_project.apps.rest.services.service import PirateService
 
 
 class Pirate(ActivityMixin, HistoryModelMixin):
@@ -13,8 +12,6 @@ class Pirate(ActivityMixin, HistoryModelMixin):
     last_name = models.CharField(max_length=150)
     email = models.EmailField()
     username = models.CharField(max_length=150, unique=True)
-
-    services = PirateService()
 
     class Meta:
         verbose_name = "Pirate"

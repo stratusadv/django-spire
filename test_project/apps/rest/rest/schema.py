@@ -1,4 +1,5 @@
 from django_spire.contrib.rest import RestSchema
+from test_project.apps.rest.rest.schemaset import PirateRestSchemaSet
 
 
 class PirateRestSchema(RestSchema):
@@ -9,7 +10,4 @@ class PirateRestSchema(RestSchema):
     email: str
     username: str
 
-    class Meta:
-        base_url = 'https://dummyjson.com'
-        base_path = 'users'
-        results_key = 'users'
+    objects = PirateRestSchemaSet.as_manager()
