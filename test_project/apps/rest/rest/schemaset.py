@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.rest import RestSchemaSet
@@ -10,7 +12,7 @@ if TYPE_CHECKING:
 class PirateRestSchemaSet(RestSchemaSet['PirateRestSchema']):
     connector = DummyJsonAPIRestConnector()
 
-    def _read_many(self, **request_params) -> list['PirateRestSchema']:
+    def _read_many(self, **request_params) -> list[PirateRestSchema]:
         from test_project.apps.rest.rest.schema import PirateRestSchema
 
         response = self.connector.get('users', params=request_params)
