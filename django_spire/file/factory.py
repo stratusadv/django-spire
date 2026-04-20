@@ -39,6 +39,7 @@ class FileFactory:
 
     def create(self, file: InMemoryUploadedFile) -> File:
         self.validator.validate(file)
+
         file_obj = self._build(file)
         file_obj.save()
         return file_obj
@@ -51,10 +52,10 @@ class FileFactory:
             message = f'Cannot upload more than {BATCH_SIZE_MAX} files at once.'
             raise FileValidationError(message)
 
-        for f in files:
-            self.validator.validate(f)
+        for file in files:
+            self.validator.validate(file)
 
-        built = [self._build(f) for f in files]
+        built = [self._build(file) for file in files]
 
         return File.objects.bulk_create(built)
 

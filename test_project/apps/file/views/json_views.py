@@ -9,6 +9,7 @@ from django_spire.contrib.responses.json_response import (
     success_json_response,
 )
 from django_spire.file.exceptions import FileValidationError
+from django_spire.file.validators import FileValidator
 
 from test_project.apps.file import models
 
@@ -22,7 +23,7 @@ def add_attachment_view(request: WSGIRequest, pk: int) -> JsonResponse:
         return error_json_response('Method not allowed')
 
     file_example = get_object_or_404(models.FileExample, pk=pk)
-    uploaded_file = next(iter(request.FILES.values()), None)
+    uploaded_file = file_example.services.processor.extract_single_file(request.FILES)
 
     if uploaded_file is None:
         return error_json_response('No file provided')
@@ -40,10 +41,7 @@ def add_attachments_view(request: WSGIRequest, pk: int) -> JsonResponse:
         return error_json_response('Method not allowed')
 
     file_example = get_object_or_404(models.FileExample, pk=pk)
-
-    files = []
-    for key in request.FILES:
-        files.extend(request.FILES.getlist(key))
+    files = file_example.services.processor.extract_multiple_files(request.FILES)
 
     if not files:
         return error_json_response('No files provided')
@@ -61,13 +59,20 @@ def add_validated_attachment_view(request: WSGIRequest, pk: int) -> JsonResponse
         return error_json_response('Method not allowed')
 
     file_example = get_object_or_404(models.FileExample, pk=pk)
-    uploaded_file = next(iter(request.FILES.values()), None)
+    uploaded_file = file_example.services.processor.extract_single_file(request.FILES)
 
     if uploaded_file is None:
         return error_json_response('No file provided')
 
+    validator = FileValidator(
+        size_bytes_max=50 * 1024 * 1024,
+        allowed_extensions=frozenset({'pdf', 'docx', 'xlsx'}),
+        blocked_extensions=frozenset(),
+    )
+
     try:
-        result = file_example.services.processor.add_validated_attachment(uploaded_file)
+        validator.validate(uploaded_file)
+        result = file_example.services.processor.add_attachment(uploaded_file)
     except (FileValidationError, TypeError, ValueError) as e:
         return error_json_response(str(e))
 
@@ -112,10 +117,7 @@ def replace_attachments_view(request: WSGIRequest, pk: int) -> JsonResponse:
         return error_json_response('Method not allowed')
 
     file_example = get_object_or_404(models.FileExample, pk=pk)
-
-    files = []
-    for key in request.FILES:
-        files.extend(request.FILES.getlist(key))
+    files = file_example.services.processor.extract_multiple_files(request.FILES)
 
     if not files:
         return error_json_response('No files provided')
@@ -133,7 +135,7 @@ def replace_profile_picture_view(request: WSGIRequest, pk: int) -> JsonResponse:
         return error_json_response('Method not allowed')
 
     file_example = get_object_or_404(models.FileExample, pk=pk)
-    uploaded_file = next(iter(request.FILES.values()), None)
+    uploaded_file = file_example.services.processor.extract_single_file(request.FILES)
 
     if uploaded_file is None:
         return error_json_response('No file provided')

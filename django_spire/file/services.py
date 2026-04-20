@@ -36,7 +36,13 @@ def copy_files_to_instance(
         )
 
         source_file.file.open('rb')
-        copy.file.save(source_file.file.name, ContentFile(source_file.file.read()), save=False)
+
+        copy.file.save(
+            source_file.file.name,
+            ContentFile(source_file.file.read()),
+            save=False
+        )
+
         source_file.file.close()
 
         copies.append(copy)

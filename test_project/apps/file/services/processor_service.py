@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.service import BaseDjangoModelService
-from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
-from django_spire.file.validators import FileValidator
+from django_spire.file.mixins import FileProcessorServiceMixin
 
 from test_project.apps.file.constants import (
     ATTACHMENTS_RELATED_FIELD,
@@ -19,53 +18,32 @@ if TYPE_CHECKING:
     from test_project.apps.file.models import FileExample
 
 
-class FileExampleProcessorService(BaseDjangoModelService['FileExample']):
+class FileExampleProcessorService(FileProcessorServiceMixin, BaseDjangoModelService['FileExample']):
     obj: FileExample
 
     def add_attachment(self, file: InMemoryUploadedFile) -> File:
-        handler = SingleFileHandler.for_related_field(ATTACHMENTS_RELATED_FIELD)
-        return handler.add(file, self.obj)
+        return self.add_file(file, ATTACHMENTS_RELATED_FIELD)
 
     def add_attachments(self, files: list[InMemoryUploadedFile]) -> list[File]:
-        handler = MultiFileHandler.for_related_field(ATTACHMENTS_RELATED_FIELD)
-        return handler.add_many(files, self.obj)
-
-    def add_validated_attachment(self, file: InMemoryUploadedFile) -> File:
-        validator = FileValidator(
-            size_bytes_max=50 * 1024 * 1024,
-            allowed_extensions=frozenset({'pdf', 'docx', 'xlsx'}),
-            blocked_extensions=frozenset(),
-        )
-
-        handler = SingleFileHandler.for_related_field(
-            ATTACHMENTS_RELATED_FIELD,
-            validator=validator
-        )
-
-        return handler.add(file, self.obj)
+        return self.add_files(files, ATTACHMENTS_RELATED_FIELD)
 
     def delete_attachment(self, file_id: int) -> bool:
-        handler = MultiFileHandler.for_related_field(ATTACHMENTS_RELATED_FIELD)
-        return handler.remove(file_id, self.obj)
+        return self.delete_file(file_id, ATTACHMENTS_RELATED_FIELD)
 
     def delete_attachments(self) -> int:
-        handler = MultiFileHandler.for_related_field(ATTACHMENTS_RELATED_FIELD)
-        return handler.remove_all(self.obj)
+        return self.delete_files(ATTACHMENTS_RELATED_FIELD)
 
     def delete_profile_picture(self) -> int:
-        handler = SingleFileHandler.for_related_field(PROFILE_PICTURE_RELATED_FIELD)
-        return handler.remove_all(self.obj)
+        return self.delete_files(PROFILE_PICTURE_RELATED_FIELD)
 
     def replace_attachments(
         self,
         data: list[dict] | list[InMemoryUploadedFile] | None,
     ) -> list[File]:
-        handler = MultiFileHandler.for_related_field(ATTACHMENTS_RELATED_FIELD)
-        return handler.replace(data, self.obj)
+        return self.replace_files(data, ATTACHMENTS_RELATED_FIELD)
 
     def replace_profile_picture(
         self,
         data: dict | InMemoryUploadedFile | None,
     ) -> File | None:
-        handler = SingleFileHandler.for_related_field(PROFILE_PICTURE_RELATED_FIELD)
-        return handler.replace(data, self.obj)
+        return self.replace_file(data, PROFILE_PICTURE_RELATED_FIELD)

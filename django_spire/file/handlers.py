@@ -81,13 +81,13 @@ class SingleFileHandler:
         return self.linker.unlink_existing(instance)
 
     def _replace_from_ajax(self, data: dict, instance: models.Model) -> File | None:
-        file_id = data.get('id')
+        file_id_raw = data.get('id')
 
-        if not file_id:
+        if not file_id_raw:
             return None
 
         try:
-            file_id = int(file_id)
+            file_id = int(file_id_raw)
         except (TypeError, ValueError):
             return None
 
@@ -200,10 +200,11 @@ class MultiFileHandler:
         file_ids = []
 
         for entry in data:
-            raw_id = entry.get('id')
-            if raw_id:
+            file_id_raw = entry.get('id')
+
+            if file_id_raw:
                 try:
-                    file_ids.append(int(raw_id))
+                    file_ids.append(int(file_id_raw))
                 except (TypeError, ValueError):
                     continue
 
@@ -218,6 +219,7 @@ class MultiFileHandler:
             )
             .values_list('id', flat=True)
         )
+
         verified_ids = [file_id for file_id in file_ids if file_id in allowed_ids]
 
         self.linker.unlink_except(instance, keep_ids=verified_ids)
@@ -229,6 +231,7 @@ class MultiFileHandler:
                 object_id__isnull=True,
             )
         )
+
         self.linker.link_many(unlinked, instance)
 
         return list(

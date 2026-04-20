@@ -16,10 +16,6 @@ class FileForm(forms.Form):
 
 
 class FileFormMixin:
-    """A mixin that auto-discovers ``SingleFileField`` and ``MultipleFileField``
-    instances on the form and handles file association on ``save()``.
-    """
-
     def save(self, commit: bool = True) -> models.Model:
         instance = super().save(commit=commit)
 
@@ -33,22 +29,21 @@ class FileFormMixin:
             data = self.cleaned_data.get(name)
 
             if isinstance(field, SingleFileField):
-                handler = SingleFileHandler.for_related_field(field.related_field)
+                handler = SingleFileHandler.for_related_field(
+                    field.related_field,
+                    validator=field.validator,
+                )
+
                 handler.replace(data, instance)
 
             if isinstance(field, MultipleFileField):
-                handler = MultiFileHandler.for_related_field(field.related_field)
+                handler = MultiFileHandler.for_related_field(
+                    field.related_field,
+                    validator=field.validator,
+                )
+
                 handler.replace(data, instance)
 
 
 class FileModelForm(FileFormMixin, forms.ModelForm):
-    """A drop-in replacement for `ModelForm` with automatic file handling.
-
-    Usage:
-        class AssetForm(FileModelForm):
-            profile_picture = SingleFileField(related_field='pfp', required=False)
-
-            class Meta:
-                model = Asset
-                exclude = []
-    """
+    ...
