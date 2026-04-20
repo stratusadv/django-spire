@@ -43,7 +43,7 @@ class SingleFileHandlerTests(BaseTestCase):
         assert handler.linker.related_field == 'pfp'
 
     def test_save_none_returns_none(self) -> None:
-        result = self.handler.save(None, self.ticket)
+        result = self.handler.replace(None, self.ticket)
 
         assert result is None
 
@@ -51,14 +51,14 @@ class SingleFileHandlerTests(BaseTestCase):
         initial_count = File.objects.count()
         file = create_test_in_memory_uploaded_file()
 
-        self.handler.save(file, self.ticket)
+        self.handler.replace(file, self.ticket)
 
         assert File.objects.count() == initial_count + 1
 
     def test_save_upload_links_to_instance(self) -> None:
         file = create_test_in_memory_uploaded_file()
 
-        result = self.handler.save(file, self.ticket)
+        result = self.handler.replace(file, self.ticket)
 
         assert result.object_id == self.ticket.pk
         assert result.content_type == self.content_type
@@ -70,7 +70,7 @@ class SingleFileHandlerTests(BaseTestCase):
             related_field='pfp',
         )
 
-        self.handler.save(create_test_in_memory_uploaded_file(), self.ticket)
+        self.handler.replace(create_test_in_memory_uploaded_file(), self.ticket)
 
         old_file.refresh_from_db()
         assert old_file.is_active is False
@@ -79,7 +79,7 @@ class SingleFileHandlerTests(BaseTestCase):
     def test_save_ajax_links_existing_file(self) -> None:
         file = create_test_file(name='unlinked')
 
-        result = self.handler.save({'id': file.pk}, self.ticket)
+        result = self.handler.replace({'id': file.pk}, self.ticket)
 
         assert result.pk == file.pk
         result.refresh_from_db()
@@ -93,7 +93,7 @@ class SingleFileHandlerTests(BaseTestCase):
             related_field='pfp',
         )
 
-        result = self.handler.save({'id': file.pk}, self.ticket)
+        result = self.handler.replace({'id': file.pk}, self.ticket)
 
         assert result.pk == file.pk
 
@@ -106,24 +106,24 @@ class SingleFileHandlerTests(BaseTestCase):
             object_id=other_ticket.pk,
         )
 
-        result = self.handler.save({'id': file.pk}, self.ticket)
+        result = self.handler.replace({'id': file.pk}, self.ticket)
 
         assert result is None
         file.refresh_from_db()
         assert file.object_id == other_ticket.pk
 
     def test_save_ajax_empty_id_returns_none(self) -> None:
-        result = self.handler.save({'id': 0}, self.ticket)
+        result = self.handler.replace({'id': 0}, self.ticket)
 
         assert result is None
 
     def test_save_ajax_missing_id_returns_none(self) -> None:
-        result = self.handler.save({}, self.ticket)
+        result = self.handler.replace({}, self.ticket)
 
         assert result is None
 
     def test_save_ajax_nonexistent_id_returns_none(self) -> None:
-        result = self.handler.save({'id': 999999}, self.ticket)
+        result = self.handler.replace({'id': 999999}, self.ticket)
 
         assert result is None
 
@@ -139,31 +139,31 @@ class SingleFileHandlerEdgeCaseTests(BaseTestCase):
 
     def test_save_unsupported_type_raises(self) -> None:
         with pytest.raises(TypeError, match='Unsupported data type'):
-            self.handler.save('not_a_file', self.ticket)
+            self.handler.replace('not_a_file', self.ticket)
 
     def test_save_integer_raises(self) -> None:
         with pytest.raises(TypeError, match='Unsupported data type'):
-            self.handler.save(42, self.ticket)
+            self.handler.replace(42, self.ticket)
 
     def test_save_ajax_negative_id_returns_none(self) -> None:
-        result = self.handler.save({'id': -1}, self.ticket)
+        result = self.handler.replace({'id': -1}, self.ticket)
 
         assert result is None
 
     def test_save_ajax_string_id_returns_none(self) -> None:
-        result = self.handler.save({'id': 'abc'}, self.ticket)
+        result = self.handler.replace({'id': 'abc'}, self.ticket)
 
         assert result is None
 
     def test_save_ajax_none_id_returns_none(self) -> None:
-        result = self.handler.save({'id': None}, self.ticket)
+        result = self.handler.replace({'id': None}, self.ticket)
 
         assert result is None
 
     def test_save_ajax_soft_deleted_orphan_is_claimable(self) -> None:
         file = create_test_file(name='deleted_orphan', is_active=False, is_deleted=True)
 
-        result = self.handler.save({'id': file.pk}, self.ticket)
+        result = self.handler.replace({'id': file.pk}, self.ticket)
 
         assert result is not None
         result.refresh_from_db()
@@ -174,12 +174,12 @@ class SingleFileHandlerEdgeCaseTests(BaseTestCase):
         other_ticket = create_test_helpdesk_ticket()
         other_handler = SingleFileHandler.for_related_field('pfp')
 
-        result = other_handler.save({'id': orphan.pk}, other_ticket)
+        result = other_handler.replace({'id': orphan.pk}, other_ticket)
 
         assert result is not None
         assert result.object_id == other_ticket.pk
 
-        second_result = self.handler.save({'id': orphan.pk}, self.ticket)
+        second_result = self.handler.replace({'id': orphan.pk}, self.ticket)
 
         assert second_result is None
 
@@ -187,8 +187,8 @@ class SingleFileHandlerEdgeCaseTests(BaseTestCase):
         file1 = create_test_in_memory_uploaded_file(name='first')
         file2 = create_test_in_memory_uploaded_file(name='second')
 
-        result1 = self.handler.save(file1, self.ticket)
-        result2 = self.handler.save(file2, self.ticket)
+        result1 = self.handler.replace(file1, self.ticket)
+        result2 = self.handler.replace(file2, self.ticket)
 
         result1.refresh_from_db()
         assert result1.is_active is False
@@ -199,7 +199,7 @@ class SingleFileHandlerEdgeCaseTests(BaseTestCase):
     def test_save_ajax_with_extra_keys_ignored(self) -> None:
         file = create_test_file(name='extra_keys')
 
-        result = self.handler.save(
+        result = self.handler.replace(
             {'id': file.pk, 'name': 'evil', 'url': 'https://evil.com'},
             self.ticket,
         )
@@ -225,12 +225,12 @@ class MultiFileHandlerTests(BaseTestCase):
         assert handler.linker.related_field == 'abc'
 
     def test_save_none_returns_empty_list(self) -> None:
-        result = self.handler.save(None, self.ticket)
+        result = self.handler.replace(None, self.ticket)
 
         assert result == []
 
     def test_save_empty_list_returns_empty_list(self) -> None:
-        result = self.handler.save([], self.ticket)
+        result = self.handler.replace([], self.ticket)
 
         assert result == []
 
@@ -241,7 +241,7 @@ class MultiFileHandlerTests(BaseTestCase):
             create_test_in_memory_uploaded_file(name='file2'),
         ]
 
-        self.handler.save(files, self.ticket)
+        self.handler.replace(files, self.ticket)
 
         assert File.objects.count() == initial_count + 2
 
@@ -251,7 +251,7 @@ class MultiFileHandlerTests(BaseTestCase):
             create_test_in_memory_uploaded_file(name='file2'),
         ]
 
-        result = self.handler.save(files, self.ticket)
+        result = self.handler.replace(files, self.ticket)
 
         for file in result:
             assert file.object_id == self.ticket.pk
@@ -263,7 +263,7 @@ class MultiFileHandlerTests(BaseTestCase):
             related_field='abc',
         )
 
-        self.handler.save(
+        self.handler.replace(
             [create_test_in_memory_uploaded_file()],
             self.ticket,
         )
@@ -275,7 +275,7 @@ class MultiFileHandlerTests(BaseTestCase):
         file1 = create_test_file(name='unlinked1')
         file2 = create_test_file(name='unlinked2')
 
-        result = self.handler.save(
+        result = self.handler.replace(
             [{'id': file1.pk}, {'id': file2.pk}],
             self.ticket,
         )
@@ -294,7 +294,7 @@ class MultiFileHandlerTests(BaseTestCase):
             related_field='abc',
         )
 
-        self.handler.save([{'id': keep.pk}], self.ticket)
+        self.handler.replace([{'id': keep.pk}], self.ticket)
 
         remove.refresh_from_db()
         assert remove.is_active is False
@@ -308,7 +308,7 @@ class MultiFileHandlerTests(BaseTestCase):
             object_id=other_ticket.pk,
         )
 
-        result = self.handler.save([{'id': stolen.pk}], self.ticket)
+        result = self.handler.replace([{'id': stolen.pk}], self.ticket)
 
         assert len(result) == 0
         stolen.refresh_from_db()
@@ -318,7 +318,7 @@ class MultiFileHandlerTests(BaseTestCase):
         data = [{'id': i} for i in range(BATCH_SIZE_MAX + 1)]
 
         with pytest.raises(FileValidationError):
-            self.handler.save(data, self.ticket)
+            self.handler.replace(data, self.ticket)
 
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
@@ -332,12 +332,12 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
 
     def test_save_unsupported_element_type_raises(self) -> None:
         with pytest.raises(TypeError, match='Unsupported data element type'):
-            self.handler.save(['not_a_file'], self.ticket)
+            self.handler.replace(['not_a_file'], self.ticket)
 
     def test_save_ajax_duplicate_ids(self) -> None:
         file = create_test_file(name='dupe')
 
-        _ = self.handler.save(
+        _ = self.handler.replace(
             [{'id': file.pk}, {'id': file.pk}],
             self.ticket,
         )
@@ -351,7 +351,7 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
         assert linked.count() == 1
 
     def test_save_ajax_all_nonexistent_ids(self) -> None:
-        result = self.handler.save(
+        result = self.handler.replace(
             [{'id': 999997}, {'id': 999998}, {'id': 999999}],
             self.ticket,
         )
@@ -361,7 +361,7 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
     def test_save_ajax_mix_valid_and_invalid_ids(self) -> None:
         valid = create_test_file(name='valid')
 
-        result = self.handler.save(
+        result = self.handler.replace(
             [{'id': valid.pk}, {'id': 999999}],
             self.ticket,
         )
@@ -372,7 +372,7 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
     def test_save_ajax_empty_id_in_data_skipped(self) -> None:
         file = create_test_file(name='real')
 
-        result = self.handler.save(
+        result = self.handler.replace(
             [{'id': file.pk}, {'id': 0}, {}],
             self.ticket,
         )
@@ -383,7 +383,7 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
     def test_save_ajax_soft_deleted_orphan_is_claimable(self) -> None:
         file = create_test_file(name='deleted_orphan', is_active=False, is_deleted=True)
 
-        result = self.handler.save([{'id': file.pk}], self.ticket)
+        result = self.handler.replace([{'id': file.pk}], self.ticket)
 
         claimed = [f for f in result if f.pk == file.pk]
         assert len(claimed) == 1
@@ -392,7 +392,7 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
         files = [create_test_file(name=f'f{i}') for i in range(BATCH_SIZE_MAX)]
         data = [{'id': f.pk} for f in files]
 
-        result = self.handler.save(data, self.ticket)
+        result = self.handler.replace(data, self.ticket)
 
         assert len(result) == BATCH_SIZE_MAX
 
@@ -401,10 +401,10 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
             create_test_in_memory_uploaded_file(name='upload1'),
             create_test_in_memory_uploaded_file(name='upload2'),
         ]
-        uploaded = self.handler.save(uploads, self.ticket)
+        uploaded = self.handler.replace(uploads, self.ticket)
 
         new_file = create_test_file(name='ajax_file')
-        result = self.handler.save([{'id': new_file.pk}], self.ticket)
+        result = self.handler.replace([{'id': new_file.pk}], self.ticket)
 
         for f in uploaded:
             f.refresh_from_db()
@@ -419,7 +419,7 @@ class MultiFileHandlerEdgeCaseTests(BaseTestCase):
             related_field='abc',
         )
 
-        self.handler.save([{}, {}], self.ticket)
+        self.handler.replace([{}, {}], self.ticket)
 
         existing.refresh_from_db()
         assert existing.is_active is False

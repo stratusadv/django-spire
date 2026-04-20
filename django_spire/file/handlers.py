@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile
     from django.db import models
 
+    from django_spire.file.validators import FileValidator
+
 
 @dataclass
 class SingleFileHandler:
@@ -22,13 +24,26 @@ class SingleFileHandler:
     linker: FileLinker
 
     @classmethod
-    def for_related_field(cls, related_field: str = '') -> SingleFileHandler:
+    def for_related_field(
+        cls,
+        related_field: str = '',
+        validator: FileValidator | None = None,
+    ) -> SingleFileHandler:
+        factory_kwargs = {'related_field': related_field}
+
+        if validator is not None:
+            factory_kwargs['validator'] = validator
+
         return cls(
-            factory=FileFactory(related_field=related_field),
+            factory=FileFactory(**factory_kwargs),
             linker=FileLinker(related_field=related_field),
         )
 
-    def save(
+    def add(self, file: InMemoryUploadedFile, instance: models.Model) -> File:
+        file_obj = self.factory.create(file)
+        return self.linker.link(file_obj, instance)
+
+    def replace(
         self,
         data: dict | InMemoryUploadedFile | None,
         instance: models.Model,
@@ -37,15 +52,35 @@ class SingleFileHandler:
             return None
 
         if isinstance(data, dict):
-            return self._save_from_ajax(data, instance)
+            return self._replace_from_ajax(data, instance)
 
         if hasattr(data, 'read'):
-            return self._save_from_upload(data, instance)
+            return self._replace_from_upload(data, instance)
 
         message = f'Unsupported data type: {type(data).__name__}'
         raise TypeError(message)
 
-    def _save_from_ajax(self, data: dict, instance: models.Model) -> File | None:
+    def remove(self, file_id: int, instance: models.Model) -> bool:
+        content_type = ContentType.objects.get_for_model(instance)
+
+        updated = (
+            File.objects
+            .active()
+            .filter(
+                pk=file_id,
+                content_type=content_type,
+                object_id=instance.pk,
+            )
+            .related_field(self.linker.related_field)
+            .update(is_active=False, is_deleted=True)
+        )
+
+        return updated > 0
+
+    def remove_all(self, instance: models.Model) -> int:
+        return self.linker.unlink_existing(instance)
+
+    def _replace_from_ajax(self, data: dict, instance: models.Model) -> File | None:
         file_id = data.get('id')
 
         if not file_id:
@@ -79,7 +114,7 @@ class SingleFileHandler:
         self.linker.unlink_existing(instance)
         return self.linker.link(file_obj, instance)
 
-    def _save_from_upload(self, file: InMemoryUploadedFile, instance: models.Model) -> File:
+    def _replace_from_upload(self, file: InMemoryUploadedFile, instance: models.Model) -> File:
         self.linker.unlink_existing(instance)
         file_obj = self.factory.create(file)
         return self.linker.link(file_obj, instance)
@@ -91,13 +126,34 @@ class MultiFileHandler:
     linker: FileLinker
 
     @classmethod
-    def for_related_field(cls, related_field: str = '') -> MultiFileHandler:
+    def for_related_field(
+        cls,
+        related_field: str = '',
+        validator: FileValidator | None = None,
+    ) -> MultiFileHandler:
+        factory_kwargs = {'related_field': related_field}
+
+        if validator is not None:
+            factory_kwargs['validator'] = validator
+
         return cls(
-            factory=FileFactory(related_field=related_field),
+            factory=FileFactory(**factory_kwargs),
             linker=FileLinker(related_field=related_field),
         )
 
-    def save(
+    def add(self, file: InMemoryUploadedFile, instance: models.Model) -> File:
+        file_obj = self.factory.create(file)
+        return self.linker.link(file_obj, instance)
+
+    def add_many(self, files: list[InMemoryUploadedFile], instance: models.Model) -> list[File]:
+        if not files:
+            return []
+
+        file_objs = self.factory.create_many(files)
+        self.linker.link_many(file_objs, instance)
+        return file_objs
+
+    def replace(
         self,
         data: list[dict] | list[InMemoryUploadedFile] | None,
         instance: models.Model,
@@ -112,15 +168,35 @@ class MultiFileHandler:
         first = data[0]
 
         if isinstance(first, dict):
-            return self._save_from_ajax(data, instance)
+            return self._replace_from_ajax(data, instance)
 
         if hasattr(first, 'read'):
-            return self._save_from_upload(data, instance)
+            return self._replace_from_upload(data, instance)
 
         message = f'Unsupported data element type: {type(first).__name__}'
         raise TypeError(message)
 
-    def _save_from_ajax(self, data: list[dict], instance: models.Model) -> list[File]:
+    def remove(self, file_id: int, instance: models.Model) -> bool:
+        content_type = ContentType.objects.get_for_model(instance)
+
+        updated = (
+            File.objects
+            .active()
+            .filter(
+                pk=file_id,
+                content_type=content_type,
+                object_id=instance.pk,
+            )
+            .related_field(self.linker.related_field)
+            .update(is_active=False, is_deleted=True)
+        )
+
+        return updated > 0
+
+    def remove_all(self, instance: models.Model) -> int:
+        return self.linker.unlink_existing(instance)
+
+    def _replace_from_ajax(self, data: list[dict], instance: models.Model) -> list[File]:
         file_ids = []
 
         for entry in data:
@@ -162,7 +238,7 @@ class MultiFileHandler:
             .related_field(self.linker.related_field)
         )
 
-    def _save_from_upload(
+    def _replace_from_upload(
         self,
         files: list[InMemoryUploadedFile],
         instance: models.Model,

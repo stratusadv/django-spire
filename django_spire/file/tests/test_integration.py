@@ -16,13 +16,12 @@ from django_spire.file.fields import SingleFileField
 from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
 from django_spire.file.linker import FileLinker
 from django_spire.file.models import File
-from django_spire.file.services import FileService, copy_files_to_instance
+from django_spire.file.services import copy_files_to_instance
 from django_spire.file.tests.factories import (
     create_test_file,
     create_test_in_memory_uploaded_file,
 )
 from django_spire.file.utils import format_size, parse_extension, parse_name
-from django_spire.file.validators import FileValidator
 from django_spire.file.views import file_upload_ajax_multiple, file_upload_ajax_single
 from django_spire.file.widgets import MultipleFileWidget, SingleFileWidget
 from django_spire.help_desk.models import HelpDeskTicket
@@ -54,7 +53,7 @@ class MultiFileHandlerMixedTypeTests(BaseTestCase):
         ]
 
         with pytest.raises((TypeError, AttributeError, KeyError)):
-            self.handler.save(data, self.ticket)
+            self.handler.replace(data, self.ticket)
 
     def test_upload_then_dict_crashes_in_upload_path(self) -> None:
         data = [
@@ -63,7 +62,7 @@ class MultiFileHandlerMixedTypeTests(BaseTestCase):
         ]
 
         with pytest.raises((FileValidationError, AttributeError, TypeError)):
-            self.handler.save(data, self.ticket)
+            self.handler.replace(data, self.ticket)
 
     def test_none_element_in_list_crashes(self) -> None:
         data = [
@@ -72,15 +71,15 @@ class MultiFileHandlerMixedTypeTests(BaseTestCase):
         ]
 
         with pytest.raises((FileValidationError, AttributeError, TypeError)):
-            self.handler.save(data, self.ticket)
+            self.handler.replace(data, self.ticket)
 
     def test_integer_element_detected_by_type_check(self) -> None:
         with pytest.raises(TypeError, match='Unsupported data element type'):
-            self.handler.save([42], self.ticket)
+            self.handler.replace([42], self.ticket)
 
     def test_string_element_detected_by_type_check(self) -> None:
         with pytest.raises(TypeError, match='Unsupported data element type'):
-            self.handler.save(['file.pdf'], self.ticket)
+            self.handler.replace(['file.pdf'], self.ticket)
 
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
@@ -103,7 +102,7 @@ class HandlerAtomicityTests(BaseTestCase):
         bad = create_test_in_memory_uploaded_file(name='bad', file_type='exe')
 
         with pytest.raises(FileValidationError):
-            handler.save([good, bad], self.ticket)
+            handler.replace([good, bad], self.ticket)
 
         existing.refresh_from_db()
         assert existing.is_active is False
@@ -121,7 +120,7 @@ class HandlerAtomicityTests(BaseTestCase):
                 patch.object(FileLinker, 'link_many', side_effect=RuntimeError('db error')),
                 pytest.raises(RuntimeError),
             ):
-                handler.save([{'id': orphan.pk}], self.ticket)
+                handler.replace([{'id': orphan.pk}], self.ticket)
 
             existing.refresh_from_db()
             assert existing.is_active is False
@@ -136,7 +135,7 @@ class HandlerAtomicityTests(BaseTestCase):
         bad = create_test_in_memory_uploaded_file(name='bad', file_type='exe')
 
         with pytest.raises(FileValidationError):
-            handler.save(bad, self.ticket)
+            handler.replace(bad, self.ticket)
 
         existing.refresh_from_db()
         assert existing.is_active is False
@@ -313,7 +312,7 @@ class WidgetToHandlerTypeConfusionTests(BaseTestCase):
 
         handler = SingleFileHandler.for_related_field('pfp')
         with pytest.raises(TypeError, match='Unsupported data type'):
-            handler.save(value, self.ticket)
+            handler.replace(value, self.ticket)
 
     def test_single_widget_string_flows_to_handler_raises(self) -> None:
         widget = SingleFileWidget()
@@ -323,7 +322,7 @@ class WidgetToHandlerTypeConfusionTests(BaseTestCase):
 
         handler = SingleFileHandler.for_related_field('pfp')
         with pytest.raises(TypeError, match='Unsupported data type'):
-            handler.save(value, self.ticket)
+            handler.replace(value, self.ticket)
 
     def test_single_widget_list_flows_to_handler_raises(self) -> None:
         widget = SingleFileWidget()
@@ -333,7 +332,7 @@ class WidgetToHandlerTypeConfusionTests(BaseTestCase):
 
         handler = SingleFileHandler.for_related_field('pfp')
         with pytest.raises(TypeError, match='Unsupported data type'):
-            handler.save(value, self.ticket)
+            handler.replace(value, self.ticket)
 
     def test_multi_widget_string_flows_to_handler_crashes(self) -> None:
         widget = MultipleFileWidget()
@@ -344,7 +343,7 @@ class WidgetToHandlerTypeConfusionTests(BaseTestCase):
         handler = MultiFileHandler.for_related_field('abc')
 
         with pytest.raises((TypeError, AttributeError)):
-            handler.save(value, self.ticket)
+            handler.replace(value, self.ticket)
 
     def test_multi_widget_dict_flows_to_handler_crashes_with_key_error(self) -> None:
         widget = MultipleFileWidget()
@@ -355,7 +354,7 @@ class WidgetToHandlerTypeConfusionTests(BaseTestCase):
         handler = MultiFileHandler.for_related_field('abc')
 
         with pytest.raises(KeyError):
-            handler.save(value, self.ticket)
+            handler.replace(value, self.ticket)
 
     def test_multi_widget_nested_none_in_list(self) -> None:
         widget = MultipleFileWidget()
@@ -366,98 +365,7 @@ class WidgetToHandlerTypeConfusionTests(BaseTestCase):
         handler = MultiFileHandler.for_related_field('abc')
 
         with pytest.raises((TypeError, AttributeError)):
-            handler.save(value, self.ticket)
-
-
-@override_settings(STORAGES=STORAGES_OVERRIDE)
-class FileServiceTests(BaseTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.service = FileService()
-        self.ticket = create_test_helpdesk_ticket()
-
-    def test_upload_creates_file(self) -> None:
-        file = create_test_in_memory_uploaded_file()
-
-        result = self.service.upload(file)
-
-        assert isinstance(result, File)
-        assert result.pk is not None
-
-    def test_upload_blocked_extension_raises(self) -> None:
-        file = create_test_in_memory_uploaded_file(name='bad', file_type='exe')
-
-        with pytest.raises(FileValidationError):
-            self.service.upload(file)
-
-    def test_attach_links_file_to_instance(self) -> None:
-        file = create_test_file()
-
-        result = self.service.attach(file, self.ticket)
-
-        assert result.object_id == self.ticket.pk
-
-    def test_attach_to_unsaved_raises(self) -> None:
-        file = create_test_file()
-
-        with pytest.raises(ValueError):  # noqa: PT011
-            self.service.attach(file, HelpDeskTicket())
-
-    def test_detach_existing_soft_deletes(self) -> None:
-        content_type = ContentType.objects.get_for_model(self.ticket)
-        file = create_test_file(
-            content_type=content_type,
-            object_id=self.ticket.pk,
-        )
-
-        count = self.service.detach_existing(self.ticket)
-
-        assert count == 1
-        file.refresh_from_db()
-        assert file.is_active is False
-
-    def test_save_from_form_none_returns_none(self) -> None:
-        result = self.service.save_from_form(None, self.ticket)
-
-        assert result is None
-
-    def test_save_from_form_upload(self) -> None:
-        file = create_test_in_memory_uploaded_file()
-
-        result = self.service.save_from_form(file, self.ticket)
-
-        assert result is not None
-        assert result.object_id == self.ticket.pk
-
-    def test_save_from_form_ajax_dict(self) -> None:
-        orphan = create_test_file(name='orphan')
-
-        result = self.service.save_from_form({'id': orphan.pk}, self.ticket)
-
-        assert result is not None
-        result.refresh_from_db()
-        assert result.object_id == self.ticket.pk
-
-    def test_custom_validator_propagates(self) -> None:
-        validator = FileValidator(size_bytes_max=1)
-        service = FileService(validator=validator)
-        file = create_test_in_memory_uploaded_file(content=b'x' * 100)
-
-        with pytest.raises(FileValidationError):
-            service.upload(file)
-
-    def test_upload_many_atomicity_on_validation_failure(self) -> None:
-        service = FileService()
-        good = create_test_in_memory_uploaded_file(name='good')
-        bad = create_test_in_memory_uploaded_file(name='bad', file_type='exe')
-
-        initial_count = File.objects.count()
-
-        with pytest.raises(FileValidationError):
-            service.upload_many([good, bad])
-
-        assert File.objects.count() == initial_count
+            handler.replace(value, self.ticket)
 
 
 class FormatSizeConsistencyTests(BaseTestCase):

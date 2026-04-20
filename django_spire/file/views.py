@@ -45,7 +45,7 @@ def file_upload_ajax_multiple(request: WSGIRequest) -> JsonResponse:
     try:
         factory = FileFactory(related_field=related_field)
         files = factory.create_many(list(request.FILES.values()))
-    except FileValidationError as e:
+    except (FileValidationError, TypeError, ValueError) as e:
         return error_json_response(str(e))
 
     return success_json_response(files=[file.to_dict() for file in files])
@@ -70,7 +70,7 @@ def file_upload_ajax_single(request: WSGIRequest) -> JsonResponse:
     try:
         factory = FileFactory(related_field=related_field)
         file = factory.create(uploaded_file)
-    except FileValidationError as e:
+    except (FileValidationError, TypeError, ValueError) as e:
         return error_json_response(str(e))
 
     return success_json_response(file=file.to_dict())

@@ -12,7 +12,6 @@ from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
 from django_spire.file.linker import FileLinker
 from django_spire.file.models import File
 from django_spire.file.path import FilePathBuilder
-from django_spire.file.services import FileService
 from django_spire.file.tests.factories import (
     create_test_file,
     create_test_in_memory_uploaded_file,
@@ -43,11 +42,6 @@ class PathTraversalBypassingViewsTests(BaseTestCase):
         linker = FileLinker(related_field='../../etc')
 
         assert linker.related_field == '../../etc'
-
-    def test_service_accepts_path_traversal_in_related_field(self) -> None:
-        service = FileService(related_field='../../etc')
-
-        assert service.related_field == '../../etc'
 
     def test_handler_accepts_path_traversal_in_related_field(self) -> None:
         handler = SingleFileHandler.for_related_field('../../etc')
@@ -102,7 +96,7 @@ class OrphanFileClaimIDORTests(BaseTestCase):
         orphan = create_test_file(name='user_a_upload')
 
         handler_b = SingleFileHandler.for_related_field('pfp')
-        result = handler_b.save({'id': orphan.pk}, self.ticket_b)
+        result = handler_b.replace({'id': orphan.pk}, self.ticket_b)
 
         assert result is not None
         result.refresh_from_db()
@@ -112,7 +106,7 @@ class OrphanFileClaimIDORTests(BaseTestCase):
         orphan = create_test_file(name='user_a_upload')
 
         handler_b = MultiFileHandler.for_related_field('abc')
-        result = handler_b.save([{'id': orphan.pk}], self.ticket_b)
+        result = handler_b.replace([{'id': orphan.pk}], self.ticket_b)
 
         claimed = [f for f in result if f.pk == orphan.pk]
         assert len(claimed) == 1
@@ -124,7 +118,7 @@ class OrphanFileClaimIDORTests(BaseTestCase):
         claimed_count = 0
 
         for orphan in orphans:
-            result = handler.save({'id': orphan.pk}, self.ticket_b)
+            result = handler.replace({'id': orphan.pk}, self.ticket_b)
             if result is not None:
                 claimed_count += 1
 
@@ -138,7 +132,7 @@ class OrphanFileClaimIDORTests(BaseTestCase):
         )
 
         handler = SingleFileHandler.for_related_field('pfp')
-        result = handler.save({'id': orphan.pk}, self.ticket_b)
+        result = handler.replace({'id': orphan.pk}, self.ticket_b)
 
         assert result is not None
         result.refresh_from_db()
@@ -230,7 +224,7 @@ class ValidatorFactoryInconsistencyTests(BaseTestCase):
 
         assert File.objects.count() == initial_count
 
-    def test_view_upload_dotfile_crashes_unhandled(self) -> None:
+    def test_view_upload_dotfile_returns_error(self) -> None:
         rf = RequestFactory()
         file = create_test_in_memory_uploaded_file()
         file.name = '.dockerignore'
@@ -239,8 +233,10 @@ class ValidatorFactoryInconsistencyTests(BaseTestCase):
         request.FILES['file'] = file
         request.user = self.super_user
 
-        with pytest.raises(ValueError):  # noqa: PT011
-            file_upload_ajax_single(request)
+        response = file_upload_ajax_single(request)
+        data = json.loads(response.content)
+
+        assert data['type'] == 'error'
 
 
 class DoubleExtensionAttackTests(BaseTestCase):
