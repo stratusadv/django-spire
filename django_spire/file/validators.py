@@ -16,7 +16,13 @@ class FileValidator:
     allowed_extensions: frozenset[str] | None = None
     blocked_extensions: frozenset[str] = field(
         default_factory=lambda: frozenset({
-            'exe', 'bat', 'cmd', 'com', 'msi', 'scr', 'pif',
+            'exe',
+            'bat',
+            'cmd',
+            'com',
+            'msi',
+            'scr',
+            'pif',
         })
     )
 
