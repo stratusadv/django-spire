@@ -1,0 +1,47 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Attachments
+{% endblock %}
+
+{% block card_button %}
+    {% if file_example.attachments %}
+        <div
+            x-data="{
+                async delete_all() {
+                    let form_data = new FormData();
+                    form_data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                    let response = await fetch('{% url 'file:json:delete_attachments' pk=file_example.pk %}', {
+                        method: 'POST',
+                        body: form_data,
+                    });
+
+                    let data = await response.json();
+
+                    if (data.type === 'success') {
+                        location.reload();
+                    }
+                }
+            }"
+        >
+            <button type="button" class="btn btn-sm btn-outline-danger" @click="delete_all()">
+                <i class="bi bi-trash me-1"></i> Delete All
+            </button>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="row g-3">
+        {% for file in file_example.attachments %}
+            <div class="col-6 col-md-4 col-lg-3">
+                {% include 'file/item/attachment_item.html' %}
+            </div>
+        {% empty %}
+            <div class="col-12">
+                {% include 'django_spire/item/no_data_item.html' %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

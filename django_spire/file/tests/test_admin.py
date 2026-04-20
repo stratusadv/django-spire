@@ -23,33 +23,38 @@ STORAGES_OVERRIDE = {
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
 class FileAdminTests(BaseTestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
 
         self.site = AdminSite()
         self.admin = FileAdmin(File, self.site)
         self.file = create_test_file()
 
-    def test_list_display(self):
-        expected = ('id', 'name', 'type', 'size', 'content_object_link', 'file_link')
+    def test_list_display(self) -> None:
+        expected = ('id', 'name', 'type', 'formatted_size', 'content_object_link', 'file_link')
 
         assert self.admin.list_display == expected
 
-    def test_list_filter(self):
+    def test_list_filter(self) -> None:
         assert self.admin.list_filter == ('type',)
 
-    def test_search_fields(self):
+    def test_search_fields(self) -> None:
         assert self.admin.search_fields == ('id', 'name', 'type')
 
-    def test_ordering(self):
+    def test_ordering(self) -> None:
         assert self.admin.ordering == ('-id',)
 
-    def test_content_object_link_no_related_object(self):
+    def test_formatted_size(self) -> None:
+        result = self.admin.formatted_size(self.file)
+
+        assert result == self.file.formatted_size
+
+    def test_content_object_link_no_related_object(self) -> None:
         result = self.admin.content_object_link(self.file)
 
         assert result == 'No Related Object'
 
-    def test_content_object_link_with_related_object(self):
+    def test_content_object_link_with_related_object(self) -> None:
         ticket = create_test_helpdesk_ticket()
         content_type = ContentType.objects.get_for_model(ticket.__class__)
         self.file.content_type = content_type
@@ -61,7 +66,7 @@ class FileAdminTests(BaseTestCase):
         assert 'href=' in result
         assert str(ticket) in result
 
-    def test_file_link(self):
+    def test_file_link(self) -> None:
         result = self.admin.file_link(self.file)
 
         assert f'href="{self.file.file.url}"' in result

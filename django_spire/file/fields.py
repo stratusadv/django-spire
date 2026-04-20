@@ -10,13 +10,16 @@ from django_spire.file import widgets
 from django_spire.file.queryset import FileQuerySet
 
 if TYPE_CHECKING:
+    from django.core.files.uploadedfile import InMemoryUploadedFile
+
     from django_spire.file.models import File
 
 
 class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, related_field: str = '', **kwargs) -> None:
+        self.related_field = related_field
         super().__init__(*args, **kwargs)
-        self.widget = widgets.MultipleWidget()
+        self.widget = widgets.MultipleFileWidget()
 
     def prepare_value(self, value: list[File] | None) -> str:
         if value is not None:
@@ -24,12 +27,17 @@ class MultipleFileField(forms.FileField):
 
         return json.dumps([])
 
-    def clean(self, data, initial=None) -> dict:
+    def clean(
+        self,
+        data: list[dict] | list[InMemoryUploadedFile],
+        _initial: list[dict] | None = None,
+    ) -> list[dict] | list[InMemoryUploadedFile]:
         return data
 
 
 class SingleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, related_field: str = '', **kwargs) -> None:
+        self.related_field = related_field
         super().__init__(*args, **kwargs)
         self.widget = widgets.SingleFileWidget()
 
@@ -42,5 +50,9 @@ class SingleFileField(forms.FileField):
 
         return json.dumps(None)
 
-    def clean(self, data, initial=None) -> dict:
+    def clean(
+        self,
+        data: dict | InMemoryUploadedFile | None,
+        _initial: dict | None = None,
+    ) -> dict | InMemoryUploadedFile | None:
         return data

@@ -1,22 +1,59 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from django import forms
 
-from django_spire.file.fields import MultipleFileField
+from django_spire.file.fields import MultipleFileField, SingleFileField
+from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
+
+if TYPE_CHECKING:
+    from django.db import models
 
 
 class FileForm(forms.Form):
     files = MultipleFileField()
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     self.helper = FormHelper(self)
-    #     self.helper.include_media = False
-    #     self.helper.form_enctype = 'multipart/form-data'
-    #     self.helper.layout = Layout(
-    #         Row(
-    #             Column('files', css_class='form-group col-md-6'),
-    #         ),
-    #     )
-    #     self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
+
+class FileFormMixin:
+    """Mixin that auto-discovers ``SingleFileField`` and ``MultipleFileField``
+    instances on the form and handles file association on ``save()``.
+
+    Works with both AJAX pre-upload and multipart form submissions.
+    No configuration required — the field's ``related_field`` is all
+    the handler needs.
+    """
+
+    def save(self, commit: bool = True) -> models.Model:
+        instance = super().save(commit=commit)
+
+        if commit:
+            self._save_file_fields(instance)
+
+        return instance
+
+    def _save_file_fields(self, instance: models.Model) -> None:
+        for name, field in self.fields.items():
+            data = self.cleaned_data.get(name)
+
+            if isinstance(field, SingleFileField):
+                handler = SingleFileHandler.for_related_field(field.related_field)
+                handler.save(data, instance)
+
+            if isinstance(field, MultipleFileField):
+                handler = MultiFileHandler.for_related_field(field.related_field)
+                handler.save(data, instance)
+
+
+class FileModelForm(FileFormMixin, forms.ModelForm):
+    """Drop-in replacement for `ModelForm` with automatic file handling.
+
+    Usage:
+
+        class AssetForm(FileModelForm):
+            profile_picture = SingleFileField(related_field='pfp', required=False)
+
+            class Meta:
+                model = Asset
+                exclude = []
+    """
