@@ -61,7 +61,7 @@ class SmsConversation(HistoryModelMixin):
         messages = list(reversed(messages))
 
         for message in messages:
-            message_history.create_message(
+            message_history.add_message(
                 role=message.role,
                 text=message.body
             )

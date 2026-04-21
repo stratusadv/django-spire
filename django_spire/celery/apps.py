@@ -13,7 +13,7 @@ class CeleryConfig(AppConfig):
         {
             'name': 'celery',
             'verbose_name': 'Celery',
-            'model_class_path': 'django_spire.api.models.CeleryTask',
+            'model_class_path': 'django_spire.celery.models.CeleryTask',
             'is_proxy_model': False,
         },
     )

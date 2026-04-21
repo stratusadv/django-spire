@@ -1,4 +1,5 @@
 from __future__ import annotations
+from django_spire.core.tests.test_cases import BaseTestCase
 
 from unittest.mock import MagicMock, patch
 
@@ -11,8 +12,9 @@ from django_spire.celery.tests.factories import create_celery_task
 from django_spire.celery.views.task_views import task_list_view, task_view
 
 
-class TaskViewTestCase(TestCase):
+class TaskViewTestCase(BaseTestCase):
     def setUp(self) -> None:
+        super().setUp()
         self.factory = RequestFactory()
         self.celery_task = create_celery_task()
 
@@ -72,8 +74,9 @@ class TaskViewTestCase(TestCase):
         mock_update.assert_called_once()
 
 
-class TaskListViewTestCase(TestCase):
+class TaskListViewTestCase(BaseTestCase):
     def setUp(self) -> None:
+        super().setUp()
         self.factory = RequestFactory()
         self.reference_key = 'test_reference_key'
         self.task1 = create_celery_task(reference_key=self.reference_key, state=states.PENDING)

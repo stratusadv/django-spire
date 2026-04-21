@@ -1,14 +1,16 @@
+from django_spire.core.tests.test_cases import BaseTestCase
 from django.test import TestCase, RequestFactory
 from django_spire.api.auth.security import ApiKeySecurity
 from django_spire.api.models import ApiAccess
 from django_spire.api.choices import ApiPermissionChoices
 
 
-class ApiKeySecurityTestCase(TestCase):
+class ApiKeySecurityTestCase(BaseTestCase):
     def setUp(self) -> None:
+        super().setUp()
         self.rf = RequestFactory()
         self.key = 'test_secret_key'
-        self.access = ApiAccess.objects.create(name='Security Test', level=ApiPermissionChoices.ADD)
+        self.access = ApiAccess.objects.create(name='Security Test', permission=ApiPermissionChoices.ADD)
         self.access.set_key_and_save(self.key)
 
     def test_authenticate_success(self) -> None:

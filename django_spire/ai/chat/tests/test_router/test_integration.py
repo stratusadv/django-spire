@@ -109,7 +109,7 @@ class TestRouterIntegration(BaseTestCase):
     )
     def test_end_to_end_workflow(self) -> None:
         message_history = MessageHistory()
-        message_history.create_message(role='user', text='Previous message')
+        message_history.add_message(role='user', text='Previous message')
 
         result = chat_workflow(
             request=self.request,

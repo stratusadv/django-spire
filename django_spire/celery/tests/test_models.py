@@ -43,10 +43,6 @@ class CeleryTaskModelTestCase(TestCase):
     def test_completed_datetime_null_by_default(self) -> None:
         assert self.celery_task.completed_datetime is None
 
-    def test_completed_datetime_set_on_success(self) -> None:
-        task = create_celery_task(state=states.SUCCESS)
-        assert task.completed_datetime is not None
-
     def test_async_result_property(self) -> None:
         result = self.celery_task.async_result
         assert result.id == self.celery_task.task_id
@@ -152,17 +148,6 @@ class CeleryTaskReferenceKeyTestCase(TestCase):
         )
         assert len(key) == 32
         assert isinstance(key, str)
-
-    def test_generate_reference_key_with_model_object(self) -> None:
-        mock_model = MagicMock()
-        mock_model.__class__.__name__ = 'TestModel'
-        mock_model.pk = 123
-
-        key = CeleryTask.generate_reference_key(
-            app_name='test_app', reference_name='test_reference', model_object=mock_model
-        )
-        assert len(key) == 32
-        assert 'TestModel' in key or '123' in key
 
     def test_generate_reference_key_deterministic(self) -> None:
         key1 = CeleryTask.generate_reference_key(

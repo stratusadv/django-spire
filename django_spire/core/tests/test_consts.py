@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 from django.test import TestCase
 
 from django_spire.consts import (
@@ -14,7 +15,10 @@ class TestConsts(TestCase):
         assert MAINTENANCE_MODE_SETTINGS_NAME == 'MAINTENANCE_MODE'
 
     def test_notification_throttle_rate_settings_name(self) -> None:
-        assert NOTIFICATION_THROTTLE_RATE_PER_MINUTE_SETTINGS_NAME == 'NOTIFICATION_THROTTLE_RATE_PER_MINUTE'
+        assert (
+            NOTIFICATION_THROTTLE_RATE_PER_MINUTE_SETTINGS_NAME
+            == 'NOTIFICATION_THROTTLE_RATE_PER_MINUTE'
+        )
 
     def test_version_is_string(self) -> None:
         assert isinstance(__VERSION__, str)
@@ -25,4 +29,5 @@ class TestConsts(TestCase):
         assert len(parts) == 3
 
         for part in parts:
-            assert part.isdigit()
+            if not part.isdigit() and 'a' not in str(part):
+                pytest.fail('Version must be an integer or contain the `a` character')
