@@ -1,7 +1,7 @@
 {% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
-    {% url 'user_account:detail' pk=user.pk as detail_url %}
+    {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
     {% include 'django_spire/element/attribute_element.html' with attribute_type='User' attribute_value=user.get_full_name attribute_href=detail_url %}
 {% endblock %}
 
@@ -12,6 +12,6 @@
 
     <div class="col">
         {% include 'django_spire/element/attribute_element.html' with attribute_type='Status' %}
-        {% include 'django_spire/auth/user/element/../element/is_active_badge.html' with is_active=user.is_active %}
+        {% include 'django_spire/auth/user/element/is_active_badge.html' with is_active=user.is_active %}
     </div>
 {% endblock %}

@@ -163,7 +163,6 @@ MIDDLEWARE = [
 
     'django_glue.middleware.DjangoGlueMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
-    'django_spire.profiling.middleware.ProfilingMiddleware',
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

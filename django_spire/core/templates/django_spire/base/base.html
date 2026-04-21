@@ -5,8 +5,6 @@
 <html lang="en" data-theme="{{ theme.mode }}" data-theme-family="{{ theme.family }}">
 <head>
     {% block base_head %}
-        <style>[x-cloak] { display: none !important; }</style>
-
         {% block base_head_title %}
             <title>{{ html_head_title }}</title>
         {% endblock %}
@@ -15,6 +13,8 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta http-equiv="X-UA-Compatible" content="ie=edge">
+            <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+            <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
         {% endblock %}
 
         {% block base_head_additional_meta %}
@@ -46,9 +46,9 @@
             </script>
             <link rel="manifest" href="{% static 'django_spire/favicons/manifest.json' %}">
 
-            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-            <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.x/dist/echarts.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+            <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.4.x/dist/echarts.min.js"></script>
+            <script defer src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
             <script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
 

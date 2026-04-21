@@ -1,5 +1,50 @@
 # Changelog
 
+## v0.30.5
+
+### Changes
+- Updated Django Glue helper JS functions to include `await` for success and error handler / helper function calls.
+
+## v0.30.4
+
+### Fixes
+- Fix verb logic in add_form_activity
+
+## v0.30.3
+
+### Fixes
+- Fixed login email form using auto capitalizing and autocorrect on mobile devices
+- Added `user-select-none` to `card_title_dropdown` to prevent multiple clicks highlighting all content
+
+### Changes
+- Moved `auth/form/login_form.html` form elements to use `django_spire` templates instead of `django_glue` templates
+
+## v0.30.2
+
+### Fixes
+- Fix broken auth template/URLs
+
+## v0.30.1
+
+### Fixes
+- Added .woff2 fonts with build
+
+## v0.30.0
+
+### Breaking
+- Removed old implementation of file uploading
+
+### Fixes
+- Fixed truncated/relative include and extend paths in templates
+- Our `Site` object will pull from `DJANGO_SITE_NAME` and `DJANGO_SITE_DOMAIN` in our environment variables
+    - This addresses issues using the HTML renderer and password reset functionality
+- Added a guard to the `SessionController` so it wasn't raising errors in the console
+
+### Changes
+- Updated fonts from .ttf to .woff2
+- Added an option in settings to switch between online vs. offline seeding
+- Added `preconnect` and `defer` to improve performance of first page load
+
 ## v0.29.18
 
 ### Changes
@@ -14,6 +59,9 @@
 - Fix changelog to broadcast number of entries
 
 ## v0.29.16
+
+### Breaking
+- `await` added before `x_button_click`, meaning a function must be passed into it.
 
 ### Changes
 - Updated `base_button.html` to have loading state when using `x_button_click` or `button_modal_href`.

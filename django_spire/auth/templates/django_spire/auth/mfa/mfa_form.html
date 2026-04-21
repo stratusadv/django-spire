@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block page_center_card_content %}
-    {% include 'django_spire/notification/../../../../../core/templates/spire/messages/notification.html' %}
+    {% include 'django_spire/messages/messages.html' %}
 
     {% if form_description %}
         {% include 'django_spire/note/info_note.html' with note_type='Note' note_text=form_description %}
@@ -19,5 +19,5 @@
         <button type="submit" class="w-100 btn btn-app-primary mt-2">Submit</button>
     </form>
 
-    <a class="text-center text-decoration-none" href={% url 'user_account:authentication:mfa:redirect:notification' %}?resend=True>Resend Code?</a>
+    <a class="text-center text-decoration-none" href={% url 'django_spire:auth:mfa:redirect:notification' %}?resend=True>Resend Code?</a>
 {% endblock %}

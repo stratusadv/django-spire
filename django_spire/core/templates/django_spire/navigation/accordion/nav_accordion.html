@@ -2,13 +2,13 @@
 
 {% block accordion_toggle %}
     <div
-        class="d-flex align-items-center rounded-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation ds-fs-9"
+        class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-app-link-side-navigation ds-fs-9"
         :class="{
-            'justify-content-center px-0': collapsed,
+            'justify-content-center px-0 gap-0': collapsed,
             'gap-2 px-3': !collapsed
         }"
     >
-        <i class="{% block nav_icon %}{% endblock %} flex-shrink-0" :style="collapsed ? 'font-size: 1.25rem;' : 'width: 1.25rem;'"></i>
+        <i class="{% block nav_icon %}{% endblock %} flex-shrink-0" style="width: 1.25rem;" :style="collapsed ? 'font-size: 1.25rem; width: auto;' : 'width: 1.25rem;'"></i>
 
         <span class="text-truncate" x-show="!collapsed">
             {% block nav_title %}
