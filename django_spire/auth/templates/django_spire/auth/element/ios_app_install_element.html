@@ -8,7 +8,7 @@
 
 {% block modal_content %}
     {% block install_content %}
-        <div class="row">
+        <div class="row align-items-center">
             <div class="col-auto">
                 <img
                     src="{% block app_icon %}{% static 'favicons/android-chrome-192x192.png' %}{% endblock %}"
@@ -23,7 +23,7 @@
             <div class="col-auto ms-auto">
                 {% include 'django_spire/icon/responsive_icon.html' with x_icon_click='close_modal()' icon='bi bi-x-lg' tooltip_text='Close' %}
             </div>
-            <div class="col-12">
+            <div class="col-12 mt-2">
                 <p>Install the app on your Apple device to easily access it anytime by following the instructions below in the Safari Web Browser.</p>
                 <ol>
                     <li class="p-2">Tap on the <span class="border border-2 p-1 rounded-3"><i class="bi bi-box-arrow-up"></i></span> in your browser bar</li>
