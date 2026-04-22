@@ -125,24 +125,24 @@ INSTALLED_APPS += [
 ]
 
 DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'knowledge': 'test_project.apps.knowledge.auth.controller.KnowledgeAuthController',
+    'knowledge': 'test_project.app.knowledge.auth.controller.KnowledgeAuthController',
 }
 
 INSTALLED_APPS += [
-    'test_project.apps.ai',
-    'test_project.apps.celery',
-    'test_project.apps.comment',
-    'test_project.apps.file',
-    'test_project.apps.help_desk',
-    'test_project.apps.home',
-    'test_project.apps.infinite_scrolling',
-    'test_project.apps.landing',
-    'test_project.apps.lazy_tabs',
-    'test_project.apps.ordering',
-    'test_project.apps.history',
-    'test_project.apps.notification',
-    'test_project.apps.model_and_service',
-    'test_project.apps.queryset_filtering',
+    'test_project.app.ai',
+    'test_project.app.celery',
+    'test_project.app.comment',
+    'test_project.app.file',
+    'test_project.app.help_desk',
+    'test_project.app.home',
+    'test_project.app.infinite_scrolling',
+    'test_project.app.landing',
+    'test_project.app.lazy_tabs',
+    'test_project.app.ordering',
+    'test_project.app.history',
+    'test_project.app.notification',
+    'test_project.app.model_and_service',
+    'test_project.app.queryset_filtering',
 ]
 
 INSTALLED_APPS += [
@@ -201,7 +201,7 @@ TEMPLATES = [
                 'django_glue.context_processors.django_glue',
                 'django_spire.core.context_processors.django_spire',
                 'django_spire.core.context_processors.theme_context',
-                'test_project.apps.core.context_processors.django_spire',
+                'test_project.app.core.context_processors.django_spire',
             ],
             'builtins': [
             ],
@@ -212,7 +212,7 @@ TEMPLATES = [
 
 # Report Registry
 DJANGO_SPIRE_REPORT_REGISTRIES = [
-    'test_project.apps.queryset_filtering.reports.task_report_registry.TaskReportRegistry'
+    'test_project.app.queryset_filtering.reports.task_report_registry.TaskReportRegistry'
 ]
 
 # Storages - We are using Digital Ocean, which uses AWS S3 service
@@ -247,5 +247,16 @@ STATIC_ROOT = str(BASE_DIR / 'static')
 
 # Celery
 
-CELERY_BROKER_URL = f'amqp://{os.getenv("CELERY_AMQP_USER")}:{os.getenv("CELERY_AMQP_PASSWORD")}@{os.getenv("CELERY_AMQP_HOST")}'
-CELERY_RESULT_BACKEND = f'db+postgresql+psycopg2://{os.getenv("CELERY_PGSQL_USER")}:{os.getenv("CELERY_PGSQL_PASSWORD")}@{os.getenv("CELERY_PGSQL_HOST")}:{os.getenv("CELERY_PGSQL_PORT")}/{os.getenv("CELERY_PGSQL_DATABASE")}'
+CELERY_BROKER_URL = 'amqp://{user}:{password}@{host}:5672//'.format(
+    user=os.getenv('CELERY_AMQP_USER'),
+    password=os.getenv('CELERY_AMQP_PASSWORD'),
+    host=os.getenv('CELERY_AMQP_HOST'),
+)
+
+CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+    user=os.getenv('CELERY_PGSQL_USER'),
+    password=os.getenv('CELERY_PGSQL_PASSWORD'),
+    host=os.getenv('CELERY_PGSQL_HOST'),
+    port=os.getenv('CELERY_PGSQL_PORT'),
+    database=os.getenv('CELERY_PGSQL_DATABASE'),
+)

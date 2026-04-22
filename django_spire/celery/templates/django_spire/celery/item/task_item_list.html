@@ -1,0 +1,15 @@
+{% if celery_tasks %}
+    {% for celery_task in celery_tasks %}
+        <div
+            x-data="{
+            reload_task() {
+                let task_item_view = new ViewGlue(`{% url 'django_spire:celery:task:item' celery_task.task_id %}`)
+                task_item_view.render_inner($el, {})
+            },
+        }"
+            class="mb-3 bg-app-layer-two shadow-sm border-0 rounded-3"
+        >
+            {% include 'django_spire/celery/item/task_item.html' %}
+        </div>
+    {% endfor %}
+{% endif %}

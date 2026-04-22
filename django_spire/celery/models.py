@@ -163,7 +163,7 @@ class CeleryTask(models.Model):
                 seconds=ceil(estimated_completion_seconds * _CELERY_ESTIMATED_TIME_MULTIPLIER)
             )
             if estimated_completion_seconds
-            else None,
+            else now(),
         )
 
     @staticmethod
