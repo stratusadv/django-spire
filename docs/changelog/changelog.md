@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.31.2
+
+### Changes
+- Improved PWA install documentation.
+- Improved PWA iOS install model UI.
+
 ## v0.31.1
 
 ### Changes
