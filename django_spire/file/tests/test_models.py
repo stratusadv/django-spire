@@ -73,12 +73,11 @@ class FileModelTests(BaseTestCase):
 
         assert result['name'] == self.file.name
         assert result['id'] == self.file.id
-        assert 'url' in result
 
     def test_to_dict_keys(self) -> None:
         result = self.file.to_dict()
 
-        assert set(result.keys()) == {'name', 'url', 'id'}
+        assert set(result.keys()) == {'id', 'name', 'type', 'size', 'token'}
 
     def test_to_json(self) -> None:
         result = self.file.to_json()

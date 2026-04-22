@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.file.exceptions import FileLinkError
 from django_spire.file.factory import RELATED_FIELD_LENGTH_MAX
 from django_spire.file.linker import FileLinker
 from django_spire.file.tests.factories import create_test_file
@@ -73,7 +74,7 @@ class FileLinkerLinkTests(BaseTestCase):
     def test_link_unsaved_instance_raises_value_error(self) -> None:
         unsaved = HelpDeskTicket()
 
-        with pytest.raises(ValueError, match='Cannot link a file to an unsaved'):
+        with pytest.raises(FileLinkError, match='Cannot link a file to an unsaved'):
             self.linker.link(self.file, unsaved)
 
     def test_link_overwrites_previous_link(self) -> None:
@@ -120,7 +121,7 @@ class FileLinkerLinkManyTests(BaseTestCase):
         unsaved = HelpDeskTicket()
         file = create_test_file()
 
-        with pytest.raises(ValueError, match='Cannot link files to an unsaved'):
+        with pytest.raises(FileLinkError, match='Cannot link files to an unsaved'):
             self.linker.link_many([file], unsaved)
 
     def test_link_many_single_file(self) -> None:
@@ -244,7 +245,7 @@ class FileLinkerUnlinkTests(BaseTestCase):
     def test_unlink_existing_unsaved_instance_raises(self) -> None:
         unsaved = HelpDeskTicket()
 
-        with pytest.raises(ValueError, match='Cannot unlink files from an unsaved'):
+        with pytest.raises(FileLinkError, match='Cannot unlink files from an unsaved'):
             self.linker.unlink_existing(unsaved)
 
     def test_unlink_except_empty_keep_ids_removes_all(self) -> None:
@@ -281,5 +282,5 @@ class FileLinkerUnlinkTests(BaseTestCase):
     def test_unlink_except_unsaved_instance_raises(self) -> None:
         unsaved = HelpDeskTicket()
 
-        with pytest.raises(ValueError, match='Cannot unlink files from an unsaved'):
+        with pytest.raises(FileLinkError, match='Cannot unlink files from an unsaved'):
             self.linker.unlink_except(unsaved, keep_ids=[])

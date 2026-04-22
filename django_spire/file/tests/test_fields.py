@@ -58,7 +58,6 @@ class MultipleFileFieldTests(BaseTestCase):
 
         assert parsed[0]['name'] == 'test'
         assert 'id' in parsed[0]
-        assert 'url' in parsed[0]
 
     def test_clean_returns_data(self) -> None:
         data = {'test': 'value'}
@@ -134,7 +133,6 @@ class SingleFileFieldTests(BaseTestCase):
 
         assert parsed['name'] == 'test'
         assert 'id' in parsed
-        assert 'url' in parsed
 
     def test_prepare_value_with_none(self) -> None:
         result = self.field.prepare_value(None)

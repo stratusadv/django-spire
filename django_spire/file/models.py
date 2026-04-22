@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from django_spire.file.queryset import FileQuerySet
-from django_spire.file.utils import format_size
+from django_spire.file.utils import format_size, sign_file_id
 from django_spire.history.mixins import HistoryModelMixin
 
 
@@ -40,11 +40,17 @@ class File(HistoryModelMixin):
         return format_size(self.size)
 
     def to_dict(self) -> dict[str, str | int]:
-        return {
+        result = {
+            'id': self.id,
             'name': self.name,
-            'url': self.file.url,
-            'id': self.id
+            'type': self.type,
+            'size': self.size,
         }
+
+        if self.id is not None:
+            result['token'] = sign_file_id(self.id)
+
+        return result
 
     def to_json(self) -> str:
         return json.dumps(self.to_dict())

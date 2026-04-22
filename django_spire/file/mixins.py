@@ -35,10 +35,21 @@ class FileProcessorServiceMixin:
     def extract_multiple_files(files: MultiValueDict) -> list[InMemoryUploadedFile]:
         result = []
 
-        for file in files:
-            result.extend(files.getlist(file))
+        for field_name in files:
+            result.extend(files.getlist(field_name))
 
         return result
+
+    def _get_app_name(self) -> str:
+        if not hasattr(self, 'obj') or self.obj is None:
+            message = (
+                f'{type(self).__name__} requires "obj" to be set '
+                f'before calling file operations.'
+            )
+
+            raise AttributeError(message)
+
+        return self.obj._meta.app_label
 
     def add_file(
         self,
@@ -46,7 +57,12 @@ class FileProcessorServiceMixin:
         related_field: str = '',
         validator: FileValidator | None = None,
     ) -> File:
-        handler = SingleFileHandler.for_related_field(related_field, validator=validator)
+        handler = SingleFileHandler.for_related_field(
+            related_field,
+            validator=validator,
+            app_name=self._get_app_name(),
+        )
+
         return handler.add(file, self.obj)
 
     def replace_file(
@@ -55,7 +71,12 @@ class FileProcessorServiceMixin:
         related_field: str = '',
         validator: FileValidator | None = None,
     ) -> File | None:
-        handler = SingleFileHandler.for_related_field(related_field, validator=validator)
+        handler = SingleFileHandler.for_related_field(
+            related_field,
+            validator=validator,
+            app_name=self._get_app_name(),
+        )
+
         return handler.replace(data, self.obj)
 
     def add_files(
@@ -64,7 +85,12 @@ class FileProcessorServiceMixin:
         related_field: str = '',
         validator: FileValidator | None = None,
     ) -> list[File]:
-        handler = MultiFileHandler.for_related_field(related_field, validator=validator)
+        handler = MultiFileHandler.for_related_field(
+            related_field,
+            validator=validator,
+            app_name=self._get_app_name(),
+        )
+
         return handler.add_many(files, self.obj)
 
     def replace_files(
@@ -73,13 +99,26 @@ class FileProcessorServiceMixin:
         related_field: str = '',
         validator: FileValidator | None = None,
     ) -> list[File]:
-        handler = MultiFileHandler.for_related_field(related_field, validator=validator)
+        handler = MultiFileHandler.for_related_field(
+            related_field,
+            validator=validator,
+            app_name=self._get_app_name(),
+        )
+
         return handler.replace(data, self.obj)
 
     def delete_file(self, file_id: int, related_field: str = '') -> bool:
-        handler = MultiFileHandler.for_related_field(related_field)
+        handler = SingleFileHandler.for_related_field(
+            related_field,
+            app_name=self._get_app_name(),
+        )
+
         return handler.remove(file_id, self.obj)
 
     def delete_files(self, related_field: str = '') -> int:
-        handler = MultiFileHandler.for_related_field(related_field)
+        handler = MultiFileHandler.for_related_field(
+            related_field,
+            app_name=self._get_app_name(),
+        )
+
         return handler.remove_all(self.obj)

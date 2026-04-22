@@ -5,6 +5,7 @@ import json
 from typing import TYPE_CHECKING
 
 from django import forms
+from django.core.files.uploadedfile import UploadedFile
 
 from django_spire.file import widgets
 from django_spire.file.exceptions import FileValidationError
@@ -44,7 +45,7 @@ class MultipleFileField(forms.FileField):
     ) -> list[dict] | list[InMemoryUploadedFile]:
         if self.validator is not None and data:
             for file in data:
-                if hasattr(file, 'read'):
+                if isinstance(file, UploadedFile):
                     try:
                         self.validator.validate(file)
                     except FileValidationError as exception:
@@ -75,7 +76,7 @@ class SingleFileField(forms.FileField):
         data: dict | InMemoryUploadedFile | None,
         _initial: dict | None = None,
     ) -> dict | InMemoryUploadedFile | None:
-        if self.validator is not None and data is not None and hasattr(data, 'read'):
+        if self.validator is not None and data is not None and isinstance(data, UploadedFile):
             try:
                 self.validator.validate(data)
             except FileValidationError as exception:

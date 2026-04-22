@@ -7,6 +7,7 @@ from django.core.exceptions import SuspiciousFileOperation
 from django.test import RequestFactory, override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.file.exceptions import FileValidationError
 from django_spire.file.factory import FileFactory
 from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
 from django_spire.file.linker import FileLinker
@@ -92,26 +93,23 @@ class OrphanFileClaimIDORTests(BaseTestCase):
         self.ticket_a = create_test_helpdesk_ticket()
         self.ticket_b = create_test_helpdesk_ticket()
 
-    def test_single_handler_user_b_claims_user_a_orphan(self) -> None:
+    def test_single_handler_rejects_orphan_without_token(self) -> None:
         orphan = create_test_file(name='user_a_upload')
 
         handler_b = SingleFileHandler.for_related_field('pfp')
         result = handler_b.replace({'id': orphan.pk}, self.ticket_b)
 
-        assert result is not None
-        result.refresh_from_db()
-        assert result.object_id == self.ticket_b.pk
+        assert result is None
 
-    def test_multi_handler_user_b_claims_user_a_orphan(self) -> None:
+    def test_multi_handler_rejects_orphan_without_token(self) -> None:
         orphan = create_test_file(name='user_a_upload')
 
         handler_b = MultiFileHandler.for_related_field('abc')
         result = handler_b.replace([{'id': orphan.pk}], self.ticket_b)
 
-        claimed = [f for f in result if f.pk == orphan.pk]
-        assert len(claimed) == 1
+        assert len(result) == 0
 
-    def test_sequential_id_guessing_claims_orphans(self) -> None:
+    def test_sequential_id_guessing_blocked_without_tokens(self) -> None:
         orphans = [create_test_file(name=f'orphan_{i}') for i in range(5)]
 
         handler = SingleFileHandler.for_related_field('pfp')
@@ -122,9 +120,9 @@ class OrphanFileClaimIDORTests(BaseTestCase):
             if result is not None:
                 claimed_count += 1
 
-        assert claimed_count == 5
+        assert claimed_count == 0
 
-    def test_soft_deleted_orphan_is_also_claimable_by_anyone(self) -> None:
+    def test_soft_deleted_orphan_rejected_without_token(self) -> None:
         orphan = create_test_file(
             name='deleted_by_user_a',
             is_active=False,
@@ -134,65 +132,60 @@ class OrphanFileClaimIDORTests(BaseTestCase):
         handler = SingleFileHandler.for_related_field('pfp')
         result = handler.replace({'id': orphan.pk}, self.ticket_b)
 
-        assert result is not None
-        result.refresh_from_db()
-        assert result.object_id == self.ticket_b.pk
-        assert result.is_active is True
+        assert result is None
 
 
 class NullByteInjectionTests(BaseTestCase):
-    def test_null_byte_before_blocked_extension_bypasses_blocklist(self) -> None:
+    def test_null_byte_before_extension_rejected(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file()
         file.name = 'payload.\x00exe'
 
-        validator.validate(file)
+        with pytest.raises(FileValidationError, match='null bytes'):
+            validator.validate(file)
 
-    def test_null_byte_after_extension_dot_bypasses_blocklist(self) -> None:
+    def test_null_byte_after_extension_dot_rejected(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file()
         file.name = 'payload.exe\x00.pdf'
 
-        validator.validate(file)
+        with pytest.raises(FileValidationError, match='null bytes'):
+            validator.validate(file)
 
-    def test_null_byte_mid_extension_bypasses_blocklist(self) -> None:
+    def test_null_byte_mid_extension_rejected(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file()
         file.name = 'payload.ex\x00e'
 
-        validator.validate(file)
+        with pytest.raises(FileValidationError, match='null bytes'):
+            validator.validate(file)
 
-    def test_null_byte_in_name_passes_validation(self) -> None:
+    def test_null_byte_in_name_rejected(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file()
         file.name = 'pay\x00load.pdf'
 
-        validator.validate(file)
+        with pytest.raises(FileValidationError, match='null bytes'):
+            validator.validate(file)
 
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
-class ValidatorFactoryInconsistencyTests(BaseTestCase):
-    def test_env_file_passes_validation_crashes_factory(self) -> None:
+class ValidatorFactoryConsistencyTests(BaseTestCase):
+    def test_env_file_rejected_by_validator(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file()
         file.name = '.env'
 
-        validator.validate(file)
+        with pytest.raises(FileValidationError, match='File must have an extension'):
+            validator.validate(file)
 
-        factory = FileFactory()
-        with pytest.raises(ValueError, match='extension must not be empty'):
-            factory.create(file)
-
-    def test_trailing_dot_passes_validation_crashes_factory(self) -> None:
+    def test_trailing_dot_rejected_by_validator(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file()
         file.name = 'Makefile.'
 
-        validator.validate(file)
-
-        factory = FileFactory()
-        with pytest.raises(ValueError, match='extension must not be empty'):
-            factory.create(file)
+        with pytest.raises(FileValidationError, match='File must have an extension'):
+            validator.validate(file)
 
     def test_double_dot_blocked_by_django_before_reaching_factory(self) -> None:
         file = create_test_in_memory_uploaded_file()
@@ -200,18 +193,15 @@ class ValidatorFactoryInconsistencyTests(BaseTestCase):
         with pytest.raises(SuspiciousFileOperation):
             file.name = '..'
 
-    def test_triple_dot_passes_validation_crashes_factory(self) -> None:
+    def test_triple_dot_rejected_by_validator(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file()
         file.name = '...'
 
-        validator.validate(file)
+        with pytest.raises(FileValidationError, match='File must have an extension'):
+            validator.validate(file)
 
-        factory = FileFactory()
-        with pytest.raises(ValueError, match='extension must not be empty'):
-            factory.create(file)
-
-    def test_create_many_partial_dotfile_aborts_after_validation(self) -> None:
+    def test_create_many_dotfile_rejected_by_validator(self) -> None:
         factory = FileFactory()
         good = create_test_in_memory_uploaded_file(name='good')
         bad = create_test_in_memory_uploaded_file()
@@ -219,7 +209,7 @@ class ValidatorFactoryInconsistencyTests(BaseTestCase):
 
         initial_count = File.objects.count()
 
-        with pytest.raises(ValueError, match='extension must not be empty'):
+        with pytest.raises(FileValidationError, match='File must have an extension'):
             factory.create_many([good, bad])
 
         assert File.objects.count() == initial_count
@@ -291,18 +281,18 @@ class XSSInFileMetadataTests(BaseTestCase):
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
 class SizeBypassViaNoneTests(BaseTestCase):
-    def test_none_size_bypasses_tiny_max(self) -> None:
+    def test_none_size_rejected(self) -> None:
         validator = FileValidator(size_bytes_max=1)
         file = create_test_in_memory_uploaded_file(content=b'x' * 10_000)
         file.size = None
 
-        validator.validate(file)
+        with pytest.raises(FileValidationError, match='File size is unknown'):
+            validator.validate(file)
 
-    def test_none_size_file_created_with_zero_size(self) -> None:
+    def test_none_size_rejected_by_factory(self) -> None:
         factory = FileFactory()
         file = create_test_in_memory_uploaded_file(content=b'x' * 500)
         file.size = None
 
-        result = factory.create(file)
-
-        assert result.size == 0
+        with pytest.raises(FileValidationError, match='File size is unknown'):
+            factory.create(file)

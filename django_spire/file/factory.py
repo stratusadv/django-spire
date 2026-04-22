@@ -1,21 +1,29 @@
 from __future__ import annotations
 
+import logging
+
 from dataclasses import dataclass, field
+from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
 
 from django.conf import settings
+from django.core.exceptions import SuspiciousFileOperation
+from django.utils.text import get_valid_filename
 
-from django_spire.file.exceptions import FileValidationError
+from django_spire.file.exceptions import FileBatchLimitError
 from django_spire.file.models import File
 from django_spire.file.path import FilePathBuilder
-from django_spire.file.utils import parse_extension, parse_name
+from django_spire.file.utils import parse_extension
 from django_spire.file.validators import FileValidator
 
 if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
+logger = logging.getLogger(__name__)
+
 BATCH_SIZE_MAX = 20
+EXTENSION_LENGTH_MAX = 20
 FILENAME_LENGTH_MAX = 100
 RELATED_FIELD_LENGTH_MAX = 50
 
@@ -40,7 +48,7 @@ class FileFactory:
     def create(self, file: InMemoryUploadedFile) -> File:
         self.validator.validate(file)
 
-        file_obj = self._build(file)
+        file_obj = self._build_file_record(file)
         file_obj.save()
         return file_obj
 
@@ -50,22 +58,50 @@ class FileFactory:
 
         if len(files) > BATCH_SIZE_MAX:
             message = f'Cannot upload more than {BATCH_SIZE_MAX} files at once.'
-            raise FileValidationError(message)
+            raise FileBatchLimitError(message)
 
         for file in files:
             self.validator.validate(file)
 
-        built = [self._build(file) for file in files]
+        built = [self._build_file_record(file) for file in files]
 
-        return File.objects.bulk_create(built)
+        try:
+            return File.objects.bulk_create(built)
+        except Exception:
+            for file_obj in built:
+                try:
+                    file_obj.file.delete(save=False)
+                except Exception:
+                    logger.exception('Failed to clean up storage orphan: %s', file_obj.file.name)
 
-    def _build(self, file: InMemoryUploadedFile) -> File:
-        name = parse_name(file.name)
+            raise
+
+    def _build_file_record(self, file: InMemoryUploadedFile) -> File:
+        try:
+            filename_sanitized = get_valid_filename(file.name)
+        except SuspiciousFileOperation:
+            filename_sanitized = None
+
+        if filename_sanitized:
+            path = PurePosixPath(filename_sanitized)
+            name = path.stem
+            extension = path.suffix.lstrip('.').lower()
+        else:
+            name = ''
+            extension = ''
+
+        if not extension:
+            extension = parse_extension(file.name) or 'bin'
+
+        if not name:
+            name = 'unnamed'
 
         if len(name) > FILENAME_LENGTH_MAX:
             name = name[:FILENAME_LENGTH_MAX]
 
-        extension = parse_extension(file.name)
+        if len(extension) > EXTENSION_LENGTH_MAX:
+            extension = extension[:EXTENSION_LENGTH_MAX]
+
         size = file.size if file.size is not None else 0
         path = self.path_builder.build(name, extension, self.related_field)
 

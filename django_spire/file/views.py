@@ -10,7 +10,7 @@ from django_spire.contrib.responses.json_response import (
     error_json_response,
     success_json_response,
 )
-from django_spire.file.exceptions import FileValidationError
+from django_spire.file.exceptions import FileError
 from django_spire.file.factory import FileFactory, RELATED_FIELD_LENGTH_MAX
 
 if TYPE_CHECKING:
@@ -25,7 +25,7 @@ def _validate_related_field(value: str) -> str | None:
     if len(value) > RELATED_FIELD_LENGTH_MAX:
         return f'related_field must not exceed {RELATED_FIELD_LENGTH_MAX} characters.'
 
-    if not _RELATED_FIELD_PATTERN.match(value):
+    if value and not _RELATED_FIELD_PATTERN.match(value):
         return 'related_field contains invalid characters.'
 
     return None
@@ -45,7 +45,7 @@ def file_upload_ajax_multiple(request: WSGIRequest) -> JsonResponse:
     try:
         factory = FileFactory(related_field=related_field)
         files = factory.create_many(list(request.FILES.values()))
-    except (FileValidationError, TypeError, ValueError) as exception:
+    except FileError as exception:
         return error_json_response(str(exception))
 
     return success_json_response(files=[file.to_dict() for file in files])
@@ -70,7 +70,7 @@ def file_upload_ajax_single(request: WSGIRequest) -> JsonResponse:
     try:
         factory = FileFactory(related_field=related_field)
         file = factory.create(uploaded_file)
-    except (FileValidationError, TypeError, ValueError) as exception:
+    except FileError as exception:
         return error_json_response(str(exception))
 
     return success_json_response(file=file.to_dict())

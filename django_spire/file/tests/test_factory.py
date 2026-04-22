@@ -5,7 +5,7 @@ import pytest
 from django.test import override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.file.exceptions import FileValidationError
+from django_spire.file.exceptions import FileBatchLimitError, FileValidationError
 from django_spire.file.factory import (
     FileFactory,
     BATCH_SIZE_MAX,
@@ -129,7 +129,7 @@ class FileFactoryCreateManyTests(BaseTestCase):
             for i in range(BATCH_SIZE_MAX + 1)
         ]
 
-        with pytest.raises(FileValidationError):
+        with pytest.raises(FileBatchLimitError):
             self.factory.create_many(files)
 
     def test_create_many_at_exact_batch_size(self) -> None:
@@ -166,20 +166,20 @@ class FileFactoryCreateManyTests(BaseTestCase):
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
 class FileFactoryDotfileTests(BaseTestCase):
-    def test_dotfile_crashes_after_validation(self) -> None:
+    def test_dotfile_rejected_by_validator(self) -> None:
         factory = FileFactory()
         file = create_test_in_memory_uploaded_file()
         file.name = '.gitignore'
 
-        with pytest.raises(ValueError, match='extension must not be empty'):
+        with pytest.raises(FileValidationError, match='File must have an extension'):
             factory.create(file)
 
-    def test_file_with_trailing_dot_crashes_after_validation(self) -> None:
+    def test_file_with_trailing_dot_rejected_by_validator(self) -> None:
         factory = FileFactory()
         file = create_test_in_memory_uploaded_file()
         file.name = 'readme.'
 
-        with pytest.raises(ValueError, match='extension must not be empty'):
+        with pytest.raises(FileValidationError, match='File must have an extension'):
             factory.create(file)
 
 
@@ -217,11 +217,18 @@ class FileFactoryFilenameTruncationTests(BaseTestCase):
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
 class FileFactoryNoneSizeTests(BaseTestCase):
-    def test_none_size_defaults_to_zero(self) -> None:
+    def test_none_size_rejected_by_validator(self) -> None:
         factory = FileFactory()
         file = create_test_in_memory_uploaded_file()
         file.size = None
 
-        result = factory.create(file)
+        with pytest.raises(FileValidationError, match='File size is unknown'):
+            factory.create(file)
 
-        assert result.size == 0
+    def test_none_size_rejected_by_validator_with_content(self) -> None:
+        factory = FileFactory()
+        file = create_test_in_memory_uploaded_file(content=b'x' * 500)
+        file.size = None
+
+        with pytest.raises(FileValidationError, match='File size is unknown'):
+            factory.create(file)

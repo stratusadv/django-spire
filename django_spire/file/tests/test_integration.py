@@ -21,7 +21,7 @@ from django_spire.file.tests.factories import (
     create_test_file,
     create_test_in_memory_uploaded_file,
 )
-from django_spire.file.utils import format_size, parse_extension, parse_name
+from django_spire.file.utils import format_size, parse_extension, parse_name, sign_file_id
 from django_spire.file.views import file_upload_ajax_multiple, file_upload_ajax_single
 from django_spire.file.widgets import MultipleFileWidget, SingleFileWidget
 from django_spire.help_desk.models import HelpDeskTicket
@@ -90,7 +90,7 @@ class HandlerAtomicityTests(BaseTestCase):
         self.ticket = create_test_helpdesk_ticket()
         self.content_type = ContentType.objects.get_for_model(self.ticket)
 
-    def test_multi_upload_unlinks_before_create_many_failure(self) -> None:
+    def test_multi_upload_rollback_on_create_many_failure(self) -> None:
         handler = MultiFileHandler.for_related_field('abc')
         existing = create_test_file(
             content_type=self.content_type,
@@ -105,27 +105,30 @@ class HandlerAtomicityTests(BaseTestCase):
             handler.replace([good, bad], self.ticket)
 
         existing.refresh_from_db()
-        assert existing.is_active is False
+        assert existing.is_active is True
 
-    def test_multi_ajax_unlinks_before_link_many_failure(self) -> None:
-            handler = MultiFileHandler.for_related_field('abc')
-            existing = create_test_file(
-                content_type=self.content_type,
-                object_id=self.ticket.pk,
-                related_field='abc',
+    def test_multi_ajax_rollback_on_link_many_failure(self) -> None:
+        handler = MultiFileHandler.for_related_field('abc')
+        existing = create_test_file(
+            content_type=self.content_type,
+            object_id=self.ticket.pk,
+            related_field='abc',
+        )
+        orphan = create_test_file(name='orphan')
+
+        with (
+            patch.object(FileLinker, 'link_many', side_effect=RuntimeError('db error')),
+            pytest.raises(RuntimeError),
+        ):
+            handler.replace(
+                [{'id': orphan.pk, 'token': sign_file_id(orphan.pk)}],
+                self.ticket,
             )
-            orphan = create_test_file(name='orphan')
 
-            with (
-                patch.object(FileLinker, 'link_many', side_effect=RuntimeError('db error')),
-                pytest.raises(RuntimeError),
-            ):
-                handler.replace([{'id': orphan.pk}], self.ticket)
+        existing.refresh_from_db()
+        assert existing.is_active is True
 
-            existing.refresh_from_db()
-            assert existing.is_active is False
-
-    def test_single_upload_unlinks_before_create_failure(self) -> None:
+    def test_single_upload_rollback_on_create_failure(self) -> None:
         handler = SingleFileHandler.for_related_field('pfp')
         existing = create_test_file(
             content_type=self.content_type,
@@ -138,236 +141,10 @@ class HandlerAtomicityTests(BaseTestCase):
             handler.replace(bad, self.ticket)
 
         existing.refresh_from_db()
-        assert existing.is_active is False
+        assert existing.is_active is True
 
 
 @override_settings(STORAGES=STORAGES_OVERRIDE)
-class FileModelMissingStorageTests(BaseTestCase):
-    def test_to_dict_crashes_when_file_field_is_empty(self) -> None:
-        file_obj = File.objects.create(name='ghost', type='pdf', size=0)
-
-        with pytest.raises(ValueError):  # noqa: PT011
-            file_obj.to_dict()
-
-    def test_to_json_crashes_when_file_field_is_empty(self) -> None:
-        file_obj = File.objects.create(name='ghost', type='pdf', size=0)
-
-        with pytest.raises(ValueError):  # noqa: PT011
-            file_obj.to_json()
-
-    def test_formatted_size_works_without_storage_file(self) -> None:
-        file_obj = File.objects.create(name='ghost', type='pdf', size=1024)
-
-        assert file_obj.formatted_size == '1.0 KB'
-
-
-@override_settings(STORAGES=STORAGES_OVERRIDE)
-class CopyFilesToInstanceTests(BaseTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.source_ticket = create_test_helpdesk_ticket()
-        self.target_ticket = create_test_helpdesk_ticket()
-        self.content_type = ContentType.objects.get_for_model(self.source_ticket)
-
-    def test_copy_to_unsaved_instance_raises(self) -> None:
-        unsaved = HelpDeskTicket()
-
-        with pytest.raises(ValueError, match='Cannot copy files to an unsaved'):
-            copy_files_to_instance(File.objects.none(), unsaved)
-
-    def test_copy_empty_queryset_returns_empty(self) -> None:
-        result = copy_files_to_instance(File.objects.none(), self.target_ticket)
-
-        assert result == []
-
-    def test_copy_preserves_name_type_size(self) -> None:
-        source = create_test_file(
-            name='original',
-            file_type='pdf',
-            size=12345,
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-        )
-
-        result = copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
-
-        assert len(result) == 1
-        copy = result[0]
-        assert copy.name == 'original'
-        assert copy.type == 'pdf'
-        assert copy.size == 12345
-        assert copy.pk != source.pk
-
-    def test_copy_preserves_related_field(self) -> None:
-        source = create_test_file(
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-            related_field='pfp',
-        )
-
-        result = copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
-
-        assert result[0].related_field == 'pfp'
-
-    def test_copy_links_to_target_not_source(self) -> None:
-        source = create_test_file(
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-        )
-
-        target_ct = ContentType.objects.get_for_model(self.target_ticket)
-        result = copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
-
-        assert result[0].content_type == target_ct
-        assert result[0].object_id == self.target_ticket.pk
-
-    def test_copy_does_not_modify_source(self) -> None:
-        source = create_test_file(
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-        )
-        original_pk = source.pk
-
-        copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
-
-        source.refresh_from_db()
-        assert source.pk == original_pk
-        assert source.object_id == self.source_ticket.pk
-
-    def test_copy_multiple_files(self) -> None:
-        create_test_file(
-            name='file1',
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-        )
-        create_test_file(
-            name='file2',
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-        )
-
-        result = copy_files_to_instance(
-            File.objects.filter(
-                content_type=self.content_type,
-                object_id=self.source_ticket.pk,
-            ),
-            self.target_ticket,
-        )
-
-        assert len(result) == 2
-
-
-@override_settings(STORAGES=STORAGES_OVERRIDE)
-class SingleFileFieldQuerySetTests(BaseTestCase):
-    def test_prepare_value_queryset_ordering_matters(self) -> None:
-        field = SingleFileField()
-        file1 = create_test_file(name='alpha')
-        file2 = create_test_file(name='beta')
-
-        result_asc = field.prepare_value(
-            File.objects.filter(pk__in=[file1.pk, file2.pk]).order_by('pk')
-        )
-        result_desc = field.prepare_value(
-            File.objects.filter(pk__in=[file1.pk, file2.pk]).order_by('-pk')
-        )
-
-        assert json.loads(result_asc)['name'] == 'alpha'
-        assert json.loads(result_desc)['name'] == 'beta'
-
-    def test_prepare_value_deleted_file_in_queryset(self) -> None:
-        field = SingleFileField()
-        file = create_test_file(name='deleted', is_active=False, is_deleted=True)
-
-        result = field.prepare_value(File.objects.filter(pk=file.pk))
-        parsed = json.loads(result)
-
-        assert parsed['name'] == 'deleted'
-
-
-@override_settings(STORAGES=STORAGES_OVERRIDE)
-class WidgetToHandlerTypeConfusionTests(BaseTestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        self.ticket = create_test_helpdesk_ticket()
-
-    def test_single_widget_integer_flows_to_handler_raises(self) -> None:
-        widget = SingleFileWidget()
-        data = {'file_data': json.dumps(42)}
-
-        value = widget.value_from_datadict(data, None, 'file')
-
-        handler = SingleFileHandler.for_related_field('pfp')
-        with pytest.raises(TypeError, match='Unsupported data type'):
-            handler.replace(value, self.ticket)
-
-    def test_single_widget_string_flows_to_handler_raises(self) -> None:
-        widget = SingleFileWidget()
-        data = {'file_data': json.dumps('malicious')}
-
-        value = widget.value_from_datadict(data, None, 'file')
-
-        handler = SingleFileHandler.for_related_field('pfp')
-        with pytest.raises(TypeError, match='Unsupported data type'):
-            handler.replace(value, self.ticket)
-
-    def test_single_widget_list_flows_to_handler_raises(self) -> None:
-        widget = SingleFileWidget()
-        data = {'file_data': json.dumps([1, 2, 3])}
-
-        value = widget.value_from_datadict(data, None, 'file')
-
-        handler = SingleFileHandler.for_related_field('pfp')
-        with pytest.raises(TypeError, match='Unsupported data type'):
-            handler.replace(value, self.ticket)
-
-    def test_multi_widget_string_flows_to_handler_crashes(self) -> None:
-        widget = MultipleFileWidget()
-        data = {'files_data': json.dumps('not a list')}
-
-        value = widget.value_from_datadict(data, None, 'files')
-
-        handler = MultiFileHandler.for_related_field('abc')
-
-        with pytest.raises((TypeError, AttributeError)):
-            handler.replace(value, self.ticket)
-
-    def test_multi_widget_dict_flows_to_handler_crashes_with_key_error(self) -> None:
-        widget = MultipleFileWidget()
-        data = {'files_data': json.dumps({'id': 1})}
-
-        value = widget.value_from_datadict(data, None, 'files')
-
-        handler = MultiFileHandler.for_related_field('abc')
-
-        with pytest.raises(KeyError):
-            handler.replace(value, self.ticket)
-
-    def test_multi_widget_nested_none_in_list(self) -> None:
-        widget = MultipleFileWidget()
-        data = {'files_data': json.dumps([None, {'id': 1}])}
-
-        value = widget.value_from_datadict(data, None, 'files')
-
-        handler = MultiFileHandler.for_related_field('abc')
-
-        with pytest.raises((TypeError, AttributeError)):
-            handler.replace(value, self.ticket)
-
-
 class FormatSizeConsistencyTests(BaseTestCase):
     def test_exact_half_kb(self) -> None:
         assert format_size(512) == '0.5 KB'
@@ -415,7 +192,7 @@ class FormatSizeConsistencyTests(BaseTestCase):
 
 class ParseNameAdversarialTests(BaseTestCase):
     def test_only_dots(self) -> None:
-        assert parse_name('...') == '..'
+        assert parse_name('...') == '...'
 
     def test_very_long_name(self) -> None:
         name = 'a' * 10_000 + '.pdf'
@@ -719,3 +496,210 @@ class QuerySetORMEdgeCaseTests(BaseTestCase):
         assert only_deleted.pk not in active_pks
         assert both.pk not in active_pks
         assert neither.pk in active_pks
+
+
+@override_settings(STORAGES=STORAGES_OVERRIDE)
+class SingleFileFieldQuerySetTests(BaseTestCase):
+    def test_prepare_value_queryset_ordering_matters(self) -> None:
+        field = SingleFileField()
+        file1 = create_test_file(name='alpha')
+        file2 = create_test_file(name='beta')
+
+        result_asc = field.prepare_value(
+            File.objects.filter(pk__in=[file1.pk, file2.pk]).order_by('pk')
+        )
+        result_desc = field.prepare_value(
+            File.objects.filter(pk__in=[file1.pk, file2.pk]).order_by('-pk')
+        )
+
+        assert json.loads(result_asc)['name'] == 'alpha'
+        assert json.loads(result_desc)['name'] == 'beta'
+
+    def test_prepare_value_deleted_file_in_queryset(self) -> None:
+        field = SingleFileField()
+        file = create_test_file(name='deleted', is_active=False, is_deleted=True)
+
+        result = field.prepare_value(File.objects.filter(pk=file.pk))
+        parsed = json.loads(result)
+
+        assert parsed['name'] == 'deleted'
+
+
+@override_settings(STORAGES=STORAGES_OVERRIDE)
+class WidgetToHandlerTypeConfusionTests(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.ticket = create_test_helpdesk_ticket()
+
+    def test_single_widget_integer_flows_to_handler_raises(self) -> None:
+        widget = SingleFileWidget()
+        data = {'file_data': json.dumps(42)}
+
+        value = widget.value_from_datadict(data, None, 'file')
+
+        handler = SingleFileHandler.for_related_field('pfp')
+        with pytest.raises(TypeError, match='Unsupported data type'):
+            handler.replace(value, self.ticket)
+
+    def test_single_widget_string_flows_to_handler_raises(self) -> None:
+        widget = SingleFileWidget()
+        data = {'file_data': json.dumps('malicious')}
+
+        value = widget.value_from_datadict(data, None, 'file')
+
+        handler = SingleFileHandler.for_related_field('pfp')
+        with pytest.raises(TypeError, match='Unsupported data type'):
+            handler.replace(value, self.ticket)
+
+    def test_single_widget_list_flows_to_handler_raises(self) -> None:
+        widget = SingleFileWidget()
+        data = {'file_data': json.dumps([1, 2, 3])}
+
+        value = widget.value_from_datadict(data, None, 'file')
+
+        handler = SingleFileHandler.for_related_field('pfp')
+        with pytest.raises(TypeError, match='Unsupported data type'):
+            handler.replace(value, self.ticket)
+
+    def test_multi_widget_string_flows_to_handler_crashes(self) -> None:
+        widget = MultipleFileWidget()
+        data = {'files_data': json.dumps('not a list')}
+
+        value = widget.value_from_datadict(data, None, 'files')
+
+        handler = MultiFileHandler.for_related_field('abc')
+
+        with pytest.raises((TypeError, AttributeError)):
+            handler.replace(value, self.ticket)
+
+    def test_multi_widget_dict_flows_to_handler_crashes_with_key_error(self) -> None:
+        widget = MultipleFileWidget()
+        data = {'files_data': json.dumps({'id': 1})}
+
+        value = widget.value_from_datadict(data, None, 'files')
+
+        handler = MultiFileHandler.for_related_field('abc')
+
+        with pytest.raises(KeyError):
+            handler.replace(value, self.ticket)
+
+    def test_multi_widget_nested_none_in_list(self) -> None:
+        widget = MultipleFileWidget()
+        data = {'files_data': json.dumps([None, {'id': 1}])}
+
+        value = widget.value_from_datadict(data, None, 'files')
+
+        handler = MultiFileHandler.for_related_field('abc')
+
+        with pytest.raises((TypeError, AttributeError)):
+            handler.replace(value, self.ticket)
+
+
+@override_settings(STORAGES=STORAGES_OVERRIDE)
+class CopyFilesToInstanceTests(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.source_ticket = create_test_helpdesk_ticket()
+        self.target_ticket = create_test_helpdesk_ticket()
+        self.content_type = ContentType.objects.get_for_model(self.source_ticket)
+
+    def test_copy_to_unsaved_instance_raises(self) -> None:
+        unsaved = HelpDeskTicket()
+
+        with pytest.raises(ValueError, match='Cannot copy files to an unsaved'):
+            copy_files_to_instance(File.objects.none(), unsaved)
+
+    def test_copy_empty_queryset_returns_empty(self) -> None:
+        result = copy_files_to_instance(File.objects.none(), self.target_ticket)
+
+        assert result == []
+
+    def test_copy_preserves_name_type_size(self) -> None:
+        source = create_test_file(
+            name='original',
+            file_type='pdf',
+            size=12345,
+            content_type=self.content_type,
+            object_id=self.source_ticket.pk,
+        )
+
+        result = copy_files_to_instance(
+            File.objects.filter(pk=source.pk),
+            self.target_ticket,
+        )
+
+        assert len(result) == 1
+        copy = result[0]
+        assert copy.name == 'original'
+        assert copy.type == 'pdf'
+        assert copy.size == 12345
+        assert copy.pk != source.pk
+
+    def test_copy_preserves_related_field(self) -> None:
+        source = create_test_file(
+            content_type=self.content_type,
+            object_id=self.source_ticket.pk,
+            related_field='pfp',
+        )
+
+        result = copy_files_to_instance(
+            File.objects.filter(pk=source.pk),
+            self.target_ticket,
+        )
+
+        assert result[0].related_field == 'pfp'
+
+    def test_copy_links_to_target_not_source(self) -> None:
+        source = create_test_file(
+            content_type=self.content_type,
+            object_id=self.source_ticket.pk,
+        )
+
+        target_ct = ContentType.objects.get_for_model(self.target_ticket)
+        result = copy_files_to_instance(
+            File.objects.filter(pk=source.pk),
+            self.target_ticket,
+        )
+
+        assert result[0].content_type == target_ct
+        assert result[0].object_id == self.target_ticket.pk
+
+    def test_copy_does_not_modify_source(self) -> None:
+        source = create_test_file(
+            content_type=self.content_type,
+            object_id=self.source_ticket.pk,
+        )
+        original_pk = source.pk
+
+        copy_files_to_instance(
+            File.objects.filter(pk=source.pk),
+            self.target_ticket,
+        )
+
+        source.refresh_from_db()
+        assert source.pk == original_pk
+        assert source.object_id == self.source_ticket.pk
+
+    def test_copy_multiple_files(self) -> None:
+        create_test_file(
+            name='file1',
+            content_type=self.content_type,
+            object_id=self.source_ticket.pk,
+        )
+        create_test_file(
+            name='file2',
+            content_type=self.content_type,
+            object_id=self.source_ticket.pk,
+        )
+
+        result = copy_files_to_instance(
+            File.objects.filter(
+                content_type=self.content_type,
+                object_id=self.source_ticket.pk,
+            ),
+            self.target_ticket,
+        )
+
+        assert len(result) == 2

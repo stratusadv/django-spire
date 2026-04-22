@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 
+from django_spire.file.exceptions import FileLinkError
 from django_spire.file.factory import RELATED_FIELD_LENGTH_MAX
 from django_spire.file.models import File
 
@@ -24,7 +25,7 @@ class FileLinker:
     def link(self, file_obj: File, instance: models.Model) -> File:
         if instance.pk is None:
             message = 'Cannot link a file to an unsaved model instance.'
-            raise ValueError(message)
+            raise FileLinkError(message)
 
         content_type = ContentType.objects.get_for_model(instance)
 
@@ -38,9 +39,12 @@ class FileLinker:
         return file_obj
 
     def link_many(self, file_objects: list[File], instance: models.Model) -> None:
+        if not file_objects:
+            return
+
         if instance.pk is None:
             message = 'Cannot link files to an unsaved model instance.'
-            raise ValueError(message)
+            raise FileLinkError(message)
 
         content_type = ContentType.objects.get_for_model(instance)
 
@@ -59,7 +63,7 @@ class FileLinker:
     def unlink_existing(self, instance: models.Model) -> int:
         if instance.pk is None:
             message = 'Cannot unlink files from an unsaved model instance.'
-            raise ValueError(message)
+            raise FileLinkError(message)
 
         content_type = ContentType.objects.get_for_model(instance)
 
@@ -74,7 +78,7 @@ class FileLinker:
     def unlink_except(self, instance: models.Model, keep_ids: list[int]) -> int:
         if instance.pk is None:
             message = 'Cannot unlink files from an unsaved model instance.'
-            raise ValueError(message)
+            raise FileLinkError(message)
 
         content_type = ContentType.objects.get_for_model(instance)
 

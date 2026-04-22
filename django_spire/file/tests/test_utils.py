@@ -49,13 +49,13 @@ class ParseNameTests(BaseTestCase):
         assert parse_name('.hidden') == '.hidden'
 
     def test_trailing_dot(self) -> None:
-        assert parse_name('file.') == 'file'
+        assert parse_name('file.') == 'file.'
 
     def test_path_traversal_dots(self) -> None:
-        assert parse_name('../../etc/passwd.txt') == '../../etc/passwd'
+        assert parse_name('../../etc/passwd.txt') == 'passwd'
 
     def test_forward_slashes_preserved(self) -> None:
-        assert parse_name('path/to/file.txt') == 'path/to/file'
+        assert parse_name('path/to/file.txt') == 'file'
 
     def test_backslashes_preserved(self) -> None:
         assert parse_name('path\\to\\file.txt') == 'path\\to\\file'
