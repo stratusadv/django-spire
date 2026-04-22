@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.31.1
+
+### Changes
+- Improve validation
+- Added predefined extensions
+
 ## v0.31.0
 
 ### Breaking

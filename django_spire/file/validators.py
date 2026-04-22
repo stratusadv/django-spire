@@ -9,6 +9,7 @@ from django_spire.file.exceptions import (
     FileNameError,
     FileSizeError
 )
+from django_spire.file.extensions import DEFAULT_BLOCKED_EXTENSIONS
 from django_spire.file.utils import parse_extension
 
 if TYPE_CHECKING:
@@ -36,18 +37,7 @@ class FileValidator:
     size_bytes_max: int = 10 * 1024 * 1024
     allowed_extensions: frozenset[str] | None = None
     blocked_extensions: frozenset[str] = field(
-        default_factory=lambda: frozenset({
-            'exe',
-            'bat',
-            'cmd',
-            'com',
-            'msi',
-            'scr',
-            'pif',
-            'htm',
-            'html',
-            'svg',
-        })
+        default_factory=lambda: DEFAULT_BLOCKED_EXTENSIONS
     )
     content_validation: bool = True
 

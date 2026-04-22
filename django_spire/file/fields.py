@@ -10,12 +10,12 @@ from django.core.files.uploadedfile import UploadedFile
 from django_spire.file import widgets
 from django_spire.file.exceptions import FileValidationError
 from django_spire.file.queryset import FileQuerySet
+from django_spire.file.validators import FileValidator
 
 if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile
 
     from django_spire.file.models import File
-    from django_spire.file.validators import FileValidator
 
 
 class MultipleFileField(forms.FileField):
@@ -27,7 +27,7 @@ class MultipleFileField(forms.FileField):
         **kwargs
     ) -> None:
         self.related_field = related_field
-        self.validator = validator
+        self.validator = validator or FileValidator()
         super().__init__(*args, **kwargs)
 
         self.widget = widgets.MultipleFileWidget()
@@ -43,7 +43,10 @@ class MultipleFileField(forms.FileField):
         data: list[dict] | list[InMemoryUploadedFile],
         _initial: list[dict] | None = None,
     ) -> list[dict] | list[InMemoryUploadedFile]:
-        if self.validator is not None and data:
+        if not data and self.required:
+            raise forms.ValidationError(self.error_messages['required'])
+
+        if data:
             for file in data:
                 if isinstance(file, UploadedFile):
                     try:
@@ -57,7 +60,7 @@ class MultipleFileField(forms.FileField):
 class SingleFileField(forms.FileField):
     def __init__(self, *args, related_field: str = '', validator: FileValidator | None = None, **kwargs) -> None:
         self.related_field = related_field
-        self.validator = validator
+        self.validator = validator or FileValidator()
         super().__init__(*args, **kwargs)
 
         self.widget = widgets.SingleFileWidget()
@@ -76,7 +79,10 @@ class SingleFileField(forms.FileField):
         data: dict | InMemoryUploadedFile | None,
         _initial: dict | None = None,
     ) -> dict | InMemoryUploadedFile | None:
-        if self.validator is not None and data is not None and isinstance(data, UploadedFile):
+        if data is None and self.required:
+            raise forms.ValidationError(self.error_messages['required'])
+
+        if data is not None and isinstance(data, UploadedFile):
             try:
                 self.validator.validate(data)
             except FileValidationError as exception:
