@@ -55,7 +55,9 @@ class CeleryTask(models.Model):
 
     @property
     def estimated_completion_percentage(self) -> float:
-        percentage = (self.estimated_time_seconds - self.estimated_time_remaining_seconds) / self.estimated_time_seconds
+        percentage = (
+            self.estimated_time_seconds - self.estimated_time_remaining_seconds
+        ) / self.estimated_time_seconds
 
         if percentage > 1.0:
             percentage = 1.0
@@ -103,9 +105,7 @@ class CeleryTask(models.Model):
 
     @staticmethod
     def generate_reference_key(
-            app_name: str,
-            reference_name: str,
-            model_object: models.Model | None = None,
+        app_name: str, reference_name: str, model_object: models.Model | None = None
     ) -> str:
         hashable_string = app_name
 
@@ -140,22 +140,17 @@ class CeleryTask(models.Model):
 
     @classmethod
     def register(
-            cls,
-            async_result: AsyncResult,
-            app_name: str,
-            reference_name: str,
-            model_object: models.Model | None = None,
-            estimated_completion_seconds: int | None = None,
+        cls,
+        async_result: AsyncResult,
+        app_name: str,
+        reference_name: str,
+        model_object: models.Model | None = None,
+        estimated_completion_seconds: int | None = None,
     ) -> None:
-        cls.validate_register_arguments(
-            app_name=app_name,
-            reference_name=reference_name,
-        )
+        cls.validate_register_arguments(app_name=app_name, reference_name=reference_name)
 
         reference_key = cls.generate_reference_key(
-            app_name=app_name,
-            model_object=model_object,
-            reference_name=reference_name,
+            app_name=app_name, model_object=model_object, reference_name=reference_name
         )
 
         cls.objects.create(
@@ -163,16 +158,16 @@ class CeleryTask(models.Model):
             reference_key=reference_key[:128],
             reference_name=reference_name[:128],
             task_id=async_result.id,
-            estimated_completion_datetime=now() + timedelta(
+            estimated_completion_datetime=now()
+            + timedelta(
                 seconds=ceil(estimated_completion_seconds * _CELERY_ESTIMATED_TIME_MULTIPLIER)
-            ) if estimated_completion_seconds else None,
+            )
+            if estimated_completion_seconds
+            else None,
         )
 
     @staticmethod
-    def validate_register_arguments(
-            app_name: str,
-            reference_name: str,
-    ):
+    def validate_register_arguments(app_name: str, reference_name: str):
         if not apps.is_installed(app_name):
             message = f'Celery task app_name "{app_name}" is invalid or not installed'
             raise ImproperlyConfigured(message)
@@ -198,4 +193,7 @@ class CeleryTask(models.Model):
             self.save()
 
     class Meta:
+        verbose_name = 'Celery Task'
+        verbose_name_plural = 'Celery Tasks'
+        db_table = 'django_spire_celery_task'
         ordering = ('-started_datetime',)

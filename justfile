@@ -3,6 +3,8 @@ set shell := ["sh", "-c"]
 set dotenv-load
 set dotenv-filename := "development.env"
 
+export PYTHONPATH := if os() == "linux" { env_var_or_default('PYTHONPATH_APPEND', '') + ':.'} else { env_var_or_default('PYTHONPATH_APPEND', '') + ';.' }
+
 PYTHON := if os() == "linux" { ".venv/bin/python" } else { ".venv/Scripts/python.exe" }
 
 default:
@@ -26,8 +28,8 @@ run-server:
 test:
 	{{PYTHON}} -m pytest .
 
-test-last-failed:
-	{{PYTHON}} -m pytest --ff --lf
+test-failed:
+	{{PYTHON}} -m pytest . --ff --lf
 
 test-coverage:
 	{{PYTHON}} -m pytest . --cov=app --cov-report=term-missing --cov-report=html:.test_coverage/

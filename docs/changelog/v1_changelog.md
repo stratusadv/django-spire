@@ -1,15 +1,17 @@
 # Change Log
 
-## 1.0.0a
+## 1.0.0a1
 
 ### Breaking
+
+- A lot ...
 
 ### Changes
 
 ### Features
 
-- Added new `django_spire.celery` app to handle interaction with celery tasks and contextual monitoring.
-
+- Added new app `django_spire.celery` to handle interaction with celery tasks and contextual monitoring.
+- Added new app `django_spire.api` for creating REST API backends.
 ### Fixes
 
 ### Unfinished
