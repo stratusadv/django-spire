@@ -1,6 +1,6 @@
 from django.urls import path
 
-from test_project.apps.infinite_scrolling.views import form_views
+from test_project.app.infinite_scrolling.views import form_views
 
 
 app_name = 'form'

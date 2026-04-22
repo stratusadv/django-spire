@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from django_spire.contrib.service.django_model_service import BaseDjangoModelService
-from test_project.apps.model_and_service.services.kid_sub_service import KidSubService
+from test_project.app.model_and_service.services.kid_sub_service import KidSubService
 
 if TYPE_CHECKING:
-    from test_project.apps.model_and_service.models import Kid
+    from test_project.app.model_and_service.models import Kid
 
 
 class KidService(BaseDjangoModelService['Kid']):

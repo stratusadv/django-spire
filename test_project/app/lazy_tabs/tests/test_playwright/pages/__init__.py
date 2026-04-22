@@ -1,4 +1,4 @@
-from test_project.apps.lazy_tabs.tests.test_playwright.pages.demo_page import LazyTabsDemoPage
+from test_project.app.lazy_tabs.tests.test_playwright.pages.demo_page import LazyTabsDemoPage
 
 
 __all__ = [

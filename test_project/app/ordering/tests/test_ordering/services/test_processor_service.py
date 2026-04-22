@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from django_spire.core.tests.test_cases import BaseTestCase
 
-from test_project.apps.ordering.models import Duck
-from test_project.apps.ordering.tests.test_ordering.factories import create_test_duck
+from test_project.app.ordering.models import Duck
+from test_project.app.ordering.tests.test_ordering.factories import create_test_duck
 
 class TestOrderingProcessorService(BaseTestCase):
     def setUp(self):

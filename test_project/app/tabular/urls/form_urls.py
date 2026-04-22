@@ -1,6 +1,6 @@
 from django.urls import path
 
-from test_project.apps.tabular.views import form_views
+from test_project.app.tabular.views import form_views
 
 
 app_name = 'form'

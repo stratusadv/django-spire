@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django_spire.contrib.seeding import DjangoModelSeeder
 
-from test_project.apps.lazy_tabs import models
+from test_project.app.lazy_tabs import models
 
 if TYPE_CHECKING:
     from typing import ClassVar

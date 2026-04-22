@@ -4,7 +4,7 @@ from ninja import Router
 
 from django_spire.api.auth.security import ApiKeySecurity
 from django_spire.api.choices import ApiPermissionChoices
-from test_project.apps.queryset_filtering.models import Task
+from test_project.app.queryset_filtering.models import Task
 
 router = Router()
 

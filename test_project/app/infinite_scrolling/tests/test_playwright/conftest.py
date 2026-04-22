@@ -4,7 +4,7 @@ import pytest
 
 from typing import TYPE_CHECKING
 
-from test_project.apps.infinite_scrolling.tests.test_playwright.pages import (
+from test_project.app.infinite_scrolling.tests.test_playwright.pages import (
     InfiniteScrollingCardPage,
     InfiniteScrollingDetailPage,
     InfiniteScrollingListPage,
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from playwright.sync_api import Page
     from pytest_django.plugin import _LiveServer
 
-    from test_project.apps.infinite_scrolling.models import InfiniteScrolling
+    from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def detail_page(authenticated_page: Page, live_server: _LiveServer, infinite_scr
 
 @pytest.fixture
 def infinite_scrolling_data(_transactional_db: None) -> list[InfiniteScrolling]:
-    from test_project.apps.infinite_scrolling.models import InfiniteScrolling
+    from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
     return [
         InfiniteScrolling.objects.create(

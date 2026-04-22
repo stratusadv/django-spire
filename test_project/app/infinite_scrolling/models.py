@@ -7,8 +7,8 @@ from django_spire.contrib.breadcrumb import Breadcrumbs
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 
-from test_project.apps.infinite_scrolling import querysets
-from test_project.apps.infinite_scrolling.services.service import InfiniteScrollingService
+from test_project.app.infinite_scrolling import querysets
+from test_project.app.infinite_scrolling.services.service import InfiniteScrollingService
 
 
 class InfiniteScrolling(ActivityMixin, HistoryModelMixin):

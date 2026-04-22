@@ -2,8 +2,8 @@ from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
 
-from test_project.apps.queryset_filtering.seeding.seeder import TaskModelSeeder
-from test_project.apps.queryset_filtering.tests.factories import create_test_task
+from test_project.app.queryset_filtering.seeding.seeder import TaskModelSeeder
+from test_project.app.queryset_filtering.tests.factories import create_test_task
 
 
 class TaskListFilteringTestCase(BaseTestCase):

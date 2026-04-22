@@ -12,9 +12,9 @@ from django_spire.contrib.generic_views import portal_views
 from django_spire.contrib.session.controller import SessionController
 from django_spire.core.shortcuts import get_object_or_null_obj
 
-from test_project.apps.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
-from test_project.apps.infinite_scrolling.forms import InfiniteScrollingListFilterForm
-from test_project.apps.infinite_scrolling.models import InfiniteScrolling
+from test_project.app.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
+from test_project.app.infinite_scrolling.forms import InfiniteScrollingListFilterForm
+from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
-    from test_project.apps.ordering.models import Duck
+    from test_project.app.ordering.models import Duck
 
 
 class OrderingService(BaseDjangoModelService['Duck']):

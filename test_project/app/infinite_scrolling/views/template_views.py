@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 
 from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
 
-from test_project.apps.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
-from test_project.apps.infinite_scrolling.forms import InfiniteScrollingListFilterForm
-from test_project.apps.infinite_scrolling.models import InfiniteScrolling
+from test_project.app.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
+from test_project.app.infinite_scrolling.forms import InfiniteScrollingListFilterForm
+from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

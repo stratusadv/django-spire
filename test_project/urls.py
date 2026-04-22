@@ -23,8 +23,8 @@ urlpatterns = [
     path('tabular/', include('test_project.app.tabular.urls', namespace='tabular')),
     path('test_model/', include('test_project.app.model_and_service.urls', namespace='test_model')),
     path('theme/', include('django_spire.theme.urls', namespace='theme')),
-    path('queryset-filtering/', include('test_project.apps.queryset_filtering.urls', namespace='queryset_filtering')),
-    path('wizard/', include('test_project.apps.wizard.urls', namespace='wizard')),
+    path('queryset-filtering/', include('test_project.app.queryset_filtering.urls', namespace='queryset_filtering')),
+    path('wizard/', include('test_project.app.wizard.urls', namespace='wizard')),
 ]
 
 urlpatterns += [

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.core.redirect import safe_redirect_url
 from django_spire.notification import models
-from test_project.apps.notification.forms import NotificationForm
+from test_project.app.notification.forms import NotificationForm
 
 
 def notification_form_view(request, pk: int):

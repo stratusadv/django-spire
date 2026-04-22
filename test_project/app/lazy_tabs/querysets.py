@@ -10,7 +10,7 @@ from django_spire.history.querysets import HistoryQuerySet
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-    from test_project.apps.lazy_tabs.models import LazyTabs
+    from test_project.app.lazy_tabs.models import LazyTabs
 
 
 class LazyTabsQuerySet(

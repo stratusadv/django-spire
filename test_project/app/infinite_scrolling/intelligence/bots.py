@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dandy import Bot
 
-from test_project.apps.infinite_scrolling.intelligence import intel, prompts
+from test_project.app.infinite_scrolling.intelligence import intel, prompts
 
 
 class InfiniteScrollingBot(Bot):

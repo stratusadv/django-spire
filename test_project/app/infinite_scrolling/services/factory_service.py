@@ -7,7 +7,7 @@ from django_spire.contrib.service import BaseDjangoModelService
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
-    from test_project.apps.infinite_scrolling.models import InfiniteScrolling
+    from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 
 class InfiniteScrollingFactoryService(BaseDjangoModelService['InfiniteScrolling']):

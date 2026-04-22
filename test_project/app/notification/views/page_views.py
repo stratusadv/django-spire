@@ -15,7 +15,7 @@ from django_spire.notification.choices import (
     NotificationTypeChoices,
     NotificationPriorityChoices,
 )
-from test_project.apps.notification.forms import NotificationForm
+from test_project.app.notification.forms import NotificationForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from django.test import TestCase
 
-from test_project.apps.model_and_service.models import Adult
-from test_project.apps.model_and_service.tests.factories import create_adult, create_kid
+from test_project.app.model_and_service.models import Adult
+from test_project.app.model_and_service.tests.factories import create_adult, create_kid
 
 
 class TestInstanceService(TestCase):

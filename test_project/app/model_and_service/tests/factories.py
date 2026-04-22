@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.utils import timezone
 
-from test_project.apps.model_and_service.models import Adult, Kid
+from test_project.app.model_and_service.models import Adult, Kid
 
 
 def create_adult(**kwargs) -> Adult:

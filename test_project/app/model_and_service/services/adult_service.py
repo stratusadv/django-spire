@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 from django_spire.contrib.service.django_model_service import BaseDjangoModelService
-from test_project.apps.model_and_service.services.adult_sub_service import AdultSubService
+from test_project.app.model_and_service.services.adult_sub_service import AdultSubService
 
 if TYPE_CHECKING:
-    from test_project.apps.model_and_service.models import Adult
+    from test_project.app.model_and_service.models import Adult
 
 
 class AdultService(BaseDjangoModelService['Adult']):

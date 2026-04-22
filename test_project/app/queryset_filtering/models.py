@@ -6,9 +6,9 @@ from django.db import models
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 
-from test_project.apps.queryset_filtering.choices import TaskStatusChoices, TaskUserRoleChoices
-from test_project.apps.queryset_filtering.querysets import TaskQuerySet, TaskUserQuerySet
-from test_project.apps.queryset_filtering.services.service import TaskService
+from test_project.app.queryset_filtering.choices import TaskStatusChoices, TaskUserRoleChoices
+from test_project.app.queryset_filtering.querysets import TaskQuerySet, TaskUserQuerySet
+from test_project.app.queryset_filtering.services.service import TaskService
 
 
 class Task(ActivityMixin, HistoryModelMixin):

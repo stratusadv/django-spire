@@ -3,7 +3,7 @@ from django.http import JsonResponse
 
 from django_spire.core.shortcuts import get_object_or_null_obj
 
-from test_project.apps.ordering import models
+from test_project.app.ordering import models
 
 
 def reorder_view(request: WSGIRequest, pk: int, order: int) -> JsonResponse:

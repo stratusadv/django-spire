@@ -1,6 +1,6 @@
 from django.urls import path
 
-from test_project.apps.lazy_tabs.views import template_views
+from test_project.app.lazy_tabs.views import template_views
 
 
 app_name = 'template'

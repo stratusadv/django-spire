@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from test_project.apps.notification.seeding.seeder import NotificationSeeder, AppNotificationSeeder
+from test_project.app.notification.seeding.seeder import NotificationSeeder, AppNotificationSeeder
 
 
 NotificationSeeder.seed_app_notification(count=10)

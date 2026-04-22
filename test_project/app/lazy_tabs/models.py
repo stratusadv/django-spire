@@ -7,8 +7,8 @@ from django_spire.contrib.breadcrumb import Breadcrumbs
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 
-from test_project.apps.lazy_tabs import querysets
-from test_project.apps.lazy_tabs.services.service import LazyTabsService
+from test_project.app.lazy_tabs import querysets
+from test_project.app.lazy_tabs.services.service import LazyTabsService
 
 
 class LazyTabs(ActivityMixin, HistoryModelMixin):

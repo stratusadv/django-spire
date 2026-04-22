@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from django.test import TestCase
 
-from test_project.apps.model_and_service.models import Adult
-from test_project.apps.model_and_service.tests.factories import create_adult
-from test_project.apps.model_and_service.services.adult_service import AdultService
+from test_project.app.model_and_service.models import Adult
+from test_project.app.model_and_service.tests.factories import create_adult
+from test_project.app.model_and_service.services.adult_service import AdultService
 
 
 class TestBaseService(TestCase):

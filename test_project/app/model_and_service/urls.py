@@ -1,6 +1,6 @@
 from django.urls import path
 
-from test_project.apps.model_and_service import views
+from test_project.app.model_and_service import views
 
 app_name = 'test_model'
 

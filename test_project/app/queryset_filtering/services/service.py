@@ -7,7 +7,7 @@ from django_spire.contrib.service import BaseDjangoModelService
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
-    from test_project.apps.queryset_filtering.models import Task
+    from test_project.app.queryset_filtering.models import Task
 
 
 class TaskService(BaseDjangoModelService['Task']):

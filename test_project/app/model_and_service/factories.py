@@ -5,7 +5,7 @@ import random
 
 from django.utils.timezone import localdate, now
 
-from test_project.apps.model_and_service.models import Adult
+from test_project.app.model_and_service.models import Adult
 
 
 def generate_test_model() -> Adult:

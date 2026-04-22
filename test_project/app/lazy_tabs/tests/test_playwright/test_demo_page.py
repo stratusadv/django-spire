@@ -5,7 +5,7 @@ import pytest
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from test_project.apps.lazy_tabs.tests.test_playwright.pages.demo_page import LazyTabsDemoPage
+    from test_project.app.lazy_tabs.tests.test_playwright.pages.demo_page import LazyTabsDemoPage
 
 
 @pytest.mark.django_db(transaction=True)

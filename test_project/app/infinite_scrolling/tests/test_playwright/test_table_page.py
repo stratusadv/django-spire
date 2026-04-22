@@ -4,10 +4,10 @@ import pytest
 
 from typing import TYPE_CHECKING
 
-from test_project.apps.infinite_scrolling.models import InfiniteScrolling
+from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 if TYPE_CHECKING:
-    from test_project.apps.infinite_scrolling.tests.test_playwright.pages.table_page import InfiniteScrollingTablePage
+    from test_project.app.infinite_scrolling.tests.test_playwright.pages.table_page import InfiniteScrollingTablePage
 
 
 @pytest.mark.django_db(transaction=True)

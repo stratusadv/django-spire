@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
 from django_spire.celery.models import CeleryTask
-from test_project.apps.celery.tasks import pirate_noise_task
+from test_project.app.celery.tasks import pirate_noise_task
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -34,7 +34,7 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
 
             CeleryTask.register(
                 async_result=async_result,
-                app_name='test_project.apps.celery',
+                app_name='test_project.app.celery',
                 reference_name='pirate_noise_task',
                 estimated_completion_seconds=length,
             )

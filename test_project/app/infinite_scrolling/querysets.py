@@ -11,7 +11,7 @@ from django_spire.history.querysets import HistoryQuerySet
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-    from test_project.apps.infinite_scrolling.models import InfiniteScrolling
+    from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 
 class InfiniteScrollingQuerySet(

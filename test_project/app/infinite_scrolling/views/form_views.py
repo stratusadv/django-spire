@@ -15,7 +15,7 @@ from django_spire.history.activity.utils import add_form_activity
 
 import django_glue as dg
 
-from test_project.apps.infinite_scrolling import forms, models
+from test_project.app.infinite_scrolling import forms, models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

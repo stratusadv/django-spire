@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from test_project.apps.queryset_filtering.choices import TaskStatusChoices
-from test_project.apps.queryset_filtering.models import Task
+from test_project.app.queryset_filtering.choices import TaskStatusChoices
+from test_project.app.queryset_filtering.models import Task
 
 
 class TaskForm(forms.ModelForm):

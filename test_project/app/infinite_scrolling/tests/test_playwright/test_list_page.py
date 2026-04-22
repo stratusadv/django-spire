@@ -5,8 +5,8 @@ import pytest
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from test_project.apps.infinite_scrolling.models import InfiniteScrolling
-    from test_project.apps.infinite_scrolling.tests.test_playwright.pages.list_page import InfiniteScrollingListPage
+    from test_project.app.infinite_scrolling.models import InfiniteScrolling
+    from test_project.app.infinite_scrolling.tests.test_playwright.pages.list_page import InfiniteScrollingListPage
 
 
 @pytest.mark.django_db(transaction=True)

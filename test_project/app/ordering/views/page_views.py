@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
 
-from test_project.apps.ordering import models
+from test_project.app.ordering import models
 
 
 if TYPE_CHECKING:

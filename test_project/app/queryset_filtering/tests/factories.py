@@ -1,4 +1,4 @@
-from test_project.apps.queryset_filtering.seeding.seeder import TaskModelSeeder
+from test_project.app.queryset_filtering.seeding.seeder import TaskModelSeeder
 
 
 def create_test_task(**kwargs):

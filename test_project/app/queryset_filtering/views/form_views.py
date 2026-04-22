@@ -14,7 +14,7 @@ from django_spire.core.shortcuts import get_object_or_null_obj
 
 import django_glue as dg
 
-from test_project.apps.queryset_filtering import forms, models
+from test_project.app.queryset_filtering import forms, models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

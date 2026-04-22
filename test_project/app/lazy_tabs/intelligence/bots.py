@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dandy import Bot
 
-from test_project.apps.lazy_tabs.intelligence import intel, prompts
+from test_project.app.lazy_tabs.intelligence import intel, prompts
 
 
 class LazyTabsBot(Bot):

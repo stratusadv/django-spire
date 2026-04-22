@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from django_spire.contrib.admin.admin import SpireModelAdmin
-from test_project.apps.queryset_filtering.models import Task, TaskUser
+from test_project.app.queryset_filtering.models import Task, TaskUser
 
 
 @admin.register(Task)

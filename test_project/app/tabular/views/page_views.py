@@ -15,9 +15,9 @@ from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.core.table.enums import ResponsiveMode
 
 from test_project.app.queryset_filtering.choices import TaskStatusChoices
-from test_project.apps.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
-from test_project.apps.queryset_filtering.forms import TaskListFilterForm
-from test_project.apps.queryset_filtering.models import Task
+from test_project.app.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
+from test_project.app.queryset_filtering.forms import TaskListFilterForm
+from test_project.app.queryset_filtering.models import Task
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

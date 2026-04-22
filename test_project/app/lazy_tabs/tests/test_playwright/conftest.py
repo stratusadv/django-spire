@@ -4,7 +4,7 @@ import pytest
 
 from typing import TYPE_CHECKING
 
-from test_project.apps.lazy_tabs.tests.test_playwright.pages import LazyTabsDemoPage
+from test_project.app.lazy_tabs.tests.test_playwright.pages import LazyTabsDemoPage
 
 if TYPE_CHECKING:
     from playwright.sync_api import Page

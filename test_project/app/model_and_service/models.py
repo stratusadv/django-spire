@@ -6,8 +6,8 @@ from django.utils.timezone import localdate, now
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
-from test_project.apps.model_and_service.services.adult_service import AdultService
-from test_project.apps.model_and_service.services.kid_service import KidService
+from test_project.app.model_and_service.services.adult_service import AdultService
+from test_project.app.model_and_service.services.kid_service import KidService
 
 
 class Adult(ActivityMixin, HistoryModelMixin):

@@ -9,9 +9,9 @@ from django.template.response import TemplateResponse
 
 from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
 
-from test_project.apps.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
-from test_project.apps.queryset_filtering.forms import TaskListFilterForm
-from test_project.apps.queryset_filtering.models import Task, TaskUser
+from test_project.app.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
+from test_project.app.queryset_filtering.forms import TaskListFilterForm
+from test_project.app.queryset_filtering.models import Task, TaskUser
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

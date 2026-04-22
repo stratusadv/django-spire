@@ -1,6 +1,6 @@
 from django.urls import path
 
-from test_project.apps.notification.views import json_views
+from test_project.app.notification.views import json_views
 
 app_name = 'json'
 

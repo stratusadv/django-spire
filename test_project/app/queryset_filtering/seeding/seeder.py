@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models import Model
 
 from django_spire.contrib.seeding import DjangoModelSeeder
-from test_project.apps.queryset_filtering.models import Task, TaskUser
+from test_project.app.queryset_filtering.models import Task, TaskUser
 
 
 class TaskModelSeeder(DjangoModelSeeder):
