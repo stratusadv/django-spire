@@ -16,6 +16,7 @@ DOCUMENT_EXTENSIONS = frozenset({
     'doc',
     'docx',
     'epub',
+    'md',
     'ods',
     'odt',
     'pages',

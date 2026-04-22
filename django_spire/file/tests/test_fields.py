@@ -72,7 +72,7 @@ class MultipleFileFieldEdgeCaseTests(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.field = MultipleFileField()
+        self.field = MultipleFileField(required=False)
 
     def test_default_related_field(self) -> None:
         assert self.field.related_field == ''
@@ -165,7 +165,7 @@ class SingleFileFieldEdgeCaseTests(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.field = SingleFileField()
+        self.field = SingleFileField(required=False)
 
     def test_default_related_field(self) -> None:
         assert self.field.related_field == ''
