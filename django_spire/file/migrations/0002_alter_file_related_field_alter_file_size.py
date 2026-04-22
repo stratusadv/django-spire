@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 logger = logging.getLogger(__name__)
 
-
 SIZE_MULTIPLIERS = {
     'KB': 1_024,
     'MB': 1_048_576,
@@ -26,6 +25,21 @@ def nulls_to_empty(apps, schema_editor):
     File.objects.filter(related_field__isnull=True).update(related_field='')
 
 
+def _parse_size(raw):
+    parts = raw.split(' ')
+
+    if len(parts) == 1:
+        return int(float(parts[0]))
+
+    if len(parts) == 2:
+        multiplier = SIZE_MULTIPLIERS.get(parts[1].upper())
+
+        if multiplier is not None:
+            return int(float(parts[0]) * multiplier)
+
+    return None
+
+
 def convert_size_strings(apps, schema_editor):
     File = apps.get_model('django_spire_file', 'File')
     batch = []
@@ -36,21 +50,16 @@ def convert_size_strings(apps, schema_editor):
 
         if file_obj.size:
             raw = file_obj.size.strip()
-            parts = raw.split(' ')
 
-            if len(parts) != 2:
+            try:
+                parsed = _parse_size(raw)
+            except (ValueError, OverflowError):
+                parsed = None
+
+            if parsed is None:
                 failed.append((file_obj.pk, raw))
             else:
-                unit = parts[1].upper()
-                multiplier = SIZE_MULTIPLIERS.get(unit)
-
-                if multiplier is None:
-                    failed.append((file_obj.pk, raw))
-                else:
-                    try:
-                        size_bytes = int(float(parts[0]) * multiplier)
-                    except ValueError:
-                        failed.append((file_obj.pk, raw))
+                size_bytes = parsed
 
         file_obj.size_bytes = size_bytes
         batch.append(file_obj)
