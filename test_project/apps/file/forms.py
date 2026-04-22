@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django import forms
+
 from django_spire.file.fields import MultipleFileField, SingleFileField
-from django_spire.file.forms import FileModelForm
 from django_spire.file.validators import FileValidator
 
 from test_project.apps.file import models
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
     from typing import ClassVar
 
 
-class FileExampleForm(FileModelForm):
+class FileExampleForm(forms.ModelForm):
     attachments = MultipleFileField(
         related_field=ATTACHMENTS_RELATED_FIELD,
         required=False,
@@ -25,6 +26,7 @@ class FileExampleForm(FileModelForm):
             allowed_extensions=frozenset({
                 'jpg',
                 'png',
+                'webp',
                 'pdf',
                 'docx',
                 'xlsx'

@@ -37,6 +37,7 @@ def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpR
 
         if form.is_valid():
             file_example = form.save()
+            file_example.services.processor.save_files(**form.cleaned_data)
 
             return redirect(
                 reverse('file:page:detail', kwargs={'pk': file_example.pk})

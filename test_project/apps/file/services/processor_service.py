@@ -21,6 +21,17 @@ if TYPE_CHECKING:
 class FileExampleProcessorService(FileProcessorServiceMixin, BaseDjangoModelService['FileExample']):
     obj: FileExample
 
+    def save_files(
+        self,
+        profile_picture: dict | InMemoryUploadedFile | None = None,
+        attachments: list[dict] | list[InMemoryUploadedFile] | None = None,
+        **kwargs,
+    ) -> None:
+        _ = kwargs
+
+        self.replace_file(profile_picture, PROFILE_PICTURE_RELATED_FIELD)
+        self.replace_files(attachments, ATTACHMENTS_RELATED_FIELD)
+
     def add_attachment(self, file: InMemoryUploadedFile) -> File:
         return self.add_file(file, ATTACHMENTS_RELATED_FIELD)
 
