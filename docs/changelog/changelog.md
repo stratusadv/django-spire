@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.0
+
+### Breaking
+- Updated the file module, interfaces and files
+
 ## v0.30.5
 
 ### Changes
