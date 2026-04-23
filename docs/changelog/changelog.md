@@ -1,9 +1,16 @@
 # Changelog
 
-## v0.31.2
+## v0.31.3
 
 ### Changes
+- Added `table_min_width` to table to control width
+
+## v0.31.2
+
+### Fixes
 - Fixed navigation link not working in mobile
+
+### Changes
 - Improved PWA install documentation.
 - Improved PWA iOS install model UI.
 
