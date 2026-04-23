@@ -2,12 +2,17 @@
 from __future__ import annotations
 
 import inspect
+import time
 import urllib.parse
 from abc import ABC
 
 import requests
 from django.core.exceptions import ImproperlyConfigured
+from requests import HTTPError
 from requests.auth import AuthBase
+
+from django_spire.contrib.rest.connector.auth.exceptions import \
+    RestConnectorTimeoutException, RestConnectorError
 
 
 class BaseRestHttpConnector(ABC):
@@ -15,6 +20,7 @@ class BaseRestHttpConnector(ABC):
     base_path: str = ''
     base_headers: dict[str, str] = {}
     timeout: int = 30
+    max_retries: int = 3
 
     def __init_subclass__(cls, **kwargs):
         if not inspect.isabstract(cls):
@@ -62,16 +68,32 @@ class BaseRestHttpConnector(ABC):
             else:
                 auth = None
 
-        response = requests.request(
-            method=method,
-            url=self._build_url(path),
-            headers=merged_headers,
-            auth=auth,
-            timeout=self.timeout,
-            **kwargs,
-        )
+        retries = 0
 
-        response.raise_for_status()
+        while True:
+            try:
+                response = requests.request(
+                    method=method,
+                    url=self._build_url(path),
+                    headers=merged_headers,
+                    auth=auth,
+                    timeout=self.timeout,
+                    **kwargs,
+                )
+
+                response.raise_for_status()
+                break
+            except requests.exceptions.Timeout as e:
+                retries += 1
+
+                if retries > 1:
+                    time.sleep(retries * 2)
+
+                if retries >= self.max_retries:
+                    raise RestConnectorTimeoutException from e
+
+            except HTTPError as e:
+                raise RestConnectorError from e
 
         return response
 
