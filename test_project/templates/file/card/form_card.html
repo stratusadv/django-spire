@@ -28,23 +28,23 @@
 
         <div class="row g-3 mb-3">
             <div class="col-md-12">
-                {% include 'django_glue/form/field/char_field.html' with glue_model_field='file_example.name' %}
+                {% include 'django_spire/form/field/char_field.html' with glue_model_field='file_example.name' %}
             </div>
 
             <div class="col-12">
-                {% include 'django_glue/form/field/text_field.html' with glue_model_field='file_example.description' %}
+                {% include 'django_spire/form/field/text_field.html' with glue_model_field='file_example.description' %}
             </div>
         </div>
 
         <div class="row g-3 mb-3">
             <div class="col-md-12 col-12">
-                {% include 'django_glue/form/field/single_file_field.html' with glue_field='profile_picture' %}
+                {% include 'django_spire/form/field/single_file_field.html' with glue_field='profile_picture' %}
             </div>
         </div>
 
         <div class="row g-3 mb-3">
             <div class="col-12">
-                {% include 'django_glue/form/field/multi_file_field.html' with glue_field='attachments' %}
+                {% include 'django_spire/form/field/multi_file_field.html' with glue_field='attachments' %}
             </div>
         </div>
 

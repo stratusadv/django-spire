@@ -7,13 +7,12 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.responses.json_response import success_json_response
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views, modal_views
 
-import django_glue as dg
+import django_glue_old as dg
 
 from test_project.apps.ordering import forms, models
 

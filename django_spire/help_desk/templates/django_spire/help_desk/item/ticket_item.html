@@ -2,15 +2,17 @@
 
 {% block item_title_col %}{% endblock %}
 
+{% block item_x_data %}x-data{% endblock %}
+
 {% block item_row_content %}
-    <a class="col-12 col-sm-4 mb-2 mb-sm-0" href="{% url 'django_spire:help_desk:page:detail' pk=ticket.pk %}">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.description|truncatechars:50 %}
+    <a class="col-12 col-sm-4 mb-2 mb-sm-0" :href="`{% url 'django_spire:help_desk:page:detail' pk=0 %}`.replace('0', ticket.id)">
+        {% include 'django_spire/element/attribute_element.html' with x_attribute_value='ticket.description' %}
     </a>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.created_by.get_full_name attribute_title='Created By' %}
+        {% include 'django_spire/element/attribute_element.html' with x_attribute_value='ticket.created_by_name' attribute_title='Created By' %}
     </div>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=ticket.created_datetime|date:'M d, Y' attribute_title='Created At' %}
+        {% include 'django_spire/element/attribute_element.html' with x_attribute_value='new Date(ticket.created_datetime).toLocaleDateString()' attribute_title='Created At' %}
     </div>
     <div class="col">
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Purpose' %}
@@ -27,12 +29,17 @@
 {% endblock %}
 
 {% block item_button %}
-    {% url 'django_spire:help_desk:page:detail' pk=ticket.pk as detail_url %}
-    {% if AuthController.help_desk.can_change %}
-        {% url 'django_spire:help_desk:form:update' pk=ticket.pk as update_url %}
-    {% endif %}
-    {% if AuthController.help_desk.can_delete %}
-        {% url 'django_spire:help_desk:page:delete' pk=ticket.pk as delete_url %}
-    {% endif %}
-    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=update_url delete_url=delete_url %}
+    <div
+        x-data="{
+            viewUrl: `{% url 'django_spire:help_desk:page:detail' pk=0 %}`.replace('0', ticket.pk),
+        {% if AuthController.help_desk.can_change %}
+            updateUrl: `{% url 'django_spire:help_desk:form:update' pk=0 %}`.replace('0', ticket.pk),
+        {% endif %}
+        {% if AuthController.help_desk.can_delete %}
+            deleteUrl: `{% url 'django_spire:help_desk:page:delete' pk=0 %}`.replace('0', ticket.pk),
+        {% endif %}
+        }"
+    >
+        {% include 'django_spire/dropdown/ellipsis_dropdown.html' with x_view_url='viewUrl' x_edit_url='updateUrl' x_delete_url='deleteUrl' %}
+    </div>
 {% endblock %}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import django_glue as dg
+import django_glue_old as dg
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse

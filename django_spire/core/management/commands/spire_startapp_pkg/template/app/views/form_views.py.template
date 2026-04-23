@@ -13,7 +13,7 @@ from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 
-import django_glue as dg
+import django_glue_old as dg
 
 from ${module_path} import forms, models
 

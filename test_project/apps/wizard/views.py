@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
+import django_glue_old as dg
 
 from test_project.apps.model_and_service.factories import generate_test_model
 

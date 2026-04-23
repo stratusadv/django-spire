@@ -46,7 +46,7 @@
         >
             <form x-ref="upload_form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% include 'django_glue/form/field/single_file_field.html' with glue_field='service_pfp' %}
+                {% include 'django_spire/form/field/single_file_field.html' with glue_field='service_pfp' %}
             </form>
 
             <div class="mt-2">

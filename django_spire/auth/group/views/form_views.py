@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-import django_glue as dg
+import django_glue_old as dg
 
 from django_spire.auth.group import models, forms
 from django_spire.auth.group.utils import set_group_users

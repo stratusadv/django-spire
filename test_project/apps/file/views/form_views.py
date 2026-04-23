@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.shortcuts import redirect
 from django.urls import reverse
 
-import django_glue as dg
+import django_glue_old as dg
 
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views

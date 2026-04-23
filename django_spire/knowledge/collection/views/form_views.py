@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import django_glue as dg
+import django_glue_old as dg
 
 from typing import TYPE_CHECKING
 

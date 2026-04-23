@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
+import django_glue_old as dg
 
 from django_spire.contrib.generic_views import portal_views
 from django_spire.contrib.session.controller import SessionController

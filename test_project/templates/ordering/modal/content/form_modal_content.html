@@ -12,13 +12,13 @@
 {% csrf_token %}
 <div class="row g-3 mb-3">
     <div class="col">
-        {% include 'django_glue/form/field/char_field.html' with glue_model_field='duck.name' %}
+        {% include 'django_spire/form/field/char_field.html' with glue_model_field='duck.name' %}
     </div>
     <div class="col">
-        {% include 'django_glue/form/field/number_field.html' with glue_model_field='duck.order' %}
+        {% include 'django_spire/form/field/number_field.html' with glue_model_field='duck.order' %}
     </div>
     <div class="col">
-        {% include 'django_glue/form/field/color_field.html' with glue_model_field='duck.color' %}
+        {% include 'django_spire/form/field/color_field.html' with glue_model_field='duck.color' %}
     </div>
 </div>
 

@@ -142,6 +142,7 @@ INSTALLED_APPS += [
 
 INSTALLED_APPS += [
     'django_glue',
+    'django_glue_old',
     'debug_toolbar',
 ]
 
@@ -156,6 +157,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    'django_glue_old.middleware.DjangoGlueMiddleware',
     'django_glue.middleware.DjangoGlueMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
 ]
@@ -193,6 +195,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django_glue_old.context_processors.django_glue_old',
                 'django_glue.context_processors.django_glue',
                 'django_spire.core.context_processors.django_spire',
                 'django_spire.core.context_processors.theme_context',

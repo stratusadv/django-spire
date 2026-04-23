@@ -24,7 +24,7 @@
         }"
     >
         <div class="col-3">
-            {% include 'django_glue/form/field/char_field.html' with glue_field='search_field' %}
+            {% include 'django_spire/form/field/char_field.html' with glue_field='search_field' %}
         </div>
     </div>
 {% endblock %}

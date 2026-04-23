@@ -46,7 +46,7 @@
         >
             <form x-ref="upload_form" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% include 'django_glue/form/field/multi_file_field.html' with glue_field='service_att' %}
+                {% include 'django_spire/form/field/multi_file_field.html' with glue_field='service_att' %}
             </form>
 
             <div class="mt-2">

@@ -32,39 +32,39 @@
         {% csrf_token %}
         <div class="row g-3 mb-3">
             <div class="col">
-                {% include 'django_glue/form/field/char_field.html' with glue_model_field='notification.title' %}
+                {% include 'django_spire/form/field/char_field.html' with glue_model_field='notification.title' %}
             </div>
             <div class="col">
-                {% include 'django_glue/form/field/select_field.html' with glue_model_field='notification.type' %}
+                {% include 'django_spire/form/field/select_field.html' with glue_model_field='notification.type' %}
             </div>
             <div class="col">
-                {% include 'django_glue/form/field/select_field.html' with glue_model_field='notification.status' %}
+                {% include 'django_spire/form/field/select_field.html' with glue_model_field='notification.status' %}
             </div>
             <div class="col">
-                {% include 'django_glue/form/field/select_field.html' with glue_model_field='notification.priority' %}
+                {% include 'django_spire/form/field/select_field.html' with glue_model_field='notification.priority' %}
             </div>
         </div>
         <div class="row g-3 mb-3">
             <div class="col-6">
-                {% include 'django_glue/form/field/char_field.html' with glue_model_field='notification.body' %}
+                {% include 'django_spire/form/field/char_field.html' with glue_model_field='notification.body' %}
             </div>
             <div class="col-6">
-                {% include 'django_glue/form/field/char_field.html' with glue_model_field='notification.url' %}
+                {% include 'django_spire/form/field/char_field.html' with glue_model_field='notification.url' %}
             </div>
         </div>
 
         <div x-show="notification.type === 'email'" x-cloak x-transition class="row g-3 mb-3">
             <div class="col-12">
-                {% include 'django_glue/form/field/char_field.html' with glue_field='email' %}
+                {% include 'django_spire/form/field/char_field.html' with glue_field='email' %}
             </div>
         </div>
 
         <div x-show="notification.type === 'sms'" x-cloak x-transition class="row g-3 mb-3">
             <div class="col-6">
-                {% include 'django_glue/form/field/telephone_field.html' with glue_field='phone_number' %}
+                {% include 'django_spire/form/field/telephone_field.html' with glue_field='phone_number' %}
             </div>
             <div class="col-6">
-                {% include 'django_glue/form/field/telephone_field.html' with glue_field='media_url' %}
+                {% include 'django_spire/form/field/telephone_field.html' with glue_field='media_url' %}
             </div>
         </div>
 

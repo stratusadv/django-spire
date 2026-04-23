@@ -130,7 +130,7 @@ Searching can be included with filtering, see [More Complex Example](#more-compl
     >
         Include block tags {% %} excluded due to mkdocs attempting to render file.
         <div class="col-12">
-            include 'django_glue/form/field/number_field.html' with glue_field='age'
+            include 'django_spire/form/field/number_field.html' with glue_field='age'
         </div>
     </div>
 {% endblock %}
@@ -162,7 +162,7 @@ Searching can be included with filtering, see [More Complex Example](#more-compl
     >
         Include block tags {% %} excluded due to mkdocs attempting to render file.
         <div class="col-12">
-            include 'django_glue/form/field/char_field.html' with glue_field='search_value'
+            include 'django_spire/form/field/char_field.html' with glue_field='search_value'
         </div>
     </div>
 {% endblock %}
@@ -286,16 +286,16 @@ class PersonQuerySet(FilterQuerySet, SearchQuerySet):
     >
         Include block tags {% %} excluded due to mkdocs attempting to render file.
         <div class="col-12">
-            include 'django_glue/form/field/char_field.html' with glue_field='search_value'
+            include 'django_spire/form/field/char_field.html' with glue_field='search_value'
         </div>
         <div class="col-12">
-            include 'django_glue/form/field/number_field.html' with glue_field='age'
+            include 'django_spire/form/field/number_field.html' with glue_field='age'
         </div>
         <div class="col-12">
-            include 'django_glue/form/field/multi_select_field.html' with glue_field='hair_colour_choices'
+            include 'django_spire/form/field/multi_select_field.html' with glue_field='hair_colour_choices'
         </div>
         <div class="col-12">
-            include 'django_glue/form/field/select_field.html' with glue_field='is_active'
+            include 'django_spire/form/field/select_field.html' with glue_field='is_active'
         </div>
     </div>
 {% endblock %}

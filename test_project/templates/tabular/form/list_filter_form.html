@@ -36,13 +36,13 @@
         }"
     >
         <div class="col-3">
-            {% include 'django_glue/form/field/char_field.html' with glue_field='search_field' %}
+            {% include 'django_spire/form/field/char_field.html' with glue_field='search_field' %}
         </div>
         <div class="col-3">
-            {% include 'django_glue/form/field/select_field.html' with glue_model_field='task.status' %}
+            {% include 'django_spire/form/field/select_field.html' with glue_model_field='task.status' %}
         </div>
         <div class="col-3">
-            {% include 'django_glue/form/field/multi_select_field.html' with glue_field='users' %}
+            {% include 'django_spire/form/field/multi_select_field.html' with glue_field='users' %}
         </div>
     </div>
 {% endblock %}

@@ -58,13 +58,13 @@ form.html
 
     <div class="row g-3 mb-3">
         <div class="col-md-4">
-            {% include 'django_glue/form/field/char_field.html' with glue_model_field='friend.first_name' %}
+            {% include 'django_spire/form/field/char_field.html' with glue_model_field='friend.first_name' %}
         </div>
         <div class="col-md-4">
-            {% include 'django_glue/form/field/char_field.html' with glue_model_field='friend.middle_name' %}
+            {% include 'django_spire/form/field/char_field.html' with glue_model_field='friend.middle_name' %}
         </div>
         <div class="col-md-4">
-            {% include 'django_glue/form/field/char_field.html' with glue_model_field='friend.last_name' %}
+            {% include 'django_spire/form/field/char_field.html' with glue_model_field='friend.last_name' %}
         </div>
     </div>
 
@@ -72,10 +72,10 @@ form.html
 
     <div class="row g-3 mb-3">
         <div class="col-md-6">
-            {% include 'django_glue/form/field/date_field.html' with glue_model_field='friend.birth_date' %}
+            {% include 'django_spire/form/field/date_field.html' with glue_model_field='friend.birth_date' %}
         </div>
         <div class="col-md-6">
-            {% include 'django_glue/form/field/char_field.html' with glue_model_field='friend.favorite_colour' %}
+            {% include 'django_spire/form/field/char_field.html' with glue_model_field='friend.favorite_colour' %}
         </div>
     </div>
 
@@ -83,16 +83,16 @@ form.html
 
     <div class="row g-3 mb-3">
         <div class="col-md-6">
-            {% include 'django_glue/form/field/select_field.html' with glue_model_field='friend.love_language' %}
+            {% include 'django_spire/form/field/select_field.html' with glue_model_field='friend.love_language' %}
         </div>
         <div class="col-md-6">
-            {% include 'django_glue/form/field/select_field.html' with glue_model_field='friend.relationship_values' %}
+            {% include 'django_spire/form/field/select_field.html' with glue_model_field='friend.relationship_values' %}
         </div>
     </div>
 
     <div class="row g-3 mb-3">
         <div class="col-12">
-            {% include 'django_glue/form/field/text_field.html' with glue_model_field='friend.favorite_memories' %}
+            {% include 'django_spire/form/field/text_field.html' with glue_model_field='friend.favorite_memories' %}
         </div>
     </div>
 

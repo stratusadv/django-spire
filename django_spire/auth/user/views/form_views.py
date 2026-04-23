@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import json
 
-import django_glue as dg
+import django_glue_old as dg
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from django_glue.utils import serialize_to_json
+from django_glue_old.utils import serialize_to_json
 
 from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.permissions.decorators import permission_required

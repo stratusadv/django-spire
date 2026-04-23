@@ -12,7 +12,7 @@ from django_spire.contrib.generic_views import modal_views, portal_views
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 
-import django_glue as dg
+import django_glue_old as dg
 
 from test_project.apps.queryset_filtering import forms, models
 

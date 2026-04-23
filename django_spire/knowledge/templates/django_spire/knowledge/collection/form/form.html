@@ -24,22 +24,22 @@
     {% csrf_token %}
 
     <div class="col-12">
-        {% include 'django_glue/form/field/char_field.html' with glue_model_field='collection.name' %}
+        {% include 'django_spire/form/field/char_field.html' with glue_model_field='collection.name' %}
     </div>
 
     <div class="col-12 mt-2">
-        {% include 'django_glue/form/field/char_field.html' with glue_model_field='collection.description' %}
+        {% include 'django_spire/form/field/char_field.html' with glue_model_field='collection.description' %}
     </div>
 
     {% if AuthController.knowledge.can_change_collection_groups %}
         <div class="col-12 col-lg mt-2">
-            {% include 'django_glue/form/field/multi_select_field.html' with glue_field='groups' %}
+            {% include 'django_spire/form/field/multi_select_field.html' with glue_field='groups' %}
         </div>
     {% endif %}
 
     {% if request.GET.top_level != 'True' %}
         <div class="col-12 col-lg mt-2">
-            {% include 'django_glue/form/field/search_and_select_field.html' with glue_model_field='collection.parent' %}
+            {% include 'django_spire/form/field/search_and_select_field.html' with glue_model_field='collection.parent' %}
         </div>
     {% endif %}
 

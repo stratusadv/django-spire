@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.db.models.functions import Concat
+
+from django.db.models import F, Value
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django_glue import Glue
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.generic_views import portal_views
@@ -44,13 +48,27 @@ def ticket_detail_view(request: WSGIRequest, pk: int):
 
 @AppAuthController('help_desk').permission_required('can_view')
 def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
-    tickets = HelpDeskTicket.objects.order_by('-created_datetime').active()
+    Glue.queryset(
+        request=request,
+        target=(
+            HelpDeskTicket.objects
+            .annotate(
+                created_by_name=Concat(
+                    'created_by__first_name',
+                    Value(' '),
+                    'created_by__last_name',
+                )
+            )
+            .select_related('created_by')
+            .order_by('-created_datetime')
+            .active()
+        ),
+        unique_name='tickets',
+        access=Glue.Access.DELETE,
+    )
 
     return portal_views.list_view(
         request=request,
-        context_data={
-            'tickets': tickets
-        },
         model=HelpDeskTicket,
         template='django_spire/help_desk/page/ticket_list_page.html'
     )

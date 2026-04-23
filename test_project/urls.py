@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-
+from django_glue import django_glue_urls
 
 app_name = 'example'
 
@@ -28,9 +28,9 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('django_glue/', include('django_glue.urls', namespace='django_glue')),
+    path('django_glue_old/', include('django_glue_old.urls', namespace='django_glue_old')),
     path('django_spire/', include('django_spire.urls', namespace='django_spire')),
-]
+] + django_glue_urls()
 
 urlpatterns += [
     path('admin/', admin.site.urls),

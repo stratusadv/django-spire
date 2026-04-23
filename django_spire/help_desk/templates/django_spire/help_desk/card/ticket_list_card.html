@@ -16,9 +16,14 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% for ticket in tickets %}
-        {% include 'django_spire/help_desk/item/ticket_item.html' %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
+    <div x-data="{
+        ticketQuerySet: Glue.tickets
+    }">
+        <template x-for="ticket in ticketQuerySet.all()">
+            {% include 'django_spire/help_desk/item/ticket_item.html' %}
+        </template>
+        <div x-show="await ticketQuerySet.all().length == 0">
+            {% include 'django_spire/item/no_data_item.html' %}
+        </div>
+    </div>
 {% endblock %}

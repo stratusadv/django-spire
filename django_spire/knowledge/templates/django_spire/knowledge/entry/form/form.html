@@ -11,7 +11,7 @@
 >
     {% csrf_token %}
     <div class="col-12">
-        {% include 'django_glue/form/field/char_field.html' with glue_model_field='entry.name' %}
+        {% include 'django_spire/form/field/char_field.html' with glue_model_field='entry.name' %}
     </div>
     <div class="col-12 mt-2">
         {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
