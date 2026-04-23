@@ -1,9 +1,27 @@
 # Changelog
 
-## v0.30.6
+## v0.31.3
 
 ### Features
 - Added the `django_spire/contrib/rest module`, which contains a django queryset-like pattern for connecting to external, rest-based data sources.
+
+## v0.31.2
+
+### Changes
+- Fixed navigation link not working in mobile
+- Improved PWA install documentation.
+- Improved PWA iOS install model UI.
+
+## v0.31.1
+
+### Changes
+- Improve validation
+- Added predefined extensions
+
+## v0.31.0
+
+### Breaking
+- Updated the file module, interfaces and files
 
 ## v0.30.5
 

@@ -15,13 +15,7 @@
             const SPINNER_DELAY = 1000;
             const url = `{{ link_url }}`;
 
-            let current_active = this.$el.closest('.bg-app-side-navigation').querySelector('a.active');
-
-            if (current_active) {
-                current_active.classList.remove('active');
-            }
-
-            this.$el.classList.add('active');
+            this.$dispatch('nav-redirect', { path: url });
 
             let spinnerTimer = setTimeout(() => {
                 toggleLoadingSpinner();
@@ -38,6 +32,7 @@
                 });
         }
     }"
+    @nav-redirect.window="current_path = $event.detail.path"
     :class="{
         'active': is_active(),
         'justify-content-center px-0 gap-0': collapsed,

@@ -5,18 +5,32 @@ import json
 from typing import TYPE_CHECKING
 
 from django import forms
+from django.core.files.uploadedfile import UploadedFile
 
 from django_spire.file import widgets
+from django_spire.file.exceptions import FileValidationError
 from django_spire.file.queryset import FileQuerySet
+from django_spire.file.validators import FileValidator
 
 if TYPE_CHECKING:
+    from django.core.files.uploadedfile import InMemoryUploadedFile
+
     from django_spire.file.models import File
 
 
 class MultipleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        *args,
+        related_field: str = '',
+        validator: FileValidator | None = None,
+        **kwargs
+    ) -> None:
+        self.related_field = related_field
+        self.validator = validator or FileValidator()
         super().__init__(*args, **kwargs)
-        self.widget = widgets.MultipleWidget()
+
+        self.widget = widgets.MultipleFileWidget()
 
     def prepare_value(self, value: list[File] | None) -> str:
         if value is not None:
@@ -24,13 +38,31 @@ class MultipleFileField(forms.FileField):
 
         return json.dumps([])
 
-    def clean(self, data, initial=None) -> dict:
+    def clean(
+        self,
+        data: list[dict] | list[InMemoryUploadedFile],
+        _initial: list[dict] | None = None,
+    ) -> list[dict] | list[InMemoryUploadedFile]:
+        if not data and self.required:
+            raise forms.ValidationError(self.error_messages['required'])
+
+        if data:
+            for file in data:
+                if isinstance(file, UploadedFile):
+                    try:
+                        self.validator.validate(file)
+                    except FileValidationError as exception:
+                        raise forms.ValidationError(str(exception)) from exception
+
         return data
 
 
 class SingleFileField(forms.FileField):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, related_field: str = '', validator: FileValidator | None = None, **kwargs) -> None:
+        self.related_field = related_field
+        self.validator = validator or FileValidator()
         super().__init__(*args, **kwargs)
+
         self.widget = widgets.SingleFileWidget()
 
     def prepare_value(self, value: File | FileQuerySet | None) -> str:
@@ -42,5 +74,19 @@ class SingleFileField(forms.FileField):
 
         return json.dumps(None)
 
-    def clean(self, data, initial=None) -> dict:
+    def clean(
+        self,
+        data: dict | InMemoryUploadedFile | None,
+        _initial: dict | None = None,
+    ) -> dict | InMemoryUploadedFile | None:
+        if data is None and self.required:
+            raise forms.ValidationError(self.error_messages['required'])
+
+        if data is not None and isinstance(data, UploadedFile):
+            try:
+                self.validator.validate(data)
+            except FileValidationError as exception:
+                message = str(exception)
+                raise forms.ValidationError(message) from exception
+
         return data

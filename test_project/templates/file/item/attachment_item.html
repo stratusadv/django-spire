@@ -1,0 +1,48 @@
+<div
+    class="border rounded-3 overflow-hidden h-100"
+    x-data="{
+        async delete_file() {
+            let form_data = new FormData();
+            form_data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            let response = await fetch('{% url 'file:json:delete_attachment' pk=file_example.pk file_pk=file.pk %}', {
+                method: 'POST',
+                body: form_data,
+            });
+
+            let data = await response.json();
+
+            if (data.type === 'success') {
+                location.reload();
+            }
+        }
+    }"
+>
+    {% if file.type == 'jpg' or file.type == 'jpeg' or file.type == 'png' or file.type == 'gif' or file.type == 'webp' %}
+        <img
+            src="{{ file.file.url }}"
+            alt="{{ file.name }}"
+            class="w-100"
+            style="height: 160px; object-fit: cover;"
+            loading="lazy"
+            decoding="async"
+        >
+    {% else %}
+        <div class="d-flex align-items-center justify-content-center w-100 bg-opacity-10 bg-secondary" style="height: 160px;">
+            <i class="bi bi-file-earmark-text fs-1 text-muted"></i>
+        </div>
+    {% endif %}
+    <div class="p-2 d-flex align-items-center justify-content-between">
+        <div>
+            <div class="fw-bold text-truncate">{{ file.name }}</div>
+            <small class="text-muted">{{ file.type|upper }} - {{ file.formatted_size }}</small>
+        </div>
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-danger ms-2"
+            @click="delete_file()"
+        >
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</div>

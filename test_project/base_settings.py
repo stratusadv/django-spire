@@ -20,10 +20,7 @@ ADMINS = [
     ('Stratus', 'stratus@stratusadv.com')
 ]
 
-if os.getenv('DJANGO_DEBUG', 'False') == 'True':
-    DEBUG = True
-else:
-    DEBUG = False
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0,127.0.0.1,localhost').split(',')
 
@@ -32,6 +29,8 @@ WSGI_APPLICATION = 'test_project.wsgi.application'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
+
+BASE_FOLDER_NAME = 'test-project'
 
 # Notification Settings
 NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
@@ -229,14 +228,28 @@ BASE_FOLDER_NAME = 'django-spire'
 # 25MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024
 
+# # AWS
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+# }
+
+# Local
 STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
     },
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
