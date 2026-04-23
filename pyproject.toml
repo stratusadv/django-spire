@@ -195,8 +195,3 @@ markers = [
 norecursedirs = ["atlassian", "test_playwright"]
 addopts = "-m 'not ai'"
 
-[tool.ruff]
-extend = "ruff.toml"
-
-[tool.ty]
-extend = "ty.toml"
