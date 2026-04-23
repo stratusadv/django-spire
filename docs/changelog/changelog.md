@@ -1,13 +1,9 @@
 # Changelog
 
-## v0.31.3
-
-### Changes
-- Fixed navigation link not working in mobile
-
 ## v0.31.2
 
 ### Changes
+- Fixed navigation link not working in mobile
 - Improved PWA install documentation.
 - Improved PWA iOS install model UI.
 
