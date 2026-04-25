@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.4
+
+### Changes
+- Added `slide_button.html` to templates
+
 ## v0.31.3
 
 ### Changes
