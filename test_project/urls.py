@@ -19,6 +19,7 @@ urlpatterns = [
     path('lazy_tabs/', include('test_project.apps.lazy_tabs.urls', namespace='lazy_tabs')),
     path('notification/', include('test_project.apps.notification.urls', namespace='notification')),
     path('order/', include('test_project.apps.ordering.urls', namespace='order')),
+    path('sync/', include('test_project.apps.sync.urls', namespace='sync')),
     path('tabular/', include('test_project.apps.tabular.urls', namespace='tabular')),
     path('test_model/', include('test_project.apps.model_and_service.urls', namespace='test_model')),
     path('theme/', include('django_spire.theme.urls', namespace='theme')),
@@ -47,4 +48,3 @@ if settings.DEBUG:
         urlpatterns += [
             path('__reload__/', include('django_browser_reload.urls')),
         ]
-

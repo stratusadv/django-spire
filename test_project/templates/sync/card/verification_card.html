@@ -1,0 +1,279 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Sync Verification
+{% endblock %}
+
+{% block card_title_content %}
+<style>
+    .sv-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    .sv-banner {
+        border-radius: 6px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+    }
+    .sv-banner-pass {
+        background: rgba(52, 211, 153, 0.08);
+        border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .sv-banner-fail {
+        background: rgba(248, 113, 113, 0.08);
+        border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+    .sv-banner-empty {
+        background: rgba(148, 163, 184, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .sv-status {
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+    .sv-status-pass { color: #34d399; }
+    .sv-status-fail { color: #f87171; }
+
+    .sv-chip {
+        display: inline-flex; align-items: center;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.55rem; font-weight: 700; letter-spacing: 0.04em;
+        padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+        line-height: 1.4; white-space: nowrap;
+    }
+    .sv-chip-match { background: rgba(52, 211, 153, 0.12); color: #34d399; }
+    .sv-chip-mismatch { background: rgba(248, 113, 113, 0.12); color: #f87171; }
+    .sv-chip-missing { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+    .sv-chip-model {
+        background: rgba(148, 163, 184, 0.1);
+        color: var(--bs-body-color, #adb5bd);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .sv-section { margin-bottom: 24px; }
+
+    .sv-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    }
+
+    .sv-record {
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 5px;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+    .sv-record-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    }
+
+    .sv-field-grid {
+        display: grid;
+        grid-template-columns: 160px 1fr 1fr;
+        font-size: 0.72rem;
+    }
+    .sv-field-grid-header {
+        font-weight: 700;
+        opacity: 0.4;
+        text-transform: uppercase;
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        padding: 6px 12px;
+        border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    }
+    .sv-field-row {
+        display: contents;
+    }
+    .sv-field-row > span {
+        padding: 4px 12px;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.06);
+        overflow-wrap: anywhere;
+    }
+    .sv-field-name {
+        font-weight: 600;
+        opacity: 0.5;
+    }
+    .sv-field-match > span { }
+    .sv-field-diff > span {
+        background: rgba(248, 113, 113, 0.06);
+    }
+    .sv-field-diff .sv-field-name {
+        color: #f87171;
+        opacity: 1;
+    }
+
+    .sv-indicator {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        font-size: 0.6rem;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+    .sv-indicator-pass {
+        background: rgba(52, 211, 153, 0.15);
+        color: #34d399;
+    }
+    .sv-indicator-fail {
+        background: rgba(248, 113, 113, 0.15);
+        color: #f87171;
+    }
+
+    .sv-summary-num {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .sv-back-link {
+        font-size: 0.75rem;
+        opacity: 0.5;
+    }
+    .sv-back-link:hover {
+        opacity: 1;
+    }
+
+    .sv-tablet-group {
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 6px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+    .sv-tablet-label {
+        font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em;
+        text-transform: uppercase; color: #93c5fd;
+    }
+</style>
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <span class="sv-mono" style="font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.35;">
+        django-spire &middot; sync &middot; verification
+    </span>
+    <a href="{% url 'sync:page:dashboard' %}" class="sv-back-link sv-mono">&larr; Back to dashboard</a>
+</div>
+
+{% if verification.total_records == 0 %}
+    <div class="sv-banner sv-banner-empty">
+        <span class="sv-status" style="color: #94a3b8;">No Records</span>
+        <p class="mb-0 mt-1 sv-mono" style="font-size: 0.72rem; opacity: 0.5;">
+            All databases are empty. Seed data and sync first.
+        </p>
+    </div>
+{% elif verification.verified %}
+    <div class="sv-banner sv-banner-pass">
+        <span class="sv-status sv-status-pass">Verified</span>
+        <p class="mb-0 mt-1 sv-mono" style="font-size: 0.72rem; opacity: 0.6;">
+            All {{ verification.total_records }} record{{ verification.total_records|pluralize }} are identical across all tablets and cloud.
+        </p>
+    </div>
+{% else %}
+    <div class="sv-banner sv-banner-fail">
+        <span class="sv-status sv-status-fail">Verification Failed</span>
+        <p class="mb-0 mt-1 sv-mono" style="font-size: 0.72rem; opacity: 0.6;">
+            {{ verification.total_mismatched }} of {{ verification.total_records }} record{{ verification.total_records|pluralize }} differ between tablets and cloud.
+        </p>
+    </div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-4">
+        <div class="border rounded p-3 text-center">
+            <div class="sv-mono" style="font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.35;">Total</div>
+            <div class="sv-mono sv-summary-num mt-1">{{ verification.total_records }}</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="border rounded p-3 text-center">
+            <div class="sv-mono" style="font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #34d399; opacity: 0.7;">Matched</div>
+            <div class="sv-mono sv-summary-num mt-1" style="color: #34d399;">{{ verification.total_matched }}</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="border rounded p-3 text-center">
+            <div class="sv-mono" style="font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #f87171; opacity: 0.7;">Mismatched</div>
+            <div class="sv-mono sv-summary-num mt-1" style="color: #f87171;">{{ verification.total_mismatched }}</div>
+        </div>
+    </div>
+</div>
+
+{% for tablet_db, sections in verification.tablet_sections.items %}
+<div class="sv-tablet-group">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="sv-tablet-label sv-mono">{{ tablet_db }}</span>
+        <span class="sv-mono" style="font-size: 0.55rem; opacity: 0.3;">vs cloud</span>
+    </div>
+
+    {% for section in sections %}
+        <div class="sv-section">
+            <div class="sv-section-header">
+                <span class="sv-chip sv-chip-model">{{ section.model_name }}</span>
+                <span class="sv-mono" style="font-size: 0.65rem; opacity: 0.4;">
+                    {{ section.record_count }} record{{ section.record_count|pluralize }}
+                </span>
+                {% if section.mismatched > 0 %}
+                    <span class="sv-chip sv-chip-mismatch">{{ section.mismatched }} mismatched</span>
+                {% else %}
+                    <span class="sv-chip sv-chip-match">all matched</span>
+                {% endif %}
+            </div>
+
+            {% for record in section.records %}
+                <div class="sv-record">
+                    <div class="sv-record-header">
+                        {% if record.status == 'match' %}
+                            <span class="sv-indicator sv-indicator-pass">&#10003;</span>
+                        {% elif record.status == 'tablet_only' %}
+                            <span class="sv-indicator sv-indicator-fail">T</span>
+                        {% elif record.status == 'cloud_only' %}
+                            <span class="sv-indicator sv-indicator-fail">C</span>
+                        {% else %}
+                            <span class="sv-indicator sv-indicator-fail">&#10005;</span>
+                        {% endif %}
+                        <strong class="sv-mono" style="font-size: 0.75rem;">{{ record.title }}</strong>
+
+                        {% if record.status == 'tablet_only' %}
+                            <span class="sv-chip sv-chip-missing">Tablet Only</span>
+                        {% elif record.status == 'cloud_only' %}
+                            <span class="sv-chip sv-chip-missing">Cloud Only</span>
+                        {% elif record.status == 'mismatch' %}
+                            <span class="sv-chip sv-chip-mismatch">Mismatch</span>
+                        {% endif %}
+
+                        <span class="sv-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ record.id|truncatechars:12 }}</span>
+                    </div>
+
+                    {% if record.fields %}
+                        <div class="sv-field-grid sv-mono">
+                            <span class="sv-field-grid-header">Field</span>
+                            <span class="sv-field-grid-header">{{ tablet_db }}</span>
+                            <span class="sv-field-grid-header">Cloud</span>
+
+                            {% for field in record.fields %}
+                                <div class="sv-field-row {% if field.matched %}sv-field-match{% else %}sv-field-diff{% endif %}">
+                                    <span class="sv-field-name">{{ field.name }}</span>
+                                    <span>{{ field.tablet_value }}</span>
+                                    <span>{{ field.cloud_value }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endfor %}
+
+{% endblock %}

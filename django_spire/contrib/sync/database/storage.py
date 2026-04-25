@@ -1,0 +1,38 @@
+from __future__ import annotations
+
+from typing import Protocol, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django_spire.contrib.sync.database.record import SyncRecord
+
+
+class DatabaseSyncStorage(Protocol):
+    def delete_many(
+        self,
+        model_label: str,
+        deletes: dict[str, int],
+    ) -> None: ...
+
+    def get_changed_since(
+        self,
+        model_label: str,
+        timestamp: int,
+    ) -> dict[str, SyncRecord]: ...
+
+    def get_checkpoint(self, node_id: str) -> int: ...
+
+    def get_records(
+        self,
+        model_label: str,
+        keys: set[str],
+    ) -> dict[str, SyncRecord]: ...
+
+    def get_syncable_models(self) -> list[str]: ...
+
+    def save_checkpoint(self, node_id: str, timestamp: int) -> None: ...
+
+    def upsert_many(
+        self,
+        model_label: str,
+        records: dict[str, SyncRecord],
+    ) -> set[str]: ...

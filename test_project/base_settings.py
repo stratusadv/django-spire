@@ -20,11 +20,7 @@ ADMINS = [
     ('Stratus', 'stratus@stratusadv.com')
 ]
 
-if os.getenv('DJANGO_DEBUG', 'False') == 'True':
-    DEBUG = True
-else:
-    DEBUG = False
-
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0,127.0.0.1,localhost').split(',')
 
 ASGI_APPLICATION = 'test_project.asgi.application'
@@ -98,6 +94,7 @@ INSTALLED_APPS += [
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
     'django_spire.contrib.help',
+    'django_spire.contrib.sync',
     'django_spire.help_desk',
     'django_spire.history',
     'django_spire.history.activity',
@@ -139,7 +136,10 @@ INSTALLED_APPS += [
     'test_project.apps.notification',
     'test_project.apps.model_and_service',
     'test_project.apps.queryset_filtering',
+    'test_project.apps.sync',
 ]
+
+INSTALLED_APPS += ['django_spire.contrib.sync.tests.apps.SyncTestsConfig']
 
 INSTALLED_APPS += [
     'django_glue',

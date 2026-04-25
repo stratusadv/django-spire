@@ -1,0 +1,730 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Sync Dashboard
+{% endblock %}
+
+{% block card_title_content %}
+<style>
+    .sd-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+    .sd-chip {
+        display: inline-flex; align-items: center;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.58rem; font-weight: 700; letter-spacing: 0.04em;
+        padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+        line-height: 1.4; white-space: nowrap;
+    }
+    .sd-chip-match    { background: rgba(52, 211, 153, 0.12); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.2); }
+    .sd-chip-conflict { background: rgba(251, 191, 36, 0.12); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+    .sd-chip-local    { background: rgba(147, 197, 253, 0.12); color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.2); }
+    .sd-chip-cloud    { background: rgba(253, 186, 116, 0.12); color: #fdba74; border: 1px solid rgba(253, 186, 116, 0.2); }
+    .sd-chip-resolved { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+    .sd-chip-pushed   { background: rgba(147, 197, 253, 0.15); color: #93c5fd; }
+    .sd-chip-pulled   { background: rgba(253, 186, 116, 0.15); color: #fdba74; }
+    .sd-chip-strategy { background: rgba(167, 139, 250, 0.12); color: #a78bfa; border: 1px solid rgba(167, 139, 250, 0.2); }
+
+    .sd-badge-local {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 0.52rem; font-weight: 800; letter-spacing: 0.1em;
+        text-transform: uppercase; color: #1e293b;
+        background: #93c5fd; padding: 2px 6px; border-radius: 3px;
+    }
+    .sd-badge-cloud {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 0.52rem; font-weight: 800; letter-spacing: 0.1em;
+        text-transform: uppercase; color: #1e293b;
+        background: #fdba74; padding: 2px 6px; border-radius: 3px;
+    }
+    .sd-badge-merged {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 0.52rem; font-weight: 800; letter-spacing: 0.1em;
+        text-transform: uppercase; color: #1e293b;
+        background: #34d399; padding: 2px 6px; border-radius: 3px;
+    }
+
+    .sd-cell {
+        border: 1px solid var(--bs-border-color, #dee2e6);
+        border-radius: 5px; padding: 10px 12px;
+    }
+    .sd-cell-local  { border-left: 3px solid #93c5fd; }
+    .sd-cell-cloud  { border-left: 3px solid #fdba74; }
+    .sd-cell-merged { border-left: 3px solid #34d399; }
+
+    .sd-cell-empty {
+        border: 1px dashed var(--bs-border-color, #555);
+        border-radius: 5px;
+        display: flex; align-items: center; justify-content: center;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.6rem; letter-spacing: 0.08em; opacity: 0.25;
+    }
+
+    .sd-diff-local { background: rgba(147, 197, 253, 0.1); color: #93c5fd; padding: 1px 5px; border-radius: 3px; }
+    .sd-diff-cloud { background: rgba(253, 186, 116, 0.1); color: #fdba74; padding: 1px 5px; border-radius: 3px; }
+
+    .sd-won  { background: rgba(52, 211, 153, 0.08); color: #6ee7b7; padding: 1px 5px; border-radius: 3px; }
+    .sd-won:empty::before  { content: '\00a0'; }
+    .sd-lost { background: rgba(248, 113, 113, 0.08); color: #f87171; padding: 1px 5px; border-radius: 3px; text-decoration: line-through; opacity: 0.6; }
+    .sd-lost:empty::before { content: '\00a0'; }
+
+    .sd-merged-from-local { background: rgba(147, 197, 253, 0.12); color: #93c5fd; padding: 1px 5px; border-radius: 3px; }
+    .sd-merged-from-cloud { background: rgba(253, 186, 116, 0.12); color: #fdba74; padding: 1px 5px; border-radius: 3px; }
+
+    .sd-kv-grid {
+        display: grid; grid-template-columns: auto 1fr;
+        column-gap: 10px; row-gap: 3px; align-items: baseline;
+    }
+    .sd-kv-key { font-size: 0.62rem; opacity: 0.3; }
+    .sd-kv-val { font-size: 0.68rem; overflow-wrap: anywhere; cursor: default; }
+
+    .sd-section-label {
+        font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em;
+        text-transform: uppercase; opacity: 0.35;
+    }
+    .sd-summary-num { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+
+    .sd-row { border-top: 1px solid var(--bs-border-color, #dee2e6); }
+    .sd-col-stretch { display: flex; flex-direction: column; }
+    .sd-col-stretch > * { flex: 1; }
+
+    .sd-tab-bar { display: flex; align-items: center; gap: 4px; }
+    .sd-tab {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.62rem; font-weight: 600; letter-spacing: 0.04em;
+        padding: 3px 10px; border-radius: 4px;
+        text-decoration: none; color: inherit; opacity: 0.4;
+        border: 1px solid transparent;
+    }
+    .sd-tab:hover { opacity: 0.7; text-decoration: none; color: inherit; }
+    .sd-tab-active { opacity: 1; border-color: var(--bs-border-color, #dee2e6); background: rgba(128, 128, 128, 0.06); }
+    .sd-tab-tablet { color: #93c5fd; }
+    .sd-tab-cloud  { color: #fdba74; }
+
+    [x-cloak] { display: none !important; }
+
+    .sd-ts-val {
+        font-size: 0.56rem;
+        opacity: 0.25;
+        white-space: nowrap;
+        padding-left: 8px;
+    }
+</style>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <span class="sd-section-label sd-mono">django-spire &middot; sync</span>
+    <a href="{% url 'sync:page:verification' %}" class="btn btn-outline-success btn-sm">Verify Databases</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-7">
+        <div class="border rounded p-3">
+            <span class="sd-section-label sd-mono d-block mb-2">Seed</span>
+            <form method="POST" class="d-flex align-items-center gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="seed">
+                <select name="scenario" class="form-select form-select-sm sd-mono" style="width: auto; font-size: 0.72rem;">
+                    {% for value, label in scenario_choices %}
+                        <option value="{{ value }}" {% if value == selected_scenario %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="seed" value="{{ seed_value }}" placeholder="seed (optional)" class="form-control form-control-sm sd-mono" style="width: 120px; font-size: 0.72rem;">
+                <select name="tablet_count" class="form-select form-select-sm sd-mono" style="width: auto; font-size: 0.72rem;" title="Number of tablets">
+                    {% for _ in "12345" %}
+                        <option value="{{ forloop.counter }}" {% if forloop.counter == tablet_count %}selected{% endif %}>{{ forloop.counter }} tablet{{ forloop.counter|pluralize }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm ms-auto">Seed Data</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="border rounded p-3">
+            <span class="sd-section-label sd-mono d-block mb-2">Sync</span>
+            <form method="POST" class="d-flex align-items-center gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="tablet_count" value="{{ tablet_count }}">
+                <select name="strategy" class="form-select form-select-sm sd-mono" style="width: auto; font-size: 0.72rem;">
+                    {% for value, label in strategy_choices %}
+                        <option value="{{ value }}" {% if value == selected_strategy %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" name="action" value="sync_current" class="btn btn-outline-secondary btn-sm ms-auto">Sync Current</button>
+                <button type="submit" name="action" value="sync_all" class="btn btn-outline-secondary btn-sm">Sync All</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if seed_result %}
+    <div class="alert alert-info d-flex align-items-center py-2 small mb-3">
+        <span>
+            Scenario <strong>{{ seed_result.scenario }}</strong> seeded across {{ seed_result.tablet_count }} tablet{{ seed_result.tablet_count|pluralize }}
+            <span class="sd-mono" style="font-size: 0.68rem; opacity: 0.6;">(seed={{ seed_result.seed }})</span>.
+            Press <strong>Sync Current</strong> or <strong>Sync All</strong> to reconcile.
+        </span>
+        <button type="button" class="btn-close btn-close-sm ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endif %}
+
+{% if result and sync_mode == 'current' %}
+    <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+        <span class="sd-chip sd-chip-resolved" style="font-size: 0.55rem;">Sync Complete</span>
+        <span class="sd-chip sd-chip-strategy" style="font-size: 0.52rem;">{{ result.strategy }}</span>
+        {% for tdb, tdata in result.tablets.items %}
+            <span class="sd-mono" style="font-size: 0.65rem; opacity: 0.4;">
+                {{ tdata.tablet_result.created|length }} created &middot;
+                {{ tdata.tablet_result.applied|length }} updated &middot;
+                {{ tdata.tablet_result.conflicts|length }} conflicts &middot;
+                {{ tdata.tablet_result.deleted|length }} deleted
+            </span>
+        {% endfor %}
+        <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.2;">
+            {% for model in result.sync_order %}{% if not forloop.first %} &rarr; {% endif %}{{ model|cut:"sync." }}{% endfor %}
+        </span>
+    </div>
+{% endif %}
+
+{% if result and sync_mode == 'all' %}
+    <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+        <span class="sd-chip sd-chip-resolved" style="font-size: 0.55rem;">Sync All Complete</span>
+        <span class="sd-chip sd-chip-strategy" style="font-size: 0.52rem;">{{ result.strategy }}</span>
+        <span class="sd-mono" style="font-size: 0.65rem; opacity: 0.4;">
+            {{ result.tablet_count }} tablet{{ result.tablet_count|pluralize }} synced
+        </span>
+        <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.2;">
+            {% for model in result.sync_order %}{% if not forloop.first %} &rarr; {% endif %}{{ model|cut:"sync." }}{% endfor %}
+        </span>
+    </div>
+
+    <div class="border rounded overflow-hidden mb-4">
+        <div class="row g-0 px-3 py-2 border-bottom">
+            <div class="col-2">
+                <span class="sd-section-label sd-mono">Tablet</span>
+            </div>
+            <div class="col-5">
+                <span class="sd-section-label sd-mono" style="color: #93c5fd; opacity: 0.7;">Tablet Result</span>
+            </div>
+            <div class="col-5">
+                <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">Cloud Result</span>
+            </div>
+        </div>
+
+        {% for tdb, tdata in result.tablets.items %}
+        <div class="sd-row">
+            <div class="row g-0 px-3 py-2 align-items-stretch">
+                <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                    <span class="sd-badge-local">{{ tdb }}</span>
+                    {% if tdata.tablet_result.conflict_log %}
+                        <span class="sd-chip sd-chip-conflict" style="font-size: 0.48rem;">{{ tdata.tablet_result.conflict_log|length }} conflict{{ tdata.tablet_result.conflict_log|length|pluralize }}</span>
+                    {% else %}
+                        <span class="sd-chip sd-chip-match" style="font-size: 0.48rem;">Clean</span>
+                    {% endif %}
+                </div>
+
+                <div class="col-5 pe-2 sd-col-stretch">
+                    <div class="sd-cell sd-cell-local">
+                        <div class="sd-kv-grid sd-mono">
+                            <span class="sd-kv-key" style="color: #34d399; opacity: 1;">created</span>
+                            <span class="sd-kv-val" style="color: #34d399;">{{ tdata.tablet_result.created|length }}</span>
+                            <span class="sd-kv-key" style="color: #93c5fd; opacity: 1;">updated</span>
+                            <span class="sd-kv-val" style="color: #93c5fd;">{{ tdata.tablet_result.applied|length }}</span>
+                            <span class="sd-kv-key" style="color: #fbbf24; opacity: 1;">conflicts</span>
+                            <span class="sd-kv-val" style="color: #fbbf24;">{{ tdata.tablet_result.conflicts|length }}</span>
+                            <span class="sd-kv-key" style="color: #f87171; opacity: 1;">deleted</span>
+                            <span class="sd-kv-val" style="color: #f87171;">{{ tdata.tablet_result.deleted|length }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-5 ps-2 sd-col-stretch">
+                    <div class="sd-cell sd-cell-cloud">
+                        <div class="sd-kv-grid sd-mono">
+                            <span class="sd-kv-key" style="color: #34d399; opacity: 1;">created</span>
+                            <span class="sd-kv-val" style="color: #34d399;">{{ tdata.cloud_result.created|length }}</span>
+                            <span class="sd-kv-key" style="color: #93c5fd; opacity: 1;">updated</span>
+                            <span class="sd-kv-val" style="color: #93c5fd;">{{ tdata.cloud_result.applied|length }}</span>
+                            <span class="sd-kv-key" style="color: #fbbf24; opacity: 1;">conflicts</span>
+                            <span class="sd-kv-val" style="color: #fbbf24;">{{ tdata.cloud_result.conflicts|length }}</span>
+                            <span class="sd-kv-key" style="color: #f87171; opacity: 1;">deleted</span>
+                            <span class="sd-kv-val" style="color: #f87171;">{{ tdata.cloud_result.deleted|length }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% for tdb, tdata in result.tablets.items %}
+        {% if tdata.tablet_result.conflict_log %}
+            {% for entry in tdata.tablet_result.conflict_log %}
+                <div class="sd-row">
+                    <div class="row g-0 px-3 py-2 align-items-stretch">
+                        <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                            <span class="sd-chip sd-chip-conflict" style="font-size: 0.48rem;">Conflict</span>
+                            <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ entry.model_label|cut:"sync."|upper }}</span>
+                        </div>
+
+                        <div class="col-5 pe-2 sd-col-stretch">
+                            <div class="sd-cell sd-cell-local">
+                                <div class="d-flex align-items-baseline gap-2 mb-2">
+                                    <span class="sd-badge-local">{{ tdb }}</span>
+                                    <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.3;">{{ entry.key|truncatechars:12 }}</span>
+                                </div>
+                                <div class="sd-kv-grid sd-mono">
+                                    {% for fc in entry.field_conflicts %}
+                                        <span class="sd-kv-key {% if fc.winner == 'remote' %}sd-won{% else %}sd-lost{% endif %}" style="font-weight: 700; opacity: 1;">{{ fc.field_name }}</span>
+                                        <span class="sd-kv-val {% if fc.winner == 'remote' %}sd-won{% else %}sd-lost{% endif %}">{{ fc.local_value|truncatewords:6 }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-5 ps-2 sd-col-stretch">
+                            <div class="sd-cell sd-cell-cloud">
+                                <div class="d-flex align-items-baseline gap-2 mb-2">
+                                    <span class="sd-badge-cloud">Cloud</span>
+                                    <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.3;">{{ entry.key|truncatechars:12 }}</span>
+                                </div>
+                                <div class="sd-kv-grid sd-mono">
+                                    {% for fc in entry.field_conflicts %}
+                                        <span class="sd-kv-key {% if fc.winner == 'local' %}sd-won{% else %}sd-lost{% endif %}" style="font-weight: 700; opacity: 1;">{{ fc.field_name }}</span>
+                                        <span class="sd-kv-val {% if fc.winner == 'local' %}sd-won{% else %}sd-lost{% endif %}">{{ fc.remote_value|truncatewords:6 }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+    {% if merged_cloud_view %}
+        <div class="border rounded overflow-hidden mb-4 mt-4">
+            <div class="row g-0 px-3 py-2 border-bottom">
+                <div class="col-2">
+                    <span class="sd-section-label sd-mono">Model</span>
+                </div>
+                <div class="col-10">
+                    <span class="sd-section-label sd-mono" style="color: #34d399; opacity: 0.7;">Merged Cloud State</span>
+                </div>
+            </div>
+
+            {% for record in merged_cloud_view %}
+            <div class="sd-row">
+                <div class="row g-0 px-3 py-2 align-items-stretch">
+                    <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                        <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ record.model|upper }}</span>
+                    </div>
+                    <div class="col-10 sd-col-stretch">
+                        <div class="sd-cell sd-cell-merged">
+                            <div class="d-flex align-items-baseline gap-2 mb-2">
+                                <span class="sd-badge-merged">Merged</span>
+                                <strong style="font-size: 0.78rem;">{{ record.title }}</strong>
+                            </div>
+                            <div class="sd-kv-grid sd-mono" style="grid-template-columns: auto 1fr auto;">
+                                {% for field in record.fields %}
+                                    <span class="sd-kv-key">{{ field.name }}</span>
+                                    <span class="sd-kv-val">{{ field.value }}</span>
+                                    {% if field.source == 'cloud' %}
+                                        <span class="sd-badge-cloud" style="font-size: 0.45rem; align-self: center;">cloud</span>
+                                    {% else %}
+                                        <span class="sd-badge-local" style="font-size: 0.45rem; align-self: center;">{{ field.source }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endif %}
+
+<div x-data="{ show_ts: false }">
+
+<div class="sd-tab-bar mb-3">
+    <span class="sd-section-label sd-mono" style="margin-right: 4px;">View:</span>
+    {% for tdb in tablet_databases %}
+        <a href="{% url 'sync:page:switch_db' db_name=tdb %}" class="sd-tab sd-tab-tablet {% if current_db == tdb %}sd-tab-active{% endif %}">{{ tdb }}</a>
+    {% endfor %}
+    <a href="{% url 'sync:page:switch_db' db_name='cloud' %}" class="sd-tab sd-tab-cloud {% if current_db == 'cloud' %}sd-tab-active{% endif %}">cloud</a>
+    <span @click="show_ts = !show_ts" class="sd-tab sd-mono" :class="{ 'sd-tab-active': show_ts }" style="margin-left: auto; cursor: pointer;">Timestamps</span>
+</div>
+
+{% if is_cloud_view %}
+
+    <div class="row g-2 mb-4">
+        <div class="col-4">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-cloud">Total Records</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ cloud_database_view.total_records }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-cloud">Models</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ cloud_database_view.sections|length }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-cloud">Database</span>
+                <div class="sd-mono sd-summary-num mt-2">cloud</div>
+            </div>
+        </div>
+    </div>
+
+    {% for section in cloud_database_view.sections %}
+        <div class="border rounded overflow-hidden mb-3">
+            <div class="d-flex align-items-center px-3 py-2 border-bottom">
+                <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">{{ section.model_name }}</span>
+                <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.3; margin-left: auto;">{{ section.record_count }} record{{ section.record_count|pluralize }}</span>
+            </div>
+
+            {% for record in section.records %}
+                <div class="sd-row">
+                    <div class="row g-0 px-3 py-2 align-items-stretch">
+                        <div class="col-12 sd-col-stretch">
+                            <div class="sd-cell sd-cell-cloud">
+                                <div class="d-flex align-items-baseline gap-2 mb-2">
+                                    <span class="sd-badge-cloud">Cloud</span>
+                                    <strong style="font-size: 0.78rem;">{{ record.title }}</strong>
+                                    <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2; margin-left: auto;">{{ record.id }}</span>
+                                </div>
+                                <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                                    {% for field in record.fields %}
+                                        <span class="sd-kv-key">{{ field.name }}</span>
+                                        <span class="sd-kv-val" title="{% if field.ts.raw %}{{ field.ts.human }} UTC&#10;HLC: {{ field.ts.raw }}{% endif %}{% if field.full_value %}{% if field.ts.raw %}&#10;&#10;{% endif %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                        <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-2 pt-2" style="border-top: 1px solid rgba(253, 186, 116, 0.1);">
+                                    <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">sync_field_last_modified</span>
+                                    <span class="sd-mono" style="font-size: 0.52rem; opacity: 0.35;">{{ record.sync_field_last_modified.human|default:"\u2014" }}</span>
+                                    <span class="sd-mono" style="font-size: 0.48rem; opacity: 0.15;" x-show="show_ts" x-cloak>HLC: {{ record.sync_field_last_modified.raw|default:"\u2014" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="px-3 py-3">
+                    <span class="sd-mono" style="font-size: 0.65rem; opacity: 0.3;">No records</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+{% else %}
+
+    <div class="row g-2 mb-4">
+        <div class="col-3">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-match">Match</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ counts.match }}</div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-conflict">Conflict</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ counts.conflict }}</div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-local">Tablet Only</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ counts.tablet_only }}</div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-cloud">Cloud Only</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ counts.cloud_only }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="border rounded overflow-hidden">
+        <div class="row g-0 px-3 py-2 border-bottom">
+            {% if has_sync %}
+                <div class="col-1">
+                    <span class="sd-section-label sd-mono">Model</span>
+                </div>
+                <div class="col-4">
+                    <span class="sd-section-label sd-mono" style="color: #93c5fd; opacity: 0.7;">{{ active_tablet_db }}</span>
+                </div>
+                <div class="col-4">
+                    <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">Cloud</span>
+                </div>
+                <div class="col-3">
+                    <span class="sd-section-label sd-mono" style="color: #34d399; opacity: 0.7;">Merged</span>
+                </div>
+            {% else %}
+                <div class="col-2">
+                    <span class="sd-section-label sd-mono">Verdict / Model</span>
+                </div>
+                <div class="col-5">
+                    <span class="sd-section-label sd-mono" style="color: #93c5fd; opacity: 0.7;">{{ active_tablet_db }}</span>
+                </div>
+                <div class="col-5">
+                    <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">Cloud state</span>
+                </div>
+            {% endif %}
+        </div>
+
+        {% for row in rows %}
+        <div class="sd-row">
+            <div class="row g-0 px-3 py-2 align-items-stretch">
+
+                {% if has_sync %}
+                    <div class="col-1 d-flex flex-column gap-1 pt-1 pe-3">
+                        {% if row.kind == 'conflict' %}
+                            <span class="sd-chip sd-chip-resolved">Resolved</span>
+                        {% elif row.kind == 'tablet_only' %}
+                            <span class="sd-chip sd-chip-pushed">Pushed</span>
+                        {% elif row.kind == 'cloud_only' %}
+                            <span class="sd-chip sd-chip-pulled">Pulled</span>
+                        {% else %}
+                            <span class="sd-chip sd-chip-match">Match</span>
+                        {% endif %}
+                        <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ row.model|upper }}</span>
+                    </div>
+                {% else %}
+                    <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                        {% if row.kind == 'match' %}
+                            <span class="sd-chip sd-chip-match">Match</span>
+                        {% elif row.kind == 'conflict' %}
+                            <span class="sd-chip sd-chip-conflict">Conflict &middot; {{ row.diff_count }}</span>
+                        {% elif row.kind == 'tablet_only' %}
+                            <span class="sd-chip sd-chip-local">Tablet Only</span>
+                        {% else %}
+                            <span class="sd-chip sd-chip-cloud">Cloud Only</span>
+                        {% endif %}
+                        <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ row.model|upper }}</span>
+                    </div>
+                {% endif %}
+
+                <div class="{% if has_sync %}col-4{% else %}col-5{% endif %} pe-2 sd-col-stretch">
+                    {% if row.tablet_cell %}
+                        <div class="sd-cell sd-cell-local">
+                            <div class="d-flex align-items-baseline gap-2 mb-2">
+                                <span class="sd-badge-local">{{ active_tablet_db }}</span>
+                                <strong style="font-size: 0.78rem;">{{ row.tablet_cell.title }}</strong>
+                            </div>
+                            <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                                {% for field in row.tablet_cell.fields %}
+                                    <span class="sd-kv-key {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-local{% endif %}" style="{% if field.is_diff or field.outcome %}font-weight: 700; opacity: 1;{% endif %}">{{ field.name }}</span>
+                                    <span class="sd-kv-val {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-local{% endif %}" title="{% if field.ts.raw %}{{ field.ts.human }} UTC&#10;HLC: {{ field.ts.raw }}{% endif %}{% if field.full_value %}{% if field.ts.raw %}&#10;&#10;{% endif %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                    <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="sd-cell-empty">NOT ON TABLET</div>
+                    {% endif %}
+                </div>
+
+                <div class="{% if has_sync %}col-4 pe-2{% else %}col-5 ps-2{% endif %} sd-col-stretch">
+                    {% if row.cloud_cell %}
+                        <div class="sd-cell sd-cell-cloud">
+                            <div class="d-flex align-items-baseline gap-2 mb-2">
+                                <span class="sd-badge-cloud">Cloud</span>
+                                <strong style="font-size: 0.78rem;">{{ row.cloud_cell.title }}</strong>
+                            </div>
+                            <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                                {% for field in row.cloud_cell.fields %}
+                                    <span class="sd-kv-key {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-cloud{% endif %}" style="{% if field.is_diff or field.outcome %}font-weight: 700; opacity: 1;{% endif %}">{{ field.name }}</span>
+                                    <span class="sd-kv-val {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-cloud{% endif %}" title="{% if field.ts.raw %}{{ field.ts.human }} UTC&#10;HLC: {{ field.ts.raw }}{% endif %}{% if field.full_value %}{% if field.ts.raw %}&#10;&#10;{% endif %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                    <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="sd-cell-empty">NOT ON CLOUD</div>
+                    {% endif %}
+                </div>
+
+                {% if has_sync %}
+                    <div class="col-3 ps-2 sd-col-stretch">
+                        {% if row.merged_cell %}
+                            <div class="sd-cell sd-cell-merged">
+                                <div class="d-flex align-items-baseline gap-2 mb-2">
+                                    <span class="sd-badge-merged">
+                                        {% if row.merged_cell.outcome == 'match' %}Match
+                                        {% elif row.merged_cell.outcome == 'pushed' %}Pushed
+                                        {% elif row.merged_cell.outcome == 'pulled' %}Pulled
+                                        {% else %}Resolved{% endif %}
+                                    </span>
+                                    <strong style="font-size: 0.78rem;">{{ row.merged_cell.title }}</strong>
+                                </div>
+                                <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                                    {% for field in row.merged_cell.fields %}
+                                        <span class="sd-kv-key {% if field.outcome == 'won_local' %}sd-merged-from-local{% elif field.outcome == 'won_cloud' %}sd-merged-from-cloud{% endif %}">{{ field.name }}</span>
+                                        <span class="sd-kv-val {% if field.outcome == 'won_local' %}sd-merged-from-local{% elif field.outcome == 'won_cloud' %}sd-merged-from-cloud{% endif %}" title="{% if field.full_value %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                        <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="sd-cell-empty">---</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if has_sync and result %}
+        <div class="border rounded overflow-hidden mb-4 mt-4">
+            <div class="row g-0 px-3 py-2 border-bottom">
+                <div class="col-2">
+                    <span class="sd-section-label sd-mono">Tablet</span>
+                </div>
+                <div class="col-5">
+                    <span class="sd-section-label sd-mono" style="color: #93c5fd; opacity: 0.7;">Tablet Result</span>
+                </div>
+                <div class="col-5">
+                    <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">Cloud Result</span>
+                </div>
+            </div>
+
+            {% for tdb, tdata in result.tablets.items %}
+            <div class="sd-row">
+                <div class="row g-0 px-3 py-2 align-items-stretch">
+                    <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                        <span class="sd-badge-local">{{ tdb }}</span>
+                        {% if tdata.tablet_result.conflict_log %}
+                            <span class="sd-chip sd-chip-conflict" style="font-size: 0.48rem;">{{ tdata.tablet_result.conflict_log|length }} conflict{{ tdata.tablet_result.conflict_log|length|pluralize }}</span>
+                        {% else %}
+                            <span class="sd-chip sd-chip-match" style="font-size: 0.48rem;">Clean</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-5 pe-2 sd-col-stretch">
+                        <div class="sd-cell sd-cell-local">
+                            <div class="sd-kv-grid sd-mono">
+                                <span class="sd-kv-key" style="color: #34d399; opacity: 1;">created</span>
+                                <span class="sd-kv-val" style="color: #34d399;">{{ tdata.tablet_result.created|length }}</span>
+                                <span class="sd-kv-key" style="color: #93c5fd; opacity: 1;">updated</span>
+                                <span class="sd-kv-val" style="color: #93c5fd;">{{ tdata.tablet_result.applied|length }}</span>
+                                <span class="sd-kv-key" style="color: #fbbf24; opacity: 1;">conflicts</span>
+                                <span class="sd-kv-val" style="color: #fbbf24;">{{ tdata.tablet_result.conflicts|length }}</span>
+                                <span class="sd-kv-key" style="color: #f87171; opacity: 1;">deleted</span>
+                                <span class="sd-kv-val" style="color: #f87171;">{{ tdata.tablet_result.deleted|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-5 ps-2 sd-col-stretch">
+                        <div class="sd-cell sd-cell-cloud">
+                            <div class="sd-kv-grid sd-mono">
+                                <span class="sd-kv-key" style="color: #34d399; opacity: 1;">created</span>
+                                <span class="sd-kv-val" style="color: #34d399;">{{ tdata.cloud_result.created|length }}</span>
+                                <span class="sd-kv-key" style="color: #93c5fd; opacity: 1;">updated</span>
+                                <span class="sd-kv-val" style="color: #93c5fd;">{{ tdata.cloud_result.applied|length }}</span>
+                                <span class="sd-kv-key" style="color: #fbbf24; opacity: 1;">conflicts</span>
+                                <span class="sd-kv-val" style="color: #fbbf24;">{{ tdata.cloud_result.conflicts|length }}</span>
+                                <span class="sd-kv-key" style="color: #f87171; opacity: 1;">deleted</span>
+                                <span class="sd-kv-val" style="color: #f87171;">{{ tdata.cloud_result.deleted|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% for tdb, tdata in result.tablets.items %}
+            {% if tdata.tablet_result.conflict_log %}
+                {% for entry in tdata.tablet_result.conflict_log %}
+                    <div class="sd-row">
+                        <div class="row g-0 px-3 py-2 align-items-stretch">
+                            <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                                <span class="sd-chip sd-chip-conflict" style="font-size: 0.48rem;">Conflict</span>
+                                <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ entry.model_label|cut:"sync." }}</span>
+                            </div>
+                            <div class="col-10 sd-col-stretch">
+                                <div class="sd-cell" style="border-left: 3px solid #fbbf24;">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="sd-chip sd-chip-strategy" style="font-size: 0.45rem;">{{ entry.resolution_source }}</span>
+                                        <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.3;">{{ entry.key }}</span>
+                                    </div>
+                                    <div class="sd-kv-grid sd-mono" style="grid-template-columns: auto 1fr 1fr auto;">
+                                        <span class="sd-kv-key" style="opacity: 0.5;">field</span>
+                                        <span class="sd-kv-key" style="opacity: 0.5; color: #93c5fd;">local</span>
+                                        <span class="sd-kv-key" style="opacity: 0.5; color: #fdba74;">remote</span>
+                                        <span class="sd-kv-key" style="opacity: 0.5;">winner</span>
+                                        {% for fc in entry.field_conflicts %}
+                                            <span class="sd-kv-key">{{ fc.field_name }}</span>
+                                            <span class="sd-kv-val {% if fc.winner == 'local' %}sd-won{% else %}sd-lost{% endif %}">{{ fc.local_value }}</span>
+                                            <span class="sd-kv-val {% if fc.winner == 'remote' %}sd-won{% else %}sd-lost{% endif %}">{{ fc.remote_value }}</span>
+                                            <span class="sd-kv-val" style="font-size: 0.58rem;">
+                                                {% if fc.winner == 'local' %}
+                                                    <span class="sd-badge-local" style="font-size: 0.42rem;">local</span>
+                                                {% else %}
+                                                    <span class="sd-badge-cloud" style="font-size: 0.42rem;">remote</span>
+                                                {% endif %}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if merged_cloud_view %}
+        <div class="border rounded overflow-hidden mb-4 mt-4">
+            <div class="row g-0 px-3 py-2 border-bottom">
+                <div class="col-2">
+                    <span class="sd-section-label sd-mono">Model</span>
+                </div>
+                <div class="col-10">
+                    <span class="sd-section-label sd-mono" style="color: #34d399; opacity: 0.7;">Merged Cloud State</span>
+                </div>
+            </div>
+
+            {% for record in merged_cloud_view %}
+            <div class="sd-row">
+                <div class="row g-0 px-3 py-2 align-items-stretch">
+                    <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                        <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ record.model|upper }}</span>
+                    </div>
+                    <div class="col-10 sd-col-stretch">
+                        <div class="sd-cell sd-cell-merged">
+                            <div class="d-flex align-items-baseline gap-2 mb-2">
+                                <span class="sd-badge-merged">Merged</span>
+                                <strong style="font-size: 0.78rem;">{{ record.title }}</strong>
+                            </div>
+                            <div class="sd-kv-grid sd-mono" style="grid-template-columns: auto 1fr auto;">
+                                {% for field in record.fields %}
+                                    <span class="sd-kv-key">{{ field.name }}</span>
+                                    <span class="sd-kv-val">{{ field.value }}</span>
+                                    {% if field.source == 'cloud' %}
+                                        <span class="sd-badge-cloud" style="font-size: 0.45rem; align-self: center;">cloud</span>
+                                    {% else %}
+                                        <span class="sd-badge-local" style="font-size: 0.45rem; align-self: center;">{{ field.source }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endif %}
+
+</div>
+
+{% endblock %}
