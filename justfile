@@ -29,7 +29,7 @@ test:
 	{{PYTHON}} -m pytest .
 
 test-failed:
-	{{PYTHON}} -m pytest . --ff --lf
+	{{PYTHON}} -m pytest --ff --lf
 
 test-coverage:
 	{{PYTHON}} -m pytest . --cov=app --cov-report=term-missing --cov-report=html:.test_coverage/
