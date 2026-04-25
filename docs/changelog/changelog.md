@@ -3,6 +3,7 @@
 ## v0.31.4
 
 ### Changes
+- Added `slide_button.html` to templates
 - Added `access_key_required` to `core.decorators`. Used for UUID authentication with publicly exposed urls.
 
 ## v0.31.3
