@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.4
+
+### Changes
+- Added `access_key_required` to `core.decorators`. Used for UUID authentication with publicly exposed urls.
+
 ## v0.31.3
 
 ### Changes

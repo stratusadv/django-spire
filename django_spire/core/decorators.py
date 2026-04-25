@@ -26,7 +26,7 @@ def close_db_connections(func: Callable[P, T]) -> Callable[P, T]:
     return inner
 
 
-def require_access_key(
+def access_key_required(
     setting_name: str,
     param_name: str = 'access_key',
 ) -> Callable[..., Callable[..., HttpResponse]]:
@@ -34,16 +34,12 @@ def require_access_key(
         @wraps(view)
         def wrapper(request: WSGIRequest, *args, **kwargs) -> HttpResponse:
             key = getattr(settings, setting_name, None)
-            if not key:
-                raise Http404
 
-            if str(request.GET.get(param_name)) != str(key):
+            if not key or str(kwargs.get(param_name)) != str(key):
                 raise Http404
 
             return view(request, *args, **kwargs)
-
         return wrapper
-
     return decorator
 
 
