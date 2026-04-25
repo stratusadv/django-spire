@@ -15,22 +15,11 @@ P = ParamSpec('P')
 T = TypeVar('T')
 
 
-def close_db_connections(func: Callable[P, T]) -> Callable[P, T]:
-    @wraps(func)
-    def inner(*args: P.args, **kwargs: P.kwargs) -> T:
-        try:
-            return func(*args, **kwargs)
-        finally:
-            connections.close_all()
-
-    return inner
-
-
 def access_key_required(
     setting_name: str,
     param_name: str = 'access_key',
-) -> Callable[..., Callable[..., HttpResponse]]:
-    def decorator(view: Callable[..., HttpResponse]) -> Callable[..., HttpResponse]:
+) -> Callable[P, T]:
+    def decorator(view: Callable[P, T]) -> Callable[P, T]:
         @wraps(view)
         def wrapper(request: WSGIRequest, *args, **kwargs) -> HttpResponse:
             key = getattr(settings, setting_name, None)
@@ -41,6 +30,17 @@ def access_key_required(
             return view(request, *args, **kwargs)
         return wrapper
     return decorator
+
+
+def close_db_connections(func: Callable[P, T]) -> Callable[P, T]:
+    @wraps(func)
+    def inner(*args: P.args, **kwargs: P.kwargs) -> T:
+        try:
+            return func(*args, **kwargs)
+        finally:
+            connections.close_all()
+
+    return inner
 
 
 def valid_ajax_request_required(
