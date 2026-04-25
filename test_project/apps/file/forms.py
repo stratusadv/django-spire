@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from django import forms
 
+from django_spire.file.extensions import DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS
 from django_spire.file.fields import MultipleFileField, SingleFileField
 from django_spire.file.validators import FileValidator
 
@@ -18,26 +19,21 @@ if TYPE_CHECKING:
 
 
 class FileExampleForm(forms.ModelForm):
+    profile_picture = SingleFileField(
+        related_field=PROFILE_PICTURE_RELATED_FIELD,
+        required=True,
+        validator=FileValidator(
+            allowed_extensions=IMAGE_EXTENSIONS,
+        ),
+    )
+
     attachments = MultipleFileField(
         related_field=ATTACHMENTS_RELATED_FIELD,
         required=False,
         validator=FileValidator(
             size_bytes_max=50 * 1024 * 1024,
-            allowed_extensions=frozenset({
-                'jpg',
-                'png',
-                'webp',
-                'pdf',
-                'docx',
-                'xlsx'
-            }),
-            blocked_extensions=frozenset(),
+            allowed_extensions=DOCUMENT_EXTENSIONS | IMAGE_EXTENSIONS,
         ),
-    )
-
-    profile_picture = SingleFileField(
-        related_field=PROFILE_PICTURE_RELATED_FIELD,
-        required=False,
     )
 
     class Meta:

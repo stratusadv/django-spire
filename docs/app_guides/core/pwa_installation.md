@@ -127,3 +127,20 @@ templates/django_spire/auth/element/android_and_chrome_app_install_element.html
 ```
 
 Once both elements are in place, users will see an **Install App** button on the login page. Clicking it installs the project as a PWA on their device.
+
+
+### Testing
+
+#### Android / Chrome Install
+
+1. Use your development laptop to install the app.
+2. Ensure that the information, colors, images, and app icon is correct.
+3. Visit your browser settings to uninstall it.
+
+
+#### iOS Install
+
+1. Comment out the `hidden` attribute in the `django_spire/auth/button/ios_install_button.html` file.
+2. Click the install app button and ensure the information, colors, and images on the modal are correct.
+3. Using an iOS device, install the app via the safari browser. Ensure the app icon is correct.
+4. Uncomment the `hidden` attribute in the `django_spire/auth/button/ios_install_button.html` file.
