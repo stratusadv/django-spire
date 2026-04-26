@@ -23,7 +23,7 @@ class GlueRetryHelper {
                 attempt++;
 
                 if (errorHelper) {
-                    errorHelper();
+                    await errorHelper();
                 }
 
                 if (attempt < maxRetries) {
@@ -90,11 +90,11 @@ class GlueFetchHelper
             const isError = tryDispatchResponseError(response, defaultErrorMessage);
 
             if (!isError && successHandler) {
-                successHandler(response);
+                await successHandler(response);
             }
 
             if (isError && errorHandler) {
-                errorHandler(response);
+                await errorHandler(response);
             }
 
             return {success: !isError, response};

@@ -1,5 +1,41 @@
 # Changelog
 
+## v0.31.4
+
+### Changes
+- Added `slide_button.html` to templates
+- Added `access_key_required` to `core.decorators`. Used for UUID authentication with publicly exposed urls.
+
+## v0.31.3
+
+### Changes
+- Added `table_min_width` to table to control width
+
+## v0.31.2
+
+### Fixes
+- Fixed navigation link not working in mobile
+
+### Changes
+- Improved PWA install documentation.
+- Improved PWA iOS install model UI.
+
+## v0.31.1
+
+### Changes
+- Improve validation
+- Added predefined extensions
+
+## v0.31.0
+
+### Breaking
+- Updated the file module, interfaces and files
+
+## v0.30.5
+
+### Changes
+- Updated Django Glue helper JS functions to include `await` for success and error handler / helper function calls.
+
 ## v0.30.4
 
 ### Fixes

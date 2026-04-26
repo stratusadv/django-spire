@@ -1,0 +1,64 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    File Example
+{% endblock %}
+
+{% block card_button %}
+    {% url 'file:form:update' pk=file_example.pk as edit_url %}
+    {% include 'django_spire/button/primary_dark_button.html' with button_text='Edit' button_icon='bi bi-pencil' button_href=edit_url %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="row g-3">
+        {% if file_example.profile_picture %}
+            <div
+                class="col-12 col-md-4"
+                x-data="{
+                    async delete_profile_picture() {
+                        let form_data = new FormData();
+                        form_data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                        let response = await fetch('{% url 'file:json:delete_profile_picture' pk=file_example.pk %}', {
+                            method: 'POST',
+                            body: form_data,
+                        });
+
+                        let data = await response.json();
+
+                        if (data.type === 'success') {
+                            location.reload();
+                        }
+                    }
+                }"
+            >
+                <img
+                    src="{{ file_example.profile_picture.file.url }}"
+                    alt="{{ file_example }}"
+                    class="img-fluid rounded-3 border border-app-accent-dark"
+                    loading="lazy"
+                    decoding="async"
+                >
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger mt-2"
+                    @click="delete_profile_picture()"
+                >
+                    <i class="bi bi-trash me-1"></i> Remove
+                </button>
+            </div>
+        {% endif %}
+
+        <div class="{% if file_example.profile_picture %}col-12 col-md-8{% else %}col-12{% endif %}">
+            <div class="row g-3">
+                <div class="col-6">
+                    {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=file_example.name %}
+                </div>
+
+                <div class="col-12">
+                    {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=file_example.description|linebreaksbr|default:'N/A' %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

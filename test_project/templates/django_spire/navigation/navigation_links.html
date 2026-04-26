@@ -11,6 +11,9 @@
 {% url 'comment:page:home' as comment_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Comment' link_icon='bi bi-chat-text' link_url=comment_url %}
 
+{% url 'file:page:list' as file_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='File' link_icon='bi bi-file-earmark' link_url=file_url %}
+
 {% url 'help_desk:home' as help_desk_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Help Desk' link_icon='bi bi-headset' link_url=help_desk_url %}
 

@@ -19,7 +19,6 @@ jobs:
       - uses: stratusadv/github-actions/linting@v1
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          template-lint: 'false'
           template-lint-extras: ''
 
   tests:
@@ -28,12 +27,6 @@ jobs:
     needs: linting
     timeout-minutes: 15
     env:
-      OLLAMA_1_HOST: ${{ secrets.OLLAMA_1_HOST }}
-      OLLAMA_2_HOST: ${{ secrets.OLLAMA_2_HOST }}
-      OLLAMA_PORT: ${{ secrets.OLLAMA_PORT }}
-      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
-      OPENAI_HOST: ${{ secrets.OPENAI_HOST }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       AI_API_HOST: ${{ secrets.AI_API_HOST }}
       AI_API_KEY: ${{ secrets.AI_API_KEY }}
       TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
