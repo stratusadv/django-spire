@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing_extensions import TYPE_CHECKING
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
@@ -14,22 +14,26 @@ from test_project.apps.sync.config import (
     get_active_sync_databases,
     get_active_tablet_databases,
 )
+from test_project.apps.sync.constants import (
+    DEFAULT_STRATEGY,
+    DashboardAction,
+    SeedScenario,
+    SyncMode,
+)
 from test_project.apps.sync.context import (
-    get_current_db,
+    get_current_database,
     get_tablet_count,
     set_tablet_count,
-    switch_db,
+    switch_database,
+)
+from test_project.apps.sync.registry import (
+    MODEL_MAP,
+    STRATEGY_CHOICES,
 )
 from test_project.apps.sync.seeding.seed import (
     SCENARIO_CHOICES,
     seed_sync_scenario,
 )
-from test_project.apps.sync.services.processor_service import (
-    DEFAULT_STRATEGY,
-    STRATEGY_CHOICES,
-    SyncProcessorService,
-)
-from test_project.apps.sync.services.transformation_service import SyncTransformationService
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -37,11 +41,13 @@ if TYPE_CHECKING:
 
 
 def dashboard_page_view(request: WSGIRequest) -> TemplateResponse:
+    tablet_count = _resolve_tablet_count(request)
+    current_database = _resolve_current_database(tablet_count)
+    is_cloud_view = current_database == 'cloud'
+    active_tablet_database = current_database if not is_cloud_view else 'tablet_1'
+
     result = None
     seed_result = None
-    selected_strategy = request.POST.get('strategy', DEFAULT_STRATEGY)
-    selected_scenario = request.POST.get('scenario', 'land_survey')
-    seed_value = request.POST.get('seed', '').strip()
     has_sync = False
     sync_mode = ''
     merged_cloud_view = None
@@ -49,78 +55,38 @@ def dashboard_page_view(request: WSGIRequest) -> TemplateResponse:
     rows = None
     counts = None
 
-    tablet_count_raw = request.POST.get('tablet_count', '')
-
-    if tablet_count_raw.isdigit():
-        set_tablet_count(int(tablet_count_raw))
-
-    tablet_count = get_tablet_count()
-    current_db = get_current_db()
-
-    if current_db not in get_active_sync_databases(tablet_count):
-        switch_db('tablet_1')
-        current_db = 'tablet_1'
-
-    is_cloud_view = current_db == 'cloud'
-    active_tablet_db = current_db if not is_cloud_view else 'tablet_1'
+    selected_strategy = request.POST.get('strategy', DEFAULT_STRATEGY)
+    selected_scenario = request.POST.get('scenario', SeedScenario.LAND_SURVEY)
+    seed_value = request.POST.get('seed', '').strip()
 
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        if action == 'seed':
-            parsed_seed = int(seed_value) if seed_value.isdigit() else None
-            seed_result = seed_sync_scenario(
-                scenario=selected_scenario,
-                seed=parsed_seed,
+        if action == DashboardAction.SEED:
+            seed_result = _handle_seed(selected_scenario, seed_value)
+
+        elif action == DashboardAction.SYNC_CURRENT and not is_cloud_view:
+            rows, counts, result, has_sync, sync_mode = _handle_sync_current(
+                active_tablet_database, selected_strategy, tablet_count,
             )
 
-        if action == 'sync_current' and not is_cloud_view:
-            transformation = SyncTransformationService()
-            rows = transformation.classify_databases(tablet_db=active_tablet_db)
-            counts = transformation.count_kinds(rows)
-
-            processor = SyncProcessorService()
-            result = processor.perform_sync(
-                strategy=selected_strategy,
-                tablet_count=tablet_count,
-                tablet_dbs=[active_tablet_db],
+        elif action == DashboardAction.SYNC_ALL:
+            rows, counts, result, has_sync, sync_mode, merged_cloud_view = _handle_sync_all(
+                active_tablet_database, selected_strategy, tablet_count, is_cloud_view,
             )
-
-            has_sync = True
-            sync_mode = 'current'
-            transformation.apply_resolutions(rows, result, tablet_db=active_tablet_db)
-
-        if action == 'sync_all':
-            transformation = SyncTransformationService()
-            rows = transformation.classify_databases(tablet_db=active_tablet_db)
-            counts = transformation.count_kinds(rows)
-
-            processor = SyncProcessorService()
-            result = processor.perform_sync(
-                strategy=selected_strategy,
-                tablet_count=tablet_count,
-            )
-
-            has_sync = True
-            sync_mode = 'all'
-            transformation.apply_resolutions(rows, result, tablet_db=active_tablet_db)
-
-            if is_cloud_view:
-                merged_cloud_view = transformation.build_merged_cloud_view(result)
 
     if is_cloud_view:
-        transformation = SyncTransformationService()
-        cloud_database_view = transformation.build_cloud_database_view()
+        cloud_database_view = models.Client.services.transformation.build_cloud_database_view()
     elif rows is None:
-        transformation = SyncTransformationService()
-        rows = transformation.classify_databases(tablet_db=active_tablet_db)
+        transformation = models.Client.services.transformation
+        rows = transformation.classify_databases(tablet_database=active_tablet_database)
         counts = transformation.count_kinds(rows)
 
     return TemplateResponse(request, 'sync/page/dashboard_page.html', {
-        'active_tablet_db': active_tablet_db,
+        'active_tablet_database': active_tablet_database,
         'cloud_database_view': cloud_database_view,
         'counts': counts,
-        'current_db': current_db,
+        'current_database': current_database,
         'has_sync': has_sync,
         'is_cloud_view': is_cloud_view,
         'merged_cloud_view': merged_cloud_view,
@@ -140,49 +106,35 @@ def dashboard_page_view(request: WSGIRequest) -> TemplateResponse:
 
 
 def detail_page_view(request: WSGIRequest, model: str, pk: int) -> TemplateResponse:
-    model_map = {
-        'client': models.Client,
-        'site': models.Site,
-        'surveyplan': models.SurveyPlan,
-        'stake': models.Stake,
-    }
-
-    if model not in model_map:
+    if model not in MODEL_MAP:
         raise PermissionDenied
 
-    model_cls = model_map[model]
-    obj = get_object_or_404(model_cls, pk=pk)
+    model_class = MODEL_MAP[model]
+    instance = get_object_or_404(model_class, pk=pk)
 
-    context = {model: obj}
+    context = {model: instance}
 
-    if model == 'site':
-        context['plans'] = list(obj.plans.all())
+    if model == 'client':
+        context['sites'] = list(instance.sites.all())
+    elif model == 'site':
+        context['plans'] = list(instance.plans.all())
     elif model == 'surveyplan':
-        context['stakes'] = list(obj.stakes.all())
-    elif model == 'client':
-        context['sites'] = list(obj.sites.all())
+        context['stakes'] = list(instance.stakes.all())
 
     return portal_views.detail_view(
         request,
-        obj=obj,
+        obj=instance,
         context_data=context,
-        template=f'sync/page/{model}_detail_page.html'
+        template=f'sync/page/{model}_detail_page.html',
     )
 
 
 def list_page_view(request: WSGIRequest, model: str) -> TemplateResponse:
-    model_map = {
-        'client': models.Client,
-        'site': models.Site,
-        'surveyplan': models.SurveyPlan,
-        'stake': models.Stake,
-    }
-
-    if model not in model_map:
+    if model not in MODEL_MAP:
         raise PermissionDenied
 
-    model_cls = model_map[model]
-    objects = list(model_cls.objects.all())
+    model_class = MODEL_MAP[model]
+    objects = list(model_class.objects.all())
 
     return TemplateResponse(request, 'sync/page/list_page.html', {
         'objects': objects,
@@ -190,21 +142,88 @@ def list_page_view(request: WSGIRequest, model: str) -> TemplateResponse:
     })
 
 
-def switch_db_view(request: WSGIRequest, db_name: str) -> HttpResponseRedirect:
+def switch_database_view(request: WSGIRequest, database_name: str) -> HttpResponseRedirect:
     _ = request
     tablet_count = get_tablet_count()
 
-    if db_name not in get_active_sync_databases(tablet_count):
+    if database_name not in get_active_sync_databases(tablet_count):
         return redirect('sync:page:dashboard')
 
-    switch_db(db_name)
+    switch_database(database_name)
     return redirect('sync:page:dashboard')
 
 
 def verification_page_view(request: WSGIRequest) -> TemplateResponse:
-    transformation = SyncTransformationService()
-    verification = transformation.build_verification()
+    verification = models.Client.services.transformation.build_verification()
 
     return TemplateResponse(request, 'sync/page/verification_page.html', {
         'verification': verification,
     })
+
+
+def _handle_seed(scenario: str, seed_value: str) -> dict:
+    parsed_seed = int(seed_value) if seed_value.isdigit() else None
+    return seed_sync_scenario(scenario=scenario, seed=parsed_seed)
+
+
+def _handle_sync_all(
+    active_tablet_database: str,
+    strategy: str,
+    tablet_count: int,
+    is_cloud_view: bool,
+) -> tuple:
+    transformation = models.Client.services.transformation
+    rows = transformation.classify_databases(tablet_database=active_tablet_database)
+    counts = transformation.count_kinds(rows)
+
+    result = models.Client.services.processor.perform_sync(
+        strategy=strategy, tablet_count=tablet_count,
+    )
+
+    transformation.apply_resolutions(rows, result, tablet_database=active_tablet_database)
+
+    merged_cloud_view = None
+
+    if is_cloud_view:
+        merged_cloud_view = transformation.build_merged_cloud_view(result)
+
+    return rows, counts, result, True, SyncMode.ALL, merged_cloud_view
+
+
+def _handle_sync_current(
+    active_tablet_database: str,
+    strategy: str,
+    tablet_count: int,
+) -> tuple:
+    transformation = models.Client.services.transformation
+    rows = transformation.classify_databases(tablet_database=active_tablet_database)
+    counts = transformation.count_kinds(rows)
+
+    result = models.Client.services.processor.perform_sync(
+        strategy=strategy,
+        tablet_count=tablet_count,
+        tablet_databases=[active_tablet_database],
+    )
+
+    transformation.apply_resolutions(rows, result, tablet_database=active_tablet_database)
+
+    return rows, counts, result, True, SyncMode.CURRENT
+
+
+def _resolve_current_database(tablet_count: int) -> str:
+    current_database = get_current_database()
+
+    if current_database not in get_active_sync_databases(tablet_count):
+        switch_database('tablet_1')
+        return 'tablet_1'
+
+    return current_database
+
+
+def _resolve_tablet_count(request: WSGIRequest) -> int:
+    tablet_count_raw = request.POST.get('tablet_count', '')
+
+    if tablet_count_raw.isdigit():
+        set_tablet_count(int(tablet_count_raw))
+
+    return get_tablet_count()

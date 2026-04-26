@@ -13,13 +13,14 @@ from test_project.apps.sync.choices import (
     StakeTypeChoices,
 )
 from test_project.apps.sync.config import get_active_tablet_databases
-from test_project.apps.sync.context import get_tablet_count, switch_db
+from test_project.apps.sync.constants import SeedScenario
+from test_project.apps.sync.context import get_tablet_count, switch_database
 from test_project.apps.sync.models import Client, Site, Stake, SurveyPlan
 
 
-SCENARIO_CHOICES = [
-    ('land_survey', 'Land Survey'),
-    ('randomized', 'Randomized'),
+SCENARIO_CHOICES: list[tuple[str, str]] = [
+    (SeedScenario.LAND_SURVEY, 'Land Survey'),
+    (SeedScenario.RANDOMIZED, 'Randomized'),
 ]
 
 _SHARED_CLIENT_ID = uuid.UUID('aaaaaaaa-aaaa-aaaa-aaaa-000000000001')
@@ -39,7 +40,7 @@ _TABLET_STAKE_IDS = [
 
 
 def seed_sync_scenario(
-    scenario: str = 'land_survey',
+    scenario: str = SeedScenario.LAND_SURVEY,
     seed: int | None = None,
 ) -> dict:
     if seed is None:
@@ -48,7 +49,7 @@ def seed_sync_scenario(
     tablet_count = get_tablet_count()
     _clear_databases(tablet_count)
 
-    if scenario == 'randomized':
+    if scenario == SeedScenario.RANDOMIZED:
         result = _seed_randomized(seed, tablet_count)
     else:
         result = _seed_land_survey(tablet_count)
@@ -59,18 +60,18 @@ def seed_sync_scenario(
 
 
 def _clear_databases(tablet_count: int) -> None:
-    databases = get_active_tablet_databases(tablet_count) + ['cloud']
+    databases = [*get_active_tablet_databases(tablet_count), 'cloud']
 
-    for db in databases:
-        switch_db(db)
+    for database in databases:
+        switch_database(database)
         Stake.objects.all().delete()
         SurveyPlan.objects.all().delete()
         Site.objects.all().delete()
         Client.objects.all().delete()
 
 
-def _create_base_data(db_name: str) -> tuple[Client, Site, SurveyPlan, Stake, Stake]:
-    switch_db(db_name)
+def _create_base_data(database_name: str) -> tuple[Client, Site, SurveyPlan, Stake, Stake]:
+    switch_database(database_name)
 
     client = Client.objects.create(
         id=_SHARED_CLIENT_ID,
@@ -91,40 +92,40 @@ def _create_base_data(db_name: str) -> tuple[Client, Site, SurveyPlan, Stake, St
     plan = SurveyPlan.objects.create(
         id=_SHARED_PLAN_ID,
         site=site,
-        plan_number='SP-0041',
+        plan_number='SP-2024-001',
         stake_spacing_m=50,
-        line_direction='NS',
-        headland_offset_m=0,
-        office_notes='',
-        baseline_a_latitude=0,
-        baseline_a_longitude=0,
-        baseline_b_latitude=0,
-        baseline_b_longitude=0,
-        heading_degrees=0,
+        line_direction=LineDirectionChoices.NS,
+        headland_offset_m=10,
+        office_notes='Standard boundary survey',
+        baseline_a_latitude=49.6935,
+        baseline_a_longitude=-112.8418,
+        baseline_b_latitude=49.6945,
+        baseline_b_longitude=-112.8400,
+        heading_degrees=15.5,
         crew_notes='',
-        status='draft',
+        status=PlanStatusChoices.DRAFT,
     )
 
     stake_1 = Stake.objects.create(
         id=_SHARED_STAKE_1_ID,
         survey_plan=plan,
-        latitude=0,
-        longitude=0,
-        elevation=0,
-        is_placed=False,
-        stake_type='boundary',
-        label='BND-001',
+        latitude=49.6935,
+        longitude=-112.8418,
+        elevation=920.5,
+        is_placed=True,
+        stake_type=StakeTypeChoices.CONTROL,
+        label='CP-001',
     )
 
     stake_2 = Stake.objects.create(
         id=_SHARED_STAKE_2_ID,
         survey_plan=plan,
-        latitude=0,
-        longitude=0,
-        elevation=0,
-        is_placed=False,
-        stake_type='boundary',
-        label='BND-002',
+        latitude=49.6940,
+        longitude=-112.8410,
+        elevation=921.0,
+        is_placed=True,
+        stake_type=StakeTypeChoices.BOUNDARY,
+        label='BND-001',
     )
 
     return client, site, plan, stake_1, stake_2
@@ -132,120 +133,52 @@ def _create_base_data(db_name: str) -> tuple[Client, Site, SurveyPlan, Stake, St
 
 def _seed_land_survey(tablet_count: int) -> dict:
     _create_base_data('cloud')
-    time.sleep(0.01)
-
-    switch_db('cloud')
-    cloud_plan = SurveyPlan.objects.get(id=_SHARED_PLAN_ID)
-    cloud_plan.office_notes = 'Priority survey for Q4 deadline'
-    cloud_plan.headland_offset_m = 10
-    cloud_plan.save()
 
     tablet_databases = get_active_tablet_databases(tablet_count)
+    tablets_seeded = []
 
-    for tablet_db in tablet_databases:
-        time.sleep(0.01)
-        _create_base_data(tablet_db)
+    for index, tablet_database in enumerate(tablet_databases):
+        _create_base_data(tablet_database)
+        switch_database(tablet_database)
+        time.sleep(0.005)
 
-    time.sleep(0.01)
+        plan = SurveyPlan.objects.get(id=_SHARED_PLAN_ID)
+        plan.crew_notes = f'Crew {index + 1}: Started NW corner, windy conditions'
+        plan.status = PlanStatusChoices.IN_PROGRESS
+        plan.save()
 
-    _TABLET_MODIFICATIONS = [
-        {
-            'stake_id': _SHARED_STAKE_1_ID,
-            'stake_updates': {
-                'latitude': 49.6942,
-                'longitude': -112.8134,
-                'elevation': 915.2,
-                'is_placed': True,
-            },
-            'plan_updates': {
-                'crew_notes': 'South boundary line completed',
-                'baseline_a_latitude': 49.6942,
-                'baseline_a_longitude': -112.8134,
-            },
-        },
-        {
-            'stake_id': _SHARED_STAKE_2_ID,
-            'stake_updates': {
-                'latitude': 49.6950,
-                'longitude': -112.8126,
-                'elevation': 918.7,
-                'is_placed': True,
-            },
-            'plan_updates': {
-                'baseline_b_latitude': 49.6950,
-                'baseline_b_longitude': -112.8126,
-            },
-        },
-        {
-            'new_stake': {
-                'id': _SHARED_STAKE_3_ID,
-                'latitude': 49.6960,
-                'longitude': -112.8119,
-                'elevation': 920.1,
-                'is_placed': True,
-                'stake_type': 'boundary',
-                'label': 'BND-003',
-            },
-        },
-        {
-            'new_stake': {
-                'id': _SHARED_STAKE_4_ID,
-                'latitude': 49.6968,
-                'longitude': -112.8112,
-                'elevation': 919.5,
-                'is_placed': True,
-                'stake_type': 'boundary',
-                'label': 'BND-004',
-            },
-        },
-        {
-            'new_stake': {
-                'id': _SHARED_STAKE_5_ID,
-                'latitude': 49.6975,
-                'longitude': -112.8105,
-                'elevation': 921.0,
-                'is_placed': True,
-                'stake_type': 'control',
-                'label': 'CTL-001',
-            },
-            'plan_updates': {
-                'status': 'in-progress',
-                'heading_degrees': 175,
-            },
-        },
-    ]
+        site = Site.objects.get(id=_SHARED_SITE_ID)
+        site.description = f'Crew {index + 1} survey — updated on tablet'
+        site.save()
 
-    for index, tablet_db in enumerate(tablet_databases):
-        if index >= len(_TABLET_MODIFICATIONS):
-            break
+        for i, stake_id in enumerate(_TABLET_STAKE_IDS):
+            Stake.objects.create(
+                id=stake_id,
+                survey_plan=plan,
+                latitude=49.6935 + (i + 1) * 0.0005,
+                longitude=-112.8418 + (i + 1) * 0.0003,
+                elevation=920.5 + (i + 1) * 0.3,
+                is_placed=True,
+                stake_type=StakeTypeChoices.BOUNDARY,
+                label=f'BND-{i + 2:03d}',
+            )
 
-        modification = _TABLET_MODIFICATIONS[index]
-        switch_db(tablet_db)
+        tablets_seeded.append(tablet_database)
 
-        if 'stake_id' in modification:
-            stake = Stake.objects.get(id=modification['stake_id'])
+    switch_database('cloud')
+    time.sleep(0.005)
 
-            for attr, value in modification['stake_updates'].items():
-                setattr(stake, attr, value)
+    plan = SurveyPlan.objects.get(id=_SHARED_PLAN_ID)
+    plan.office_notes = 'Reviewed by PM — approved for field work'
+    plan.headland_offset_m = 12
+    plan.status = PlanStatusChoices.REVIEWED
+    plan.save()
 
-            stake.save()
+    client = Client.objects.get(id=_SHARED_CLIENT_ID)
+    client.contact_name = 'Dana Morrison-Lee'
+    client.save()
 
-        if 'new_stake' in modification:
-            plan = SurveyPlan.objects.get(id=_SHARED_PLAN_ID)
-            Stake.objects.create(survey_plan=plan, **modification['new_stake'])
-
-        if 'plan_updates' in modification:
-            plan = SurveyPlan.objects.get(id=_SHARED_PLAN_ID)
-
-            for attr, value in modification['plan_updates'].items():
-                setattr(plan, attr, value)
-
-            plan.save()
-
-    return {
-        'scenario': 'land_survey',
-        'tablet_count': tablet_count,
-    }
+    return {'tablets_seeded': tablets_seeded}
 
 
 def _seed_randomized(seed: int, tablet_count: int) -> dict:
@@ -253,15 +186,14 @@ def _seed_randomized(seed: int, tablet_count: int) -> dict:
     fake = Faker()
     Faker.seed(seed)
 
-    num_clients = rng.randint(2, 4)
-    num_sites_per_client = rng.randint(1, 3)
+    num_clients = rng.randint(1, 3)
+    num_sites_per_client = rng.randint(1, 2)
     num_plans_per_site = rng.randint(1, 2)
     num_stakes_per_plan = rng.randint(2, 5)
 
-    line_directions = [c.value for c in LineDirectionChoices]
-    plan_statuses = [c.value for c in PlanStatusChoices]
-    site_statuses = [c.value for c in SiteStatusChoices]
-    stake_types = [c.value for c in StakeTypeChoices]
+    site_statuses = [status.value for status in SiteStatusChoices]
+    line_directions = [direction.value for direction in LineDirectionChoices]
+    stake_types = [stake_type.value for stake_type in StakeTypeChoices]
 
     shared_clients = []
     shared_sites = []
@@ -321,10 +253,10 @@ def _seed_randomized(seed: int, tablet_count: int) -> dict:
                         'stake_type': rng.choice(stake_types),
                     })
 
-    all_databases = get_active_tablet_databases(tablet_count) + ['cloud']
+    all_databases = [*get_active_tablet_databases(tablet_count), 'cloud']
 
-    for db in all_databases:
-        switch_db(db)
+    for database in all_databases:
+        switch_database(database)
         time.sleep(0.005)
 
         for data in shared_clients:
@@ -341,9 +273,9 @@ def _seed_randomized(seed: int, tablet_count: int) -> dict:
 
     tablet_databases = get_active_tablet_databases(tablet_count)
 
-    for index, tablet_db in enumerate(tablet_databases):
+    for index, tablet_database in enumerate(tablet_databases):
         tablet_rng = random.Random(seed + index + 1)
-        switch_db(tablet_db)
+        switch_database(tablet_database)
         time.sleep(0.005)
 
         stakes_to_modify = tablet_rng.sample(
@@ -353,23 +285,18 @@ def _seed_randomized(seed: int, tablet_count: int) -> dict:
 
         for stake_data in stakes_to_modify:
             stake = Stake.objects.get(id=stake_data['id'])
-            stake.latitude = round(tablet_rng.uniform(49.0, 51.0), 4)
-            stake.longitude = round(tablet_rng.uniform(-114.0, -110.0), 4)
-            stake.elevation = round(tablet_rng.uniform(900.0, 950.0), 1)
+            stake.latitude = tablet_rng.uniform(49.0, 50.0)
+            stake.longitude = tablet_rng.uniform(-113.0, -112.0)
+            stake.elevation = tablet_rng.uniform(900, 950)
             stake.is_placed = True
             stake.save()
 
-    switch_db('cloud')
+    switch_database('cloud')
     time.sleep(0.005)
 
-    for plan_data in shared_plans:
-        plan = SurveyPlan.objects.get(id=plan_data['id'])
-        plan.office_notes = fake.sentence()
-        plan.headland_offset_m = rng.choice([5, 10, 15, 20])
-        plan.status = rng.choice(plan_statuses)
-        plan.save()
+    if shared_clients:
+        cloud_client = Client.objects.get(id=shared_clients[0]['id'])
+        cloud_client.contact_name = fake.name()
+        cloud_client.save()
 
-    return {
-        'scenario': 'randomized',
-        'tablet_count': tablet_count,
-    }
+    return {'tablets_seeded': tablet_databases}

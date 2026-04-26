@@ -1,49 +1,66 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Any
+
+from typing_extensions import TYPE_CHECKING
+
+from django_spire.contrib.service import BaseDjangoModelService
 
 from test_project.apps.sync import models
 from test_project.apps.sync.config import get_active_tablet_databases
-from test_project.apps.sync.context import get_current_db, get_tablet_count, switch_db
+from test_project.apps.sync.constants import (
+    TRUNCATE_LIMIT,
+    FieldOutcome,
+    MergedOutcome,
+    RecordKind,
+    SyncModelLabel,
+    VerificationStatus,
+    WinnerSide,
+)
+from test_project.apps.sync.context import get_current_database, get_tablet_count, switch_database
+from test_project.apps.sync.registry import (
+    DISPLAY_FIELDS,
+    FOREIGN_KEY_DISPLAY,
+    LABEL_MAP,
+    LABEL_TO_DISPLAY,
+    MODEL_ORDER,
+)
+from test_project.apps.sync.types import (
+    CellData,
+    ClassifiedRow,
+    CloudDatabaseView,
+    CloudRecord,
+    CloudRecordField,
+    CloudSection,
+    FieldDisplay,
+    HybridLogicalClockDecoded,
+    MergedCellData,
+    MergedCloudRecord,
+    MergedCloudRecordField,
+    SyncCounts,
+    SyncPerformResult,
+    VerificationField,
+    VerificationRecord,
+    VerificationResult,
+    VerificationSection,
+)
 
+if TYPE_CHECKING:
+    from typing_extensions import Any
 
-DISPLAY_FIELDS = {
-    'Client': ('name', 'contact_name', 'contact_email'),
-    'Site': ('name', 'description', 'region', 'status'),
-    'SurveyPlan': (
-        'plan_number',
-        'stake_spacing_m', 'line_direction', 'headland_offset_m', 'office_notes',
-        'baseline_a_latitude', 'baseline_a_longitude',
-        'baseline_b_latitude', 'baseline_b_longitude',
-        'heading_degrees', 'crew_notes',
-        'status',
-    ),
-    'Stake': (
-        'latitude', 'longitude', 'elevation', 'is_placed',
-        'stake_type', 'label',
-    ),
-}
+    from test_project.apps.sync.models import Client
 
-FK_DISPLAY = {
-    'Site': [('client', lambda obj: obj.client.name if obj.client else '')],
-    'SurveyPlan': [('site', lambda obj: obj.site.name if obj.site else '')],
-    'Stake': [('survey_plan', lambda obj: str(obj.survey_plan) if obj.survey_plan else '')],
-}
-
-MODEL_ORDER = ['Client', 'Site', 'SurveyPlan', 'Stake']
-
-MODEL_MAP = {
-    'Client': models.Client,
-    'Site': models.Site,
-    'SurveyPlan': models.SurveyPlan,
-    'Stake': models.Stake,
-}
-
-TRUNCATE_LIMIT = 40
 
 _COUNTER_BITS = 16
+
+_MODEL_MAP: dict[str, type] = {
+    'Client': models.Client,
+    'Site': models.Site,
+    'Stake': models.Stake,
+    'SurveyPlan': models.SurveyPlan,
+}
 
 
 def _coerce_value(value: Any) -> Any:
@@ -52,242 +69,223 @@ def _coerce_value(value: Any) -> Any:
     return value
 
 
-class SyncTransformationService:
-    def apply_resolutions(self, rows: list[dict], result: dict, tablet_db: str = '') -> None:
-        tablet_data = result.get('tablets', {}).get(tablet_db, {})
+class SyncTransformationService(BaseDjangoModelService['Client']):
+    obj: Client
+
+    def apply_resolutions(self, rows: list[ClassifiedRow], result: SyncPerformResult, tablet_database: str = '') -> None:
+        tablet_data = result.tablets.get(tablet_database)
+
+        if not tablet_data:
+            return
+
         conflict_map = {}
 
-        for entry in tablet_data.get('tablet_result', {}).get('conflict_log', []):
-            conflict_map[entry['key']] = entry
+        for entry in tablet_data.tablet_result.conflict_log:
+            conflict_map[entry.key] = entry
 
         for row in rows:
-            resolution = conflict_map.get(row['id'])
+            resolution = conflict_map.get(row.id)
 
             if resolution:
-                row['resolution'] = resolution
+                row.resolution = resolution
 
-                tablet_outcomes = {}
-                cloud_outcomes = {}
+                tablet_outcomes: dict[str, str] = {}
+                cloud_outcomes: dict[str, str] = {}
 
-                for fc in resolution.get('field_conflicts', []):
-                    fname = fc['field_name']
+                for field_conflict in resolution.field_conflicts:
+                    field_name = field_conflict.field_name
 
-                    if fc['winner'] == 'remote':
-                        tablet_outcomes[fname] = 'won'
-                        cloud_outcomes[fname] = 'lost'
+                    if field_conflict.winner == WinnerSide.REMOTE:
+                        tablet_outcomes[field_name] = FieldOutcome.WON
+                        cloud_outcomes[field_name] = FieldOutcome.LOST
                     else:
-                        tablet_outcomes[fname] = 'lost'
-                        cloud_outcomes[fname] = 'won'
+                        tablet_outcomes[field_name] = FieldOutcome.LOST
+                        cloud_outcomes[field_name] = FieldOutcome.WON
 
-                row['tablet_cell'] = self._build_cell(
-                    row['tablet_obj'], row['model'], row['diff_fields'], tablet_outcomes
+                row.tablet_cell = self._build_cell(
+                    row.tablet_object, row.model, row.difference_fields, tablet_outcomes,
                 )
-                row['cloud_cell'] = self._build_cell(
-                    row['cloud_obj'], row['model'], row['diff_fields'], cloud_outcomes
+                row.cloud_cell = self._build_cell(
+                    row.cloud_object, row.model, row.difference_fields, cloud_outcomes,
                 )
 
-            row['merged_cell'] = self._build_merged_cell(row, resolution)
+            row.merged_cell = self._build_merged_cell(row, resolution)
 
-    def build_cloud_database_view(self) -> dict[str, Any]:
-        current_db = get_current_db()
-        switch_db('cloud')
+    def build_cloud_database_view(self) -> CloudDatabaseView:
+        current_database = get_current_database()
+        switch_database('cloud')
 
         sections = []
         total_records = 0
 
         for model_name in MODEL_ORDER:
-            model_cls = MODEL_MAP[model_name]
+            model_class = _MODEL_MAP[model_name]
             fields = DISPLAY_FIELDS.get(model_name, ())
-            fk_display = FK_DISPLAY.get(model_name, [])
-            objects = list(model_cls.objects.select_related().all())
+            foreign_key_display = FOREIGN_KEY_DISPLAY.get(model_name, [])
+            objects = list(model_class.objects.select_related().all())
             records = []
 
-            for obj in objects:
+            for instance in objects:
                 total_records += 1
-                ts_map = obj.sync_field_timestamps if hasattr(obj, 'sync_field_timestamps') and obj.sync_field_timestamps else {}
+                timestamp_map = instance.sync_field_timestamps if hasattr(instance, 'sync_field_timestamps') and instance.sync_field_timestamps else {}
                 record_fields = []
 
-                for fk_name, fk_fn in fk_display:
-                    fk_val = str(fk_fn(obj))
-                    fk_display_val = fk_val if len(fk_val) <= TRUNCATE_LIMIT else fk_val[:TRUNCATE_LIMIT - 3] + '...'
+                for foreign_key_name, foreign_key_function in foreign_key_display:
+                    foreign_key_value = str(foreign_key_function(instance))
+                    foreign_key_display_value = foreign_key_value if len(foreign_key_value) <= TRUNCATE_LIMIT else foreign_key_value[:TRUNCATE_LIMIT - 3] + '...'
 
-                    record_fields.append({
-                        'name': fk_name,
-                        'value': fk_display_val,
-                        'full_value': fk_val if fk_val != fk_display_val else '',
-                        'ts': self.decode_hlc(ts_map.get(fk_name, 0)),
-                    })
+                    record_fields.append(CloudRecordField(
+                        full_value=foreign_key_value if foreign_key_value != foreign_key_display_value else '',
+                        name=foreign_key_name,
+                        timestamp=self.decode_hybrid_logical_clock(timestamp_map.get(foreign_key_name, 0)),
+                        value=foreign_key_display_value,
+                    ))
 
-                for f in fields:
-                    raw_val = _coerce_value(getattr(obj, f, ''))
-                    full_str = str(raw_val)
-                    display_val = full_str if len(full_str) <= TRUNCATE_LIMIT else full_str[:TRUNCATE_LIMIT - 3] + '...'
+                for field_name in fields:
+                    raw_value = _coerce_value(getattr(instance, field_name, ''))
+                    full_string = str(raw_value)
+                    display_value = full_string if len(full_string) <= TRUNCATE_LIMIT else full_string[:TRUNCATE_LIMIT - 3] + '...'
 
-                    if raw_val == '' or raw_val is None:
-                        display_val = '\u2014'
-                        full_str = ''
+                    if raw_value == '' or raw_value is None:
+                        display_value = '\u2014'
+                        full_string = ''
 
-                    record_fields.append({
-                        'name': f,
-                        'value': display_val,
-                        'full_value': full_str if full_str != display_val else '',
-                        'ts': self.decode_hlc(ts_map.get(f, 0)),
-                    })
+                    record_fields.append(CloudRecordField(
+                        full_value=full_string if full_string != display_value else '',
+                        name=field_name,
+                        timestamp=self.decode_hybrid_logical_clock(timestamp_map.get(field_name, 0)),
+                        value=display_value,
+                    ))
 
-                records.append({
-                    'id': str(obj.id),
-                    'title': str(obj),
-                    'sync_field_last_modified': self.decode_hlc(obj.sync_field_last_modified),
-                    'fields': record_fields,
-                })
+                records.append(CloudRecord(
+                    fields=record_fields,
+                    id=str(instance.id),
+                    sync_field_last_modified=self.decode_hybrid_logical_clock(instance.sync_field_last_modified),
+                    title=str(instance),
+                ))
 
-            sections.append({
-                'model_name': model_name,
-                'record_count': len(records),
-                'records': records,
-            })
+            sections.append(CloudSection(
+                model_name=model_name,
+                record_count=len(records),
+                records=records,
+            ))
 
-        switch_db(current_db)
+        switch_database(current_database)
 
-        return {
-            'sections': sections,
-            'total_records': total_records,
-        }
+        return CloudDatabaseView(
+            sections=sections,
+            total_records=total_records,
+        )
 
-    def build_merged_cloud_view(self, result: dict) -> list[dict]:
-        current_db = get_current_db()
-
-        label_to_display = {
-            'sync.Client': 'Client',
-            'sync.Site': 'Site',
-            'sync.SurveyPlan': 'SurveyPlan',
-            'sync.Stake': 'Stake',
-        }
-
-        label_to_model = {
-            'sync.Client': models.Client,
-            'sync.Site': models.Site,
-            'sync.SurveyPlan': models.SurveyPlan,
-            'sync.Stake': models.Stake,
-        }
+    def build_merged_cloud_view(self, result: SyncPerformResult) -> list[MergedCloudRecord]:
+        current_database = get_current_database()
 
         field_sources: dict[str, dict[str, dict[str, str]]] = {}
 
-        for tablet_db, tdata in result.get('tablets', {}).items():
-            tr = tdata.get('tablet_result', {})
+        for tablet_database, tablet_data in result.tablets.items():
+            tablet_result = tablet_data.tablet_result
 
             for category in ('created', 'applied', 'compatible'):
-                for label, keys in tr.get(category, {}).items():
+                for label, keys in getattr(tablet_result, category).items():
                     for key in keys:
                         sources = field_sources.setdefault(label, {}).setdefault(key, {})
-                        sources['_default'] = tablet_db
+                        sources['_default'] = tablet_database
 
-            for entry in tr.get('conflict_log', []):
-                label = entry['model_label']
-                key = entry['key']
+            for entry in tablet_result.conflict_log:
+                label = entry.model_label
+                key = entry.key
                 sources = field_sources.setdefault(label, {}).setdefault(key, {})
 
-                for fc in entry.get('field_conflicts', []):
-                    if fc['winner'] == 'remote':
-                        sources[fc['field_name']] = tablet_db
+                for field_conflict in entry.field_conflicts:
+                    if field_conflict.winner == WinnerSide.REMOTE:
+                        sources[field_conflict.field_name] = tablet_database
                     else:
-                        sources[fc['field_name']] = 'cloud'
+                        sources[field_conflict.field_name] = WinnerSide.CLOUD
 
-        switch_db('cloud')
+        switch_database('cloud')
 
-        label_order = result.get('sync_order', list(label_to_display.keys()))
-        records = []
+        label_order = result.sync_order or list(LABEL_TO_DISPLAY.keys())
+        records: list[MergedCloudRecord] = []
 
         for label in label_order:
-            display_name = label_to_display.get(label, label)
-            model_cls = label_to_model.get(label)
+            display_name = LABEL_TO_DISPLAY.get(label, label)
+            model_class = LABEL_MAP.get(label)
 
-            if not model_cls:
+            if not model_class:
                 continue
 
             display_fields = DISPLAY_FIELDS.get(display_name, ())
-            fk_display = FK_DISPLAY.get(display_name, [])
+            foreign_key_display = FOREIGN_KEY_DISPLAY.get(display_name, [])
 
-            for obj in model_cls.objects.select_related().all():
-                key = str(obj.id)
+            for instance in model_class.objects.select_related().all():
+                key = str(instance.id)
                 record_sources = field_sources.get(label, {}).get(key, {})
-                default_source = record_sources.get('_default', 'cloud')
+                default_source = record_sources.get('_default', WinnerSide.CLOUD)
 
                 fields = []
 
-                for fk_name, fk_fn in fk_display:
-                    source = record_sources.get(fk_name, default_source)
-                    fields.append({
-                        'name': fk_name,
-                        'value': str(fk_fn(obj)),
-                        'source': source,
-                    })
+                for foreign_key_name, foreign_key_function in foreign_key_display:
+                    source = record_sources.get(foreign_key_name, default_source)
+                    fields.append(MergedCloudRecordField(
+                        name=foreign_key_name,
+                        source=source,
+                        value=str(foreign_key_function(instance)),
+                    ))
 
-                for f in display_fields:
-                    source = record_sources.get(f, default_source)
-                    raw_val = _coerce_value(getattr(obj, f, ''))
-                    val_str = str(raw_val) if raw_val != '' and raw_val is not None else '\u2014'
-                    fields.append({
-                        'name': f,
-                        'value': val_str,
-                        'source': source,
-                    })
+                for field_name in display_fields:
+                    source = record_sources.get(field_name, default_source)
+                    raw_value = _coerce_value(getattr(instance, field_name, ''))
+                    value_string = str(raw_value) if raw_value != '' and raw_value is not None else '\u2014'
+                    fields.append(MergedCloudRecordField(
+                        name=field_name,
+                        source=source,
+                        value=value_string,
+                    ))
 
-                records.append({
-                    'model': display_name,
-                    'title': str(obj),
-                    'id': key,
-                    'fields': fields,
-                })
+                records.append(MergedCloudRecord(
+                    fields=fields,
+                    id=key,
+                    model=display_name,
+                    title=str(instance),
+                ))
 
-        switch_db(current_db)
+        switch_database(current_database)
         return records
 
-    def build_verification(self) -> dict:
-        current_db = get_current_db()
+    def build_verification(self) -> VerificationResult:
+        current_database = get_current_database()
         tablet_count = get_tablet_count()
         tablet_databases = get_active_tablet_databases(tablet_count)
 
-        model_map = {
-            'Client': models.Client,
-            'Site': models.Site,
-            'SurveyPlan': models.SurveyPlan,
-            'Stake': models.Stake,
-        }
-
-        model_order = ['Client', 'Site', 'SurveyPlan', 'Stake']
-        tablet_sections: dict[str, list] = {}
-        total_records = 0
+        tablet_sections: dict[str, list[VerificationSection]] = {}
         total_matched = 0
         total_mismatched = 0
+        total_records = 0
 
-        switch_db('cloud')
+        switch_database('cloud')
         cloud_data: dict[str, dict[str, Any]] = {}
 
-        for model_name in model_order:
-            model_cls = model_map[model_name]
+        for model_name in MODEL_ORDER:
+            model_class = _MODEL_MAP[model_name]
             cloud_data[model_name] = {
-                str(obj.id): obj
-                for obj in model_cls.objects.select_related().all()
+                str(instance.id): instance
+                for instance in model_class.objects.select_related().all()
             }
 
-        for tablet_db in tablet_databases:
-            switch_db(tablet_db)
+        for tablet_database in tablet_databases:
+            switch_database(tablet_database)
             sections = []
 
-            for model_name in model_order:
-                model_cls = model_map[model_name]
+            for model_name in MODEL_ORDER:
+                model_class = _MODEL_MAP[model_name]
                 fields = DISPLAY_FIELDS.get(model_name, ())
-                fk_display = FK_DISPLAY.get(model_name, [])
+                foreign_key_display = FOREIGN_KEY_DISPLAY.get(model_name, [])
 
-                tablet_objects = list(model_cls.objects.select_related().all())
-                tablet_map = {str(obj.id): obj for obj in tablet_objects}
+                tablet_objects = list(model_class.objects.select_related().all())
+                tablet_map = {str(instance.id): instance for instance in tablet_objects}
                 cloud_map = cloud_data[model_name]
 
-                all_ids = list(dict.fromkeys(
-                    list(tablet_map.keys()) + list(cloud_map.keys())
-                ))
-
+                all_ids = list(dict.fromkeys(list(tablet_map.keys()) + list(cloud_map.keys())))
                 records = []
 
                 for record_id in all_ids:
@@ -297,112 +295,112 @@ class SyncTransformationService:
                     if tablet and not cloud:
                         total_records += 1
                         total_mismatched += 1
-                        records.append({
-                            'id': record_id,
-                            'status': 'tablet_only',
-                            'title': str(tablet),
-                            'fields': [],
-                        })
+                        records.append(VerificationRecord(
+                            fields=[],
+                            id=record_id,
+                            status=VerificationStatus.TABLET_ONLY,
+                            title=str(tablet),
+                        ))
                         continue
 
                     if cloud and not tablet:
                         total_records += 1
                         total_mismatched += 1
-                        records.append({
-                            'id': record_id,
-                            'status': 'cloud_only',
-                            'title': str(cloud),
-                            'fields': [],
-                        })
+                        records.append(VerificationRecord(
+                            fields=[],
+                            id=record_id,
+                            status=VerificationStatus.CLOUD_ONLY,
+                            title=str(cloud),
+                        ))
                         continue
 
                     total_records += 1
                     field_rows = []
                     has_mismatch = False
 
-                    for fk_name, fk_fn in fk_display:
-                        tv = str(fk_fn(tablet))
-                        cv = str(fk_fn(cloud))
-                        matched = tv == cv
+                    for foreign_key_name, foreign_key_function in foreign_key_display:
+                        tablet_value = str(foreign_key_function(tablet))
+                        cloud_value = str(foreign_key_function(cloud))
+                        matched = tablet_value == cloud_value
 
                         if not matched:
                             has_mismatch = True
 
-                        field_rows.append({
-                            'name': fk_name,
-                            'tablet_value': tv,
-                            'cloud_value': cv,
-                            'matched': matched,
-                        })
+                        field_rows.append(VerificationField(
+                            cloud_value=cloud_value,
+                            matched=matched,
+                            name=foreign_key_name,
+                            tablet_value=tablet_value,
+                        ))
 
-                    for f in fields:
-                        tv = str(_coerce_value(getattr(tablet, f, '')))
-                        cv = str(_coerce_value(getattr(cloud, f, '')))
-                        matched = tv == cv
+                    for field_name in fields:
+                        tablet_value = str(_coerce_value(getattr(tablet, field_name, '')))
+                        cloud_value = str(_coerce_value(getattr(cloud, field_name, '')))
+                        matched = tablet_value == cloud_value
 
                         if not matched:
                             has_mismatch = True
 
-                        field_rows.append({
-                            'name': f,
-                            'tablet_value': tv,
-                            'cloud_value': cv,
-                            'matched': matched,
-                        })
+                        field_rows.append(VerificationField(
+                            cloud_value=cloud_value,
+                            matched=matched,
+                            name=field_name,
+                            tablet_value=tablet_value,
+                        ))
 
                     if has_mismatch:
                         total_mismatched += 1
                     else:
                         total_matched += 1
 
-                    records.append({
-                        'id': record_id,
-                        'status': 'match' if not has_mismatch else 'mismatch',
-                        'title': str(tablet),
-                        'fields': field_rows,
-                    })
+                    records.append(VerificationRecord(
+                        fields=field_rows,
+                        id=record_id,
+                        status=VerificationStatus.MATCH if not has_mismatch else VerificationStatus.MISMATCH,
+                        title=str(tablet),
+                    ))
 
-                sections.append({
-                    'model_name': model_name,
-                    'record_count': len(all_ids),
-                    'matched': sum(1 for r in records if r['status'] == 'match'),
-                    'mismatched': sum(1 for r in records if r['status'] != 'match'),
-                    'records': records,
-                })
+                sections.append(VerificationSection(
+                    matched=sum(1 for record in records if record.status == VerificationStatus.MATCH),
+                    mismatched=sum(1 for record in records if record.status != VerificationStatus.MATCH),
+                    model_name=model_name,
+                    record_count=len(all_ids),
+                    records=records,
+                ))
 
-            tablet_sections[tablet_db] = sections
+            tablet_sections[tablet_database] = sections
 
-        switch_db(current_db)
+        switch_database(current_database)
 
-        return {
-            'tablet_sections': tablet_sections,
-            'total_matched': total_matched,
-            'total_mismatched': total_mismatched,
-            'total_records': total_records,
-            'verified': total_mismatched == 0 and total_records > 0,
-        }
+        return VerificationResult(
+            tablet_sections=tablet_sections,
+            total_matched=total_matched,
+            total_mismatched=total_mismatched,
+            total_records=total_records,
+            verified=total_mismatched == 0 and total_records > 0,
+        )
 
-    def classify_databases(self, tablet_db: str = '') -> list[dict]:
-        current_db = get_current_db()
+    def classify_databases(self, tablet_database: str = '') -> list[ClassifiedRow]:
+        current_database = get_current_database()
 
-        if not tablet_db:
-            tablet_db = current_db if current_db != 'cloud' else 'tablet_1'
+        if not tablet_database:
+            tablet_database = current_database if current_database != 'cloud' else 'tablet_1'
 
-        switch_db(tablet_db)
+        switch_database(tablet_database)
         tablet_clients = list(models.Client.objects.all())
         tablet_sites = list(models.Site.objects.select_related('client').all())
         tablet_plans = list(models.SurveyPlan.objects.select_related('site').all())
         tablet_stakes = list(models.Stake.objects.select_related('survey_plan', 'survey_plan__site').all())
 
-        switch_db('cloud')
+        switch_database('cloud')
         cloud_clients = list(models.Client.objects.all())
         cloud_sites = list(models.Site.objects.select_related('client').all())
         cloud_plans = list(models.SurveyPlan.objects.select_related('site').all())
         cloud_stakes = list(models.Stake.objects.select_related('survey_plan', 'survey_plan__site').all())
 
-        switch_db(current_db)
+        switch_database(current_database)
 
-        all_rows = []
+        all_rows: list[ClassifiedRow] = []
         all_rows.extend(self._classify_records(tablet_clients, cloud_clients, 'Client'))
         all_rows.extend(self._classify_records(tablet_sites, cloud_sites, 'Site'))
         all_rows.extend(self._classify_records(tablet_plans, cloud_plans, 'SurveyPlan'))
@@ -411,142 +409,148 @@ class SyncTransformationService:
         return all_rows
 
     @staticmethod
-    def count_kinds(rows: list[dict]) -> dict[str, int]:
-        counts = {'match': 0, 'conflict': 0, 'tablet_only': 0, 'cloud_only': 0}
+    def count_kinds(rows: list[ClassifiedRow]) -> SyncCounts:
+        counts = SyncCounts()
 
         for row in rows:
-            counts[row['kind']] += 1
+            setattr(counts, row.kind, getattr(counts, row.kind) + 1)
 
         return counts
 
     @staticmethod
-    def decode_hlc(hlc: int) -> dict:
-        if not hlc:
-            return {'raw': '', 'human': '', 'wall_ms': 0, 'counter': 0}
+    def decode_hybrid_logical_clock(hybrid_logical_clock: int) -> HybridLogicalClockDecoded:
+        if not hybrid_logical_clock:
+            return HybridLogicalClockDecoded(counter=0, human='', raw='', wall_ms=0)
 
-        wall_ms = hlc >> _COUNTER_BITS
-        counter = hlc & ((1 << _COUNTER_BITS) - 1)
-        dt = datetime.fromtimestamp(wall_ms / 1000, tz=timezone.utc)
+        wall_ms = hybrid_logical_clock >> _COUNTER_BITS
+        counter = hybrid_logical_clock & ((1 << _COUNTER_BITS) - 1)
+        datetime_utc = datetime.fromtimestamp(wall_ms / 1000, tz=timezone.utc)
 
-        return {
-            'raw': str(hlc),
-            'human': dt.strftime('%Y-%m-%d %H:%M:%S.') + f'{dt.microsecond // 1000:03d}',
-            'wall_ms': wall_ms,
-            'counter': counter,
-        }
+        return HybridLogicalClockDecoded(
+            counter=counter,
+            human=datetime_utc.strftime('%Y-%m-%d %H:%M:%S.') + f'{datetime_utc.microsecond // 1000:03d}',
+            raw=str(hybrid_logical_clock),
+            wall_ms=wall_ms,
+        )
 
-    def _build_cell(self, obj, model_name: str, diff_fields: list, field_outcomes: dict | None = None) -> dict | None:
-        if obj is None:
+    def _build_cell(
+        self,
+        instance: Any,
+        model_name: str,
+        difference_fields: list,
+        field_outcomes: dict | None = None,
+    ) -> CellData | None:
+        if instance is None:
             return None
 
-        ts_map = obj.sync_field_timestamps if hasattr(obj, 'sync_field_timestamps') and obj.sync_field_timestamps else {}
+        timestamp_map = instance.sync_field_timestamps if hasattr(instance, 'sync_field_timestamps') and instance.sync_field_timestamps else {}
         fields = []
 
-        for fk_name, fk_fn in FK_DISPLAY.get(model_name, []):
-            fk_val = fk_fn(obj)
-            fk_str = str(fk_val)
-            fk_display = fk_str if len(fk_str) <= TRUNCATE_LIMIT else fk_str[:TRUNCATE_LIMIT - 3] + '...'
+        for foreign_key_name, foreign_key_function in FOREIGN_KEY_DISPLAY.get(model_name, []):
+            foreign_key_value = foreign_key_function(instance)
+            foreign_key_string = str(foreign_key_value)
+            foreign_key_display_value = foreign_key_string if len(foreign_key_string) <= TRUNCATE_LIMIT else foreign_key_string[:TRUNCATE_LIMIT - 3] + '...'
 
-            fields.append({
-                'name': fk_name,
-                'value': fk_display,
-                'full_value': fk_str if fk_str != fk_display else '',
-                'is_diff': False,
-                'outcome': '',
-                'ts': self.decode_hlc(ts_map.get(fk_name, 0)),
-            })
+            fields.append(FieldDisplay(
+                full_value=foreign_key_string if foreign_key_string != foreign_key_display_value else '',
+                is_diff=False,
+                name=foreign_key_name,
+                outcome='',
+                timestamp=self.decode_hybrid_logical_clock(timestamp_map.get(foreign_key_name, 0)),
+                value=foreign_key_display_value,
+            ))
 
-        for f in DISPLAY_FIELDS.get(model_name, ()):
-            raw_val = _coerce_value(getattr(obj, f, ''))
-            full_str = str(raw_val)
-            display_val = full_str if len(full_str) <= TRUNCATE_LIMIT else full_str[:TRUNCATE_LIMIT - 3] + '...'
+        for field_name in DISPLAY_FIELDS.get(model_name, ()):
+            raw_value = _coerce_value(getattr(instance, field_name, ''))
+            full_string = str(raw_value)
+            display_value = full_string if len(full_string) <= TRUNCATE_LIMIT else full_string[:TRUNCATE_LIMIT - 3] + '...'
 
-            if raw_val == '' or raw_val is None:
-                display_val = '\u2014'
-                full_str = ''
+            if raw_value == '' or raw_value is None:
+                display_value = '\u2014'
+                full_string = ''
 
             outcome = ''
 
-            if field_outcomes and f in field_outcomes:
-                outcome = field_outcomes[f]
+            if field_outcomes and field_name in field_outcomes:
+                outcome = field_outcomes[field_name]
 
-            fields.append({
-                'name': f,
-                'value': display_val,
-                'full_value': full_str if full_str != display_val else '',
-                'is_diff': f in diff_fields,
-                'outcome': outcome,
-                'ts': self.decode_hlc(ts_map.get(f, 0)),
-            })
+            fields.append(FieldDisplay(
+                full_value=full_string if full_string != display_value else '',
+                is_diff=field_name in difference_fields,
+                name=field_name,
+                outcome=outcome,
+                timestamp=self.decode_hybrid_logical_clock(timestamp_map.get(field_name, 0)),
+                value=display_value,
+            ))
 
-        return {
-            'title': str(obj),
-            'fields': fields,
-        }
+        return CellData(
+            fields=fields,
+            title=str(instance),
+        )
 
-    def _build_merged_cell(self, row: dict, resolution: dict | None) -> dict | None:
-        kind = row['kind']
+    def _build_merged_cell(self, row: ClassifiedRow, resolution: Any) -> MergedCellData | None:
+        kind = row.kind
 
-        if kind == 'match':
-            cell = row['tablet_cell']
-            return {
-                'title': cell['title'],
-                'outcome': 'match',
-                'fields': [{**f, 'outcome': 'match'} for f in cell['fields']],
-            }
+        if kind == RecordKind.MATCH:
+            cell = row.tablet_cell
+            return MergedCellData(
+                fields=[replace(field, outcome=FieldOutcome.MATCH) for field in cell.fields],
+                outcome=MergedOutcome.MATCH,
+                title=cell.title,
+            )
 
-        if kind == 'tablet_only':
-            cell = row['tablet_cell']
-            return {
-                'title': cell['title'],
-                'outcome': 'pushed',
-                'fields': [{**f, 'outcome': 'pushed'} for f in cell['fields']],
-            }
+        if kind == RecordKind.TABLET_ONLY:
+            cell = row.tablet_cell
+            return MergedCellData(
+                fields=[replace(field, outcome=FieldOutcome.PUSHED) for field in cell.fields],
+                outcome=MergedOutcome.PUSHED,
+                title=cell.title,
+            )
 
-        if kind == 'cloud_only':
-            cell = row['cloud_cell']
-            return {
-                'title': cell['title'],
-                'outcome': 'pulled',
-                'fields': [{**f, 'outcome': 'pulled'} for f in cell['fields']],
-            }
+        if kind == RecordKind.CLOUD_ONLY:
+            cell = row.cloud_cell
+            return MergedCellData(
+                fields=[replace(field, outcome=FieldOutcome.PULLED) for field in cell.fields],
+                outcome=MergedOutcome.PULLED,
+                title=cell.title,
+            )
 
-        if kind == 'conflict' and resolution:
+        if kind == RecordKind.CONFLICT and resolution:
             winner_map = {}
 
-            for fc in resolution.get('field_conflicts', []):
-                fname = fc['field_name']
-                winner_map[fname] = 'local' if fc['winner'] == 'remote' else 'cloud'
+            for field_conflict in resolution.field_conflicts:
+                field_name = field_conflict.field_name
+                winner_map[field_name] = WinnerSide.LOCAL if field_conflict.winner == WinnerSide.REMOTE else WinnerSide.CLOUD
 
-            tablet_cell = row['tablet_cell']
-            cloud_cell = row['cloud_cell']
+            tablet_cell = row.tablet_cell
+            cloud_cell = row.cloud_cell
             merged_fields = []
 
-            for lf in tablet_cell['fields']:
-                fname = lf['name']
+            for local_field in tablet_cell.fields:
+                field_name = local_field.name
 
-                if fname in winner_map:
-                    winner_side = winner_map[fname]
+                if field_name in winner_map:
+                    winner_side = winner_map[field_name]
 
-                    if winner_side == 'local':
-                        merged_fields.append({**lf, 'is_diff': True, 'outcome': 'won_local'})
+                    if winner_side == WinnerSide.LOCAL:
+                        merged_fields.append(replace(local_field, is_diff=True, outcome=FieldOutcome.WON_LOCAL))
                     else:
-                        cf = next((f for f in cloud_cell['fields'] if f['name'] == fname), lf)
-                        merged_fields.append({**cf, 'is_diff': True, 'outcome': 'won_cloud'})
+                        cloud_field = next((field for field in cloud_cell.fields if field.name == field_name), local_field)
+                        merged_fields.append(replace(cloud_field, is_diff=True, outcome=FieldOutcome.WON_CLOUD))
                 else:
-                    merged_fields.append({**lf, 'outcome': '', 'is_diff': False})
+                    merged_fields.append(replace(local_field, is_diff=False, outcome=''))
 
-            return {
-                'title': tablet_cell['title'],
-                'outcome': 'resolved',
-                'fields': merged_fields,
-            }
+            return MergedCellData(
+                fields=merged_fields,
+                outcome=MergedOutcome.RESOLVED,
+                title=tablet_cell.title,
+            )
 
         return None
 
-    def _classify_records(self, tablet_objects: list, cloud_objects: list, model_name: str) -> list[dict]:
-        tablet_map = {str(obj.id): obj for obj in tablet_objects}
-        cloud_map = {str(obj.id): obj for obj in cloud_objects}
+    def _classify_records(self, tablet_objects: list, cloud_objects: list, model_name: str) -> list[ClassifiedRow]:
+        tablet_map = {str(instance.id): instance for instance in tablet_objects}
+        cloud_map = {str(instance.id): instance for instance in cloud_objects}
         all_ids = list(dict.fromkeys(list(tablet_map.keys()) + list(cloud_map.keys())))
 
         rows = []
@@ -555,34 +559,34 @@ class SyncTransformationService:
             tablet = tablet_map.get(record_id)
             cloud = cloud_map.get(record_id)
 
-            diff_fields = []
+            difference_fields = []
 
             if tablet and cloud:
                 for key in DISPLAY_FIELDS.get(model_name, ()):
-                    tv = _coerce_value(getattr(tablet, key, ''))
-                    cv = _coerce_value(getattr(cloud, key, ''))
+                    tablet_value = _coerce_value(getattr(tablet, key, ''))
+                    cloud_value = _coerce_value(getattr(cloud, key, ''))
 
-                    if str(tv) != str(cv):
-                        diff_fields.append(key)
+                    if str(tablet_value) != str(cloud_value):
+                        difference_fields.append(key)
 
-                kind = 'conflict' if diff_fields else 'match'
+                kind = RecordKind.CONFLICT if difference_fields else RecordKind.MATCH
             elif tablet:
-                kind = 'tablet_only'
+                kind = RecordKind.TABLET_ONLY
             else:
-                kind = 'cloud_only'
+                kind = RecordKind.CLOUD_ONLY
 
-            rows.append({
-                'kind': kind,
-                'id': record_id,
-                'model': model_name,
-                'diff_count': len(diff_fields),
-                'diff_fields': diff_fields,
-                'tablet_obj': tablet,
-                'cloud_obj': cloud,
-                'tablet_cell': self._build_cell(tablet, model_name, diff_fields),
-                'cloud_cell': self._build_cell(cloud, model_name, diff_fields),
-                'merged_cell': None,
-                'resolution': None,
-            })
+            rows.append(ClassifiedRow(
+                cloud_cell=self._build_cell(cloud, model_name, difference_fields),
+                cloud_object=cloud,
+                difference_count=len(difference_fields),
+                difference_fields=difference_fields,
+                id=record_id,
+                kind=kind,
+                merged_cell=None,
+                model=model_name,
+                resolution=None,
+                tablet_cell=self._build_cell(tablet, model_name, difference_fields),
+                tablet_object=tablet,
+            ))
 
         return rows

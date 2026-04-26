@@ -11,36 +11,36 @@ if TYPE_CHECKING:
 
 class SyncDemoRouter:
     @staticmethod
-    def _get_context_db() -> str:
-        return getattr(_context, 'db', 'default')
+    def _get_context_database() -> str:
+        return getattr(_context, 'database_name', 'default')
 
     def allow_migrate(
         self,
-        db: str,
+        database: str,
         app_label: str,
         **hints: Any,
     ) -> bool | None:
         _ = hints
 
         if app_label == 'test_project_sync':
-            return db in get_all_sync_databases()
+            return database in get_all_sync_databases()
 
-        if db in get_all_sync_databases():
+        if database in get_all_sync_databases():
             return False
 
         return None
 
     def allow_relation(
         self,
-        obj1: models.Model,
-        obj2: models.Model,
+        object_one: models.Model,
+        object_two: models.Model,
         **hints: Any,
     ) -> bool | None:
         _ = hints
 
         if (
-            obj1._meta.app_label == 'test_project_sync'
-            and obj2._meta.app_label == 'test_project_sync'
+            object_one._meta.app_label == 'test_project_sync'
+            and object_two._meta.app_label == 'test_project_sync'
         ):
             return True
 
@@ -54,7 +54,7 @@ class SyncDemoRouter:
         _ = hints
 
         if model._meta.app_label == 'test_project_sync':
-            return self._get_context_db()
+            return self._get_context_database()
 
         return None
 
@@ -66,6 +66,6 @@ class SyncDemoRouter:
         _ = hints
 
         if model._meta.app_label == 'test_project_sync':
-            return self._get_context_db()
+            return self._get_context_database()
 
         return None

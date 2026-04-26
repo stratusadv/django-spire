@@ -13,20 +13,12 @@ from django_spire.history.activity.utils import add_form_activity
 
 import django_glue as dg
 
-from test_project.apps.sync import forms as demo_forms, models
+from test_project.apps.sync.registry import MODEL_FORM_MAP
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.http import HttpResponseRedirect
     from django.template.response import TemplateResponse
-
-
-MODEL_FORM_MAP = {
-    'client': (models.Client, demo_forms.ClientForm),
-    'site': (models.Site, demo_forms.SiteForm),
-    'surveyplan': (models.SurveyPlan, demo_forms.SurveyPlanForm),
-    'stake': (models.Stake, demo_forms.StakeForm),
-}
 
 
 def create_form_view(request: WSGIRequest, model: str) -> TemplateResponse:
@@ -60,7 +52,7 @@ def _form_view(
             return redirect(
                 request.GET.get(
                     'return_url',
-                    reverse('sync:page:detail', kwargs={'model': model_name, 'pk': obj.pk})
+                    reverse('sync:page:detail', kwargs={'model': model_name, 'pk': obj.pk}),
                 )
             )
 
@@ -72,5 +64,5 @@ def _form_view(
         request,
         form=form,
         obj=obj,
-        template=f'sync/page/{model_name}_form_page.html'
+        template=f'sync/page/{model_name}_form_page.html',
     )

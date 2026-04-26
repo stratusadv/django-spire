@@ -19,8 +19,13 @@ class SyncDemoConfig(AppConfig):
         from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
         from django_spire.contrib.sync.django.signals import register_m2m_signals  # noqa: PLC0415
 
+        from test_project.apps.sync.models import Client  # noqa: PLC0415
+        from test_project.apps.sync.services.service import SyncService  # noqa: PLC0415
+
         clock = HybridLogicalClock()
         SyncableMixin.configure(clock=clock)
+
+        Client.services = SyncService()
 
         syncable_models = [
             model
@@ -47,5 +52,5 @@ class SyncDemoConfig(AppConfig):
                 message='Accessing the database during app initialization'
             )
 
-            for db in get_all_sync_databases():
-                call_command('migrate', database=db, verbosity=0, interactive=False)
+            for database in get_all_sync_databases():
+                call_command('migrate', database=database, verbosity=0, interactive=False)

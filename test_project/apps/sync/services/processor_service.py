@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Any
 
+from typing_extensions import TYPE_CHECKING
+
+from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.database.conflict import (
     ConflictResolver,
@@ -17,92 +19,46 @@ from django_spire.contrib.sync.database.reconciler import PayloadReconciler
 from django_spire.contrib.sync.django.queryset import sync_bypass
 from django_spire.contrib.sync.tests.database.helpers import InMemoryDatabaseStorage
 
-from test_project.apps.sync import models
 from test_project.apps.sync.config import (
     TABLET_COUNT_DEFAULT,
     get_active_tablet_databases,
 )
-from test_project.apps.sync.context import switch_db
+from test_project.apps.sync.constants import (
+    DEFAULT_STRATEGY,
+    RESULT_CATEGORIES,
+    SyncModelLabel,
+    SyncStrategy,
+    WinnerSide,
+)
+from test_project.apps.sync.context import switch_database
+from test_project.apps.sync.registry import (
+    CREW_FIELDS,
+    MODEL_CONFIG,
+    MODEL_LABELS,
+    OFFICE_FIELDS,
+)
+from test_project.apps.sync.types import (
+    ConflictLogEntry,
+    FieldConflictDetail,
+    SerializedSyncResult,
+    SyncPerformResult,
+    TabletSyncData,
+)
+
+if TYPE_CHECKING:
+    from typing_extensions import Any
+
+    from django_spire.contrib.sync.database.manifest import SyncManifest
+
+    from test_project.apps.sync.models import Client
 
 
-MODEL_LABELS = [
-    'sync.Client',
-    'sync.Site',
-    'sync.SurveyPlan',
-    'sync.Stake',
-]
-
-MODEL_CONFIG = {
-    'sync.Client': {
-        'model': models.Client,
-        'fields': ('name', 'contact_name', 'contact_email'),
-        'fk_fields': (),
-    },
-    'sync.Site': {
-        'model': models.Site,
-        'fields': ('name', 'description', 'region', 'status'),
-        'fk_fields': ('client_id',),
-    },
-    'sync.SurveyPlan': {
-        'model': models.SurveyPlan,
-        'fields': (
-            'plan_number',
-            'stake_spacing_m', 'line_direction', 'headland_offset_m', 'office_notes',
-            'baseline_a_latitude', 'baseline_a_longitude',
-            'baseline_b_latitude', 'baseline_b_longitude',
-            'heading_degrees', 'crew_notes',
-            'status',
-        ),
-        'fk_fields': ('site_id',),
-    },
-    'sync.Stake': {
-        'model': models.Stake,
-        'fields': (
-            'latitude', 'longitude', 'elevation', 'is_placed',
-            'stake_type', 'label',
-        ),
-        'fk_fields': ('survey_plan_id',),
-    },
-}
-
-GRAPH = DependencyGraph({
-    'sync.Client': set(),
-    'sync.Site': {'sync.Client'},
-    'sync.SurveyPlan': {'sync.Site'},
-    'sync.Stake': {'sync.SurveyPlan'},
+DEPENDENCY_GRAPH = DependencyGraph({
+    SyncModelLabel.CLIENT: set(),
+    SyncModelLabel.SITE: {SyncModelLabel.CLIENT},
+    SyncModelLabel.SURVEY_PLAN: {SyncModelLabel.SITE},
+    SyncModelLabel.STAKE: {SyncModelLabel.SURVEY_PLAN},
 })
-
-CREW_FIELDS = {
-    'baseline_a_latitude',
-    'baseline_a_longitude',
-    'baseline_b_latitude',
-    'baseline_b_longitude',
-    'crew_notes',
-    'elevation',
-    'heading_degrees',
-    'is_placed',
-    'latitude',
-    'longitude',
-}
-
-OFFICE_FIELDS = {
-    'headland_offset_m',
-    'label',
-    'line_direction',
-    'office_notes',
-    'stake_spacing_m',
-    'stake_type',
-    'status',
-}
-
-STRATEGY_CHOICES = [
-    ('field_ownership', 'Field Ownership'),
-    ('field_timestamp_wins', 'Field Timestamp Wins'),
-    ('local_wins', 'Local Wins'),
-    ('remote_wins', 'Cloud Wins'),
-]
-
-DEFAULT_STRATEGY = 'field_timestamp_wins'
 
 
 def _coerce_value(value: Any) -> Any:
@@ -111,50 +67,134 @@ def _coerce_value(value: Any) -> Any:
     return value
 
 
-class SyncProcessorService:
-    def __init__(self) -> None:
-        self.clock = HybridLogicalClock()
+class SyncProcessorService(BaseDjangoModelService['Client']):
+    obj: Client
 
     def perform_sync(
-            self,
-            strategy: str = DEFAULT_STRATEGY,
-            tablet_count: int = TABLET_COUNT_DEFAULT,
-            tablet_dbs: list[str] | None = None,
-        ) -> dict[str, Any]:
-            if tablet_dbs is None:
-                tablet_dbs = get_active_tablet_databases(tablet_count)
-
-            tablet_results: dict[str, dict[str, Any]] = {}
-
-            for tablet_db in tablet_dbs:
-                tablet_result = self._sync_tablet(tablet_db, strategy)
-                tablet_results[tablet_db] = tablet_result
-
-            if len(tablet_dbs) > 1:
-                for tablet_db in tablet_dbs:
-                    convergence_result = self._sync_tablet(tablet_db, strategy)
-                    tablet_results[tablet_db] = self._merge_results(
-                        tablet_results[tablet_db], convergence_result,
-                    )
-
-            return {
-                'strategy': strategy,
-                'tablet_count': tablet_count,
-                'tablets': tablet_results,
-                'sync_order': GRAPH.sync_order(),
-            }
-
-    def _merge_results(
         self,
-        first: dict[str, Any],
-        second: dict[str, Any],
-    ) -> dict[str, Any]:
-        merged = dict(first)
-        merged['cloud_record_count'] = second['cloud_record_count']
+        strategy: str = DEFAULT_STRATEGY,
+        tablet_count: int = TABLET_COUNT_DEFAULT,
+        tablet_databases: list[str] | None = None,
+    ) -> SyncPerformResult:
+        clock = HybridLogicalClock()
 
-        for category in ('created', 'applied', 'conflicts', 'compatible', 'deleted', 'skipped'):
-            first_data = first['tablet_result'].get(category, {})
-            second_data = second['tablet_result'].get(category, {})
+        if tablet_databases is None:
+            tablet_databases = get_active_tablet_databases(tablet_count)
+
+        tablet_results: dict[str, TabletSyncData] = {}
+
+        for tablet_database in tablet_databases:
+            tablet_result = self._sync_tablet(clock, tablet_database, strategy)
+            tablet_results[tablet_database] = tablet_result
+
+        if len(tablet_databases) > 1:
+            for tablet_database in tablet_databases:
+                convergence_result = self._sync_tablet(clock, tablet_database, strategy)
+                tablet_results[tablet_database] = self._merge_results(
+                    tablet_results[tablet_database], convergence_result,
+                )
+
+        return SyncPerformResult(
+            strategy=strategy,
+            sync_order=DEPENDENCY_GRAPH.sync_order(),
+            tablet_count=tablet_count,
+            tablets=tablet_results,
+        )
+
+    def _apply_response(self, engine: DatabaseEngine, response: SyncManifest) -> None:
+        payload_map = {payload.model_label: payload for payload in response.payloads}
+
+        for label in DEPENDENCY_GRAPH.sync_order():
+            payload = payload_map.get(label)
+
+            if not payload:
+                continue
+
+            config = MODEL_CONFIG[label]
+
+            for key, record in payload.records.items():
+                data = {}
+
+                for field_name in config.fields:
+                    if field_name in record.data:
+                        data[field_name] = _coerce_value(record.data[field_name])
+
+                for foreign_key in config.foreign_key_fields:
+                    if foreign_key in record.data:
+                        data[foreign_key] = record.data[foreign_key]
+
+                engine._storage.seed(label, key, data, record.timestamps)
+
+    @staticmethod
+    def _build_engine(clock: HybridLogicalClock, database_name: str, resolver: ConflictResolver) -> DatabaseEngine:
+        return DatabaseEngine(
+            clock=clock,
+            graph=DEPENDENCY_GRAPH,
+            reconciler=PayloadReconciler(resolver),
+            storage=InMemoryDatabaseStorage(models=MODEL_LABELS),
+        )
+
+    @staticmethod
+    def _build_resolvers(strategy: str) -> tuple[ConflictResolver, ConflictResolver]:
+        resolver_map = {
+            SyncStrategy.FIELD_OWNERSHIP: (
+                FieldOwnershipWins(local_fields=CREW_FIELDS, remote_fields=OFFICE_FIELDS),
+                FieldOwnershipWins(local_fields=OFFICE_FIELDS, remote_fields=CREW_FIELDS),
+            ),
+            SyncStrategy.FIELD_TIMESTAMP_WINS: (FieldTimestampWins(), FieldTimestampWins()),
+            SyncStrategy.LOCAL_WINS: (LocalWins(), RemoteWins()),
+            SyncStrategy.REMOTE_WINS: (RemoteWins(), LocalWins()),
+        }
+        return resolver_map.get(strategy, (FieldTimestampWins(), FieldTimestampWins()))
+
+    @staticmethod
+    def _determine_winner(resolution_source: str, timestamps: dict) -> str:
+        if resolution_source == WinnerSide.LOCAL:
+            return WinnerSide.LOCAL
+
+        if resolution_source == WinnerSide.REMOTE:
+            return WinnerSide.REMOTE
+
+        if timestamps.get('remote_timestamp', 0) >= timestamps.get('local_timestamp', 0):
+            return WinnerSide.REMOTE
+
+        return WinnerSide.LOCAL
+
+    @staticmethod
+    def _load_from_orm(engine: DatabaseEngine, database_name: str) -> int:
+        switch_database(database_name)
+        record_count = 0
+
+        with sync_bypass():
+            for label in DEPENDENCY_GRAPH.sync_order():
+                config = MODEL_CONFIG[label]
+
+                for instance in config.model.objects.all():
+                    key = str(instance.pk)
+                    data = {}
+
+                    for field_name in config.fields:
+                        data[field_name] = _coerce_value(getattr(instance, field_name))
+
+                    for foreign_key in config.foreign_key_fields:
+                        data[foreign_key] = str(getattr(instance, foreign_key)) if getattr(instance, foreign_key) else None
+
+                    timestamp_map = getattr(instance, 'sync_field_timestamps', {}) or {}
+                    engine._storage.seed(label, key, data, timestamp_map)
+                    record_count += 1
+
+        return record_count
+
+    @staticmethod
+    def _merge_results(
+        first: TabletSyncData,
+        second: TabletSyncData,
+    ) -> TabletSyncData:
+        merged_result = SerializedSyncResult()
+
+        for category in RESULT_CATEGORIES:
+            first_data = getattr(first.tablet_result, category)
+            second_data = getattr(second.tablet_result, category)
             combined: dict[str, list[str]] = {}
 
             for label in set(first_data) | set(second_data):
@@ -163,33 +203,116 @@ class SyncProcessorService:
                 ))
                 combined[label] = keys
 
-            merged['tablet_result'][category] = combined
+            setattr(merged_result, category, combined)
 
-        merged['tablet_result']['errors'] = (
-            first['tablet_result'].get('errors', [])
-            + second['tablet_result'].get('errors', [])
-        )
-        merged['tablet_result']['conflict_log'] = (
-            first['tablet_result'].get('conflict_log', [])
-            + second['tablet_result'].get('conflict_log', [])
+        merged_result.errors = first.tablet_result.errors + second.tablet_result.errors
+        merged_result.conflict_log = first.tablet_result.conflict_log + second.tablet_result.conflict_log
+
+        return TabletSyncData(
+            cloud_record_count=second.cloud_record_count,
+            cloud_result=first.cloud_result,
+            tablet_record_count=first.tablet_record_count,
+            tablet_result=merged_result,
         )
 
-        return merged
+    @staticmethod
+    def _persist_to_orm(engine: DatabaseEngine, database_name: str) -> None:
+        switch_database(database_name)
+
+        for label in DEPENDENCY_GRAPH.sync_order():
+            config = MODEL_CONFIG[label]
+
+            for key, record in engine._storage._records[label].items():
+                data = {}
+
+                for field_name in config.fields:
+                    if field_name in record.data:
+                        data[field_name] = _coerce_value(record.data[field_name])
+
+                for foreign_key in config.foreign_key_fields:
+                    if foreign_key in record.data:
+                        data[foreign_key] = record.data[foreign_key]
+
+                config.model.objects.update_or_create(
+                    pk=key,
+                    defaults={
+                        **data,
+                        'sync_field_last_modified': max(
+                            record.timestamps.values(), default=0,
+                        ),
+                        'sync_field_timestamps': dict(record.timestamps),
+                    },
+                )
+
+    def _serialize_result(self, result: Any) -> SerializedSyncResult:
+        return SerializedSyncResult(
+            applied={
+                label: [str(key) for key in keys]
+                for label, keys in result.applied.items()
+            },
+            compatible={
+                label: [str(key) for key in keys]
+                for label, keys in result.compatible.items()
+            },
+            conflict_log=[
+                ConflictLogEntry(
+                    field_conflicts=[
+                        FieldConflictDetail(
+                            field_name=field_conflict.field_name,
+                            local_timestamp=field_conflict.local_timestamp,
+                            local_value=field_conflict.local_value,
+                            remote_timestamp=field_conflict.remote_timestamp,
+                            remote_value=field_conflict.remote_value,
+                            winner=self._determine_winner(
+                                str(entry.resolution_source),
+                                {
+                                    'local_timestamp': field_conflict.local_timestamp,
+                                    'remote_timestamp': field_conflict.remote_timestamp,
+                                },
+                            ),
+                        )
+                        for field_conflict in entry.conflict.field_conflicts
+                    ],
+                    key=str(entry.conflict.key),
+                    model_label=entry.conflict.model_label,
+                    resolution_source=str(entry.resolution_source),
+                )
+                for entry in result.conflict_log
+            ],
+            conflicts={
+                label: [str(key) for key in keys]
+                for label, keys in result.conflicts.items()
+            },
+            created={
+                label: [str(key) for key in keys]
+                for label, keys in result.created.items()
+            },
+            deleted={
+                label: [str(key) for key in keys]
+                for label, keys in result.deleted.items()
+            },
+            errors=list(result.errors) if hasattr(result, 'errors') else [],
+            skipped={
+                label: [str(key) for key in keys]
+                for label, keys in result.skipped.items()
+            },
+        )
 
     def _sync_tablet(
         self,
-        tablet_db: str,
+        clock: HybridLogicalClock,
+        tablet_database: str,
         strategy: str,
-    ) -> dict[str, Any]:
+    ) -> TabletSyncData:
         tablet_resolver, cloud_resolver = self._build_resolvers(strategy)
 
-        tablet_engine = self._build_engine(tablet_db, tablet_resolver)
-        cloud_engine = self._build_engine('cloud', cloud_resolver)
+        tablet_engine = self._build_engine(clock, tablet_database, tablet_resolver)
+        cloud_engine = self._build_engine(clock, 'cloud', cloud_resolver)
 
-        tablet_record_count = self._load_from_orm(tablet_engine, tablet_db)
+        tablet_record_count = self._load_from_orm(tablet_engine, tablet_database)
         cloud_record_count = self._load_from_orm(cloud_engine, 'cloud')
 
-        tablet_checkpoint = tablet_engine._storage.get_checkpoint(tablet_db)
+        tablet_checkpoint = tablet_engine._storage.get_checkpoint(tablet_database)
         cloud_checkpoint = cloud_engine._storage.get_checkpoint('cloud')
 
         tablet_manifest = tablet_engine._collect(tablet_checkpoint)
@@ -204,180 +327,15 @@ class SyncProcessorService:
         self._apply_response(tablet_engine, cloud_response)
         self._apply_response(cloud_engine, tablet_response)
 
-        tablet_engine._storage.save_checkpoint(tablet_db, cloud_response.checkpoint)
+        tablet_engine._storage.save_checkpoint(tablet_database, cloud_response.checkpoint)
         cloud_engine._storage.save_checkpoint('cloud', tablet_response.checkpoint)
 
-        self._persist_to_orm(tablet_engine, tablet_db)
+        self._persist_to_orm(tablet_engine, tablet_database)
         self._persist_to_orm(cloud_engine, 'cloud')
 
-        return {
-            'tablet_record_count': tablet_record_count,
-            'cloud_record_count': cloud_record_count,
-            'tablet_manifest': self._manifest_to_dict(tablet_manifest),
-            'cloud_manifest': self._manifest_to_dict(cloud_manifest),
-            'tablet_result': self._result_to_dict(tablet_result),
-            'cloud_result': self._result_to_dict(cloud_result),
-        }
-
-    def _apply_response(self, engine: DatabaseEngine, response) -> None:
-        for payload in response.payloads:
-            if payload.records:
-                engine._storage.upsert_many(payload.model_label, payload.records)
-            if payload.deletes:
-                engine._storage.delete_many(payload.model_label, payload.deletes)
-
-    def _build_engine(
-        self,
-        node_id: str,
-        resolver: ConflictResolver,
-    ) -> DatabaseEngine:
-        return DatabaseEngine(
-            storage=InMemoryDatabaseStorage(MODEL_LABELS),
-            graph=GRAPH,
-            clock=self.clock,
-            node_id=node_id,
-            clock_drift_max=None,
-            reconciler=PayloadReconciler(resolver=resolver),
+        return TabletSyncData(
+            cloud_record_count=cloud_record_count,
+            cloud_result=self._serialize_result(cloud_result),
+            tablet_record_count=tablet_record_count,
+            tablet_result=self._serialize_result(tablet_result),
         )
-
-    def _build_resolvers(
-        self,
-        strategy: str,
-    ) -> tuple[ConflictResolver, ConflictResolver]:
-        if strategy == 'field_ownership':
-            local_resolver = FieldOwnershipWins(
-                local_fields=CREW_FIELDS,
-                remote_fields=OFFICE_FIELDS,
-            )
-            cloud_resolver = FieldOwnershipWins(
-                local_fields=OFFICE_FIELDS,
-                remote_fields=CREW_FIELDS,
-            )
-            return local_resolver, cloud_resolver
-
-        if strategy == 'local_wins':
-            return LocalWins(), RemoteWins()
-
-        if strategy == 'remote_wins':
-            return RemoteWins(), LocalWins()
-
-        return FieldTimestampWins(), FieldTimestampWins()
-
-    def _determine_winner(self, resolution_source: str, fc: dict) -> str:
-        if resolution_source == 'merged':
-            return 'remote' if fc['remote_timestamp'] > fc['local_timestamp'] else 'local'
-
-        if resolution_source == 'remote':
-            return 'remote'
-
-        return 'local'
-
-    def _load_from_orm(self, engine: DatabaseEngine, db_name: str) -> int:
-        switch_db(db_name)
-        count = 0
-
-        for label, config in MODEL_CONFIG.items():
-            model_cls = config['model']
-            fields = config['fields']
-            fk_fields = config['fk_fields']
-
-            for obj in model_cls.objects.all():
-                record = {'id': str(obj.id)}
-
-                for field in fields:
-                    record[field] = _coerce_value(getattr(obj, field))
-
-                for field in fk_fields:
-                    val = getattr(obj, field)
-                    record[field] = str(val) if val is not None else None
-
-                timestamps = obj.sync_field_timestamps or {}
-
-                if not timestamps:
-                    ts = self.clock.now()
-                    timestamps = dict.fromkeys(record, ts)
-
-                engine._storage.seed(label, str(obj.id), record, timestamps)
-                count += 1
-
-        return count
-
-    def _manifest_to_dict(self, manifest) -> dict[str, Any]:
-        return {
-            'node_id': manifest.node_id,
-            'checkpoint': manifest.checkpoint,
-            'checksum': manifest.checksum,
-            'payload_counts': {
-                p.model_label: len(p.records) for p in manifest.payloads
-            },
-        }
-
-    def _persist_to_orm(self, engine: DatabaseEngine, db_name: str) -> None:
-        switch_db(db_name)
-
-        for label in GRAPH.sync_order():
-            config = MODEL_CONFIG[label]
-            model_cls = config['model']
-            all_fields = list(config['fields']) + list(config['fk_fields'])
-
-            records = engine._storage.get_changed_since(label, 0)
-
-            if not records:
-                continue
-
-            for key, sync_record in records.items():
-                defaults = {
-                    f: sync_record.data[f]
-                    for f in all_fields
-                    if f in sync_record.data
-                }
-
-                with sync_bypass():
-                    obj, _ = model_cls.objects.update_or_create(
-                        id=key,
-                        defaults=defaults,
-                    )
-
-                    obj.sync_field_timestamps = sync_record.timestamps
-                    obj.sync_field_last_modified = sync_record.sync_field_last_modified
-                    obj.save(update_fields=['sync_field_timestamps', 'sync_field_last_modified'])
-
-    def _result_to_dict(self, result: Any) -> dict[str, Any]:
-        return {
-            'created': dict(result.created),
-            'applied': dict(result.applied),
-            'conflicts': dict(result.conflicts),
-            'compatible': dict(result.compatible),
-            'deleted': dict(result.deleted),
-            'skipped': dict(result.skipped),
-            'errors': [
-                {'key': e.key, 'message': e.message}
-                for e in result.errors
-            ],
-            'conflict_log': [
-                {
-                    'key': entry.conflict.key,
-                    'model_label': entry.conflict.model_label,
-                    'conflict_type': str(entry.conflict.conflict_type),
-                    'resolution_source': str(entry.resolution_source),
-                    'field_conflicts': [
-                        {
-                            'field_name': fc.field_name,
-                            'local_value': fc.local_value,
-                            'remote_value': fc.remote_value,
-                            'local_timestamp': fc.local_timestamp,
-                            'remote_timestamp': fc.remote_timestamp,
-                            'winner': self._determine_winner(
-                                str(entry.resolution_source),
-                                {
-                                    'remote_timestamp': fc.remote_timestamp,
-                                    'local_timestamp': fc.local_timestamp,
-                                },
-                            ),
-                        }
-                        for fc in entry.conflict.field_conflicts
-                    ],
-                }
-                for entry in result.conflict_log
-            ],
-        }
