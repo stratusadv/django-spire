@@ -45,7 +45,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         self,
         **overrides
     ) -> Self:
-        """Create a copy with optional overrides. Clears cache unless explicitly passed."""
         return self.__class__(
             schema_class=self.schema_class,
             _request_params=overrides.get('_request_params', self._request_params),
@@ -58,7 +57,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         )
 
     def _evaluate(self) -> list[TSchema]:
-        """Fetch (if needed) and apply all post-processing."""
         if self._cached_results is not None:
             return self._cached_results
 
@@ -68,7 +66,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             results = self._read_many()
 
 
-        # TODO: proper exception
         if not isinstance(results, Sequence) or isinstance(results, str):
             message = f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}'
             raise ValueError(message)
@@ -107,7 +104,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
     @staticmethod
     def _get_attr(obj: Any, path: str) -> Any:
-        """Get nested attribute using 'a__b__c' syntax."""
         for part in path.split('__'):
             if obj is None:
                 return None
@@ -116,7 +112,6 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
     @staticmethod
     def _make_predicate(key: str, value: Any) -> Callable[[Any], bool]:
-        """Create a predicate for Django-style field lookups."""
         parts = key.split('__')
 
         def predicate(obj: Any) -> bool:
@@ -169,6 +164,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         self,
         **kwargs,
     ) -> Self:
+        """Set or merge request parameters for downstream API calls."""
         if self._request_params:
             kwargs = {
                 **self._request_params,
@@ -180,6 +176,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
     def all(
         self,
     ) -> Self:
+        """Return a clone of the schema set with all results."""
         return self._clone()
 
     def filter(
@@ -232,23 +229,29 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         return self._clone(_ordering=ordering)
 
     def limit(self, n: int) -> Self:
+        """Limit the number of results to n."""
         return self._clone(_limit=n)
 
     def offset(self, n: int) -> Self:
+        """Skip the first n results."""
         return self._clone(_offset=n)
 
     def first(self) -> TSchema | None:
+        """Return the first result, or None if the set is empty."""
         results = self._evaluate()
         return results[0] if results else None
 
     def last(self) -> TSchema | None:
+        """Return the last result, or None if the set is empty."""
         results = self._evaluate()
         return results[-1] if results else None
 
     def count(self) -> int:
+        """Return the number of results."""
         return len(self)
 
     def exists(self) -> bool:
+        """Return True if there is at least one result."""
         return bool(self)
 
     def get(
