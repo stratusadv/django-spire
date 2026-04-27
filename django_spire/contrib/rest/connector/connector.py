@@ -11,7 +11,7 @@ from django.core.exceptions import ImproperlyConfigured
 from requests import HTTPError
 from requests.auth import AuthBase
 
-from django_spire.contrib.rest.connector.auth.exceptions import \
+from django_spire.contrib.rest.connector.exceptions import \
     RestConnectorTimeoutException, RestConnectorError
 
 
