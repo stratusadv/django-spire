@@ -1,14 +1,27 @@
 # Changelog
 
-## v0.31.3
+## v0.31.5
 
 ### Features
 - Added the `django_spire/contrib/rest module`, which contains a django queryset-like pattern for connecting to external, rest-based data sources.
 
-## v0.31.2
+## v0.31.4
 
 ### Changes
+- Added `slide_button.html` to templates
+- Added `access_key_required` to `core.decorators`. Used for UUID authentication with publicly exposed urls.
+
+## v0.31.3
+
+### Changes
+- Added `table_min_width` to table to control width
+
+## v0.31.2
+
+### Fixes
 - Fixed navigation link not working in mobile
+
+### Changes
 - Improved PWA install documentation.
 - Improved PWA iOS install model UI.
 
