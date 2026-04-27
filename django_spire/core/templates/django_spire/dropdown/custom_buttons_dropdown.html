@@ -1,0 +1,11 @@
+{% extends 'django_spire/dropdown/dropdown.html' %}
+
+{% block dropdown_position %}end-0 top-100{% endblock %}
+
+{% block dropdown_trigger %}
+    <span
+        class="{% block trigger_button_icon %}{% if trigger_button_icon %}{{ trigger_button_icon }}{% else %}bi bi-three-dots-vertical{% endif %}{% endblock %} px-1 {% block trigger_button_class %}{% endblock %}"
+        x-bind="trigger"
+    >
+    </span>
+{% endblock %}

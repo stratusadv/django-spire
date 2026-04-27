@@ -10,6 +10,7 @@
         x-cloak
     >
         {% block dropdown_content %}
+            {% if dropdown_content %}{{ dropdown_content }}{% endif %}
         {% endblock %}
     </div>
 </div>

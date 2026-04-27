@@ -1,5 +1,7 @@
 {% extends 'django_spire/item/item.html' %}
 
+{% load block_tags %}
+
 {% block item_title_col %}{% endblock %}
 
 {% block item_x_data %}x-data{% endblock %}
@@ -40,6 +42,9 @@
         {% endif %}
         }"
     >
+        {% custom_buttons_dropdown %}
+        {% endcustom_buttons_dropdown %}
+
         {% include 'django_spire/dropdown/ellipsis_dropdown.html' with x_view_url='viewUrl' x_edit_url='updateUrl' x_delete_url='deleteUrl' %}
     </div>
 {% endblock %}
