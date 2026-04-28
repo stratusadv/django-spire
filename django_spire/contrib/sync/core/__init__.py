@@ -29,6 +29,7 @@ from django_spire.contrib.sync.core.exceptions import (
     UnknownDependencyError,
     UnknownModelError,
 )
+from django_spire.contrib.sync.core.graph import DependencyGraph
 from django_spire.contrib.sync.core.hash import RecordHasher
 from django_spire.contrib.sync.core.model import BidirectionalResult, Change, Error, Result
 from django_spire.contrib.sync.core.retry import retry
@@ -44,6 +45,7 @@ __all__ = [
     'ClockOverflowError',
     'ConflictStateError',
     'DecompressionLimitError',
+    'DependencyGraph',
     'Error',
     'HybridLogicalClock',
     'InvalidParameterError',

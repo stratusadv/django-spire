@@ -64,6 +64,7 @@ class DjangoSyncLock:
                 f'(session {active.id}, phase={active.phase}). '
                 f'Wait for it to complete or let it expire.'
             )
+
             raise LockContentionError(message)
 
     def _create_session(self, node_id: str) -> str:
@@ -87,9 +88,7 @@ class DjangoSyncLock:
             ).first()
 
             if locked is None:
-                message = (
-                    f'Sync lock row for {node_id!r} is missing after creation'
-                )
+                message = f'Sync lock row for {node_id!r} is missing after creation'
                 raise LockContentionError(message)
 
             self._abandon_stale_sessions(node_id)
@@ -117,37 +116,46 @@ class DjangoSyncLock:
                 'Sync session %s not found during release',
                 session_id,
             )
+
             return
 
         now = timezone.now()
 
         session.completed_at = now
+
         session.duration_ms = int(
             (now - session.started_at).total_seconds() * 1000
         )
+
         session.phase = (
             SyncPhase.COMPLETE
             if status == SyncStatus.SUCCESS
             else SyncPhase.FAILED
         )
+
         session.status = status
 
         if result is not None:
             session.records_pushed = sum(
                 len(keys) for keys in result.pushed.values()
             )
+
             session.records_applied = sum(
                 len(keys) for keys in result.applied.values()
             )
+
             session.records_created = sum(
                 len(keys) for keys in result.created.values()
             )
+
             session.records_deleted = sum(
                 len(keys) for keys in result.deleted.values()
             )
+
             session.conflicts = sum(
                 len(keys) for keys in result.conflicts.values()
             )
+
             session.errors = len(result.errors)
 
         session.save()
