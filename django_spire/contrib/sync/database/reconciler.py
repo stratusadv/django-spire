@@ -21,15 +21,15 @@ if TYPE_CHECKING:
 
 @dataclass
 class ReconciliationResult:
-    to_upsert: dict[str, SyncRecord] = field(default_factory=dict)
-    to_delete: dict[str, int] = field(default_factory=dict)
-    response_records: dict[str, SyncRecord] = field(default_factory=dict)
-    created_keys: set[str] = field(default_factory=set)
     applied_keys: set[str] = field(default_factory=set)
-    conflict_keys: list[str] = field(default_factory=list)
     compatible_keys: list[str] = field(default_factory=list)
+    conflict_keys: list[str] = field(default_factory=list)
     conflict_log: list[ConflictEntry] = field(default_factory=list)
+    created_keys: set[str] = field(default_factory=set)
     errors: list[Error] = field(default_factory=list)
+    response_records: dict[str, SyncRecord] = field(default_factory=dict)
+    to_delete: dict[str, int] = field(default_factory=dict)
+    to_upsert: dict[str, SyncRecord] = field(default_factory=dict)
 
 
 class PayloadReconciler:
@@ -39,25 +39,46 @@ class PayloadReconciler:
     ) -> None:
         self._resolver = resolver or FieldTimestampWins()
 
-    def reconcile(
+    def _classify_deletes(
         self,
         payload: ModelPayload,
         local_records: dict[str, SyncRecord],
-        checkpoint: int,
-    ) -> ReconciliationResult:
-        result = ReconciliationResult()
+        result: ReconciliationResult,
+    ) -> None:
+        for key, tombstone_ts in payload.deletes.items():
+            if key not in local_records:
+                continue
 
-        for key, remote in payload.records.items():
-            self._classify_record(
-                key, remote, payload.model_label,
-                local_records, checkpoint, result,
+            local = local_records[key]
+
+            if local.sync_field_last_modified <= tombstone_ts:
+                result.to_delete[key] = tombstone_ts
+
+                continue
+
+            conflict = RecordConflict(
+                key=key,
+                model_label=payload.model_label,
+                conflict_type=ConflictType.DELETE_VS_MODIFY,
+                local=local,
             )
 
-        self._classify_deletes(
-            payload, local_records, result,
-        )
+            try:
+                resolution = self._resolver.resolve(conflict)
+            except Exception as exception:
+                result.errors.append(Error(
+                    key=key,
+                    message=f'Delete conflict resolution failed: {exception}',
+                    exception=exception,
+                ))
 
-        return result
+                continue
+
+            if resolution.delete:
+                result.to_delete[key] = tombstone_ts
+            elif resolution.record is not None:
+                result.response_records[key] = resolution.record
+                result.conflict_keys.append(key)
 
     def _classify_record(
         self,
@@ -71,6 +92,7 @@ class PayloadReconciler:
         if key not in local_records:
             result.to_upsert[key] = remote
             result.created_keys.add(key)
+
             return
 
         local = local_records[key]
@@ -78,11 +100,40 @@ class PayloadReconciler:
         if local.sync_field_last_modified <= checkpoint:
             result.to_upsert[key] = remote
             result.applied_keys.add(key)
+
             return
 
-        self._resolve_conflict(
-            key, model_label, local, remote, checkpoint, result,
-        )
+        self._resolve_conflict(key, model_label, local, remote, checkpoint, result)
+
+    def _detect_field_conflicts(
+        self,
+        local: SyncRecord,
+        remote: SyncRecord,
+        checkpoint: int,
+    ) -> list[FieldConflict]:
+        conflicts: list[FieldConflict] = []
+        all_fields = (set(local.data) | set(remote.data)) - META_FIELDS
+
+        for field_name in sorted(all_fields):
+            local_timestamp = local.timestamps.get(field_name, 0)
+            remote_timestamp = remote.timestamps.get(field_name, 0)
+
+            if local_timestamp <= checkpoint or remote_timestamp <= checkpoint:
+                continue
+
+            local_value = local.data.get(field_name)
+            remote_value = remote.data.get(field_name)
+
+            if local_value != remote_value:
+                conflicts.append(FieldConflict(
+                    field_name=field_name,
+                    local_value=local_value,
+                    remote_value=remote_value,
+                    local_timestamp=local_timestamp,
+                    remote_timestamp=remote_timestamp,
+                ))
+
+        return conflicts
 
     def _resolve_conflict(
         self,
@@ -93,9 +144,7 @@ class PayloadReconciler:
         checkpoint: int,
         result: ReconciliationResult,
     ) -> None:
-        field_conflicts = self._detect_field_conflicts(
-            local, remote, checkpoint,
-        )
+        field_conflicts = self._detect_field_conflicts(local, remote, checkpoint)
 
         conflict_type = (
             ConflictType.BOTH_MODIFIED
@@ -120,6 +169,7 @@ class PayloadReconciler:
                 message=f'Conflict resolution failed: {exception}',
                 exception=exception,
             ))
+
             return
 
         if resolution.record is not None:
@@ -137,69 +187,20 @@ class PayloadReconciler:
         else:
             result.compatible_keys.append(key)
 
-    def _classify_deletes(
+    def reconcile(
         self,
         payload: ModelPayload,
         local_records: dict[str, SyncRecord],
-        result: ReconciliationResult,
-    ) -> None:
-        for key, tombstone_ts in payload.deletes.items():
-            if key not in local_records:
-                continue
+        checkpoint: int,
+    ) -> ReconciliationResult:
+        result = ReconciliationResult()
 
-            local = local_records[key]
-
-            if local.sync_field_last_modified <= tombstone_ts:
-                result.to_delete[key] = tombstone_ts
-                continue
-
-            conflict = RecordConflict(
-                key=key,
-                model_label=payload.model_label,
-                conflict_type=ConflictType.DELETE_VS_MODIFY,
-                local=local,
+        for key, remote in payload.records.items():
+            self._classify_record(
+                key, remote, payload.model_label,
+                local_records, checkpoint, result,
             )
 
-            try:
-                resolution = self._resolver.resolve(conflict)
-            except Exception as exception:
-                result.errors.append(Error(
-                    key=key,
-                    message=f'Delete conflict resolution failed: {exception}',
-                    exception=exception,
-                ))
-                continue
+        self._classify_deletes(payload, local_records, result)
 
-            if resolution.delete:
-                result.to_delete[key] = tombstone_ts
-            elif resolution.record is not None:
-                result.response_records[key] = resolution.record
-                result.conflict_keys.append(key)
-
-    def _detect_field_conflicts(
-        self,
-        local: SyncRecord,
-        remote: SyncRecord,
-        checkpoint: int,
-    ) -> list[FieldConflict]:
-        conflicts: list[FieldConflict] = []
-        all_fields = (set(local.data) | set(remote.data)) - META_FIELDS
-
-        for field_name in sorted(all_fields):
-            local_timestamp = local.timestamps.get(field_name, 0)
-            remote_timestamp = remote.timestamps.get(field_name, 0)
-
-            if local_timestamp > checkpoint and remote_timestamp > checkpoint:
-                local_value = local.data.get(field_name)
-                remote_value = remote.data.get(field_name)
-
-                if local_value != remote_value:
-                    conflicts.append(FieldConflict(
-                        field_name=field_name,
-                        local_value=local_value,
-                        remote_value=remote_value,
-                        local_timestamp=local_timestamp,
-                        remote_timestamp=remote_timestamp,
-                    ))
-
-        return conflicts
+        return result

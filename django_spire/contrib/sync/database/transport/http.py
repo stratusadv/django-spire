@@ -10,7 +10,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
-from django_spire.contrib.sync.core.compression import safe_gzip_decompress
+from django_spire.contrib.sync.core.compression import gzip_decompress
 from django_spire.contrib.sync.core.exceptions import (
     DecompressionLimitError,
     InvalidParameterError,
@@ -26,11 +26,12 @@ logger = logging.getLogger(__name__)
 
 _ALLOWED_SCHEMES = frozenset({'http', 'https'})
 _RESPONSE_BYTES_MAX = 50 * 1024 * 1024
+
 _TRANSIENT_EXCEPTIONS: tuple[type[BaseException], ...] = (
-    URLError,
-    TimeoutError,
-    socket_timeout,
     ConnectionError,
+    TimeoutError,
+    URLError,
+    socket_timeout,
 )
 
 
@@ -42,6 +43,7 @@ def _validate_url_scheme(url: str) -> None:
             f'Unsupported URL scheme: {parsed.scheme!r}. '
             f'Only http and https are allowed.'
         )
+
         raise InvalidParameterError(message)
 
 
@@ -65,19 +67,16 @@ class HttpTransport(Transport):
         self._url = url
 
         if not self._headers:
-            logger.warning(
-                'HttpTransport created without auth headers for %s',
-                self._url,
-            )
+            logger.warning('HttpTransport created without auth headers for %s', self._url)
 
     def _post(self, data: dict[str, Any]) -> dict[str, Any]:
         body = json.dumps(data).encode('utf-8')
         compressed = gzip.compress(body)
 
         headers = {
-            'Content-Type': 'application/json',
-            'Content-Encoding': 'gzip',
             'Accept-Encoding': 'gzip',
+            'Content-Encoding': 'gzip',
+            'Content-Type': 'application/json',
             **self._headers,
         }
 
@@ -93,17 +92,12 @@ class HttpTransport(Transport):
                 raw = response.read(self._response_bytes_max + 1)
 
                 if len(raw) > self._response_bytes_max:
-                    message = (
-                        f'Response size exceeds limit of '
-                        f'{self._response_bytes_max} bytes'
-                    )
+                    message = f'Response size exceeds limit of {self._response_bytes_max} bytes'
                     raise InvalidResponseError(message)
 
                 if response.headers.get('Content-Encoding') == 'gzip':
                     try:
-                        raw = safe_gzip_decompress(
-                            raw, self._response_bytes_max,
-                        )
+                        raw = gzip_decompress(raw, self._response_bytes_max)
                     except DecompressionLimitError as exception:
                         raise InvalidResponseError(str(exception)) from exception
                     except (gzip.BadGzipFile, EOFError, OSError) as exception:
@@ -138,7 +132,6 @@ class HttpTransport(Transport):
 
         if 'node_id' not in response_data or 'checkpoint' not in response_data:
             error = response_data.get('error', 'Missing required manifest fields')
-
             message = f'Server returned an invalid sync response: {error}'
             raise InvalidResponseError(message)
 

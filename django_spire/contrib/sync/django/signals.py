@@ -38,9 +38,13 @@ def _stamp_forward(
     now = model.get_clock().now()
 
     with transaction.atomic():
-        row = model.objects.select_for_update().filter(
-            pk=instance.pk,
-        ).values('sync_field_timestamps').first()
+        row = (
+            model.objects
+            .select_for_update()
+            .filter(pk=instance.pk)
+            .values('sync_field_timestamps')
+            .first()
+        )
 
         if row is None:
             return
@@ -48,9 +52,13 @@ def _stamp_forward(
         timestamps = dict(row['sync_field_timestamps'])
         timestamps[field_name] = now
 
-        model.objects.filter(pk=instance.pk).update(
-            sync_field_timestamps=timestamps,
-            sync_field_last_modified=now,
+        (
+            model.objects
+            .filter(pk=instance.pk)
+            .update(
+                sync_field_timestamps=timestamps,
+                sync_field_last_modified=now,
+            )
         )
 
     instance.sync_field_timestamps = timestamps
@@ -69,12 +77,15 @@ def _stamp_reverse(
 
     with transaction.atomic(), sync_bypass():
         instances = list(
-            model.objects.select_for_update().filter(pk__in=pks),
+            model.objects
+            .select_for_update()
+            .filter(pk__in=pks),
         )
 
         for instance in instances:
             timestamps = dict(instance.sync_field_timestamps)
             timestamps[field_name] = now
+
             instance.sync_field_timestamps = timestamps
             instance.sync_field_last_modified = now
 
@@ -93,7 +104,7 @@ def _on_m2m_changed(
     pk_set: set[Any] | None,
     **kwargs: Any,
 ) -> None:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
 
     if action not in _TRACKED_ACTIONS:
         return
@@ -111,6 +122,7 @@ def _on_m2m_changed(
             return
 
         _stamp_forward(instance, field_name)
+
         return
 
     forward_model = kwargs.get('model')
@@ -134,6 +146,7 @@ def _on_m2m_changed(
             sender._meta.label,
             field_name,
         )
+
         return
 
     _stamp_reverse(forward_model, set(pk_set or set()), field_name)
@@ -142,7 +155,7 @@ def _on_m2m_changed(
 def register_m2m_signals(
     models: list[type[SyncableMixin]],
 ) -> None:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
 
     for model in models:
         if not issubclass(model, SyncableMixin):
@@ -150,15 +163,15 @@ def register_m2m_signals(
                 f'Cannot register M2M signals for {model!r}: '
                 f'must be a SyncableMixin subclass'
             )
+
             raise InvalidParameterError(message)
 
         for field in model._meta.many_to_many:
             through = field.remote_field.through
+            dispatch_uid = f'syncable_m2m:{model._meta.label}:{field.name}'
 
             m2m_changed.connect(
                 _on_m2m_changed,
                 sender=through,
-                dispatch_uid=(
-                    f'syncable_m2m:{model._meta.label}:{field.name}'
-                ),
+                dispatch_uid=dispatch_uid,
             )

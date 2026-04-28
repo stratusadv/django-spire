@@ -11,18 +11,19 @@ from django.db import models
 _bypass = threading.local()
 
 
+def _is_bypassed() -> bool:
+    return getattr(_bypass, 'active', False)
+
+
 @contextmanager
 def sync_bypass() -> Iterator[None]:
     previous = getattr(_bypass, 'active', False)
     _bypass.active = True
+
     try:
         yield
     finally:
         _bypass.active = previous
-
-
-def _is_bypassed() -> bool:
-    return getattr(_bypass, 'active', False)
 
 
 class SyncableQuerySet(models.QuerySet):
@@ -83,8 +84,7 @@ class SyncableQuerySet(models.QuerySet):
                 needs_extra = True
 
             if needs_extra:
-                fields = list(
-                    set(fields) | {'sync_field_timestamps', 'sync_field_last_modified'}
-                )
+                sync_fields = {'sync_field_timestamps', 'sync_field_last_modified'}
+                fields = list(set(fields) | sync_fields)
 
         return super().bulk_update(objs, fields, **kwargs)

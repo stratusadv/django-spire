@@ -55,6 +55,10 @@ class ConflictResolver(Protocol):
     def resolve(self, conflict: RecordConflict) -> RecordResolution: ...
 
 
+def _require_both(conflict: RecordConflict) -> tuple[SyncRecord, SyncRecord]:
+    return _require_local(conflict), _require_remote(conflict)
+
+
 def _require_local(conflict: RecordConflict) -> SyncRecord:
     if conflict.local is None:
         message = (
@@ -79,8 +83,76 @@ def _require_remote(conflict: RecordConflict) -> SyncRecord:
     return conflict.remote
 
 
-def _require_both(conflict: RecordConflict) -> tuple[SyncRecord, SyncRecord]:
-    return _require_local(conflict), _require_remote(conflict)
+class FieldOwnershipWins:
+    def __init__(
+        self,
+        local_fields: set[str],
+        remote_fields: set[str],
+        exclude_fields: set[str] | None = None,
+        prefer_remote_on_tie: bool = False,
+    ) -> None:
+        self._exclude = (exclude_fields or set()) | META_FIELDS
+        self._local_fields = local_fields
+        self._prefer_remote_on_tie = prefer_remote_on_tie
+        self._remote_fields = remote_fields
+
+    def resolve(self, conflict: RecordConflict) -> RecordResolution:
+        if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
+            return RecordResolution(
+                record=_require_local(conflict),
+                source=ResolutionSource.LOCAL,
+            )
+
+        if conflict.conflict_type == ConflictType.MODIFY_VS_DELETE:
+            return RecordResolution(
+                record=_require_remote(conflict),
+                source=ResolutionSource.REMOTE,
+            )
+
+        local, remote = _require_both(conflict)
+
+        local_data = local.data
+        remote_data = remote.data
+        local_timestamps = local.timestamps
+        remote_timestamps = remote.timestamps
+
+        all_fields = (set(local_data) | set(remote_data)) - self._exclude
+
+        data: dict[str, Any] = {}
+        timestamps: dict[str, int] = {}
+
+        for field_name in sorted(all_fields):
+            local_timestamp = local_timestamps.get(field_name, 0)
+            remote_timestamp = remote_timestamps.get(field_name, 0)
+
+            if field_name in self._local_fields:
+                data[field_name] = local_data.get(field_name)
+                timestamps[field_name] = local_timestamp
+            elif field_name in self._remote_fields:  # noqa: SIM114
+                data[field_name] = remote_data.get(field_name)
+                timestamps[field_name] = remote_timestamp
+            elif (
+                remote_timestamp > local_timestamp
+                or (
+                    remote_timestamp == local_timestamp
+                    and self._prefer_remote_on_tie
+                )
+            ):
+                data[field_name] = remote_data.get(field_name)
+                timestamps[field_name] = remote_timestamp
+            else:
+                data[field_name] = local_data.get(field_name)
+                timestamps[field_name] = local_timestamp
+
+        return RecordResolution(
+            record=SyncRecord(
+                key=conflict.key,
+                data=data,
+                timestamps=timestamps,
+            ),
+            source=ResolutionSource.MERGED,
+            field_conflicts=conflict.field_conflicts,
+        )
 
 
 class FieldTimestampWins:
@@ -173,77 +245,5 @@ class RemoteWins:
         return RecordResolution(
             record=_require_remote(conflict),
             source=ResolutionSource.REMOTE,
-            field_conflicts=conflict.field_conflicts,
-        )
-
-
-class FieldOwnershipWins:
-    def __init__(
-        self,
-        local_fields: set[str],
-        remote_fields: set[str],
-        exclude_fields: set[str] | None = None,
-        prefer_remote_on_tie: bool = False,
-    ) -> None:
-        self._exclude = (exclude_fields or set()) | META_FIELDS
-        self._local_fields = local_fields
-        self._remote_fields = remote_fields
-        self._prefer_remote_on_tie = prefer_remote_on_tie
-
-    def resolve(self, conflict: RecordConflict) -> RecordResolution:
-        if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
-            return RecordResolution(
-                record=_require_local(conflict),
-                source=ResolutionSource.LOCAL,
-            )
-
-        if conflict.conflict_type == ConflictType.MODIFY_VS_DELETE:
-            return RecordResolution(
-                record=_require_remote(conflict),
-                source=ResolutionSource.REMOTE,
-            )
-
-        local, remote = _require_both(conflict)
-
-        local_data = local.data
-        remote_data = remote.data
-        local_timestamps = local.timestamps
-        remote_timestamps = remote.timestamps
-
-        all_fields = (set(local_data) | set(remote_data)) - self._exclude
-
-        data: dict[str, Any] = {}
-        timestamps: dict[str, int] = {}
-
-        for field_name in sorted(all_fields):
-            local_timestamp = local_timestamps.get(field_name, 0)
-            remote_timestamp = remote_timestamps.get(field_name, 0)
-
-            if field_name in self._local_fields:
-                data[field_name] = local_data.get(field_name)
-                timestamps[field_name] = local_timestamp
-            elif field_name in self._remote_fields:  # noqa: SIM114
-                data[field_name] = remote_data.get(field_name)
-                timestamps[field_name] = remote_timestamp
-            elif (
-                remote_timestamp > local_timestamp
-                or (
-                    remote_timestamp == local_timestamp
-                    and self._prefer_remote_on_tie
-                )
-            ):
-                data[field_name] = remote_data.get(field_name)
-                timestamps[field_name] = remote_timestamp
-            else:
-                data[field_name] = local_data.get(field_name)
-                timestamps[field_name] = local_timestamp
-
-        return RecordResolution(
-            record=SyncRecord(
-                key=conflict.key,
-                data=data,
-                timestamps=timestamps,
-            ),
-            source=ResolutionSource.MERGED,
             field_conflicts=conflict.field_conflicts,
         )

@@ -9,12 +9,5 @@ if TYPE_CHECKING:
 
 class SyncLock(Protocol):
     def acquire(self, node_id: str) -> str: ...
-
-    def release(
-        self,
-        session_id: str,
-        status: SyncStatus,
-        result: DatabaseResult | None = None,
-    ) -> None: ...
-
+    def release(self, session_id: str, status: SyncStatus, result: DatabaseResult | None = None) -> None: ...
     def update_phase(self, session_id: str, phase: SyncPhase) -> None: ...

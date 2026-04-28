@@ -46,16 +46,16 @@ class Result:
 
 @dataclass
 class BidirectionalResult:
-    source_created: list[str] = field(default_factory=list)
-    source_updated: list[str] = field(default_factory=list)
-    source_deactivated: list[str] = field(default_factory=list)
-    target_created: list[str] = field(default_factory=list)
-    target_updated: list[str] = field(default_factory=list)
-    target_deactivated: list[str] = field(default_factory=list)
     conflicts: dict[str, Resolution] = field(default_factory=dict)
-    unchanged: list[str] = field(default_factory=list)
     changes: dict[str, Change] = field(default_factory=dict)
     errors: list[Error] = field(default_factory=list)
+    source_created: list[str] = field(default_factory=list)
+    source_deactivated: list[str] = field(default_factory=list)
+    source_updated: list[str] = field(default_factory=list)
+    target_created: list[str] = field(default_factory=list)
+    target_deactivated: list[str] = field(default_factory=list)
+    target_updated: list[str] = field(default_factory=list)
+    unchanged: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:

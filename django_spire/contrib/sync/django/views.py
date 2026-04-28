@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from django.http import JsonResponse
 
-from django_spire.contrib.sync.core.compression import safe_gzip_decompress
+from django_spire.contrib.sync.core.compression import gzip_decompress
 from django_spire.contrib.sync.core.exceptions import (
     DecompressionLimitError,
     ManifestFieldError,
@@ -26,6 +26,38 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _REQUEST_BYTES_MAX = 50 * 1024 * 1024
+
+
+def _reject_if_oversized_header(
+    request: HttpRequest,
+    request_bytes_max: int,
+) -> JsonResponse | None:
+    raw_length = request.META.get('CONTENT_LENGTH')
+
+    if not raw_length:
+        return None
+
+    try:
+        declared = int(raw_length)
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {'ok': False, 'error': 'Invalid Content-Length header'},
+            status=400,
+        )
+
+    if declared < 0:
+        return JsonResponse(
+            {'ok': False, 'error': 'Invalid Content-Length header'},
+            status=400,
+        )
+
+    if declared > request_bytes_max:
+        return JsonResponse(
+            {'ok': False, 'error': 'Request body too large'},
+            status=413,
+        )
+
+    return None
 
 
 def process_sync_request(
@@ -63,7 +95,7 @@ def process_sync_request(
 
     if request.headers.get('Content-Encoding') == 'gzip':
         try:
-            body = safe_gzip_decompress(body, request_bytes_max)
+            body = gzip_decompress(body, request_bytes_max)
         except DecompressionLimitError:
             return JsonResponse(
                 {'ok': False, 'error': 'Decompressed request body too large'},
@@ -118,10 +150,7 @@ def process_sync_request(
     try:
         response, result = engine.process(incoming)
     except SyncAbortedError:
-        logger.exception(
-            'Sync aborted for node %s',
-            incoming.node_id,
-        )
+        logger.exception('Sync aborted for node %s', incoming.node_id)
 
         return JsonResponse(
             {'ok': False, 'error': 'Sync aborted'},
@@ -136,35 +165,3 @@ def process_sync_request(
                 for error in result.errors
             ],
         })
-
-
-def _reject_if_oversized_header(
-    request: HttpRequest,
-    request_bytes_max: int,
-) -> JsonResponse | None:
-    raw_length = request.META.get('CONTENT_LENGTH')
-
-    if not raw_length:
-        return None
-
-    try:
-        declared = int(raw_length)
-    except (TypeError, ValueError):
-        return JsonResponse(
-            {'ok': False, 'error': 'Invalid Content-Length header'},
-            status=400,
-        )
-
-    if declared < 0:
-        return JsonResponse(
-            {'ok': False, 'error': 'Invalid Content-Length header'},
-            status=400,
-        )
-
-    if declared > request_bytes_max:
-        return JsonResponse(
-            {'ok': False, 'error': 'Request body too large'},
-            status=413,
-        )
-
-    return None

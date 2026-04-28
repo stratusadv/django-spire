@@ -18,45 +18,26 @@ class SyncRecord:
         ts_max = max(self.timestamps.values()) if self.timestamps else 0
         return max(ts_max, self.received_at)
 
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            'data': self.data,
-            'timestamps': self.timestamps,
-        }
-
     @classmethod
     def from_dict(cls, key: str, data: dict[str, Any]) -> SyncRecord:
         record_data = data.get('data', {})
         record_timestamps = data.get('timestamps', {})
 
         if not isinstance(record_data, dict):
-            message = (
-                f"Record {key!r}: 'data' must be a dict, "
-                f"got {type(record_data).__name__}"
-            )
-
+            message = f"Record {key!r}: 'data' must be a dict, got {type(record_data).__name__}"
             raise RecordFieldError(message)
 
         if not isinstance(record_timestamps, dict):
-            message = (
-                f"Record {key!r}: 'timestamps' must be a dict, "
-                f"got {type(record_timestamps).__name__}"
-            )
-
+            message = f"Record {key!r}: 'timestamps' must be a dict, got {type(record_timestamps).__name__}"
             raise RecordFieldError(message)
 
         for ts_key, ts_value in record_timestamps.items():
             if not isinstance(ts_key, str):
-                message = (
-                    f"Record {key!r}: timestamp key {ts_key!r} must be a string"
-                )
+                message = f"Record {key!r}: timestamp key {ts_key!r} must be a string"
                 raise RecordFieldError(message)
 
             if not isinstance(ts_value, int) or isinstance(ts_value, bool):
-                message = (
-                    f"Record {key!r}: timestamp for {ts_key!r} must be an int, "
-                    f"got {type(ts_value).__name__}"
-                )
+                message = f"Record {key!r}: timestamp for {ts_key!r} must be an int, got {type(ts_value).__name__}"
                 raise RecordFieldError(message)
 
         return cls(
@@ -64,3 +45,9 @@ class SyncRecord:
             data=record_data,
             timestamps=record_timestamps,
         )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            'data': self.data,
+            'timestamps': self.timestamps,
+        }

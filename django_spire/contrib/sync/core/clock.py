@@ -37,11 +37,7 @@ class HybridLogicalClock:
 
             time.sleep(0.001)
 
-        message = (
-            f'HLC counter overflow: unable to advance '
-            f'after {_SPINS_MAX} attempts'
-        )
-
+        message = f'HLC counter overflow: unable to advance after {_SPINS_MAX} attempts'
         raise ClockOverflowError(message)
 
     def receive(self, remote: int) -> int:
@@ -70,11 +66,7 @@ class HybridLogicalClock:
 
             time.sleep(0.001)
 
-        message = (
-            f'HLC counter overflow: unable to advance '
-            f'after {_SPINS_MAX} attempts'
-        )
-
+        message = f'HLC counter overflow: unable to advance after {_SPINS_MAX} attempts'
         raise ClockOverflowError(message)
 
     def update(self, remote: int) -> None:

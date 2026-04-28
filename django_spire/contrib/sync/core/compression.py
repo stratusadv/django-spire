@@ -6,7 +6,7 @@ import io
 from django_spire.contrib.sync.core.exceptions import DecompressionLimitError
 
 
-def safe_gzip_decompress(data: bytes, bytes_max: int) -> bytes:
+def gzip_decompress(data: bytes, bytes_max: int) -> bytes:
     buffer = io.BytesIO(data)
     result = bytearray()
 
@@ -20,11 +20,7 @@ def safe_gzip_decompress(data: bytes, bytes_max: int) -> bytes:
             result.extend(chunk)
 
             if len(result) > bytes_max:
-                message = (
-                    f'Decompressed data exceeds limit of '
-                    f'{bytes_max} bytes'
-                )
-
+                message = f'Decompressed data exceeds limit of {bytes_max} bytes'
                 raise DecompressionLimitError(message)
 
     return bytes(result)

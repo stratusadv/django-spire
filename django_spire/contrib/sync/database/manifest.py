@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 @dataclass
 class ModelPayload:
     model_label: str
-    records: dict[str, SyncRecord] = field(default_factory=dict)
     deletes: dict[str, int] = field(default_factory=dict)
+    records: dict[str, SyncRecord] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ModelPayload:
@@ -64,12 +64,11 @@ class ModelPayload:
                     f"delete tombstone for {key!r} must be an int, "
                     f"got {type(tombstone).__name__}"
                 )
+
                 raise ManifestFieldError(message)
 
             if key in raw_records:
-                message = (
-                    f"key {key!r} present in both 'records' and 'deletes'"
-                )
+                message = f"key {key!r} present in both 'records' and 'deletes'"
                 raise ManifestFieldError(message)
 
             deletes[key] = tombstone
@@ -166,9 +165,7 @@ class SyncManifest:
 
         for payload in payloads:
             if payload.model_label in seen_labels:
-                message = (
-                    f"duplicate model_label {payload.model_label!r} in payloads"
-                )
+                message = f"duplicate model_label {payload.model_label!r} in payloads"
                 raise ManifestFieldError(message)
 
             seen_labels.add(payload.model_label)

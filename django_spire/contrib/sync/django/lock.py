@@ -33,10 +33,13 @@ class DjangoSyncLock:
     def _abandon_stale_sessions(self, node_id: str) -> None:
         cutoff = timezone.now() - timedelta(seconds=self._timeout_stale)
 
-        stale = SyncSession.objects.filter(
-            node_id=node_id,
-            started_at__lt=cutoff,
-            status__in=_ACTIVE_STATUSES,
+        stale = (
+            SyncSession.objects
+            .filter(
+                node_id=node_id,
+                started_at__lt=cutoff,
+                status__in=_ACTIVE_STATUSES,
+            )
         )
 
         count = stale.update(
@@ -53,10 +56,11 @@ class DjangoSyncLock:
             )
 
     def _check_active_session(self, node_id: str) -> None:
-        active = SyncSession.objects.filter(
-            node_id=node_id,
-            status__in=_ACTIVE_STATUSES,
-        ).first()
+        active = (
+            SyncSession.objects
+            .filter(node_id=node_id, status__in=_ACTIVE_STATUSES)
+            .first()
+        )
 
         if active is not None:
             message = (
@@ -83,9 +87,12 @@ class DjangoSyncLock:
         self._ensure_lock_row(node_id)
 
         with transaction.atomic():
-            locked = SyncNodeLock.objects.select_for_update().filter(
-                node_id=node_id,
-            ).first()
+            locked = (
+                SyncNodeLock.objects
+                .select_for_update()
+                .filter(node_id=node_id)
+                .first()
+            )
 
             if locked is None:
                 message = f'Sync lock row for {node_id!r} is missing after creation'
@@ -109,7 +116,11 @@ class DjangoSyncLock:
         status: SyncStatus,
         result: DatabaseResult | None = None,
     ) -> None:
-        session = SyncSession.objects.filter(id=session_id).first()
+        session = (
+            SyncSession.objects
+            .filter(id=session_id)
+            .first()
+        )
 
         if session is None:
             logger.warning(
@@ -120,12 +131,10 @@ class DjangoSyncLock:
             return
 
         now = timezone.now()
+        elapsed_ms = (now - session.started_at).total_seconds() * 1000
 
         session.completed_at = now
-
-        session.duration_ms = int(
-            (now - session.started_at).total_seconds() * 1000
-        )
+        session.duration_ms = int(elapsed_ms)
 
         session.phase = (
             SyncPhase.COMPLETE
@@ -137,23 +146,28 @@ class DjangoSyncLock:
 
         if result is not None:
             session.records_pushed = sum(
-                len(keys) for keys in result.pushed.values()
+                len(keys)
+                for keys in result.pushed.values()
             )
 
             session.records_applied = sum(
-                len(keys) for keys in result.applied.values()
+                len(keys)
+                for keys in result.applied.values()
             )
 
             session.records_created = sum(
-                len(keys) for keys in result.created.values()
+                len(keys)
+                for keys in result.created.values()
             )
 
             session.records_deleted = sum(
-                len(keys) for keys in result.deleted.values()
+                len(keys)
+                for keys in result.deleted.values()
             )
 
             session.conflicts = sum(
-                len(keys) for keys in result.conflicts.values()
+                len(keys)
+                for keys in result.conflicts.values()
             )
 
             session.errors = len(result.errors)

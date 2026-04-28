@@ -7,12 +7,6 @@ if TYPE_CHECKING:
 
 
 class Serializer(Protocol):
-    def deserialize(
-        self,
-        model_label: str,
-        record: SyncRecord,
-    ) -> Any: ...
-
+    def deserialize(self, model_label: str, record: SyncRecord) -> Any: ...
     def get_identity(self, instance: Any) -> str: ...
-
     def serialize(self, instance: Any) -> SyncRecord: ...

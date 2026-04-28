@@ -17,18 +17,9 @@ class RecordHasher:
         identity_field: str,
         compare_fields: list[str] | None = None,
     ) -> None:
-        self._identity_field = identity_field
         self._compare_fields = compare_fields
+        self._identity_field = identity_field
         self._schema_tag = self._compute_schema_tag()
-
-    def _compute_schema_tag(self) -> str:
-        token = (
-            ','.join(sorted(self._compare_fields))
-            if self._compare_fields is not None
-            else '*'
-        )
-
-        return hashlib.sha256(token.encode('utf-8')).hexdigest()[:16]
 
     def _canonical(self, record: dict[str, Any]) -> bytes:
         if self._compare_fields is not None:
@@ -57,6 +48,15 @@ class RecordHasher:
         except TypeError as exception:
             message = f'Record contains non-serializable value: {exception}'
             raise RecordSerializationError(message) from exception
+
+    def _compute_schema_tag(self) -> str:
+        token = (
+            ','.join(sorted(self._compare_fields))
+            if self._compare_fields is not None
+            else '*'
+        )
+
+        return hashlib.sha256(token.encode('utf-8')).hexdigest()[:16]
 
     def hash(self, record: dict[str, Any]) -> str:
         body = hashlib.sha256(self._canonical(record)).hexdigest()

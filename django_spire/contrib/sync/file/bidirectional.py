@@ -108,6 +108,7 @@ class BidirectionalEngine:
         if source_changed and target_changed:
             if source_hashes[key] == target_hashes[key]:
                 return _UNCHANGED
+
             return _CONFLICT
 
         if source_changed:
@@ -132,6 +133,7 @@ class BidirectionalEngine:
             in_source and in_baseline
             and source_hashes[key] != baseline_hashes[key]
         )
+
         target_changed = (
             in_target and in_baseline
             and target_hashes[key] != baseline_hashes[key]

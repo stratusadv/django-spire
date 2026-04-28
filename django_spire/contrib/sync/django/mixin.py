@@ -33,6 +33,7 @@ class SyncableMixin(models.Model):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
         self._tracker = FieldUpdateTracker()
         self._tracker.snapshot(self._get_field_values())
 
@@ -53,35 +54,6 @@ class SyncableMixin(models.Model):
         super().save(*args, **kwargs)
         self._tracker.snapshot(self._get_field_values())
 
-    @classmethod
-    def configure(cls, clock: HybridLogicalClock) -> None:
-        cls._clock = clock
-
-    @classmethod
-    def get_clock(cls) -> HybridLogicalClock:
-        if cls._clock is None:
-            message = (
-                'SyncableMixin clock not configured. '
-                'Call SyncableMixin.configure(clock) in AppConfig.ready().'
-            )
-            raise ClockNotConfiguredError(message)
-
-        return cls._clock
-
-    @classmethod
-    def get_syncable_field_names(cls) -> list[str]:
-        return sorted(
-            field.name
-            for field in cls._meta.concrete_fields
-            if field.name not in cls._sync_exclude_fields
-        )
-
-    @classmethod
-    def get_syncable_m2m_names(cls) -> list[str]:
-        return sorted(
-            field.name for field in cls._meta.many_to_many
-        )
-
     def _get_field_values(self) -> dict[str, Any]:
         return {
             field.name: getattr(self, field.attname)
@@ -98,3 +70,27 @@ class SyncableMixin(models.Model):
     def refresh_from_db(self, *args: Any, **kwargs: Any) -> None:
         super().refresh_from_db(*args, **kwargs)
         self._tracker.snapshot(self._get_field_values())
+
+    @classmethod
+    def configure(cls, clock: HybridLogicalClock) -> None:
+        cls._clock = clock
+
+    @classmethod
+    def get_clock(cls) -> HybridLogicalClock:
+        if cls._clock is None:
+            message = 'SyncableMixin clock not configured. Call SyncableMixin.configure(clock) in AppConfig.ready().'
+            raise ClockNotConfiguredError(message)
+
+        return cls._clock
+
+    @classmethod
+    def get_syncable_field_names(cls) -> list[str]:
+        return sorted(
+            field.name
+            for field in cls._meta.concrete_fields
+            if field.name not in cls._sync_exclude_fields
+        )
+
+    @classmethod
+    def get_syncable_m2m_names(cls) -> list[str]:
+        return sorted(field.name for field in cls._meta.many_to_many)

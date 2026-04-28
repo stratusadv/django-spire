@@ -54,13 +54,109 @@ class DjangoSyncStorage(DatabaseSyncStorage):
             for model in models
         }
 
+    def _apply_many_to_many(
+        self,
+        model: type[SyncableMixin],
+        pending: dict[str, dict[str, list[Any]]],
+    ) -> set[str]:
+        skipped: set[str] = set()
+
+        if not pending:
+            return skipped
+
+        identity_lookup = {f'{self._identity_field}__in': list(pending.keys())}
+
+        instances_by_key = {
+            str(getattr(instance, self._identity_field)): instance
+            for instance in model.objects.filter(**identity_lookup)
+        }
+
+        with sync_bypass():
+            for key in sorted(pending.keys()):
+                many_to_many_data = pending[key]
+                instance = instances_by_key.get(key)
+
+                if instance is None:
+                    logger.warning(
+                        'Skipping M2M relations for %s key=%s: '
+                        'instance not found after upsert',
+                        model._meta.label,
+                        key,
+                    )
+
+                    skipped.add(key)
+
+                    continue
+
+                for field_name, values in sorted(many_to_many_data.items()):
+                    try:
+                        getattr(instance, field_name).set(values)
+                    except IntegrityError:
+                        logger.exception(
+                            'M2M set failed for %s:%s field=%s values=%s',
+                            model._meta.label,
+                            key,
+                            field_name,
+                            values,
+                        )
+
+                        raise
+
+        return skipped
+
+    def _build_update_values(
+        self,
+        sync_record: SyncRecord,
+        field_data: dict[str, Any],
+    ) -> dict[str, Any]:
+        values = {
+            key: value
+            for key, value in field_data.items()
+            if key != self._identity_field
+        }
+
+        values['sync_field_timestamps'] = dict(sync_record.timestamps)
+        values['sync_field_last_modified'] = sync_record.sync_field_last_modified
+
+        return values
+
     def _check_batch_limit(self, count: int, operation: str) -> None:
         if count > self._batch_size_max:
             message = (
                 f'{operation} received {count} items, '
                 f'exceeds batch_size_max={self._batch_size_max}'
             )
+
             raise BatchLimitError(message)
+
+    def _collect_soft_deletes(
+        self,
+        instances: list[SyncableMixin],
+        deletes: dict[str, int],
+    ) -> list[SyncableMixin]:
+        pending: list[SyncableMixin] = []
+
+        for instance in instances:
+            key = str(getattr(instance, self._identity_field))
+            tombstone_ts = deletes[key]
+
+            if instance.sync_field_last_modified > tombstone_ts:
+                continue
+
+            instance.is_deleted = True
+
+            timestamps = dict(instance.sync_field_timestamps)
+            timestamps['is_deleted'] = tombstone_ts
+            instance.sync_field_timestamps = timestamps
+
+            instance.sync_field_last_modified = max(
+                instance.sync_field_last_modified,
+                tombstone_ts,
+            )
+
+            pending.append(instance)
+
+        return pending
 
     def _force_auto_fields(
         self,
@@ -71,7 +167,9 @@ class DjangoSyncStorage(DatabaseSyncStorage):
         auto_values: dict[str, Any] = {}
 
         for field in model._meta.concrete_fields:
-            if not getattr(field, 'auto_now_add', False) and not getattr(field, 'auto_now', False):
+            is_auto = getattr(field, 'auto_now_add', False) or getattr(field, 'auto_now', False)
+
+            if not is_auto:
                 continue
 
             attr_name = field.attname if field.is_relation else field.name
@@ -80,9 +178,8 @@ class DjangoSyncStorage(DatabaseSyncStorage):
                 auto_values[attr_name] = field_data[attr_name]
 
         if auto_values:
-            model.objects.filter(
-                **{self._identity_field: key},
-            ).update(**auto_values)
+            identity_filter = {self._identity_field: key}
+            model.objects.filter(**identity_filter).update(**auto_values)
 
     def _get_many_to_many_names(self, model: type[SyncableMixin]) -> set[str]:
         return {field.name for field in model._meta.many_to_many}
@@ -96,6 +193,19 @@ class DjangoSyncStorage(DatabaseSyncStorage):
 
         return model
 
+    def _hard_delete_many(
+        self,
+        model: type[SyncableMixin],
+        deletes: dict[str, int],
+    ) -> None:
+        for key, tombstone_ts in deletes.items():
+            staleness_filter = {
+                self._identity_field: key,
+                'sync_field_last_modified__lte': tombstone_ts,
+            }
+
+            model.objects.filter(**staleness_filter).delete()
+
     def _has_field(
         self,
         model: type[SyncableMixin],
@@ -106,6 +216,43 @@ class DjangoSyncStorage(DatabaseSyncStorage):
         except FieldDoesNotExist:
             return False
         else:
+            return True
+
+    def _insert_with_race_fallback(
+        self,
+        model: type[SyncableMixin],
+        key: str,
+        sync_record: SyncRecord,
+        field_data: dict[str, Any],
+    ) -> bool:
+        insert_data = dict(field_data)
+
+        if self._identity_field not in insert_data:
+            insert_data[self._identity_field] = key
+
+        instance = model(**insert_data)
+        instance.sync_field_timestamps = dict(sync_record.timestamps)
+        instance.sync_field_last_modified = sync_record.sync_field_last_modified
+
+        try:
+            with transaction.atomic(), sync_bypass():
+                instance.save(force_insert=True)
+        except IntegrityError:
+            update_values = self._build_update_values(sync_record, field_data)
+            staleness_filter = {
+                self._identity_field: key,
+                'sync_field_last_modified__lte': sync_record.sync_field_last_modified,
+            }
+
+            updated = (
+                model.objects
+                .filter(**staleness_filter)
+                .update(**update_values)
+            )
+
+            return updated > 0
+        else:
+            self._force_auto_fields(model, key, field_data)
             return True
 
     def _instance_to_record(self, instance: SyncableMixin) -> SyncRecord:
@@ -126,6 +273,44 @@ class DjangoSyncStorage(DatabaseSyncStorage):
             timestamps=dict(instance.sync_field_timestamps),
         )
 
+    def _record_exists(
+        self,
+        model: type[SyncableMixin],
+        key: str,
+    ) -> bool:
+        identity_filter = {self._identity_field: key}
+
+        return model.objects.filter(**identity_filter).exists()
+
+    def _soft_delete_many(
+        self,
+        model: type[SyncableMixin],
+        deletes: dict[str, int],
+    ) -> None:
+        identity_lookup = {f'{self._identity_field}__in': list(deletes.keys())}
+        instances = list(model.objects.filter(**identity_lookup))
+
+        pending = self._collect_soft_deletes(instances, deletes)
+
+        if not pending:
+            return
+
+        with sync_bypass():
+            for instance in pending:
+                key = str(getattr(instance, self._identity_field))
+                tombstone_ts = deletes[key]
+
+                staleness_filter = {
+                    self._identity_field: key,
+                    'sync_field_last_modified__lte': tombstone_ts,
+                }
+
+                model.objects.filter(**staleness_filter).update(
+                    is_deleted=True,
+                    sync_field_timestamps=instance.sync_field_timestamps,
+                    sync_field_last_modified=instance.sync_field_last_modified,
+                )
+
     def _split_fields(
         self,
         sync_record: SyncRecord,
@@ -142,55 +327,39 @@ class DjangoSyncStorage(DatabaseSyncStorage):
 
         return field_data, many_to_many_data
 
-    def _build_update_values(
+    def _update_if_stale(
         self,
+        model: type[SyncableMixin],
+        key: str,
         sync_record: SyncRecord,
         field_data: dict[str, Any],
-    ) -> dict[str, Any]:
-        values = {
-            key: value
-            for key, value in field_data.items()
-            if key != self._identity_field
+    ) -> bool:
+        update_values = self._build_update_values(sync_record, field_data)
+        staleness_filter = {
+            self._identity_field: key,
+            'sync_field_last_modified__lte': sync_record.sync_field_last_modified,
         }
 
-        values['sync_field_timestamps'] = dict(sync_record.timestamps)
-        values['sync_field_last_modified'] = sync_record.sync_field_last_modified
+        updated = (
+            model.objects
+            .filter(**staleness_filter)
+            .update(**update_values)
+        )
 
-        return values
+        return updated > 0
 
     def _upsert_one(
         self,
         model: type[SyncableMixin],
         key: str,
         sync_record: SyncRecord,
-        many_to_many_names: set[str],
-    ) -> tuple[bool, dict[str, list[Any]]]:
-        incoming_lm = sync_record.sync_field_last_modified
+        field_data: dict[str, Any],
+    ) -> bool:
+        if self._update_if_stale(model, key, sync_record, field_data):
+            return True
 
-        field_data, many_to_many_data = self._split_fields(
-            sync_record,
-            many_to_many_names,
-        )
-
-        serializer = self._serializers[model._meta.label]
-        field_data = serializer.deserialize(field_data)
-
-        update_values = self._build_update_values(sync_record, field_data)
-
-        updated = model.objects.filter(
-            **{self._identity_field: key},
-            sync_field_last_modified__lte=incoming_lm,
-        ).update(**update_values)
-
-        if updated > 0:
-            return False, many_to_many_data
-
-        exists = model.objects.filter(
-            **{self._identity_field: key},
-        ).exists()
-
-        if exists:
-            return True, {}
+        if self._record_exists(model, key):
+            return False
 
         if not sync_record.timestamps:
             logger.warning(
@@ -200,81 +369,9 @@ class DjangoSyncStorage(DatabaseSyncStorage):
                 model._meta.label,
             )
 
-            return True, {}
+            return False
 
-        insert_data = dict(field_data)
-
-        if self._identity_field not in insert_data:
-            insert_data[self._identity_field] = key
-
-        instance = model(**insert_data)
-        instance.sync_field_timestamps = dict(sync_record.timestamps)
-        instance.sync_field_last_modified = incoming_lm
-
-        try:
-            with transaction.atomic(), sync_bypass():
-                instance.save(force_insert=True)
-        except IntegrityError:
-            updated = model.objects.filter(
-                **{self._identity_field: key},
-                sync_field_last_modified__lte=incoming_lm,
-            ).update(**update_values)
-
-            if updated == 0:
-                return True, {}
-        else:
-            self._force_auto_fields(model, key, field_data)
-
-        return False, many_to_many_data
-
-    def _apply_many_to_many(
-        self,
-        model: type[SyncableMixin],
-        pending: dict[str, dict[str, list[Any]]],
-    ) -> set[str]:
-        skipped: set[str] = set()
-
-        if not pending:
-            return skipped
-
-        lookup = {
-            f'{self._identity_field}__in': list(pending.keys()),
-        }
-
-        instances_by_key = {
-            str(getattr(instance, self._identity_field)): instance
-            for instance in model.objects.filter(**lookup)
-        }
-
-        with sync_bypass():
-            for key in sorted(pending.keys()):
-                many_to_many_data = pending[key]
-                instance = instances_by_key.get(key)
-
-                if instance is None:
-                    logger.warning(
-                        'Skipping M2M relations for %s key=%s: '
-                        'instance not found after upsert',
-                        model._meta.label,
-                        key,
-                    )
-                    skipped.add(key)
-                    continue
-
-                for field_name, values in sorted(many_to_many_data.items()):
-                    try:
-                        getattr(instance, field_name).set(values)
-                    except IntegrityError:
-                        logger.exception(
-                            'M2M set failed for %s:%s field=%s values=%s',
-                            model._meta.label,
-                            key,
-                            field_name,
-                            values,
-                        )
-                        raise
-
-        return skipped
+        return self._insert_with_race_fallback(model, key, sync_record, field_data)
 
     def delete_many(
         self,
@@ -288,57 +385,10 @@ class DjangoSyncStorage(DatabaseSyncStorage):
 
         model = self._get_model(model_label)
 
-        if not self._has_field(model, 'is_deleted'):
-            for key, tombstone_ts in deletes.items():
-                model.objects.filter(
-                    **{self._identity_field: key},
-                    sync_field_last_modified__lte=tombstone_ts,
-                ).delete()
-
-            return
-
-        instances = list(
-            model.objects.filter(
-                **{f'{self._identity_field}__in': list(deletes.keys())},
-            )
-        )
-
-        to_update = []
-
-        for instance in instances:
-            key = str(getattr(instance, self._identity_field))
-            tombstone_ts = deletes[key]
-
-            if instance.sync_field_last_modified > tombstone_ts:
-                continue
-
-            instance.is_deleted = True
-
-            timestamps = dict(instance.sync_field_timestamps)
-            timestamps['is_deleted'] = tombstone_ts
-            instance.sync_field_timestamps = timestamps
-
-            instance.sync_field_last_modified = max(
-                instance.sync_field_last_modified,
-                tombstone_ts,
-            )
-
-            to_update.append(instance)
-
-        if to_update:
-            with sync_bypass():
-                for instance in to_update:
-                    key = str(getattr(instance, self._identity_field))
-                    tombstone_ts = deletes[key]
-
-                    model.objects.filter(
-                        **{self._identity_field: key},
-                        sync_field_last_modified__lte=tombstone_ts,
-                    ).update(
-                        is_deleted=True,
-                        sync_field_timestamps=instance.sync_field_timestamps,
-                        sync_field_last_modified=instance.sync_field_last_modified,
-                    )
+        if self._has_field(model, 'is_deleted'):
+            self._soft_delete_many(model, deletes)
+        else:
+            self._hard_delete_many(model, deletes)
 
     def get_changed_since(
         self,
@@ -381,9 +431,8 @@ class DjangoSyncStorage(DatabaseSyncStorage):
         model = self._get_model(model_label)
         many_to_many_names = self._get_many_to_many_names(model)
 
-        queryset = model.objects.filter(
-            **{f'{self._identity_field}__in': keys},
-        )
+        identity_lookup = {f'{self._identity_field}__in': keys}
+        queryset = model.objects.filter(**identity_lookup)
 
         if many_to_many_names:
             queryset = queryset.prefetch_related(*many_to_many_names)
@@ -414,22 +463,28 @@ class DjangoSyncStorage(DatabaseSyncStorage):
 
         model = self._get_model(model_label)
         many_to_many_names = self._get_many_to_many_names(model)
+        serializer = self._serializers[model_label]
 
         skipped: set[str] = set()
         pending_many_to_many: dict[str, dict[str, list[Any]]] = {}
 
         with transaction.atomic():
             for key in sorted(records.keys()):
-                was_skipped, many_to_many_data = self._upsert_one(
-                    model,
-                    key,
-                    records[key],
+                sync_record = records[key]
+                field_data, many_to_many_data = self._split_fields(
+                    sync_record,
                     many_to_many_names,
                 )
 
-                if was_skipped:
+                field_data = serializer.deserialize(field_data)
+
+                applied = self._upsert_one(model, key, sync_record, field_data)
+
+                if not applied:
                     skipped.add(key)
-                elif many_to_many_data:
+                    continue
+
+                if many_to_many_data:
                     pending_many_to_many[key] = many_to_many_data
 
             m2m_skipped = self._apply_many_to_many(model, pending_many_to_many)
