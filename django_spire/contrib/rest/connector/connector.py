@@ -70,18 +70,19 @@ class BaseRestHttpConnector(ABC):
 
         retries = 0
 
-        while True:
-            try:
-                response = requests.request(
-                    method=method,
-                    url=self._build_url(path),
-                    headers=merged_headers,
-                    auth=auth,
-                    timeout=self.timeout,
-                    **kwargs,
-                )
+        response = requests.request(
+            method=method,
+            url=self._build_url(path),
+            headers=merged_headers,
+            auth=auth,
+            timeout=self.timeout,
+            **kwargs,
+        )
 
+        for i in range(self.max_retries):
+            try:
                 response.raise_for_status()
+
                 break
             except requests.exceptions.Timeout as e:
                 retries += 1
@@ -91,6 +92,15 @@ class BaseRestHttpConnector(ABC):
 
                 if retries >= self.max_retries:
                     raise RestConnectorTimeoutException from e
+
+                response = requests.request(
+                    method=method,
+                    url=self._build_url(path),
+                    headers=merged_headers,
+                    auth=auth,
+                    timeout=self.timeout,
+                    **kwargs,
+                )
 
             except HTTPError as e:
                 raise RestConnectorError from e
