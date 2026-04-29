@@ -3,6 +3,11 @@ from __future__ import annotations
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
+from django_spire.contrib.sync.database.conflict import (
+    RecordConflict,
+    RecordResolution,
+    ResolutionSource,
+)
 from django_spire.contrib.sync.database.manifest import ModelPayload
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
 from django_spire.contrib.sync.database.record import SyncRecord
@@ -216,3 +221,134 @@ class TestReconcilerInvariants:
 
         assert result.to_delete == {}
         assert not result.errors
+
+
+        class _ExplodingDeleteResolver:
+            def resolve(self, conflict: RecordConflict) -> RecordResolution:
+                _ = conflict
+
+                message = 'resolver exploded'
+                raise RuntimeError(message)
+
+
+        def test_delete_conflict_resolver_exception_recorded() -> None:
+            local_records = {
+                '1': SyncRecord(
+                    key='1',
+                    data={'id': '1', 'name': 'modified'},
+                    timestamps={'name': 150},
+                ),
+            }
+
+            payload = ModelPayload(
+                model_label='app.Model',
+                records={},
+                deletes={'1': 100},
+            )
+
+            reconciler = PayloadReconciler(resolver=_ExplodingDeleteResolver())
+            result = reconciler.reconcile(payload, local_records, checkpoint=50)
+
+            assert len(result.errors) == 1
+            assert result.errors[0].key == '1'
+            assert 'resolver exploded' in result.errors[0].message
+
+
+class _DeleteAcceptResolver:
+    def resolve(self, conflict: RecordConflict) -> RecordResolution:
+        _ = conflict
+
+        return RecordResolution(
+            record=None,
+            source=ResolutionSource.REMOTE,
+            delete=True,
+        )
+
+
+def test_delete_conflict_resolver_accepts_delete() -> None:
+    local_records = {
+        '1': SyncRecord(
+            key='1',
+            data={'id': '1', 'name': 'modified'},
+            timestamps={'name': 150},
+        ),
+    }
+
+    payload = ModelPayload(
+        model_label='app.Model',
+        records={},
+        deletes={'1': 100},
+    )
+
+    reconciler = PayloadReconciler(resolver=_DeleteAcceptResolver())
+    result = reconciler.reconcile(payload, local_records, checkpoint=50)
+
+    assert '1' in result.to_delete
+    assert len(result.errors) == 0
+
+
+class _DeleteRejectResolver:
+    def resolve(self, conflict: RecordConflict) -> RecordResolution:
+        return RecordResolution(
+            record=conflict.local,
+            source=ResolutionSource.LOCAL,
+            delete=False,
+        )
+
+
+def test_delete_conflict_resolver_keeps_record() -> None:
+    local = SyncRecord(
+        key='1',
+        data={'id': '1', 'name': 'keep-me'},
+        timestamps={'name': 150},
+    )
+
+    local_records = {'1': local}
+
+    payload = ModelPayload(
+        model_label='app.Model',
+        records={},
+        deletes={'1': 100},
+    )
+
+    reconciler = PayloadReconciler(resolver=_DeleteRejectResolver())
+    result = reconciler.reconcile(payload, local_records, checkpoint=50)
+
+    assert '1' not in result.to_delete
+    assert '1' in result.response_records
+    assert result.response_records['1'].data['name'] == 'keep-me'
+
+
+def test_delete_nonexistent_key_skipped() -> None:
+    payload = ModelPayload(
+        model_label='app.Model',
+        records={},
+        deletes={'ghost': 500},
+    )
+
+    reconciler = PayloadReconciler()
+    result = reconciler.reconcile(payload, {}, checkpoint=100)
+
+    assert 'ghost' not in result.to_delete
+    assert len(result.errors) == 0
+
+
+def test_delete_unchanged_record_accepted() -> None:
+    local_records = {
+        '1': SyncRecord(
+            key='1',
+            data={'id': '1', 'name': 'old'},
+            timestamps={'name': 50},
+        ),
+    }
+
+    payload = ModelPayload(
+        model_label='app.Model',
+        records={},
+        deletes={'1': 100},
+    )
+
+    reconciler = PayloadReconciler()
+    result = reconciler.reconcile(payload, local_records, checkpoint=0)
+
+    assert '1' in result.to_delete

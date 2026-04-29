@@ -5,8 +5,8 @@ from typing import Any, TYPE_CHECKING
 from django_spire.contrib.sync.tests.django.helpers import close_connections
 
 if TYPE_CHECKING:
-
     import threading
+
     from collections.abc import Callable
 
 

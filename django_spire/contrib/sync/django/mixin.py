@@ -6,18 +6,36 @@ from typing import Any, ClassVar, TYPE_CHECKING
 
 from django.db import models
 
-from django_spire.contrib.sync.core.exceptions import ClockNotConfiguredError
+from django_spire.contrib.sync.core.exceptions import (
+    ClockNotConfiguredError,
+)
 from django_spire.contrib.sync.database.tracker import FieldUpdateTracker
-from django_spire.contrib.sync.django.queryset import SyncableQuerySet, _is_bypassed
+from django_spire.contrib.sync.django.queryset import (
+    SyncableQuerySet,
+    _is_bypassed,
+)
 
 if TYPE_CHECKING:
     from django_spire.contrib.sync.core.clock import HybridLogicalClock
 
 
 class SyncableMixin(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sync_field_timestamps = models.JSONField(default=dict, editable=False)
-    sync_field_last_modified = models.BigIntegerField(default=0, editable=False, db_index=True)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+
+    sync_field_timestamps = models.JSONField(
+        default=dict,
+        editable=False,
+    )
+
+    sync_field_last_modified = models.BigIntegerField(
+        default=0,
+        editable=False,
+        db_index=True,
+    )
 
     objects = SyncableQuerySet.as_manager()
 
@@ -67,7 +85,9 @@ class SyncableMixin(models.Model):
 
         return self._tracker.get_dirty(self._get_field_values())
 
-    def refresh_from_db(self, *args: Any, **kwargs: Any) -> None:
+    def refresh_from_db(
+        self, *args: Any, **kwargs: Any,
+    ) -> None:
         super().refresh_from_db(*args, **kwargs)
         self._tracker.snapshot(self._get_field_values())
 
@@ -78,7 +98,12 @@ class SyncableMixin(models.Model):
     @classmethod
     def get_clock(cls) -> HybridLogicalClock:
         if cls._clock is None:
-            message = 'SyncableMixin clock not configured. Call SyncableMixin.configure(clock) in AppConfig.ready().'
+            message = (
+                'SyncableMixin clock not configured. '
+                'Call SyncableMixin.configure(clock) '
+                'in AppConfig.ready().'
+            )
+
             raise ClockNotConfiguredError(message)
 
         return cls._clock
@@ -93,4 +118,7 @@ class SyncableMixin(models.Model):
 
     @classmethod
     def get_syncable_m2m_names(cls) -> list[str]:
-        return sorted(field.name for field in cls._meta.many_to_many)
+        return sorted(
+            field.name
+            for field in cls._meta.many_to_many
+        )

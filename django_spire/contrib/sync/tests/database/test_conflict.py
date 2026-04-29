@@ -1,13 +1,22 @@
 from __future__ import annotations
 
+import pytest
+
+from django_spire.contrib.sync.core.exceptions import (
+    ConflictStateError,
+    InvalidParameterError,
+)
 from django_spire.contrib.sync.database.conflict import (
     ConflictType,
     FieldConflict,
+    FieldOwnershipWins,
     FieldTimestampWins,
     LocalWins,
     RecordConflict,
     RemoteWins,
     ResolutionSource,
+    _require_local,
+    _require_remote,
 )
 from django_spire.contrib.sync.database.record import SyncRecord
 
@@ -242,3 +251,163 @@ def test_remote_wins_preserves_field_conflicts() -> None:
     resolution = RemoteWins().resolve(conflict)
 
     assert len(resolution.field_conflicts) == 1
+
+
+def test_field_ownership_overlapping_fields_raises() -> None:
+    with pytest.raises(InvalidParameterError, match='overlap'):
+        FieldOwnershipWins(
+            local_fields={'name', 'value'},
+            remote_fields={'value', 'status'},
+        )
+
+
+def test_field_ownership_disjoint_fields_accepted() -> None:
+    resolver = FieldOwnershipWins(
+        local_fields={'name'},
+        remote_fields={'value'},
+    )
+
+    local = SyncRecord(
+        key='1',
+        data={'id': '1', 'name': 'local', 'value': 10},
+        timestamps={'name': 100, 'value': 100},
+    )
+    remote = SyncRecord(
+        key='1',
+        data={'id': '1', 'name': 'remote', 'value': 20},
+        timestamps={'name': 200, 'value': 200},
+    )
+
+    conflict = RecordConflict(
+        key='1',
+        model_label='app.Model',
+        conflict_type=ConflictType.BOTH_MODIFIED,
+        local=local,
+        remote=remote,
+    )
+
+    resolution = resolver.resolve(conflict)
+
+    assert resolution.record is not None
+    assert resolution.record.data['name'] == 'local'
+    assert resolution.record.data['value'] == 20
+
+
+def test_require_local_raises_when_none() -> None:
+    conflict = RecordConflict(
+        key='1',
+        model_label='app.Model',
+        conflict_type=ConflictType.BOTH_MODIFIED,
+        local=None,
+        remote=SyncRecord(key='1', data={}, timestamps={}),
+    )
+
+    with pytest.raises(ConflictStateError, match='local must not be None'):
+        _require_local(conflict)
+
+
+def test_require_remote_raises_when_none() -> None:
+    conflict = RecordConflict(
+        key='1',
+        model_label='app.Model',
+        conflict_type=ConflictType.BOTH_MODIFIED,
+        local=SyncRecord(key='1', data={}, timestamps={}),
+        remote=None,
+    )
+
+    with pytest.raises(ConflictStateError, match='remote must not be None'):
+        _require_remote(conflict)
+
+
+def test_field_ownership_delete_vs_modify_keeps_local() -> None:
+    local = SyncRecord(
+        key='1',
+        data={'id': '1', 'name': 'kept'},
+        timestamps={'name': 100},
+    )
+
+    conflict = RecordConflict(
+        key='1',
+        model_label='app.Model',
+        conflict_type=ConflictType.DELETE_VS_MODIFY,
+        local=local,
+    )
+
+    resolver = FieldOwnershipWins(
+        local_fields={'name'},
+        remote_fields={'value'},
+    )
+
+    resolution = resolver.resolve(conflict)
+
+    assert resolution.record is not None
+    assert resolution.record.data['name'] == 'kept'
+
+
+def test_field_ownership_modify_vs_delete_keeps_remote() -> None:
+    remote = SyncRecord(
+        key='1',
+        data={'id': '1', 'name': 'kept'},
+        timestamps={'name': 100},
+    )
+
+    conflict = RecordConflict(
+        key='1',
+        model_label='app.Model',
+        conflict_type=ConflictType.MODIFY_VS_DELETE,
+        local=None,
+        remote=remote,
+    )
+
+    resolver = FieldOwnershipWins(
+        local_fields={'name'},
+        remote_fields={'value'},
+    )
+
+    resolution = resolver.resolve(conflict)
+
+    assert resolution.record is not None
+    assert resolution.record.data['name'] == 'kept'
+
+
+def test_field_ownership_empty_sets_accepted() -> None:
+    resolver = FieldOwnershipWins(
+        local_fields=set(),
+        remote_fields=set(),
+    )
+
+    local = SyncRecord(
+        key='1',
+        data={'id': '1', 'name': 'local'},
+        timestamps={'name': 100},
+    )
+    remote = SyncRecord(
+        key='1',
+        data={'id': '1', 'name': 'remote'},
+        timestamps={'name': 200},
+    )
+
+    conflict = RecordConflict(
+        key='1',
+        model_label='app.Model',
+        conflict_type=ConflictType.BOTH_MODIFIED,
+        local=local,
+        remote=remote,
+    )
+
+    resolution = resolver.resolve(conflict)
+
+    assert resolution.record is not None
+
+
+def test_field_timestamp_wins_both_modified_requires_both() -> None:
+    conflict = RecordConflict(
+        key='1',
+        model_label='app.Model',
+        conflict_type=ConflictType.BOTH_MODIFIED,
+        local=None,
+        remote=SyncRecord(key='1', data={'id': '1'}, timestamps={}),
+    )
+
+    with pytest.raises(ConflictStateError):
+        FieldTimestampWins().resolve(conflict)

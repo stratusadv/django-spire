@@ -6,9 +6,14 @@ import time
 from contextlib import contextmanager, nullcontext
 from typing import Any, TYPE_CHECKING
 
-from django_spire.contrib.sync.core.enums import SyncPhase, SyncStage, SyncStatus
+from django_spire.contrib.sync.core.enums import (
+    SyncPhase,
+    SyncStage,
+    SyncStatus,
+)
 from django_spire.contrib.sync.core.exceptions import (
     ClockDriftError,
+    InvalidParameterError,
     ManifestChecksumError,
     PayloadLimitError,
     SyncAbortedError,
@@ -33,8 +38,12 @@ if TYPE_CHECKING:
     from django_spire.contrib.sync.core.clock import HybridLogicalClock
     from django_spire.contrib.sync.database.graph import DependencyGraph
     from django_spire.contrib.sync.database.lock import SyncLock
-    from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
-    from django_spire.contrib.sync.database.transport.base import Transport
+    from django_spire.contrib.sync.database.storage import (
+        DatabaseSyncStorage,
+    )
+    from django_spire.contrib.sync.database.transport.base import (
+        Transport,
+    )
 
 
 logger = logging.getLogger(__name__)
@@ -61,6 +70,30 @@ class DatabaseEngine:
         transaction: Callable[[], AbstractContextManager[Any]] = nullcontext,
         transport: Transport | None = None,
     ) -> None:
+        if not node_id:
+            message = 'node_id must be a non-empty string'
+            raise InvalidParameterError(message)
+
+        if not identity_field:
+            message = 'identity_field must be a non-empty string'
+            raise InvalidParameterError(message)
+
+        if clock_drift_max is not None and clock_drift_max < 0:
+            message = (
+                f'clock_drift_max must be non-negative '
+                f'or None, got {clock_drift_max}'
+            )
+
+            raise InvalidParameterError(message)
+
+        if payload_records_max is not None and payload_records_max < 1:
+            message = (
+                f'payload_records_max must be >= 1 '
+                f'or None, got {payload_records_max}'
+            )
+
+            raise InvalidParameterError(message)
+
         self._clock = clock
         self._clock_drift_max = clock_drift_max
         self._graph = graph
@@ -111,7 +144,10 @@ class DatabaseEngine:
                 if response_payload.records or response_payload.deletes:
                     response_payloads.append(response_payload)
             else:
-                local_changes = self._storage.get_changed_since(model_label, checkpoint)
+                local_changes = self._storage.get_changed_since(
+                    model_label,
+                    checkpoint,
+                )
 
                 if local_changes:
                     response_payloads.append(ModelPayload(
@@ -144,12 +180,23 @@ class DatabaseEngine:
                     for key, record in records.items()
                 }
 
-            skipped = self._storage.upsert_many(model_label, records)
+            skipped = self._storage.upsert_many(
+                model_label,
+                records,
+            )
 
         if reconciliation.to_delete:
-            self._storage.delete_many(model_label, reconciliation.to_delete)
+            self._storage.delete_many(
+                model_label,
+                reconciliation.to_delete,
+            )
 
-        self._merge_into_result(model_label, reconciliation, skipped, result)
+        self._merge_into_result(
+            model_label,
+            reconciliation,
+            skipped,
+            result,
+        )
 
     def _apply_response(
         self,
@@ -161,7 +208,11 @@ class DatabaseEngine:
 
         for payload in ordered:
             if payload.model_label not in known:
-                logger.warning('Ignoring unknown model %r in response', payload.model_label)
+                logger.warning(
+                    'Ignoring unknown model %r in response',
+                    payload.model_label,
+                )
+
                 continue
 
             if payload.records:
@@ -185,11 +236,14 @@ class DatabaseEngine:
         for key, tombstone_ts in payload.deletes.items():
             local = existing.get(key)
 
-            if local is None or local.sync_field_last_modified <= tombstone_ts:
+            if local is None:
+                to_delete[key] = tombstone_ts
+            elif local.sync_field_last_modified <= tombstone_ts:
                 to_delete[key] = tombstone_ts
             else:
                 logger.info(
-                    'Skipping delete for %s:%s: local modified after tombstone',
+                    'Skipping delete for %s:%s: '
+                    'local modified after tombstone',
                     payload.model_label,
                     key,
                 )
@@ -197,7 +251,10 @@ class DatabaseEngine:
                 result.skipped[payload.model_label].append(key)
 
         if to_delete:
-            self._storage.delete_many(payload.model_label, to_delete)
+            self._storage.delete_many(
+                payload.model_label,
+                to_delete,
+            )
 
             for key in to_delete:
                 result.deleted[payload.model_label].append(key)
@@ -207,7 +264,10 @@ class DatabaseEngine:
         payload: ModelPayload,
         result: DatabaseResult,
     ) -> None:
-        skipped = self._storage.upsert_many(payload.model_label, payload.records)
+        skipped = self._storage.upsert_many(
+            payload.model_label,
+            payload.records,
+        )
 
         applied_keys = set(payload.records.keys()) - skipped
         result.applied[payload.model_label].extend(applied_keys)
@@ -219,16 +279,18 @@ class DatabaseEngine:
         local_time = int(time.time())
         drift = abs(local_time - remote_time)
 
-        if self._clock_drift_max is not None and drift > self._clock_drift_max:
-            message = (
-                f'Clock drift of {drift}s exceeds threshold of '
-                f'{self._clock_drift_max}s. Local time: {local_time}, '
-                f'remote time: {remote_time}. '
-                f'Ensure NTP is enabled '
-                f'on both nodes, or set clock_drift_max=None to disable.'
-            )
+        if self._clock_drift_max is not None:
+            if drift > self._clock_drift_max:
+                message = (
+                    f'Clock drift of {drift}s exceeds '
+                    f'threshold of {self._clock_drift_max}s. '
+                    f'Local time: {local_time}, '
+                    f'remote time: {remote_time}. '
+                    f'Ensure NTP is enabled on both nodes, '
+                    f'or set clock_drift_max=None to disable.'
+                )
 
-            raise ClockDriftError(message)
+                raise ClockDriftError(message)
 
         if drift > 0:
             logger.debug('Clock drift: %ds', drift)
@@ -240,7 +302,9 @@ class DatabaseEngine:
         records_total = 0
 
         for model_label in self._graph.sync_order():
-            records = self._storage.get_changed_since(model_label, checkpoint)
+            records = self._storage.get_changed_since(
+                model_label, checkpoint,
+            )
             records_total += len(records)
 
             if records:
@@ -249,17 +313,17 @@ class DatabaseEngine:
                     records=records,
                 ))
 
-        if (
-            self._payload_records_max is not None
-            and records_total > self._payload_records_max
-        ):
-            message = (
-                f'Collected {records_total} records exceeds '
-                f'payload_records_max={self._payload_records_max}. '
-                f'Sync more frequently or increase the limit.'
-            )
+        if self._payload_records_max is not None:
+            if records_total > self._payload_records_max:
+                message = (
+                    f'Collected {records_total} records '
+                    f'exceeds payload_records_max='
+                    f'{self._payload_records_max}. '
+                    f'Sync more frequently or increase '
+                    f'the limit.'
+                )
 
-            raise PayloadLimitError(message)
+                raise PayloadLimitError(message)
 
         return SyncManifest(
             node_id=self._node_id,
@@ -286,7 +350,10 @@ class DatabaseEngine:
                 received_snapshot,
             )
 
-            self._storage.save_checkpoint(self._node_id, safe_checkpoint)
+            self._storage.save_checkpoint(
+                self._node_id,
+                safe_checkpoint,
+            )
 
     def _compute_safe_checkpoint(
         self,
@@ -298,26 +365,55 @@ class DatabaseEngine:
         unsent_min = new_checkpoint
 
         for model_label in self._graph.sync_order():
-            changes = self._storage.get_changed_since(model_label, old_checkpoint)
+            changes = self._storage.get_changed_since(
+                model_label,
+                old_checkpoint,
+            )
+
             sent_lms = sent_snapshot.get(model_label, {})
-            received_lms = received_snapshot.get(model_label, {})
+
+            received_lms = received_snapshot.get(
+                model_label,
+                {},
+            )
 
             for key, record in changes.items():
                 sent_lm = sent_lms.get(key)
                 received_lm = received_lms.get(key)
+                lm = record.sync_field_last_modified
 
-                if sent_lm is not None and record.sync_field_last_modified == sent_lm:
-                    continue
+                if sent_lm is not None:
+                    if lm == sent_lm:
+                        continue
 
-                if received_lm is not None and record.sync_field_last_modified == received_lm:
-                    continue
+                if received_lm is not None:
+                    if lm == received_lm:
+                        continue
 
-                unsent_min = min(unsent_min, record.sync_field_last_modified)
+                unsent_min = min(unsent_min, lm)
 
         if unsent_min < new_checkpoint:
-            return max(unsent_min - 1, old_checkpoint)
+            result = max(unsent_min - 1, old_checkpoint)
+        else:
+            result = new_checkpoint
 
-        return new_checkpoint
+        if result < old_checkpoint:
+            message = (
+                f'Safe checkpoint {result} regressed '
+                f'below old checkpoint {old_checkpoint}'
+            )
+
+            raise SyncAbortedError(message)
+
+        if result > new_checkpoint:
+            message = (
+                f'Safe checkpoint {result} exceeds '
+                f'new checkpoint {new_checkpoint}'
+            )
+
+            raise SyncAbortedError(message)
+
+        return result
 
     def _enter_phase(
         self,
@@ -330,7 +426,10 @@ class DatabaseEngine:
         if stage is not None:
             self._report_progress(stage, 0, 1)
 
-    def _exchange_and_validate(self, manifest: SyncManifest) -> SyncManifest:
+    def _exchange_and_validate(
+        self,
+        manifest: SyncManifest,
+    ) -> SyncManifest:
         response = self._transport.exchange(manifest)
         self._validate_manifest(response)
         self._validate_clock(response)
@@ -354,7 +453,10 @@ class DatabaseEngine:
             self._on_complete(result)
 
         for error in result.errors:
-            logger.warning('Sync error [%s]: %s', error.key, error.message)
+            logger.warning(
+                'Sync error [%s]: %s',
+                error.key, error.message,
+            )
 
     def _get_local_only_changes(
         self,
@@ -362,7 +464,10 @@ class DatabaseEngine:
         checkpoint: int,
         incoming_keys: set[str],
     ) -> dict[str, SyncRecord]:
-        all_changes = self._storage.get_changed_since(model_label, checkpoint)
+        all_changes = self._storage.get_changed_since(
+            model_label,
+            checkpoint,
+        )
 
         return {
             key: record
@@ -370,9 +475,12 @@ class DatabaseEngine:
             if key not in incoming_keys
         }
 
-    def _log_sync_summary(self, result: DatabaseResult) -> None:
+    def _log_sync_summary(
+        self, result: DatabaseResult,
+    ) -> None:
         logger.info(
-            'Database sync complete: %d models pushed, %d models applied, '
+            'Database sync complete: '
+            '%d models pushed, %d models applied, '
             '%d models with conflicts, %d errors',
             len(result.pushed),
             len(result.applied),
@@ -401,19 +509,32 @@ class DatabaseEngine:
         finally:
             if self._lock and session_id:
                 try:
-                    self._lock.release(session_id, status, result=result)
+                    self._lock.release(
+                        session_id, status, result=result,
+                    )
                 except Exception:
-                    logger.exception('Failed to release sync lock for node %s', self._node_id)
+                    logger.exception(
+                        'Failed to release sync lock '
+                        'for node %s',
+                        self._node_id,
+                    )
 
-    def _max_applied_timestamp(self, manifest: SyncManifest) -> int:
+    def _max_applied_timestamp(
+        self, manifest: SyncManifest,
+    ) -> int:
         timestamp_max = 0
 
         for payload in manifest.payloads:
             for record in payload.records.values():
-                timestamp_max = max(timestamp_max, record.sync_field_last_modified)
+                timestamp_max = max(
+                    timestamp_max,
+                    record.sync_field_last_modified,
+                )
 
             for tombstone_ts in payload.deletes.values():
-                timestamp_max = max(timestamp_max, tombstone_ts)
+                timestamp_max = max(
+                    timestamp_max, tombstone_ts,
+                )
 
         return timestamp_max
 
@@ -454,11 +575,17 @@ class DatabaseEngine:
         payloads: list[ModelPayload],
     ) -> list[ModelPayload]:
         order = self._graph.sync_order()
-        position = {label: index for index, label in enumerate(order)}
+
+        position = {
+            label: index
+            for index, label in enumerate(order)
+        }
 
         return sorted(
             payloads,
-            key=lambda p: position.get(p.model_label, len(position)),
+            key=lambda p: position.get(
+                p.model_label, len(position),
+            ),
         )
 
     def _process_model(
@@ -468,14 +595,21 @@ class DatabaseEngine:
         result: DatabaseResult,
         received_at: int = 0,
     ) -> ModelPayload:
-        all_incoming_keys = set(payload.records) | set(payload.deletes)
+        all_incoming_keys = (
+            set(payload.records) |
+            set(payload.deletes)
+        )
 
         local_records = self._storage.get_records(
             payload.model_label,
             all_incoming_keys,
         )
 
-        reconciliation = self._reconciler.reconcile(payload, local_records, checkpoint)
+        reconciliation = self._reconciler.reconcile(
+            payload,
+            local_records,
+            checkpoint,
+        )
 
         self._apply_reconciliation(
             payload.model_label, reconciliation, result,
@@ -483,10 +617,15 @@ class DatabaseEngine:
         )
 
         local_only = self._get_local_only_changes(
-            payload.model_label, checkpoint, all_incoming_keys,
+            payload.model_label,
+            checkpoint,
+            all_incoming_keys,
         )
 
-        response_records = {**reconciliation.response_records, **local_only}
+        response_records = {
+            **reconciliation.response_records,
+            **local_only,
+        }
 
         return ModelPayload(
             model_label=payload.model_label,
@@ -524,7 +663,9 @@ class DatabaseEngine:
         if self._progress:
             self._progress(stage, current, total)
 
-    def _validate_clock(self, manifest: SyncManifest) -> None:
+    def _validate_clock(
+        self, manifest: SyncManifest,
+    ) -> None:
         if manifest.node_time:
             self._check_clock_drift(manifest.node_time)
 
@@ -546,12 +687,16 @@ class DatabaseEngine:
                     incoming.node_id,
                 )
 
-                for key in set(payload.records) | set(payload.deletes):
-                    error_message = f'Unknown model: {payload.model_label!r}'
-
+                for key in (
+                    set(payload.records) |
+                    set(payload.deletes)
+                ):
                     result.errors.append(Error(
                         key=key,
-                        message=error_message,
+                        message=(
+                            f'Unknown model: '
+                            f'{payload.model_label!r}'
+                        ),
                     ))
 
                 continue
@@ -560,7 +705,9 @@ class DatabaseEngine:
 
         return valid
 
-    def _validate_manifest(self, manifest: SyncManifest) -> None:
+    def _validate_manifest(
+        self, manifest: SyncManifest,
+    ) -> None:
         if not manifest.checksum:
             message = 'Manifest is missing a checksum'
             raise ManifestChecksumError(message)
@@ -578,14 +725,16 @@ class DatabaseEngine:
         self._validate_manifest(incoming)
         self._validate_clock(incoming)
 
-        valid_payloads = self._validate_incoming_models(incoming, result)
+        valid_payloads = self._validate_incoming_models(
+            incoming, result,
+        )
 
         with self._transaction():
             now = self._clock.now()
 
             response_payloads = self._apply_incoming(
-                valid_payloads, incoming.checkpoint, result,
-                received_at=now,
+                valid_payloads, incoming.checkpoint,
+                result, received_at=now,
             )
 
         response = SyncManifest(
@@ -601,28 +750,48 @@ class DatabaseEngine:
 
     def sync(self, dry_run: bool = False) -> DatabaseResult:
         if self._transport is None:
-            message = 'Transport is required for sync(). Use process() for server-side.'
+            message = (
+                'Transport is required for sync(). '
+                'Use process() for server-side.'
+            )
+
             raise TransportRequiredError(message)
 
         result = DatabaseResult()
 
         with self._managed_session(result) as session_id:
-            self._enter_phase(SyncPhase.COLLECTING, session_id, SyncStage.VALIDATE)
+            self._enter_phase(
+                SyncPhase.COLLECTING, session_id,
+                SyncStage.VALIDATE,
+            )
 
-            checkpoint = self._storage.get_checkpoint(self._node_id)
+            checkpoint = self._storage.get_checkpoint(
+                self._node_id,
+            )
             manifest = self._collect(checkpoint)
+
             sent_snapshot = self._extract_record_snapshot(manifest)
             self._record_pushed(manifest, result)
 
-            self._enter_phase(SyncPhase.EXCHANGING, session_id, SyncStage.CLASSIFY)
+            self._enter_phase(
+                SyncPhase.EXCHANGING, session_id,
+                SyncStage.CLASSIFY,
+            )
 
             response = self._exchange_and_validate(manifest)
             received_snapshot = self._extract_record_snapshot(response)
 
-            self._enter_phase(SyncPhase.RECONCILING, session_id, SyncStage.MUTATE)
+            self._enter_phase(
+                SyncPhase.RECONCILING, session_id,
+                SyncStage.MUTATE,
+            )
 
             if not dry_run:
-                self._enter_phase(SyncPhase.COMMITTING, session_id)
+                self._enter_phase(
+                    SyncPhase.COMMITTING,
+                    session_id,
+                )
+
                 self._commit(
                     checkpoint, response,
                     sent_snapshot, received_snapshot,

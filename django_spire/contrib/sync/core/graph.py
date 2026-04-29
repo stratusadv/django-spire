@@ -4,12 +4,18 @@ import heapq
 
 from django_spire.contrib.sync.core.exceptions import (
     CircularDependencyError,
+    InvalidParameterError,
     UnknownDependencyError,
 )
 
 
 class DependencyGraph:
     def __init__(self, edges: dict[str, set[str]]) -> None:
+        for label in edges:
+            if not label:
+                message = 'edges must not contain empty labels'
+                raise InvalidParameterError(message)
+
         self._edges = {
             label: set(dependencies)
             for label, dependencies in edges.items()
@@ -39,6 +45,8 @@ class DependencyGraph:
         self._order = self._compute_order()
 
     def _compute_order(self) -> list[str]:
+        nodes_max = len(self._edges)
+
         in_degree = {
             label: len(dependencies)
             for label, dependencies in self._edges.items()
@@ -54,17 +62,28 @@ class DependencyGraph:
 
         order: list[str] = []
 
-        while heap:
+        for _ in range(nodes_max):
+            if not heap:
+                break
+
             label = heapq.heappop(heap)
             order.append(label)
 
             for dependent in self._dependents[label]:
                 in_degree[dependent] -= 1
 
+                if in_degree[dependent] < 0:
+                    message = (
+                        f'Negative in-degree for '
+                        f'{dependent!r}: graph corrupted'
+                    )
+
+                    raise CircularDependencyError(message)
+
                 if in_degree[dependent] == 0:
                     heapq.heappush(heap, dependent)
 
-        if len(order) != len(self._edges):
+        if len(order) != nodes_max:
             missing = set(self._edges) - set(order)
 
             message = f'Circular dependency detected: {missing}'

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import logging
+
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from django_spire.contrib.sync.core.exceptions import InvalidParameterError
 from django_spire.contrib.sync.core.model import Error
 from django_spire.contrib.sync.database.conflict import (
     ConflictResolver,
@@ -19,17 +22,26 @@ if TYPE_CHECKING:
     from django_spire.contrib.sync.database.record import SyncRecord
 
 
+logger = logging.getLogger(__name__)
+
+
 @dataclass
 class ReconciliationResult:
     applied_keys: set[str] = field(default_factory=set)
     compatible_keys: list[str] = field(default_factory=list)
     conflict_keys: list[str] = field(default_factory=list)
-    conflict_log: list[ConflictEntry] = field(default_factory=list)
+    conflict_log: list[ConflictEntry] = field(
+        default_factory=list,
+    )
     created_keys: set[str] = field(default_factory=set)
     errors: list[Error] = field(default_factory=list)
-    response_records: dict[str, SyncRecord] = field(default_factory=dict)
+    response_records: dict[str, SyncRecord] = field(
+        default_factory=dict,
+    )
     to_delete: dict[str, int] = field(default_factory=dict)
-    to_upsert: dict[str, SyncRecord] = field(default_factory=dict)
+    to_upsert: dict[str, SyncRecord] = field(
+        default_factory=dict,
+    )
 
 
 class PayloadReconciler:
@@ -53,7 +65,6 @@ class PayloadReconciler:
 
             if local.sync_field_last_modified <= tombstone_ts:
                 result.to_delete[key] = tombstone_ts
-
                 continue
 
             conflict = RecordConflict(
@@ -68,7 +79,10 @@ class PayloadReconciler:
             except Exception as exception:
                 result.errors.append(Error(
                     key=key,
-                    message=f'Delete conflict resolution failed: {exception}',
+                    message=(
+                        f'Delete conflict resolution failed: '
+                        f'{exception}'
+                    ),
                     exception=exception,
                 ))
 
@@ -79,6 +93,13 @@ class PayloadReconciler:
             elif resolution.record is not None:
                 result.response_records[key] = resolution.record
                 result.conflict_keys.append(key)
+            else:
+                logger.warning(
+                    'Delete conflict for %s:%s resolved '
+                    'with no action (delete=False, record=None)',
+                    payload.model_label,
+                    key,
+                )
 
     def _classify_record(
         self,
@@ -103,7 +124,10 @@ class PayloadReconciler:
 
             return
 
-        self._resolve_conflict(key, model_label, local, remote, checkpoint, result)
+        self._resolve_conflict(
+            key, model_label, local, remote,
+            checkpoint, result,
+        )
 
     def _detect_field_conflicts(
         self,
@@ -112,13 +136,22 @@ class PayloadReconciler:
         checkpoint: int,
     ) -> list[FieldConflict]:
         conflicts: list[FieldConflict] = []
-        all_fields = (set(local.data) | set(remote.data)) - META_FIELDS
+        all_fields = (
+            (set(local.data) | set(remote.data)) - META_FIELDS
+        )
 
         for field_name in sorted(all_fields):
-            local_timestamp = local.timestamps.get(field_name, 0)
-            remote_timestamp = remote.timestamps.get(field_name, 0)
+            local_timestamp = local.timestamps.get(
+                field_name, 0,
+            )
+            remote_timestamp = remote.timestamps.get(
+                field_name, 0,
+            )
 
-            if local_timestamp <= checkpoint or remote_timestamp <= checkpoint:
+            if local_timestamp <= checkpoint:
+                continue
+
+            if remote_timestamp <= checkpoint:
                 continue
 
             local_value = local.data.get(field_name)
@@ -144,7 +177,9 @@ class PayloadReconciler:
         checkpoint: int,
         result: ReconciliationResult,
     ) -> None:
-        field_conflicts = self._detect_field_conflicts(local, remote, checkpoint)
+        field_conflicts = self._detect_field_conflicts(
+            local, remote, checkpoint,
+        )
 
         conflict_type = (
             ConflictType.BOTH_MODIFIED
@@ -193,6 +228,14 @@ class PayloadReconciler:
         local_records: dict[str, SyncRecord],
         checkpoint: int,
     ) -> ReconciliationResult:
+        if checkpoint < 0:
+            message = (
+                f'checkpoint must be non-negative, '
+                f'got {checkpoint}'
+            )
+
+            raise InvalidParameterError(message)
+
         result = ReconciliationResult()
 
         for key, remote in payload.records.items():

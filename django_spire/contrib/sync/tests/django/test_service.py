@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import pytest
 
+from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.core.exceptions import InvalidParameterError
+from django_spire.contrib.sync.django.mixin import SyncableMixin
 from django_spire.contrib.sync.django.service import SyncableModelService
 from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestTag
 
@@ -97,3 +99,63 @@ def test_set_m2m_persists_to_db(instance: SyncTestModel) -> None:
 
     assert 'tags' in refreshed.sync_field_timestamps
     assert refreshed.sync_field_last_modified == instance.sync_field_last_modified
+
+
+@pytest.mark.django_db
+def test_set_m2m_raises_before_save() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    instance = SyncTestModel(name='unsaved', value=1)
+
+    with pytest.raises(InvalidParameterError, match='save'):
+        SyncableModelService.set_m2m(instance, 'tags', [])
+
+
+@pytest.mark.django_db
+def test_set_m2m_after_save() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    tag = SyncTestTag.objects.create(label='important')
+    instance = SyncTestModel(name='saved', value=1)
+    instance.save()
+
+    SyncableModelService.set_m2m(instance, 'tags', [str(tag.pk)])
+
+    assert tag in instance.tags.all()
+
+
+@pytest.mark.django_db
+def test_set_m2m_clears_existing() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    tag_a = SyncTestTag.objects.create(label='a')
+    tag_b = SyncTestTag.objects.create(label='b')
+
+    instance = SyncTestModel(name='tagged', value=1)
+    instance.save()
+    instance.tags.add(tag_a)
+
+    SyncableModelService.set_m2m(instance, 'tags', [str(tag_b.pk)])
+
+    tags = list(instance.tags.all())
+
+    assert tag_b in tags
+    assert tag_a not in tags
+
+
+@pytest.mark.django_db
+def test_set_m2m_empty_list_clears_all() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    tag = SyncTestTag.objects.create(label='remove-me')
+    instance = SyncTestModel(name='clearing', value=1)
+    instance.save()
+    instance.tags.add(tag)
+
+    SyncableModelService.set_m2m(instance, 'tags', [])
+
+    assert instance.tags.count() == 0

@@ -130,6 +130,7 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
         return DatabaseEngine(
             clock=clock,
             graph=DEPENDENCY_GRAPH,
+            node_id=database_name,
             reconciler=PayloadReconciler(resolver),
             storage=InMemoryDatabaseStorage(models=MODEL_LABELS),
         )

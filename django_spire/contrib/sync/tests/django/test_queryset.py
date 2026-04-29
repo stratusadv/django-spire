@@ -4,6 +4,8 @@ import pytest
 
 from django.db import models as db_models
 
+from django_spire.contrib.sync.core.clock import HybridLogicalClock
+from django_spire.contrib.sync.django.mixin import SyncableMixin
 from django_spire.contrib.sync.django.queryset import _is_bypassed, sync_bypass
 from django_spire.contrib.sync.tests.models import SyncTestSimpleModel, SyncTestModel
 
@@ -136,3 +138,88 @@ def test_bulk_create_each_instance_gets_unique_timestamp() -> None:
 
     assert len(set(timestamps)) == 5
     assert timestamps == sorted(timestamps)
+
+
+def test_is_bypassed_false_by_default() -> None:
+    assert _is_bypassed() is False
+
+
+def test_sync_bypass_sets_flag() -> None:
+    with sync_bypass():
+        assert _is_bypassed() is True
+
+    assert _is_bypassed() is False
+
+
+def test_sync_bypass_restores_previous_state() -> None:
+    assert _is_bypassed() is False
+
+    with sync_bypass():
+        assert _is_bypassed() is True
+
+        with sync_bypass():
+            assert _is_bypassed() is True
+
+        assert _is_bypassed() is True
+
+    assert _is_bypassed() is False
+
+
+@pytest.mark.django_db
+def test_save_with_bypass_skips_timestamp_update() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    instance = SyncTestModel(name='bypassed', value=1)
+
+    with sync_bypass():
+        instance.save()
+
+    assert instance.sync_field_timestamps == {}
+    assert instance.sync_field_last_modified == 0
+
+
+@pytest.mark.django_db
+def test_save_without_bypass_sets_timestamps() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    instance = SyncTestModel(name='normal', value=1)
+    instance.save()
+
+    assert instance.sync_field_timestamps != {}
+    assert instance.sync_field_last_modified > 0
+
+
+@pytest.mark.django_db
+def test_bulk_create_sets_timestamps() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    instances = [
+        SyncTestModel(name=f'bulk-{i}', value=i)
+        for i in range(3)
+    ]
+
+    created = SyncTestModel.objects.bulk_create(instances)
+
+    for obj in created:
+        assert obj.sync_field_timestamps != {}
+        assert obj.sync_field_last_modified > 0
+
+
+@pytest.mark.django_db
+def test_bulk_create_with_bypass_skips_timestamps() -> None:
+    clock = HybridLogicalClock()
+    SyncableMixin.configure(clock)
+
+    instances = [
+        SyncTestModel(name=f'bypass-bulk-{i}', value=i)
+        for i in range(3)
+    ]
+
+    with sync_bypass():
+        created = SyncTestModel.objects.bulk_create(instances)
+
+    for obj in created:
+        assert obj.sync_field_timestamps == {}

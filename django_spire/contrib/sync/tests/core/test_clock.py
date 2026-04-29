@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+
 from django_spire.contrib.sync.core.clock import HybridLogicalClock
 
 
@@ -95,3 +97,110 @@ def test_never_goes_backward() -> None:
     b = clock.now()
 
     assert b > a
+
+
+def test_concurrent_now_monotonic() -> None:
+    clock = HybridLogicalClock()
+    results: list[int] = []
+    lock = threading.Lock()
+    barrier = threading.Barrier(8)
+
+    def collect_timestamps() -> None:
+        barrier.wait()
+        local: list[int] = []
+
+        for _ in range(500):
+            local.append(clock.now())
+
+        with lock:
+            results.extend(local)
+
+    threads = [
+        threading.Thread(target=collect_timestamps)
+        for _ in range(8)
+    ]
+
+    for t in threads:
+        t.start()
+
+    for t in threads:
+        t.join(timeout=30)
+
+    assert len(results) == 4000
+    assert len(set(results)) == len(results)
+
+
+def test_concurrent_receive_monotonic() -> None:
+    clock = HybridLogicalClock()
+    results: list[int] = []
+    lock = threading.Lock()
+    barrier = threading.Barrier(4)
+
+    def receive_and_collect(base: int) -> None:
+        barrier.wait()
+        local: list[int] = []
+
+        for i in range(200):
+            remote = (base + i) << 16
+            local.append(clock.receive(remote))
+
+        with lock:
+            results.extend(local)
+
+    threads = [
+        threading.Thread(target=receive_and_collect, args=(1000 * i,))
+        for i in range(4)
+    ]
+
+    for t in threads:
+        t.start()
+
+    for t in threads:
+        t.join(timeout=30)
+
+    assert len(results) == 800
+    assert len(set(results)) == len(results)
+
+
+def test_interleaved_now_and_receive() -> None:
+    clock = HybridLogicalClock()
+    results: list[int] = []
+    lock = threading.Lock()
+    barrier = threading.Barrier(4)
+
+    def call_now() -> None:
+        barrier.wait()
+        local: list[int] = []
+
+        for _ in range(300):
+            local.append(clock.now())
+
+        with lock:
+            results.extend(local)
+
+    def call_receive(base: int) -> None:
+        barrier.wait()
+        local: list[int] = []
+
+        for i in range(300):
+            remote = (base + i) << 16
+            local.append(clock.receive(remote))
+
+        with lock:
+            results.extend(local)
+
+    threads = [
+        threading.Thread(target=call_now),
+        threading.Thread(target=call_now),
+        threading.Thread(target=call_receive, args=(5000,)),
+        threading.Thread(target=call_receive, args=(9000,)),
+    ]
+
+    for t in threads:
+        t.start()
+
+    for t in threads:
+        t.join(timeout=30)
+
+    assert len(results) == 1200
+    assert len(set(results)) == len(results)

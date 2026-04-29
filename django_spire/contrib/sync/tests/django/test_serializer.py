@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import date, datetime, time, timedelta, UTC
 from decimal import Decimal
 
 from django.db import models
@@ -32,6 +32,9 @@ class SerializerTestModel(models.Model):
     class Meta:
         app_label = 'sync_tests'
         managed = False
+
+    def __str__(self) -> str:
+        return 'SerializerTestModel'
 
 
 class SyncFieldSerializerSerializeTestCase(TestCase):
@@ -106,7 +109,7 @@ class SyncFieldSerializerSerializeTestCase(TestCase):
         assert data['created_date'] == '2026-04-27'
 
     def test_serialize_datetime(self) -> None:
-        dt = datetime(2026, 4, 27, 12, 30, 0, tzinfo=timezone.utc)
+        dt = datetime(2026, 4, 27, 12, 30, 0, tzinfo=UTC)
         instance = SerializerTestModel(created_datetime=dt)
         data = self.serializer.serialize(instance)
         assert data['created_datetime'] == '2026-04-27T12:30:00+00:00'
@@ -202,7 +205,7 @@ class SyncFieldSerializerDeserializeTestCase(TestCase):
 
     def test_deserialize_decimal_from_int(self) -> None:
         data = self.serializer.deserialize({'price': 20})
-        assert data['price'] == Decimal('20')
+        assert data['price'] == Decimal(20)
 
     def test_deserialize_decimal_from_decimal(self) -> None:
         data = self.serializer.deserialize({'price': Decimal('19.99')})
@@ -219,10 +222,10 @@ class SyncFieldSerializerDeserializeTestCase(TestCase):
 
     def test_deserialize_datetime_from_string(self) -> None:
         data = self.serializer.deserialize({'created_datetime': '2026-04-27T12:30:00+00:00'})
-        assert data['created_datetime'] == datetime(2026, 4, 27, 12, 30, 0, tzinfo=timezone.utc)
+        assert data['created_datetime'] == datetime(2026, 4, 27, 12, 30, 0, tzinfo=UTC)
 
     def test_deserialize_datetime_from_datetime(self) -> None:
-        dt = datetime(2026, 4, 27, 12, 30, 0, tzinfo=timezone.utc)
+        dt = datetime(2026, 4, 27, 12, 30, 0, tzinfo=UTC)
         data = self.serializer.deserialize({'created_datetime': dt})
         assert data['created_datetime'] == dt
 
@@ -281,7 +284,7 @@ class SyncFieldSerializerRoundTripTestCase(TestCase):
     def test_round_trip_all_types(self) -> None:
         pk = uuid.uuid4()
         parent_pk = uuid.uuid4()
-        dt = datetime(2026, 4, 27, 12, 30, 0, tzinfo=timezone.utc)
+        dt = datetime(2026, 4, 27, 12, 30, 0, tzinfo=UTC)
         d = date(2026, 4, 27)
         t = time(14, 30, 0)
         td = timedelta(hours=2, minutes=30)

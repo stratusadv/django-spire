@@ -12,8 +12,12 @@ from django_spire.contrib.sync.core.exceptions import (
     InvalidParameterError,
     UnknownModelError,
 )
-from django_spire.contrib.sync.django.serializer import SyncFieldSerializer
-from django_spire.contrib.sync.django.storage.many_to_many import ManyToManyApplier
+from django_spire.contrib.sync.django.serializer import (
+    SyncFieldSerializer,
+)
+from django_spire.contrib.sync.django.storage.many_to_many import (
+    ManyToManyApplier,
+)
 from django_spire.contrib.sync.django.storage.strategy import (
     DeleteStrategy,
     HardDeleteStrategy,
@@ -42,8 +46,20 @@ class DjangoRecordWriter:
         many_to_many_applier: ManyToManyApplier | None = None,
         upsert_strategy: UpsertStrategy | None = None,
     ) -> None:
+        if not models:
+            message = 'models must not be empty'
+            raise InvalidParameterError(message)
+
+        if not identity_field:
+            message = 'identity_field must be a non-empty string'
+            raise InvalidParameterError(message)
+
         if batch_size_max < 1:
-            message = f'batch_size_max must be >= 1, got {batch_size_max}'
+            message = (
+                f'batch_size_max must be >= 1, '
+                f'got {batch_size_max}'
+            )
+
             raise InvalidParameterError(message)
 
         self._batch_size_max = batch_size_max
@@ -59,15 +75,24 @@ class DjangoRecordWriter:
             for model in models
         }
 
-        self._upsert_strategy = upsert_strategy or StalenessGuardedUpsertStrategy(
-            identity_field=identity_field,
+        self._upsert_strategy = (
+            upsert_strategy
+            or StalenessGuardedUpsertStrategy(
+                identity_field=identity_field,
+            )
         )
 
-        self._many_to_many_applier = many_to_many_applier or ManyToManyApplier(
-            identity_field=identity_field,
+        self._many_to_many_applier = (
+            many_to_many_applier
+            or ManyToManyApplier(
+                identity_field=identity_field,
+            )
         )
 
-        self._delete_strategies = delete_strategies or self._build_delete_strategies(models)
+        self._delete_strategies = (
+            delete_strategies
+            or self._build_delete_strategies(models)
+        )
 
     def _build_delete_strategies(
         self,
@@ -77,15 +102,22 @@ class DjangoRecordWriter:
         hard = HardDeleteStrategy(identity_field=self._identity_field)
 
         return {
-            model._meta.label: soft if self._has_field(model, 'is_deleted') else hard
+            model._meta.label: (
+                soft
+                if self._has_field(model, 'is_deleted')
+                else hard
+            )
             for model in models
         }
 
-    def _check_batch_limit(self, count: int, operation: str) -> None:
+    def _check_batch_limit(
+        self, count: int, operation: str,
+    ) -> None:
         if count > self._batch_size_max:
             message = (
                 f'{operation} received {count} items, '
-                f'exceeds batch_size_max={self._batch_size_max}'
+                f'exceeds batch_size_max='
+                f'{self._batch_size_max}'
             )
 
             raise BatchLimitError(message)
@@ -112,10 +144,17 @@ class DjangoRecordWriter:
             if key in many_to_many_names
         }
 
-    def _get_many_to_many_names(self, model: type[SyncableMixin]) -> set[str]:
-        return {field.name for field in model._meta.many_to_many}
+    def _get_many_to_many_names(
+        self, model: type[SyncableMixin],
+    ) -> set[str]:
+        return {
+            field.name
+            for field in model._meta.many_to_many
+        }
 
-    def _get_model(self, model_label: str) -> type[SyncableMixin]:
+    def _get_model(
+        self, model_label: str,
+    ) -> type[SyncableMixin]:
         model = self._models.get(model_label)
 
         if model is None:
@@ -172,12 +211,21 @@ class DjangoRecordWriter:
             for key in sorted(records.keys()):
                 sync_record = records[key]
 
-                field_data = self._extract_field_data(sync_record, many_to_many_names)
-                many_to_many_data = self._extract_many_to_many_data(sync_record, many_to_many_names)
+                field_data = self._extract_field_data(
+                    sync_record,
+                    many_to_many_names,
+                )
+
+                many_to_many_data = self._extract_many_to_many_data(
+                    sync_record,
+                    many_to_many_names,
+                )
 
                 field_data = serializer.deserialize(field_data)
 
-                applied = self._upsert_strategy.apply(model, key, sync_record, field_data)
+                applied = self._upsert_strategy.apply(
+                    model, key, sync_record, field_data,
+                )
 
                 if not applied:
                     skipped.add(key)
@@ -186,7 +234,11 @@ class DjangoRecordWriter:
                 if many_to_many_data:
                     pending_many_to_many[key] = many_to_many_data
 
-            m2m_skipped = self._many_to_many_applier.apply(model, pending_many_to_many)
+            m2m_skipped = self._many_to_many_applier.apply(
+                model,
+                pending_many_to_many,
+            )
+
             skipped |= m2m_skipped
 
         return skipped

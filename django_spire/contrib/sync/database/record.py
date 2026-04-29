@@ -3,7 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from django_spire.contrib.sync.core.exceptions import RecordFieldError
+from django_spire.contrib.sync.core.exceptions import (
+    InvalidParameterError,
+    RecordFieldError,
+)
 
 
 @dataclass
@@ -13,31 +16,79 @@ class SyncRecord:
     timestamps: dict[str, int]
     received_at: int = field(default=0, compare=False)
 
+    def __post_init__(self) -> None:
+        if self.key == '':
+            message = 'SyncRecord key must be a non-empty string'
+            raise InvalidParameterError(message)
+
+        if self.received_at < 0:
+            message = (
+                f'received_at must be non-negative, '
+                f'got {self.received_at}'
+            )
+
+            raise InvalidParameterError(message)
+
     @property
     def sync_field_last_modified(self) -> int:
-        ts_max = max(self.timestamps.values()) if self.timestamps else 0
+        ts_max = (
+            max(self.timestamps.values())
+            if self.timestamps
+            else 0
+        )
+
         return max(ts_max, self.received_at)
 
     @classmethod
     def from_dict(cls, key: str, data: dict[str, Any]) -> SyncRecord:
+        if key == '':
+            message = 'SyncRecord key must be a non-empty string'
+            raise RecordFieldError(message)
+
         record_data = data.get('data', {})
         record_timestamps = data.get('timestamps', {})
 
         if not isinstance(record_data, dict):
-            message = f"Record {key!r}: 'data' must be a dict, got {type(record_data).__name__}"
+            message = (
+                f"Record {key!r}: 'data' must be a dict, "
+                f'got {type(record_data).__name__}'
+            )
+
             raise RecordFieldError(message)
 
         if not isinstance(record_timestamps, dict):
-            message = f"Record {key!r}: 'timestamps' must be a dict, got {type(record_timestamps).__name__}"
+            message = (
+                f"Record {key!r}: 'timestamps' must be a "
+                f'dict, got {type(record_timestamps).__name__}'
+            )
+
             raise RecordFieldError(message)
 
         for ts_key, ts_value in record_timestamps.items():
             if not isinstance(ts_key, str):
-                message = f"Record {key!r}: timestamp key {ts_key!r} must be a string"
+                message = (
+                    f'Record {key!r}: timestamp key '
+                    f'{ts_key!r} must be a string'
+                )
+
                 raise RecordFieldError(message)
 
             if not isinstance(ts_value, int) or isinstance(ts_value, bool):
-                message = f"Record {key!r}: timestamp for {ts_key!r} must be an int, got {type(ts_value).__name__}"
+                message = (
+                    f'Record {key!r}: timestamp for '
+                    f'{ts_key!r} must be an int, '
+                    f'got {type(ts_value).__name__}'
+                )
+
+                raise RecordFieldError(message)
+
+            if ts_value < 0:
+                message = (
+                    f'Record {key!r}: timestamp for '
+                    f'{ts_key!r} must be non-negative, '
+                    f'got {ts_value}'
+                )
+
                 raise RecordFieldError(message)
 
         return cls(

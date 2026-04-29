@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 
 from typing import Any, Protocol, TYPE_CHECKING
 
@@ -15,9 +16,18 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_RACE_RETRIES_MAX = 5
+_RACE_RETRY_DELAY = 0.01
+
 
 class UpsertStrategy(Protocol):
-    def apply(self, model: type[SyncableMixin], key: str, sync_record: SyncRecord, field_data: dict[str, Any]) -> bool: ...
+    def apply(
+        self,
+        model: type[SyncableMixin],
+        key: str,
+        sync_record: SyncRecord,
+        field_data: dict[str, Any],
+    ) -> bool: ...
 
 
 class StalenessGuardedUpsertStrategy:
@@ -49,15 +59,34 @@ class StalenessGuardedUpsertStrategy:
         auto_values: dict[str, Any] = {}
 
         for field in model._meta.concrete_fields:
-            is_auto = getattr(field, 'auto_now_add', False) or getattr(field, 'auto_now', False)
+            is_auto_add = getattr(
+                field,
+                'auto_now_add',
+                False,
+            )
 
-            if not is_auto:
+            is_auto_now = getattr(
+                field,
+                'auto_now',
+                False,
+            )
+
+            if not is_auto_add and not is_auto_now:
                 continue
 
-            attr_name = field.attname if field.is_relation else field.name
+            attr_name = (
+                field.attname
+                if field.is_relation
+                else field.name
+            )
 
-            if attr_name in field_data and field_data[attr_name] is not None:
-                auto_values[attr_name] = field_data[attr_name]
+            if attr_name not in field_data:
+                continue
+
+            if field_data[attr_name] is None:
+                continue
+
+            auto_values[attr_name] = field_data[attr_name]
 
         if auto_values:
             identity_filter = {self._identity_field: key}
@@ -83,10 +112,41 @@ class StalenessGuardedUpsertStrategy:
             with transaction.atomic(), sync_bypass():
                 instance.save(force_insert=True)
         except IntegrityError:
-            return self._update_if_stale(model, key, sync_record, field_data)
+            return self._resolve_insert_race(
+                model,
+                key,
+                sync_record,
+                field_data,
+            )
         else:
             self._force_auto_fields(model, key, field_data)
             return True
+
+    def _resolve_insert_race(
+        self,
+        model: type[SyncableMixin],
+        key: str,
+        sync_record: SyncRecord,
+        field_data: dict[str, Any],
+    ) -> bool:
+        for _ in range(_RACE_RETRIES_MAX):
+            if self._update_if_stale(model, key, sync_record, field_data):
+                return True
+
+            if self._record_exists(model, key):
+                return False
+
+            time.sleep(_RACE_RETRY_DELAY)
+
+        logger.warning(
+            'Concurrent insert race for %s:%s: '
+            'competing row not visible after %d retries',
+            model._meta.label,
+            key,
+            _RACE_RETRIES_MAX,
+        )
+
+        return False
 
     def _record_exists(
         self,
@@ -94,7 +154,6 @@ class StalenessGuardedUpsertStrategy:
         key: str,
     ) -> bool:
         identity_filter = {self._identity_field: key}
-
         return model.objects.filter(**identity_filter).exists()
 
     def _update_if_stale(
@@ -104,10 +163,16 @@ class StalenessGuardedUpsertStrategy:
         sync_record: SyncRecord,
         field_data: dict[str, Any],
     ) -> bool:
-        update_values = self._build_update_values(sync_record, field_data)
+        update_values = self._build_update_values(
+            sync_record,
+            field_data,
+        )
+
         staleness_filter = {
             self._identity_field: key,
-            'sync_field_last_modified__lte': sync_record.sync_field_last_modified,
+            'sync_field_last_modified__lte': (
+                sync_record.sync_field_last_modified
+            ),
         }
 
         updated = (
@@ -133,12 +198,18 @@ class StalenessGuardedUpsertStrategy:
 
         if not sync_record.timestamps:
             logger.warning(
-                'Skipping ghost record %s for %s: empty timestamps '
-                'would create a record with sync_field_last_modified=0',
+                'Skipping ghost record %s for %s: '
+                'empty timestamps would create a record '
+                'with sync_field_last_modified=0',
                 key,
                 model._meta.label,
             )
 
             return False
 
-        return self._insert_with_race_fallback(model, key, sync_record, field_data)
+        return self._insert_with_race_fallback(
+            model,
+            key,
+            sync_record,
+            field_data,
+        )
