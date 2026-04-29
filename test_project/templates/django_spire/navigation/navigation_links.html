@@ -44,6 +44,9 @@
 {% url 'wizard:home' as wizard_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Wizard' link_icon='bi bi-magic' link_url=wizard_url %}
 
+{% url 'rest:page:list' as rest_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Rest Clients' link_icon='bi bi-arrow-down-up' link_url=rest_url %}
+
 {% include 'django_spire/navigation/elements/nav_title_divider.html' with divider_text='Examples' %}
 
 {% url 'lazy_tabs:page:demo' as is_lazy_tabs_url %}

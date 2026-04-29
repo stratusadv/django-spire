@@ -25,6 +25,7 @@ urlpatterns = [
     path('theme/', include('django_spire.theme.urls', namespace='theme')),
     path('queryset-filtering/', include('test_project.apps.queryset_filtering.urls', namespace='queryset_filtering')),
     path('wizard/', include('test_project.apps.wizard.urls', namespace='wizard')),
+    path('rest/', include('test_project.apps.rest.urls', namespace='rest')),
 ]
 
 urlpatterns += [

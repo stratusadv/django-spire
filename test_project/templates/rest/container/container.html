@@ -1,0 +1,18 @@
+{% extends 'django_spire/container/infinite_scroll_container.html' %}
+
+
+{% block container_title %}Pirates{% endblock %}
+
+
+{% block container_button %}
+    <span
+        x-data="{
+            refreshData() {
+                $dispatch('filter-applied')
+            }
+        }"
+        @click="refreshData()"
+    >
+        {% include 'django_spire/button/primary_button.html' with button_icon='bi bi-arrow-repeat' %}
+    </span>
+{% endblock %}

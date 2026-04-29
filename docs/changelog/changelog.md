@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.5
+
+### Features
+- Added the `django_spire/contrib/rest module`, which contains a django queryset-like pattern for connecting to external, rest-based data sources.
+
 ## v0.31.4
 
 ### Changes
