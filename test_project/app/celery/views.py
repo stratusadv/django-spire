@@ -1,4 +1,5 @@
 from __future__ import annotations
+from test_project.app.queryset_filtering.models import Task
 
 from typing import TYPE_CHECKING
 
@@ -6,7 +7,10 @@ from celery.result import AsyncResult
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
-from test_project.app.celery.tasks.managers import PirateSongCeleryTaskManager
+from test_project.app.celery.celery.managers import (
+    PirateSongCeleryTaskManager,
+    NinjaAttackCeleryTaskManager,
+)
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -16,8 +20,10 @@ if TYPE_CHECKING:
 def celery_home_view(request: WSGIRequest) -> TemplateResponse:
     template = 'celery/page/home_page.html'
 
-    context = dict()
-    context['length'] = 15
+    task = Task.objects.first()
+
+    context = {}
+    context['length'] = 5
 
     if request.method == 'POST':
         length = request.POST.get('length')
@@ -25,7 +31,10 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
         if length is not None:
             length = int(length)
 
-            async_result = PirateSongCeleryTaskManager().send_task(length)
+            if request.POST.get('ninja'):
+                async_result = NinjaAttackCeleryTaskManager().send_task(length)
+            else:
+                async_result = PirateSongCeleryTaskManager(task).send_task(length)
 
             context['task_id'] = async_result.id
             context['length'] = length
@@ -38,15 +47,13 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
 
             context['task_id'] = check_task_id
             context['state'] = async_result.state
-            context['celery_task_managers'] = [
-                PirateSongCeleryTaskManager()
-            ]
 
             if async_result.state == 'SUCCESS':
                 context['result'] = async_result.get(timeout=1)
 
-    return TemplateResponse(
-        request,
-        template,
-        context=context
-    )
+    context['celery_task_managers'] = [
+        NinjaAttackCeleryTaskManager(),
+        PirateSongCeleryTaskManager(task),
+    ]
+
+    return TemplateResponse(request, template, context=context)

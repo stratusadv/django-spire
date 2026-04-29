@@ -15,8 +15,21 @@
             Set your noise length
             <form method="post">
                 {% csrf_token %}
+                <input type="hidden" name="pirate" value="pirate"/>
                 <input type="number" name="length" value="{{ length }}"/>
-                <input type="submit" value="Submit"/>
+                <input type="submit" value="Pirate Noise"/>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
+            Set your noise length
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="ninja" value="ninja"/>
+                <input type="number" name="length" value="{{ length }}"/>
+                <input type="submit" value="Ninja Attack"/>
             </form>
         </div>
     </div>
@@ -33,7 +46,7 @@
 
     <div class="row mt-3">
         <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
-            Check Task
+            Check Last Pirate or Ninja Task
             <form method="post">
                 {% csrf_token %}
                 <input type="text" name="check_task_id" value="{{ task_id }}"/>

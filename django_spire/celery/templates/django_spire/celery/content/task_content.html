@@ -20,7 +20,7 @@
         {% elif celery_task.is_failed %}
             <i class="bi bi-exclamation-circle-fill"></i>
         {% endif %}
-        &nbsp;{{ celery_task.reference_name_display }}
+        &nbsp;{{ celery_task.display_name }}
     </div>
 
     {% if show_task_header_close_button %}

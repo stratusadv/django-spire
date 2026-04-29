@@ -20,6 +20,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     readonly_fields = [
         'task_id',
         'reference_key',
+        'model_key',
         'task_name',
         'display_name',
         'state',
@@ -30,6 +31,7 @@ class CeleryTaskAdmin(admin.ModelAdmin):
     fields = [
         'task_id',
         'reference_key',
+        'model_key',
         'task_name',
         'display_name',
         'state',

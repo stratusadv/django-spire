@@ -1,34 +1,23 @@
 import hashlib
 from abc import ABC
+from datetime import timedelta
+from math import ceil
 
 from celery.execute import send_task
 from celery.result import AsyncResult
 from django.conf import settings
-from django.db import models
 from django.db.models import Model
+from django.utils.timezone import now
 
 from django_spire.celery.models import CeleryTask
+
+_CELERY_ESTIMATED_TIME_MULTIPLIER = 1.15
 
 
 class BaseCeleryTaskManager(ABC):
     task_name: str
     display_name: str
     estimated_completion_seconds: int | None = None
-
-    @property
-    def reference_key(
-            self,
-    ) -> str:
-        hashable_string = self.task_name
-
-        hashable_string += self.__class__.__name__
-
-        if self.model_object:
-            hashable_string += f'.{self.model_object.__class__.__name__}.{self.model_object.pk}'
-
-        hashable_string += settings.SECRET_KEY
-
-        return hashlib.md5(hashable_string.encode()).hexdigest()
 
     def __init_subclass__(cls, **kwargs) -> None:
         required_class_attributes = ('task_name', 'display_name')
@@ -41,15 +30,49 @@ class BaseCeleryTaskManager(ABC):
     def __init__(self, model_object: Model | None = None) -> None:
         self.model_object = model_object
 
+    @property
+    def reference_key(self) -> str:
+        hashable_string = self.task_name
+        hashable_string += self.__class__.__name__
+        hashable_string += settings.SECRET_KEY
+
+        return hashlib.md5(hashable_string.encode()).hexdigest()[:128]
+
+    @property
+    def model_key(self) -> str | None:
+        if self.model_object is not None:
+            hashable_string = self.model_object.__class__.__name__
+            hashable_string += str(self.model_object.pk)
+            hashable_string += settings.SECRET_KEY
+
+            return hashlib.md5(hashable_string.encode()).hexdigest()[:128]
+
+        return None
+
+    @property
+    def reference_and_model_key(self) -> str:
+        model_key = self.model_key
+
+        if isinstance(model_key, str):
+            return self.reference_key + '|' + model_key
+
+        return self.reference_key
+
     def send_task(self, *args, **kwargs) -> AsyncResult:
         async_result = send_task(name=self.task_name, args=args, kwargs=kwargs)
 
-        CeleryTask.register(
-            async_result=async_result,
-            task_name=self.task_name,
-            display_name=self.display_name,
+        CeleryTask.objects.create(
+            task_id=async_result.id,
+            task_name=self.task_name[:255],
+            display_name=self.display_name[:255],
             reference_key=self.reference_key,
-            estimated_completion_seconds=self.estimated_completion_seconds,
+            model_key=self.model_key,
+            estimated_completion_datetime=now()
+            + timedelta(
+                seconds=ceil(self.estimated_completion_seconds * _CELERY_ESTIMATED_TIME_MULTIPLIER)
+            )
+            if self.estimated_completion_seconds is not None
+            else now(),
         )
 
         return async_result
