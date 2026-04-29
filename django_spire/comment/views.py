@@ -119,6 +119,7 @@ def comment_modal_delete_form_view(
         'model_name': model_name
     })
 
+
     def add_activity() -> None:
         obj.add_activity(
             user=request.user,

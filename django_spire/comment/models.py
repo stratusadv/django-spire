@@ -12,7 +12,7 @@ from django_spire.history.mixins import HistoryModelMixin
 
 class Comment(HistoryModelMixin):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, editable=False)
-    object_id = models.PositiveIntegerField(editable=False)
+    object_id = models.CharField(editable=False)
     content_object = GenericForeignKey('content_type', 'object_id')
 
     parent = models.ForeignKey(
