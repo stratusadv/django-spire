@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import datetime
-from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from celery.result import AsyncResult
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
-from django_spire.celery.models import CeleryTask
-from test_project.app.celery.tasks import pirate_noise_task
+from test_project.app.celery.tasks.managers import PirateSongCeleryTaskManager
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -28,16 +25,7 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
         if length is not None:
             length = int(length)
 
-            async_result = pirate_noise_task.apply_async(
-                (length,),
-            )
-
-            CeleryTask.register(
-                async_result=async_result,
-                app_name='test_project.app.celery',
-                reference_name='pirate_noise_task',
-                estimated_completion_seconds=length,
-            )
+            async_result = PirateSongCeleryTaskManager().send_task(length)
 
             context['task_id'] = async_result.id
             context['length'] = length
@@ -50,6 +38,9 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
 
             context['task_id'] = check_task_id
             context['state'] = async_result.state
+            context['celery_task_managers'] = [
+                PirateSongCeleryTaskManager()
+            ]
 
             if async_result.state == 'SUCCESS':
                 context['result'] = async_result.get(timeout=1)

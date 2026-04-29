@@ -1,7 +1,7 @@
 <div
     x-data="{
         reload_tasks() {
-            let task_toast_list_view = new ViewGlue(`{% url 'django_spire:celery:task:toast_list' django_spire_celery_task_reference_key %}`)
+            let task_toast_list_view = new ViewGlue(`{% url 'django_spire:celery:task:toast_list' django_spire_celery_task_reference_keys %}`)
             task_toast_list_view.render_inner($el, {})
         },
         init() {

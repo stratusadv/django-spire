@@ -34,11 +34,11 @@ def task_toast_view(request: WSGIRequest, task_id: str) -> TemplateResponse:
     return _task_view(request, template, task_id)
 
 
-def _list_view(request: WSGIRequest, template: str, reference_key: str) -> TemplateResponse:
+def _list_view(request: WSGIRequest, template: str, reference_keys: list[str]) -> TemplateResponse:
     if request.GET.get('show_all', False):
-        celery_tasks = CeleryTask.objects.by_reference_key(reference_key)
+        celery_tasks = CeleryTask.objects.by_reference_key(reference_keys)
     else:
-        celery_tasks = CeleryTask.objects.by_reference_key(reference_key).by_unready()
+        celery_tasks = CeleryTask.objects.by_reference_key(reference_keys).by_unready()
 
     context = {'celery_tasks': celery_tasks}
 
@@ -46,12 +46,12 @@ def _list_view(request: WSGIRequest, template: str, reference_key: str) -> Templ
 
 
 @login_required
-def task_item_list_view(request: WSGIRequest, reference_key: str) -> TemplateResponse:
+def task_item_list_view(request: WSGIRequest, reference_keys: list[str]) -> TemplateResponse:
     template = 'django_spire/celery/item/task_item_list.html'
-    return _list_view(request, template, reference_key)
+    return _list_view(request, template, reference_keys)
 
 
 @login_required
-def task_toast_list_view(request: WSGIRequest, reference_key: str) -> TemplateResponse:
+def task_toast_list_view(request: WSGIRequest, reference_keys: list[str]) -> TemplateResponse:
     template = 'django_spire/celery/toast/task_toast_list.html'
-    return _list_view(request, template, reference_key)
+    return _list_view(request, template, reference_keys)

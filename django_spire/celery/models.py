@@ -1,16 +1,13 @@
-import hashlib
+import pickle
 from datetime import timedelta
 from math import ceil
 
 from celery import states
 from celery.result import AsyncResult
-from django.apps import apps
-from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.timezone import now
 
 from django_spire.celery.querysets import CeleryTaskQuerySet
-from django_spire.conf import settings
 
 _CELERY_ESTIMATED_TIME_MULTIPLIER = 1.15
 
@@ -21,20 +18,23 @@ def _celery_state_choices() -> list:
 
 class CeleryTask(models.Model):
     task_id = models.UUIDField(editable=False)
-    reference_key = models.CharField(max_length=128)
+    task_name = models.CharField(max_length=255)
+    display_name = models.CharField(max_length=255)
 
-    app_name = models.CharField(max_length=128)
-    reference_name = models.CharField(max_length=128)
+    reference_key = models.CharField(max_length=128)
 
     state = models.CharField(max_length=16, choices=_celery_state_choices, default=states.PENDING)
     started_datetime = models.DateTimeField(default=now)
     completed_datetime = models.DateTimeField(null=True, blank=True)
     estimated_completion_datetime = models.DateTimeField(default=now)
 
+    _result = models.BinaryField(null=True, blank=True)
+    _result_capture_attempts = models.PositiveSmallIntegerField(default=0)
+
     objects = CeleryTaskQuerySet.as_manager()
 
     def __str__(self) -> str:
-        return f'{self.app_name} > {self.reference_key}'
+        return f'{self.task_name}'
 
     @property
     def async_result(self) -> AsyncResult:
@@ -50,19 +50,14 @@ class CeleryTask(models.Model):
         return f'{self._generate_verbose_time(self.completion_time_seconds)}'
 
     @property
-    def reference_name_display(self) -> str:
-        return self.reference_name.replace('_', ' ').title()
-
-    @property
     def estimated_completion_percentage(self) -> float:
         percentage = (
-            self.estimated_time_seconds - self.estimated_time_remaining_seconds
-        ) / self.estimated_time_seconds
+                             self.estimated_time_seconds - self.estimated_time_remaining_seconds
+                     ) / self.estimated_time_seconds
 
         percentage = min(percentage, 1.0)
 
         return max(percentage, 0.0)
-
 
     @property
     def estimated_completion_percentage_of_hundred(self) -> int:
@@ -100,20 +95,17 @@ class CeleryTask(models.Model):
     def is_processing(self) -> bool:
         return self.state in states.UNREADY_STATES
 
-    @staticmethod
-    def generate_reference_key(
-        app_name: str, reference_name: str, model_object: models.Model | None = None
-    ) -> str:
-        hashable_string = app_name
+    @property
+    def result(self):
+        return pickle.loads(self._result)
 
-        hashable_string += reference_name.lower()
+    @result.setter
+    def result(self, result):
+        self._result = pickle.dumps(result)
 
-        if model_object:
-            hashable_string += f'.{model_object.__class__.__name__}.{model_object.pk}'
-
-        hashable_string += settings.SECRET_KEY
-
-        return hashlib.md5(hashable_string.encode()).hexdigest()
+    @result.deleter
+    def result(self):
+        self._result = None
 
     @staticmethod
     def _generate_verbose_time(total_seconds: int, include_seconds: bool = True) -> str:
@@ -137,54 +129,43 @@ class CeleryTask(models.Model):
 
     @classmethod
     def register(
-        cls,
-        async_result: AsyncResult,
-        app_name: str,
-        reference_name: str,
-        model_object: models.Model | None = None,
-        estimated_completion_seconds: int | None = None,
+            cls,
+            async_result: AsyncResult,
+            task_name: str,
+            display_name: str,
+            reference_key: str,
+            estimated_completion_seconds: int | None = None,
     ) -> None:
-        cls.validate_register_arguments(app_name=app_name, reference_name=reference_name)
-
-        reference_key = cls.generate_reference_key(
-            app_name=app_name, model_object=model_object, reference_name=reference_name
-        )
-
         cls.objects.create(
-            app_name=app_name,
-            reference_key=reference_key[:128],
-            reference_name=reference_name[:128],
             task_id=async_result.id,
-            estimated_completion_datetime=now()
-            + timedelta(
-                seconds=ceil(estimated_completion_seconds * _CELERY_ESTIMATED_TIME_MULTIPLIER)
+            task_name=task_name[:255],
+            display_name=display_name[:255],
+            reference_key=reference_key[:128],
+            estimated_completion_datetime=now() + timedelta(
+                seconds=ceil(
+                    estimated_completion_seconds * _CELERY_ESTIMATED_TIME_MULTIPLIER
+                )
             )
-            if estimated_completion_seconds
+            if estimated_completion_seconds is not None
             else now(),
         )
-
-    @staticmethod
-    def validate_register_arguments(app_name: str, reference_name: str):
-        if not apps.is_installed(app_name):
-            message = f'Celery task app_name "{app_name}" is invalid or not installed'
-            raise ImproperlyConfigured(message)
-
-        if any(char in reference_name for char in ' -'):
-            message = f'Celery task reference_name "{reference_name}" has an invalid format, use "something_like_this" with only characters and underscores'
-            raise ValueError(message)
-
-    def update_from_async_result(self) -> None:
-        new_state = self.async_result.state
-
-        if self.state != states.SUCCESS and new_state == states.SUCCESS:
-            self.completed_datetime = now()
-
-        self.state = new_state
 
     def update_from_async_result_and_save(self) -> None:
         current_state = self.state
 
-        self.update_from_async_result()
+        new_state = self.async_result.state
+
+        if self.state != states.SUCCESS and new_state == states.SUCCESS:
+            try:
+                self.result = self.async_result.get(timeout=10)
+                self.completed_datetime = now()
+                self.state = new_state
+            except TimeoutError:
+                if self._result_capture_attempts > 9:
+                    self.state = states.FAILURE
+                else:
+                    self._result_capture_attempts += 1
+                self.save()
 
         if self.state != current_state:
             self.save()
