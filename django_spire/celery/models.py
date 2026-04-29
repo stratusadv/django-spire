@@ -59,13 +59,10 @@ class CeleryTask(models.Model):
             self.estimated_time_seconds - self.estimated_time_remaining_seconds
         ) / self.estimated_time_seconds
 
-        if percentage > 1.0:
-            percentage = 1.0
+        percentage = min(percentage, 1.0)
 
-        if percentage < 0.0:
-            percentage = 0.0
+        return max(percentage, 0.0)
 
-        return percentage
 
     @property
     def estimated_completion_percentage_of_hundred(self) -> int:
