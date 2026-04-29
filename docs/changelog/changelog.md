@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.6
+
+### Fixes
+- Fixed `SessionController` `purge()` `KeyError` on session timeout.
+
 ## v0.31.5
 
 ### Features
