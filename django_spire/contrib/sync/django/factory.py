@@ -18,12 +18,12 @@ if TYPE_CHECKING:
     from contextlib import AbstractContextManager
 
     from django_spire.contrib.sync.core.clock import HybridLogicalClock
+    from django_spire.contrib.sync.core.enums import SyncPhase, SyncStage
     from django_spire.contrib.sync.database.conflict import ConflictResolver
     from django_spire.contrib.sync.database.graph import DependencyGraph
     from django_spire.contrib.sync.database.lock import SyncLock
     from django_spire.contrib.sync.database.manifest import DatabaseResult
     from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
-    from django_spire.contrib.sync.core.enums import SyncPhase, SyncStage
 
 
 def _resolve_common(
@@ -45,7 +45,6 @@ def _resolve_common(
     )
     resolved_storage = storage or DjangoSyncStorage(
         models=models,
-        clock=resolved_clock,
     )
 
     return resolved_clock, resolved_graph, resolved_reconciler, resolved_storage

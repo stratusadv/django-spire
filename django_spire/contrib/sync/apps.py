@@ -6,6 +6,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from django.apps import AppConfig
+from django.db import OperationalError, ProgrammingError
 
 if TYPE_CHECKING:
     from django_spire.contrib.sync.django.mixin import SyncableMixin
@@ -40,7 +41,7 @@ class SyncableAppMixin:
 
         build_graph(syncable_models)
 
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(OperationalError, ProgrammingError):
             seed_clock(clock, syncable_models)
 
         m2m_models = self.get_m2m_models()

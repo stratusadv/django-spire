@@ -2,7 +2,15 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from django_spire.contrib.sync.django.factory import build_server_engine
+from django.db import transaction
+
+from django_spire.contrib.sync.database.conflict import FieldTimestampWins
+from django_spire.contrib.sync.database.engine import DatabaseEngine
+from django_spire.contrib.sync.database.reconciler import PayloadReconciler
+from django_spire.contrib.sync.django.graph import build_graph
+from django_spire.contrib.sync.django.lock import DjangoSyncLock
+from django_spire.contrib.sync.django.mixin import SyncableMixin
+from django_spire.contrib.sync.django.storage import DjangoSyncStorage
 from django_spire.contrib.sync.django.views import process_sync_request
 
 if TYPE_CHECKING:
@@ -18,7 +26,6 @@ if TYPE_CHECKING:
     from django_spire.contrib.sync.database.lock import SyncLock
     from django_spire.contrib.sync.database.manifest import DatabaseResult, SyncManifest
     from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
 
 
 class SyncServer:
@@ -36,33 +43,23 @@ class SyncServer:
         progress: Callable[[SyncStage, int, int], None] | None = None,
         resolver: ConflictResolver | None = None,
         storage: DatabaseSyncStorage | None = None,
-        transaction_fn: Callable[[], AbstractContextManager[Any]] | None = None,
+        transaction_fn: Callable[[], AbstractContextManager[Any]] = transaction.atomic,
     ) -> None:
-        kwargs: dict[str, Any] = {
-            'clock': clock,
-            'clock_drift_max': clock_drift_max,
-            'graph': graph,
-            'lock': lock,
-            'on_complete': on_complete,
-            'on_phase': on_phase,
-            'progress': progress,
-            'resolver': resolver,
-            'storage': storage,
-        }
-
-        if transaction_fn is not None:
-            kwargs['transaction_fn'] = transaction_fn
-
-        self._engine = build_server_engine(
-            models=models,
+        self._engine = DatabaseEngine(
+            clock=clock or SyncableMixin.get_clock(),
+            clock_drift_max=clock_drift_max,
+            graph=graph or build_graph(models),
+            lock=lock or DjangoSyncLock(),
             node_id=node_id,
-            **kwargs,
+            on_complete=on_complete,
+            on_phase=on_phase,
+            progress=progress,
+            reconciler=PayloadReconciler(resolver=resolver or FieldTimestampWins()),
+            storage=storage or DjangoSyncStorage(models=models),
+            transaction=transaction_fn,
         )
 
-    def handle(
-        self,
-        incoming: SyncManifest,
-    ) -> tuple[SyncManifest, DatabaseResult]:
+    def handle(self, incoming: SyncManifest) -> tuple[SyncManifest, DatabaseResult]:
         return self._engine.process(incoming)
 
     def serve(

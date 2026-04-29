@@ -4,7 +4,6 @@ import pytest
 
 from django.db import models as db_models
 
-from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.django.storage import DjangoSyncStorage
 from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
@@ -13,7 +12,6 @@ from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestSimple
 def storage() -> DjangoSyncStorage:
     return DjangoSyncStorage(
         models=[SyncTestModel, SyncTestSimpleModel],
-        clock=HybridLogicalClock(),
         identity_field='id',
     )
 
@@ -22,7 +20,6 @@ def storage() -> DjangoSyncStorage:
 def simple_storage() -> DjangoSyncStorage:
     return DjangoSyncStorage(
         models=[SyncTestSimpleModel],
-        clock=HybridLogicalClock(),
         identity_field='id',
     )
 

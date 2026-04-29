@@ -48,17 +48,18 @@ class DatabaseEngine:
         storage: DatabaseSyncStorage,
         graph: DependencyGraph,
         clock: HybridLogicalClock,
-        lock: SyncLock | None = None,
-        reconciler: PayloadReconciler | None = None,
-        transport: Transport | None = None,
-        identity_field: str = 'id',
-        node_id: str = '',
+        node_id: str,
+        *,
         clock_drift_max: int | None = CLOCK_DRIFT_MAX_DEFAULT,
-        payload_records_max: int | None = None,
-        transaction: Callable[[], AbstractContextManager[Any]] | None = None,
+        identity_field: str = 'id',
+        lock: SyncLock | None = None,
         on_complete: Callable[[DatabaseResult], None] | None = None,
         on_phase: Callable[[SyncPhase], None] | None = None,
+        payload_records_max: int | None = None,
         progress: Callable[[SyncStage, int, int], None] | None = None,
+        reconciler: PayloadReconciler | None = None,
+        transaction: Callable[[], AbstractContextManager[Any]] = nullcontext,
+        transport: Transport | None = None,
     ) -> None:
         self._clock = clock
         self._clock_drift_max = clock_drift_max
@@ -72,7 +73,7 @@ class DatabaseEngine:
         self._progress = progress
         self._reconciler = reconciler or PayloadReconciler()
         self._storage = storage
-        self._transaction = transaction or nullcontext
+        self._transaction = transaction
         self._transport = transport
 
     def _advance_clock(self, manifest: SyncManifest) -> None:

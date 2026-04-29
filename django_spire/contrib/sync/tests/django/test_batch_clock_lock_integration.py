@@ -31,7 +31,6 @@ from django_spire.contrib.sync.tests.models import SyncTestModel
 def batch_storage() -> DjangoSyncStorage:
     return DjangoSyncStorage(
         models=[SyncTestModel],
-        clock=HybridLogicalClock(),
         identity_field='id',
         batch_size_max=5,
     )
@@ -41,7 +40,6 @@ def test_batch_size_max_zero_raises() -> None:
     with pytest.raises(InvalidParameterError, match='batch_size_max must be >= 1'):
         DjangoSyncStorage(
             models=[SyncTestModel],
-            clock=HybridLogicalClock(),
             batch_size_max=0,
         )
 
@@ -50,7 +48,6 @@ def test_batch_size_max_negative_raises() -> None:
     with pytest.raises(InvalidParameterError, match='batch_size_max must be >= 1'):
         DjangoSyncStorage(
             models=[SyncTestModel],
-            clock=HybridLogicalClock(),
             batch_size_max=-1,
         )
 

@@ -6,7 +6,6 @@ from typing import Any, TYPE_CHECKING
 
 from django.db import connections
 
-from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.django.storage import DjangoSyncStorage
 from django_spire.contrib.sync.tests.factories import make_record as _factory_make_record
 from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestSimpleModel
@@ -26,7 +25,6 @@ def close_connections() -> None:
 def make_storage(batch_size_max: int = 5_000) -> DjangoSyncStorage:
     return DjangoSyncStorage(
         models=[SyncTestModel, SyncTestSimpleModel],
-        clock=HybridLogicalClock(),
         identity_field='id',
         batch_size_max=batch_size_max,
     )
