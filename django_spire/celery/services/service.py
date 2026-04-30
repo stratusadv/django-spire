@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from datetime import timezone
+
 from celery import states
 from django.db.models import F
-from django.utils import timezone
-from django.utils.timezone import now, get_current_timezone
-
+from django.utils.timezone import make_aware, is_naive
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.service import BaseDjangoModelService
@@ -26,8 +26,8 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
                 date_done = self.obj.async_result.date_done
 
-                if timezone.is_naive(date_done):
-                    date_done_aware = timezone.make_aware(date_done, timezone.get_default_timezone())
+                if is_naive(date_done):
+                    date_done_aware = make_aware(date_done, timezone.utc)
                 else:
                     date_done_aware = date_done
 

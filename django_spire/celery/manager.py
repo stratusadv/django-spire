@@ -6,7 +6,7 @@ from math import ceil
 from celery.execute import send_task
 from celery.result import AsyncResult
 from django.conf import settings
-from django.db.models import Model
+from django.db.models import Model, QuerySet
 from django.utils.timezone import now
 
 from django_spire.celery.models import CeleryTask
@@ -59,10 +59,13 @@ class BaseCeleryTaskManager(ABC):
 
         return self.reference_key
 
-    def send_task(self, *args, **kwargs) -> AsyncResult:
+    def filter_celery_tasks(self) -> QuerySet[CeleryTask]:
+        return CeleryTask.objects.by_reference_keys_model_keys({self.reference_key: self.model_key})
+
+    def send_task(self, *args, **kwargs) -> CeleryTask:
         async_result = send_task(name=self.task_name, args=args, kwargs=kwargs)
 
-        CeleryTask.objects.create(
+        return CeleryTask.objects.create(
             task_id=async_result.id,
             task_name=self.task_name[:255],
             display_name=self.display_name[:255],
@@ -76,4 +79,3 @@ class BaseCeleryTaskManager(ABC):
             else now(),
         )
 
-        return async_result
