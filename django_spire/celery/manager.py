@@ -23,7 +23,8 @@ class BaseCeleryTaskManager(ABC):
         required_class_attributes = ('task_name', 'display_name')
 
         for attribute_name in required_class_attributes:
-            if not isinstance(getattr(cls, attribute_name), str):
+            attr_value = getattr(cls, attribute_name, None)
+            if not isinstance(attr_value, str):
                 message = f'{cls.__name__}.{attribute_name} must be set and type string'
                 raise TypeError(message)
 

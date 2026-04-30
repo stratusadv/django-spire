@@ -11,7 +11,7 @@ class CeleryTaskQuerySet(QuerySet):
     def by_reference_keys(self, reference_keys: list[str]) -> QuerySet:
         return self.filter(reference_key__in=reference_keys)
 
-    def by_reference_keys_model_keys(self, reference_keys_model_keys: dict[str, str]) -> QuerySet:
+    def by_reference_keys_model_keys(self, reference_keys_model_keys: dict[str, str | None]) -> QuerySet:
         query = Q()
 
         for reference_key, model_key in reference_keys_model_keys.items():

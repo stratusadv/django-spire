@@ -11,17 +11,18 @@ register = template.Library()
 def _render_django_spire_celery_task_template(
     celery_task_managers: list[BaseCeleryTaskManager], template_name: str
 ) -> str | None:
-    if isinstance(celery_task_managers, list) and isinstance(celery_task_managers[0], BaseCeleryTaskManager):
-        return get_template(template_name=template_name).render(
-            context={
-                'django_spire_celery_task_key_pairs': ','.join(
-                    [
-                        celery_task_manager.reference_and_model_key
-                        for celery_task_manager in celery_task_managers
-                    ]
-                )
-            }
-        )
+    if isinstance(celery_task_managers, list) and len(celery_task_managers) > 0:
+        if isinstance(celery_task_managers[0], BaseCeleryTaskManager):
+            return get_template(template_name).render(
+                {
+                    'django_spire_celery_task_key_pairs': ','.join(
+                        [
+                            celery_task_manager.reference_and_model_key
+                            for celery_task_manager in celery_task_managers
+                        ]
+                    )
+                }
+            )
 
     return None
 
