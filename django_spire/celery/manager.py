@@ -1,10 +1,10 @@
+from typing import Any
 import hashlib
 from abc import ABC
 from datetime import timedelta
 from math import ceil
 
 from celery.execute import send_task
-from celery.result import AsyncResult
 from django.conf import settings
 from django.db.models import Model, QuerySet
 from django.utils.timezone import now
@@ -18,6 +18,8 @@ class BaseCeleryTaskManager(ABC):
     task_name: str
     display_name: str
     estimated_completion_seconds: int | None = None
+    required_args_types: list[type] | None = None
+    required_kwargs_keys_types: dict[str, type] | None = None
 
     def __init_subclass__(cls, **kwargs) -> None:
         required_class_attributes = ('task_name', 'display_name')
@@ -59,10 +61,16 @@ class BaseCeleryTaskManager(ABC):
 
         return self.reference_key
 
+    @property
+    def class_and_send_task_method(self) -> str:
+        return f'{self.__class__.__name__}.send_task(*args, )'
+
     def filter_celery_tasks(self) -> QuerySet[CeleryTask]:
         return CeleryTask.objects.by_reference_keys_model_keys({self.reference_key: self.model_key})
 
     def send_task(self, *args, **kwargs) -> CeleryTask:
+        self._validate_args_and_kwargs(*args, **kwargs)
+
         async_result = send_task(name=self.task_name, args=args, kwargs=kwargs)
 
         return CeleryTask.objects.create(
@@ -79,3 +87,23 @@ class BaseCeleryTaskManager(ABC):
             else now(),
         )
 
+    def _validate_args_and_kwargs(self, *args, **kwargs) -> None:
+        if self.required_args_types and args:
+            if len(args) != len(self.required_args_types):
+                message = f'{self.class_and_send_task_method} only got {len(args)} arguments, expected {len(self.required_args_types)}'
+                raise ValueError(message)
+
+            for i, arg in enumerate(args):
+                if not isinstance(arg, self.required_args_types[i]):
+                    message = f'{self.class_and_send_task_method} method got invalid type from arg at position {i} must be type {self.required_args_types[i]}'
+                    raise TypeError(message)
+
+        if self.required_kwargs_keys_types and kwargs:
+            for key, type_ in self.required_kwargs_keys_types.items():
+                if key not in kwargs:
+                    message = f'{self.class_and_send_task_method} method is missing kwarg "{key}"'
+                    raise ValueError(message)
+
+                if not isinstance(kwargs[key], type_):
+                    message = f'{self.class_and_send_task_method} method got invalid type from kwarg "{key}" must be type {type_}'
+                    raise TypeError(message)
