@@ -9,7 +9,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from django_spire.celery.models import CeleryTask
-from django_spire.celery.tests.factories import create_celery_task
+from django_spire.celery.tests.factories import create_test_celery_task
 from django_spire.celery.views.task_views import (
     task_item_view,
     task_toast_view,
@@ -21,7 +21,7 @@ from django_spire.celery.views.task_views import (
 class BaseTaskViewTestCase(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
-        self.celery_task = create_celery_task()
+        self.celery_task = create_test_celery_task()
         self.super_user = User.objects.create_superuser(
             username='admin', email='admin@test.com', password='test'
         )
@@ -152,9 +152,9 @@ class TaskItemListViewTestCase(TestCase):
             username='admin', email='admin@test.com', password='test'
         )
         self.reference_key = 'test_reference_key'
-        self.task1 = create_celery_task(reference_key=self.reference_key, state=states.PENDING)
-        self.task2 = create_celery_task(reference_key=self.reference_key, state=states.SUCCESS)
-        self.task3 = create_celery_task(reference_key=self.reference_key, state=states.STARTED)
+        self.task1 = create_test_celery_task(reference_key=self.reference_key, state=states.PENDING)
+        self.task2 = create_test_celery_task(reference_key=self.reference_key, state=states.SUCCESS)
+        self.task3 = create_test_celery_task(reference_key=self.reference_key, state=states.STARTED)
 
     def test_task_item_list_view_requires_login(self) -> None:
         self.client.logout()
@@ -253,9 +253,9 @@ class TaskToastListViewTestCase(TestCase):
             username='admin2', email='admin2@test.com', password='test'
         )
         self.reference_key = 'test_reference_key'
-        self.task1 = create_celery_task(reference_key=self.reference_key, state=states.PENDING)
-        self.task2 = create_celery_task(reference_key=self.reference_key, state=states.SUCCESS)
-        self.task3 = create_celery_task(reference_key=self.reference_key, state=states.STARTED)
+        self.task1 = create_test_celery_task(reference_key=self.reference_key, state=states.PENDING)
+        self.task2 = create_test_celery_task(reference_key=self.reference_key, state=states.SUCCESS)
+        self.task3 = create_test_celery_task(reference_key=self.reference_key, state=states.STARTED)
 
     def test_task_toast_list_view_requires_login(self) -> None:
         self.client.logout()
@@ -335,7 +335,7 @@ class TaskToastListViewTestCase(TestCase):
 
     def test_task_toast_list_view_with_multiple_keys(self) -> None:
         other_key = 'other_reference_key'
-        create_celery_task(reference_key=other_key, state=states.PENDING)
+        create_test_celery_task(reference_key=other_key, state=states.PENDING)
 
         key_pairs = f'{self.reference_key},{other_key}'
         request = self.factory.post(

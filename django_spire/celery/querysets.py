@@ -18,7 +18,7 @@ class CeleryTaskQuerySet(QuerySet):
             if model_key is not None:
                 query |= Q(reference_key=reference_key, model_key=model_key)
             else:
-                query |= Q(reference_key=reference_key)
+                query |= Q(reference_key=reference_key, model_key__isnull=True)
 
         return self.filter(query)
 

@@ -11,7 +11,7 @@ from django.utils.timezone import now
 from django_spire.celery.models import CeleryTask
 
 
-def create_celery_task(
+def create_test_celery_task(
     task_name: str = 'test_task',
     display_name: str = 'Test Task',
     reference_key: str | None = None,

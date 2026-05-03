@@ -5,7 +5,7 @@ from celery import states
 from django.test import TestCase
 
 from django_spire.celery.models import CeleryTask
-from django_spire.celery.tests.factories import create_celery_task
+from django_spire.celery.tests.factories import create_test_celery_task
 
 
 class CeleryTaskQuerySetByReferenceKeyTestCase(TestCase):
@@ -13,9 +13,9 @@ class CeleryTaskQuerySetByReferenceKeyTestCase(TestCase):
         self.reference_key_1 = 'key1'
         self.reference_key_2 = 'key2'
 
-        self.task1 = create_celery_task(reference_key=self.reference_key_1)
-        self.task2 = create_celery_task(reference_key=self.reference_key_2)
-        self.task3 = create_celery_task(reference_key=self.reference_key_1)
+        self.task1 = create_test_celery_task(reference_key=self.reference_key_1)
+        self.task2 = create_test_celery_task(reference_key=self.reference_key_2)
+        self.task3 = create_test_celery_task(reference_key=self.reference_key_1)
 
     def test_by_reference_keys_returns_matching_tasks(self) -> None:
         result = CeleryTask.objects.by_reference_keys([self.reference_key_1])
@@ -47,9 +47,9 @@ class CeleryTaskQuerySetByModelKeyTestCase(TestCase):
         self.model_key_1 = 'model_key_1'
         self.model_key_2 = 'model_key_2'
 
-        self.task1 = create_celery_task(model_key=self.model_key_1)
-        self.task2 = create_celery_task(model_key=self.model_key_2)
-        self.task3 = create_celery_task(model_key=self.model_key_1)
+        self.task1 = create_test_celery_task(model_key=self.model_key_1)
+        self.task2 = create_test_celery_task(model_key=self.model_key_2)
+        self.task3 = create_test_celery_task(model_key=self.model_key_1)
 
     def test_by_model_keys_returns_matching_tasks(self) -> None:
         result = CeleryTask.objects.by_model_keys([self.model_key_1])
@@ -76,24 +76,26 @@ class CeleryTaskQuerySetByReferenceAndModelKeyTestCase(TestCase):
         self.model_key_1 = 'model_key_1'
         self.model_key_2 = 'model_key_2'
 
-        self.task1 = create_celery_task(
+        self.task1 = create_test_celery_task(
             reference_key=self.reference_key_1, model_key=self.model_key_1
         )
-        self.task2 = create_celery_task(
+        self.task2 = create_test_celery_task(
             reference_key=self.reference_key_2, model_key=self.model_key_2
         )
-        self.task3 = create_celery_task(
+        self.task3 = create_test_celery_task(
             reference_key=self.reference_key_1, model_key=self.model_key_2
         )
-        self.task4 = create_celery_task(reference_key=self.reference_key_1, model_key=None)
+        self.task4 = create_test_celery_task(
+            reference_key=self.reference_key_1, model_key=None
+        )
 
     def test_by_reference_keys_model_keys_with_model_key(self) -> None:
         ref_model_map = {self.reference_key_1: self.model_key_1}
         result = CeleryTask.objects.by_reference_keys_model_keys(ref_model_map)
 
         assert self.task1 in result
-        assert self.task3 not in result
         assert self.task4 not in result
+        assert self.task3 not in result
 
     def test_by_reference_keys_model_keys_without_model_key(self) -> None:
         ref_model_map = {self.reference_key_1: None}
@@ -116,11 +118,11 @@ class CeleryTaskQuerySetByReferenceAndModelKeyTestCase(TestCase):
 
 class CeleryTaskQuerySetByUnreadyTestCase(TestCase):
     def setUp(self) -> None:
-        self.task_pending = create_celery_task(state=states.PENDING)
-        self.task_started = create_celery_task(state=states.STARTED)
-        self.task_success = create_celery_task(state=states.SUCCESS)
-        self.task_failure = create_celery_task(state=states.FAILURE)
-        self.task_revoked = create_celery_task(state=states.REVOKED)
+        self.task_pending = create_test_celery_task(state=states.PENDING)
+        self.task_started = create_test_celery_task(state=states.STARTED)
+        self.task_success = create_test_celery_task(state=states.SUCCESS)
+        self.task_failure = create_test_celery_task(state=states.FAILURE)
+        self.task_revoked = create_test_celery_task(state=states.REVOKED)
 
     def test_by_unready_returns_pending(self) -> None:
         result = CeleryTask.objects.by_unready()
@@ -154,8 +156,8 @@ class CeleryTaskQuerySetByUnreadyTestCase(TestCase):
 
     def test_by_unready_chaining_with_by_reference_keys(self) -> None:
         reference_key = 'test_key'
-        task1 = create_celery_task(reference_key=reference_key, state=states.PENDING)
-        task2 = create_celery_task(reference_key=reference_key, state=states.SUCCESS)
+        task1 = create_test_celery_task(reference_key=reference_key, state=states.PENDING)
+        task2 = create_test_celery_task(reference_key=reference_key, state=states.SUCCESS)
 
         result = CeleryTask.objects.by_reference_keys([reference_key]).by_unready()
 

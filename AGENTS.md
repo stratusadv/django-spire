@@ -4,6 +4,36 @@
 - Always look for relevant skills to load
 - Do not comment your code. You should never write anything complicated enough that needs comments.
 
+## Testing Commands
+
+Use the `justfile` for all testing and development commands:
+
+```bash
+# Run all tests
+just test
+
+# Run tests for a specific app
+just test-app django_spire.celery
+
+# Run tests with coverage
+just test-coverage
+
+# Run failed tests
+just test-failed
+
+# Run Celery worker
+just celery
+
+# Run Django server
+just run-server
+
+# Run migrations
+just migrate
+
+# Make migrations
+just make-migrations
+```
+
 ## Project Overview
 
 Django Spire is a modular Django framework that makes application development scalable and extensible. The framework follows a plugin-based architecture where functionality is organized into discrete apps that can be easily integrated.
@@ -50,6 +80,15 @@ django_spire/
 │   ├── group/            # Group management
 │   ├── mfa/              # Multi-factor authentication
 │   └── controller/       # Authentication controllers
+├── celery/               # Celery task tracking
+│   ├── models.py         # CeleryTask model with AsyncResult integration
+│   ├── manager.py        # BaseCeleryTaskManager for task management
+│   ├── services/         # CeleryTaskService for task result updates
+│   ├── querysets.py      # Custom QuerySet methods
+│   ├── views/            # Task viewing views
+│   ├── urls/             # Task URL routing
+│   ├── templatetags/    # Template tags for task widgets
+│   └── tests/            # Comprehensive test suite
 ├── comment/              # Comment system with generic content types
 ├── contrib/              # Shared utilities and helpers
 │   ├── admin/            # Admin utilities
@@ -103,6 +142,37 @@ django_spire/
 ├── theme/                # Theme management (10+ themes, light/dark modes)
 └── urls.py               # Main URL configuration
 ```
+
+### django_spire.celery
+
+A comprehensive Celery task tracking system with:
+
+**CeleryTask Model** (`celery/models.py`):
+- `task_id`: UUID field for Celery task identification
+- `task_name`/`display_name`: Task naming
+- `reference_key`/`model_key`: Task grouping and association
+- `state`: Task state from Celery states
+- `async_result`: Property returning AsyncResult for the task
+- `has_result`/`_result`: Result storage with pickle serialization
+- `is_processing`/`is_failed`/`is_successful`: State boolean properties
+- `estimated_completion_*`: Progress estimation properties
+
+**BaseCeleryTaskManager** (`celery/manager.py`):
+- Base class for creating task managers
+- `task_name`/`display_name`: Class attributes required
+- `estimated_completion_seconds`: Optional completion time estimate
+- `reference_key`/`model_key`: Key generation from task and model
+- `send_task()`: Creates CeleryTask record and sends Celery task
+
+**CeleryTaskService** (`celery/services/service.py`):
+- `update_result()`: Updates task result from AsyncResult
+- `update_from_async_result_and_save_if_change()`: Syncs state changes
+
+**QuerySet Methods** (`celery/querysets.py`):
+- `by_reference_keys()`: Filter by reference keys
+- `by_model_keys()`: Filter by model keys
+- `by_reference_keys_model_keys()`: Filter by combined keys
+- `by_unready()`: Filter by UNREADY_STATES
 
 ### App Configuration Pattern
 
@@ -179,6 +249,26 @@ Authentication system with:
   - Custom permission methods (can_add, can_change, can_delete, can_view)
   - Decorator-based permission checking
 - Seeding support for auth data
+
+### django_spire.celery
+Celery task tracking system with:
+- **CeleryTask**: Model for tracking Celery task state and results
+  - UUID task_id for task identification
+  - State tracking with Celery states
+  - Result serialization with pickle
+  - Progress estimation properties
+  - AsyncResult integration for real-time state
+- **BaseCeleryTaskManager**: Manager class for creating task managers
+  - Task sending and tracking
+  - Reference and model key generation
+  - Argument validation
+- **CeleryTaskService**: Service for updating task state
+  - Result retrieval from AsyncResult
+  - State synchronization
+- **QuerySet Methods**: Custom filtering methods
+  - by_reference_keys, by_model_keys
+  - by_reference_keys_model_keys
+  - by_unready
 
 ### django_spire.comment
 Comment system with:
@@ -441,6 +531,7 @@ Shared utilities and helpers:
 - **Storage**: AWS S3 / DigitalOcean
 - **Email**: SendGrid
 - **SMS**: Twilio
+- **Task Queue**: Celery
 
 ## Core Design Patterns
 
@@ -462,6 +553,7 @@ Business logic is separated into service classes:
 - `metric/domain/services/`
 - `metric/visual/services/`
 - `auth/user/services/`
+- `celery/services/`: CeleryTaskService
 
 ### Auth Sub-App Pattern
 Many apps include dedicated auth sub-apps:
@@ -489,6 +581,7 @@ The `test_project` is a Django project used for testing and demonstrating django
 - Template showcase for various UI patterns (tabular, card, modal layouts)
 - Seeding and fixture generation examples
 - Multiple settings configurations for different environments
+- Celery example app with task managers and views
 
 ### Structure
 
@@ -496,6 +589,7 @@ The `test_project` is a Django project used for testing and demonstrating django
 test_project/
 ├── apps/                     # Example apps demonstrating framework features
 │   ├── ai/                   # AI integration examples
+│   ├── celery/               # Celery task tracking examples
 │   ├── comment/              # Comment system examples
 │   ├── core/                 # Core context processors
 │   ├── file/                 # File management examples
@@ -512,9 +606,16 @@ test_project/
 │   ├── queryset_filtering/   # QuerySet filtering examples
 │   ├── tabular/              # Tabular view examples
 │   └── wizard/               # Wizard/step-by-step examples
+├── celery/                   # Celery example implementation
+│   ├── celery/               # Celery tasks and managers
+│   │   ├── tasks.py          # Shared tasks (pirate_noise_task, etc.)
+│   │   └── managers.py       # Task managers (PirateSongCeleryTaskManager, etc.)
+│   ├── views.py              # Example views
+│   └── urls.py               # URL routing
 ├── templates/                # Project-level templates
 │   ├── ai/
 │   ├── breadcrumb/
+│   ├── celery/               # Celery templates
 │   ├── comment/
 │   ├── django_spire/
 │   ├── file/
@@ -586,6 +687,16 @@ test_project/
 
 ### Example Apps
 
+#### django_spire.celery Integration
+- `CeleryTask` model with AsyncResult integration
+- `BaseCeleryTaskManager` subclasses for task management
+- Views for task display (item, toast, list views)
+- Template tags for task widgets
+- URL routing at `/celery/task/`
+- Example app in `test_project/app/celery/`:
+  - `celery/tasks.py`: Example tasks (pirate_noise_task, ninja_attack_task, etc.)
+  - `celery/managers.py`: Example managers (PirateSongCeleryTaskManager, NinjaAttackCeleryTaskManager)
+
 #### django_spire.comment Integration
 - `CommentExample` model with history tracking and comment mixin
 - Seeder for generating test comment data
@@ -630,6 +741,13 @@ test_project/
 
 ```
 /                           # Landing page (landing app)
+celery/                     # Celery examples
+├── celery/home/            # Celery home view
+django_spire/celery/        # Celery framework
+├── django_spire/celery/task/item/<task_id>/      # Single task view
+├── django_spire/celery/task/item_list/           # Task list view
+├── django_spire/celery/task/toast/<task_id>/     # Toast task view
+└── django_spire/celery/task/toast_list/          # Toast list view
 /ai/                        # AI integration examples
 /comment/                   # Comment examples
 /help_desk/                 # Help desk examples
@@ -667,68 +785,74 @@ This seeds:
 - Infinite scrolling data
 - Lazy tabs data
 - Comment examples
+- Celery task tracking examples
 
 **Optional seeding** (commented out in seed.py):
 - Knowledge data (django_spire.knowledge)
 - AI context data (django_spire.ai.context)
 
-### Template Patterns
+### Test File Structure
 
-**Tabular Views**:
-- `tabular/page/`: Full page layouts
-- `tabular/card/`: Card-based layouts
-- `tabular/form/`: Form layouts
-- `tabular/item/`: Item layouts
-- `tabular/modal/`: Modal layouts
-- `tabular/table/`: Table layouts
+Tests follow the Django testing best practices with the following structure:
 
-**Card Views**:
-- Card-based grid layouts
-- Organized within app-specific template folders (e.g., `comment/card/`, `home/card/`)
-- Responsive design patterns
-- Mobile-friendly layouts
+```
+django_spire/
+├── celery/
+│   └── tests/
+│       ├── __init__.py
+│       ├── factories.py              # create_test_celery_task factory
+│       ├── test_models.py            # CeleryTask model tests
+│       ├── test_views.py             # View tests
+│       ├── test_urls.py              # URL routing tests
+│       ├── test_querysets.py         # QuerySet method tests
+│       ├── test_templatetags.py      # Template tag tests
+│       ├── test_async_result_integration.py  # AsyncResult integration tests
+│       ├── test_services/
+│       │   ├── __init__.py
+│       │   └── test_celery_task_service.py    # Service tests
+│       └── test_managers/
+│           ├── __init__.py
+│           └── test_base_celery_task_manager.py # Manager tests
+```
 
-**Modal Views**:
-- Modal dialogs and overlays
-- Modal wizard patterns
-- Content progression in modals
-- `modal/modal.html`: Base modal template
-- `modal/modal_wizard.html`: Wizard modal template
+### Testing Best Practices
 
-**Additional Template Categories**:
-- `breadcrumb/`: Breadcrumb navigation
-- `form/`: Form templates
-- `gamification/`: Gamification UI
-- `help/`: Help documentation
-- `maintenance/`: Maintenance mode pages
-- `options/`: Options/configuration
-- `pagination/`: Pagination components
-- `permission/`: Permission UI
-- `search/`: Search interfaces
-- `user_account/`: User account/profile pages
+1. **Factory Pattern**: Use `create_test_celery_task()` factory for all test data
+2. **AsyncResult Mocking**: Use `@patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)` for AsyncResult tests
+3. **Service Testing**: Test service methods with mocked AsyncResult interactions
+4. **View Testing**: Use `RequestFactory` and mock `get_object_or_404`
+5. **QuerySet Testing**: Test custom QuerySet methods with filtered results
+6. **State Transitions**: Test state change logic (PENDING → STARTED → SUCCESS/FAILURE)
 
-### Testing
+### Playwright E2E Tests
 
-**Playwright E2E Tests**:
 - Configuration in `playwright.config.py`
 - Browser automation testing
 - UI interaction testing
 
-**Pytest Configuration**:
+### Pytest Configuration
+
 - `pytest.ini` in test_project root
 - Test discovery and configuration
-
-**Unit Tests**:
-- Located in app `tests/` directories
-- Coverage across all django_spire apps
+- Custom markers for app-specific tests
 
 ### Development
 
 **Running the Project**:
 1. Configure environment variables (see `development.env`)
-2. Run migrations: `python manage.py migrate`
+2. Run migrations: `just migrate`
 3. Seed data: `python test_project/seed.py`
-4. Start server: `python manage.py runserver`
+4. Start server: `just run-server`
+
+**Running Tests**:
+1. Run all tests: `just test`
+2. Run Celery tests: `just test celery`
+3. Run with coverage: `just test-coverage`
+
+**Running Celery Worker**:
+```bash
+just celery
+```
 
 **Settings Modules**:
 - Development: Use `test_project.postgres_settings` or `test_project.sqlite_settings`
@@ -750,6 +874,7 @@ This seeds:
 8. **URL Namespacing**: Organize URLs by app with proper namespaces
 9. **Intelligence Layer**: Implement AI-driven features through intelligence sub-apps
 10. **Auth Sub-apps**: Separate access control into dedicated auth sub-apps
+11. **AsyncResult Integration**: Comprehensive testing of Celery AsyncResult interactions
 
 ### Recommended Example Apps to Add
 
