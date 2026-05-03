@@ -109,10 +109,10 @@ class CeleryTask(models.Model):
 
     @property
     def result(self) -> Any:
-        if self.state == states.FAILURE:
+        if self.state == states.FAILURE and not self.send_failed:
             return None
 
-        if self.has_no_result:
+        if self.has_no_result and not self.send_failed:
             self.services.update_result()
 
         if self.has_result:
@@ -127,6 +127,32 @@ class CeleryTask(models.Model):
     @result.deleter
     def result(self) -> Any:
         self._result = None
+
+    @property
+    def send_failed(self) -> bool:
+        if self.has_result and self._result:
+            result_data = pickle.loads(self._result)
+            return isinstance(result_data, dict) and result_data.get('error') == 'SEND_FAILED'
+        return False
+
+    @property
+    def send_error_message(self) -> str | None:
+        if self.send_failed:
+            result_data = pickle.loads(self._result)
+            return result_data.get('message')
+        return None
+
+    @property
+    def send_error_details(self) -> dict | None:
+        if self.send_failed:
+            result_data = pickle.loads(self._result)
+            return {
+                'task_name': result_data.get('task_name'),
+                'args': result_data.get('args'),
+                'kwargs': result_data.get('kwargs'),
+                'message': result_data.get('message'),
+            }
+        return None
 
     class Meta:
         verbose_name = 'Celery Task'

@@ -202,3 +202,69 @@ class CeleryTaskMetaTestCase(TestCase):
 
     def test_db_table(self) -> None:
         assert CeleryTask._meta.db_table == 'django_spire_celery_task'
+
+
+class CeleryTaskSendFailedPropertiesTestCase(TestCase):
+    def test_send_failed_false_when_no_result(self) -> None:
+        task = create_test_celery_task(has_result=False)
+        assert task.send_failed is False
+
+    def test_send_failed_false_when_result_is_not_send_failed(self) -> None:
+        task = create_test_celery_task(has_result=True, _result=pickle.dumps({'data': 'value'}))
+        assert task.send_failed is False
+
+    def test_send_failed_true_when_result_is_send_failed(self) -> None:
+        task = create_test_celery_task(has_result=True, _result=pickle.dumps({
+            'error': 'SEND_FAILED',
+            'message': 'Connection refused',
+            'args': (),
+            'kwargs': {},
+            'task_name': 'test_task',
+        }))
+        assert task.send_failed is True
+
+    def test_send_error_message_returns_none_when_not_failed(self) -> None:
+        task = create_test_celery_task(has_result=True, _result=pickle.dumps({'data': 'value'}))
+        assert task.send_error_message is None
+
+    def test_send_error_message_returns_message_on_failure(self) -> None:
+        task = create_test_celery_task(has_result=True, _result=pickle.dumps({
+            'error': 'SEND_FAILED',
+            'message': 'RabbitMQ unavailable',
+            'args': ('arg1',),
+            'kwargs': {'key': 'value'},
+            'task_name': 'my_task',
+        }))
+        assert task.send_error_message == 'RabbitMQ unavailable'
+
+    def test_send_error_details_returns_none_when_not_failed(self) -> None:
+        task = create_test_celery_task(has_result=True, _result=pickle.dumps({'data': 'value'}))
+        assert task.send_error_details is None
+
+    def test_send_error_details_returns_full_error_data(self) -> None:
+        task = create_test_celery_task(has_result=True, _result=pickle.dumps({
+            'error': 'SEND_FAILED',
+            'message': 'Connection lost',
+            'args': ('arg1', 'arg2'),
+            'kwargs': {'key': 'value'},
+            'task_name': 'my_task',
+        }))
+        details = task.send_error_details
+        assert details['task_name'] == 'my_task'
+        assert details['args'] == ('arg1', 'arg2')
+        assert details['kwargs'] == {'key': 'value'}
+        assert details['message'] == 'Connection lost'
+
+    def test_result_property_returns_error_data_for_send_failed(self) -> None:
+        task = create_test_celery_task(
+            state=states.FAILURE,
+            has_result=True,
+            _result=pickle.dumps({
+                'error': 'SEND_FAILED',
+                'message': 'Failed',
+                'args': (),
+                'kwargs': {},
+                'task_name': 'test',
+            }),
+        )
+        assert task.result['error'] == 'SEND_FAILED'

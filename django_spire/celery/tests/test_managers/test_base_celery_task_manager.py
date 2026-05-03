@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import pickle
 import uuid
-from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
+from celery import states
 from django.test import TestCase, override_settings
 
 from django_spire.celery.manager import BaseCeleryTaskManager
@@ -23,6 +24,22 @@ class ManagerTestCeleryTaskManagerWithModel(BaseCeleryTaskManager):
     task_name = 'test_task_with_model'
     display_name = 'Test Task With Model'
     estimated_completion_seconds = 120
+
+
+class BaseCeleryTaskManagerSendTaskRetriesValidationTestCase(TestCase):
+    def test_raises_error_when_send_task_retries_exceeds_max(self) -> None:
+        with self.assertRaises(ValueError) as context:
+            class ExceedsMaxManager(BaseCeleryTaskManager):
+                task_name = 'exceeds_max'
+                display_name = 'Exceeds Max'
+                send_task_retries = 10
+
+        self.assertIn('send_task_retries', str(context.exception))
+        self.assertIn('exceeded', str(context.exception))
+
+    def test_default_send_task_retries_is_two(self) -> None:
+        manager = ManagerTestCeleryTaskManager()
+        self.assertEqual(manager.send_task_retries, 2)
 
 
 class BaseCeleryTaskManagerRequiredAttributesTestCase(TestCase):
@@ -288,3 +305,238 @@ class BaseCeleryTaskManagerFilterCeleryTasksTestCase(TestCase):
         result = manager.filter_celery_tasks()
 
         self.assertIsNotNone(result)
+
+
+class BaseCeleryTaskManagerRetryConfigTestCase(TestCase):
+    def test_default_retry_config_values(self) -> None:
+        manager = ManagerTestCeleryTaskManager()
+
+        self.assertEqual(manager.send_task_retries, 2)
+
+    def test_can_override_retry_config_via_class_attributes(self) -> None:
+        class CustomRetryManager(BaseCeleryTaskManager):
+            task_name = 'custom_retry_task'
+            display_name = 'Custom Retry Task'
+            send_task_retries = 4
+
+        manager = CustomRetryManager()
+
+        self.assertEqual(manager.send_task_retries, 4)
+
+    def test_can_override_retry_config_per_call(self) -> None:
+        manager = ManagerTestCeleryTaskManager()
+
+        self.assertEqual(manager.send_task_retries, 2)
+
+
+class BaseCeleryTaskManagerRetryTestCase(TestCase):
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.time.sleep')
+    @patch('django_spire.celery.manager.send_task')
+    def test_retries_on_connection_error(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+
+        mock_send_task.side_effect = [
+            KombuOperationalError('Connection failed'),
+            KombuOperationalError('Connection failed'),
+            mock_async_result,
+        ]
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task(1, 2, 3)
+
+        self.assertEqual(mock_send_task.call_count, 3)
+        self.assertEqual(mock_sleep.call_count, 2)
+        self.assertIsInstance(celery_task, CeleryTask)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.time.sleep')
+    @patch('django_spire.celery.manager.send_task')
+    def test_respects_send_task_retries_class_attribute(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        class LowRetryManager(BaseCeleryTaskManager):
+            task_name = 'low_retry_task'
+            display_name = 'Low Retry Task'
+            send_task_retries = 1
+
+        mock_send_task.side_effect = KombuOperationalError('Connection failed')
+
+        manager = LowRetryManager()
+        celery_task = manager.send_task()
+
+        self.assertEqual(mock_send_task.call_count, 2)
+        self.assertEqual(mock_sleep.call_count, 1)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.time.sleep')
+    @patch('django_spire.celery.manager.send_task')
+    def test_respects_send_task_retries_per_call_override(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Connection failed')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task(send_task_retries=1)
+
+        self.assertEqual(mock_send_task.call_count, 2)
+        self.assertEqual(mock_sleep.call_count, 1)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.time.sleep')
+    @patch('django_spire.celery.manager.send_task')
+    def test_exponential_backoff_calculation(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+
+        mock_send_task.side_effect = [
+            KombuOperationalError('Failed'),
+            KombuOperationalError('Failed'),
+            mock_async_result,
+        ]
+
+        manager = ManagerTestCeleryTaskManager()
+        manager.send_task()
+
+        self.assertEqual(mock_sleep.call_count, 2)
+        self.assertEqual(mock_sleep.call_args_list[0][0][0], 1)
+        self.assertEqual(mock_sleep.call_args_list[1][0][0], 2)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_no_retry_when_send_task_retries_is_zero(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Failed')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task(send_task_retries=0)
+
+        self.assertEqual(mock_send_task.call_count, 1)
+        self.assertTrue(celery_task.send_failed)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_no_retry_when_send_task_retries_is_zero_class_attribute(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        class NoRetryManager(BaseCeleryTaskManager):
+            task_name = 'no_retry_task'
+            display_name = 'No Retry Task'
+            send_task_retries = 0
+
+        mock_send_task.side_effect = KombuOperationalError('Failed')
+
+        manager = NoRetryManager()
+        celery_task = manager.send_task()
+
+        self.assertEqual(mock_send_task.call_count, 1)
+        self.assertTrue(celery_task.send_failed)
+
+
+class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_creates_failed_record_after_max_retries(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Connection failed')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task(send_task_retries=2)
+
+        self.assertIsInstance(celery_task, CeleryTask)
+        self.assertEqual(celery_task.state, states.FAILURE)
+        self.assertTrue(celery_task.send_failed)
+        self.assertTrue(celery_task.has_result)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_failed_record_contains_error_message(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('RabbitMQ connection refused')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task()
+
+        self.assertIn('RabbitMQ connection refused', celery_task.send_error_message)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_failed_record_has_send_failed_error_type(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Failed')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task()
+
+        self.assertTrue(celery_task.send_failed)
+        result_data = celery_task.send_error_details
+        self.assertEqual(result_data['task_name'], 'test_task')
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_failed_record_preserves_original_args_kwargs(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Failed')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task('arg1', 'arg2', key='value')
+
+        self.assertEqual(celery_task.send_error_details['args'], ('arg1', 'arg2'))
+        self.assertEqual(celery_task.send_error_details['kwargs'], {'key': 'value'})
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_can_distinguish_send_failure_from_task_failure(self, mock_send_task: MagicMock) -> None:
+        valid_uuid = uuid.uuid4()
+        mock_async_result = MagicMock()
+        mock_async_result.id = str(valid_uuid)
+        mock_send_task.return_value = mock_async_result
+
+        manager = ManagerTestCeleryTaskManager()
+
+        success_task = manager.send_task()
+        self.assertFalse(success_task.send_failed)
+        self.assertIsNone(success_task.send_error_message)
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_failed_task_result_returns_error_data(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Connection lost')
+
+        manager = ManagerTestCeleryTaskManager()
+        celery_task = manager.send_task(data_id=123)
+
+        self.assertEqual(celery_task.result['error'], 'SEND_FAILED')
+        self.assertEqual(celery_task.result['message'], 'Connection lost')
+        self.assertEqual(celery_task.result['kwargs'], {'data_id': 123})
+
+    @override_settings(SECRET_KEY=SECRET_KEY)
+    @patch('django_spire.celery.manager.send_task')
+    def test_multiple_consecutive_failures_all_recorded(self, mock_send_task: MagicMock) -> None:
+        from kombu.exceptions import OperationalError as KombuOperationalError
+
+        mock_send_task.side_effect = KombuOperationalError('Failed')
+
+        manager = ManagerTestCeleryTaskManager()
+
+        tasks = []
+        for _ in range(3):
+            tasks.append(manager.send_task())
+
+        for task in tasks:
+            self.assertTrue(task.send_failed)
+            self.assertIsNotNone(task.send_error_message)
