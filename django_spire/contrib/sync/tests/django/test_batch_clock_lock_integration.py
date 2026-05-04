@@ -5,6 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
+from django.db import models as db_models
+
 from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.core.enums import SyncPhase, SyncStatus
 from django_spire.contrib.sync.core.exceptions import (
@@ -24,13 +26,22 @@ from django_spire.contrib.sync.tests.database.helpers import (
     MODEL,
 )
 from django_spire.contrib.sync.tests.factories import make_manifest
-from django_spire.contrib.sync.tests.models import SyncTestModel
+from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
 
 @pytest.fixture
 def batch_storage() -> DjangoSyncStorage:
     return DjangoSyncStorage(
         models=[SyncTestModel],
+        identity_field='id',
+        batch_size_max=5,
+    )
+
+
+@pytest.fixture
+def simple_batch_storage() -> DjangoSyncStorage:
+    return DjangoSyncStorage(
+        models=[SyncTestSimpleModel],
         identity_field='id',
         batch_size_max=5,
     )
@@ -50,23 +61,6 @@ def test_batch_size_max_negative_raises() -> None:
             models=[SyncTestModel],
             batch_size_max=-1,
         )
-
-
-@pytest.mark.django_db
-def test_upsert_many_rejects_oversized_batch(
-    batch_storage: DjangoSyncStorage,
-) -> None:
-    records = {
-        f'{i:08d}-0000-0000-0000-000000000000': SyncRecord(
-            key=f'{i:08d}-0000-0000-0000-000000000000',
-            data={'id': f'{i:08d}-0000-0000-0000-000000000000', 'name': f'r{i}', 'value': 0},
-            timestamps={'name': 100},
-        )
-        for i in range(6)
-    }
-
-    with pytest.raises(BatchLimitError):
-        batch_storage.upsert_many('sync_tests.SyncTestModel', records)
 
 
 @pytest.mark.django_db
@@ -91,16 +85,46 @@ def test_upsert_many_allows_exactly_at_limit(
 
 
 @pytest.mark.django_db
-def test_delete_many_rejects_oversized_batch(
+def test_upsert_many_chunks_oversized_batch(
     batch_storage: DjangoSyncStorage,
 ) -> None:
-    deletes = {
-        f'{i:08d}-0000-0000-0000-000000000002': 500
-        for i in range(6)
+    records = {
+        f'{i:08d}-0000-0000-0000-000000000000': SyncRecord(
+            key=f'{i:08d}-0000-0000-0000-000000000000',
+            data={'id': f'{i:08d}-0000-0000-0000-000000000000', 'name': f'r{i}', 'value': 0},
+            timestamps={'name': 100, 'value': 100},
+        )
+        for i in range(12)
     }
 
-    with pytest.raises(BatchLimitError):
-        batch_storage.delete_many('sync_tests.SyncTestModel', deletes)
+    skipped = batch_storage.upsert_many('sync_tests.SyncTestModel', records)
+
+    assert len(skipped) == 0
+    assert SyncTestModel.objects.filter(
+        pk__in=list(records.keys()),
+    ).count() == 12
+
+
+@pytest.mark.django_db
+def test_delete_many_chunks_oversized_batch(
+    simple_batch_storage: DjangoSyncStorage,
+) -> None:
+    keys = []
+
+    for i in range(8):
+        key = f'{i:08d}-0000-0000-0000-000000000002'
+        keys.append(key)
+        obj = SyncTestSimpleModel(name=f'r{i}')
+        obj.pk = key
+        obj.sync_field_timestamps = {'name': 100}
+        obj.sync_field_last_modified = 100
+        db_models.Model.save(obj)
+
+    deletes = {key: 500 for key in keys}
+
+    simple_batch_storage.delete_many('sync_tests.SyncTestSimpleModel', deletes)
+
+    assert SyncTestSimpleModel.objects.filter(pk__in=keys).count() == 0
 
 
 def test_clock_overflow_raises() -> None:

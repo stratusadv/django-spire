@@ -125,8 +125,12 @@ class PayloadReconciler:
             return
 
         self._resolve_conflict(
-            key, model_label, local, remote,
-            checkpoint, result,
+            key,
+            model_label,
+            local,
+            remote,
+            checkpoint,
+            result,
         )
 
     def _detect_field_conflicts(
@@ -136,16 +140,20 @@ class PayloadReconciler:
         checkpoint: int,
     ) -> list[FieldConflict]:
         conflicts: list[FieldConflict] = []
+
         all_fields = (
             (set(local.data) | set(remote.data)) - META_FIELDS
         )
 
         for field_name in sorted(all_fields):
             local_timestamp = local.timestamps.get(
-                field_name, 0,
+                field_name,
+                0,
             )
+
             remote_timestamp = remote.timestamps.get(
-                field_name, 0,
+                field_name,
+                0,
             )
 
             if local_timestamp <= checkpoint:
@@ -178,7 +186,9 @@ class PayloadReconciler:
         result: ReconciliationResult,
     ) -> None:
         field_conflicts = self._detect_field_conflicts(
-            local, remote, checkpoint,
+            local,
+            remote,
+            checkpoint,
         )
 
         conflict_type = (
@@ -240,8 +250,12 @@ class PayloadReconciler:
 
         for key, remote in payload.records.items():
             self._classify_record(
-                key, remote, payload.model_label,
-                local_records, checkpoint, result,
+                key,
+                remote,
+                payload.model_label,
+                local_records,
+                checkpoint,
+                result,
             )
 
         self._classify_deletes(payload, local_records, result)

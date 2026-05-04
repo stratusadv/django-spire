@@ -15,3 +15,10 @@ class Source(Protocol):
     ) -> None: ...
 
     def list_dir(self, remote_path: str) -> list[str]: ...
+
+    def upload(
+        self,
+        local_path: Path,
+        remote_path: str,
+        callback: Callable[[int, int], None] | None = None,
+    ) -> None: ...

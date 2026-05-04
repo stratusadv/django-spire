@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import json
 import logging
 import time
 
 from contextlib import contextmanager, nullcontext
-from typing import Any, TYPE_CHECKING
+from typing import Any, Iterator, TYPE_CHECKING
 
 from django_spire.contrib.sync.core.enums import (
     SyncPhase,
@@ -32,11 +33,11 @@ from django_spire.contrib.sync.database.reconciler import (
 from django_spire.contrib.sync.database.record import SyncRecord
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable
     from contextlib import AbstractContextManager
 
     from django_spire.contrib.sync.core.clock import HybridLogicalClock
-    from django_spire.contrib.sync.database.graph import DependencyGraph
+    from django_spire.contrib.sync.core.graph import DependencyGraph
     from django_spire.contrib.sync.database.lock import SyncLock
     from django_spire.contrib.sync.database.storage import (
         DatabaseSyncStorage,
@@ -48,7 +49,81 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+BATCH_BYTES_DEFAULT = 16 * 1024 * 1024
 CLOCK_DRIFT_MAX_DEFAULT = 300
+
+
+class _Budget:
+    def __init__(
+        self,
+        records_max: int | None = None,
+        bytes_max: int | None = None,
+    ) -> None:
+        self._records_max = records_max
+        self._bytes_max = bytes_max
+        self._records = 0
+        self._bytes = 0
+
+    @property
+    def consumed_bytes(self) -> int:
+        return self._bytes
+
+    @property
+    def consumed_records(self) -> int:
+        return self._records
+
+    @property
+    def exhausted(self) -> bool:
+        if self._records_max is not None:
+            if self._records >= self._records_max:
+                return True
+
+        if self._bytes_max is not None:
+            if self._bytes >= self._bytes_max:
+                return True
+
+        return False
+
+    @property
+    def remaining_records(self) -> int | None:
+        if self._records_max is None:
+            return None
+
+        return max(0, self._records_max - self._records)
+
+    def can_fit(self, records: int, bytes_: int) -> bool:
+        if self._records_max is not None:
+            if self._records + records > self._records_max:
+                return False
+
+        if self._bytes_max is not None and self._records > 0:
+            if self._bytes + bytes_ > self._bytes_max:
+                return False
+
+        return True
+
+    def consume(self, records: int, bytes_: int) -> None:
+        self._records += records
+        self._bytes += bytes_
+
+
+def _record_size(record: SyncRecord) -> int:
+    return len(json.dumps(record.to_dict(), ensure_ascii=True))
+
+
+def _last_cursor(
+    records: dict[str, SyncRecord],
+) -> dict[str, Any] | None:
+    if not records:
+        return None
+
+    last_key = list(records.keys())[-1]
+    last_record = records[last_key]
+
+    return {
+        'key': last_key,
+        'timestamp': last_record.sync_field_last_modified,
+    }
 
 
 class DatabaseEngine:
@@ -59,11 +134,14 @@ class DatabaseEngine:
         clock: HybridLogicalClock,
         node_id: str,
         *,
+        batch_bytes: int | None = BATCH_BYTES_DEFAULT,
+        batch_size: int | None = None,
         clock_drift_max: int | None = CLOCK_DRIFT_MAX_DEFAULT,
         identity_field: str = 'id',
         lock: SyncLock | None = None,
         on_complete: Callable[[DatabaseResult], None] | None = None,
         on_phase: Callable[[SyncPhase], None] | None = None,
+        payload_bytes_max: int | None = None,
         payload_records_max: int | None = None,
         progress: Callable[[SyncStage, int, int], None] | None = None,
         reconciler: PayloadReconciler | None = None,
@@ -78,10 +156,34 @@ class DatabaseEngine:
             message = 'identity_field must be a non-empty string'
             raise InvalidParameterError(message)
 
+        if batch_bytes is not None and batch_bytes < 1:
+            message = (
+                f'batch_bytes must be >= 1 '
+                f'or None, got {batch_bytes}'
+            )
+
+            raise InvalidParameterError(message)
+
+        if batch_size is not None and batch_size < 1:
+            message = (
+                f'batch_size must be >= 1 '
+                f'or None, got {batch_size}'
+            )
+
+            raise InvalidParameterError(message)
+
         if clock_drift_max is not None and clock_drift_max < 0:
             message = (
                 f'clock_drift_max must be non-negative '
                 f'or None, got {clock_drift_max}'
+            )
+
+            raise InvalidParameterError(message)
+
+        if payload_bytes_max is not None and payload_bytes_max < 1:
+            message = (
+                f'payload_bytes_max must be >= 1 '
+                f'or None, got {payload_bytes_max}'
             )
 
             raise InvalidParameterError(message)
@@ -94,6 +196,8 @@ class DatabaseEngine:
 
             raise InvalidParameterError(message)
 
+        self._batch_bytes = batch_bytes
+        self._batch_size = batch_size
         self._clock = clock
         self._clock_drift_max = clock_drift_max
         self._graph = graph
@@ -102,6 +206,7 @@ class DatabaseEngine:
         self._node_id = node_id
         self._on_complete = on_complete
         self._on_phase = on_phase
+        self._payload_bytes_max = payload_bytes_max
         self._payload_records_max = payload_records_max
         self._progress = progress
         self._reconciler = reconciler or PayloadReconciler()
@@ -124,38 +229,81 @@ class DatabaseEngine:
         checkpoint: int,
         result: DatabaseResult,
         received_at: int = 0,
-    ) -> list[ModelPayload]:
+        records_max: int | None = None,
+        bytes_max: int | None = None,
+        after_keys: dict[str, Any] | None = None,
+    ) -> tuple[list[ModelPayload], bool, dict[str, Any]]:
         incoming_by_label = {
             payload.model_label: payload
             for payload in payloads
         }
 
+        resolved_after_keys = after_keys or {}
         response_payloads: list[ModelPayload] = []
+        response_cursors: dict[str, Any] = {}
+        budget = _Budget(records_max, bytes_max)
+        has_more = False
 
         for model_label in self._graph.sync_order():
-            payload = incoming_by_label.get(model_label)
+            incoming_payload = incoming_by_label.get(model_label)
 
-            if payload is not None:
-                response_payload = self._process_model(
-                    payload, checkpoint, result,
+            if incoming_payload is not None:
+                response_payload, truncated = self._process_model(
+                    incoming_payload,
+                    checkpoint,
+                    result,
                     received_at=received_at,
+                    budget=budget,
                 )
+
+                if truncated:
+                    has_more = True
+
+                    if response_payload.records:
+                        payload_cursor = _last_cursor(
+                            response_payload.records,
+                        )
+
+                        if payload_cursor:
+                            response_cursors[model_label] = payload_cursor
 
                 if response_payload.records or response_payload.deletes:
                     response_payloads.append(response_payload)
-            else:
-                local_changes = self._storage.get_changed_since(
-                    model_label,
-                    checkpoint,
+
+                continue
+
+            if budget.exhausted:
+                probe = self._storage.get_changed_since(
+                    model_label, checkpoint, limit=1,
                 )
 
-                if local_changes:
-                    response_payloads.append(ModelPayload(
-                        model_label=model_label,
-                        records=local_changes,
-                    ))
+                if probe:
+                    has_more = True
 
-        return response_payloads
+                continue
+
+            cursor = resolved_after_keys.get(model_label)
+
+            local_payload, truncated = self._collect_local_only_payload(
+                model_label,
+                checkpoint,
+                budget,
+                cursor=cursor,
+            )
+
+            if truncated:
+                has_more = True
+
+                if local_payload is not None:
+                    payload_cursor = _last_cursor(local_payload.records)
+
+                    if payload_cursor:
+                        response_cursors[model_label] = payload_cursor
+
+            if local_payload is not None:
+                response_payloads.append(local_payload)
+
+        return response_payloads, has_more, response_cursors
 
     def _apply_reconciliation(
         self,
@@ -297,26 +445,96 @@ class DatabaseEngine:
 
         return drift
 
-    def _collect(self, checkpoint: int) -> SyncManifest:
+    def _collect(
+        self,
+        checkpoint: int,
+        limit: int | None = None,
+        bytes_limit: int | None = None,
+        after_keys: dict[str, Any] | None = None,
+    ) -> SyncManifest:
+        resolved_after_keys = after_keys or {}
+        budget = _Budget(limit, bytes_limit)
         payloads: list[ModelPayload] = []
-        records_total = 0
+        cursors: dict[str, Any] = {}
+        has_more = False
 
         for model_label in self._graph.sync_order():
-            records = self._storage.get_changed_since(
-                model_label, checkpoint,
-            )
-            records_total += len(records)
+            if budget.exhausted:
+                probe = self._storage.get_changed_since(
+                    model_label,
+                    checkpoint,
+                    limit=1,
+                )
 
-            if records:
+                if probe:
+                    has_more = True
+
+                continue
+
+            cursor = resolved_after_keys.get(model_label)
+
+            record_limit = budget.remaining_records
+
+            fetch_limit = (
+                None if record_limit is None
+                else record_limit + 1
+            )
+
+            effective_ts = checkpoint
+            effective_after_key = None
+
+            if cursor:
+                effective_ts = cursor.get('timestamp', checkpoint)
+                effective_after_key = cursor.get('key')
+
+            records = self._storage.get_changed_since(
+                model_label,
+                effective_ts,
+                limit=fetch_limit,
+                after_key=effective_after_key,
+            )
+
+            if (
+                record_limit is not None
+                and len(records) > record_limit
+            ):
+                records = dict(list(records.items())[:record_limit])
+                has_more = True
+
+            accepted: dict[str, SyncRecord] = {}
+
+            for key, record in records.items():
+                record_bytes = _record_size(record)
+
+                if not budget.can_fit(1, record_bytes):
+                    has_more = True
+                    break
+
+                accepted[key] = record
+                budget.consume(1, record_bytes)
+
+            if has_more and accepted:
+                payload_cursor = _last_cursor(accepted)
+
+                if payload_cursor:
+                    cursors[model_label] = payload_cursor
+
+            deletes = self._storage.get_deletes_since(
+                model_label,
+                checkpoint,
+            )
+
+            if accepted or deletes:
                 payloads.append(ModelPayload(
                     model_label=model_label,
-                    records=records,
+                    records=accepted,
+                    deletes=deletes,
                 ))
 
         if self._payload_records_max is not None:
-            if records_total > self._payload_records_max:
+            if budget.consumed_records > self._payload_records_max:
                 message = (
-                    f'Collected {records_total} records '
+                    f'Collected {budget.consumed_records} records '
                     f'exceeds payload_records_max='
                     f'{self._payload_records_max}. '
                     f'Sync more frequently or increase '
@@ -325,12 +543,94 @@ class DatabaseEngine:
 
                 raise PayloadLimitError(message)
 
-        return SyncManifest(
+        if self._payload_bytes_max is not None:
+            if budget.consumed_bytes > self._payload_bytes_max:
+                message = (
+                    f'Collected {budget.consumed_bytes} bytes '
+                    f'exceeds payload_bytes_max='
+                    f'{self._payload_bytes_max}. '
+                    f'Sync more frequently or increase '
+                    f'the limit.'
+                )
+
+                raise PayloadLimitError(message)
+
+        manifest = SyncManifest(
             node_id=self._node_id,
             checkpoint=checkpoint,
             node_time=int(time.time()),
             payloads=payloads,
+            has_more=has_more,
         )
+
+        manifest.after_keys = cursors
+
+        return manifest
+
+    def _collect_local_only_payload(
+        self,
+        model_label: str,
+        checkpoint: int,
+        budget: _Budget,
+        cursor: dict[str, Any] | None = None,
+    ) -> tuple[ModelPayload | None, bool]:
+        record_limit = budget.remaining_records
+
+        fetch_limit = (
+            None if record_limit is None
+            else record_limit + 1
+        )
+
+        effective_ts = checkpoint
+        effective_after_key = None
+
+        if cursor:
+            effective_ts = cursor.get('timestamp', checkpoint)
+            effective_after_key = cursor.get('key')
+
+        records = self._storage.get_changed_since(
+            model_label,
+            effective_ts,
+            limit=fetch_limit,
+            after_key=effective_after_key,
+        )
+
+        truncated = False
+
+        if (
+            record_limit is not None
+            and len(records) > record_limit
+        ):
+            records = dict(
+                list(records.items())[:record_limit]
+            )
+
+            truncated = True
+
+        accepted: dict[str, SyncRecord] = {}
+
+        for key, record in records.items():
+            record_bytes = _record_size(record)
+
+            if not budget.can_fit(1, record_bytes):
+                truncated = True
+                break
+
+            accepted[key] = record
+            budget.consume(1, record_bytes)
+
+        deletes = self._storage.get_deletes_since(
+            model_label, checkpoint,
+        )
+
+        if not accepted and not deletes:
+            return None, truncated
+
+        return ModelPayload(
+            model_label=model_label,
+            records=accepted,
+            deletes=deletes,
+        ), truncated
 
     def _commit(
         self,
@@ -339,20 +639,39 @@ class DatabaseEngine:
         sent_snapshot: dict[str, dict[str, int]],
         received_snapshot: dict[str, dict[str, int]],
         result: DatabaseResult,
+        server_cursors: dict[str, Any] | None = None,
+        collect_cursors: dict[str, Any] | None = None,
     ) -> None:
         with self._transaction():
             self._apply_response(response, result)
 
+            target_checkpoint = max(response.checkpoint, checkpoint)
+
             safe_checkpoint = self._compute_safe_checkpoint(
                 checkpoint,
-                response.checkpoint,
+                target_checkpoint,
                 sent_snapshot,
                 received_snapshot,
             )
 
+            persisted_cursors = {}
+
+            if server_cursors:
+                persisted_cursors.update({
+                    f'server:{k}': v
+                    for k, v in server_cursors.items()
+                })
+
+            if collect_cursors:
+                persisted_cursors.update({
+                    f'collect:{k}': v
+                    for k, v in collect_cursors.items()
+                })
+
             self._storage.save_checkpoint(
                 self._node_id,
                 safe_checkpoint,
+                after_keys=persisted_cursors or None,
             )
 
     def _compute_safe_checkpoint(
@@ -362,6 +681,14 @@ class DatabaseEngine:
         sent_snapshot: dict[str, dict[str, int]],
         received_snapshot: dict[str, dict[str, int]],
     ) -> int:
+        if new_checkpoint < old_checkpoint:
+            message = (
+                f'New checkpoint {new_checkpoint} precedes '
+                f'old checkpoint {old_checkpoint}'
+            )
+
+            raise SyncAbortedError(message)
+
         unsent_min = new_checkpoint
 
         for model_label in self._graph.sync_order():
@@ -393,27 +720,9 @@ class DatabaseEngine:
                 unsent_min = min(unsent_min, lm)
 
         if unsent_min < new_checkpoint:
-            result = max(unsent_min - 1, old_checkpoint)
-        else:
-            result = new_checkpoint
+            return max(unsent_min - 1, old_checkpoint)
 
-        if result < old_checkpoint:
-            message = (
-                f'Safe checkpoint {result} regressed '
-                f'below old checkpoint {old_checkpoint}'
-            )
-
-            raise SyncAbortedError(message)
-
-        if result > new_checkpoint:
-            message = (
-                f'Safe checkpoint {result} exceeds '
-                f'new checkpoint {new_checkpoint}'
-            )
-
-            raise SyncAbortedError(message)
-
-        return result
+        return new_checkpoint
 
     def _enter_phase(
         self,
@@ -455,7 +764,8 @@ class DatabaseEngine:
         for error in result.errors:
             logger.warning(
                 'Sync error [%s]: %s',
-                error.key, error.message,
+                error.key,
+                error.message,
             )
 
     def _get_local_only_changes(
@@ -463,17 +773,33 @@ class DatabaseEngine:
         model_label: str,
         checkpoint: int,
         incoming_keys: set[str],
-    ) -> dict[str, SyncRecord]:
+        limit: int | None = None,
+    ) -> tuple[dict[str, SyncRecord], bool]:
+        fetch_limit = (
+            None if limit is None
+            else limit + len(incoming_keys) + 1
+        )
+
         all_changes = self._storage.get_changed_since(
             model_label,
             checkpoint,
+            limit=fetch_limit,
         )
 
-        return {
+        result = {
             key: record
             for key, record in all_changes.items()
             if key not in incoming_keys
         }
+
+        truncated = False
+
+        if limit is not None and len(result) > limit:
+            result = dict(list(result.items())[:limit])
+
+            truncated = True
+
+        return result, truncated
 
     def _log_sync_summary(
         self, result: DatabaseResult,
@@ -510,7 +836,9 @@ class DatabaseEngine:
             if self._lock and session_id:
                 try:
                     self._lock.release(
-                        session_id, status, result=result,
+                        session_id,
+                        status,
+                        result=result,
                     )
                 except Exception:
                     logger.exception(
@@ -533,10 +861,31 @@ class DatabaseEngine:
 
             for tombstone_ts in payload.deletes.values():
                 timestamp_max = max(
-                    timestamp_max, tombstone_ts,
+                    timestamp_max,
+                    tombstone_ts,
                 )
 
         return timestamp_max
+
+    @staticmethod
+    def _max_response_checkpoint(
+        incoming_checkpoint: int,
+        response_payloads: list[ModelPayload],
+    ) -> int:
+        result = incoming_checkpoint
+
+        for payload in response_payloads:
+            for record in payload.records.values():
+                lm = record.sync_field_last_modified
+
+                if lm > result:
+                    result = lm
+
+            for tombstone_ts in payload.deletes.values():
+                if tombstone_ts > result:
+                    result = tombstone_ts
+
+        return result
 
     def _merge_into_result(
         self,
@@ -584,7 +933,8 @@ class DatabaseEngine:
         return sorted(
             payloads,
             key=lambda p: position.get(
-                p.model_label, len(position),
+                p.model_label,
+                len(position),
             ),
         )
 
@@ -594,7 +944,8 @@ class DatabaseEngine:
         checkpoint: int,
         result: DatabaseResult,
         received_at: int = 0,
-    ) -> ModelPayload:
+        budget: _Budget | None = None,
+    ) -> tuple[ModelPayload, bool]:
         all_incoming_keys = (
             set(payload.records) |
             set(payload.deletes)
@@ -616,21 +967,65 @@ class DatabaseEngine:
             received_at=received_at,
         )
 
-        local_only = self._get_local_only_changes(
+        response_records: dict[str, SyncRecord] = {}
+        truncated = False
+
+        for key, record in reconciliation.response_records.items():
+            if received_at:
+                record = SyncRecord(
+                    key=record.key,
+                    data=record.data,
+                    timestamps=record.timestamps,
+                    received_at=received_at,
+                )
+
+            response_records[key] = record
+
+        local_only_limit = (
+            None if budget is None
+            else budget.remaining_records
+        )
+
+        local_only, local_truncated = self._get_local_only_changes(
             payload.model_label,
             checkpoint,
             all_incoming_keys,
+            limit=local_only_limit,
         )
 
-        response_records = {
-            **reconciliation.response_records,
-            **local_only,
-        }
+        if local_truncated:
+            truncated = True
+
+        for key, record in local_only.items():
+            if key in response_records:
+                continue
+
+            record_bytes = _record_size(record)
+
+            if budget is not None and not budget.can_fit(1, record_bytes):
+                truncated = True
+                break
+
+            response_records[key] = record
+
+            if budget is not None:
+                budget.consume(1, record_bytes)
+
+        local_deletes = self._storage.get_deletes_since(
+            payload.model_label, checkpoint,
+        )
+
+        for key in all_incoming_keys:
+            local_deletes.pop(key, None)
+
+        for key in response_records:
+            local_deletes.pop(key, None)
 
         return ModelPayload(
             model_label=payload.model_label,
             records=response_records,
-        )
+            deletes=local_deletes,
+        ), truncated
 
     def _record_pushed(
         self,
@@ -641,7 +1036,7 @@ class DatabaseEngine:
             keys = list(payload.records.keys())
 
             if keys:
-                result.pushed[payload.model_label] = keys
+                result.pushed[payload.model_label].extend(keys)
 
     def _report_phase(
         self,
@@ -682,7 +1077,8 @@ class DatabaseEngine:
         for payload in incoming.payloads:
             if payload.model_label not in known:
                 logger.warning(
-                    'Ignoring unknown model %r from node %s',
+                    'Ignoring unknown model '
+                    '%r from node %s',
                     payload.model_label,
                     incoming.node_id,
                 )
@@ -730,19 +1126,44 @@ class DatabaseEngine:
         )
 
         with self._transaction():
+            if self._lock:
+                self._lock.hold(self._node_id)
+
             now = self._clock.now()
 
-            response_payloads = self._apply_incoming(
-                valid_payloads, incoming.checkpoint,
-                result, received_at=now,
+            response_payloads, has_more, after_keys = self._apply_incoming(
+                valid_payloads,
+                incoming.checkpoint,
+                result,
+                received_at=now,
+                records_max=self._batch_size,
+                bytes_max=self._batch_bytes,
+                after_keys=incoming.after_keys,
             )
+
+        checkpoint_value = self._max_response_checkpoint(
+            incoming.checkpoint,
+            response_payloads,
+        )
+
+        has_activity = (
+            any(p.records or p.deletes for p in valid_payloads)
+            or any(p.records or p.deletes for p in response_payloads)
+        )
+
+        if not has_more and not has_activity:
+            checkpoint_value = max(checkpoint_value, now)
 
         response = SyncManifest(
             node_id=self._node_id,
-            checkpoint=now,
+            checkpoint=checkpoint_value,
+            after_keys=after_keys,
             node_time=int(time.time()),
             payloads=response_payloads,
+            has_more=has_more,
         )
+
+        response.checksum = response.compute_checksum()
 
         self._finalize(result)
 
@@ -759,44 +1180,110 @@ class DatabaseEngine:
 
         result = DatabaseResult()
 
+        persisted = self._storage.get_after_keys(self._node_id)
+
+        server_cursors: dict[str, Any] = {
+            k.removeprefix('server:'): v
+            for k, v in persisted.items()
+            if k.startswith('server:')
+        }
+
+        collect_cursors: dict[str, Any] = {
+            k.removeprefix('collect:'): v
+            for k, v in persisted.items()
+            if k.startswith('collect:')
+        }
+
         with self._managed_session(result) as session_id:
-            self._enter_phase(
-                SyncPhase.COLLECTING, session_id,
-                SyncStage.VALIDATE,
-            )
-
-            checkpoint = self._storage.get_checkpoint(
-                self._node_id,
-            )
-            manifest = self._collect(checkpoint)
-
-            sent_snapshot = self._extract_record_snapshot(manifest)
-            self._record_pushed(manifest, result)
-
-            self._enter_phase(
-                SyncPhase.EXCHANGING, session_id,
-                SyncStage.CLASSIFY,
-            )
-
-            response = self._exchange_and_validate(manifest)
-            received_snapshot = self._extract_record_snapshot(response)
-
-            self._enter_phase(
-                SyncPhase.RECONCILING, session_id,
-                SyncStage.MUTATE,
-            )
-
-            if not dry_run:
+            while True:
                 self._enter_phase(
-                    SyncPhase.COMMITTING,
+                    SyncPhase.COLLECTING,
                     session_id,
+                    SyncStage.VALIDATE,
                 )
 
-                self._commit(
-                    checkpoint, response,
-                    sent_snapshot, received_snapshot,
-                    result,
+                checkpoint = self._storage.get_checkpoint(
+                    self._node_id,
                 )
+
+                manifest = self._collect(
+                    checkpoint,
+                    limit=self._batch_size,
+                    bytes_limit=self._batch_bytes,
+                    after_keys=collect_cursors,
+                )
+
+                manifest.after_keys = server_cursors
+                manifest.checksum = manifest.compute_checksum()
+
+                sent_snapshot = self._extract_record_snapshot(
+                    manifest,
+                )
+
+                self._record_pushed(manifest, result)
+
+                self._enter_phase(
+                    SyncPhase.EXCHANGING, session_id,
+                    SyncStage.CLASSIFY,
+                )
+
+                response = self._exchange_and_validate(manifest)
+
+                received_snapshot = self._extract_record_snapshot(
+                    response,
+                )
+
+                self._enter_phase(
+                    SyncPhase.RECONCILING, session_id,
+                    SyncStage.MUTATE,
+                )
+
+                if manifest.has_more:
+                    collect_cursors = {}
+
+                    for payload in manifest.payloads:
+                        cursor = _last_cursor(payload.records)
+
+                        if cursor:
+                            collect_cursors[payload.model_label] = cursor
+                else:
+                    collect_cursors = {}
+
+                if response.has_more:
+                    server_cursors = response.after_keys
+                else:
+                    server_cursors = {}
+
+                if not dry_run:
+                    self._enter_phase(
+                        SyncPhase.COMMITTING,
+                        session_id,
+                    )
+
+                    self._commit(
+                        checkpoint, response,
+                        sent_snapshot, received_snapshot,
+                        result,
+                        server_cursors=server_cursors,
+                        collect_cursors=collect_cursors,
+                    )
+
+                converged = (
+                    not manifest.has_more
+                    and not response.has_more
+                )
+
+                if dry_run:
+                    break
+
+                if converged:
+                    exchanged = (
+                        any(p.records or p.deletes for p in manifest.payloads)
+                        or any(p.records or p.deletes for p in response.payloads)
+                    )
+
+                    if not exchanged:
+                        break
 
             self._enter_phase(SyncPhase.COMPLETE, session_id)
             self._finalize(result)

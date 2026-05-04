@@ -4,15 +4,15 @@ from pathlib import Path
 
 import pytest
 
-from django_spire.contrib.sync.file.parser.xml import XmlField, XmlListField, XmlParser
+from django_spire.contrib.sync.file.reader.xml import XmlField, XmlListField, XmlReader
 
 
 FIXTURES_DIR = Path(__file__).parent / 'fixtures'
 
 
 @pytest.fixture
-def parser() -> XmlParser:
-    return XmlParser(
+def reader() -> XmlReader:
+    return XmlReader(
         record_path='.//Unit',
         fields=[
             XmlField(key='stock_number', path='StockNumber'),
@@ -40,14 +40,14 @@ def parser() -> XmlParser:
     )
 
 
-def test_unit_count(parser: XmlParser) -> None:
-    units = parser.parse(FIXTURES_DIR / 'sample_units.xml')
+def test_unit_count(reader: XmlReader) -> None:
+    units = reader.read(FIXTURES_DIR / 'sample_units.xml')
 
     assert len(units) == 2
 
 
-def test_unit_fields(parser: XmlParser) -> None:
-    units = parser.parse(FIXTURES_DIR / 'sample_units.xml')
+def test_unit_fields(reader: XmlReader) -> None:
+    units = reader.read(FIXTURES_DIR / 'sample_units.xml')
     unit = units[0]
 
     assert unit['stock_number'] == '13511'
@@ -64,8 +64,8 @@ def test_unit_fields(parser: XmlParser) -> None:
     assert unit['misc_2'] == 'No'
 
 
-def test_location(parser: XmlParser) -> None:
-    units = parser.parse(FIXTURES_DIR / 'sample_units.xml')
+def test_location(reader: XmlReader) -> None:
+    units = reader.read(FIXTURES_DIR / 'sample_units.xml')
     unit = units[0]
 
     assert unit['location_name'] == 'Chinook Equipment'
@@ -75,22 +75,22 @@ def test_location(parser: XmlParser) -> None:
     assert unit['location_phone'] == '(403) 329-6011 x'
 
 
-def test_images(parser: XmlParser) -> None:
-    units = parser.parse(FIXTURES_DIR / 'sample_units.xml')
+def test_images(reader: XmlReader) -> None:
+    units = reader.read(FIXTURES_DIR / 'sample_units.xml')
 
     assert units[0]['images'] == []
     assert len(units[1]['images']) == 3
     assert units[1]['images'][0] == 'Img5066-16992-1.png'
 
 
-def test_empty_units(parser: XmlParser) -> None:
-    units = parser.parse(FIXTURES_DIR / 'empty_units.xml')
+def test_empty_units(reader: XmlReader) -> None:
+    units = reader.read(FIXTURES_DIR / 'empty_units.xml')
 
     assert units == []
 
 
-def test_missing_fields_default(parser: XmlParser) -> None:
-    units = parser.parse(FIXTURES_DIR / 'missing_fields_units.xml')
+def test_missing_fields_default(reader: XmlReader) -> None:
+    units = reader.read(FIXTURES_DIR / 'missing_fields_units.xml')
     unit = units[0]
 
     assert unit['stock_number'] == '99999'
@@ -101,8 +101,8 @@ def test_missing_fields_default(parser: XmlParser) -> None:
     assert unit['location_name'] == ''
 
 
-def test_empty_elements(parser: XmlParser) -> None:
-    units = parser.parse(FIXTURES_DIR / 'sample_units.xml')
+def test_empty_elements(reader: XmlReader) -> None:
+    units = reader.read(FIXTURES_DIR / 'sample_units.xml')
 
     assert units[0]['misc_1'] == ''
     assert units[0]['public_comment'] == ''

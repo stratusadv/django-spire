@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from django_spire.contrib.sync.file.archive.zip import CollisionStrategy, ZipArchive
+from django_spire.contrib.sync.file.exceptions import FileSyncArchiveError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -82,7 +83,7 @@ def test_collision_raise(duplicate_zip: Path, tmp_path: Path) -> None:
     target = tmp_path / 'out'
     archive = ZipArchive(flatten=True, collision=CollisionStrategy.RAISE)
 
-    with pytest.raises(FileExistsError, match='Duplicate target'):
+    with pytest.raises(FileSyncArchiveError, match='Duplicate target'):
         archive.extract(duplicate_zip, target)
 
 
@@ -151,7 +152,7 @@ def test_path_traversal_rejected(tmp_path: Path) -> None:
     target = tmp_path / 'out'
     archive = ZipArchive(flatten=False)
 
-    with pytest.raises(ValueError, match='Path traversal detected'):
+    with pytest.raises(FileSyncArchiveError, match='Path traversal detected'):
         archive.extract(archive_path, target)
 
 

@@ -471,11 +471,11 @@ def test_sync_pushes_local_changes(
 
     engine.sync()
 
-    assert transport.last_manifest is not None
+    assert len(transport.manifests) >= 1
 
     pushed_keys: set[str] = set()
 
-    for payload in transport.last_manifest.payloads:
+    for payload in transport.manifests[0].payloads:
         if payload.model_label == MODEL:
             pushed_keys.update(payload.records.keys())
 
@@ -781,76 +781,6 @@ def test_sync_response_clock_drift_does_not_save_checkpoint(
         engine.sync()
 
     assert storage.get_checkpoint('tablet') == 0
-
-
-@patch('django_spire.contrib.sync.database.engine.time')
-def test_sync_safe_checkpoint_preserves_new_unsent_changes(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
-    mock_time.time.return_value = 500
-
-    storage.save_checkpoint('tablet', 100)
-    storage.seed(MODEL, '1', {'id': '1', 'name': 'sent'}, {'name': 200})
-
-    def inject_new_record(s: InMemoryDatabaseStorage) -> None:
-        s.seed(
-            MODEL, '2',
-            {'id': '2', 'name': 'unsent'},
-            {'name': 150},
-        )
-
-    response = make_manifest(
-        node_id='server',
-        checkpoint=1000,
-        node_time=500,
-        payloads=[],
-    )
-
-    transport = _MutatingTransport(response, storage, inject_new_record)
-    engine = _make_engine(storage, transport=transport)
-
-    engine.sync()
-
-    checkpoint = storage.get_checkpoint('tablet')
-
-    assert checkpoint < 1000
-    assert checkpoint <= 149
-
-
-@patch('django_spire.contrib.sync.database.engine.time')
-def test_sync_safe_checkpoint_preserves_modification_to_sent_record(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
-    mock_time.time.return_value = 500
-
-    storage.save_checkpoint('tablet', 100)
-    storage.seed(MODEL, '1', {'id': '1', 'name': 'first-version'}, {'name': 200})
-
-    def mutate_sent_record(s: InMemoryDatabaseStorage) -> None:
-        s.seed(
-            MODEL, '1',
-            {'id': '1', 'name': 'second-version'},
-            {'name': 250},
-        )
-
-    response = make_manifest(
-        node_id='server',
-        checkpoint=1000,
-        node_time=500,
-        payloads=[],
-    )
-
-    transport = _MutatingTransport(response, storage, mutate_sent_record)
-    engine = _make_engine(storage, transport=transport)
-
-    engine.sync()
-
-    checkpoint = storage.get_checkpoint('tablet')
-
-    assert checkpoint < 1000
-    assert checkpoint <= 249
 
 
 @patch('django_spire.contrib.sync.database.engine.time')

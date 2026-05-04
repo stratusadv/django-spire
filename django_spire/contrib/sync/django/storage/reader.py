@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.db.models import Q
+
 from django_spire.contrib.sync.core.exceptions import UnknownModelError
 from django_spire.contrib.sync.database.record import SyncRecord
 from django_spire.contrib.sync.django.serializer import SyncFieldSerializer
@@ -56,25 +58,68 @@ class DjangoRecordReader:
             key=str(getattr(instance, self._identity_field)),
             data=data,
             timestamps=dict(instance.sync_field_timestamps),
+            received_at=instance.sync_field_last_modified,
         )
 
     def get_changed_since(
         self,
         model_label: str,
         timestamp: int,
+        limit: int | None = None,
+        after_key: str | None = None,
     ) -> dict[str, SyncRecord]:
         model = self._get_model(model_label)
         many_to_many_names = self._get_many_to_many_names(model)
 
-        queryset = model.objects.filter(sync_field_last_modified__gt=timestamp)
+        if after_key:
+            identity_gt = {
+                f'{self._identity_field}__gt': after_key,
+            }
+
+            queryset = model.objects.filter(
+                Q(sync_field_last_modified__gt=timestamp) |
+                Q(
+                    sync_field_last_modified=timestamp,
+                    **identity_gt,
+                ),
+            )
+        else:
+            queryset = model.objects.filter(
+                sync_field_last_modified__gt=timestamp,
+            )
+
+        queryset = queryset.order_by(
+            'sync_field_last_modified',
+            self._identity_field,
+        )
+
+        if limit is not None:
+            queryset = queryset[:limit]
 
         if many_to_many_names:
-            queryset = queryset.prefetch_related(*many_to_many_names)
+            queryset = queryset.prefetch_related(
+                *many_to_many_names
+            )
 
         return {
             str(getattr(instance, self._identity_field)): self._instance_to_record(instance)
             for instance in queryset
         }
+
+    def get_deletes_since(
+        self,
+        model_label: str,
+        timestamp: int,
+    ) -> dict[str, int]:
+        from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+
+        rows = (
+            SyncTombstone.objects
+            .filter(model_label=model_label, timestamp__gt=timestamp)
+            .values_list('record_key', 'timestamp')
+        )
+
+        return dict(rows)
 
     def get_records(
         self,

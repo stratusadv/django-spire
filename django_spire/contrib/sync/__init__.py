@@ -40,25 +40,6 @@ from django_spire.contrib.sync.database.record import SyncRecord
 from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
 from django_spire.contrib.sync.database.tracker import FieldUpdateTracker
 
-from django_spire.contrib.sync.file.bidirectional import BidirectionalEngine
-from django_spire.contrib.sync.file.conflict import (
-    Conflict,
-    ConflictStrategy,
-    LastWriteWins,
-    Resolution,
-    SourceWins,
-    TargetWins,
-)
-from django_spire.contrib.sync.file.engine import Engine
-from django_spire.contrib.sync.file.storage import BidirectionalStorage, Storage
-
-from django_spire.contrib.sync.file.parser.base import Parser
-from django_spire.contrib.sync.file.parser.csv import CsvParser
-from django_spire.contrib.sync.file.parser.xml import XmlField, XmlListField, XmlParser
-
-from django_spire.contrib.sync.file.writer.base import Writer
-from django_spire.contrib.sync.file.writer.csv import CsvWriter
-
 
 __all__ = [
     'BidirectionalEngine',
@@ -70,7 +51,7 @@ __all__ = [
     'ConflictResolver',
     'ConflictStrategy',
     'ConflictType',
-    'CsvParser',
+    'CsvReader',
     'CsvWriter',
     'DatabaseEngine',
     'DatabaseResult',
@@ -86,8 +67,8 @@ __all__ = [
     'LastWriteWins',
     'LocalWins',
     'ModelPayload',
-    'Parser',
     'PayloadReconciler',
+    'Reader',
     'ReconciliationResult',
     'RecordConflict',
     'RecordHasher',
@@ -111,6 +92,6 @@ __all__ = [
     'Writer',
     'XmlField',
     'XmlListField',
-    'XmlParser',
+    'XmlReader',
     'retry',
 ]

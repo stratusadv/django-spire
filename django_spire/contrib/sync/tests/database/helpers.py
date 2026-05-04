@@ -19,9 +19,13 @@ MODEL = 'app.TestModel'
 
 class InMemoryDatabaseStorage(DatabaseSyncStorage):
     def __init__(self, models: list[str]) -> None:
+        self._after_keys: dict[str, dict[str, Any]] = {}
         self._checkpoints: dict[str, int] = {}
         self._models = sorted(models)
         self._records: dict[str, dict[str, SyncRecord]] = {
+            m: {} for m in models
+        }
+        self._tombstones: dict[str, dict[str, int]] = {
             m: {} for m in models
         }
 
@@ -48,27 +52,69 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
         for key, tombstone_ts in deletes.items():
             existing = self._records[model_label].get(key)
 
-            if existing is None:
-                continue
-
-            if existing.sync_field_last_modified > tombstone_ts:
+            if existing is not None and existing.sync_field_last_modified > tombstone_ts:
                 continue
 
             self._records[model_label].pop(key, None)
+            self._tombstones[model_label][key] = tombstone_ts
+
+    def get_after_keys(self, node_id: str) -> dict[str, Any]:
+        return self._after_keys.get(node_id) or {}
 
     def get_changed_since(
         self,
         model_label: str,
         timestamp: int,
+        limit: int | None = None,
+        after_key: str | None = None,
     ) -> dict[str, SyncRecord]:
-        return {
+        result = {
             key: record
             for key, record in self._records[model_label].items()
             if record.sync_field_last_modified > timestamp
         }
 
+        result = dict(
+            sorted(
+                result.items(),
+                key=lambda item: (
+                    item[1].sync_field_last_modified,
+                    item[0],
+                ),
+            )
+        )
+
+        if after_key is not None:
+            filtered: dict[str, SyncRecord] = {}
+
+            for key, record in result.items():
+                record_ts = record.sync_field_last_modified
+
+                if record_ts > timestamp or (
+                    record_ts == timestamp and key > after_key
+                ):
+                    filtered[key] = record
+
+            result = filtered
+
+        if limit is not None:
+            result = dict(list(result.items())[:limit])
+
+        return result
+
     def get_checkpoint(self, node_id: str) -> int:
         return self._checkpoints.get(node_id, 0)
+
+    def get_deletes_since(
+        self,
+        model_label: str,
+        timestamp: int,
+    ) -> dict[str, int]:
+        return {
+            key: ts
+            for key, ts in self._tombstones[model_label].items()
+            if ts > timestamp
+        }
 
     def get_records(
         self,
@@ -84,8 +130,14 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
     def get_syncable_models(self) -> list[str]:
         return list(self._models)
 
-    def save_checkpoint(self, node_id: str, timestamp: int) -> None:
+    def save_checkpoint(
+        self,
+        node_id: str,
+        timestamp: int,
+        after_keys: dict[str, Any] | None = None,
+    ) -> None:
         self._checkpoints[node_id] = timestamp
+        self._after_keys[node_id] = after_keys or {}
 
     def upsert_many(
         self,
@@ -122,12 +174,27 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
 
 class FakeTransport:
     def __init__(self, response: SyncManifest) -> None:
+        self._empty = SyncManifest(
+            node_id=response.node_id,
+            checkpoint=response.checkpoint,
+            node_time=response.node_time,
+            payloads=[],
+        )
+        self._empty.checksum = self._empty.compute_checksum()
         self._response = response
+        self.call_count: int = 0
         self.last_manifest: SyncManifest | None = None
+        self.manifests: list[SyncManifest] = []
 
     def exchange(self, manifest: SyncManifest) -> SyncManifest:
         self.last_manifest = manifest
-        return self._response
+        self.manifests.append(manifest)
+        self.call_count += 1
+
+        if self.call_count == 1:
+            return self._response
+
+        return self._empty
 
 
 class DirectTransport:

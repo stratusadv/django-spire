@@ -10,14 +10,14 @@ if TYPE_CHECKING:
 import pytest
 
 from django_spire.contrib.sync.file.engine import Engine
-from django_spire.contrib.sync.core.exceptions import SyncAbortedError
-from django_spire.contrib.sync.file.parser.xml import XmlField, XmlListField, XmlParser
+from django_spire.contrib.sync.file.exceptions import FileSyncAbortedError
+from django_spire.contrib.sync.file.reader.xml import XmlField, XmlListField, XmlReader
 
 
 FIXTURES_DIR = Path(__file__).parent / 'fixtures'
 
 
-UNIT_PARSER = XmlParser(
+UNIT_READER = XmlReader(
     record_path='.//Unit',
     fields=[
         XmlField(key='stock_number', path='StockNumber'),
@@ -95,7 +95,7 @@ def engine(storage: MemoryStorage) -> Engine:
 
 
 def test_initial_sync_creates_all(engine: Engine, storage: MemoryStorage) -> None:
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert len(result.created) == 2
     assert result.updated == []
@@ -105,8 +105,8 @@ def test_initial_sync_creates_all(engine: Engine, storage: MemoryStorage) -> Non
 
 
 def test_unchanged_units_not_updated(engine: Engine) -> None:
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert result.created == []
     assert result.updated == []
@@ -117,7 +117,7 @@ def test_missing_unit_deactivated(engine: Engine, storage: MemoryStorage) -> Non
     storage.records['GONE'] = {'stock_number': 'GONE'}
     storage.hashes['GONE'] = 'stale'
 
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert 'GONE' in result.deactivated
     assert 'GONE' not in storage.records
@@ -125,12 +125,12 @@ def test_missing_unit_deactivated(engine: Engine, storage: MemoryStorage) -> Non
 
 
 def test_changed_unit_updated(engine: Engine, storage: MemoryStorage) -> None:
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     storage.records['13511']['price'] = 999.99
     storage.hashes['13511'] = 'stale'
 
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert '13511' in result.updated
     assert storage.records['13511']['price'] == 226900.00
@@ -140,7 +140,7 @@ def test_empty_xml_deactivates_all(engine: Engine, storage: MemoryStorage) -> No
     storage.records['13511'] = {'stock_number': '13511'}
     storage.hashes['13511'] = 'stale'
 
-    result = engine.sync(FIXTURES_DIR / 'empty_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'empty_units.xml', reader=UNIT_READER)
 
     assert '13511' in result.deactivated
     assert '13511' not in storage.records
@@ -160,7 +160,7 @@ def test_on_created_callback(storage: MemoryStorage) -> None:
         on_created=on_created,
     )
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert '13511' in created_records
     assert '16992' in created_records
@@ -179,11 +179,11 @@ def test_on_updated_callback(storage: MemoryStorage) -> None:
         on_updated=on_updated,
     )
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
     storage.records['16992']['manufacturer'] = 'Changed'
     storage.hashes['16992'] = 'stale'
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert '16992' in updated_records
     assert updated_records['16992'][0]['manufacturer'] == 'Changed'
@@ -206,13 +206,13 @@ def test_on_deactivated_callback(storage: MemoryStorage) -> None:
     storage.records['GONE'] = {'stock_number': 'GONE'}
     storage.hashes['GONE'] = 'stale'
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert 'GONE' in deactivated_keys
 
 
 def test_missing_fields_unit_syncs(engine: Engine, storage: MemoryStorage) -> None:
-    result = engine.sync(FIXTURES_DIR / 'missing_fields_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'missing_fields_units.xml', reader=UNIT_READER)
 
     assert '99999' in result.created
     assert storage.records['99999']['year'] == 0
@@ -248,10 +248,10 @@ def test_compare_fields_limits_detection(storage: MemoryStorage) -> None:
         compare_fields=['price'],
     )
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
     storage.records['13511']['manufacturer'] = 'Changed'
 
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert '13511' not in result.updated
     assert '13511' in result.unchanged
@@ -279,7 +279,7 @@ def test_duplicate_identity_reports_error() -> None:
 
 
 def test_hashes_stored_on_create(engine: Engine, storage: MemoryStorage) -> None:
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert '13511' in storage.hashes
     assert '16992' in storage.hashes
@@ -292,13 +292,13 @@ def test_hashes_stored_on_create(engine: Engine, storage: MemoryStorage) -> None
 
 
 def test_hashes_updated_on_change(engine: Engine, storage: MemoryStorage) -> None:
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     original_hash = storage.hashes['13511']
     storage.records['13511']['price'] = 999.99
     storage.hashes['13511'] = 'stale'
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert storage.hashes['13511'] == original_hash
     assert storage.hashes['13511'] != 'stale'
@@ -320,10 +320,10 @@ def test_unchanged_skips_get_many() -> None:
         deactivation_threshold=None,
     )
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
     get_many_calls.clear()
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert get_many_calls == []
 
@@ -348,13 +348,13 @@ def test_get_many_only_for_updated_with_callback() -> None:
         on_updated=on_updated,
     )
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
     get_many_calls.clear()
 
     tracking.records['13511']['price'] = 999.99
     tracking.hashes['13511'] = 'stale'
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert len(get_many_calls) == 1
     assert get_many_calls[0] == {'13511'}
@@ -380,7 +380,7 @@ def test_callbacks_fire_after_mutations() -> None:
         on_created=on_created,
     )
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert call_order[0] == 'create_many'
     assert all(c.startswith('callback:') for c in call_order[1:])
@@ -389,7 +389,7 @@ def test_callbacks_fire_after_mutations() -> None:
 def test_dry_run_no_mutations(engine: Engine, storage: MemoryStorage) -> None:
     result = engine.sync(
         FIXTURES_DIR / 'sample_units.xml',
-        parser=UNIT_PARSER,
+        reader=UNIT_READER,
         dry_run=True,
     )
 
@@ -399,14 +399,14 @@ def test_dry_run_no_mutations(engine: Engine, storage: MemoryStorage) -> None:
 
 
 def test_dry_run_reports_deactivations(engine: Engine, storage: MemoryStorage) -> None:
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     storage.records['GONE'] = {'stock_number': 'GONE'}
     storage.hashes['GONE'] = 'stale'
 
     result = engine.sync(
         FIXTURES_DIR / 'sample_units.xml',
-        parser=UNIT_PARSER,
+        reader=UNIT_READER,
         dry_run=True,
     )
 
@@ -415,14 +415,14 @@ def test_dry_run_reports_deactivations(engine: Engine, storage: MemoryStorage) -
 
 
 def test_dry_run_reports_updates(engine: Engine, storage: MemoryStorage) -> None:
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     storage.records['13511']['price'] = 999.99
     storage.hashes['13511'] = 'stale'
 
     result = engine.sync(
         FIXTURES_DIR / 'sample_units.xml',
-        parser=UNIT_PARSER,
+        reader=UNIT_READER,
         dry_run=True,
     )
 
@@ -431,10 +431,10 @@ def test_dry_run_reports_updates(engine: Engine, storage: MemoryStorage) -> None
 
 
 def test_missing_hash_treated_as_changed(engine: Engine, storage: MemoryStorage) -> None:
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
     del storage.hashes['13511']
 
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert '13511' in result.updated
 
@@ -472,7 +472,7 @@ def test_callback_error_collected_not_raised(storage: MemoryStorage) -> None:
         on_created=on_created,
     )
 
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert len(result.created) == 2
     assert len(result.errors) == 2
@@ -498,7 +498,7 @@ def test_callback_error_does_not_skip_remaining(storage: MemoryStorage) -> None:
         on_created=on_created,
     )
 
-    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert '16992' in called
     assert len(result.errors) == 1
@@ -520,7 +520,7 @@ def test_deactivation_threshold_aborts() -> None:
 
     records = [{'stock_number': '0'}, {'stock_number': '1'}]
 
-    with pytest.raises(SyncAbortedError, match='exceeds threshold'):
+    with pytest.raises(FileSyncAbortedError, match='exceeds threshold'):
         engine.sync_records(records)
 
     assert len(storage.records) == 10
@@ -583,7 +583,7 @@ def test_transaction_wraps_mutations(storage: MemoryStorage) -> None:
         transaction=fake_transaction,
     )
 
-    engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+    engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert len(entered) == 1
 
@@ -621,6 +621,6 @@ def test_transaction_rollback_on_storage_failure() -> None:
     )
 
     with pytest.raises(RuntimeError, match='storage exploded'):
-        engine.sync(FIXTURES_DIR / 'sample_units.xml', parser=UNIT_PARSER)
+        engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
 
     assert len(rolled_back) == 1

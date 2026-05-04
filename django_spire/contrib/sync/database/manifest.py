@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
 from django_spire.contrib.sync.core.exceptions import ManifestFieldError
-from django_spire.contrib.sync.database.record import SyncRecord
 
 if TYPE_CHECKING:
     from django_spire.contrib.sync.core.model import Error
@@ -17,22 +16,25 @@ if TYPE_CHECKING:
         ResolutionSource,
     )
 
+from django_spire.contrib.sync.database.record import SyncRecord
 
-_PAYLOADS_MAX = 1_000
+_PAYLOADS_MAX = 100
 
 
 @dataclass
 class ModelPayload:
     model_label: str
-    deletes: dict[str, int] = field(default_factory=dict)
-    records: dict[str, SyncRecord] = field(default_factory=dict)
+    records: dict[str, SyncRecord] = field(
+        default_factory=dict,
+    )
+    deletes: dict[str, int] = field(
+        default_factory=dict,
+    )
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> ModelPayload:
-        if not isinstance(data, dict):
-            message = 'ModelPayload requires a dict'
-            raise ManifestFieldError(message)
-
+    def from_dict(
+        cls, data: dict[str, Any],
+    ) -> ModelPayload:
         model_label = data.get('model_label')
 
         if model_label is None:
@@ -44,9 +46,7 @@ class ModelPayload:
             raise ManifestFieldError(message)
 
         if not model_label:
-            message = (
-                "'model_label' must be a non-empty string"
-            )
+            message = "'model_label' must be a non-empty string"
             raise ManifestFieldError(message)
 
         raw_records = data.get('records', {})
@@ -58,20 +58,14 @@ class ModelPayload:
         raw_deletes = data.get('deletes', {})
 
         if not isinstance(raw_deletes, dict):
-            message = (
-                "'deletes' must be a dict of "
-                "{key: tombstone_ts}"
-            )
-
+            message = "'deletes' must be a dict"
             raise ManifestFieldError(message)
 
         deletes: dict[str, int] = {}
 
         for key, tombstone in raw_deletes.items():
             if not isinstance(key, str):
-                message = (
-                    f"delete key {key!r} must be a string"
-                )
+                message = f'delete key {key!r} must be a string'
                 raise ManifestFieldError(message)
 
             if (
@@ -80,7 +74,8 @@ class ModelPayload:
             ):
                 message = (
                     f"delete tombstone for {key!r} must be "
-                    f"an int, got {type(tombstone).__name__}"
+                    f"an integer, got "
+                    f"{type(tombstone).__name__}"
                 )
 
                 raise ManifestFieldError(message)
@@ -127,7 +122,11 @@ class ModelPayload:
 class SyncManifest:
     node_id: str
     checkpoint: int
+    after_keys: dict[str, Any] = field(
+        default_factory=dict,
+    )
     checksum: str = ''
+    has_more: bool = False
     node_time: int = 0
     payloads: list[ModelPayload] = field(
         default_factory=list,
@@ -152,6 +151,12 @@ class SyncManifest:
         ).encode('utf-8')
 
         return hashlib.sha256(body).hexdigest()
+
+    def verify(self) -> bool:
+        if not self.checksum:
+            return False
+
+        return self.checksum == self.compute_checksum()
 
     @classmethod
     def from_dict(
@@ -208,6 +213,9 @@ class SyncManifest:
 
             raise ManifestFieldError(message)
 
+        after_keys = data.get('after_keys', {})
+        has_more = data.get('has_more', False)
+
         raw_payloads = data.get('payloads', [])
 
         if not isinstance(raw_payloads, list):
@@ -216,49 +224,46 @@ class SyncManifest:
 
         if len(raw_payloads) > _PAYLOADS_MAX:
             message = (
-                f"'payloads' count {len(raw_payloads)} "
-                f"exceeds limit of {_PAYLOADS_MAX}"
+                f"'payloads' exceeds maximum of "
+                f"{_PAYLOADS_MAX}"
             )
 
             raise ManifestFieldError(message)
 
-        payloads = [
-            ModelPayload.from_dict(payload)
-            for payload in raw_payloads
-        ]
-
         seen_labels: set[str] = set()
+        payloads: list[ModelPayload] = []
 
-        for payload in payloads:
+        for raw_payload in raw_payloads:
+            payload = ModelPayload.from_dict(raw_payload)
+
             if payload.model_label in seen_labels:
                 message = (
-                    f"duplicate model_label "
-                    f"{payload.model_label!r} in payloads"
+                    f"duplicate model_label: "
+                    f"{payload.model_label!r}"
                 )
 
                 raise ManifestFieldError(message)
 
             seen_labels.add(payload.model_label)
+            payloads.append(payload)
 
         return cls(
             node_id=node_id,
             checkpoint=checkpoint,
+            after_keys=after_keys if isinstance(after_keys, dict) else {},
             checksum=data.get('checksum', ''),
+            has_more=has_more,
             node_time=node_time,
             payloads=payloads,
         )
 
     def to_dict(self) -> dict[str, Any]:
-        data = self._serializable()
-        data['checksum'] = self.compute_checksum()
+        result = self._serializable()
+        result['after_keys'] = self.after_keys
+        result['checksum'] = self.checksum or self.compute_checksum()
+        result['has_more'] = self.has_more
 
-        return data
-
-    def verify(self) -> bool:
-        if not self.checksum:
-            return False
-
-        return self.checksum == self.compute_checksum()
+        return result
 
 
 @dataclass

@@ -6,7 +6,11 @@ from typing import Any, TYPE_CHECKING
 
 import defusedxml.ElementTree as DefusedET
 
-from django_spire.contrib.sync.file.parser.base import Parser
+from django_spire.contrib.sync.file.exceptions import (
+    FileSyncParameterError,
+    FileSyncParseError,
+)
+from django_spire.contrib.sync.file.reader.base import Reader
 
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
@@ -26,7 +30,7 @@ class XmlListField:
     path: str
 
 
-class XmlParser(Parser):
+class XmlReader(Reader):
     def __init__(
         self,
         record_path: str,
@@ -52,7 +56,8 @@ class XmlParser(Parser):
                 f'XmlField {f.key!r} default {f.default!r} '
                 f'cannot be cast to {f.cast.__name__}'
             )
-            raise ValueError(message) from exc
+
+            raise FileSyncParameterError(message) from exc
 
     def _extract_text(self, element: Element, path: str, default: str = '') -> str:
         child = element.find(path)
@@ -75,10 +80,12 @@ class XmlParser(Parser):
                     f'Failed to cast field {f.key!r} with value '
                     f'{text!r} to {f.cast.__name__}'
                 )
-                raise ValueError(message) from exc
+
+                raise FileSyncParseError(message) from exc
 
         for f in self._list_fields:
             elements = element.findall(f.path)
+
             record[f.key] = [
                 el.text.strip()
                 for el in elements
@@ -87,7 +94,7 @@ class XmlParser(Parser):
 
         return record
 
-    def parse(self, file_path: str | Path) -> list[dict[str, Any]]:
+    def read(self, file_path: str | Path) -> list[dict[str, Any]]:
         tree = DefusedET.parse(Path(file_path))
         root = tree.getroot()
 

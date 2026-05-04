@@ -6,5 +6,5 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-class Parser(Protocol):
-    def parse(self, file_path: str | Path) -> list[dict[str, Any]]: ...
+class Reader(Protocol):
+    def read(self, file_path: str | Path) -> list[dict[str, Any]]: ...

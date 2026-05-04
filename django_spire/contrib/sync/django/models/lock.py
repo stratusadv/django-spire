@@ -7,6 +7,7 @@ class SyncNodeLock(models.Model):
 
     class Meta:
         app_label = 'sync'
+        db_table = 'django_spire_sync_node_lock'
 
     def __str__(self) -> str:
         return f'lock:{self.node_id}'

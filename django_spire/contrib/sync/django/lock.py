@@ -110,6 +110,10 @@ class DjangoSyncLock:
 
         return session_id
 
+    def hold(self, node_id: str) -> None:
+        self._ensure_lock_row(node_id)
+        SyncNodeLock.objects.select_for_update().filter(node_id=node_id).first()
+
     def release(
         self,
         session_id: str,

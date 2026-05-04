@@ -4,12 +4,14 @@ from django_spire.contrib.sync.django.storage.strategy.delete import (
     SoftDeleteStrategy,
 )
 from django_spire.contrib.sync.django.storage.strategy.upsert import (
+    BulkUpsertStrategy,
     StalenessGuardedUpsertStrategy,
     UpsertStrategy,
 )
 
 
 __all__ = [
+    'BulkUpsertStrategy',
     'DeleteStrategy',
     'HardDeleteStrategy',
     'SoftDeleteStrategy',

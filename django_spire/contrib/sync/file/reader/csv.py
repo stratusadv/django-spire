@@ -5,10 +5,11 @@ import csv
 from pathlib import Path
 from typing import Any
 
-from django_spire.contrib.sync.file.parser.base import Parser
+from django_spire.contrib.sync.file.exceptions import FileSyncParseError
+from django_spire.contrib.sync.file.reader.base import Reader
 
 
-class CsvParser(Parser):
+class CsvReader(Reader):
     def __init__(
         self,
         delimiter: str = ',',
@@ -30,7 +31,8 @@ class CsvParser(Parser):
                     f'type_map key {key!r} not found in record. '
                     f'Available keys: {sorted(cast_record)}'
                 )
-                raise KeyError(message)
+
+                raise FileSyncParseError(message)
 
             try:
                 cast_record[key] = cast(cast_record[key])
@@ -39,7 +41,8 @@ class CsvParser(Parser):
                     f'Failed to cast field {key!r} with value '
                     f'{cast_record[key]!r} to {cast.__name__}'
                 )
-                raise ValueError(message) from exc
+
+                raise FileSyncParseError(message) from exc
 
         return cast_record
 
@@ -49,7 +52,7 @@ class CsvParser(Parser):
             for key, value in record.items()
         }
 
-    def parse(self, file_path: str | Path) -> list[dict[str, Any]]:
+    def read(self, file_path: str | Path) -> list[dict[str, Any]]:
         file_path = Path(file_path)
 
         with open(file_path, encoding=self._encoding, newline='') as handle:

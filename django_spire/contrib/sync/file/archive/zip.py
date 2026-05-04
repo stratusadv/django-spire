@@ -7,6 +7,7 @@ from enum import Enum
 from pathlib import Path
 
 from django_spire.contrib.sync.file.archive.base import Archive
+from django_spire.contrib.sync.file.exceptions import FileSyncArchiveError
 
 
 logger = logging.getLogger(__name__)
@@ -40,8 +41,12 @@ class ZipArchive(Archive):
         target = (target_dir / info.filename).resolve()
 
         if not target.is_relative_to(target_dir.resolve()):
-            message = f'Path traversal detected in archive entry: {info.filename!r}'
-            raise ValueError(message)
+            message = (
+                f'Path traversal detected in archive entry: '
+                f'{info.filename!r}'
+            )
+
+            raise FileSyncArchiveError(message)
 
         return target
 
@@ -69,7 +74,8 @@ class ZipArchive(Archive):
                             f'Duplicate target {target} in archive '
                             f'{archive_path} (from {info.filename!r})'
                         )
-                        raise FileExistsError(message)
+
+                        raise FileSyncArchiveError(message)
 
                     if self._collision is CollisionStrategy.SKIP:
                         logger.debug(

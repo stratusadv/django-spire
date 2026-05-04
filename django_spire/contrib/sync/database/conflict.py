@@ -193,7 +193,8 @@ class FieldOwnershipWins:
         self._remote_fields = frozenset(remote_fields)
 
     def resolve(
-        self, conflict: RecordConflict,
+        self,
+        conflict: RecordConflict,
     ) -> RecordResolution:
         if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
             return RecordResolution(
@@ -210,7 +211,9 @@ class FieldOwnershipWins:
         local, remote = _require_both(conflict)
 
         return _merge_fields(
-            local, remote, conflict,
+            local,
+            remote,
+            conflict,
             self._exclude,
             self._prefer_remote_on_tie,
             local_fields=self._local_fields,
@@ -228,7 +231,8 @@ class FieldTimestampWins:
         self._prefer_remote_on_tie = prefer_remote_on_tie
 
     def resolve(
-        self, conflict: RecordConflict,
+        self,
+        conflict: RecordConflict,
     ) -> RecordResolution:
         if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
             return RecordResolution(
@@ -245,7 +249,9 @@ class FieldTimestampWins:
         local, remote = _require_both(conflict)
 
         return _merge_fields(
-            local, remote, conflict,
+            local,
+            remote,
+            conflict,
             self._exclude,
             self._prefer_remote_on_tie,
         )
@@ -253,7 +259,8 @@ class FieldTimestampWins:
 
 class LocalWins:
     def resolve(
-        self, conflict: RecordConflict,
+        self,
+        conflict: RecordConflict,
     ) -> RecordResolution:
         if conflict.conflict_type == ConflictType.MODIFY_VS_DELETE:
             return RecordResolution(
@@ -271,7 +278,8 @@ class LocalWins:
 
 class RemoteWins:
     def resolve(
-        self, conflict: RecordConflict,
+        self,
+        conflict: RecordConflict,
     ) -> RecordResolution:
         if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
             return RecordResolution(

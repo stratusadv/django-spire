@@ -27,6 +27,7 @@ class SyncSession(models.Model):
 
     class Meta:
         app_label = 'sync'
+        db_table = 'django_spire_sync_session'
         indexes = [
             models.Index(
                 fields=['node_id', 'status'],

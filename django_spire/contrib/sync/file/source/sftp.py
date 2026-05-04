@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import logging
 
 import paramiko
@@ -27,6 +28,7 @@ class SFTPSource(Source):
         username: str,
         password: str | None = None,
         key_path: str | None = None,
+        key_data: str | None = None,
         key_passphrase: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
         retries: int = 3,
@@ -37,6 +39,7 @@ class SFTPSource(Source):
         self._username = username
         self._password = password
         self._key_path = key_path
+        self._key_data = key_data
         self._key_passphrase = key_passphrase
         self._timeout = timeout
         self._retries = retries
@@ -50,6 +53,7 @@ class SFTPSource(Source):
                 f'Not connected to SFTP {self._host}:{self._port}. '
                 f'Call connect() or use as a context manager.'
             )
+
             raise RuntimeError(message)
 
         return self._sftp
@@ -65,6 +69,12 @@ class SFTPSource(Source):
 
         for cls in key_classes:
             try:
+                if self._key_data:
+                    return cls.from_private_key(
+                        io.StringIO(self._key_data),
+                        password=self._key_passphrase,
+                    )
+
                 return cls.from_private_key_file(
                     self._key_path,
                     password=self._key_passphrase,
@@ -75,20 +85,23 @@ class SFTPSource(Source):
                 logger.debug(
                     'Key type %s failed for %s: %s',
                     cls.__name__,
-                    self._key_path,
+                    self._key_path or '<key_data>',
                     exc,
                 )
+
                 last_exc = exc
                 continue
 
-        message = f'Unable to load private key from {self._key_path}'
+        source = self._key_path or '<key_data>'
+
+        message = f'Unable to load private key from {source}'
         raise paramiko.SSHException(message) from last_exc
 
     def connect(self) -> None:
         sock = (self._host, self._port)
         self._transport = paramiko.Transport(sock)
 
-        if self._key_path:
+        if self._key_path or self._key_data:
             key = self._load_key()
             self._transport.connect(username=self._username, pkey=key)
         else:
@@ -106,6 +119,7 @@ class SFTPSource(Source):
     def close(self) -> None:
         if self._sftp:
             self._sftp.close()
+
         if self._transport:
             self._transport.close()
 
@@ -142,3 +156,20 @@ class SFTPSource(Source):
     def list_dir(self, remote_path: str) -> list[str]:
         sftp = self._require_connection()
         return sftp.listdir(remote_path)
+
+    def upload(
+        self,
+        local_path: Path,
+        remote_path: str,
+        callback: Callable[[int, int], None] | None = None,
+    ) -> None:
+        sftp = self._require_connection()
+
+        retry(
+            lambda: sftp.put(str(local_path), remote_path, callback=callback),
+            attempts=self._retries,
+            delay=self._retry_delay,
+            exceptions=(IOError, paramiko.SSHException),
+        )
+
+        logger.info('Uploaded %s -> %s', local_path, remote_path)

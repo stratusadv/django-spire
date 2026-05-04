@@ -33,6 +33,9 @@ class SyncableAppMixin:
             register_m2m_signals,
             seed_clock,
         )
+        from django_spire.contrib.sync.django.signals import (  # noqa: PLC0415
+            register_delete_signals,
+        )
 
         syncable_models = self.get_syncable_models()
 
@@ -43,6 +46,8 @@ class SyncableAppMixin:
 
         with contextlib.suppress(OperationalError, ProgrammingError):
             seed_clock(clock, syncable_models)
+
+        register_delete_signals(syncable_models)
 
         m2m_models = self.get_m2m_models()
 

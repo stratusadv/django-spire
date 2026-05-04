@@ -50,6 +50,7 @@ class HybridLogicalClock:
 
                 if counter <= _COUNTER_MASK:
                     previous = self._last
+
                     self._last = (wall << _COUNTER_BITS) | counter
 
                     if self._last <= previous:

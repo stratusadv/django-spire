@@ -5,7 +5,7 @@ import logging
 from typing import Any, TYPE_CHECKING
 
 from django.db import transaction
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_delete
 
 from django_spire.contrib.sync.core.exceptions import InvalidParameterError
 from django_spire.contrib.sync.django.queryset import _is_bypassed, sync_bypass
@@ -150,6 +150,54 @@ def _on_m2m_changed(
         return
 
     _stamp_reverse(forward_model, set(pk_set or set()), field_name)
+
+
+def _on_syncable_delete(
+    sender: type,
+    instance: Any,
+    **kwargs: Any,
+) -> None:
+    _ = sender
+    _ = kwargs
+
+    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
+    from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+
+    if _is_bypassed():
+        return
+
+    if not isinstance(instance, SyncableMixin):
+        return
+
+    model_label = instance._meta.label
+    key = str(instance.pk)
+
+    clock = SyncableMixin.get_clock()
+    timestamp = clock.now()
+
+    SyncTombstone.objects.update_or_create(
+        model_label=model_label,
+        record_key=key,
+        defaults={'timestamp': timestamp},
+    )
+
+
+def register_delete_signals(
+    models: list[type[SyncableMixin]],
+) -> None:
+    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
+
+    for model in models:
+        if not issubclass(model, SyncableMixin):
+            continue
+
+        dispatch_uid = f'syncable_delete:{model._meta.label}'
+
+        post_delete.connect(
+            _on_syncable_delete,
+            sender=model,
+            dispatch_uid=dispatch_uid,
+        )
 
 
 def register_m2m_signals(

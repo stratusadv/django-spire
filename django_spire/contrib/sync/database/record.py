@@ -47,6 +47,7 @@ class SyncRecord:
 
         record_data = data.get('data', {})
         record_timestamps = data.get('timestamps', {})
+        record_received_at = data.get('received_at', 0)
 
         if not isinstance(record_data, dict):
             message = (
@@ -60,6 +61,25 @@ class SyncRecord:
             message = (
                 f"Record {key!r}: 'timestamps' must be a "
                 f'dict, got {type(record_timestamps).__name__}'
+            )
+
+            raise RecordFieldError(message)
+
+        if (
+            not isinstance(record_received_at, int)
+            or isinstance(record_received_at, bool)
+        ):
+            message = (
+                f"Record {key!r}: 'received_at' must be an int, "
+                f'got {type(record_received_at).__name__}'
+            )
+
+            raise RecordFieldError(message)
+
+        if record_received_at < 0:
+            message = (
+                f"Record {key!r}: 'received_at' must be "
+                f'non-negative, got {record_received_at}'
             )
 
             raise RecordFieldError(message)
@@ -95,6 +115,7 @@ class SyncRecord:
             key=key,
             data=record_data,
             timestamps=record_timestamps,
+            received_at=record_received_at,
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -102,3 +123,4 @@ class SyncRecord:
             'data': self.data,
             'timestamps': self.timestamps,
         }
+

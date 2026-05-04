@@ -3,22 +3,104 @@ from __future__ import annotations
 import logging
 
 from contextlib import nullcontext
+from dataclasses import dataclass
 from typing import Any, Callable, TYPE_CHECKING
 
 from django_spire.contrib.sync.core.enums import SyncStage
-from django_spire.contrib.sync.core.exceptions import SyncAbortedError
 from django_spire.contrib.sync.core.hash import RecordHasher
 from django_spire.contrib.sync.core.model import Change, Error, Result
+from django_spire.contrib.sync.file.exceptions import (
+    FileSyncAbortedError,
+    FileSyncParameterError
+)
 
 if TYPE_CHECKING:
     from contextlib import AbstractContextManager
     from pathlib import Path
 
-    from django_spire.contrib.sync.file.parser.base import Parser
+    from django_spire.contrib.sync.file.reader.base import Reader
     from django_spire.contrib.sync.file.storage import Storage
 
 
 logger = logging.getLogger(__name__)
+
+
+def check_deactivation_threshold(
+    threshold: float | None,
+    active_count: int,
+    deactivation_count: int,
+) -> None:
+    if threshold is None:
+        return
+
+    if not active_count or not deactivation_count:
+        return
+
+    ratio = deactivation_count / active_count
+
+    if ratio > threshold:
+        message = (
+            f'Deactivation ratio {ratio:.1%} exceeds threshold '
+            f'{threshold:.1%} '
+            f'({deactivation_count} of {active_count} records). '
+            f'Set deactivation_threshold=None to disable this check.'
+        )
+        raise FileSyncAbortedError(message)
+
+
+def validate_records(
+    records: list[dict[str, Any]],
+    identity_field: str,
+    errors: list[Error],
+    progress: Callable[[SyncStage, int, int], None] | None = None,
+) -> dict[str, dict[str, Any]]:
+    validated: dict[str, dict[str, Any]] = {}
+    total = len(records)
+
+    for i, record in enumerate(records):
+        raw = record.get(identity_field)
+
+        if raw is None:
+            errors.append(Error(
+                key='',
+                message=f'Record missing identity field: {identity_field}',
+            ))
+
+            continue
+
+        key = str(raw).strip()
+
+        if not key:
+            errors.append(Error(
+                key='',
+                message=f'Record has empty identity field: {identity_field}',
+            ))
+
+            continue
+
+        if key in validated:
+            errors.append(Error(
+                key=key,
+                message='Duplicate identity value',
+            ))
+
+            continue
+
+        validated[key] = record
+
+        if progress:
+            progress(SyncStage.VALIDATE, i + 1, total)
+
+    return validated
+
+
+@dataclass
+class _ClassificationResult:
+    hashes: dict[str, str]
+    new_keys: list[str]
+    changed_keys: list[str]
+    unchanged_keys: list[str]
+    stale_keys: set[str]
 
 
 class Engine:
@@ -35,6 +117,18 @@ class Engine:
         on_complete: Callable[[Result], None] | None = None,
         progress: Callable[[SyncStage, int, int], None] | None = None,
     ) -> None:
+        if not identity_field:
+            message = 'identity_field must be a non-empty string'
+            raise FileSyncParameterError(message)
+
+        if deactivation_threshold is not None and deactivation_threshold < 0.0:
+            message = (
+                f'deactivation_threshold must be non-negative '
+                f'or None, got {deactivation_threshold}'
+            )
+
+            raise FileSyncParameterError(message)
+
         self._identity_field = identity_field
         self._deactivation_threshold = deactivation_threshold
         self._on_complete = on_complete
@@ -46,59 +140,16 @@ class Engine:
         self._transaction = transaction or nullcontext
         self._hasher = RecordHasher(identity_field, compare_fields)
 
-    def _report_progress(self, stage: SyncStage, current: int, total: int) -> None:
+    def _report_progress(
+        self, stage: SyncStage, current: int, total: int,
+    ) -> None:
         if self._progress:
             self._progress(stage, current, total)
-
-    def _validate(
-        self,
-        records: list[dict[str, Any]],
-        result: Result,
-    ) -> dict[str, dict[str, Any]]:
-        validated: dict[str, dict[str, Any]] = {}
-        total = len(records)
-
-        for i, record in enumerate(records):
-            raw = record.get(self._identity_field)
-
-            if raw is None:
-                result.errors.append(Error(
-                    key='',
-                    message=f'Record missing identity field: {self._identity_field}',
-                ))
-                continue
-
-            key = str(raw).strip()
-
-            if not key:
-                result.errors.append(Error(
-                    key='',
-                    message=f'Record has empty identity field: {self._identity_field}',
-                ))
-                continue
-
-            if key in validated:
-                result.errors.append(Error(
-                    key=key,
-                    message='Duplicate identity value',
-                ))
-                continue
-
-            validated[key] = record
-            self._report_progress(SyncStage.VALIDATE, i + 1, total)
-
-        return validated
 
     def _classify(
         self,
         validated: dict[str, dict[str, Any]],
-    ) -> tuple[
-        dict[str, str],
-        list[str],
-        list[str],
-        list[str],
-        set[str],
-    ]:
+    ) -> _ClassificationResult:
         incoming_hashes: dict[str, str] = {
             key: self._hasher.hash(record)
             for key, record in validated.items()
@@ -106,7 +157,12 @@ class Engine:
 
         active_keys = self._storage.get_active_keys()
         overlap_keys = validated.keys() & active_keys
-        stored_hashes = self._storage.get_hashes(overlap_keys) if overlap_keys else {}
+
+        stored_hashes = (
+            self._storage.get_hashes(overlap_keys)
+            if overlap_keys
+            else {}
+        )
 
         new_keys: list[str] = []
         changed_keys: list[str] = []
@@ -126,51 +182,45 @@ class Engine:
 
         stale_keys = {k for k in active_keys if k not in validated}
 
-        self._check_deactivation_threshold(len(active_keys), len(stale_keys))
+        check_deactivation_threshold(
+            self._deactivation_threshold,
+            len(active_keys),
+            len(stale_keys),
+        )
 
-        return incoming_hashes, new_keys, changed_keys, unchanged_keys, stale_keys
-
-    def _check_deactivation_threshold(
-        self,
-        active_count: int,
-        stale_count: int,
-    ) -> None:
-        if self._deactivation_threshold is None:
-            return
-
-        if not active_count or not stale_count:
-            return
-
-        ratio = stale_count / active_count
-
-        if ratio > self._deactivation_threshold:
-            message = (
-                f'Deactivation ratio {ratio:.1%} exceeds threshold '
-                f'{self._deactivation_threshold:.1%} '
-                f'({stale_count} of {active_count} records). '
-                f'Set deactivation_threshold=None to disable this check.'
-            )
-            raise SyncAbortedError(message)
+        return _ClassificationResult(
+            hashes=incoming_hashes,
+            new_keys=new_keys,
+            changed_keys=changed_keys,
+            unchanged_keys=unchanged_keys,
+            stale_keys=stale_keys,
+        )
 
     def _mutate(
         self,
         validated: dict[str, dict[str, Any]],
-        incoming_hashes: dict[str, str],
-        new_keys: list[str],
-        changed_keys: list[str],
-        stale_keys: set[str],
+        classified: _ClassificationResult,
     ) -> dict[str, dict[str, Any]]:
-        to_create = [validated[k] for k in new_keys]
-        to_update = [validated[k] for k in changed_keys]
+        to_create = [validated[k] for k in classified.new_keys]
+        to_update = [validated[k] for k in classified.changed_keys]
 
-        create_hashes = {k: incoming_hashes[k] for k in new_keys}
-        update_hashes = {k: incoming_hashes[k] for k in changed_keys}
+        create_hashes = {
+            k: classified.hashes[k]
+            for k in classified.new_keys
+        }
+
+        update_hashes = {
+            k: classified.hashes[k]
+            for k in classified.changed_keys
+        }
 
         with self._transaction():
             old_records: dict[str, dict[str, Any]] = {}
 
-            if changed_keys:
-                old_records = self._storage.get_many(set(changed_keys))
+            if classified.changed_keys:
+                old_records = self._storage.get_many(
+                    set(classified.changed_keys),
+                )
 
             if to_create:
                 self._storage.create_many(to_create, create_hashes)
@@ -178,8 +228,8 @@ class Engine:
             if to_update:
                 self._storage.update_many(to_update, update_hashes)
 
-            if stale_keys:
-                self._storage.deactivate_many(stale_keys)
+            if classified.stale_keys:
+                self._storage.deactivate_many(classified.stale_keys)
 
         return old_records
 
@@ -234,48 +284,7 @@ class Engine:
                         exception=exc,
                     ))
 
-    def sync(
-        self,
-        file_path: str | Path,
-        parser: Parser,
-        dry_run: bool = False,
-    ) -> Result:
-        records = parser.parse(file_path)
-        return self.sync_records(records, dry_run=dry_run)
-
-    def sync_records(
-        self,
-        records: list[dict[str, Any]],
-        dry_run: bool = False,
-    ) -> Result:
-        result = Result()
-
-        validated = self._validate(records, result)
-
-        incoming_hashes, new_keys, changed_keys, unchanged_keys, stale_keys = (
-            self._classify(validated)
-        )
-
-        result.created = new_keys
-        result.updated = changed_keys
-        result.unchanged = unchanged_keys
-        result.deactivated = sorted(stale_keys)
-
-        if dry_run:
-            return result
-
-        old_records = self._mutate(
-            validated,
-            incoming_hashes,
-            new_keys,
-            changed_keys,
-            stale_keys,
-        )
-
-        result.changes = self._build_changes(validated, old_records, changed_keys)
-
-        self._fire_callbacks(validated, old_records, result)
-
+    def _finalize(self, result: Result) -> None:
         if self._on_complete:
             self._on_complete(result)
 
@@ -291,5 +300,49 @@ class Engine:
             len(result.unchanged),
             len(result.errors),
         )
+
+    def sync(
+        self,
+        file_path: str | Path,
+        reader: Reader,
+        dry_run: bool = False,
+    ) -> Result:
+        records = reader.read(file_path)
+        return self.sync_records(records, dry_run=dry_run)
+
+    def sync_records(
+        self,
+        records: list[dict[str, Any]],
+        dry_run: bool = False,
+    ) -> Result:
+        result = Result()
+
+        validated = validate_records(
+            records,
+            self._identity_field,
+            result.errors,
+            self._progress,
+        )
+
+        classified = self._classify(validated)
+
+        result.created = classified.new_keys
+        result.updated = classified.changed_keys
+        result.unchanged = classified.unchanged_keys
+        result.deactivated = sorted(classified.stale_keys)
+
+        if dry_run:
+            return result
+
+        old_records = self._mutate(validated, classified)
+
+        result.changes = self._build_changes(
+            validated,
+            old_records,
+            classified.changed_keys,
+        )
+
+        self._fire_callbacks(validated, old_records, result)
+        self._finalize(result)
 
         return result

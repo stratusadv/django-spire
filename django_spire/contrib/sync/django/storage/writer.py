@@ -19,10 +19,10 @@ from django_spire.contrib.sync.django.storage.many_to_many import (
     ManyToManyApplier,
 )
 from django_spire.contrib.sync.django.storage.strategy import (
+    BulkUpsertStrategy,
     DeleteStrategy,
     HardDeleteStrategy,
     SoftDeleteStrategy,
-    StalenessGuardedUpsertStrategy,
     UpsertStrategy,
 )
 
@@ -77,7 +77,7 @@ class DjangoRecordWriter:
 
         self._upsert_strategy = (
             upsert_strategy
-            or StalenessGuardedUpsertStrategy(
+            or BulkUpsertStrategy(
                 identity_field=identity_field,
             )
         )
@@ -175,6 +175,56 @@ class DjangoRecordWriter:
         else:
             return True
 
+    def _upsert_chunk(
+        self,
+        model: type[SyncableMixin],
+        records: dict[str, SyncRecord],
+        chunk_keys: list[str],
+        many_to_many_names: set[str],
+        serializer: SyncFieldSerializer,
+    ) -> set[str]:
+        chunk_records: dict[str, SyncRecord] = {}
+        deserialized: dict[str, dict[str, Any]] = {}
+        pending_many_to_many: dict[str, dict[str, list[Any]]] = {}
+
+        for key in chunk_keys:
+            sync_record = records[key]
+            chunk_records[key] = sync_record
+
+            field_data = self._extract_field_data(
+                sync_record,
+                many_to_many_names,
+            )
+
+            many_to_many_data = self._extract_many_to_many_data(
+                sync_record,
+                many_to_many_names,
+            )
+
+            deserialized[key] = serializer.deserialize(field_data)
+
+            if many_to_many_data:
+                pending_many_to_many[key] = many_to_many_data
+
+        with transaction.atomic():
+            skipped = self._upsert_strategy.apply_many(
+                model,
+                chunk_records,
+                deserialized,
+            )
+
+            for key in skipped:
+                pending_many_to_many.pop(key, None)
+
+            m2m_skipped = self._many_to_many_applier.apply(
+                model,
+                pending_many_to_many,
+            )
+
+            skipped |= m2m_skipped
+
+        return skipped
+
     def delete_many(
         self,
         model_label: str,
@@ -183,20 +233,20 @@ class DjangoRecordWriter:
         if not deletes:
             return
 
-        self._check_batch_limit(len(deletes), 'delete_many')
-
         model = self._get_model(model_label)
         strategy = self._delete_strategies[model_label]
+        keys = list(deletes.keys())
 
-        strategy.delete(model, deletes)
+        for start in range(0, len(keys), self._batch_size_max):
+            chunk_keys = keys[start:start + self._batch_size_max]
+            chunk = {key: deletes[key] for key in chunk_keys}
+            strategy.delete(model, chunk)
 
     def upsert_many(
         self,
         model_label: str,
         records: dict[str, SyncRecord],
     ) -> set[str]:
-        self._check_batch_limit(len(records), 'upsert_many')
-
         if not records:
             return set()
 
@@ -205,40 +255,19 @@ class DjangoRecordWriter:
         serializer = self._serializers[model_label]
 
         skipped: set[str] = set()
-        pending_many_to_many: dict[str, dict[str, list[Any]]] = {}
+        keys = sorted(records.keys())
 
-        with transaction.atomic():
-            for key in sorted(records.keys()):
-                sync_record = records[key]
+        for start in range(0, len(keys), self._batch_size_max):
+            chunk_keys = keys[start:start + self._batch_size_max]
 
-                field_data = self._extract_field_data(
-                    sync_record,
-                    many_to_many_names,
-                )
-
-                many_to_many_data = self._extract_many_to_many_data(
-                    sync_record,
-                    many_to_many_names,
-                )
-
-                field_data = serializer.deserialize(field_data)
-
-                applied = self._upsert_strategy.apply(
-                    model, key, sync_record, field_data,
-                )
-
-                if not applied:
-                    skipped.add(key)
-                    continue
-
-                if many_to_many_data:
-                    pending_many_to_many[key] = many_to_many_data
-
-            m2m_skipped = self._many_to_many_applier.apply(
+            chunk_skipped = self._upsert_chunk(
                 model,
-                pending_many_to_many,
+                records,
+                chunk_keys,
+                many_to_many_names,
+                serializer,
             )
 
-            skipped |= m2m_skipped
+            skipped |= chunk_skipped
 
         return skipped

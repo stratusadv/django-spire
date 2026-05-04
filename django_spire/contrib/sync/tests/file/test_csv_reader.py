@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from django_spire.contrib.sync.file.parser.csv import CsvParser
+from django_spire.contrib.sync.file.exceptions import FileSyncParseError
+from django_spire.contrib.sync.file.reader.csv import CsvReader
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -39,22 +40,22 @@ def tsv_file(tmp_path: Path) -> Path:
 
 
 def test_parse_returns_list(csv_file: Path) -> None:
-    parser = CsvParser()
-    records = parser.parse(csv_file)
+    reader = CsvReader()
+    records = reader.read(csv_file)
 
     assert isinstance(records, list)
 
 
 def test_record_count(csv_file: Path) -> None:
-    parser = CsvParser()
-    records = parser.parse(csv_file)
+    reader = CsvReader()
+    records = reader.read(csv_file)
 
     assert len(records) == 2
 
 
 def test_record_fields(csv_file: Path) -> None:
-    parser = CsvParser()
-    records = parser.parse(csv_file)
+    reader = CsvReader()
+    records = reader.read(csv_file)
 
     assert records[0]['StockNumber'] == '13511'
     assert records[0]['Year'] == '2021'
@@ -63,7 +64,7 @@ def test_record_fields(csv_file: Path) -> None:
 
 
 def test_field_map(csv_file: Path) -> None:
-    parser = CsvParser(
+    reader = CsvReader(
         field_map={
             'StockNumber': 'stock_number',
             'Year': 'year',
@@ -72,7 +73,7 @@ def test_field_map(csv_file: Path) -> None:
         },
     )
 
-    records = parser.parse(csv_file)
+    records = reader.read(csv_file)
 
     assert 'stock_number' in records[0]
     assert 'year' in records[0]
@@ -80,7 +81,7 @@ def test_field_map(csv_file: Path) -> None:
 
 
 def test_type_map(csv_file: Path) -> None:
-    parser = CsvParser(
+    reader = CsvReader(
         field_map={
             'StockNumber': 'stock_number',
             'Year': 'year',
@@ -92,7 +93,7 @@ def test_type_map(csv_file: Path) -> None:
         },
     )
 
-    records = parser.parse(csv_file)
+    records = reader.read(csv_file)
 
     assert records[0]['year'] == 2021
     assert records[0]['price'] == 226900.00
@@ -109,15 +110,15 @@ def test_type_map_bad_value(tmp_path: Path) -> None:
     path = tmp_path / 'bad.csv'
     path.write_text(content, encoding='utf-8')
 
-    parser = CsvParser(type_map={'Age': int})
+    reader = CsvReader(type_map={'Age': int})
 
-    with pytest.raises(ValueError, match='Age'):
-        parser.parse(path)
+    with pytest.raises(FileSyncParseError, match='Age'):
+        reader.read(path)
 
 
 def test_tsv_delimiter(tsv_file: Path) -> None:
-    parser = CsvParser(delimiter='\t')
-    records = parser.parse(tsv_file)
+    reader = CsvReader(delimiter='\t')
+    records = reader.read(tsv_file)
 
     assert len(records) == 1
     assert records[0]['StockNumber'] == '13511'
@@ -127,18 +128,18 @@ def test_empty_file(tmp_path: Path) -> None:
     path = tmp_path / 'empty.csv'
     path.write_text('StockNumber,Year\n', encoding='utf-8')
 
-    parser = CsvParser()
-    records = parser.parse(path)
+    reader = CsvReader()
+    records = reader.read(path)
 
     assert records == []
 
 
 def test_field_map_preserves_unmapped(csv_file: Path) -> None:
-    parser = CsvParser(
+    reader = CsvReader(
         field_map={'StockNumber': 'stock_number'},
     )
 
-    records = parser.parse(csv_file)
+    records = reader.read(csv_file)
 
     assert 'stock_number' in records[0]
     assert 'Year' in records[0]

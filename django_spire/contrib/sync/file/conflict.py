@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Protocol, TYPE_CHECKING
 
 from django_spire.contrib.sync.core.enums import ResolutionAction
+from django_spire.contrib.sync.file.exceptions import FileSyncConflictError
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -52,7 +53,8 @@ class LastWriteWins:
                 f'Cannot resolve conflict for key {conflict.key!r}: '
                 f'no timestamps available on either side'
             )
-            raise ValueError(message)
+
+            raise FileSyncConflictError(message)
 
         if conflict.source_timestamp is None:
             return Resolution(
