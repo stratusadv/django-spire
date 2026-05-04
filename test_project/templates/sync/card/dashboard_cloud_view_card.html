@@ -1,0 +1,61 @@
+<div class="row g-2 mb-4">
+        <div class="col-4">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-cloud">Total Records</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ cloud_database_view.total_records }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-cloud">Models</span>
+                <div class="sd-mono sd-summary-num mt-2">{{ cloud_database_view.sections|length }}</div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="border rounded p-3">
+                <span class="sd-chip sd-chip-cloud">Database</span>
+                <div class="sd-mono sd-summary-num mt-2">cloud</div>
+            </div>
+        </div>
+    </div>
+
+    {% for section in cloud_database_view.sections %}
+        <div class="border rounded overflow-hidden mb-3">
+            <div class="d-flex align-items-center px-3 py-2 border-bottom">
+                <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">{{ section.model_name }}</span>
+                <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.3; margin-left: auto;">{{ section.record_count }} record{{ section.record_count|pluralize }}</span>
+            </div>
+
+            {% for record in section.records %}
+                <div class="sd-row">
+                    <div class="row g-0 px-3 py-2 align-items-stretch">
+                        <div class="col-12 sd-col-stretch">
+                            <div class="sd-cell sd-cell-cloud">
+                                <div class="d-flex align-items-baseline gap-2 mb-2">
+                                    <span class="sd-badge-cloud">Cloud</span>
+                                    <strong style="font-size: 0.78rem;">{{ record.title }}</strong>
+                                    <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2; margin-left: auto;">{{ record.id }}</span>
+                                </div>
+                                <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                                    {% for field in record.fields %}
+                                        <span class="sd-kv-key">{{ field.name }}</span>
+                                        <span class="sd-kv-val" title="{% if field.ts.raw %}{{ field.ts.human }} UTC&#10;HLC: {{ field.ts.raw }}{% endif %}{% if field.full_value %}{% if field.ts.raw %}&#10;&#10;{% endif %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                        <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-2 pt-2" style="border-top: 1px solid rgba(253, 186, 116, 0.1);">
+                                    <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">sync_field_last_modified</span>
+                                    <span class="sd-mono" style="font-size: 0.52rem; opacity: 0.35;">{{ record.sync_field_last_modified.human|default:"\u2014" }}</span>
+                                    <span class="sd-mono" style="font-size: 0.48rem; opacity: 0.15;" x-show="show_ts" x-cloak>HLC: {{ record.sync_field_last_modified.raw|default:"\u2014" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="px-3 py-3">
+                    <span class="sd-mono" style="font-size: 0.65rem; opacity: 0.3;">No records</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}

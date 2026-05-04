@@ -1,0 +1,167 @@
+<div class="border rounded p-3 mb-4" style="border-color: #166534 !important;">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="sd-chip sd-chip-match">Sync Complete</span>
+    </div>
+
+    <div class="mb-3">
+        <span class="sd-section-label sd-mono me-2">Dependency order</span>
+        {% for model in result.sync_order %}
+            {% if not forloop.first %}<span class="mx-1 opacity-25">&rarr;</span>{% endif %}
+            <span class="sd-mono" style="font-size: 0.7rem; font-weight: 600;">{{ model|cut:"sync." }}</span>
+        {% endfor %}
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <div class="border rounded p-2">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="sd-badge-local">Local</span>
+                    <span class="sd-section-label sd-mono">Manifest sent</span>
+                </div>
+                <div class="sd-mono" style="font-size: 0.65rem; opacity: 0.5;">
+                    node={{ result.local_manifest.node_id }}, checkpoint={{ result.local_manifest.checkpoint }}<br>
+                    {% for model, count in result.local_manifest.payload_counts.items %}
+                        {{ model|cut:"sync." }}={{ count }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="border rounded p-2">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="sd-badge-cloud">Cloud</span>
+                    <span class="sd-section-label sd-mono">Manifest sent</span>
+                </div>
+                <div class="sd-mono" style="font-size: 0.65rem; opacity: 0.5;">
+                    node={{ result.cloud_manifest.node_id }}, checkpoint={{ result.cloud_manifest.checkpoint }}<br>
+                    {% for model, count in result.cloud_manifest.payload_counts.items %}
+                        {{ model|cut:"sync." }}={{ count }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <span class="sd-section-label sd-mono" style="color: #4f46e5; opacity: 1;">Applied to local</span>
+            <div class="sd-mono mt-1" style="font-size: 0.75rem;">
+                {{ result.local_result.created|length }} created,
+                {{ result.local_result.applied|length }} updated,
+                {{ result.local_result.conflicts|length }} conflicts,
+                {{ result.local_result.deleted|length }} deleted
+                {% if result.local_result.errors|length > 0 %}, <span class="text-danger">{{ result.local_result.errors|length }} errors</span>{% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <span class="sd-section-label sd-mono" style="color: #d97706; opacity: 1;">Applied to cloud</span>
+            <div class="sd-mono mt-1" style="font-size: 0.75rem;">
+                {{ result.cloud_result.created|length }} created,
+                {{ result.cloud_result.applied|length }} updated,
+                {{ result.cloud_result.conflicts|length }} conflicts,
+                {{ result.cloud_result.deleted|length }} deleted
+                {% if result.cloud_result.errors|length > 0 %}, <span class="text-danger">{{ result.cloud_result.errors|length }} errors</span>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if result.local_result.conflict_log or result.cloud_result.conflict_log %}
+        <div class="border-top pt-3">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="sd-chip sd-chip-conflict">Field-Level Resolution</span>
+                <span class="sd-mono" style="font-size: 0.6rem; opacity: 0.4;">Higher HLC timestamp wins per field</span>
+            </div>
+
+            {% for entry in result.local_result.conflict_log %}
+                <div class="border rounded p-2 mb-2" style="border-color: #fdba74 !important;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="sd-mono" style="font-size: 0.75rem; font-weight: 700;">{{ entry.model_label|cut:"sync." }}</span>
+                        <span class="sd-chip sd-chip-conflict-soft sd-mono">{{ entry.conflict_type }}</span>
+                    </div>
+                    <table class="table table-sm table-bordered mb-0 sd-mono" style="font-size: 0.7rem;">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th style="color: #4f46e5;">Local</th>
+                                <th style="color: #4f46e5; font-size: 0.6rem;">TS</th>
+                                <th style="color: #d97706;">Cloud</th>
+                                <th style="color: #d97706; font-size: 0.6rem;">TS</th>
+                                <th>Winner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fc in entry.field_conflicts %}
+                                <tr>
+                                    <td><code>{{ fc.field_name }}</code></td>
+                                    <td class="{% if fc.winner == 'local' %}fw-bold{% endif %}">{{ fc.local_value|truncatewords:6 }}</td>
+                                    <td style="font-size: 0.6rem; opacity: 0.5;">{{ fc.local_timestamp }}</td>
+                                    <td class="{% if fc.winner == 'remote' %}fw-bold{% endif %}">{{ fc.remote_value|truncatewords:6 }}</td>
+                                    <td style="font-size: 0.6rem; opacity: 0.5;">{{ fc.remote_timestamp }}</td>
+                                    <td>
+                                        {% if fc.winner == 'local' %}
+                                            <span class="sd-chip sd-chip-local-only">local</span>
+                                        {% else %}
+                                            <span class="sd-chip sd-chip-cloud-only">cloud</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+
+            {% for entry in result.cloud_result.conflict_log %}
+                <div class="border rounded p-2 mb-2" style="border-color: #fdba74 !important;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="sd-mono" style="font-size: 0.75rem; font-weight: 700;">{{ entry.model_label|cut:"sync." }}</span>
+                        <span class="sd-chip sd-chip-conflict-soft sd-mono">{{ entry.conflict_type }}</span>
+                    </div>
+                    <table class="table table-sm table-bordered mb-0 sd-mono" style="font-size: 0.7rem;">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th style="color: #d97706;">Cloud</th>
+                                <th style="color: #d97706; font-size: 0.6rem;">TS</th>
+                                <th style="color: #4f46e5;">Local</th>
+                                <th style="color: #4f46e5; font-size: 0.6rem;">TS</th>
+                                <th>Winner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fc in entry.field_conflicts %}
+                                <tr>
+                                    <td><code>{{ fc.field_name }}</code></td>
+                                    <td class="{% if fc.winner == 'local' %}fw-bold{% endif %}">{{ fc.local_value|truncatewords:6 }}</td>
+                                    <td style="font-size: 0.6rem; opacity: 0.5;">{{ fc.local_timestamp }}</td>
+                                    <td class="{% if fc.winner == 'remote' %}fw-bold{% endif %}">{{ fc.remote_value|truncatewords:6 }}</td>
+                                    <td style="font-size: 0.6rem; opacity: 0.5;">{{ fc.remote_timestamp }}</td>
+                                    <td>
+                                        {% if fc.winner == 'local' %}
+                                            <span class="sd-chip sd-chip-cloud-only">cloud</span>
+                                        {% else %}
+                                            <span class="sd-chip sd-chip-local-only">local</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="row mt-2">
+        <div class="col-md-6">
+            <span class="sd-mono" style="font-size: 0.55rem; opacity: 0.3;">
+                local checksum={{ result.local_manifest.checksum|truncatechars:24 }}
+            </span>
+        </div>
+        <div class="col-md-6">
+            <span class="sd-mono" style="font-size: 0.55rem; opacity: 0.3;">
+                cloud checksum={{ result.cloud_manifest.checksum|truncatechars:24 }}
+            </span>
+        </div>
+    </div>
+</div>
