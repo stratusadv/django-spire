@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.31.6
+
+### Changes
+- Added working prototype of `sync` module
+- Updated `nav_link.html` and `wizard.html` templates
+
 ## v0.31.5
 
 ### Features

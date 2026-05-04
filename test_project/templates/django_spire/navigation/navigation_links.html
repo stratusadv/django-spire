@@ -66,6 +66,10 @@
 
 {% url 'tabular:page:list' as tabular_url %}
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Tabular' link_icon='bi bi-columns-gap' link_url=tabular_url %}
+
+{% url 'sync:page:dashboard' as sync_url %}
+{% include 'django_spire/navigation/elements/nav_link.html' with link_text='Sync' link_icon='bi bi-arrow-repeat' link_url=sync_url %}
+
 {% include 'django_spire/navigation/elements/nav_title_divider.html' with divider_text='Scrolling' %}
 
 {% include 'django_spire/navigation/elements/nav_link.html' with link_text='Dashboard' link_icon='bi bi-speedometer2' %}

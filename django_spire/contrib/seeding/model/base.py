@@ -110,8 +110,8 @@ class BaseModelSeeder(ABC):
         ]
 
         for sublist in seed_data:
-            for i, data in enumerate(formatted_seed_data):
-                data.update(sublist[i])
+            for data, sub_data in zip(formatted_seed_data, sublist, strict=False):
+                data.update(sub_data)
 
         if cls.cache_seed:
             cache.set(cache_key, formatted_seed_data)

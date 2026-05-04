@@ -1,0 +1,24 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Sync Dashboard
+{% endblock %}
+
+{% block card_title_content %}
+    {% include 'sync/card/dashboard_style_card.html' %}
+    {% include 'sync/card/dashboard_controls_card.html' %}
+    {% include 'sync/card/dashboard_result_card.html' %}
+
+    {% if sync_mode != 'all' %}
+        <div x-data="{ show_ts: false }">
+            {% include 'sync/card/dashboard_tabs_card.html' %}
+
+            {% if is_cloud_view %}
+                {% include 'sync/card/dashboard_cloud_view_card.html' %}
+            {% else %}
+                {% include 'sync/card/dashboard_counts_card.html' %}
+                {% include 'sync/card/dashboard_comparison_card.html' %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,131 @@
+<div class="border rounded overflow-hidden">
+    <div class="row g-0 px-3 py-2 border-bottom">
+        {% if has_sync %}
+            <div class="col-1">
+                <span class="sd-section-label sd-mono">Model</span>
+            </div>
+            <div class="col-4">
+                <span class="sd-section-label sd-mono" style="color: #93c5fd; opacity: 0.7;">{{ active_tablet_db }}</span>
+            </div>
+            <div class="col-4">
+                <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">Cloud</span>
+            </div>
+            <div class="col-3">
+                <span class="sd-section-label sd-mono" style="color: #34d399; opacity: 0.7;">Merged</span>
+            </div>
+        {% else %}
+            <div class="col-2">
+                <span class="sd-section-label sd-mono">Verdict / Model</span>
+            </div>
+            <div class="col-5">
+                <span class="sd-section-label sd-mono" style="color: #93c5fd; opacity: 0.7;">{{ active_tablet_db }}</span>
+            </div>
+            <div class="col-5">
+                <span class="sd-section-label sd-mono" style="color: #fdba74; opacity: 0.7;">Cloud state</span>
+            </div>
+        {% endif %}
+    </div>
+
+    {% for row in rows %}
+    <div class="sd-row">
+        <div class="row g-0 px-3 py-2 align-items-stretch">
+
+            {% if has_sync %}
+                <div class="col-1 d-flex flex-column gap-1 pt-1 pe-3">
+                    {% if row.kind == 'conflict' %}
+                        <span class="sd-chip sd-chip-resolved">Resolved</span>
+                    {% elif row.kind == 'tablet_only' %}
+                        <span class="sd-chip sd-chip-pushed">Pushed</span>
+                    {% elif row.kind == 'cloud_only' %}
+                        <span class="sd-chip sd-chip-pulled">Pulled</span>
+                    {% else %}
+                        <span class="sd-chip sd-chip-match">Match</span>
+                    {% endif %}
+                    <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ row.model|upper }}</span>
+                </div>
+            {% else %}
+                <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                    {% if row.kind == 'match' %}
+                        <span class="sd-chip sd-chip-match">Match</span>
+                    {% elif row.kind == 'conflict' %}
+                        <span class="sd-chip sd-chip-conflict">Conflict &middot; {{ row.diff_count }}</span>
+                    {% elif row.kind == 'tablet_only' %}
+                        <span class="sd-chip sd-chip-local">Tablet Only</span>
+                    {% else %}
+                        <span class="sd-chip sd-chip-cloud">Cloud Only</span>
+                    {% endif %}
+                    <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ row.model|upper }}</span>
+                </div>
+            {% endif %}
+
+            <div class="{% if has_sync %}col-4{% else %}col-5{% endif %} pe-2 sd-col-stretch">
+                {% if row.tablet_cell %}
+                    <div class="sd-cell sd-cell-local">
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="sd-badge-local">{{ active_tablet_db }}</span>
+                            <strong style="font-size: 0.78rem;">{{ row.tablet_cell.title }}</strong>
+                        </div>
+                        <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                            {% for field in row.tablet_cell.fields %}
+                                <span class="sd-kv-key {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-local{% endif %}" style="{% if field.is_diff or field.outcome %}font-weight: 700; opacity: 1;{% endif %}">{{ field.name }}</span>
+                                <span class="sd-kv-val {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-local{% endif %}" title="{% if field.ts.raw %}{{ field.ts.human }} UTC&#10;HLC: {{ field.ts.raw }}{% endif %}{% if field.full_value %}{% if field.ts.raw %}&#10;&#10;{% endif %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="sd-cell-empty">NOT ON TABLET</div>
+                {% endif %}
+            </div>
+
+            <div class="{% if has_sync %}col-4 pe-2{% else %}col-5 ps-2{% endif %} sd-col-stretch">
+                {% if row.cloud_cell %}
+                    <div class="sd-cell sd-cell-cloud">
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="sd-badge-cloud">Cloud</span>
+                            <strong style="font-size: 0.78rem;">{{ row.cloud_cell.title }}</strong>
+                        </div>
+                        <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                            {% for field in row.cloud_cell.fields %}
+                                <span class="sd-kv-key {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-cloud{% endif %}" style="{% if field.is_diff or field.outcome %}font-weight: 700; opacity: 1;{% endif %}">{{ field.name }}</span>
+                                <span class="sd-kv-val {% if field.outcome == 'won' %}sd-won{% elif field.outcome == 'lost' %}sd-lost{% elif field.is_diff %}sd-diff-cloud{% endif %}" title="{% if field.ts.raw %}{{ field.ts.human }} UTC&#10;HLC: {{ field.ts.raw }}{% endif %}{% if field.full_value %}{% if field.ts.raw %}&#10;&#10;{% endif %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="sd-cell-empty">NOT ON CLOUD</div>
+                {% endif %}
+            </div>
+
+            {% if has_sync %}
+                <div class="col-3 ps-2 sd-col-stretch">
+                    {% if row.merged_cell %}
+                        <div class="sd-cell sd-cell-merged">
+                            <div class="d-flex align-items-baseline gap-2 mb-2">
+                                <span class="sd-badge-merged">
+                                    {% if row.merged_cell.outcome == 'match' %}Match
+                                    {% elif row.merged_cell.outcome == 'pushed' %}Pushed
+                                    {% elif row.merged_cell.outcome == 'pulled' %}Pulled
+                                    {% else %}Resolved{% endif %}
+                                </span>
+                                <strong style="font-size: 0.78rem;">{{ row.merged_cell.title }}</strong>
+                            </div>
+                            <div class="sd-kv-grid sd-mono" :style="show_ts && 'grid-template-columns: auto 1fr auto'">
+                                {% for field in row.merged_cell.fields %}
+                                    <span class="sd-kv-key {% if field.outcome == 'won_local' %}sd-merged-from-local{% elif field.outcome == 'won_cloud' %}sd-merged-from-cloud{% endif %}">{{ field.name }}</span>
+                                    <span class="sd-kv-val {% if field.outcome == 'won_local' %}sd-merged-from-local{% elif field.outcome == 'won_cloud' %}sd-merged-from-cloud{% endif %}" title="{% if field.full_value %}{{ field.full_value }}{% endif %}">{{ field.value }}</span>
+                                    <span class="sd-ts-val" x-show="show_ts" x-cloak>{{ field.ts.human|default:"\u2014" }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="sd-cell-empty">---</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endfor %}
+</div>
