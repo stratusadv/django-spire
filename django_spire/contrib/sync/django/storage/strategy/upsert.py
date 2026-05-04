@@ -192,6 +192,7 @@ class BulkUpsertStrategy:
             for key in sorted_keys
         ]
 
+        identity = model._meta.get_field(self._identity_field)
         rows_per_batch = self._rows_per_batch(len(fields))
         applied: set[str] = set()
 
@@ -220,7 +221,7 @@ class BulkUpsertStrategy:
                 cursor.execute(sql, params)
 
                 applied.update(
-                    str(row[0])
+                    str(identity.to_python(row[0]))
                     for row in cursor.fetchall()
                 )
 
