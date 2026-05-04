@@ -2,84 +2,84 @@ from __future__ import annotations
 
 
 class SyncError(Exception):
-    pass
+    """Base exception for all sync operations."""
 
 
 class SyncAbortedError(SyncError):
-    pass
+    """Sync aborted due to a recoverable failure."""
 
 
 class ClockDriftError(SyncAbortedError):
-    pass
+    """Remote node clock exceeds the allowed drift threshold."""
 
 
 class ClockNotConfiguredError(SyncError):
-    pass
+    """SyncableMixin clock was not configured at startup."""
 
 
 class ClockOverflowError(SyncError):
-    pass
+    """HLC counter overflowed or monotonicity was violated."""
 
 
 class ConflictStateError(SyncError):
-    pass
+    """Conflict resolver received an invalid or incomplete conflict."""
 
 
 class CircularDependencyError(SyncError):
-    pass
+    """Dependency graph contains a cycle."""
 
 
 class DecompressionLimitError(SyncError):
-    pass
+    """Decompressed data exceeds the allowed size limit."""
 
 
 class InvalidParameterError(SyncError):
-    pass
+    """Constructor or function received an invalid argument."""
 
 
 class InvalidResponseError(SyncAbortedError):
-    pass
+    """Remote node returned a malformed or oversized response."""
 
 
 class LockContentionError(SyncAbortedError):
-    pass
+    """Another sync session is already running for this node."""
 
 
 class ManifestChecksumError(SyncAbortedError):
-    pass
+    """Manifest checksum verification failed."""
 
 
 class ManifestFieldError(SyncError):
-    pass
+    """Manifest contains missing or invalid fields."""
 
 
 class PayloadLimitError(SyncAbortedError):
-    pass
+    """Collected payload exceeds the configured size or record limit."""
 
 
 class BatchLimitError(SyncError):
-    pass
+    """Batch size exceeds the configured maximum."""
 
 
 class RecordFieldError(SyncError):
-    pass
+    """Record contains missing or invalid fields."""
 
 
 class RecordSerializationError(SyncError):
-    pass
+    """Record contains a value that cannot be serialized to JSON."""
 
 
 class RetryExhaustedError(SyncAbortedError):
-    pass
+    """Retry helper exhausted all configured attempts."""
 
 
 class TransportRequiredError(SyncError):
-    pass
+    """Engine requires a transport for client-side sync."""
 
 
 class UnknownDependencyError(SyncError):
-    pass
+    """Model declares a dependency on an unregistered model."""
 
 
 class UnknownModelError(SyncError):
-    pass
+    """Model label does not match any registered syncable model."""
