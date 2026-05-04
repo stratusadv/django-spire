@@ -72,6 +72,20 @@ The Django Spire `base.html` includes the manifest link by default:
 
 If you are using a custom base template, add this line inside your `<head>` block.
 
+### 4. Development Django Settings
+
+To enable PWA installation on Android during development, add the following to your `settings.py`:
+
+```python
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+        # Your hosted development address here (ie. 'https://development-server.dev')
+    ]
+```
+
+**Note:** Android blocks PWA installation prompts for non-HTTPS URLs by default.
+We recommend using [ngrok](https://ngrok.com) to expose your development environment over HTTPS for testing.
+
 ---
 
 ## Core Concepts
