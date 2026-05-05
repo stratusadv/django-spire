@@ -40,7 +40,6 @@ class BaseCeleryTaskManager(ABC):
     task_name: str
     display_name: str
     estimated_completion_seconds: int | None = None
-    required_args_types: list[type] | None = None
     required_kwargs_keys_types: dict[str, type] | None = None
     send_task_retries: int = 2
 
@@ -58,6 +57,10 @@ class BaseCeleryTaskManager(ABC):
             raise ValueError(message)
 
     def __init__(self, model_object: Model | None = None) -> None:
+        if model_object is not None and model_object.pk is None:
+            message = f'{self.__class__.__name__}.init got model_object "{model_object.__class__.__name__}" with no primary key'
+            raise ValueError(message)
+
         self.model_object = model_object
 
     @property
@@ -90,45 +93,37 @@ class BaseCeleryTaskManager(ABC):
 
     @property
     def class_and_send_task_method(self) -> str:
-        return f'{self.__class__.__name__}.send_task(*args, )'
+        return f'{self.__class__.__name__}.send_task(**kwargs)'
 
     def filter_celery_tasks(self) -> QuerySet[CeleryTask]:
         return CeleryTask.objects.by_reference_keys_model_keys({self.reference_key: self.model_key})
 
     def send_task(
         self,
-        *args,
-        send_task_retries: int | None = None,
         **kwargs,
     ) -> CeleryTask:
-        self._validate_args_and_kwargs(*args, **kwargs)
-
-        effective_max_retries = (
-            send_task_retries if send_task_retries is not None else self.send_task_retries
-        )
+        self._validate_and_kwargs(**kwargs)
 
         attempt = 0
         last_exception: Exception | None = None
 
-        while attempt <= effective_max_retries:
+        while attempt <= self.send_task_retries:
             try:
                 return self._create_celery_task(
-                    send_task(name=self.task_name, args=args, kwargs=kwargs)
+                    send_task(name=self.task_name, kwargs=kwargs)
                 )
             except _SEND_RETRYABLE_EXCEPTIONS as e:
                 attempt += 1
                 last_exception = e
 
-                if attempt > effective_max_retries:
+                if attempt > self.send_task_retries:
                     break
 
-                delay = 1 * (2 ** (attempt - 1))
-
-                time.sleep(delay)
+                time.sleep(1 * (2 ** (attempt - 1)))
 
         return self._create_failed_celery_task(
             error_message=str(last_exception) if last_exception else 'Unknown error',
-            original_args=args,
+            original_args=(),
             original_kwargs=kwargs,
         )
 
@@ -174,17 +169,7 @@ class BaseCeleryTaskManager(ABC):
             }),
         )
 
-    def _validate_args_and_kwargs(self, *args, **kwargs) -> None:
-        if self.required_args_types and args:
-            if len(args) != len(self.required_args_types):
-                message = f'{self.class_and_send_task_method} only got {len(args)} arguments, expected {len(self.required_args_types)}'
-                raise ValueError(message)
-
-            for i, arg in enumerate(args):
-                if not isinstance(arg, self.required_args_types[i]):
-                    message = f'{self.class_and_send_task_method} method got invalid type from arg at position {i} must be type {self.required_args_types[i]}'
-                    raise TypeError(message)
-
+    def _validate_and_kwargs(self, **kwargs) -> None:
         if self.required_kwargs_keys_types and kwargs:
             for key, type_ in self.required_kwargs_keys_types.items():
                 if key not in kwargs:

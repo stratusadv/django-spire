@@ -179,32 +179,6 @@ class BaseCeleryTaskManagerPropertiesTestCase(TestCase):
 
 
 class BaseCeleryTaskManagerValidationTestCase(TestCase):
-    def test_validates_required_args_count(self) -> None:
-        class StrictManager(BaseCeleryTaskManager):
-            task_name = 'strict_task'
-            display_name = 'Strict Task'
-            required_args_types = [int, str]
-
-        manager = StrictManager()
-
-        with self.assertRaises(ValueError) as context:
-            manager._validate_args_and_kwargs(1)
-
-        self.assertIn('only got 1 arguments', str(context.exception))
-
-    def test_validates_required_args_types(self) -> None:
-        class StrictManager(BaseCeleryTaskManager):
-            task_name = 'strict_task'
-            display_name = 'Strict Task'
-            required_args_types = [int, str]
-
-        manager = StrictManager()
-
-        with self.assertRaises(TypeError) as context:
-            manager._validate_args_and_kwargs('string', 123)
-
-        self.assertIn('invalid type', str(context.exception))
-
     def test_validates_required_kwargs_keys(self) -> None:
         class StrictManager(BaseCeleryTaskManager):
             task_name = 'strict_task'
@@ -214,7 +188,7 @@ class BaseCeleryTaskManagerValidationTestCase(TestCase):
         manager = StrictManager()
 
         with self.assertRaises(ValueError) as context:
-            manager._validate_args_and_kwargs(name='test')
+            manager._validate_and_kwargs(name='test')
 
         self.assertIn('missing kwarg "count"', str(context.exception))
 
@@ -227,14 +201,14 @@ class BaseCeleryTaskManagerValidationTestCase(TestCase):
         manager = StrictManager()
 
         with self.assertRaises(TypeError) as context:
-            manager._validate_args_and_kwargs(name='test', count='not_int')
+            manager._validate_and_kwargs(name='test', count='not_int')
 
         self.assertIn('invalid type', str(context.exception))
 
     def test_validation_passes_when_no_requirements(self) -> None:
         manager = ManagerTestCeleryTaskManager()
 
-        manager._validate_args_and_kwargs(1, 2, 3, key='value')
+        manager._validate_and_kwargs(key='value')
 
 
 class BaseCeleryTaskManagerSendTaskTestCase(TestCase):
@@ -247,7 +221,7 @@ class BaseCeleryTaskManagerSendTaskTestCase(TestCase):
         mock_send_task.return_value = mock_async_result
 
         manager = ManagerTestCeleryTaskManager()
-        celery_task = manager.send_task(1, 2, 3)
+        celery_task = manager.send_task()
 
         self.assertIsInstance(celery_task, CeleryTask)
         self.assertEqual(celery_task.task_name, 'test_task')
@@ -268,22 +242,22 @@ class BaseCeleryTaskManagerSendTaskTestCase(TestCase):
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
-    def test_send_task_passes_args_to_celery(self, mock_send_task) -> None:
+    def test_send_task_passes_kwargs_to_celery(self, mock_send_task) -> None:
         valid_uuid = uuid.uuid4()
         mock_async_result = MagicMock()
         mock_async_result.id = str(valid_uuid)
         mock_send_task.return_value = mock_async_result
 
         manager = ManagerTestCeleryTaskManager()
-        manager.send_task('arg1', 'arg2')
+        manager.send_task(arg1='value1', arg2='value2')
 
         mock_send_task.assert_called_once()
         call_kwargs = mock_send_task.call_args[1]
-        self.assertEqual(call_kwargs['args'], ('arg1', 'arg2'))
+        self.assertEqual(call_kwargs['kwargs'], {'arg1': 'value1', 'arg2': 'value2'})
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
-    def test_send_task_passes_kwargs_to_celery(self, mock_send_task) -> None:
+    def test_send_task_uses_only_kwargs(self, mock_send_task) -> None:
         valid_uuid = uuid.uuid4()
         mock_async_result = MagicMock()
         mock_async_result.id = str(valid_uuid)
@@ -347,7 +321,7 @@ class BaseCeleryTaskManagerRetryTestCase(TestCase):
         ]
 
         manager = ManagerTestCeleryTaskManager()
-        celery_task = manager.send_task(1, 2, 3)
+        celery_task = manager.send_task()
 
         self.assertEqual(mock_send_task.call_count, 3)
         self.assertEqual(mock_sleep.call_count, 2)
@@ -368,20 +342,6 @@ class BaseCeleryTaskManagerRetryTestCase(TestCase):
 
         manager = LowRetryManager()
         celery_task = manager.send_task()
-
-        self.assertEqual(mock_send_task.call_count, 2)
-        self.assertEqual(mock_sleep.call_count, 1)
-
-    @override_settings(SECRET_KEY=SECRET_KEY)
-    @patch('django_spire.celery.manager.time.sleep')
-    @patch('django_spire.celery.manager.send_task')
-    def test_respects_send_task_retries_per_call_override(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
-        from kombu.exceptions import OperationalError as KombuOperationalError
-
-        mock_send_task.side_effect = KombuOperationalError('Connection failed')
-
-        manager = ManagerTestCeleryTaskManager()
-        celery_task = manager.send_task(send_task_retries=1)
 
         self.assertEqual(mock_send_task.call_count, 2)
         self.assertEqual(mock_sleep.call_count, 1)
@@ -414,10 +374,15 @@ class BaseCeleryTaskManagerRetryTestCase(TestCase):
     def test_no_retry_when_send_task_retries_is_zero(self, mock_send_task: MagicMock) -> None:
         from kombu.exceptions import OperationalError as KombuOperationalError
 
+        class ZeroRetryManager(BaseCeleryTaskManager):
+            task_name = 'zero_retry_task'
+            display_name = 'Zero Retry Task'
+            send_task_retries = 0
+
         mock_send_task.side_effect = KombuOperationalError('Failed')
 
-        manager = ManagerTestCeleryTaskManager()
-        celery_task = manager.send_task(send_task_retries=0)
+        manager = ZeroRetryManager()
+        celery_task = manager.send_task()
 
         self.assertEqual(mock_send_task.call_count, 1)
         self.assertTrue(celery_task.send_failed)
@@ -449,8 +414,15 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
 
         mock_send_task.side_effect = KombuOperationalError('Connection failed')
 
-        manager = ManagerTestCeleryTaskManager()
-        celery_task = manager.send_task(send_task_retries=2)
+        class MaxRetryManager(BaseCeleryTaskManager):
+            task_name = 'max_retry_task'
+            display_name = 'Max Retry Task'
+            send_task_retries = 2
+
+        mock_send_task.side_effect = KombuOperationalError('Connection failed')
+
+        manager = MaxRetryManager()
+        celery_task = manager.send_task()
 
         self.assertIsInstance(celery_task, CeleryTask)
         self.assertEqual(celery_task.state, states.FAILURE)
@@ -485,16 +457,16 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
-    def test_failed_record_preserves_original_args_kwargs(self, mock_send_task: MagicMock) -> None:
+    def test_failed_record_preserves_original_kwargs(self, mock_send_task: MagicMock) -> None:
         from kombu.exceptions import OperationalError as KombuOperationalError
 
         mock_send_task.side_effect = KombuOperationalError('Failed')
 
         manager = ManagerTestCeleryTaskManager()
-        celery_task = manager.send_task('arg1', 'arg2', key='value')
+        celery_task = manager.send_task(arg1='value1', arg2='value2', key='value')
 
-        self.assertEqual(celery_task.send_error_details['args'], ('arg1', 'arg2'))
-        self.assertEqual(celery_task.send_error_details['kwargs'], {'key': 'value'})
+        self.assertEqual(celery_task.send_error_details['args'], ())
+        self.assertEqual(celery_task.send_error_details['kwargs'], {'arg1': 'value1', 'arg2': 'value2', 'key': 'value'})
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
