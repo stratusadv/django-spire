@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.7
+
+### Changes
+- Added an `open` method to `sync.file`
+
 ## v0.31.6
 
 ### Changes
