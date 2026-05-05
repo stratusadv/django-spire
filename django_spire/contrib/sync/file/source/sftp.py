@@ -157,6 +157,10 @@ class SFTPSource(Source):
         sftp = self._require_connection()
         return sftp.listdir(remote_path)
 
+    def open(self, remote_path: str, mode: str = 'rb') -> paramiko.SFTPFile:
+        sftp = self._require_connection()
+        return sftp.open(remote_path, mode)
+
     def upload(
         self,
         local_path: Path,
