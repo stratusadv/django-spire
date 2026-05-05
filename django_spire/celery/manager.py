@@ -57,10 +57,6 @@ class BaseCeleryTaskManager(ABC):
             raise ValueError(message)
 
     def __init__(self, model_object: Model | None = None) -> None:
-        if model_object is not None and model_object.pk is None:
-            message = f'{self.__class__.__name__}.init got model_object "{model_object.__class__.__name__}" with no primary key'
-            raise ValueError(message)
-
         self.model_object = model_object
 
     @property
@@ -98,10 +94,7 @@ class BaseCeleryTaskManager(ABC):
     def filter_celery_tasks(self) -> QuerySet[CeleryTask]:
         return CeleryTask.objects.by_reference_keys_model_keys({self.reference_key: self.model_key})
 
-    def send_task(
-        self,
-        **kwargs,
-    ) -> CeleryTask:
+    def send_task(self, **kwargs) -> CeleryTask:
         self._validate_and_kwargs(**kwargs)
 
         attempt = 0
@@ -109,9 +102,7 @@ class BaseCeleryTaskManager(ABC):
 
         while attempt <= self.send_task_retries:
             try:
-                return self._create_celery_task(
-                    send_task(name=self.task_name, kwargs=kwargs)
-                )
+                return self._create_celery_task(send_task(name=self.task_name, kwargs=kwargs))
             except _SEND_RETRYABLE_EXCEPTIONS as e:
                 attempt += 1
                 last_exception = e
@@ -128,6 +119,8 @@ class BaseCeleryTaskManager(ABC):
         )
 
     def _create_celery_task(self, async_result: Any) -> CeleryTask:
+        self._validate_model_object()
+
         return CeleryTask.objects.create(
             task_id=async_result.id,
             task_name=self.task_name[:255],
@@ -143,11 +136,10 @@ class BaseCeleryTaskManager(ABC):
         )
 
     def _create_failed_celery_task(
-        self,
-        error_message: str,
-        original_args: tuple,
-        original_kwargs: dict,
+        self, error_message: str, original_args: tuple, original_kwargs: dict
     ) -> CeleryTask:
+        self._validate_model_object()
+
         failed_task_id = uuid.uuid4()
 
         return CeleryTask.objects.create(
@@ -160,13 +152,15 @@ class BaseCeleryTaskManager(ABC):
             started_datetime=now(),
             estimated_completion_datetime=now(),
             has_result=True,
-            _result=pickle.dumps({
-                'error': 'SEND_FAILED',
-                'message': error_message,
-                'args': original_args,
-                'kwargs': original_kwargs,
-                'task_name': self.task_name,
-            }),
+            _result=pickle.dumps(
+                {
+                    'error': 'SEND_FAILED',
+                    'message': error_message,
+                    'args': original_args,
+                    'kwargs': original_kwargs,
+                    'task_name': self.task_name,
+                }
+            ),
         )
 
     def _validate_and_kwargs(self, **kwargs) -> None:
@@ -179,3 +173,8 @@ class BaseCeleryTaskManager(ABC):
                 if not isinstance(kwargs[key], type_):
                     message = f'{self.class_and_send_task_method} method got invalid type from kwarg "{key}" must be type {type_}'
                     raise TypeError(message)
+
+    def _validate_model_object(self) -> None:
+        if self.model_object is not None and self.model_object.pk is None:
+            message = f'{self.__class__.__name__}.model_object "{self.model_object.__class__.__name__}" must have primary key'
+            raise ValueError(message)
