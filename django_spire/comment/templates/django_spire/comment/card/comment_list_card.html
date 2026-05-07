@@ -9,7 +9,7 @@
 
 {% block card_button %}
     {% with app_label=obj|model_app_label model_name=obj|model_name %}
-        {% check_permission user app_label model_name 'change' as has_access %}
+        {% check_permission user app_label model_name 'add' as has_access %}
         {% if has_access %}
             <span
                     @click="dispatch_modal_view('{% url "django_spire:comment:form_content" obj_pk=obj.pk comment_pk=0 app_label=app_label model_name=model_name %}')"

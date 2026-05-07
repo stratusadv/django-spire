@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.8
+
+### Changes
+- Fixed comment Add button permission from `change` to `add`
+
 ## v0.31.7
 
 ### Changes
