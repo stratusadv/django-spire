@@ -22,8 +22,6 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
             try:
                 self.obj.result = self.obj.async_result.get()
 
-                self.obj.has_result = True
-
                 date_done = self.obj.async_result.date_done
 
                 if is_naive(date_done):
@@ -34,23 +32,32 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 self.obj.completed_datetime = date_done_aware
                 self.obj.state = states.SUCCESS
 
-                self.obj.save()
             except (OperationalError, DatabaseError):
                 if self.obj._result_capture_attempts > 3:
                     self.obj.state = states.FAILURE
                 else:
                     self.obj._result_capture_attempts = F('_result_capture_attempts') + 1
 
+            finally:
                 self.obj.save()
 
-
     def update_from_async_result_and_save_if_change(self) -> None:
-        current_state = self.obj.state
+        has_changed = False
+
+        new_meta = self.obj.async_result.info
+
+        if self.obj._meta != new_meta:
+            self.obj._meta = new_meta
+            has_changed = True
+
         new_state = self.obj.async_result.state
 
         if self.obj.state != states.SUCCESS and new_state == states.SUCCESS:
             self.update_result()
-        elif current_state != new_state:
-            self.obj.state = new_state
-            self.obj.save()
 
+        elif self.obj.state != new_state:
+            self.obj.state = new_state
+            has_changed = True
+
+        if has_changed:
+            self.obj.save()

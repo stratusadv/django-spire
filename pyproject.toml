@@ -47,7 +47,7 @@ dependencies = [
     "dandy>=2.2.0",
     "django>=5.1.8",
     "django-crispy-forms==2.3",
-    "django-glue==0.8.13",
+    "django-glue @ git+https://github.com/stratusadv/django-glue.git@v1/base",
     "django-ninja==1.6.2",
     "django-sendgrid-v5",
     "django-storages==1.14.5",

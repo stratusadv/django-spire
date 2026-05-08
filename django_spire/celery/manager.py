@@ -5,8 +5,6 @@ import pickle
 import time
 import uuid
 from abc import ABC
-from datetime import timedelta
-from math import ceil
 from typing import Any
 
 from celery import states
@@ -17,11 +15,10 @@ from celery.execute import send_task
 from django.conf import settings
 from django.db.models import Model, QuerySet
 from django.utils.timezone import now
-from kombu.exceptions import ChannelError, ConnectionError as KombuConnectionError
+from kombu.exceptions import ChannelError
+from kombu.exceptions import ConnectionError as KombuConnectionError
 
 from django_spire.celery.models import CeleryTask
-
-_CELERY_ESTIMATED_TIME_MULTIPLIER = 1.15
 
 _MAX_SEND_TASK_RETRIES = 5
 
@@ -37,9 +34,10 @@ _SEND_RETRYABLE_EXCEPTIONS = (
 
 
 class BaseCeleryTaskManager(ABC):
+    """Used for creating a rigid structure in the client code for calling celery tasks on remote workers"""
+
     task_name: str
     display_name: str
-    estimated_completion_seconds: int | None = None
     required_kwargs_keys_types: dict[str, type] | None = None
     send_task_retries: int = 2
 
@@ -127,12 +125,7 @@ class BaseCeleryTaskManager(ABC):
             display_name=self.display_name[:255],
             reference_key=self.reference_key,
             model_key=self.model_key,
-            estimated_completion_datetime=now()
-            + timedelta(
-                seconds=ceil(self.estimated_completion_seconds * _CELERY_ESTIMATED_TIME_MULTIPLIER)
-            )
-            if self.estimated_completion_seconds is not None
-            else now(),
+            estimated_completion_datetime=now(),
         )
 
     def _create_failed_celery_task(

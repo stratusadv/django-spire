@@ -1,15 +1,15 @@
-from django_spire.celery.services.service import CeleryTaskService
-from typing import Any
+from django_spire.celery.result import set_pickled_no_result, CeleryNoResult
 import pickle
-from datetime import timedelta
-from math import ceil
+from typing import Any
 
 from celery import states
 from celery.result import AsyncResult
 from django.db import models
 from django.utils.timezone import now
 
+from django_spire.celery.meta import CeleryTaskMeta
 from django_spire.celery.querysets import CeleryTaskQuerySet
+from django_spire.celery.services.service import CeleryTaskService
 from django_spire.contrib.utils import format_duration
 
 
@@ -26,12 +26,13 @@ class CeleryTask(models.Model):
     model_key = models.CharField(max_length=128, null=True, blank=True)
 
     state = models.CharField(max_length=16, choices=_celery_state_choices, default=states.PENDING)
+
+    _meta = models.JSONField(default = {}, null=True, blank=True)
+
     started_datetime = models.DateTimeField(default=now)
     completed_datetime = models.DateTimeField(null=True, blank=True)
-    estimated_completion_datetime = models.DateTimeField(default=now)
 
-    has_result = models.BooleanField(default=False)
-    _result = models.BinaryField(null=True, blank=True)
+    _result = models.BinaryField(default=set_pickled_no_result)
     _result_capture_attempts = models.PositiveSmallIntegerField(default=0)
 
     objects = CeleryTaskQuerySet.as_manager()
@@ -52,39 +53,15 @@ class CeleryTask(models.Model):
 
     @property
     def completion_time_verbose(self) -> str:
-        return format_duration(
-            amount=self.completion_time_seconds, start_unit='second', min_unit='second'
-        )
+        return format_duration(amount=self.completion_time_seconds)
 
     @property
-    def estimated_completion_percentage(self) -> float:
-        percentage = (
-            self.estimated_time_seconds - self.estimated_time_remaining_seconds
-        ) / self.estimated_time_seconds
-
-        percentage = min(percentage, 1.0)
-
-        return max(percentage, 0.0)
+    def remaining_time_verbose(self) -> str:
+        return format_duration(amount=self.remaining_seconds)
 
     @property
-    def estimated_completion_percentage_of_hundred(self) -> int:
-        return int(self.estimated_completion_percentage * 100)
-
-    @property
-    def estimated_time_remaining_seconds(self) -> int:
-        time_delta = self.estimated_completion_datetime - now()
-        return int(time_delta.total_seconds())
-
-    @property
-    def estimated_time_seconds(self) -> int:
-        time_delta = self.estimated_completion_datetime - self.started_datetime
-        return int(time_delta.total_seconds())
-
-    @property
-    def estimated_time_remaining_verbose(self) -> str:
-        return format_duration(
-            amount=self.estimated_time_remaining_seconds, start_unit='second', min_unit='minute'
-        )
+    def has_result(self) -> bool:
+        return not isinstance(self.result, CeleryNoResult())
 
     @property
     def has_no_result(self) -> bool:
@@ -105,7 +82,15 @@ class CeleryTask(models.Model):
 
     @property
     def is_processing(self) -> bool:
-        return self.state in states.UNREADY_STATES
+        return self.state not in states.READY_STATES and self.state not in states.EXCEPTION_STATES
+
+    @property
+    def meta(self) -> CeleryTaskMeta:
+        return CeleryTaskMeta(**self._meta)
+
+    @meta.setter
+    def meta(self, meta: dict[Any, Any]) -> None:
+        self._meta = meta
 
     @property
     def result(self) -> Any:
