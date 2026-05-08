@@ -1,9 +1,14 @@
 # Changelog
 
-## v0.31.8
+## v0.31.9
 
 ### Changes
 - Fixed comment Add button permission from `change` to `add`
+
+## v0.31.8
+
+### Changes
+- Updated `django-glue` version to `0.8.14`
 
 ## v0.31.7
 
