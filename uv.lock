@@ -765,15 +765,15 @@ wheels = [
 
 [[package]]
 name = "django-glue"
-version = "0.8.13"
+version = "0.8.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django", version = "5.2.13", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/01/4a/41d164dd24a9ee69076ad7d81daa1ec32e825c5759b34a275c8a8eb767a4/django_glue-0.8.13.tar.gz", hash = "sha256:20416a9b67f7ab2baa4f48fca6a71276a4b62b67509e3c3b1de1cff89fa2a2d5", size = 111110, upload-time = "2026-04-09T20:03:07.552Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/04/e2/8406e0f7cc6026b20458430aff1eb8661021e6fed1f5c6fb28270b2d1754/django_glue-0.8.14.tar.gz", hash = "sha256:6ccdaadd85bc96c53bd501b4efab922123c9137045919e6cf67cf9b08e00eee1", size = 111176, upload-time = "2026-05-07T22:02:06.724Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/4c/514a8496e65c3013f5754feb8b9b52595e8758042d1a9afb1bec7fb5f303/django_glue-0.8.13-py3-none-any.whl", hash = "sha256:eaf473c05bca01d6c01b4b307f1d187260ba08b92e1e18ee215eea8c80dfbf6b", size = 148092, upload-time = "2026-04-09T20:03:08.919Z" },
+    { url = "https://files.pythonhosted.org/packages/66/74/e1d13d0415b445d975453cbd4b078fc757311a058205772b8b2c0d082d38/django_glue-0.8.14-py3-none-any.whl", hash = "sha256:d9b2a513a00ff82e01c86778400d1a074399068e418fc28028c7065cacfe5381", size = 148160, upload-time = "2026-05-07T22:02:08.048Z" },
 ]
 
 [[package]]
@@ -864,7 +864,7 @@ requires-dist = [
     { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-crispy-forms", specifier = "==2.3" },
     { name = "django-debug-toolbar", marker = "extra == 'development'" },
-    { name = "django-glue", specifier = "==0.8.13" },
+    { name = "django-glue", specifier = "==0.8.14" },
     { name = "django-sendgrid-v5" },
     { name = "django-storages", specifier = "==1.14.5" },
     { name = "django-watchfiles", marker = "extra == 'development'" },
