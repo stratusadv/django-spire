@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import json
 
-import django_glue as dg
+from django_glue import Glue
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-
-from django_glue.utils import serialize_to_json
 
 from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.permissions.decorators import permission_required
@@ -30,7 +28,9 @@ if TYPE_CHECKING:
 @permission_required('django_spire_auth_user.add_authuser')
 def register_form_view(request: WSGIRequest) -> TemplateResponse:
     portal_user = AuthUser()
-    dg.glue_model_object(request, 'portal_user', portal_user, 'view')
+    Glue.model(
+        request=request, unique_name='portal_user', target=portal_user, access=Glue.Access.VIEW
+    )
 
     if request.method == 'POST':
         user_form = forms.RegisterUserForm(request.POST, instance=portal_user)
@@ -49,7 +49,7 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
 
     context_data = {
         # TODO: Function that takes in all of the forms and dumps the data here?
-        'user_form_data': json.dumps(user_form.data, cls=DjangoJSONEncoder),
+        'user_form_data': json.dumps(user_form.data, cls=DjangoJSONEncoder)
     }
 
     crumbs = Breadcrumbs()
@@ -62,14 +62,16 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Register',
         page_description='New User',
         breadcrumbs=crumbs,
-        template='django_spire/auth/user/page/register_form_page.html'
+        template='django_spire/auth/user/page/register_form_page.html',
     )
 
 
 @permission_required('django_spire_auth_user.change_authuser')
 def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     portal_user = get_object_or_404(AuthUser, pk=pk)
-    dg.glue_model_object(request, 'portal_user', portal_user, 'view')
+    Glue.model(
+        request=request, unique_name='portal_user', target=portal_user, access=Glue.Access.VIEW
+    )
 
     if request.method == 'POST':
         form = forms.UserForm(request.POST, instance=portal_user)
@@ -79,17 +81,14 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             add_form_activity(portal_user, pk, request.user)
 
             return HttpResponseRedirect(
-                reverse(
-                    'django_spire:auth:user:page:detail',
-                    kwargs={'pk': pk}
-                )
+                reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk})
             )
     else:
         form = forms.UserForm(instance=portal_user)
 
     context_data = {
         'portal_user': portal_user,
-        'initial_data': serialize_to_json(form.data)
+        'initial_data': json.dumps(form.data, cls=DjangoJSONEncoder),
     }
 
     return portal_views.model_form_view(
@@ -97,14 +96,14 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         form=form,
         obj=portal_user,
         context_data=context_data,
-        template='django_spire/auth/user/page/form_page.html'
+        template='django_spire/auth/user/page/form_page.html',
     )
 
 
 @permission_required('django_spire_auth_group.change_authgroup')
 def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     user = get_object_or_404(AuthUser, pk=pk)
-    dg.glue_query_set(request, 'group_choices', AuthGroup.objects.all())
+    Glue.queryset(request=request, unique_name='group_choices', target=AuthGroup.objects.all())
     selected_group_ids = [group.pk for group in user.groups.all()]
 
     if request.method == 'POST':
@@ -112,21 +111,20 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
         if form.is_valid():
             user.groups.set(form.cleaned_data['group_list'])
-            return HttpResponseRedirect(reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk}))
+            return HttpResponseRedirect(
+                reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk})
+            )
 
         show_form_errors(request, form)
 
     form = forms.UserGroupForm()
 
-    context_data = {
-        'user': user,
-        'selected_group_ids': selected_group_ids
-    }
+    context_data = {'user': user, 'selected_group_ids': selected_group_ids}
 
     return portal_views.form_view(
         request,
         obj=user,
         context_data=context_data,
         form=forms.UserGroupForm(),
-        template='django_spire/auth/user/page/group_form_page.html'
+        template='django_spire/auth/user/page/group_form_page.html',
     )

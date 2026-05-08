@@ -27,7 +27,7 @@ class CeleryTask(models.Model):
 
     state = models.CharField(max_length=16, choices=_celery_state_choices, default=states.PENDING)
 
-    _meta = models.JSONField(default = {}, null=True, blank=True)
+    _task_meta = models.JSONField(default=dict, null=True, blank=True)
 
     started_datetime = models.DateTimeField(default=now)
     completed_datetime = models.DateTimeField(null=True, blank=True)
@@ -86,11 +86,11 @@ class CeleryTask(models.Model):
 
     @property
     def meta(self) -> CeleryTaskMeta:
-        return CeleryTaskMeta(**self._meta)
+        return CeleryTaskMeta(**self._task_meta)
 
     @meta.setter
     def meta(self, meta: dict[Any, Any]) -> None:
-        self._meta = meta
+        self._task_meta = meta
 
     @property
     def result(self) -> Any:

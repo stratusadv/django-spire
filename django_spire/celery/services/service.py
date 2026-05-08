@@ -46,8 +46,8 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
         new_meta = self.obj.async_result.info
 
-        if self.obj._meta != new_meta:
-            self.obj._meta = new_meta
+        if self.obj._task_meta != new_meta:
+            self.obj._task_meta = new_meta
             has_changed = True
 
         new_state = self.obj.async_result.state

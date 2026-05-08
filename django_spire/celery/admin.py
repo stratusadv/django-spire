@@ -10,7 +10,6 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'display_name',
         'state',
         'started_datetime',
-        'estimated_completion_datetime',
         'completed_datetime',
     )
     list_filter = ('task_name', 'display_name', 'state', 'started_datetime', 'completed_datetime')
@@ -25,7 +24,6 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'display_name',
         'state',
         'started_datetime',
-        'estimated_completion_datetime',
         'completed_datetime',
     ]
     fields = [
@@ -36,6 +34,5 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'display_name',
         'state',
         'started_datetime',
-        'estimated_completion_datetime',
         'completed_datetime',
     ]

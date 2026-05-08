@@ -786,15 +786,12 @@ wheels = [
 
 [[package]]
 name = "django-glue"
-version = "0.8.13"
-source = { registry = "https://pypi.org/simple" }
+version = "1.0.0a1"
+source = { git = "https://github.com/stratusadv/django-glue.git?rev=v1%2Fbase#797fe0148a6f2a57421d7ab07b84029ca0779f58" }
 dependencies = [
     { name = "django", version = "5.2.13", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/01/4a/41d164dd24a9ee69076ad7d81daa1ec32e825c5759b34a275c8a8eb767a4/django_glue-0.8.13.tar.gz", hash = "sha256:20416a9b67f7ab2baa4f48fca6a71276a4b62b67509e3c3b1de1cff89fa2a2d5", size = 111110, upload-time = "2026-04-09T20:03:07.552Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/4c/514a8496e65c3013f5754feb8b9b52595e8758042d1a9afb1bec7fb5f303/django_glue-0.8.13-py3-none-any.whl", hash = "sha256:eaf473c05bca01d6c01b4b307f1d187260ba08b92e1e18ee215eea8c80dfbf6b", size = 148092, upload-time = "2026-04-09T20:03:08.919Z" },
+    { name = "pydantic" },
 ]
 
 [[package]]
@@ -903,7 +900,7 @@ requires-dist = [
     { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-crispy-forms", specifier = "==2.3" },
     { name = "django-debug-toolbar", marker = "extra == 'development'" },
-    { name = "django-glue", specifier = "==0.8.13" },
+    { name = "django-glue", git = "https://github.com/stratusadv/django-glue.git?rev=v1%2Fbase" },
     { name = "django-ninja", specifier = "==1.6.2" },
     { name = "django-sendgrid-v5" },
     { name = "django-storages", specifier = "==1.14.5" },
