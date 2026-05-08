@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.31.10
+
+### Fixes
+- Fixed how kwargs are passed into `RestSchemaSet` `._read_one`
+
 ## v0.31.9
 
 ### Changes

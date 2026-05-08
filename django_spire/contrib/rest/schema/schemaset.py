@@ -256,32 +256,35 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
     def get(
         self,
-        request_params: dict[str, Any] | None = None,
         **kwargs,
     ) -> TSchema:
         """
         Return exactly one result matching kwargs.
         Raises LookupError if zero or multiple results.
         """
+        schema_name = self.schema_class.__name__ if self.schema_class else 'object'
 
         if not self._cached_results:
             try:
                 # Direct fetch by ID/params - try using _read_one from connector
-                if request_params:
-                    result =  self._read_one(**request_params)
+                if kwargs:
+                    result = self._read_one(**kwargs)
                 else:
                     result = self._read_one()
+
+                if result is None:
+                    raise LookupError(f"No {schema_name} found")
 
                 if result and not isinstance(result, self.schema_class):
                     raise ValueError(
                         f'_read_one for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return an instance of {self.schema_class.__name__}')
 
+                return result
+
             except NotImplementedError:
-                # TODO: log warning if request_params are passed signalling that there is no _read_one available to use the params on
                 pass
 
         results = list(self.filter(**kwargs) if kwargs else self)
-        schema_name = self.schema_class.__name__ if self.schema_class else 'object'
         if len(results) == 0:
             raise LookupError(f"No {schema_name} found")
         if len(results) > 1:
