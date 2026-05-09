@@ -29,6 +29,12 @@ logger = logging.getLogger(__name__)
 _ALLOWED_SCHEMES = frozenset({'http', 'https'})
 _RESPONSE_BYTES_MAX = 50 * 1024 * 1024
 
+_REQUIRED_RESPONSE_FIELDS = (
+    'node_id',
+    'peer_sequence',
+    'local_sequence',
+)
+
 _TRANSIENT_EXCEPTIONS: tuple[type[BaseException], ...] = (
     ConnectionError,
     TimeoutError,
@@ -191,31 +197,19 @@ class HttpTransport(Transport):
             message = 'Server returned an invalid response format'
             raise InvalidResponseError(message)
 
-        if 'node_id' not in response_data:
-            error = response_data.get(
-                'error',
-                'Missing required manifest fields',
-            )
+        for required in _REQUIRED_RESPONSE_FIELDS:
+            if required not in response_data:
+                error = response_data.get(
+                    'error',
+                    f"Missing required manifest field {required!r}",
+                )
 
-            message = (
-                f'Server returned an invalid sync '
-                f'response: {error}'
-            )
+                message = (
+                    f'Server returned an invalid sync '
+                    f'response: {error}'
+                )
 
-            raise InvalidResponseError(message)
-
-        if 'checkpoint' not in response_data:
-            error = response_data.get(
-                'error',
-                'Missing required manifest fields',
-            )
-
-            message = (
-                f'Server returned an invalid sync '
-                f'response: {error}'
-            )
-
-            raise InvalidResponseError(message)
+                raise InvalidResponseError(message)
 
         logger.info(
             'Exchanged manifest with %s '

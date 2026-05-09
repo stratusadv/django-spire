@@ -22,7 +22,7 @@ def test_reader_never_sees_torn_state_during_upsert() -> None:
     setup = make_storage()
     setup.upsert_many('sync_tests.SyncTestModel', {
         key: make_named_record(key, 'initial', 100, value=0),
-    })
+    }, '')
 
     stop = threading.Event()
     errors: list[Exception] = []
@@ -34,7 +34,7 @@ def test_reader_never_sees_torn_state_during_upsert() -> None:
             storage = make_storage()
             storage.upsert_many('sync_tests.SyncTestModel', {
                 key: make_named_record(key, f'w-{ts}', ts, value=ts),
-            })
+            }, '')
             ts += 1
 
     def reader() -> None:
@@ -87,7 +87,7 @@ def test_get_changed_since_returns_consistent_snapshot() -> None:
         k = f'{i:08d}-0000-0000-0000-000000000000'
         seed_records[k] = make_named_record(k, f'seed-{i}', 100, value=i)
 
-    setup.upsert_many('sync_tests.SyncTestModel', seed_records)
+    setup.upsert_many('sync_tests.SyncTestModel', seed_records, '')
 
     stop = threading.Event()
     errors: list[Exception] = []
@@ -100,18 +100,18 @@ def test_get_changed_since_returns_consistent_snapshot() -> None:
             k = f'{ts % 50:08d}-0000-0000-0000-000000000000'
             storage.upsert_many('sync_tests.SyncTestModel', {
                 k: make_named_record(k, f'upd-{ts}', ts, value=ts),
-            })
+            }, '')
             ts += 1
 
     def reader() -> None:
         while not stop.is_set():
             storage = make_storage()
-            records = storage.get_changed_since('sync_tests.SyncTestModel', 99)
+            records = storage.get_changed_since('sync_tests.SyncTestModel', 0, '')
             counts.append(len(records))
             errors.extend(
                 AssertionError(f'stale record: {rec}')
                 for rec in records.values()
-                if rec.sync_field_last_modified <= 99
+                if rec.sync_field_last_modified <= 0
             )
 
     threads = (
@@ -148,7 +148,7 @@ def test_concurrent_m2m_assignment_consistent() -> None:
             data={'id': key, 'name': 'host', 'value': 0, 'tags': []},
             timestamps={'name': 100, 'value': 100, 'tags': 100},
         ),
-    })
+    }, '')
 
     barrier = threading.Barrier(3)
     errors: list[Exception] = []
@@ -166,7 +166,7 @@ def test_concurrent_m2m_assignment_consistent() -> None:
                 },
                 timestamps={'name': 100, 'value': 100, 'tags': ts},
             ),
-        })
+        }, '')
 
     threads = [
         threading.Thread(
@@ -212,7 +212,7 @@ def test_reader_during_concurrent_writers_no_lost_updates() -> None:
         k = f'{i:08d}-0000-0000-0000-aaaaaaaaaaaa'
         seed_records[k] = make_named_record(k, f'seed-{i}', 100, value=i)
 
-    setup.upsert_many('sync_tests.SyncTestModel', seed_records)
+    setup.upsert_many('sync_tests.SyncTestModel', seed_records, '')
 
     stop = threading.Event()
     errors: list[Exception] = []
@@ -224,7 +224,7 @@ def test_reader_during_concurrent_writers_no_lost_updates() -> None:
             k = f'{ts % 20:08d}-0000-0000-0000-aaaaaaaaaaaa'
             storage.upsert_many('sync_tests.SyncTestModel', {
                 k: make_named_record(k, f'w{wid}-{ts}', ts, value=ts),
-            })
+            }, '')
             ts += 1
 
     def reader() -> None:

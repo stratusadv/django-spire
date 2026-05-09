@@ -76,9 +76,9 @@ def test_upsert_many_allows_exactly_at_limit(
         for i in range(5)
     }
 
-    skipped = batch_storage.upsert_many('sync_tests.SyncTestModel', records)
+    result = batch_storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    assert len(skipped) == 0
+    assert len(result.skipped) == 0
     assert SyncTestModel.objects.filter(
         pk__in=list(records.keys()),
     ).count() == 5
@@ -97,9 +97,9 @@ def test_upsert_many_chunks_oversized_batch(
         for i in range(12)
     }
 
-    skipped = batch_storage.upsert_many('sync_tests.SyncTestModel', records)
+    result = batch_storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    assert len(skipped) == 0
+    assert len(result.skipped) == 0
     assert SyncTestModel.objects.filter(
         pk__in=list(records.keys()),
     ).count() == 12
@@ -122,7 +122,7 @@ def test_delete_many_chunks_oversized_batch(
 
     deletes = {key: 500 for key in keys}
 
-    simple_batch_storage.delete_many('sync_tests.SyncTestSimpleModel', deletes)
+    simple_batch_storage.delete_many('sync_tests.SyncTestSimpleModel', deletes, '')
 
     assert SyncTestSimpleModel.objects.filter(pk__in=keys).count() == 0
 
@@ -146,7 +146,7 @@ def test_engine_sync_acquires_and_releases_lock(mock_time: Any) -> None:
     graph = DependencyGraph({MODEL: set()})
 
     response = make_manifest(
-        node_id='server', checkpoint=500, node_time=500,
+        node_id='server', local_sequence=500, node_time=500,
     )
     transport = FakeTransport(response)
 
@@ -157,6 +157,7 @@ def test_engine_sync_acquires_and_releases_lock(mock_time: Any) -> None:
         lock=lock,
         transport=transport,
         node_id='tablet',
+        peer_node_id='server',
         clock_drift_max=None,
     )
 
@@ -177,7 +178,7 @@ def test_engine_sync_releases_lock_on_failure(mock_time: Any) -> None:
     graph = DependencyGraph({MODEL: set()})
 
     response = make_manifest(
-        node_id='server', checkpoint=500, node_time=9999,
+        node_id='server', local_sequence=500, node_time=9999,
     )
     transport = FakeTransport(response)
 
@@ -188,6 +189,7 @@ def test_engine_sync_releases_lock_on_failure(mock_time: Any) -> None:
         lock=lock,
         transport=transport,
         node_id='tablet',
+        peer_node_id='server',
         clock_drift_max=60,
     )
 
@@ -207,7 +209,7 @@ def test_engine_sync_reports_phases_to_lock(mock_time: Any) -> None:
     graph = DependencyGraph({MODEL: set()})
 
     response = make_manifest(
-        node_id='server', checkpoint=500, node_time=500,
+        node_id='server', local_sequence=500, node_time=500,
     )
     transport = FakeTransport(response)
 
@@ -218,6 +220,7 @@ def test_engine_sync_reports_phases_to_lock(mock_time: Any) -> None:
         lock=lock,
         transport=transport,
         node_id='tablet',
+        peer_node_id='server',
         clock_drift_max=None,
     )
 
@@ -237,7 +240,7 @@ def test_engine_sync_without_lock_still_works(mock_time: Any) -> None:
     graph = DependencyGraph({MODEL: set()})
 
     response = make_manifest(
-        node_id='server', checkpoint=500, node_time=500,
+        node_id='server', local_sequence=500, node_time=500,
     )
     transport = FakeTransport(response)
 
@@ -247,6 +250,7 @@ def test_engine_sync_without_lock_still_works(mock_time: Any) -> None:
         clock=HybridLogicalClock(),
         transport=transport,
         node_id='tablet',
+        peer_node_id='server',
         clock_drift_max=None,
     )
 

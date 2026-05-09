@@ -39,9 +39,9 @@ def test_upsert_many_creates_record(storage: DjangoSyncStorage) -> None:
         ),
     }
 
-    skipped = storage.upsert_many('sync_tests.SyncTestModel', records)
+    result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    assert skipped == set()
+    assert result.skipped == set()
 
     obj = SyncTestModel.objects.get(pk=key)
 
@@ -66,9 +66,9 @@ def test_upsert_many_updates_existing(
         ),
     }
 
-    skipped = storage.upsert_many('sync_tests.SyncTestModel', records)
+    result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    assert skipped == set()
+    assert result.skipped == set()
 
     model_instance.refresh_from_db()
 
@@ -92,9 +92,9 @@ def test_upsert_many_skips_stale_record(
         ),
     }
 
-    skipped = storage.upsert_many('sync_tests.SyncTestModel', records)
+    result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    assert key in skipped
+    assert key in result.skipped
 
     model_instance.refresh_from_db()
 
@@ -102,7 +102,7 @@ def test_upsert_many_skips_stale_record(
 
 
 @pytest.mark.django_db
-def test_upsert_many_skips_ghost_record(
+def test_upsert_many_rejects_ghost_record(
     storage: DjangoSyncStorage,
 ) -> None:
     key = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
@@ -115,9 +115,9 @@ def test_upsert_many_skips_ghost_record(
         ),
     }
 
-    skipped = storage.upsert_many('sync_tests.SyncTestModel', records)
+    result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    assert key in skipped
+    assert any(e.key == key for e in result.errors)
 
 
 @pytest.mark.django_db
@@ -133,9 +133,9 @@ def test_upsert_many_sets_m2m(storage: DjangoSyncStorage) -> None:
         ),
     }
 
-    skipped = storage.upsert_many('sync_tests.SyncTestModel', records)
+    result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    assert skipped == set()
+    assert result.skipped == set()
 
     obj = SyncTestModel.objects.get(pk=key)
 
@@ -180,7 +180,7 @@ def test_get_changed_since(
 ) -> None:
     _ = model_instance
 
-    records = storage.get_changed_since('sync_tests.SyncTestModel', 50)
+    records = storage.get_changed_since('sync_tests.SyncTestModel', 0, '')
 
     assert len(records) == 1
 
@@ -196,7 +196,7 @@ def test_get_changed_since_excludes_old(
 ) -> None:
     _ = model_instance
 
-    records = storage.get_changed_since('sync_tests.SyncTestModel', 200)
+    records = storage.get_changed_since('sync_tests.SyncTestModel', 999999, '')
 
     assert len(records) == 0
 
@@ -208,7 +208,7 @@ def test_delete_many_soft_delete_applies_tombstone(
 ) -> None:
     key = str(model_instance.pk)
 
-    storage.delete_many('sync_tests.SyncTestModel', {key: 500})
+    storage.delete_many('sync_tests.SyncTestModel', {key: 500}, '')
 
     model_instance.refresh_from_db()
 
@@ -224,7 +224,7 @@ def test_delete_many_soft_delete_skips_when_local_newer(
 ) -> None:
     key = str(model_instance.pk)
 
-    storage.delete_many('sync_tests.SyncTestModel', {key: 50})
+    storage.delete_many('sync_tests.SyncTestModel', {key: 50}, '')
 
     model_instance.refresh_from_db()
 
@@ -242,7 +242,7 @@ def test_delete_many_hard_delete_applies_tombstone(
 
     key = str(obj.pk)
 
-    simple_storage.delete_many('sync_tests.SyncTestSimpleModel', {key: 500})
+    simple_storage.delete_many('sync_tests.SyncTestSimpleModel', {key: 500}, '')
 
     assert not SyncTestSimpleModel.objects.filter(pk=key).exists()
 
@@ -258,32 +258,32 @@ def test_delete_many_hard_delete_skips_when_local_newer(
 
     key = str(obj.pk)
 
-    simple_storage.delete_many('sync_tests.SyncTestSimpleModel', {key: 500})
+    simple_storage.delete_many('sync_tests.SyncTestSimpleModel', {key: 500}, '')
 
     assert SyncTestSimpleModel.objects.filter(pk=key).exists()
 
 
 @pytest.mark.django_db
 def test_delete_many_empty_is_noop(storage: DjangoSyncStorage) -> None:
-    storage.delete_many('sync_tests.SyncTestModel', {})
+    storage.delete_many('sync_tests.SyncTestModel', {}, '')
 
 
 @pytest.mark.django_db
 def test_checkpoint_round_trip(storage: DjangoSyncStorage) -> None:
-    assert storage.get_checkpoint('node-1') == 0
+    assert storage.get_checkpoint('node-1') == (0, 0)
 
-    storage.save_checkpoint('node-1', 500)
+    storage.save_checkpoint('node-1', 500, 300)
 
-    assert storage.get_checkpoint('node-1') == 500
+    assert storage.get_checkpoint('node-1') == (500, 300)
 
 
 @pytest.mark.django_db
 def test_checkpoint_update(storage: DjangoSyncStorage) -> None:
-    storage.save_checkpoint('node-1', 100)
-    storage.save_checkpoint('node-1', 200)
+    storage.save_checkpoint('node-1', 100, 50)
+    storage.save_checkpoint('node-1', 200, 150)
 
-    assert storage.get_checkpoint('node-1') == 200
-    assert SyncCheckpoint.objects.filter(node_id='node-1').count() == 1
+    assert storage.get_checkpoint('node-1') == (200, 150)
+    assert SyncCheckpoint.objects.filter(peer_node_id='node-1').count() == 1
 
 
 @pytest.mark.django_db

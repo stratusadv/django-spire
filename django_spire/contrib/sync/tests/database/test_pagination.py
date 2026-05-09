@@ -21,16 +21,8 @@ from django_spire.contrib.sync.tests.database.helpers import (
 
 def _make_storage(
     models: list[str] | None = None,
-    records: dict[str, dict[str, SyncRecord]] | None = None,
 ) -> InMemoryDatabaseStorage:
-    storage = InMemoryDatabaseStorage(models or [MODEL])
-
-    if records:
-        for model_label, model_records in records.items():
-            for key, record in model_records.items():
-                storage._records[model_label][key] = record
-
-    return storage
+    return InMemoryDatabaseStorage(models or [MODEL])
 
 
 def _make_engine(
@@ -44,6 +36,8 @@ def _make_engine(
     models = storage.get_syncable_models()
     graph = DependencyGraph({m: set() for m in models})
 
+    peer_node_id = 'server' if transport is not None else None
+
     return DatabaseEngine(
         batch_bytes=batch_bytes,
         batch_size=batch_size,
@@ -51,6 +45,7 @@ def _make_engine(
         clock_drift_max=None,
         graph=graph,
         node_id=node_id,
+        peer_node_id=peer_node_id,
         reconciler=PayloadReconciler(resolver=FieldTimestampWins()),
         storage=storage,
         transaction=nullcontext,
@@ -70,14 +65,13 @@ def _seed_records(
         key = f'{prefix}key-{i:04d}'
         ts = base_ts + i
 
-        record = SyncRecord(
-            key=key,
-            data={'id': key, 'value': i},
-            timestamps={'id': ts, 'value': ts},
+        storage.seed(
+            MODEL, key,
+            {'id': key, 'value': i},
+            {'id': ts, 'value': ts},
         )
 
-        storage._records[MODEL][key] = record
-        records[key] = record
+        records[key] = storage._records[MODEL][key]
 
     return records
 
@@ -264,10 +258,10 @@ class TestCheckpointIntegrity:
 
         tablet.sync()
 
-        checkpoint = tablet_storage.get_checkpoint('tablet')
-        max_seeded_ts = max(r.sync_field_last_modified for r in seeded.values())
+        peer_seq, _ = tablet_storage.get_checkpoint('server')
+        max_seeded_seq = max(r.sequence for r in seeded.values())
 
-        assert checkpoint >= max_seeded_ts
+        assert peer_seq >= max_seeded_seq
 
     def test_new_records_after_full_pull_are_synced(self) -> None:
         clock = HybridLogicalClock()
@@ -285,10 +279,10 @@ class TestCheckpointIntegrity:
 
         new_ts = clock.now()
 
-        server_storage._records[MODEL]['new-key'] = SyncRecord(
-            key='new-key',
-            data={'id': 'new-key', 'value': 999},
-            timestamps={'id': new_ts, 'value': new_ts},
+        server_storage.seed(
+            MODEL, 'new-key',
+            {'id': 'new-key', 'value': 999},
+            {'id': new_ts, 'value': new_ts},
         )
 
         tablet.sync()

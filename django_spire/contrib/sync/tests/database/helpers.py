@@ -9,7 +9,8 @@ from django_spire.contrib.sync.database.engine import DatabaseEngine
 from django_spire.contrib.sync.database.graph import DependencyGraph
 from django_spire.contrib.sync.database.manifest import SyncManifest
 from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
+from django_spire.contrib.sync.database.storage import DatabaseSyncStorage, UpsertResult
+from django_spire.contrib.sync.core.model import Error
 
 
 logger = logging.getLogger(__name__)
@@ -17,17 +18,31 @@ logger = logging.getLogger(__name__)
 MODEL = 'app.TestModel'
 
 
+class _FakeSequenceAllocator:
+    def __init__(self) -> None:
+        self._value = 0
+
+    def allocate(self, count: int = 1) -> tuple[int, int]:
+        first = self._value + 1
+        self._value += count
+        return first, self._value
+
+    def current(self) -> int:
+        return self._value
+
+
 class InMemoryDatabaseStorage(DatabaseSyncStorage):
     def __init__(self, models: list[str]) -> None:
         self._after_keys: dict[str, dict[str, Any]] = {}
-        self._checkpoints: dict[str, int] = {}
+        self._checkpoints: dict[str, tuple[int, int]] = {}
         self._models = sorted(models)
         self._records: dict[str, dict[str, SyncRecord]] = {
             m: {} for m in models
         }
-        self._tombstones: dict[str, dict[str, int]] = {
+        self._tombstones: dict[str, dict[str, tuple[int, int, str]]] = {
             m: {} for m in models
         }
+        self._sequence_allocator = _FakeSequenceAllocator()
 
     def seed(
         self,
@@ -38,16 +53,29 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
     ) -> None:
         clean = {k: v for k, v in data.items() if k != 'sync_field_timestamps'}
 
+        seq = self._sequence_allocator.current() + 1
+        self._sequence_allocator.allocate(1)
+
         self._records[model_label][key] = SyncRecord(
             key=key,
             data=dict(clean),
             timestamps=dict(timestamps),
+            sequence=seq,
         )
+
+    def clear_tombstones(
+        self,
+        model_label: str,
+        keys: set[str],
+    ) -> None:
+        for key in keys:
+            self._tombstones[model_label].pop(key, None)
 
     def delete_many(
         self,
         model_label: str,
         deletes: dict[str, int],
+        origin_node: str,
     ) -> None:
         for key, tombstone_ts in deletes.items():
             existing = self._records[model_label].get(key)
@@ -56,29 +84,49 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
                 continue
 
             self._records[model_label].pop(key, None)
-            self._tombstones[model_label][key] = tombstone_ts
 
-    def get_after_keys(self, node_id: str) -> dict[str, Any]:
-        return self._after_keys.get(node_id) or {}
+            seq = self._sequence_allocator.current() + 1
+            self._sequence_allocator.allocate(1)
+
+            self._tombstones[model_label][key] = (tombstone_ts, seq, origin_node)
+
+    def get_after_keys(self, peer_node_id: str) -> dict[str, Any]:
+        return self._after_keys.get(peer_node_id) or {}
 
     def get_changed_since(
         self,
         model_label: str,
-        timestamp: int,
+        sequence: int,
+        peer_node_id: str,
+        sequence_max: int | None = None,
         limit: int | None = None,
         after_key: str | None = None,
     ) -> dict[str, SyncRecord]:
         result = {
             key: record
             for key, record in self._records[model_label].items()
-            if record.sync_field_last_modified > timestamp
+            if record.sequence > sequence
         }
+
+        if sequence_max is not None:
+            result = {
+                key: record
+                for key, record in result.items()
+                if record.sequence <= sequence_max
+            }
+
+        if peer_node_id:
+            result = {
+                key: record
+                for key, record in result.items()
+                if record.origin_node != peer_node_id
+            }
 
         result = dict(
             sorted(
                 result.items(),
                 key=lambda item: (
-                    item[1].sync_field_last_modified,
+                    item[1].sequence,
                     item[0],
                 ),
             )
@@ -88,10 +136,8 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
             filtered: dict[str, SyncRecord] = {}
 
             for key, record in result.items():
-                record_ts = record.sync_field_last_modified
-
-                if record_ts > timestamp or (
-                    record_ts == timestamp and key > after_key
+                if record.sequence > sequence or (
+                    record.sequence == sequence and key > after_key
                 ):
                     filtered[key] = record
 
@@ -102,19 +148,31 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
 
         return result
 
-    def get_checkpoint(self, node_id: str) -> int:
-        return self._checkpoints.get(node_id, 0)
+    def get_checkpoint(self, peer_node_id: str) -> tuple[int, int]:
+        return self._checkpoints.get(peer_node_id, (0, 0))
 
     def get_deletes_since(
         self,
         model_label: str,
-        timestamp: int,
+        sequence: int,
+        peer_node_id: str,
+        sequence_max: int | None = None,
     ) -> dict[str, int]:
-        return {
-            key: ts
-            for key, ts in self._tombstones[model_label].items()
-            if ts > timestamp
-        }
+        result: dict[str, int] = {}
+
+        for key, (ts, seq, origin) in self._tombstones[model_label].items():
+            if seq <= sequence:
+                continue
+
+            if sequence_max is not None and seq > sequence_max:
+                continue
+
+            if peer_node_id and origin == peer_node_id:
+                continue
+
+            result[key] = ts
+
+        return result
 
     def get_records(
         self,
@@ -127,24 +185,41 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
             if k in keys
         }
 
+    def get_sequence_allocator(self) -> _FakeSequenceAllocator:
+        return self._sequence_allocator
+
     def get_syncable_models(self) -> list[str]:
         return list(self._models)
 
+    def get_tombstones(
+        self,
+        model_label: str,
+        keys: set[str],
+    ) -> dict[str, int]:
+        return {
+            k: ts
+            for k, (ts, _, _) in self._tombstones[model_label].items()
+            if k in keys
+        }
+
     def save_checkpoint(
         self,
-        node_id: str,
-        timestamp: int,
+        peer_node_id: str,
+        peer_sequence: int,
+        local_sequence_pushed: int,
         after_keys: dict[str, Any] | None = None,
     ) -> None:
-        self._checkpoints[node_id] = timestamp
-        self._after_keys[node_id] = after_keys or {}
+        self._checkpoints[peer_node_id] = (peer_sequence, local_sequence_pushed)
+        self._after_keys[peer_node_id] = after_keys or {}
 
     def upsert_many(
         self,
         model_label: str,
         records: dict[str, SyncRecord],
-    ) -> set[str]:
+        origin_node: str,
+    ) -> UpsertResult:
         skipped: set[str] = set()
+        errors: list[Error] = []
 
         for key, sync_record in records.items():
             existing = self._records[model_label].get(key)
@@ -162,21 +237,27 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
                 skipped.add(key)
                 continue
 
+            seq = self._sequence_allocator.current() + 1
+            self._sequence_allocator.allocate(1)
+
             self._records[model_label][key] = SyncRecord(
                 key=key,
                 data=dict(sync_record.data),
                 timestamps=dict(sync_record.timestamps),
+                sequence=seq,
+                origin_node=origin_node,
                 received_at=sync_record.received_at,
             )
 
-        return skipped
+        return UpsertResult(skipped=skipped, errors=errors)
 
 
 class FakeTransport:
     def __init__(self, response: SyncManifest) -> None:
         self._empty = SyncManifest(
             node_id=response.node_id,
-            checkpoint=response.checkpoint,
+            peer_sequence=response.peer_sequence,
+            local_sequence=response.local_sequence,
             node_time=response.node_time,
             payloads=[],
         )
@@ -252,6 +333,7 @@ class SyncHarness:
             clock=self.clock,
             transport=self.transport,
             node_id='tablet',
+            peer_node_id='server',
             clock_drift_max=None,
         )
 

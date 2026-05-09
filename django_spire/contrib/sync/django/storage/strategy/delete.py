@@ -9,7 +9,32 @@ if TYPE_CHECKING:
 
 
 class DeleteStrategy(Protocol):
-    def delete(self, model: type[SyncableMixin], deletes: dict[str, int]) -> None: ...
+    def delete(
+        self,
+        model: type[SyncableMixin],
+        deletes: dict[str, int],
+        origin_node: str,
+    ) -> None: ...
+
+
+def _record_tombstone(
+    model_label: str,
+    record_key: str,
+    timestamp: int,
+    sequence: int,
+    origin_node: str,
+) -> None:
+    from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+
+    SyncTombstone.objects.update_or_create(
+        model_label=model_label,
+        record_key=record_key,
+        defaults={
+            'origin_node': origin_node,
+            'sequence': sequence,
+            'timestamp': timestamp,
+        },
+    )
 
 
 class HardDeleteStrategy:
@@ -20,14 +45,37 @@ class HardDeleteStrategy:
         self,
         model: type[SyncableMixin],
         deletes: dict[str, int],
+        origin_node: str,
     ) -> None:
-        for key, tombstone_ts in deletes.items():
-            staleness_filter = {
-                self._identity_field: key,
-                'sync_field_last_modified__lte': tombstone_ts,
-            }
+        if not deletes:
+            return
 
-            model.objects.filter(**staleness_filter).delete()
+        from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+            SyncSequenceAllocator,
+        )
+
+        keys = sorted(deletes.keys())
+        first_seq, _ = SyncSequenceAllocator().allocate(len(keys))
+        model_label = model._meta.label
+
+        with sync_bypass():
+            for index, key in enumerate(keys):
+                tombstone_ts = deletes[key]
+
+                staleness_filter = {
+                    self._identity_field: key,
+                    'sync_field_last_modified__lte': tombstone_ts,
+                }
+
+                model.objects.filter(**staleness_filter).delete()
+
+                _record_tombstone(
+                    model_label,
+                    key,
+                    tombstone_ts,
+                    first_seq + index,
+                    origin_node,
+                )
 
 
 class SoftDeleteStrategy:
@@ -67,7 +115,15 @@ class SoftDeleteStrategy:
         self,
         model: type[SyncableMixin],
         deletes: dict[str, int],
+        origin_node: str,
     ) -> None:
+        if not deletes:
+            return
+
+        from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+            SyncSequenceAllocator,
+        )
+
         identity_lookup = {f'{self._identity_field}__in': list(deletes.keys())}
         instances = list(model.objects.filter(**identity_lookup))
 
@@ -76,10 +132,14 @@ class SoftDeleteStrategy:
         if not pending:
             return
 
+        first_seq, _ = SyncSequenceAllocator().allocate(len(pending))
+        model_label = model._meta.label
+
         with sync_bypass():
-            for instance in pending:
+            for index, instance in enumerate(pending):
                 key = str(getattr(instance, self._identity_field))
                 tombstone_ts = deletes[key]
+                local_seq = first_seq + index
 
                 staleness_filter = {
                     self._identity_field: key,
@@ -88,6 +148,16 @@ class SoftDeleteStrategy:
 
                 model.objects.filter(**staleness_filter).update(
                     is_deleted=True,
-                    sync_field_timestamps=instance.sync_field_timestamps,
                     sync_field_last_modified=instance.sync_field_last_modified,
+                    sync_field_origin_node=origin_node,
+                    sync_field_sequence=local_seq,
+                    sync_field_timestamps=instance.sync_field_timestamps,
+                )
+
+                _record_tombstone(
+                    model_label,
+                    key,
+                    tombstone_ts,
+                    local_seq,
+                    origin_node,
                 )

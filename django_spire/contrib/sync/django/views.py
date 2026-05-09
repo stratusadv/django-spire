@@ -1,3 +1,4 @@
+# django_spire/contrib/sync/django/views.py
 from __future__ import annotations
 
 import json
@@ -227,6 +228,11 @@ def process_sync_request(
             status=409,
         )
 
+    skipped_count = sum(
+        len(keys)
+        for keys in result.skipped.values()
+    )
+
     return JsonResponse({
         **response.to_dict(),
         'ok': result.ok,
@@ -234,4 +240,5 @@ def process_sync_request(
             {'key': error.key, 'message': error.message}
             for error in result.errors
         ],
+        'skipped': skipped_count,
     })

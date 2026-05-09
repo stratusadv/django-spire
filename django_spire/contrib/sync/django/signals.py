@@ -34,6 +34,10 @@ def _stamp_forward(
     instance: SyncableMixin,
     field_name: str,
 ) -> None:
+    from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+        SyncSequenceAllocator,
+    )
+
     model = type(instance)
     now = model.get_clock().now()
 
@@ -49,20 +53,27 @@ def _stamp_forward(
         if row is None:
             return
 
+        _, last_seq = SyncSequenceAllocator().allocate(1)
+
         timestamps = dict(row['sync_field_timestamps'])
         timestamps[field_name] = now
 
-        (
-            model.objects
-            .filter(pk=instance.pk)
-            .update(
-                sync_field_timestamps=timestamps,
-                sync_field_last_modified=now,
+        with sync_bypass():
+            (
+                model.objects
+                .filter(pk=instance.pk)
+                .update(
+                    sync_field_timestamps=timestamps,
+                    sync_field_last_modified=now,
+                    sync_field_sequence=last_seq,
+                    sync_field_origin_node='',
+                )
             )
-        )
 
     instance.sync_field_timestamps = timestamps
     instance.sync_field_last_modified = now
+    instance.sync_field_sequence = last_seq
+    instance.sync_field_origin_node = ''
 
 
 def _stamp_reverse(
@@ -73,6 +84,10 @@ def _stamp_reverse(
     if not pks:
         return
 
+    from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+        SyncSequenceAllocator,
+    )
+
     now = model.get_clock().now()
 
     with transaction.atomic(), sync_bypass():
@@ -82,18 +97,31 @@ def _stamp_reverse(
             .filter(pk__in=pks),
         )
 
+        if not instances:
+            return
+
+        first_seq, _ = SyncSequenceAllocator().allocate(len(instances))
+        next_seq = first_seq
+
         for instance in instances:
             timestamps = dict(instance.sync_field_timestamps)
             timestamps[field_name] = now
 
             instance.sync_field_timestamps = timestamps
             instance.sync_field_last_modified = now
+            instance.sync_field_sequence = next_seq
+            instance.sync_field_origin_node = ''
+            next_seq += 1
 
-        if instances:
-            model.objects.bulk_update(
-                instances,
-                ['sync_field_timestamps', 'sync_field_last_modified'],
-            )
+        model.objects.bulk_update(
+            instances,
+            [
+                'sync_field_last_modified',
+                'sync_field_origin_node',
+                'sync_field_sequence',
+                'sync_field_timestamps',
+            ],
+        )
 
 
 def _on_m2m_changed(
@@ -162,6 +190,9 @@ def _on_syncable_delete(
 
     from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
     from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+    from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+        SyncSequenceAllocator,
+    )
 
     if _is_bypassed():
         return
@@ -175,11 +206,18 @@ def _on_syncable_delete(
     clock = SyncableMixin.get_clock()
     timestamp = clock.now()
 
-    SyncTombstone.objects.update_or_create(
-        model_label=model_label,
-        record_key=key,
-        defaults={'timestamp': timestamp},
-    )
+    with transaction.atomic():
+        _, last_seq = SyncSequenceAllocator().allocate(1)
+
+        SyncTombstone.objects.update_or_create(
+            model_label=model_label,
+            record_key=key,
+            defaults={
+                'origin_node': '',
+                'sequence': last_seq,
+                'timestamp': timestamp,
+            },
+        )
 
 
 def register_delete_signals(
@@ -201,25 +239,23 @@ def register_delete_signals(
 
 
 def register_m2m_signals(
-    models: list[type[SyncableMixin]],
+    parent_models: list[type[SyncableMixin]],
 ) -> None:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
+    if not parent_models:
+        message = 'parent_models must be a non-empty list'
+        raise InvalidParameterError(message)
 
-    for model in models:
-        if not issubclass(model, SyncableMixin):
-            message = (
-                f'Cannot register M2M signals for {model!r}: '
-                f'must be a SyncableMixin subclass'
+    for parent_model in parent_models:
+        for field in parent_model._meta.many_to_many:
+            through_model = field.remote_field.through
+
+            dispatch_uid = (
+                f'syncable_m2m:'
+                f'{parent_model._meta.label}:{field.name}'
             )
-
-            raise InvalidParameterError(message)
-
-        for field in model._meta.many_to_many:
-            through = field.remote_field.through
-            dispatch_uid = f'syncable_m2m:{model._meta.label}:{field.name}'
 
             m2m_changed.connect(
                 _on_m2m_changed,
-                sender=through,
+                sender=through_model,
                 dispatch_uid=dispatch_uid,
             )

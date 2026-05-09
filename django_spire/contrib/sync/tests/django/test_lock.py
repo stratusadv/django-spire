@@ -25,7 +25,7 @@ def lock() -> DjangoSyncLock:
 
 @pytest.mark.django_db
 def test_acquire_creates_in_progress_session(lock: DjangoSyncLock) -> None:
-    session_id = lock.acquire('node-1')
+    session_id = lock.acquire('node-1', '')
 
     session = SyncSession.objects.get(id=session_id)
 
@@ -37,18 +37,18 @@ def test_acquire_creates_in_progress_session(lock: DjangoSyncLock) -> None:
 def test_acquire_rejects_when_active_session_exists(
     lock: DjangoSyncLock,
 ) -> None:
-    lock.acquire('node-1')
+    lock.acquire('node-1', '')
 
     with pytest.raises(LockContentionError, match='already in progress'):
-        lock.acquire('node-1')
+        lock.acquire('node-1', '')
 
 
 @pytest.mark.django_db
 def test_acquire_allows_after_release(lock: DjangoSyncLock) -> None:
-    session_id = lock.acquire('node-1')
+    session_id = lock.acquire('node-1', '')
     lock.release(session_id, SyncStatus.SUCCESS)
 
-    second = lock.acquire('node-1')
+    second = lock.acquire('node-1', '')
 
     assert second != session_id
 
@@ -57,13 +57,13 @@ def test_acquire_allows_after_release(lock: DjangoSyncLock) -> None:
 def test_acquire_abandons_stale_session() -> None:
     lock = DjangoSyncLock(timeout_stale=1)
 
-    first_session_id = lock.acquire('node-1')
+    first_session_id = lock.acquire('node-1', '')
 
     SyncSession.objects.filter(id=first_session_id).update(
         started_at=timezone.now() - timedelta(seconds=300),
     )
 
-    second_session_id = lock.acquire('node-1')
+    second_session_id = lock.acquire('node-1', '')
 
     assert second_session_id != first_session_id
 
@@ -74,7 +74,7 @@ def test_acquire_abandons_stale_session() -> None:
 
 @pytest.mark.django_db
 def test_release_records_status(lock: DjangoSyncLock) -> None:
-    session_id = lock.acquire('node-1')
+    session_id = lock.acquire('node-1', '')
     lock.release(session_id, SyncStatus.FAILURE)
 
     session = SyncSession.objects.get(id=session_id)
@@ -95,7 +95,7 @@ def test_release_missing_session_does_not_raise(lock: DjangoSyncLock) -> None:
 
 @pytest.mark.django_db
 def test_update_phase(lock: DjangoSyncLock) -> None:
-    session_id = lock.acquire('node-1')
+    session_id = lock.acquire('node-1', '')
 
     lock.update_phase(session_id, SyncPhase.RECONCILING)
 
@@ -116,7 +116,7 @@ def test_concurrent_acquire_serializes() -> None:
     barrier = threading.Barrier(2)
 
     def try_acquire() -> None:
-        session_id = lock.acquire('node-concurrent')
+        session_id = lock.acquire('node-concurrent', '')
         successes.append(session_id)
         time.sleep(0.05)
 

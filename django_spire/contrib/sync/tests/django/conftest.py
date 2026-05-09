@@ -29,6 +29,7 @@ def model_instance() -> SyncTestModel:
     instance = SyncTestModel(name='Alice', value=10)
     instance.sync_field_timestamps = {'name': 100, 'value': 100}
     instance.sync_field_last_modified = 100
+    instance.sync_field_sequence = 1
     db_models.Model.save(instance)
     instance._tracker.snapshot(instance._get_field_values())
 

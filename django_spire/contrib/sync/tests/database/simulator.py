@@ -136,12 +136,21 @@ class SyncSimulator:
                         key=rec.key,
                         data=dict(rec.data),
                         timestamps=dict(rec.timestamps),
+                        sequence=rec.sequence,
+                        origin_node=rec.origin_node,
+                        received_at=rec.received_at,
                     )
                     for k, rec in records.items()
                 }
                 for model, records in storage._records.items()
             },
             'checkpoints': dict(storage._checkpoints),
+            'tombstones': {
+                model: dict(tombstones)
+                for model, tombstones in storage._tombstones.items()
+            },
+            'allocator_value': storage._sequence_allocator._value,
+            'after_keys': dict(storage._after_keys),
         }
 
     def restore_tablet(self, tablet_id: str) -> None:
@@ -149,6 +158,9 @@ class SyncSimulator:
         storage = self.harness.tablet_storages[tablet_id]
         storage._records = snapshot['records']
         storage._checkpoints = snapshot['checkpoints']
+        storage._tombstones = snapshot['tombstones']
+        storage._sequence_allocator._value = snapshot['allocator_value']
+        storage._after_keys = snapshot['after_keys']
 
     def crash_mid_sync(self, tablet_id: str) -> None:
         self.snapshot_tablet(tablet_id)

@@ -46,7 +46,7 @@ def _make_urlopen_response(
 def _valid_manifest_dict() -> dict[str, Any]:
     return make_manifest(
         node_id='server',
-        checkpoint=500,
+        local_sequence=500,
         node_time=500,
     ).to_dict()
 
@@ -131,11 +131,11 @@ def test_exchange_valid_response(mock_urlopen: Any) -> None:
         headers={'Authorization': 'Bearer token'},
     )
 
-    manifest = make_manifest(node_id='tablet', checkpoint=100)
+    manifest = make_manifest(node_id='tablet', local_sequence=100)
     response = transport.exchange(manifest)
 
     assert response.node_id == 'server'
-    assert response.checkpoint == 500
+    assert response.local_sequence == 500
 
 
 @patch('django_spire.contrib.sync.database.transport.http.urlopen')
@@ -235,7 +235,7 @@ def test_exchange_non_dict_response_raises(mock_urlopen: Any) -> None:
 
 @patch('django_spire.contrib.sync.database.transport.http.urlopen')
 def test_exchange_missing_node_id_raises(mock_urlopen: Any) -> None:
-    body = json.dumps({'checkpoint': 500}).encode('utf-8')
+    body = json.dumps({'peer_sequence': 0, 'local_sequence': 500}).encode('utf-8')
 
     response_mock = MagicMock()
     response_mock.read.return_value = body
@@ -260,7 +260,7 @@ def test_exchange_missing_node_id_raises(mock_urlopen: Any) -> None:
 
 
 @patch('django_spire.contrib.sync.database.transport.http.urlopen')
-def test_exchange_missing_checkpoint_raises(mock_urlopen: Any) -> None:
+def test_exchange_missing_peer_sequence_raises(mock_urlopen: Any) -> None:
     body = json.dumps({'node_id': 'server'}).encode('utf-8')
 
     response_mock = MagicMock()

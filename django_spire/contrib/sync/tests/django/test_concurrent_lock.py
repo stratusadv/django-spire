@@ -23,7 +23,7 @@ def test_lock_five_threads_one_winner() -> None:
     errors: list[Exception] = []
 
     def try_acquire() -> None:
-        session_id = lock.acquire('contention-node')
+        session_id = lock.acquire('contention-node', '')
         successes.append(session_id)
         time.sleep(0.02)
 
@@ -58,7 +58,7 @@ def test_lock_rapid_acquire_release_cycling() -> None:
 
     def cycle(node_id: str, iterations: int) -> None:
         for _ in range(iterations):
-            session_id = lock.acquire(node_id)
+            session_id = lock.acquire(node_id, '')
             lock.release(session_id, SyncStatus.SUCCESS)
 
     threads = [
@@ -86,7 +86,7 @@ def test_lock_rapid_acquire_release_cycling() -> None:
 @pytest.mark.django_db(transaction=True)
 def test_lock_release_then_two_competitors_only_one_wins() -> None:
     lock = DjangoSyncLock()
-    initial = lock.acquire('race-node')
+    initial = lock.acquire('race-node', '')
     lock.release(initial, SyncStatus.SUCCESS)
 
     barrier = threading.Barrier(2)
@@ -95,7 +95,7 @@ def test_lock_release_then_two_competitors_only_one_wins() -> None:
     errors: list[Exception] = []
 
     def acquire_worker() -> None:
-        session_id = lock.acquire('race-node')
+        session_id = lock.acquire('race-node', '')
         successes.append(session_id)
 
     threads = [

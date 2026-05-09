@@ -7,6 +7,8 @@ from typing import Any, Protocol, TYPE_CHECKING
 
 from django.db import IntegrityError, connections, router, transaction
 
+from django_spire.contrib.sync.core.model import Error
+from django_spire.contrib.sync.database.storage import UpsertResult
 from django_spire.contrib.sync.django.queryset import sync_bypass
 
 if TYPE_CHECKING:
@@ -32,7 +34,8 @@ class UpsertStrategy(Protocol):
         model: type[SyncableMixin],
         records: dict[str, SyncRecord],
         deserialized: dict[str, dict[str, Any]],
-    ) -> set[str]: ...
+        origin_node: str,
+    ) -> UpsertResult: ...
 
 
 class BulkUpsertStrategy:
@@ -45,6 +48,8 @@ class BulkUpsertStrategy:
         key: str,
         sync_record: SyncRecord,
         field_data: dict[str, Any],
+        sequence: int,
+        origin_node: str,
     ) -> SyncableMixin:
         data = dict(field_data)
 
@@ -54,6 +59,8 @@ class BulkUpsertStrategy:
         instance = model(**data)
         instance.sync_field_timestamps = dict(sync_record.timestamps)
         instance.sync_field_last_modified = sync_record.sync_field_last_modified
+        instance.sync_field_sequence = sequence
+        instance.sync_field_origin_node = origin_node
 
         return instance
 
@@ -71,7 +78,7 @@ class BulkUpsertStrategy:
             for field in fields
         ]
 
-    def _build_sql(
+    def _build_upsert_sql(
         self,
         model: type[SyncableMixin],
         fields: list[Field],
@@ -123,28 +130,36 @@ class BulkUpsertStrategy:
 
         return connections[db_alias]
 
-    def _filter_ghosts(
+    def _validate_records(
         self,
+        model_label: str,
         records: dict[str, SyncRecord],
-    ) -> tuple[dict[str, SyncRecord], set[str]]:
+    ) -> tuple[dict[str, SyncRecord], list[Error]]:
         writable: dict[str, SyncRecord] = {}
-        skipped: set[str] = set()
+        errors: list[Error] = []
 
         for key in sorted(records.keys()):
             sync_record = records[key]
 
-            if not sync_record.timestamps:
-                logger.warning(
-                    'Skipping ghost record %s: empty timestamps',
-                    key,
+            if sync_record.sync_field_last_modified == 0:
+                message = (
+                    f'Ghost record for {model_label} key={key}: '
+                    f'sync_field_last_modified=0 indicates record was '
+                    f'never properly stamped '
+                    f'(timestamps={sync_record.timestamps!r}, '
+                    f'received_at={sync_record.received_at}). '
+                    f'Run stamp_unstamped_records on the source node '
+                    f'or check that AppConfig.ready() runs.'
                 )
 
-                skipped.add(key)
+                logger.error(message)
+
+                errors.append(Error(key=key, message=message))
                 continue
 
             writable[key] = sync_record
 
-        return writable, skipped
+        return writable, errors
 
     def _rows_per_batch(self, field_count: int) -> int:
         return max(1, _PARAM_LIMIT // field_count)
@@ -160,9 +175,10 @@ class BulkUpsertStrategy:
         model: type[SyncableMixin],
         records: dict[str, SyncRecord],
         deserialized: dict[str, dict[str, Any]],
-    ) -> set[str]:
+        origin_node: str,
+    ) -> UpsertResult:
         if not records:
-            return set()
+            return UpsertResult()
 
         connection = self._connection(model)
 
@@ -174,13 +190,20 @@ class BulkUpsertStrategy:
 
             raise NotImplementedError(message)
 
-        writable, skipped = self._filter_ghosts(records)
+        model_label = model._meta.label
+        writable, errors = self._validate_records(model_label, records)
 
         if not writable:
-            return skipped
+            return UpsertResult(skipped=set(), errors=errors)
+
+        from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+            SyncSequenceAllocator,
+        )
 
         fields = self._writable_fields(model)
         sorted_keys = sorted(writable.keys())
+
+        first_seq, _ = SyncSequenceAllocator().allocate(len(sorted_keys))
 
         instances = [
             self._build_instance(
@@ -188,8 +211,10 @@ class BulkUpsertStrategy:
                 key,
                 writable[key],
                 deserialized[key],
+                first_seq + index,
+                origin_node,
             )
-            for key in sorted_keys
+            for index, key in enumerate(sorted_keys)
         ]
 
         identity = model._meta.get_field(self._identity_field)
@@ -225,11 +250,13 @@ class BulkUpsertStrategy:
                     for row in cursor.fetchall()
                 )
 
+        skipped: set[str] = set()
+
         for key in writable:
             if key not in applied:
                 skipped.add(key)
 
-        return skipped
+        return UpsertResult(skipped=skipped, errors=errors)
 
 
 class StalenessGuardedUpsertStrategy:
@@ -240,6 +267,8 @@ class StalenessGuardedUpsertStrategy:
         self,
         sync_record: SyncRecord,
         field_data: dict[str, Any],
+        sequence: int,
+        origin_node: str,
     ) -> dict[str, Any]:
         values = {
             key: value
@@ -253,6 +282,8 @@ class StalenessGuardedUpsertStrategy:
         values['sync_field_last_modified'] = (
             sync_record.sync_field_last_modified
         )
+        values['sync_field_sequence'] = sequence
+        values['sync_field_origin_node'] = origin_node
 
         return values
 
@@ -265,17 +296,8 @@ class StalenessGuardedUpsertStrategy:
         auto_values: dict[str, Any] = {}
 
         for field in model._meta.concrete_fields:
-            is_auto_add = getattr(
-                field,
-                'auto_now_add',
-                False,
-            )
-
-            is_auto_now = getattr(
-                field,
-                'auto_now',
-                False,
-            )
+            is_auto_add = getattr(field, 'auto_now_add', False)
+            is_auto_now = getattr(field, 'auto_now', False)
 
             if not is_auto_add and not is_auto_now:
                 continue
@@ -304,35 +326,43 @@ class StalenessGuardedUpsertStrategy:
         key: str,
         sync_record: SyncRecord,
         field_data: dict[str, Any],
+        sequence: int,
+        origin_node: str,
     ) -> bool:
-        insert_data = dict(field_data)
+        data = dict(field_data)
+        data[self._identity_field] = key
 
-        if self._identity_field not in insert_data:
-            insert_data[self._identity_field] = key
+        instance = model(**data)
+        instance.sync_field_timestamps = dict(sync_record.timestamps)
+        instance.sync_field_last_modified = sync_record.sync_field_last_modified
+        instance.sync_field_sequence = sequence
+        instance.sync_field_origin_node = origin_node
 
-        instance = model(**insert_data)
+        for attempt in range(_RACE_RETRIES_MAX):
+            try:
+                with sync_bypass(), transaction.atomic():
+                    instance.save(force_insert=True)
+            except IntegrityError:
+                if self._update_if_stale(
+                    model,
+                    key,
+                    sync_record,
+                    field_data,
+                    sequence,
+                    origin_node,
+                ):
+                    return True
 
-        instance.sync_field_timestamps = dict(
-            sync_record.timestamps,
-        )
+                if attempt < _RACE_RETRIES_MAX - 1:
+                    time.sleep(_RACE_RETRY_DELAY)
+                    continue
 
-        instance.sync_field_last_modified = (
-            sync_record.sync_field_last_modified
-        )
+                return False
+            else:
+                self._force_auto_fields(model, key, field_data)
+                return True
 
-        try:
-            with transaction.atomic(), sync_bypass():
-                instance.save(force_insert=True)
-        except IntegrityError:
-            return self._resolve_insert_race(
-                model,
-                key,
-                sync_record,
-                field_data,
-            )
-        else:
-            self._force_auto_fields(model, key, field_data)
-            return True
+        return False
 
     def _record_exists(
         self,
@@ -342,61 +372,32 @@ class StalenessGuardedUpsertStrategy:
         identity_filter = {self._identity_field: key}
         return model.objects.filter(**identity_filter).exists()
 
-    def _resolve_insert_race(
-        self,
-        model: type[SyncableMixin],
-        key: str,
-        sync_record: SyncRecord,
-        field_data: dict[str, Any],
-    ) -> bool:
-        for _ in range(_RACE_RETRIES_MAX):
-            if self._update_if_stale(
-                model,
-                key,
-                sync_record,
-                field_data,
-            ):
-                return True
-
-            if self._record_exists(model, key):
-                return False
-
-            time.sleep(_RACE_RETRY_DELAY)
-
-        logger.warning(
-            'Concurrent insert race for %s:%s: '
-            'competing row not visible after %d retries',
-            model._meta.label,
-            key,
-            _RACE_RETRIES_MAX,
-        )
-
-        return False
-
     def _update_if_stale(
         self,
         model: type[SyncableMixin],
         key: str,
         sync_record: SyncRecord,
         field_data: dict[str, Any],
+        sequence: int,
+        origin_node: str,
     ) -> bool:
-        update_values = self._build_update_values(
-            sync_record,
-            field_data,
-        )
-
         staleness_filter = {
             self._identity_field: key,
-            'sync_field_last_modified__lte': (
-                sync_record.sync_field_last_modified
-            ),
+            'sync_field_last_modified__lte': sync_record.sync_field_last_modified,
         }
 
-        updated = (
-            model.objects
-            .filter(**staleness_filter)
-            .update(**update_values)
+        values = self._build_update_values(
+            sync_record,
+            field_data,
+            sequence,
+            origin_node,
         )
+
+        with sync_bypass():
+            updated = model.objects.filter(**staleness_filter).update(**values)
+
+        if updated:
+            self._force_auto_fields(model, key, field_data)
 
         return updated > 0
 
@@ -406,27 +407,20 @@ class StalenessGuardedUpsertStrategy:
         key: str,
         sync_record: SyncRecord,
         field_data: dict[str, Any],
+        sequence: int,
+        origin_node: str,
     ) -> bool:
         if self._update_if_stale(
             model,
             key,
             sync_record,
             field_data,
+            sequence,
+            origin_node,
         ):
             return True
 
         if self._record_exists(model, key):
-            return False
-
-        if not sync_record.timestamps:
-            logger.warning(
-                'Skipping ghost record %s for %s: '
-                'empty timestamps would create a record '
-                'with sync_field_last_modified=0',
-                key,
-                model._meta.label,
-            )
-
             return False
 
         return self._insert_with_race_fallback(
@@ -434,6 +428,8 @@ class StalenessGuardedUpsertStrategy:
             key,
             sync_record,
             field_data,
+            sequence,
+            origin_node,
         )
 
     def apply_many(
@@ -441,21 +437,50 @@ class StalenessGuardedUpsertStrategy:
         model: type[SyncableMixin],
         records: dict[str, SyncRecord],
         deserialized: dict[str, dict[str, Any]],
-    ) -> set[str]:
-        skipped: set[str] = set()
+        origin_node: str,
+    ) -> UpsertResult:
+        from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+            SyncSequenceAllocator,
+        )
 
-        for key in sorted(records.keys()):
+        skipped: set[str] = set()
+        errors: list[Error] = []
+        sorted_keys = sorted(records.keys())
+
+        if not sorted_keys:
+            return UpsertResult()
+
+        first_seq, _ = SyncSequenceAllocator().allocate(len(sorted_keys))
+
+        for index, key in enumerate(sorted_keys):
             sync_record = records[key]
             field_data = deserialized[key]
+
+            if sync_record.sync_field_last_modified == 0:
+                message = (
+                    f'Ghost record for {model._meta.label} key={key}: '
+                    f'sync_field_last_modified=0 indicates record was '
+                    f'never properly stamped '
+                    f'(timestamps={sync_record.timestamps!r}, '
+                    f'received_at={sync_record.received_at}). '
+                    f'Run stamp_unstamped_records on the source node '
+                    f'or check that AppConfig.ready() runs.'
+                )
+
+                logger.error(message)
+                errors.append(Error(key=key, message=message))
+                continue
 
             applied = self._apply_one(
                 model,
                 key,
                 sync_record,
                 field_data,
+                first_seq + index,
+                origin_node,
             )
 
             if not applied:
                 skipped.add(key)
 
-        return skipped
+        return UpsertResult(skipped=skipped, errors=errors)

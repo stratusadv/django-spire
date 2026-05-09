@@ -23,6 +23,7 @@ def test_build_client_engine_returns_engine() -> None:
     engine = build_client_engine(
         models=[SyncTestModel],
         node_id='tablet',
+        peer_node_id='server',
         url='https://example.com/sync/',
         headers={'Authorization': 'Bearer token'},
     )
@@ -38,6 +39,7 @@ def test_build_client_engine_custom_clock() -> None:
     engine = build_client_engine(
         models=[SyncTestModel],
         node_id='tablet',
+        peer_node_id='server',
         url='https://example.com/sync/',
         headers={'Authorization': 'Bearer token'},
         clock=custom_clock,
@@ -56,6 +58,7 @@ def test_build_client_engine_custom_resolver() -> None:
     engine = build_client_engine(
         models=[SyncTestModel],
         node_id='tablet',
+        peer_node_id='server',
         url='https://example.com/sync/',
         headers={'Authorization': 'Bearer token'},
         resolver=resolver,
@@ -74,6 +77,7 @@ def test_build_client_engine_custom_storage() -> None:
     engine = build_client_engine(
         models=[SyncTestModel],
         node_id='tablet',
+        peer_node_id='server',
         url='https://example.com/sync/',
         headers={'Authorization': 'Bearer token'},
         storage=storage,

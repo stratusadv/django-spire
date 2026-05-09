@@ -65,12 +65,18 @@ def _make_engine(
     models = storage.get_syncable_models()
     graph = DependencyGraph({m: set() for m in models})
 
+    peer_node_id = kwargs.pop(
+        'peer_node_id',
+        'server' if transport is not None else None,
+    )
+
     return DatabaseEngine(
         storage=storage,
         graph=graph,
         clock=kwargs.pop('clock', HybridLogicalClock()),
         transport=transport,
         node_id=node_id,
+        peer_node_id=peer_node_id,
         clock_drift_max=clock_drift_max,
         **kwargs,
     )
@@ -109,7 +115,7 @@ def test_process_applies_when_local_unchanged(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(
                 model_label=MODEL,
@@ -122,7 +128,7 @@ def test_process_applies_when_local_unchanged(
 
     _response, result = engine.process(incoming)
 
-    assert '1' in result.applied.get(MODEL, [])
+    assert '1' in result.conflicts.get(MODEL, [])
     assert storage._records[MODEL]['1'].data['name'] == 'new'
 
 
@@ -135,7 +141,7 @@ def test_process_detects_conflict_when_local_changed(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(
                 model_label=MODEL,
@@ -156,7 +162,7 @@ def test_process_compatible_merge_not_in_conflicts(
 ) -> None:
     storage.seed(
         MODEL, '1',
-        {'id': '1', 'name': 'local', 'value': 10},
+        {'id': '1', 'name': 'same', 'value': 20},
         {'name': 150, 'value': 50},
     )
 
@@ -164,14 +170,14 @@ def test_process_compatible_merge_not_in_conflicts(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(
                 model_label=MODEL,
                 records={
                     '1': make_record(
                         '1',
-                        {'id': '1', 'name': 'local', 'value': 20},
+                        {'id': '1', 'name': 'same', 'value': 20},
                         {'name': 50, 'value': 200},
                     ),
                 },
@@ -198,7 +204,7 @@ def test_process_conflict_uses_resolver(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(
                 model_label=MODEL,
@@ -222,7 +228,7 @@ def test_process_deletes_unchanged_record(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(model_label=MODEL, deletes={'1': 100}),
         ],
@@ -243,7 +249,7 @@ def test_process_delete_conflict_local_changed(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(model_label=MODEL, deletes={'1': 100}),
         ],
@@ -276,7 +282,8 @@ def test_process_delete_nonexistent_is_noop(
 def test_manifest_rejects_key_in_both_records_and_deletes() -> None:
     data = {
         'node_id': 'tablet',
-        'checkpoint': 0,
+        'peer_sequence': 0,
+        'local_sequence': 0,
         'node_time': 0,
         'payloads': [
             {
@@ -302,7 +309,7 @@ def test_process_includes_local_only_changes(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(
                 model_label=MODEL,
@@ -341,7 +348,7 @@ def test_process_includes_unreferenced_models(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(
                 model_label=MODEL,
@@ -359,7 +366,7 @@ def test_process_includes_unreferenced_models(
     assert other_model in response_labels
 
 
-def test_process_returns_checkpoint(
+def test_process_returns_local_sequence(
     storage: InMemoryDatabaseStorage,
 ) -> None:
     engine = _make_engine(storage, node_id='server')
@@ -368,7 +375,7 @@ def test_process_returns_checkpoint(
 
     response, _result = engine.process(incoming)
 
-    assert response.checkpoint > 0
+    assert response.local_sequence >= 0
 
 
 def test_process_resolver_error_recorded(
@@ -391,7 +398,7 @@ def test_process_resolver_error_recorded(
 
     incoming = make_manifest(
         node_id='tablet',
-        checkpoint=100,
+        local_sequence=100,
         payloads=[
             ModelPayload(
                 model_label=MODEL,
@@ -415,7 +422,8 @@ def test_process_rejects_missing_checksum(
 
     incoming = SyncManifest(
         node_id='tablet',
-        checkpoint=0,
+        peer_sequence=0,
+        local_sequence=0,
         node_time=0,
         payloads=[],
     )
@@ -464,7 +472,6 @@ def test_sync_pushes_local_changes(
     mock_time.time.return_value = 500
 
     storage.seed(MODEL, '1', {'id': '1', 'name': 'Alice'}, {'name': 300})
-    storage.save_checkpoint('tablet', 200)
 
     transport = FakeTransport(empty_response)
     engine = _make_engine(storage, transport=transport)
@@ -491,7 +498,7 @@ def test_sync_applies_remote_response(
 
     response = make_manifest(
         node_id='server',
-        checkpoint=500,
+        local_sequence=500,
         node_time=500,
         payloads=[
             ModelPayload(
@@ -510,7 +517,7 @@ def test_sync_applies_remote_response(
 
     assert '99' in storage._records[MODEL]
     assert storage._records[MODEL]['99'].data['name'] == 'from-server'
-    assert MODEL in result.applied
+    assert '99' in result.created.get(MODEL, [])
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -528,7 +535,7 @@ def test_sync_applies_conflict_resolved_response(
 
     response = make_manifest(
         node_id='server',
-        checkpoint=500,
+        local_sequence=500,
         node_time=500,
         payloads=[
             ModelPayload(
@@ -550,7 +557,6 @@ def test_sync_applies_conflict_resolved_response(
     result = engine.sync()
 
     assert storage._records[MODEL]['1'].data['value'] == 99
-    assert '1' in result.applied.get(MODEL, [])
     assert '1' not in result.skipped.get(MODEL, [])
 
 
@@ -569,7 +575,7 @@ def test_sync_skips_stale_response_record(
 
     response = make_manifest(
         node_id='server',
-        checkpoint=500,
+        local_sequence=500,
         node_time=500,
         payloads=[
             ModelPayload(
@@ -591,7 +597,7 @@ def test_sync_skips_stale_response_record(
     result = engine.sync()
 
     assert storage._records[MODEL]['1'].data['name'] == 'current'
-    assert '1' in result.skipped.get(MODEL, [])
+    assert '1' in result.conflicts.get(MODEL, [])
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -605,7 +611,7 @@ def test_sync_tracks_response_deletes(
 
     response = make_manifest(
         node_id='server',
-        checkpoint=500,
+        local_sequence=500,
         node_time=500,
         payloads=[
             ModelPayload(model_label=MODEL, deletes={'1': 400}),
@@ -636,7 +642,7 @@ def test_sync_response_delete_skipped_when_local_modified(
 
     response = make_manifest(
         node_id='server',
-        checkpoint=500,
+        local_sequence=500,
         node_time=500,
         payloads=[
             ModelPayload(model_label=MODEL, deletes={'1': 300}),
@@ -649,8 +655,7 @@ def test_sync_response_delete_skipped_when_local_modified(
     result = engine.sync()
 
     assert '1' in storage._records[MODEL]
-    assert '1' in result.skipped.get(MODEL, [])
-    assert '1' not in result.deleted.get(MODEL, [])
+    assert '1' in result.conflicts.get(MODEL, [])
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -662,7 +667,7 @@ def test_sync_dry_run_does_not_mutate(
 
     response = make_manifest(
         node_id='server',
-        checkpoint=500,
+        local_sequence=500,
         node_time=500,
         payloads=[
             ModelPayload(
@@ -704,7 +709,9 @@ def test_sync_saves_checkpoint(
 
     engine.sync()
 
-    assert storage.get_checkpoint('tablet') == empty_response.checkpoint
+    peer_seq, _ = storage.get_checkpoint('server')
+
+    assert peer_seq == empty_response.local_sequence
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -720,7 +727,7 @@ def test_sync_dry_run_does_not_save_checkpoint(
 
     engine.sync(dry_run=True)
 
-    assert storage.get_checkpoint('tablet') == 0
+    assert storage.get_checkpoint('server') == (0, 0)
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -770,7 +777,7 @@ def test_sync_response_clock_drift_does_not_save_checkpoint(
 
     response = make_manifest(
         node_id='server',
-        checkpoint=9999,
+        local_sequence=9999,
         node_time=9999,
     )
     transport = FakeTransport(response)
@@ -780,11 +787,11 @@ def test_sync_response_clock_drift_does_not_save_checkpoint(
     with pytest.raises(SyncAbortedError):
         engine.sync()
 
-    assert storage.get_checkpoint('tablet') == 0
+    assert storage.get_checkpoint('server') == (0, 0)
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
-def test_sync_advances_clock_past_response_checkpoint(
+def test_sync_advances_clock_past_response_timestamps(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
 ) -> None:
@@ -793,13 +800,20 @@ def test_sync_advances_clock_past_response_checkpoint(
     clock = HybridLogicalClock()
     clock._physical = lambda: 1_000
 
-    high_checkpoint = 5_000 << 16
+    high_ts = 5_000 << 16
 
     response = make_manifest(
         node_id='server',
-        checkpoint=high_checkpoint,
+        local_sequence=100,
         node_time=500,
-        payloads=[],
+        payloads=[
+            ModelPayload(
+                model_label=MODEL,
+                records={
+                    '1': make_record('1', {'id': '1', 'name': 'x'}, {'name': high_ts}),
+                },
+            ),
+        ],
     )
 
     transport = FakeTransport(response)
@@ -809,7 +823,7 @@ def test_sync_advances_clock_past_response_checkpoint(
 
     next_ts = clock.now()
 
-    assert next_ts > high_checkpoint
+    assert next_ts > high_ts
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -822,11 +836,9 @@ def test_sync_local_write_after_response_is_not_stranded(
     clock = HybridLogicalClock()
     clock._physical = lambda: 1_000
 
-    high_checkpoint = 5_000 << 16
-
     response = make_manifest(
         node_id='server',
-        checkpoint=high_checkpoint,
+        local_sequence=100,
         node_time=500,
         payloads=[],
     )
@@ -843,11 +855,12 @@ def test_sync_local_write_after_response_is_not_stranded(
         {'name': local_ts},
     )
 
-    saved_checkpoint = storage.get_checkpoint('tablet')
+    _, local_pushed = storage.get_checkpoint('server')
+    after_record = storage._records[MODEL]['after']
 
-    assert local_ts > saved_checkpoint
+    assert after_record.sequence > local_pushed
 
-    changes = storage.get_changed_since(MODEL, saved_checkpoint)
+    changes = storage.get_changed_since(MODEL, local_pushed, '')
 
     assert 'after' in changes
 
@@ -876,7 +889,8 @@ def test_apply_response_orders_by_sync_dependency(
 
     response = SyncManifest(
         node_id='server',
-        checkpoint=0,
+        peer_sequence=0,
+        local_sequence=0,
         node_time=0,
         payloads=[
             ModelPayload(
@@ -906,7 +920,7 @@ def test_detect_field_conflicts() -> None:
     local = make_record('1', {'name': 'A', 'value': 10}, {'name': 200, 'value': 50})
     remote = make_record('1', {'name': 'B', 'value': 10}, {'name': 300, 'value': 50})
 
-    conflicts = reconciler._detect_field_conflicts(local, remote, 100)
+    conflicts = reconciler._detect_field_conflicts(local, remote)
 
     assert len(conflicts) == 1
     assert conflicts[0].field_name == 'name'
@@ -920,20 +934,21 @@ def test_detect_field_conflicts_same_value_no_conflict() -> None:
     local = make_record('1', {'name': 'same'}, {'name': 200})
     remote = make_record('1', {'name': 'same'}, {'name': 300})
 
-    conflicts = reconciler._detect_field_conflicts(local, remote, 100)
+    conflicts = reconciler._detect_field_conflicts(local, remote)
 
     assert len(conflicts) == 0
 
 
-def test_detect_field_conflicts_before_checkpoint_ignored() -> None:
+def test_detect_field_conflicts_different_timestamps_same_value() -> None:
     reconciler = PayloadReconciler()
 
     local = make_record('1', {'name': 'A'}, {'name': 50})
     remote = make_record('1', {'name': 'B'}, {'name': 300})
 
-    conflicts = reconciler._detect_field_conflicts(local, remote, 100)
+    conflicts = reconciler._detect_field_conflicts(local, remote)
 
-    assert len(conflicts) == 0
+    assert len(conflicts) == 1
+    assert conflicts[0].field_name == 'name'
 
 
 def test_upsert_skips_ghost_record(
@@ -947,7 +962,7 @@ def test_upsert_skips_ghost_record(
         ),
     }
 
-    skipped = storage.upsert_many(MODEL, records)
+    result = storage.upsert_many(MODEL, records, '')
 
-    assert 'ghost' in skipped
+    assert 'ghost' in result.skipped
     assert 'ghost' not in storage._records[MODEL]

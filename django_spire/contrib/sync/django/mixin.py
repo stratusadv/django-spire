@@ -4,7 +4,7 @@ import uuid
 
 from typing import Any, ClassVar, TYPE_CHECKING
 
-from django.db import models
+from django.db import models, transaction
 
 from django_spire.contrib.sync.core.exceptions import (
     ClockNotConfiguredError,
@@ -19,13 +19,7 @@ if TYPE_CHECKING:
     from django_spire.contrib.sync.core.clock import HybridLogicalClock
 
 
-class SyncableMixin(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-    )
-
+class SyncableFieldsMixin(models.Model):
     sync_field_timestamps = models.JSONField(
         default=dict,
         editable=False,
@@ -37,13 +31,28 @@ class SyncableMixin(models.Model):
         db_index=True,
     )
 
+    sync_field_sequence = models.BigIntegerField(
+        default=0,
+        editable=False,
+        db_index=True,
+    )
+
+    sync_field_origin_node = models.CharField(
+        max_length=255,
+        default='',
+        editable=False,
+        blank=True,
+    )
+
     objects = SyncableQuerySet.as_manager()
 
     _clock: ClassVar[HybridLogicalClock | None] = None
 
     _sync_exclude_fields = frozenset({
-        'sync_field_timestamps',
         'sync_field_last_modified',
+        'sync_field_origin_node',
+        'sync_field_sequence',
+        'sync_field_timestamps',
     })
 
     class Meta:
@@ -56,21 +65,38 @@ class SyncableMixin(models.Model):
         self._tracker.snapshot(self._get_field_values())
 
     def save(self, *args: Any, **kwargs: Any) -> None:
-        if not _is_bypassed():
-            dirty = self.get_dirty_fields()
+        if _is_bypassed():
+            super().save(*args, **kwargs)
+            self._tracker.snapshot(self._get_field_values())
+            return
 
-            if dirty:
-                now = self.get_clock().now()
-                timestamps = dict(self.sync_field_timestamps)
+        dirty = self.get_dirty_fields()
 
-                for field_name in dirty:
-                    timestamps[field_name] = now
+        if not dirty:
+            super().save(*args, **kwargs)
+            self._tracker.snapshot(self._get_field_values())
+            return
 
-                self.sync_field_timestamps = timestamps
-                self.sync_field_last_modified = now
+        from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
+            SyncSequenceAllocator,
+        )
 
-        super().save(*args, **kwargs)
-        self._tracker.snapshot(self._get_field_values())
+        with transaction.atomic():
+            now = self.get_clock().now()
+            timestamps = dict(self.sync_field_timestamps)
+
+            for field_name in dirty:
+                timestamps[field_name] = now
+
+            _, last_seq = SyncSequenceAllocator().allocate(1)
+
+            self.sync_field_timestamps = timestamps
+            self.sync_field_last_modified = now
+            self.sync_field_sequence = last_seq
+            self.sync_field_origin_node = ''
+
+            super().save(*args, **kwargs)
+            self._tracker.snapshot(self._get_field_values())
 
     def _get_field_values(self) -> dict[str, Any]:
         return {
@@ -122,3 +148,14 @@ class SyncableMixin(models.Model):
             field.name
             for field in cls._meta.many_to_many
         )
+
+
+class SyncableMixin(SyncableFieldsMixin):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+
+    class Meta:
+        abstract = True

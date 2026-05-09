@@ -6,6 +6,8 @@ from typing import Any, TYPE_CHECKING
 
 from django.db import IntegrityError
 
+from django_spire.contrib.sync.core.model import Error
+from django_spire.contrib.sync.database.storage import UpsertResult
 from django_spire.contrib.sync.django.queryset import sync_bypass
 
 if TYPE_CHECKING:
@@ -23,11 +25,11 @@ class ManyToManyApplier:
         self,
         model: type[SyncableMixin],
         pending: dict[str, dict[str, list[Any]]],
-    ) -> set[str]:
-        skipped: set[str] = set()
+    ) -> UpsertResult:
+        result = UpsertResult()
 
         if not pending:
-            return skipped
+            return result
 
         identity_lookup = {f'{self._identity_field}__in': list(pending.keys())}
 
@@ -49,14 +51,14 @@ class ManyToManyApplier:
                         key,
                     )
 
-                    skipped.add(key)
+                    result.skipped.add(key)
 
                     continue
 
                 for field_name, values in sorted(many_to_many_data.items()):
                     try:
                         getattr(instance, field_name).set(values)
-                    except IntegrityError:
+                    except IntegrityError as exception:
                         logger.exception(
                             'M2M set failed for %s:%s field=%s values=%s',
                             model._meta.label,
@@ -65,6 +67,14 @@ class ManyToManyApplier:
                             values,
                         )
 
-                        raise
+                        result.errors.append(Error(
+                            key=key,
+                            message=(
+                                f'M2M set failed for '
+                                f'{model._meta.label}:{key} '
+                                f'field={field_name}: {exception}'
+                            ),
+                            exception=exception,
+                        ))
 
-        return skipped
+        return result

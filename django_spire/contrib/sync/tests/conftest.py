@@ -49,3 +49,7 @@ def _create_test_tables(django_db_setup: None, django_db_blocker: object) -> Non
             if model._meta.db_table not in existing:
                 with connection.schema_editor() as editor:
                     editor.create_model(model)
+
+    from django_spire.contrib.sync.django.signals import register_m2m_signals
+
+    register_m2m_signals([SyncTestModel.tags.through])
