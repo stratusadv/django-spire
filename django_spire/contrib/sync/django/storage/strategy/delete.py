@@ -55,7 +55,7 @@ class HardDeleteStrategy:
         )
 
         keys = sorted(deletes.keys())
-        first_seq, _ = SyncSequenceAllocator().allocate(len(keys))
+        first_seq = SyncSequenceAllocator().allocate(len(keys)).first
         model_label = model._meta.label
 
         with sync_bypass():
@@ -132,7 +132,7 @@ class SoftDeleteStrategy:
         if not pending:
             return
 
-        first_seq, _ = SyncSequenceAllocator().allocate(len(pending))
+        first_seq = SyncSequenceAllocator().allocate(len(pending)).first
         model_label = model._meta.label
 
         with sync_bypass():

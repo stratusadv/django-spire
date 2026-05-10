@@ -88,7 +88,7 @@ class SyncableFieldsMixin(models.Model):
             for field_name in dirty:
                 timestamps[field_name] = now
 
-            _, last_seq = SyncSequenceAllocator().allocate(1)
+            last_seq = SyncSequenceAllocator().allocate(1).last
 
             self.sync_field_timestamps = timestamps
             self.sync_field_last_modified = now

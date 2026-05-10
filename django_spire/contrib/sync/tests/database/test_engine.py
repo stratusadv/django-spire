@@ -24,6 +24,7 @@ from django_spire.contrib.sync.database.manifest import (
 )
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
 from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.contrib.sync.database.storage import CheckpointPosition
 
 from django_spire.contrib.sync.tests.database.helpers import (
     FakeTransport,
@@ -709,7 +710,7 @@ def test_sync_saves_checkpoint(
 
     engine.sync()
 
-    peer_seq, _ = storage.get_checkpoint('server')
+    peer_seq = storage.get_checkpoint('server').peer_sequence
 
     assert peer_seq == empty_response.local_sequence
 
@@ -727,7 +728,10 @@ def test_sync_dry_run_does_not_save_checkpoint(
 
     engine.sync(dry_run=True)
 
-    assert storage.get_checkpoint('server') == (0, 0)
+    assert storage.get_checkpoint('server') == CheckpointPosition(
+        peer_sequence=0,
+        local_sequence_pushed=0,
+    )
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -787,7 +791,10 @@ def test_sync_response_clock_drift_does_not_save_checkpoint(
     with pytest.raises(SyncAbortedError):
         engine.sync()
 
-    assert storage.get_checkpoint('server') == (0, 0)
+    assert storage.get_checkpoint('server') == CheckpointPosition(
+        peer_sequence=0,
+        local_sequence_pushed=0,
+    )
 
 
 @patch('django_spire.contrib.sync.database.engine.time')
@@ -855,7 +862,7 @@ def test_sync_local_write_after_response_is_not_stranded(
         {'name': local_ts},
     )
 
-    _, local_pushed = storage.get_checkpoint('server')
+    local_pushed = storage.get_checkpoint('server').local_sequence_pushed
     after_record = storage._records[MODEL]['after']
 
     assert after_record.sequence > local_pushed

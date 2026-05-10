@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from django_spire.contrib.sync.core.exceptions import (
     InvalidParameterError,
     RecordFieldError,
 )
+
+if TYPE_CHECKING:
+    from django_spire.contrib.sync.django.mixin import SyncableMixin
 
 
 def _coerce_int(value: Any, label: str, record_key: str) -> int:
@@ -180,3 +183,13 @@ class SyncRecord:
             'sequence': self.sequence,
             'timestamps': self.timestamps,
         }
+
+
+@dataclass(frozen=True)
+class RecordContext:
+    model: type[SyncableMixin]
+    key: str
+    sync_record: SyncRecord
+    field_data: dict[str, Any]
+    sequence: int
+    origin_node: str

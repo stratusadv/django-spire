@@ -53,7 +53,7 @@ def _stamp_forward(
         if row is None:
             return
 
-        _, last_seq = SyncSequenceAllocator().allocate(1)
+        last_seq = SyncSequenceAllocator().allocate(1).last
 
         timestamps = dict(row['sync_field_timestamps'])
         timestamps[field_name] = now
@@ -100,7 +100,7 @@ def _stamp_reverse(
         if not instances:
             return
 
-        first_seq, _ = SyncSequenceAllocator().allocate(len(instances))
+        first_seq = SyncSequenceAllocator().allocate(len(instances)).first
         next_seq = first_seq
 
         for instance in instances:
@@ -207,7 +207,7 @@ def _on_syncable_delete(
     timestamp = clock.now()
 
     with transaction.atomic():
-        _, last_seq = SyncSequenceAllocator().allocate(1)
+        last_seq = SyncSequenceAllocator().allocate(1).last
 
         SyncTombstone.objects.update_or_create(
             model_label=model_label,

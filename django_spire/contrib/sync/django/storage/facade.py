@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from django_spire.contrib.sync.database.storage import UpsertResult
     from django_spire.contrib.sync.database.record import SyncRecord
     from django_spire.contrib.sync.database.storage import (
+        CheckpointPosition,
         CheckpointStore,
         RecordReader,
         RecordWriter,
@@ -115,7 +116,7 @@ class DjangoSyncStorage:
             sequence_max=sequence_max,
         )
 
-    def get_checkpoint(self, peer_node_id: str) -> tuple[int, int]:
+    def get_checkpoint(self, peer_node_id: str) -> CheckpointPosition:
         return self._checkpoint_store.get_checkpoint(peer_node_id)
 
     def get_records(

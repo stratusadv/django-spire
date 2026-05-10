@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django_spire.contrib.sync.core.exceptions import InvalidParameterError
+from django_spire.contrib.sync.database.storage import SequenceRange
 from django_spire.contrib.sync.django.models.sequence import SyncSequenceCounter
 
 
@@ -27,7 +28,7 @@ class SyncSequenceAllocator:
             .get(name=self._counter_name)
         )
 
-    def allocate(self, count: int = 1) -> tuple[int, int]:
+    def allocate(self, count: int = 1) -> SequenceRange:
         if count < 1:
             message = f'count must be >= 1, got {count}'
             raise InvalidParameterError(message)
@@ -39,7 +40,7 @@ class SyncSequenceAllocator:
         counter.value = last_value
         counter.save(update_fields=['value', 'updated_at'])
 
-        return first_value, last_value
+        return SequenceRange(first=first_value, last=last_value)
 
     def current(self) -> int:
         counter = (

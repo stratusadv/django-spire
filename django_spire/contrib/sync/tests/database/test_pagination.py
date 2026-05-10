@@ -258,7 +258,7 @@ class TestCheckpointIntegrity:
 
         tablet.sync()
 
-        peer_seq, _ = tablet_storage.get_checkpoint('server')
+        peer_seq = tablet_storage.get_checkpoint('server').peer_sequence
         max_seeded_seq = max(r.sequence for r in seeded.values())
 
         assert peer_seq >= max_seeded_seq

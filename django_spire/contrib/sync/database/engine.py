@@ -1303,9 +1303,9 @@ class DatabaseEngine:
                     SyncStage.VALIDATE,
                 )
 
-                peer_sequence, local_sequence_pushed = (
-                    self._storage.get_checkpoint(self._peer_node_id)
-                )
+                checkpoint = self._storage.get_checkpoint(self._peer_node_id)
+                peer_sequence = checkpoint.peer_sequence
+                local_sequence_pushed = checkpoint.local_sequence_pushed
 
                 counter_at_start = (
                     self._storage.get_sequence_allocator().current()
@@ -1336,21 +1336,6 @@ class DatabaseEngine:
                 )
 
                 response = self._exchange_and_validate(manifest)
-
-                logger.info(
-                    'SYNC DEBUG: '
-                    'sent=%d received=%d '
-                    'client_has_more=%s server_has_more=%s '
-                    'peer_seq=%d response_local_seq=%d '
-                    'local_pushed=%d',
-                    sum(len(p.records) for p in manifest.payloads),
-                    sum(len(p.records) for p in response.payloads),
-                    manifest.has_more,
-                    response.has_more,
-                    peer_sequence,
-                    response.local_sequence,
-                    local_sequence_pushed,
-                )
 
                 self._enter_phase(
                     SyncPhase.RECONCILING,

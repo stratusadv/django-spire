@@ -53,7 +53,7 @@ class SyncableQuerySet(models.QuerySet):
         clock = self.model.get_clock()
 
         with transaction.atomic():
-            first_seq, _ = SyncSequenceAllocator().allocate(len(syncable))
+            first_seq = SyncSequenceAllocator().allocate(len(syncable)).first
             next_seq = first_seq
 
             for instance in syncable:
@@ -114,7 +114,7 @@ class SyncableQuerySet(models.QuerySet):
         })
 
         with transaction.atomic():
-            first_seq, _ = SyncSequenceAllocator().allocate(len(syncable))
+            first_seq = SyncSequenceAllocator().allocate(len(syncable)).first
             next_seq = first_seq
 
             for instance in syncable:
@@ -168,7 +168,7 @@ class SyncableQuerySet(models.QuerySet):
             if not rows:
                 return 0
 
-            first_seq, _ = SyncSequenceAllocator().allocate(len(rows))
+            first_seq = SyncSequenceAllocator().allocate(len(rows)).first
 
             total = 0
 

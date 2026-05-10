@@ -8,6 +8,7 @@ from typing import Any, Protocol, TYPE_CHECKING
 from django.db import IntegrityError, connections, router, transaction
 
 from django_spire.contrib.sync.core.model import Error
+from django_spire.contrib.sync.database.record import RecordContext
 from django_spire.contrib.sync.database.storage import UpsertResult
 from django_spire.contrib.sync.django.queryset import sync_bypass
 
@@ -42,25 +43,17 @@ class BulkUpsertStrategy:
     def __init__(self, identity_field: str = 'id') -> None:
         self._identity_field = identity_field
 
-    def _build_instance(
-        self,
-        model: type[SyncableMixin],
-        key: str,
-        sync_record: SyncRecord,
-        field_data: dict[str, Any],
-        sequence: int,
-        origin_node: str,
-    ) -> SyncableMixin:
-        data = dict(field_data)
+    def _build_instance(self, ctx: RecordContext) -> SyncableMixin:
+        data = dict(ctx.field_data)
 
         if self._identity_field not in data:
-            data[self._identity_field] = key
+            data[self._identity_field] = ctx.key
 
-        instance = model(**data)
-        instance.sync_field_timestamps = dict(sync_record.timestamps)
-        instance.sync_field_last_modified = sync_record.sync_field_last_modified
-        instance.sync_field_sequence = sequence
-        instance.sync_field_origin_node = origin_node
+        instance = ctx.model(**data)
+        instance.sync_field_timestamps = dict(ctx.sync_record.timestamps)
+        instance.sync_field_last_modified = ctx.sync_record.sync_field_last_modified
+        instance.sync_field_sequence = ctx.sequence
+        instance.sync_field_origin_node = ctx.origin_node
 
         return instance
 
@@ -203,17 +196,17 @@ class BulkUpsertStrategy:
         fields = self._writable_fields(model)
         sorted_keys = sorted(writable.keys())
 
-        first_seq, _ = SyncSequenceAllocator().allocate(len(sorted_keys))
+        first_seq = SyncSequenceAllocator().allocate(len(sorted_keys)).first
 
         instances = [
-            self._build_instance(
-                model,
-                key,
-                writable[key],
-                deserialized[key],
-                first_seq + index,
-                origin_node,
-            )
+            self._build_instance(RecordContext(
+                model=model,
+                key=key,
+                sync_record=writable[key],
+                field_data=deserialized[key],
+                sequence=first_seq + index,
+                origin_node=origin_node,
+            ))
             for index, key in enumerate(sorted_keys)
         ]
 
@@ -236,7 +229,7 @@ class BulkUpsertStrategy:
                         ),
                     )
 
-                sql = self._build_sql(
+                sql = self._build_upsert_sql(
                     model,
                     fields,
                     connection,
@@ -263,39 +256,28 @@ class StalenessGuardedUpsertStrategy:
     def __init__(self, identity_field: str = 'id') -> None:
         self._identity_field = identity_field
 
-    def _build_update_values(
-        self,
-        sync_record: SyncRecord,
-        field_data: dict[str, Any],
-        sequence: int,
-        origin_node: str,
-    ) -> dict[str, Any]:
+    def _build_update_values(self, ctx: RecordContext) -> dict[str, Any]:
         values = {
             key: value
-            for key, value in field_data.items()
+            for key, value in ctx.field_data.items()
             if key != self._identity_field
         }
 
         values['sync_field_timestamps'] = dict(
-            sync_record.timestamps,
+            ctx.sync_record.timestamps,
         )
         values['sync_field_last_modified'] = (
-            sync_record.sync_field_last_modified
+            ctx.sync_record.sync_field_last_modified
         )
-        values['sync_field_sequence'] = sequence
-        values['sync_field_origin_node'] = origin_node
+        values['sync_field_sequence'] = ctx.sequence
+        values['sync_field_origin_node'] = ctx.origin_node
 
         return values
 
-    def _force_auto_fields(
-        self,
-        model: type[SyncableMixin],
-        key: str,
-        field_data: dict[str, Any],
-    ) -> None:
+    def _force_auto_fields(self, ctx: RecordContext) -> None:
         auto_values: dict[str, Any] = {}
 
-        for field in model._meta.concrete_fields:
+        for field in ctx.model._meta.concrete_fields:
             is_auto_add = getattr(field, 'auto_now_add', False)
             is_auto_now = getattr(field, 'auto_now', False)
 
@@ -308,49 +290,34 @@ class StalenessGuardedUpsertStrategy:
                 else field.name
             )
 
-            if attr_name not in field_data:
+            if attr_name not in ctx.field_data:
                 continue
 
-            if field_data[attr_name] is None:
+            if ctx.field_data[attr_name] is None:
                 continue
 
-            auto_values[attr_name] = field_data[attr_name]
+            auto_values[attr_name] = ctx.field_data[attr_name]
 
         if auto_values:
-            identity_filter = {self._identity_field: key}
-            model.objects.filter(**identity_filter).update(**auto_values)
+            identity_filter = {self._identity_field: ctx.key}
+            ctx.model.objects.filter(**identity_filter).update(**auto_values)
 
-    def _insert_with_race_fallback(
-        self,
-        model: type[SyncableMixin],
-        key: str,
-        sync_record: SyncRecord,
-        field_data: dict[str, Any],
-        sequence: int,
-        origin_node: str,
-    ) -> bool:
-        data = dict(field_data)
-        data[self._identity_field] = key
+    def _insert_with_race_fallback(self, ctx: RecordContext) -> bool:
+        data = dict(ctx.field_data)
+        data[self._identity_field] = ctx.key
 
-        instance = model(**data)
-        instance.sync_field_timestamps = dict(sync_record.timestamps)
-        instance.sync_field_last_modified = sync_record.sync_field_last_modified
-        instance.sync_field_sequence = sequence
-        instance.sync_field_origin_node = origin_node
+        instance = ctx.model(**data)
+        instance.sync_field_timestamps = dict(ctx.sync_record.timestamps)
+        instance.sync_field_last_modified = ctx.sync_record.sync_field_last_modified
+        instance.sync_field_sequence = ctx.sequence
+        instance.sync_field_origin_node = ctx.origin_node
 
         for attempt in range(_RACE_RETRIES_MAX):
             try:
                 with sync_bypass(), transaction.atomic():
                     instance.save(force_insert=True)
             except IntegrityError:
-                if self._update_if_stale(
-                    model,
-                    key,
-                    sync_record,
-                    field_data,
-                    sequence,
-                    origin_node,
-                ):
+                if self._update_if_stale(ctx):
                     return True
 
                 if attempt < _RACE_RETRIES_MAX - 1:
@@ -359,78 +326,39 @@ class StalenessGuardedUpsertStrategy:
 
                 return False
             else:
-                self._force_auto_fields(model, key, field_data)
+                self._force_auto_fields(ctx)
                 return True
 
         return False
 
-    def _record_exists(
-        self,
-        model: type[SyncableMixin],
-        key: str,
-    ) -> bool:
-        identity_filter = {self._identity_field: key}
-        return model.objects.filter(**identity_filter).exists()
+    def _record_exists(self, ctx: RecordContext) -> bool:
+        identity_filter = {self._identity_field: ctx.key}
+        return ctx.model.objects.filter(**identity_filter).exists()
 
-    def _update_if_stale(
-        self,
-        model: type[SyncableMixin],
-        key: str,
-        sync_record: SyncRecord,
-        field_data: dict[str, Any],
-        sequence: int,
-        origin_node: str,
-    ) -> bool:
+    def _update_if_stale(self, ctx: RecordContext) -> bool:
         staleness_filter = {
-            self._identity_field: key,
-            'sync_field_last_modified__lte': sync_record.sync_field_last_modified,
+            self._identity_field: ctx.key,
+            'sync_field_last_modified__lte': ctx.sync_record.sync_field_last_modified,
         }
 
-        values = self._build_update_values(
-            sync_record,
-            field_data,
-            sequence,
-            origin_node,
-        )
+        values = self._build_update_values(ctx)
 
         with sync_bypass():
-            updated = model.objects.filter(**staleness_filter).update(**values)
+            updated = ctx.model.objects.filter(**staleness_filter).update(**values)
 
         if updated:
-            self._force_auto_fields(model, key, field_data)
+            self._force_auto_fields(ctx)
 
         return updated > 0
 
-    def _apply_one(
-        self,
-        model: type[SyncableMixin],
-        key: str,
-        sync_record: SyncRecord,
-        field_data: dict[str, Any],
-        sequence: int,
-        origin_node: str,
-    ) -> bool:
-        if self._update_if_stale(
-            model,
-            key,
-            sync_record,
-            field_data,
-            sequence,
-            origin_node,
-        ):
+    def _apply_one(self, ctx: RecordContext) -> bool:
+        if self._update_if_stale(ctx):
             return True
 
-        if self._record_exists(model, key):
+        if self._record_exists(ctx):
             return False
 
-        return self._insert_with_race_fallback(
-            model,
-            key,
-            sync_record,
-            field_data,
-            sequence,
-            origin_node,
-        )
+        return self._insert_with_race_fallback(ctx)
 
     def apply_many(
         self,
@@ -450,7 +378,7 @@ class StalenessGuardedUpsertStrategy:
         if not sorted_keys:
             return UpsertResult()
 
-        first_seq, _ = SyncSequenceAllocator().allocate(len(sorted_keys))
+        first_seq = SyncSequenceAllocator().allocate(len(sorted_keys)).first
 
         for index, key in enumerate(sorted_keys):
             sync_record = records[key]
@@ -471,16 +399,16 @@ class StalenessGuardedUpsertStrategy:
                 errors.append(Error(key=key, message=message))
                 continue
 
-            applied = self._apply_one(
-                model,
-                key,
-                sync_record,
-                field_data,
-                first_seq + index,
-                origin_node,
+            ctx = RecordContext(
+                model=model,
+                key=key,
+                sync_record=sync_record,
+                field_data=field_data,
+                sequence=first_seq + index,
+                origin_node=origin_node,
             )
 
-            if not applied:
+            if not self._apply_one(ctx):
                 skipped.add(key)
 
         return UpsertResult(skipped=skipped, errors=errors)

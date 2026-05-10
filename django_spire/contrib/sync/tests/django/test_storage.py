@@ -6,6 +6,8 @@ from django.db import models as db_models
 
 from django_spire.contrib.sync.core.exceptions import UnknownModelError
 from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.contrib.sync.database.storage import CheckpointPosition
+from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
 from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
 from django_spire.contrib.sync.tests.models import (
     SyncTestModel,
@@ -270,11 +272,17 @@ def test_delete_many_empty_is_noop(storage: DjangoSyncStorage) -> None:
 
 @pytest.mark.django_db
 def test_checkpoint_round_trip(storage: DjangoSyncStorage) -> None:
-    assert storage.get_checkpoint('node-1') == (0, 0)
+    assert storage.get_checkpoint('node-1') == CheckpointPosition(
+        peer_sequence=0,
+        local_sequence_pushed=0,
+    )
 
     storage.save_checkpoint('node-1', 500, 300)
 
-    assert storage.get_checkpoint('node-1') == (500, 300)
+    assert storage.get_checkpoint('node-1') == CheckpointPosition(
+        peer_sequence=500,
+        local_sequence_pushed=300,
+    )
 
 
 @pytest.mark.django_db
@@ -282,7 +290,10 @@ def test_checkpoint_update(storage: DjangoSyncStorage) -> None:
     storage.save_checkpoint('node-1', 100, 50)
     storage.save_checkpoint('node-1', 200, 150)
 
-    assert storage.get_checkpoint('node-1') == (200, 150)
+    assert storage.get_checkpoint('node-1') == CheckpointPosition(
+        peer_sequence=200,
+        local_sequence_pushed=150,
+    )
     assert SyncCheckpoint.objects.filter(peer_node_id='node-1').count() == 1
 
 

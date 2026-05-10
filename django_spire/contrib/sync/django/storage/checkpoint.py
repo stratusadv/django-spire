@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django_spire.contrib.sync.database.storage import CheckpointPosition
 from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
 
 
@@ -18,7 +19,7 @@ class DjangoCheckpointStore:
 
         return checkpoint.after_keys or {}
 
-    def get_checkpoint(self, peer_node_id: str) -> tuple[int, int]:
+    def get_checkpoint(self, peer_node_id: str) -> CheckpointPosition:
         checkpoint = (
             SyncCheckpoint.objects
             .filter(peer_node_id=peer_node_id)
@@ -26,9 +27,12 @@ class DjangoCheckpointStore:
         )
 
         if checkpoint is None:
-            return 0, 0
+            return CheckpointPosition(peer_sequence=0, local_sequence_pushed=0)
 
-        return checkpoint.peer_sequence, checkpoint.local_sequence_pushed
+        return CheckpointPosition(
+            peer_sequence=checkpoint.peer_sequence,
+            local_sequence_pushed=checkpoint.local_sequence_pushed,
+        )
 
     def save_checkpoint(
         self,

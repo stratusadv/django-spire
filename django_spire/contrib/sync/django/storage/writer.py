@@ -788,7 +788,7 @@ class DjangoRecordWriter:
 
                 with transaction.atomic():
                     if seq_count > 0:
-                        first_seq, _ = SyncSequenceAllocator().allocate(seq_count)
+                        first_seq = SyncSequenceAllocator().allocate(seq_count).first
 
                         with conn.cursor() as cursor:
                             cursor.execute(

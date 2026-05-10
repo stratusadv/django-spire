@@ -9,7 +9,12 @@ from django_spire.contrib.sync.database.engine import DatabaseEngine
 from django_spire.contrib.sync.database.graph import DependencyGraph
 from django_spire.contrib.sync.database.manifest import SyncManifest
 from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.database.storage import DatabaseSyncStorage, UpsertResult
+from django_spire.contrib.sync.database.storage import (
+    CheckpointPosition,
+    DatabaseSyncStorage,
+    SequenceRange,
+    UpsertResult,
+)
 from django_spire.contrib.sync.core.model import Error
 
 
@@ -22,10 +27,10 @@ class _FakeSequenceAllocator:
     def __init__(self) -> None:
         self._value = 0
 
-    def allocate(self, count: int = 1) -> tuple[int, int]:
+    def allocate(self, count: int = 1) -> SequenceRange:
         first = self._value + 1
         self._value += count
-        return first, self._value
+        return SequenceRange(first=first, last=self._value)
 
     def current(self) -> int:
         return self._value
@@ -34,7 +39,7 @@ class _FakeSequenceAllocator:
 class InMemoryDatabaseStorage(DatabaseSyncStorage):
     def __init__(self, models: list[str]) -> None:
         self._after_keys: dict[str, dict[str, Any]] = {}
-        self._checkpoints: dict[str, tuple[int, int]] = {}
+        self._checkpoints: dict[str, CheckpointPosition] = {}
         self._models = sorted(models)
         self._records: dict[str, dict[str, SyncRecord]] = {
             m: {} for m in models
@@ -148,8 +153,11 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
 
         return result
 
-    def get_checkpoint(self, peer_node_id: str) -> tuple[int, int]:
-        return self._checkpoints.get(peer_node_id, (0, 0))
+    def get_checkpoint(self, peer_node_id: str) -> CheckpointPosition:
+        return self._checkpoints.get(
+            peer_node_id,
+            CheckpointPosition(peer_sequence=0, local_sequence_pushed=0),
+        )
 
     def get_deletes_since(
         self,
@@ -209,7 +217,10 @@ class InMemoryDatabaseStorage(DatabaseSyncStorage):
         local_sequence_pushed: int,
         after_keys: dict[str, Any] | None = None,
     ) -> None:
-        self._checkpoints[peer_node_id] = (peer_sequence, local_sequence_pushed)
+        self._checkpoints[peer_node_id] = CheckpointPosition(
+            peer_sequence=peer_sequence,
+            local_sequence_pushed=local_sequence_pushed,
+        )
         self._after_keys[peer_node_id] = after_keys or {}
 
     def upsert_many(

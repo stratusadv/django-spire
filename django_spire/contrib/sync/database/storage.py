@@ -15,14 +15,26 @@ class UpsertResult:
     errors: list[Error] = field(default_factory=list)
 
 
+@dataclass(frozen=True)
+class SequenceRange:
+    first: int
+    last: int
+
+
+@dataclass(frozen=True)
+class CheckpointPosition:
+    peer_sequence: int
+    local_sequence_pushed: int
+
+
 class SequenceAllocator(Protocol):
-    def allocate(self, count: int = 1) -> tuple[int, int]: ...
+    def allocate(self, count: int = 1) -> SequenceRange: ...
     def current(self) -> int: ...
 
 
 class CheckpointStore(Protocol):
     def get_after_keys(self, peer_node_id: str) -> dict[str, dict[str, int | str]]: ...
-    def get_checkpoint(self, peer_node_id: str) -> tuple[int, int]: ...
+    def get_checkpoint(self, peer_node_id: str) -> CheckpointPosition: ...
     def save_checkpoint(
         self,
         peer_node_id: str,
