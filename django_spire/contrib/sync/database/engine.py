@@ -260,18 +260,21 @@ class DatabaseEngine:
         budget = _Budget(records_max, bytes_max)
         has_more = False
         max_response_seq = peer_sequence
+        min_skipped_seq: int | None = None
 
         for model_label in self._graph.sync_order():
             incoming_payload = incoming_by_label.get(model_label)
 
             if incoming_payload is not None:
-                response_payload, truncated = self._process_model(
-                    incoming_payload,
-                    peer_sequence,
-                    peer_node_id,
-                    result,
-                    budget=budget,
-                    sequence_max=sequence_max,
+                response_payload, truncated, skipped_first_seq = (
+                    self._process_model(
+                        incoming_payload,
+                        peer_sequence,
+                        peer_node_id,
+                        result,
+                        budget=budget,
+                        sequence_max=sequence_max,
+                    )
                 )
 
                 if truncated:
@@ -284,6 +287,16 @@ class DatabaseEngine:
 
                         if cursor:
                             response_cursors[model_label] = cursor
+
+                    if (
+                        model_label not in response_cursors
+                        and skipped_first_seq is not None
+                    ):
+                        if (
+                            min_skipped_seq is None
+                            or skipped_first_seq < min_skipped_seq
+                        ):
+                            min_skipped_seq = skipped_first_seq
 
                 if response_payload.records or response_payload.deletes:
                     response_payloads.append(response_payload)
@@ -298,35 +311,58 @@ class DatabaseEngine:
                 probe = self._storage.get_changed_since(
                     model_label,
                     peer_sequence,
-                    peer_node_id,
+                    '',
                     sequence_max=sequence_max,
                     limit=1,
                 )
 
+                probe_first_seq = None
+
                 if probe:
                     has_more = True
+
+                    first_record = next(iter(probe.values()))
+                    probe_first_seq = first_record.sequence
+
+                    if (
+                        min_skipped_seq is None
+                        or first_record.sequence < min_skipped_seq
+                    ):
+                        min_skipped_seq = first_record.sequence
 
                 continue
 
             cursor = resolved_after_keys.get(model_label)
 
-            local_payload, truncated = self._collect_local_only_payload(
-                model_label,
-                peer_sequence,
-                peer_node_id,
-                budget,
-                cursor=cursor,
-                sequence_max=sequence_max,
+            local_payload, truncated, skipped_first_seq = (
+                self._collect_local_only_payload(
+                    model_label,
+                    peer_sequence,
+                    '',
+                    budget,
+                    cursor=cursor,
+                    sequence_max=sequence_max,
+                )
             )
 
             if truncated:
                 has_more = True
 
                 if local_payload is not None:
-                    cursor = _last_cursor(local_payload.records)
+                    cursor_out = _last_cursor(local_payload.records)
 
-                    if cursor:
-                        response_cursors[model_label] = cursor
+                    if cursor_out:
+                        response_cursors[model_label] = cursor_out
+
+                if (
+                    model_label not in response_cursors
+                    and skipped_first_seq is not None
+                ):
+                    if (
+                        min_skipped_seq is None
+                        or skipped_first_seq < min_skipped_seq
+                    ):
+                        min_skipped_seq = skipped_first_seq
 
             if local_payload is not None:
                 response_payloads.append(local_payload)
@@ -334,6 +370,9 @@ class DatabaseEngine:
                 for record in local_payload.records.values():
                     if record.sequence > max_response_seq:
                         max_response_seq = record.sequence
+
+        if min_skipped_seq is not None:
+            max_response_seq = min(max_response_seq, min_skipped_seq - 1)
 
         return response_payloads, has_more, response_cursors, max_response_seq
 
@@ -488,6 +527,7 @@ class DatabaseEngine:
         cursors: dict[str, Any] = {}
         has_more = False
         max_sent_seq = local_sequence_pushed
+        min_skipped_seq: int | None = None
 
         for model_label in self._graph.sync_order():
             if budget.exhausted:
@@ -502,17 +542,27 @@ class DatabaseEngine:
                 if probe:
                     has_more = True
 
+                    first_record = next(iter(probe.values()))
+
+                    if (
+                        min_skipped_seq is None
+                        or first_record.sequence < min_skipped_seq
+                    ):
+                        min_skipped_seq = first_record.sequence
+
                 continue
 
             cursor = resolved_after_keys.get(model_label)
 
-            payload, truncated = self._collect_local_only_payload(
-                model_label,
-                local_sequence_pushed,
-                peer_node_id,
-                budget,
-                cursor=cursor,
-                sequence_max=sequence_max,
+            payload, truncated, skipped_first_seq = (
+                self._collect_local_only_payload(
+                    model_label,
+                    local_sequence_pushed,
+                    peer_node_id,
+                    budget,
+                    cursor=cursor,
+                    sequence_max=sequence_max,
+                )
             )
 
             if truncated:
@@ -523,6 +573,16 @@ class DatabaseEngine:
 
                     if payload_cursor:
                         cursors[model_label] = payload_cursor
+
+                if (
+                    model_label not in cursors
+                    and skipped_first_seq is not None
+                ):
+                    if (
+                        min_skipped_seq is None
+                        or skipped_first_seq < min_skipped_seq
+                    ):
+                        min_skipped_seq = skipped_first_seq
 
             if payload is not None:
                 payloads.append(payload)
@@ -555,6 +615,9 @@ class DatabaseEngine:
 
                 raise PayloadLimitError(message)
 
+        if min_skipped_seq is not None:
+            max_sent_seq = min(max_sent_seq, min_skipped_seq - 1)
+
         if has_more:
             outgoing_local_sequence = max_sent_seq
         else:
@@ -581,7 +644,7 @@ class DatabaseEngine:
         budget: _Budget,
         cursor: dict[str, Any] | None = None,
         sequence_max: int | None = None,
-    ) -> tuple[ModelPayload | None, bool]:
+    ) -> tuple[ModelPayload | None, bool, int | None]:
         record_limit = budget.remaining_records
 
         fetch_limit = (
@@ -605,15 +668,29 @@ class DatabaseEngine:
             after_key=effective_after_key,
         )
 
+        first_seq = (
+            next(iter(records.values())).sequence
+            if records else None
+        )
+
+        last_seq = (
+            next(reversed(records.values())).sequence
+            if records else None
+        )
+
         truncated = False
+        skipped_first_seq: int | None = None
 
         if (
             record_limit is not None
             and len(records) > record_limit
         ):
-            records = dict(
-                list(records.items())[:record_limit]
-            )
+            items = list(records.items())
+
+            if record_limit == 0:
+                skipped_first_seq = items[0][1].sequence
+
+            records = dict(items[:record_limit])
 
             truncated = True
 
@@ -624,6 +701,10 @@ class DatabaseEngine:
 
             if not budget.can_fit(1, record_bytes):
                 truncated = True
+
+                if not accepted and skipped_first_seq is None:
+                    skipped_first_seq = record.sequence
+
                 break
 
             accepted[key] = record
@@ -637,13 +718,13 @@ class DatabaseEngine:
         )
 
         if not accepted and not deletes:
-            return None, truncated
+            return None, truncated, skipped_first_seq
 
         return ModelPayload(
             model_label=model_label,
             records=accepted,
             deletes=deletes,
-        ), truncated
+        ), truncated, skipped_first_seq
 
     def _commit(
         self,
@@ -796,7 +877,7 @@ class DatabaseEngine:
         incoming_keys: set[str],
         sequence_max: int | None = None,
         limit: int | None = None,
-    ) -> tuple[dict[str, SyncRecord], bool]:
+    ) -> tuple[dict[str, SyncRecord], bool, int | None]:
         fetch_limit = (
             None if limit is None
             else limit + len(incoming_keys) + 1
@@ -817,13 +898,19 @@ class DatabaseEngine:
         }
 
         truncated = False
+        skipped_first_seq: int | None = None
 
         if limit is not None and len(result) > limit:
-            result = dict(list(result.items())[:limit])
+            items = list(result.items())
+
+            if limit == 0:
+                skipped_first_seq = items[0][1].sequence
+
+            result = dict(items[:limit])
 
             truncated = True
 
-        return result, truncated
+        return result, truncated, skipped_first_seq
 
     def _log_sync_summary(
         self,
@@ -992,7 +1079,7 @@ class DatabaseEngine:
         result: DatabaseResult,
         budget: _Budget | None = None,
         sequence_max: int | None = None,
-    ) -> tuple[ModelPayload, bool]:
+    ) -> tuple[ModelPayload, bool, int | None]:
         all_incoming_keys = (
             set(payload.records) |
             set(payload.deletes)
@@ -1037,17 +1124,21 @@ class DatabaseEngine:
             else budget.remaining_records
         )
 
-        local_only, local_truncated = self._get_local_only_changes(
-            payload.model_label,
-            sequence,
-            peer_node_id,
-            all_incoming_keys,
-            sequence_max=sequence_max,
-            limit=local_only_limit,
+        local_only, local_truncated, local_skipped_first_seq = (
+            self._get_local_only_changes(
+                payload.model_label,
+                sequence,
+                '',
+                all_incoming_keys,
+                sequence_max=sequence_max,
+                limit=local_only_limit,
+            )
         )
 
         if local_truncated:
             truncated = True
+
+        skipped_first_seq = local_skipped_first_seq
 
         for key, record in local_only.items():
             if key in response_records:
@@ -1057,6 +1148,10 @@ class DatabaseEngine:
 
             if budget is not None and not budget.can_fit(1, record_bytes):
                 truncated = True
+
+                if not response_records and skipped_first_seq is None:
+                    skipped_first_seq = record.sequence
+
                 break
 
             response_records[key] = record
@@ -1067,7 +1162,7 @@ class DatabaseEngine:
         deletes = self._storage.get_deletes_since(
             payload.model_label,
             sequence,
-            peer_node_id,
+            '',
             sequence_max=sequence_max,
         )
 
@@ -1075,7 +1170,7 @@ class DatabaseEngine:
             model_label=payload.model_label,
             records=response_records,
             deletes=deletes,
-        ), truncated
+        ), truncated, skipped_first_seq
 
     def _record_pushed(
         self,
@@ -1293,10 +1388,14 @@ class DatabaseEngine:
             if k.startswith('collect:')
         }
 
+        iteration = 0
+
         with self._managed_session(result) as session_id:
             self._stamp_unstamped_records()
 
             while True:
+                iteration += 1
+
                 self._enter_phase(
                     SyncPhase.COLLECTING,
                     session_id,
@@ -1336,6 +1435,17 @@ class DatabaseEngine:
                 )
 
                 response = self._exchange_and_validate(manifest)
+
+                response_record_counts = {
+                    p.model_label: len(p.records)
+                    for p in response.payloads
+                }
+
+                response_delete_counts = {
+                    p.model_label: len(p.deletes)
+                    for p in response.payloads
+                    if p.deletes
+                }
 
                 self._enter_phase(
                     SyncPhase.RECONCILING,
@@ -1399,6 +1509,6 @@ class DatabaseEngine:
             self._enter_phase(SyncPhase.COMPLETE, session_id)
             self._finalize(result)
 
-        self._log_sync_summary(result)
+        # self._log_sync_summary(result)
 
         return result
