@@ -8,6 +8,8 @@
 
 ### Changes
 
+- Upgrade to `django-glue` version `1.0.0a1`
+
 ### Features
 
 - Added new app `django_spire.celery` to handle interaction with celery tasks and contextual monitoring.
