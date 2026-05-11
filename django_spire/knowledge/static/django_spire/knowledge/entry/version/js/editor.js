@@ -39,10 +39,10 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
             }))
 
            try {
-                await django_glue_fetch(
+                await Glue.fetch(
                     update_url,
                     {
-                        payload: parsed_editor_blocks,
+                        body: parsed_editor_blocks,
                     }
                 )
             }

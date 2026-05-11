@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import django_glue as dg
-
+from django_glue import Glue
 from typing import TYPE_CHECKING
 
 from django.shortcuts import redirect, get_object_or_404
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
     ticket = HelpDeskTicket()
 
-    dg.glue_model_object(request, 'ticket', ticket)
+    Glue.model(request, 'ticket', ticket)
 
     if request.method == 'POST':
         form = forms.HelpDeskTicketCreateForm(request.POST)
@@ -55,7 +54,7 @@ def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
 def ticket_update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
-    dg.glue_model_object(request, 'ticket', ticket)
+    Glue.model(request, 'ticket', ticket)
 
     if request.method == 'POST':
         form = forms.HelpDeskTicketUpdateForm(request.POST, instance=ticket)

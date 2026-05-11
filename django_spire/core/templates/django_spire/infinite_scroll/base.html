@@ -101,7 +101,7 @@
 
             let params = this.build_request_params(next_page);
             let url = `${this.endpoint}?${params}`;
-            let view = new ViewGlue(url, this.shared_payload);
+            let view = Glue.view(url, this.shared_payload);
 
             if (next_page === 1) {
                 this.$refs.content_container.innerHTML = '';
@@ -109,7 +109,7 @@
 
             let previous_count = this.loaded_count;
 
-            await view.render_insert_adjacent(this.$refs.content_container, {}, 'beforeend');
+            await view.renderInsertAdjacentHtmlBeforeEnd(this.$refs.content_container);
 
             let added = this.loaded_count - previous_count;
 

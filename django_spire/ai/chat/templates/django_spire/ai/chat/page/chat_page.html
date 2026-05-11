@@ -6,7 +6,7 @@
     <div
         class="d-flex flex-column overflow-hidden vh-minus-top-nav"
         x-data="{
-            chat_load_ajax_view: new ViewGlue('{% url "django_spire:ai:chat:template:load" %}'),
+            chat_load_ajax_view: Glue.view('{% url "django_spire:ai:chat:template:load" %}'),
             is_narrow_viewport: window.innerWidth < 768,
             show_history: false,
 
@@ -20,7 +20,7 @@
             },
 
             async load_chat(chat_id) {
-                await this.chat_load_ajax_view.render_inner(this.$refs.chat_dialog, {
+                await this.chat_load_ajax_view.renderInnerHtml(this.$refs.chat_dialog, {
                         chat_id: chat_id
                     }
                 )

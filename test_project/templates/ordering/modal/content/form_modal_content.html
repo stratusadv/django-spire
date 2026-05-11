@@ -1,6 +1,6 @@
 <form
     x-data="{
-        duck: new ModelObjectGlue('{{ unique_name }}'),
+        duck: Glue.model('{{ unique_name }}'),
 
         async init() {
             await GlueObjectHelper.tryGlueGet(this.duck, 3);

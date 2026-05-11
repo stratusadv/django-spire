@@ -12,7 +12,7 @@ from django_spire.contrib.generic_views import modal_views, portal_views
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 
-import django_glue as dg
+from django_glue import Glue
 
 from test_project.app.queryset_filtering import forms, models
 
@@ -78,7 +78,7 @@ def update_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     task = get_object_or_null_obj(models.Task, pk=pk)
 
-    dg.glue_model_object(request, 'task', task)
+    Glue.model(request, 'task', task)
 
     if request.method == 'POST':
         form = forms.TaskForm(request.POST, instance=task)
@@ -121,7 +121,7 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
     task = get_object_or_null_obj(models.Task, pk=pk)
 
-    dg.glue_model_object(request, 'task', task)
+    Glue.model(request, 'task', task)
 
     if request.method == 'POST':
         form = forms.TaskForm(request.POST, instance=task)

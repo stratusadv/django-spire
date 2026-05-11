@@ -75,7 +75,7 @@ class GlueFetchHelper
 
         try {
             const response = await this.executeWithRetry(
-                () => django_glue_fetch(url, {
+                () => Glue.fetch(url, {
                     payload,
                     method,
                     content_type: contentType,

@@ -13,7 +13,7 @@ from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 
-import django_glue as dg
+from django_glue import Glue
 
 from ${module_path} import forms, models
 
@@ -79,7 +79,7 @@ def ${update_modal_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse
 def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     ${context_single_var} = get_object_or_404(models.${model_class_name}, pk=pk)
 
-    dg.glue_model_object(request, '${glue_model_key}', ${context_single_var})
+    Glue.model(request, '${glue_model_key}', ${context_single_var})
 
     context_data = {
         '${context_single_var}': ${context_single_var}
@@ -105,7 +105,7 @@ def ${update_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
     ${context_single_var} = get_object_or_null_obj(models.${model_class_name}, pk=pk)
 
-    dg.glue_model_object(request, '${glue_model_key}', ${context_single_var}, 'view')
+    Glue.model(request, '${glue_model_key}', ${context_single_var}, 'view')
 
     if request.method == 'POST':
         form = forms.${form_class_name}(request.POST, instance=${context_single_var})

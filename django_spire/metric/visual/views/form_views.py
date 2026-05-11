@@ -13,7 +13,7 @@ from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 
-import django_glue as dg
+from django_glue import Glue
 
 from django_spire.metric.visual import forms, models
 
@@ -79,7 +79,7 @@ def update_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     visual = get_object_or_404(models.Visual, pk=pk)
 
-    dg.glue_model_object(request, 'visual', visual)
+    Glue.model(request, 'visual', visual)
 
     context_data = {
         'visual': visual
@@ -105,7 +105,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
     visual = get_object_or_null_obj(models.Visual, pk=pk)
 
-    dg.glue_model_object(request, 'visual', visual, 'view')
+    Glue.model(request, 'visual', visual, 'view')
 
     if request.method == 'POST':
         form = forms.VisualForm(request.POST, instance=visual)

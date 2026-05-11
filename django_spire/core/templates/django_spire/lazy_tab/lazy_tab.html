@@ -124,8 +124,8 @@
 
             this.loading_tabs.add(tab_number);
 
-            let view = new ViewGlue(trigger.endpoint);
-            await view.render_inner(section.content_el);
+            let view = Glue.view(trigger.endpoint);
+            await view.renderInnerHtml(section.content_el);
 
             this.loading_tabs.delete(tab_number);
             this.loaded_tabs.add(tab_number);

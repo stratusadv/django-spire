@@ -83,11 +83,11 @@
 
             let separator = this.endpoint.includes('?') ? '&' : '?';
             let url = `${this.endpoint}${separator}${params}`;
-            let view = new ViewGlue(url, {});
+            let view = Glue.view(url)
 
             let previous_count = this.loaded_count;
 
-            await view.render_insert_adjacent(this.$refs.content_container, {}, 'beforeend');
+            await view.renderInsertAdjacentHtmlBeforeEnd(this.$refs.content_container);
 
             let added = this.loaded_count - previous_count;
 

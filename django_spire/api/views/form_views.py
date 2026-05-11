@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from django.urls import reverse
 
-import django_glue as dg
+from django_glue import Glue
 
 from django_spire.api import forms
 from django_spire.api.models import ApiAccess
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     api_access = get_object_or_null_obj(ApiAccess, pk=pk)
 
-    dg.glue_model_object(request, unique_name='api_access', model_object=api_access)
+    Glue.model(request, unique_name='api_access', target=api_access)
 
     if request.method == 'POST':
         form = forms.ApiAccessCreateForm(request.POST)

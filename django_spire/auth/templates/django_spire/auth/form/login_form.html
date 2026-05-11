@@ -1,25 +1,45 @@
-<form
-        class="text-app-secondary"
-        method="post"
-        x-data="{
-            username: new GlueCharField('username', {required: true, label: {% block username_label %}'Email Address'{% endblock %}}),
-            password: new GlueCharField('password', {required: true})
-        }"
->
+<form class="text-app-secondary" method="post">
     {% csrf_token %}
-    <div class="row">
-        <div class="col">
-            {% include 'django_spire/auth/form/field/username_field.html' with glue_field='username' %}
+
+    <div class="form-group">
+
+        <div class="row mt-2">
+            <div class="col">
+                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                <input class="form-control" type="text" name="{{ form.username.name }}"
+                       id="{{ form.username.id_for_label }}"
+                       value="{{ form.username.value|default:'' }}">
+                {% if form.username.errors %}
+                    <ul>
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
         </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col">
-            {% include 'django_spire/form/field/password_field.html' with glue_field='password' %}
+
+        <div class="row mt-2">
+            <div class="col">
+                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                <input class="form-control" type="password" name="{{ form.password.name }}"
+                       id="{{ form.password.id_for_label }}"
+                       value="{{ form.password.value|default:'' }}">
+                {% if form.password.errors %}
+                    <ul>
+                        {% for error in form.password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
         </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col">
-            <button type="submit" class="d-block mx-auto btn btn-app-primary-outlined my-4 w-100">Login</button>
+
+        <div class="row mt-4">
+            <div class="col">
+                <button type="submit" class="d-block mx-auto btn btn-app-primary-outlined w-100">Login</button>
+            </div>
         </div>
+
     </div>
 </form>

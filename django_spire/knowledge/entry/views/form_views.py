@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import django_glue as dg
+from django_glue import Glue
 
 from typing import TYPE_CHECKING
 
@@ -32,7 +32,7 @@ def form_view(
     entry = get_object_or_null_obj(Entry, pk=pk)
     collection = Collection.objects.get(pk=collection_pk)
 
-    dg.glue_model_object(request, 'entry', entry, fields=['name'])
+    Glue.model(request, 'entry', entry, fields=['name'])
 
     if request.method == 'POST':
         form = EntryForm(request.POST, instance=entry)
@@ -79,7 +79,7 @@ def import_form_view(
     request: WSGIRequest,
     collection_pk: int
 ) -> TemplateResponse | HttpResponseRedirect:
-    dg.glue_query_set(
+    Glue.queryset(
         request,
         'collections',
         Collection.objects.active(),

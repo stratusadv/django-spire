@@ -2,7 +2,7 @@
     class="text-center"
     x-data="{
         async delete_chat() {
-            let response = await django_glue_fetch(
+            let response = await Glue.fetch(
                 '{% url "django_spire:ai:chat:json:delete" pk=chat.pk %}',
             )
 

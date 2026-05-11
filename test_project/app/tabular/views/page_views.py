@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
+from django_glue import Glue
 
 from django_spire.contrib.session.controller import SessionController
 from django_spire.core.shortcuts import get_object_or_null_obj
@@ -32,8 +32,8 @@ def list_page(request: WSGIRequest):
         form_class=TaskListFilterForm,
     )
 
-    dg.glue_model_object(request, 'task', task)
-    dg.glue_query_set(request, 'users', User.objects.all())
+    Glue.model(request, 'task', task)
+    Glue.queryset(request, 'users', User.objects.all())
 
     context_data = {
         'responsive_mode': ResponsiveMode.SCROLL,

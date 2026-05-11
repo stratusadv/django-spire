@@ -42,3 +42,6 @@ test-failed:
 
 test-celery:
 	{{PYTHON}} -m pytest django_spire/celery/tests/
+
+venv-upgrade:
+	uv sync --all-extras --upgrade

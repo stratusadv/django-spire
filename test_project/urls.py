@@ -28,8 +28,8 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('django_glue/', include('django_glue.urls', namespace='django_glue')),
-    path('django_spire/', include('django_spire.urls', namespace='django_spire')),
+    path('dg/', include('django_glue.urls', namespace='django_glue')),
+    path('ds/', include('django_spire.urls', namespace='django_spire')),
 ]
 
 urlpatterns += [

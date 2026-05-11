@@ -13,7 +13,7 @@ from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 
-import django_glue as dg
+from django_glue import Glue
 
 from test_project.app.infinite_scrolling import forms, models
 
@@ -95,7 +95,7 @@ def update_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     infinite_scrolling = get_object_or_null_obj(models.InfiniteScrolling, pk=pk)
 
-    dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling)
+    Glue.model(request, 'infinite_scrolling', infinite_scrolling)
 
     if request.method == 'POST':
         form = forms.InfiniteScrollingForm(request.POST, instance=infinite_scrolling)
@@ -138,7 +138,7 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
     infinite_scrolling = get_object_or_null_obj(models.InfiniteScrolling, pk=pk)
 
-    dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling, 'view')
+    Glue.model(request, 'infinite_scrolling', infinite_scrolling, 'view')
 
     if request.method == 'POST':
         form = forms.InfiniteScrollingForm(request.POST, instance=infinite_scrolling)

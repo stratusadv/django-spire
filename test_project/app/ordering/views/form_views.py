@@ -13,7 +13,8 @@ from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views, modal_views
 
-import django_glue as dg
+from django_glue import Glue
+
 
 from test_project.app.ordering import forms, models
 
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 def create_form_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateResponse:
     duck = models.Duck()
 
-    dg.glue_model_object(request, 'duck', duck, 'view')
+    Glue.model(request, 'duck', duck, 'view')
 
     if request.method == 'POST':
         form = forms.DuckForm(request.POST, instance=duck)
@@ -125,7 +126,7 @@ def form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def form_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateResponse:
     duck = get_object_or_null_obj(models.Duck, pk=pk)
 
-    dg.glue_model_object(request, 'duck', duck, 'view')
+    Glue.model(request, 'duck', duck, 'view')
 
     if request.method == 'POST':
         form = forms.DuckForm(request.POST, instance=duck)

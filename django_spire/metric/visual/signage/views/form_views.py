@@ -13,7 +13,7 @@ from django_spire.core.redirect.safe_redirect import safe_redirect_url
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 
-import django_glue as dg
+from django_glue import Glue
 
 from django_spire.metric.visual.signage import forms, models
 
@@ -79,7 +79,7 @@ def update_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     signage = get_object_or_404(models.Signage, pk=pk)
 
-    dg.glue_model_object(request, 'signage', signage)
+    Glue.model(request, 'signage', signage)
 
     context_data = {
         'signage': signage
@@ -105,7 +105,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
     signage = get_object_or_null_obj(models.Signage, pk=pk)
 
-    dg.glue_model_object(request, 'signage', signage, 'view')
+    Glue.model(request, 'signage', signage, 'view')
 
     if request.method == 'POST':
         form = forms.SignageForm(request.POST, instance=signage)

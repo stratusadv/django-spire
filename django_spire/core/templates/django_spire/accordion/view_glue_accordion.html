@@ -5,8 +5,8 @@
         show: false,
         async render() {
             // view_url block must be a single line
-            this.view = new ViewGlue('{% block view_url %}{% endblock %}')
-            await this.view.render_inner(this.$refs.accordion_content)
+            this.view = Glue.view('{% block view_url %}{% endblock %}')
+            await this.view.renderInnerHtml(this.$refs.accordion_content)
 
             this.is_rendered = true
             this.show = true

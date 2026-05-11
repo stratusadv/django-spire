@@ -57,7 +57,7 @@
                 return
             }
 
-            let response = await django_glue_fetch(
+            let response = await Glue.fetch(
                 '{% url "django_spire:ai:chat:json:rename" pk=recent_chat.pk %}',
                 {payload: {new_name: this.new_chat_name}}
             )

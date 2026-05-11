@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-import django_glue as dg
+from django_glue import Glue
 
 from django_spire.auth.group import models, forms
 from django_spire.auth.group.utils import set_group_users
@@ -32,7 +32,7 @@ def form_view(
 ) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_null_obj(models.AuthGroup, pk=pk)
 
-    dg.glue_model_object(request, 'group', group)
+    Glue.model(request, 'group', group)
 
     if request.method == 'POST':
         form = forms.GroupForm(request.POST, instance=group)

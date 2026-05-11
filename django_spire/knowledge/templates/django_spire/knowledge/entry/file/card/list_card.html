@@ -15,7 +15,7 @@
             },
             update_files_json() {
                 setInterval(async () => {
-                    let response = await django_glue_fetch(
+                    let response = await Glue.fetch(
                         '{% url "django_spire:knowledge:entry:json:update_files" %}',
                     )
                     this.files_json = JSON.parse(response.files_json)

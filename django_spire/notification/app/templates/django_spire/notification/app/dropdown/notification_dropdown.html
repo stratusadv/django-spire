@@ -12,25 +12,25 @@
 
         async check_new_notifications(){
             let url = '{% url "django_spire:notification:app:json:check_new" %}';
-            let response = await django_glue_fetch(url);
+            let response = await Glue.fetch(url);
             this.new_notification = response.has_new_notifications;
         },
 
         async render_dropdown(){
             this.isLoading = true;
-            let dropdown_content = new ViewGlue(
+            let dropdown_content = Glue.view(
                 url='{% url "django_spire:notification:app:template:notification_dropdown" %}',
                 shared_payload={app_notification_list_url: '{{ app_notification_list_url|default:"" }}'}
             );
             let element = document.querySelector(`[x-ref='spire_notification_dropdown_content']`);
-            await dropdown_content.render_inner(element);
+            await dropdown_content.renderInnerHtml(element);
             await this.mark_notifications_as_viewed();
             this.isLoading = false;
             $dispatch('content-loaded');
         },
 
         async mark_notifications_as_viewed(){
-            let response = await django_glue_fetch('{% url "django_spire:notification:app:json:set_viewed" %}');
+            let response = await Glue.fetch('{% url "django_spire:notification:app:json:set_viewed" %}');
             this.new_notification = false;
         }
 

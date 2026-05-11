@@ -52,9 +52,9 @@
                 new_parent = this.top_level_collection_id
             }
             try {
-                response = await django_glue_fetch(
+                response = await Glue.fetch(
                     '{% url "django_spire:knowledge:collection:json:reorder" %}',
-                    {payload: {collection_id: collection.id, order: order, parent: new_parent}}
+                    {body: {collection_id: collection.id, order: order, parent: new_parent}}
                 )
             } catch (e) {
                  $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})
@@ -70,9 +70,9 @@
         async move_entry({entry, collection, order}) {
             let response = null
             try {
-                response = await django_glue_fetch(
+                response = await Glue.fetch(
                     '{% url "django_spire:knowledge:entry:json:reorder" %}',
-                    {payload: {entry_id: entry.entry_id, order: order, collection_id: collection.id}}
+                    {body: {entry_id: entry.entry_id, order: order, collection_id: collection.id}}
                 )
             } catch (e) {
                  $dispatch('notify', {'type': 'error', 'message': 'An unexpected error has occured. Please refresh the page and try again.'})

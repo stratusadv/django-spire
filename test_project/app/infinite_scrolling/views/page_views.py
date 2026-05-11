@@ -6,7 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
+from django_glue import Glue
+
 
 from django_spire.contrib.generic_views import portal_views
 from django_spire.contrib.session.controller import SessionController
@@ -83,7 +84,7 @@ def list_page_view(request: WSGIRequest) -> TemplateResponse:
         form_class=InfiniteScrollingListFilterForm,
     )
 
-    dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling)
+    Glue.model(request, 'infinite_scrolling', infinite_scrolling)
 
     context_data = {
         'endpoint': reverse('infinite_scrolling:template:items'),
@@ -106,7 +107,7 @@ def table_page_view(request: WSGIRequest) -> TemplateResponse:
         form_class=InfiniteScrollingListFilterForm,
     )
 
-    dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling)
+    Glue.model(request, 'infinite_scrolling', infinite_scrolling)
 
     context_data = {
         'endpoint': reverse('infinite_scrolling:template:rows'),

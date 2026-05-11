@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import django_glue as dg
+from django_glue import Glue
 
 from typing import TYPE_CHECKING
 
@@ -28,9 +28,9 @@ def form_view(
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=pk)
 
-    dg.glue_model_object(request, unique_name='collection', model_object=collection)
+    Glue.model(request, unique_name='collection', target=collection)
 
-    dg.glue_query_set(
+    Glue.queryset(
         request,
         unique_name='collections',
         target=(
@@ -42,7 +42,7 @@ def form_view(
         ),
         fields=['name']
     )
-    dg.glue_query_set(
+    Glue.queryset(
         request,
         unique_name='group_query_set',
         target=AuthGroup.objects.all(),

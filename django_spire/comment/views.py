@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import django_glue as dg
+from django_glue import Glue
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
@@ -38,7 +39,7 @@ def comment_modal_form_content(
     else:
         comment = get_object_or_404(models.Comment, pk=comment_pk, user__id=request.user.pk)
 
-    dg.glue_model_object(request, 'comment', comment)
+    Glue.model(request, 'comment', comment)
 
     context_data = {
         'app_label': app_label,

@@ -7,7 +7,7 @@
             chat_id: '{{ chat.id|default:'0' }}',
             chat_name: '{{ chat.name_shortened|default:'New Chat'|escapejs }}',
             message_body: '',
-            request_message_view: new ViewGlue('{% url "django_spire:ai:chat:message:request:new" %}'),
+            request_message_view: Glue.view('{% url "django_spire:ai:chat:message:request:new" %}'),
 
             init() {
                 if (this.chat_id && this.chat_id !== '0' && this.chat_id !== '') {
@@ -27,8 +27,8 @@
             },
 
             load_messages() {
-                let load_messages_view = new ViewGlue(`/django_spire/ai/chat/message/load/chat/${this.chat_id}/`)
-                load_messages_view.render_insert_adjacent(this.$refs.target_div, {})
+                let load_messages_view = Glue.view(`/django_spire/ai/chat/message/load/chat/${this.chat_id}/`)
+                load_messages_view.renderInsertAdjacentHtmlBeforeEnd(this.$refs.target_div)
             },
 
             smooth_scroll_to_bottom() {
@@ -57,7 +57,7 @@
                 if (message_body !== '') {
                     let was_new_chat = (this.chat_id === '0' || this.chat_id === 0 || this.chat_id === '')
 
-                    let response_html = await this.request_message_view.render_insert_adjacent(
+                    let response_html = await this.request_message_view.renderInsertAdjacentHtmlBeforeEnd(
                         this.$refs.target_div,
                         {
                             chat_id: this.chat_id,

@@ -3,7 +3,7 @@
     x-data="{
         active_chat_id: 0,
         chat_content_type: '',
-        chat_load_recent_view: new ViewGlue('{% url "django_spire:ai:chat:template:recent" %}'),
+        chat_load_recent_view: Glue.view('{% url "django_spire:ai:chat:template:recent" %}'),
         chat_object_id: '',
         search_query: '',
 
@@ -12,7 +12,7 @@
             $dispatch('load-chat', {chat_id: 0})
         },
         async load_recent_chats() {
-            await this.chat_load_recent_view.render_inner(this.$refs.chat_recent_list)
+            await this.chat_load_recent_view.renderInnerHtml(this.$refs.chat_recent_list)
             $dispatch('chat-activated', {chat_id: this.active_chat_id})
         },
         search_chats() {

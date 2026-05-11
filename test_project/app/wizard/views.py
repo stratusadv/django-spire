@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
+from django_glue import Glue
 
 from test_project.app.model_and_service.factories import generate_test_model
 
@@ -24,7 +24,7 @@ def wizard_form_submit(request: WSGIRequest) -> HttpResponse:
 
 def wizard_home_view(request: WSGIRequest) -> TemplateResponse:
     test_model = generate_test_model()
-    dg.glue_model_object(request, 'test_model', test_model)
+    Glue.model(request, 'test_model', test_model)
 
     context = {'test_model': test_model}
 
