@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth import get_user
 from django.urls import reverse
+from django.utils import timezone
 
 from django_spire.auth.user.tests.factories import create_user
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -164,6 +165,28 @@ class LoginViewTestCase(BaseTestCase):
             data={'username': 'test\tuser', 'password': 'password'}
         )
         assert response.status_code == 200
+
+    def test_initial_login_redirects_to_password_change(self) -> None:
+        self.user.last_login = None
+        self.user.save()
+        response = self.client.post(
+            reverse('django_spire:auth:admin:login'),
+            data={'username': 'testuser', 'password': 'testpassword123'},
+        )
+
+        assert response.status_code == 302
+        assert response.url == reverse('django_spire:auth:admin:password_change')
+
+    def test_user_has_logged_in_before(self) -> None:
+        self.user.last_login = timezone.now()
+        self.user.save()
+        response = self.client.post(
+            reverse('django_spire:auth:admin:login'),
+            data={'username': 'testuser', 'password': 'testpassword123'},
+        )
+
+        assert response.status_code == 302
+        assert response.url != reverse('django_spire:auth:admin:password_change')
 
 
 class PasswordChangeViewTestCase(BaseTestCase):
