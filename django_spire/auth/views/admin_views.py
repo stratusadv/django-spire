@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from django.contrib.auth import views as auth_views
-from django.urls import reverse_lazy
+from django.contrib.auth import login as auth_login
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
 
 from django_spire.contrib.form.utils import show_form_errors
 
@@ -12,6 +14,12 @@ class LoginView(auth_views.LoginView):
     def form_invalid(self, form):
         show_form_errors(self.request, form)
         return super().form_invalid(form)
+
+    def form_valid(self, form):
+        if form.get_user().last_login is None:
+            auth_login(self.request, form.get_user())
+            return HttpResponseRedirect(reverse('django_spire:auth:admin:password_change'))
+        return super().form_valid(form)
 
 
 class PasswordChangeView(auth_views.PasswordChangeView):
