@@ -50,6 +50,6 @@ def _create_test_tables(django_db_setup: None, django_db_blocker: object) -> Non
                 with connection.schema_editor() as editor:
                     editor.create_model(model)
 
-    from django_spire.contrib.sync.django.signals import register_m2m_signals
+    from django_spire.contrib.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
 
-    register_m2m_signals([SyncTestModel.tags.through])
+    register_many_to_many_signals([SyncTestModel.tags.through])

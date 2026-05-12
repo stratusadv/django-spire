@@ -1,4 +1,3 @@
-# django_spire/contrib/sync/django/views.py
 from __future__ import annotations
 
 import json
@@ -183,7 +182,8 @@ def process_sync_request(
         )
 
     rejection = _reject_if_oversized_header(
-        request, request_bytes_max,
+        request,
+        request_bytes_max,
     )
 
     if rejection is not None:

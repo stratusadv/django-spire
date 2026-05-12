@@ -22,14 +22,14 @@ def _coerce_timestamp_value(
     value: Any,
     label: str,
     key: str,
-    ts_key: str,
+    timestamp_key: str,
 ) -> int | None:
     if isinstance(value, bool):
         logger.warning(
             'Boolean sync_field_timestamps value for %s key=%s field=%s',
             label,
             key,
-            ts_key,
+            timestamp_key,
         )
 
         return None
@@ -44,7 +44,7 @@ def _coerce_timestamp_value(
         'Non-numeric sync_field_timestamps value for %s key=%s field=%s: %r',
         label,
         key,
-        ts_key,
+        timestamp_key,
         value,
     )
 
@@ -96,18 +96,18 @@ def _coerce_timestamps(
 
     result: dict[str, int] = {}
 
-    for ts_key, ts_value in raw.items():
-        if not isinstance(ts_key, str):
+    for timestamp_key, timestamp_value in raw.items():
+        if not isinstance(timestamp_key, str):
             logger.warning(
                 'Non-string sync_field_timestamps key for %s key=%s: %r',
                 label,
                 key,
-                ts_key,
+                timestamp_key,
             )
 
             continue
 
-        coerced = _coerce_timestamp_value(ts_value, label, key, ts_key)
+        coerced = _coerce_timestamp_value(timestamp_value, label, key, timestamp_key)
 
         if coerced is None:
             continue
@@ -117,13 +117,13 @@ def _coerce_timestamps(
                 'Negative sync_field_timestamps value for %s key=%s field=%s: %d',
                 label,
                 key,
-                ts_key,
+                timestamp_key,
                 coerced,
             )
 
             continue
 
-        result[ts_key] = coerced
+        result[timestamp_key] = coerced
 
     return result
 

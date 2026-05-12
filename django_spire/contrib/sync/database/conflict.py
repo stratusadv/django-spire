@@ -63,7 +63,8 @@ class RecordResolution:
 
 class ConflictResolver(Protocol):
     def resolve(
-        self, conflict: RecordConflict,
+        self,
+        conflict: RecordConflict,
     ) -> RecordResolution: ...
 
 
@@ -123,6 +124,7 @@ def _merge_fields(
     for field_name in sorted(all_fields):
         local_timestamp = local_timestamps.get(field_name, 0)
         remote_timestamp = remote_timestamps.get(field_name, 0)
+
         has_any_timestamp = (
             field_name in local_timestamps
             or field_name in remote_timestamps

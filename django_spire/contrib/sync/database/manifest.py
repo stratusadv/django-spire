@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 from django_spire.contrib.sync.database.record import SyncRecord
 
+
 _PAYLOADS_MAX = 100
 
 
@@ -33,7 +34,8 @@ class ModelPayload:
 
     @classmethod
     def from_dict(
-        cls, data: dict[str, Any],
+        cls,
+        data: dict[str, Any],
     ) -> ModelPayload:
         model_label = data.get('model_label')
 
@@ -162,7 +164,8 @@ class SyncManifest:
 
     @classmethod
     def from_dict(
-        cls, data: dict[str, Any],
+        cls,
+        data: dict[str, Any],
     ) -> SyncManifest:
         node_id = data.get('node_id')
         peer_sequence = data.get('peer_sequence')

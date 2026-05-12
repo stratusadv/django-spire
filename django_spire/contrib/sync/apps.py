@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class SyncableAppMixin:
-    def get_m2m_models(self) -> list[type[SyncableMixin]]:
+    def get_many_to_many_models(self) -> list[type[SyncableMixin]]:
         return []
 
     def get_syncable_models(self) -> list[type[SyncableMixin]]:
@@ -30,7 +30,7 @@ class SyncableAppMixin:
         from django_spire.contrib.sync.django import (  # noqa: PLC0415
             SyncableMixin,
             build_graph,
-            register_m2m_signals,
+            register_many_to_many_signals,
             seed_clock,
         )
         from django_spire.contrib.sync.django.signals import (  # noqa: PLC0415
@@ -49,10 +49,10 @@ class SyncableAppMixin:
 
         register_delete_signals(syncable_models)
 
-        m2m_models = self.get_m2m_models()
+        many_to_many_models = self.get_many_to_many_models()
 
-        if m2m_models:
-            register_m2m_signals(m2m_models)
+        if many_to_many_models:
+            register_many_to_many_signals(many_to_many_models)
 
 
 class SyncConfig(AppConfig):

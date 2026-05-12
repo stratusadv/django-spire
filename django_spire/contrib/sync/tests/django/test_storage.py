@@ -123,7 +123,7 @@ def test_upsert_many_rejects_ghost_record(
 
 
 @pytest.mark.django_db
-def test_upsert_many_sets_m2m(storage: DjangoSyncStorage) -> None:
+def test_upsert_many_sets_many_to_many(storage: DjangoSyncStorage) -> None:
     tag = SyncTestTag.objects.create(label='urgent')
     key = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
 

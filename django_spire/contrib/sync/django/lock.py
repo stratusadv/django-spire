@@ -135,6 +135,7 @@ class DjangoSyncLock:
                     f'Sync lock row for {node_id!r}<->{peer_node_id!r} '
                     f'is missing after creation'
                 )
+
                 raise LockContentionError(message)
 
             self._abandon_stale_sessions(node_id, peer_node_id)
@@ -152,6 +153,7 @@ class DjangoSyncLock:
 
     def hold(self, node_id: str, peer_node_id: str) -> None:
         self._ensure_lock_row(node_id, peer_node_id)
+
         SyncNodeLock.objects.select_for_update().filter(
             node_id=node_id,
             peer_node_id=peer_node_id,
@@ -159,6 +161,7 @@ class DjangoSyncLock:
 
     def hold_global(self) -> None:
         self._ensure_lock_row(_GLOBAL_LOCK_ID, _GLOBAL_LOCK_ID)
+
         SyncNodeLock.objects.select_for_update().filter(
             node_id=_GLOBAL_LOCK_ID,
             peer_node_id=_GLOBAL_LOCK_ID,

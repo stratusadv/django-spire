@@ -13,8 +13,8 @@ from django_spire.contrib.sync.database.reconciler import PayloadReconciler
 from django_spire.contrib.sync.database.transport.http import HttpTransport
 from django_spire.contrib.sync.django.graph import (
     build_graph,
-    get_deferred_fk_columns,
-    get_fk_columns_for_cascade,
+    get_deferred_foreign_key_columns,
+    get_foreign_key_columns_for_cascade,
 )
 from django_spire.contrib.sync.django.lock import DjangoSyncLock
 from django_spire.contrib.sync.django.mixin import SyncableMixin
@@ -52,23 +52,24 @@ def _resolve_common(
         resolver=resolver or FieldTimestampWins(),
     )
 
-    deferred_fks = get_deferred_fk_columns(
-        models, resolved_graph,
+    deferred_foreign_keys = get_deferred_foreign_key_columns(
+        models,
+        resolved_graph,
     )
 
     resolved_storage = storage or DjangoSyncStorage(
         models=models,
-        deferred_fks=deferred_fks,
+        deferred_foreign_keys=deferred_foreign_keys,
     )
 
-    fk_columns = get_fk_columns_for_cascade(models)
+    foreign_key_columns = get_foreign_key_columns_for_cascade(models)
 
     return (
         resolved_clock,
         resolved_graph,
         reconciler,
         resolved_storage,
-        fk_columns,
+        foreign_key_columns,
     )
 
 
@@ -98,7 +99,7 @@ def build_client_engine(
         resolved_graph,
         reconciler,
         resolved_storage,
-        fk_columns,
+        foreign_key_columns,
     ) = _resolve_common(
         models,
         clock,
@@ -112,7 +113,7 @@ def build_client_engine(
         batch_size=batch_size,
         clock=resolved_clock,
         clock_drift_max=clock_drift_max,
-        fk_columns=fk_columns,
+        foreign_key_columns=foreign_key_columns,
         graph=resolved_graph,
         node_id=node_id,
         on_complete=on_complete,
@@ -152,7 +153,7 @@ def build_server_engine(
         resolved_graph,
         reconciler,
         resolved_storage,
-        fk_columns,
+        foreign_key_columns,
     ) = _resolve_common(
         models,
         clock,
@@ -166,7 +167,7 @@ def build_server_engine(
         batch_size=batch_size,
         clock=resolved_clock,
         clock_drift_max=clock_drift_max,
-        fk_columns=fk_columns,
+        foreign_key_columns=foreign_key_columns,
         graph=resolved_graph,
         lock=lock or DjangoSyncLock(),
         node_id=node_id,

@@ -68,6 +68,7 @@ class SyncableFieldsMixin(models.Model):
         if _is_bypassed():
             super().save(*args, **kwargs)
             self._tracker.snapshot(self._get_field_values())
+
             return
 
         dirty = self.get_dirty_fields()
@@ -75,6 +76,7 @@ class SyncableFieldsMixin(models.Model):
         if not dirty:
             super().save(*args, **kwargs)
             self._tracker.snapshot(self._get_field_values())
+
             return
 
         from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
@@ -112,7 +114,9 @@ class SyncableFieldsMixin(models.Model):
         return self._tracker.get_dirty(self._get_field_values())
 
     def refresh_from_db(
-        self, *args: Any, **kwargs: Any,
+        self,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         super().refresh_from_db(*args, **kwargs)
         self._tracker.snapshot(self._get_field_values())
@@ -143,7 +147,7 @@ class SyncableFieldsMixin(models.Model):
         )
 
     @classmethod
-    def get_syncable_m2m_names(cls) -> list[str]:
+    def get_syncable_many_to_many_names(cls) -> list[str]:
         return sorted(
             field.name
             for field in cls._meta.many_to_many

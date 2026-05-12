@@ -21,8 +21,8 @@ def seed_clock(
     high_water = 0
 
     for model in models:
-        result = model.objects.aggregate(max_ts=Max('sync_field_last_modified'))
-        timestamp = result['max_ts'] or 0
+        result = model.objects.aggregate(maximum_timestamp=Max('sync_field_last_modified'))
+        timestamp = result['maximum_timestamp'] or 0
 
         high_water = max(high_water, timestamp)
 

@@ -182,7 +182,8 @@ class HttpTransport(Transport):
             raise InvalidResponseError(message) from exception
 
     def exchange(
-        self, manifest: SyncManifest,
+        self,
+        manifest: SyncManifest,
     ) -> SyncManifest:
         payload = manifest.to_dict()
 

@@ -108,9 +108,7 @@ def _record_size(record: SyncRecord) -> int:
     return len(json.dumps(record.to_dict(), ensure_ascii=True))
 
 
-def _last_cursor(
-    records: dict[str, SyncRecord],
-) -> dict[str, Any] | None:
+def _last_cursor(records: dict[str, SyncRecord]) -> dict[str, Any] | None:
     if not records:
         return None
 
@@ -134,7 +132,7 @@ class DatabaseEngine:
         batch_bytes: int | None = BATCH_BYTES_DEFAULT,
         batch_size: int | None = None,
         clock_drift_max: int | None = CLOCK_DRIFT_MAX_DEFAULT,
-        fk_columns: dict[str, list[tuple[str, str]]] | None = None,
+        foreign_key_columns: dict[str, list[tuple[str, str]]] | None = None,
         identity_field: str = 'id',
         lock: SyncLock | None = None,
         on_complete: Callable[[DatabaseResult], None] | None = None,
@@ -216,7 +214,7 @@ class DatabaseEngine:
         self._clock = clock
         self._clock_drift_max = clock_drift_max
         self._errored_keys: dict[str, set[str]] = defaultdict(set)
-        self._fk_columns = fk_columns or {}
+        self._foreign_key_columns = foreign_key_columns or {}
         self._graph = graph
         self._identity_field = identity_field
         self._lock = lock
@@ -408,7 +406,8 @@ class DatabaseEngine:
 
         if reconciliation.to_clear_tombstones:
             excluded = upsert_result.skipped | {
-                error.key for error in upsert_result.errors
+                error.key
+                for error in upsert_result.errors
             }
 
             clearable = reconciliation.to_clear_tombstones - excluded
@@ -473,17 +472,17 @@ class DatabaseEngine:
         model_label: str,
         reconciliation: ReconciliationResult,
     ) -> list[Error]:
-        fks = self._fk_columns.get(model_label)
+        foreign_keys = self._foreign_key_columns.get(model_label)
 
-        if not fks or not reconciliation.to_upsert:
+        if not foreign_keys or not reconciliation.to_upsert:
             return []
 
         cascade_errors: list[Error] = []
         keys_to_drop: list[str] = []
 
         for key, record in reconciliation.to_upsert.items():
-            for attname, target_label in fks:
-                value = record.data.get(attname)
+            for attribute_name, target_label in foreign_keys:
+                value = record.data.get(attribute_name)
 
                 if value is None:
                     continue
@@ -499,7 +498,7 @@ class DatabaseEngine:
                         message=(
                             f'Cascading failure: {model_label} record {key} '
                             f'references errored parent '
-                            f'{target_label}={value!r} via {attname}'
+                            f'{target_label}={value!r} via {attribute_name}'
                         ),
                     ))
 
@@ -666,16 +665,6 @@ class DatabaseEngine:
             sequence_max=sequence_max,
             limit=fetch_limit,
             after_key=effective_after_key,
-        )
-
-        first_seq = (
-            next(iter(records.values())).sequence
-            if records else None
-        )
-
-        last_seq = (
-            next(reversed(records.values())).sequence
-            if records else None
         )
 
         truncated = False
@@ -863,7 +852,9 @@ class DatabaseEngine:
 
     def _flush_deferred_backfill(self) -> None:
         flush = getattr(
-            self._storage, 'flush_deferred_backfill', None,
+            self._storage,
+            'flush_deferred_backfill',
+            None,
         )
 
         if flush is not None:
@@ -999,7 +990,8 @@ class DatabaseEngine:
                     )
 
     def _max_applied_timestamp(
-        self, manifest: SyncManifest,
+        self,
+        manifest: SyncManifest,
     ) -> int:
         timestamp_max = 0
 
@@ -1010,10 +1002,10 @@ class DatabaseEngine:
                     record.sync_field_last_modified,
                 )
 
-            for tombstone_ts in payload.deletes.values():
+            for tombstone_timestamp in payload.deletes.values():
                 timestamp_max = max(
                     timestamp_max,
-                    tombstone_ts,
+                    tombstone_timestamp,
                 )
 
         return timestamp_max
@@ -1216,7 +1208,9 @@ class DatabaseEngine:
 
     def _stamp_unstamped_records(self) -> None:
         stamp = getattr(
-            self._storage, 'stamp_unstamped_records', None,
+            self._storage,
+            'stamp_unstamped_records',
+            None,
         )
 
         if stamp is not None:
@@ -1278,7 +1272,8 @@ class DatabaseEngine:
         return valid
 
     def _validate_manifest(
-        self, manifest: SyncManifest,
+        self,
+        manifest: SyncManifest,
     ) -> None:
         if not manifest.checksum:
             message = 'Manifest is missing a checksum'
@@ -1301,7 +1296,8 @@ class DatabaseEngine:
         self._validate_clock(incoming)
 
         valid_payloads = self._validate_incoming_models(
-            incoming, result,
+            incoming,
+            result,
         )
 
         peer_node_id = incoming.node_id
@@ -1435,17 +1431,6 @@ class DatabaseEngine:
                 )
 
                 response = self._exchange_and_validate(manifest)
-
-                response_record_counts = {
-                    p.model_label: len(p.records)
-                    for p in response.payloads
-                }
-
-                response_delete_counts = {
-                    p.model_label: len(p.deletes)
-                    for p in response.payloads
-                    if p.deletes
-                }
 
                 self._enter_phase(
                     SyncPhase.RECONCILING,

@@ -59,11 +59,11 @@ def test_save_no_dirty_fields_preserves_timestamps(
 
 
 @pytest.mark.django_db
-def test_set_m2m(instance: SyncTestModel) -> None:
+def test_set_many_to_many(instance: SyncTestModel) -> None:
     instance.save()
 
     tag = SyncTestTag.objects.create(label='urgent')
-    SyncableModelService.set_m2m(instance, 'tags', [tag.pk])
+    SyncableModelService.set_many_to_many(instance, 'tags', [tag.pk])
 
     assert 'tags' in instance.sync_field_timestamps
     assert instance.sync_field_timestamps['tags'] > 0
@@ -71,29 +71,29 @@ def test_set_m2m(instance: SyncTestModel) -> None:
 
 
 @pytest.mark.django_db
-def test_set_m2m_updates_sync_field_last_modified(instance: SyncTestModel) -> None:
+def test_set_many_to_many_updates_sync_field_last_modified(instance: SyncTestModel) -> None:
     instance.save()
 
     old_lm = instance.sync_field_last_modified
 
     tag = SyncTestTag.objects.create(label='v2')
-    SyncableModelService.set_m2m(instance, 'tags', [tag.pk])
+    SyncableModelService.set_many_to_many(instance, 'tags', [tag.pk])
 
     assert instance.sync_field_last_modified >= old_lm
 
 
 @pytest.mark.django_db
-def test_set_m2m_before_save_raises(instance: SyncTestModel) -> None:
+def test_set_many_to_many_before_save_raises(instance: SyncTestModel) -> None:
     with pytest.raises(InvalidParameterError, match='Cannot set M2M field'):
-        SyncableModelService.set_m2m(instance, 'tags', [])
+        SyncableModelService.set_many_to_many(instance, 'tags', [])
 
 
 @pytest.mark.django_db
-def test_set_m2m_persists_to_db(instance: SyncTestModel) -> None:
+def test_set_many_to_many_persists_to_db(instance: SyncTestModel) -> None:
     instance.save()
 
     tag = SyncTestTag.objects.create(label='persisted')
-    SyncableModelService.set_m2m(instance, 'tags', [tag.pk])
+    SyncableModelService.set_many_to_many(instance, 'tags', [tag.pk])
 
     refreshed = SyncTestModel.objects.get(pk=instance.pk)
 
@@ -102,18 +102,18 @@ def test_set_m2m_persists_to_db(instance: SyncTestModel) -> None:
 
 
 @pytest.mark.django_db
-def test_set_m2m_raises_before_save() -> None:
+def test_set_many_to_many_raises_before_save() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
     instance = SyncTestModel(name='unsaved', value=1)
 
     with pytest.raises(InvalidParameterError, match='save'):
-        SyncableModelService.set_m2m(instance, 'tags', [])
+        SyncableModelService.set_many_to_many(instance, 'tags', [])
 
 
 @pytest.mark.django_db
-def test_set_m2m_after_save() -> None:
+def test_set_many_to_many_after_save() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
@@ -121,13 +121,13 @@ def test_set_m2m_after_save() -> None:
     instance = SyncTestModel(name='saved', value=1)
     instance.save()
 
-    SyncableModelService.set_m2m(instance, 'tags', [str(tag.pk)])
+    SyncableModelService.set_many_to_many(instance, 'tags', [str(tag.pk)])
 
     assert tag in instance.tags.all()
 
 
 @pytest.mark.django_db
-def test_set_m2m_clears_existing() -> None:
+def test_set_many_to_many_clears_existing() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
@@ -138,7 +138,7 @@ def test_set_m2m_clears_existing() -> None:
     instance.save()
     instance.tags.add(tag_a)
 
-    SyncableModelService.set_m2m(instance, 'tags', [str(tag_b.pk)])
+    SyncableModelService.set_many_to_many(instance, 'tags', [str(tag_b.pk)])
 
     tags = list(instance.tags.all())
 
@@ -147,7 +147,7 @@ def test_set_m2m_clears_existing() -> None:
 
 
 @pytest.mark.django_db
-def test_set_m2m_empty_list_clears_all() -> None:
+def test_set_many_to_many_empty_list_clears_all() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
@@ -156,6 +156,6 @@ def test_set_m2m_empty_list_clears_all() -> None:
     instance.save()
     instance.tags.add(tag)
 
-    SyncableModelService.set_m2m(instance, 'tags', [])
+    SyncableModelService.set_many_to_many(instance, 'tags', [])
 
     assert instance.tags.count() == 0

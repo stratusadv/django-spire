@@ -42,19 +42,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _BATCH_SIZE_MAX = 5_000
-_PARAM_LIMIT = 30_000
+_PARAMETER_LIMIT = 30_000
 
 
-def _field_by_attname(
+def _field_by_attribute_name(
     model: type[SyncableMixin],
-    attname: str,
+    attribute_name: str,
 ) -> Any:
     for field in model._meta.concrete_fields:
-        if field.attname == attname:
+        if field.attname == attribute_name:
             return field
 
     message = (
-        f'No field with attname {attname!r} '
+        f'No field with attribute name {attribute_name!r} '
         f'on {model._meta.label}'
     )
 
@@ -67,7 +67,7 @@ class DjangoRecordWriter:
         models: list[type[SyncableMixin]],
         identity_field: str = 'id',
         batch_size_max: int = _BATCH_SIZE_MAX,
-        deferred_fks: list[DeferredForeignKey] | None = None,
+        deferred_foreign_keys: list[DeferredForeignKey] | None = None,
         delete_strategies: dict[str, DeleteStrategy] | None = None,
         many_to_many_applier: ManyToManyApplier | None = None,
         upsert_strategy: UpsertStrategy | None = None,
@@ -116,29 +116,29 @@ class DjangoRecordWriter:
         )
 
         self._delete_strategies = (
-            delete_strategies
-            or self._build_delete_strategies(models)
+            delete_strategies or
+            self._build_delete_strategies(models)
         )
 
-        self._deferred_attnames: dict[str, set[str]] = (
+        self._deferred_attribute_names: dict[str, set[str]] = (
             defaultdict(set)
         )
 
-        for dfk in (deferred_fks or []):
-            self._deferred_attnames[dfk.source_label].add(
-                dfk.attname,
+        for deferred_foreign_key in (deferred_foreign_keys or []):
+            self._deferred_attribute_names[deferred_foreign_key.source_label].add(
+                deferred_foreign_key.attribute_name,
             )
 
     def _build_assign_sequence_sql(
         self,
         table: str,
-        id_col: str,
+        id_column: str,
     ) -> str:
         return (
             f'WITH ranked AS ('
-            f'  SELECT {id_col} AS pk, '
+            f'  SELECT {id_column} AS pk, '
             f'    ROW_NUMBER() OVER ('
-            f'      ORDER BY sync_field_last_modified, {id_col}'
+            f'      ORDER BY sync_field_last_modified, {id_column}'
             f'    ) + %s - 1 AS seq '
             f'  FROM {table} '
             f'  WHERE sync_field_sequence = 0'
@@ -146,7 +146,7 @@ class DjangoRecordWriter:
             f'UPDATE {table} '
             f'SET sync_field_sequence = ranked.seq '
             f'FROM ranked '
-            f'WHERE {table}.{id_col} = ranked.pk'
+            f'WHERE {table}.{id_column} = ranked.pk'
         )
 
     def _build_column_check_sql(self) -> str:
@@ -217,9 +217,9 @@ class DjangoRecordWriter:
     def _build_fk_backfill_sql(
         self,
         table: str,
-        fk_col: str,
-        fk_type: str,
-        id_col: str,
+        foreign_key_column: str,
+        foreign_key_type: str,
+        id_column: str,
         id_type: str,
         row_count: int,
     ) -> str:
@@ -227,11 +227,12 @@ class DjangoRecordWriter:
 
         return (
             f'UPDATE {table} '
-            f'SET {fk_col} = '
-            f'_v.val::{fk_type} '
+            f'SET {foreign_key_column} = '
+            f'_v.val::{foreign_key_type} '
+
             f'FROM (VALUES {placeholders}) '
             f'AS _v(pk, val) '
-            f'WHERE {table}.{id_col} = '
+            f'WHERE {table}.{id_column} = '
             f'_v.pk::{id_type}'
         )
 
@@ -254,7 +255,9 @@ class DjangoRecordWriter:
         )
 
     def _check_batch_limit(
-        self, count: int, operation: str,
+        self,
+        count: int,
+        operation: str,
     ) -> None:
         if count > self._batch_size_max:
             message = (
@@ -275,14 +278,14 @@ class DjangoRecordWriter:
 
             model = self._models[model_label]
 
-            conn = connections[
+            connection = connections[
                 router.db_for_write(model) or
                 'default'
             ]
 
             table_name = model._meta.db_table
 
-            with conn.cursor() as cursor:
+            with connection.cursor() as cursor:
                 cursor.execute(
                     self._build_column_check_sql(),
                     [table_name],
@@ -292,7 +295,7 @@ class DjangoRecordWriter:
                     continue
 
                 statements = self._build_ensure_sync_columns_sql(
-                    conn,
+                    connection,
                     table_name,
                 )
 
@@ -327,7 +330,8 @@ class DjangoRecordWriter:
         }
 
     def _get_many_to_many_names(
-        self, model: type[SyncableMixin],
+        self,
+        model: type[SyncableMixin],
     ) -> set[str]:
         return {
             field.name
@@ -335,7 +339,8 @@ class DjangoRecordWriter:
         }
 
     def _get_model(
-        self, model_label: str,
+        self,
+        model_label: str,
     ) -> type[SyncableMixin]:
         model = self._models.get(model_label)
 
@@ -362,24 +367,24 @@ class DjangoRecordWriter:
         model_label: str,
         deserialized_row: dict[str, Any],
     ) -> dict[str, Any]:
-        attnames = self._deferred_attnames.get(model_label)
+        attribute_names = self._deferred_attribute_names.get(model_label)
 
-        if not attnames:
+        if not attribute_names:
             return {}
 
         stashed: dict[str, Any] = {}
 
-        for attname in attnames:
-            if attname not in deserialized_row:
+        for attribute_name in attribute_names:
+            if attribute_name not in deserialized_row:
                 continue
 
-            value = deserialized_row[attname]
+            value = deserialized_row[attribute_name]
 
             if value is None:
                 continue
 
-            stashed[attname] = value
-            deserialized_row[attname] = None
+            stashed[attribute_name] = value
+            deserialized_row[attribute_name] = None
 
         return stashed
 
@@ -394,12 +399,12 @@ class DjangoRecordWriter:
 
         rows: list[SyncDeferredBackfill] = []
 
-        for record_key, attname_values in stashes.items():
-            for attname, value in attname_values.items():
+        for record_key, attribute_name_values in stashes.items():
+            for attribute_name, value in attribute_name_values.items():
                 rows.append(SyncDeferredBackfill(
                     model_label=model_label,
                     record_key=record_key,
-                    attname=attname,
+                    attname=attribute_name,
                     fk_value=str(value),
                 ))
 
@@ -436,24 +441,25 @@ class DjangoRecordWriter:
             SyncSequenceAllocator,
         )
 
-        max_seq = 0
+        max_sequence = 0
 
         for model_label in labels:
             if model_label not in self._models:
                 continue
 
             model = self._models[model_label]
+
             result = model.objects.aggregate(
-                max_seq=Max('sync_field_sequence'),
+                max_sequence=Max('sync_field_sequence'),
             )
 
-            candidate = result['max_seq'] or 0
+            candidate = result['max_sequence'] or 0
 
-            if candidate > max_seq:
-                max_seq = candidate
+            if candidate > max_sequence:
+                max_sequence = candidate
 
-        if max_seq > 0:
-            SyncSequenceAllocator().reconcile_to(max_seq)
+        if max_sequence > 0:
+            SyncSequenceAllocator().reconcile_to(max_sequence)
 
     def _run_backfill(
         self,
@@ -462,24 +468,24 @@ class DjangoRecordWriter:
     ) -> dict[str, dict[str, Any]]:
         from django_spire.contrib.sync.django.queryset import sync_bypass  # noqa: PLC0415
 
-        by_attname: dict[str, list[tuple[str, Any]]] = defaultdict(
+        by_attribute_name: dict[str, list[tuple[str, Any]]] = defaultdict(
             list,
         )
 
         for key, columns in key_columns.items():
             for attname, value in columns.items():
-                by_attname[attname].append((key, value))
+                by_attribute_name[attname].append((key, value))
 
         still_pending: dict[str, dict[str, Any]] = {}
 
-        conn = connections[
+        connection = connections[
             router.db_for_write(model) or
             'default'
         ]
 
-        for attname, pairs in by_attname.items():
-            fk_field = _field_by_attname(model, attname)
-            target_model = fk_field.related_model
+        for attribute_name, pairs in by_attribute_name.items():
+            foreign_key_field = _field_by_attribute_name(model, attribute_name)
+            target_model = foreign_key_field.related_model
 
             target_values = {
                 str(value) for _, value in pairs
@@ -500,28 +506,28 @@ class DjangoRecordWriter:
             for key, value in pairs:
                 if str(value) not in existing_targets:
                     pending = still_pending.setdefault(key, {})
-                    pending[attname] = value
+                    pending[attribute_name] = value
 
             if not can_backfill:
                 continue
 
-            quote = conn.ops.quote_name
+            quote = connection.ops.quote_name
             table = quote(model._meta.db_table)
+
             id_field = model._meta.get_field(
                 self._identity_field,
             )
-            id_col = quote(id_field.column)
-            fk_col = quote(fk_field.column)
 
-            id_type = id_field.db_type(conn)
-            fk_type = fk_field.db_type(conn)
+            id_column = quote(id_field.column)
+            foreign_key_column = quote(foreign_key_field.column)
 
-            batch_limit = _PARAM_LIMIT // 2
+            id_type = id_field.db_type(connection)
+            foreign_key_type = foreign_key_field.db_type(connection)
 
-            with sync_bypass(), conn.cursor() as cursor:
-                for offset in range(
-                    0, len(can_backfill), batch_limit,
-                ):
+            batch_limit = _PARAMETER_LIMIT // 2
+
+            with sync_bypass(), connection.cursor() as cursor:
+                for offset in range(0, len(can_backfill), batch_limit):
                     batch = can_backfill[
                         offset:offset + batch_limit
                     ]
@@ -531,17 +537,24 @@ class DjangoRecordWriter:
                     for key, value in batch:
                         params.append(
                             id_field.get_db_prep_save(
-                                key, conn,
+                                key,
+                                connection,
                             ),
                         )
                         params.append(
-                            fk_field.get_db_prep_save(
-                                value, conn,
+                            foreign_key_field.get_db_prep_save(
+                                value,
+                                connection,
                             ),
                         )
 
                     sql = self._build_fk_backfill_sql(
-                        table, fk_col, fk_type, id_col, id_type, len(batch),
+                        table,
+                        foreign_key_column,
+                        foreign_key_type,
+                        id_column,
+                        id_type,
+                        len(batch),
                     )
 
                     cursor.execute(sql, params)
@@ -613,13 +626,13 @@ class DjangoRecordWriter:
             for key in excluded:
                 pending_many_to_many.pop(key, None)
 
-            m2m_result = self._many_to_many_applier.apply(
+            many_to_many_result = self._many_to_many_applier.apply(
                 model,
                 pending_many_to_many,
             )
 
-            upsert_result.skipped |= m2m_result.skipped
-            upsert_result.errors.extend(m2m_result.errors)
+            upsert_result.skipped |= many_to_many_result.skipped
+            upsert_result.errors.extend(many_to_many_result.errors)
 
         return upsert_result
 
@@ -741,81 +754,85 @@ class DjangoRecordWriter:
 
                 model = self._models[model_label]
 
-                conn = connections[
-                    router.db_for_write(model) or 'default'
+                connection = connections[
+                    router.db_for_write(model) or
+                    'default'
                 ]
 
-                quote = conn.ops.quote_name
+                quote = connection.ops.quote_name
                 table = quote(model._meta.db_table)
 
                 id_field = model._meta.get_field(self._identity_field)
 
-                id_col = quote(id_field.column)
+                id_column = quote(id_field.column)
 
-                with conn.cursor() as cursor:
+                with connection.cursor() as cursor:
                     cursor.execute(
                         self._build_zero_field_count_sql(
-                            table, 'sync_field_sequence',
+                            table,
+                            'sync_field_sequence',
                         ),
                     )
 
-                    seq_count = cursor.fetchone()[0]
+                    sequence_count = cursor.fetchone()[0]
 
                     cursor.execute(
                         self._build_zero_field_count_sql(
-                            table, 'sync_field_last_modified',
+                            table,
+                            'sync_field_last_modified',
                         ),
                     )
 
-                    ts_count = cursor.fetchone()[0]
+                    timestamp_count = cursor.fetchone()[0]
 
-                if seq_count == 0 and ts_count == 0:
+                if sequence_count == 0 and timestamp_count == 0:
                     continue
 
-                stamp_ts = clock.now()
+                stamp_timestamp = clock.now()
 
                 stamp_field_names = (
                     list(model.get_syncable_field_names())
-                    + list(model.get_syncable_m2m_names())
+                    + list(model.get_syncable_many_to_many_names())
                 )
 
                 stamp_timestamps_json = json.dumps({
-                    name: stamp_ts
+                    name: stamp_timestamp
                     for name in stamp_field_names
                 })
 
-                first_seq = 0
+                first_sequence = 0
 
                 with transaction.atomic():
-                    if seq_count > 0:
-                        first_seq = SyncSequenceAllocator().allocate(seq_count).first
+                    if sequence_count > 0:
+                        first_sequence = SyncSequenceAllocator().allocate(sequence_count).first
 
-                        with conn.cursor() as cursor:
+                        with connection.cursor() as cursor:
                             cursor.execute(
                                 self._build_assign_sequence_sql(
-                                    table, id_col,
+                                    table,
+                                    id_column,
                                 ),
-                                [first_seq],
+                                [first_sequence],
                             )
 
-                    if ts_count > 0:
-                        with conn.cursor() as cursor:
+                    if timestamp_count > 0:
+                        with connection.cursor() as cursor:
                             cursor.execute(
                                 self._build_stamp_modified_sql(table),
-                                [stamp_ts, stamp_timestamps_json],
+                                [stamp_timestamp, stamp_timestamps_json],
                             )
 
-                stamped = max(seq_count, ts_count)
+                stamped = max(sequence_count, timestamp_count)
 
                 logger.info(
                     'Stamped %s in %s '
                     '(%d sequences from %d, %d timestamps, ts=%d)',
                     stamped,
                     model_label,
-                    seq_count,
-                    first_seq,
-                    ts_count,
-                    stamp_ts,
+                    sequence_count,
+                    first_sequence,
+                    timestamp_count,
+                    stamp_timestamp,
                 )
 
                 total += stamped

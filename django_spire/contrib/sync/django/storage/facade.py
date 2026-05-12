@@ -36,7 +36,7 @@ class DjangoSyncStorage:
         identity_field: str = 'id',
         batch_size_max: int = _BATCH_SIZE_MAX,
         checkpoint_store: CheckpointStore | None = None,
-        deferred_fks: list[DeferredForeignKey] | None = None,
+        deferred_foreign_keys: list[DeferredForeignKey] | None = None,
         record_reader: RecordReader | None = None,
         record_writer: RecordWriter | None = None,
         sequence_allocator: SequenceAllocator | None = None,
@@ -52,11 +52,12 @@ class DjangoSyncStorage:
             models=models,
             identity_field=identity_field,
             batch_size_max=batch_size_max,
-            deferred_fks=deferred_fks,
+            deferred_foreign_keys=deferred_foreign_keys,
         )
 
         self._sequence_allocator = (
-            sequence_allocator or SyncSequenceAllocator()
+            sequence_allocator or
+            SyncSequenceAllocator()
         )
 
     def clear_tombstones(

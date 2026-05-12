@@ -55,16 +55,16 @@ class HardDeleteStrategy:
         )
 
         keys = sorted(deletes.keys())
-        first_seq = SyncSequenceAllocator().allocate(len(keys)).first
+        first_sequence = SyncSequenceAllocator().allocate(len(keys)).first
         model_label = model._meta.label
 
         with sync_bypass():
             for index, key in enumerate(keys):
-                tombstone_ts = deletes[key]
+                tombstone_timestamp = deletes[key]
 
                 staleness_filter = {
                     self._identity_field: key,
-                    'sync_field_last_modified__lte': tombstone_ts,
+                    'sync_field_last_modified__lte': tombstone_timestamp,
                 }
 
                 model.objects.filter(**staleness_filter).delete()
@@ -72,8 +72,8 @@ class HardDeleteStrategy:
                 _record_tombstone(
                     model_label,
                     key,
-                    tombstone_ts,
-                    first_seq + index,
+                    tombstone_timestamp,
+                    first_sequence + index,
                     origin_node,
                 )
 
@@ -91,20 +91,20 @@ class SoftDeleteStrategy:
 
         for instance in instances:
             key = str(getattr(instance, self._identity_field))
-            tombstone_ts = deletes[key]
+            tombstone_timestamp = deletes[key]
 
-            if instance.sync_field_last_modified > tombstone_ts:
+            if instance.sync_field_last_modified > tombstone_timestamp:
                 continue
 
             instance.is_deleted = True
 
             timestamps = dict(instance.sync_field_timestamps)
-            timestamps['is_deleted'] = tombstone_ts
+            timestamps['is_deleted'] = tombstone_timestamp
             instance.sync_field_timestamps = timestamps
 
             instance.sync_field_last_modified = max(
                 instance.sync_field_last_modified,
-                tombstone_ts,
+                tombstone_timestamp,
             )
 
             pending.append(instance)
@@ -132,32 +132,32 @@ class SoftDeleteStrategy:
         if not pending:
             return
 
-        first_seq = SyncSequenceAllocator().allocate(len(pending)).first
+        first_sequence = SyncSequenceAllocator().allocate(len(pending)).first
         model_label = model._meta.label
 
         with sync_bypass():
             for index, instance in enumerate(pending):
                 key = str(getattr(instance, self._identity_field))
-                tombstone_ts = deletes[key]
-                local_seq = first_seq + index
+                tombstone_timestamp = deletes[key]
+                local_sequence = first_sequence + index
 
                 staleness_filter = {
                     self._identity_field: key,
-                    'sync_field_last_modified__lte': tombstone_ts,
+                    'sync_field_last_modified__lte': tombstone_timestamp,
                 }
 
                 model.objects.filter(**staleness_filter).update(
                     is_deleted=True,
                     sync_field_last_modified=instance.sync_field_last_modified,
                     sync_field_origin_node=origin_node,
-                    sync_field_sequence=local_seq,
+                    sync_field_sequence=local_sequence,
                     sync_field_timestamps=instance.sync_field_timestamps,
                 )
 
                 _record_tombstone(
                     model_label,
                     key,
-                    tombstone_ts,
-                    local_seq,
+                    tombstone_timestamp,
+                    local_sequence,
                     origin_node,
                 )

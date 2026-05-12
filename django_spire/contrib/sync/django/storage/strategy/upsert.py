@@ -26,7 +26,7 @@ _RACE_RETRIES_MAX = 5
 _RACE_RETRY_DELAY = 0.01
 
 _SUPPORTED_VENDORS = frozenset({'postgresql', 'sqlite'})
-_PARAM_LIMIT = 30_000
+_PARAMETER_LIMIT = 30_000
 
 
 class UpsertStrategy(Protocol):
@@ -120,7 +120,6 @@ class BulkUpsertStrategy:
         model: type[SyncableMixin],
     ) -> BaseDatabaseWrapper:
         db_alias = router.db_for_write(model) or 'default'
-
         return connections[db_alias]
 
     def _validate_records(
@@ -155,7 +154,7 @@ class BulkUpsertStrategy:
         return writable, errors
 
     def _rows_per_batch(self, field_count: int) -> int:
-        return max(1, _PARAM_LIMIT // field_count)
+        return max(1, _PARAMETER_LIMIT // field_count)
 
     def _writable_fields(
         self,
@@ -196,7 +195,7 @@ class BulkUpsertStrategy:
         fields = self._writable_fields(model)
         sorted_keys = sorted(writable.keys())
 
-        first_seq = SyncSequenceAllocator().allocate(len(sorted_keys)).first
+        first_sequence = SyncSequenceAllocator().allocate(len(sorted_keys)).first
 
         instances = [
             self._build_instance(RecordContext(
@@ -204,7 +203,7 @@ class BulkUpsertStrategy:
                 key=key,
                 sync_record=writable[key],
                 field_data=deserialized[key],
-                sequence=first_seq + index,
+                sequence=first_sequence + index,
                 origin_node=origin_node,
             ))
             for index, key in enumerate(sorted_keys)
@@ -284,19 +283,19 @@ class StalenessGuardedUpsertStrategy:
             if not is_auto_add and not is_auto_now:
                 continue
 
-            attr_name = (
+            attribute_name = (
                 field.attname
                 if field.is_relation
                 else field.name
             )
 
-            if attr_name not in ctx.field_data:
+            if attribute_name not in ctx.field_data:
                 continue
 
-            if ctx.field_data[attr_name] is None:
+            if ctx.field_data[attribute_name] is None:
                 continue
 
-            auto_values[attr_name] = ctx.field_data[attr_name]
+            auto_values[attribute_name] = ctx.field_data[attribute_name]
 
         if auto_values:
             identity_filter = {self._identity_field: ctx.key}
@@ -378,7 +377,7 @@ class StalenessGuardedUpsertStrategy:
         if not sorted_keys:
             return UpsertResult()
 
-        first_seq = SyncSequenceAllocator().allocate(len(sorted_keys)).first
+        first_sequence = SyncSequenceAllocator().allocate(len(sorted_keys)).first
 
         for index, key in enumerate(sorted_keys):
             sync_record = records[key]
@@ -404,7 +403,7 @@ class StalenessGuardedUpsertStrategy:
                 key=key,
                 sync_record=sync_record,
                 field_data=field_data,
-                sequence=first_seq + index,
+                sequence=first_sequence + index,
                 origin_node=origin_node,
             )
 

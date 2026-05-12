@@ -16,7 +16,7 @@ class DeferredForeignKey:
     source_label: str
     target_label: str
     field_name: str
-    attname: str
+    attribute_name: str
 
 
 def _has_cycle(edges: dict[str, set[str]]) -> bool:
@@ -80,8 +80,8 @@ def build_graph(
     if _has_cycle(required_edges):
         involved = {
             label
-            for label, deps in required_edges.items()
-            if deps
+            for label, dependencies in required_edges.items()
+            if dependencies
         }
 
         message = (
@@ -92,12 +92,13 @@ def build_graph(
         raise CircularDependencyError(message)
 
     ordering_edges = {
-        label: set(deps)
-        for label, deps in required_edges.items()
+        label: set(dependencies)
+        for label, dependencies in required_edges.items()
     }
 
     deferred_edges: dict[str, set[str]] = {
-        label: set() for label in ordering_edges
+        label: set()
+        for label in ordering_edges
     }
 
     for source in sorted(optional_edges):
@@ -120,7 +121,7 @@ def build_graph(
     )
 
 
-def get_deferred_fk_columns(
+def get_deferred_foreign_key_columns(
     models: list[type[SyncableMixin]],
     graph: DependencyGraph,
 ) -> list[DeferredForeignKey]:
@@ -145,7 +146,7 @@ def get_deferred_fk_columns(
                     source_label=source_label,
                     target_label=target_label,
                     field_name=field.name,
-                    attname=field.attname,
+                    attribute_name=field.attname,
                 ))
 
     for model in models:
@@ -173,13 +174,13 @@ def get_deferred_fk_columns(
                 source_label=model._meta.label,
                 target_label=target_label,
                 field_name=field.name,
-                attname=field.attname,
+                attribute_name=field.attname,
             ))
 
     return result
 
 
-def get_fk_columns_for_cascade(
+def get_foreign_key_columns_for_cascade(
     models: list[type[SyncableMixin]],
 ) -> dict[str, list[tuple[str, str]]]:
     syncable_labels = {model._meta.label for model in models}

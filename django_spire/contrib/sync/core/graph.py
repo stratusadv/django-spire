@@ -70,8 +70,8 @@ class DependencyGraph:
         }
 
         for label, dependencies in self._edges.items():
-            for dep in dependencies:
-                self._dependents[dep].add(label)
+            for dependency in dependencies:
+                self._dependents[dependency].add(label)
 
         self._order = self._compute_order()
 

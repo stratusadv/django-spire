@@ -7,7 +7,7 @@ from django_spire.contrib.sync.django.queryset import SyncableQuerySet, sync_byp
 from django_spire.contrib.sync.django.seed import seed_clock
 from django_spire.contrib.sync.django.server import SyncServer
 from django_spire.contrib.sync.django.service import SyncableModelService
-from django_spire.contrib.sync.django.signals import register_m2m_signals
+from django_spire.contrib.sync.django.signals import register_many_to_many_signals
 from django_spire.contrib.sync.django.storage import DjangoSyncStorage
 from django_spire.contrib.sync.django.views import process_sync_request
 
@@ -23,7 +23,7 @@ __all__ = [
     'SyncableQuerySet',
     'build_graph',
     'process_sync_request',
-    'register_m2m_signals',
+    'register_many_to_many_signals',
     'seed_clock',
     'sync_bypass',
 ]

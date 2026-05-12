@@ -53,8 +53,8 @@ class SyncableQuerySet(models.QuerySet):
         clock = self.model.get_clock()
 
         with transaction.atomic():
-            first_seq = SyncSequenceAllocator().allocate(len(syncable)).first
-            next_seq = first_seq
+            first_sequence = SyncSequenceAllocator().allocate(len(syncable)).first
+            next_sequence = first_sequence
 
             for instance in syncable:
                 now = clock.now()
@@ -70,8 +70,8 @@ class SyncableQuerySet(models.QuerySet):
                     instance.sync_field_last_modified = now
 
                 if not instance.sync_field_sequence:
-                    instance.sync_field_sequence = next_seq
-                    next_seq += 1
+                    instance.sync_field_sequence = next_sequence
+                    next_sequence += 1
 
                 if not instance.sync_field_origin_node:
                     instance.sync_field_origin_node = ''
@@ -114,8 +114,8 @@ class SyncableQuerySet(models.QuerySet):
         })
 
         with transaction.atomic():
-            first_seq = SyncSequenceAllocator().allocate(len(syncable)).first
-            next_seq = first_seq
+            first_sequence = SyncSequenceAllocator().allocate(len(syncable)).first
+            next_sequence = first_sequence
 
             for instance in syncable:
                 now = clock.now()
@@ -129,9 +129,9 @@ class SyncableQuerySet(models.QuerySet):
 
                 instance.sync_field_timestamps = timestamps
                 instance.sync_field_last_modified = now
-                instance.sync_field_sequence = next_seq
+                instance.sync_field_sequence = next_sequence
                 instance.sync_field_origin_node = ''
-                next_seq += 1
+                next_sequence += 1
 
             return super().bulk_update(objs, stamped_fields, **kwargs)
 
@@ -168,7 +168,7 @@ class SyncableQuerySet(models.QuerySet):
             if not rows:
                 return 0
 
-            first_seq = SyncSequenceAllocator().allocate(len(rows)).first
+            first_sequence = SyncSequenceAllocator().allocate(len(rows)).first
 
             total = 0
 
@@ -184,7 +184,7 @@ class SyncableQuerySet(models.QuerySet):
                         **kwargs,
                         'sync_field_timestamps': timestamps,
                         'sync_field_last_modified': now,
-                        'sync_field_sequence': first_seq + index,
+                        'sync_field_sequence': first_sequence + index,
                         'sync_field_origin_node': '',
                     }
 

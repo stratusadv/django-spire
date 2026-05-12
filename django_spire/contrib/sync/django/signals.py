@@ -53,7 +53,7 @@ def _stamp_forward(
         if row is None:
             return
 
-        last_seq = SyncSequenceAllocator().allocate(1).last
+        last_sequence = SyncSequenceAllocator().allocate(1).last
 
         timestamps = dict(row['sync_field_timestamps'])
         timestamps[field_name] = now
@@ -65,23 +65,23 @@ def _stamp_forward(
                 .update(
                     sync_field_timestamps=timestamps,
                     sync_field_last_modified=now,
-                    sync_field_sequence=last_seq,
+                    sync_field_sequence=last_sequence,
                     sync_field_origin_node='',
                 )
             )
 
     instance.sync_field_timestamps = timestamps
     instance.sync_field_last_modified = now
-    instance.sync_field_sequence = last_seq
+    instance.sync_field_sequence = last_sequence
     instance.sync_field_origin_node = ''
 
 
 def _stamp_reverse(
     model: type[SyncableMixin],
-    pks: set[Any],
+    primary_keys: set[Any],
     field_name: str,
 ) -> None:
-    if not pks:
+    if not primary_keys:
         return
 
     from django_spire.contrib.sync.django.sequence import (  # noqa: PLC0415
@@ -94,14 +94,14 @@ def _stamp_reverse(
         instances = list(
             model.objects
             .select_for_update()
-            .filter(pk__in=pks),
+            .filter(pk__in=primary_keys),
         )
 
         if not instances:
             return
 
-        first_seq = SyncSequenceAllocator().allocate(len(instances)).first
-        next_seq = first_seq
+        first_sequence = SyncSequenceAllocator().allocate(len(instances)).first
+        next_sequence = first_sequence
 
         for instance in instances:
             timestamps = dict(instance.sync_field_timestamps)
@@ -109,9 +109,9 @@ def _stamp_reverse(
 
             instance.sync_field_timestamps = timestamps
             instance.sync_field_last_modified = now
-            instance.sync_field_sequence = next_seq
+            instance.sync_field_sequence = next_sequence
             instance.sync_field_origin_node = ''
-            next_seq += 1
+            next_sequence += 1
 
         model.objects.bulk_update(
             instances,
@@ -124,7 +124,7 @@ def _stamp_reverse(
         )
 
 
-def _on_m2m_changed(
+def _on_many_to_many_changed(
     sender: type,
     instance: Any,
     action: str,
@@ -207,14 +207,14 @@ def _on_syncable_delete(
     timestamp = clock.now()
 
     with transaction.atomic():
-        last_seq = SyncSequenceAllocator().allocate(1).last
+        last_sequence = SyncSequenceAllocator().allocate(1).last
 
         SyncTombstone.objects.update_or_create(
             model_label=model_label,
             record_key=key,
             defaults={
                 'origin_node': '',
-                'sequence': last_seq,
+                'sequence': last_sequence,
                 'timestamp': timestamp,
             },
         )
@@ -238,7 +238,7 @@ def register_delete_signals(
         )
 
 
-def register_m2m_signals(
+def register_many_to_many_signals(
     parent_models: list[type[SyncableMixin]],
 ) -> None:
     if not parent_models:
@@ -255,7 +255,7 @@ def register_m2m_signals(
             )
 
             m2m_changed.connect(
-                _on_m2m_changed,
+                _on_many_to_many_changed,
                 sender=through_model,
                 dispatch_uid=dispatch_uid,
             )

@@ -134,7 +134,7 @@ def test_get_changed_since_returns_consistent_snapshot() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-def test_concurrent_m2m_assignment_consistent() -> None:
+def test_concurrent_many_to_many_assignment_consistent() -> None:
     tag_a = SyncTestTag.objects.create(label='alpha')
     tag_b = SyncTestTag.objects.create(label='beta')
     tag_c = SyncTestTag.objects.create(label='gamma')
@@ -198,7 +198,7 @@ def test_concurrent_m2m_assignment_consistent() -> None:
         {tag_a.pk},
         {tag_b.pk},
         {tag_a.pk, tag_c.pk},
-    ), f'unexpected M2M state: {final_tags}'
+    ), f'unexpected many-to-many state: {final_tags}'
     assert obj.sync_field_timestamps.get('tags', 0) >= 200
 
 

@@ -67,13 +67,13 @@ class SyncRecord:
 
     @property
     def sync_field_last_modified(self) -> int:
-        ts_max = (
+        timestamp_maximum = (
             max(self.timestamps.values())
             if self.timestamps
             else 0
         )
 
-        return max(ts_max, self.received_at)
+        return max(timestamp_maximum, self.received_at)
 
     @classmethod
     def from_dict(cls, key: str, data: dict[str, Any]) -> SyncRecord:
@@ -141,31 +141,31 @@ class SyncRecord:
 
         sanitized_timestamps: dict[str, int] = {}
 
-        for ts_key, ts_value in record_timestamps.items():
-            if not isinstance(ts_key, str):
+        for timestamp_key, timestamp_value in record_timestamps.items():
+            if not isinstance(timestamp_key, str):
                 message = (
                     f'Record {key!r}: timestamp key '
-                    f'{ts_key!r} must be a string'
+                    f'{timestamp_key!r} must be a string'
                 )
 
                 raise RecordFieldError(message)
 
             coerced = _coerce_int(
-                ts_value,
-                f'timestamp for {ts_key!r}',
+                timestamp_value,
+                f'timestamp for {timestamp_key!r}',
                 key,
             )
 
             if coerced < 0:
                 message = (
                     f'Record {key!r}: timestamp for '
-                    f'{ts_key!r} must be non-negative, '
+                    f'{timestamp_key!r} must be non-negative, '
                     f'got {coerced}'
                 )
 
                 raise RecordFieldError(message)
 
-            sanitized_timestamps[ts_key] = coerced
+            sanitized_timestamps[timestamp_key] = coerced
 
         return cls(
             key=key,

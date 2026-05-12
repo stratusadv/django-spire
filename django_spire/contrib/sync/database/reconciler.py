@@ -56,14 +56,14 @@ class PayloadReconciler:
         local_records: dict[str, SyncRecord],
         result: ReconciliationResult,
     ) -> None:
-        for key, tombstone_ts in payload.deletes.items():
+        for key, tombstone_timestamp in payload.deletes.items():
             if key not in local_records:
                 continue
 
             local = local_records[key]
 
-            if local.sync_field_last_modified <= tombstone_ts:
-                result.to_delete[key] = tombstone_ts
+            if local.sync_field_last_modified <= tombstone_timestamp:
+                result.to_delete[key] = tombstone_timestamp
                 continue
 
             conflict = RecordConflict(
@@ -88,7 +88,7 @@ class PayloadReconciler:
                 continue
 
             if resolution.delete:
-                result.to_delete[key] = tombstone_ts
+                result.to_delete[key] = tombstone_timestamp
             elif resolution.record is not None:
                 result.response_records[key] = resolution.record
                 result.conflict_keys.append(key)
@@ -122,10 +122,10 @@ class PayloadReconciler:
 
             return
 
-        tombstone_ts = local_tombstones.get(key)
+        tombstone_timestamp = local_tombstones.get(key)
 
-        if tombstone_ts is not None:
-            if remote.sync_field_last_modified <= tombstone_ts:
+        if tombstone_timestamp is not None:
+            if remote.sync_field_last_modified <= tombstone_timestamp:
                 return
 
             result.to_clear_tombstones.add(key)

@@ -12,8 +12,8 @@ from django_spire.contrib.sync.database.engine import (
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
 from django_spire.contrib.sync.django.graph import (
     build_graph,
-    get_deferred_fk_columns,
-    get_fk_columns_for_cascade,
+    get_deferred_foreign_key_columns,
+    get_foreign_key_columns_for_cascade,
 )
 from django_spire.contrib.sync.django.mixin import SyncableMixin
 from django_spire.contrib.sync.django.storage import DjangoSyncStorage
@@ -57,18 +57,19 @@ class SyncClient:
     ) -> None:
         resolved_graph = graph or build_graph(models)
 
-        deferred_fks = get_deferred_fk_columns(
-            models, resolved_graph,
+        deferred_foreign_keys = get_deferred_foreign_key_columns(
+            models,
+            resolved_graph,
         )
 
-        fk_columns = get_fk_columns_for_cascade(models)
+        foreign_key_columns = get_foreign_key_columns_for_cascade(models)
 
         self._engine = DatabaseEngine(
             batch_bytes=batch_bytes,
             batch_size=batch_size,
             clock=clock or SyncableMixin.get_clock(),
             clock_drift_max=clock_drift_max,
-            fk_columns=fk_columns,
+            foreign_key_columns=foreign_key_columns,
             graph=resolved_graph,
             lock=lock,
             node_id=node_id,
@@ -84,7 +85,7 @@ class SyncClient:
             ),
             storage=storage or DjangoSyncStorage(
                 models=models,
-                deferred_fks=deferred_fks,
+                deferred_foreign_keys=deferred_foreign_keys,
             ),
             transaction=transaction_fn,
             transport=transport,
