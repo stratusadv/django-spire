@@ -109,7 +109,8 @@ def sync_manifests(draw: st.DrawFn) -> SyncManifest:
         max_size=10,
     ))
 
-    checkpoint = draw(st.integers(min_value=0, max_value=2**47))
+    peer_sequence = draw(st.integers(min_value=0, max_value=2**47))
+    local_sequence = draw(st.integers(min_value=0, max_value=2**47))
     node_time = draw(st.integers(min_value=0, max_value=2**31))
 
     num_payloads = draw(st.integers(min_value=0, max_value=3))
@@ -127,7 +128,8 @@ def sync_manifests(draw: st.DrawFn) -> SyncManifest:
 
     return SyncManifest(
         node_id=node_id,
-        checkpoint=checkpoint,
+        peer_sequence=peer_sequence,
+        local_sequence=local_sequence,
         node_time=node_time,
         payloads=payloads,
     )
@@ -161,9 +163,8 @@ def field_conflict_pairs(
 @st.composite
 def reconciler_scenario(
     draw: st.DrawFn,
-) -> tuple[dict[str, SyncRecord], dict[str, SyncRecord], int]:
+) -> tuple[dict[str, SyncRecord], dict[str, SyncRecord], dict[str, int]]:
     num_keys = draw(st.integers(min_value=1, max_value=8))
-    checkpoint = draw(st.integers(min_value=50, max_value=500))
 
     fields = draw(st.lists(
         FIELD_NAMES,
@@ -191,7 +192,7 @@ def reconciler_scenario(
                 data[field] = draw(st.integers(min_value=0, max_value=1000))
                 timestamps[field] = draw(st.integers(
                     min_value=1,
-                    max_value=checkpoint * 4,
+                    max_value=2000,
                 ))
 
             local_records[key] = SyncRecord(
@@ -205,12 +206,12 @@ def reconciler_scenario(
             for field in fields:
                 data[field] = draw(st.integers(min_value=0, max_value=1000))
                 timestamps[field] = draw(st.integers(
-                    min_value=checkpoint + 1,
-                    max_value=checkpoint * 4,
+                    min_value=1,
+                    max_value=2000,
                 ))
 
             remote_records[key] = SyncRecord(
                 key=key, data=data, timestamps=timestamps,
             )
 
-    return local_records, remote_records, checkpoint
+    return local_records, remote_records, {}

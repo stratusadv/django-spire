@@ -109,6 +109,7 @@ class MultiTabletHarness:
                 clock=self.clock,
                 transport=self.transport,
                 node_id=tablet_id,
+                peer_node_id='server',
                 clock_drift_max=None,
                 reconciler=PayloadReconciler(resolver=resolver),
             )

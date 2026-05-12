@@ -10,7 +10,11 @@ from django_spire.contrib.sync.database.engine import (
     DatabaseEngine,
 )
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
-from django_spire.contrib.sync.django.graph import build_graph
+from django_spire.contrib.sync.django.graph import (
+    build_graph,
+    get_deferred_foreign_key_columns,
+    get_foreign_key_columns_for_cascade,
+)
 from django_spire.contrib.sync.django.lock import DjangoSyncLock
 from django_spire.contrib.sync.django.mixin import SyncableMixin
 from django_spire.contrib.sync.django.storage import DjangoSyncStorage
@@ -55,12 +59,22 @@ class SyncServer:
         storage: DatabaseSyncStorage | None = None,
         transaction_fn: Callable[[], AbstractContextManager[Any]] = transaction.atomic,
     ) -> None:
+        resolved_graph = graph or build_graph(models)
+
+        deferred_foreign_keys = get_deferred_foreign_key_columns(
+            models,
+            resolved_graph,
+        )
+
+        foreign_key_columns = get_foreign_key_columns_for_cascade(models)
+
         self._engine = DatabaseEngine(
             batch_bytes=batch_bytes,
             batch_size=batch_size,
             clock=clock or SyncableMixin.get_clock(),
             clock_drift_max=clock_drift_max,
-            graph=graph or build_graph(models),
+            foreign_key_columns=foreign_key_columns,
+            graph=resolved_graph,
             lock=lock or DjangoSyncLock(),
             node_id=node_id,
             on_complete=on_complete,
@@ -71,12 +85,16 @@ class SyncServer:
             reconciler=PayloadReconciler(
                 resolver=resolver or FieldTimestampWins(),
             ),
-            storage=storage or DjangoSyncStorage(models=models),
+            storage=storage or DjangoSyncStorage(
+                models=models,
+                deferred_foreign_keys=deferred_foreign_keys,
+            ),
             transaction=transaction_fn,
         )
 
     def handle(
-        self, incoming: SyncManifest,
+        self,
+        incoming: SyncManifest,
     ) -> tuple[SyncManifest, DatabaseResult]:
         return self._engine.process(incoming)
 

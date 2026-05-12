@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 from django_spire.contrib.sync.database.record import SyncRecord
 
+
 _PAYLOADS_MAX = 100
 
 
@@ -33,7 +34,8 @@ class ModelPayload:
 
     @classmethod
     def from_dict(
-        cls, data: dict[str, Any],
+        cls,
+        data: dict[str, Any],
     ) -> ModelPayload:
         model_label = data.get('model_label')
 
@@ -121,7 +123,8 @@ class ModelPayload:
 @dataclass
 class SyncManifest:
     node_id: str
-    checkpoint: int
+    peer_sequence: int = 0
+    local_sequence: int = 0
     after_keys: dict[str, Any] = field(
         default_factory=dict,
     )
@@ -134,13 +137,14 @@ class SyncManifest:
 
     def _serializable(self) -> dict[str, Any]:
         return {
-            'checkpoint': self.checkpoint,
+            'local_sequence': self.local_sequence,
             'node_id': self.node_id,
             'node_time': self.node_time,
             'payloads': [
                 payload.to_dict()
                 for payload in self.payloads
             ],
+            'peer_sequence': self.peer_sequence,
         }
 
     def compute_checksum(self) -> str:
@@ -160,10 +164,12 @@ class SyncManifest:
 
     @classmethod
     def from_dict(
-        cls, data: dict[str, Any],
+        cls,
+        data: dict[str, Any],
     ) -> SyncManifest:
         node_id = data.get('node_id')
-        checkpoint = data.get('checkpoint')
+        peer_sequence = data.get('peer_sequence')
+        local_sequence = data.get('local_sequence')
 
         if node_id is None:
             message = "SyncManifest requires 'node_id'"
@@ -177,21 +183,40 @@ class SyncManifest:
             message = "'node_id' must be a non-empty string"
             raise ManifestFieldError(message)
 
-        if checkpoint is None:
-            message = "SyncManifest requires 'checkpoint'"
+        if peer_sequence is None:
+            message = "SyncManifest requires 'peer_sequence'"
             raise ManifestFieldError(message)
 
         if (
-            not isinstance(checkpoint, int)
-            or isinstance(checkpoint, bool)
+            not isinstance(peer_sequence, int)
+            or isinstance(peer_sequence, bool)
         ):
-            message = "'checkpoint' must be an integer"
+            message = "'peer_sequence' must be an integer"
             raise ManifestFieldError(message)
 
-        if checkpoint < 0:
+        if peer_sequence < 0:
             message = (
-                f"'checkpoint' must be non-negative, "
-                f"got {checkpoint}"
+                f"'peer_sequence' must be non-negative, "
+                f"got {peer_sequence}"
+            )
+
+            raise ManifestFieldError(message)
+
+        if local_sequence is None:
+            message = "SyncManifest requires 'local_sequence'"
+            raise ManifestFieldError(message)
+
+        if (
+            not isinstance(local_sequence, int)
+            or isinstance(local_sequence, bool)
+        ):
+            message = "'local_sequence' must be an integer"
+            raise ManifestFieldError(message)
+
+        if local_sequence < 0:
+            message = (
+                f"'local_sequence' must be non-negative, "
+                f"got {local_sequence}"
             )
 
             raise ManifestFieldError(message)
@@ -249,7 +274,8 @@ class SyncManifest:
 
         return cls(
             node_id=node_id,
-            checkpoint=checkpoint,
+            peer_sequence=peer_sequence,
+            local_sequence=local_sequence,
             after_keys=after_keys if isinstance(after_keys, dict) else {},
             checksum=data.get('checksum', ''),
             has_more=has_more,

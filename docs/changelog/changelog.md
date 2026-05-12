@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.0
+
+### Changes
+- Update the `sync` module to include more tracking mechanisms
+
 ## v0.31.10
 
 ### Fixes

@@ -34,14 +34,16 @@ def make_payload(
 
 def make_manifest(
     node_id: str = 'remote',
-    checkpoint: int = 0,
+    peer_sequence: int = 0,
+    local_sequence: int = 0,
     node_time: int = 0,
     payloads: list[ModelPayload] | None = None,
     sign: bool = True,
 ) -> SyncManifest:
     manifest = SyncManifest(
         node_id=node_id,
-        checkpoint=checkpoint,
+        peer_sequence=peer_sequence,
+        local_sequence=local_sequence,
         node_time=node_time,
         payloads=payloads or [],
     )

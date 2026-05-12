@@ -160,16 +160,6 @@ class TestManifestRoundTrip:
 
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_to_dict_from_dict_preserves_checkpoint(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
-        restored = SyncManifest.from_dict(manifest.to_dict())
-
-        assert restored.checkpoint == manifest.checkpoint
-
-    @given(manifest=sync_manifests())
-    @settings(max_examples=100)
     def test_to_dict_from_dict_preserves_payload_count(
         self,
         manifest: SyncManifest,
@@ -263,7 +253,8 @@ class TestManifestRoundTrip:
 
         modified = SyncManifest(
             node_id=manifest.node_id,
-            checkpoint=manifest.checkpoint,
+            peer_sequence=manifest.peer_sequence,
+            local_sequence=manifest.local_sequence,
             node_time=manifest.node_time,
             payloads=[
                 *manifest.payloads,

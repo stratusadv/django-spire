@@ -86,6 +86,7 @@ class TestMultiTabletConflicts:
 
         early = harness.ts()
         ts1 = harness.ts()
+        ts_active = harness.ts()
         ts2 = harness.ts()
 
         harness.tablet_save(
@@ -97,7 +98,7 @@ class TestMultiTabletConflicts:
         harness.tablet_save(
             'tablet_2', 'app.Record', 'r-1',
             {'id': 'r-1', 'name': 'tablet-2-name', 'value': 200, 'is_active': False},
-            {'name': early, 'value': ts2, 'is_active': early},
+            {'name': early, 'value': ts2, 'is_active': ts_active},
         )
 
         harness.sync_all_converge()

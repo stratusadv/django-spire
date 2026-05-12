@@ -12,6 +12,14 @@ from django.db import models
 _FIELD_SERIALIZERS: dict[type, tuple[Any, Any]] = {}
 
 
+_SYNC_FIELD_NAMES = frozenset({
+    'sync_field_last_modified',
+    'sync_field_origin_node',
+    'sync_field_sequence',
+    'sync_field_timestamps',
+})
+
+
 def _register(
     field_type: type,
     serialize: Any,
@@ -198,20 +206,23 @@ class SyncFieldSerializer:
         self._concrete: dict[str, tuple[str, Any, Any]] = {}
 
         for field in model._meta.concrete_fields:
-            attr_name = field.attname if field.is_relation else field.name
+            if field.name in _SYNC_FIELD_NAMES:
+                continue
+
+            attribute_name = field.attname if field.is_relation else field.name
             serialize, deserialize = _get_serializer(field)
-            self._concrete[attr_name] = (field.name, serialize, deserialize)
+            self._concrete[attribute_name] = (field.name, serialize, deserialize)
 
     def serialize(self, instance: Any) -> dict[str, Any]:
         data: dict[str, Any] = {}
 
-        for attr_name, (_name, serialize, _) in self._concrete.items():
-            value = getattr(instance, attr_name)
+        for attribute_name, (_name, serialize, _) in self._concrete.items():
+            value = getattr(instance, attribute_name)
 
             if value is not None:
                 value = serialize(value)
 
-            data[attr_name] = value
+            data[attribute_name] = value
 
         return data
 

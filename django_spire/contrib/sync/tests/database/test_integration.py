@@ -88,10 +88,10 @@ def test_server_delete_propagates_to_tablet(
 
     ts2 = harness.ts()
 
-    harness.server_storage._records[STAKE]['st-3'] = SyncRecord(
-        key='st-3',
-        data={'id': 'st-3', 'latitude': 49.0, 'is_deleted': True},
-        timestamps={'latitude': ts1, 'is_deleted': ts2},
+    harness.server_save(
+        STAKE, 'st-3',
+        {'id': 'st-3', 'latitude': 49.0, 'is_deleted': True},
+        {'latitude': ts1, 'is_deleted': ts2},
     )
 
     harness.sync()

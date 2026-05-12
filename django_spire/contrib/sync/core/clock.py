@@ -40,18 +40,18 @@ class HybridLogicalClock:
         for _ in range(_SPINS_MAX):
             with self._lock:
                 physical_time = self._physical()
-                wall_old = self._last >> _COUNTER_BITS
+                wall_time_old = self._last >> _COUNTER_BITS
                 counter_old = self._last & _COUNTER_MASK
 
-                if physical_time > wall_old:
-                    wall, counter = physical_time, 0
+                if physical_time > wall_time_old:
+                    wall_time, counter = physical_time, 0
                 else:
-                    wall, counter = wall_old, counter_old + 1
+                    wall_time, counter = wall_time_old, counter_old + 1
 
                 if counter <= _COUNTER_MASK:
                     previous = self._last
 
-                    self._last = (wall << _COUNTER_BITS) | counter
+                    self._last = (wall_time << _COUNTER_BITS) | counter
 
                     if self._last <= previous:
                         message = (
@@ -84,25 +84,25 @@ class HybridLogicalClock:
         for _ in range(_SPINS_MAX):
             with self._lock:
                 physical_time = self._physical()
-                wall_old = self._last >> _COUNTER_BITS
+                wall_time_old = self._last >> _COUNTER_BITS
                 counter_old = self._last & _COUNTER_MASK
-                wall_remote = remote >> _COUNTER_BITS
+                wall_time_remote = remote >> _COUNTER_BITS
                 counter_remote = remote & _COUNTER_MASK
 
-                wall = max(physical_time, wall_old, wall_remote)
+                wall_time = max(physical_time, wall_time_old, wall_time_remote)
 
-                if wall == wall_old == wall_remote:
+                if wall_time == wall_time_old == wall_time_remote:
                     counter = max(counter_old, counter_remote) + 1
-                elif wall == wall_old:
+                elif wall_time == wall_time_old:
                     counter = counter_old + 1
-                elif wall == wall_remote:
+                elif wall_time == wall_time_remote:
                     counter = counter_remote + 1
                 else:
                     counter = 0
 
                 if counter <= _COUNTER_MASK:
                     previous = self._last
-                    self._last = (wall << _COUNTER_BITS) | counter
+                    self._last = (wall_time << _COUNTER_BITS) | counter
 
                     if self._last <= previous:
                         message = (

@@ -36,7 +36,8 @@ def mock_engine() -> MagicMock:
 
     response = SyncManifest(
         node_id='server',
-        checkpoint=500,
+        peer_sequence=0,
+        local_sequence=500,
         node_time=500,
         payloads=[],
     )
@@ -76,7 +77,7 @@ def test_post_returns_json(
     factory: RequestFactory,
     mock_engine: MagicMock,
 ) -> None:
-    manifest = make_manifest(node_id='tablet', checkpoint=0, node_time=100)
+    manifest = make_manifest(node_id='tablet', node_time=100)
     request = _make_post(factory, manifest.to_dict())
 
     response = process_sync_request(request, mock_engine)
@@ -94,7 +95,7 @@ def test_post_passes_manifest_to_engine(
 ) -> None:
     manifest = make_manifest(
         node_id='tablet-5',
-        checkpoint=100,
+        local_sequence=100,
         node_time=101,
         payloads=[
             ModelPayload(
@@ -219,7 +220,7 @@ def test_gzip_body_decompressed(
     factory: RequestFactory,
     mock_engine: MagicMock,
 ) -> None:
-    manifest = make_manifest(node_id='tablet', checkpoint=0, node_time=100)
+    manifest = make_manifest(node_id='tablet', node_time=100)
     request = _make_post(
         factory, manifest.to_dict(), content_encoding='gzip',
     )

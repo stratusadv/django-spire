@@ -93,7 +93,8 @@ def test_model_payload_rejects_non_int_tombstone() -> None:
 def test_sync_manifest_to_dict() -> None:
     manifest = SyncManifest(
         node_id='tablet-1',
-        checkpoint=1000,
+        peer_sequence=0,
+        local_sequence=1000,
         node_time=1001,
         payloads=[
             ModelPayload(
@@ -108,7 +109,8 @@ def test_sync_manifest_to_dict() -> None:
     data = manifest.to_dict()
 
     assert data['node_id'] == 'tablet-1'
-    assert data['checkpoint'] == 1000
+    assert data['peer_sequence'] == 0
+    assert data['local_sequence'] == 1000
     assert data['node_time'] == 1001
     assert len(data['payloads']) == 1
     assert data['payloads'][0]['model_label'] == 'app.Model'
@@ -117,7 +119,8 @@ def test_sync_manifest_to_dict() -> None:
 def test_sync_manifest_from_dict() -> None:
     data = {
         'node_id': 'server',
-        'checkpoint': 500,
+        'peer_sequence': 0,
+        'local_sequence': 500,
         'node_time': 501,
         'payloads': [
             {
@@ -132,7 +135,7 @@ def test_sync_manifest_from_dict() -> None:
     manifest = SyncManifest.from_dict(data)
 
     assert manifest.node_id == 'server'
-    assert manifest.checkpoint == 500
+    assert manifest.local_sequence == 500
     assert manifest.node_time == 501
     assert len(manifest.payloads) == 1
 
@@ -140,7 +143,8 @@ def test_sync_manifest_from_dict() -> None:
 def test_sync_manifest_round_trip() -> None:
     original = SyncManifest(
         node_id='tablet-1',
-        checkpoint=1000,
+        peer_sequence=50,
+        local_sequence=1000,
         node_time=1001,
         payloads=[
             ModelPayload(
@@ -161,7 +165,7 @@ def test_sync_manifest_round_trip() -> None:
     restored = SyncManifest.from_dict(original.to_dict())
 
     assert restored.node_id == original.node_id
-    assert restored.checkpoint == original.checkpoint
+    assert restored.local_sequence == original.local_sequence
     assert restored.node_time == original.node_time
     assert len(restored.payloads) == 2
     assert set(restored.payloads[0].records.keys()) == set(original.payloads[0].records.keys())
@@ -171,7 +175,8 @@ def test_sync_manifest_round_trip() -> None:
 def test_sync_manifest_from_dict_defaults() -> None:
     data = {
         'node_id': 'server',
-        'checkpoint': 0,
+        'peer_sequence': 0,
+        'local_sequence': 0,
     }
 
     manifest = SyncManifest.from_dict(data)
@@ -183,17 +188,19 @@ def test_sync_manifest_from_dict_defaults() -> None:
 def test_sync_manifest_rejects_empty_node_id() -> None:
     data = {
         'node_id': '',
-        'checkpoint': 0,
+        'peer_sequence': 0,
+        'local_sequence': 0,
     }
 
     with pytest.raises(ManifestFieldError, match='non-empty'):
         SyncManifest.from_dict(data)
 
 
-def test_sync_manifest_rejects_negative_checkpoint() -> None:
+def test_sync_manifest_rejects_negative_peer_sequence() -> None:
     data = {
         'node_id': 'tablet',
-        'checkpoint': -1,
+        'peer_sequence': -1,
+        'local_sequence': 0,
     }
 
     with pytest.raises(ManifestFieldError, match='non-negative'):
@@ -203,7 +210,8 @@ def test_sync_manifest_rejects_negative_checkpoint() -> None:
 def test_sync_manifest_rejects_duplicate_model_label() -> None:
     data = {
         'node_id': 'tablet',
-        'checkpoint': 0,
+        'peer_sequence': 0,
+        'local_sequence': 0,
         'payloads': [
             {'model_label': 'app.Model'},
             {'model_label': 'app.Model'},
@@ -217,7 +225,8 @@ def test_sync_manifest_rejects_duplicate_model_label() -> None:
 def test_sync_manifest_verify_rejects_empty_checksum() -> None:
     manifest = SyncManifest(
         node_id='tablet',
-        checkpoint=0,
+        peer_sequence=0,
+        local_sequence=0,
         node_time=0,
         payloads=[],
     )
@@ -228,7 +237,8 @@ def test_sync_manifest_verify_rejects_empty_checksum() -> None:
 def test_sync_manifest_verify_valid_checksum() -> None:
     manifest = SyncManifest(
         node_id='tablet',
-        checkpoint=0,
+        peer_sequence=0,
+        local_sequence=0,
         node_time=0,
         payloads=[],
     )
@@ -240,7 +250,8 @@ def test_sync_manifest_verify_valid_checksum() -> None:
 def test_sync_manifest_verify_tampered_checksum() -> None:
     manifest = SyncManifest(
         node_id='tablet',
-        checkpoint=0,
+        peer_sequence=0,
+        local_sequence=0,
         node_time=0,
         payloads=[],
     )
@@ -252,7 +263,8 @@ def test_sync_manifest_verify_tampered_checksum() -> None:
 def test_sync_manifest_to_dict_includes_checksum() -> None:
     manifest = SyncManifest(
         node_id='tablet',
-        checkpoint=100,
+        peer_sequence=0,
+        local_sequence=100,
         node_time=101,
         payloads=[],
     )

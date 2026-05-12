@@ -17,7 +17,7 @@ class SyncDemoConfig(AppConfig):
 
         from django_spire.contrib.sync.core.clock import HybridLogicalClock  # noqa: PLC0415
         from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
-        from django_spire.contrib.sync.django.signals import register_m2m_signals  # noqa: PLC0415
+        from django_spire.contrib.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
 
         from test_project.apps.sync.models import Client  # noqa: PLC0415
         from test_project.apps.sync.services.service import SyncService  # noqa: PLC0415
@@ -33,7 +33,7 @@ class SyncDemoConfig(AppConfig):
             if issubclass(model, SyncableMixin) and not model._meta.proxy
         ]
 
-        register_m2m_signals(syncable_models)
+        register_many_to_many_signals(syncable_models)
 
         self._migrate_sync_databases()
 

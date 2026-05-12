@@ -26,8 +26,8 @@ def test_get_syncable_field_names() -> None:
 
 
 @pytest.mark.django_db
-def test_get_syncable_m2m_names() -> None:
-    names = SyncTestModel.get_syncable_m2m_names()
+def test_get_syncable_many_to_many_names() -> None:
+    names = SyncTestModel.get_syncable_many_to_many_names()
 
     assert 'tags' in names
 

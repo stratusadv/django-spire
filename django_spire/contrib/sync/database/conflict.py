@@ -12,8 +12,10 @@ from django_spire.contrib.sync.database.record import SyncRecord
 
 
 META_FIELDS = frozenset({
-    'sync_field_timestamps',
     'sync_field_last_modified',
+    'sync_field_origin_node',
+    'sync_field_sequence',
+    'sync_field_timestamps',
 })
 
 
@@ -63,7 +65,8 @@ class RecordResolution:
 
 class ConflictResolver(Protocol):
     def resolve(
-        self, conflict: RecordConflict,
+        self,
+        conflict: RecordConflict,
     ) -> RecordResolution: ...
 
 
@@ -124,18 +127,27 @@ def _merge_fields(
         local_timestamp = local_timestamps.get(field_name, 0)
         remote_timestamp = remote_timestamps.get(field_name, 0)
 
+        has_any_timestamp = (
+            field_name in local_timestamps
+            or field_name in remote_timestamps
+        )
+
         if (
             local_fields is not None
             and field_name in local_fields
         ):
             data[field_name] = local_data.get(field_name)
-            timestamps[field_name] = local_timestamp
+
+            if has_any_timestamp:
+                timestamps[field_name] = local_timestamp
         elif (
             remote_fields is not None
             and field_name in remote_fields
         ):
             data[field_name] = remote_data.get(field_name)
-            timestamps[field_name] = remote_timestamp
+
+            if has_any_timestamp:
+                timestamps[field_name] = remote_timestamp
         elif (
             remote_timestamp > local_timestamp
             or (
@@ -144,10 +156,14 @@ def _merge_fields(
             )
         ):
             data[field_name] = remote_data.get(field_name)
-            timestamps[field_name] = remote_timestamp
+
+            if has_any_timestamp:
+                timestamps[field_name] = remote_timestamp
         else:
             data[field_name] = local_data.get(field_name)
-            timestamps[field_name] = local_timestamp
+
+            if has_any_timestamp:
+                timestamps[field_name] = local_timestamp
 
     if len(data) != len(all_fields):
         message = (

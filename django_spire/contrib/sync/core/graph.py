@@ -10,7 +10,11 @@ from django_spire.contrib.sync.core.exceptions import (
 
 
 class DependencyGraph:
-    def __init__(self, edges: dict[str, set[str]]) -> None:
+    def __init__(
+        self,
+        edges: dict[str, set[str]],
+        deferred_edges: dict[str, set[str]] | None = None,
+    ) -> None:
         for label in edges:
             if not label:
                 message = 'edges must not contain empty labels'
@@ -34,13 +38,40 @@ class DependencyGraph:
 
                 raise UnknownDependencyError(message)
 
+        self._deferred_edges: dict[str, set[str]] = {}
+
+        if deferred_edges:
+            for label, targets in deferred_edges.items():
+                if not targets:
+                    continue
+
+                if label not in all_labels:
+                    message = (
+                        f'Deferred edge source {label!r} '
+                        f'is not a known model'
+                    )
+
+                    raise InvalidParameterError(message)
+
+                unknown = targets - all_labels
+
+                if unknown:
+                    message = (
+                        f'Deferred edges from {label!r} reference '
+                        f'unknown models: {unknown}'
+                    )
+
+                    raise UnknownDependencyError(message)
+
+                self._deferred_edges[label] = set(targets)
+
         self._dependents: dict[str, set[str]] = {
             label: set() for label in self._edges
         }
 
         for label, dependencies in self._edges.items():
-            for dep in dependencies:
-                self._dependents[dep].add(label)
+            for dependency in dependencies:
+                self._dependents[dependency].add(label)
 
         self._order = self._compute_order()
 
@@ -91,8 +122,18 @@ class DependencyGraph:
 
         return order
 
+    @property
+    def deferred_edges(self) -> dict[str, frozenset[str]]:
+        return {
+            label: frozenset(targets)
+            for label, targets in self._deferred_edges.items()
+        }
+
     def dependencies(self, label: str) -> set[str]:
         return set(self._edges.get(label, set()))
+
+    def has_deferred_edges(self) -> bool:
+        return bool(self._deferred_edges)
 
     def known_models(self) -> frozenset[str]:
         return frozenset(self._edges)

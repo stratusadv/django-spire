@@ -14,26 +14,27 @@ from django_spire.contrib.sync.django.models.session import SyncSession
 
 
 @pytest.mark.django_db
-def test_sync_checkpoint_node_id_is_unique() -> None:
-    SyncCheckpoint.objects.create(node_id='node-1', timestamp=100)
+def test_sync_checkpoint_peer_node_id_is_unique() -> None:
+    SyncCheckpoint.objects.create(peer_node_id='node-1', peer_sequence=100)
 
     with pytest.raises(IntegrityError):
-        SyncCheckpoint.objects.create(node_id='node-1', timestamp=200)
+        SyncCheckpoint.objects.create(peer_node_id='node-1', peer_sequence=200)
 
 
 @pytest.mark.django_db
-def test_sync_checkpoint_default_timestamp_is_zero() -> None:
-    cp = SyncCheckpoint.objects.create(node_id='node-1')
+def test_sync_checkpoint_default_sequences_are_zero() -> None:
+    cp = SyncCheckpoint.objects.create(peer_node_id='node-1')
 
-    assert cp.timestamp == 0
+    assert cp.peer_sequence == 0
+    assert cp.local_sequence_pushed == 0
 
 
 @pytest.mark.django_db
-def test_sync_node_lock_node_id_is_unique() -> None:
-    SyncNodeLock.objects.create(node_id='node-1')
+def test_sync_node_lock_unique_together() -> None:
+    SyncNodeLock.objects.create(node_id='node-1', peer_node_id='peer-1')
 
     with pytest.raises(IntegrityError):
-        SyncNodeLock.objects.create(node_id='node-1')
+        SyncNodeLock.objects.create(node_id='node-1', peer_node_id='peer-1')
 
 
 @pytest.mark.django_db

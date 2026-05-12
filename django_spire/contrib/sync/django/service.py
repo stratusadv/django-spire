@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class SyncableModelService:
     @staticmethod
-    def set_m2m(
+    def set_many_to_many(
         instance: SyncableMixin,
         field_name: str,
         values: list[Any],

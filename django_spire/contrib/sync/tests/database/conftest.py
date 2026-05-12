@@ -26,4 +26,4 @@ def storage() -> InMemoryDatabaseStorage:
 
 @pytest.fixture
 def empty_response() -> SyncManifest:
-    return make_manifest(node_id='server', checkpoint=500, node_time=500)
+    return make_manifest(node_id='server', local_sequence=500, node_time=500)

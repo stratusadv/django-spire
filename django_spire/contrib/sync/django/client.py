@@ -10,7 +10,11 @@ from django_spire.contrib.sync.database.engine import (
     DatabaseEngine,
 )
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
-from django_spire.contrib.sync.django.graph import build_graph
+from django_spire.contrib.sync.django.graph import (
+    build_graph,
+    get_deferred_foreign_key_columns,
+    get_foreign_key_columns_for_cascade,
+)
 from django_spire.contrib.sync.django.mixin import SyncableMixin
 from django_spire.contrib.sync.django.storage import DjangoSyncStorage
 
@@ -35,6 +39,7 @@ class SyncClient:
         node_id: str,
         transport: Transport,
         *,
+        peer_node_id: str,
         batch_bytes: int | None = BATCH_BYTES_DEFAULT,
         batch_size: int | None = None,
         clock: HybridLogicalClock | None = None,
@@ -50,23 +55,38 @@ class SyncClient:
         storage: DatabaseSyncStorage | None = None,
         transaction_fn: Callable[[], AbstractContextManager[Any]] = transaction.atomic,
     ) -> None:
+        resolved_graph = graph or build_graph(models)
+
+        deferred_foreign_keys = get_deferred_foreign_key_columns(
+            models,
+            resolved_graph,
+        )
+
+        foreign_key_columns = get_foreign_key_columns_for_cascade(models)
+
         self._engine = DatabaseEngine(
             batch_bytes=batch_bytes,
             batch_size=batch_size,
             clock=clock or SyncableMixin.get_clock(),
             clock_drift_max=clock_drift_max,
-            graph=graph or build_graph(models),
+            foreign_key_columns=foreign_key_columns,
+            graph=resolved_graph,
+            lock=lock,
             node_id=node_id,
             on_complete=on_complete,
             on_phase=on_phase,
             payload_bytes_max=payload_bytes_max,
             payload_records_max=payload_records_max,
+            peer_node_id=peer_node_id,
             progress=progress,
             reconciler=PayloadReconciler(
                 resolver=resolver or
                 FieldTimestampWins(),
             ),
-            storage=storage or DjangoSyncStorage(models=models),
+            storage=storage or DjangoSyncStorage(
+                models=models,
+                deferred_foreign_keys=deferred_foreign_keys,
+            ),
             transaction=transaction_fn,
             transport=transport,
         )

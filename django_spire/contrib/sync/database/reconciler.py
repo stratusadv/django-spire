@@ -5,7 +5,6 @@ import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.sync.core.exceptions import InvalidParameterError
 from django_spire.contrib.sync.core.model import Error
 from django_spire.contrib.sync.database.conflict import (
     ConflictResolver,
@@ -27,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ReconciliationResult:
-    applied_keys: set[str] = field(default_factory=set)
     compatible_keys: list[str] = field(default_factory=list)
     conflict_keys: list[str] = field(default_factory=list)
     conflict_log: list[ConflictEntry] = field(
@@ -38,6 +36,7 @@ class ReconciliationResult:
     response_records: dict[str, SyncRecord] = field(
         default_factory=dict,
     )
+    to_clear_tombstones: set[str] = field(default_factory=set)
     to_delete: dict[str, int] = field(default_factory=dict)
     to_upsert: dict[str, SyncRecord] = field(
         default_factory=dict,
@@ -57,14 +56,14 @@ class PayloadReconciler:
         local_records: dict[str, SyncRecord],
         result: ReconciliationResult,
     ) -> None:
-        for key, tombstone_ts in payload.deletes.items():
+        for key, tombstone_timestamp in payload.deletes.items():
             if key not in local_records:
                 continue
 
             local = local_records[key]
 
-            if local.sync_field_last_modified <= tombstone_ts:
-                result.to_delete[key] = tombstone_ts
+            if local.sync_field_last_modified <= tombstone_timestamp:
+                result.to_delete[key] = tombstone_timestamp
                 continue
 
             conflict = RecordConflict(
@@ -89,7 +88,7 @@ class PayloadReconciler:
                 continue
 
             if resolution.delete:
-                result.to_delete[key] = tombstone_ts
+                result.to_delete[key] = tombstone_timestamp
             elif resolution.record is not None:
                 result.response_records[key] = resolution.record
                 result.conflict_keys.append(key)
@@ -107,37 +106,37 @@ class PayloadReconciler:
         remote: SyncRecord,
         model_label: str,
         local_records: dict[str, SyncRecord],
-        checkpoint: int,
+        local_tombstones: dict[str, int],
         result: ReconciliationResult,
     ) -> None:
-        if key not in local_records:
-            result.to_upsert[key] = remote
-            result.created_keys.add(key)
+        if key in local_records:
+            local = local_records[key]
+
+            self._resolve_conflict(
+                key,
+                model_label,
+                local,
+                remote,
+                result,
+            )
 
             return
 
-        local = local_records[key]
+        tombstone_timestamp = local_tombstones.get(key)
 
-        if local.sync_field_last_modified <= checkpoint:
-            result.to_upsert[key] = remote
-            result.applied_keys.add(key)
+        if tombstone_timestamp is not None:
+            if remote.sync_field_last_modified <= tombstone_timestamp:
+                return
 
-            return
+            result.to_clear_tombstones.add(key)
 
-        self._resolve_conflict(
-            key,
-            model_label,
-            local,
-            remote,
-            checkpoint,
-            result,
-        )
+        result.to_upsert[key] = remote
+        result.created_keys.add(key)
 
     def _detect_field_conflicts(
         self,
         local: SyncRecord,
         remote: SyncRecord,
-        checkpoint: int,
     ) -> list[FieldConflict]:
         conflicts: list[FieldConflict] = []
 
@@ -146,6 +145,12 @@ class PayloadReconciler:
         )
 
         for field_name in sorted(all_fields):
+            local_value = local.data.get(field_name)
+            remote_value = remote.data.get(field_name)
+
+            if local_value == remote_value:
+                continue
+
             local_timestamp = local.timestamps.get(
                 field_name,
                 0,
@@ -156,23 +161,13 @@ class PayloadReconciler:
                 0,
             )
 
-            if local_timestamp <= checkpoint:
-                continue
-
-            if remote_timestamp <= checkpoint:
-                continue
-
-            local_value = local.data.get(field_name)
-            remote_value = remote.data.get(field_name)
-
-            if local_value != remote_value:
-                conflicts.append(FieldConflict(
-                    field_name=field_name,
-                    local_value=local_value,
-                    remote_value=remote_value,
-                    local_timestamp=local_timestamp,
-                    remote_timestamp=remote_timestamp,
-                ))
+            conflicts.append(FieldConflict(
+                field_name=field_name,
+                local_value=local_value,
+                remote_value=remote_value,
+                local_timestamp=local_timestamp,
+                remote_timestamp=remote_timestamp,
+            ))
 
         return conflicts
 
@@ -182,14 +177,9 @@ class PayloadReconciler:
         model_label: str,
         local: SyncRecord,
         remote: SyncRecord,
-        checkpoint: int,
         result: ReconciliationResult,
     ) -> None:
-        field_conflicts = self._detect_field_conflicts(
-            local,
-            remote,
-            checkpoint,
-        )
+        field_conflicts = self._detect_field_conflicts(local, remote)
 
         conflict_type = (
             ConflictType.BOTH_MODIFIED
@@ -236,16 +226,8 @@ class PayloadReconciler:
         self,
         payload: ModelPayload,
         local_records: dict[str, SyncRecord],
-        checkpoint: int,
+        local_tombstones: dict[str, int],
     ) -> ReconciliationResult:
-        if checkpoint < 0:
-            message = (
-                f'checkpoint must be non-negative, '
-                f'got {checkpoint}'
-            )
-
-            raise InvalidParameterError(message)
-
         result = ReconciliationResult()
 
         for key, remote in payload.records.items():
@@ -254,7 +236,7 @@ class PayloadReconciler:
                 remote,
                 payload.model_label,
                 local_records,
-                checkpoint,
+                local_tombstones,
                 result,
             )
 
