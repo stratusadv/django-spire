@@ -18,14 +18,14 @@ def seed_clock(
     clock: HybridLogicalClock,
     models: list[type[SyncableMixin]],
 ) -> None:
-    high_water = 0
+    water_high = 0
 
     for model in models:
         result = model.objects.aggregate(maximum_timestamp=Max('sync_field_last_modified'))
         timestamp = result['maximum_timestamp'] or 0
 
-        high_water = max(high_water, timestamp)
+        water_high = max(water_high, timestamp)
 
-    if high_water:
-        clock.receive(high_water)
-        logger.info('Seeded HLC from database: %d', high_water)
+    if water_high:
+        clock.receive(water_high)
+        logger.info('Seeded HLC from database: %d', water_high)

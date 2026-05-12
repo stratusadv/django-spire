@@ -17,8 +17,8 @@ class UpsertResult:
 
 @dataclass(frozen=True)
 class SequenceRange:
-    first: int
-    last: int
+    value_first: int
+    value_last: int
 
 
 @dataclass(frozen=True)

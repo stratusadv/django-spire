@@ -12,6 +12,14 @@ from django.db import models
 _FIELD_SERIALIZERS: dict[type, tuple[Any, Any]] = {}
 
 
+_SYNC_FIELD_NAMES = frozenset({
+    'sync_field_last_modified',
+    'sync_field_origin_node',
+    'sync_field_sequence',
+    'sync_field_timestamps',
+})
+
+
 def _register(
     field_type: type,
     serialize: Any,
@@ -198,6 +206,9 @@ class SyncFieldSerializer:
         self._concrete: dict[str, tuple[str, Any, Any]] = {}
 
         for field in model._meta.concrete_fields:
+            if field.name in _SYNC_FIELD_NAMES:
+                continue
+
             attribute_name = field.attname if field.is_relation else field.name
             serialize, deserialize = _get_serializer(field)
             self._concrete[attribute_name] = (field.name, serialize, deserialize)

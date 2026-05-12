@@ -184,12 +184,12 @@ class DjangoRecordReader:
         if not isinstance(origin, str):
             origin = ''
 
-        last_modified = instance.sync_field_last_modified
+        modified_last = instance.sync_field_last_modified
 
-        if isinstance(last_modified, float):
-            last_modified = int(last_modified)
-        elif not isinstance(last_modified, int):
-            last_modified = 0
+        if isinstance(modified_last, float):
+            modified_last = int(modified_last)
+        elif not isinstance(modified_last, int):
+            modified_last = 0
 
         sequence = instance.sync_field_sequence
 
@@ -198,7 +198,7 @@ class DjangoRecordReader:
         elif not isinstance(sequence, int):
             sequence = 0
 
-        if not timestamps and last_modified == 0:
+        if not timestamps and modified_last == 0:
             logger.error(
                 'Reading ghost record from database: %s key=%s '
                 '(sync_field_last_modified=0, sync_field_timestamps=empty). '
@@ -215,7 +215,7 @@ class DjangoRecordReader:
             timestamps=timestamps,
             sequence=sequence,
             origin_node=origin,
-            received_at=last_modified,
+            received_at=modified_last,
         )
 
     def get_changed_since(

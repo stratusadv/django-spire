@@ -214,7 +214,7 @@ class DjangoRecordWriter:
             ),
         ]
 
-    def _build_fk_backfill_sql(
+    def _build_foreign_key_backfill_sql(
         self,
         table: str,
         foreign_key_column: str,
@@ -441,7 +441,7 @@ class DjangoRecordWriter:
             SyncSequenceAllocator,
         )
 
-        max_sequence = 0
+        sequence_max = 0
 
         for model_label in labels:
             if model_label not in self._models:
@@ -450,16 +450,16 @@ class DjangoRecordWriter:
             model = self._models[model_label]
 
             result = model.objects.aggregate(
-                max_sequence=Max('sync_field_sequence'),
+                sequence_max=Max('sync_field_sequence'),
             )
 
-            candidate = result['max_sequence'] or 0
+            candidate = result['sequence_max'] or 0
 
-            if candidate > max_sequence:
-                max_sequence = candidate
+            if candidate > sequence_max:
+                sequence_max = candidate
 
-        if max_sequence > 0:
-            SyncSequenceAllocator().reconcile_to(max_sequence)
+        if sequence_max > 0:
+            SyncSequenceAllocator().reconcile_to(sequence_max)
 
     def _run_backfill(
         self,
@@ -473,8 +473,8 @@ class DjangoRecordWriter:
         )
 
         for key, columns in key_columns.items():
-            for attname, value in columns.items():
-                by_attribute_name[attname].append((key, value))
+            for attribute_name, value in columns.items():
+                by_attribute_name[attribute_name].append((key, value))
 
         still_pending: dict[str, dict[str, Any]] = {}
 
@@ -488,19 +488,20 @@ class DjangoRecordWriter:
             target_model = foreign_key_field.related_model
 
             target_values = {
-                str(value) for _, value in pairs
+                str(value)
+                for _, value in pairs
             }
 
             existing_targets = set(
-                str(pk) for pk in
+                str(primary_key) for primary_key in
                 target_model.objects.filter(
                     pk__in=target_values,
                 ).values_list('pk', flat=True)
             )
 
             can_backfill = [
-                (k, v) for k, v in pairs
-                if str(v) in existing_targets
+                (key, value) for key, value in pairs
+                if str(value) in existing_targets
             ]
 
             for key, value in pairs:
@@ -548,7 +549,7 @@ class DjangoRecordWriter:
                             ),
                         )
 
-                    sql = self._build_fk_backfill_sql(
+                    sql = self._build_foreign_key_backfill_sql(
                         table,
                         foreign_key_column,
                         foreign_key_type,
@@ -791,20 +792,22 @@ class DjangoRecordWriter:
                 stamp_timestamp = clock.now()
 
                 stamp_field_names = (
-                    list(model.get_syncable_field_names())
-                    + list(model.get_syncable_many_to_many_names())
+                    list(model.get_syncable_field_names()) +
+                    list(model.get_syncable_many_to_many_names())
                 )
 
-                stamp_timestamps_json = json.dumps({
-                    name: stamp_timestamp
-                    for name in stamp_field_names
-                })
+                stamp_timestamps_json = json.dumps(
+                    dict.fromkeys(
+                        stamp_field_names,
+                        stamp_timestamp
+                    )
+                )
 
-                first_sequence = 0
+                sequence_first = 0
 
                 with transaction.atomic():
                     if sequence_count > 0:
-                        first_sequence = SyncSequenceAllocator().allocate(sequence_count).first
+                        sequence_first = SyncSequenceAllocator().allocate(sequence_count).value_first
 
                         with connection.cursor() as cursor:
                             cursor.execute(
@@ -812,7 +815,7 @@ class DjangoRecordWriter:
                                     table,
                                     id_column,
                                 ),
-                                [first_sequence],
+                                [sequence_first],
                             )
 
                     if timestamp_count > 0:
@@ -830,7 +833,7 @@ class DjangoRecordWriter:
                     stamped,
                     model_label,
                     sequence_count,
-                    first_sequence,
+                    sequence_first,
                     timestamp_count,
                     stamp_timestamp,
                 )

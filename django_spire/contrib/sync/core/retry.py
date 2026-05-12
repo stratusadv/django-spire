@@ -43,13 +43,13 @@ def retry(
         message = 'The exception(s) tuple must not be empty'
         raise InvalidParameterError(message)
 
-    last_exception: Exception | None = None
+    exception_last: Exception | None = None
 
     for attempt in range(1, attempts + 1):
         try:
             return function()
         except exceptions as exception:
-            last_exception = exception
+            exception_last = exception
 
             if attempt == attempts:
                 break
@@ -71,7 +71,7 @@ def retry(
 
     message = (
         f'retry exhausted {attempts} attempt(s): '
-        f'{last_exception}'
+        f'{exception_last}'
     )
 
-    raise RetryExhaustedError(message) from last_exception
+    raise RetryExhaustedError(message) from exception_last

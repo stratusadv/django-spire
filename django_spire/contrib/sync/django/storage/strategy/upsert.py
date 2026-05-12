@@ -85,7 +85,7 @@ class BulkUpsertStrategy:
             model._meta.get_field(self._identity_field).column,
         )
 
-        last_modified_column = quote(
+        column_last_modified = quote(
             model._meta.get_field('sync_field_last_modified').column,
         )
 
@@ -100,9 +100,9 @@ class BulkUpsertStrategy:
         )
 
         set_clause = ', '.join(
-            f'{col} = EXCLUDED.{col}'
-            for col in columns
-            if col != identity_column
+            f'{column} = EXCLUDED.{column}'
+            for column in columns
+            if column != identity_column
         )
 
         return (
@@ -110,8 +110,8 @@ class BulkUpsertStrategy:
             f'VALUES {values_clause} '
             f'ON CONFLICT ({identity_column}) '
             f'DO UPDATE SET {set_clause} '
-            f'WHERE {table}.{last_modified_column} '
-            f'<= EXCLUDED.{last_modified_column} '
+            f'WHERE {table}.{column_last_modified} '
+            f'<= EXCLUDED.{column_last_modified} '
             f'RETURNING {identity_column}'
         )
 
@@ -195,7 +195,7 @@ class BulkUpsertStrategy:
         fields = self._writable_fields(model)
         sorted_keys = sorted(writable.keys())
 
-        first_sequence = SyncSequenceAllocator().allocate(len(sorted_keys)).first
+        sequence_first = SyncSequenceAllocator().allocate(len(sorted_keys)).value_first
 
         instances = [
             self._build_instance(RecordContext(
@@ -203,7 +203,7 @@ class BulkUpsertStrategy:
                 key=key,
                 sync_record=writable[key],
                 field_data=deserialized[key],
-                sequence=first_sequence + index,
+                sequence=sequence_first + index,
                 origin_node=origin_node,
             ))
             for index, key in enumerate(sorted_keys)
@@ -265,9 +265,11 @@ class StalenessGuardedUpsertStrategy:
         values['sync_field_timestamps'] = dict(
             ctx.sync_record.timestamps,
         )
+
         values['sync_field_last_modified'] = (
             ctx.sync_record.sync_field_last_modified
         )
+
         values['sync_field_sequence'] = ctx.sequence
         values['sync_field_origin_node'] = ctx.origin_node
 
@@ -377,7 +379,7 @@ class StalenessGuardedUpsertStrategy:
         if not sorted_keys:
             return UpsertResult()
 
-        first_sequence = SyncSequenceAllocator().allocate(len(sorted_keys)).first
+        sequence_first = SyncSequenceAllocator().allocate(len(sorted_keys)).value_first
 
         for index, key in enumerate(sorted_keys):
             sync_record = records[key]
@@ -403,7 +405,7 @@ class StalenessGuardedUpsertStrategy:
                 key=key,
                 sync_record=sync_record,
                 field_data=field_data,
-                sequence=first_sequence + index,
+                sequence=sequence_first + index,
                 origin_node=origin_node,
             )
 

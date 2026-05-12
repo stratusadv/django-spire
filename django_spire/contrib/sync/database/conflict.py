@@ -12,8 +12,10 @@ from django_spire.contrib.sync.database.record import SyncRecord
 
 
 META_FIELDS = frozenset({
-    'sync_field_timestamps',
     'sync_field_last_modified',
+    'sync_field_origin_node',
+    'sync_field_sequence',
+    'sync_field_timestamps',
 })
 
 

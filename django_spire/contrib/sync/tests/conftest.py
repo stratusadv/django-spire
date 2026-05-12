@@ -52,4 +52,4 @@ def _create_test_tables(django_db_setup: None, django_db_blocker: object) -> Non
 
     from django_spire.contrib.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
 
-    register_many_to_many_signals([SyncTestModel.tags.through])
+    register_many_to_many_signals([SyncTestModel])

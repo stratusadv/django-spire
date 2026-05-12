@@ -35,12 +35,12 @@ class SyncSequenceAllocator:
 
         counter = self._get_or_create_locked()
 
-        first_value = counter.value + 1
-        last_value = counter.value + count
-        counter.value = last_value
+        value_first = counter.value + 1
+        value_last = counter.value + count
+        counter.value = value_last
         counter.save(update_fields=['value', 'updated_at'])
 
-        return SequenceRange(first=first_value, last=last_value)
+        return SequenceRange(value_first=value_first, value_last=value_last)
 
     def current(self) -> int:
         counter = (

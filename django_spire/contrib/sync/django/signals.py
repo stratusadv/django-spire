@@ -53,7 +53,7 @@ def _stamp_forward(
         if row is None:
             return
 
-        last_sequence = SyncSequenceAllocator().allocate(1).last
+        sequence_last = SyncSequenceAllocator().allocate(1).value_last
 
         timestamps = dict(row['sync_field_timestamps'])
         timestamps[field_name] = now
@@ -65,14 +65,14 @@ def _stamp_forward(
                 .update(
                     sync_field_timestamps=timestamps,
                     sync_field_last_modified=now,
-                    sync_field_sequence=last_sequence,
+                    sync_field_sequence=sequence_last,
                     sync_field_origin_node='',
                 )
             )
 
     instance.sync_field_timestamps = timestamps
     instance.sync_field_last_modified = now
-    instance.sync_field_sequence = last_sequence
+    instance.sync_field_sequence = sequence_last
     instance.sync_field_origin_node = ''
 
 
@@ -100,8 +100,8 @@ def _stamp_reverse(
         if not instances:
             return
 
-        first_sequence = SyncSequenceAllocator().allocate(len(instances)).first
-        next_sequence = first_sequence
+        sequence_first = SyncSequenceAllocator().allocate(len(instances)).value_first
+        sequence_next = sequence_first
 
         for instance in instances:
             timestamps = dict(instance.sync_field_timestamps)
@@ -109,9 +109,9 @@ def _stamp_reverse(
 
             instance.sync_field_timestamps = timestamps
             instance.sync_field_last_modified = now
-            instance.sync_field_sequence = next_sequence
+            instance.sync_field_sequence = sequence_next
             instance.sync_field_origin_node = ''
-            next_sequence += 1
+            sequence_next += 1
 
         model.objects.bulk_update(
             instances,
@@ -207,14 +207,14 @@ def _on_syncable_delete(
     timestamp = clock.now()
 
     with transaction.atomic():
-        last_sequence = SyncSequenceAllocator().allocate(1).last
+        sequence_last = SyncSequenceAllocator().allocate(1).value_last
 
         SyncTombstone.objects.update_or_create(
             model_label=model_label,
             record_key=key,
             defaults={
                 'origin_node': '',
-                'sequence': last_sequence,
+                'sequence': sequence_last,
                 'timestamp': timestamp,
             },
         )

@@ -90,11 +90,11 @@ class SyncableFieldsMixin(models.Model):
             for field_name in dirty:
                 timestamps[field_name] = now
 
-            last_seq = SyncSequenceAllocator().allocate(1).last
+            sequence_last = SyncSequenceAllocator().allocate(1).value_last
 
             self.sync_field_timestamps = timestamps
             self.sync_field_last_modified = now
-            self.sync_field_sequence = last_seq
+            self.sync_field_sequence = sequence_last
             self.sync_field_origin_node = ''
 
             super().save(*args, **kwargs)

@@ -55,7 +55,7 @@ class HardDeleteStrategy:
         )
 
         keys = sorted(deletes.keys())
-        first_sequence = SyncSequenceAllocator().allocate(len(keys)).first
+        sequence_first = SyncSequenceAllocator().allocate(len(keys)).value_first
         model_label = model._meta.label
 
         with sync_bypass():
@@ -73,7 +73,7 @@ class HardDeleteStrategy:
                     model_label,
                     key,
                     tombstone_timestamp,
-                    first_sequence + index,
+                    sequence_first + index,
                     origin_node,
                 )
 
@@ -132,14 +132,14 @@ class SoftDeleteStrategy:
         if not pending:
             return
 
-        first_sequence = SyncSequenceAllocator().allocate(len(pending)).first
+        sequence_first = SyncSequenceAllocator().allocate(len(pending)).value_first
         model_label = model._meta.label
 
         with sync_bypass():
             for index, instance in enumerate(pending):
                 key = str(getattr(instance, self._identity_field))
                 tombstone_timestamp = deletes[key]
-                local_sequence = first_sequence + index
+                local_sequence = sequence_first + index
 
                 staleness_filter = {
                     self._identity_field: key,

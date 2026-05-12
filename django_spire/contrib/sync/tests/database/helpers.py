@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.database.engine import DatabaseEngine
@@ -15,7 +15,9 @@ from django_spire.contrib.sync.database.storage import (
     SequenceRange,
     UpsertResult,
 )
-from django_spire.contrib.sync.core.model import Error
+
+if TYPE_CHECKING:
+    from django_spire.contrib.sync.core.model import Error
 
 
 logger = logging.getLogger(__name__)
@@ -30,7 +32,7 @@ class _FakeSequenceAllocator:
     def allocate(self, count: int = 1) -> SequenceRange:
         first = self._value + 1
         self._value += count
-        return SequenceRange(first=first, last=self._value)
+        return SequenceRange(value_first=first, value_last=self._value)
 
     def current(self) -> int:
         return self._value
