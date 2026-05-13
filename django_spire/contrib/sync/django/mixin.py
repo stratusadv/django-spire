@@ -117,7 +117,7 @@ class SyncableFieldsMixin(models.Model):
 
     def _get_field_values(self) -> dict[str, Any]:
         return {
-            field.name: getattr(self, field.attname)
+            (field.attname if field.is_relation else field.name): getattr(self, field.attname)
             for field in self._meta.concrete_fields
             if field.name not in self._sync_exclude_fields
         }
@@ -156,7 +156,7 @@ class SyncableFieldsMixin(models.Model):
     @classmethod
     def get_syncable_field_names(cls) -> list[str]:
         return sorted(
-            field.name
+            field.attname if field.is_relation else field.name
             for field in cls._meta.concrete_fields
             if field.name not in cls._sync_exclude_fields
         )

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.2
+
+### Changes
+- Fix foreign key mapping in the `sync` module
+
 ## v0.32.1
 
 ### Changes

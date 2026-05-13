@@ -26,6 +26,14 @@ def sync_bypass() -> Iterator[None]:
         _bypass.active = previous
 
 
+def _relation_attname_map(model: type) -> dict[str, str]:
+    return {
+        field.name: field.attname
+        for field in model._meta.concrete_fields
+        if field.is_relation
+    }
+
+
 class SyncableQuerySet(models.QuerySet):
     def bulk_create(
         self,
@@ -103,6 +111,7 @@ class SyncableQuerySet(models.QuerySet):
         )
 
         clock = self.model.get_clock()
+        attname_map = _relation_attname_map(self.model)
 
         field_set = set(fields)
 
@@ -125,7 +134,7 @@ class SyncableQuerySet(models.QuerySet):
                     if name in instance._sync_exclude_fields:
                         continue
 
-                    timestamps[name] = now
+                    timestamps[attname_map.get(name, name)] = now
 
                 instance.sync_field_timestamps = timestamps
                 instance.sync_field_last_modified = now
@@ -162,9 +171,10 @@ class SyncableQuerySet(models.QuerySet):
 
         clock = self.model.get_clock()
         exclude = self.model._sync_exclude_fields
+        attname_map = _relation_attname_map(self.model)
 
         stampable_field_names = [
-            name for name in kwargs
+            attname_map.get(name, name) for name in kwargs
             if name not in exclude
         ]
 
