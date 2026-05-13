@@ -1,6 +1,5 @@
 from django.contrib.auth.forms import AuthenticationForm
-
-from django_spire.auth.user.models import AuthUser
+from django.contrib.auth.models import User
 
 
 class CaseInsensitiveAuthenticationForm(AuthenticationForm):
@@ -9,7 +8,7 @@ class CaseInsensitiveAuthenticationForm(AuthenticationForm):
         username = self.cleaned_data.get("username")
 
         if username:
-            user = AuthUser.objects.filter(
+            user = User.objects.filter(
                 username__iexact=username.lower()
             ).first()
 
