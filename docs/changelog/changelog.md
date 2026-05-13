@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.1
+
+### Changes
+- Introduce `using` to `transaction.atomic` in the `sync` module
+
 ## v0.32.0
 
 ### Changes

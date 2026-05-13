@@ -309,7 +309,7 @@ class DatabaseEngine:
                 probe = self._storage.get_changed_since(
                     model_label,
                     peer_sequence,
-                    peer_node_id,
+                    '',
                     sequence_max=sequence_max,
                     limit=1,
                 )
@@ -336,7 +336,7 @@ class DatabaseEngine:
                 self._collect_local_only_payload(
                     model_label,
                     peer_sequence,
-                    peer_node_id,
+                    '',
                     budget,
                     cursor=cursor,
                     sequence_max=sequence_max,
@@ -705,6 +705,10 @@ class DatabaseEngine:
             peer_node_id,
             sequence_max=sequence_max,
         )
+
+        for key in list(deletes.keys()):
+            if key in accepted:
+                deletes.pop(key, None)
 
         if not accepted and not deletes:
             return None, truncated, skipped_sequence_first
@@ -1120,7 +1124,7 @@ class DatabaseEngine:
             self._get_local_only_changes(
                 payload.model_label,
                 sequence,
-                peer_node_id,
+                '',
                 all_incoming_keys,
                 sequence_max=sequence_max,
                 limit=local_only_limit,
@@ -1154,9 +1158,13 @@ class DatabaseEngine:
         deletes = self._storage.get_deletes_since(
             payload.model_label,
             sequence,
-            peer_node_id,
+            '',
             sequence_max=sequence_max,
         )
+
+        for key in list(deletes.keys()):
+            if key in response_records:
+                deletes.pop(key, None)
 
         return ModelPayload(
             model_label=payload.model_label,

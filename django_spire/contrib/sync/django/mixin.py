@@ -64,6 +64,21 @@ class SyncableFieldsMixin(models.Model):
         self._tracker = FieldUpdateTracker()
         self._tracker.snapshot(self._get_field_values())
 
+    def delete(self, *args: Any, **kwargs: Any) -> tuple[int, dict[str, int]]:
+        if _is_bypassed():
+            return super().delete(*args, **kwargs)
+
+        if not hasattr(self, 'is_deleted'):
+            return super().delete(*args, **kwargs)
+
+        if self.is_deleted:
+            return 0, {}
+
+        self.is_deleted = True
+        self.save()
+
+        return 1, {self._meta.label: 1}
+
     def save(self, *args: Any, **kwargs: Any) -> None:
         if _is_bypassed():
             super().save(*args, **kwargs)
@@ -83,14 +98,14 @@ class SyncableFieldsMixin(models.Model):
             SyncSequenceAllocator,
         )
 
-        with transaction.atomic():
+        with transaction.atomic(using=self._state.db):
             now = self.get_clock().now()
             timestamps = dict(self.sync_field_timestamps)
 
             for field_name in dirty:
                 timestamps[field_name] = now
 
-            sequence_last = SyncSequenceAllocator().allocate(1).value_last
+            sequence_last = SyncSequenceAllocator(using=self._state.db).allocate(1).value_last
 
             self.sync_field_timestamps = timestamps
             self.sync_field_last_modified = now

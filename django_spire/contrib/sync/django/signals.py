@@ -41,9 +41,10 @@ def _stamp_forward(
     model = type(instance)
     now = model.get_clock().now()
 
-    with transaction.atomic():
+    with transaction.atomic(using=instance._state.db):
         row = (
             model.objects
+            .using(instance._state.db)
             .select_for_update()
             .filter(pk=instance.pk)
             .values('sync_field_timestamps')
@@ -53,7 +54,7 @@ def _stamp_forward(
         if row is None:
             return
 
-        sequence_last = SyncSequenceAllocator().allocate(1).value_last
+        sequence_last = SyncSequenceAllocator(using=instance._state.db).allocate(1).value_last
 
         timestamps = dict(row['sync_field_timestamps'])
         timestamps[field_name] = now
@@ -61,6 +62,7 @@ def _stamp_forward(
         with sync_bypass():
             (
                 model.objects
+                .using(instance._state.db)
                 .filter(pk=instance.pk)
                 .update(
                     sync_field_timestamps=timestamps,
@@ -80,6 +82,7 @@ def _stamp_reverse(
     model: type[SyncableMixin],
     primary_keys: set[Any],
     field_name: str,
+    using: str | None = None,
 ) -> None:
     if not primary_keys:
         return
@@ -90,9 +93,10 @@ def _stamp_reverse(
 
     now = model.get_clock().now()
 
-    with transaction.atomic(), sync_bypass():
+    with transaction.atomic(using=using), sync_bypass():
         instances = list(
             model.objects
+            .using(using)
             .select_for_update()
             .filter(pk__in=primary_keys),
         )
@@ -100,7 +104,7 @@ def _stamp_reverse(
         if not instances:
             return
 
-        sequence_first = SyncSequenceAllocator().allocate(len(instances)).value_first
+        sequence_first = SyncSequenceAllocator(using=using).allocate(len(instances)).value_first
         sequence_next = sequence_first
 
         for instance in instances:
@@ -113,7 +117,7 @@ def _stamp_reverse(
             instance.sync_field_origin_node = ''
             sequence_next += 1
 
-        model.objects.bulk_update(
+        model.objects.using(using).bulk_update(
             instances,
             [
                 'sync_field_last_modified',
@@ -177,7 +181,12 @@ def _on_many_to_many_changed(
 
         return
 
-    _stamp_reverse(forward_model, set(pk_set or set()), field_name)
+    _stamp_reverse(
+        forward_model,
+        set(pk_set or set()),
+        field_name,
+        using=instance._state.db
+    )
 
 
 def _on_syncable_delete(
@@ -206,10 +215,10 @@ def _on_syncable_delete(
     clock = SyncableMixin.get_clock()
     timestamp = clock.now()
 
-    with transaction.atomic():
-        sequence_last = SyncSequenceAllocator().allocate(1).value_last
+    with transaction.atomic(using=instance._state.db):
+        sequence_last = SyncSequenceAllocator(using=instance._state.db).allocate(1).value_last
 
-        SyncTombstone.objects.update_or_create(
+        SyncTombstone.objects.using(instance._state.db).update_or_create(
             model_label=model_label,
             record_key=key,
             defaults={

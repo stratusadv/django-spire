@@ -9,21 +9,24 @@ _DEFAULT_COUNTER_NAME = 'default'
 
 
 class SyncSequenceAllocator:
-    def __init__(self, counter_name: str = _DEFAULT_COUNTER_NAME) -> None:
+    def __init__(self, counter_name: str = _DEFAULT_COUNTER_NAME, using: str | None = None) -> None:
         if not counter_name:
             message = 'counter_name must be a non-empty string'
             raise InvalidParameterError(message)
 
         self._counter_name = counter_name
+        self._using = using
 
     def _get_or_create_locked(self) -> SyncSequenceCounter:
-        SyncSequenceCounter.objects.get_or_create(
+        manager = SyncSequenceCounter.objects.using(self._using)
+
+        manager.get_or_create(
             name=self._counter_name,
             defaults={'value': 0},
         )
 
         return (
-            SyncSequenceCounter.objects
+            manager
             .select_for_update()
             .get(name=self._counter_name)
         )

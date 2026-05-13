@@ -52,8 +52,8 @@ class SyncableQuerySet(models.QuerySet):
 
         clock = self.model.get_clock()
 
-        with transaction.atomic():
-            sequence_first = SyncSequenceAllocator().allocate(len(syncable)).value_first
+        with transaction.atomic(using=self.db):
+            sequence_first = SyncSequenceAllocator(using=self.db).allocate(len(syncable)).value_first
             sequence_next = sequence_first
 
             for instance in syncable:
@@ -113,8 +113,8 @@ class SyncableQuerySet(models.QuerySet):
             'sync_field_timestamps',
         })
 
-        with transaction.atomic():
-            sequence_first = SyncSequenceAllocator().allocate(len(syncable)).value_first
+        with transaction.atomic(using=self.db):
+            sequence_first = SyncSequenceAllocator(using=self.db).allocate(len(syncable)).value_first
             sequence_next = sequence_first
 
             for instance in syncable:
@@ -134,6 +134,17 @@ class SyncableQuerySet(models.QuerySet):
                 sequence_next += 1
 
             return super().bulk_update(objs, stamped_fields, **kwargs)
+
+    def delete(self) -> tuple[int, dict[str, int]]:
+        if _is_bypassed():
+            return super().delete()
+
+        if not hasattr(self.model, 'is_deleted'):
+            return super().delete()
+
+        count = self.exclude(is_deleted=True).update(is_deleted=True)
+
+        return count, {self.model._meta.label: count}
 
     def update(self, **kwargs: Any) -> int:
         if _is_bypassed():
@@ -157,7 +168,7 @@ class SyncableQuerySet(models.QuerySet):
             if name not in exclude
         ]
 
-        with transaction.atomic():
+        with transaction.atomic(using=self.db):
             rows = list(
                 self.select_for_update().values_list(
                     'pk',
@@ -168,7 +179,7 @@ class SyncableQuerySet(models.QuerySet):
             if not rows:
                 return 0
 
-            sequence_first = SyncSequenceAllocator().allocate(len(rows)).value_first
+            sequence_first = SyncSequenceAllocator(using=self.db).allocate(len(rows)).value_first
 
             total = 0
 
@@ -190,6 +201,7 @@ class SyncableQuerySet(models.QuerySet):
 
                     total += (
                         self.model.objects
+                        .using(self.db)
                         .filter(pk=primary_key)
                         .update(**update_kwargs)
                     )
