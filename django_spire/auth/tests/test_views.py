@@ -77,7 +77,7 @@ class LoginViewTestCase(BaseTestCase):
             reverse('django_spire:auth:admin:login'),
             data={'username': 'TESTUSER', 'password': 'testpassword123'}
         )
-        assert response.status_code == 200
+        assert response.status_code == 302
 
     def test_login_case_sensitive_password(self) -> None:
         response = self.client.post(

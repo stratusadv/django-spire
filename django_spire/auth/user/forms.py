@@ -10,7 +10,7 @@ from django_spire.auth.user.factories import register_new_user
 
 class UserForm(forms.ModelForm):
     def save(self, commit: bool = True):
-        self.instance.username = self.cleaned_data['email']
+        self.instance.username = self.cleaned_data['email'].lower()
         return super().save(commit=commit)
 
     class Meta:
