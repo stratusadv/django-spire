@@ -1,19 +1,29 @@
-import threading
+import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from celery import Task, states
-from sqlalchemy.ext.asyncio import AsyncResult
 
 from django_spire.celery.meta import CeleryTaskMeta
 
 _ESTIMATED_REMAINING_SECONDS_MULTIPLIER = 1.10
 
+_state_update_executor = ThreadPoolExecutor(max_workers=2)
+
+
+def _async_update_state(backend, task_id: str, state: str, meta: dict) -> None:
+    try:
+        backend.store_result(task_id, meta, state)
+    except Exception as e:
+        logging.exception(
+            'Failed to asynchronously update Celery state for task %s: %s', task_id, e
+        )
 
 
 class CeleryTaskTracker:
     """Used for tracking the state of a celery task inside the running task function"""
 
-    def __init__(self, celery_task: Task, update_interval_seconds: int = 8) -> None:
+    def __init__(self, celery_task: Task, update_interval_seconds: int = 5) -> None:
         self._celery_task = celery_task
         self._update_interval_seconds = update_interval_seconds
         self._start_time_seconds = time.time()
@@ -52,13 +62,24 @@ class CeleryTaskTracker:
             self._update_celery_task_state()
 
     def _update_celery_task_state(self) -> None:
-        self._celery_task.update_state(
-            state=self._state,
-            meta={
-                **self._meta.model_dump(),
-                **(self._additional_meta or {})
-            }
+        meta_payload = {**self._meta.model_dump(), **(self._additional_meta or {})}
+
+        _state_update_executor.submit(
+            _async_update_state,
+            self._celery_task.backend,
+            self._celery_task.request.id,
+            self._state,
+            meta_payload,
         )
+
+    # def _update_celery_task_state(self) -> None:
+    #     self._celery_task.update_state(
+    #         state=self._state,
+    #         meta={
+    #             **self._meta.model_dump(),
+    #             **(self._additional_meta or {})
+    #         }
+    #     )
 
     def update_state(self, state: str = states.PENDING, meta: dict | None = None) -> None:
         self._state = state.upper()
@@ -67,7 +88,7 @@ class CeleryTaskTracker:
         self._process_overdue_update()
 
     def update_count_progress(
-            self, current_count: int, target_count: int, range_min: float = 0.0, range_max: float = 1.0
+        self, current_count: int, target_count: int, range_min: float = 0.0, range_max: float = 1.0
     ) -> None:
         if range_min < 0.0 or range_min > range_max or range_max > 1.0:
             message = 'Progress range is invalid'

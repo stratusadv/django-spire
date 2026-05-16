@@ -69,19 +69,27 @@ class CeleryTask(models.Model):
 
     @property
     def is_estimated_complete_soon(self) -> bool:
-        return self.meta.remaining_seconds < 15
+        return 5 > self.meta.remaining_seconds >= 0
 
     @property
     def is_failed(self) -> bool:
         return self.state == states.FAILURE
 
     @property
-    def is_successful(self) -> bool:
-        return self.state == states.SUCCESS
+    def is_remaining_time_unknown(self) -> bool:
+        return self.meta.remaining_seconds < 0
+
+    @property
+    def is_pending(self) -> bool:
+        return self.state == states.PENDING
 
     @property
     def is_processing(self) -> bool:
         return self.state not in states.READY_STATES and self.state not in states.EXCEPTION_STATES
+
+    @property
+    def is_successful(self) -> bool:
+        return self.state == states.SUCCESS
 
     @property
     def meta(self) -> CeleryTaskMeta:
@@ -90,6 +98,19 @@ class CeleryTask(models.Model):
     @meta.setter
     def meta(self, meta: dict[Any, Any]) -> None:
         self._task_meta = meta
+
+    @property
+    def progress(self) -> float:
+        return self.meta.progress
+
+    @property
+    def progress_hundred(self) -> int:
+        return int(self.meta.progress * 100)
+
+    @property
+    def progress_per_second(self) -> float:
+        progress_per_second = (100 - self.progress_hundred) / self.meta.remaining_seconds
+        return progress_per_second if progress_per_second > 0.0 else 0.1
 
     @property
     def result(self) -> Any:
@@ -103,14 +124,6 @@ class CeleryTask(models.Model):
             return pickle.loads(self._result)
 
         return None
-
-    @property
-    def progress(self) -> float:
-        return self.meta.progress
-
-    @property
-    def progress_hundred(self) -> int:
-        return int(self.meta.progress * 100)
 
     @result.setter
     def result(self, result) -> Any:
