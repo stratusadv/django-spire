@@ -25,6 +25,8 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'state',
         'started_datetime',
         'completed_datetime',
+        '_task_meta',
+        '_result'
     ]
     fields = [
         'task_id',
@@ -35,4 +37,6 @@ class CeleryTaskAdmin(admin.ModelAdmin):
         'state',
         'started_datetime',
         'completed_datetime',
+        '_task_meta',
+        '_result'
     ]

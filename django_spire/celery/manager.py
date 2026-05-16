@@ -125,7 +125,6 @@ class BaseCeleryTaskManager(ABC):
             display_name=self.display_name[:255],
             reference_key=self.reference_key,
             model_key=self.model_key,
-            estimated_completion_datetime=now(),
         )
 
     def _create_failed_celery_task(
@@ -143,7 +142,6 @@ class BaseCeleryTaskManager(ABC):
             model_key=self.model_key,
             state=states.FAILURE,
             started_datetime=now(),
-            estimated_completion_datetime=now(),
             has_result=True,
             _result=pickle.dumps(
                 {

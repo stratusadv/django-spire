@@ -36,9 +36,14 @@
         {% if celery_task.is_estimated_complete_soon %}
             Completing Soon
         {% else %}
-            Estimated {{ celery_task.estimated_time_remaining_verbose }} remaining
+            Estimated {{ celery_task.remaining_time_verbose }} remaining
         {% endif %}
-        <div class="fs-8">&nbsp;</div>
+        <div class="pt-1">
+        <div class="progress" style="height: 1px;">
+            <div class="progress-bar" role="progressbar" style="width: {{ celery_task.progress_hundred }}%;" aria-valuenow="{{ celery_task.progress_hundred }}" aria-valuemin="0"
+                 aria-valuemax="100"></div>
+        </div>
+        </div>
 
     {% elif celery_task.is_successful %}
         Completed at {{ celery_task.completed_datetime|date:'g:i a l, F jS' }}
@@ -47,6 +52,5 @@
     {% elif celery_task.is_failed %}
         Task Encountered an Error or Took to Long
         <div class="fs-8">Please try again, if the issues persists contact support</div>
-
     {% endif %}
 </div>

@@ -57,11 +57,11 @@ class CeleryTask(models.Model):
 
     @property
     def remaining_time_verbose(self) -> str:
-        return format_duration(amount=self.remaining_seconds)
+        return format_duration(amount=self.meta.remaining_seconds)
 
     @property
     def has_result(self) -> bool:
-        return not isinstance(self.result, CeleryNoResult())
+        return not isinstance(self.result, CeleryNoResult)
 
     @property
     def has_no_result(self) -> bool:
@@ -69,8 +69,7 @@ class CeleryTask(models.Model):
 
     @property
     def is_estimated_complete_soon(self) -> bool:
-        time_delta = self.estimated_completion_datetime - now()
-        return time_delta.total_seconds() < 60.0
+        return self.meta.remaining_seconds < 15
 
     @property
     def is_failed(self) -> bool:
@@ -86,7 +85,7 @@ class CeleryTask(models.Model):
 
     @property
     def meta(self) -> CeleryTaskMeta:
-        return CeleryTaskMeta(**self._task_meta)
+        return CeleryTaskMeta(**self._task_meta if self._task_meta else {})
 
     @meta.setter
     def meta(self, meta: dict[Any, Any]) -> None:
@@ -104,6 +103,14 @@ class CeleryTask(models.Model):
             return pickle.loads(self._result)
 
         return None
+
+    @property
+    def progress(self) -> float:
+        return self.meta.progress
+
+    @property
+    def progress_hundred(self) -> int:
+        return int(self.meta.progress * 100)
 
     @result.setter
     def result(self, result) -> Any:

@@ -32,9 +32,9 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
             length = int(length)
 
             if request.POST.get('ninja'):
-                async_result = NinjaAttackCeleryTaskManager().send_task(length)
+                async_result = NinjaAttackCeleryTaskManager().send_task(length=length)
             else:
-                async_result = PirateSongCeleryTaskManager(task).send_task(length)
+                async_result = PirateSongCeleryTaskManager(task).send_task(length=length)
 
             context['task_id'] = async_result.id
             context['length'] = length

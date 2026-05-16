@@ -1,3 +1,3 @@
 from __future__ import annotations
 
-from test_project.seed import *
+from test_project.seed import * # noqa

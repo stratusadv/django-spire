@@ -3,7 +3,7 @@ import importlib.util
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-
+from django_glue import django_glue_urls
 
 app_name = 'example'
 
@@ -28,9 +28,10 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('dg/', include('django_glue.urls', namespace='django_glue')),
     path('ds/', include('django_spire.urls', namespace='django_spire')),
 ]
+
+urlpatterns += django_glue_urls()
 
 urlpatterns += [
     path('admin/', admin.site.urls),
