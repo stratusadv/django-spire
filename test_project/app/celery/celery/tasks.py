@@ -9,8 +9,8 @@ def _sleep(task: Task, length: int) -> None:
     tracker = CeleryTaskTracker(task)
     tracker.update_state('MAKING NOISES')
     for i in range(length):
-        tracker.update_cumulative_progress(1, length)
         sleep(1)
+        tracker.update_cumulative_progress(1, length)
 
     tracker.set_completed()
 

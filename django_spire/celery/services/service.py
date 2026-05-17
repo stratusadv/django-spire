@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import timezone
 
 from celery import states
+from celery.result import AsyncResult
 from django.db.models import F
 from django.utils.timezone import make_aware, is_naive
 from typing import TYPE_CHECKING
@@ -17,12 +18,12 @@ if TYPE_CHECKING:
 class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
     obj: CeleryTask
 
-    def update_result(self) -> None:
-        if self.obj.async_result.state == states.SUCCESS:
+    def update_result(self, async_result: AsyncResult) -> None:
+        if async_result.state == states.SUCCESS:
             try:
-                self.obj.result = self.obj.async_result.get()
+                self.obj.result = async_result.get()
 
-                date_done = self.obj.async_result.date_done
+                date_done = async_result.date_done
 
                 if is_naive(date_done):
                     date_done_aware = make_aware(date_done, timezone.utc)
@@ -44,16 +45,18 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
     def update_from_async_result_and_save_if_change(self) -> None:
         has_changed = False
 
-        new_meta = self.obj.async_result.info
+        async_result = self.obj.async_result
+
+        new_meta = async_result.info
 
         if self.obj._task_meta != new_meta:
             self.obj._task_meta = new_meta
             has_changed = True
 
-        new_state = self.obj.async_result.state
+        new_state = async_result.state
 
         if self.obj.state != states.SUCCESS and new_state == states.SUCCESS:
-            self.update_result()
+            self.update_result(async_result)
 
         elif self.obj.state != new_state:
             self.obj.state = new_state

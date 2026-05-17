@@ -6,11 +6,12 @@ from django_spire.celery import models
 @admin.register(models.CeleryTask)
 class CeleryTaskAdmin(admin.ModelAdmin):
     list_display = (
-        'task_name',
         'display_name',
         'state',
         'started_datetime',
         'completed_datetime',
+        'reference_key',
+        'task_name',
     )
     list_filter = ('task_name', 'display_name', 'state', 'started_datetime', 'completed_datetime')
     search_fields = ('task_name', 'display_name', 'state', 'started_datetime', 'completed_datetime')

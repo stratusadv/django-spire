@@ -32,16 +32,7 @@
 
 </div>
 
-<div x-data="{
-    progress: {{ celery_task.progress_hundred }},
-    init() {
-        if(this.progress > 0) {
-            setInterval(() => {
-                this.progress = Math.min(this.progress + {{ celery_task.progress_per_second }}, 100)
-            }, 1000)
-        }
-    }
-}" class="{{ task_body_class }} fs-7 py-2 text-muted">
+<div class="{{ task_body_class }} fs-7 py-2 text-muted">
     {% if celery_task.is_pending %}
         Pending
         <div class="progress mt-1" style="height: 3px;">
@@ -56,13 +47,13 @@
             • Completing Soon
         {% elif celery_task.is_remaining_time_unknown %}
             &nbsp;
-        {% else %}
+        {% elif celery_task.remaining_time_verbose %}
             • {{ celery_task.remaining_time_verbose }} remaining
         {% endif %}
             <div class="progress mt-1" style="height: 3px;">
                 <div class="progress-bar bg-app-primary" role="progressbar"
-                     :style="{ width: progress + '%' }"
-                     aria-valuenow="{{ celery_task.progress_hundred }}" aria-valuemin="0"
+                     style="width: {{ celery_task.estimated_progress_hundred }}%;"
+                     aria-valuenow="{{ celery_task.estimated_progress_hundred }}" aria-valuemin="0"
                      aria-valuemax="100"></div>
             </div>
 

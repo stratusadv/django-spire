@@ -56,8 +56,15 @@ class CeleryTask(models.Model):
         return format_duration(amount=self.completion_time_seconds)
 
     @property
-    def remaining_time_verbose(self) -> str:
-        return format_duration(amount=self.meta.remaining_seconds)
+    def estimated_progress(self) -> float | None:
+        return self.meta.estimated_progress
+
+    @property
+    def estimated_progress_hundred(self) -> int:
+        if self.meta.estimated_progress:
+            return int(self.meta.estimated_progress * 100)
+
+        return 0
 
     @property
     def has_result(self) -> bool:
@@ -69,7 +76,10 @@ class CeleryTask(models.Model):
 
     @property
     def is_estimated_complete_soon(self) -> bool:
-        return 5 > self.meta.remaining_seconds >= 0
+        print(f'{self.meta.estimated_remaining_seconds=}')
+        if self.meta.estimated_remaining_seconds:
+            return 10 > self.meta.estimated_remaining_seconds >= 0
+        return False
 
     @property
     def is_failed(self) -> bool:
@@ -77,7 +87,7 @@ class CeleryTask(models.Model):
 
     @property
     def is_remaining_time_unknown(self) -> bool:
-        return self.meta.remaining_seconds < 0
+        return self.meta.estimated_remaining_seconds is None
 
     @property
     def is_pending(self) -> bool:
@@ -96,21 +106,15 @@ class CeleryTask(models.Model):
         return CeleryTaskMeta(**self._task_meta if self._task_meta else {})
 
     @meta.setter
-    def meta(self, meta: dict[Any, Any]) -> None:
-        self._task_meta = meta
+    def meta(self, value: Any) -> None:
+        self._task_meta = value
 
     @property
-    def progress(self) -> float:
-        return self.meta.progress
+    def remaining_time_verbose(self) -> str | None:
+        if self.meta.estimated_remaining_seconds:
+            return format_duration(amount=self.meta.estimated_remaining_seconds)
 
-    @property
-    def progress_hundred(self) -> int:
-        return int(self.meta.progress * 100)
-
-    @property
-    def progress_per_second(self) -> float:
-        progress_per_second = (100 - self.progress_hundred) / self.meta.remaining_seconds
-        return progress_per_second if progress_per_second > 0.0 else 0.1
+        return None
 
     @property
     def result(self) -> Any:

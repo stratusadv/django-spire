@@ -1,14 +1,12 @@
 import logging
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, Future, CancelledError
 
 from celery import Task, states
 
 from django_spire.celery.meta import CeleryTaskMeta
 
-_ESTIMATED_REMAINING_SECONDS_MULTIPLIER = 1.10
-
-_state_update_executor = ThreadPoolExecutor(max_workers=2)
+_state_update_executor = ThreadPoolExecutor(max_workers=100)
 
 
 def _async_update_state(backend, task_id: str, state: str, meta: dict) -> None:
@@ -24,27 +22,23 @@ class CeleryTaskTracker:
     """Used for tracking the state of a celery task inside the running task function"""
 
     def __init__(self, celery_task: Task, update_interval_seconds: int = 5) -> None:
+        if update_interval_seconds < 5:
+            message = f'{self.__class__.__name__}: Update Interval must be at least 5 seconds'
+            raise ValueError(message)
+
         self._celery_task = celery_task
         self._update_interval_seconds = update_interval_seconds
         self._start_time_seconds = time.time()
-        self._last_update_time_seconds = time.time()
+        self._last_update_time_seconds = (time.time() - update_interval_seconds + 2)
         self._state = states.STARTED
         self._meta = CeleryTaskMeta()
         self._additional_meta = None
         self._cumulative_progress = 0
+        self._pending_future: Future | None = None
 
     @property
-    def _remaining_seconds(self) -> int:
-        return self._meta.remaining_seconds
-
-    @property
-    def _progress(self) -> float:
-        return self._meta.progress
-
-    @_progress.setter
-    def _progress(self, value: float) -> None:
-        self._meta.progress = round(max(0.0, min(value, 1.0)), 3)
-        self._update_remaining_seconds()
+    def meta(self) -> CeleryTaskMeta:
+        return CeleryTaskMeta(**self._meta.model_dump(), **(self._additional_meta or {}))
 
     @property
     def task(self) -> Task:
@@ -57,6 +51,22 @@ class CeleryTaskTracker:
 
         return False
 
+    def _cancel_pending_future(self) -> None:
+        if self._pending_future is not None and not self._pending_future.done():
+            self._pending_future.cancel()
+
+        self._pending_future = None
+
+    def _flush_futures(self) -> None:
+        if self._pending_future is not None:
+            try:
+                self._pending_future.result(timeout=self._update_interval_seconds)
+            except CancelledError:
+                pass
+            finally:
+                self._pending_future = None
+
+
     def _process_overdue_update(self) -> None:
         if self._is_overdue_for_update():
             self._update_celery_task_state()
@@ -64,22 +74,16 @@ class CeleryTaskTracker:
     def _update_celery_task_state(self) -> None:
         meta_payload = {**self._meta.model_dump(), **(self._additional_meta or {})}
 
-        _state_update_executor.submit(
-            _async_update_state,
-            self._celery_task.backend,
-            self._celery_task.request.id,
-            self._state,
-            meta_payload,
-        )
+        if self._celery_task.request.id:
+            self._cancel_pending_future()
 
-    # def _update_celery_task_state(self) -> None:
-    #     self._celery_task.update_state(
-    #         state=self._state,
-    #         meta={
-    #             **self._meta.model_dump(),
-    #             **(self._additional_meta or {})
-    #         }
-    #     )
+            self._pending_future = _state_update_executor.submit(
+                _async_update_state,
+                self._celery_task.backend,
+                self._celery_task.request.id,
+                self._state,
+                meta_payload,
+            )
 
     def update_state(self, state: str = states.PENDING, meta: dict | None = None) -> None:
         self._state = state.upper()
@@ -94,25 +98,21 @@ class CeleryTaskTracker:
             message = 'Progress range is invalid'
             raise ValueError(message)
 
-        self._progress = range_min + (range_max - range_min) * (current_count / target_count)
+        self._meta.progress = range_min + (range_max - range_min) * (current_count / target_count)
         self._process_overdue_update()
 
     def update_cumulative_progress(self, added_value: int, target_value: int) -> None:
         self._cumulative_progress += added_value
 
-        self._progress = self._cumulative_progress / target_value
+        self._meta.progress = self._cumulative_progress / target_value
         self._process_overdue_update()
-
-    def _update_remaining_seconds(self) -> None:
-        elapsed_seconds = time.time() - self._start_time_seconds
-        estimated_total_seconds = elapsed_seconds / self._progress
-        remaining_seconds = estimated_total_seconds - elapsed_seconds
-
-        self._meta.remaining_seconds = int(
-            remaining_seconds * _ESTIMATED_REMAINING_SECONDS_MULTIPLIER
-        )
 
     def set_completed(self):
         self._meta.remaining_seconds = 0
         self._meta.progress = 1.0
-        self._update_celery_task_state()
+        self._meta.end_time_seconds = time.time()
+        self._flush_futures()
+
+    def set_started(self):
+        self.update_state(states.STARTED)
+        self._meta.start_time_seconds = time.time()
