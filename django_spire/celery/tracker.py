@@ -29,16 +29,12 @@ class CeleryTaskTracker:
         self._celery_task = celery_task
         self._update_interval_seconds = update_interval_seconds
         self._start_time_seconds = time.time()
-        self._last_update_time_seconds = (time.time() - update_interval_seconds + 2)
-        self._state = states.STARTED
+        self._last_update_time_seconds = 0
+        self._state = states.PENDING
         self._meta = CeleryTaskMeta()
         self._additional_meta = None
         self._cumulative_progress = 0
         self._pending_future: Future | None = None
-
-    @property
-    def meta(self) -> CeleryTaskMeta:
-        return CeleryTaskMeta(**self._meta.model_dump(), **(self._additional_meta or {}))
 
     @property
     def task(self) -> Task:
@@ -108,11 +104,14 @@ class CeleryTaskTracker:
         self._process_overdue_update()
 
     def set_completed(self):
-        self._meta.remaining_seconds = 0
-        self._meta.progress = 1.0
-        self._meta.end_time_seconds = time.time()
+        self._meta.set_completed()
         self._flush_futures()
 
     def set_started(self):
+        self._meta.set_started()
         self.update_state(states.STARTED)
-        self._meta.start_time_seconds = time.time()
+
+    def set_started_and_completing_soon(self):
+        self._meta.set_started_and_completing_soon()
+        self.update_state(states.STARTED)
+

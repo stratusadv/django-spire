@@ -142,6 +142,7 @@ class BaseCeleryTaskManager(ABC):
             model_key=self.model_key,
             state=states.FAILURE,
             started_datetime=now(),
+            completed_datetime=now(),
             has_result=True,
             _result=pickle.dumps(
                 {

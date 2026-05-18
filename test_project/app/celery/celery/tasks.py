@@ -7,10 +7,18 @@ from django_spire.celery.tracker import CeleryTaskTracker
 
 def _sleep(task: Task, length: int) -> None:
     tracker = CeleryTaskTracker(task)
-    tracker.update_state('MAKING NOISES')
+
+    if length <= 5:
+        tracker.set_started_and_completing_soon()
+    else:
+        tracker.set_started()
+
     for i in range(length):
         sleep(1)
-        tracker.update_cumulative_progress(1, length)
+
+        if length > 5:
+            tracker.update_cumulative_progress(1, length)
+            tracker.update_state('MAKING NOISES')
 
     tracker.set_completed()
 

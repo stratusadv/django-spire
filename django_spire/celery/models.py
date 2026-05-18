@@ -29,7 +29,8 @@ class CeleryTask(models.Model):
 
     _task_meta = models.JSONField(default=dict, null=True, blank=True)
 
-    started_datetime = models.DateTimeField(default=now)
+    queued_datetime = models.DateTimeField(default=now)
+    started_datetime = models.DateTimeField(null=True, blank=True)
     completed_datetime = models.DateTimeField(null=True, blank=True)
 
     _result = models.BinaryField(default=set_pickled_no_result)
@@ -48,8 +49,11 @@ class CeleryTask(models.Model):
 
     @property
     def completion_time_seconds(self) -> int:
-        time_delta = self.completed_datetime - self.started_datetime
-        return int(time_delta.total_seconds())
+        if self.completed_datetime:
+            time_delta = self.completed_datetime - self.queued_datetime
+            return int(time_delta.total_seconds())
+        else:
+            return 0
 
     @property
     def completion_time_verbose(self) -> str:
@@ -65,6 +69,10 @@ class CeleryTask(models.Model):
             return int(self.meta.estimated_progress * 100)
 
         return 0
+
+    @property
+    def estimated_progress_per_second_hundred(self) -> float:
+        return self.meta.estimated_progress_per_second * 100
 
     @property
     def has_result(self) -> bool:
@@ -103,11 +111,22 @@ class CeleryTask(models.Model):
 
     @property
     def meta(self) -> CeleryTaskMeta:
-        return CeleryTaskMeta(**self._task_meta if self._task_meta else {})
+        if isinstance(self._task_meta, dict):
+            return CeleryTaskMeta(**self._task_meta)
+        else:
+            return CeleryTaskMeta()
 
     @meta.setter
     def meta(self, value: Any) -> None:
         self._task_meta = value
+
+    @property
+    def queue_time_seconds(self) -> int:
+        if self.queued_datetime and self.started_datetime:
+            time_delta = self.started_datetime - self.queued_datetime
+            return int(time_delta.total_seconds())
+        else:
+            return 1
 
     @property
     def remaining_time_verbose(self) -> str | None:

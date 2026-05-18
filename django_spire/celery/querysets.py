@@ -23,4 +23,7 @@ class CeleryTaskQuerySet(QuerySet):
         return self.filter(query)
 
     def by_unready(self) -> QuerySet:
-        return self.filter(state__in=states.UNREADY_STATES)
+        return self.exclude(state__in=[*states.READY_STATES, *states.EXCEPTION_STATES])
+
+    def by_completed(self) -> QuerySet:
+        return self.filter(state__in=states.SUCCESS)

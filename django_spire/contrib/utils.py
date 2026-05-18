@@ -19,10 +19,11 @@ def format_duration(
     """
 
     if not amount or amount == 0:
-        return 'N/A'
+        return 'Unknown'
 
     if start_unit not in TIME_UNITS_TO_SECONDS.keys():
-        return 'N/A'
+        message = f'{start_unit} is not a valid start unit, choices are {TIME_UNITS_TO_SECONDS.keys()}'
+        raise ValueError(message)
 
     amount = amount * TIME_UNITS_TO_SECONDS[start_unit]
 
