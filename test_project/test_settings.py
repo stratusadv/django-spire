@@ -10,4 +10,5 @@ DATABASES['default'] = {
     'PASSWORD': os.getenv('TEST_DATABASE_PASSWORD', 'postgres'),
     'HOST': os.getenv('TEST_DATABASE_HOST', 'localhost'),
     'PORT': os.getenv('TEST_DATABASE_PORT', '5439'),
+    'ATOMIC_REQUESTS': os.getenv('TEST_ATOMIC_REQUESTS', False),
 }
