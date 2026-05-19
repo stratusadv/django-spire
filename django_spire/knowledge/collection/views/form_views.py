@@ -28,7 +28,7 @@ def form_view(
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=pk)
 
-    Glue.model(request, unique_name='collection', target=collection)
+    Glue.model(request, unique_name='collection', target=collection, access=Glue.Access.DELETE)
 
     Glue.queryset(
         request,

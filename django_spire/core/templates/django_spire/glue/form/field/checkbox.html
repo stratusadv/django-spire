@@ -1,4 +1,4 @@
-{% extends "django_spire/glue/form/field_base.html" %}
+{% extends "django_spire/glue/form/field/field_base.html" %}
 
 {% block field_content %}
     <div class="form-check{% if input_class %} {{ input_class }}{% endif %}">
@@ -6,10 +6,10 @@
             type="checkbox"
             class="form-check-input"
             :id="'{{ field }}-' + ({{ obj }}.$key || 'single')"
-            {% include 'django_spire/glue/form/base_input_attributes.html' with exclude_class=True %}>
+            {% include 'django_spire/glue/form/field/base_input_attributes.html' with exclude_class=True %}>
         {{ block.super }}
     </div>
-    <small class="text-muted" x-show="{{ obj }}.$form.$fields.{{ field }}?.help_text" x-text="{{ obj }}.$form.$fields.{{ field }}?.help_text"></small>
+    <small class="text-muted" x-show="{{ glue_field }}?.help_text" x-text="{{ glue_field }}?.help_text"></small>
 {% endblock %}
 
 person.$form.first_name.help_text

@@ -1,0 +1,13 @@
+{% extends "django_spire/glue/form/field/field_base.html" %}
+
+{% block field_content %}
+    {% include 'django_spire/glue/form/field/label.html' %}
+    <textarea
+            rows="{% block rows %}{{ rows|default:'3' }}{% endblock %}"
+            {% include 'django_spire/glue/form/field/base_input_attributes.html' %}
+            :maxlength="{{ glue_field }}?.max_length"
+            :minlength="{{ glue_field }}?.min_length"
+            placeholder="{% block placeholder %}{{ placeholder }}{% endblock %}">
+    </textarea>
+    {{ block.super }}
+{% endblock %}
