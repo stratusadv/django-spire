@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.3
+
+### Changes
+- Updated `django-glue` version to `0.8.16`
+
 ## v0.32.2
 
 ### Changes
