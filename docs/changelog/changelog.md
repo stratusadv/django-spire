@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.4
+
+### Changes
+- Less aggressive convergence check between devices in the `sync` module
+
 ## v0.32.3
 
 ### Changes
