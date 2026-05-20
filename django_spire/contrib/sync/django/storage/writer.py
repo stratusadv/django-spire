@@ -124,10 +124,21 @@ class DjangoRecordWriter:
             defaultdict(set)
         )
 
+        self._external_nullable_attribute_names: dict[str, set[str]] = (
+            defaultdict(set)
+        )
+
+        syncable_labels = set(self._models.keys())
+
         for deferred_foreign_key in (deferred_foreign_keys or []):
-            self._deferred_attribute_names[deferred_foreign_key.source_label].add(
-                deferred_foreign_key.attribute_name,
-            )
+            if deferred_foreign_key.target_label in syncable_labels:
+                self._deferred_attribute_names[deferred_foreign_key.source_label].add(
+                    deferred_foreign_key.attribute_name,
+                )
+            else:
+                self._external_nullable_attribute_names[deferred_foreign_key.source_label].add(
+                    deferred_foreign_key.attribute_name,
+                )
 
     def _build_assign_sequence_sql(
         self,
@@ -367,14 +378,25 @@ class DjangoRecordWriter:
         model_label: str,
         deserialized_row: dict[str, Any],
     ) -> dict[str, Any]:
-        attribute_names = self._deferred_attribute_names.get(model_label)
+        deferred_attribute_names = self._deferred_attribute_names.get(model_label)
+        external_attribute_names = self._external_nullable_attribute_names.get(model_label)
 
-        if not attribute_names:
+        if external_attribute_names:
+            for attribute_name in external_attribute_names:
+                if attribute_name not in deserialized_row:
+                    continue
+
+                if deserialized_row[attribute_name] is None:
+                    continue
+
+                deserialized_row[attribute_name] = None
+
+        if not deferred_attribute_names:
             return {}
 
         stashed: dict[str, Any] = {}
 
-        for attribute_name in attribute_names:
+        for attribute_name in deferred_attribute_names:
             if attribute_name not in deserialized_row:
                 continue
 
