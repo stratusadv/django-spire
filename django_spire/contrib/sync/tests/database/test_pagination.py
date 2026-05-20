@@ -1,21 +1,29 @@
 from __future__ import annotations
 
+import random
+
 from contextlib import nullcontext
 from typing import Any
 from unittest.mock import patch
 
 import pytest
 
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
 from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.database.conflict import FieldTimestampWins
 from django_spire.contrib.sync.database.engine import DatabaseEngine
 from django_spire.contrib.sync.database.graph import DependencyGraph
+from django_spire.contrib.sync.database.manifest import SyncManifest
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
 from django_spire.contrib.sync.database.record import SyncRecord
 from django_spire.contrib.sync.tests.database.helpers import (
     DirectTransport,
     InMemoryDatabaseStorage,
     MODEL,
+    STAKE,
+    SURVEY,
 )
 
 
@@ -36,6 +44,33 @@ def _make_engine(
     models = storage.get_syncable_models()
     graph = DependencyGraph({m: set() for m in models})
 
+    peer_node_id = 'server' if transport is not None else None
+
+    return DatabaseEngine(
+        batch_bytes=batch_bytes,
+        batch_size=batch_size,
+        clock=clock,
+        clock_drift_max=None,
+        graph=graph,
+        node_id=node_id,
+        peer_node_id=peer_node_id,
+        reconciler=PayloadReconciler(resolver=FieldTimestampWins()),
+        storage=storage,
+        transaction=nullcontext,
+        transport=transport,
+    )
+
+
+def _make_engine_graph(
+    storage: InMemoryDatabaseStorage,
+    node_id: str,
+    clock: HybridLogicalClock,
+    edges: dict[str, set[str]],
+    transport: Any = None,
+    batch_size: int | None = None,
+    batch_bytes: int | None = None,
+) -> DatabaseEngine:
+    graph = DependencyGraph(edges)
     peer_node_id = 'server' if transport is not None else None
 
     return DatabaseEngine(
@@ -81,6 +116,27 @@ def _fixed_time() -> Any:
     with patch('django_spire.contrib.sync.database.engine.time') as mock_time:
         mock_time.time.return_value = 1000
         yield mock_time
+
+
+class _CappedDirectTransport(DirectTransport):
+    def __init__(
+        self,
+        server_engine: DatabaseEngine,
+        exchange_count_max: int = 100,
+    ) -> None:
+        super().__init__(server_engine)
+        self._exchange_count_max = exchange_count_max
+
+    def exchange(self, manifest: SyncManifest) -> SyncManifest:
+        if len(self.exchanges) >= self._exchange_count_max:
+            message = (
+                f'Sync exceeded {self._exchange_count_max} exchanges '
+                f'without converging'
+            )
+
+            raise AssertionError(message)
+
+        return super().exchange(manifest)
 
 
 class TestPaginatedPull:
@@ -336,3 +392,139 @@ class TestBatchSizeVariations:
         )
 
         assert total == 0
+
+
+class TestInterleavedSequenceConvergence:
+    def test_late_model_with_low_sequence_converges(self) -> None:
+        clock = HybridLogicalClock()
+        edges = {SURVEY: set(), STAKE: {SURVEY}}
+
+        server_storage = _make_storage([SURVEY, STAKE])
+        server_storage.seed(
+            STAKE, 'stake-low',
+            {'id': 'stake-low', 'survey_id': 'survey-00', 'value': 1},
+            {'survey_id': 1000, 'value': 1000},
+        )
+
+        for i in range(50):
+            server_storage.seed(
+                SURVEY, f'survey-{i:02d}',
+                {'id': f'survey-{i:02d}', 'value': i},
+                {'value': 1000 + i + 1},
+            )
+
+        server = _make_engine_graph(
+            server_storage, 'server', clock, edges, batch_size=10,
+        )
+
+        tablet_storage = _make_storage([SURVEY, STAKE])
+        transport = _CappedDirectTransport(server, exchange_count_max=100)
+        tablet = _make_engine_graph(
+            tablet_storage, 'tablet', clock, edges, transport, batch_size=10,
+        )
+
+        tablet.sync()
+
+        assert len(tablet_storage._records[SURVEY]) == 50
+        assert len(tablet_storage._records[STAKE]) == 1
+
+    def test_tombstone_on_skipped_model_is_delivered(self) -> None:
+        clock = HybridLogicalClock()
+        edges = {SURVEY: set(), STAKE: {SURVEY}}
+
+        server_storage = _make_storage([SURVEY, STAKE])
+        server_storage.seed(
+            STAKE, 'stake-doomed',
+            {'id': 'stake-doomed', 'survey_id': 'survey-00', 'value': 1},
+            {'survey_id': 1000, 'value': 1000},
+        )
+
+        server = _make_engine_graph(
+            server_storage, 'server', clock, edges, batch_size=10,
+        )
+
+        tablet_storage = _make_storage([SURVEY, STAKE])
+        transport = _CappedDirectTransport(server, exchange_count_max=100)
+        tablet = _make_engine_graph(
+            tablet_storage, 'tablet', clock, edges, transport, batch_size=10,
+        )
+
+        tablet.sync()
+
+        assert 'stake-doomed' in tablet_storage._records[STAKE]
+
+        delete_ts = clock.now()
+        server_storage.delete_many(STAKE, {'stake-doomed': delete_ts}, '')
+
+        for i in range(50):
+            server_storage.seed(
+                SURVEY, f'survey-{i:02d}',
+                {'id': f'survey-{i:02d}', 'value': i},
+                {'value': clock.now()},
+            )
+
+        server_storage.seed(
+            STAKE, 'stake-new',
+            {'id': 'stake-new', 'survey_id': 'survey-00', 'value': 2},
+            {'survey_id': clock.now(), 'value': clock.now()},
+        )
+
+        tablet.sync()
+
+        assert 'stake-doomed' not in tablet_storage._records[STAKE]
+        assert 'stake-new' in tablet_storage._records[STAKE]
+        assert len(tablet_storage._records[SURVEY]) == 50
+
+    @given(
+        seed=st.integers(min_value=0, max_value=2**32),
+        record_count=st.integers(min_value=10, max_value=60),
+        batch_size=st.sampled_from([1, 3, 7]),
+    )
+    @settings(max_examples=50, deadline=20_000)
+    def test_random_interleaved_sequences_converge(
+        self,
+        seed: int,
+        record_count: int,
+        batch_size: int,
+    ) -> None:
+        rng = random.Random(seed)
+        clock = HybridLogicalClock()
+        edges = {SURVEY: set(), STAKE: {SURVEY}}
+
+        server_storage = _make_storage([SURVEY, STAKE])
+
+        survey_count = 0
+        stake_count = 0
+
+        for i in range(record_count):
+            if rng.random() < 0.5:
+                key = f'survey-{survey_count}'
+                survey_count += 1
+                server_storage.seed(
+                    SURVEY, key,
+                    {'id': key, 'value': i},
+                    {'value': clock.now()},
+                )
+            else:
+                key = f'stake-{stake_count}'
+                stake_count += 1
+                server_storage.seed(
+                    STAKE, key,
+                    {'id': key, 'survey_id': 'survey-0', 'value': i},
+                    {'value': clock.now()},
+                )
+
+        server = _make_engine_graph(
+            server_storage, 'server', clock, edges, batch_size=batch_size,
+        )
+
+        tablet_storage = _make_storage([SURVEY, STAKE])
+        transport = _CappedDirectTransport(server, exchange_count_max=1000)
+        tablet = _make_engine_graph(
+            tablet_storage, 'tablet', clock, edges, transport, batch_size=batch_size,
+        )
+
+        tablet.sync()
+
+        assert len(tablet_storage._records[SURVEY]) == survey_count
+        assert len(tablet_storage._records[STAKE]) == stake_count

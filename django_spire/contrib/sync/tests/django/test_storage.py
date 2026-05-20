@@ -7,8 +7,9 @@ from django.db import models as db_models
 from django_spire.contrib.sync.core.exceptions import UnknownModelError
 from django_spire.contrib.sync.database.record import SyncRecord
 from django_spire.contrib.sync.database.storage import CheckpointPosition
+from django_spire.contrib.sync.django.graph import DeferredForeignKey
 from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
-from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
+from django_spire.contrib.sync.django.storage.writer import DjangoRecordWriter
 from django_spire.contrib.sync.tests.models import (
     SyncTestModel,
     SyncTestSimpleModel,
@@ -301,3 +302,77 @@ def test_checkpoint_update(storage: DjangoSyncStorage) -> None:
 def test_unknown_model_raises(storage: DjangoSyncStorage) -> None:
     with pytest.raises(UnknownModelError, match='Unknown syncable model'):
         storage.get_records('nonexistent.Model', {'1'})
+
+
+def test_writer_defers_syncable_target_fk() -> None:
+    writer = DjangoRecordWriter(
+        models=[SyncTestModel, SyncTestSimpleModel],
+        deferred_foreign_keys=[
+            DeferredForeignKey(
+                source_label='sync_tests.SyncTestModel',
+                target_label='sync_tests.SyncTestModel',
+                field_name='parent',
+                attribute_name='parent_id',
+            ),
+        ],
+    )
+
+    assert 'parent_id' in writer._deferred_attribute_names['sync_tests.SyncTestModel']
+    assert 'parent_id' not in writer._external_nullable_attribute_names['sync_tests.SyncTestModel']
+
+
+def test_writer_treats_non_syncable_target_fk_as_external() -> None:
+    writer = DjangoRecordWriter(
+        models=[SyncTestModel, SyncTestSimpleModel],
+        deferred_foreign_keys=[
+            DeferredForeignKey(
+                source_label='sync_tests.SyncTestModel',
+                target_label='auth.User',
+                field_name='owner',
+                attribute_name='owner_id',
+            ),
+        ],
+    )
+
+    assert 'owner_id' in writer._external_nullable_attribute_names['sync_tests.SyncTestModel']
+    assert 'owner_id' not in writer._deferred_attribute_names['sync_tests.SyncTestModel']
+
+
+def test_nullify_columns_nulls_external_without_stashing() -> None:
+    writer = DjangoRecordWriter(
+        models=[SyncTestModel, SyncTestSimpleModel],
+        deferred_foreign_keys=[
+            DeferredForeignKey(
+                source_label='sync_tests.SyncTestModel',
+                target_label='auth.User',
+                field_name='owner',
+                attribute_name='owner_id',
+            ),
+        ],
+    )
+
+    row = {'id': 'x', 'owner_id': 5, 'name': 'Alice'}
+    stashed = writer._nullify_deferred_columns('sync_tests.SyncTestModel', row)
+
+    assert row['owner_id'] is None
+    assert 'owner_id' not in stashed
+
+
+def test_nullify_columns_stashes_syncable_deferred() -> None:
+    writer = DjangoRecordWriter(
+        models=[SyncTestModel, SyncTestSimpleModel],
+        deferred_foreign_keys=[
+            DeferredForeignKey(
+                source_label='sync_tests.SyncTestModel',
+                target_label='sync_tests.SyncTestModel',
+                field_name='parent',
+                attribute_name='parent_id',
+            ),
+        ],
+    )
+
+    row = {'id': 'x', 'parent_id': 'y', 'name': 'Alice'}
+    stashed = writer._nullify_deferred_columns('sync_tests.SyncTestModel', row)
+
+    assert row['parent_id'] is None
+    assert stashed['parent_id'] == 'y'

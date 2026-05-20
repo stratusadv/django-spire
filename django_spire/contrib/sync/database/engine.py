@@ -121,6 +121,13 @@ def _cursor_last(records: dict[str, SyncRecord]) -> dict[str, Any] | None:
     }
 
 
+def _cursor_fresh_start(sequence: int) -> dict[str, Any]:
+    return {
+        'key': '',
+        'sequence': sequence,
+    }
+
+
 class DatabaseEngine:
     def __init__(
         self,
@@ -258,13 +265,13 @@ class DatabaseEngine:
         budget = _Budget(records_max, bytes_max)
         has_more = False
         response_sequence_max = peer_sequence
-        skipped_sequence_min: int | None = None
 
         for model_label in self._graph.sync_order():
             incoming_payload = incoming_by_label.get(model_label)
+            existing_cursor = resolved_after_keys.get(model_label)
 
             if incoming_payload is not None:
-                response_payload, truncated, skipped_sequence_first = (
+                response_payload, truncated, _ = (
                     self._process_model(
                         incoming_payload,
                         peer_sequence,
@@ -272,6 +279,7 @@ class DatabaseEngine:
                         result,
                         budget=budget,
                         sequence_max=sequence_max,
+                        cursor=existing_cursor,
                     )
                 )
 
@@ -285,16 +293,12 @@ class DatabaseEngine:
 
                         if cursor:
                             response_cursors[model_label] = cursor
-
-                    if (
-                        model_label not in response_cursors
-                        and skipped_sequence_first is not None
-                    ):
-                        if (
-                            skipped_sequence_min is None
-                            or skipped_sequence_first < skipped_sequence_min
-                        ):
-                            skipped_sequence_min = skipped_sequence_first
+                    elif existing_cursor is not None:
+                        response_cursors[model_label] = existing_cursor
+                    else:
+                        response_cursors[model_label] = _cursor_fresh_start(
+                            peer_sequence,
+                        )
 
                 if response_payload.records or response_payload.deletes:
                     response_payloads.append(response_payload)
@@ -306,39 +310,46 @@ class DatabaseEngine:
                 continue
 
             if budget.exhausted:
+                probe_sequence = (
+                    existing_cursor.get('sequence', peer_sequence)
+                    if existing_cursor is not None
+                    else peer_sequence
+                )
+
+                probe_after_key = (
+                    existing_cursor.get('key') or None
+                    if existing_cursor is not None
+                    else None
+                )
+
                 probe = self._storage.get_changed_since(
                     model_label,
-                    peer_sequence,
+                    probe_sequence,
                     '',
                     sequence_max=sequence_max,
                     limit=1,
+                    after_key=probe_after_key,
                 )
-
-                probe_sequence_first = None
 
                 if probe:
                     has_more = True
 
-                    record_first = next(iter(probe.values()))
-                    probe_sequence_first = record_first.sequence
-
-                    if (
-                        skipped_sequence_min is None
-                        or probe_sequence_first < skipped_sequence_min
-                    ):
-                        skipped_sequence_min = probe_sequence_first
+                    if existing_cursor is not None:
+                        response_cursors[model_label] = existing_cursor
+                    else:
+                        response_cursors[model_label] = _cursor_fresh_start(
+                            peer_sequence,
+                        )
 
                 continue
 
-            cursor = resolved_after_keys.get(model_label)
-
-            local_payload, truncated, skipped_sequence_first = (
+            local_payload, truncated, _ = (
                 self._collect_local_only_payload(
                     model_label,
                     peer_sequence,
                     '',
                     budget,
-                    cursor=cursor,
+                    cursor=existing_cursor,
                     sequence_max=sequence_max,
                 )
             )
@@ -346,21 +357,17 @@ class DatabaseEngine:
             if truncated:
                 has_more = True
 
-                if local_payload is not None:
+                if local_payload is not None and local_payload.records:
                     cursor_out = _cursor_last(local_payload.records)
 
                     if cursor_out:
                         response_cursors[model_label] = cursor_out
-
-                if (
-                    model_label not in response_cursors
-                    and skipped_sequence_first is not None
-                ):
-                    if (
-                        skipped_sequence_min is None
-                        or skipped_sequence_first < skipped_sequence_min
-                    ):
-                        skipped_sequence_min = skipped_sequence_first
+                elif existing_cursor is not None:
+                    response_cursors[model_label] = existing_cursor
+                else:
+                    response_cursors[model_label] = _cursor_fresh_start(
+                        peer_sequence,
+                    )
 
             if local_payload is not None:
                 response_payloads.append(local_payload)
@@ -368,9 +375,6 @@ class DatabaseEngine:
                 for record in local_payload.records.values():
                     if record.sequence > response_sequence_max:
                         response_sequence_max = record.sequence
-
-        if skipped_sequence_min is not None:
-            response_sequence_max = min(response_sequence_max, skipped_sequence_min - 1)
 
         return response_payloads, has_more, response_cursors, response_sequence_max
 
@@ -526,40 +530,51 @@ class DatabaseEngine:
         cursors: dict[str, Any] = {}
         has_more = False
         sent_sequence_max = local_sequence_pushed
-        skipped_sequence_min: int | None = None
 
         for model_label in self._graph.sync_order():
+            existing_cursor = resolved_after_keys.get(model_label)
+
             if budget.exhausted:
+                probe_sequence = (
+                    existing_cursor.get('sequence', local_sequence_pushed)
+                    if existing_cursor is not None
+                    else local_sequence_pushed
+                )
+
+                probe_after_key = (
+                    existing_cursor.get('key') or None
+                    if existing_cursor is not None
+                    else None
+                )
+
                 probe = self._storage.get_changed_since(
                     model_label,
-                    local_sequence_pushed,
+                    probe_sequence,
                     peer_node_id,
                     sequence_max=sequence_max,
                     limit=1,
+                    after_key=probe_after_key,
                 )
 
                 if probe:
                     has_more = True
 
-                    record_first = next(iter(probe.values()))
-
-                    if (
-                        skipped_sequence_min is None
-                        or record_first.sequence < skipped_sequence_min
-                    ):
-                        skipped_sequence_min = record_first.sequence
+                    if existing_cursor is not None:
+                        cursors[model_label] = existing_cursor
+                    else:
+                        cursors[model_label] = _cursor_fresh_start(
+                            local_sequence_pushed,
+                        )
 
                 continue
 
-            cursor = resolved_after_keys.get(model_label)
-
-            payload, truncated, skipped_sequence_first = (
+            payload, truncated, _ = (
                 self._collect_local_only_payload(
                     model_label,
                     local_sequence_pushed,
                     peer_node_id,
                     budget,
-                    cursor=cursor,
+                    cursor=existing_cursor,
                     sequence_max=sequence_max,
                 )
             )
@@ -567,21 +582,17 @@ class DatabaseEngine:
             if truncated:
                 has_more = True
 
-                if payload is not None:
+                if payload is not None and payload.records:
                     payload_cursor = _cursor_last(payload.records)
 
                     if payload_cursor:
                         cursors[model_label] = payload_cursor
-
-                if (
-                    model_label not in cursors
-                    and skipped_sequence_first is not None
-                ):
-                    if (
-                        skipped_sequence_min is None
-                        or skipped_sequence_first < skipped_sequence_min
-                    ):
-                        skipped_sequence_min = skipped_sequence_first
+                elif existing_cursor is not None:
+                    cursors[model_label] = existing_cursor
+                else:
+                    cursors[model_label] = _cursor_fresh_start(
+                        local_sequence_pushed,
+                    )
 
             if payload is not None:
                 payloads.append(payload)
@@ -613,9 +624,6 @@ class DatabaseEngine:
                 )
 
                 raise PayloadLimitError(message)
-
-        if skipped_sequence_min is not None:
-            sent_sequence_max = min(sent_sequence_max, skipped_sequence_min - 1)
 
         if has_more:
             outgoing_local_sequence = sent_sequence_max
@@ -656,7 +664,7 @@ class DatabaseEngine:
 
         if cursor:
             effective_seq = cursor.get('sequence', sequence)
-            effective_after_key = cursor.get('key')
+            effective_after_key = cursor.get('key') or None
 
         records = self._storage.get_changed_since(
             model_label,
@@ -701,7 +709,7 @@ class DatabaseEngine:
 
         deletes = self._storage.get_deletes_since(
             model_label,
-            sequence,
+            effective_seq,
             peer_node_id,
             sequence_max=sequence_max,
         )
@@ -1075,6 +1083,7 @@ class DatabaseEngine:
         result: DatabaseResult,
         budget: _Budget | None = None,
         sequence_max: int | None = None,
+        cursor: dict[str, Any] | None = None,
     ) -> tuple[ModelPayload, bool, int | None]:
         all_incoming_keys = (
             set(payload.records) |
@@ -1120,21 +1129,44 @@ class DatabaseEngine:
             else budget.remaining_records
         )
 
-        local_only, local_truncated, sequence_skipped_first_local = (
-            self._get_local_only_changes(
-                payload.model_label,
-                sequence,
-                '',
-                all_incoming_keys,
-                sequence_max=sequence_max,
-                limit=local_only_limit,
-            )
+        effective_seq = sequence
+        effective_after_key = None
+
+        if cursor:
+            effective_seq = cursor.get('sequence', sequence)
+            effective_after_key = cursor.get('key') or None
+
+        fetch_limit = (
+            None if local_only_limit is None
+            else local_only_limit + len(all_incoming_keys) + 1
         )
 
-        if local_truncated:
-            truncated = True
+        all_changes = self._storage.get_changed_since(
+            payload.model_label,
+            effective_seq,
+            '',
+            sequence_max=sequence_max,
+            limit=fetch_limit,
+            after_key=effective_after_key,
+        )
 
-        skipped_sequence_first = sequence_skipped_first_local
+        local_only = {
+            key: record
+            for key, record in all_changes.items()
+            if key not in all_incoming_keys
+        }
+
+        skipped_sequence_first: int | None = None
+
+        if local_only_limit is not None and len(local_only) > local_only_limit:
+            items = list(local_only.items())
+
+            if local_only_limit == 0:
+                skipped_sequence_first = items[0][1].sequence
+
+            local_only = dict(items[:local_only_limit])
+
+            truncated = True
 
         for key, record in local_only.items():
             if key in response_records:
@@ -1157,7 +1189,7 @@ class DatabaseEngine:
 
         deletes = self._storage.get_deletes_since(
             payload.model_label,
-            sequence,
+            effective_seq,
             '',
             sequence_max=sequence_max,
         )
@@ -1447,13 +1479,7 @@ class DatabaseEngine:
                 )
 
                 if manifest.has_more:
-                    collect_cursors = {}
-
-                    for payload in manifest.payloads:
-                        cursor = _cursor_last(payload.records)
-
-                        if cursor:
-                            collect_cursors[payload.model_label] = cursor
+                    collect_cursors = manifest.after_keys or {}
                 else:
                     collect_cursors = {}
 
