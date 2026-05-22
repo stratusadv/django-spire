@@ -1,0 +1,19 @@
+name: django_spire_test
+
+services:
+    test-postgres:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_DB: ${TEST_DATABASE_NAME:-django_spire_test}
+            POSTGRES_USER: ${TEST_DATABASE_USER:-postgres}
+            POSTGRES_PASSWORD: ${TEST_DATABASE_PASSWORD:-postgres}
+        ports:
+            - "${TEST_DATABASE_PORT:-5439}:5432"
+        tmpfs:
+            - /var/lib/postgresql/data
+        command: >
+            postgres
+            -c fsync=off
+            -c synchronous_commit=off
+            -c full_page_writes=off
+            -c max_connections=200

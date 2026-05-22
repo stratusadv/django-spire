@@ -143,7 +143,8 @@ from django_spire.contrib.service import BaseDjangoModelService
 if TYPE_CHECKING:
     from app.tasks.models import Task
 
-class TaskAutomationService(BaseDjangoModelService['Task']):    
+
+class TaskAutomationService(BaseDjangoModelService['Task']):
     obj: Task
 
     def mark_stale(self) -> Task:

@@ -12,7 +12,7 @@ from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import portal_views
 from django_spire.core.shortcuts import get_object_or_null_obj
-from django_spire.file.interfaces import MultiFileUploader
+from django_spire.file.factory import FileFactory
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
@@ -90,12 +90,9 @@ def import_form_view(
         file_form = EntryFilesForm(request.POST, request.FILES)
 
         if file_form.is_valid():
-            file_uploader = MultiFileUploader(
-                related_field=None,
-                app_name='knowledge'
-            )
+            factory = FileFactory(app_name='knowledge')
 
-            file_objects = file_uploader.upload(request.FILES.getlist('import_files'))
+            file_objects = factory.create_many(request.FILES.getlist('import_files'))
 
             Entry.services.factory.create_from_files(
                 author=request.user,

@@ -74,6 +74,11 @@ nav:
       - Pagination: app_guides/contrib/pagination.md
       - Progress: app_guides/contrib/progress.md
       - QuerySet Utilities: app_guides/contrib/queryset.md
+      - REST:
+          - Overview: app_guides/rest/overview.md
+          - Connectors: app_guides/rest/connector.md
+          - Schemas: app_guides/rest/schema.md
+          - SchemaSets: app_guides/rest/schemaset.md
   - Core:
       - Filtering: app_guides/core/filtering.md
       - Glue Helpers: app_guides/core/glue_helpers.md

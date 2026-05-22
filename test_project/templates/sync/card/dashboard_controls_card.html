@@ -1,0 +1,44 @@
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <span class="sd-section-label sd-mono">django-spire &middot; sync</span>
+    <a href="{% url 'sync:page:verification' %}" class="btn btn-outline-success btn-sm">Verify Databases</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-7">
+        <div class="border rounded p-3">
+            <span class="sd-section-label sd-mono d-block mb-2">Seed</span>
+            <form method="POST" class="d-flex align-items-center gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="seed">
+                <select name="scenario" class="form-select form-select-sm sd-mono" style="width: auto; font-size: 0.72rem;">
+                    {% for value, label in scenario_choices %}
+                        <option value="{{ value }}" {% if value == selected_scenario %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="seed" value="{{ seed_value }}" placeholder="seed (optional)" class="form-control form-control-sm sd-mono" style="width: 120px; font-size: 0.72rem;">
+                <select name="tablet_count" class="form-select form-select-sm sd-mono" style="width: auto; font-size: 0.72rem;" title="Number of tablets">
+                    {% for _ in "12345" %}
+                        <option value="{{ forloop.counter }}" {% if forloop.counter == tablet_count %}selected{% endif %}>{{ forloop.counter }} tablet{{ forloop.counter|pluralize }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm ms-auto">Seed Data</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="border rounded p-3">
+            <span class="sd-section-label sd-mono d-block mb-2">Sync</span>
+            <form method="POST" class="d-flex align-items-center gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="tablet_count" value="{{ tablet_count }}">
+                <select name="strategy" class="form-select form-select-sm sd-mono" style="width: auto; font-size: 0.72rem;">
+                    {% for value, label in strategy_choices %}
+                        <option value="{{ value }}" {% if value == selected_strategy %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" name="action" value="sync_current" class="btn btn-outline-secondary btn-sm ms-auto">Sync Current</button>
+                <button type="submit" name="action" value="sync_all" class="btn btn-outline-secondary btn-sm">Sync All</button>
+            </form>
+        </div>
+    </div>
+</div>

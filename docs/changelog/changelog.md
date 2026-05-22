@@ -1,5 +1,95 @@
 # Changelog
 
+## v0.32.4
+
+### Changes
+- Less aggressive convergence check between devices in the `sync` module
+
+## v0.32.3
+
+### Changes
+- Updated `django-glue` version to `0.8.16`
+
+## v0.32.2
+
+### Changes
+- Fix foreign key mapping in the `sync` module
+
+## v0.32.1
+
+### Changes
+- Introduce `using` to `transaction.atomic` in the `sync` module
+
+## v0.32.0
+
+### Changes
+- Update the `sync` module to include more tracking mechanisms
+
+## v0.31.10
+
+### Fixes
+- Fixed how kwargs are passed into `RestSchemaSet` `._read_one`
+
+## v0.31.9
+
+### Changes
+- Fixed comment Add button permission from `change` to `add`
+
+## v0.31.8
+
+### Changes
+- Updated `django-glue` version to `0.8.14`
+
+## v0.31.7
+
+### Changes
+- Added an `open` method to `sync.file`
+
+## v0.31.6
+
+### Changes
+- Added working prototype of `sync` module
+- Updated `nav_link.html` and `wizard.html` templates
+
+## v0.31.5
+
+### Features
+- Added the `django_spire/contrib/rest module`, which contains a django queryset-like pattern for connecting to external, rest-based data sources.
+
+### Fixes
+- Fixed `SessionController` `purge()` `KeyError` on session timeout.
+
+## v0.31.4
+
+### Changes
+- Added `slide_button.html` to templates
+- Added `access_key_required` to `core.decorators`. Used for UUID authentication with publicly exposed urls.
+
+## v0.31.3
+
+### Changes
+- Added `table_min_width` to table to control width
+
+## v0.31.2
+
+### Fixes
+- Fixed navigation link not working in mobile
+
+### Changes
+- Improved PWA install documentation.
+- Improved PWA iOS install model UI.
+
+## v0.31.1
+
+### Changes
+- Improve validation
+- Added predefined extensions
+
+## v0.31.0
+
+### Breaking
+- Updated the file module, interfaces and files
+
 ## v0.30.5
 
 ### Changes

@@ -72,6 +72,20 @@ The Django Spire `base.html` includes the manifest link by default:
 
 If you are using a custom base template, add this line inside your `<head>` block.
 
+### 4. Development Django Settings
+
+To enable PWA installation on Android during development, add the following to your `settings.py`:
+
+```python
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+        # Your hosted development address here (ie. 'https://development-server.dev')
+    ]
+```
+
+**Note:** Android blocks PWA installation prompts for non-HTTPS URLs by default.
+We recommend using [ngrok](https://ngrok.com) to expose your development environment over HTTPS for testing.
+
 ---
 
 ## Core Concepts
@@ -127,3 +141,20 @@ templates/django_spire/auth/element/android_and_chrome_app_install_element.html
 ```
 
 Once both elements are in place, users will see an **Install App** button on the login page. Clicking it installs the project as a PWA on their device.
+
+
+### Testing
+
+#### Android / Chrome Install
+
+1. Use your development laptop to install the app.
+2. Ensure that the information, colors, images, and app icon is correct.
+3. Visit your browser settings to uninstall it.
+
+
+#### iOS Install
+
+1. Comment out the `hidden` attribute in the `django_spire/auth/button/ios_install_button.html` file.
+2. Click the install app button and ensure the information, colors, and images on the modal are correct.
+3. Using an iOS device, install the app via the safari browser. Ensure the app icon is correct.
+4. Uncomment the `hidden` attribute in the `django_spire/auth/button/ios_install_button.html` file.

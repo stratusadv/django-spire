@@ -258,7 +258,7 @@
     >
         <table
             class="table table-hover table-striped fs-7 w-100 {% block table_class %}{% endblock %}"
-            :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '800px') + '; ' + (header_locked || any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;') + '; opacity: ' + (table_visible ? '1' : '0') + '; transition: opacity 150ms ease-in;'"
+            :style="'min-width: ' + (responsive_mode === 'scroll' ? '100%' : '{{ table_min_width|default:'800px' }}') + '; ' + (header_locked || any_row_has_children ? 'table-layout: fixed;' : 'table-layout: auto;') + '; opacity: ' + (table_visible ? '1' : '0') + '; transition: opacity 150ms ease-in;'"
         >
             <thead class="{% block table_head_class %}bg-app-layer-two sticky-top{% endblock %}">
                 <tr

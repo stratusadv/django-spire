@@ -1,0 +1,8 @@
+<div class="sd-tab-bar mb-3">
+    <span class="sd-section-label sd-mono" style="margin-right: 4px;">View:</span>
+    {% for tdb in tablet_databases %}
+        <a href="{% url 'sync:page:switch_database' database_name=tdb %}" class="sd-tab sd-tab-tablet {% if current_database == tdb %}sd-tab-active{% endif %}">{{ tdb }}</a>
+    {% endfor %}
+    <a href="{% url 'sync:page:switch_database' database_name='cloud' %}" class="sd-tab sd-tab-cloud {% if current_database == 'cloud' %}sd-tab-active{% endif %}">cloud</a>
+    <span @click="show_ts = !show_ts" class="sd-tab sd-mono" :class="{ 'sd-tab-active': show_ts }" style="margin-left: auto; cursor: pointer;">Timestamps</span>
+</div>

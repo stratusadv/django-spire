@@ -1,0 +1,41 @@
+{% if merged_cloud_view %}
+    <div class="border rounded overflow-hidden mb-4 mt-4">
+        <div class="row g-0 px-3 py-2 border-bottom">
+            <div class="col-2">
+                <span class="sd-section-label sd-mono">Model</span>
+            </div>
+            <div class="col-10">
+                <span class="sd-section-label sd-mono" style="color: #34d399; opacity: 0.7;">Merged Cloud State</span>
+            </div>
+        </div>
+
+        {% for record in merged_cloud_view %}
+        <div class="sd-row">
+            <div class="row g-0 px-3 py-2 align-items-stretch">
+                <div class="col-2 d-flex flex-column gap-1 pt-1 pe-3">
+                    <span class="sd-mono" style="font-size: 0.5rem; opacity: 0.2;">{{ record.model|upper }}</span>
+                </div>
+                <div class="col-10 sd-col-stretch">
+                    <div class="sd-cell sd-cell-merged">
+                        <div class="d-flex align-items-baseline gap-2 mb-2">
+                            <span class="sd-badge-merged">Merged</span>
+                            <strong style="font-size: 0.78rem;">{{ record.title }}</strong>
+                        </div>
+                        <div class="sd-kv-grid sd-mono" style="grid-template-columns: auto 1fr auto;">
+                            {% for field in record.fields %}
+                                <span class="sd-kv-key">{{ field.name }}</span>
+                                <span class="sd-kv-val">{{ field.value }}</span>
+                                {% if field.source == 'cloud' %}
+                                    <span class="sd-badge-cloud" style="font-size: 0.45rem; align-self: center;">cloud</span>
+                                {% else %}
+                                    <span class="sd-badge-local" style="font-size: 0.45rem; align-self: center;">{{ field.source }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}

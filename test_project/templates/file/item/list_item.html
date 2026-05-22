@@ -1,0 +1,10 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title %}
+    {{ file_example.name }}
+{% endblock %}
+
+{% block item_button %}
+    {% url 'file:page:detail' pk=file_example.pk as detail_url %}
+    {% include 'django_spire/button/primary_dark_button.html' with button_text='View' button_icon='bi bi-eye' button_href=detail_url %}
+{% endblock %}

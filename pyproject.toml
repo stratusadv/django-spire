@@ -55,6 +55,7 @@ dependencies = [
     "faker",
     "marko==2.1.4",
     "markitdown[docx, pdf]==0.1.2",
+    "paramiko==4.0.0",
     "psycopg2",
     "pydantic",
     "Pygments",
@@ -72,6 +73,7 @@ development = [
     "django-browser-reload",
     "django-debug-toolbar",
     "django-watchfiles",
+    "hypothesis",
     "pip",
     "playwright",
     "pyinstrument",
@@ -148,6 +150,7 @@ exclude = [
     "*/system/*",
     "*/tests/*",
     "*/venv/*",
+
     # Files
     "__init__.py",
     "apps.py",
@@ -187,11 +190,18 @@ include = [
 ]
 
 [tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "test_project.test_settings"
+pythonpath = ["."]
 django_find_project = false
+# log_cli = true
+# log_cli_level = "INFO"
 markers = [
-    "ai: marks tests that require AI/LLM calls (deselect with '-m \"not ai\"')",
-    "playwright: Playwright browser tests",
+    "ai: AI/LLM tests",
+    "playwright: Playwright tests",
+    "simulation: Deterministic simulation tests",
+    "slow: Fuzz tests",
+    "postgres_only: Skip when the default database is not Postgres",
 ]
-norecursedirs = ["atlassian", "test_playwright"]
+norecursedirs = [".hypothesis", "atlassian", "test_playwright"]
 addopts = "-m 'not ai'"
 

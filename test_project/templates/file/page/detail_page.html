@@ -1,0 +1,33 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="row g-3">
+        <div class="col-12">
+            {% include 'file/card/detail_card.html' %}
+        </div>
+
+        <div class="col-12">
+            {% include 'file/card/attachments_card.html' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'file/card/service_replace_profile_picture_card.html' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'file/card/service_replace_attachments_card.html' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'file/card/service_add_attachment_card.html' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'file/card/service_add_attachments_card.html' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'file/card/service_add_validated_attachment_card.html' %}
+        </div>
+    </div>
+{% endblock %}

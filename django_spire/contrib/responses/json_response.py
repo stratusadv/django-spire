@@ -19,11 +19,16 @@ def json_response(type: ResponseTypeChoices | str, message: str | None = None, *
     elif isinstance(type, str):
         if type not in response_choices:
             valid = ', '.join(response_choices)
-            raise ValueError(f'{type} is not a valid option for ResponseTypeChoices: [{valid}]')
+
+            message = f'{type} is not a valid option for ResponseTypeChoices: [{valid}]'
+            raise ValueError(message)
+
         type_value = type
     else:
         valid = ', '.join(response_choices)
-        raise ValueError(f'{type} is not a valid option for ResponseTypeChoices: [{valid}]')
+
+        message = f'{type} is not a valid option for ResponseTypeChoices: [{valid}]'
+        raise TypeError(message)
 
     return_data = {
         'type': type_value,

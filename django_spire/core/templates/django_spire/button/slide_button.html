@@ -1,0 +1,163 @@
+<div
+    x-data="{
+        dragging: false,
+        pressed: false,
+        x: 0,
+        startX: 0,
+        trackWidth: 0,
+        thumbSize: 0,
+        submitted: false,
+        pad: 5,
+
+        get maximumX() {
+            return this.trackWidth - this.thumbSize - (this.pad * 2);
+        },
+
+        get progress() {
+            if (this.maximumX <= 0) return 0;
+            return this.x / this.maximumX;
+        },
+
+        get glyphSize() {
+            if (this.thumbSize <= 0) return 16;
+            return Math.round(this.thumbSize * 0.42);
+        },
+
+        get showChevrons() {
+            return this.trackWidth > this.thumbSize * 3;
+        },
+
+        get chevronScale() {
+            let available = this.trackWidth - this.thumbSize - (this.pad * 2);
+            if (available < 80) return available / 80;
+            return 1;
+        },
+
+        start(e) {
+            if (this.submitted) return;
+            this.dragging = true;
+            this.pressed = true;
+            this.measure();
+            let client_x = e.touches ? e.touches[0].clientX : e.clientX;
+            this.startX = client_x - this.x;
+            if (e.pointerId !== undefined) e.currentTarget.setPointerCapture(e.pointerId);
+        },
+
+        move(e) {
+            if (!this.dragging) return;
+            e.preventDefault();
+            let client_x = e.touches ? e.touches[0].clientX : e.clientX;
+            let new_x = client_x - this.startX;
+            this.x = Math.max(0, Math.min(new_x, this.maximumX));
+        },
+
+        end() {
+            this.pressed = false;
+            if (!this.dragging) return;
+            this.dragging = false;
+
+            if (this.x >= this.maximumX - 2) {
+                this.x = this.maximumX;
+                this.submitted = true;
+                this.$dispatch('slide-submit');
+            } else {
+                this.x = 0;
+            }
+        },
+
+        measure() {
+            let track = this.$refs.track;
+            let thumb = this.$refs.thumb;
+            if (track) this.trackWidth = track.offsetWidth;
+            if (thumb) this.thumbSize = thumb.offsetWidth;
+        },
+
+        reset() {
+            this.submitted = false;
+            this.x = 0;
+        }
+    }"
+    x-init="
+        let size = $refs.track.offsetHeight - (pad * 2);
+        $refs.thumb.style.width = size + 'px';
+        $refs.thumb.style.height = size + 'px';
+        measure();
+    "
+    @pointermove.window="move($event)"
+    @pointerup.window="end()"
+    @pointercancel.window="end()"
+    class="{{ wrapper_class }}"
+    style="user-select: none; -webkit-user-select: none;"
+>
+    <div
+        x-ref="track"
+        class="position-relative d-flex align-items-center justify-content-center"
+        style="overflow: hidden; touch-action: none; height: {{ slide_height|default:'48px' }}; {% if slide_width %}width: {{ slide_width }};{% endif %} background: var(--app-alt-layer-four, var(--app-layer-four)); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);"
+        x-init="$el.style.borderRadius = ($el.offsetHeight / 2) + 'px'"
+        x-effect="$refs.track.style.borderRadius = ($refs.track.offsetHeight / 2) + 'px'"
+    >
+        <!-- Fill -->
+        <div
+            class="position-absolute"
+            style="pointer-events: none;"
+            :style="{
+                top: pad + 'px',
+                left: pad + 'px',
+                height: thumbSize + 'px',
+                width: (thumbSize + x) + 'px',
+                borderRadius: (thumbSize / 2) + 'px',
+                background: 'color-mix(in srgb, var(--app-layer-one) 18%, transparent)',
+                boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--app-layer-one) 12%, transparent)',
+                transition: dragging ? 'none' : 'width 0.42s cubic-bezier(.4, 0, .2, 1)'
+            }"
+        ></div>
+
+        <!-- Chevron hints -->
+        <div
+            x-show="!submitted && showChevrons"
+            class="position-absolute d-flex align-items-center"
+            style="top: 0; bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: none;"
+            :style="{
+                opacity: Math.max(0, 1 - progress * 1.6),
+                transition: dragging ? 'none' : 'opacity 0.3s'
+            }"
+        >
+            <svg :width="36 * chevronScale" :height="14 * chevronScale" viewBox="0 0 36 14" fill="none">
+                <path d="M2 2 L7 7 L2 12" stroke="var(--app-default-alt-text-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                      style="animation: slide-chevron-pulse 1.6s 0s ease-in-out infinite;" />
+                <path d="M14 2 L19 7 L14 12" stroke="var(--app-default-alt-text-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                      style="animation: slide-chevron-pulse 1.6s 0.16s ease-in-out infinite;" />
+                <path d="M26 2 L31 7 L26 12" stroke="var(--app-default-alt-text-color)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                      style="animation: slide-chevron-pulse 1.6s 0.32s ease-in-out infinite;" />
+            </svg>
+        </div>
+
+        <!-- Thumb -->
+        <div
+            x-ref="thumb"
+            @pointerdown.prevent="start($event)"
+            class="position-absolute d-flex align-items-center justify-content-center rounded-circle"
+            :style="{
+                top: pad + 'px',
+                left: pad + 'px',
+                background: 'var(--app-layer-one)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06)',
+                transform: 'translateX(' + x + 'px) scale(' + (pressed && !submitted ? 0.96 : 1) + ')',
+                transition: dragging ? 'transform 0s, box-shadow 0.2s' : 'transform 0.42s cubic-bezier(.4, 0, .2, 1), box-shadow 0.2s',
+                cursor: submitted ? 'default' : (dragging ? 'grabbing' : 'grab'),
+                touchAction: 'none'
+            }"
+        >
+            <!-- Arrow -->
+            <svg x-show="!submitted" :width="glyphSize" :height="Math.round(glyphSize * 0.7)" viewBox="0 0 20 14" fill="none">
+                <path d="M2 7 L17 7 M11 2 L17 7 L11 12" stroke="var(--app-default-text-color)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+
+            <!-- Checkmark -->
+            <svg x-cloak x-show="submitted" :width="glyphSize" :height="glyphSize" viewBox="0 0 22 22" fill="none">
+                <path d="M5 11.5 L9.5 16 L17 7" stroke="var(--app-default-text-color)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                      style="stroke-dasharray: 24; stroke-dashoffset: 24; animation: slide-check-draw 0.45s 0.05s cubic-bezier(.6,.1,.3,1) forwards;" />
+            </svg>
+        </div>
+    </div>
+</div>

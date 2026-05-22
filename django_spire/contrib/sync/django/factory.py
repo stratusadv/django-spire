@@ -1,0 +1,182 @@
+from __future__ import annotations
+
+from typing import Any, TYPE_CHECKING
+
+from django.db import transaction
+
+from django_spire.contrib.sync.database.conflict import FieldTimestampWins
+from django_spire.contrib.sync.database.engine import (
+    BATCH_BYTES_DEFAULT,
+    DatabaseEngine,
+)
+from django_spire.contrib.sync.database.reconciler import PayloadReconciler
+from django_spire.contrib.sync.database.transport.http import HttpTransport
+from django_spire.contrib.sync.django.graph import (
+    build_graph,
+    get_deferred_foreign_key_columns,
+    get_foreign_key_columns_for_cascade,
+)
+from django_spire.contrib.sync.django.lock import DjangoSyncLock
+from django_spire.contrib.sync.django.mixin import SyncableMixin
+from django_spire.contrib.sync.django.storage import DjangoSyncStorage
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from contextlib import AbstractContextManager
+
+    from django_spire.contrib.sync.core.clock import HybridLogicalClock
+    from django_spire.contrib.sync.core.enums import SyncPhase, SyncStage
+    from django_spire.contrib.sync.database.conflict import ConflictResolver
+    from django_spire.contrib.sync.database.graph import DependencyGraph
+    from django_spire.contrib.sync.database.lock import SyncLock
+    from django_spire.contrib.sync.database.manifest import DatabaseResult
+    from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
+
+
+def _resolve_common(
+    models: list[type[SyncableMixin]],
+    clock: HybridLogicalClock | None,
+    graph: DependencyGraph | None,
+    resolver: ConflictResolver | None,
+    storage: DatabaseSyncStorage | None,
+) -> tuple[
+    HybridLogicalClock,
+    DependencyGraph,
+    PayloadReconciler,
+    DatabaseSyncStorage,
+    dict[str, list[tuple[str, str]]],
+]:
+    resolved_clock = clock or SyncableMixin.get_clock()
+    resolved_graph = graph or build_graph(models)
+    reconciler = PayloadReconciler(
+        resolver=resolver or FieldTimestampWins(),
+    )
+
+    deferred_foreign_keys = get_deferred_foreign_key_columns(
+        models,
+        resolved_graph,
+    )
+
+    resolved_storage = storage or DjangoSyncStorage(
+        models=models,
+        deferred_foreign_keys=deferred_foreign_keys,
+    )
+
+    foreign_key_columns = get_foreign_key_columns_for_cascade(models)
+
+    return (
+        resolved_clock,
+        resolved_graph,
+        reconciler,
+        resolved_storage,
+        foreign_key_columns,
+    )
+
+
+def build_client_engine(
+    models: list[type[SyncableMixin]],
+    node_id: str,
+    peer_node_id: str,
+    url: str,
+    *,
+    batch_bytes: int | None = BATCH_BYTES_DEFAULT,
+    batch_size: int | None = None,
+    clock: HybridLogicalClock | None = None,
+    clock_drift_max: int | None = 300,
+    graph: DependencyGraph | None = None,
+    headers: dict[str, str] | None = None,
+    on_complete: Callable[[DatabaseResult], None] | None = None,
+    on_phase: Callable[[SyncPhase], None] | None = None,
+    payload_bytes_max: int | None = None,
+    payload_records_max: int | None = None,
+    progress: Callable[[SyncStage, int, int], None] | None = None,
+    resolver: ConflictResolver | None = None,
+    storage: DatabaseSyncStorage | None = None,
+    transaction_fn: Callable[[], AbstractContextManager[Any]] = transaction.atomic,
+) -> DatabaseEngine:
+    (
+        resolved_clock,
+        resolved_graph,
+        reconciler,
+        resolved_storage,
+        foreign_key_columns,
+    ) = _resolve_common(
+        models,
+        clock,
+        graph,
+        resolver,
+        storage,
+    )
+
+    return DatabaseEngine(
+        batch_bytes=batch_bytes,
+        batch_size=batch_size,
+        clock=resolved_clock,
+        clock_drift_max=clock_drift_max,
+        foreign_key_columns=foreign_key_columns,
+        graph=resolved_graph,
+        node_id=node_id,
+        on_complete=on_complete,
+        on_phase=on_phase,
+        payload_bytes_max=payload_bytes_max,
+        payload_records_max=payload_records_max,
+        peer_node_id=peer_node_id,
+        progress=progress,
+        reconciler=reconciler,
+        storage=resolved_storage,
+        transaction=transaction_fn,
+        transport=HttpTransport(url=url, headers=headers or {}),
+    )
+
+
+def build_server_engine(
+    models: list[type[SyncableMixin]],
+    node_id: str,
+    *,
+    batch_bytes: int | None = BATCH_BYTES_DEFAULT,
+    batch_size: int | None = None,
+    clock: HybridLogicalClock | None = None,
+    clock_drift_max: int | None = 300,
+    graph: DependencyGraph | None = None,
+    lock: SyncLock | None = None,
+    on_complete: Callable[[DatabaseResult], None] | None = None,
+    on_phase: Callable[[SyncPhase], None] | None = None,
+    payload_bytes_max: int | None = None,
+    payload_records_max: int | None = None,
+    progress: Callable[[SyncStage, int, int], None] | None = None,
+    resolver: ConflictResolver | None = None,
+    storage: DatabaseSyncStorage | None = None,
+    transaction_fn: Callable[[], AbstractContextManager[Any]] = transaction.atomic,
+) -> DatabaseEngine:
+    (
+        resolved_clock,
+        resolved_graph,
+        reconciler,
+        resolved_storage,
+        foreign_key_columns,
+    ) = _resolve_common(
+        models,
+        clock,
+        graph,
+        resolver,
+        storage,
+    )
+
+    return DatabaseEngine(
+        batch_bytes=batch_bytes,
+        batch_size=batch_size,
+        clock=resolved_clock,
+        clock_drift_max=clock_drift_max,
+        foreign_key_columns=foreign_key_columns,
+        graph=resolved_graph,
+        lock=lock or DjangoSyncLock(),
+        node_id=node_id,
+        on_complete=on_complete,
+        on_phase=on_phase,
+        payload_bytes_max=payload_bytes_max,
+        payload_records_max=payload_records_max,
+        progress=progress,
+        reconciler=reconciler,
+        storage=resolved_storage,
+        transaction=transaction_fn,
+    )

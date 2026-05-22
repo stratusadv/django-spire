@@ -81,7 +81,7 @@ class SessionController:
         return self.timeout_datestamp < current_timestamp
 
     def purge(self) -> None:
-        self.request.session.pop(self.session_key)
+        self.request.session.pop(self.session_key, None)
         self._set_modified()
 
     def remove_data(self, key: str) -> None:

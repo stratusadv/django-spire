@@ -11,7 +11,7 @@
         {% include 'django_spire/element/attribute_element.html' with attribute_type='Name' attribute_value=file.name attribute_href=file.file.url target='_blank' %}
     </div>
     <div class="col-2">
-        {% include 'django_spire/element/attribute_element.html' with attribute_type='Size' attribute_value=file.size %}
+        {% include 'django_spire/element/attribute_element.html' with attribute_type='Size' attribute_value=file.formatted_size %}
     </div>
     <div class="col-2">
         {% include 'django_spire/element/attribute_element.html' with attribute_type='Type' attribute_value=file.type %}

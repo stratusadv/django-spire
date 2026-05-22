@@ -16,8 +16,8 @@ def create_test_file(
     object_id: int | None = None,
     name: str = 'test_file',
     file_type: str = 'pdf',
-    size: str = '1.5 Mb',
-    related_field: str | None = None,
+    size: int = 1_048_576,
+    related_field: str = '',
     is_active: bool = True,
     is_deleted: bool = False,
 ) -> File:

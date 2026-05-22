@@ -1,0 +1,65 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Single File Handler
+{% endblock %}
+
+{% block card_title_content %}
+    <div style="min-height: 300px;">
+        <p class="text-muted small">Replaces existing profile picture via <code>processor.replace_profile_picture()</code></p>
+
+        <div
+            x-data="{
+                service_pfp: new GlueCharField('service_pfp'),
+                response_message: '',
+                response_type: '',
+
+                async init() {
+                    this.service_pfp.label = 'File';
+                },
+
+                async handle_submit() {
+                    if (!this.service_pfp.value) {
+                        this.show_response('error', 'No file selected.');
+                        return;
+                    }
+
+                    let form_data = new FormData(this.$refs.upload_form);
+                    let response = await fetch('{% url 'file:json:replace_profile_picture' pk=file_example.pk %}', {
+                        method: 'POST',
+                        body: form_data,
+                    });
+                    let data = await response.json();
+
+                    this.show_response(data.type, JSON.stringify(data, null, 2));
+
+                    if (data.type === 'success') {
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                },
+
+                show_response(type, message) {
+                    this.response_type = type;
+                    this.response_message = message;
+                }
+            }"
+        >
+            <form x-ref="upload_form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% include 'django_glue/form/field/single_file_field.html' with glue_field='service_pfp' %}
+            </form>
+
+            <div class="mt-2">
+                <button type="button" class="btn btn-primary" @click="handle_submit()">Upload</button>
+            </div>
+
+            <div x-show="response_message" x-cloak class="mt-2">
+                <pre
+                    class="p-2 rounded-3 small mb-0"
+                    :class="response_type === 'success' ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger'"
+                    x-text="response_message"
+                ></pre>
+            </div>
+        </div>
+    </div>
+{% endblock %}

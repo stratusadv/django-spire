@@ -1,0 +1,61 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    {{ page_title }}
+{% endblock %}
+
+{% block card_title_content %}
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        x-data="{
+            file_example: new ModelObjectGlue('file_example'),
+
+            attachments: new GlueCharField('attachments'),
+            profile_picture: new GlueCharField('profile_picture'),
+
+            async init() {
+                await this.file_example.get();
+
+                this.attachments.label = 'Attachments';
+                this.profile_picture.label = 'Profile Picture';
+            }
+        }"
+    >
+        {% csrf_token %}
+
+        {% include 'django_spire/element/divider_element.html' with divider_title='Details' %}
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-12">
+                {% include 'django_glue/form/field/char_field.html' with glue_model_field='file_example.name' %}
+            </div>
+
+            <div class="col-12">
+                {% include 'django_glue/form/field/text_field.html' with glue_model_field='file_example.description' %}
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-12 col-12">
+                {% include 'django_glue/form/field/single_file_field.html' with glue_field='profile_picture' %}
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                {% include 'django_glue/form/field/multi_file_field.html' with glue_field='attachments' %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex gap-2 mt-4">
+                    {% url 'file:page:list' as list_url %}
+                    {% include 'django_spire/button/secondary_outlined_button.html' with button_text='Cancel' button_href=list_url %}
+                    {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

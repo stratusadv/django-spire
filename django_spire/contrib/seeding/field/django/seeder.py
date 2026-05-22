@@ -104,7 +104,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
         if len(intel_data) > count:
             intel_data = intel_data[:count]
         if len(intel_data) < count:
-            intel_data = itertools.cycle(intel_data)
+            intel_data = list(itertools.cycle(intel_data))
 
         return intel_data
 

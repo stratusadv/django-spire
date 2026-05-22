@@ -9,10 +9,10 @@ app_name = 'file'
 
 urlpatterns = [
     path('upload/multiple/ajax',
-         views.file_multiple_upload_ajax,
-         name='upload_multiple_ajax'),
+         views.file_upload_ajax_multiple,
+         name='upload_ajax_multiple'),
 
     path('upload/single/ajax',
-         views.file_single_upload_ajax,
-         name='upload_single_ajax'),
+         views.file_upload_ajax_single,
+         name='upload_ajax_single'),
 ]

@@ -2,15 +2,31 @@
     x-data="{
         current_page: 1,
         total_pages: 0,
+        _pages: [],
+        errors: {},
         wizard_id: '{% block wizard_id %}{% endblock %}',
 
-        init() {
-            this.total_pages = this.$refs.wizard_body.querySelectorAll('.wizard-page').length;
+        async init() {
+            this._pages = [...this.$refs.wizard_body.querySelectorAll('.wizard-page')];
+            this.total_pages = this._pages.length;
             this.current_page = Math.min(Math.max(this.current_page, 1), this.total_pages);
+            this._sync();
+            this.$watch('current_page', () => this._sync());
+            {% block wizard_init %}{% endblock %}
+        },
+
+        _sync() {
+            this._pages.forEach((page, i) => {
+                page.style.display = (i + 1 === this.current_page) ? '' : 'none';
+            });
+        },
+
+        validate_page() {
+            return true;
         },
 
         next_page() {
-            if (this.current_page < this.total_pages) {
+            if (this.current_page < this.total_pages && this.validate_page()) {
                 this.current_page++;
             }
         },
@@ -19,9 +35,13 @@
             if (this.current_page > 1) {
                 this.current_page--;
             }
-        }
+        },
+
+        {% block wizard_x_data %}{% endblock %}
     }"
 >
+    {% block wizard_header %}{% endblock %}
+
     <div class="wizard-body my-4" x-ref="wizard_body">
         {% block wizard_pages %}
         {% endblock %}

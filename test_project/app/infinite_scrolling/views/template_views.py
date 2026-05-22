@@ -54,6 +54,8 @@ def rows_view(request: WSGIRequest) -> TemplateResponse:
         )
     )
 
+    test = InfiniteScrolling.objects.all().first()
+
     sort_mapping = {
         'created': 'created_datetime',
         'description': 'description',
