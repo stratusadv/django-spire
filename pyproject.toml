@@ -50,7 +50,7 @@ dependencies = [
     "django-glue @ git+https://github.com/stratusadv/django-glue.git@v1/base",
     "django-ninja==1.6.2",
     "django-sendgrid-v5",
-    "django-storages==1.14.5",
+    "django-storages==1.14.6",
     "docutils",
     "faker",
     "marko==2.1.4",
@@ -63,7 +63,7 @@ dependencies = [
     "robit==0.4.8",
     "sqlalchemy==2.0.49",
     "typing_extensions",
-    "twilio"
+    "twilio",
 ]
 
 [project.optional-dependencies]
