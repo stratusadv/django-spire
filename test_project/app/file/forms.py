@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from django import forms
 
-from test_project.app.file import models
 from django_spire.file.extensions import DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS
 from django_spire.file.fields import MultipleFileField, SingleFileField
 from django_spire.file.validators import FileValidator
