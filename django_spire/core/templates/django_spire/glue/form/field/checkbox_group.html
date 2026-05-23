@@ -12,12 +12,12 @@
                             class="form-check-input"
                             :id="'{{ field }}-' + choice[0]"
                             :value="choice[0]"
-                            :checked="{{ glue_field }} && {{ glue_field }}.includes(choice[0])"
+                            :checked="{{ glue_field }}.value && {{ glue_field }}.includes(choice[0])"
                             @change="
                                 if ($event.target.checked) {
-                                    {{ glue_field }} = [...({{ glue_field }} || []), choice[0]];
+                                    {{ glue_field }}.value = [...({{ glue_field }}.value || []), choice[0]];
                                 } else {
-                                    {{ glue_field }} = ({{ glue_field }} || []).filter(v => v !== choice[0]);
+                                    {{ glue_field }}.value = ({{ glue_field }}.value || []).filter(v => v !== choice[0]);
                                 }
                             "
                             :disabled="{{ glue_field }}?.disabled">
