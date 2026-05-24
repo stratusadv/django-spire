@@ -856,7 +856,7 @@ wheels = [
 [[package]]
 name = "django-glue"
 version = "1.0.0a1"
-source = { git = "https://github.com/stratusadv/django-glue.git?rev=v1%2Fbase#633ebc28feaf5a63c468ff617afaa56127e586e6" }
+source = { git = "https://github.com/stratusadv/django-glue.git?rev=v1%2Fbase#2cf8e081dcd0ebd9bca483c0742d07bd2c3e9495" }
 dependencies = [
     { name = "django", version = "5.2.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
