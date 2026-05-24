@@ -1,6 +1,6 @@
 from test_project.base_settings import *
 
-from test_project.apps.sync.config import TABLET_COUNT_MAX
+from test_project.app.sync.config import TABLET_COUNT_MAX
 
 
 TEST_PROJECT = BASE_DIR / 'test_project'
@@ -24,5 +24,5 @@ DATABASES['cloud'] = {
 }
 
 DATABASE_ROUTERS = [
-    'test_project.apps.sync.router.SyncDemoRouter',
+    'test_project.app.sync.router.SyncDemoRouter',
 ]

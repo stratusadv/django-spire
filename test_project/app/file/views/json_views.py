@@ -11,7 +11,7 @@ from django_spire.contrib.responses.json_response import (
 from django_spire.file.exceptions import FileValidationError
 from django_spire.file.validators import FileValidator
 
-from test_project.apps.file import models
+from test_project.app.file import models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

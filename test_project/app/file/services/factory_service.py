@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
-    from test_project.apps.file.models import FileExample
+    from test_project.app.file.models import FileExample
 
 
 class FileExampleFactoryService(BaseDjangoModelService['FileExample']):

@@ -8,8 +8,8 @@ from django_spire.file.extensions import DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS
 from django_spire.file.fields import MultipleFileField, SingleFileField
 from django_spire.file.validators import FileValidator
 
-from test_project.apps.file import models
-from test_project.apps.file.constants import (
+from test_project.app.file import models
+from test_project.app.file.constants import (
     ATTACHMENTS_RELATED_FIELD,
     PROFILE_PICTURE_RELATED_FIELD,
 )

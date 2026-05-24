@@ -9,12 +9,12 @@ from django_spire.file.mixins import FileModelMixin
 from django_spire.file.models import File
 from django_spire.history.mixins import HistoryModelMixin
 
-from test_project.apps.file import querysets
-from test_project.apps.file.constants import (
+from test_project.app.file import querysets
+from test_project.app.file.constants import (
     ATTACHMENTS_RELATED_FIELD,
     PROFILE_PICTURE_RELATED_FIELD,
 )
-from test_project.apps.file.services.service import FileExampleService
+from test_project.app.file.services.service import FileExampleService
 
 
 class FileExample(HistoryModelMixin, FileModelMixin):

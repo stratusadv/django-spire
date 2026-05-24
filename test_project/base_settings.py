@@ -143,6 +143,9 @@ INSTALLED_APPS += [
     'test_project.app.model_and_service',
     'test_project.app.queryset_filtering',
     'test_project.app.rest',
+    'test_project.app.sync',
+    'test_project.app.tabular',
+    'test_project.app.wizard',
 ]
 
 INSTALLED_APPS += ['django_spire.contrib.sync.tests.apps.SyncTestsConfig']
