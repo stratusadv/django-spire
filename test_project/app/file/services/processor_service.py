@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.service import BaseDjangoModelService
 from django_spire.file.mixins import FileProcessorServiceMixin
 
-from test_project.apps.file.constants import (
+from test_project.app.file.constants import (
     ATTACHMENTS_RELATED_FIELD,
     PROFILE_PICTURE_RELATED_FIELD,
 )
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
     from django_spire.file.models import File
 
-    from test_project.apps.file.models import FileExample
+    from test_project.app.file.models import FileExample
 
 
 class FileExampleProcessorService(FileProcessorServiceMixin, BaseDjangoModelService['FileExample']):

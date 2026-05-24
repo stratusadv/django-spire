@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 
 from django_spire.contrib.generic_views import portal_views
 
-from test_project.apps.file import models
+from test_project.app.file import models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
