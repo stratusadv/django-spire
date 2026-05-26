@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 
 from test_project.app.sync import models
 from test_project.app.sync.config import (

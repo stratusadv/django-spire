@@ -8,7 +8,7 @@ from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data, generate_user_perm_data
 from django_spire.contrib.pagination.pagination import paginate_list
 from django_spire.auth.user.models import AuthUser
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

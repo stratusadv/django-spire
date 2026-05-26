@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 from django_spire.metric.visual.presentation.services.factory_service import PresentationFactoryService
 from django_spire.metric.visual.presentation.services.intelligence_service import PresentationIntelligenceService

@@ -6,7 +6,7 @@ from decimal import Decimal
 
 from typing_extensions import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 from test_project.app.sync import models
 from test_project.app.sync.config import get_active_tablet_databases
@@ -15,7 +15,6 @@ from test_project.app.sync.constants import (
     FieldOutcome,
     MergedOutcome,
     RecordKind,
-    SyncModelLabel,
     VerificationStatus,
     WinnerSide,
 )

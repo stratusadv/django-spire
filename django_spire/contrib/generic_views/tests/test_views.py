@@ -9,7 +9,7 @@ from django.test import RequestFactory, TestCase
 
 from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 from django_spire.contrib.generic_views.modal_views import dispatch_modal_delete_form_content
-from django_spire.contrib.generic_views.portal_views import (
+from django_spire.contrib.generic_views.page_views import (
     delete_form_view,
     detail_view,
     form_view,

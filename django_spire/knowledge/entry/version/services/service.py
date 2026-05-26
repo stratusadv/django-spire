@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.knowledge.entry.version.services.processor_service import EntryVersionProcessorService
 
 if TYPE_CHECKING:

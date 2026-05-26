@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
 
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 
 from test_project.app.file import models
 

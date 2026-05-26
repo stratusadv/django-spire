@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
+from django_spire.contrib.generic_views.page_views import infinite_scrolling_view
 
 from test_project.app.lazy_tabs.models import LazyTabs
 

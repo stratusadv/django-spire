@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 from test_project.app.infinite_scrolling.services.factory_service import InfiniteScrollingFactoryService
 from test_project.app.infinite_scrolling.services.intelligence_service import InfiniteScrollingIntelligenceService

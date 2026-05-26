@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 from test_project.app.lazy_tabs.services.factory_service import LazyTabsFactoryService
 from test_project.app.lazy_tabs.services.intelligence_service import LazyTabsIntelligenceService

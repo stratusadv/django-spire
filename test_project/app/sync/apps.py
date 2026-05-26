@@ -15,7 +15,7 @@ class SyncDemoConfig(AppConfig):
     def ready(self) -> None:
         from django.apps import apps  # noqa: PLC0415
 
-        from django_spire.contrib.sync.core.clock import HybridLogicalClock  # noqa: PLC0415
+        from django_spire.sync.core import HybridLogicalClock  # noqa: PLC0415
         from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
         from django_spire.contrib.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
 

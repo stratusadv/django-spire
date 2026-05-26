@@ -4,7 +4,7 @@ from abc import abstractmethod, ABC
 from typing import Generic, TYPE_CHECKING
 
 from django_spire.contrib.constructor.django_model_constructor import TypeDjangoModel
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.core.tag import tools
 from django_spire.core.tag.models import Tag
 from django_spire.core.tag.tools import get_score_percentage_from_tag_set_weighted

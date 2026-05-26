@@ -1,12 +1,13 @@
 # 2025 Roadmap
 
-## May
+## January
 
-- Features
+- Setup ✅
 
-## April
+## February
 
-- Robust Documentation 🚧
+- Test ✅
+
 
 ## March
 
@@ -14,13 +15,40 @@
 - Seeding ✅
 - Core ✅
 
-## February
+## April
 
-- Test ✅
+- Robust Documentation 🚧
 
-## January
+## May
 
-- Setup ✅
+- 
+
+## June
+
+-
+
+## July
+
+-
+
+## August
+
+-
+
+## September
+
+-
+
+## October
+
+-
+
+## November
+
+-
+
+## December
+
 
 ## Legend
 

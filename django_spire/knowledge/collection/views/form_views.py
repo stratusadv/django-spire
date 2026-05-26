@@ -10,7 +10,7 @@ from django.urls import reverse
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.auth.group.models import AuthGroup
 from django_spire.contrib.form.utils import show_form_errors
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.knowledge.collection.models import Collection, CollectionGroup
 from django_spire.knowledge.collection.forms import CollectionForm

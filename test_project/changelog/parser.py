@@ -5,7 +5,7 @@ import re
 from datetime import date
 from pathlib import Path
 
-from django_spire.contrib.changelog import Change, ChangelogEntry, ChangeLogTypeChoices
+from django_spire.changelog import Change, ChangelogEntry, ChangeLogTypeChoices
 
 
 _SECTION_TYPE_MAP: dict[str, ChangeLogTypeChoices] = {

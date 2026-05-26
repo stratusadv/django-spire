@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 
 from test_project.app.model_and_service.factories import generate_test_model
 

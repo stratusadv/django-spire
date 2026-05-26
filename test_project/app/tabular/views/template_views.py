@@ -7,7 +7,7 @@ from django.db.migrations.recorder import MigrationRecorder
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
-from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
+from django_spire.contrib.generic_views.page_views import infinite_scrolling_view
 
 from test_project.app.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
 from test_project.app.queryset_filtering.forms import TaskListFilterForm

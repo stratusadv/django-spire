@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from django.db import connection
 from django.db.models import Q
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.knowledge.intelligence.workflows.search_preprocessing_workflow import preprocess_search_query
 
 if TYPE_CHECKING:

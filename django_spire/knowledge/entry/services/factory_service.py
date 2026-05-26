@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.file.models import File
 
 if TYPE_CHECKING:

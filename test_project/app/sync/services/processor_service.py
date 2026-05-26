@@ -4,8 +4,8 @@ from decimal import Decimal
 
 from typing_extensions import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
-from django_spire.contrib.sync.core.clock import HybridLogicalClock
+from django_spire.contrib.constructor.service import BaseDjangoModelService
+from django_spire.sync.core import HybridLogicalClock
 from django_spire.contrib.sync.database.conflict import (
     ConflictResolver,
     FieldOwnershipWins,
@@ -16,8 +16,8 @@ from django_spire.contrib.sync.database.conflict import (
 from django_spire.contrib.sync.database.engine import DatabaseEngine
 from django_spire.contrib.sync.database.graph import DependencyGraph
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
-from django_spire.contrib.sync.django.queryset import sync_bypass
-from django_spire.contrib.sync.tests.database.helpers import InMemoryDatabaseStorage
+from django_spire.sync.django.queryset import sync_bypass
+from django_spire.sync.tests.database import InMemoryDatabaseStorage
 
 from test_project.app.sync.config import (
     TABLET_COUNT_DEFAULT,
@@ -48,7 +48,7 @@ from test_project.app.sync.types import (
 if TYPE_CHECKING:
     from typing_extensions import Any
 
-    from django_spire.contrib.sync.database.manifest import SyncManifest
+    from django_spire.sync.database.manifest import SyncManifest
 
     from test_project.app.sync.models import Client
 

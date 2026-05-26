@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.db import transaction
 from django.utils.timezone import localtime
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.knowledge.entry.version.choices import EntryVersionStatusChoices
 
 if TYPE_CHECKING:

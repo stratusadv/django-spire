@@ -23,7 +23,7 @@ class Recipe(models.Model):
 ### Simple Example (No Context)
 
 ```python
-from django_spire.core.converters import fake_model_field_value
+from django_spire.contrib.converters import fake_model_field_value
 
 fake_name = fake_model_field_value(Recipe, 'name')
 print(fake_name)

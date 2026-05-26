@@ -9,7 +9,7 @@ from django.contrib.sites.models import Site
 from django.db.models import Q
 from django.urls import reverse
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.help_desk.exceptions import TicketEventNotificationTypeNotSupportedError
 from django_spire.help_desk.enums import TicketEventType
 from django_spire.notification.app.models import AppNotification

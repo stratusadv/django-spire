@@ -45,7 +45,7 @@ Create the file that the setting points to and define a `changelog` list:
 # app/home/changelog.py
 from datetime import date
 
-from django_spire.contrib.changelog import Change, ChangelogEntry, ChangeLogTypeChoices
+from django_spire.changelog import Change, ChangelogEntry, ChangeLogTypeChoices
 
 changelog = [
     ChangelogEntry(
@@ -155,8 +155,7 @@ import re
 from datetime import date
 from pathlib import Path
 
-from django_spire.contrib.changelog import Change, ChangelogEntry, ChangeLogTypeChoices
-
+from django_spire.changelog import Change, ChangelogEntry, ChangeLogTypeChoices
 
 _SECTION_TYPE_MAP: dict[str, ChangeLogTypeChoices] = {
     'features': ChangeLogTypeChoices.FEATURE,
@@ -241,11 +240,11 @@ Change(
 ### `ChangeLogTypeChoices`
 
 ```python
-from django_spire.contrib.changelog import ChangeLogTypeChoices
+from django_spire.changelog import ChangeLogTypeChoices
 
 ChangeLogTypeChoices.FEATURE  # 'feat' - Feature
 ChangeLogTypeChoices.BUG_FIX  # 'bug'  - Bug Fix
-ChangeLogTypeChoices.CHANGE   # 'chan' - Change
+ChangeLogTypeChoices.CHANGE  # 'chan' - Change
 ```
 
 ### Template Card

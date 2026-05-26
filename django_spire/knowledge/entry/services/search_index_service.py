@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.db import connection
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
     from django_spire.knowledge.entry.models import Entry

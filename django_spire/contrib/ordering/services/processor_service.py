@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django_spire.contrib.ordering.exceptions import OrderingMixinGroupError
 from django_spire.contrib.ordering.validators import OrderingMixinValidator
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
     from django.db.models import Model, QuerySet

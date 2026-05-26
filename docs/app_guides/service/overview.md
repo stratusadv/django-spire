@@ -68,16 +68,17 @@ class Task(models.Model):
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
     from app.tasks.models import Task
     from app.tasks.service.notification_service import TaskNotificationService
     from app.tasks.service.processor_service import TaskProcessorService
 
-class TaskService(BaseDjangoModelService['Task']):    
+
+class TaskService(BaseDjangoModelService['Task']):
     # target model — must be first
-    obj: Task 
+    obj: Task
 
     # followed by all sub services
     notification = TaskNotificationService()
@@ -89,17 +90,18 @@ class TaskService(BaseDjangoModelService['Task']):
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
     from app.tasks.models import Task
 
-class TaskProcessorService(BaseDjangoModelService['Task']):    
-    obj: Task 
+
+class TaskProcessorService(BaseDjangoModelService['Task']):
+    obj: Task
 
     def mark_done(self) -> Task:
         self.obj.is_done = True
-        self.obj.save()            
+        self.obj.save()
         return self.obj
 ```
 
@@ -156,7 +158,7 @@ Here's how to use it:
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
     from app.tasks.models import Task

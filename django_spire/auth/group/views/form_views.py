@@ -14,7 +14,7 @@ from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.utils import show_form_errors
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 from django_spire.core.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 

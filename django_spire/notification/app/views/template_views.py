@@ -8,7 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
+from django_spire.contrib.generic_views.page_views import infinite_scrolling_view
 from django_spire.contrib.session.controller import SessionController
 from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSION_KEY_NAME
 from django_spire.notification.app.forms import NotificationListFilterForm

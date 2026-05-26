@@ -8,7 +8,7 @@ from django.utils.http import urlencode
 
 from django_spire.ai import models
 from django_spire.ai.mixins import AiUsageAdminMixin
-from django_spire.core.forms.widgets import JsonTreeWidget
+from django_spire.contrib.forms import JsonTreeWidget
 
 
 @admin.register(models.AiUsage)

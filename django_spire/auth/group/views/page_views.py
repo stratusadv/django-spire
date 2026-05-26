@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django_spire.auth.group import models
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 from django_spire.contrib.pagination.pagination import paginate_list
 
 if TYPE_CHECKING:

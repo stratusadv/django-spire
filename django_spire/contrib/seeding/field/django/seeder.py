@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Iterator
 
 from dandy import BaseIntel, Prompt
 
-from django_spire.core.converters import django_to_pydantic_model, fake_model_field_value
+from django_spire.contrib.converters import django_to_pydantic_model, fake_model_field_value
 from django_spire.contrib.seeding.field.base import BaseFieldSeeder
 from django_spire.contrib.seeding.field.enums import FieldSeederTypesEnum
 from django_spire.contrib.seeding.intelligence.bots.field_seeding_bots import LlmFieldSeedingBot

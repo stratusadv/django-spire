@@ -21,7 +21,6 @@ migrate:
 opencode:
     ./.venv/Scripts/activate.bat
     opencode
-    deactivate
 
 python *ARGS:
     {{ PYTHON }} {{ ARGS }}

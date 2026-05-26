@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 from django_spire.knowledge.collection.models import Collection
 
 if TYPE_CHECKING:

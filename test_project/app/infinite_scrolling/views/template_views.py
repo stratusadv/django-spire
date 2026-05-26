@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.generic_views.portal_views import infinite_scrolling_view
+from django_spire.contrib.generic_views.page_views import infinite_scrolling_view
 
 from test_project.app.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
 from test_project.app.infinite_scrolling.forms import InfiniteScrollingListFilterForm

@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 from django_spire.knowledge.collection.models import Collection
 from typing import TYPE_CHECKING
 

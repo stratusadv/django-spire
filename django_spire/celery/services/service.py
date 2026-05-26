@@ -9,7 +9,7 @@ from django.utils.timezone import make_aware, is_naive
 from typing import TYPE_CHECKING
 
 from django_spire.celery.services.queue_service import CeleryTaskQueueService
-from django_spire.contrib.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service import BaseDjangoModelService
 from sqlalchemy.exc import OperationalError, DatabaseError
 
 if TYPE_CHECKING:

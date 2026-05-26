@@ -16,7 +16,7 @@ from django_spire.auth.user.models import AuthUser
 from django_spire.auth.user.tools import add_user_to_all_user_group
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.form.utils import show_form_errors
-from django_spire.contrib.generic_views import portal_views
+from django_spire.contrib.generic_views import page_views
 from django_spire.history.activity.utils import add_form_activity
 from typing import TYPE_CHECKING
 
