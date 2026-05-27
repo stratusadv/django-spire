@@ -35,6 +35,15 @@
 ## June
 
 - v1 Beta Release 🚧
+- Breadcrumbs Contrib Rebuild
+- Options Contrib Clean Up
+- Static Favicons Replace with Generic SQUARE
+- Static JavaScript Clean Up
+- Core Form Templates Clean Up
+- Check Bootstrap for Replacing Tab & Lazy Tab
+- Session Contrib Clean Up
+- Confirmation Forms Update
+- Change Log App Refactor (Read the Change Log from Settings Target)
 - Metrics App
 - Visual App
 - Activity App Refactor
@@ -55,6 +64,9 @@
 - Full Rebranding Deployed
 - Landing Page
 - Search Components
+- AI Context App
+- Comment App Refactor
+- MFA SMS Feature
 
 ## September
 
