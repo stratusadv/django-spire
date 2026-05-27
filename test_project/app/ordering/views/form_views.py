@@ -7,11 +7,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.responses.json_response import success_json_response
 from django_spire.core.redirect.safe_redirect import safe_redirect_url
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.contrib.form.utils import show_form_errors
-from django_spire.contrib.generic_views import page_views, modal_views
+from django_spire.contrib.generic_views import modal_views
 
 from django_glue import Glue
 
@@ -20,7 +19,7 @@ from test_project.app.ordering import forms, models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.http import HttpResponseRedirect, JsonResponse
+    from django.http import HttpResponseRedirect
 
 
 @permission_required('apps.change_appsordering')

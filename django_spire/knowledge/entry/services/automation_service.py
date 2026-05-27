@@ -5,7 +5,7 @@ import traceback
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
-from django_spire.core.decorators import close_db_connections
+from django_spire.contrib.decorators import close_db_connections
 from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 from django_spire.knowledge.exceptions import KnowledgeBaseConversionError
 

@@ -17,7 +17,7 @@ from django_spire.comment.forms import CommentForm
 from django_spire.contrib.form.utils import show_form_errors
 from django_spire.contrib.generic_views import dispatch_modal_delete_form_content
 from django_spire.core.redirect import safe_redirect_url
-from django_spire.core.shortcuts import get_object_or_null_obj, \
+from django_spire.contrib.shortcuts import get_object_or_null_obj, \
     model_object_from_app_label
 
 if TYPE_CHECKING:

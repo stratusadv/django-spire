@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.apps import AppConfig
 
-from django_spire.utils import check_required_apps
+from django_spire.tools import check_required_apps
 
 
 class NotificationAppConfig(AppConfig):

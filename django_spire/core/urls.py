@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.urls import path
 from django.views.generic import TemplateView
 
+# These URLs are simply for testing this templates
 
 app_name = 'core'
 

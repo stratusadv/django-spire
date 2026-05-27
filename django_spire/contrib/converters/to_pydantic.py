@@ -9,7 +9,7 @@ from django.db import models
 from django.core import validators
 
 from django_spire.contrib.converters.to_enums import django_choices_to_enums
-from django_spire.core.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
+from django_spire.contrib.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
 
 
 def django_to_pydantic_model(

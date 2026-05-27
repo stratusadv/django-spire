@@ -8,9 +8,9 @@ from unittest.mock import MagicMock, patch
 from django.template import Context, RequestContext, Template
 from django.test import RequestFactory, TestCase
 
-from django_spire.core.templatetags.json import to_json
-from django_spire.core.templatetags.message import django_messages_to_json
-from django_spire.core.templatetags.spire_core_tags import (
+from django_spire.core.templatetags.django_spire_json import to_json
+from django_spire.core.templatetags.django_spire_message import django_messages_to_json
+from django_spire.core.templatetags.django_spire_core import (
     add_str,
     content_type_url,
     generate_id,
@@ -22,13 +22,13 @@ from django_spire.core.templatetags.spire_core_tags import (
     safe_dict_items,
     to_snake_case,
 )
-from django_spire.core.templatetags.string_formating import (
+from django_spire.core.templatetags.django_spire_string_formating import (
     dashes_and_spaces_to_underscore,
     dashes_to_underscore,
     spaces_to_underscore,
     underscores_to_spaces,
 )
-from django_spire.core.templatetags.variable_types import (
+from django_spire.core.templatetags.django_spire_variable_types import (
     is_dict,
     is_list,
     is_list_or_tuple,

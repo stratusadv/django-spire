@@ -13,7 +13,7 @@ from django_spire.auth.controller.exceptions import (
 )
 from django_spire.auth.permissions.decorators import permission_required_decorator_function
 from django_spire.conf import settings
-from django_spire.core.utils import get_object_from_module_string
+from django_spire.contrib.utils import get_object_from_module_string
 
 if TYPE_CHECKING:
     from typing import Any, Callable

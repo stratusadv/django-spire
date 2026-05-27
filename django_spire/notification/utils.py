@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from django.conf import settings
-
-from django_spire.consts import NOTIFICATION_THROTTLE_RATE_PER_MINUTE_SETTINGS_NAME
+from django_spire.conf import settings
 
 
 def get_throttle_sleep_time() -> float:
-    return float(getattr(settings, NOTIFICATION_THROTTLE_RATE_PER_MINUTE_SETTINGS_NAME) / 60)
+    return float(
+        settings.DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE / 60
+    )
+

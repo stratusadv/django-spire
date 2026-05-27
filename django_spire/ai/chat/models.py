@@ -11,7 +11,7 @@ from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageI
 from django_spire.ai.chat.querysets import ChatMessageQuerySet, ChatQuerySet
 from django_spire.ai.chat.responses import MessageResponse
 from django_spire.history.mixins import HistoryModelMixin
-from django_spire.utils import get_class_from_string, get_class_name_from_class
+from django_spire.contrib.utils import get_class_from_string, get_class_name_from_class
 
 
 class Chat(HistoryModelMixin):

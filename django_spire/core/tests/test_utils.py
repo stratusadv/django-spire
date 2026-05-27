@@ -4,10 +4,8 @@ import pytest
 
 from django.test import TestCase
 
-from django_spire.core.utils import (
-    get_callable_from_module_string_and_validate_arguments,
-    get_object_from_module_string
-)
+from django_spire.contrib.utils import get_object_from_module_string, \
+    get_callable_from_module_string_and_validate_arguments
 
 
 class TestGetObjectFromModuleString(TestCase):

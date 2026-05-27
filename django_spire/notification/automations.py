@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django_spire.core.decorators import close_db_connections
+from django_spire.contrib.decorators import close_db_connections
 from django_spire.notification.managers import NotificationManager
 
 

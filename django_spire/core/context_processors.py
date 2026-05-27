@@ -4,7 +4,7 @@ from typing import Any, TYPE_CHECKING
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.conf import settings
-from django_spire.consts import __VERSION__
+from django_spire.constants import __VERSION__
 from django_spire.theme.models import Theme
 from django_spire.theme.utils import get_theme_cookie_name
 

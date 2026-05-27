@@ -3,10 +3,9 @@ from __future__ import annotations
 import json
 
 from django.template.response import TemplateResponse
-from django.utils.timezone import now
 
 from django_spire.ai.chat.models import Chat
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 
 
 def confirm_delete_view(request, pk: int) -> TemplateResponse:

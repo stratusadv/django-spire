@@ -6,7 +6,7 @@ from django_spire.changelog.exceptions import (
     ChangeLogModuleNotFoundError,
     InvalidChangeLogInstanceError,
 )
-from django_spire.core.utils import get_object_from_module_string
+from django_spire.contrib.utils import get_object_from_module_string
 
 
 def get_validated_changelog():

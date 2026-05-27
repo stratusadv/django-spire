@@ -4,7 +4,7 @@ from django.apps import AppConfig
 from django.conf import settings
 
 from django_spire.notification.sms.consts import TWILIO_SMS_BATCH_SIZE_NAME
-from django_spire.utils import check_required_apps
+from django_spire.tools import check_required_apps
 
 
 class NotificationSmsConfig(AppConfig):

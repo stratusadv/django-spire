@@ -9,7 +9,7 @@ from django.urls import reverse
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.generic_views import page_views
-from django_spire.core.utils import get_object_from_module_string
+from django_spire.contrib.utils import get_object_from_module_string
 from django_spire.metric.report.models import ReportRun
 from django_spire.metric.report.registry import ReportRegistry
 

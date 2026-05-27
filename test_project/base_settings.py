@@ -32,7 +32,7 @@ sys.path.append(str(BASE_DIR))
 BASE_FOLDER_NAME = 'test-project'
 
 # Notification Settings
-NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
+DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
 
 # Email Settings
 EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"

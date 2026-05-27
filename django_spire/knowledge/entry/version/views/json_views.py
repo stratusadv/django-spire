@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.core.decorators import valid_ajax_request_required
+from django_spire.contrib.decorators import valid_ajax_request_required
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 if TYPE_CHECKING:

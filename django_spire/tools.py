@@ -3,7 +3,6 @@ from __future__ import annotations
 from django.apps import apps
 
 from django_spire.exceptions import (
-    DjangoSpireInvalidClassStringError,
     DjangoSpireMissingRequiredAppError
 )
 
@@ -21,20 +20,3 @@ def check_required_apps(app_label: str) -> None:
             raise DjangoSpireMissingRequiredAppError(message)
 
 
-def get_class_from_string(class_string: str) -> type:
-    class_parts = class_string.split('.')
-
-    if len(class_parts) < 2:
-        message = f'Class string {class_string} is not a valid class string.'
-        raise DjangoSpireInvalidClassStringError(message)
-
-    module_path = '.'.join(class_parts[:-1])
-    class_name = class_parts[-1]
-
-    module = __import__(module_path, fromlist=[class_name])
-
-    return getattr(module, class_name)
-
-
-def get_class_name_from_class(cls: type) -> str:
-    return cls.__module__ + '.' + cls.__qualname__

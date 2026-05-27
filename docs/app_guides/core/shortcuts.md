@@ -17,7 +17,7 @@ Django's built-in `get_object_or_404` covers the most common case, but many situ
 Retrieves a model instance matching the given filters. If the object does not exist, returns a **new unsaved instance** of the model rather than raising an exception.
 
 ```python
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 ```
 
 This is particularly useful for views that handle both create and update cases with the same code path — a missing `pk` simply returns an empty model ready to be populated.
@@ -27,7 +27,7 @@ This is particularly useful for views that handle both create and update cases w
 Retrieves a model instance by primary key. Returns `None` if the object does not exist.
 
 ```python
-from django_spire.core.shortcuts import get_object_or_none
+from django_spire.contrib.shortcuts import get_object_or_none
 ```
 
 Use this when the absence of an object is expected and should be handled gracefully, rather than treated as an error.
@@ -37,7 +37,7 @@ Use this when the absence of an object is expected and should be handled gracefu
 Decodes a JSON request body and returns a field from it by key. Defaults to returning the `data` key.
 
 ```python
-from django_spire.core.shortcuts import process_request_body
+from django_spire.contrib.shortcuts import process_request_body
 ```
 
 ### `model_object_from_app_label`
@@ -45,7 +45,7 @@ from django_spire.core.shortcuts import process_request_body
 Resolves a model instance dynamically using an app label, model name, and primary key — without importing the model directly. Returns `None` if the content type or object does not exist.
 
 ```python
-from django_spire.core.shortcuts import model_object_from_app_label
+from django_spire.contrib.shortcuts import model_object_from_app_label
 ```
 
 ---
@@ -55,7 +55,7 @@ from django_spire.core.shortcuts import model_object_from_app_label
 ### Retrieving an Object or a Blank Instance
 
 ```python
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 from myapp.models import Invoice
 
 # Returns the Invoice if found, otherwise returns Invoice()
@@ -75,7 +75,7 @@ invoice = get_object_or_null_obj(Invoice.objects.active(), pk=pk)
 ### Retrieving an Object or None
 
 ```python
-from django_spire.core.shortcuts import get_object_or_none
+from django_spire.contrib.shortcuts import get_object_or_none
 from myapp.models import Invoice
 
 invoice = get_object_or_none(Invoice, pk=pk)
@@ -88,7 +88,8 @@ if invoice is None:
 ### Parsing a JSON Request Body
 
 ```python
-from django_spire.core.shortcuts import process_request_body
+from django_spire.contrib.shortcuts import process_request_body
+
 
 def my_view(request):
     # Returns request.body parsed as JSON, then extracts the 'data' key
@@ -103,7 +104,7 @@ Pass `key=None` to return the full parsed JSON body without extracting a specifi
 ### Resolving a Model by App Label
 
 ```python
-from django_spire.core.shortcuts import model_object_from_app_label
+from django_spire.contrib.shortcuts import model_object_from_app_label
 
 obj = model_object_from_app_label(
     app_label='blog',

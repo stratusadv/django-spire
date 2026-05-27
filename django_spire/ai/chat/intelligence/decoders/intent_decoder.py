@@ -5,7 +5,7 @@ from typing import Callable, TYPE_CHECKING
 from dandy import Bot
 
 from django_spire.conf import settings
-from django_spire.core.utils import get_callable_from_module_string_and_validate_arguments
+from django_spire.contrib.utils import get_callable_from_module_string_and_validate_arguments
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

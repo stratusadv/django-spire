@@ -118,7 +118,7 @@ exclude_docs: |
 plugins:
   - gen-files:
       scripts:
-        - scripts/generate_api_reference.py
+        - docs/generate_api_reference.py
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index

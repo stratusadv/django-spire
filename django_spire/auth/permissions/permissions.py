@@ -10,7 +10,7 @@ from django_spire.auth.group.utils import (
     codename_to_perm_level,
     perm_level_to_string
 )
-from django_spire.core.utils import get_object_from_module_string
+from django_spire.contrib.utils import get_object_from_module_string
 
 if TYPE_CHECKING:
     from django.db.models import Model, QuerySet

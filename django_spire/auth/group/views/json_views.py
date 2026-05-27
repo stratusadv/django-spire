@@ -11,7 +11,7 @@ from django_spire.auth.group.utils import perm_level_to_int, perm_level_to_djang
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.permissions import GroupPermissions
 from django_spire.auth.permissions.tools import generate_model_key_permission_map
-from django_spire.core.shortcuts import process_request_body
+from django_spire.contrib.shortcuts import process_request_body
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

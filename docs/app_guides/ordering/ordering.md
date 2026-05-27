@@ -160,7 +160,7 @@ A typical drag-and-drop interface sends new positions via JSON. Here's a view ha
 ```python
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 from myapp.models import Task
 
 

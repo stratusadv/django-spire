@@ -1,7 +1,7 @@
 from django import template
 from django_spire.contrib.utils import format_duration
 
-from django_spire.core.constants import TIME_UNITS_TO_SECONDS
+from django_spire.contrib.constants import TIME_UNITS_TO_SECONDS
 
 register = template.Library()
 

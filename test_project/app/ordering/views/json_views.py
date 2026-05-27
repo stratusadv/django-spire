@@ -1,7 +1,7 @@
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
 
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 
 from test_project.app.ordering import models
 

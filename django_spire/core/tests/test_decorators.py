@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 from django.http import HttpRequest, JsonResponse
 from django.test import RequestFactory, TestCase
 
-from django_spire.core.decorators import close_db_connections, valid_ajax_request_required
+from django_spire.contrib.decorators import close_db_connections, valid_ajax_request_required
 
 
 class TestCloseDbConnections(TestCase):

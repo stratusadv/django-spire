@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import User
 from django.test import RequestFactory
 
-from django_spire.core.shortcuts import (
+from django_spire.contrib.shortcuts import (
     get_object_or_none,
     get_object_or_null_obj,
     model_object_from_app_label,

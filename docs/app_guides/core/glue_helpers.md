@@ -30,8 +30,8 @@ Load a model object on page init and call a custom action endpoint on user inter
 ```python
 from django.http import JsonResponse
 from django_spire.contrib.responses.json_response import success_json_response, error_json_response
-from django_spire.core.shortcuts import get_object_or_null_obj
-from django_spire.core.decorators import valid_ajax_request_required
+from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.contrib.decorators import valid_ajax_request_required
 from myapp.models import Treasure
 
 

@@ -11,7 +11,7 @@ from django.urls import reverse
 from django_glue import Glue
 
 from django_spire.contrib.session.controller import SessionController
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.core.table.enums import ResponsiveMode
 
 from test_project.app.queryset_filtering.choices import TaskStatusChoices

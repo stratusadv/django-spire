@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.test import TestCase
 
 from django_spire.auth.user.models import AuthUser
-from django_spire.core.shortcuts import get_object_or_null_obj
+from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.models import Activity
 from django_spire.history.activity.utils import add_form_activity
 

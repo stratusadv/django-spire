@@ -32,3 +32,6 @@ DJANGO_SPIRE_REPORT_REGISTRIES = []
 # Theme Settings
 DJANGO_SPIRE_DEFAULT_THEME = 'default-light'
 DJANGO_SPIRE_THEME_PATH = '/static/django_spire/css/themes/{family}/app-{mode}.css'
+
+
+DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100

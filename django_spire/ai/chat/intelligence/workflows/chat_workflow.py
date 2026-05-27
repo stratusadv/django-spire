@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.conf import settings
-from django_spire.core.utils import get_callable_from_module_string_and_validate_arguments
+from django_spire.contrib.utils import get_callable_from_module_string_and_validate_arguments
 
 if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
