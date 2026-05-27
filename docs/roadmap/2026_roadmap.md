@@ -42,9 +42,13 @@
 - Core Form Templates Clean Up
 - Check Bootstrap for Replacing Tab & Lazy Tab
 - Session Contrib Clean Up
+- Wizard Template Review
 - Confirmation Forms Update
 - Change Log App Refactor (Read the Change Log from Settings Target)
 - Metrics App
+- File App Review
+- Maintenance Integration
+- Search App
 - Visual App
 - Activity App Refactor
 - Breadcrumbs App Refactor
@@ -54,6 +58,8 @@
 
 - v1 Stable Release
 - Signage App
+- Help Desk App Refactor
+- History App Refactor
 - Presentation App
 - Stronger Bootstrap Integration
 - Side Navigation UX Redesign
