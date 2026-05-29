@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.5
+
+### Changes
+- Fix pagination in `sync` module
+
 ## v0.32.4
 
 ### Changes

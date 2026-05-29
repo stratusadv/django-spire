@@ -13,7 +13,7 @@ from hypothesis import strategies as st
 
 from django_spire.contrib.sync.core.clock import HybridLogicalClock
 from django_spire.contrib.sync.database.conflict import FieldTimestampWins
-from django_spire.contrib.sync.database.engine import DatabaseEngine
+from django_spire.contrib.sync.database.engine import DatabaseEngine, _record_size
 from django_spire.contrib.sync.database.graph import DependencyGraph
 from django_spire.contrib.sync.database.manifest import SyncManifest
 from django_spire.contrib.sync.database.reconciler import PayloadReconciler
@@ -528,3 +528,137 @@ class TestInterleavedSequenceConvergence:
 
         assert len(tablet_storage._records[SURVEY]) == survey_count
         assert len(tablet_storage._records[STAKE]) == stake_count
+
+
+class TestByteBudgetParentChildOrdering:
+    def _seed_parent_then_child(
+        self,
+        storage: InMemoryDatabaseStorage,
+        clock: HybridLogicalClock,
+        survey_count: int,
+        child_parent_key: str,
+    ) -> None:
+        for i in range(survey_count):
+            storage.seed(
+                SURVEY, f'survey-{i:02d}',
+                {'id': f'survey-{i:02d}', 'value': i, 'blob': 'x' * 500},
+                {'value': clock.now(), 'blob': clock.now()},
+            )
+
+        storage.seed(
+            STAKE, 'stake-0',
+            {'id': 'stake-0', 'survey_id': child_parent_key, 'value': 1},
+            {'survey_id': clock.now(), 'value': clock.now()},
+        )
+
+    def _byte_budget_for_one_parent_plus_child(
+        self,
+        storage: InMemoryDatabaseStorage,
+    ) -> int:
+        survey_size = _record_size(storage._records[SURVEY]['survey-00'])
+        stake_size = _record_size(storage._records[STAKE]['stake-0'])
+        return survey_size + stake_size + 1
+
+    def test_server_response_excludes_child_when_parent_truncates(self) -> None:
+        clock = HybridLogicalClock()
+        edges = {SURVEY: set(), STAKE: {SURVEY}}
+
+        server_storage = _make_storage([SURVEY, STAKE])
+        self._seed_parent_then_child(
+            server_storage, clock, survey_count=8, child_parent_key='survey-07',
+        )
+
+        server = _make_engine_graph(
+            server_storage, 'server', clock, edges,
+            batch_bytes=self._byte_budget_for_one_parent_plus_child(server_storage),
+        )
+
+        incoming = SyncManifest(
+            node_id='tablet',
+            peer_sequence=0,
+            local_sequence=0,
+            node_time=1000,
+            payloads=[],
+        )
+        incoming.checksum = incoming.compute_checksum()
+
+        response, _result = server.process(incoming)
+        labels = {payload.model_label for payload in response.payloads}
+
+        assert SURVEY in labels
+        assert STAKE not in labels, (
+            'child shipped in a round where parent truncated mid-page'
+        )
+        assert response.has_more
+
+    def test_child_never_ships_before_parent_across_byte_paginated_pull(self) -> None:
+        clock = HybridLogicalClock()
+        edges = {SURVEY: set(), STAKE: {SURVEY}}
+
+        server_storage = _make_storage([SURVEY, STAKE])
+        self._seed_parent_then_child(
+            server_storage, clock, survey_count=8, child_parent_key='survey-07',
+        )
+
+        server = _make_engine_graph(
+            server_storage, 'server', clock, edges,
+            batch_bytes=self._byte_budget_for_one_parent_plus_child(server_storage),
+        )
+
+        tablet_storage = _make_storage([SURVEY, STAKE])
+        transport = _CappedDirectTransport(server, exchange_count_max=500)
+        tablet = _make_engine_graph(
+            tablet_storage, 'tablet', clock, edges, transport,
+            batch_bytes=self._byte_budget_for_one_parent_plus_child(server_storage),
+        )
+
+        tablet.sync()
+
+        delivered_surveys: set[str] = set()
+        violations: list[tuple[str, Any]] = []
+
+        for _wire_in, wire_out in transport.exchanges:
+            for payload in wire_out.payloads:
+                if payload.model_label == SURVEY:
+                    delivered_surveys.update(payload.records.keys())
+
+            for payload in wire_out.payloads:
+                if payload.model_label != STAKE:
+                    continue
+
+                for key, record in payload.records.items():
+                    parent_key = record.data.get('survey_id')
+
+                    if parent_key not in delivered_surveys:
+                        violations.append((key, parent_key))
+
+        assert not violations, (
+            f'child(ren) shipped before their parent: {violations}'
+        )
+
+        assert len(tablet_storage._records[SURVEY]) == 8
+        assert len(tablet_storage._records[STAKE]) == 1
+
+    def test_record_budget_truncation_still_orders_parent_before_child(self) -> None:
+        clock = HybridLogicalClock()
+        edges = {SURVEY: set(), STAKE: {SURVEY}}
+
+        server_storage = _make_storage([SURVEY, STAKE])
+        self._seed_parent_then_child(
+            server_storage, clock, survey_count=8, child_parent_key='survey-07',
+        )
+
+        server = _make_engine_graph(
+            server_storage, 'server', clock, edges, batch_size=3,
+        )
+
+        tablet_storage = _make_storage([SURVEY, STAKE])
+        transport = _CappedDirectTransport(server, exchange_count_max=500)
+        tablet = _make_engine_graph(
+            tablet_storage, 'tablet', clock, edges, transport, batch_size=3,
+        )
+
+        tablet.sync()
+
+        assert len(tablet_storage._records[SURVEY]) == 8
+        assert len(tablet_storage._records[STAKE]) == 1
