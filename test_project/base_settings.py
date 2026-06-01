@@ -99,7 +99,7 @@ INSTALLED_APPS += [
     'django_spire.contrib.form',
     'django_spire.contrib.gamification',
     'django_spire.contrib.help',
-    'django_spire.contrib.sync',
+    'django_spire.sync',
     'django_spire.help_desk',
     'django_spire.history',
     'django_spire.history.activity',
@@ -148,7 +148,7 @@ INSTALLED_APPS += [
     'test_project.app.wizard',
 ]
 
-INSTALLED_APPS += ['django_spire.contrib.sync.tests.apps.SyncTestsConfig']
+INSTALLED_APPS += ['django_spire.sync.tests.apps.SyncTestsConfig']
 
 INSTALLED_APPS += [
     'django_glue',

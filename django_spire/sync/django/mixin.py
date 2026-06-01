@@ -9,7 +9,7 @@ from django.db import models, transaction
 from django_spire.sync.core import (
     ClockNotConfiguredError,
 )
-from django_spire.contrib.sync.database.tracker import FieldUpdateTracker
+from django_spire.sync.database.tracker import FieldUpdateTracker
 from django_spire.sync.django.queryset import (
     SyncableQuerySet,
     _is_bypassed,

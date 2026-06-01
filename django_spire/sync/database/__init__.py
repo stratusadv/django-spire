@@ -1,4 +1,4 @@
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     ConflictResolver,
     ConflictType,
     FieldConflict,
@@ -10,8 +10,8 @@ from django_spire.contrib.sync.database.conflict import (
     RemoteWins,
     ResolutionSource,
 )
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.lock import SyncLock
 from django_spire.sync.database.manifest import (
     ConflictEntry,
@@ -19,13 +19,13 @@ from django_spire.sync.database.manifest import (
     ModelPayload,
     SyncManifest,
 )
-from django_spire.contrib.sync.database.reconciler import (
+from django_spire.sync.database.reconciler import (
     PayloadReconciler,
     ReconciliationResult,
 )
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
-from django_spire.contrib.sync.database.tracker import FieldUpdateTracker
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.database.storage import DatabaseSyncStorage
+from django_spire.sync.database.tracker import FieldUpdateTracker
 
 
 __all__ = [

@@ -6,11 +6,11 @@ from django.apps import apps
 from django.db import connection
 
 from django_spire.sync.core import HybridLogicalClock
-from django_spire.contrib.sync.django.mixin import SyncableMixin
-from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
-from django_spire.contrib.sync.django.models.lock import SyncNodeLock
-from django_spire.contrib.sync.django.models.session import SyncSession
-from django_spire.contrib.sync.tests.models import (
+from django_spire.sync.django.mixin import SyncableMixin
+from django_spire.sync.django.models.checkpoint import SyncCheckpoint
+from django_spire.sync.django.models.lock import SyncNodeLock
+from django_spire.sync.django.models.session import SyncSession
+from django_spire.sync.tests.models import (
     SyncTestModel,
     SyncTestSimpleModel,
     SyncTestTag,
@@ -50,6 +50,6 @@ def _create_test_tables(django_db_setup: None, django_db_blocker: object) -> Non
                 with connection.schema_editor() as editor:
                     editor.create_model(model)
 
-    from django_spire.contrib.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
+    from django_spire.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
 
     register_many_to_many_signals([SyncTestModel])

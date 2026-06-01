@@ -7,15 +7,15 @@ from typing import Any, TYPE_CHECKING
 from django.db import connections
 
 from django_spire.sync.django.storage import DjangoSyncStorage
-from django_spire.contrib.sync.tests.factories import make_record as _factory_make_record
-from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestSimpleModel
+from django_spire.sync.tests.factories import make_record as _factory_make_record
+from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
 if TYPE_CHECKING:
     import threading
 
     from collections.abc import Callable
 
-    from django_spire.contrib.sync.database.record import SyncRecord
+    from django_spire.sync.database.record import SyncRecord
 
 
 def close_connections() -> None:

@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from django_spire.sync.tests.database.helpers import InMemoryDatabaseStorage, MODEL
-from django_spire.contrib.sync.tests.factories import make_manifest
+from django_spire.sync.tests.factories import make_manifest
 
 if TYPE_CHECKING:
     from django_spire.sync.database.manifest import SyncManifest
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 @pytest.fixture(autouse=True)
 def _fixed_time() -> Any:
-    with patch('django_spire.contrib.sync.database.engine.time') as mock_time:
+    with patch('django_spire.sync.database.engine.time') as mock_time:
         mock_time.time.return_value = 1000
         yield mock_time
 

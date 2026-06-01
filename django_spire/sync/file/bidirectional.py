@@ -20,15 +20,15 @@ from django_spire.sync.file.conflict import (
     Resolution,
     SourceWins,
 )
-from django_spire.contrib.sync.file.engine import check_deactivation_threshold, validate_records
-from django_spire.contrib.sync.file.exceptions import FileSyncParameterError
+from django_spire.sync.file.engine import check_deactivation_threshold, validate_records
+from django_spire.sync.file.exceptions import FileSyncParameterError
 
 if TYPE_CHECKING:
     from contextlib import AbstractContextManager
 
-    from django_spire.contrib.sync.file.reader.base import Reader
+    from django_spire.sync.file.reader.base import Reader
     from django_spire.sync.file.storage import BidirectionalStorage
-    from django_spire.contrib.sync.file.writer.base import Writer
+    from django_spire.sync.file.writer.base import Writer
 
 
 logger = logging.getLogger(__name__)

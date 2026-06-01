@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import Any
 from xml.etree.ElementTree import Element, ElementTree, SubElement, indent
 
-from django_spire.contrib.sync.file.exceptions import FileSyncParameterError
-from django_spire.contrib.sync.file.reader.xml import XmlField, XmlListField
-from django_spire.contrib.sync.file.writer.base import Writer
+from django_spire.sync.file.exceptions import FileSyncParameterError
+from django_spire.sync.file.reader.xml import XmlField, XmlListField
+from django_spire.sync.file.writer.base import Writer
 
 
 class XmlWriter(Writer):

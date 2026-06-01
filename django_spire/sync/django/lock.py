@@ -10,8 +10,8 @@ from django.utils import timezone
 
 from django_spire.sync.core import SyncPhase, SyncStatus
 from django_spire.sync.core import LockContentionError
-from django_spire.contrib.sync.django.models.lock import SyncNodeLock
-from django_spire.contrib.sync.django.models.session import SyncSession
+from django_spire.sync.django.models.lock import SyncNodeLock
+from django_spire.sync.django.models.session import SyncSession
 
 if TYPE_CHECKING:
     from django_spire.sync.database.manifest import DatabaseResult

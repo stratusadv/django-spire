@@ -8,8 +8,8 @@ from django.db import IntegrityError
 from django.utils import timezone
 
 from django_spire.sync.core import SyncPhase, SyncStatus
-from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
-from django_spire.contrib.sync.django.models.lock import SyncNodeLock
+from django_spire.sync.django.models.checkpoint import SyncCheckpoint
+from django_spire.sync.django.models.lock import SyncNodeLock
 from django_spire.contrib.sync.django.models.session import SyncSession
 
 

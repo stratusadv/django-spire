@@ -5,7 +5,7 @@ import csv
 from pathlib import Path
 from typing import Any
 
-from django_spire.contrib.sync.file.writer.base import Writer
+from django_spire.sync.file.writer.base import Writer
 
 
 class CsvWriter(Writer):

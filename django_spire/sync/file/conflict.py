@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any, Protocol, TYPE_CHECKING
 
 from django_spire.sync.core import ResolutionAction
-from django_spire.contrib.sync.file.exceptions import FileSyncConflictError
+from django_spire.sync.file.exceptions import FileSyncConflictError
 
 if TYPE_CHECKING:
     from datetime import datetime

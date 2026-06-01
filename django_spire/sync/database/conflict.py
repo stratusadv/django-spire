@@ -8,7 +8,7 @@ from django_spire.sync.core import (
     ConflictStateError,
     InvalidParameterError,
 )
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 
 
 META_FIELDS = frozenset({

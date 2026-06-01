@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.db import models
 
-from django_spire.contrib.sync.django.mixin import SyncableMixin
+from django_spire.sync.django.mixin import SyncableMixin
 
 
 class SyncTestTag(models.Model):

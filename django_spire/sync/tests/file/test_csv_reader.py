@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from django_spire.contrib.sync.file.exceptions import FileSyncParseError
-from django_spire.contrib.sync.file.reader.csv import CsvReader
+from django_spire.sync.file.exceptions import FileSyncParseError
+from django_spire.sync.file.reader.csv import CsvReader
 
 if TYPE_CHECKING:
     from pathlib import Path

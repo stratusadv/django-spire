@@ -4,8 +4,8 @@ import pytest
 
 from django_spire.sync.core import HybridLogicalClock
 from django_spire.sync.core import ClockNotConfiguredError
-from django_spire.contrib.sync.django.mixin import SyncableMixin
-from django_spire.contrib.sync.tests.models import SyncTestModel
+from django_spire.sync.django.mixin import SyncableMixin
+from django_spire.sync.tests.models import SyncTestModel
 
 
 @pytest.fixture

@@ -5,9 +5,9 @@ import pytest
 from django.db import models as db_models
 
 from django_spire.sync.core import HybridLogicalClock
-from django_spire.contrib.sync.django.mixin import SyncableMixin
-from django_spire.contrib.sync.django.seed import seed_clock
-from django_spire.contrib.sync.tests.models import SyncTestSimpleModel, SyncTestModel
+from django_spire.sync.django.mixin import SyncableMixin
+from django_spire.sync.django.seed import seed_clock
+from django_spire.sync.tests.models import SyncTestSimpleModel, SyncTestModel
 
 
 @pytest.mark.django_db

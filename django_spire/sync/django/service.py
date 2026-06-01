@@ -5,7 +5,7 @@ from typing import Any, TYPE_CHECKING
 from django_spire.sync.core import InvalidParameterError
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 class SyncableModelService:

@@ -8,7 +8,7 @@ from decimal import Decimal
 from django.db import models
 from django.test import TestCase
 
-from django_spire.contrib.sync.django.serializer import SyncFieldSerializer
+from django_spire.sync.django.serializer import SyncFieldSerializer
 
 
 class SerializerTestModel(models.Model):

@@ -1,4 +1,4 @@
-from django_spire.contrib.sync.database.serializer.base import Serializer
+from django_spire.sync.database.serializer.base import Serializer
 from django_spire.sync.database.serializer.django import DjangoModelSerializer
 
 

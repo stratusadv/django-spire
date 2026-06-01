@@ -4,9 +4,9 @@ import pytest
 
 from django_spire.sync.core import HybridLogicalClock
 from django_spire.sync.core import InvalidParameterError
-from django_spire.contrib.sync.django.mixin import SyncableMixin
+from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.django.service import SyncableModelService
-from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestTag
+from django_spire.sync.tests.models import SyncTestModel, SyncTestTag
 
 
 @pytest.fixture

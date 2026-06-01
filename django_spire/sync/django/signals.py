@@ -11,7 +11,7 @@ from django_spire.sync.core import InvalidParameterError
 from django_spire.sync.django.queryset import _is_bypassed, sync_bypass
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 logger = logging.getLogger(__name__)
@@ -136,7 +136,7 @@ def _on_many_to_many_changed(
     pk_set: set[Any] | None,
     **kwargs: Any,
 ) -> None:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
+    from django_spire.sync.django.mixin import SyncableMixin  # noqa: PLC0415
 
     if action not in _TRACKED_ACTIONS:
         return
@@ -197,8 +197,8 @@ def _on_syncable_delete(
     _ = sender
     _ = kwargs
 
-    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
-    from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+    from django_spire.sync.django.mixin import SyncableMixin  # noqa: PLC0415
+    from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
     from django_spire.sync.django.sequence import (  # noqa: PLC0415
         SyncSequenceAllocator,
     )
@@ -232,7 +232,7 @@ def _on_syncable_delete(
 def register_delete_signals(
     models: list[type[SyncableMixin]],
 ) -> None:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
+    from django_spire.sync.django.mixin import SyncableMixin  # noqa: PLC0415
 
     for model in models:
         if not issubclass(model, SyncableMixin):

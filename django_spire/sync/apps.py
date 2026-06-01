@@ -9,7 +9,7 @@ from django.apps import AppConfig
 from django.db import OperationalError, ProgrammingError
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 log = logging.getLogger(__name__)
@@ -26,14 +26,14 @@ class SyncableAppMixin:
     def ready(self) -> None:
         super().ready()
 
-        from django_spire.contrib.sync import HybridLogicalClock  # noqa: PLC0415
-        from django_spire.contrib.sync.django import (  # noqa: PLC0415
+        from django_spire.sync import HybridLogicalClock  # noqa: PLC0415
+        from django_spire.sync.django import (  # noqa: PLC0415
             SyncableMixin,
             build_graph,
             register_many_to_many_signals,
             seed_clock,
         )
-        from django_spire.contrib.sync.django.signals import (  # noqa: PLC0415
+        from django_spire.sync.django.signals import (  # noqa: PLC0415
             register_delete_signals,
         )
 

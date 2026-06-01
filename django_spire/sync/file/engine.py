@@ -9,7 +9,7 @@ from typing import Any, Callable, TYPE_CHECKING
 from django_spire.sync.core import SyncStage
 from django_spire.sync.core import RecordHasher
 from django_spire.sync.core.model import Change, Error, Result
-from django_spire.contrib.sync.file.exceptions import (
+from django_spire.sync.file.exceptions import (
     FileSyncAbortedError,
     FileSyncParameterError
 )
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from contextlib import AbstractContextManager
     from pathlib import Path
 
-    from django_spire.contrib.sync.file.reader.base import Reader
+    from django_spire.sync.file.reader.base import Reader
     from django_spire.sync.file.storage import Storage
 
 

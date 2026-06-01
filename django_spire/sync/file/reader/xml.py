@@ -6,11 +6,11 @@ from typing import Any, TYPE_CHECKING
 
 import defusedxml.ElementTree as DefusedET
 
-from django_spire.contrib.sync.file.exceptions import (
+from django_spire.sync.file.exceptions import (
     FileSyncParameterError,
     FileSyncParseError,
 )
-from django_spire.contrib.sync.file.reader.base import Reader
+from django_spire.sync.file.reader.base import Reader
 
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element

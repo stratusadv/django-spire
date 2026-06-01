@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
 import pytest
 
-from django_spire.contrib.sync.file.engine import Engine
-from django_spire.contrib.sync.file.exceptions import FileSyncAbortedError
-from django_spire.contrib.sync.file.reader.xml import XmlField, XmlListField, XmlReader
+from django_spire.sync.file.engine import Engine
+from django_spire.sync.file.exceptions import FileSyncAbortedError
+from django_spire.sync.file.reader.xml import XmlField, XmlListField, XmlReader
 
 
 FIXTURES_DIR = Path(__file__).parent / 'fixtures'

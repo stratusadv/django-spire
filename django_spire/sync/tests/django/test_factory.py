@@ -3,16 +3,16 @@ from __future__ import annotations
 import pytest
 
 from django_spire.sync.core import HybridLogicalClock
-from django_spire.contrib.sync.database.conflict import RemoteWins
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
-from django_spire.contrib.sync.django.factory import (
+from django_spire.sync.database.conflict import RemoteWins
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
+from django_spire.sync.django.factory import (
     build_client_engine,
     build_server_engine,
 )
-from django_spire.contrib.sync.django.mixin import SyncableMixin
+from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.django.storage import DjangoSyncStorage
-from django_spire.contrib.sync.tests.models import SyncTestModel
+from django_spire.sync.tests.models import SyncTestModel
 
 
 @pytest.mark.django_db

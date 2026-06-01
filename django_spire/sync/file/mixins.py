@@ -7,8 +7,8 @@ from typing import Any, TYPE_CHECKING
 from django.db import transaction
 
 from django_spire.sync.file.bidirectional import BidirectionalEngine
-from django_spire.contrib.sync.file.engine import Engine
-from django_spire.contrib.sync.file.exceptions import (
+from django_spire.sync.file.engine import Engine
+from django_spire.sync.file.exceptions import (
     FileSyncConfigError,
     FileSyncSourceNotFoundError,
 )
@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from django_spire.sync.core.model import BidirectionalResult, Result
-    from django_spire.contrib.sync.file.config import FileSyncConfig
-    from django_spire.contrib.sync.file.reader.base import Reader
-    from django_spire.contrib.sync.file.writer.base import Writer
+    from django_spire.sync.file.config import FileSyncConfig
+    from django_spire.sync.file.reader.base import Reader
+    from django_spire.sync.file.writer.base import Writer
 
 
 logger = logging.getLogger(__name__)

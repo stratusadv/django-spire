@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from django_spire.sync.file.conflict import ConflictStrategy, SourceWins
-from django_spire.contrib.sync.file.exceptions import FileSyncParameterError
+from django_spire.sync.file.exceptions import FileSyncParameterError
 
 
 @dataclass(frozen=True)

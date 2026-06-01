@@ -5,11 +5,11 @@ import logging
 from typing import Any, TYPE_CHECKING
 
 from django_spire.sync.core import HybridLogicalClock
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.manifest import SyncManifest
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.database.storage import (
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.database.storage import (
     CheckpointPosition,
     DatabaseSyncStorage,
     SequenceRange,

@@ -7,7 +7,7 @@ from enum import Enum
 from pathlib import Path
 
 from django_spire.sync.file.archive import Archive
-from django_spire.contrib.sync.file.exceptions import FileSyncArchiveError
+from django_spire.sync.file.exceptions import FileSyncArchiveError
 
 
 logger = logging.getLogger(__name__)

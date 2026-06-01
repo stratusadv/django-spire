@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from django_spire.sync.file.archive import CollisionStrategy, ZipArchive
-from django_spire.contrib.sync.file.exceptions import FileSyncArchiveError
+from django_spire.sync.file.exceptions import FileSyncArchiveError
 
 if TYPE_CHECKING:
     from pathlib import Path

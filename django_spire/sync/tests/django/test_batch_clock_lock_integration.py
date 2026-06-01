@@ -14,9 +14,9 @@ from django_spire.sync.core import (
     InvalidParameterError,
     SyncAbortedError,
 )
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
+from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.django.storage import DjangoSyncStorage
 from django_spire.sync.tests.database.fakes import FakeLock
 from django_spire.sync.tests.database.helpers import (
@@ -24,8 +24,8 @@ from django_spire.sync.tests.database.helpers import (
     InMemoryDatabaseStorage,
     MODEL,
 )
-from django_spire.contrib.sync.tests.factories import make_manifest
-from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestSimpleModel
+from django_spire.sync.tests.factories import make_manifest
+from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
 
 @pytest.fixture
@@ -136,7 +136,7 @@ def test_clock_overflow_raises() -> None:
         clock.now()
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_engine_sync_acquires_and_releases_lock(mock_time: Any) -> None:
     mock_time.time.return_value = 500
 
@@ -168,7 +168,7 @@ def test_engine_sync_acquires_and_releases_lock(mock_time: Any) -> None:
     assert lock.released[0][1] == SyncStatus.SUCCESS
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_engine_sync_releases_lock_on_failure(mock_time: Any) -> None:
     mock_time.time.return_value = 500
 
@@ -199,7 +199,7 @@ def test_engine_sync_releases_lock_on_failure(mock_time: Any) -> None:
     assert lock.released[0][1] == SyncStatus.FAILURE
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_engine_sync_reports_phases_to_lock(mock_time: Any) -> None:
     mock_time.time.return_value = 500
 
@@ -231,7 +231,7 @@ def test_engine_sync_reports_phases_to_lock(mock_time: Any) -> None:
     assert SyncPhase.COMPLETE in phase_names
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_engine_sync_without_lock_still_works(mock_time: Any) -> None:
     mock_time.time.return_value = 500
 

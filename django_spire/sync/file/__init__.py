@@ -1,5 +1,5 @@
 from django_spire.sync.file.bidirectional import BidirectionalEngine
-from django_spire.contrib.sync.file.config import FileSyncConfig
+from django_spire.sync.file.config import FileSyncConfig
 from django_spire.sync.file.conflict import (
     Conflict,
     ConflictStrategy,
@@ -8,8 +8,8 @@ from django_spire.sync.file.conflict import (
     SourceWins,
     TargetWins,
 )
-from django_spire.contrib.sync.file.engine import Engine
-from django_spire.contrib.sync.file.exceptions import (
+from django_spire.sync.file.engine import Engine
+from django_spire.sync.file.exceptions import (
     FileSyncAbortedError,
     FileSyncArchiveError,
     FileSyncConfigError,

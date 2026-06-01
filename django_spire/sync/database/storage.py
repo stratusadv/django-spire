@@ -6,7 +6,7 @@ from typing import Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from django_spire.sync.core.model import Error
-    from django_spire.contrib.sync.database.record import SyncRecord
+    from django_spire.sync.database.record import SyncRecord
 
 
 @dataclass

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django_spire.sync.database.manifest import ModelPayload, SyncManifest
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 
 
 def make_record(

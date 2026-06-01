@@ -5,7 +5,7 @@ import pytest
 from django.db import models as db_models
 
 from django_spire.sync.django.storage import DjangoSyncStorage
-from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestSimpleModel
+from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
 
 @pytest.fixture

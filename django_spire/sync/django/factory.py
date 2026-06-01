@@ -4,20 +4,20 @@ from typing import Any, TYPE_CHECKING
 
 from django.db import transaction
 
-from django_spire.contrib.sync.database.conflict import FieldTimestampWins
-from django_spire.contrib.sync.database.engine import (
+from django_spire.sync.database.conflict import FieldTimestampWins
+from django_spire.sync.database.engine import (
     BATCH_BYTES_DEFAULT,
     DatabaseEngine,
 )
-from django_spire.contrib.sync.database.reconciler import PayloadReconciler
+from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.database.transport.http import HttpTransport
-from django_spire.contrib.sync.django.graph import (
+from django_spire.sync.django.graph import (
     build_graph,
     get_deferred_foreign_key_columns,
     get_foreign_key_columns_for_cascade,
 )
-from django_spire.contrib.sync.django.lock import DjangoSyncLock
-from django_spire.contrib.sync.django.mixin import SyncableMixin
+from django_spire.sync.django.lock import DjangoSyncLock
+from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.django.storage import DjangoSyncStorage
 
 if TYPE_CHECKING:
@@ -26,11 +26,11 @@ if TYPE_CHECKING:
 
     from django_spire.sync.core import HybridLogicalClock
     from django_spire.sync.core import SyncPhase, SyncStage
-    from django_spire.contrib.sync.database.conflict import ConflictResolver
-    from django_spire.contrib.sync.database.graph import DependencyGraph
+    from django_spire.sync.database.conflict import ConflictResolver
+    from django_spire.sync.database.graph import DependencyGraph
     from django_spire.sync.database.lock import SyncLock
     from django_spire.sync.database.manifest import DatabaseResult
-    from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
+    from django_spire.sync.database.storage import DatabaseSyncStorage
 
 
 def _resolve_common(

@@ -11,12 +11,12 @@ from django_spire.sync.core import ManifestFieldError
 
 if TYPE_CHECKING:
     from django_spire.sync.core.model import Error
-    from django_spire.contrib.sync.database.conflict import (
+    from django_spire.sync.database.conflict import (
         RecordConflict,
         ResolutionSource,
     )
 
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 
 
 _PAYLOADS_MAX = 100

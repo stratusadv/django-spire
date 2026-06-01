@@ -26,21 +26,21 @@ from django_spire.sync.database.manifest import (
     ModelPayload,
     SyncManifest,
 )
-from django_spire.contrib.sync.database.reconciler import PayloadReconciler
-from django_spire.contrib.sync.database.storage import UpsertResult
+from django_spire.sync.database.reconciler import PayloadReconciler
+from django_spire.sync.database.storage import UpsertResult
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from django_spire.sync.core import HybridLogicalClock
-    from django_spire.contrib.sync.database.graph import DependencyGraph
+    from django_spire.sync.database.graph import DependencyGraph
     from django_spire.sync.database.lock import SyncLock
-    from django_spire.contrib.sync.database.reconciler import (
+    from django_spire.sync.database.reconciler import (
         ReconciliationResult,
     )
-    from django_spire.contrib.sync.database.record import SyncRecord
-    from django_spire.contrib.sync.database.storage import DatabaseSyncStorage
-    from django_spire.contrib.sync.database.transport import Transport
+    from django_spire.sync.database.record import SyncRecord
+    from django_spire.sync.database.storage import DatabaseSyncStorage
+    from django_spire.sync.database.transport import Transport
 
 
 logger = logging.getLogger(__name__)

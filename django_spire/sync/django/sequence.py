@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from django_spire.sync.core import InvalidParameterError
-from django_spire.contrib.sync.database.storage import SequenceRange
-from django_spire.contrib.sync.django.models.sequence import SyncSequenceCounter
+from django_spire.sync.database.storage import SequenceRange
+from django_spire.sync.django.models.sequence import SyncSequenceCounter
 
 
 _DEFAULT_COUNTER_NAME = 'default'

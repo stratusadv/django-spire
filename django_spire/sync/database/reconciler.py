@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from django_spire.sync.core.model import Error
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     ConflictResolver,
     ConflictType,
     FieldConflict,
@@ -18,7 +18,7 @@ from django_spire.sync.database.manifest import ConflictEntry
 
 if TYPE_CHECKING:
     from django_spire.sync.database.manifest import ModelPayload
-    from django_spire.contrib.sync.database.record import SyncRecord
+    from django_spire.sync.database.record import SyncRecord
 
 
 logger = logging.getLogger(__name__)

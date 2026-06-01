@@ -1,5 +1,5 @@
-from django_spire.contrib.sync.file.media.base import Store
-from django_spire.contrib.sync.file.media.s3 import S3Store
+from django_spire.sync.file.media.base import Store
+from django_spire.sync.file.media.s3 import S3Store
 
 
 __all__ = [

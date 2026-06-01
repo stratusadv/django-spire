@@ -11,8 +11,8 @@ from typing import Any, Protocol, TYPE_CHECKING
 
 from django.apps import apps
 
-from django_spire.contrib.sync.file.exceptions import FileSyncParameterError
-from django_spire.contrib.sync.file.models import FileSyncableMixin
+from django_spire.sync.file.exceptions import FileSyncParameterError
+from django_spire.sync.file.models import FileSyncableMixin
 
 if TYPE_CHECKING:
     from datetime import datetime

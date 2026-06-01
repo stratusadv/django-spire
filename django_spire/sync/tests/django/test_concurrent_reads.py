@@ -5,13 +5,13 @@ import time
 
 import pytest
 
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.tests.django.helpers import (
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.tests.django.helpers import (
     make_named_record,
     make_storage,
     thread_safe,
 )
-from django_spire.contrib.sync.tests.models import SyncTestModel, SyncTestTag
+from django_spire.sync.tests.models import SyncTestModel, SyncTestTag
 
 
 @pytest.mark.postgres_only

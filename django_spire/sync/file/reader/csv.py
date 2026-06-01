@@ -5,8 +5,8 @@ import csv
 from pathlib import Path
 from typing import Any
 
-from django_spire.contrib.sync.file.exceptions import FileSyncParseError
-from django_spire.contrib.sync.file.reader.base import Reader
+from django_spire.sync.file.exceptions import FileSyncParseError
+from django_spire.sync.file.reader.base import Reader
 
 
 class CsvReader(Reader):

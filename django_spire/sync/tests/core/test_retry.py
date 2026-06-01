@@ -123,7 +123,7 @@ def test_empty_exceptions_tuple_raises() -> None:
         retry(lambda: 42, attempts=1, delay=0, exceptions=())
 
 
-@patch('django_spire.contrib.sync.core.retry.time.sleep')
+@patch('django_spire.sync.core.retry.time.sleep')
 def test_backoff_multiplies_delay(mock_sleep: object) -> None:
     calls: list[int] = []
 
@@ -149,7 +149,7 @@ def test_backoff_multiplies_delay(mock_sleep: object) -> None:
     assert sleep_values[2] == pytest.approx(4.0)
 
 
-@patch('django_spire.contrib.sync.core.retry.time.sleep')
+@patch('django_spire.sync.core.retry.time.sleep')
 def test_delay_capped_at_max(mock_sleep: object) -> None:
     calls: list[int] = []
 
@@ -191,7 +191,7 @@ def test_backoff_exactly_one_keeps_constant_delay() -> None:
 
         return 42
 
-    with patch('django_spire.contrib.sync.core.retry.time.sleep') as mock_sleep:
+    with patch('django_spire.sync.core.retry.time.sleep') as mock_sleep:
         result = retry(
             fail_twice,
             attempts=3,

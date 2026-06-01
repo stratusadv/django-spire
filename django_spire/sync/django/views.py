@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
     from django.http import HttpRequest
 
-    from django_spire.contrib.sync.database.engine import (
+    from django_spire.sync.database.engine import (
         DatabaseEngine,
     )
 
