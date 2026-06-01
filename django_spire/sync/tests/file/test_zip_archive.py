@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from django_spire.sync.file.archive import CollisionStrategy, ZipArchive
+from django_spire.sync.file.archive.zip import CollisionStrategy, ZipArchive
 from django_spire.sync.file.exceptions import FileSyncArchiveError
 
 if TYPE_CHECKING:

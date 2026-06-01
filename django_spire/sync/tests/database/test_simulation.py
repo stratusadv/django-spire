@@ -5,8 +5,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from django_spire.sync.tests.database import ModelSchema
-from django_spire.sync.tests.database import FLAT_SCHEMA, WIDE_SCHEMA
+from django_spire.sync.tests.database.harness import ModelSchema
+from django_spire.sync.tests.database.schemas import FLAT_SCHEMA, WIDE_SCHEMA
 from django_spire.sync.tests.database.simulator import OpTag, SyncSimulator
 
 

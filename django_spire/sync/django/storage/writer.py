@@ -9,16 +9,16 @@ from typing import Any, TYPE_CHECKING
 from django.core.exceptions import FieldDoesNotExist
 from django.db import connections, router, transaction
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     BatchLimitError,
     InvalidParameterError,
     UnknownModelError,
 )
-from django_spire.contrib.sync.database.storage import UpsertResult
-from django_spire.contrib.sync.django.serializer import (
+from django_spire.sync.database.storage import UpsertResult
+from django_spire.sync.django.serializer import (
     SyncFieldSerializer,
 )
-from django_spire.sync.django.storage import (
+from django_spire.sync.django.storage.many_to_many import (
     ManyToManyApplier,
 )
 from django_spire.sync.django.storage.strategy import (
@@ -32,11 +32,11 @@ from django_spire.sync.django.storage.strategy import (
 if TYPE_CHECKING:
     from django.db.backends.base.base import BaseDatabaseWrapper
 
-    from django_spire.sync.core import HybridLogicalClock
+    from django_spire.sync.core.clock import HybridLogicalClock
     from django_spire.sync.core.model import Error
-    from django_spire.contrib.sync.database.record import SyncRecord
-    from django_spire.contrib.sync.django.graph import DeferredForeignKey
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.database.record import SyncRecord
+    from django_spire.sync.django.graph import DeferredForeignKey
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 logger = logging.getLogger(__name__)
@@ -415,7 +415,7 @@ class DjangoRecordWriter:
         model_label: str,
         stashes: dict[str, dict[str, Any]],
     ) -> None:
-        from django_spire.contrib.sync.django.models.deferred_backfill import (  # noqa: PLC0415
+        from django_spire.sync.django.models.deferred_backfill import (  # noqa: PLC0415
             SyncDeferredBackfill,
         )
 
@@ -448,7 +448,7 @@ class DjangoRecordWriter:
         if not record_keys:
             return
 
-        from django_spire.contrib.sync.django.models.deferred_backfill import (  # noqa: PLC0415
+        from django_spire.sync.django.models.deferred_backfill import (  # noqa: PLC0415
             SyncDeferredBackfill,
         )
 
@@ -667,7 +667,7 @@ class DjangoRecordWriter:
         if not keys:
             return
 
-        from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+        from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
         SyncTombstone.objects.filter(
             model_label=model_label,
@@ -695,7 +695,7 @@ class DjangoRecordWriter:
                 strategy.delete(model, chunk, origin_node)
 
     def flush_deferred_backfill(self) -> None:
-        from django_spire.contrib.sync.django.models.deferred_backfill import (  # noqa: PLC0415
+        from django_spire.sync.django.models.deferred_backfill import (  # noqa: PLC0415
             SyncDeferredBackfill,
         )
 

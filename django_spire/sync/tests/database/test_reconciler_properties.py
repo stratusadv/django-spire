@@ -3,15 +3,15 @@ from __future__ import annotations
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     RecordConflict,
     RecordResolution,
     ResolutionSource,
 )
 from django_spire.sync.database.manifest import ModelPayload
-from django_spire.contrib.sync.database.reconciler import PayloadReconciler
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.sync.tests.database import reconciler_scenario
+from django_spire.sync.database.reconciler import PayloadReconciler
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.tests.database.strategies import reconciler_scenario
 
 
 class TestReconcilerInvariants:

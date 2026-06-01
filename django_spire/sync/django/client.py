@@ -22,8 +22,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from contextlib import AbstractContextManager
 
-    from django_spire.sync.core import HybridLogicalClock
-    from django_spire.sync.core import SyncPhase, SyncStage
+    from django_spire.sync.core.clock import HybridLogicalClock
+    from django_spire.sync.core.enums import SyncPhase, SyncStage
     from django_spire.sync.database.conflict import ConflictResolver
     from django_spire.sync.database.graph import DependencyGraph
     from django_spire.sync.database.lock import SyncLock

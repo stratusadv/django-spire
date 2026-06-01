@@ -6,7 +6,7 @@ from typing import Any, ClassVar, TYPE_CHECKING
 
 from django.db import models, transaction
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     ClockNotConfiguredError,
 )
 from django_spire.sync.database.tracker import FieldUpdateTracker
@@ -16,7 +16,7 @@ from django_spire.sync.django.queryset import (
 )
 
 if TYPE_CHECKING:
-    from django_spire.sync.core import HybridLogicalClock
+    from django_spire.sync.core.clock import HybridLogicalClock
 
 
 class SyncableFieldsMixin(models.Model):

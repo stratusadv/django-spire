@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from django.db.models import Max
 
 if TYPE_CHECKING:
-    from django_spire.sync.core import HybridLogicalClock
+    from django_spire.sync.core.clock import HybridLogicalClock
     from django_spire.sync.django.mixin import SyncableMixin
 
 

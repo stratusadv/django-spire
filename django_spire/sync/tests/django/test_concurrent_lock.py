@@ -5,8 +5,8 @@ import time
 
 import pytest
 
-from django_spire.sync.core import SyncStatus
-from django_spire.sync.core import LockContentionError
+from django_spire.sync.core.enums import SyncStatus
+from django_spire.sync.core.exceptions import LockContentionError
 from django_spire.sync.django.lock import DjangoSyncLock
 from django_spire.sync.django.models.session import SyncSession
 from django_spire.sync.tests.django.helpers import thread_safe

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Protocol, TYPE_CHECKING
 
-from django_spire.sync.core import ResolutionAction
+from django_spire.sync.core.enums import ResolutionAction
 from django_spire.sync.file.exceptions import FileSyncConflictError
 
 if TYPE_CHECKING:

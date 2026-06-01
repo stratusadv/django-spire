@@ -5,11 +5,11 @@ from unittest.mock import patch
 
 import pytest
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     InvalidParameterError,
     RetryExhaustedError,
 )
-from django_spire.sync.core import retry, _DELAY_MAX
+from django_spire.sync.core.retry import retry, _DELAY_MAX
 
 
 def test_succeeds_first_try() -> None:

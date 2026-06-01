@@ -4,7 +4,7 @@ from typing import Any
 
 from django.db.models import QuerySet
 
-from django_spire.sync.core import RecordHasher
+from django_spire.sync.core.hash import RecordHasher
 
 
 class FileSyncableQuerySet(QuerySet):

@@ -5,7 +5,7 @@ import gzip
 import pytest
 
 from django_spire.sync.core.compression import gzip_decompress
-from django_spire.sync.core import DecompressionLimitError
+from django_spire.sync.core.exceptions import DecompressionLimitError
 
 
 def test_decompresses_valid_gzip() -> None:

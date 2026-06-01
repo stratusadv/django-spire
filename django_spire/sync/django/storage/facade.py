@@ -6,22 +6,22 @@ from typing import Any, TYPE_CHECKING
 
 from django_spire.sync.django.sequence import SyncSequenceAllocator
 from django_spire.sync.django.storage.checkpoint import DjangoCheckpointStore
-from django_spire.sync.django.storage import DjangoRecordReader
-from django_spire.sync.django.storage import DjangoRecordWriter
+from django_spire.sync.django.storage.reader import DjangoRecordReader
+from django_spire.sync.django.storage.writer import DjangoRecordWriter
 
 if TYPE_CHECKING:
-    from django_spire.sync.core import HybridLogicalClock
-    from django_spire.contrib.sync.database.storage import UpsertResult
-    from django_spire.contrib.sync.database.record import SyncRecord
-    from django_spire.contrib.sync.database.storage import (
+    from django_spire.sync.core.clock import HybridLogicalClock
+    from django_spire.sync.database.storage import UpsertResult
+    from django_spire.sync.database.record import SyncRecord
+    from django_spire.sync.database.storage import (
         CheckpointPosition,
         CheckpointStore,
         RecordReader,
         RecordWriter,
         SequenceAllocator,
     )
-    from django_spire.contrib.sync.django.graph import DeferredForeignKey
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.django.graph import DeferredForeignKey
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 logger = logging.getLogger(__name__)

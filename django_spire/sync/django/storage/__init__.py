@@ -1,7 +1,7 @@
 from django_spire.sync.django.storage.checkpoint import DjangoCheckpointStore
-from django_spire.sync.django.storage import DjangoSyncStorage
-from django_spire.sync.django.storage import ManyToManyApplier
-from django_spire.sync.django.storage import DjangoRecordReader
+from django_spire.sync.django.storage.facade import DjangoSyncStorage
+from django_spire.sync.django.storage.many_to_many import ManyToManyApplier
+from django_spire.sync.django.storage.reader import DjangoRecordReader
 from django_spire.sync.django.storage.strategy import (
     DeleteStrategy,
     HardDeleteStrategy,
@@ -9,7 +9,7 @@ from django_spire.sync.django.storage.strategy import (
     StalenessGuardedUpsertStrategy,
     UpsertStrategy,
 )
-from django_spire.sync.django.storage import DjangoRecordWriter
+from django_spire.sync.django.storage.writer import DjangoRecordWriter
 
 
 __all__ = [

@@ -4,7 +4,7 @@ from typing import Any, ClassVar
 
 from django.db import models
 
-from django_spire.sync.core import RecordHasher
+from django_spire.sync.core.hash import RecordHasher
 
 
 class FileSyncableMixin(models.Model):

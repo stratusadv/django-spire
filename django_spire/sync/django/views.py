@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from django.http import JsonResponse
 
 from django_spire.sync.core.compression import gzip_decompress
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     DecompressionLimitError,
     InvalidParameterError,
     ManifestFieldError,

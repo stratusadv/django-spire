@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     CircularDependencyError,
     UnknownDependencyError,
 )
-from django_spire.contrib.sync.database.graph import DependencyGraph
+from django_spire.sync.database.graph import DependencyGraph
 
 
 def test_single_node_no_deps() -> None:

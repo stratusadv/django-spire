@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.tests.database.helpers import (
     SURVEY,
     STAKE,

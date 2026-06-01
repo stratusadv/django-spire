@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from django_spire.contrib.sync.database.storage import CheckpointPosition
-from django_spire.contrib.sync.django.models.checkpoint import SyncCheckpoint
+from django_spire.sync.database.storage import CheckpointPosition
+from django_spire.sync.django.models.checkpoint import SyncCheckpoint
 
 
 class DjangoCheckpointStore:

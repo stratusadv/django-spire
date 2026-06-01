@@ -3,7 +3,7 @@ from __future__ import annotations
 import threading
 import time
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     ClockOverflowError,
     InvalidParameterError,
 )

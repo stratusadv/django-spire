@@ -16,8 +16,8 @@ class SyncDemoConfig(AppConfig):
         from django.apps import apps  # noqa: PLC0415
 
         from django_spire.sync.core import HybridLogicalClock  # noqa: PLC0415
-        from django_spire.contrib.sync.django.mixin import SyncableMixin  # noqa: PLC0415
-        from django_spire.contrib.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
+        from django_spire.sync.django.mixin import SyncableMixin  # noqa: PLC0415
+        from django_spire.sync.django.signals import register_many_to_many_signals  # noqa: PLC0415
 
         from test_project.app.sync.models import Client  # noqa: PLC0415
         from test_project.app.sync.services.service import SyncService  # noqa: PLC0415
