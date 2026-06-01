@@ -59,7 +59,7 @@ def _form_view(
     else:
         form = form_cls(instance=obj)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=obj,

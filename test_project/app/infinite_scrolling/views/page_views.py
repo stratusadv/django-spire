@@ -51,7 +51,7 @@ def delete_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         reverse('infinite_scrolling:page:list')
     )
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request,
         obj=infinite_scrolling,
         return_url=return_url
@@ -65,7 +65,7 @@ def detail_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'infinite_scrolling': infinite_scrolling,
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=infinite_scrolling,
         context_data=context_data,

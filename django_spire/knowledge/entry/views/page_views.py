@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry = get_object_or_404(Entry, pk=pk)
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request,
         obj=entry,
         delete_func=entry.services.processor.set_deleted,

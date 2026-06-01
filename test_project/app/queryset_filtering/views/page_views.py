@@ -72,7 +72,7 @@ def list_items_view(request: WSGIRequest):
         'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),
     }
 
-    return portal_views.infinite_scrolling_view(
+    return generic_views.infinite_scrolling_view(
         request,
         context_data=context_data,
         queryset=tasks,

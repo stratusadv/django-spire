@@ -31,7 +31,7 @@ def ${list_items_view_name}(request: WSGIRequest) -> TemplateResponse:
         )
     )
 
-    return portal_views.infinite_scrolling_view(
+    return generic_views.infinite_scrolling_view(
         request,
         context_data={'batch_size': 10,},
         queryset=${context_plural_var},

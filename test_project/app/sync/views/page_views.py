@@ -121,7 +121,7 @@ def detail_page_view(request: WSGIRequest, model: str, pk: int) -> TemplateRespo
     elif model == 'surveyplan':
         context['stakes'] = list(instance.stakes.all())
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=instance,
         context_data=context,

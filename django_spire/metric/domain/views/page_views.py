@@ -28,7 +28,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'domain': domain,
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=domain,
         context_data=context_data,
@@ -50,7 +50,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=models.Domain,
         context_data=context_data,

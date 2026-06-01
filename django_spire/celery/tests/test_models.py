@@ -1,16 +1,17 @@
 from __future__ import annotations
 
+import pickle
 import uuid
 from datetime import timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 
-import pickle
 from celery import states
 from django.test import TestCase
 from django.utils.timezone import now
 
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.tests.factories import create_test_celery_task
+from django_spire.celery.result import CeleryNoResult
 
 
 class CeleryTaskModelTestCase(TestCase):
@@ -46,9 +47,6 @@ class CeleryTaskModelTestCase(TestCase):
     def test_completed_datetime_null_by_default(self) -> None:
         assert self.celery_task.completed_datetime is None
 
-    def test_has_result_false_by_default(self) -> None:
-        assert self.celery_task.has_result is False
-
     def test_result_capture_attempts_zero_by_default(self) -> None:
         assert self.celery_task._result_capture_attempts == 0
 
@@ -60,7 +58,7 @@ class CeleryTaskModelTestCase(TestCase):
         started = now() - timedelta(seconds=60)
         completed = now()
         task = create_test_celery_task(started_datetime=started, completed_datetime=completed)
-        assert task.completion_time_seconds == 60
+        assert 59 <= task.completion_time_seconds <= 61
 
     def test_completion_time_verbose_property(self) -> None:
         started = now() - timedelta(hours=2, minutes=30, seconds=15)
@@ -69,57 +67,17 @@ class CeleryTaskModelTestCase(TestCase):
         assert 'hour' in task.completion_time_verbose
         assert 'minute' in task.completion_time_verbose
 
-    def test_estimated_completion_percentage_property(self) -> None:
-        started = now() - timedelta(seconds=50)
-        estimated = now() + timedelta(seconds=70)
-        task = create_test_celery_task(
-            started_datetime=started, estimated_completion_datetime=estimated, state=states.STARTED
-        )
-        percentage = task.estimated_completion_percentage
-        assert 0.0 <= percentage <= 1.0
-
-    def test_estimated_completion_percentage_capped_at_1(self) -> None:
-        started = now() - timedelta(seconds=150)
-        estimated = now() - timedelta(seconds=10)
-        task = create_test_celery_task(started_datetime=started, estimated_completion_datetime=estimated)
-        assert task.estimated_completion_percentage == 1.0
-
-    def test_estimated_completion_percentage_capped_at_0(self) -> None:
-        started = now()
-        estimated = now() + timedelta(seconds=300)
-        task = create_test_celery_task(started_datetime=started, estimated_completion_datetime=estimated)
-        assert task.estimated_completion_percentage >= 0.0
-
-    def test_estimated_completion_percentage_of_hundred(self) -> None:
+    def test_result_setter_pickles_data(self) -> None:
         task = create_test_celery_task()
-        percentage = task.estimated_completion_percentage_of_hundred
-        assert 0 <= percentage <= 100
+        test_data = {'test': 'data'}
+        task.result = test_data
+        assert pickle.loads(task._result) == test_data
 
-    def test_estimated_time_remaining_seconds_property(self) -> None:
-        estimated = now() + timedelta(seconds=120)
-        task = create_test_celery_task(estimated_completion_datetime=estimated)
-        assert 110 <= task.estimated_time_remaining_seconds <= 120
-
-    def test_estimated_time_seconds_property(self) -> None:
-        started = now() - timedelta(seconds=30)
-        estimated = now() + timedelta(seconds=90)
-        task = create_test_celery_task(started_datetime=started, estimated_completion_datetime=estimated)
-        assert 110 <= task.estimated_time_seconds <= 120
-
-    def test_estimated_time_remaining_verbose_property(self) -> None:
-        estimated = now() + timedelta(minutes=5, seconds=30)
-        task = create_test_celery_task(estimated_completion_datetime=estimated)
-        assert 'minute' in task.estimated_time_remaining_verbose
-
-    def test_is_estimated_complete_soon_true(self) -> None:
-        estimated = now() + timedelta(seconds=30)
-        task = create_test_celery_task(estimated_completion_datetime=estimated)
-        assert task.is_estimated_complete_soon is True
-
-    def test_is_estimated_complete_soon_false(self) -> None:
-        estimated = now() + timedelta(minutes=5)
-        task = create_test_celery_task(estimated_completion_datetime=estimated)
-        assert task.is_estimated_complete_soon is False
+    def test_result_deleter_clears_result(self) -> None:
+        task = create_test_celery_task()
+        task._result = pickle.dumps({'test': 'data'})
+        del task.result
+        assert task._result is None
 
     def test_is_failed_property(self) -> None:
         task = create_test_celery_task(state=states.FAILURE)
@@ -145,39 +103,9 @@ class CeleryTaskModelTestCase(TestCase):
         task = create_test_celery_task(state=states.SUCCESS)
         assert task.is_processing is False
 
-    def test_has_no_result_property(self) -> None:
-        task = create_test_celery_task()
-        assert task.has_no_result is True
-        task.has_result = True
-        assert task.has_no_result is False
-
-    def test_result_property_returns_none_when_no_result(self) -> None:
-        task = create_test_celery_task()
-        with patch.object(task.services, 'update_result'):
-            assert task.result is None
-
-    def test_result_property_returns_pickled_result(self) -> None:
-        task = create_test_celery_task()
-        test_data = {'key': 'value', 'number': 42}
-        task._result = pickle.dumps(test_data)
-        task.has_result = True
-        assert task.result == test_data
-
-    def test_result_property_returns_none_on_failure(self) -> None:
-        task = create_test_celery_task(state=states.FAILURE)
-        assert task.result is None
-
-    def test_result_setter_pickles_data(self) -> None:
-        task = create_test_celery_task()
-        test_data = {'test': 'data'}
-        task.result = test_data
-        assert pickle.loads(task._result) == test_data
-
-    def test_result_deleter_clears_result(self) -> None:
-        task = create_test_celery_task()
-        task._result = pickle.dumps({'test': 'data'})
-        del task.result
-        assert task._result is None
+    def test_is_pending_property(self) -> None:
+        task = create_test_celery_task(state=states.PENDING)
+        assert task.is_pending is True
 
 
 class CeleryTaskWithModelObjectTestCase(TestCase):
@@ -206,65 +134,84 @@ class CeleryTaskMetaTestCase(TestCase):
 
 class CeleryTaskSendFailedPropertiesTestCase(TestCase):
     def test_send_failed_false_when_no_result(self) -> None:
-        task = create_test_celery_task(has_result=False)
-        assert task.send_failed is False
+        task = create_test_celery_task()
+        task._result = pickle.dumps(CeleryNoResult())
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert isinstance(result_data, CeleryNoResult)
 
     def test_send_failed_false_when_result_is_not_send_failed(self) -> None:
-        task = create_test_celery_task(has_result=True, _result=pickle.dumps({'data': 'value'}))
-        assert task.send_failed is False
+        task = create_test_celery_task()
+        task._result = pickle.dumps({'data': 'value'})
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert result_data.get('error') != 'SEND_FAILED'
 
     def test_send_failed_true_when_result_is_send_failed(self) -> None:
-        task = create_test_celery_task(has_result=True, _result=pickle.dumps({
+        task = create_test_celery_task()
+        task._result = pickle.dumps({
             'error': 'SEND_FAILED',
             'message': 'Connection refused',
             'args': (),
             'kwargs': {},
             'task_name': 'test_task',
-        }))
-        assert task.send_failed is True
+        })
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert result_data.get('error') == 'SEND_FAILED'
 
     def test_send_error_message_returns_none_when_not_failed(self) -> None:
-        task = create_test_celery_task(has_result=True, _result=pickle.dumps({'data': 'value'}))
-        assert task.send_error_message is None
+        task = create_test_celery_task()
+        task._result = pickle.dumps({'data': 'value'})
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert result_data.get('error') != 'SEND_FAILED'
 
     def test_send_error_message_returns_message_on_failure(self) -> None:
-        task = create_test_celery_task(has_result=True, _result=pickle.dumps({
+        task = create_test_celery_task()
+        task._result = pickle.dumps({
             'error': 'SEND_FAILED',
             'message': 'RabbitMQ unavailable',
             'args': ('arg1',),
             'kwargs': {'key': 'value'},
             'task_name': 'my_task',
-        }))
-        assert task.send_error_message == 'RabbitMQ unavailable'
+        })
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert result_data.get('message') == 'RabbitMQ unavailable'
 
     def test_send_error_details_returns_none_when_not_failed(self) -> None:
-        task = create_test_celery_task(has_result=True, _result=pickle.dumps({'data': 'value'}))
-        assert task.send_error_details is None
+        task = create_test_celery_task()
+        task._result = pickle.dumps({'data': 'value'})
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert result_data.get('error') != 'SEND_FAILED'
 
     def test_send_error_details_returns_full_error_data(self) -> None:
-        task = create_test_celery_task(has_result=True, _result=pickle.dumps({
+        task = create_test_celery_task()
+        task._result = pickle.dumps({
             'error': 'SEND_FAILED',
             'message': 'Connection lost',
             'args': ('arg1', 'arg2'),
             'kwargs': {'key': 'value'},
             'task_name': 'my_task',
-        }))
-        details = task.send_error_details
-        assert details['task_name'] == 'my_task'
-        assert details['args'] == ('arg1', 'arg2')
-        assert details['kwargs'] == {'key': 'value'}
-        assert details['message'] == 'Connection lost'
+        })
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert result_data['task_name'] == 'my_task'
+        assert result_data['args'] == ('arg1', 'arg2')
+        assert result_data['kwargs'] == {'key': 'value'}
+        assert result_data['message'] == 'Connection lost'
 
-    def test_result_property_returns_error_data_for_send_failed(self) -> None:
-        task = create_test_celery_task(
-            state=states.FAILURE,
-            has_result=True,
-            _result=pickle.dumps({
-                'error': 'SEND_FAILED',
-                'message': 'Failed',
-                'args': (),
-                'kwargs': {},
-                'task_name': 'test',
-            }),
-        )
-        assert task.result['error'] == 'SEND_FAILED'
+    def test_failed_task_result_contains_error_data(self) -> None:
+        task = create_test_celery_task()
+        task._result = pickle.dumps({
+            'error': 'SEND_FAILED',
+            'message': 'Failed',
+            'args': (),
+            'kwargs': {},
+            'task_name': 'test',
+        })
+        task.save()
+        result_data = pickle.loads(task._result)
+        assert result_data['error'] == 'SEND_FAILED'

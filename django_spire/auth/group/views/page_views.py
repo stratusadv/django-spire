@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 
 from django_spire.auth.group import models
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data
+from django_spire.contrib import generic_views
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -20,8 +22,12 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     active_user_list = group.user_set.filter(is_active=True).order_by('first_name', 'last_name')
     inactive_user_list = group.user_set.filter(is_active=False).order_by('first_name', 'last_name')
 
-    paginated_active_user_list = paginate_list(active_user_list, page_number=request.GET.get('page', 1), per_page=10)
-    paginated_inactive_user_list = paginate_list(inactive_user_list, page_number=request.GET.get('page', 1), per_page=10)
+    paginated_active_user_list = Paginator(active_user_list, 10).get_page(
+        request.GET.get('page', 1)
+    )
+    paginated_inactive_user_list = Paginator(inactive_user_list, 10).get_page(
+        request.GET.get('page', 1)
+    )
 
     context_data = {
         'group': group,
@@ -30,11 +36,11 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'inactive_user_list': paginated_inactive_user_list,
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         context_data=context_data,
         obj=group,
-        template='django_spire/auth/group/page/detail_page.html'
+        template='django_spire/auth/group/page/detail_page.html',
     )
 
 
@@ -44,15 +50,12 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     context_data = {
         'group_list': group_list,
-        'group_list_permission_data': [
-            generate_group_perm_data(group)
-            for group in group_list
-        ]
+        'group_list_permission_data': [generate_group_perm_data(group) for group in group_list],
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         context_data=context_data,
         model=models.AuthGroup,
-        template='django_spire/auth/group/page/list_page.html'
+        template='django_spire/auth/group/page/list_page.html',
     )

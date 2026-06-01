@@ -117,7 +117,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
         context_data['top_ten_report_runs'] = top_ten_report_runs
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Reports',
         page_description='More Reporting Info',

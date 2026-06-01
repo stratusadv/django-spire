@@ -16,7 +16,7 @@ def chat_view(request: WSGIRequest) -> TemplateResponse:
     breadcrumbs = Breadcrumbs()
     breadcrumbs.add_breadcrumb(name='AI Chat')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         context_data={},
         page_title='AI Chat',

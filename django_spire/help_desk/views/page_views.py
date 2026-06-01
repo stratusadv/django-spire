@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def ticket_delete_view(request: WSGIRequest, pk: int):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request=request,
         obj=ticket,
         return_url=request.GET.get(
@@ -32,7 +32,7 @@ def ticket_delete_view(request: WSGIRequest, pk: int):
 def ticket_detail_view(request: WSGIRequest, pk: int):
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request=request,
         obj=ticket,
         context_data={
@@ -46,7 +46,7 @@ def ticket_detail_view(request: WSGIRequest, pk: int):
 def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
     tickets = HelpDeskTicket.objects.order_by('-created_datetime').active()
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request=request,
         context_data={
             'tickets': tickets

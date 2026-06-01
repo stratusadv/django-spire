@@ -20,7 +20,7 @@ def comment_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'comment_example': comment,
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=comment,
         context_data=context_data,
@@ -38,7 +38,7 @@ def comment_list_view(request: WSGIRequest) -> TemplateResponse:
         'comment_examples': models.CommentExample.objects.all()
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=models.CommentExample,
         context_data=context_data,

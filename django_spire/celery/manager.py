@@ -143,7 +143,6 @@ class BaseCeleryTaskManager(ABC):
             state=states.FAILURE,
             started_datetime=now(),
             completed_datetime=now(),
-            has_result=True,
             _result=pickle.dumps(
                 {
                     'error': 'SEND_FAILED',

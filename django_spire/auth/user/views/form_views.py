@@ -55,7 +55,7 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb(name='Users', href=reverse('django_spire:auth:user:page:list'))
     crumbs.add_breadcrumb(name='Register New User')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         context_data=context_data,
         page_title='Register',
@@ -90,7 +90,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'initial_data': json.dumps(form.data, cls=DjangoJSONEncoder),
     }
 
-    return portal_views.model_form_view(
+    return generic_views.model_form_view(
         request,
         form=form,
         obj=portal_user,
@@ -120,7 +120,7 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     context_data = {'user': user, 'selected_group_ids': selected_group_ids}
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         obj=user,
         context_data=context_data,

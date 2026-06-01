@@ -35,8 +35,8 @@ test-coverage-app app:
     {{ PYTHON }} -m pytest {{ app }} --cov={{ app }} --cov-report=term-missing
 test-failed:
     {{ PYTHON }} -m pytest --ff --lf
-test-celery:
-    {{ PYTHON }} -m pytest django_spire/celery/tests/
+seed:
+    {{ PYTHON }} test_project/seed.py
 venv:
     uv venv --clear .venv
     uv sync --all-extras --upgrade

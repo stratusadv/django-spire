@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.auth.group.models import AuthGroup
+from django_spire.contrib import generic_views
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.knowledge.collection.models import Collection, CollectionGroup
@@ -78,7 +79,7 @@ def form_view(
     else:
         form = CollectionForm(instance=collection)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=collection,

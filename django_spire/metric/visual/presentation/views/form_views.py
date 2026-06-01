@@ -59,7 +59,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         reverse('metric:visual:presentation:page:list')
     )
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request,
         obj=presentation,
         return_url=return_url
@@ -125,7 +125,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
     else:
         form = forms.PresentationForm(instance=presentation)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=presentation,

@@ -48,7 +48,7 @@ def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpR
         'file_example': file_example,
     }
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Update File Example' if pk else 'Create File Example',
         page_description='',

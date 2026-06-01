@@ -37,7 +37,7 @@ def test_model_detail_view(request: WSGIRequest) -> TemplateResponse:
         'fields': fields
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=test_model,
         context_data=context_data,
@@ -55,7 +55,7 @@ def test_model_list_view(request: WSGIRequest) -> TemplateResponse:
         'test_models': []
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=generate_test_model,
         context_data=context_data,

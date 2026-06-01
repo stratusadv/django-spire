@@ -35,7 +35,7 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
         breadcrumbs.add_base_breadcrumb(entry)
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=entry,
         breadcrumbs_func=breadcrumbs_func,

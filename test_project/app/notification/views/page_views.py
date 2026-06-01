@@ -29,7 +29,7 @@ def notification_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'notification': notification,
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=notification,
         context_data=context_data,
@@ -54,7 +54,7 @@ def notification_form_view(request, pk: int):
         unique_name='notification',
     )
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         obj=notification,
         context_data={
@@ -85,7 +85,7 @@ def notification_list_view(request: WSGIRequest) -> TemplateResponse:
         'priorities': NotificationPriorityChoices
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=models.Notification,
         context_data=context_data,

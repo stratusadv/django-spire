@@ -22,7 +22,7 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
     def breadcrumbs_func(breadcrumbs: Breadcrumbs) -> None:
         breadcrumbs.add_breadcrumb(name='Api Access')
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=ApiAccess,
         breadcrumbs_func=breadcrumbs_func,
@@ -36,7 +36,7 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
 def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateResponse:
     ticket = get_object_or_404(ApiAccess, pk=pk)
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request=request,
         obj=ticket,
         return_url=request.GET.get(

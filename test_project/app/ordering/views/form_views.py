@@ -50,7 +50,7 @@ def create_form_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateRes
     else:
         form = forms.DuckForm(instance=duck)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=duck,
@@ -144,7 +144,7 @@ def form_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateR
     else:
         form = forms.DuckForm(instance=duck)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=duck,

@@ -20,7 +20,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'file_example': file_example,
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=file_example,
         context_data=context_data,
@@ -33,7 +33,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         'file_examples': models.FileExample.objects.active()
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=models.FileExample,
         context_data=context_data,

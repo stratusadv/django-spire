@@ -58,7 +58,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         reverse('tabular:page:list')
     )
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request,
         obj=task,
         return_url=return_url
@@ -144,7 +144,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
     else:
         form = forms.TaskForm(instance=task)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=task,

@@ -51,7 +51,7 @@ def form_view(
     else:
         form = EntryForm(instance=entry)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=entry,
@@ -114,7 +114,7 @@ def import_form_view(
         '.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())
     ]
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         breadcrumbs=breadcrumbs,
         page_title='Import Files',

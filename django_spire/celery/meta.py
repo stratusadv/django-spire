@@ -102,14 +102,15 @@ class CeleryTaskMeta(BaseModel):
 
         return None
 
-    def set_completed(self):
+    def set_completed(self) -> None:
         self.progress = 1.0
         self.completed_time = time.time()
 
-    def set_started(self):
+    def set_started(self) -> None:
+        self.progress = 0.02
         self.started_time = time.time()
 
-    def set_started_and_completing_soon(self):
+    def set_started_and_completing_soon(self) -> None:
         self.set_started()
         self.progress = 1.0
         self.estimated_completed_time = time.time() + 5

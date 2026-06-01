@@ -37,7 +37,7 @@ def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
     else:
         form = forms.HelpDeskTicketCreateForm(instance=ticket)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         template='django_spire/help_desk/page/ticket_form_page.html',
@@ -66,7 +66,7 @@ def ticket_update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = forms.HelpDeskTicketUpdateForm(instance=ticket)
 
-    return portal_views.model_form_view(
+    return generic_views.model_form_view(
         request=request,
         obj=ticket,
         template='django_spire/help_desk/page/ticket_form_page.html',

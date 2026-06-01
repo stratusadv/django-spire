@@ -22,7 +22,7 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
     breadcrumbs.add_base_breadcrumb(collection)
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Knowledge Collection',
         page_description='',
@@ -52,7 +52,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         return_url = request.GET.get('return_url', reverse('django_spire:knowledge:page:home'))
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request,
         obj=collection,
         delete_func=collection.services.processor.set_deleted,

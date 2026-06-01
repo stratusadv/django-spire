@@ -18,7 +18,7 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
     def breadcrumbs_func(breadcrumbs: Breadcrumbs):
         breadcrumbs.add_breadcrumb(name='Knowledge')
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=Collection,
         breadcrumbs_func=breadcrumbs_func,

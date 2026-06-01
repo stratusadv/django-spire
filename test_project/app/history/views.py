@@ -20,7 +20,7 @@ def history_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'history': history,
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         obj=history,
         context_data=context_data,
@@ -38,7 +38,7 @@ def history_list_view(request: WSGIRequest) -> TemplateResponse:
         'history': models.HistoryExample.objects.all()
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         model=models.HistoryExample,
         context_data=context_data,

@@ -49,7 +49,7 @@ def form_view(
 
     context_data = {'group': group}
 
-    return portal_views.model_form_view(
+    return generic_views.model_form_view(
         request,
         form=form,
         context_data=context_data,
@@ -105,7 +105,7 @@ def user_form_view(
         'selected_user_ids': selected_user_ids
     }
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         obj=group,
@@ -120,7 +120,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     return_url = reverse('django_spire:auth:group:page:list')
 
-    return portal_views.delete_form_view(
+    return generic_views.delete_form_view(
         request,
         obj=group,
         delete_func=group.delete,
@@ -167,7 +167,7 @@ def group_remove_user_form_view(
         breadcrumbs.add_breadcrumb(name=user.get_full_name())
         breadcrumbs.add_breadcrumb(name='Remove')
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         verb=f'remove {user.get_full_name()} from',

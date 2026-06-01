@@ -35,7 +35,7 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
 
             api_access.set_key_and_save(raw_key)
 
-            return portal_views.template_view(
+            return generic_views.template_view(
                 request,
                 page_title='API Access Created',
                 page_description='Your API access has been created.',
@@ -52,7 +52,7 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
     else:
         form = forms.ApiAccessCreateForm(instance=api_access)
 
-    return portal_views.form_view(
+    return generic_views.form_view(
         request,
         form=form,
         verb='Create',

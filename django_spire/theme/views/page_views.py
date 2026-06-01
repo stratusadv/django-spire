@@ -18,7 +18,7 @@ def dashboard_view(request: WSGIRequest) -> TemplateResponse:
     crumbs = Breadcrumbs()
     crumbs.add_breadcrumb('Dashboard')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Dashboard',
@@ -33,7 +33,7 @@ def colors_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Colors')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Colors',
@@ -48,7 +48,7 @@ def django_glue_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Django Glue')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Django Glue',
@@ -63,7 +63,7 @@ def example_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Core Templates')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Core Templates',
@@ -78,7 +78,7 @@ def typography_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Typography')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Typography',
@@ -93,7 +93,7 @@ def buttons_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Buttons')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Buttons',
@@ -108,7 +108,7 @@ def badges_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Badges')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Badges',
@@ -123,7 +123,7 @@ def borders_view(request: WSGIRequest) -> TemplateResponse:
     crumbs.add_breadcrumb('Dashboard', reverse('django_spire:theme:page:dashboard'))
     crumbs.add_breadcrumb('Borders')
 
-    return portal_views.template_view(
+    return generic_views.template_view(
         request,
         page_title='Theme',
         page_description='Borders',

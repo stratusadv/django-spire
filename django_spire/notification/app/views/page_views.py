@@ -35,7 +35,7 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         )
     )
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         context_data={
             'notification_endpoint': reverse('django_spire:notification:app:template:scroll_items'),

@@ -25,7 +25,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'user_perm_data': generate_user_perm_data(user)
     }
 
-    return portal_views.detail_view(
+    return generic_views.detail_view(
         request,
         context_data=context_data,
         obj=user,
@@ -45,7 +45,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     #     'inactive_user_list': paginate_list(inactive_user_list, page_number=request.GET.get('page', 1))
     }
 
-    return portal_views.list_view(
+    return generic_views.list_view(
         request,
         context_data=context_data,
         model=AuthUser,
