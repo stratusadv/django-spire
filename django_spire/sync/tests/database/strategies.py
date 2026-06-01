@@ -7,7 +7,7 @@ from typing import Any
 from hypothesis import strategies as st
 
 from django_spire.sync.database.manifest import ModelPayload, SyncManifest
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 
 
 FIELD_NAMES = st.text(

@@ -3,8 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.db.models import QuerySet, Value, When, Case, BooleanField, IntegerField, Q
-from django_spire.contrib.queryset.filter_tools import filter_by_lookup_map
-from django_spire.contrib.queryset.mixins import SessionFilterQuerySetMixin
 from django_spire.core.querysets import SearchQuerySetMixin
 
 from django_spire.history.querysets import HistoryQuerySet
@@ -17,7 +15,7 @@ if TYPE_CHECKING:
 
 class AppNotificationQuerySet(
     HistoryQuerySet, NotificationContentObjectQuerySet,
-    SessionFilterQuerySetMixin, SearchQuerySetMixin
+    SearchQuerySetMixin
 ):
     def annotate_is_viewed_by_user(self, user: User) -> QuerySet:
         return self.by_user(user=user).annotate(viewed=Case(
@@ -49,15 +47,6 @@ class AppNotificationQuerySet(
 
     def is_sent(self) -> QuerySet:
         return self.filter(notification__status=NotificationStatusChoices.SENT)
-
-    def bulk_filter(self, filter_data: dict) -> QuerySet:
-        queryset = self
-        filter_map = {
-            'priority': 'notification__priority',
-        }
-        if search_term := filter_data.get("search"):
-            queryset = queryset.search(search_term)
-        return filter_by_lookup_map(queryset, filter_map, filter_data)
 
     def search(self, search_value: str) -> QuerySet:
         if search_value is None:

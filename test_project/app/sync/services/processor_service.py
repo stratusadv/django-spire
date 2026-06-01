@@ -6,18 +6,18 @@ from typing_extensions import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.sync.core import HybridLogicalClock
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     ConflictResolver,
     FieldOwnershipWins,
     FieldTimestampWins,
     LocalWins,
     RemoteWins,
 )
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
-from django_spire.contrib.sync.database.reconciler import PayloadReconciler
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
+from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.django.queryset import sync_bypass
-from django_spire.sync.tests.database import InMemoryDatabaseStorage
+from django_spire.sync.tests.database.helpers import InMemoryDatabaseStorage
 
 from test_project.app.sync.config import (
     TABLET_COUNT_DEFAULT,

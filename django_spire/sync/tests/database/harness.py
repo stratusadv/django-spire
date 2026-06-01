@@ -7,18 +7,18 @@ from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
 from django_spire.sync.core import HybridLogicalClock
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     ConflictResolver,
     FieldTimestampWins,
 )
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.manifest import SyncManifest
-from django_spire.contrib.sync.database.reconciler import PayloadReconciler
+from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.tests.database.helpers import InMemoryDatabaseStorage
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.database.record import SyncRecord
+    from django_spire.sync.database.record import SyncRecord
 
 
 @dataclass

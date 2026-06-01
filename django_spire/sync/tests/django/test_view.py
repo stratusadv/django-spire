@@ -20,9 +20,9 @@ from django_spire.sync.database.manifest import (
     ModelPayload,
     SyncManifest,
 )
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.django.views import process_sync_request
-from django_spire.contrib.sync.tests.factories import make_manifest
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.django.views import process_sync_request
+from django_spire.sync.tests.factories import make_manifest
 
 
 @pytest.fixture

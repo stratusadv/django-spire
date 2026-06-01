@@ -12,12 +12,12 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from django_spire.sync.core import HybridLogicalClock
-from django_spire.contrib.sync.database.conflict import FieldTimestampWins
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
+from django_spire.sync.database.conflict import FieldTimestampWins
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.manifest import SyncManifest
-from django_spire.contrib.sync.database.reconciler import PayloadReconciler
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.reconciler import PayloadReconciler
+from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.tests.database.helpers import (
     DirectTransport,
     InMemoryDatabaseStorage,
@@ -113,7 +113,7 @@ def _seed_records(
 
 @pytest.fixture(autouse=True)
 def _fixed_time() -> Any:
-    with patch('django_spire.contrib.sync.database.engine.time') as mock_time:
+    with patch('django_spire.sync.database.engine.time') as mock_time:
         mock_time.time.return_value = 1000
         yield mock_time
 

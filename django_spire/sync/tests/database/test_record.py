@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from django_spire.sync.core import RecordFieldError
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 
 
 def test_from_dict_valid() -> None:

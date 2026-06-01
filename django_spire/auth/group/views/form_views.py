@@ -13,7 +13,7 @@ from django_spire.auth.group.utils import set_group_users
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
-from django_spire.contrib.form.utils import show_form_errors
+from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.template.response import TemplateResponse
 
-    from django_spire.contrib.breadcrumb.models import Breadcrumbs
+    from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 
 
 @permission_required('django_spire_auth_group.change_authgroup')

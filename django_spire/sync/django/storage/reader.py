@@ -8,11 +8,11 @@ from typing import Any, TYPE_CHECKING
 from django.db.models import Q
 
 from django_spire.sync.core import UnknownModelError
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.django.serializer import SyncFieldSerializer
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.django.serializer import SyncFieldSerializer
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 logger = logging.getLogger(__name__)
@@ -282,7 +282,7 @@ class DjangoRecordReader:
         peer_node_id: str,
         sequence_max: int | None = None,
     ) -> dict[str, int]:
-        from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+        from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
         queryset = SyncTombstone.objects.filter(
             model_label=model_label,
@@ -332,7 +332,7 @@ class DjangoRecordReader:
         if not keys:
             return {}
 
-        from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+        from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
         rows = (
             SyncTombstone.objects

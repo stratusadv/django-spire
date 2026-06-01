@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from django.db.models import Q
 
-from django_spire.contrib.queryset.mixins import SearchQuerySetMixin, SessionFilterQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 if TYPE_CHECKING:
@@ -15,8 +14,6 @@ if TYPE_CHECKING:
 
 class LazyTabsQuerySet(
     HistoryQuerySet,
-    SessionFilterQuerySetMixin,
-    SearchQuerySetMixin,
 ):
     def search(self, search_value: str | None) -> QuerySet[LazyTabs]:
         if not search_value:

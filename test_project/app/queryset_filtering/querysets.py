@@ -3,15 +3,11 @@ from __future__ import annotations
 from django.db.models import Count, F, FloatField, Q, QuerySet, Value
 from django.db.models.functions import Cast
 
-from django_spire.contrib.queryset.filter_tools import filter_by_lookup_map
-from django_spire.contrib.queryset.mixins import SearchQuerySetMixin, SessionFilterQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 
 class TaskQuerySet(
     HistoryQuerySet,
-    SessionFilterQuerySetMixin,
-    SearchQuerySetMixin,
 ):
     def annotate_calculated_cost(self) -> QuerySet:
         return self.annotate(
@@ -27,21 +23,6 @@ class TaskQuerySet(
         return self.annotate(
             user_count=Count('user')
         )
-
-    def bulk_filter(self, filter_data: dict) -> QuerySet[TaskQuerySet]:
-        queryset = self
-
-        filter_map = {
-            'name': 'name__icontains',
-            'status': 'status',
-            'users': 'user__user__id__in'
-        }
-
-        search_term = filter_data.get('search')
-        if search_term:
-            queryset = queryset.search(search_term)
-
-        return filter_by_lookup_map(queryset, filter_map, filter_data)
 
     def complete(self) -> QuerySet:
         return self.filter(is_complete=True)

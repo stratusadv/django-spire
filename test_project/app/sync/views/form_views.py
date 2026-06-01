@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
 
-from django_spire.contrib.form.utils import show_form_errors
+from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
 

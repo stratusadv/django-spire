@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 
 from django_spire.auth.forms import CaseInsensitiveAuthenticationForm
-from django_spire.contrib.form.utils import show_form_errors
+from django_spire.contrib.form.tools import show_form_errors
 
 
 class LoginView(auth_views.LoginView):

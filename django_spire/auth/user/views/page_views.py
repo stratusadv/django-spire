@@ -6,9 +6,7 @@ from django.shortcuts import get_object_or_404
 
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data, generate_user_perm_data
-from django_spire.contrib.pagination.pagination import paginate_list
 from django_spire.auth.user.models import AuthUser
-from django_spire.contrib.generic_views import page_views
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -40,9 +38,11 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     active_user_list = AuthUser.objects.filter(is_active=True).prefetch_related('groups').order_by('first_name', 'last_name')
     inactive_user_list = AuthUser.objects.filter(is_active=False).prefetch_related('groups').order_by('first_name', 'last_name')
 
+    # todo: Fix this
+
     context_data = {
-        'active_user_list': paginate_list(active_user_list, page_number=request.GET.get('page', 1)),
-        'inactive_user_list': paginate_list(inactive_user_list, page_number=request.GET.get('page', 1))
+    #     'active_user_list': paginate_list(active_user_list, page_number=request.GET.get('page', 1)),
+    #     'inactive_user_list': paginate_list(inactive_user_list, page_number=request.GET.get('page', 1))
     }
 
     return portal_views.list_view(

@@ -5,8 +5,8 @@ import uuid
 from typing import Any
 
 from django_spire.sync.core import UnknownModelError
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.database.serializer.base import Serializer
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.database.serializer.base import Serializer
 
 
 class DjangoModelSerializer(Serializer):

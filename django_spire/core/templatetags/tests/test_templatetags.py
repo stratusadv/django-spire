@@ -405,7 +405,7 @@ class TestUnderscoresToSpaces(TestCase):
 class TemplateRenderingTests(TestCase):
     def test_render_add_str_filter(self) -> None:
         template_code = """
-            {% load spire_core_tags %}
+            {% load django_spire_core_tags %}
 
             {{ "Hello" | add_str:" World" }}
         """
@@ -416,7 +416,7 @@ class TemplateRenderingTests(TestCase):
 
     def test_render_to_snake_case_tag(self) -> None:
         template_code = """
-            {% load spire_core_tags %}
+            {% load django_spire_core_tags %}
 
             {% to_snake_case "Hello World" as snake_case %}
             {{ snake_case }}

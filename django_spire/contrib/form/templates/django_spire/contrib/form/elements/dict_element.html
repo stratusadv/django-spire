@@ -1,6 +1,6 @@
-{% load json %}
-{% load variable_types %}
-{% load string_formating %}
+{% load django_spire_json %}
+{% load django_spire_variable_types %}
+{% load django_spire_string_formating %}
 
 {% for key, value in dict.items %}
     {% with 'display_'|add:key|dashes_and_spaces_to_underscore as key_display %}

@@ -19,7 +19,7 @@ from django_spire.sync.database.transport.http import (
     HttpTransport,
     _validate_url,
 )
-from django_spire.contrib.sync.tests.factories import make_manifest
+from django_spire.sync.tests.factories import make_manifest
 
 
 def _make_urlopen_response(
@@ -105,14 +105,14 @@ def test_init_response_bytes_max_zero_raises() -> None:
 
 
 def test_init_warns_without_headers() -> None:
-    with patch.object(logging.getLogger('django_spire.contrib.sync.database.transport.http'), 'warning') as mock_warn:
+    with patch.object(logging.getLogger('django_spire.sync.database.transport.http'), 'warning') as mock_warn:
         HttpTransport(url='https://example.com')
 
     assert mock_warn.called
 
 
 def test_init_no_warning_with_headers() -> None:
-    with patch.object(logging.getLogger('django_spire.contrib.sync.database.transport.http'), 'warning') as mock_warn:
+    with patch.object(logging.getLogger('django_spire.sync.database.transport.http'), 'warning') as mock_warn:
         HttpTransport(
             url='https://example.com',
             headers={'Authorization': 'Bearer token'},
@@ -121,7 +121,7 @@ def test_init_no_warning_with_headers() -> None:
     assert not mock_warn.called
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_valid_response(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     mock_urlopen.return_value = _make_urlopen_response(data)
@@ -138,7 +138,7 @@ def test_exchange_valid_response(mock_urlopen: Any) -> None:
     assert response.local_sequence == 500
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_gzip_response(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     mock_urlopen.return_value = _make_urlopen_response(
@@ -156,7 +156,7 @@ def test_exchange_gzip_response(mock_urlopen: Any) -> None:
     assert response.node_id == 'server'
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_response_exceeds_size_limit(mock_urlopen: Any) -> None:
     oversized_body = b'x' * 200
 
@@ -183,7 +183,7 @@ def test_exchange_response_exceeds_size_limit(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_invalid_json_raises(mock_urlopen: Any) -> None:
     response_mock = MagicMock()
     response_mock.read.return_value = b'not-json-at-all'
@@ -207,7 +207,7 @@ def test_exchange_invalid_json_raises(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_non_dict_response_raises(mock_urlopen: Any) -> None:
     body = json.dumps([1, 2, 3]).encode('utf-8')
 
@@ -233,7 +233,7 @@ def test_exchange_non_dict_response_raises(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_missing_node_id_raises(mock_urlopen: Any) -> None:
     body = json.dumps({'peer_sequence': 0, 'local_sequence': 500}).encode('utf-8')
 
@@ -259,7 +259,7 @@ def test_exchange_missing_node_id_raises(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_missing_peer_sequence_raises(mock_urlopen: Any) -> None:
     body = json.dumps({'node_id': 'server'}).encode('utf-8')
 
@@ -285,7 +285,7 @@ def test_exchange_missing_peer_sequence_raises(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_http_4xx_raises_sync_aborted(mock_urlopen: Any) -> None:
     mock_urlopen.side_effect = HTTPError(
         url='https://example.com/sync/',
@@ -308,7 +308,7 @@ def test_exchange_http_4xx_raises_sync_aborted(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_connection_error_retries(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     success_response = _make_urlopen_response(data)
@@ -332,7 +332,7 @@ def test_exchange_connection_error_retries(mock_urlopen: Any) -> None:
     assert mock_urlopen.call_count == 2
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_timeout_retries(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     success_response = _make_urlopen_response(data)
@@ -355,7 +355,7 @@ def test_exchange_timeout_retries(mock_urlopen: Any) -> None:
     assert response.node_id == 'server'
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_url_error_retries(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     success_response = _make_urlopen_response(data)
@@ -378,7 +378,7 @@ def test_exchange_url_error_retries(mock_urlopen: Any) -> None:
     assert response.node_id == 'server'
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_malformed_gzip_response_raises(mock_urlopen: Any) -> None:
     response_mock = MagicMock()
     response_mock.read.return_value = b'not-gzip-data'
@@ -402,7 +402,7 @@ def test_exchange_malformed_gzip_response_raises(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_gzip_decompression_limit_raises(mock_urlopen: Any) -> None:
     huge = b'\x00' * 1_000_000
     compressed = gzip.compress(huge)
@@ -430,7 +430,7 @@ def test_exchange_gzip_decompression_limit_raises(mock_urlopen: Any) -> None:
         transport.exchange(manifest)
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_sends_gzip_compressed_body(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     mock_urlopen.return_value = _make_urlopen_response(data)
@@ -455,7 +455,7 @@ def test_exchange_sends_gzip_compressed_body(mock_urlopen: Any) -> None:
     assert parsed['node_id'] == 'tablet'
 
 
-@patch('django_spire.contrib.sync.database.transport.http.urlopen')
+@patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_includes_custom_headers(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     mock_urlopen.return_value = _make_urlopen_response(data)

@@ -4,11 +4,13 @@ from typing import TYPE_CHECKING
 
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.shortcuts import resolve_url
 from django.template.response import TemplateResponse
 
-from django_spire.core.redirect import safe_redirect_url
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm, ConfirmationForm
-from django_spire.contrib.form.utils import show_form_errors
+
+from django_spire.contrib.form.tools import show_form_errors
+from django_spire.contrib.redirects import safe_redirect_url
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

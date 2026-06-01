@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
-from django_spire.contrib.form.utils import show_form_errors
+from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.file.factory import FileFactory
 from django_spire.knowledge.collection.models import Collection

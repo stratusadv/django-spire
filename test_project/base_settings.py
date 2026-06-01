@@ -74,7 +74,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'django_spire.contrib.changelog',
     'storages',
 ]
 
@@ -97,7 +96,6 @@ INSTALLED_APPS += [
     'django_spire.contrib.session',
     'django_spire.file',
     'django_spire.contrib.form',
-    'django_spire.contrib.gamification',
     'django_spire.contrib.help',
     'django_spire.sync',
     'django_spire.help_desk',

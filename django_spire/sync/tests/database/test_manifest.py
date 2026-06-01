@@ -7,7 +7,7 @@ from django_spire.sync.database.manifest import (
     ModelPayload,
     SyncManifest,
 )
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 
 
 def test_model_payload_to_dict() -> None:

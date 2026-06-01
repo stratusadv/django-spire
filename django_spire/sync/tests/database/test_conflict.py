@@ -6,7 +6,7 @@ from django_spire.sync.core import (
     ConflictStateError,
     InvalidParameterError,
 )
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     ConflictType,
     FieldConflict,
     FieldOwnershipWins,
@@ -18,7 +18,7 @@ from django_spire.contrib.sync.database.conflict import (
     _require_local,
     _require_remote,
 )
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 
 
 _DEFAULT_LOCAL = {'id': '1', 'name': 'local', 'value': 10}

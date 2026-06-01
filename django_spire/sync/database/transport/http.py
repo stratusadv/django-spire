@@ -21,7 +21,7 @@ from django_spire.sync.core import (
 )
 from django_spire.sync.core import retry
 from django_spire.sync.database.manifest import SyncManifest
-from django_spire.contrib.sync.database.transport.base import Transport
+from django_spire.sync.database.transport.base import Transport
 
 
 logger = logging.getLogger(__name__)

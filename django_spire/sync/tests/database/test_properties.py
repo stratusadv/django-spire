@@ -9,7 +9,7 @@ from hypothesis import strategies as st
 
 from django_spire.sync.core import HybridLogicalClock
 from django_spire.sync.core import RecordHasher
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     ConflictType,
     FieldOwnershipWins,
     FieldTimestampWins,
@@ -22,7 +22,7 @@ from django_spire.sync.database.manifest import (
     ModelPayload,
     SyncManifest,
 )
-from django_spire.contrib.sync.database.record import SyncRecord
+from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.tests.database import (
     DATA_DICTS,
     field_conflict_pairs,

@@ -3,7 +3,7 @@ from django_spire.sync.django.storage.strategy.delete import (
     HardDeleteStrategy,
     SoftDeleteStrategy,
 )
-from django_spire.sync.django.storage.strategy import (
+from django_spire.sync.django.storage.strategy.upsert import (
     BulkUpsertStrategy,
     StalenessGuardedUpsertStrategy,
     UpsertStrategy,
