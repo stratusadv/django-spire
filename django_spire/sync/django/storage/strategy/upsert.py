@@ -8,16 +8,16 @@ from typing import Any, Protocol, TYPE_CHECKING
 from django.db import IntegrityError, connections, router, transaction
 
 from django_spire.sync.core.model import Error
-from django_spire.contrib.sync.database.record import RecordContext
-from django_spire.contrib.sync.database.storage import UpsertResult
+from django_spire.sync.database.record import RecordContext
+from django_spire.sync.database.storage import UpsertResult
 from django_spire.sync.django.queryset import sync_bypass
 
 if TYPE_CHECKING:
     from django.db.backends.base.base import BaseDatabaseWrapper
     from django.db.models import Field
 
-    from django_spire.contrib.sync.database.record import SyncRecord
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.database.record import SyncRecord
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 logger = logging.getLogger(__name__)

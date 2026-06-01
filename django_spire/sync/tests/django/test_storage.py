@@ -4,12 +4,12 @@ import pytest
 
 from django.db import models as db_models
 
-from django_spire.sync.core import UnknownModelError
+from django_spire.sync.core.exceptions import UnknownModelError
 from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.database.storage import CheckpointPosition
 from django_spire.sync.django.graph import DeferredForeignKey
 from django_spire.sync.django.models.checkpoint import SyncCheckpoint
-from django_spire.sync.django.storage import DjangoRecordWriter
+from django_spire.sync.django.storage.writer import DjangoRecordWriter
 from django_spire.sync.tests.models import (
     SyncTestModel,
     SyncTestSimpleModel,

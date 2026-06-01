@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from django_spire.sync.core import InvalidParameterError
+from django_spire.sync.core.exceptions import InvalidParameterError
 
 if TYPE_CHECKING:
     from django_spire.sync.django.mixin import SyncableMixin

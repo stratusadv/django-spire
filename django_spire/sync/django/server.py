@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 
     from django.http import HttpRequest, JsonResponse
 
-    from django_spire.sync.core import HybridLogicalClock
-    from django_spire.sync.core import SyncPhase, SyncStage
+    from django_spire.sync.core.clock import HybridLogicalClock
+    from django_spire.sync.core.enums import SyncPhase, SyncStage
     from django_spire.sync.database.conflict import ConflictResolver
     from django_spire.sync.database.graph import DependencyGraph
     from django_spire.sync.database.lock import SyncLock

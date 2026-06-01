@@ -5,7 +5,7 @@ import time
 
 from typing import Callable, TypeVar
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     InvalidParameterError,
     RetryExhaustedError,
 )

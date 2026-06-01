@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 from django.db import transaction
 from django.utils import timezone
 
-from django_spire.sync.core import SyncPhase, SyncStatus
-from django_spire.sync.core import LockContentionError
+from django_spire.sync.core.enums import SyncPhase, SyncStatus
+from django_spire.sync.core.exceptions import LockContentionError
 from django_spire.sync.django.models.lock import SyncNodeLock
 from django_spire.sync.django.models.session import SyncSession
 

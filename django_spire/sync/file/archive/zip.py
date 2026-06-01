@@ -6,7 +6,7 @@ import zipfile
 from enum import Enum
 from pathlib import Path
 
-from django_spire.sync.file.archive import Archive
+from django_spire.sync.file.archive.base import Archive
 from django_spire.sync.file.exceptions import FileSyncArchiveError
 
 

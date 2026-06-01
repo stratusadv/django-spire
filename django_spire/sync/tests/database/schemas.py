@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django_spire.sync.tests.database import ModelSchema
+from django_spire.sync.tests.database.harness import ModelSchema
 
 
 FLAT_SCHEMA = [

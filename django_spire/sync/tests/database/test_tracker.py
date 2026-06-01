@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django_spire.contrib.sync.database.tracker import FieldUpdateTracker
+from django_spire.sync.database.tracker import FieldUpdateTracker
 
 
 def test_no_changes_returns_empty() -> None:

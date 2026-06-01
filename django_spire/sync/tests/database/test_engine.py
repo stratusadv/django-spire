@@ -5,33 +5,33 @@ from unittest.mock import patch
 
 import pytest
 
-from django_spire.sync.core import HybridLogicalClock
-from django_spire.sync.core import (
+from django_spire.sync.core.clock import HybridLogicalClock
+from django_spire.sync.core.exceptions import (
     ManifestFieldError,
     SyncAbortedError,
     TransportRequiredError,
 )
-from django_spire.contrib.sync.database.conflict import (
+from django_spire.sync.database.conflict import (
     RecordConflict,
     RecordResolution,
     RemoteWins,
 )
-from django_spire.contrib.sync.database.engine import DatabaseEngine
-from django_spire.contrib.sync.database.graph import DependencyGraph
+from django_spire.sync.database.engine import DatabaseEngine
+from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.manifest import (
     ModelPayload,
     SyncManifest,
 )
-from django_spire.contrib.sync.database.reconciler import PayloadReconciler
-from django_spire.contrib.sync.database.record import SyncRecord
-from django_spire.contrib.sync.database.storage import CheckpointPosition
+from django_spire.sync.database.reconciler import PayloadReconciler
+from django_spire.sync.database.record import SyncRecord
+from django_spire.sync.database.storage import CheckpointPosition
 
 from django_spire.sync.tests.database.helpers import (
     FakeTransport,
     InMemoryDatabaseStorage,
     MODEL,
 )
-from django_spire.contrib.sync.tests.factories import make_manifest, make_record
+from django_spire.sync.tests.factories import make_manifest, make_record
 
 
 class _MutatingTransport:
@@ -433,7 +433,7 @@ def test_process_rejects_missing_checksum(
         engine.process(incoming)
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_process_clock_drift_aborts(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -448,7 +448,7 @@ def test_process_clock_drift_aborts(
         engine.process(incoming)
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_process_clock_drift_disabled(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -464,7 +464,7 @@ def test_process_clock_drift_disabled(
     assert result.ok
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_pushes_local_changes(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -490,7 +490,7 @@ def test_sync_pushes_local_changes(
     assert '1' in pushed_keys
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_applies_remote_response(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -521,7 +521,7 @@ def test_sync_applies_remote_response(
     assert '99' in result.created.get(MODEL, [])
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_applies_conflict_resolved_response(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -561,7 +561,7 @@ def test_sync_applies_conflict_resolved_response(
     assert '1' not in result.skipped.get(MODEL, [])
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_skips_stale_response_record(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -601,7 +601,7 @@ def test_sync_skips_stale_response_record(
     assert '1' in result.conflicts.get(MODEL, [])
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_tracks_response_deletes(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -628,7 +628,7 @@ def test_sync_tracks_response_deletes(
     assert '1' in result.deleted.get(MODEL, [])
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_response_delete_skipped_when_local_modified(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -659,7 +659,7 @@ def test_sync_response_delete_skipped_when_local_modified(
     assert '1' in result.conflicts.get(MODEL, [])
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_dry_run_does_not_mutate(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -697,7 +697,7 @@ def test_sync_no_transport_raises(
         engine.sync()
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_saves_checkpoint(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -715,7 +715,7 @@ def test_sync_saves_checkpoint(
     assert peer_seq == empty_response.local_sequence
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_dry_run_does_not_save_checkpoint(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -734,7 +734,7 @@ def test_sync_dry_run_does_not_save_checkpoint(
     )
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_on_complete_callback(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -756,7 +756,7 @@ def test_sync_on_complete_callback(
     assert len(captured) == 1
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_response_clock_drift_aborts(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -772,7 +772,7 @@ def test_sync_response_clock_drift_aborts(
         engine.sync()
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_response_clock_drift_does_not_save_checkpoint(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -797,7 +797,7 @@ def test_sync_response_clock_drift_does_not_save_checkpoint(
     )
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_advances_clock_past_response_timestamps(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,
@@ -833,7 +833,7 @@ def test_sync_advances_clock_past_response_timestamps(
     assert next_ts > high_ts
 
 
-@patch('django_spire.contrib.sync.database.engine.time')
+@patch('django_spire.sync.database.engine.time')
 def test_sync_local_write_after_response_is_not_stranded(
     mock_time: Any,
     storage: InMemoryDatabaseStorage,

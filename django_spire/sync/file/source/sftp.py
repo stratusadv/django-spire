@@ -7,8 +7,8 @@ import paramiko
 
 from typing import Callable, TYPE_CHECKING
 
-from django_spire.sync.core import retry
-from django_spire.sync.file.source import Source
+from django_spire.sync.core.retry import retry
+from django_spire.sync.file.source.base import Source
 
 if TYPE_CHECKING:
     from pathlib import Path

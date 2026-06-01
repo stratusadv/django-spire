@@ -5,7 +5,7 @@ from typing import Protocol, TYPE_CHECKING
 from django_spire.sync.django.queryset import sync_bypass
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 class DeleteStrategy(Protocol):
@@ -24,7 +24,7 @@ def _record_tombstone(
     sequence: int,
     origin_node: str,
 ) -> None:
-    from django_spire.contrib.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
+    from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
     SyncTombstone.objects.update_or_create(
         model_label=model_label,

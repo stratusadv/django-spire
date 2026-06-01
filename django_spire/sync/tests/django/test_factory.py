@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.sync.core import HybridLogicalClock
+from django_spire.sync.core.clock import HybridLogicalClock
 from django_spire.sync.database.conflict import RemoteWins
 from django_spire.sync.database.engine import DatabaseEngine
 from django_spire.sync.database.graph import DependencyGraph

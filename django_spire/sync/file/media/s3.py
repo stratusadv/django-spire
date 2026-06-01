@@ -9,7 +9,7 @@ from botocore.exceptions import BotoCoreError
 from typing import TYPE_CHECKING
 
 from django_spire.sync.file.media.base import Store
-from django_spire.sync.core import retry
+from django_spire.sync.core.retry import retry
 
 if TYPE_CHECKING:
     from pathlib import Path

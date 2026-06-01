@@ -7,8 +7,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from django_spire.sync.tests.database import ModelSchema, MultiTabletHarness
-from django_spire.sync.tests.database import (
+from django_spire.sync.tests.database.harness import ModelSchema, MultiTabletHarness
+from django_spire.sync.tests.database.schemas import (
     FLAT_SCHEMA,
     HIERARCHICAL_SCHEMA,
     WIDE_SCHEMA,

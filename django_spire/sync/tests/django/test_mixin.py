@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.sync.core import HybridLogicalClock
-from django_spire.sync.core import ClockNotConfiguredError
+from django_spire.sync.core.clock import HybridLogicalClock
+from django_spire.sync.core.exceptions import ClockNotConfiguredError
 from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.tests.models import SyncTestModel
 

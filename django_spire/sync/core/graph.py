@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import heapq
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     CircularDependencyError,
     InvalidParameterError,
     UnknownDependencyError,

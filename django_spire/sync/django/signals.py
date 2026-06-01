@@ -7,7 +7,7 @@ from typing import Any, TYPE_CHECKING
 from django.db import transaction
 from django.db.models.signals import m2m_changed, post_delete
 
-from django_spire.sync.core import InvalidParameterError
+from django_spire.sync.core.exceptions import InvalidParameterError
 from django_spire.sync.django.queryset import _is_bypassed, sync_bypass
 
 if TYPE_CHECKING:

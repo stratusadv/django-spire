@@ -131,7 +131,7 @@ django_spire = [
 ]
 
 [tool.setuptools.dynamic]
-version = { attr = "django_spire.consts.__VERSION__" }
+version = { attr = "django_spire.constants.__VERSION__" }
 
 [tool.dev_tool]
 port = 5745

@@ -11,8 +11,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Callable, TYPE_CHECKING
 
-from django_spire.sync.core import ResolutionAction, SyncStage
-from django_spire.sync.core import RecordHasher
+from django_spire.sync.core.enums import ResolutionAction, SyncStage
+from django_spire.sync.core.hash import RecordHasher
 from django_spire.sync.core.model import BidirectionalResult, Change, Error
 from django_spire.sync.file.conflict import (
     Conflict,

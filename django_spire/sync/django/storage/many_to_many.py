@@ -7,11 +7,11 @@ from typing import Any, TYPE_CHECKING
 from django.db import IntegrityError
 
 from django_spire.sync.core.model import Error
-from django_spire.contrib.sync.database.storage import UpsertResult
+from django_spire.sync.database.storage import UpsertResult
 from django_spire.sync.django.queryset import sync_bypass
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.django.mixin import SyncableMixin
+    from django_spire.sync.django.mixin import SyncableMixin
 
 
 logger = logging.getLogger(__name__)

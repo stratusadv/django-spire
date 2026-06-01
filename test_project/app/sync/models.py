@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 
 from django_spire.contrib.breadcrumb import Breadcrumbs
-from django_spire.contrib.sync.django.mixin import SyncableMixin
+from django_spire.sync.django.mixin import SyncableMixin
 
 from test_project.app.sync import choices
 

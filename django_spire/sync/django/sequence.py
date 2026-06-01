@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django_spire.sync.core import InvalidParameterError
+from django_spire.sync.core.exceptions import InvalidParameterError
 from django_spire.sync.database.storage import SequenceRange
 from django_spire.sync.django.models.sequence import SyncSequenceCounter
 

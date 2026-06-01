@@ -6,7 +6,7 @@ import time
 
 from typing import Any
 
-from django_spire.sync.tests.database import ModelSchema
+from django_spire.sync.tests.database.harness import ModelSchema
 from django_spire.sync.tests.database.simulator import SyncSimulator
 
 

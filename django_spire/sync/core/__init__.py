@@ -1,12 +1,12 @@
-from django_spire.sync.core import HybridLogicalClock
-from django_spire.sync.core import (
+from django_spire.sync.core.clock import HybridLogicalClock
+from django_spire.sync.core.enums import (
     ResolutionAction,
     SyncAction,
     SyncPhase,
     SyncStage,
     SyncStatus,
 )
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     BatchLimitError,
     CircularDependencyError,
     ClockDriftError,
@@ -30,9 +30,9 @@ from django_spire.sync.core import (
     UnknownModelError,
 )
 from django_spire.sync.core.graph import DependencyGraph
-from django_spire.sync.core import RecordHasher
+from django_spire.sync.core.hash import RecordHasher
 from django_spire.sync.core.model import BidirectionalResult, Change, Error, Result
-from django_spire.sync.core import retry
+from django_spire.sync.core.retry import retry
 
 
 __all__ = [

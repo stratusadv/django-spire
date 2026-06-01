@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django_spire.contrib.sync.database.record import SyncRecord
+    from django_spire.sync.database.record import SyncRecord
 
 
 class Serializer(Protocol):

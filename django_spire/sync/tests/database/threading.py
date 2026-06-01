@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, TYPE_CHECKING
 
-from django_spire.contrib.sync.tests.django.helpers import close_connections
+from django_spire.sync.tests.django.helpers import close_connections
 
 if TYPE_CHECKING:
     import threading
