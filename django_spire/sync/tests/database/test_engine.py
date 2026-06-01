@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from django_spire.sync.core import HybridLogicalClock
-from django_spire.sync.core import (
+from django_spire.sync.core.clock import HybridLogicalClock
+from django_spire.sync.core.exceptions import (
     ManifestFieldError,
     SyncAbortedError,
     TransportRequiredError,

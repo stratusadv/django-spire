@@ -7,12 +7,12 @@ from collections import defaultdict
 from contextlib import AbstractContextManager, contextmanager, nullcontext
 from typing import Any, Iterator, TYPE_CHECKING
 
-from django_spire.sync.core import (
+from django_spire.sync.core.enums import (
     SyncPhase,
     SyncStage,
     SyncStatus,
 )
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     ClockDriftError,
     InvalidParameterError,
     ManifestChecksumError,
@@ -32,7 +32,7 @@ from django_spire.sync.database.storage import UpsertResult
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from django_spire.sync.core import HybridLogicalClock
+    from django_spire.sync.core.clock import HybridLogicalClock
     from django_spire.sync.database.graph import DependencyGraph
     from django_spire.sync.database.lock import SyncLock
     from django_spire.sync.database.reconciler import (
@@ -265,6 +265,7 @@ class DatabaseEngine:
         budget = _Budget(records_max, bytes_max)
         has_more = False
         response_sequence_max = peer_sequence
+        stop = False
 
         for model_label in self._graph.sync_order():
             incoming_payload = incoming_by_label.get(model_label)
@@ -285,6 +286,7 @@ class DatabaseEngine:
 
                 if truncated:
                     has_more = True
+                    stop = True
 
                     if response_payload.records:
                         cursor = _cursor_last(
@@ -309,7 +311,7 @@ class DatabaseEngine:
 
                 continue
 
-            if budget.exhausted:
+            if budget.exhausted or stop:
                 probe_sequence = (
                     existing_cursor.get('sequence', peer_sequence)
                     if existing_cursor is not None
@@ -356,6 +358,7 @@ class DatabaseEngine:
 
             if truncated:
                 has_more = True
+                stop = True
 
                 if local_payload is not None and local_payload.records:
                     cursor_out = _cursor_last(local_payload.records)
@@ -530,11 +533,12 @@ class DatabaseEngine:
         cursors: dict[str, Any] = {}
         has_more = False
         sent_sequence_max = local_sequence_pushed
+        stop = False
 
         for model_label in self._graph.sync_order():
             existing_cursor = resolved_after_keys.get(model_label)
 
-            if budget.exhausted:
+            if budget.exhausted or stop:
                 probe_sequence = (
                     existing_cursor.get('sequence', local_sequence_pushed)
                     if existing_cursor is not None
@@ -581,6 +585,7 @@ class DatabaseEngine:
 
             if truncated:
                 has_more = True
+                stop = True
 
                 if payload is not None and payload.records:
                     payload_cursor = _cursor_last(payload.records)

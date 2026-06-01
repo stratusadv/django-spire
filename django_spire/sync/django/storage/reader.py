@@ -7,7 +7,7 @@ from typing import Any, TYPE_CHECKING
 
 from django.db.models import Q
 
-from django_spire.sync.core import UnknownModelError
+from django_spire.sync.core.exceptions import UnknownModelError
 from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.django.serializer import SyncFieldSerializer
 

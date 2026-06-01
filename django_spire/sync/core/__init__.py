@@ -32,7 +32,7 @@ from django_spire.sync.core.exceptions import (
 from django_spire.sync.core.graph import DependencyGraph
 from django_spire.sync.core.hash import RecordHasher
 from django_spire.sync.core.model import BidirectionalResult, Change, Error, Result
-from django_spire.sync.core import retry
+from django_spire.sync.core.retry import retry
 
 
 __all__ = [

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from itertools import chain
 from typing import TYPE_CHECKING
 
-from django_spire.sync.core import CircularDependencyError
+from django_spire.sync.core.exceptions import CircularDependencyError
 from django_spire.sync.core.graph import DependencyGraph
 
 if TYPE_CHECKING:

@@ -11,7 +11,7 @@ from django_spire.sync.database.conflict import (
 from django_spire.sync.database.manifest import ModelPayload
 from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.database.record import SyncRecord
-from django_spire.sync.tests.database import reconciler_scenario
+from django_spire.sync.tests.database.strategies import reconciler_scenario
 
 
 class TestReconcilerInvariants:

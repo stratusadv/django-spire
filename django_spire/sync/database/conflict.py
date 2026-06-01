@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Protocol
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     ConflictStateError,
     InvalidParameterError,
 )

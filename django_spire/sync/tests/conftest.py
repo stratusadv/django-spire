@@ -5,7 +5,7 @@ import pytest
 from django.apps import apps
 from django.db import connection
 
-from django_spire.sync.core import HybridLogicalClock
+from django_spire.sync.core.clock import HybridLogicalClock
 from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.django.models.checkpoint import SyncCheckpoint
 from django_spire.sync.django.models.lock import SyncNodeLock

@@ -7,9 +7,10 @@ import pytest
 
 from django.db import models as db_models
 
-from django_spire.sync.core import HybridLogicalClock
-from django_spire.sync.core import SyncPhase, SyncStatus
-from django_spire.sync.core import (
+from django_spire.sync.core.clock import HybridLogicalClock
+from django_spire.sync.core.enums import SyncPhase, SyncStatus
+from django_spire.sync.core.exceptions import (
+    BatchLimitError,
     ClockOverflowError,
     InvalidParameterError,
     SyncAbortedError,

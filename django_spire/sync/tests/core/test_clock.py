@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import threading
 
-from django_spire.sync.core import HybridLogicalClock
+from django_spire.sync.core.clock import HybridLogicalClock
 
 
 def test_monotonic() -> None:

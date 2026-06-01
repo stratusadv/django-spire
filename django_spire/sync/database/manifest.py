@@ -7,7 +7,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
-from django_spire.sync.core import ManifestFieldError
+from django_spire.sync.core.exceptions import ManifestFieldError
 
 if TYPE_CHECKING:
     from django_spire.sync.core.model import Error

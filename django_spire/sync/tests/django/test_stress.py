@@ -5,7 +5,7 @@ import time
 
 import pytest
 
-from django_spire.sync.core import HybridLogicalClock
+from django_spire.sync.core.clock import HybridLogicalClock
 from django_spire.sync.database.engine import DatabaseEngine
 from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.manifest import ModelPayload

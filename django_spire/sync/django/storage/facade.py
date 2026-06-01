@@ -10,7 +10,7 @@ from django_spire.sync.django.storage.reader import DjangoRecordReader
 from django_spire.sync.django.storage.writer import DjangoRecordWriter
 
 if TYPE_CHECKING:
-    from django_spire.sync.core import HybridLogicalClock
+    from django_spire.sync.core.clock import HybridLogicalClock
     from django_spire.sync.database.storage import UpsertResult
     from django_spire.sync.database.record import SyncRecord
     from django_spire.sync.database.storage import (

@@ -9,7 +9,7 @@ from typing import Any, TYPE_CHECKING
 from django.core.exceptions import FieldDoesNotExist
 from django.db import connections, router, transaction
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     BatchLimitError,
     InvalidParameterError,
     UnknownModelError,
@@ -32,7 +32,7 @@ from django_spire.sync.django.storage.strategy import (
 if TYPE_CHECKING:
     from django.db.backends.base.base import BaseDatabaseWrapper
 
-    from django_spire.sync.core import HybridLogicalClock
+    from django_spire.sync.core.clock import HybridLogicalClock
     from django_spire.sync.core.model import Error
     from django_spire.sync.database.record import SyncRecord
     from django_spire.sync.django.graph import DeferredForeignKey

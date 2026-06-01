@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django_spire.sync.core import SyncPhase, SyncStatus
+    from django_spire.sync.core.enums import SyncPhase, SyncStatus
     from django_spire.sync.database.manifest import DatabaseResult
 
 

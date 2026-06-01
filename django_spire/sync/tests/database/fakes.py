@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django_spire.sync.core import SyncPhase, SyncStatus
+    from django_spire.sync.core.enums import SyncPhase, SyncStatus
     from django_spire.sync.database.manifest import DatabaseResult
 
 

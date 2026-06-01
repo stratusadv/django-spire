@@ -6,7 +6,7 @@ import string
 from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
-from django_spire.sync.core import HybridLogicalClock
+from django_spire.sync.core.clock import HybridLogicalClock
 from django_spire.sync.database.conflict import (
     ConflictResolver,
     FieldTimestampWins,

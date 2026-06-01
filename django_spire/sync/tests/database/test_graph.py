@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     CircularDependencyError,
     UnknownDependencyError,
 )

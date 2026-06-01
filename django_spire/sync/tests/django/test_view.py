@@ -10,7 +10,7 @@ import pytest
 
 from django.test import RequestFactory
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     InvalidParameterError,
     ManifestChecksumError,
     SyncAbortedError,

@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from django_spire.sync.tests.database import parse_seed, run_fuzz
+from django_spire.sync.tests.database.fuzz import parse_seed, run_fuzz
 
 
 pytestmark = pytest.mark.simulation

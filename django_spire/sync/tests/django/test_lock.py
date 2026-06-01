@@ -11,8 +11,8 @@ import pytest
 from django.db import connection
 from django.utils import timezone
 
-from django_spire.sync.core import SyncPhase, SyncStatus
-from django_spire.sync.core import LockContentionError
+from django_spire.sync.core.enums import SyncPhase, SyncStatus
+from django_spire.sync.core.exceptions import LockContentionError
 from django_spire.sync.django.lock import DjangoSyncLock
 from django_spire.sync.django.models.session import SyncSession
 from django_spire.sync.tests.django.helpers import thread_safe

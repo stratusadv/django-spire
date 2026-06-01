@@ -10,7 +10,7 @@ from urllib.error import HTTPError, URLError
 
 import pytest
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     InvalidParameterError,
     InvalidResponseError,
     SyncAbortedError,

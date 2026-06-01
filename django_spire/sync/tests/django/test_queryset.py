@@ -4,7 +4,7 @@ import pytest
 
 from django.db import models as db_models
 
-from django_spire.sync.core import HybridLogicalClock
+from django_spire.sync.core.clock import HybridLogicalClock
 from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.django.queryset import _is_bypassed, sync_bypass
 from django_spire.sync.tests.models import SyncTestSimpleModel, SyncTestModel

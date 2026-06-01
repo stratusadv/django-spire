@@ -6,8 +6,8 @@ from enum import Enum, auto
 from typing import Any
 
 from django_spire.sync.database.record import SyncRecord
-from django_spire.sync.tests.database import ModelSchema, MultiTabletHarness
-from django_spire.sync.tests.database import SyncOracle
+from django_spire.sync.tests.database.harness import ModelSchema, MultiTabletHarness
+from django_spire.sync.tests.database.oracle import SyncOracle
 
 
 class OpTag(Enum):

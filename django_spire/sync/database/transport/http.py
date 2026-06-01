@@ -13,13 +13,13 @@ from urllib.request import Request, urlopen
 from django_spire.sync.core.compression import (
     gzip_decompress,
 )
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     DecompressionLimitError,
     InvalidParameterError,
     InvalidResponseError,
     SyncAbortedError,
 )
-from django_spire.sync.core import retry
+from django_spire.sync.core.retry import retry
 from django_spire.sync.database.manifest import SyncManifest
 from django_spire.sync.database.transport.base import Transport
 

@@ -6,8 +6,8 @@ from contextlib import nullcontext
 from dataclasses import dataclass
 from typing import Any, Callable, TYPE_CHECKING
 
-from django_spire.sync.core import SyncStage
-from django_spire.sync.core import RecordHasher
+from django_spire.sync.core.enums import SyncStage
+from django_spire.sync.core.hash import RecordHasher
 from django_spire.sync.core.model import Change, Error, Result
 from django_spire.sync.file.exceptions import (
     FileSyncAbortedError,

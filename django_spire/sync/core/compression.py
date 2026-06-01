@@ -3,7 +3,7 @@ from __future__ import annotations
 import gzip
 import io
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     DecompressionLimitError,
     InvalidParameterError,
 )

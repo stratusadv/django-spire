@@ -5,7 +5,7 @@ import json
 
 from typing import Any
 
-from django_spire.sync.core import (
+from django_spire.sync.core.exceptions import (
     InvalidParameterError,
     RecordFieldError,
     RecordSerializationError,
