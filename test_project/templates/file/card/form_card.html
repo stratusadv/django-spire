@@ -52,7 +52,7 @@
             <div class="col-12">
                 <div class="d-flex gap-2 mt-4">
                     {% url 'file:page:list' as list_url %}
-                    {% include 'django_spire/button/secondary_outlined_button.html' with button_text='Cancel' button_href=list_url %}
+                    {% include 'django_spire/button/button.html' with button_text='Cancel' button_class='btn-app-secondary-outlined' button_href=list_url %}
                     {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
                 </div>
             </div>

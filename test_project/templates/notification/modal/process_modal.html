@@ -1,7 +1,7 @@
 {% extends 'django_spire/modal/center_modal.html' %}
 
 {% block modal_trigger %}
-    {% include 'django_spire/button/primary_dark_button.html' with button_text='Process' button_icon='bi bi-check' %}
+    {% include 'django_spire/button/button.html' with button_text='Process' button_class='btn-app-primary-dark' button_icon='bi bi-check' %}
 {% endblock %}
 
 {% block modal_content_title %}
@@ -36,7 +36,7 @@
         </div>
 
         <div class="col-12">
-            {% include 'django_spire/button/danger_button.html' with button_text='Process' button_icon='bi bi-check' x_button_click='process_notification' %}
+            {% include 'django_spire/button/button.html' with button_text='Process' button_class='btn-app-danger' button_icon='bi bi-check' x_button_click='process_notification' %}
         </div>
     </div>
 {% endblock %}

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block container_button %}
-	{% include 'django_spire/button/primary_button.html' with button_text='Add' button_icon='bi bi-plus' %}
+	{% include 'django_spire/button/button.html' with button_class='btn-app-primary' button_text='Add' button_icon='bi bi-plus' %}
 {% endblock %}
 
 {% block container_filter_section %}
@@ -19,7 +19,7 @@
         <label>
             <input class="form-control" type="text" placeholder="Search Ingredients...">
         </label>
-        {% include 'django_spire/button/primary_button.html' with button_text='Search' x_button_click="search_recipe()" %}
+        {% include 'django_spire/button/button.html' with button_class='btn-app-primary' button_text='Search' x_button_click="search_recipe()" %}
     </form>
 {% endblock %}
 

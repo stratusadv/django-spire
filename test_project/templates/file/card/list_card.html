@@ -6,7 +6,7 @@
 
 {% block card_button %}
     {% url 'file:form:create' as create_url %}
-    {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=create_url %}
+    {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-app-primary-dark' button_icon='bi bi-plus' button_href=create_url %}
 {% endblock %}
 
 {% block card_title_content %}

@@ -9,7 +9,7 @@
 {% block card_button %}
     {% if perms.django_spire_auth_user.add_authuser %}
         {% url 'django_spire:auth:user:form:register' as register_user_url %}
-        {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus-lg' button_href=register_user_url %}
+        {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-app-primary-dark' button_icon='bi bi-plus-lg' button_href=register_user_url %}
     {% endif %}
 {% endblock %}
 

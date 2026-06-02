@@ -5,7 +5,7 @@
 
 {% block card_button %}
     {% url 'django_spire:theme:page:borders' as borders_url %}
-    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=borders_url %}
+    {% include 'django_spire/button/button.html' with button_text='Full Preview' button_class='btn-app-primary' button_href=borders_url %}
 {% endblock %}
 
 {% block preview_card_icon %}bi bi-bounding-box{% endblock %}

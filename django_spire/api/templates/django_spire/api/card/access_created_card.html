@@ -10,7 +10,7 @@
     {% if AuthController.api.can_add %}
         <div class="col text-end mb-1">
             {% url 'django_spire:api:page:list' as list_url %}
-            {% include 'django_spire/button/danger_button.html' with button_text='Done' button_href=list_url button_icon="bi bi-check" %}
+            {% include 'django_spire/button/button.html' with button_text='Done' button_class='btn-app-danger' button_href=list_url button_icon="bi bi-check" %}
         </div>
     {% endif %}
 {% endblock %}

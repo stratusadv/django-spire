@@ -7,7 +7,7 @@
 {% block card_button %}
     {% if perms.metric_domain.add_domain %}
         {% url 'metric:domain:form:create' as new_domain_url %}
-        {% include 'django_spire/button/primary_dark_button.html' with button_text='Add' button_icon='bi bi-plus' button_href=new_domain_url %}
+        {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-app-primary-dark' button_icon='bi bi-plus' button_href=new_domain_url %}
     {% endif %}
 {% endblock %}
 

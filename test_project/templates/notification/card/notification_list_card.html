@@ -6,7 +6,7 @@
 
 {% block card_button %}
     {% url 'notification:page:form' pk=0 as new_notification_url %}
-	{% include 'django_spire/button/primary_dark_button.html' with button_href=new_notification_url button_text='Add' button_icon='bi bi-plus' %}
+	{% include 'django_spire/button/button.html' with button_class='btn-app-primary-dark' button_href=new_notification_url button_text='Add' button_icon='bi bi-plus' %}
 {% endblock %}
 
 {% block card_title_content %}

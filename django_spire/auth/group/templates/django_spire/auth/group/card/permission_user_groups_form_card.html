@@ -70,7 +70,7 @@
                {% include 'django_glue/form/field/char_field.html' with label='Group Name' x_model_value='group.name' %}
            </div>
            <div class="col-12">
-               <span @click="add_group()">{% include 'django_spire/button/secondary_outlined_button.html' with button_text='Add Group' %}</span>
+               <span @click="add_group()">{% include 'django_spire/button/button.html' with button_class='btn-app-secondary-outlined' button_text='Add Group' %}</span>
            </div>
        </div>
     </div>

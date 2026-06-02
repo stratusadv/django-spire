@@ -4,7 +4,7 @@
 
 {% block card_button %}
     {% url 'django_spire:theme:page:example' as example_url %}
-    {% include 'django_spire/button/primary_button.html' with button_text='Full Preview' button_href=example_url %}
+    {% include 'django_spire/button/button.html' with button_text='Full Preview' button_class='btn-app-primary' button_href=example_url %}
 {% endblock %}
 
 {% block preview_card_icon %}bi bi-grid-1x2{% endblock %}

@@ -15,7 +15,7 @@
             {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text=button_text button_class=button_class %}
 
             <span class="ms-2" @click="close_modal()">
-                {% include 'django_spire/button/secondary_button.html' with button_text='Cancel' button_class='btn' %}
+                {% include 'django_spire/button/button.html' with button_class='btn-app-secondary btn' button_text='Cancel' %}
             </span>
         </div>
     </form>
