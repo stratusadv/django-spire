@@ -1,0 +1,19 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    {% if form_title %}
+        {{ form_title }}
+    {% elif page_title %}
+        {{ page_title }}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    {% if form_description %}
+        <div class="mb-3">
+            {{ form_description }}
+        </div>
+    {% endif %}
+
+    {{ form }}
+{% endblock %}

@@ -1,0 +1,10 @@
+<section
+    role="tabpanel"
+    x-init="$dispatch('register-section', { el: $el })"
+    x-show="is_section_selected($el)"
+>
+    <div x-ref="content">
+        {% block lazy_tab_section_loading %}
+        {% endblock %}
+    </div>
+</section>

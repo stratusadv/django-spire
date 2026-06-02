@@ -229,7 +229,7 @@ docs/app_guides/<feature>/templates/<descriptive_name>.html
 
 2. Write the HTML in that file using real Django template syntax:
 ```html
-{% load pagination_tags %}
+{% load django_spire_pagination %}
 {% for item in page.object_list %}
     {% include 'myapp/item/item.html' %}
 {% endfor %}

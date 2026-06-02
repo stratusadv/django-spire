@@ -1,0 +1,13 @@
+{% extends 'django_spire/container/container.html' %}
+
+{% block container_title %}
+    {% if form_title %}
+        {{ form_title }}
+    {% elif page_title %}
+        {{ page_title }}
+    {% endif %}
+{% endblock %}
+
+{% block container_content %}
+    {% include 'django_spire/card/form_card.html' %}
+{% endblock %}

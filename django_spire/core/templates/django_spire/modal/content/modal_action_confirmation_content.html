@@ -1,0 +1,22 @@
+{% extends 'django_spire/modal/content/modal_title_content.html' %}
+
+{% block modal_content_title %}
+    {{ form_title|truncatechars:75 }}
+{% endblock %}
+
+{% block modal_content_content %}
+    <form action="{{ form_action }}" method="post">
+        {% csrf_token %}
+        {{ form_description }}
+
+        <input type="hidden" name="{{ action_field_name }}" value="true">
+
+        <div class="d-flex mt-3">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text=button_text button_class=button_class %}
+
+            <span class="ms-2" @click="close_modal()">
+                {% include 'django_spire/button/secondary_button.html' with button_text='Cancel' button_class='btn' %}
+            </span>
+        </div>
+    </form>
+{% endblock %}

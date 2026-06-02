@@ -1,0 +1,37 @@
+<button class="btn btn-falcon-default btn-sm shadow-sm {{ button_class }}" id="dropdownMenuButton" type="button"
+        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="{{ dropdown_icon }}"></span>
+    <span>{{ dropdown_text }}</span>
+</button>
+<div class="dropdown-menu dropdown-menu-end py-0" aria-labelledby="dropdownMenuButton">
+    {% if custom_url_1 %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ custom_url_1 }}" target="{{ custom_target_1 }}">{{ custom_name_1 }}</a>
+    {% endif %}
+    {% if custom_url_2 %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ custom_url_2 }}" target="{{ custom_target_2 }}">{{ custom_name_2 }}</a>
+    {% endif %}
+    {% if custom_url_3 %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ custom_url_3 }}" target="{{ custom_target_3 }}">{{ custom_name_3 }}</a>
+    {% endif %}
+    {% if custom_url_4 %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ custom_url_4 }}" target="{{ custom_target_4 }}">{{ custom_name_4 }}</a>
+    {% endif %}
+    {% if custom_url_5 %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ custom_url_5 }}" target="{{ custom_target_5 }}">{{ custom_name_5 }}</a>
+    {% endif %}
+    {% if custom_url_6 %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ custom_url_6 }}" target="{{ custom_target_6 }}">{{ custom_name_6 }}</a>
+    {% endif %}
+    {% if view_url %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ view_url }}">View</a>
+    {% endif %}
+    {% if edit_url %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item" href="{{ edit_url }}">Edit</a>
+    {% endif %}
+    {% if delete_url %}
+        {% if view_url or edit_url or custom_url_1 %}
+            <div class="dropdown-divider my-1"></div>
+        {% endif %}
+        <a @click="toggleLoadingSpinner()" class="dropdown-item text-warning" href="{{ delete_url }}">Delete</a>
+    {% endif %}
+</div>

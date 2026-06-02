@@ -1,0 +1,26 @@
+{% extends 'django_spire/dropdown/dropdown.html' %}
+
+{% block dropdown_position %}start-0 top-100{% endblock %}
+
+{% block dropdown_trigger %}
+    <span
+        class="bi bi-three-dots-vertical px-1 {% block ellipsis_class %}{% endblock %}"
+        style="overflow: visible;"
+        x-bind="trigger"
+    >
+    </span>
+{% endblock %}
+
+{% block dropdown_content %}
+    {% if view_url %}
+        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=view_url link_text='View' %}
+    {% endif %}
+
+    {% if edit_url %}
+        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=edit_url link_text='Edit' %}
+    {% endif %}
+
+    {% if delete_url %}
+        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=delete_url link_text='Delete' link_css='text-app-danger' %}
+    {% endif %}
+{% endblock %}

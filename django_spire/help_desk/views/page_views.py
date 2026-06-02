@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
+from django_spire.contrib import generic_views
 from django_spire.contrib.generic_views import page_views
 from django_spire.help_desk.models import HelpDeskTicket
 

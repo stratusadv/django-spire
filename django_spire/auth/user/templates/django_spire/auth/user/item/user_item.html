@@ -1,6 +1,6 @@
 {% extends 'django_spire/item/item.html' %}
 
-{% load django_spire_core_tags %}
+{% load django_spire_core %}
 
 {% block item_title %}
     {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}

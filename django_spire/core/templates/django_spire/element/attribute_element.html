@@ -1,0 +1,48 @@
+<div class="fs-7 text-app-attribute-color fw-bold">
+    {% block attribute_title %}
+        {% if attribute_title %}
+            {{ attribute_title_prefix }}{{ attribute_title }}{{ attribute_title_postfix }}
+        {% elif x_attribute_title %}
+            {% if x_attribute_title_prefix %}
+                <span x-text="{{ x_attribute_title_prefix }}"></span>
+            {% endif %}
+            <span x-text="{{ x_attribute_title }}"></span>
+            {% if x_attribute_title_postfix %}
+                <span x-text="{{ x_attribute_title_postfix }}"></span>
+            {% endif %}
+        {% endif %}
+    {% endblock %}
+</div>
+
+{% if attribute_href or x_attribute_href %}
+    <a class="text-decoration-none" {% if x_attribute_href %}:href="{{ x_attribute_href }}"{% endif %} href="{{ attribute_href }}" target="{{ target }}">
+{% else %}
+    <div class="fs-6">
+{% endif %}
+
+{% block attribute_value %}
+    {% if attribute_value %}
+        {{ attribute_value_prefix }}{{ attribute_value }}{{ attribute_value_postfix }}
+    {% elif x_attribute_value %}
+        {% if x_attribute_value_prefix %}
+            <span x-text="{{ x_attribute_value_prefix }}"></span>
+        {% endif %}
+        <span x-text="{{ x_attribute_value }}"></span>
+        {% if x_attribute_value_postfix %}
+            <span x-text="{{ x_attribute_value_postfix }}"></span>
+        {% endif %}
+    {% endif %}
+
+    {% if show_copy_button %}
+        {% block copy_button %}
+            {% firstof attribute_value or x_attribute_value as value %}
+            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=value copy_func=copy_func %}
+        {% endblock %}
+    {% endif %}
+{% endblock %}
+
+{% if attribute_href or x_attribute_href %}
+    </a>
+{% else %}
+    </div>
+{% endif %}

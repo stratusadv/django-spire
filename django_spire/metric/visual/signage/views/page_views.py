@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
+from django_spire.contrib import generic_views
 from django_spire.contrib.generic_views import page_views
 from django_spire.core.table.enums import ResponsiveMode
 from django_spire.contrib.session.controller import SessionController

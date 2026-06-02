@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 
-from django_spire.contrib import Breadcrumbs
+from django_spire.contrib import Breadcrumbs, generic_views
 from django_spire.contrib.generic_views import page_views
 
 if TYPE_CHECKING:

@@ -20,9 +20,7 @@
                 {% if AuthController.help_desk.can_view %}
                     {% block help_desk_icon %}
                         {% url 'django_spire:help_desk:page:list' as help_desk_url %}
-                        <a href="{{ help_desk_url }}">
-                            <i class="bi bi-headset"></i>
-                        </a>
+                        {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' font_size='ds-fs-3' icon_class='mx-1' %}
                     {% endblock %}
                 {% endif %}
 

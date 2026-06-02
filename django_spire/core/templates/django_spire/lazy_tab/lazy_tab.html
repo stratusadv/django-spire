@@ -1,0 +1,194 @@
+<div
+    x-cloak
+    x-data="{
+        loaded_tabs: new Set(),
+        loading_tabs: new Set(),
+        sections: [],
+        selected_tab: 1,
+        tab_id: '{{ tab_id|default:'' }}',
+        triggers: [],
+        use_url_params: {{ tab_id|yesno:'true,false' }},
+
+        init() {
+            if (!this.tab_id) {
+                this.tab_id = this.$id('lazy-tab');
+            }
+
+            if (this.use_url_params) {
+                let url_tab = this.get_url_param();
+
+                if (url_tab) {
+                    this.selected_tab = url_tab;
+                }
+            }
+        },
+
+        register_trigger(detail) {
+            this.triggers.push({
+                el: detail.el,
+                endpoint: detail.endpoint || null
+            });
+        },
+
+        register_section(detail) {
+            let content_el = detail.el.firstElementChild;
+
+            let observer = new MutationObserver((mutations) => {
+                for (let mutation of mutations) {
+                    for (let node of mutation.addedNodes) {
+                        if (node.nodeType !== 1) continue;
+
+                        node.style.opacity = '0';
+                        node.style.transition = 'none';
+
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                node.style.transition = 'opacity 1000ms ease';
+                                node.style.opacity = '1';
+                            });
+                        });
+                    }
+                }
+            });
+
+            observer.observe(content_el, { childList: true, subtree: true });
+
+            this.sections.push({
+                el: detail.el,
+                content_el: content_el
+            });
+
+            if (this.triggers.length === this.sections.length && !this.is_loaded(this.selected_tab)) {
+                this.$nextTick(() => this.load_tab_content(this.selected_tab));
+            }
+        },
+
+        select(el) {
+            let tab_number = this.get_trigger_index(el);
+            this.selected_tab = tab_number;
+
+            if (this.use_url_params) {
+                this.update_url(tab_number);
+            }
+
+            this.load_tab_content(tab_number);
+
+            this.$dispatch('tab-changed', {
+                tab_id: this.tab_id,
+                tab_number: tab_number
+            });
+        },
+
+        get_trigger_index(el) {
+            let index = this.triggers.findIndex(t => t.el === el);
+            return index + 1;
+        },
+
+        get_section_index(el) {
+            let index = this.sections.findIndex(s => s.el === el);
+            return index + 1;
+        },
+
+        is_trigger_selected(el) {
+            return this.selected_tab === this.get_trigger_index(el);
+        },
+
+        is_section_selected(el) {
+            return this.selected_tab === this.get_section_index(el);
+        },
+
+        is_loaded(tab_number) {
+            return this.loaded_tabs.has(tab_number);
+        },
+
+        is_loading(tab_number) {
+            return this.loading_tabs.has(tab_number);
+        },
+
+        is_section_loading(el) {
+            return this.loading_tabs.has(this.get_section_index(el));
+        },
+
+        async load_tab_content(tab_number) {
+            if (this.is_loaded(tab_number) || this.is_loading(tab_number)) {
+                return;
+            }
+
+            let trigger = this.triggers[tab_number - 1];
+            let section = this.sections[tab_number - 1];
+
+            if (!trigger || !trigger.endpoint || !section) {
+                this.loaded_tabs.add(tab_number);
+                return;
+            }
+
+            this.loading_tabs.add(tab_number);
+
+            let view = Glue.view(trigger.endpoint);
+            await view.renderInnerHtml(section.content_el);
+
+            this.loading_tabs.delete(tab_number);
+            this.loaded_tabs.add(tab_number);
+        },
+
+        get_url_param() {
+            let url = new URL(window.location);
+            let value = url.searchParams.get(this.tab_id);
+            let parsed = parseInt(value, 10);
+
+            if (!isNaN(parsed) && parsed > 0) {
+                return parsed;
+            }
+
+            return null;
+        },
+
+        update_url(tab_number) {
+            let url = new URL(window.location);
+            url.searchParams.set(this.tab_id, tab_number);
+            window.history.replaceState({}, '', url);
+        }
+    }"
+    @register-section="register_section($event.detail)"
+    @register-trigger="register_trigger($event.detail)"
+>
+    <div class="position-relative">
+        <div
+            class="tab-scroll-fade tab-scroll-fade-left"
+            x-ref="tab_fade_left"
+            x-show="$refs.tablist.scrollLeft > 0"
+            x-cloak
+        ></div>
+
+        <ul
+            @keydown.end.prevent.stop="$focus.last()"
+            @keydown.home.prevent.stop="$focus.first()"
+            @keydown.left.prevent.stop="$focus.wrap().prev()"
+            @keydown.page-down.prevent.stop="$focus.last()"
+            @keydown.page-up.prevent.stop="$focus.first()"
+            @keydown.right.prevent.stop="$focus.wrap().next()"
+            @scroll="$refs.tab_fade_left.style.display = $el.scrollLeft > 0 ? '' : 'none'; $refs.tab_fade_right.style.display = ($el.scrollWidth - $el.scrollLeft - $el.clientWidth) > 1 ? '' : 'none';"
+            class="border-bottom border-1 d-flex flex-nowrap list-unstyled overflow-x-auto tab-scrollbar-hidden"
+            x-ref="tablist"
+            x-init="$nextTick(() => { $refs.tab_fade_right.style.display = ($el.scrollWidth - $el.scrollLeft - $el.clientWidth) > 1 ? '' : 'none'; })"
+            role="tablist"
+        >
+            {% block tab_trigger %}
+            {% endblock %}
+        </ul>
+
+        <div
+            class="tab-scroll-fade tab-scroll-fade-right"
+            x-ref="tab_fade_right"
+            x-cloak
+        ></div>
+    </div>
+
+    {% block tab_function %}
+    {% endblock %}
+
+    <div>
+        {% block tab_section %}
+        {% endblock %}
+    </div>
+</div>
