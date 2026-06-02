@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.contrib.generic_views import page_views
+from django_spire.contrib import generic_views
 from test_project.app.rest.rest import PirateRestSchema
 
 if TYPE_CHECKING:

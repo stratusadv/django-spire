@@ -15,6 +15,7 @@ from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.contrib import generic_views
 from django_spire.history.activity.utils import add_form_activity
 
 if TYPE_CHECKING:

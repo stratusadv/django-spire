@@ -102,7 +102,7 @@ class ThemeViewTests(TestCase):
 class ThemeViewIntegrationTests(BaseTestCase):
     def test_set_theme_with_authenticated_client(self) -> None:
         response = self.client.post(
-            '/django_spire/theme/json/set_theme/',
+            '/theme/json/set_theme/',
             data=json.dumps({'theme': 'gruvbox-dark'}),
             content_type='application/json'
         )
@@ -112,7 +112,7 @@ class ThemeViewIntegrationTests(BaseTestCase):
         assert data['success']
 
     def test_get_config_with_authenticated_client(self) -> None:
-        response = self.client.get('/django_spire/theme/json/get_config/')
+        response = self.client.get('/theme/json/get_config/')
         assert response.status_code == HTTPStatus.OK
 
         data = json.loads(response.content)

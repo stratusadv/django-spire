@@ -7,17 +7,17 @@ from django_spire.notification.utils import get_throttle_sleep_time
 
 
 class NotificationUtilsTests(BaseTestCase):
-    @override_settings(NOTIFICATION_THROTTLE_RATE_PER_MINUTE=60)
+    @override_settings(DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE=60)
     def test_get_throttle_sleep_time_60_per_minute(self):
         result = get_throttle_sleep_time()
         assert result == 1.0
 
-    @override_settings(NOTIFICATION_THROTTLE_RATE_PER_MINUTE=120)
+    @override_settings(DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE=120)
     def test_get_throttle_sleep_time_120_per_minute(self):
         result = get_throttle_sleep_time()
         assert result == 2.0
 
-    @override_settings(NOTIFICATION_THROTTLE_RATE_PER_MINUTE=30)
+    @override_settings(DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE=30)
     def test_get_throttle_sleep_time_30_per_minute(self):
         result = get_throttle_sleep_time()
         assert result == 0.5

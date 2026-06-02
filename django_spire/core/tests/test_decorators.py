@@ -11,7 +11,7 @@ from django_spire.contrib.decorators import close_db_connections, valid_ajax_req
 
 
 class TestCloseDbConnections(TestCase):
-    @patch('django_spire.core.decorators.connections')
+    @patch('django_spire.contrib.decorators.connections')
     def test_closes_connections_after_exception(self, mock_connections: MagicMock) -> None:
         @close_db_connections
         def sample_func():
@@ -22,7 +22,7 @@ class TestCloseDbConnections(TestCase):
 
         mock_connections.close_all.assert_called_once()
 
-    @patch('django_spire.core.decorators.connections')
+    @patch('django_spire.contrib.decorators.connections')
     def test_closes_connections_after_success(self, mock_connections: MagicMock) -> None:
         @close_db_connections
         def sample_func():
@@ -33,7 +33,7 @@ class TestCloseDbConnections(TestCase):
         assert result == 'result'
         mock_connections.close_all.assert_called_once()
 
-    @patch('django_spire.core.decorators.connections')
+    @patch('django_spire.contrib.decorators.connections')
     def test_preserves_function_metadata(self, _mock_connections: MagicMock) -> None:
         @close_db_connections
         def sample_func():

@@ -10,6 +10,7 @@ from django_glue import Glue
 
 from django_spire.contrib.session.controller import SessionController
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.contrib import generic_views
 
 from test_project.app.infinite_scrolling.constants import INFINITE_SCROLLING_FILTERING_SESSION_KEY
 from test_project.app.infinite_scrolling.forms import InfiniteScrollingListFilterForm

@@ -58,6 +58,7 @@ class TestDjangoModelToPydanticModel(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -74,6 +75,7 @@ class TestDjangoModelToPydanticModel(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -92,6 +94,7 @@ class TestDjangoModelToPydanticModel(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -112,6 +115,7 @@ class TestDjangoModelToPydanticModel(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -137,6 +141,7 @@ class TestDjangoModelToPydanticModel(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -171,6 +176,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -186,6 +192,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -206,6 +213,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -222,6 +230,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -237,6 +246,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'
@@ -254,6 +264,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
             class Meta:
                 managed = False
+                app_label = 'converters'
 
             def __str__(self) -> str:
                 return 'model'

@@ -222,7 +222,7 @@ class UserFormTestCase(BaseTestCase):
         )
         assert form.is_valid()
         user = form.save()
-        assert user.username == 'Test@Example.COM'
+        assert user.username == 'test@example.com'
 
 
 class RegisterUserFormTestCase(BaseTestCase):

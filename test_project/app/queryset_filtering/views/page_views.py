@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.generic_views import page_views
+from django_spire.contrib import generic_views
 from django_spire.contrib.session.controller import SessionController
 from test_project.app.queryset_filtering.constants import TASK_FILTERING_SESSION_KEY
 from test_project.app.queryset_filtering.forms import TaskListFilterForm

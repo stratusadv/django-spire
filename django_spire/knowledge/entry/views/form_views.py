@@ -9,11 +9,13 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
+from django_spire.contrib import generic_views
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.file.factory import FileFactory
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
+from django_spire.contrib import generic_views
 from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
 from django_spire.knowledge.entry.version.maps import FILE_TYPE_CONVERTER_MAP
 

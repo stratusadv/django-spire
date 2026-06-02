@@ -44,5 +44,5 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
             'priority_choices': json.dumps(NotificationPriorityChoices.choices[::-1]),
         },
         model=AppNotification,
-        template='django_spire/notification/app/page/list_page.html'
+        template='django_spire/page/page.html'
     )

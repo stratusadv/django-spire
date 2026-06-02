@@ -8,6 +8,7 @@ from django.urls import reverse
 import django_glue as dg
 
 from django_spire.contrib.form.tools import show_form_errors
+from django_spire.contrib import generic_views
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 
 from test_project.app.file import forms, models

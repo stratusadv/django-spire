@@ -26,15 +26,15 @@ python *ARGS:
 run-server:
     {{ PYTHON }} ./manage.py runserver
 test:
-    {{ PYTHON }} -m pytest .
+    {{ PYTHON }} -m pytest . --reuse-db
 test-app app:
-    {{ PYTHON }} -m pytest {{ app }}
+    {{ PYTHON }} -m pytest {{ app }} --reuse-db
 test-coverage:
-    {{ PYTHON }} -m pytest . --cov=django_spire --cov-report=term-missing
+    {{ PYTHON }} -m pytest . --cov=django_spire --cov-report=term-missing --reuse-db
 test-coverage-app app:
-    {{ PYTHON }} -m pytest {{ app }} --cov={{ app }} --cov-report=term-missing
+    {{ PYTHON }} -m pytest {{ app }} --cov={{ app }} --cov-report=term-missing --reuse-db
 test-failed:
-    {{ PYTHON }} -m pytest --ff --lf
+    {{ PYTHON }} -m pytest --ff --lf --reuse-db
 seed:
     {{ PYTHON }} test_project/seed.py
 venv:

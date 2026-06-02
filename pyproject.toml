@@ -81,6 +81,7 @@ development = [
     "pytest",
     "pytest-django",
     "pytest-playwright",
+    "pytest-xdist",
     "ruff",
     "setuptools",
     "twine"

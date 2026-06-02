@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 
-from django_spire.contrib.generic_views import page_views
+from django_spire.contrib import generic_views
 
 from django_spire.metric.visual import models
 from django_spire.metric.visual.constants import LIST_FILTERING_SESSION_KEY

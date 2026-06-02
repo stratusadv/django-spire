@@ -63,7 +63,7 @@ class TestContentTypeUrl(TestCase):
             {'app_label': 'myapp', 'model_name': 'dummy'}
         )
 
-        func = 'django_spire.core.templatetags.spire_core_tags.reverse'
+        func = 'django_spire.core.templatetags.django_spire_core.reverse'
         return_value = 'http://example.com/dummy'
 
         with patch(func, return_value=return_value) as mock_reverse:
@@ -305,7 +305,7 @@ class TestQueryParamUrl(TestCase):
         request = self.factory.get('/some_path', {'foo': 'bar', 'baz': 'qux'})
         context = RequestContext(request, {})
 
-        func = 'django_spire.core.templatetags.spire_core_tags.reverse'
+        func = 'django_spire.core.templatetags.django_spire_core.reverse'
         return_value = 'http://example.com/dummy'
 
         with patch(func, return_value=return_value) as mock_reverse:
@@ -320,7 +320,7 @@ class TestQueryParamUrl(TestCase):
         request = self.factory.get('/some_path')
         context = RequestContext(request, {})
 
-        func = 'django_spire.core.templatetags.spire_core_tags.reverse'
+        func = 'django_spire.core.templatetags.django_spire_core.reverse'
         return_value = 'http://example.com/dummy'
 
         with patch(func, return_value=return_value):
