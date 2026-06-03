@@ -1,0 +1,26 @@
+{% extends 'django_spire/glue/form/field/field_base.html' %}
+
+{% block field_content %}
+    {% include 'django_spire/glue/form/field/label.html' %}
+    <div class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}" {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}>
+        <div class="row">
+            <template x-for="choice in glue_field?.choices || []" :key="choice[0]">
+                <div class="col-md-{{ columns|default:'12' }} col-lg-{{ columns_lg|default:columns|default:'6' }}">
+                    <div class="form-check">
+                        <input
+                            type="radio"
+                            class="form-check-input"
+                            :id="'{{ field }}-' + choice[0]"
+                            :name="{{ glue_field }}.name"
+                            :value="choice[0]"
+                            :checked="value === choice[0]"
+                            @change="value = choice[0]"
+                            :disabled="{{ glue_field }}.disabled || {{ glue_field }}.disabled_choices?.includes(choice[0])">
+                        <label class="form-check-label" :for="'{{ field }}-' + choice[0]" x-text="choice[1]"></label>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

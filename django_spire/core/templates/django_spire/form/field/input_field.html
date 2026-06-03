@@ -1,13 +1,18 @@
-{% extends 'django_spire/form/field/base_field.html' %}
+{% extends 'django_spire/glue/form/field/field_base.html' %}
 
 {% block field_content %}
     <input
-            {% if input_type %}type="{{ input_type }}"
-            {% else %}type="{% block input_type %}text{% endblock %}"{% endif %}
-            {% block input_field_attrs %}{{ input_field_attrs }}{% endblock %}
-            class="{% block input_field_class %}{% if input_field_class %}{{ input_field_class }}{% else %}form-control{% endif %}{% endblock %}"
-            x-ref="glue_field"
-            x-model="value"
-            :id="glue_field.id"
+        type="{% block input_type %}{% endblock %}"
+        {% block input_field_attrs %}{% endblock %}
+        class="{% block input_field_class %}form-control{% endblock %}"
+        x-model="value"
+        x-ref="glue_field"
+        :id="glue_field.id"
+        :name="glue_field.name"
+        :required="glue_field.required"
+        :disabled="glue_field.disabled"
+        :maxlength="glue_field.max_length"
+        :minlength="glue_field.min_length"
+        :class="{'is-invalid': glue_field.has_errors}"
     >
 {% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'django_spire/glue/form/field/file_input.html' %}
+
+{% block field_content %}
+    <div
+        x-data="{
+            preview: null,
+            current_file: null,
+
+            init() {
+                if (this.value && typeof this.value === 'string') {
+                    try {
+                        let file_data = JSON.parse(this.value);
+                        if (file_data.preview) {
+                            this.preview = file_data.preview;
+                            this.current_file = file_data;
+                        }
+                    } catch (e) {}
+                }
+            },
+
+            handle_file_change(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.value = file;
+                    if (file.type.startsWith('image/')) {
+                        let reader = new FileReader();
+                        reader.onload = (e) => { this.preview = e.target.result; };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            },
+
+            clear_file() {
+                this.value = null;
+                this.preview = null;
+                this.current_file = null;
+            }
+        }"
+    >
+        {% include 'django_spire/glue/form/field/label.html' %}
+        {% if not hide_preview %}
+        <div class="mb-2" x-show="preview || value?.url">
+            <img :src="preview || value?.url" alt="" class="img-fluid rounded" style="max-height: {{ max_preview_height|default:'200px' }};">
+        </div>
+        {% endif %}
+        <div class="d-flex align-items-center gap-2">
+            <input
+                type="file"
+                {% include 'django_spire/glue/form/field/base_input_attributes.html' with exclude_x_model=True %}
+                {% if accept %}accept="{{ accept }}"{% endif %}
+                @change="handle_file_change($event)"
+                class="form-control"
+            >
+            <button
+                type="button"
+                class="btn btn-outline-secondary"
+                @click="clear_file()"
+                x-show="value || preview"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    </div>
+{% endblock %}

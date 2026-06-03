@@ -5,11 +5,8 @@
         <input
             type="checkbox"
             class="form-check-input"
-            :id="'{{ field }}-' + ({{ obj }}.$key || 'single')"
+            :id="{{ glue_field }}.id"
             {% include 'django_spire/glue/form/field/base_input_attributes.html' with exclude_class=True %}>
         {{ block.super }}
     </div>
-    <small class="text-muted" x-show="{{ glue_field }}?.help_text" x-text="{{ glue_field }}?.help_text"></small>
 {% endblock %}
-
-person.$form.first_name.help_text

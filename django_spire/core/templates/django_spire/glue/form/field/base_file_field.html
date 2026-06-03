@@ -1,0 +1,189 @@
+{% extends 'django_spire/glue/form/field/field_base.html' %}
+
+{% block field_content %}
+    <div
+        class="position-relative"
+        x-data="{
+            show_dropdown: false,
+            files: [],
+            objects: {},
+
+            accept: '{{ accept|default:'' }}',
+            compression: {{ compression|default:'true' }},
+            compression_ratio: {{ compression_ratio|default:'0.75' }},
+            disable_camera: {{ disable_camera|default:'false' }},
+            disable_file: {{ disable_file|default:'false' }},
+            maximum_filesize: {{ maximum_filesize|default:'10' }} * 1024 * 1024,
+            units: ['B', 'KB', 'MB', 'GB'],
+
+            init() {
+                if (!this.value) return;
+
+                try {
+                    this.files = Array.isArray(this.value) ? this.value : JSON.parse(this.value);
+                } catch(e) {
+                    this.files = [];
+                }
+            },
+
+            async compress(file, quality = 0.75, maximum_width = 1920) {
+                try {
+                    let image = await createImageBitmap(file);
+                    let scale = Math.min(1, maximum_width / Math.max(image.width, image.height));
+                    let width = image.width * scale;
+                    let height = image.height * scale;
+                    let canvas = Object.assign(document.createElement('canvas'), { width, height });
+                    let ctx = canvas.getContext('2d');
+                    ctx.drawImage(image, 0, 0, width, height);
+                    let filename = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+                    return new Promise(result => canvas.toBlob(
+                        blob => result(new File([blob], filename, { type: 'image/jpeg' })),
+                        'image/jpeg',
+                        quality
+                    ));
+                } catch (error) {
+                    console.error('Compression failed:', error);
+                    return file;
+                }
+            },
+
+            format_file_size(bytes) {
+                if (!bytes) return '';
+                let size = bytes;
+                let index = 0;
+                while (size >= 1024 && index < this.units.length - 1) {
+                    size /= 1024;
+                    index++;
+                }
+                return size.toFixed(1) + ' ' + this.units[index];
+            },
+
+            truncate_name(name, max = 30) {
+                return name && name.length > max ? name.slice(0, max - 3) + '...' : name;
+            },
+
+            remove_file(file_id) {
+                this.files = this.files.filter(f => f.id !== file_id);
+                delete this.objects[file_id];
+                this.update_value();
+            },
+
+            update_value() {
+                this.value = this.files.length > 0 ? JSON.stringify(this.files) : null;
+            },
+
+            handle_files_change(event) {
+                const files = Array.from(event.target.files || []);
+                for (let file of files) {
+                    if (file.size > this.maximum_filesize) {
+                        alert('File too large: ' + file.name);
+                        continue;
+                    }
+                    let file_id = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    let file_obj = { id: file_id, name: file.name, size: file.size };
+                    if (file.type.startsWith('image/')) {
+                        let reader = new FileReader();
+                        reader.onload = (e) => { file_obj.preview = e.target.result; this.$forceUpdate(); };
+                        reader.readAsDataURL(file);
+                    }
+                    this.files.push(file_obj);
+                    this.objects[file_id] = file;
+                }
+                this.update_value();
+                event.target.value = '';
+            }
+        }"
+    >
+        <div class="d-flex">
+            <button
+                class="form-control text-start d-flex justify-content-between flex-grow-1"
+                type="button"
+                @click="show_dropdown = !show_dropdown"
+                :class="disable_file ? 'd-none' : ''"
+            >
+                <span class="d-flex flex-wrap align-items-center">
+                    <template x-if="files.length === 0">
+                        <span class="text-muted">{% block selection_text %}No file selected{% endblock %}</span>
+                    </template>
+                    <template x-for="(file, index) in files" :key="file.id">
+                        <span class="badge bg-secondary me-1" x-text="truncate_name(file.name)"></span>
+                    </template>
+                </span>
+                <span class="d-flex align-items-center">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <button
+                type="button"
+                class="btn border ms-2"
+                @click="$refs.camera_input.click()"
+                :class="disable_camera ? 'd-none' : ''"
+            >
+                <i class="bi bi-camera"></i>
+            </button>
+        </div>
+
+        <input
+            type="file"
+            x-ref="file_input"
+            class="d-none"
+            @change="handle_files_change"
+            :accept="accept"
+            :class="disable_file ? 'd-none' : ''"
+        >
+        <input
+            type="file"
+            x-ref="camera_input"
+            class="d-none"
+            @change="handle_files_change"
+            accept="image/*"
+            capture="environment"
+            :class="disable_camera ? 'd-none' : ''"
+        >
+
+        <div
+            x-cloak
+            x-show="show_dropdown"
+            @click.outside="show_dropdown = false"
+            class="shadow border rounded-2 mt-2 w-100 p-0 list-group"
+            style="max-height: 350px; overflow-y: auto;"
+        >
+            <template x-for="file in files" :key="file.id">
+                <div class="py-2 d-flex align-items-center px-3">
+                    <div class="me-2" style="width: 40px; height: 40px;">
+                        <template x-if="file.preview">
+                            <img :src="file.preview" class="img-fluid rounded" style="max-width: 40px; max-height: 40px; object-fit: cover;">
+                        </template>
+                        <template x-if="!file.preview">
+                            <div class="d-flex align-items-center justify-content-center rounded bg-light" style="width: 40px; height: 40px;">
+                                <i class="bi bi-file-earmark"></i>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="text-truncate" x-text="truncate_name(file.name)"></div>
+                        <div class="small text-muted" x-text="format_file_size(file.size)"></div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-trash text-danger cursor-pointer mx-2" @click="remove_file(file.id)"></i>
+                    </div>
+                </div>
+            </template>
+
+            <div
+                class="m-2 border border-dashed rounded p-3 text-center cursor-pointer"
+                @dragover.prevent="$el.classList.add('border-primary')"
+                @dragleave="$el.classList.remove('border-primary')"
+                @drop="$el.classList.remove('border-primary'); handle_files_change({target: {files: $event.dataTransfer.files}})"
+                @click="$refs.file_input.click()"
+            >
+                <div>
+                    <i class="bi bi-cloud-arrow-up me-2"></i>
+                    <span class="text-muted">{% block drop_area_text %}Drop files here or click to upload{% endblock %}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
