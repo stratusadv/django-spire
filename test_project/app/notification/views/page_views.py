@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django_glue import Glue
+
+from django_spire.contrib import generic_views
 from django_spire.contrib.generic_views import page_views
 from django_spire.notification import models
 from django_spire.notification.choices import (
