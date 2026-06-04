@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.6
+
+### Changes
+- Add exclusion to many-to-many relationship list in generic admin panel
+
 ## v0.32.5
 
 ### Changes
