@@ -1,19 +1,20 @@
-{% extends 'django_spire/card/title_card.html' %}
+{% extends 'django_spire/card/card.html' %}
 
-{% block card_title %}
-    {% if form_title %}
-        {{ form_title }}
-    {% elif page_title %}
-        {{ page_title }}
-    {% endif %}
-{% endblock %}
+{% block card_content %}
+    <div class="card-title">
+        {% if form_title %}
+            {{ form_title }}
+        {% elif page_title %}
+            {{ page_title }}
+        {% endif %}
+    </div>
+    <div class="card-text">
+        {% if form_description %}
+            <div class="mb-3">
+                {{ form_description }}
+            </div>
+        {% endif %}
 
-{% block card_title_content %}
-    {% if form_description %}
-        <div class="mb-3">
-            {{ form_description }}
-        </div>
-    {% endif %}
-
-    {{ form }}
+        {{ form }}
+    </div>
 {% endblock %}

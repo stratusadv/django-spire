@@ -1,6 +1,6 @@
-{% extends 'django_spire/card/form_card.html' %}
+{% extends 'django_spire/card/card.html' %}
 
-{% block card_title_content %}
+{% block card_content %}
     <form x-data="{
             submit_value(value) {
                 document.getElementById('delete_confirmation_should_delete').value = value
