@@ -19,8 +19,7 @@ make-migrations:
 migrate:
     {{ PYTHON }} ./manage.py migrate
 opencode:
-    ./.venv/Scripts/activate.bat
-    opencode
+    ./.venv/Scripts/activate.bat; if ($?) { opencode . }
 python *ARGS:
     {{ PYTHON }} {{ ARGS }}
 run-server:

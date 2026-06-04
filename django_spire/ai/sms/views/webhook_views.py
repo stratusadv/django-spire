@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 @csrf_exempt
 @require_POST
 @twilio_auth_required
-def webhook_view(request: WSGIRequest):
+def webhook_view(request: WSGIRequest) -> HttpResponse:
     from_number = request.POST.get('From', '')
 
     if len(from_number) < 11:

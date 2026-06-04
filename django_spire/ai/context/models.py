@@ -10,28 +10,27 @@ from django_spire.history.mixins import HistoryModelMixin
 
 
 class Organization(HistoryModelMixin):
-    name = models.CharField(max_length=255, blank=True, null=True)
-    legal_name = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    sector = models.CharField(max_length=255, blank=True, null=True)
-    sub_sector = models.CharField(max_length=255, blank=True, null=True)
-    website = models.URLField(max_length=255, blank=True, null=True)
-    street_address = models.CharField(max_length=255, blank=True, null=True)
-    unit_number = models.CharField(max_length=32, blank=True, null=True)
-    city = models.CharField(max_length=255, blank=True, null=True)
-    province = models.CharField(max_length=255, blank=True, null=True)
-    postal_code = models.CharField(max_length=16, blank=True, null=True)
-    country = models.CharField(max_length=255, blank=True, null=True)
-    phone = models.CharField(max_length=255, blank=True, null=True)
-    email = models.EmailField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, default='')
+    legal_name = models.CharField(max_length=255, default='')
+    description = models.TextField(default='')
+    sector = models.CharField(max_length=255, default='')
+    sub_sector = models.CharField(max_length=255, default='')
+    website = models.URLField(max_length=255, default='')
+    street_address = models.CharField(max_length=255, default='')
+    unit_number = models.CharField(max_length=32, default='')
+    city = models.CharField(max_length=255, default='')
+    province = models.CharField(max_length=255, default='')
+    postal_code = models.CharField(max_length=16, default='')
+    country = models.CharField(max_length=255, default='')
+    phone = models.CharField(max_length=255, default='')
+    email = models.EmailField(max_length=255, default='')
 
     objects = querysets.OrganizationQuerySet.as_manager()
 
     def save(self, *args, **kwargs) -> None:
-        if self.pk is None:
-            if self.__class__.objects.exists():
-                message = 'Only one AI Organization Context is allowed'
-                raise ValidationError(message)
+        if self.pk is None and self.__class__.objects.exists():
+            message = 'Only one AI Organization Context is allowed'
+            raise ValidationError(message)
 
         return super().save(*args, **kwargs)
 
@@ -49,14 +48,16 @@ class Person(HistoryModelMixin):
         null=True,
         on_delete=models.SET_NULL,
         related_name='ai_context_people',
-        related_query_name='ai_context_person'
+        related_query_name='ai_context_person',
     )
-    role = models.CharField(max_length=16, choices=PersonRoleChoices, default=PersonRoleChoices.ADMIN)
-    role_details = models.TextField(blank=True, null=True)
-    first_name = models.CharField(max_length=255, blank=True, null=True)
-    last_name = models.CharField(max_length=255, blank=True, null=True)
-    phone = models.CharField(max_length=255, blank=True, null=True)
-    email = models.EmailField(max_length=255, blank=True, null=True)
+    role = models.CharField(
+        max_length=16, choices=PersonRoleChoices, default=PersonRoleChoices.ADMIN
+    )
+    role_details = models.TextField(default='')
+    first_name = models.CharField(max_length=255, default='')
+    last_name = models.CharField(max_length=255, default='')
+    phone = models.CharField(max_length=255, default='')
+    email = models.EmailField(max_length=255, default='')
 
     objects = querysets.PeopleQuerySet.as_manager()
 
@@ -64,4 +65,3 @@ class Person(HistoryModelMixin):
         db_table = 'django_spire_ai_context_person'
         verbose_name = 'Person Context'
         verbose_name_plural = 'People Context'
-

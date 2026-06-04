@@ -24,7 +24,7 @@ class SmsConversation(HistoryModelMixin):
 
     objects = SmsConversationQuerySet.as_manager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"SMS Conversation with {self.phone_number}"
 
     def add_message(
@@ -33,7 +33,7 @@ class SmsConversation(HistoryModelMixin):
         is_inbound: bool,
         twilio_sid: str,
         is_processed: bool = False
-    ):
+    ) -> SmsMessage:
         message = self.messages.create(
             body=body,
             is_inbound=is_inbound,
@@ -97,7 +97,7 @@ class SmsMessage(HistoryModelMixin):
 
     objects = SmsMessageQuerySet.as_manager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         if len(self.body) < 64:
             return f"{self.direction}: {self.body}"
 

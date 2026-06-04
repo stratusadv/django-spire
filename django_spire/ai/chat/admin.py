@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import ClassVar
+from typing import ClassVar, Any
 
 from django.contrib import admin
 from django.shortcuts import reverse
@@ -19,33 +19,39 @@ class ChatAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None) -> list[str]:
         return [field.name for field in self.model._meta.fields]
 
-    def view_chat_messages_link(self, obj):
+    def view_chat_messages_link(self, obj) -> str:
         count = obj.messages.count()
         url = (
-            reverse("admin:django_spire_ai_chat_chatmessage_changelist")
-            + "?"
-            + urlencode({"chat__id": f"{obj.id}"})
+            reverse('admin:django_spire_ai_chat_chatmessage_changelist')
+            + '?'
+            + urlencode({'chat__id': f'{obj.id}'})
         )
 
         return format_html(f'<a href="{url}">{count} Messages</a>')
 
-    view_chat_messages_link.short_description = "Messages"
+    view_chat_messages_link.short_description = 'Messages'
 
     class Meta:
-        ordering = ('id', )
+        ordering = ('id',)
 
 
 @admin.register(models.ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):
-    list_display = ('content_body', 'chat', 'chat__user','is_processed', 'is_viewed', 'created_datetime')
+    list_display = (
+        'content_body',
+        'chat',
+        'chat__user',
+        'is_processed',
+        'is_viewed',
+        'created_datetime',
+    )
     search_fields = ('id', 'content')
     ordering: ClassVar = ['-id']
 
-    def content_body(self, obj) -> str:
+    def content_body(self, obj: Any) -> str:
         return str(obj)
 
     content_body.short_description = 'Body'
 
-    def get_readonly_fields(self, request, obj=None) -> list[str]:
+    def get_readonly_fields(self, request, obj: Any | None = None) -> list[str]:
         return [field.name for field in self.model._meta.fields]
-

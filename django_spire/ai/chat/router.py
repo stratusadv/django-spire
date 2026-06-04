@@ -59,7 +59,7 @@ class SpireChatRouter(BaseChatRouter):
         request: WSGIRequest,
         user_input: str,
         message_history: MessageHistory | None = None
-    ) -> BaseMessageIntel:
+    ) -> BaseMessageIntel | None:
         from django_spire.knowledge.intelligence.workflows.knowledge_workflow import (
             knowledge_search_workflow,
         )

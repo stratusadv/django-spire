@@ -1,0 +1,7 @@
+<span
+        class="badge {% block badge_class %}{% endblock %} {{ badge_class }}"
+        {% if x_badge_text %}x-text="{{ x_badge_text }}"{% endif %}
+>
+    {% block badge_text %}{% endblock %}
+    {{ badge_text }}
+</span>

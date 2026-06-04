@@ -30,7 +30,7 @@ class Chat(HistoryModelMixin):
 
     objects = ChatQuerySet.as_manager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         if len(self.name) < 48:
             return self.name
 
@@ -105,7 +105,7 @@ class ChatMessage(HistoryModelMixin):
 
     objects = ChatMessageQuerySet.as_manager()
 
-    def __str__(self):
+    def __str__(self) -> str:
         content = self.intel.render_to_str()
 
         if len(content) < 64:
@@ -114,7 +114,7 @@ class ChatMessage(HistoryModelMixin):
         return content[:64] + '...'
 
     @property
-    def intel(self):
+    def intel(self) -> BaseMessageIntel:
         try:
             intel_class: type[BaseMessageIntel] = get_class_from_string(self._intel_class_name)
             return intel_class.model_validate(self._intel_data)
@@ -126,7 +126,7 @@ class ChatMessage(HistoryModelMixin):
             )
 
     @intel.setter
-    def intel(self, message_intel: BaseMessageIntel):
+    def intel(self, message_intel: BaseMessageIntel) -> None:
         self._intel_class_name = get_class_name_from_class(message_intel.__class__)
         self._intel_data = message_intel.model_dump()
 

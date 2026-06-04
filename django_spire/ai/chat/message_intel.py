@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 class BaseMessageIntel(BaseIntel, ABC):
     _template: str
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
         template = cls.__dict__.get('_template')
@@ -28,7 +28,7 @@ class BaseMessageIntel(BaseIntel, ABC):
     def render_to_str(self) -> str:
         raise NotImplementedError
 
-    def render_template_to_str(self, context_data: dict | None = None):
+    def render_template_to_str(self, context_data: dict | None = None) -> str:
         return render_to_string(
             template_name=self._template,
             context={**self.model_dump(), **(context_data or {})},

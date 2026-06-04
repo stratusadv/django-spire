@@ -1,5 +1,5 @@
 {% if is_active %}
-    {% include 'django_spire/badge/success_badge.html' with badge_text='Active' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Active' badge_class='bg-app-success text-white' %}
 {% else %}
-    {% include 'django_spire/badge/danger_badge.html' with badge_text='Inactive' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Inactive' badge_class='bg-app-danger text-white' %}
 {% endif %}

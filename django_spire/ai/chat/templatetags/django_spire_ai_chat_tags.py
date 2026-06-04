@@ -16,4 +16,4 @@ def render_markdown(value: str) -> str:
 
     html = marko.convert(value)
 
-    return mark_safe(html)
+    return mark_safe(html)  # noqa: S308

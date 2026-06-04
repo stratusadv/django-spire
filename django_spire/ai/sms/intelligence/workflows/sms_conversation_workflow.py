@@ -14,14 +14,13 @@ if TYPE_CHECKING:
 
 @recorder_to_html_file('spire_ai_sms_conversation_workflow')
 def sms_conversation_workflow(
-    request: WSGIRequest, user_input: str, message_history: MessageHistory | None = None, actor: str | None = None
+    request: WSGIRequest,
+    user_input: str,
+    message_history: MessageHistory | None = None,
+    actor: str | None = None,
 ) -> SmsIntel:
-    message_intel = chat_workflow(
-        request,
-        user_input=user_input,
-        message_history=message_history,
-    )
+    _ = actor
 
-    return SmsIntel(
-        body=message_intel.render_to_str()
-    )
+    message_intel = chat_workflow(request, user_input=user_input, message_history=message_history)
+
+    return SmsIntel(body=message_intel.render_to_str())

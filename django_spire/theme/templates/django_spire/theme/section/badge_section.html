@@ -2,17 +2,17 @@
 <div class="row">
     <div class="col-6">
         <h5>Regular Badges</h5>
-        <div class="mb-3">{% include 'django_spire/badge/primary_badge.html' with badge_text='Primary Badge' %}</div>
-        <div class="mb-3">{% include 'django_spire/badge/secondary_badge.html' with badge_text='Secondary Badge' %}</div>
-        <div class="mb-3">{% include 'django_spire/badge/success_badge.html' with badge_text='Success Badge' %}</div>
-        <div class="mb-3">{% include 'django_spire/badge/warning_badge.html' with badge_text='Warning Badge' %}</div>
-        <div class="mb-3">{% include 'django_spire/badge/danger_badge.html' with badge_text='Danger Badge' %}</div>
-        <div class="mb-3">{% include 'django_spire/badge/accent_badge.html' with badge_text='Accent Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Primary Badge' badge_class='bg-app-primary text-white' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Secondary Badge' badge_class='bg-app-secondary text-white' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Success Badge' badge_class='bg-app-success text-white' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Warning Badge' badge_class='bg-app-warning text-white' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Danger Badge' badge_class='bg-app-danger text-white' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Accent Badge' badge_class='bg-app-accent text-white' %}</div>
     </div>
     <div class="col-6">
         <h5>Outlined Badges</h5>
-        <div class="mb-3">{% include 'django_spire/badge/primary_outlined_badge.html' with badge_text='Primary Outlined Badge' %}</div>
-        <div class="mb-3">{% include 'django_spire/badge/secondary_outlined_badge.html' with badge_text='Secondary Outlined Badge' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Primary Outlined Badge' badge_class='bg-app-primary text-white' %}</div>
+        <div class="mb-3">{% include 'django_spire/badge/badge.html' with badge_text='Secondary Outlined Badge' badge_class='bg-app-secondary text-white' %}</div>
     </div>
 </div>
 <div class="row mt-4">
