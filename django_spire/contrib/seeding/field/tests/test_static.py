@@ -7,10 +7,7 @@ from django_spire.contrib.seeding.field.static import StaticFieldSeeder
 
 class TestStaticFieldSeeder(TestCase):
     def test_seeds_static_fields(self) -> None:
-        fields = {
-            'category': ('static', 'books'),
-            'in_stock': ('static', True)
-        }
+        fields = {'category': ('static', 'books'), 'in_stock': ('static', True)}
         seeder = StaticFieldSeeder(fields=fields)
 
         result = seeder.seed(count=3)

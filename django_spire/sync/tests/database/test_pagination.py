@@ -27,9 +27,7 @@ from django_spire.sync.tests.database.helpers import (
 )
 
 
-def _make_storage(
-    models: list[str] | None = None,
-) -> InMemoryDatabaseStorage:
+def _make_storage(models: list[str] | None = None) -> InMemoryDatabaseStorage:
     return InMemoryDatabaseStorage(models or [MODEL])
 
 
@@ -89,10 +87,7 @@ def _make_engine_graph(
 
 
 def _seed_records(
-    storage: InMemoryDatabaseStorage,
-    count: int,
-    base_ts: int = 1000,
-    prefix: str = '',
+    storage: InMemoryDatabaseStorage, count: int, base_ts: int = 1000, prefix: str = ''
 ) -> dict[str, SyncRecord]:
     records: dict[str, SyncRecord] = {}
 
@@ -100,11 +95,7 @@ def _seed_records(
         key = f'{prefix}key-{i:04d}'
         ts = base_ts + i
 
-        storage.seed(
-            MODEL, key,
-            {'id': key, 'value': i},
-            {'id': ts, 'value': ts},
-        )
+        storage.seed(MODEL, key, {'id': key, 'value': i}, {'id': ts, 'value': ts})
 
         records[key] = storage._records[MODEL][key]
 
@@ -119,20 +110,13 @@ def _fixed_time() -> Any:
 
 
 class _CappedDirectTransport(DirectTransport):
-    def __init__(
-        self,
-        server_engine: DatabaseEngine,
-        exchange_count_max: int = 100,
-    ) -> None:
+    def __init__(self, server_engine: DatabaseEngine, exchange_count_max: int = 100) -> None:
         super().__init__(server_engine)
         self._exchange_count_max = exchange_count_max
 
     def exchange(self, manifest: SyncManifest) -> SyncManifest:
         if len(self.exchanges) >= self._exchange_count_max:
-            message = (
-                f'Sync exceeded {self._exchange_count_max} exchanges '
-                f'without converging'
-            )
+            message = f'Sync exceeded {self._exchange_count_max} exchanges without converging'
 
             raise AssertionError(message)
 
@@ -231,8 +215,7 @@ class TestPaginatedIdempotency:
         tablet.sync()
 
         timestamps_before = {
-            key: dict(record.timestamps)
-            for key, record in tablet_storage._records[MODEL].items()
+            key: dict(record.timestamps) for key, record in tablet_storage._records[MODEL].items()
         }
 
         tablet.sync()
@@ -336,9 +319,7 @@ class TestCheckpointIntegrity:
         new_ts = clock.now()
 
         server_storage.seed(
-            MODEL, 'new-key',
-            {'id': 'new-key', 'value': 999},
-            {'id': new_ts, 'value': new_ts},
+            MODEL, 'new-key', {'id': 'new-key', 'value': 999}, {'id': new_ts, 'value': new_ts}
         )
 
         tablet.sync()
@@ -349,10 +330,7 @@ class TestCheckpointIntegrity:
 
 class TestBatchSizeVariations:
     @pytest.mark.parametrize('batch_size', [1, 3, 7, 13, 50, 100, 200])
-    def test_all_records_arrive_regardless_of_batch_size(
-        self,
-        batch_size: int,
-    ) -> None:
+    def test_all_records_arrive_regardless_of_batch_size(self, batch_size: int) -> None:
         clock = HybridLogicalClock()
 
         server_storage = _make_storage()
@@ -368,10 +346,7 @@ class TestBatchSizeVariations:
         assert len(tablet_storage._records[MODEL]) == 100
 
     @pytest.mark.parametrize('batch_size', [1, 3, 7, 13, 50, 100, 200])
-    def test_resync_is_noop_regardless_of_batch_size(
-        self,
-        batch_size: int,
-    ) -> None:
+    def test_resync_is_noop_regardless_of_batch_size(self, batch_size: int) -> None:
         clock = HybridLogicalClock()
 
         server_storage = _make_storage()
@@ -386,9 +361,8 @@ class TestBatchSizeVariations:
 
         result = tablet.sync()
 
-        total = (
-            sum(len(k) for k in result.applied.values())
-            + sum(len(k) for k in result.created.values())
+        total = sum(len(k) for k in result.applied.values()) + sum(
+            len(k) for k in result.created.values()
         )
 
         assert total == 0
@@ -401,26 +375,26 @@ class TestInterleavedSequenceConvergence:
 
         server_storage = _make_storage([SURVEY, STAKE])
         server_storage.seed(
-            STAKE, 'stake-low',
+            STAKE,
+            'stake-low',
             {'id': 'stake-low', 'survey_id': 'survey-00', 'value': 1},
             {'survey_id': 1000, 'value': 1000},
         )
 
         for i in range(50):
             server_storage.seed(
-                SURVEY, f'survey-{i:02d}',
+                SURVEY,
+                f'survey-{i:02d}',
                 {'id': f'survey-{i:02d}', 'value': i},
                 {'value': 1000 + i + 1},
             )
 
-        server = _make_engine_graph(
-            server_storage, 'server', clock, edges, batch_size=10,
-        )
+        server = _make_engine_graph(server_storage, 'server', clock, edges, batch_size=10)
 
         tablet_storage = _make_storage([SURVEY, STAKE])
         transport = _CappedDirectTransport(server, exchange_count_max=100)
         tablet = _make_engine_graph(
-            tablet_storage, 'tablet', clock, edges, transport, batch_size=10,
+            tablet_storage, 'tablet', clock, edges, transport, batch_size=10
         )
 
         tablet.sync()
@@ -434,19 +408,18 @@ class TestInterleavedSequenceConvergence:
 
         server_storage = _make_storage([SURVEY, STAKE])
         server_storage.seed(
-            STAKE, 'stake-doomed',
+            STAKE,
+            'stake-doomed',
             {'id': 'stake-doomed', 'survey_id': 'survey-00', 'value': 1},
             {'survey_id': 1000, 'value': 1000},
         )
 
-        server = _make_engine_graph(
-            server_storage, 'server', clock, edges, batch_size=10,
-        )
+        server = _make_engine_graph(server_storage, 'server', clock, edges, batch_size=10)
 
         tablet_storage = _make_storage([SURVEY, STAKE])
         transport = _CappedDirectTransport(server, exchange_count_max=100)
         tablet = _make_engine_graph(
-            tablet_storage, 'tablet', clock, edges, transport, batch_size=10,
+            tablet_storage, 'tablet', clock, edges, transport, batch_size=10
         )
 
         tablet.sync()
@@ -458,13 +431,15 @@ class TestInterleavedSequenceConvergence:
 
         for i in range(50):
             server_storage.seed(
-                SURVEY, f'survey-{i:02d}',
+                SURVEY,
+                f'survey-{i:02d}',
                 {'id': f'survey-{i:02d}', 'value': i},
                 {'value': clock.now()},
             )
 
         server_storage.seed(
-            STAKE, 'stake-new',
+            STAKE,
+            'stake-new',
             {'id': 'stake-new', 'survey_id': 'survey-00', 'value': 2},
             {'survey_id': clock.now(), 'value': clock.now()},
         )
@@ -482,10 +457,7 @@ class TestInterleavedSequenceConvergence:
     )
     @settings(max_examples=50, deadline=20_000)
     def test_random_interleaved_sequences_converge(
-        self,
-        seed: int,
-        record_count: int,
-        batch_size: int,
+        self, seed: int, record_count: int, batch_size: int
     ) -> None:
         rng = random.Random(seed)
         clock = HybridLogicalClock()
@@ -500,28 +472,23 @@ class TestInterleavedSequenceConvergence:
             if rng.random() < 0.5:
                 key = f'survey-{survey_count}'
                 survey_count += 1
-                server_storage.seed(
-                    SURVEY, key,
-                    {'id': key, 'value': i},
-                    {'value': clock.now()},
-                )
+                server_storage.seed(SURVEY, key, {'id': key, 'value': i}, {'value': clock.now()})
             else:
                 key = f'stake-{stake_count}'
                 stake_count += 1
                 server_storage.seed(
-                    STAKE, key,
+                    STAKE,
+                    key,
                     {'id': key, 'survey_id': 'survey-0', 'value': i},
                     {'value': clock.now()},
                 )
 
-        server = _make_engine_graph(
-            server_storage, 'server', clock, edges, batch_size=batch_size,
-        )
+        server = _make_engine_graph(server_storage, 'server', clock, edges, batch_size=batch_size)
 
         tablet_storage = _make_storage([SURVEY, STAKE])
         transport = _CappedDirectTransport(server, exchange_count_max=1000)
         tablet = _make_engine_graph(
-            tablet_storage, 'tablet', clock, edges, transport, batch_size=batch_size,
+            tablet_storage, 'tablet', clock, edges, transport, batch_size=batch_size
         )
 
         tablet.sync()
@@ -540,21 +507,20 @@ class TestByteBudgetParentChildOrdering:
     ) -> None:
         for i in range(survey_count):
             storage.seed(
-                SURVEY, f'survey-{i:02d}',
+                SURVEY,
+                f'survey-{i:02d}',
                 {'id': f'survey-{i:02d}', 'value': i, 'blob': 'x' * 500},
                 {'value': clock.now(), 'blob': clock.now()},
             )
 
         storage.seed(
-            STAKE, 'stake-0',
+            STAKE,
+            'stake-0',
             {'id': 'stake-0', 'survey_id': child_parent_key, 'value': 1},
             {'survey_id': clock.now(), 'value': clock.now()},
         )
 
-    def _byte_budget_for_one_parent_plus_child(
-        self,
-        storage: InMemoryDatabaseStorage,
-    ) -> int:
+    def _byte_budget_for_one_parent_plus_child(self, storage: InMemoryDatabaseStorage) -> int:
         survey_size = _record_size(storage._records[SURVEY]['survey-00'])
         stake_size = _record_size(storage._records[STAKE]['stake-0'])
         return survey_size + stake_size + 1
@@ -565,20 +531,19 @@ class TestByteBudgetParentChildOrdering:
 
         server_storage = _make_storage([SURVEY, STAKE])
         self._seed_parent_then_child(
-            server_storage, clock, survey_count=8, child_parent_key='survey-07',
+            server_storage, clock, survey_count=8, child_parent_key='survey-07'
         )
 
         server = _make_engine_graph(
-            server_storage, 'server', clock, edges,
+            server_storage,
+            'server',
+            clock,
+            edges,
             batch_bytes=self._byte_budget_for_one_parent_plus_child(server_storage),
         )
 
         incoming = SyncManifest(
-            node_id='tablet',
-            peer_sequence=0,
-            local_sequence=0,
-            node_time=1000,
-            payloads=[],
+            node_id='tablet', peer_sequence=0, local_sequence=0, node_time=1000, payloads=[]
         )
         incoming.checksum = incoming.compute_checksum()
 
@@ -586,9 +551,7 @@ class TestByteBudgetParentChildOrdering:
         labels = {payload.model_label for payload in response.payloads}
 
         assert SURVEY in labels
-        assert STAKE not in labels, (
-            'child shipped in a round where parent truncated mid-page'
-        )
+        assert STAKE not in labels, 'child shipped in a round where parent truncated mid-page'
         assert response.has_more
 
     def test_child_never_ships_before_parent_across_byte_paginated_pull(self) -> None:
@@ -597,18 +560,25 @@ class TestByteBudgetParentChildOrdering:
 
         server_storage = _make_storage([SURVEY, STAKE])
         self._seed_parent_then_child(
-            server_storage, clock, survey_count=8, child_parent_key='survey-07',
+            server_storage, clock, survey_count=8, child_parent_key='survey-07'
         )
 
         server = _make_engine_graph(
-            server_storage, 'server', clock, edges,
+            server_storage,
+            'server',
+            clock,
+            edges,
             batch_bytes=self._byte_budget_for_one_parent_plus_child(server_storage),
         )
 
         tablet_storage = _make_storage([SURVEY, STAKE])
         transport = _CappedDirectTransport(server, exchange_count_max=500)
         tablet = _make_engine_graph(
-            tablet_storage, 'tablet', clock, edges, transport,
+            tablet_storage,
+            'tablet',
+            clock,
+            edges,
+            transport,
             batch_bytes=self._byte_budget_for_one_parent_plus_child(server_storage),
         )
 
@@ -632,9 +602,7 @@ class TestByteBudgetParentChildOrdering:
                     if parent_key not in delivered_surveys:
                         violations.append((key, parent_key))
 
-        assert not violations, (
-            f'child(ren) shipped before their parent: {violations}'
-        )
+        assert not violations, f'child(ren) shipped before their parent: {violations}'
 
         assert len(tablet_storage._records[SURVEY]) == 8
         assert len(tablet_storage._records[STAKE]) == 1
@@ -645,18 +613,14 @@ class TestByteBudgetParentChildOrdering:
 
         server_storage = _make_storage([SURVEY, STAKE])
         self._seed_parent_then_child(
-            server_storage, clock, survey_count=8, child_parent_key='survey-07',
+            server_storage, clock, survey_count=8, child_parent_key='survey-07'
         )
 
-        server = _make_engine_graph(
-            server_storage, 'server', clock, edges, batch_size=3,
-        )
+        server = _make_engine_graph(server_storage, 'server', clock, edges, batch_size=3)
 
         tablet_storage = _make_storage([SURVEY, STAKE])
         transport = _CappedDirectTransport(server, exchange_count_max=500)
-        tablet = _make_engine_graph(
-            tablet_storage, 'tablet', clock, edges, transport, batch_size=3,
-        )
+        tablet = _make_engine_graph(tablet_storage, 'tablet', clock, edges, transport, batch_size=3)
 
         tablet.sync()
 

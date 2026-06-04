@@ -28,26 +28,17 @@ logger = logging.getLogger(__name__)
 class ReconciliationResult:
     compatible_keys: list[str] = field(default_factory=list)
     conflict_keys: list[str] = field(default_factory=list)
-    conflict_log: list[ConflictEntry] = field(
-        default_factory=list,
-    )
+    conflict_log: list[ConflictEntry] = field(default_factory=list)
     created_keys: set[str] = field(default_factory=set)
     errors: list[Error] = field(default_factory=list)
-    response_records: dict[str, SyncRecord] = field(
-        default_factory=dict,
-    )
+    response_records: dict[str, SyncRecord] = field(default_factory=dict)
     to_clear_tombstones: set[str] = field(default_factory=set)
     to_delete: dict[str, int] = field(default_factory=dict)
-    to_upsert: dict[str, SyncRecord] = field(
-        default_factory=dict,
-    )
+    to_upsert: dict[str, SyncRecord] = field(default_factory=dict)
 
 
 class PayloadReconciler:
-    def __init__(
-        self,
-        resolver: ConflictResolver | None = None,
-    ) -> None:
+    def __init__(self, resolver: ConflictResolver | None = None) -> None:
         self._resolver = resolver or FieldTimestampWins()
 
     def _classify_deletes(
@@ -76,14 +67,13 @@ class PayloadReconciler:
             try:
                 resolution = self._resolver.resolve(conflict)
             except Exception as exception:
-                result.errors.append(Error(
-                    key=key,
-                    message=(
-                        f'Delete conflict resolution failed: '
-                        f'{exception}'
-                    ),
-                    exception=exception,
-                ))
+                result.errors.append(
+                    Error(
+                        key=key,
+                        message=(f'Delete conflict resolution failed: {exception}'),
+                        exception=exception,
+                    )
+                )
 
                 continue
 
@@ -94,8 +84,7 @@ class PayloadReconciler:
                 result.conflict_keys.append(key)
             else:
                 logger.warning(
-                    'Delete conflict for %s:%s resolved '
-                    'with no action (delete=False, record=None)',
+                    'Delete conflict for %s:%s resolved with no action (delete=False, record=None)',
                     payload.model_label,
                     key,
                 )
@@ -112,13 +101,7 @@ class PayloadReconciler:
         if key in local_records:
             local = local_records[key]
 
-            self._resolve_conflict(
-                key,
-                model_label,
-                local,
-                remote,
-                result,
-            )
+            self._resolve_conflict(key, model_label, local, remote, result)
 
             return
 
@@ -133,16 +116,10 @@ class PayloadReconciler:
         result.to_upsert[key] = remote
         result.created_keys.add(key)
 
-    def _detect_field_conflicts(
-        self,
-        local: SyncRecord,
-        remote: SyncRecord,
-    ) -> list[FieldConflict]:
+    def _detect_field_conflicts(self, local: SyncRecord, remote: SyncRecord) -> list[FieldConflict]:
         conflicts: list[FieldConflict] = []
 
-        all_fields = (
-            (set(local.data) | set(remote.data)) - META_FIELDS
-        )
+        all_fields = (set(local.data) | set(remote.data)) - META_FIELDS
 
         for field_name in sorted(all_fields):
             local_value = local.data.get(field_name)
@@ -151,23 +128,19 @@ class PayloadReconciler:
             if local_value == remote_value:
                 continue
 
-            local_timestamp = local.timestamps.get(
-                field_name,
-                0,
-            )
+            local_timestamp = local.timestamps.get(field_name, 0)
 
-            remote_timestamp = remote.timestamps.get(
-                field_name,
-                0,
-            )
+            remote_timestamp = remote.timestamps.get(field_name, 0)
 
-            conflicts.append(FieldConflict(
-                field_name=field_name,
-                local_value=local_value,
-                remote_value=remote_value,
-                local_timestamp=local_timestamp,
-                remote_timestamp=remote_timestamp,
-            ))
+            conflicts.append(
+                FieldConflict(
+                    field_name=field_name,
+                    local_value=local_value,
+                    remote_value=remote_value,
+                    local_timestamp=local_timestamp,
+                    remote_timestamp=remote_timestamp,
+                )
+            )
 
         return conflicts
 
@@ -181,11 +154,7 @@ class PayloadReconciler:
     ) -> None:
         field_conflicts = self._detect_field_conflicts(local, remote)
 
-        conflict_type = (
-            ConflictType.BOTH_MODIFIED
-            if field_conflicts
-            else ConflictType.COMPATIBLE
-        )
+        conflict_type = ConflictType.BOTH_MODIFIED if field_conflicts else ConflictType.COMPATIBLE
 
         conflict = RecordConflict(
             key=key,
@@ -199,11 +168,11 @@ class PayloadReconciler:
         try:
             resolution = self._resolver.resolve(conflict)
         except Exception as exception:
-            result.errors.append(Error(
-                key=key,
-                message=f'Conflict resolution failed: {exception}',
-                exception=exception,
-            ))
+            result.errors.append(
+                Error(
+                    key=key, message=f'Conflict resolution failed: {exception}', exception=exception
+                )
+            )
 
             return
 
@@ -215,10 +184,9 @@ class PayloadReconciler:
             result.conflict_keys.append(key)
 
             if field_conflicts:
-                result.conflict_log.append(ConflictEntry(
-                    conflict=conflict,
-                    resolution_source=resolution.source,
-                ))
+                result.conflict_log.append(
+                    ConflictEntry(conflict=conflict, resolution_source=resolution.source)
+                )
         else:
             result.compatible_keys.append(key)
 
@@ -232,12 +200,7 @@ class PayloadReconciler:
 
         for key, remote in payload.records.items():
             self._classify_record(
-                key,
-                remote,
-                payload.model_label,
-                local_records,
-                local_tombstones,
-                result,
+                key, remote, payload.model_label, local_records, local_tombstones, result
             )
 
         self._classify_deletes(payload, local_records, result)

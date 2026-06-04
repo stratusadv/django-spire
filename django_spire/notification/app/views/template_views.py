@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 
 
 def _infinite_scroll_view(
-    request: WSGIRequest,
-    notification_queryset: QuerySet[AppNotification]
+    request: WSGIRequest, notification_queryset: QuerySet[AppNotification]
 ) -> TemplateResponse:
     body_data = json.loads(request.body.decode('utf-8'))
 
@@ -30,9 +29,7 @@ def _infinite_scroll_view(
         request,
         queryset=notification_queryset,
         queryset_name='notifications',
-        context_data={
-            'app_notification_list_url': body_data.get('app_notification_list_url'),
-        },
+        context_data={'app_notification_list_url': body_data.get('app_notification_list_url')},
         template='django_spire/notification/app/scroll/item/items.html',
     )
 
@@ -59,11 +56,13 @@ def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
     filter_session = SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME)
 
     view = _infinite_scroll_view(request=request, notification_queryset=notifications)
-    view.context_data.update({
-        'filter_session': filter_session,
-        'statuses': NotificationStatusChoices,
-        'priorities': NotificationPriorityChoices,
-    })
+    view.context_data.update(
+        {
+            'filter_session': filter_session,
+            'statuses': NotificationStatusChoices,
+            'priorities': NotificationPriorityChoices,
+        }
+    )
     return view
 
 
@@ -82,9 +81,7 @@ def dropdown_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
         )
 
     view = _infinite_scroll_view(request=request, notification_queryset=notifications)
-    view.context_data.update({
-        'is_dropdown_item': True,
-    })
+    view.context_data.update({'is_dropdown_item': True})
     return view
 
 
@@ -98,7 +95,7 @@ def notification_dropdown_template_view(request: WSGIRequest) -> TemplateRespons
             'app_notification_list_url': body_data.get('app_notification_list_url'),
             'notification_endpoint': reverse(
                 'django_spire:notification:app:template:dropdown_scroll_items'
-            )
+            ),
         },
-        template='django_spire/notification/app/dropdown/notification_dropdown_content.html'
+        template='django_spire/notification/app/dropdown/notification_dropdown_content.html',
     )

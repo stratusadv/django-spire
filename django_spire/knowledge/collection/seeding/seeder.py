@@ -11,21 +11,15 @@ class CollectionSeeder(DjangoModelSeeder):
     fields = {
         'id': 'exclude',
         'parent': 'exclude',
-        'name': (
-            'llm',
-            'A name for a collection of documents. Make it fun and give it a theme'
-        ),
+        'name': ('llm', 'A name for a collection of documents. Make it fun and give it a theme'),
         'description': (
             'llm',
-            'Short description on the what the documents are about, keep it related to the name.'
+            'Short description on the what the documents are about, keep it related to the name.',
         ),
     }
 
     @classmethod
-    def _correct_order(
-        cls,
-        child_collections: list[models.Collection]
-    ) -> list[models.Collection]:
+    def _correct_order(cls, child_collections: list[models.Collection]) -> list[models.Collection]:
         parent_collections = cls.model_class.objects.parentless()
 
         for parent_collection in parent_collections:
@@ -42,8 +36,7 @@ class CollectionSeeder(DjangoModelSeeder):
         return cls._correct_order(
             cls.seed_database(
                 count=count,
-                fields=cls.fields | {
-                    'parent_id': ('custom', 'fk_random', {'model_class': models.Collection})
-                },
+                fields=cls.fields
+                | {'parent_id': ('custom', 'fk_random', {'model_class': models.Collection})},
             )
         )

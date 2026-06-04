@@ -15,7 +15,7 @@ class TestCommentQuerySet(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Test comment'
+            information='Test comment',
         )
 
     def test_active(self) -> None:
@@ -28,7 +28,7 @@ class TestCommentQuerySet(BaseTestCase):
             object_id=self.super_user.pk,
             user=self.super_user,
             information='Deleted comment',
-            is_deleted=True
+            is_deleted=True,
         )
         comments = Comment.objects.active()
         assert comment not in comments
@@ -38,14 +38,14 @@ class TestCommentQuerySet(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Parent'
+            information='Parent',
         )
         child_comment = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             parent=parent_comment,
-            information='Child'
+            information='Child',
         )
         top_level = Comment.objects.top_level()
         assert parent_comment in top_level
@@ -60,14 +60,14 @@ class TestCommentQuerySet(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Parent'
+            information='Parent',
         )
         child_comment = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             parent=parent_comment,
-            information='Child'
+            information='Child',
         )
         comments = Comment.objects.prefetch_parent()
         assert child_comment in comments
@@ -77,7 +77,7 @@ class TestCommentQuerySet(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Parent'
+            information='Parent',
         )
         comments = Comment.objects.prefetch_replies()
         assert parent_comment in comments
@@ -87,14 +87,14 @@ class TestCommentQuerySet(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Parent'
+            information='Parent',
         )
         child_comment = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             parent=parent_comment,
-            information='Child'
+            information='Child',
         )
         comments = Comment.objects.active().top_level().prefetch_user()
         assert parent_comment in comments

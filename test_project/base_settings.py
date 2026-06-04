@@ -12,13 +12,10 @@ env_file = Path(__file__).parent / 'development.env'
 load_dotenv(env_file)
 
 logging.basicConfig(
-    format='[%(asctime)-15s] Django Spire: "%(message)s"',
-    datefmt='%d/%b/%Y %H:%M:%S'
+    format='[%(asctime)-15s] Django Spire: "%(message)s"', datefmt='%d/%b/%Y %H:%M:%S'
 )
 
-ADMINS = [
-    ('Stratus', 'stratus@stratusadv.com')
-]
+ADMINS = [('Stratus', 'stratus@stratusadv.com')]
 
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0,127.0.0.1,localhost').split(',')
@@ -35,7 +32,7 @@ BASE_FOLDER_NAME = 'test-project'
 DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
 
 # Email Settings
-EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 SENDGRID_SANDBOX_MODE_IN_DEBUG = False
@@ -57,15 +54,11 @@ DJANGO_SPIRE_CHANGELOG_MODULE = 'test_project.changelog.changelog.changelog'
 # Maintenance Mode
 MAINTENANCE_MODE = True
 
-INTERNAL_IPS = [
-    '127.0.0.1',
-    'localhost',
-]
+INTERNAL_IPS = ['127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'django_browser_reload',
     'django_watchfiles',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -82,9 +75,7 @@ INSTALLED_APPS += [
     'django_spire.ai.chat',
     'django_spire.ai.context',
     'django_spire.ai.sms',
-
     'django_spire.api',
-
     'django_spire.auth',
     'django_spire.auth.mfa',
     'django_spire.auth.group',
@@ -102,27 +93,22 @@ INSTALLED_APPS += [
     'django_spire.history',
     'django_spire.history.activity',
     'django_spire.history.viewed',
-
     'django_spire.knowledge',
-
     'django_spire.metric',
     'django_spire.metric.report',
-
     'django_spire.notification',
     'django_spire.notification.app',
     'django_spire.notification.email',
     'django_spire.notification.sms',
     'django_spire.notification.push',
-
     'django_spire.contrib.options',
     'django_spire.contrib.ordering',
     'django_spire.contrib.pagination',
-
     'django_spire.theme',
 ]
 
 DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'knowledge': 'test_project.app.knowledge.auth.controller.KnowledgeAuthController',
+    'knowledge': 'test_project.app.knowledge.auth.controller.KnowledgeAuthController'
 }
 
 INSTALLED_APPS += [
@@ -148,10 +134,7 @@ INSTALLED_APPS += [
 
 INSTALLED_APPS += ['django_spire.sync.tests.apps.SyncTestsConfig']
 
-INSTALLED_APPS += [
-    'django_glue',
-    'debug_toolbar',
-]
+INSTALLED_APPS += ['django_glue', 'debug_toolbar']
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -163,7 +146,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
     'django_glue.middleware.DjangoGlueMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
 ]
@@ -184,16 +166,12 @@ SITE_ID = 1
 TIME_ZONE = 'America/Edmonton'
 USE_TZ = True
 
-DEBUG_TOOLBAR_CONFIG = {
-    'INSERT_BEFORE': '</head>',
-}
+DEBUG_TOOLBAR_CONFIG = {'INSERT_BEFORE': '</head>'}
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            str(BASE_DIR / 'test_project/templates'),
-        ],
+        'DIRS': [str(BASE_DIR / 'test_project/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -205,11 +183,10 @@ TEMPLATES = [
                 'django_spire.core.context_processors.theme_context',
                 'test_project.app.core.context_processors.django_spire',
             ],
-            'builtins': [
-            ],
+            'builtins': [],
             'debug': DEBUG,
         },
-    },
+    }
 ]
 
 # Report Registry
@@ -225,9 +202,7 @@ AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
 AWS_S3_REGION_NAME = os.getenv('AWS_REGION_NAME')
 
 AWS_S3_FILE_OVERWRITE = False
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
 
 BASE_FOLDER_NAME = 'django-spire'
 
@@ -246,12 +221,8 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 25 * 1024 * 1024
 
 # Local
 STORAGES = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 
 MEDIA_URL = '/media/'

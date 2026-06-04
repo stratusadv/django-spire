@@ -10,9 +10,11 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% for file_example in file_examples %}
-        {% include 'file/item/list_item.html' %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
+    <div class="card-body">
+        {% for file_example in file_examples %}
+            {% include 'file/item/list_item.html' %}
+        {% empty %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endfor %}
+    </div>
 {% endblock %}

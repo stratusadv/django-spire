@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 
 NO_KNOWLEDGE_ANSWER = 'Sorry, I could not find any information on that.'
 
-NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(
-    text=NO_KNOWLEDGE_ANSWER
-)
+NO_KNOWLEDGE_MESSAGE_INTEL = DefaultMessageIntel(text=NO_KNOWLEDGE_ANSWER)
 
 
 def knowledge_search_workflow(
@@ -32,17 +30,13 @@ def knowledge_search_workflow(
     from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
     entries = list(
-        Entry.services.search
-        .search(
-            query=user_input,
-            use_llm_preprocessing=use_llm_preprocessing,
-        )
+        Entry.services.search.search(query=user_input, use_llm_preprocessing=use_llm_preprocessing)
         .user_has_access(user=request.user)
         .select_related('current_version', 'current_version__author', 'collection')
         .prefetch_related(
             Prefetch(
                 'current_version__blocks',
-                queryset=EntryVersionBlock.objects.active().order_by('order')
+                queryset=EntryVersionBlock.objects.active().order_by('order'),
             )
         )[:max_results]
     )
@@ -51,14 +45,11 @@ def knowledge_search_workflow(
         return NO_KNOWLEDGE_MESSAGE_INTEL
 
     answer_intel_future = KnowledgeAnswerBot(llm_temperature=0.5).process_to_future(
-        user_input=user_input,
-        entries=entries,
-        message_history=message_history,
+        user_input=user_input, entries=entries, message_history=message_history
     )
 
     entries_intel_future = KnowledgeEntriesBot(llm_temperature=0.5).process_to_future(
-        user_input=user_input,
-        entries=entries
+        user_input=user_input, entries=entries
     )
 
     answer_intel = answer_intel_future.result
@@ -67,11 +58,8 @@ def knowledge_search_workflow(
         return NO_KNOWLEDGE_MESSAGE_INTEL
 
     if not answer_intel.is_knowledge_based:
-        return DefaultMessageIntel(
-            text=answer_intel.answer
-        )
+        return DefaultMessageIntel(text=answer_intel.answer)
 
     return KnowledgeMessageIntel(
-        answer_intel=answer_intel,
-        entries_intel=entries_intel_future.result,
+        answer_intel=answer_intel, entries_intel=entries_intel_future.result
     )

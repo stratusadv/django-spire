@@ -15,9 +15,7 @@ class EntryVersionBlockQuerySetTests(BaseTestCase):
 
     def test_format_for_editor(self):
         result = list(
-            EntryVersionBlock.objects
-            .filter(version=self.entry_version)
-            .format_for_editor()
+            EntryVersionBlock.objects.filter(version=self.entry_version).format_for_editor()
         )
         assert len(result) == 2
         assert 'id' in result[0]
@@ -27,9 +25,7 @@ class EntryVersionBlockQuerySetTests(BaseTestCase):
 
     def test_format_for_editor_ordering(self):
         result = list(
-            EntryVersionBlock.objects
-            .filter(version=self.entry_version)
-            .format_for_editor()
+            EntryVersionBlock.objects.filter(version=self.entry_version).format_for_editor()
         )
         assert result[0]['id'] == self.block1.id
         assert result[1]['id'] == self.block2.id

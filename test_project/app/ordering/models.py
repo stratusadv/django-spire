@@ -14,10 +14,7 @@ from test_project.app.ordering.services.service import OrderingService
 class Duck(HistoryModelMixin, OrderingModelMixin):
     name = models.CharField(max_length=100)
 
-    color = models.CharField(
-        max_length=7,
-        default='#ff0000',
-    )
+    color = models.CharField(max_length=7, default='#ff0000')
 
     objects = querysets.OrderingQuerySet().as_manager()
     services = OrderingService()
@@ -29,10 +26,7 @@ class Duck(HistoryModelMixin, OrderingModelMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Ordering',
-            reverse('apps:ordering:page:list')
-        )
+        crumbs.add_breadcrumb('Ordering', reverse('apps:ordering:page:list'))
 
         return crumbs
 
@@ -42,11 +36,7 @@ class Duck(HistoryModelMixin, OrderingModelMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'apps:ordering:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('apps:ordering:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs

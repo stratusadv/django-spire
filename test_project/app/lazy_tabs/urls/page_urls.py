@@ -5,6 +5,4 @@ from test_project.app.lazy_tabs.views import page_views
 
 app_name = 'page'
 
-urlpatterns = [
-    path('demo/', page_views.demo_page_view, name='demo'),
-]
+urlpatterns = [path('demo/', page_views.demo_page_view, name='demo')]

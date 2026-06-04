@@ -9,100 +9,73 @@ from django_spire.core.tests.test_cases import BaseTestCase
 
 class ChatModelTests(BaseTestCase):
     def test_chat_creation(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Test Chat'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Test Chat')
 
         assert chat.name == 'Test Chat'
         assert chat.user == self.super_user
 
     def test_chat_str_short_name(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Short Name'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Short Name')
 
         assert str(chat) == 'Short Name'
 
     def test_chat_str_long_name(self) -> None:
         long_name = 'A' * 100
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name=long_name
-        )
+        chat = Chat.objects.create(user=self.super_user, name=long_name)
 
         assert len(str(chat)) == 51
         assert str(chat).endswith('...')
 
     def test_chat_name_shortened_short(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Short'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Short')
 
         assert chat.name_shortened == 'Short'
 
     def test_chat_name_shortened_long(self) -> None:
         long_name = 'A' * 50
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name=long_name
-        )
+        chat = Chat.objects.create(user=self.super_user, name=long_name)
 
         assert len(chat.name_shortened) == 27
         assert chat.name_shortened.endswith('...')
 
     def test_chat_is_empty(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Empty Chat'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Empty Chat')
 
         assert chat.is_empty
 
     def test_chat_is_not_empty(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Chat with messages'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Chat with messages')
 
         message_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
         chat.add_message_response(message_response)
 
         assert not chat.is_empty
 
     def test_add_message_response(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Test Chat'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Test Chat')
 
         message_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Test message')
+            message_intel=DefaultMessageIntel(text='Test message'),
         )
         chat.add_message_response(message_response)
 
         assert chat.messages.count() == 1
 
     def test_add_message_response_updates_last_message_datetime(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Test Chat'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Test Chat')
 
         initial_datetime = chat.last_message_datetime
 
         message_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Test')
+            message_intel=DefaultMessageIntel(text='Test'),
         )
         chat.add_message_response(message_response)
         chat.refresh_from_db()
@@ -110,42 +83,44 @@ class ChatModelTests(BaseTestCase):
         assert chat.last_message_datetime >= initial_datetime
 
     def test_generate_message_history(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Test Chat'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Test Chat')
 
-        chat.add_message_response(MessageResponse(
-            type=MessageResponseType.REQUEST,
-            sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
-        ))
-        chat.add_message_response(MessageResponse(
-            type=MessageResponseType.RESPONSE,
-            sender='Assistant',
-            message_intel=DefaultMessageIntel(text='Hi there')
-        ))
+        chat.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.REQUEST,
+                sender='User',
+                message_intel=DefaultMessageIntel(text='Hello'),
+            )
+        )
+        chat.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.RESPONSE,
+                sender='Assistant',
+                message_intel=DefaultMessageIntel(text='Hi there'),
+            )
+        )
 
         message_history = chat.generate_message_history()
 
         assert message_history is not None
 
     def test_generate_message_history_exclude_last(self) -> None:
-        chat = Chat.objects.create(
-            user=self.super_user,
-            name='Test Chat'
-        )
+        chat = Chat.objects.create(user=self.super_user, name='Test Chat')
 
-        chat.add_message_response(MessageResponse(
-            type=MessageResponseType.REQUEST,
-            sender='User',
-            message_intel=DefaultMessageIntel(text='Message 1')
-        ))
-        chat.add_message_response(MessageResponse(
-            type=MessageResponseType.REQUEST,
-            sender='User',
-            message_intel=DefaultMessageIntel(text='Message 2')
-        ))
+        chat.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.REQUEST,
+                sender='User',
+                message_intel=DefaultMessageIntel(text='Message 1'),
+            )
+        )
+        chat.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.REQUEST,
+                sender='User',
+                message_intel=DefaultMessageIntel(text='Message 2'),
+            )
+        )
 
         message_history = chat.generate_message_history(exclude_last_message=True)
 
@@ -156,16 +131,13 @@ class ChatMessageModelTests(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.chat = Chat.objects.create(
-            user=self.super_user,
-            name='Test Chat'
-        )
+        self.chat = Chat.objects.create(user=self.super_user, name='Test Chat')
 
     def test_chat_message_str_short(self) -> None:
         message_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Short')
+            message_intel=DefaultMessageIntel(text='Short'),
         )
         self.chat.add_message_response(message_response)
 
@@ -178,7 +150,7 @@ class ChatMessageModelTests(BaseTestCase):
         message_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text=long_text)
+            message_intel=DefaultMessageIntel(text=long_text),
         )
         self.chat.add_message_response(message_response)
 
@@ -191,7 +163,7 @@ class ChatMessageModelTests(BaseTestCase):
         message_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Test intel')
+            message_intel=DefaultMessageIntel(text='Test intel'),
         )
         self.chat.add_message_response(message_response)
 
@@ -204,7 +176,7 @@ class ChatMessageModelTests(BaseTestCase):
         message_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Test')
+            message_intel=DefaultMessageIntel(text='Test'),
         )
         self.chat.add_message_response(message_response)
 
@@ -216,7 +188,7 @@ class ChatMessageModelTests(BaseTestCase):
         message_response = MessageResponse(
             type=MessageResponseType.RESPONSE,
             sender='Assistant',
-            message_intel=DefaultMessageIntel(text='Test')
+            message_intel=DefaultMessageIntel(text='Test'),
         )
         self.chat.add_message_response(message_response)
 
@@ -228,7 +200,7 @@ class ChatMessageModelTests(BaseTestCase):
         original_response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Test')
+            message_intel=DefaultMessageIntel(text='Test'),
         )
         self.chat.add_message_response(original_response)
 
@@ -269,17 +241,14 @@ class ChatMessageQuerySetTests(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.chat = Chat.objects.create(
-            user=self.super_user,
-            name='Test Chat'
-        )
+        self.chat = Chat.objects.create(user=self.super_user, name='Test Chat')
 
     def test_newest_by_count(self) -> None:
         for i in range(25):
             message_response = MessageResponse(
                 type=MessageResponseType.REQUEST,
                 sender='User',
-                message_intel=DefaultMessageIntel(text=f'Message {i}')
+                message_intel=DefaultMessageIntel(text=f'Message {i}'),
             )
             self.chat.add_message_response(message_response)
 
@@ -292,7 +261,7 @@ class ChatMessageQuerySetTests(BaseTestCase):
             message_response = MessageResponse(
                 type=MessageResponseType.REQUEST,
                 sender='User',
-                message_intel=DefaultMessageIntel(text=f'Message {i}')
+                message_intel=DefaultMessageIntel(text=f'Message {i}'),
             )
             self.chat.add_message_response(message_response)
 

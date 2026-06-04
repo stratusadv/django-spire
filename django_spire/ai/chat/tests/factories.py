@@ -9,7 +9,4 @@ if TYPE_CHECKING:
 
 
 def create_test_chat(user: User) -> Chat:
-    return Chat.objects.create(
-        user=user,
-        name='New Exciting Chat!'
-    )
+    return Chat.objects.create(user=user, name='New Exciting Chat!')

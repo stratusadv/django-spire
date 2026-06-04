@@ -22,9 +22,7 @@ class InvalidPhoneNumberError(TwilioError):
 
 class TwilioResponseError(TwilioError):
     def __init__(self, error_code: int | None, error_message: str | None) -> None:
-        super().__init__(
-            f'Twilio Error: code={error_code}, message={error_message}'
-        )
+        super().__init__(f'Twilio Error: code={error_code}, message={error_message}')
 
 
 class TwilioAPIConcurrentError(TwilioError):

@@ -10,44 +10,46 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="row align-items-center">
-        <div class="col">
-            Title
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col">
+                Title
+            </div>
+            <div class="col">
+                Body
+            </div>
+            <div class="col">
+                Status
+            </div>
+            <div class="col">
+                Type
+            </div>
+            <div class="col">
+                To
+            </div>
+            <div class="col">
+                Link
+            </div>
+            <div class="col">
+                Priority
+            </div>
+            <div class="col">
+                Process
+            </div>
+            <div class="col-auto align-self-end">
+                {% include 'django_spire/dropdown/ellipsis_dropdown.html' %}
+            </div>
         </div>
-        <div class="col">
-            Body
-        </div>
-        <div class="col">
-            Status
-        </div>
-        <div class="col">
-            Type
-        </div>
-        <div class="col">
-            To
-        </div>
-        <div class="col">
-            Link
-        </div>
-        <div class="col">
-            Priority
-        </div>
-        <div class="col">
-            Process
-        </div>
-        <div class="col-auto align-self-end">
-            {% include 'django_spire/dropdown/ellipsis_dropdown.html' %}
-        </div>
+        <hr class="m-0 mt-1">
+        {% for notification in notifications %}
+            <div class="row">
+                {% include 'notification/item/list_item.html' %}
+            </div>
+            {% if not forloop.last %}
+                <hr class="m-0 mt-1">
+            {% endif %}
+        {% empty %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endfor %}
     </div>
-    <hr class="m-0 mt-1">
-	{% for notification in notifications %}
-        <div class="row">
-            {% include 'notification/item/list_item.html' %}
-        </div>
-        {% if not forloop.last %}
-            <hr class="m-0 mt-1">
-        {% endif %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
 {% endblock %}

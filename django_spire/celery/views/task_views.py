@@ -49,9 +49,7 @@ def _list_view(
         keys = key_pair.split('|')
         reference_keys_model_keys[keys[0]] = keys[1] if len(keys) == 2 else None
 
-    celery_tasks = CeleryTask.objects.by_reference_keys_model_keys(
-        reference_keys_model_keys
-    )
+    celery_tasks = CeleryTask.objects.by_reference_keys_model_keys(reference_keys_model_keys)
 
     if not request.GET.get('show_all', False):
         celery_tasks = celery_tasks.by_unready()
@@ -64,9 +62,7 @@ def _list_view(
 @login_required
 def task_item_list_view(request: WSGIRequest) -> TemplateResponse:
     data = json.loads(request.body)
-    django_spire_celery_task_key_pairs = data.get(
-        'django_spire_celery_task_key_pairs'
-    )
+    django_spire_celery_task_key_pairs = data.get('django_spire_celery_task_key_pairs')
     template = 'django_spire/celery/item/task_item_list.html'
     return _list_view(request, template, django_spire_celery_task_key_pairs)
 
@@ -74,8 +70,6 @@ def task_item_list_view(request: WSGIRequest) -> TemplateResponse:
 @login_required
 def task_toast_list_view(request: WSGIRequest) -> TemplateResponse:
     data = json.loads(request.body)
-    django_spire_celery_task_key_pairs = data.get(
-        'django_spire_celery_task_key_pairs'
-    )
+    django_spire_celery_task_key_pairs = data.get('django_spire_celery_task_key_pairs')
     template = 'django_spire/celery/toast/task_toast_list.html'
     return _list_view(request, template, django_spire_celery_task_key_pairs)

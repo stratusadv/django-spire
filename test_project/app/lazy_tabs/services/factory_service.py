@@ -13,12 +13,7 @@ if TYPE_CHECKING:
 class LazyTabsFactoryService(BaseDjangoModelService['LazyTabs']):
     obj: LazyTabs
 
-    def save_model_obj(
-        self,
-        user: User,
-        obj: LazyTabs,
-        **kwargs
-    ) -> LazyTabs:
+    def save_model_obj(self, user: User, obj: LazyTabs, **kwargs) -> LazyTabs:
         is_new = not obj.pk
 
         for key, value in kwargs.items():
@@ -29,9 +24,7 @@ class LazyTabsFactoryService(BaseDjangoModelService['LazyTabs']):
         verb = 'created' if is_new else 'updated'
 
         obj.add_activity(
-            user=user,
-            verb=verb,
-            information=f'{user.get_full_name()} {verb} {obj.name}.'
+            user=user, verb=verb, information=f'{user.get_full_name()} {verb} {obj.name}.'
         )
 
         return obj

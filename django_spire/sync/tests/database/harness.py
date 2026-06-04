@@ -7,10 +7,7 @@ from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
 from django_spire.sync.core.clock import HybridLogicalClock
-from django_spire.sync.database.conflict import (
-    ConflictResolver,
-    FieldTimestampWins,
-)
+from django_spire.sync.database.conflict import ConflictResolver, FieldTimestampWins
 from django_spire.sync.database.engine import DatabaseEngine
 from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.manifest import SyncManifest
@@ -72,9 +69,7 @@ class MultiTabletHarness:
             schemas = [
                 ModelSchema(label='app.Parent', fields=['name', 'value']),
                 ModelSchema(
-                    label='app.Child',
-                    fields=['x', 'y', 'is_active'],
-                    dependencies={'app.Parent'},
+                    label='app.Child', fields=['x', 'y', 'is_active'], dependencies={'app.Parent'}
                 ),
             ]
 
@@ -134,11 +129,7 @@ class MultiTabletHarness:
         self.tablet_storages[tablet_id].seed(model_label, key, data, timestamps)
 
     def server_save(
-        self,
-        model_label: str,
-        key: str,
-        data: dict[str, Any],
-        timestamps: dict[str, int],
+        self, model_label: str, key: str, data: dict[str, Any], timestamps: dict[str, int]
     ) -> None:
         self.server_storage.seed(model_label, key, data, timestamps)
 
@@ -153,25 +144,13 @@ class MultiTabletHarness:
         for _ in range(rounds):
             self.sync_all()
 
-    def tablet_record(
-        self,
-        tablet_id: str,
-        model_label: str,
-        key: str,
-    ) -> SyncRecord | None:
+    def tablet_record(self, tablet_id: str, model_label: str, key: str) -> SyncRecord | None:
         return self.tablet_storages[tablet_id]._records[model_label].get(key)
 
-    def server_record(
-        self,
-        model_label: str,
-        key: str,
-    ) -> SyncRecord | None:
+    def server_record(self, model_label: str, key: str) -> SyncRecord | None:
         return self.server_storage._records[model_label].get(key)
 
-    def all_tablet_records(
-        self,
-        model_label: str,
-    ) -> dict[str, dict[str, SyncRecord]]:
+    def all_tablet_records(self, model_label: str) -> dict[str, dict[str, SyncRecord]]:
         return {
             tablet_id: dict(storage._records[model_label])
             for tablet_id, storage in self.tablet_storages.items()
@@ -181,10 +160,7 @@ class MultiTabletHarness:
         return dict(self.server_storage._records[model_label])
 
     def generate_record(
-        self,
-        model_label: str,
-        key: str,
-        ts: int | None = None,
+        self, model_label: str, key: str, ts: int | None = None
     ) -> tuple[dict[str, Any], dict[str, int]]:
         if ts is None:
             ts = self.ts()
@@ -200,11 +176,7 @@ class MultiTabletHarness:
         return data, timestamps
 
     def seed_records(
-        self,
-        model_label: str,
-        count: int,
-        target: str = 'server',
-        key_prefix: str = '',
+        self, model_label: str, count: int, target: str = 'server', key_prefix: str = ''
     ) -> list[str]:
         keys = []
 
@@ -227,9 +199,7 @@ class MultiTabletHarness:
             server_keys = set(self.server_storage._records[label].keys())
 
             for tablet_id in self.tablet_ids:
-                tablet_keys = set(
-                    self.tablet_storages[tablet_id]._records[label].keys()
-                )
+                tablet_keys = set(self.tablet_storages[tablet_id]._records[label].keys())
 
                 assert tablet_keys == server_keys, (
                     f'{tablet_id} key mismatch for {label}: '
@@ -268,14 +238,10 @@ class MultiTabletHarness:
                 schema = self.schemas[model_label]
 
                 fields_to_update = self.rng.sample(
-                    schema.fields,
-                    k=self.rng.randint(1, len(schema.fields)),
+                    schema.fields, k=self.rng.randint(1, len(schema.fields))
                 )
 
-                storage = (
-                    self.server_storage if side == 'server'
-                    else self.tablet_storages[side]
-                )
+                storage = self.server_storage if side == 'server' else self.tablet_storages[side]
 
                 existing = storage._records[model_label].get(key)
 
@@ -299,15 +265,10 @@ class MultiTabletHarness:
         if field_name.startswith('is_'):
             return self.rng.choice([True, False])
 
-        if any(
-            field_name.endswith(suffix)
-            for suffix in ('latitude', 'longitude', 'x', 'y')
-        ):
+        if any(field_name.endswith(suffix) for suffix in ('latitude', 'longitude', 'x', 'y')):
             return round(self.rng.uniform(-180.0, 180.0), 6)
 
         if field_name in ('value', 'count', 'elevation', 'spacing'):
             return self.rng.randint(0, 1000)
 
-        return ''.join(
-            self.rng.choices(string.ascii_lowercase, k=self.rng.randint(3, 10))
-        )
+        return ''.join(self.rng.choices(string.ascii_lowercase, k=self.rng.randint(3, 10)))

@@ -8,10 +8,7 @@ from django.db import transaction
 
 from django_spire.sync.file.bidirectional import BidirectionalEngine
 from django_spire.sync.file.engine import Engine
-from django_spire.sync.file.exceptions import (
-    FileSyncConfigError,
-    FileSyncSourceNotFoundError,
-)
+from django_spire.sync.file.exceptions import FileSyncConfigError, FileSyncSourceNotFoundError
 from django_spire.sync.file.storage import DjangoModelStorage
 
 if TYPE_CHECKING:
@@ -31,11 +28,7 @@ class FileSyncServiceMixin:
     sync_reader: Reader | None = None
     sync_writer: Writer | None = None
 
-    def build_storage(
-        self,
-        scope: Any,
-        baseline_path: Path | None = None,
-    ) -> DjangoModelStorage:
+    def build_storage(self, scope: Any, baseline_path: Path | None = None) -> DjangoModelStorage:
         return DjangoModelStorage(
             model_label=self.sync_config.model_label,
             identity_field=self.sync_config.identity_field,
@@ -46,9 +39,7 @@ class FileSyncServiceMixin:
             timestamp_field=self.sync_config.timestamp_field,
         )
 
-    def build_unidirectional_engine(
-        self, storage: DjangoModelStorage,
-    ) -> Engine:
+    def build_unidirectional_engine(self, storage: DjangoModelStorage) -> Engine:
         return Engine(
             storage=storage,
             identity_field=self.sync_config.identity_field,
@@ -56,9 +47,7 @@ class FileSyncServiceMixin:
             transaction=transaction.atomic,
         )
 
-    def build_bidirectional_engine(
-        self, storage: DjangoModelStorage,
-    ) -> BidirectionalEngine:
+    def build_bidirectional_engine(self, storage: DjangoModelStorage) -> BidirectionalEngine:
         return BidirectionalEngine(
             storage=storage,
             identity_field=self.sync_config.identity_field,
@@ -73,10 +62,7 @@ class FileSyncServiceMixin:
             raise FileSyncConfigError(message)
 
         if require_writer and self.sync_writer is None:
-            message = (
-                f'{type(self).__name__}.sync_writer must be set '
-                f'for bidirectional sync'
-            )
+            message = f'{type(self).__name__}.sync_writer must be set for bidirectional sync'
 
             raise FileSyncConfigError(message)
 
@@ -89,31 +75,20 @@ class FileSyncServiceMixin:
 
         return path
 
-    def sync_bidirectional(
-        self, scope: Any, directory: Path,
-    ) -> BidirectionalResult:
+    def sync_bidirectional(self, scope: Any, directory: Path) -> BidirectionalResult:
         self._validate_io(require_writer=True)
 
         path = self._resolve_path(directory)
 
         logger.info('Starting bidirectional sync from %s', path)
 
-        storage = self.build_storage(
-            scope=scope,
-            baseline_path=directory / 'baseline_hashes.json',
-        )
+        storage = self.build_storage(scope=scope, baseline_path=directory / 'baseline_hashes.json')
 
         engine = self.build_bidirectional_engine(storage)
 
-        return engine.sync(
-            path,
-            reader=self.sync_reader,
-            writer=self.sync_writer,
-        )
+        return engine.sync(path, reader=self.sync_reader, writer=self.sync_writer)
 
-    def sync_unidirectional(
-        self, scope: Any, directory: Path,
-    ) -> Result:
+    def sync_unidirectional(self, scope: Any, directory: Path) -> Result:
         self._validate_io()
 
         path = self._resolve_path(directory)

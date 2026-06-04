@@ -1,6 +1,7 @@
 """
 Tests for the RestSchema class.
 """
+
 from django.test import TestCase
 
 from django_spire.contrib.rest import RestSchemaSet
@@ -28,7 +29,7 @@ class TestRestSchema(TestCase):
 
         self.assertIsNotNone(user)
         self.assertIsInstance(user, UserSchema)
-        self.assertEqual(user.firstName, "Emily")
+        self.assertEqual(user.firstName, 'Emily')
 
     def test_objects_filter(self):
         """Test .objects.filter() with lambda."""
@@ -60,8 +61,7 @@ class TestRestSchema(TestCase):
     def test_objects_chaining(self):
         """Test method chaining."""
         users = list(
-            UserSchema.objects
-            .limit(10)
+            UserSchema.objects.limit(10)
             .filter(lambda u: u.firstName is not None)
             .order_by('firstName')
             .limit(3)
@@ -95,7 +95,7 @@ class TestRestSchema(TestCase):
         user = UserSchema.objects.limit(10)[0]
 
         self.assertIsInstance(user, UserSchema)
-        self.assertEqual(user.firstName, "Emily")
+        self.assertEqual(user.firstName, 'Emily')
 
     def test_objects_slicing(self):
         """Test queryset slicing."""

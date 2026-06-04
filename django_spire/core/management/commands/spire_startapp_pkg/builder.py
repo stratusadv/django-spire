@@ -28,11 +28,7 @@ class TemplateBuilder:
         self._reporter = reporter
 
     def build_app_tree_structure(
-        self,
-        base: Path,
-        components: list[str],
-        registry: list[str],
-        template: Path
+        self, base: Path, components: list[str], registry: list[str], template: Path
     ) -> None:
         """
         Displays a tree structure of the app files that will be created.
@@ -57,11 +53,7 @@ class TemplateBuilder:
         )
 
     def build_html_tree_structure(
-        self,
-        base: Path,
-        components: list[str],
-        registry: list[str],
-        template: Path
+        self, base: Path, components: list[str], registry: list[str], template: Path
     ) -> None:
         """
         Displays a tree structure of the HTML template files that will be created.

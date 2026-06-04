@@ -25,10 +25,7 @@ class LazyTabs(ActivityMixin, HistoryModelMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Lazy Tabs',
-            reverse('lazy_tabs:page:demo')
-        )
+        crumbs.add_breadcrumb('Lazy Tabs', reverse('lazy_tabs:page:demo'))
 
         return crumbs
 
@@ -37,13 +34,7 @@ class LazyTabs(ActivityMixin, HistoryModelMixin):
         crumbs.add_base_breadcrumb(self._meta.model)
 
         if self.pk:
-            crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'lazy_tabs:page:demo',
-                    kwargs={'pk': self.pk}
-                )
-            )
+            crumbs.add_breadcrumb(str(self), reverse('lazy_tabs:page:demo', kwargs={'pk': self.pk}))
 
         return crumbs
 

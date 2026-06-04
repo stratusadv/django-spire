@@ -3,11 +3,7 @@ from __future__ import annotations
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from django_spire.sync.database.conflict import (
-    RecordConflict,
-    RecordResolution,
-    ResolutionSource,
-)
+from django_spire.sync.database.conflict import RecordConflict, RecordResolution, ResolutionSource
 from django_spire.sync.database.manifest import ModelPayload
 from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.database.record import SyncRecord
@@ -17,40 +13,26 @@ from django_spire.sync.tests.database.strategies import reconciler_scenario
 class TestReconcilerInvariants:
     @given(scenario=reconciler_scenario())
     @settings(max_examples=200, deadline=5_000)
-    def test_new_records_always_created(
-        self,
-        scenario: tuple[dict, dict, dict],
-    ) -> None:
+    def test_new_records_always_created(self, scenario: tuple[dict, dict, dict]) -> None:
         local_records, remote_records, local_tombstones = scenario
 
         remote_only_keys = set(remote_records.keys()) - set(local_records.keys())
 
-        payload = ModelPayload(
-            model_label='app.Model',
-            records=remote_records,
-        )
+        payload = ModelPayload(model_label='app.Model', records=remote_records)
 
         reconciler = PayloadReconciler()
         result = reconciler.reconcile(payload, local_records, local_tombstones)
 
         for key in remote_only_keys:
-            assert key in result.created_keys, (
-                f'Key {key!r} is remote-only but was not created'
-            )
+            assert key in result.created_keys, f'Key {key!r} is remote-only but was not created'
             assert key in result.to_upsert
 
     @given(scenario=reconciler_scenario())
     @settings(max_examples=200, deadline=5_000)
-    def test_all_remote_keys_accounted_for(
-        self,
-        scenario: tuple[dict, dict, dict],
-    ) -> None:
+    def test_all_remote_keys_accounted_for(self, scenario: tuple[dict, dict, dict]) -> None:
         local_records, remote_records, local_tombstones = scenario
 
-        payload = ModelPayload(
-            model_label='app.Model',
-            records=remote_records,
-        )
+        payload = ModelPayload(model_label='app.Model', records=remote_records)
 
         reconciler = PayloadReconciler()
         result = reconciler.reconcile(payload, local_records, local_tombstones)
@@ -64,22 +46,15 @@ class TestReconcilerInvariants:
 
         for key in remote_records:
             assert key in accounted, (
-                f'Key {key!r} was in remote records but not accounted '
-                f'for in any result category'
+                f'Key {key!r} was in remote records but not accounted for in any result category'
             )
 
     @given(scenario=reconciler_scenario())
     @settings(max_examples=200, deadline=5_000)
-    def test_no_key_appears_in_multiple_categories(
-        self,
-        scenario: tuple[dict, dict, dict],
-    ) -> None:
+    def test_no_key_appears_in_multiple_categories(self, scenario: tuple[dict, dict, dict]) -> None:
         local_records, remote_records, local_tombstones = scenario
 
-        payload = ModelPayload(
-            model_label='app.Model',
-            records=remote_records,
-        )
+        payload = ModelPayload(model_label='app.Model', records=remote_records)
 
         reconciler = PayloadReconciler()
         result = reconciler.reconcile(payload, local_records, local_tombstones)
@@ -94,30 +69,22 @@ class TestReconcilerInvariants:
             for j, set_b in enumerate(all_sets):
                 if i != j:
                     overlap = set_a & set_b
-                    assert not overlap, (
-                        f'Keys {overlap} appear in multiple categories'
-                    )
+                    assert not overlap, f'Keys {overlap} appear in multiple categories'
 
     @given(scenario=reconciler_scenario())
     @settings(max_examples=200, deadline=5_000)
     def test_upsert_keys_are_subset_of_created_plus_resolved(
-        self,
-        scenario: tuple[dict, dict, dict],
+        self, scenario: tuple[dict, dict, dict]
     ) -> None:
         local_records, remote_records, local_tombstones = scenario
 
-        payload = ModelPayload(
-            model_label='app.Model',
-            records=remote_records,
-        )
+        payload = ModelPayload(model_label='app.Model', records=remote_records)
 
         reconciler = PayloadReconciler()
         result = reconciler.reconcile(payload, local_records, local_tombstones)
 
         expected_upsert_sources = (
-            result.created_keys
-            | set(result.conflict_keys)
-            | set(result.compatible_keys)
+            result.created_keys | set(result.conflict_keys) | set(result.compatible_keys)
         )
 
         for key in result.to_upsert:
@@ -125,14 +92,9 @@ class TestReconcilerInvariants:
                 f'Key {key!r} is in to_upsert but not in any source category'
             )
 
-    @given(
-        num_keys=st.integers(min_value=1, max_value=5),
-    )
+    @given(num_keys=st.integers(min_value=1, max_value=5))
     @settings(max_examples=100, deadline=5_000)
-    def test_delete_of_unchanged_record_is_accepted(
-        self,
-        num_keys: int,
-    ) -> None:
+    def test_delete_of_unchanged_record_is_accepted(self, num_keys: int) -> None:
         local_records: dict[str, SyncRecord] = {}
         deletes: dict[str, int] = {}
 
@@ -141,17 +103,11 @@ class TestReconcilerInvariants:
             local_ts = 40
 
             local_records[key] = SyncRecord(
-                key=key,
-                data={'id': key, 'name': f'record-{i}'},
-                timestamps={'name': local_ts},
+                key=key, data={'id': key, 'name': f'record-{i}'}, timestamps={'name': local_ts}
             )
             deletes[key] = 50
 
-        payload = ModelPayload(
-            model_label='app.Model',
-            records={},
-            deletes=deletes,
-        )
+        payload = ModelPayload(model_label='app.Model', records={}, deletes=deletes)
 
         reconciler = PayloadReconciler()
         result = reconciler.reconcile(payload, local_records, {})
@@ -164,10 +120,7 @@ class TestReconcilerInvariants:
 
     @given(scenario=reconciler_scenario())
     @settings(max_examples=100, deadline=5_000)
-    def test_delete_of_nonexistent_key_is_noop(
-        self,
-        scenario: tuple[dict, dict, dict],
-    ) -> None:
+    def test_delete_of_nonexistent_key_is_noop(self, scenario: tuple[dict, dict, dict]) -> None:
         local_records, _, local_tombstones = scenario
 
         phantom_keys = {f'phantom-{i}' for i in range(3)}
@@ -177,11 +130,7 @@ class TestReconcilerInvariants:
 
         deletes = dict.fromkeys(phantom_keys, 99999)
 
-        payload = ModelPayload(
-            model_label='app.Model',
-            records={},
-            deletes=deletes,
-        )
+        payload = ModelPayload(model_label='app.Model', records={}, deletes=deletes)
 
         reconciler = PayloadReconciler()
         result = reconciler.reconcile(payload, local_records, local_tombstones)
@@ -200,18 +149,10 @@ class _ExplodingDeleteResolver:
 
 def test_delete_conflict_resolver_exception_recorded() -> None:
     local_records = {
-        '1': SyncRecord(
-            key='1',
-            data={'id': '1', 'name': 'modified'},
-            timestamps={'name': 150},
-        ),
+        '1': SyncRecord(key='1', data={'id': '1', 'name': 'modified'}, timestamps={'name': 150})
     }
 
-    payload = ModelPayload(
-        model_label='app.Model',
-        records={},
-        deletes={'1': 100},
-    )
+    payload = ModelPayload(model_label='app.Model', records={}, deletes={'1': 100})
 
     reconciler = PayloadReconciler(resolver=_ExplodingDeleteResolver())
     result = reconciler.reconcile(payload, local_records, {})
@@ -225,27 +166,15 @@ class _DeleteAcceptResolver:
     def resolve(self, conflict: RecordConflict) -> RecordResolution:
         _ = conflict
 
-        return RecordResolution(
-            record=None,
-            source=ResolutionSource.REMOTE,
-            delete=True,
-        )
+        return RecordResolution(record=None, source=ResolutionSource.REMOTE, delete=True)
 
 
 def test_delete_conflict_resolver_accepts_delete() -> None:
     local_records = {
-        '1': SyncRecord(
-            key='1',
-            data={'id': '1', 'name': 'modified'},
-            timestamps={'name': 150},
-        ),
+        '1': SyncRecord(key='1', data={'id': '1', 'name': 'modified'}, timestamps={'name': 150})
     }
 
-    payload = ModelPayload(
-        model_label='app.Model',
-        records={},
-        deletes={'1': 100},
-    )
+    payload = ModelPayload(model_label='app.Model', records={}, deletes={'1': 100})
 
     reconciler = PayloadReconciler(resolver=_DeleteAcceptResolver())
     result = reconciler.reconcile(payload, local_records, {})
@@ -256,27 +185,15 @@ def test_delete_conflict_resolver_accepts_delete() -> None:
 
 class _DeleteRejectResolver:
     def resolve(self, conflict: RecordConflict) -> RecordResolution:
-        return RecordResolution(
-            record=conflict.local,
-            source=ResolutionSource.LOCAL,
-            delete=False,
-        )
+        return RecordResolution(record=conflict.local, source=ResolutionSource.LOCAL, delete=False)
 
 
 def test_delete_conflict_resolver_keeps_record() -> None:
-    local = SyncRecord(
-        key='1',
-        data={'id': '1', 'name': 'keep-me'},
-        timestamps={'name': 150},
-    )
+    local = SyncRecord(key='1', data={'id': '1', 'name': 'keep-me'}, timestamps={'name': 150})
 
     local_records = {'1': local}
 
-    payload = ModelPayload(
-        model_label='app.Model',
-        records={},
-        deletes={'1': 100},
-    )
+    payload = ModelPayload(model_label='app.Model', records={}, deletes={'1': 100})
 
     reconciler = PayloadReconciler(resolver=_DeleteRejectResolver())
     result = reconciler.reconcile(payload, local_records, {})
@@ -287,11 +204,7 @@ def test_delete_conflict_resolver_keeps_record() -> None:
 
 
 def test_delete_nonexistent_key_skipped() -> None:
-    payload = ModelPayload(
-        model_label='app.Model',
-        records={},
-        deletes={'ghost': 500},
-    )
+    payload = ModelPayload(model_label='app.Model', records={}, deletes={'ghost': 500})
 
     reconciler = PayloadReconciler()
     result = reconciler.reconcile(payload, {}, {})
@@ -302,18 +215,10 @@ def test_delete_nonexistent_key_skipped() -> None:
 
 def test_delete_unchanged_record_accepted() -> None:
     local_records = {
-        '1': SyncRecord(
-            key='1',
-            data={'id': '1', 'name': 'old'},
-            timestamps={'name': 50},
-        ),
+        '1': SyncRecord(key='1', data={'id': '1', 'name': 'old'}, timestamps={'name': 50})
     }
 
-    payload = ModelPayload(
-        model_label='app.Model',
-        records={},
-        deletes={'1': 100},
-    )
+    payload = ModelPayload(model_label='app.Model', records={}, deletes={'1': 100})
 
     reconciler = PayloadReconciler()
     result = reconciler.reconcile(payload, local_records, {})

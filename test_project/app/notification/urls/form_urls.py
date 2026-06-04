@@ -4,6 +4,4 @@ from test_project.app.notification.views import form_views
 
 app_name = 'form'
 
-urlpatterns = [
-    path('<int:pk>/form/', form_views.notification_form_view, name='update')
-]
+urlpatterns = [path('<int:pk>/form/', form_views.notification_form_view, name='update')]

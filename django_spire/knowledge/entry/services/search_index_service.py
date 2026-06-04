@@ -27,10 +27,7 @@ class EntrySearchIndexService(BaseDjangoModelService['Entry']):
             if text and text != '\n':
                 words.append(text)
 
-        words.extend(
-            tag.name
-            for tag in self.obj.tags.all()
-        )
+        words.extend(tag.name for tag in self.obj.tags.all())
 
         self.obj._search_text = '\n'.join(words)
         self.obj.save(update_fields=['_search_text'])
@@ -40,8 +37,8 @@ class EntrySearchIndexService(BaseDjangoModelService['Entry']):
 
             self.obj_class.objects.filter(pk=self.obj.pk).update(
                 _search_vector=(
-                    SearchVector('name', weight='A', config='english') +
-                    SearchVector('_search_text', weight='B', config='english')
+                    SearchVector('name', weight='A', config='english')
+                    + SearchVector('_search_text', weight='B', config='english')
                 )
             )
 
@@ -50,8 +47,7 @@ class EntrySearchIndexService(BaseDjangoModelService['Entry']):
         from django_spire.knowledge.entry.models import Entry
 
         entries = (
-            Entry.objects
-            .active()
+            Entry.objects.active()
             .has_current_version()
             .select_related('current_version')
             .prefetch_related('current_version__blocks', 'tags')

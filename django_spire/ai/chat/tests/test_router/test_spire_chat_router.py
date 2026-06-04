@@ -30,9 +30,7 @@ class TestSpireChatRouter(BaseTestCase):
         self.request.user.has_perm.return_value = False
 
         result = router._default_chat_callable(
-            request=self.request,
-            user_input='Hello',
-            message_history=None
+            request=self.request, user_input='Hello', message_history=None
         )
 
         assert isinstance(result, DefaultMessageIntel)
@@ -41,25 +39,23 @@ class TestSpireChatRouter(BaseTestCase):
     def test_default_chat_callable_calls_knowledge_workflow_with_permission(self) -> None:
         router = SpireChatRouter()
 
-        with patch('django_spire.knowledge.intelligence.workflows.knowledge_workflow.knowledge_search_workflow') as mock_workflow:
+        with patch(
+            'django_spire.knowledge.intelligence.workflows.knowledge_workflow.knowledge_search_workflow'
+        ) as mock_workflow:
             mock_workflow.return_value = DefaultMessageIntel(text='Knowledge response')
 
             result = router._default_chat_callable(
-                request=self.request,
-                user_input='Hello',
-                message_history=None
+                request=self.request, user_input='Hello', message_history=None
             )
 
             mock_workflow.assert_called_once_with(
-                request=self.request,
-                user_input='Hello',
-                message_history=None
+                request=self.request, user_input='Hello', message_history=None
             )
 
             assert isinstance(result, DefaultMessageIntel)
 
     # def test_workflow_uses_intent_decoder(self) -> None:
-        # Todo(brayden) here is another place the decoder tests need to be updated.
+    # Todo(brayden) here is another place the decoder tests need to be updated.
     #     router = SpireChatRouter()
     #
     #     with patch('django_spire.ai.chat.router.generate_intent_decoder') as mock_decoder:

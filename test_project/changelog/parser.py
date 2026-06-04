@@ -66,7 +66,9 @@ def _parse_md_file(file_path: Path) -> list[ChangelogEntry]:
                 primary_type = section_type
 
             section_start = section_match.end()
-            section_end = section_matches[j + 1].start() if j + 1 < len(section_matches) else len(block)
+            section_end = (
+                section_matches[j + 1].start() if j + 1 < len(section_matches) else len(block)
+            )
             section_content = block[section_start:section_end]
 
             for line in section_content.splitlines():
@@ -83,12 +85,9 @@ def _parse_md_file(file_path: Path) -> list[ChangelogEntry]:
                 if description:
                     changes.append(Change(app=section_name, description=description))
 
-        entries.append(ChangelogEntry(
-            version=version,
-            date=date.today(),
-            type=primary_type,
-            changes=changes,
-        ))
+        entries.append(
+            ChangelogEntry(version=version, date=date.today(), type=primary_type, changes=changes)
+        )
 
     return entries
 

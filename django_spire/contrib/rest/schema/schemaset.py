@@ -1,13 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod, ABC
-from typing import (
-    TypeVar,
-    Generic,
-    Iterator,
-    Callable,
-    Any, Self, TYPE_CHECKING, Sequence,
-)
+from typing import TypeVar, Generic, Iterator, Callable, Any, Self, TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
     from django_spire.contrib.rest import RestSchema, BaseRestHttpConnector
@@ -41,10 +35,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         self._offset = _offset
         self._cached_results = _cached_results
 
-    def _clone(
-        self,
-        **overrides
-    ) -> Self:
+    def _clone(self, **overrides) -> Self:
         return self.__class__(
             schema_class=self.schema_class,
             _request_params=overrides.get('_request_params', self._request_params),
@@ -65,13 +56,14 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         else:
             results = self._read_many()
 
-
         if not isinstance(results, Sequence) or isinstance(results, str):
             message = f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}'
             raise ValueError(message)
 
         if results and not isinstance(results[0], self.schema_class):
-            raise ValueError(f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}')
+            raise ValueError(
+                f'_read_many for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return a list of {self.schema_class.__name__}'
+            )
 
         # Apply filters
         for fn in self._filters:
@@ -87,9 +79,9 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
         # Apply offset/limit
         if self._offset:
-            results = results[self._offset:]
+            results = results[self._offset :]
         if self._limit is not None:
-            results = results[:self._limit]
+            results = results[: self._limit]
 
         self._cached_results = results
         return results
@@ -140,7 +132,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
     def __repr__(self) -> str:
         name = self.schema_class.__name__ if self.schema_class else 'Unknown'
-        return f"<RestSchemaSet [{name}]>"
+        return f'<RestSchemaSet [{name}]>'
 
     def __getitem__(self, key: int | slice) -> TSchema | Self:
         if isinstance(key, int):
@@ -148,7 +140,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
                 return self._evaluate()[key]
             result = self.offset(key).limit(1).first()
             if result is None:
-                raise IndexError("RestSchemaQuerySet index out of range")
+                raise IndexError('RestSchemaQuerySet index out of range')
             return result
         elif isinstance(key, slice):
             clone = self
@@ -158,32 +150,20 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             if key.stop is not None:
                 clone = clone.limit(key.stop - start)
             return clone
-        raise TypeError(f"Invalid index type: {type(key)}")
+        raise TypeError(f'Invalid index type: {type(key)}')
 
-    def with_request_params(
-        self,
-        **kwargs,
-    ) -> Self:
+    def with_request_params(self, **kwargs) -> Self:
         """Set or merge request parameters for downstream API calls."""
         if self._request_params:
-            kwargs = {
-                **self._request_params,
-                **kwargs
-            }
+            kwargs = {**self._request_params, **kwargs}
 
         return self._clone(_request_params=kwargs)
 
-    def all(
-        self,
-    ) -> Self:
+    def all(self) -> Self:
         """Return a clone of the schema set with all results."""
         return self._clone()
 
-    def filter(
-        self,
-        predicate: Callable[[TSchema], bool] | None = None,
-        **kwargs,
-    ) -> Self:
+    def filter(self, predicate: Callable[[TSchema], bool] | None = None, **kwargs) -> Self:
         """
         Filter results by predicate and/or field lookups.
 
@@ -199,11 +179,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             new_filters.append(self._make_predicate(key, value))
         return self._clone(_filters=new_filters)
 
-    def exclude(
-        self,
-        predicate: Callable[[TSchema], bool] | None = None,
-        **kwargs,
-    ) -> Self:
+    def exclude(self, predicate: Callable[[TSchema], bool] | None = None, **kwargs) -> Self:
         """Exclude results matching predicate or field lookups."""
         new_excludes = list(self._excludes)
         if predicate:
@@ -254,10 +230,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         """Return True if there is at least one result."""
         return bool(self)
 
-    def get(
-        self,
-        **kwargs,
-    ) -> TSchema:
+    def get(self, **kwargs) -> TSchema:
         """
         Return exactly one result matching kwargs.
         Raises LookupError if zero or multiple results.
@@ -273,11 +246,12 @@ class RestSchemaSet(ABC, Generic[TSchema]):
                     result = self._read_one()
 
                 if result is None:
-                    raise LookupError(f"No {schema_name} found")
+                    raise LookupError(f'No {schema_name} found')
 
                 if result and not isinstance(result, self.schema_class):
                     raise ValueError(
-                        f'_read_one for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return an instance of {self.schema_class.__name__}')
+                        f'_read_one for RestSchemaSet subclass {self.__class__.__name__} returned invalid type. It must return an instance of {self.schema_class.__name__}'
+                    )
 
                 return result
 
@@ -286,21 +260,21 @@ class RestSchemaSet(ABC, Generic[TSchema]):
 
         results = list(self.filter(**kwargs) if kwargs else self)
         if len(results) == 0:
-            raise LookupError(f"No {schema_name} found")
+            raise LookupError(f'No {schema_name} found')
         if len(results) > 1:
-            raise LookupError(f"Multiple {schema_name} found")
+            raise LookupError(f'Multiple {schema_name} found')
         return results[0]
 
     def values_list(self, *fields: str, flat: bool = False) -> list[tuple] | list[Any]:
         """Extract field values from results."""
         if flat and len(fields) != 1:
-            raise ValueError("flat=True requires exactly one field")
+            raise ValueError('flat=True requires exactly one field')
 
         results = self._evaluate()
         if flat:
             return [self._get_attr(item, fields[0]) for item in results]
         return [tuple(self._get_attr(item, f) for f in fields) for item in results]
-    
+
     @abstractmethod
     def _read_many(self, **request_params) -> list[TSchema]:
         raise NotImplementedError

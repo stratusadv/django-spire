@@ -12,10 +12,7 @@ class ReportRegistry:
         for report_registry in self.report_registries:
             self.add_registry(report_registry)
 
-    def add_registry(
-            self,
-            report_registry: Self
-    ):
+    def add_registry(self, report_registry: Self):
         if report_registry.category is None:
             message = 'Report Registry category is required'
             raise ValueError(message)

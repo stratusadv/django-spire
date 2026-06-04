@@ -9,7 +9,9 @@ from markitdown import MarkItDown
 from django_spire.knowledge.entry.version.consts import MARKDOWN_AI_CHUNK_SIZE
 from django_spire.knowledge.entry.version.converters.converter import BaseConverter
 from django_spire.knowledge.entry.version.converters.markdown_converter import MarkdownConverter
-from django_spire.knowledge.entry.version.intelligence.bots.markdown_format_llm_bot import MarkdownFormatLlmBot
+from django_spire.knowledge.entry.version.intelligence.bots.markdown_format_llm_bot import (
+    MarkdownFormatLlmBot,
+)
 
 if TYPE_CHECKING:
     from django_spire.file.models import File
@@ -37,17 +39,14 @@ class DocxConverter(BaseConverter):
     @staticmethod
     def improve_markdown_structure(markdown_content: str) -> str:
         markdown_content_chunks = [
-            markdown_content[i: i + MARKDOWN_AI_CHUNK_SIZE]
+            markdown_content[i : i + MARKDOWN_AI_CHUNK_SIZE]
             for i in range(0, len(markdown_content), MARKDOWN_AI_CHUNK_SIZE)
         ]
 
         with ThreadPoolExecutor(max_workers=4) as executor:
             futures = []
             for idx, chunk in enumerate(markdown_content_chunks):
-                future = executor.submit(
-                    MarkdownFormatLlmBot().process,
-                    markdown_content=chunk
-                )
+                future = executor.submit(MarkdownFormatLlmBot().process, markdown_content=chunk)
                 future.index = idx
                 futures.append(future)
 

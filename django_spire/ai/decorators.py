@@ -19,8 +19,7 @@ T = TypeVar('T')
 
 
 def log_ai_interaction_from_recorder(
-    user: AbstractBaseUser | None = None,
-    actor: str | None = None
+    user: AbstractBaseUser | None = None, actor: str | None = None
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     if user is None and actor is None:
         message = 'user or actor must be provided'
@@ -30,15 +29,10 @@ def log_ai_interaction_from_recorder(
         def wrapper(*args, **kwargs) -> T:
             recording_uuid = f'Recording-{uuid.uuid4()}'
 
-            ai_usage, _ = AiUsage.objects.get_or_create(
-                recorded_date=now()
-            )
+            ai_usage, _ = AiUsage.objects.get_or_create(recorded_date=now())
 
             ai_interaction = AiInteraction(
-                user=user,
-                actor=actor,
-                module_name=func.__module__,
-                callable_name=func.__qualname__,
+                user=user, actor=actor, module_name=func.__module__, callable_name=func.__qualname__
             )
 
             try:
@@ -50,9 +44,9 @@ def log_ai_interaction_from_recorder(
                 ai_interaction.was_successful = False
                 ai_interaction.exception = str(e)
 
-                stack_trace = '\n'.join([
-                    ''.join(traceback.format_exception(None, e, e.__traceback__)).strip()
-                ])
+                stack_trace = '\n'.join(
+                    [''.join(traceback.format_exception(None, e, e.__traceback__)).strip()]
+                )
 
                 ai_interaction.stack_trace = stack_trace
 

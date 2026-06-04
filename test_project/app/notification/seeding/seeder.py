@@ -1,5 +1,3 @@
-
-
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -22,7 +20,7 @@ class NotificationSeeder(DjangoModelSeeder):
         'url': ('faker', 'url'),
         'status_message': ('faker', 'sentence'),
         'content_type_id': 'exclude',
-        'user_id': 1, # stratus,Bob,Robertson,bobert@stratusadv.com
+        'user_id': 1,  # stratus,Bob,Robertson,bobert@stratusadv.com
         'publish_datetime': timezone.now(),
         'sent_datetime': timezone.now(),
     }
@@ -30,10 +28,7 @@ class NotificationSeeder(DjangoModelSeeder):
     @classmethod
     def seed_app_notification(cls, count=10):
         notifications = cls.seed_database(
-            count=count,
-            fields=cls.fields | {
-                'type': NotificationTypeChoices.APP,
-            },
+            count=count, fields=cls.fields | {'type': NotificationTypeChoices.APP}
         )
         return notifications
 
@@ -54,8 +49,13 @@ class AppNotificationSeeder(DjangoModelSeeder):
     def seed_database(cls, count=10, fields={}):
         app_notifications = super().seed_database(
             count=count,
-            fields=cls.fields | {
-                'notification_id': ('custom', 'in_order', {'values': [user.id for user in User.objects.all()]}),
+            fields=cls.fields
+            | {
+                'notification_id': (
+                    'custom',
+                    'in_order',
+                    {'values': [user.id for user in User.objects.all()]},
+                )
             },
         )
         return app_notifications

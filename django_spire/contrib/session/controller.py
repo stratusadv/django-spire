@@ -30,10 +30,7 @@ class SessionController:
     _TIMEOUT_KEY = '_timeout_datestamp'
 
     def __init__(
-        self,
-        request: HttpRequest,
-        session_key: str,
-        seconds_till_expiry: int = 60 * 5
+        self, request: HttpRequest, session_key: str, seconds_till_expiry: int = 60 * 5
     ) -> None:
         self.request = request
         self.session_key = session_key

@@ -2,10 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth.models import User
 
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices,
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.models import Notification
 from django_spire.notification.sms.models import SmsNotification
 
@@ -24,10 +21,6 @@ def create_test_sms_notification(**kwargs) -> SmsNotification:
         )
         kwargs['notification'] = notification
 
-    data = {
-        'to_phone_number': '5551234567',
-        'media_url': None,
-        'temporary_media': None,
-    }
+    data = {'to_phone_number': '5551234567', 'media_url': None, 'temporary_media': None}
     data.update(kwargs)
     return SmsNotification.objects.create(**data)

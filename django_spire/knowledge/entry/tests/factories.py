@@ -9,7 +9,7 @@ def create_test_entry(**kwargs) -> Entry:
         'collection': kwargs.pop('collection', None) or create_test_collection(),
         'name': 'Video Game Cheat Codes',
         'is_deleted': False,
-        'is_active': True
+        'is_active': True,
     }
     data.update(kwargs)
     return Entry.objects.create(**data)

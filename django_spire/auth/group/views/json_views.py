@@ -19,11 +19,7 @@ if TYPE_CHECKING:
 
 @require_POST
 @permission_required('django_spire_auth_group.change_authgroup')
-def permission_form_ajax(
-    request: WSGIRequest,
-    pk: int,
-    app_name: str
-) -> JsonResponse:
+def permission_form_ajax(request: WSGIRequest, pk: int, app_name: str) -> JsonResponse:
     if request.method == 'POST':
         error_message = 'App Does Not Exist.'
 
@@ -42,7 +38,7 @@ def permission_form_ajax(
                 django_permission_verbose = perm_level_to_django_permission(
                     perm_level=perm_level,
                     app_label=group_perm_helper.model_permissions.app_label,
-                    model_name=group_perm_helper.model_permissions.model_name
+                    model_name=group_perm_helper.model_permissions.model_name,
                 )
 
                 error_message = 'You do not have permission to change this app.'
@@ -56,11 +52,7 @@ def permission_form_ajax(
 
 @require_POST
 @permission_required('django_spire_auth_group.change_authgroup')
-def special_role_form_ajax(
-    request: WSGIRequest,
-    pk: int,
-    app_name: str
-) -> JsonResponse:
+def special_role_form_ajax(request: WSGIRequest, pk: int, app_name: str) -> JsonResponse:
     if request.method == 'POST':
         error_message = 'App Does Not Exist.'
 

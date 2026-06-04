@@ -51,7 +51,7 @@ class ThemeViewTests(TestCase):
         request = self.factory.post(
             '/django_spire/theme/json/set_theme/',
             data=json.dumps({'theme': 'gruvbox-dark'}),
-            content_type='application/json'
+            content_type='application/json',
         )
         response = json_views.set_theme(request)
 
@@ -74,7 +74,7 @@ class ThemeViewTests(TestCase):
         request = self.factory.post(
             '/django_spire/theme/json/set_theme/',
             data=json.dumps({}),
-            content_type='application/json'
+            content_type='application/json',
         )
         response = json_views.set_theme(request)
 
@@ -88,7 +88,7 @@ class ThemeViewTests(TestCase):
         request = self.factory.post(
             '/django_spire/theme/json/set_theme/',
             data=json.dumps({'theme': 'invalid-theme'}),
-            content_type='application/json'
+            content_type='application/json',
         )
         response = json_views.set_theme(request)
 
@@ -104,7 +104,7 @@ class ThemeViewIntegrationTests(BaseTestCase):
         response = self.client.post(
             '/theme/json/set_theme/',
             data=json.dumps({'theme': 'gruvbox-dark'}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         assert response.status_code == HTTPStatus.OK

@@ -60,6 +60,7 @@ class SetGroupUsersTestCase(BaseTestCase):
 
     def test_set_group_users_with_queryset(self) -> None:
         from django_spire.auth.user.models import AuthUser
+
         users = AuthUser.objects.filter(pk__in=[self.user1.pk, self.user2.pk])
         set_group_users(self.group, list(users))
         assert self.group.user_set.count() == 2

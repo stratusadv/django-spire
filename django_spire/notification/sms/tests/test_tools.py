@@ -20,7 +20,7 @@ class TestSMSTools(BaseTestCase):
             '615.332.9689',
             '919-286-3636 x939',
             '368.447-9514',
-            '4563219876'
+            '4563219876',
         )
 
         expected_phone_numbers = (
@@ -35,12 +35,11 @@ class TestSMSTools(BaseTestCase):
             '+16153329689',
             '+19192863636',
             '+13684479514',
-            '+14563219876'
+            '+14563219876',
         )
 
         formatted_phone_numbers = tuple(
-            format_to_international_phone_number(phone_number)
-            for phone_number in phone_numbers
+            format_to_international_phone_number(phone_number) for phone_number in phone_numbers
         )
         assert formatted_phone_numbers == expected_phone_numbers
 

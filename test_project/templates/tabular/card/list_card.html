@@ -13,11 +13,13 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="my-4">
-        {% include 'tabular/form/list_filter_form.html' %}
-    </div>
+    <div class="card-body">
+        <div class="my-4">
+            {% include 'tabular/form/list_filter_form.html' %}
+        </div>
 
-    <div class="my-4">
-        {% include 'tabular/table/table.html' with endpoint=task_endpoint %}
+        <div class="my-4">
+            {% include 'tabular/table/table.html' with endpoint=task_endpoint %}
+        </div>
     </div>
 {% endblock %}

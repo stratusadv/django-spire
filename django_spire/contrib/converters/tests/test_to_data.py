@@ -64,10 +64,7 @@ class TestDjangoFieldToFakerData(TestCase):
 
     def test_char_field_with_choices(self) -> None:
         class ChoicesModel(models.Model):
-            status = models.CharField(
-                max_length=10,
-                choices=[('A', 'Active'), ('I', 'Inactive')]
-            )
+            status = models.CharField(max_length=10, choices=[('A', 'Active'), ('I', 'Inactive')])
 
             class Meta:
                 managed = False
@@ -110,8 +107,7 @@ class TestDjangoFieldToFakerData(TestCase):
 
         field = CustomFakerKwargsModel._meta.get_field('number')
         result = DjangoFieldToFakerData(
-            field,
-            faker_method=('random_int', {'min': 100, 'max': 200})
+            field, faker_method=('random_int', {'min': 100, 'max': 200})
         ).convert()
 
         assert isinstance(result, int)
@@ -201,9 +197,7 @@ class TestDjangoFieldToFakerData(TestCase):
 
     def test_integer_field_with_validators(self) -> None:
         class IntegerValidatorModel(models.Model):
-            count = models.IntegerField(
-                validators=[MinValueValidator(10), MaxValueValidator(20)]
-            )
+            count = models.IntegerField(validators=[MinValueValidator(10), MaxValueValidator(20)])
 
             class Meta:
                 managed = False

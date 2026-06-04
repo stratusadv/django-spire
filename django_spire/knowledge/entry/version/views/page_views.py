@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 @AppAuthController('knowledge').permission_required('can_view')
 def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    entry_version = get_object_or_404(EntryVersion.objects.prefetch_blocks(),pk=pk)
+    entry_version = get_object_or_404(EntryVersion.objects.prefetch_blocks(), pk=pk)
 
     entry = entry_version.entry
     top_level_collection = entry.top_level_collection
@@ -29,8 +29,7 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     def breadcrumbs_func(breadcrumbs: Breadcrumbs):
         breadcrumbs.add_breadcrumb(
-            name='Knowledge',
-            href=reverse('django_spire:knowledge:page:home')
+            name='Knowledge', href=reverse('django_spire:knowledge:page:home')
         )
 
         breadcrumbs.add_base_breadcrumb(entry)
@@ -45,8 +44,7 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'collection': top_level_collection,
             'version_blocks': json.dumps(list(version_blocks)),
             'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                request=request,
-                parent_id=top_level_collection.id,
+                request=request, parent_id=top_level_collection.id
             ),
         },
         template='django_spire/knowledge/entry/version/page/editor_page.html',

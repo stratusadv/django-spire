@@ -1,6 +1,6 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% block card_padding_class %}p-0{% endblock %}
+{% block card_class %}{{ block.super }} p-0{% endblock %}
 
 {% load django_spire_core %}
 
@@ -16,9 +16,11 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% for group in group_list %}
+    <div class="card-body">
+        {% for group in group_list %}
             {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
+        {% empty %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endfor %}
+    </div>
 {% endblock %}

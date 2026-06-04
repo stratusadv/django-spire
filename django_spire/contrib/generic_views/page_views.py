@@ -25,7 +25,7 @@ def detail_view(
     context_data: dict | None = None,
     breadcrumbs_func: BreadcrumbCallable | None = None,
     obj: Model,
-    template: str
+    template: str,
 ) -> TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -40,16 +40,12 @@ def detail_view(
     base_context_data = {
         'page_title': obj._meta.model._meta.verbose_name,
         'page_description': obj.__str__(),
-        'breadcrumbs': breadcrumbs
+        'breadcrumbs': breadcrumbs,
     }
 
     context_data = {**base_context_data, **context_data}
 
-    return TemplateResponse(
-        request,
-        template=template,
-        context=context_data
-    )
+    return TemplateResponse(request, template=template, context=context_data)
 
 
 def delete_form_view(
@@ -63,7 +59,7 @@ def delete_form_view(
     delete_func: Callable[[], None] | None = None,
     verbs: tuple[str, str] = ('delete', 'deleted'),
     return_url: str,
-    template: str = 'django_spire/page/delete_confirmation_form_page.html'
+    template: str = 'django_spire/page/delete_confirmation_form_page.html',
 ) -> HttpResponseRedirect | TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -86,7 +82,7 @@ def delete_form_view(
                     obj.add_activity(
                         user=request.user,
                         verb=verbs[1],
-                        information=f'{request.user.get_full_name()} {verbs[1].lower()} {model_name} "{obj}".'
+                        information=f'{request.user.get_full_name()} {verbs[1].lower()} {model_name} "{obj}".',
                     )
 
             return HttpResponseRedirect(return_url)
@@ -112,11 +108,7 @@ def delete_form_view(
 
     context_data = {**base_context_data, **context_data}
 
-    return TemplateResponse(
-        request,
-        template=template,
-        context=context_data
-    )
+    return TemplateResponse(request, template=template, context=context_data)
 
 
 def infinite_scrolling_view(
@@ -125,7 +117,7 @@ def infinite_scrolling_view(
     queryset: QuerySet | list,
     queryset_name: str,
     template: str,
-    context_data: dict[str, Any] | None = None
+    context_data: dict[str, Any] | None = None,
 ) -> TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -143,29 +135,21 @@ def infinite_scrolling_view(
     batch_size = int(batch_size)
     offset = (page - 1) * batch_size
 
-    total_count = (
-        queryset.count()
-        if isinstance(queryset, QuerySet)
-        else len(queryset)
-    )
+    total_count = queryset.count() if isinstance(queryset, QuerySet) else len(queryset)
 
-    object_list = queryset[offset:offset + batch_size]
+    object_list = queryset[offset : offset + batch_size]
     has_next = offset + batch_size < total_count
 
     base_context_data = {
         'batch_size': batch_size,
         'has_next': has_next,
         'total_count': total_count,
-        queryset_name: object_list
+        queryset_name: object_list,
     }
 
     context_data.update(base_context_data)
 
-    return TemplateResponse(
-        request,
-        context=context_data,
-        template=template
-    )
+    return TemplateResponse(request, context=context_data, template=template)
 
 
 def list_view(
@@ -174,7 +158,7 @@ def list_view(
     context_data: dict | None = None,
     breadcrumbs_func: BreadcrumbCallable | None = None,
     model: type[Model],
-    template: str
+    template: str,
 ) -> TemplateResponse:
 
     if context_data is None:
@@ -190,16 +174,12 @@ def list_view(
     base_context_data = {
         'page_title': model._meta.verbose_name,
         'page_description': 'List View',
-        'breadcrumbs': breadcrumbs
+        'breadcrumbs': breadcrumbs,
     }
 
     context_data = {**base_context_data, **context_data}
 
-    return TemplateResponse(
-        request,
-        template=template,
-        context=context_data
-    )
+    return TemplateResponse(request, template=template, context=context_data)
 
 
 def form_view(
@@ -210,7 +190,7 @@ def form_view(
     obj: Model,
     breadcrumbs_func: BreadcrumbCallable | None = None,
     verb: str | None = None,
-    template: str = 'django_spire/page/form_full_page.html'
+    template: str = 'django_spire/page/form_full_page.html',
 ) -> TemplateResponse:
 
     if context_data is None:
@@ -230,7 +210,9 @@ def form_view(
 
     if obj.pk:
         form_title = f'{verb.title()} {model._meta.verbose_name} {obj}'
-        form_description = f'Are you sure you would like to {verb} {model._meta.verbose_name} "{obj}"?'
+        form_description = (
+            f'Are you sure you would like to {verb} {model._meta.verbose_name} "{obj}"?'
+        )
     else:
         form_title = f'{verb} {model._meta.verbose_name}'
         form_description = ''
@@ -257,9 +239,10 @@ def model_form_view(
     obj: Model,
     breadcrumbs_func: BreadcrumbCallable | None = None,
     verb: str | None = None,
-    template: str = 'django_spire/page/form_full_page.html'
+    template: str = 'django_spire/page/form_full_page.html',
 ) -> TemplateResponse:
     if breadcrumbs_func is None:
+
         def breadcrumbs_func(crumbs: Breadcrumbs) -> None:
             if obj.pk is None:
                 crumbs.add_form_breadcrumbs(obj)
@@ -273,7 +256,7 @@ def model_form_view(
         obj=obj,
         breadcrumbs_func=breadcrumbs_func,
         verb=verb,
-        template=template
+        template=template,
     )
 
 
@@ -283,7 +266,7 @@ def template_view(
     page_description: str,
     breadcrumbs: Breadcrumbs,
     template: str,
-    context_data: dict | None = None
+    context_data: dict | None = None,
 ) -> TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -291,7 +274,7 @@ def template_view(
     base_context_data = {
         'page_title': page_title,
         'page_description': page_description,
-        'breadcrumbs': breadcrumbs
+        'breadcrumbs': breadcrumbs,
     }
     context_data = {**base_context_data, **context_data}
 

@@ -10,12 +10,8 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 
 
 STORAGES_OVERRIDE = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 
 
@@ -158,20 +154,10 @@ class FileQuerySetEdgeCaseTests(BaseTestCase):
     def test_active_combined_with_standard_filter(self) -> None:
         ticket = create_test_helpdesk_ticket()
         content_type = ContentType.objects.get_for_model(ticket)
-        file = create_test_file(
-            content_type=content_type,
-            object_id=ticket.pk,
-        )
-        deleted = create_test_file(
-            content_type=content_type,
-            object_id=ticket.pk,
-            is_deleted=True,
-        )
+        file = create_test_file(content_type=content_type, object_id=ticket.pk)
+        deleted = create_test_file(content_type=content_type, object_id=ticket.pk, is_deleted=True)
 
-        result = File.objects.active().filter(
-            content_type=content_type,
-            object_id=ticket.pk,
-        )
+        result = File.objects.active().filter(content_type=content_type, object_id=ticket.pk)
 
         assert file in result
         assert deleted not in result

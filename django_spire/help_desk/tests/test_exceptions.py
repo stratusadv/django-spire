@@ -15,17 +15,13 @@ class HelpDeskExceptionsTests(BaseTestCase):
 
     def test_ticket_event_notification_type_not_supported_error_message(self):
         error = TicketEventNotificationTypeNotSupportedError(
-            TicketEventType.NEW,
-            NotificationTypeChoices.SMS
+            TicketEventType.NEW, NotificationTypeChoices.SMS
         )
         assert 'Event type' in str(error)
         assert 'Notification type' in str(error)
 
     def test_ticket_event_notification_type_not_supported_error_message_without_event_type(self):
-        error = TicketEventNotificationTypeNotSupportedError(
-            None,
-            NotificationTypeChoices.SMS
-        )
+        error = TicketEventNotificationTypeNotSupportedError(None, NotificationTypeChoices.SMS)
         assert 'Notification type not supported' in str(error)
 
     def test_helpdesk_notification_recipient_missing_email_error_is_value_error(self):

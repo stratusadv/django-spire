@@ -115,25 +115,20 @@ class GroupFormViewsTestCase(BaseTestCase):
 
     def test_add_form_view_post_creates_group(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'),
-            data={'name': 'New Group'}
+            reverse('django_spire:auth:group:form:add'), data={'name': 'New Group'}
         )
         assert response.status_code == 302
         assert AuthGroup.objects.filter(name='New Group').exists()
 
     def test_add_form_view_post_invalid_name(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'),
-            data={'name': 'All Users'}
+            reverse('django_spire:auth:group:form:add'), data={'name': 'All Users'}
         )
         assert response.status_code == 200
         assert not AuthGroup.objects.filter(name='All Users').exists()
 
     def test_add_form_view_post_empty_name(self) -> None:
-        response = self.client.post(
-            reverse('django_spire:auth:group:form:add'),
-            data={'name': ''}
-        )
+        response = self.client.post(reverse('django_spire:auth:group:form:add'), data={'name': ''})
         assert response.status_code == 200
 
     def test_update_form_view_get(self) -> None:
@@ -145,7 +140,7 @@ class GroupFormViewsTestCase(BaseTestCase):
     def test_update_form_view_post_updates_group(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:group:form:update', kwargs={'pk': self.group.pk}),
-            data={'name': 'Updated Group'}
+            data={'name': 'Updated Group'},
         )
         assert response.status_code == 302
         self.group.refresh_from_db()
@@ -213,15 +208,14 @@ class GroupFormViewsTestCase(BaseTestCase):
 
     def test_add_form_view_post_duplicate_name(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'),
-            data={'name': 'Test Group'}
+            reverse('django_spire:auth:group:form:add'), data={'name': 'Test Group'}
         )
         assert response.status_code == 200
 
     def test_update_form_view_post_to_reserved_name(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:group:form:update', kwargs={'pk': self.group.pk}),
-            data={'name': 'All Users'}
+            data={'name': 'All Users'},
         )
         assert response.status_code == 200
         self.group.refresh_from_db()
@@ -229,16 +223,14 @@ class GroupFormViewsTestCase(BaseTestCase):
 
     def test_add_form_view_post_unicode_name(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'),
-            data={'name': 'Tëst Grøup 日本語'}
+            reverse('django_spire:auth:group:form:add'), data={'name': 'Tëst Grøup 日本語'}
         )
         assert response.status_code == 302
         assert AuthGroup.objects.filter(name='Tëst Grøup 日本語').exists()
 
     def test_add_form_view_post_special_characters(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'),
-            data={'name': 'Group & Co <Test>'}
+            reverse('django_spire:auth:group:form:add'), data={'name': 'Group & Co <Test>'}
         )
         assert response.status_code == 302
 
@@ -246,7 +238,7 @@ class GroupFormViewsTestCase(BaseTestCase):
         user = create_user(username='newgroupuser')
         response = self.client.post(
             reverse('django_spire:auth:group:form:user', kwargs={'pk': self.group.pk}),
-            data={'users': [user.pk]}
+            data={'users': [user.pk]},
         )
         assert response.status_code == 302
         assert user in self.group.user_set.all()
@@ -256,7 +248,7 @@ class GroupFormViewsTestCase(BaseTestCase):
         self.group.user_set.add(user)
         response = self.client.post(
             reverse('django_spire:auth:group:form:user', kwargs={'pk': self.group.pk}),
-            data={'users': []}
+            data={'users': []},
         )
         assert response.status_code == 302
         assert user not in self.group.user_set.all()
@@ -272,10 +264,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:auth:group:json:group_permission_ajax',
-                kwargs={'pk': self.group.pk, 'app_name': 'invalid_app'}
+                kwargs={'pk': self.group.pk, 'app_name': 'invalid_app'},
             ),
             data={'perm_level': 'View'},
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 200
         data = response.json()
@@ -285,10 +277,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:auth:group:json:group_permission_ajax',
-                kwargs={'pk': self.group.pk, 'app_name': 'group'}
+                kwargs={'pk': self.group.pk, 'app_name': 'group'},
             ),
             data='{"perm_level": "View"}',
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 200
 
@@ -296,7 +288,7 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:auth:group:json:group_permission_ajax',
-                kwargs={'pk': self.group.pk, 'app_name': 'group'}
+                kwargs={'pk': self.group.pk, 'app_name': 'group'},
             )
         )
         assert response.status_code == 405
@@ -305,10 +297,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:auth:group:json:group_permission_ajax',
-                kwargs={'pk': 99999, 'app_name': 'group'}
+                kwargs={'pk': 99999, 'app_name': 'group'},
             ),
             data='{"perm_level": "View"}',
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 404
 
@@ -316,10 +308,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:auth:group:json:group_special_role_ajax',
-                kwargs={'pk': self.group.pk, 'app_name': 'invalid_app'}
+                kwargs={'pk': self.group.pk, 'app_name': 'invalid_app'},
             ),
             data='{"codename": "test", "grant_special_role_access": true}',
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 200
         data = response.json()
@@ -331,10 +323,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:auth:group:json:group_permission_ajax',
-                kwargs={'pk': self.group.pk, 'app_name': 'group'}
+                kwargs={'pk': self.group.pk, 'app_name': 'group'},
             ),
             data='{"perm_level": "View"}',
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 403
 
@@ -344,10 +336,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:auth:group:json:group_special_role_ajax',
-                kwargs={'pk': self.group.pk, 'app_name': 'group'}
+                kwargs={'pk': self.group.pk, 'app_name': 'group'},
             ),
             data='{"codename": "test", "grant_special_role_access": true}',
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 403
 
@@ -356,10 +348,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
             response = self.client.post(
                 reverse(
                     'django_spire:auth:group:json:group_permission_ajax',
-                    kwargs={'pk': self.group.pk, 'app_name': 'group'}
+                    kwargs={'pk': self.group.pk, 'app_name': 'group'},
                 ),
                 data=f'{{"perm_level": "{perm_level}"}}',
-                content_type='application/json'
+                content_type='application/json',
             )
             assert response.status_code == 200
 
@@ -367,10 +359,10 @@ class GroupJsonViewsTestCase(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:auth:group:json:group_permission_ajax',
-                kwargs={'pk': self.group.pk, 'app_name': 'group'}
+                kwargs={'pk': self.group.pk, 'app_name': 'group'},
             ),
             data='{"perm_level": "InvalidLevel"}',
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 200
         data = response.json()

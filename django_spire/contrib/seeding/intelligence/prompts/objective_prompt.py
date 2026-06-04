@@ -9,9 +9,7 @@ if TYPE_CHECKING:
 
 
 def objective_prompt(
-    model_class: type[Model],
-    model_description: str,
-    sector_description: str,
+    model_class: type[Model], model_description: str, sector_description: str
 ) -> Prompt:
     model_name = model_class._meta.verbose_name_plural.title()
 

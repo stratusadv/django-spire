@@ -12,26 +12,13 @@ if TYPE_CHECKING:
 
 
 class CommentModelMixin(ActivityMixin):
-    comments = GenericRelation(
-        Comment,
-        related_query_name='comment',
-        editable=False
-    )
+    comments = GenericRelation(Comment, related_query_name='comment', editable=False)
 
-    def add_comment(
-            self,
-            user: User,
-            information: str,
-            parent: int | Comment | None = None
-    ):
+    def add_comment(self, user: User, information: str, parent: int | Comment | None = None):
         if isinstance(parent, Comment):
             parent = parent.pk
 
-        return self.comments.create(
-            information=information,
-            user=user,
-            parent_id=parent
-        )
+        return self.comments.create(information=information, user=user, parent_id=parent)
 
     class Meta:
         abstract = True

@@ -22,31 +22,33 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div x-data="{
-            async reorder_entries({entry_id, order}){
-                let response = null
-                try {
-                    response = await Glue.fetch(
-                        '{% url "django_spire:knowledge:entry:json:reorder" %}',
-                        {body: {entry_id: entry_id, order: order, collection_id: {{ collection.id }}}}
-                    )
-                } catch (e) {
-                    window.location.reload()
-                }
+    <div class="card-body">
+        <div x-data="{
+                async reorder_entries({entry_id, order}){
+                    let response = null
+                    try {
+                        response = await Glue.fetch(
+                            '{% url "django_spire:knowledge:entry:json:reorder" %}',
+                            {body: {entry_id: entry_id, order: order, collection_id: {{ collection.id }}}}
+                        )
+                    } catch (e) {
+                        window.location.reload()
+                    }
 
-                if (response.type === 'error') {
-                    $dispatch('notify', {'type': response.type, 'message': response.message})
+                    if (response.type === 'error') {
+                        $dispatch('notify', {'type': response.type, 'message': response.message})
+                    }
                 }
-            }
-        }"
-         x-sort="await reorder_entries({entry_id: $item, order: $position})"
-    >
-        {% for entry in current_entries %}
-            <div x-sort:item="{{ entry.pk }}">
-                {% include 'django_spire/knowledge/entry/item/list_item.html' %}
-            </div>
-        {% empty %}
-            {% include 'django_spire/item/no_data_item.html' %}
-        {% endfor %}
+            }"
+             x-sort="await reorder_entries({entry_id: $item, order: $position})"
+        >
+            {% for entry in current_entries %}
+                <div x-sort:item="{{ entry.pk }}">
+                    {% include 'django_spire/knowledge/entry/item/list_item.html' %}
+                </div>
+            {% empty %}
+                {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

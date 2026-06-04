@@ -23,8 +23,7 @@ def file_list_view(request: WSGIRequest, collection_pk: int = 0) -> TemplateResp
         collection = Collection.objects.select_related('parent').get(pk=collection_pk)
 
         breadcrumbs.add_breadcrumb(
-            name='Collections',
-            href=reverse('django_spire:knowledge:page:home')
+            name='Collections', href=reverse('django_spire:knowledge:page:home')
         )
 
         breadcrumbs.add_breadcrumb(name='Importing Files')
@@ -35,5 +34,5 @@ def file_list_view(request: WSGIRequest, collection_pk: int = 0) -> TemplateResp
             'files_json': Entry.services.tool.get_files_to_convert_json(),
             'breadcrumbs': breadcrumbs,
         },
-        template='django_spire/knowledge/entry/file/page/list_page.html'
+        template='django_spire/knowledge/entry/file/page/list_page.html',
     )

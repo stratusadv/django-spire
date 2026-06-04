@@ -8,8 +8,7 @@ from typing import Generic, TypeVar
 from django.db import transaction
 from django.db.models import Model, AutoField, FileField
 
-from django_spire.contrib.constructor.django_model_constructor import \
-    BaseDjangoModelConstructor
+from django_spire.contrib.constructor.django_model_constructor import BaseDjangoModelConstructor
 
 log = logging.getLogger(__name__)
 
@@ -17,9 +16,7 @@ TypeDjangoModel_co = TypeVar('TypeDjangoModel_co', bound=Model, covariant=True)
 
 
 class BaseDjangoModelService(
-    BaseDjangoModelConstructor[TypeDjangoModel_co],
-    ABC,
-    Generic[TypeDjangoModel_co]
+    BaseDjangoModelConstructor[TypeDjangoModel_co], ABC, Generic[TypeDjangoModel_co]
 ):
     def _set_non_m2m_fields(self, **field_data: dict):
         model_fields = self.obj._meta.fields
@@ -43,8 +40,11 @@ class BaseDjangoModelService(
         # Update foreign key id aliases in field_data for
         # related fields that weren't already updated above
         foreign_key_id_aliases = [
-            f"{field.name}_id" for field in model_fields
-            if f"{field.name}_id" in field_data and field.many_to_one and field.name not in updated_fields
+            f'{field.name}_id'
+            for field in model_fields
+            if f'{field.name}_id' in field_data
+            and field.many_to_one
+            and field.name not in updated_fields
         ]
 
         for field_name in foreign_key_id_aliases:
@@ -58,7 +58,7 @@ class BaseDjangoModelService(
         model_meta = self.obj._meta
 
         for field in chain(model_meta.many_to_many, model_meta.private_fields):
-            if not hasattr(field, "save_form_data"):
+            if not hasattr(field, 'save_form_data'):
                 continue
             if field.name in field_data:
                 field.save_form_data(self.obj, field_data[field.name])

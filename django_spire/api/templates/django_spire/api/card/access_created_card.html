@@ -1,7 +1,5 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% block card_title_content_style %}{% endblock %}
-
 {% block card_title %}
     API Access Created
 {% endblock %}
@@ -16,24 +14,25 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="row">
-        <div class="col mb-3">
-            "{{ api_access.name }}" API Key
+    <div class="card-body">
+        <div class="row">
+            <div class="col mb-3">
+                "{{ api_access.name }}" API Key
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <div class="alert alert-info" role="alert">
-                {{ raw_key }}
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-info" role="alert">
+                    {{ raw_key }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <span class="text-app-danger">
+                    Make sure to copy this key as it will never be shown again!
+                </span>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <span class="text-app-danger">
-                Make sure to copy this key as it will never be shown again!
-            </span>
-        </div>
-    </div>
-
 {% endblock %}

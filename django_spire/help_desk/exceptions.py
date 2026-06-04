@@ -15,9 +15,7 @@ class HelpDeskError(DjangoSpireError):
 
 class TicketEventNotificationTypeNotSupportedError(HelpDeskError, TypeError):
     def __init__(
-        self,
-        event_type: TicketEventType | None,
-        notification_type: NotificationTypeChoices
+        self, event_type: TicketEventType | None, notification_type: NotificationTypeChoices
     ) -> None:
         if event_type is None:
             super().__init__(f'Notification type not supported: {notification_type}')

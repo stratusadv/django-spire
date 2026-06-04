@@ -13,6 +13,4 @@ EDITOR_JS_BLOCK_DATA_MAP = {
 }
 
 
-EDITOR_JS_BLOCK_DATA_REVERSE_MAP = {
-    value: key for key, value in EDITOR_JS_BLOCK_DATA_MAP.items()
-}
+EDITOR_JS_BLOCK_DATA_REVERSE_MAP = {value: key for key, value in EDITOR_JS_BLOCK_DATA_MAP.items()}

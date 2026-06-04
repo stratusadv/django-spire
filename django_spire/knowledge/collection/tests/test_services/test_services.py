@@ -18,17 +18,14 @@ class CollectionServiceTests(BaseTestCase):
 
     def test_save_model_obj_creates_new(self):
         collection, created = Collection.services.save_model_obj(
-            name='New Collection',
-            description='A new collection'
+            name='New Collection', description='A new collection'
         )
         assert created is True
         assert collection.name == 'New Collection'
 
     def test_save_model_obj_updates_existing(self):
         self.collection.services.obj = self.collection
-        updated_collection, created = self.collection.services.save_model_obj(
-            name='Updated Name'
-        )
+        updated_collection, created = self.collection.services.save_model_obj(name='Updated Name')
         assert created is False
         assert updated_collection.name == 'Updated Name'
 

@@ -18,7 +18,7 @@ class TestFieldsConfig(TestCase):
             raw_fields={'name': ('static', 'test')},
             field_names=['name', 'email'],
             default_to='llm',
-            model_class=self.model_class
+            model_class=self.model_class,
         )
 
         assert 'email' in config.fields
@@ -29,7 +29,7 @@ class TestFieldsConfig(TestCase):
             raw_fields={'name': 'exclude', 'email': ('exclude',)},
             field_names=['name', 'email', 'status'],
             default_to='llm',
-            model_class=self.model_class
+            model_class=self.model_class,
         )
 
         assert 'name' in config.excluded
@@ -41,7 +41,7 @@ class TestFieldsConfig(TestCase):
             raw_fields={'zebra': ('static', 'z'), 'apple': ('static', 'a')},
             field_names=['zebra', 'apple'],
             default_to='included',
-            model_class=self.model_class
+            model_class=self.model_class,
         )
 
         keys = list(config.fields.keys())
@@ -53,7 +53,7 @@ class TestFieldsConfig(TestCase):
             raw_fields={'name': ('static', 'original')},
             field_names=['name', 'email'],
             default_to='llm',
-            model_class=self.model_class
+            model_class=self.model_class,
         )
 
         new_config = config.override({'name': ('static', 'overridden')})
@@ -67,5 +67,5 @@ class TestFieldsConfig(TestCase):
                 raw_fields={'invalid_field': ('static', 'test')},
                 field_names=['name', 'email'],
                 default_to='llm',
-                model_class=self.model_class
+                model_class=self.model_class,
             )

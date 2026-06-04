@@ -71,10 +71,7 @@ class AuthGroupModelTestCase(BaseTestCase):
         assert max_length == 150
 
     def test_multiple_groups_creation(self) -> None:
-        groups = [
-            AuthGroup.objects.create(name=f'Group {i}')
-            for i in range(5)
-        ]
+        groups = [AuthGroup.objects.create(name=f'Group {i}') for i in range(5)]
         assert len(groups) == 5
         assert AuthGroup.objects.count() >= 5
 
@@ -147,6 +144,7 @@ class AuthGroupModelTestCase(BaseTestCase):
 
     def test_group_inheritance_from_django_group(self) -> None:
         from django.contrib.auth.models import Group
+
         assert issubclass(AuthGroup, Group)
 
     def test_group_activity_mixin(self) -> None:
@@ -180,11 +178,9 @@ class AuthGroupModelTestCase(BaseTestCase):
         assert group.pk == group2.pk
 
     def test_group_bulk_create(self) -> None:
-        groups = AuthGroup.objects.bulk_create([
-            AuthGroup(name='Bulk 1'),
-            AuthGroup(name='Bulk 2'),
-            AuthGroup(name='Bulk 3'),
-        ])
+        groups = AuthGroup.objects.bulk_create(
+            [AuthGroup(name='Bulk 1'), AuthGroup(name='Bulk 2'), AuthGroup(name='Bulk 3')]
+        )
         assert len(groups) == 3
 
     def test_group_exists(self) -> None:

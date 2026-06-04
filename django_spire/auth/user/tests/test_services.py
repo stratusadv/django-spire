@@ -11,22 +11,13 @@ class AuthUserServiceTestCase(BaseTestCase):
         super().setUp()
 
         self.user1 = create_user(
-            username='user1',
-            first_name='Alice',
-            last_name='Smith',
-            is_active=True
+            username='user1', first_name='Alice', last_name='Smith', is_active=True
         )
         self.user2 = create_user(
-            username='user2',
-            first_name='Bob',
-            last_name='Jones',
-            is_active=True
+            username='user2', first_name='Bob', last_name='Jones', is_active=True
         )
         self.inactive_user = create_user(
-            username='inactive',
-            first_name='Charlie',
-            last_name='Brown',
-            is_active=False
+            username='inactive', first_name='Charlie', last_name='Brown', is_active=False
         )
 
     def test_get_user_choices_returns_list(self) -> None:

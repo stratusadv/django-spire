@@ -26,10 +26,7 @@ class EntryModelTests(BaseTestCase):
         assert entry.name_short == short_name
 
     def test_top_level_collection(self):
-        child_collection = create_test_collection(
-            parent=self.collection,
-            name='Child Collection'
-        )
+        child_collection = create_test_collection(parent=self.collection, name='Child Collection')
         entry = create_test_entry(collection=child_collection)
         assert entry.top_level_collection == self.collection
 

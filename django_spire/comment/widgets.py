@@ -22,7 +22,7 @@ class TaggingWidget(Widget):
         # context_data['information'] = self.information
         return context_data
 
-    def render(self, name: str, value, attrs = None, renderer = None):
+    def render(self, name: str, value, attrs=None, renderer=None):
         context = self.get_context(name, value, attrs)
         template = loader.get_template(self.template_name).render(context)
         return mark_safe(template)

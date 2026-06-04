@@ -20,8 +20,7 @@ class EntryToolService(BaseDjangoModelService['Entry']):
 
     def get_files_to_convert(self) -> QuerySet[File]:
         return (
-            File.objects
-            .filter(content_type=ContentType.objects.get_for_model(self.obj_class))
+            File.objects.filter(content_type=ContentType.objects.get_for_model(self.obj_class))
             .active()
             .order_by('object_id')
         )

@@ -91,12 +91,7 @@ class AsyncResultServiceIntegrationTestCase(TestCase):
 class AsyncResultResultHandlingTestCase(TestCase):
     def test_result_returns_deserialized_data(self) -> None:
         task = create_test_celery_task()
-        test_data = {
-            'string': 'test',
-            'number': 42,
-            'list': [1, 2, 3],
-            'nested': {'key': 'value'},
-        }
+        test_data = {'string': 'test', 'number': 42, 'list': [1, 2, 3], 'nested': {'key': 'value'}}
         task._result = pickle.dumps(test_data)
         task.save()
 

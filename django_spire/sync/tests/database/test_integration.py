@@ -3,11 +3,7 @@ from __future__ import annotations
 import pytest
 
 from django_spire.sync.database.record import SyncRecord
-from django_spire.sync.tests.database.helpers import (
-    SURVEY,
-    STAKE,
-    SyncHarness,
-)
+from django_spire.sync.tests.database.helpers import SURVEY, STAKE, SyncHarness
 
 
 @pytest.fixture
@@ -15,15 +11,14 @@ def harness() -> SyncHarness:
     return SyncHarness()
 
 
-def test_worker_gps_and_office_spacing_both_survive(
-    harness: SyncHarness,
-) -> None:
+def test_worker_gps_and_office_spacing_both_survive(harness: SyncHarness) -> None:
     early = harness.ts()
     tablet_gps = harness.ts()
     office_spacing = harness.ts()
 
     harness.tablet_save(
-        SURVEY, 'sv-1',
+        SURVEY,
+        'sv-1',
         {
             'id': 'sv-1',
             'stake_spacing': 40,
@@ -40,14 +35,9 @@ def test_worker_gps_and_office_spacing_both_survive(
     )
 
     harness.server_save(
-        SURVEY, 'sv-1',
-        {
-            'id': 'sv-1',
-            'stake_spacing': 60,
-            'bearing': 90,
-            'a_latitude': 0.0,
-            'a_longitude': 0.0,
-        },
+        SURVEY,
+        'sv-1',
+        {'id': 'sv-1', 'stake_spacing': 60, 'bearing': 90, 'a_latitude': 0.0, 'a_longitude': 0.0},
         {
             'stake_spacing': office_spacing,
             'bearing': early,
@@ -70,16 +60,10 @@ def test_worker_gps_and_office_spacing_both_survive(
     assert server.data['stake_spacing'] == 60
 
 
-def test_server_delete_propagates_to_tablet(
-    harness: SyncHarness,
-) -> None:
+def test_server_delete_propagates_to_tablet(harness: SyncHarness) -> None:
     ts1 = harness.ts()
 
-    harness.tablet_save(
-        STAKE, 'st-3',
-        {'id': 'st-3', 'latitude': 49.0},
-        {'latitude': ts1},
-    )
+    harness.tablet_save(STAKE, 'st-3', {'id': 'st-3', 'latitude': 49.0}, {'latitude': ts1})
 
     harness.sync()
 
@@ -89,7 +73,8 @@ def test_server_delete_propagates_to_tablet(
     ts2 = harness.ts()
 
     harness.server_save(
-        STAKE, 'st-3',
+        STAKE,
+        'st-3',
         {'id': 'st-3', 'latitude': 49.0, 'is_deleted': True},
         {'latitude': ts1, 'is_deleted': ts2},
     )
@@ -109,7 +94,8 @@ def test_full_day_scenario() -> None:
     tablet_gps = harness.ts()
 
     harness.tablet_save(
-        SURVEY, 'sv-north',
+        SURVEY,
+        'sv-north',
         {
             'id': 'sv-north',
             'survey_number': 'N-42',
@@ -135,7 +121,8 @@ def test_full_day_scenario() -> None:
 
     for i in range(5):
         harness.tablet_save(
-            STAKE, f'st-{i}',
+            STAKE,
+            f'st-{i}',
             {
                 'id': f'st-{i}',
                 'survey_id': 'sv-north',
@@ -154,7 +141,8 @@ def test_full_day_scenario() -> None:
     office_spacing = harness.ts()
 
     harness.server_save(
-        SURVEY, 'sv-north',
+        SURVEY,
+        'sv-north',
         {
             'id': 'sv-north',
             'survey_number': 'N-42',
@@ -199,7 +187,8 @@ def test_full_day_scenario() -> None:
     tablet_relocate = harness.ts()
 
     harness.tablet_save(
-        STAKE, 'st-0',
+        STAKE,
+        'st-0',
         {
             'id': 'st-0',
             'survey_id': 'sv-north',
@@ -218,7 +207,8 @@ def test_full_day_scenario() -> None:
     office_reference = harness.ts()
 
     harness.server_save(
-        STAKE, 'st-0',
+        STAKE,
+        'st-0',
         {
             'id': 'st-0',
             'survey_id': 'sv-north',

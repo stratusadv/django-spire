@@ -19,8 +19,5 @@ def publish_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect:
     version.services.processor.publish()
 
     return HttpResponseRedirect(
-        reverse(
-            'django_spire:knowledge:entry:version:page:editor',
-            kwargs={'pk': version.pk}
-        )
+        reverse('django_spire:knowledge:entry:version:page:editor', kwargs={'pk': version.pk})
     )

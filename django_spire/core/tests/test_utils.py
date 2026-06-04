@@ -4,8 +4,10 @@ import pytest
 
 from django.test import TestCase
 
-from django_spire.contrib.utils import get_object_from_module_string, \
-    get_callable_from_module_string_and_validate_arguments
+from django_spire.contrib.utils import (
+    get_object_from_module_string,
+    get_callable_from_module_string_and_validate_arguments,
+)
 
 
 class TestGetObjectFromModuleString(TestCase):
@@ -30,27 +32,17 @@ class TestGetCallableFromModuleStringAndValidateArguments(TestCase):
     def test_callable_with_missing_argument(self) -> None:
         with pytest.raises(TypeError, match='missing required argument'):
             get_callable_from_module_string_and_validate_arguments(
-                'json.dumps',
-                ['nonexistent_arg']
+                'json.dumps', ['nonexistent_arg']
             )
 
     def test_callable_with_valid_arguments(self) -> None:
-        callable_ = get_callable_from_module_string_and_validate_arguments(
-            'json.dumps',
-            ['obj']
-        )
+        callable_ = get_callable_from_module_string_and_validate_arguments('json.dumps', ['obj'])
         assert callable(callable_)
 
     def test_invalid_module(self) -> None:
         with pytest.raises(ImportError, match='Could not import module'):
-            get_callable_from_module_string_and_validate_arguments(
-                'nonexistent.module.func',
-                []
-            )
+            get_callable_from_module_string_and_validate_arguments('nonexistent.module.func', [])
 
     def test_non_callable_object(self) -> None:
         with pytest.raises(TypeError, match='is not callable'):
-            get_callable_from_module_string_and_validate_arguments(
-                'os.sep',
-                []
-            )
+            get_callable_from_module_string_and_validate_arguments('os.sep', [])

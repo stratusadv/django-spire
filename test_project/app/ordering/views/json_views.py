@@ -15,11 +15,7 @@ def reorder_view(request: WSGIRequest, pk: int, order: int) -> JsonResponse:
     all_ducks = models.Duck.objects.active().exclude(pk=pk).order_by('order')
 
     duck.ordering_services.processor.move_to_position(
-        destination_objects=all_ducks,
-        position=order,
-        origin_objects=all_ducks
+        destination_objects=all_ducks, position=order, origin_objects=all_ducks
     )
 
-    return JsonResponse({
-        'type': 'success', 'message': 'Order reordered successfully',
-    })
+    return JsonResponse({'type': 'success', 'message': 'Order reordered successfully'})

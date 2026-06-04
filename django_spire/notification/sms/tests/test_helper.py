@@ -35,16 +35,12 @@ class TwilioSMSHelperTests(BaseTestCase):
             TwilioSMSHelper._format_phone_number('123456789012345')
 
     def test_message_format(self):
-        helper = TwilioSMSHelper(
-            self.sms_notification.notification,
-            self.mock_client
+        helper = TwilioSMSHelper(self.sms_notification.notification, self.mock_client)
+        expected = (
+            f'{self.sms_notification.notification.title}: {self.sms_notification.notification.body}'
         )
-        expected = f'{self.sms_notification.notification.title}: {self.sms_notification.notification.body}'
         assert helper.message == expected
 
     def test_to_phone_number_formatted(self):
-        helper = TwilioSMSHelper(
-            self.sms_notification.notification,
-            self.mock_client
-        )
+        helper = TwilioSMSHelper(self.sms_notification.notification, self.mock_client)
         assert helper.to_phone_number.startswith('+1')

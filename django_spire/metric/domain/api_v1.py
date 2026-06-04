@@ -8,6 +8,7 @@ router = Router()
 
 router.add_router('statistic', statistic_router)
 
-@router.get("/subtract")
+
+@router.get('/subtract')
 def subtract(request, a: int, b: int):
-    return {"result": a - b}
+    return {'result': a - b}

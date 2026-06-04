@@ -33,23 +33,18 @@ def run_fuzz(
     num_fields = num_fields or rng.randint(2, 15)
     num_keys = num_keys or rng.randint(2, 20)
 
-    schemas = [
-        ModelSchema(
-            label='fuzz.Record',
-            fields=[f'f_{i}' for i in range(num_fields)],
-        ),
-    ]
+    schemas = [ModelSchema(label='fuzz.Record', fields=[f'f_{i}' for i in range(num_fields)])]
 
-    sim = SyncSimulator(
-        tablet_count=tablet_count,
-        schemas=schemas,
-        num_keys=num_keys,
-        seed=seed,
-    )
+    sim = SyncSimulator(tablet_count=tablet_count, schemas=schemas, num_keys=num_keys, seed=seed)
 
     logger.info(
         'seed=%d tablets=%d fields=%d keys=%d events=%d weights=%s',
-        seed, tablet_count, num_fields, num_keys, events_max, sim._weights,
+        seed,
+        tablet_count,
+        num_fields,
+        num_keys,
+        events_max,
+        sim._weights,
     )
 
     start = time.monotonic()

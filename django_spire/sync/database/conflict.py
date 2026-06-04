@@ -4,19 +4,18 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Protocol
 
-from django_spire.sync.core.exceptions import (
-    ConflictStateError,
-    InvalidParameterError,
-)
+from django_spire.sync.core.exceptions import ConflictStateError, InvalidParameterError
 from django_spire.sync.database.record import SyncRecord
 
 
-META_FIELDS = frozenset({
-    'sync_field_last_modified',
-    'sync_field_origin_node',
-    'sync_field_sequence',
-    'sync_field_timestamps',
-})
+META_FIELDS = frozenset(
+    {
+        'sync_field_last_modified',
+        'sync_field_origin_node',
+        'sync_field_sequence',
+        'sync_field_timestamps',
+    }
+)
 
 
 class ConflictType(StrEnum):
@@ -46,9 +45,7 @@ class RecordConflict:
     key: str
     model_label: str
     conflict_type: ConflictType
-    field_conflicts: list[FieldConflict] = field(
-        default_factory=list,
-    )
+    field_conflicts: list[FieldConflict] = field(default_factory=list)
     local: SyncRecord | None = None
     remote: SyncRecord | None = None
 
@@ -58,30 +55,21 @@ class RecordResolution:
     record: SyncRecord | None
     source: ResolutionSource
     delete: bool = False
-    field_conflicts: list[FieldConflict] = field(
-        default_factory=list,
-    )
+    field_conflicts: list[FieldConflict] = field(default_factory=list)
 
 
 class ConflictResolver(Protocol):
-    def resolve(
-        self,
-        conflict: RecordConflict,
-    ) -> RecordResolution: ...
+    def resolve(self, conflict: RecordConflict) -> RecordResolution: ...
 
 
-def _require_both(
-    conflict: RecordConflict,
-) -> tuple[SyncRecord, SyncRecord]:
+def _require_both(conflict: RecordConflict) -> tuple[SyncRecord, SyncRecord]:
     return _require_local(conflict), _require_remote(conflict)
 
 
 def _require_local(conflict: RecordConflict) -> SyncRecord:
     if conflict.local is None:
         message = (
-            f'conflict.local must not be None '
-            f'for {conflict.conflict_type} '
-            f'on key {conflict.key!r}'
+            f'conflict.local must not be None for {conflict.conflict_type} on key {conflict.key!r}'
         )
 
         raise ConflictStateError(message)
@@ -92,9 +80,7 @@ def _require_local(conflict: RecordConflict) -> SyncRecord:
 def _require_remote(conflict: RecordConflict) -> SyncRecord:
     if conflict.remote is None:
         message = (
-            f'conflict.remote must not be None '
-            f'for {conflict.conflict_type} '
-            f'on key {conflict.key!r}'
+            f'conflict.remote must not be None for {conflict.conflict_type} on key {conflict.key!r}'
         )
 
         raise ConflictStateError(message)
@@ -116,9 +102,7 @@ def _merge_fields(
     local_timestamps = local.timestamps
     remote_timestamps = remote.timestamps
 
-    all_fields = (
-        (set(local_data) | set(remote_data)) - exclude
-    )
+    all_fields = (set(local_data) | set(remote_data)) - exclude
 
     data: dict[str, Any] = {}
     timestamps: dict[str, int] = {}
@@ -127,33 +111,20 @@ def _merge_fields(
         local_timestamp = local_timestamps.get(field_name, 0)
         remote_timestamp = remote_timestamps.get(field_name, 0)
 
-        has_any_timestamp = (
-            field_name in local_timestamps
-            or field_name in remote_timestamps
-        )
+        has_any_timestamp = field_name in local_timestamps or field_name in remote_timestamps
 
-        if (
-            local_fields is not None
-            and field_name in local_fields
-        ):
+        if local_fields is not None and field_name in local_fields:
             data[field_name] = local_data.get(field_name)
 
             if has_any_timestamp:
                 timestamps[field_name] = local_timestamp
-        elif (
-            remote_fields is not None
-            and field_name in remote_fields
-        ):
+        elif remote_fields is not None and field_name in remote_fields:
             data[field_name] = remote_data.get(field_name)
 
             if has_any_timestamp:
                 timestamps[field_name] = remote_timestamp
-        elif (
-            remote_timestamp > local_timestamp
-            or (
-                remote_timestamp == local_timestamp
-                and prefer_remote_on_tie
-            )
+        elif remote_timestamp > local_timestamp or (
+            remote_timestamp == local_timestamp and prefer_remote_on_tie
         ):
             data[field_name] = remote_data.get(field_name)
 
@@ -175,11 +146,7 @@ def _merge_fields(
         raise ConflictStateError(message)
 
     return RecordResolution(
-        record=SyncRecord(
-            key=conflict.key,
-            data=data,
-            timestamps=timestamps,
-        ),
+        record=SyncRecord(key=conflict.key, data=data, timestamps=timestamps),
         source=ResolutionSource.MERGED,
         field_conflicts=conflict.field_conflicts,
     )
@@ -196,10 +163,7 @@ class FieldOwnershipWins:
         overlap = local_fields & remote_fields
 
         if overlap:
-            message = (
-                f'local_fields and remote_fields must not '
-                f'overlap: {overlap}'
-            )
+            message = f'local_fields and remote_fields must not overlap: {overlap}'
 
             raise InvalidParameterError(message)
 
@@ -208,20 +172,13 @@ class FieldOwnershipWins:
         self._prefer_remote_on_tie = prefer_remote_on_tie
         self._remote_fields = frozenset(remote_fields)
 
-    def resolve(
-        self,
-        conflict: RecordConflict,
-    ) -> RecordResolution:
+    def resolve(self, conflict: RecordConflict) -> RecordResolution:
         if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
-            return RecordResolution(
-                record=_require_local(conflict),
-                source=ResolutionSource.LOCAL,
-            )
+            return RecordResolution(record=_require_local(conflict), source=ResolutionSource.LOCAL)
 
         if conflict.conflict_type == ConflictType.MODIFY_VS_DELETE:
             return RecordResolution(
-                record=_require_remote(conflict),
-                source=ResolutionSource.REMOTE,
+                record=_require_remote(conflict), source=ResolutionSource.REMOTE
             )
 
         local, remote = _require_both(conflict)
@@ -239,51 +196,29 @@ class FieldOwnershipWins:
 
 class FieldTimestampWins:
     def __init__(
-        self,
-        exclude_fields: set[str] | None = None,
-        prefer_remote_on_tie: bool = False,
+        self, exclude_fields: set[str] | None = None, prefer_remote_on_tie: bool = False
     ) -> None:
         self._exclude = frozenset(exclude_fields or set()) | META_FIELDS
         self._prefer_remote_on_tie = prefer_remote_on_tie
 
-    def resolve(
-        self,
-        conflict: RecordConflict,
-    ) -> RecordResolution:
+    def resolve(self, conflict: RecordConflict) -> RecordResolution:
         if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
-            return RecordResolution(
-                record=_require_local(conflict),
-                source=ResolutionSource.LOCAL,
-            )
+            return RecordResolution(record=_require_local(conflict), source=ResolutionSource.LOCAL)
 
         if conflict.conflict_type == ConflictType.MODIFY_VS_DELETE:
             return RecordResolution(
-                record=_require_remote(conflict),
-                source=ResolutionSource.REMOTE,
+                record=_require_remote(conflict), source=ResolutionSource.REMOTE
             )
 
         local, remote = _require_both(conflict)
 
-        return _merge_fields(
-            local,
-            remote,
-            conflict,
-            self._exclude,
-            self._prefer_remote_on_tie,
-        )
+        return _merge_fields(local, remote, conflict, self._exclude, self._prefer_remote_on_tie)
 
 
 class LocalWins:
-    def resolve(
-        self,
-        conflict: RecordConflict,
-    ) -> RecordResolution:
+    def resolve(self, conflict: RecordConflict) -> RecordResolution:
         if conflict.conflict_type == ConflictType.MODIFY_VS_DELETE:
-            return RecordResolution(
-                record=None,
-                source=ResolutionSource.LOCAL,
-                delete=True,
-            )
+            return RecordResolution(record=None, source=ResolutionSource.LOCAL, delete=True)
 
         return RecordResolution(
             record=_require_local(conflict),
@@ -293,16 +228,9 @@ class LocalWins:
 
 
 class RemoteWins:
-    def resolve(
-        self,
-        conflict: RecordConflict,
-    ) -> RecordResolution:
+    def resolve(self, conflict: RecordConflict) -> RecordResolution:
         if conflict.conflict_type == ConflictType.DELETE_VS_MODIFY:
-            return RecordResolution(
-                record=None,
-                source=ResolutionSource.REMOTE,
-                delete=True,
-            )
+            return RecordResolution(record=None, source=ResolutionSource.REMOTE, delete=True)
 
         return RecordResolution(
             record=_require_remote(conflict),

@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.core.management.base import CommandError
 
-from django_spire.core.management.commands.spire_startapp_pkg.exceptions import \
-    AppExistsError
+from django_spire.core.management.commands.spire_startapp_pkg.exceptions import AppExistsError
 
 if TYPE_CHECKING:
     from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
@@ -27,7 +26,7 @@ class AppValidator:
         reporter: Reporter,
         registry: AppRegistry,
         path_resolver: PathResolver,
-        filesystem: FileSystem
+        filesystem: FileSystem,
     ):
         """
         Initializes the validator with required dependencies.
@@ -102,8 +101,7 @@ class AppValidator:
             self._reporter.write('\n', self._reporter.style_notice)
 
             message = (
-                f'Invalid root app "{root}". '
-                f'Valid root apps: {", ".join(sorted(valid_roots))}.'
+                f'Invalid root app "{root}". Valid root apps: {", ".join(sorted(valid_roots))}.'
             )
 
             raise CommandError(message)

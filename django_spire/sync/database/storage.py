@@ -56,52 +56,23 @@ class RecordReader(Protocol):
     ) -> dict[str, SyncRecord]: ...
 
     def get_deletes_since(
-        self,
-        model_label: str,
-        sequence: int,
-        peer_node_id: str,
-        sequence_max: int | None = None,
+        self, model_label: str, sequence: int, peer_node_id: str, sequence_max: int | None = None
     ) -> dict[str, int]: ...
 
-    def get_records(
-        self,
-        model_label: str,
-        keys: set[str],
-    ) -> dict[str, SyncRecord]: ...
+    def get_records(self, model_label: str, keys: set[str]) -> dict[str, SyncRecord]: ...
 
-    def get_tombstones(
-        self,
-        model_label: str,
-        keys: set[str],
-    ) -> dict[str, int]: ...
+    def get_tombstones(self, model_label: str, keys: set[str]) -> dict[str, int]: ...
 
 
 class RecordWriter(Protocol):
-    def clear_tombstones(
-        self,
-        model_label: str,
-        keys: set[str],
-    ) -> None: ...
+    def clear_tombstones(self, model_label: str, keys: set[str]) -> None: ...
 
-    def delete_many(
-        self,
-        model_label: str,
-        deletes: dict[str, int],
-        origin_node: str,
-    ) -> None: ...
+    def delete_many(self, model_label: str, deletes: dict[str, int], origin_node: str) -> None: ...
 
     def upsert_many(
-        self,
-        model_label: str,
-        records: dict[str, SyncRecord],
-        origin_node: str,
+        self, model_label: str, records: dict[str, SyncRecord], origin_node: str
     ) -> UpsertResult: ...
 
 
-class DatabaseSyncStorage(
-    CheckpointStore,
-    RecordReader,
-    RecordWriter,
-    Protocol,
-):
+class DatabaseSyncStorage(CheckpointStore, RecordReader, RecordWriter, Protocol):
     def get_sequence_allocator(self) -> SequenceAllocator: ...

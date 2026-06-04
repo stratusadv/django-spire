@@ -25,24 +25,20 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     signage = get_object_or_404(models.Signage, pk=pk)
 
-    context_data = {
-        'signage': signage,
-    }
+    context_data = {'signage': signage}
 
     return generic_views.detail_view(
         request,
         obj=signage,
         context_data=context_data,
-        template='metric/visual/signage/page/detail_page.html'
+        template='metric/visual/signage/page/detail_page.html',
     )
 
 
 @permission_required('visual_signage.view_signage')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     models.Signage.objects.process_session_filter(
-        request=request,
-        session_key=LIST_FILTERING_SESSION_KEY,
-        form_class=SignageListFilterForm,
+        request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=SignageListFilterForm
     )
 
     context_data = {
@@ -55,5 +51,5 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=models.Signage,
         context_data=context_data,
-        template='metric/visual/signage/page/list_page.html'
+        template='metric/visual/signage/page/list_page.html',
     )

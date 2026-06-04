@@ -6,13 +6,7 @@ from typing import Literal
 # from django_spire.auth.user.models import AuthUser
 
 
-PERMISSIONS_LEVEL_CHOICES = (
-    (0, 'None'),
-    (1, 'View'),
-    (2, 'Add'),
-    (3, 'Change'),
-    (4, 'Delete'),
-)
+PERMISSIONS_LEVEL_CHOICES = ((0, 'None'), (1, 'View'), (2, 'Add'), (3, 'Change'), (4, 'Delete'))
 
 
 VALID_PERMISSION_LEVELS = Literal[0, 1, 2, 3, 4]

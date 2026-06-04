@@ -53,6 +53,7 @@ class TestMessageIntel(BaseTestCase):
 
     def test_message_intel_raises_without_template(self) -> None:
         with pytest.raises(ValueError):
+
             class NoTemplateIntel(BaseMessageIntel):
                 _template = None
 
@@ -61,6 +62,7 @@ class TestMessageIntel(BaseTestCase):
 
     def test_message_intel_raises_with_empty_template(self) -> None:
         with pytest.raises(ValueError):
+
             class EmptyTemplateIntel(BaseMessageIntel):
                 _template = ''
 

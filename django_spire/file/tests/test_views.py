@@ -12,12 +12,8 @@ from django_spire.file.views import file_upload_ajax_multiple, file_upload_ajax_
 
 
 STORAGES_OVERRIDE = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 
 
@@ -32,10 +28,7 @@ class FileMultipleUploadAjaxViewTests(BaseTestCase):
         initial_count = File.objects.count()
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -46,10 +39,7 @@ class FileMultipleUploadAjaxViewTests(BaseTestCase):
     def test_post_returns_json_response(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -61,10 +51,7 @@ class FileMultipleUploadAjaxViewTests(BaseTestCase):
     def test_post_returns_success_type(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -76,10 +63,7 @@ class FileMultipleUploadAjaxViewTests(BaseTestCase):
     def test_post_returns_files_in_response(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file(name='test_upload')
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -110,10 +94,7 @@ class FileMultipleUploadAjaxEdgeCaseTests(BaseTestCase):
     def test_post_no_files_creates_nothing(self) -> None:
         initial_count = File.objects.count()
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.user = self.super_user
 
         response = file_upload_ajax_multiple(request)
@@ -127,8 +108,7 @@ class FileMultipleUploadAjaxEdgeCaseTests(BaseTestCase):
         uploaded_file = create_test_in_memory_uploaded_file()
 
         request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': 'x' * RELATED_FIELD_LENGTH_MAX},
+            '/upload/multiple/ajax', data={'related_field': 'x' * RELATED_FIELD_LENGTH_MAX}
         )
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
@@ -142,8 +122,7 @@ class FileMultipleUploadAjaxEdgeCaseTests(BaseTestCase):
         uploaded_file = create_test_in_memory_uploaded_file()
 
         request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': 'x' * (RELATED_FIELD_LENGTH_MAX + 1)},
+            '/upload/multiple/ajax', data={'related_field': 'x' * (RELATED_FIELD_LENGTH_MAX + 1)}
         )
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
@@ -168,10 +147,7 @@ class FileMultipleUploadAjaxEdgeCaseTests(BaseTestCase):
     def test_post_blocked_extension_returns_error(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file(name='malware', file_type='exe')
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -202,10 +178,7 @@ class FileMultipleUploadAjaxEdgeCaseTests(BaseTestCase):
         file1 = create_test_in_memory_uploaded_file(name='file1')
         file2 = create_test_in_memory_uploaded_file(name='file2')
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.FILES['file1'] = file1
         request.FILES['file2'] = file2
         request.user = self.super_user
@@ -219,10 +192,7 @@ class FileMultipleUploadAjaxEdgeCaseTests(BaseTestCase):
     def test_post_related_field_with_path_traversal(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': '../../etc'},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': '../../etc'})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -243,10 +213,7 @@ class FileSingleUploadAjaxViewTests(BaseTestCase):
         initial_count = File.objects.count()
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -257,10 +224,7 @@ class FileSingleUploadAjaxViewTests(BaseTestCase):
     def test_post_returns_json_response(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -272,10 +236,7 @@ class FileSingleUploadAjaxViewTests(BaseTestCase):
     def test_post_returns_success_type(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -287,10 +248,7 @@ class FileSingleUploadAjaxViewTests(BaseTestCase):
     def test_post_returns_file_in_response(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file(name='single_upload')
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -318,10 +276,7 @@ class FileSingleUploadAjaxEdgeCaseTests(BaseTestCase):
         self.factory = RequestFactory()
 
     def test_post_no_file_returns_error(self) -> None:
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.user = self.super_user
 
         response = file_upload_ajax_single(request)
@@ -333,8 +288,7 @@ class FileSingleUploadAjaxEdgeCaseTests(BaseTestCase):
         uploaded_file = create_test_in_memory_uploaded_file()
 
         request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': 'x' * (RELATED_FIELD_LENGTH_MAX + 1)},
+            '/upload/single/ajax', data={'related_field': 'x' * (RELATED_FIELD_LENGTH_MAX + 1)}
         )
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
@@ -347,10 +301,7 @@ class FileSingleUploadAjaxEdgeCaseTests(BaseTestCase):
     def test_post_blocked_extension_returns_error(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file(name='malware', file_type='exe')
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 
@@ -363,10 +314,7 @@ class FileSingleUploadAjaxEdgeCaseTests(BaseTestCase):
         file1 = create_test_in_memory_uploaded_file(name='first')
         file2 = create_test_in_memory_uploaded_file(name='second')
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.FILES['file1'] = file1
         request.FILES['file2'] = file2
         request.user = self.super_user
@@ -400,10 +348,7 @@ class FileSingleUploadAjaxEdgeCaseTests(BaseTestCase):
     def test_post_related_field_with_path_traversal(self) -> None:
         uploaded_file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': '../../../etc'},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': '../../../etc'})
         request.FILES['file'] = uploaded_file
         request.user = self.super_user
 

@@ -20,10 +20,7 @@ class DocxConverterTests(BaseTestCase):
         'django_spire.knowledge.entry.version.converters.docx_converter.'
         'MarkdownFormatLlmBot.process'
     )
-    def test_improve_markdown_structure_concurrent_execution(
-        self,
-        mock_process_method: MagicMock
-    ):
+    def test_improve_markdown_structure_concurrent_execution(self, mock_process_method: MagicMock):
         def slow_process(markdown_content: str):
             time.sleep(0.1)
             return markdown_content
@@ -31,8 +28,7 @@ class DocxConverterTests(BaseTestCase):
         mock_process_method.side_effect = slow_process
         docx_converter = DocxConverter(entry_version=self.test_entry_version)
         mock_chunks = [
-            f'{x}' + ''.join('x' for _ in range(MARKDOWN_AI_CHUNK_SIZE - 1))
-            for x in range(1, 4)
+            f'{x}' + ''.join('x' for _ in range(MARKDOWN_AI_CHUNK_SIZE - 1)) for x in range(1, 4)
         ]
         start_time = time.time()
         improved_markdown = docx_converter.improve_markdown_structure(
@@ -47,10 +43,7 @@ class DocxConverterTests(BaseTestCase):
         'django_spire.knowledge.entry.version.converters.docx_converter.'
         'MarkdownFormatLlmBot.process'
     )
-    def test_improve_markdown_structure_returns_content(
-        self,
-        mock_process_method: MagicMock
-    ):
+    def test_improve_markdown_structure_returns_content(self, mock_process_method: MagicMock):
         mock_process_method.side_effect = lambda x: x
         docx_converter = DocxConverter(entry_version=self.test_entry_version)
 
@@ -64,10 +57,7 @@ class DocxConverterTests(BaseTestCase):
         'django_spire.knowledge.entry.version.converters.docx_converter.'
         'MarkdownFormatLlmBot.process'
     )
-    def test_improve_markdown_structure_handles_exception(
-        self,
-        mock_process_method: MagicMock
-    ):
+    def test_improve_markdown_structure_handles_exception(self, mock_process_method: MagicMock):
         original_chunk = 'x' * MARKDOWN_AI_CHUNK_SIZE
         mock_process_method.side_effect = Exception('Test error')
         docx_converter = DocxConverter(entry_version=self.test_entry_version)
@@ -79,10 +69,7 @@ class DocxConverterTests(BaseTestCase):
         'django_spire.knowledge.entry.version.converters.docx_converter.'
         'MarkdownFormatLlmBot.process'
     )
-    def test_improve_markdown_structure_single_chunk(
-        self,
-        mock_process_method: MagicMock
-    ):
+    def test_improve_markdown_structure_single_chunk(self, mock_process_method: MagicMock):
         mock_process_method.side_effect = lambda x: x
         docx_converter = DocxConverter(entry_version=self.test_entry_version)
 

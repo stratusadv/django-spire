@@ -11,12 +11,7 @@ def add_form_activity(model_object: ActivityMixin, pk: int | bool, user: User) -
     verb = 'updated' if pk else 'created'
 
     information = (
-        f'{user.get_full_name()} {verb} '
-        f'{model_object._meta.verbose_name} "{model_object}".'
+        f'{user.get_full_name()} {verb} {model_object._meta.verbose_name} "{model_object}".'
     )
 
-    model_object.add_activity(
-        user=user,
-        verb=verb,
-        information=information
-    )
+    model_object.add_activity(user=user, verb=verb, information=information)

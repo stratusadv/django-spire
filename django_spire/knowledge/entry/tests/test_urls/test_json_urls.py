@@ -17,11 +17,7 @@ class EntryJsonUrlsTests(BaseTestCase):
     def test_reorder_view_url_path(self):
         response = self.client.post(
             reverse('django_spire:knowledge:entry:json:reorder'),
-            data={
-                'entry_id': self.test_entry.pk,
-                'order': 0,
-                'collection_id': self.collection.pk
-            },
+            data={'entry_id': self.test_entry.pk, 'order': 0, 'collection_id': self.collection.pk},
             content_type='application/json',
         )
         assert response.status_code == 200
@@ -29,11 +25,7 @@ class EntryJsonUrlsTests(BaseTestCase):
     def test_reorder_view_invalid_entry(self):
         response = self.client.post(
             reverse('django_spire:knowledge:entry:json:reorder'),
-            data={
-                'entry_id': 99999,
-                'order': 0,
-                'collection_id': self.collection.pk
-            },
+            data={'entry_id': 99999, 'order': 0, 'collection_id': self.collection.pk},
             content_type='application/json',
         )
         assert response.status_code == 200
@@ -42,10 +34,7 @@ class EntryJsonUrlsTests(BaseTestCase):
     def test_reorder_view_missing_order(self):
         response = self.client.post(
             reverse('django_spire:knowledge:entry:json:reorder'),
-            data={
-                'entry_id': self.test_entry.pk,
-                'collection_id': self.collection.pk
-            },
+            data={'entry_id': self.test_entry.pk, 'collection_id': self.collection.pk},
             content_type='application/json',
         )
         assert response.status_code == 200
@@ -54,11 +43,7 @@ class EntryJsonUrlsTests(BaseTestCase):
     def test_reorder_view_invalid_collection(self):
         response = self.client.post(
             reverse('django_spire:knowledge:entry:json:reorder'),
-            data={
-                'entry_id': self.test_entry.pk,
-                'order': 0,
-                'collection_id': 99999
-            },
+            data={'entry_id': self.test_entry.pk, 'order': 0, 'collection_id': 99999},
             content_type='application/json',
         )
         assert response.status_code == 200

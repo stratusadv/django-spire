@@ -9,17 +9,20 @@ from django_spire.testing.playwright import EllipsisDropdown
 from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 if TYPE_CHECKING:
-    from test_project.app.infinite_scrolling.tests.test_playwright.pages.list_page import InfiniteScrollingListPage
-    from test_project.app.infinite_scrolling.tests.test_playwright.pages.table_page import InfiniteScrollingTablePage
+    from test_project.app.infinite_scrolling.tests.test_playwright.pages.list_page import (
+        InfiniteScrollingListPage,
+    )
+    from test_project.app.infinite_scrolling.tests.test_playwright.pages.table_page import (
+        InfiniteScrollingTablePage,
+    )
 
 
 @pytest.mark.django_db(transaction=True)
 class TestDropdownInteractions:
-    def test_dropdown_opens_from_list(self, list_page: InfiniteScrollingListPage, transactional_db: None) -> None:
-        InfiniteScrolling.objects.create(
-            name='Dropdown Test',
-            description='Dropdown Description'
-        )
+    def test_dropdown_opens_from_list(
+        self, list_page: InfiniteScrollingListPage, transactional_db: None
+    ) -> None:
+        InfiniteScrolling.objects.create(name='Dropdown Test', description='Dropdown Description')
 
         list_page.goto_page()
 
@@ -32,11 +35,10 @@ class TestDropdownInteractions:
 
         assert dropdown.is_open()
 
-    def test_dropdown_has_actions(self, list_page: InfiniteScrollingListPage, transactional_db: None) -> None:
-        InfiniteScrolling.objects.create(
-            name='Actions Test',
-            description='Actions Description'
-        )
+    def test_dropdown_has_actions(
+        self, list_page: InfiniteScrollingListPage, transactional_db: None
+    ) -> None:
+        InfiniteScrolling.objects.create(name='Actions Test', description='Actions Description')
 
         list_page.goto_page()
 
@@ -49,10 +51,11 @@ class TestDropdownInteractions:
         assert dropdown.has_edit_option()
         assert dropdown.has_delete_option()
 
-    def test_dropdown_opens_from_table(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_dropdown_opens_from_table(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(
-            name='Table Dropdown Test',
-            description='Table Description'
+            name='Table Dropdown Test', description='Table Description'
         )
 
         table_page.goto_page()

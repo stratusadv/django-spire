@@ -7,7 +7,9 @@ from typing import TYPE_CHECKING
 from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 if TYPE_CHECKING:
-    from test_project.app.infinite_scrolling.tests.test_playwright.pages.table_page import InfiniteScrollingTablePage
+    from test_project.app.infinite_scrolling.tests.test_playwright.pages.table_page import (
+        InfiniteScrollingTablePage,
+    )
 
 
 @pytest.mark.django_db(transaction=True)
@@ -18,7 +20,11 @@ class TestTablePage:
         assert table_page.page.locator('h1').inner_text().__contains__('Infinite Scrolling')
         assert table_page.table.is_visible()
 
-    def test_table_headers_visible(self, table_page: InfiniteScrollingTablePage, infinite_scrolling_data: list[InfiniteScrolling]) -> None:
+    def test_table_headers_visible(
+        self,
+        table_page: InfiniteScrollingTablePage,
+        infinite_scrolling_data: list[InfiniteScrolling],
+    ) -> None:
         table_page.goto_page()
 
         assert table_page.get_header('Name').is_visible()
@@ -26,7 +32,9 @@ class TestTablePage:
         assert table_page.get_header('Created').is_visible()
         assert table_page.get_header('Actions').is_visible()
 
-    def test_table_sorting_name_ascending(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_table_sorting_name_ascending(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(name='Zebra', description='Last')
         InfiniteScrolling.objects.create(name='Apple', description='First')
         InfiniteScrolling.objects.create(name='Banana', description='Second')
@@ -37,7 +45,9 @@ class TestTablePage:
 
         assert 'Apple' in table_page.get_first_row_text()
 
-    def test_table_sorting_name_descending(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_table_sorting_name_descending(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(name='Zebra', description='Last')
         InfiniteScrolling.objects.create(name='Apple', description='First')
         InfiniteScrolling.objects.create(name='Banana', description='Second')
@@ -51,7 +61,11 @@ class TestTablePage:
 
         assert 'Zebra' in table_page.get_first_row_text()
 
-    def test_table_sorting_toggles_icon(self, table_page: InfiniteScrollingTablePage, infinite_scrolling_data: list[InfiniteScrolling]) -> None:
+    def test_table_sorting_toggles_icon(
+        self,
+        table_page: InfiniteScrollingTablePage,
+        infinite_scrolling_data: list[InfiniteScrolling],
+    ) -> None:
         table_page.goto_page()
 
         table_page.click_header('Name')
@@ -62,7 +76,11 @@ class TestTablePage:
         table_page.page.wait_for_timeout(500)
         assert table_page.is_sorted_descending('Name')
 
-    def test_table_infinite_scroll(self, table_page: InfiniteScrollingTablePage, infinite_scrolling_data: list[InfiniteScrolling]) -> None:
+    def test_table_infinite_scroll(
+        self,
+        table_page: InfiniteScrollingTablePage,
+        infinite_scrolling_data: list[InfiniteScrolling],
+    ) -> None:
         table_page.goto_page()
 
         initial_count = table_page.get_loaded_count()
@@ -73,7 +91,11 @@ class TestTablePage:
         final_count = table_page.get_loaded_count()
         assert final_count > initial_count
 
-    def test_row_count_display(self, table_page: InfiniteScrollingTablePage, infinite_scrolling_data: list[InfiniteScrolling]) -> None:
+    def test_row_count_display(
+        self,
+        table_page: InfiniteScrollingTablePage,
+        infinite_scrolling_data: list[InfiniteScrolling],
+    ) -> None:
         table_page.goto_page()
 
         footer_text = table_page.page.locator('.fs-7.text-app-secondary').first.inner_text()
@@ -84,7 +106,9 @@ class TestTablePage:
 
 @pytest.mark.django_db(transaction=True)
 class TestRowSelection:
-    def test_select_single_row(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_select_single_row(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(name='Test Item 1', description='Desc 1')
         InfiniteScrolling.objects.create(name='Test Item 2', description='Desc 2')
 
@@ -94,7 +118,9 @@ class TestRowSelection:
 
         assert table_page.get_selected_count() == 1
 
-    def test_select_multiple_rows(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_select_multiple_rows(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(name='Test Item 1', description='Desc 1')
         InfiniteScrolling.objects.create(name='Test Item 2', description='Desc 2')
         InfiniteScrolling.objects.create(name='Test Item 3', description='Desc 3')
@@ -109,7 +135,9 @@ class TestRowSelection:
 
         assert table_page.get_selected_count() == 2
 
-    def test_deselect_row(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_deselect_row(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(name='Test Item 1', description='Desc 1')
 
         table_page.goto_page()
@@ -122,7 +150,9 @@ class TestRowSelection:
 
         assert not table_page.selected_count_text.is_visible()
 
-    def test_select_all_rows(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_select_all_rows(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(name='Test Item 1', description='Desc 1')
         InfiniteScrolling.objects.create(name='Test Item 2', description='Desc 2')
         InfiniteScrolling.objects.create(name='Test Item 3', description='Desc 3')
@@ -134,7 +164,9 @@ class TestRowSelection:
 
         assert table_page.get_selected_count() == 3
 
-    def test_deselect_all_rows(self, table_page: InfiniteScrollingTablePage, transactional_db: None) -> None:
+    def test_deselect_all_rows(
+        self, table_page: InfiniteScrollingTablePage, transactional_db: None
+    ) -> None:
         InfiniteScrolling.objects.create(name='Test Item 1', description='Desc 1')
         InfiniteScrolling.objects.create(name='Test Item 2', description='Desc 2')
 

@@ -11,5 +11,5 @@ NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP: dict[NotificationTypeChoices, type] = {
     NotificationTypeChoices.APP: AppNotification,
     NotificationTypeChoices.EMAIL: EmailNotification,
     NotificationTypeChoices.PUSH: PushNotification,
-    NotificationTypeChoices.SMS: SmsNotification
+    NotificationTypeChoices.SMS: SmsNotification,
 }

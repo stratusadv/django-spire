@@ -22,9 +22,7 @@ if TYPE_CHECKING:
 
 @AppAuthController('knowledge').permission_required('can_add')
 def form_view(
-    request: WSGIRequest,
-    pk: int = 0,
-    parent_pk: int | None = None
+    request: WSGIRequest, pk: int = 0, parent_pk: int | None = None
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=pk)
 
@@ -34,19 +32,15 @@ def form_view(
         request,
         unique_name='collections',
         target=(
-            Collection.objects
-            .active()
+            Collection.objects.active()
             .request_user_has_access(request)
             .exclude(pk=collection.pk)
             .exclude_children(collection_id=pk)
         ),
-        fields=['name']
+        fields=['name'],
     )
     Glue.queryset(
-        request,
-        unique_name='group_query_set',
-        target=AuthGroup.objects.all(),
-        fields=['name']
+        request, unique_name='group_query_set', target=AuthGroup.objects.all(), fields=['name']
     )
 
     if request.method == 'POST':
@@ -56,9 +50,7 @@ def form_view(
             collection, _ = collection.services.save_model_obj(**form.cleaned_data)
 
             CollectionGroup.services.factory.replace_groups(
-                request=request,
-                group_pks=dict(request.POST).get('groups'),
-                collection=collection,
+                request=request, group_pks=dict(request.POST).get('groups'), collection=collection
             )
 
             collection.services.tag.process_and_set_tags()
@@ -66,14 +58,12 @@ def form_view(
             if collection.parent_id:
                 return_url = reverse(
                     'django_spire:knowledge:collection:page:top_level',
-                    kwargs={'pk': collection.services.tool.get_root_collection_pk()}
+                    kwargs={'pk': collection.services.tool.get_root_collection_pk()},
                 )
             else:
                 return_url = reverse('django_spire:knowledge:page:home')
 
-            return HttpResponseRedirect(
-                return_url
-            )
+            return HttpResponseRedirect(return_url)
 
         show_form_errors(request, form)
     else:
@@ -86,9 +76,9 @@ def form_view(
         context_data={
             'collection': collection,
             'collection_parent_pk': parent_pk,
-            'group_ids': list(
-                collection.groups.all().values_list('auth_group_id', flat=True)
-            ) if collection.id else [],
+            'group_ids': list(collection.groups.all().values_list('auth_group_id', flat=True))
+            if collection.id
+            else [],
         },
-        template='django_spire/knowledge/collection/page/form_page.html'
+        template='django_spire/knowledge/collection/page/form_page.html',
     )

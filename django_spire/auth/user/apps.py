@@ -14,7 +14,7 @@ class UserAccountConfig(AppConfig):
         {
             'name': 'user',
             'model_class_path': 'django_spire.auth.user.models.AuthUser',
-            'is_proxy_model': True
+            'is_proxy_model': True,
         },
     )
 

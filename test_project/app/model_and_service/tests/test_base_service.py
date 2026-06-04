@@ -42,4 +42,3 @@ class TestBaseService(TestCase):
         service = AdultService(self.adult)
         service.set_inactive()
         assert not self.adult.is_active
-

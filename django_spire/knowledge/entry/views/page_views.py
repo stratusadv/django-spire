@@ -22,8 +22,5 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=entry,
         delete_func=entry.services.processor.set_deleted,
-        return_url=request.GET.get(
-            'return_url',
-            reverse('django_spire:knowledge:page:home')
-        )
+        return_url=request.GET.get('return_url', reverse('django_spire:knowledge:page:home')),
     )

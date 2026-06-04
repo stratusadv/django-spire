@@ -3,10 +3,7 @@ from __future__ import annotations
 import pytest
 
 from django_spire.sync.django.graph import build_graph
-from django_spire.sync.tests.models import (
-    SyncTestModel,
-    SyncTestSimpleModel,
-)
+from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
 
 @pytest.mark.django_db

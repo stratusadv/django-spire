@@ -16,6 +16,6 @@ class DomainConfig(AppConfig):
         {
             'name': 'metric_domain',
             'model_class_path': 'django_spire.metric.domain.models.Domain',
-            'is_proxy_model': False
+            'is_proxy_model': False,
         },
     )

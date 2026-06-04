@@ -10,6 +10,6 @@ class LazyTabsConfig(AppConfig):
         {
             'name': 'lazy_tabs',
             'model_class_path': 'test_project.app.lazy_tabs.models.LazyTabs',
-            'is_proxy_model': False
+            'is_proxy_model': False,
         },
     )

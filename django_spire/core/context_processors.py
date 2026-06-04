@@ -18,23 +18,13 @@ def django_spire(request: WSGIRequest) -> dict[str, Any]:
     for app_name in settings.DJANGO_SPIRE_AUTH_CONTROLLERS:
         auth_controller_dict[app_name] = AppAuthController(app_name, request=request)
 
-    return {
-        'DJANGO_SPIRE_VERSION': __VERSION__,
-        'AuthController': auth_controller_dict
-    }
+    return {'DJANGO_SPIRE_VERSION': __VERSION__, 'AuthController': auth_controller_dict}
 
 
 def theme_context(request: WSGIRequest) -> dict[str, Any]:
-    default_string = getattr(
-        settings,
-        'DJANGO_SPIRE_DEFAULT_THEME',
-        'default-light'
-    )
+    default_string = getattr(settings, 'DJANGO_SPIRE_DEFAULT_THEME', 'default-light')
 
-    default = Theme.from_string(
-        default_string,
-        default=Theme.get_default()
-    )
+    default = Theme.from_string(default_string, default=Theme.get_default())
 
     name = get_theme_cookie_name()
     cookie = request.COOKIES.get(name, '')
@@ -43,7 +33,7 @@ def theme_context(request: WSGIRequest) -> dict[str, Any]:
     path = getattr(
         settings,
         'DJANGO_SPIRE_THEME_PATH',
-        '/static/django_spire/css/themes/{family}/app-{mode}.css'
+        '/static/django_spire/css/themes/{family}/app-{mode}.css',
     )
 
     return {

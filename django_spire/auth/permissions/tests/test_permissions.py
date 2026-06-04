@@ -20,7 +20,7 @@ class ModelPermissionTestCase(BaseTestCase):
             name='test',
             model_class_path='django_spire.auth.group.models.AuthGroup',
             is_proxy_model=True,
-            verbose_name='Test Permission'
+            verbose_name='Test Permission',
         )
         assert mp.name == 'test'
         assert mp.model_class_path == 'django_spire.auth.group.models.AuthGroup'
@@ -31,7 +31,7 @@ class ModelPermissionTestCase(BaseTestCase):
         mp = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         assert mp.model_class == AuthGroup
 
@@ -39,7 +39,7 @@ class ModelPermissionTestCase(BaseTestCase):
         mp = ModelPermission(
             name='test',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         assert mp.verbose_name is None
 
@@ -47,7 +47,7 @@ class ModelPermissionTestCase(BaseTestCase):
         mp = ModelPermission(
             name='test',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=False
+            is_proxy_model=False,
         )
         assert not mp.is_proxy_model
 
@@ -55,7 +55,7 @@ class ModelPermissionTestCase(BaseTestCase):
         mp = ModelPermission(
             name='TestName',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         assert mp.name == 'TestName'
 
@@ -64,7 +64,7 @@ class ModelPermissionTestCase(BaseTestCase):
             name='test',
             model_class_path='django_spire.auth.group.models.AuthGroup',
             is_proxy_model=True,
-            verbose_name='Tëst Përmission'
+            verbose_name='Tëst Përmission',
         )
         assert mp.verbose_name == 'Tëst Përmission'
 
@@ -76,7 +76,7 @@ class ModelPermissionsTestCase(BaseTestCase):
         self.model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         self.model_permissions = ModelPermissions(self.model_permission)
 
@@ -154,7 +154,7 @@ class GroupPermissionsTestCase(BaseTestCase):
         self.model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         self.group_permissions = GroupPermissions(self.group, self.model_permission)
 
@@ -247,7 +247,7 @@ class UserPermissionHelperTestCase(BaseTestCase):
         self.model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
 
     def test_initial_perm_level_is_zero(self) -> None:

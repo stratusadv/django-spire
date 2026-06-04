@@ -13,9 +13,7 @@ class SpireModelAdmin(admin.ModelAdmin):
 
     trailing_fields = ('is_active', 'is_deleted')
 
-    auto_readonly_fields: Tuple[str] = (
-        'created_datetime', 'is_active', 'is_deleted',
-    )
+    auto_readonly_fields: Tuple[str] = ('created_datetime', 'is_active', 'is_deleted')
 
     filter_field_types = (
         models.BooleanField,
@@ -56,8 +54,7 @@ class SpireModelAdmin(admin.ModelAdmin):
 
         for field in cls.model_fields:
             if not isinstance(
-                field,
-                (models.ManyToManyField, models.ManyToOneRel, GenericRelation),
+                field, (models.ManyToManyField, models.ManyToOneRel, GenericRelation)
             ):
                 if hasattr(field, 'name') and not field.name.startswith('_'):
                     if field.name not in cls.trailing_fields:
@@ -67,7 +64,7 @@ class SpireModelAdmin(admin.ModelAdmin):
             if trailing_field in [field.name for field in cls.model_fields]:
                 fields.append(trailing_field)
 
-        cls.list_display = tuple(fields[:cls.max_list_display])
+        cls.list_display = tuple(fields[: cls.max_list_display])
 
     @classmethod
     def _configure_list_filter(cls):

@@ -24,8 +24,14 @@ def card_page(authenticated_page: Page, live_server: _LiveServer) -> InfiniteScr
 
 
 @pytest.fixture
-def detail_page(authenticated_page: Page, live_server: _LiveServer, infinite_scrolling_data: list[InfiniteScrolling]) -> InfiniteScrollingDetailPage:
-    return InfiniteScrollingDetailPage(authenticated_page, live_server.url, infinite_scrolling_data[0].pk)
+def detail_page(
+    authenticated_page: Page,
+    live_server: _LiveServer,
+    infinite_scrolling_data: list[InfiniteScrolling],
+) -> InfiniteScrollingDetailPage:
+    return InfiniteScrollingDetailPage(
+        authenticated_page, live_server.url, infinite_scrolling_data[0].pk
+    )
 
 
 @pytest.fixture
@@ -34,8 +40,7 @@ def infinite_scrolling_data(_transactional_db: None) -> list[InfiniteScrolling]:
 
     return [
         InfiniteScrolling.objects.create(
-            name=f'Test Item {i}',
-            description=f'Description for item {i}'
+            name=f'Test Item {i}', description=f'Description for item {i}'
         )
         for i in range(30)
     ]

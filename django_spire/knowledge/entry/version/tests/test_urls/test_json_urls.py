@@ -24,10 +24,10 @@ class EntryVersionJsonUrlsTests(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:knowledge:entry:version:json:update_blocks',
-                kwargs={'pk': self.test_entry_version.pk}
+                kwargs={'pk': self.test_entry_version.pk},
             ),
             data=json.dumps([create_test_block_form_data()]),
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 200
 
@@ -35,10 +35,10 @@ class EntryVersionJsonUrlsTests(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:knowledge:entry:version:json:update_blocks',
-                kwargs={'pk': self.test_entry_version.pk}
+                kwargs={'pk': self.test_entry_version.pk},
             ),
             data=json.dumps([]),
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 200
 
@@ -46,8 +46,8 @@ class EntryVersionJsonUrlsTests(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:knowledge:entry:version:json:update_entry_from_version',
-                kwargs={'pk': self.test_entry_version.pk}
+                kwargs={'pk': self.test_entry_version.pk},
             ),
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 200

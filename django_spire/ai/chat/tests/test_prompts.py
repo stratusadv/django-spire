@@ -25,8 +25,7 @@ class ChatPromptsTests(BaseTestCase):
 
     def test_chat_system_prompt_with_organization(self) -> None:
         Organization.objects.create(
-            name='Test Company',
-            description='A test company for testing purposes'
+            name='Test Company', description='A test company for testing purposes'
         )
 
         prompt = chat_system_prompt()

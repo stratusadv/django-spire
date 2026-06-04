@@ -10,24 +10,17 @@ app_name = 'django_spire'
 urlpatterns = [
     path(
         f'{app_config.URLPATTERNS_NAMESPACE}/',
-        include(
-            app_config.URLPATTERNS_INCLUDE,
-            namespace=app_config.URLPATTERNS_NAMESPACE,
-        )
+        include(app_config.URLPATTERNS_INCLUDE, namespace=app_config.URLPATTERNS_NAMESPACE),
     )
     for app_config in apps.get_app_configs()
     if hasattr(app_config, 'URLPATTERNS_INCLUDE') and hasattr(app_config, 'URLPATTERNS_NAMESPACE')
 ]
 
 
-
 if apps.is_installed('django_spire.api'):
-
     from django_spire.api.api_v1 import api_v1
 
-    urlpatterns += [
-        path('api/v1/', api_v1.urls, name='api_v1'),
-    ]
+    urlpatterns += [path('api/v1/', api_v1.urls, name='api_v1')]
 
 if not urlpatterns:
     message = 'You need to have at least one app installed to use Django Spire.'

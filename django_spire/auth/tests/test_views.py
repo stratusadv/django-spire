@@ -24,35 +24,34 @@ class LoginViewTestCase(BaseTestCase):
     def test_login_with_valid_credentials(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'testpassword123'}
+            data={'username': 'testuser', 'password': 'testpassword123'},
         )
         assert response.status_code == 302
 
     def test_login_with_invalid_credentials(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'wrongpassword'}
+            data={'username': 'testuser', 'password': 'wrongpassword'},
         )
         assert response.status_code == 200
 
     def test_login_with_nonexistent_user(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'nonexistent', 'password': 'password'}
+            data={'username': 'nonexistent', 'password': 'password'},
         )
         assert response.status_code == 200
 
     def test_login_with_empty_username(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': '', 'password': 'testpassword123'}
+            data={'username': '', 'password': 'testpassword123'},
         )
         assert response.status_code == 200
 
     def test_login_with_empty_password(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': ''}
+            reverse('django_spire:auth:admin:login'), data={'username': 'testuser', 'password': ''}
         )
         assert response.status_code == 200
 
@@ -61,35 +60,35 @@ class LoginViewTestCase(BaseTestCase):
         self.user.save()
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'testpassword123'}
+            data={'username': 'testuser', 'password': 'testpassword123'},
         )
         assert response.status_code == 200
 
     def test_login_with_whitespace_username(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': '   ', 'password': 'testpassword123'}
+            data={'username': '   ', 'password': 'testpassword123'},
         )
         assert response.status_code == 200
 
     def test_login_case_sensitive_username(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'TESTUSER', 'password': 'testpassword123'}
+            data={'username': 'TESTUSER', 'password': 'testpassword123'},
         )
         assert response.status_code == 302
 
     def test_login_case_sensitive_password(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'TESTPASSWORD123'}
+            data={'username': 'testuser', 'password': 'TESTPASSWORD123'},
         )
         assert response.status_code == 200
 
     def test_login_sets_session(self) -> None:
         self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'testpassword123'}
+            data={'username': 'testuser', 'password': 'testpassword123'},
         )
         user = get_user(self.client)
         assert user.is_authenticated
@@ -97,49 +96,49 @@ class LoginViewTestCase(BaseTestCase):
     def test_login_with_sql_injection_attempt(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': "'; DROP TABLE users; --", 'password': 'password'}
+            data={'username': "'; DROP TABLE users; --", 'password': 'password'},
         )
         assert response.status_code == 200
 
     def test_login_with_xss_attempt(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': '<script>alert("xss")</script>', 'password': 'password'}
+            data={'username': '<script>alert("xss")</script>', 'password': 'password'},
         )
         assert response.status_code == 200
 
     def test_login_with_very_long_username(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'a' * 1000, 'password': 'password'}
+            data={'username': 'a' * 1000, 'password': 'password'},
         )
         assert response.status_code == 200
 
     def test_login_with_very_long_password(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'a' * 1000}
+            data={'username': 'testuser', 'password': 'a' * 1000},
         )
         assert response.status_code == 200
 
     def test_login_with_unicode_username(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'tëstüsér', 'password': 'password'}
+            data={'username': 'tëstüsér', 'password': 'password'},
         )
         assert response.status_code == 200
 
     def test_login_with_unicode_password(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'pässwörd'}
+            data={'username': 'testuser', 'password': 'pässwörd'},
         )
         assert response.status_code == 200
 
     def test_login_get_request_does_not_authenticate(self) -> None:
         response = self.client.get(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'testuser', 'password': 'testpassword123'}
+            data={'username': 'testuser', 'password': 'testpassword123'},
         )
         user = get_user(self.client)
         assert not user.is_authenticated
@@ -148,21 +147,21 @@ class LoginViewTestCase(BaseTestCase):
     def test_login_with_null_bytes(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'test\x00user', 'password': 'password'}
+            data={'username': 'test\x00user', 'password': 'password'},
         )
         assert response.status_code == 200
 
     def test_login_with_newline_in_username(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'test\nuser', 'password': 'password'}
+            data={'username': 'test\nuser', 'password': 'password'},
         )
         assert response.status_code == 200
 
     def test_login_with_tab_in_username(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:login'),
-            data={'username': 'test\tuser', 'password': 'password'}
+            data={'username': 'test\tuser', 'password': 'password'},
         )
         assert response.status_code == 200
 
@@ -208,8 +207,8 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'oldpassword123',
                 'new_password1': 'newpassword456',
-                'new_password2': 'newpassword456'
-            }
+                'new_password2': 'newpassword456',
+            },
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -221,8 +220,8 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'wrongoldpassword',
                 'new_password1': 'newpassword456',
-                'new_password2': 'newpassword456'
-            }
+                'new_password2': 'newpassword456',
+            },
         )
         assert response.status_code == 200
         self.user.refresh_from_db()
@@ -234,19 +233,15 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'oldpassword123',
                 'new_password1': 'newpassword456',
-                'new_password2': 'differentpassword789'
-            }
+                'new_password2': 'differentpassword789',
+            },
         )
         assert response.status_code == 200
 
     def test_password_change_empty_new_password(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:password_change'),
-            data={
-                'old_password': 'oldpassword123',
-                'new_password1': '',
-                'new_password2': ''
-            }
+            data={'old_password': 'oldpassword123', 'new_password1': '', 'new_password2': ''},
         )
         assert response.status_code == 200
 
@@ -261,8 +256,8 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'oldpassword123',
                 'new_password1': 'oldpassword123',
-                'new_password2': 'oldpassword123'
-            }
+                'new_password2': 'oldpassword123',
+            },
         )
         assert response.status_code in (200, 302)
 
@@ -272,8 +267,8 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'oldpassword123',
                 'new_password1': 'nëwpässwörd456',
-                'new_password2': 'nëwpässwörd456'
-            }
+                'new_password2': 'nëwpässwörd456',
+            },
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -286,8 +281,8 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'oldpassword123',
                 'new_password1': long_password,
-                'new_password2': long_password
-            }
+                'new_password2': long_password,
+            },
         )
         assert response.status_code == 302
 
@@ -297,8 +292,8 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'oldpassword123',
                 'new_password1': 'new password 456',
-                'new_password2': 'new password 456'
-            }
+                'new_password2': 'new password 456',
+            },
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -310,8 +305,8 @@ class PasswordChangeViewTestCase(BaseTestCase):
             data={
                 'old_password': 'oldpassword123',
                 'new_password1': 'newpassword456',
-                'new_password2': 'newpassword456'
-            }
+                'new_password2': 'newpassword456',
+            },
         )
         user = get_user(self.client)
         assert user.is_authenticated
@@ -335,50 +330,45 @@ class PasswordResetViewTestCase(BaseTestCase):
 
     def test_password_reset_with_valid_email(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:admin:password_reset'),
-            data={'email': 'test@example.com'}
+            reverse('django_spire:auth:admin:password_reset'), data={'email': 'test@example.com'}
         )
         assert response.status_code == 302
 
     def test_password_reset_with_nonexistent_email(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:password_reset'),
-            data={'email': 'nonexistent@example.com'}
+            data={'email': 'nonexistent@example.com'},
         )
         assert response.status_code == 302
 
     def test_password_reset_with_empty_email(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:admin:password_reset'),
-            data={'email': ''}
+            reverse('django_spire:auth:admin:password_reset'), data={'email': ''}
         )
         assert response.status_code == 200
 
     def test_password_reset_with_invalid_email(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:admin:password_reset'),
-            data={'email': 'invalid-email'}
+            reverse('django_spire:auth:admin:password_reset'), data={'email': 'invalid-email'}
         )
         assert response.status_code == 200
 
     def test_password_reset_with_uppercase_email(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:admin:password_reset'),
-            data={'email': 'TEST@EXAMPLE.COM'}
+            reverse('django_spire:auth:admin:password_reset'), data={'email': 'TEST@EXAMPLE.COM'}
         )
         assert response.status_code == 302
 
     def test_password_reset_with_mixed_case_email(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:admin:password_reset'),
-            data={'email': 'Test@Example.Com'}
+            reverse('django_spire:auth:admin:password_reset'), data={'email': 'Test@Example.Com'}
         )
         assert response.status_code == 302
 
     def test_password_reset_with_whitespace_email(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:admin:password_reset'),
-            data={'email': '  test@example.com  '}
+            data={'email': '  test@example.com  '},
         )
         assert response.status_code in (200, 302)
 
@@ -386,8 +376,7 @@ class PasswordResetViewTestCase(BaseTestCase):
         self.user.is_active = False
         self.user.save()
         response = self.client.post(
-            reverse('django_spire:auth:admin:password_reset'),
-            data={'email': 'test@example.com'}
+            reverse('django_spire:auth:admin:password_reset'), data={'email': 'test@example.com'}
         )
         assert response.status_code == 302
 

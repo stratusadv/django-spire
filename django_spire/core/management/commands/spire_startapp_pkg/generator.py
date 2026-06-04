@@ -7,7 +7,10 @@ from django.core.management.base import CommandError
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from django_spire.core.management.commands.spire_startapp_pkg.config import AppConfig, PathConfig
+    from django_spire.core.management.commands.spire_startapp_pkg.config import (
+        AppConfig,
+        PathConfig,
+    )
     from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
     from django_spire.core.management.commands.spire_startapp_pkg.processor import TemplateProcessor
     from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
@@ -26,7 +29,7 @@ class AppGenerator:
         filesystem: FileSystem,
         processor: TemplateProcessor,
         reporter: Reporter,
-        path_config: PathConfig
+        path_config: PathConfig,
     ):
         """
         Initializes the AppGenerator with required dependencies.
@@ -63,9 +66,7 @@ class AppGenerator:
         self._filesystem.copy_tree(self._path_config.app_template, config.destination)
 
         self._processor.process_app_templates(
-            config.destination,
-            config.components,
-            config.user_inputs
+            config.destination, config.components, config.user_inputs
         )
 
         self._reporter.report_app_creation_success(config.app_path)
@@ -83,8 +84,7 @@ class AppGenerator:
             self._reporter.write('\n', self._reporter.style_notice)
 
             message = (
-                f'Template directory "{path}" is missing. '
-                f'Ensure you have a valid {template_type}.'
+                f'Template directory "{path}" is missing. Ensure you have a valid {template_type}.'
             )
 
             raise CommandError(message)
@@ -103,7 +103,7 @@ class TemplateGenerator:
         filesystem: FileSystem,
         processor: TemplateProcessor,
         reporter: Reporter,
-        path_config: PathConfig
+        path_config: PathConfig,
     ):
         """
         Initializes the TemplateGenerator with required dependencies.
@@ -140,9 +140,7 @@ class TemplateGenerator:
         self._filesystem.copy_tree(self._path_config.html_template, config.template_destination)
 
         self._processor.process_html_templates(
-            config.template_destination,
-            config.components,
-            config.user_inputs
+            config.template_destination, config.components, config.user_inputs
         )
 
         self._reporter.report_templates_creation_success(config.app_path)
@@ -160,8 +158,7 @@ class TemplateGenerator:
             self._reporter.write('\n', self._reporter.style_notice)
 
             message = (
-                f'Template directory "{path}" is missing. '
-                f'Ensure you have a valid {template_type}.'
+                f'Template directory "{path}" is missing. Ensure you have a valid {template_type}.'
             )
 
             raise CommandError(message)

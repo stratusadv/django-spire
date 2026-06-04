@@ -12,13 +12,9 @@ class KnowledgePageUrlsTests(BaseTestCase):
         self.collection = create_test_collection()
 
     def test_home_view_url_path(self):
-        response = self.client.get(
-            reverse('django_spire:knowledge:page:home')
-        )
+        response = self.client.get(reverse('django_spire:knowledge:page:home'))
         assert response.status_code == 200
 
     def test_home_view_contains_collections(self):
-        response = self.client.get(
-            reverse('django_spire:knowledge:page:home')
-        )
+        response = self.client.get(reverse('django_spire:knowledge:page:home'))
         assert 'collections' in response.context

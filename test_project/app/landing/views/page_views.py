@@ -9,7 +9,4 @@ if TYPE_CHECKING:
 
 
 def landing_page_view(request: WSGIRequest) -> TemplateResponse:
-    return TemplateResponse(
-        request,
-        template='landing/page/landing_page.html'
-    )
+    return TemplateResponse(request, template='landing/page/landing_page.html')

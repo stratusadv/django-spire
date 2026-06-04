@@ -29,10 +29,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Statistic',
-            reverse('metric:domain:statistic:page:list')
-        )
+        crumbs.add_breadcrumb('Statistic', reverse('metric:domain:statistic:page:list'))
 
         return crumbs
 
@@ -42,11 +39,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'metric:domain:statistic:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('metric:domain:statistic:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs
@@ -125,10 +118,7 @@ class Statistic(HistoryModelMixin, ActivityMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Statistic',
-            reverse('metric:domain:statistic:page:list')
-        )
+        crumbs.add_breadcrumb('Statistic', reverse('metric:domain:statistic:page:list'))
 
         return crumbs
 
@@ -138,11 +128,7 @@ class Statistic(HistoryModelMixin, ActivityMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'metric:domain:statistic:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('metric:domain:statistic:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs
@@ -151,5 +137,3 @@ class Statistic(HistoryModelMixin, ActivityMixin):
         verbose_name = 'Statistic'
         verbose_name_plural = 'Statistics'
         db_table = 'metric_domain_statistic'
-
-

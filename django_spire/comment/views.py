@@ -17,8 +17,7 @@ from django_spire.comment.forms import CommentForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.generic_views import dispatch_modal_delete_form_content
 from django_spire.contrib.redirects import safe_redirect_url
-from django_spire.contrib.shortcuts import get_object_or_null_obj, \
-    model_object_from_app_label
+from django_spire.contrib.shortcuts import get_object_or_null_obj, model_object_from_app_label
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -26,11 +25,7 @@ if TYPE_CHECKING:
 
 @login_required()
 def comment_modal_form_content(
-    request: WSGIRequest,
-    comment_pk: int,
-    obj_pk: int,
-    app_label: str,
-    model_name: str
+    request: WSGIRequest, comment_pk: int, obj_pk: int, app_label: str, model_name: str
 ) -> TemplateResponse:
     has_app_permission_or_404(request.user, app_label, model_name, 'change')
 
@@ -49,19 +44,13 @@ def comment_modal_form_content(
     }
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='django_spire/comment/form/comment_form.html',
+        request, context=context_data, template='django_spire/comment/form/comment_form.html'
     )
 
 
 @login_required()
 def comment_form_view(
-    request: WSGIRequest,
-    comment_pk: int,
-    obj_pk: int,
-    app_label: str,
-    model_name: str
+    request: WSGIRequest, comment_pk: int, obj_pk: int, app_label: str, model_name: str
 ) -> HttpResponseRedirect:
     has_app_permission_or_404(request.user, app_label, model_name, 'change')
 
@@ -81,10 +70,7 @@ def comment_form_view(
         if form.is_valid():
             # TODO: Create comment factory.
             if comment_pk == 0:
-                obj.add_comment(
-                    user=request.user,
-                    information=form.cleaned_data['information']
-                )
+                obj.add_comment(user=request.user, information=form.cleaned_data['information'])
             else:
                 comment.information = form.cleaned_data['information']
                 comment.is_edited = True
@@ -97,11 +83,7 @@ def comment_form_view(
 
 @login_required()
 def comment_modal_delete_form_view(
-    request: WSGIRequest,
-    comment_pk: int,
-    obj_pk: int,
-    app_label: str,
-    model_name: str
+    request: WSGIRequest, comment_pk: int, obj_pk: int, app_label: str, model_name: str
 ) -> HttpResponseRedirect | TemplateResponse:
     has_app_permission_or_404(request.user, app_label, model_name, 'change')
 
@@ -113,12 +95,15 @@ def comment_modal_delete_form_view(
         messages.warning(request, 'You can only delete your comments.')
         return HttpResponseRedirect(return_url)
 
-    form_action = reverse('django_spire:comment:delete_form', kwargs={
-        'comment_pk': comment_pk,
-        'obj_pk': obj_pk,
-        'app_label': app_label,
-        'model_name': model_name
-    })
+    form_action = reverse(
+        'django_spire:comment:delete_form',
+        kwargs={
+            'comment_pk': comment_pk,
+            'obj_pk': obj_pk,
+            'app_label': app_label,
+            'model_name': model_name,
+        },
+    )
 
     def add_activity() -> None:
         obj.add_activity(
@@ -133,5 +118,5 @@ def comment_modal_delete_form_view(
         form_action=form_action,
         activity_func=add_activity,
         return_url=return_url,
-        show_success_message=True
+        show_success_message=True,
     )

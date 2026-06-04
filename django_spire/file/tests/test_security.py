@@ -13,22 +13,15 @@ from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
 from django_spire.file.linker import FileLinker
 from django_spire.file.models import File
 from django_spire.file.path import FilePathBuilder
-from django_spire.file.tests.factories import (
-    create_test_file,
-    create_test_in_memory_uploaded_file,
-)
+from django_spire.file.tests.factories import create_test_file, create_test_in_memory_uploaded_file
 from django_spire.file.validators import FileValidator
 from django_spire.file.views import file_upload_ajax_single
 from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 
 
 STORAGES_OVERRIDE = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 
 
@@ -123,11 +116,7 @@ class OrphanFileClaimIDORTests(BaseTestCase):
         assert claimed_count == 0
 
     def test_soft_deleted_orphan_rejected_without_token(self) -> None:
-        orphan = create_test_file(
-            name='deleted_by_user_a',
-            is_active=False,
-            is_deleted=True,
-        )
+        orphan = create_test_file(name='deleted_by_user_a', is_active=False, is_deleted=True)
 
         handler = SingleFileHandler.for_related_field('pfp')
         result = handler.replace({'id': orphan.pk}, self.ticket_b)
@@ -232,8 +221,7 @@ class ValidatorFactoryConsistencyTests(BaseTestCase):
 class DoubleExtensionAttackTests(BaseTestCase):
     def test_exe_hidden_behind_pdf_extension_passes_allowlist(self) -> None:
         validator = FileValidator(
-            allowed_extensions=frozenset({'pdf'}),
-            blocked_extensions=frozenset(),
+            allowed_extensions=frozenset({'pdf'}), blocked_extensions=frozenset()
         )
         file = create_test_in_memory_uploaded_file()
         file.name = 'payload.exe.pdf'

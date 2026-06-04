@@ -16,15 +16,13 @@ if TYPE_CHECKING:
 def history_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     history = get_object_or_404(models.HistoryExample, pk=pk)
 
-    context_data = {
-        'history': history,
-    }
+    context_data = {'history': history}
 
     return generic_views.detail_view(
         request,
         obj=history,
         context_data=context_data,
-        template='history/page/history_detail_page.html'
+        template='history/page/history_detail_page.html',
     )
 
 
@@ -34,13 +32,11 @@ def history_home_view(request: WSGIRequest) -> TemplateResponse:
 
 
 def history_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'history': models.HistoryExample.objects.all()
-    }
+    context_data = {'history': models.HistoryExample.objects.all()}
 
     return generic_views.list_view(
         request,
         model=models.HistoryExample,
         context_data=context_data,
-        template='history/page/history_list_page.html'
+        template='history/page/history_list_page.html',
     )

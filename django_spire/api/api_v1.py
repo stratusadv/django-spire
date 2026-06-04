@@ -14,13 +14,8 @@ api_v1 = NinjaAPI(
     title='API',
     version='1.0',
     urls_namespace='django_spire:api_v1',
-    auth=[
-        ApiKeySecurity(permission_required=ApiPermissionChoices.DELETE)
-    ],
-    throttle=[
-        AnonRateThrottle('1/s'),
-        AuthRateThrottle('150/s'),
-    ],
+    auth=[ApiKeySecurity(permission_required=ApiPermissionChoices.DELETE)],
+    throttle=[AnonRateThrottle('1/s'), AuthRateThrottle('150/s')],
 )
 
 for app_config in apps.get_app_configs():
@@ -38,4 +33,3 @@ for app_config in apps.get_app_configs():
         )
 
 api_v1.add_router('/test', router=test_router, tags=['test'])
-

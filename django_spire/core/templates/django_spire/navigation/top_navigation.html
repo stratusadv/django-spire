@@ -11,7 +11,7 @@
             {% endblock %}
 
             {% block top_navigation_breadcrumb %}
-                {% include 'django_spire/element/breadcrumb_element.html' %}
+                {% include 'django_spire/contrib/element/breadcrumb_element.html' %}
             {% endblock %}
         </div>
 
@@ -20,7 +20,7 @@
                 {% if AuthController.help_desk.can_view %}
                     {% block help_desk_icon %}
                         {% url 'django_spire:help_desk:page:list' as help_desk_url %}
-                        {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' font_size='ds-fs-3' icon_class='mx-1' %}
+                        {% include 'django_spire/contrib/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' font_size='ds-fs-3' icon_class='mx-1' %}
                     {% endblock %}
                 {% endif %}
 

@@ -11,14 +11,9 @@ from django_spire.contrib.utils import get_object_from_module_string
 
 def get_validated_changelog():
     try:
-        changelog = get_object_from_module_string(
-            settings.DJANGO_SPIRE_CHANGELOG_MODULE,
-        )
+        changelog = get_object_from_module_string(settings.DJANGO_SPIRE_CHANGELOG_MODULE)
     except ModuleNotFoundError as err:
-        message = (
-            'ChangeLog object not found at '
-            f'{settings.DJANGO_SPIRE_CHANGELOG_MODULE}'
-        )
+        message = f'ChangeLog object not found at {settings.DJANGO_SPIRE_CHANGELOG_MODULE}'
         raise ChangeLogModuleNotFoundError(message) from err
 
     if not isinstance(changelog, Sequence):

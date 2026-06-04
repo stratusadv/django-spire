@@ -5,9 +5,11 @@
 {% endblock %}
 
 {% block card_title_content %}
-	{% for comment_example in comment_examples %}
-		{% include 'comment/item/item.html' %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
+    <div class="card-body">
+        {% for comment_example in comment_examples %}
+            {% include 'comment/item/item.html' %}
+        {% empty %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endfor %}
+    </div>
 {% endblock %}

@@ -25,10 +25,7 @@ class Signage(HistoryModelMixin, ActivityMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Signage',
-            reverse('metric:visual:signage:page:list')
-        )
+        crumbs.add_breadcrumb('Signage', reverse('metric:visual:signage:page:list'))
 
         return crumbs
 
@@ -38,11 +35,7 @@ class Signage(HistoryModelMixin, ActivityMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'metric:visual:signage:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('metric:visual:signage:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs

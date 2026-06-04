@@ -10,7 +10,6 @@ class MfaConfig(AppConfig):
     label = 'django_spire_auth_mfa'
     name = 'django_spire.auth.mfa'
 
-
     REQUIRED_APPS = ('django_spire_core', 'django_spire_auth')
 
     def ready(self) -> None:

@@ -51,7 +51,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
         async_result = self.obj.async_result
 
-        new_meta = async_result.info # This is to prevent race based mutations
+        new_meta = async_result.info  # This is to prevent race based mutations
 
         if self.obj._task_meta != new_meta:
             if async_result.ready():
@@ -66,7 +66,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
 
             has_changed = True
 
-        new_state = async_result.state # This is to prevent race based mutations
+        new_state = async_result.state  # This is to prevent race based mutations
 
         if self.obj.state != states.SUCCESS and new_state == states.SUCCESS:
             self.update_result(async_result)

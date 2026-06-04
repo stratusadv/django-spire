@@ -15,8 +15,6 @@ class BaseTestCase(TestCase):
     def setUp(self) -> None:
         self.client = Client()
 
-        self.super_user = AuthUser.objects.create_superuser(
-            username='stratus',
-        )
+        self.super_user = AuthUser.objects.create_superuser(username='stratus')
 
         self.client.force_login(self.super_user)

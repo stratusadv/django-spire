@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 
 from django_spire.auth.controller.exceptions import (
     AuthControllerNotFoundError,
-    AuthControllerRequestError
+    AuthControllerRequestError,
 )
 from django_spire.auth.permissions.decorators import permission_required_decorator_function
 from django_spire.conf import settings
@@ -37,11 +37,7 @@ class BaseAuthController:
     def request(self, value: WSGIRequest) -> None:
         self._request = value
 
-    def permission_required(
-        self,
-        *permissions: str,
-        all_required: bool = True
-    ) -> Callable:
+    def permission_required(self, *permissions: str, all_required: bool = True) -> Callable:
         def decorator(method: Callable[..., Any]) -> Callable:
             @functools.wraps(method)
             def wrapper(request: WSGIRequest, *args, **kwargs) -> Callable:
@@ -50,11 +46,7 @@ class BaseAuthController:
                 uncallable_permissions = []
 
                 for perm in permissions:
-                    callable_permission = (
-                        getattr(self, perm)
-                        if hasattr(self, perm)
-                        else perm
-                    )
+                    callable_permission = getattr(self, perm) if hasattr(self, perm) else perm
 
                     if callable(callable_permission):
                         if not all_required and callable_permission():
@@ -72,7 +64,7 @@ class BaseAuthController:
                     self.request,
                     *args,
                     all_required=all_required,
-                    **kwargs
+                    **kwargs,
                 )
 
             return wrapper
@@ -82,19 +74,16 @@ class BaseAuthController:
 
 class AppAuthController:
     def __new__(
-        cls,
-        app_name: str,
-        request: WSGIRequest | None = None,
-        **kwargs: dict[str, Any]
+        cls, app_name: str, request: WSGIRequest | None = None, **kwargs: dict[str, Any]
     ) -> BaseAuthController:
         if app_name not in settings.DJANGO_SPIRE_AUTH_CONTROLLERS:
             message = f'Controller {app_name} not found in settings.AUTH_CONTROLLERS'
             raise AuthControllerNotFoundError(message)
 
         try:
-            return get_object_from_module_string(
-                settings.DJANGO_SPIRE_AUTH_CONTROLLERS[app_name]
-            )(request)
+            return get_object_from_module_string(settings.DJANGO_SPIRE_AUTH_CONTROLLERS[app_name])(
+                request
+            )
         except ModuleNotFoundError as err:
             message = f'Auth Controller for {app_name} not found'
             raise AuthControllerNotFoundError(message) from err

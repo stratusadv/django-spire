@@ -35,9 +35,9 @@ class CeleryTaskQuerySetByReferenceKeyTestCase(TestCase):
         assert result.count() == 0
 
     def test_by_reference_keys_chaining(self) -> None:
-        result = CeleryTask.objects.by_reference_keys(
+        result = CeleryTask.objects.by_reference_keys([self.reference_key_1]).by_reference_keys(
             [self.reference_key_1]
-        ).by_reference_keys([self.reference_key_1])
+        )
 
         assert result.count() == 2
 
@@ -85,9 +85,7 @@ class CeleryTaskQuerySetByReferenceAndModelKeyTestCase(TestCase):
         self.task3 = create_test_celery_task(
             reference_key=self.reference_key_1, model_key=self.model_key_2
         )
-        self.task4 = create_test_celery_task(
-            reference_key=self.reference_key_1, model_key=None
-        )
+        self.task4 = create_test_celery_task(reference_key=self.reference_key_1, model_key=None)
 
     def test_by_reference_keys_model_keys_with_model_key(self) -> None:
         ref_model_map = {self.reference_key_1: self.model_key_1}

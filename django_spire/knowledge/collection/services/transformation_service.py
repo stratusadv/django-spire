@@ -21,8 +21,7 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
 
     def to_hierarchy_json(self, request: WSGIRequest, parent_id: int) -> str:
         collections = (
-            self.obj_class.objects
-            .active()
+            self.obj_class.objects.active()
             .children(collection_id=parent_id)
             .request_user_has_access(request)
             .select_related('parent')
@@ -30,9 +29,7 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
 
         entry_queryset = (
             collections.model._meta.fields_map.get('entry')
-            .related_model
-            .objects
-            .active()
+            .related_model.objects.active()
             .has_current_version()
             .user_has_access(user=request.user)
             .select_related('current_version__author')
@@ -70,39 +67,32 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
             'description': self.obj.description,
             'children': [],
             'entries': (
-                entries.model.services.transformation
-                .queryset_to_navigation_list(queryset=entries)
+                entries.model.services.transformation.queryset_to_navigation_list(queryset=entries)
             ),
-            'delete_url': f'''
+            'delete_url': f"""
                 {site}{
-                    reverse(
-                        'django_spire:knowledge:collection:page:delete',
-                        kwargs={'pk': self.obj.pk},
-                    )
-                }
-            ''',
-            'edit_url': f'''
+                reverse('django_spire:knowledge:collection:page:delete', kwargs={'pk': self.obj.pk})
+            }
+            """,
+            'edit_url': f"""
                 {site}{
-                    reverse(
-                        'django_spire:knowledge:collection:form:update',
-                        kwargs={'pk': self.obj.pk},
-                    )
-                }
-            ''',
-            'create_entry_url': f'''
+                reverse('django_spire:knowledge:collection:form:update', kwargs={'pk': self.obj.pk})
+            }
+            """,
+            'create_entry_url': f"""
                 {site}{
-                    reverse(
-                        'django_spire:knowledge:entry:form:create',
-                        kwargs={'collection_pk': self.obj.pk},
-                    )
-                }
-            ''',
-            'import_entry_url': f'''
+                reverse(
+                    'django_spire:knowledge:entry:form:create',
+                    kwargs={'collection_pk': self.obj.pk},
+                )
+            }
+            """,
+            'import_entry_url': f"""
                 {site}{
-                    reverse(
-                        'django_spire:knowledge:entry:form:import',
-                        kwargs={'collection_pk': self.obj.pk},
-                    )
-                }
-            ''',
+                reverse(
+                    'django_spire:knowledge:entry:form:import',
+                    kwargs={'collection_pk': self.obj.pk},
+                )
+            }
+            """,
         }

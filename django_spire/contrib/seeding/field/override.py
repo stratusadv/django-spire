@@ -20,6 +20,7 @@ class FieldOverride:
         attr = getattr(self.seeder_class, name)
 
         if callable(attr):
+
             def wrapper(*args: Any, **kwargs: Any) -> Any:
                 # TODO: Error here if fields is passed as an arg.
 

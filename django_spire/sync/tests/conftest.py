@@ -10,11 +10,7 @@ from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.django.models.checkpoint import SyncCheckpoint
 from django_spire.sync.django.models.lock import SyncNodeLock
 from django_spire.sync.django.models.session import SyncSession
-from django_spire.sync.tests.models import (
-    SyncTestModel,
-    SyncTestSimpleModel,
-    SyncTestTag,
-)
+from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel, SyncTestTag
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:

@@ -1,0 +1,10 @@
+{% extends 'django_spire/card/card.html' %}
+
+{% block card_content %}
+    <div class="card-header">
+        <div class="card-title">{{ card_title }}</div>
+    </div>
+    <div class="card-body">
+        {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height=scroll_height|default:'300px' %}
+    </div>
+{% endblock %}

@@ -18,7 +18,7 @@ def permission_required_decorator_function(
     request: WSGIRequest,
     *args,
     all_required: bool = True,
-    **kwargs
+    **kwargs,
 ):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('django_spire:auth:admin:login'))
@@ -39,20 +39,12 @@ def permission_required_decorator_function(
     return method(request, *args, **kwargs)
 
 
-def permission_required(
-    *permissions: str,
-    all_required: bool = True
-):
+def permission_required(*permissions: str, all_required: bool = True):
     def decorator(method):
         @functools.wraps(method)
         def wrapper(request: WSGIRequest, *args, **kwargs):
             return permission_required_decorator_function(
-                permissions,
-                method,
-                request,
-                *args,
-                all_required=all_required,
-                **kwargs
+                permissions, method, request, *args, all_required=all_required, **kwargs
             )
 
         return wrapper

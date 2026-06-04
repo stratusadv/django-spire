@@ -21,17 +21,10 @@ class FileSyncableQuerySet(QuerySet):
 
         get_hasher = getattr(model, '_get_hasher', None)
 
-        hasher = (
-            get_hasher()
-            if get_hasher is not None
-            else RecordHasher(identity_field)
-        )
+        hasher = get_hasher() if get_hasher is not None else RecordHasher(identity_field)
 
         for instance in objs:
-            record = {
-                field: getattr(instance, field)
-                for field in sync_fields
-            }
+            record = {field: getattr(instance, field) for field in sync_fields}
 
             instance.sync_field_hash = hasher.hash(record)
 
@@ -39,7 +32,9 @@ class FileSyncableQuerySet(QuerySet):
         self._compute_hashes(objs)
         return super().bulk_create(objs, **kwargs)
 
-    def bulk_update(self, objs: list[Any], fields: list[str] | tuple[str, ...], **kwargs: Any) -> int:
+    def bulk_update(
+        self, objs: list[Any], fields: list[str] | tuple[str, ...], **kwargs: Any
+    ) -> int:
         self._compute_hashes(objs)
 
         field_set = set(fields)

@@ -17,18 +17,12 @@ if TYPE_CHECKING:
 @permission_required('apps.view_appsordering')
 def demo_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
-        'ducks': json.dumps([{
-                'name': duck.name,
-                'id': duck.id,
-                'color': duck.color,
-                'order': duck.order
-            }
-            for duck in models.Duck.objects.active().order_by('order')
-        ])
+        'ducks': json.dumps(
+            [
+                {'name': duck.name, 'id': duck.id, 'color': duck.color, 'order': duck.order}
+                for duck in models.Duck.objects.active().order_by('order')
+            ]
+        )
     }
 
-    return TemplateResponse(
-        request,
-        context=context_data,
-        template='ordering/page/demo_page.html'
-    )
+    return TemplateResponse(request, context=context_data, template='ordering/page/demo_page.html')

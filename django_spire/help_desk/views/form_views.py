@@ -27,10 +27,7 @@ def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
         form = forms.HelpDeskTicketCreateForm(request.POST)
 
         if form.is_valid():
-            ticket.services.create(
-                created_by=request.user,
-                **form.cleaned_data
-            )
+            ticket.services.create(created_by=request.user, **form.cleaned_data)
             return redirect(reverse('django_spire:help_desk:page:list'))
 
         show_form_errors(request, form)
@@ -44,9 +41,7 @@ def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
         template='django_spire/help_desk/page/ticket_form_page.html',
         verb='Create',
         obj=ticket,
-        context_data={
-            'form_action_url': reverse('django_spire:help_desk:form:create'),
-        }
+        context_data={'form_action_url': reverse('django_spire:help_desk:form:create')},
     )
 
 
@@ -77,5 +72,5 @@ def ticket_update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'form_action_url': (
                 reverse('django_spire:help_desk:form:update', kwargs={'pk': ticket.pk})
             ),
-        }
+        },
     )

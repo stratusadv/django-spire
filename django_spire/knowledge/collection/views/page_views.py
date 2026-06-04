@@ -46,8 +46,8 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'return_url',
             reverse(
                 'django_spire:knowledge:collection:page:top_level',
-                kwargs={'pk': collection.parent_id}
-            )
+                kwargs={'pk': collection.parent_id},
+            ),
         )
     else:
         return_url = request.GET.get('return_url', reverse('django_spire:knowledge:page:home'))
@@ -56,5 +56,5 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request,
         obj=collection,
         delete_func=collection.services.processor.set_deleted,
-        return_url=return_url
+        return_url=return_url,
     )

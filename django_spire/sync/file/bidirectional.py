@@ -14,12 +14,7 @@ from typing import Any, Callable, TYPE_CHECKING
 from django_spire.sync.core.enums import ResolutionAction, SyncStage
 from django_spire.sync.core.hash import RecordHasher
 from django_spire.sync.core.model import BidirectionalResult, Change, Error
-from django_spire.sync.file.conflict import (
-    Conflict,
-    ConflictStrategy,
-    Resolution,
-    SourceWins,
-)
+from django_spire.sync.file.conflict import Conflict, ConflictStrategy, Resolution, SourceWins
 from django_spire.sync.file.engine import check_deactivation_threshold, validate_records
 from django_spire.sync.file.exceptions import FileSyncParameterError
 
@@ -65,15 +60,8 @@ class _SyncSnapshot:
     baseline_hashes: dict[str, str]
 
 
-def _atomic_write_file(
-    file_path: Path,
-    writer: Writer,
-    records: list[dict[str, Any]],
-) -> None:
-    fd, raw_tmp_path = tempfile.mkstemp(
-        dir=str(file_path.parent),
-        suffix='.tmp',
-    )
+def _atomic_write_file(file_path: Path, writer: Writer, records: list[dict[str, Any]]) -> None:
+    fd, raw_tmp_path = tempfile.mkstemp(dir=str(file_path.parent), suffix='.tmp')
 
     os.close(fd)
 
@@ -107,8 +95,7 @@ class BidirectionalEngine:
 
         if deactivation_threshold is not None and deactivation_threshold < 0.0:
             message = (
-                f'deactivation_threshold must be non-negative '
-                f'or None, got {deactivation_threshold}'
+                f'deactivation_threshold must be non-negative or None, got {deactivation_threshold}'
             )
 
             raise FileSyncParameterError(message)
@@ -122,46 +109,26 @@ class BidirectionalEngine:
         self._transaction = transaction or nullcontext
         self._hasher = RecordHasher(identity_field, compare_fields)
 
-    def _report_progress(
-        self, stage: SyncStage, current: int, total: int,
-    ) -> None:
+    def _report_progress(self, stage: SyncStage, current: int, total: int) -> None:
         if self._progress:
             self._progress(stage, current, total)
 
     def _collect(
-        self,
-        file_path: Path,
-        reader: Reader,
-        result: BidirectionalResult,
+        self, file_path: Path, reader: Reader, result: BidirectionalResult
     ) -> _SyncSnapshot:
         raw_records = reader.read(file_path)
 
-        source = validate_records(
-            raw_records,
-            self._identity_field,
-            result.errors,
-            self._progress,
-        )
+        source = validate_records(raw_records, self._identity_field, result.errors, self._progress)
 
         active_keys = self._storage.get_active_keys()
 
-        target = (
-            self._storage.get_many(active_keys)
-            if active_keys
-            else {}
-        )
+        target = self._storage.get_many(active_keys) if active_keys else {}
 
         return _SyncSnapshot(
             source=source,
             target=target,
-            source_hashes={
-                k: self._hasher.hash(v)
-                for k, v in source.items()
-            },
-            target_hashes={
-                k: self._hasher.hash(v)
-                for k, v in target.items()
-            },
+            source_hashes={k: self._hasher.hash(v) for k, v in source.items()},
+            target_hashes={k: self._hasher.hash(v) for k, v in target.items()},
             baseline_hashes=self._storage.get_baseline_hashes(),
         )
 
@@ -199,15 +166,9 @@ class BidirectionalEngine:
         in_target: bool,
         in_baseline: bool,
     ) -> str:
-        source_changed = (
-            in_source and in_baseline
-            and source_hashes[key] != baseline_hashes[key]
-        )
+        source_changed = in_source and in_baseline and source_hashes[key] != baseline_hashes[key]
 
-        target_changed = (
-            in_target and in_baseline
-            and target_hashes[key] != baseline_hashes[key]
-        )
+        target_changed = in_target and in_baseline and target_hashes[key] != baseline_hashes[key]
 
         result = _UNCHANGED
 
@@ -232,9 +193,7 @@ class BidirectionalEngine:
                 result = _CONFLICT if source_changed else _SOURCE_DEACTIVATE
 
             case (True, True, True):
-                result = self._classify_mutual(
-                    key, source_hashes, target_hashes, baseline_hashes,
-                )
+                result = self._classify_mutual(key, source_hashes, target_hashes, baseline_hashes)
 
         return result
 
@@ -246,9 +205,7 @@ class BidirectionalEngine:
         source_hashes: dict[str, str],
         target_hashes: dict[str, str],
     ) -> _ClassificationResult:
-        all_keys = sorted(
-            source.keys() | target.keys() | baseline_hashes.keys()
-        )
+        all_keys = sorted(source.keys() | target.keys() | baseline_hashes.keys())
 
         classified = _ClassificationResult()
 
@@ -308,11 +265,9 @@ class BidirectionalEngine:
             try:
                 resolved[key] = self._conflict_strategy.resolve(conflict)
             except Exception as exc:
-                result.errors.append(Error(
-                    key=key,
-                    message=f'Conflict resolution failed: {exc}',
-                    exception=exc,
-                ))
+                result.errors.append(
+                    Error(key=key, message=f'Conflict resolution failed: {exc}', exception=exc)
+                )
 
         return resolved
 
@@ -372,14 +327,8 @@ class BidirectionalEngine:
         to_create = [source[k] for k in target_creates if k in source]
         to_update = [source[k] for k in target_updates if k in source]
 
-        create_hashes = {
-            k: source_hashes[k]
-            for k in target_creates if k in source_hashes
-        }
-        update_hashes = {
-            k: source_hashes[k]
-            for k in target_updates if k in source_hashes
-        }
+        create_hashes = {k: source_hashes[k] for k in target_creates if k in source_hashes}
+        update_hashes = {k: source_hashes[k] for k in target_updates if k in source_hashes}
 
         old_records: dict[str, dict[str, Any]] = {}
 
@@ -413,10 +362,7 @@ class BidirectionalEngine:
             source_creates
             or source_updates
             or source_deactivations
-            or any(
-                r.action == ResolutionAction.USE_TARGET
-                for r in resolved.values()
-            )
+            or any(r.action == ResolutionAction.USE_TARGET for r in resolved.values())
         )
 
         if not has_source_changes:
@@ -442,9 +388,7 @@ class BidirectionalEngine:
         for key in source_deactivations:
             final_records.pop(key, None)
 
-        _atomic_write_file(
-            file_path, writer, list(final_records.values()),
-        )
+        _atomic_write_file(file_path, writer, list(final_records.values()))
 
     def _compute_baseline(
         self,
@@ -462,12 +406,8 @@ class BidirectionalEngine:
             - classified.source_deactivations
         )
 
-        target_from_source = (
-            set(classified.target_creates) | set(classified.target_updates)
-        )
-        source_from_target = (
-            set(classified.source_creates) | set(classified.source_updates)
-        )
+        target_from_source = set(classified.target_creates) | set(classified.target_updates)
+        source_from_target = set(classified.source_creates) | set(classified.source_updates)
 
         for key in all_active:
             if key in resolved:
@@ -501,15 +441,11 @@ class BidirectionalEngine:
 
         for key in classified.target_updates:
             if key in old_records and key in source:
-                changes[key] = Change(
-                    old=old_records[key], new=source[key],
-                )
+                changes[key] = Change(old=old_records[key], new=source[key])
 
         for key in classified.source_updates:
             if key in target and key in source:
-                changes[key] = Change(
-                    old=source[key], new=target[key],
-                )
+                changes[key] = Change(old=source[key], new=target[key])
 
         return changes
 
@@ -523,18 +459,22 @@ class BidirectionalEngine:
         result: BidirectionalResult,
     ) -> None:
         old_records = self._mutate_target(
-            snapshot.source, snapshot.source_hashes,
+            snapshot.source,
+            snapshot.source_hashes,
             classified.target_creates,
             classified.target_updates,
             classified.target_deactivations,
         )
 
         self._mutate_source(
-            snapshot.source, snapshot.target,
+            snapshot.source,
+            snapshot.target,
             classified.source_creates,
             classified.source_updates,
             classified.source_deactivations,
-            resolved, file_path, writer,
+            resolved,
+            file_path,
+            writer,
         )
 
         new_baseline = self._compute_baseline(
@@ -548,10 +488,7 @@ class BidirectionalEngine:
         self._storage.save_baseline_hashes(new_baseline)
 
         result.changes = self._build_changes(
-            classified,
-            snapshot.source,
-            snapshot.target,
-            old_records,
+            classified, snapshot.source, snapshot.target, old_records
         )
 
     def _get_file_timestamp(self, file_path: Path) -> datetime | None:
@@ -585,11 +522,7 @@ class BidirectionalEngine:
         )
 
     def sync(
-        self,
-        file_path: str | Path,
-        reader: Reader,
-        writer: Writer,
-        dry_run: bool = False,
+        self, file_path: str | Path, reader: Reader, writer: Writer, dry_run: bool = False
     ) -> BidirectionalResult:
         file_path = Path(file_path)
         result = BidirectionalResult()
@@ -605,9 +538,7 @@ class BidirectionalEngine:
         )
 
         check_deactivation_threshold(
-            self._deactivation_threshold,
-            len(snapshot.target),
-            len(classified.target_deactivations),
+            self._deactivation_threshold, len(snapshot.target), len(classified.target_deactivations)
         )
 
         source_timestamp = self._get_file_timestamp(file_path)
@@ -620,23 +551,21 @@ class BidirectionalEngine:
 
         resolved = self._resolve_conflicts(
             classified.conflict_keys,
-            snapshot.source, snapshot.target,
-            source_timestamp, target_timestamps, result,
+            snapshot.source,
+            snapshot.target,
+            source_timestamp,
+            target_timestamps,
+            result,
         )
 
-        self._apply_resolutions(
-            resolved, classified, snapshot.source, snapshot.target,
-        )
+        self._apply_resolutions(resolved, classified, snapshot.source, snapshot.target)
 
         self._populate_result(result, classified, resolved)
 
         if dry_run:
             return result
 
-        self._commit(
-            snapshot, classified, resolved,
-            file_path, writer, result,
-        )
+        self._commit(snapshot, classified, resolved, file_path, writer, result)
 
         self._finalize(result)
 

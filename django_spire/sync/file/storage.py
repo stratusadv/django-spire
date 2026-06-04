@@ -82,9 +82,11 @@ class DjangoModelStorage:
         self._baseline_path = baseline_path
         self._timestamp_field = timestamp_field
 
-        self._update_fields = [
-            f for f in self._sync_fields if f != self._identity_field
-        ] + ['is_active', 'is_deleted', _HASH_FIELD]
+        self._update_fields = [f for f in self._sync_fields if f != self._identity_field] + [
+            'is_active',
+            'is_deleted',
+            _HASH_FIELD,
+        ]
 
     def _get_model(self) -> type[Model]:
         return apps.get_model(self._model_label)
@@ -101,24 +103,15 @@ class DjangoModelStorage:
         return self._queryset().filter(is_active=True, is_deleted=False)
 
     def _by_keys(self, keys: set[str]) -> QuerySet:
-        return self._active_queryset().filter(
-            **{f'{self._identity_field}__in': keys}
-        )
+        return self._active_queryset().filter(**{f'{self._identity_field}__in': keys})
 
     def _to_dict(self, instance: Any) -> dict[str, Any]:
-        return {
-            field: getattr(instance, field)
-            for field in self._sync_fields
-        }
+        return {field: getattr(instance, field) for field in self._sync_fields}
 
     def _to_instance(self, record: dict[str, Any], hash_value: str) -> Any:
         model = self._get_model()
 
-        kwargs = {
-            'is_active': True,
-            'is_deleted': False,
-            _HASH_FIELD: hash_value,
-        }
+        kwargs = {'is_active': True, 'is_deleted': False, _HASH_FIELD: hash_value}
 
         if self._scope is not None and self._scope_field:
             kwargs[self._scope_field] = self._scope
@@ -136,23 +129,20 @@ class DjangoModelStorage:
         logger.info('Creating %d records in %s', len(records), self._model_label)
 
         instances = [
-            self._to_instance(r, hashes.get(str(r[self._identity_field]), ''))
-            for r in records
+            self._to_instance(r, hashes.get(str(r[self._identity_field]), '')) for r in records
         ]
 
         model = self._get_model()
 
         for start in range(0, len(instances), self._batch_size):
-            batch = instances[start:start + self._batch_size]
+            batch = instances[start : start + self._batch_size]
 
             model.objects.bulk_create(
                 batch,
                 update_conflicts=True,
-                unique_fields=[
-                    self._scope_field, self._identity_field]
-                    if self._scope_field
-                    else [self._identity_field
-                ],
+                unique_fields=[self._scope_field, self._identity_field]
+                if self._scope_field
+                else [self._identity_field],
                 update_fields=self._update_fields,
             )
 
@@ -162,24 +152,18 @@ class DjangoModelStorage:
 
         logger.info('Deactivating %d records in %s', len(keys), self._model_label)
 
-        self._queryset().filter(
-            **{f'{self._identity_field}__in': keys}
-        ).update(is_active=False, is_deleted=True)
+        self._queryset().filter(**{f'{self._identity_field}__in': keys}).update(
+            is_active=False, is_deleted=True
+        )
 
     def get_active_keys(self) -> set[str]:
-        return set(
-            self._active_queryset()
-            .values_list(self._identity_field, flat=True)
-        )
+        return set(self._active_queryset().values_list(self._identity_field, flat=True))
 
     def get_hashes(self, keys: set[str]) -> dict[str, str]:
         if not keys:
             return {}
 
-        return dict(
-            self._by_keys(keys)
-            .values_list(self._identity_field, _HASH_FIELD)
-        )
+        return dict(self._by_keys(keys).values_list(self._identity_field, _HASH_FIELD))
 
     def get_many(self, keys: set[str]) -> dict[str, dict[str, Any]]:
         if not keys:
@@ -196,10 +180,7 @@ class DjangoModelStorage:
 
         keys = [str(r[self._identity_field]) for r in records]
 
-        existing = {
-            getattr(inst, self._identity_field): inst
-            for inst in self._by_keys(set(keys))
-        }
+        existing = {getattr(inst, self._identity_field): inst for inst in self._by_keys(set(keys))}
 
         to_update = []
 
@@ -226,7 +207,7 @@ class DjangoModelStorage:
         fields = [*list(self._sync_fields), _HASH_FIELD]
 
         for start in range(0, len(to_update), self._batch_size):
-            batch = to_update[start:start + self._batch_size]
+            batch = to_update[start : start + self._batch_size]
             model.objects.bulk_update(batch, fields)
 
     def get_baseline_hashes(self) -> dict[str, str]:
@@ -236,18 +217,12 @@ class DjangoModelStorage:
         try:
             data = json.loads(self._baseline_path.read_text(encoding='utf-8'))
         except (json.JSONDecodeError, OSError) as exc:
-            logger.warning(
-                'Failed to read baseline hashes from %s: %s',
-                self._baseline_path, exc,
-            )
+            logger.warning('Failed to read baseline hashes from %s: %s', self._baseline_path, exc)
 
             return {}
 
         if not isinstance(data, dict):
-            logger.warning(
-                'Baseline hashes in %s is not a dict, ignoring',
-                self._baseline_path,
-            )
+            logger.warning('Baseline hashes in %s is not a dict, ignoring', self._baseline_path)
 
             return {}
 
@@ -261,10 +236,7 @@ class DjangoModelStorage:
 
         content = json.dumps(hashes, indent=2, sort_keys=True)
 
-        fd, raw_tmp_path = tempfile.mkstemp(
-            dir=str(self._baseline_path.parent),
-            suffix='.tmp',
-        )
+        fd, raw_tmp_path = tempfile.mkstemp(dir=str(self._baseline_path.parent), suffix='.tmp')
 
         tmp_path = Path(raw_tmp_path)
 
@@ -285,7 +257,4 @@ class DjangoModelStorage:
         if not keys:
             return {}
 
-        return dict(
-            self._by_keys(keys)
-            .values_list(self._identity_field, self._timestamp_field)
-        )
+        return dict(self._by_keys(keys).values_list(self._identity_field, self._timestamp_field))

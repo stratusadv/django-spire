@@ -15,11 +15,7 @@ if TYPE_CHECKING:
 
 
 class DjangoFieldToFakerData:
-    def __init__(
-        self,
-        model_field: models.Field,
-        faker_method: tuple | None = None
-    ):
+    def __init__(self, model_field: models.Field, faker_method: tuple | None = None):
         if isinstance(faker_method, str):
             faker_method = (faker_method,)
 
@@ -77,7 +73,11 @@ class DjangoFieldToFakerData:
     def _use_faker_with_method(self):
         if isinstance(self.faker_method, tuple):
             method_name = self.faker_method[0]
-            kwargs = self.faker_method[1] if len(self.faker_method) > 1 and isinstance(self.faker_method[1], dict) else {}
+            kwargs = (
+                self.faker_method[1]
+                if len(self.faker_method) > 1 and isinstance(self.faker_method[1], dict)
+                else {}
+            )
 
             method = getattr(self.faker, method_name, None)
 
@@ -142,9 +142,7 @@ class DjangoFieldToFakerData:
 
 
 def fake_model_field_value(
-    model_class: type[models.Model],
-    field_name: str,
-    faker_method: str | tuple | None = None
+    model_class: type[models.Model], field_name: str, faker_method: str | tuple | None = None
 ) -> Any:
     field = model_class._meta.get_field(field_name)
     return DjangoFieldToFakerData(field, faker_method).convert()

@@ -6,10 +6,7 @@ import pytest
 
 from django_spire.auth.user.tests.factories import create_user
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices,
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.exceptions import NotificationError
 from django_spire.notification.models import Notification
 from django_spire.notification.sms.processor import SMSNotificationProcessor
@@ -25,9 +22,7 @@ class SMSNotificationProcessorTests(BaseTestCase):
     @patch('django_spire.notification.sms.processor.Client')
     @patch('django_spire.notification.sms.processor.TwilioSMSHelper')
     def test_process_sets_status_to_sent(
-        self,
-        mock_helper_class: MagicMock,
-        mock_client_class: MagicMock
+        self, mock_helper_class: MagicMock, mock_client_class: MagicMock
     ):
         mock_helper = MagicMock()
         mock_helper_class.return_value = mock_helper
@@ -43,9 +38,7 @@ class SMSNotificationProcessorTests(BaseTestCase):
     @patch('django_spire.notification.sms.processor.Client')
     @patch('django_spire.notification.sms.processor.TwilioSMSHelper')
     def test_process_sets_sent_datetime(
-        self,
-        mock_helper_class: MagicMock,
-        mock_client_class: MagicMock
+        self, mock_helper_class: MagicMock, mock_client_class: MagicMock
     ):
         mock_helper = MagicMock()
         mock_helper_class.return_value = mock_helper
@@ -60,11 +53,7 @@ class SMSNotificationProcessorTests(BaseTestCase):
 
     @patch('django_spire.notification.sms.processor.Client')
     @patch('django_spire.notification.sms.processor.TwilioSMSHelper')
-    def test_process_calls_send(
-        self,
-        mock_helper_class: MagicMock,
-        mock_client_class: MagicMock
-    ):
+    def test_process_calls_send(self, mock_helper_class: MagicMock, mock_client_class: MagicMock):
         mock_helper = MagicMock()
         mock_helper_class.return_value = mock_helper
 
@@ -89,17 +78,12 @@ class SMSNotificationProcessorTests(BaseTestCase):
 
     @patch('django_spire.notification.sms.processor.Client')
     @patch('django_spire.notification.sms.processor.BulkTwilioSMSHelper')
-    def test_process_list(
-        self,
-        mock_helper_class: MagicMock,
-        mock_client_class: MagicMock
-    ):
+    def test_process_list(self, mock_helper_class: MagicMock, mock_client_class: MagicMock):
         mock_helper = MagicMock()
         mock_helper_class.return_value = mock_helper
 
         notifications = [
-            create_test_sms_notification(user=self.user).notification
-            for _ in range(3)
+            create_test_sms_notification(user=self.user).notification for _ in range(3)
         ]
 
         self.processor.process_list(notifications)

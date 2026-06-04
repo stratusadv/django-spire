@@ -57,29 +57,17 @@ def test_sync_session_started_at_is_auto_set() -> None:
 @pytest.mark.django_db
 def test_sync_session_filter_by_in_progress_excludes_terminal_states() -> None:
     SyncSession.objects.create(
-        node_id='node-1',
-        status=SyncStatus.SUCCESS,
-        completed_at=timezone.now(),
+        node_id='node-1', status=SyncStatus.SUCCESS, completed_at=timezone.now()
     )
     SyncSession.objects.create(
-        node_id='node-1',
-        status=SyncStatus.FAILURE,
-        completed_at=timezone.now(),
+        node_id='node-1', status=SyncStatus.FAILURE, completed_at=timezone.now()
     )
-    SyncSession.objects.create(
-        node_id='node-1',
-        status=SyncStatus.PENDING,
-    )
+    SyncSession.objects.create(node_id='node-1', status=SyncStatus.PENDING)
     active = SyncSession.objects.create(
-        node_id='node-1',
-        status=SyncStatus.IN_PROGRESS,
-        phase=SyncPhase.COLLECTING,
+        node_id='node-1', status=SyncStatus.IN_PROGRESS, phase=SyncPhase.COLLECTING
     )
 
-    found = list(SyncSession.objects.filter(
-        node_id='node-1',
-        status=SyncStatus.IN_PROGRESS,
-    ))
+    found = list(SyncSession.objects.filter(node_id='node-1', status=SyncStatus.IN_PROGRESS))
 
     assert found == [active]
 

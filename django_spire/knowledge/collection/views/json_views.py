@@ -5,10 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.http import JsonResponse
 
-from django_spire.contrib.responses.json_response import (
-    error_json_response,
-    success_json_response,
-)
+from django_spire.contrib.responses.json_response import error_json_response, success_json_response
 from django_spire.contrib.decorators import valid_ajax_request_required
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.knowledge.collection.models import Collection
@@ -32,9 +29,6 @@ def reorder_view(request: WSGIRequest) -> JsonResponse:
     if order is None:
         return error_json_response('Order must be provided.')
 
-    collection.services.ordering.reorder(
-        order=order,
-        new_parent_pk=body_data.get('parent', None),
-    )
+    collection.services.ordering.reorder(order=order, new_parent_pk=body_data.get('parent', None))
 
     return success_json_response()

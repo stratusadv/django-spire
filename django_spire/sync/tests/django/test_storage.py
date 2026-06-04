@@ -10,11 +10,7 @@ from django_spire.sync.database.storage import CheckpointPosition
 from django_spire.sync.django.graph import DeferredForeignKey
 from django_spire.sync.django.models.checkpoint import SyncCheckpoint
 from django_spire.sync.django.storage.writer import DjangoRecordWriter
-from django_spire.sync.tests.models import (
-    SyncTestModel,
-    SyncTestSimpleModel,
-    SyncTestTag,
-)
+from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel, SyncTestTag
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -39,7 +35,7 @@ def test_upsert_many_creates_record(storage: DjangoSyncStorage) -> None:
             key=key,
             data={'id': key, 'name': 'Bob', 'value': 42},
             timestamps={'name': 200, 'value': 200},
-        ),
+        )
     }
 
     result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
@@ -56,8 +52,7 @@ def test_upsert_many_creates_record(storage: DjangoSyncStorage) -> None:
 
 @pytest.mark.django_db
 def test_upsert_many_updates_existing(
-    storage: DjangoSyncStorage,
-    model_instance: SyncTestModel,
+    storage: DjangoSyncStorage, model_instance: SyncTestModel
 ) -> None:
     key = str(model_instance.pk)
 
@@ -66,7 +61,7 @@ def test_upsert_many_updates_existing(
             key=key,
             data={'id': key, 'name': 'Updated', 'value': 99},
             timestamps={'name': 300, 'value': 300},
-        ),
+        )
     }
 
     result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
@@ -82,8 +77,7 @@ def test_upsert_many_updates_existing(
 
 @pytest.mark.django_db
 def test_upsert_many_skips_stale_record(
-    storage: DjangoSyncStorage,
-    model_instance: SyncTestModel,
+    storage: DjangoSyncStorage, model_instance: SyncTestModel
 ) -> None:
     key = str(model_instance.pk)
 
@@ -92,7 +86,7 @@ def test_upsert_many_skips_stale_record(
             key=key,
             data={'id': key, 'name': 'Stale', 'value': 0},
             timestamps={'name': 50, 'value': 50},
-        ),
+        )
     }
 
     result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
@@ -105,17 +99,11 @@ def test_upsert_many_skips_stale_record(
 
 
 @pytest.mark.django_db
-def test_upsert_many_rejects_ghost_record(
-    storage: DjangoSyncStorage,
-) -> None:
+def test_upsert_many_rejects_ghost_record(storage: DjangoSyncStorage) -> None:
     key = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
 
     records = {
-        key: SyncRecord(
-            key=key,
-            data={'id': key, 'name': 'Ghost', 'value': 0},
-            timestamps={},
-        ),
+        key: SyncRecord(key=key, data={'id': key, 'name': 'Ghost', 'value': 0}, timestamps={})
     }
 
     result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
@@ -133,7 +121,7 @@ def test_upsert_many_sets_many_to_many(storage: DjangoSyncStorage) -> None:
             key=key,
             data={'id': key, 'name': 'WithTags', 'value': 0, 'tags': [str(tag.pk)]},
             timestamps={'name': 200},
-        ),
+        )
     }
 
     result = storage.upsert_many('sync_tests.SyncTestModel', records, '')
@@ -146,10 +134,7 @@ def test_upsert_many_sets_many_to_many(storage: DjangoSyncStorage) -> None:
 
 
 @pytest.mark.django_db
-def test_get_records(
-    storage: DjangoSyncStorage,
-    model_instance: SyncTestModel,
-) -> None:
+def test_get_records(storage: DjangoSyncStorage, model_instance: SyncTestModel) -> None:
     key = str(model_instance.pk)
 
     records = storage.get_records('sync_tests.SyncTestModel', {key})
@@ -169,18 +154,14 @@ def test_get_records_empty_keys(storage: DjangoSyncStorage) -> None:
 @pytest.mark.django_db
 def test_get_records_missing_key(storage: DjangoSyncStorage) -> None:
     records = storage.get_records(
-        'sync_tests.SyncTestModel',
-        {'00000000-0000-0000-0000-000000000000'},
+        'sync_tests.SyncTestModel', {'00000000-0000-0000-0000-000000000000'}
     )
 
     assert records == {}
 
 
 @pytest.mark.django_db
-def test_get_changed_since(
-    storage: DjangoSyncStorage,
-    model_instance: SyncTestModel,
-) -> None:
+def test_get_changed_since(storage: DjangoSyncStorage, model_instance: SyncTestModel) -> None:
     _ = model_instance
 
     records = storage.get_changed_since('sync_tests.SyncTestModel', 0, '')
@@ -194,8 +175,7 @@ def test_get_changed_since(
 
 @pytest.mark.django_db
 def test_get_changed_since_excludes_old(
-    storage: DjangoSyncStorage,
-    model_instance: SyncTestModel,
+    storage: DjangoSyncStorage, model_instance: SyncTestModel
 ) -> None:
     _ = model_instance
 
@@ -206,8 +186,7 @@ def test_get_changed_since_excludes_old(
 
 @pytest.mark.django_db
 def test_delete_many_soft_delete_applies_tombstone(
-    storage: DjangoSyncStorage,
-    model_instance: SyncTestModel,
+    storage: DjangoSyncStorage, model_instance: SyncTestModel
 ) -> None:
     key = str(model_instance.pk)
 
@@ -222,8 +201,7 @@ def test_delete_many_soft_delete_applies_tombstone(
 
 @pytest.mark.django_db
 def test_delete_many_soft_delete_skips_when_local_newer(
-    storage: DjangoSyncStorage,
-    model_instance: SyncTestModel,
+    storage: DjangoSyncStorage, model_instance: SyncTestModel
 ) -> None:
     key = str(model_instance.pk)
 
@@ -235,9 +213,7 @@ def test_delete_many_soft_delete_skips_when_local_newer(
 
 
 @pytest.mark.django_db
-def test_delete_many_hard_delete_applies_tombstone(
-    simple_storage: DjangoSyncStorage,
-) -> None:
+def test_delete_many_hard_delete_applies_tombstone(simple_storage: DjangoSyncStorage) -> None:
     obj = SyncTestSimpleModel(name='Disposable')
     obj.sync_field_timestamps = {'name': 100}
     obj.sync_field_last_modified = 100
@@ -251,9 +227,7 @@ def test_delete_many_hard_delete_applies_tombstone(
 
 
 @pytest.mark.django_db
-def test_delete_many_hard_delete_skips_when_local_newer(
-    simple_storage: DjangoSyncStorage,
-) -> None:
+def test_delete_many_hard_delete_skips_when_local_newer(simple_storage: DjangoSyncStorage) -> None:
     obj = SyncTestSimpleModel(name='Still-Here')
     obj.sync_field_timestamps = {'name': 1000}
     obj.sync_field_last_modified = 1000
@@ -274,15 +248,13 @@ def test_delete_many_empty_is_noop(storage: DjangoSyncStorage) -> None:
 @pytest.mark.django_db
 def test_checkpoint_round_trip(storage: DjangoSyncStorage) -> None:
     assert storage.get_checkpoint('node-1') == CheckpointPosition(
-        peer_sequence=0,
-        local_sequence_pushed=0,
+        peer_sequence=0, local_sequence_pushed=0
     )
 
     storage.save_checkpoint('node-1', 500, 300)
 
     assert storage.get_checkpoint('node-1') == CheckpointPosition(
-        peer_sequence=500,
-        local_sequence_pushed=300,
+        peer_sequence=500, local_sequence_pushed=300
     )
 
 
@@ -292,8 +264,7 @@ def test_checkpoint_update(storage: DjangoSyncStorage) -> None:
     storage.save_checkpoint('node-1', 200, 150)
 
     assert storage.get_checkpoint('node-1') == CheckpointPosition(
-        peer_sequence=200,
-        local_sequence_pushed=150,
+        peer_sequence=200, local_sequence_pushed=150
     )
     assert SyncCheckpoint.objects.filter(peer_node_id='node-1').count() == 1
 
@@ -313,7 +284,7 @@ def test_writer_defers_syncable_target_fk() -> None:
                 target_label='sync_tests.SyncTestModel',
                 field_name='parent',
                 attribute_name='parent_id',
-            ),
+            )
         ],
     )
 
@@ -330,7 +301,7 @@ def test_writer_treats_non_syncable_target_fk_as_external() -> None:
                 target_label='auth.User',
                 field_name='owner',
                 attribute_name='owner_id',
-            ),
+            )
         ],
     )
 
@@ -347,7 +318,7 @@ def test_nullify_columns_nulls_external_without_stashing() -> None:
                 target_label='auth.User',
                 field_name='owner',
                 attribute_name='owner_id',
-            ),
+            )
         ],
     )
 
@@ -367,7 +338,7 @@ def test_nullify_columns_stashes_syncable_deferred() -> None:
                 target_label='sync_tests.SyncTestModel',
                 field_name='parent',
                 attribute_name='parent_id',
-            ),
+            )
         ],
     )
 

@@ -16,9 +16,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     description = models.TextField(default='')
 
     status = models.CharField(
-        choices=TaskStatusChoices.choices,
-        default=TaskStatusChoices.NEW,
-        max_length=3
+        choices=TaskStatusChoices.choices, default=TaskStatusChoices.NEW, max_length=3
     )
 
     objects = TaskQuerySet().as_manager()
@@ -41,23 +39,15 @@ class Task(ActivityMixin, HistoryModelMixin):
 
 class TaskUser(ActivityMixin, HistoryModelMixin):
     user = models.ForeignKey(
-        User,
-        related_name='tasks',
-        related_query_name='task',
-        on_delete=models.CASCADE
+        User, related_name='tasks', related_query_name='task', on_delete=models.CASCADE
     )
 
     task = models.ForeignKey(
-        Task,
-        related_name='users',
-        related_query_name='user',
-        on_delete=models.CASCADE
+        Task, related_name='users', related_query_name='user', on_delete=models.CASCADE
     )
 
     role = models.CharField(
-        default=TaskUserRoleChoices.LEADER,
-        choices=TaskUserRoleChoices.choices,
-        max_length=3
+        default=TaskUserRoleChoices.LEADER, choices=TaskUserRoleChoices.choices, max_length=3
     )
 
     objects = TaskUserQuerySet.as_manager()

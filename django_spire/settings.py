@@ -15,16 +15,14 @@ DJANGO_SPIRE_CHANGELOG_MODULE = 'changelog.changelog'
 DJANGO_SPIRE_AI_PERSONA_NAME = 'AI Assistant'
 DJANGO_SPIRE_AI_DEFAULT_CHAT_ROUTER = 'SPIRE'
 
-DJANGO_SPIRE_AI_CHAT_ROUTERS = {
-    'SPIRE': 'django_spire.ai.chat.router.SpireChatRouter',
-}
+DJANGO_SPIRE_AI_CHAT_ROUTERS = {'SPIRE': 'django_spire.ai.chat.router.SpireChatRouter'}
 
 DJANGO_SPIRE_AI_INTENT_CHAT_ROUTERS = {
     'KNOWLEDGE_SEARCH': {
         'INTENT_DESCRIPTION': 'The user is asking about information, help or support that could be found in knowledge base.',
         'REQUIRED_PERMISSION': 'django_spire_knowledge.view_collection',
         'CHAT_ROUTER': 'django_spire.knowledge.intelligence.router.KnowledgeSearchRouter',
-    },
+    }
 }
 
 DJANGO_SPIRE_REPORT_REGISTRIES = []

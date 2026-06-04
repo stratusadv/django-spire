@@ -15,7 +15,7 @@ class Activity(models.Model):
         related_name='activities',
         related_query_name='activity',
         on_delete=models.CASCADE,
-        editable=False
+        editable=False,
     )
 
     object_id = models.PositiveIntegerField(editable=False)
@@ -26,7 +26,7 @@ class Activity(models.Model):
         related_name='users',
         related_query_name='user',
         on_delete=models.CASCADE,
-        editable=False
+        editable=False,
     )
 
     recipient = models.ForeignKey(
@@ -36,7 +36,7 @@ class Activity(models.Model):
         on_delete=models.CASCADE,
         editable=False,
         blank=True,
-        null=True
+        null=True,
     )
 
     verb = models.CharField(max_length=64)
@@ -64,7 +64,7 @@ class ActivitySubscriber(models.Model):
         'django_spire_history_activity.Activity',
         on_delete=models.CASCADE,
         related_name='subscribers',
-        related_query_name='subscriber'
+        related_query_name='subscriber',
     )
 
     subscriber = models.ForeignKey(
@@ -72,7 +72,7 @@ class ActivitySubscriber(models.Model):
         related_name='activity_subscribers',
         related_query_name='activity_subscriber',
         on_delete=models.CASCADE,
-        editable=False
+        editable=False,
     )
 
     created_datetime = models.DateTimeField(default=localtime)

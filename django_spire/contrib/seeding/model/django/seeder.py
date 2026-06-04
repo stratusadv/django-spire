@@ -7,7 +7,10 @@ from django.db.models import ForeignKey
 
 from django_spire.contrib.seeding.field.callable import CallableFieldSeeder
 from django_spire.contrib.seeding.field.custom import CustomFieldSeeder
-from django_spire.contrib.seeding.field.django.seeder import DjangoFieldFakerSeeder, DjangoFieldLlmSeeder
+from django_spire.contrib.seeding.field.django.seeder import (
+    DjangoFieldFakerSeeder,
+    DjangoFieldLlmSeeder,
+)
 from django_spire.contrib.seeding.field.static import StaticFieldSeeder
 from django_spire.contrib.seeding.model.base import BaseModelSeeder
 from django_spire.contrib.seeding.model.django.config import DjangoModelFieldsConfig
@@ -29,7 +32,7 @@ class DjangoModelSeeder(BaseModelSeeder):
         CallableFieldSeeder,
         StaticFieldSeeder,
         DjangoFieldFakerSeeder,
-        DjangoFieldLlmSeeder
+        DjangoFieldLlmSeeder,
     ]
 
     @classmethod
@@ -48,15 +51,10 @@ class DjangoModelSeeder(BaseModelSeeder):
     def field_names(cls) -> list[str]:
         # All foreign keys must be _id
         return [
-            f.attname if isinstance(f, ForeignKey) else f.name
-            for f in cls.model_class._meta.fields
+            f.attname if isinstance(f, ForeignKey) else f.name for f in cls.model_class._meta.fields
         ]
 
     @classmethod
-    def seed_database(
-        cls,
-        count: int = 1,
-        fields: dict | None = None
-    ) -> list[TypeModel]:
+    def seed_database(cls, count: int = 1, fields: dict | None = None) -> list[TypeModel]:
         model_objects = cls.seed(count, fields)
         return cls.model_class.objects.bulk_create(model_objects)

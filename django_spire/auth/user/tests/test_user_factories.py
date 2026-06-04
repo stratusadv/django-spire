@@ -11,7 +11,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert isinstance(user, AuthUser) is True
         assert AuthUser.objects.filter(pk=user.pk).exists() is True
@@ -21,7 +21,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='John',
             last_name='Doe',
             email='john.doe@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.first_name == 'John'
         assert user.last_name == 'Doe'
@@ -32,7 +32,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='Test.User@Example.COM',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.username == 'test.user@example.com'
         assert user.email == 'test.user@example.com'
@@ -42,7 +42,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.check_password('securepassword123') is True
 
@@ -51,7 +51,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.password != 'securepassword123'  # noqa: S106
 
@@ -60,7 +60,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.is_active is True
 
@@ -69,7 +69,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.is_staff is False
 
@@ -78,7 +78,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.is_superuser is False
 
@@ -87,7 +87,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.first_name == ''
 
@@ -96,7 +96,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.last_name == ''
 
@@ -105,7 +105,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Tëst',
             last_name='Üser',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.first_name == 'Tëst'
         assert user.last_name == 'Üser'
@@ -113,10 +113,7 @@ class RegisterNewUserTestCase(BaseTestCase):
     def test_long_password(self) -> None:
         long_password = 'a' * 100
         user = register_new_user(
-            first_name='Test',
-            last_name='User',
-            email='test@example.com',
-            password=long_password
+            first_name='Test', last_name='User', email='test@example.com', password=long_password
         )
         assert user.check_password(long_password) is True
 
@@ -125,7 +122,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test+special@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.email == 'test+special@example.com'
 
@@ -134,6 +131,6 @@ class RegisterNewUserTestCase(BaseTestCase):
             first_name='Test',
             last_name='User',
             email='test@example.com',
-            password='securepassword123'  # noqa: S106
+            password='securepassword123',  # noqa: S106
         )
         assert user.check_password('wrongpassword') is False

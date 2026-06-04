@@ -20,11 +20,7 @@ if TYPE_CHECKING:
 
 class MultipleFileField(forms.FileField):
     def __init__(
-        self,
-        *args,
-        related_field: str = '',
-        validator: FileValidator | None = None,
-        **kwargs
+        self, *args, related_field: str = '', validator: FileValidator | None = None, **kwargs
     ) -> None:
         self.related_field = related_field
         self.validator = validator or FileValidator()
@@ -39,9 +35,7 @@ class MultipleFileField(forms.FileField):
         return json.dumps([])
 
     def clean(
-        self,
-        data: list[dict] | list[InMemoryUploadedFile],
-        _initial: list[dict] | None = None,
+        self, data: list[dict] | list[InMemoryUploadedFile], _initial: list[dict] | None = None
     ) -> list[dict] | list[InMemoryUploadedFile]:
         if not data and self.required:
             raise forms.ValidationError(self.error_messages['required'])
@@ -58,7 +52,9 @@ class MultipleFileField(forms.FileField):
 
 
 class SingleFileField(forms.FileField):
-    def __init__(self, *args, related_field: str = '', validator: FileValidator | None = None, **kwargs) -> None:
+    def __init__(
+        self, *args, related_field: str = '', validator: FileValidator | None = None, **kwargs
+    ) -> None:
         self.related_field = related_field
         self.validator = validator or FileValidator()
         super().__init__(*args, **kwargs)
@@ -75,9 +71,7 @@ class SingleFileField(forms.FileField):
         return json.dumps(None)
 
     def clean(
-        self,
-        data: dict | InMemoryUploadedFile | None,
-        _initial: dict | None = None,
+        self, data: dict | InMemoryUploadedFile | None, _initial: dict | None = None
     ) -> dict | InMemoryUploadedFile | None:
         if data is None and self.required:
             raise forms.ValidationError(self.error_messages['required'])

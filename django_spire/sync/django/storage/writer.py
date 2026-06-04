@@ -15,12 +15,8 @@ from django_spire.sync.core.exceptions import (
     UnknownModelError,
 )
 from django_spire.sync.database.storage import UpsertResult
-from django_spire.sync.django.serializer import (
-    SyncFieldSerializer,
-)
-from django_spire.sync.django.storage.many_to_many import (
-    ManyToManyApplier,
-)
+from django_spire.sync.django.serializer import SyncFieldSerializer
+from django_spire.sync.django.storage.many_to_many import ManyToManyApplier
 from django_spire.sync.django.storage.strategy import (
     BulkUpsertStrategy,
     DeleteStrategy,
@@ -45,18 +41,12 @@ _BATCH_SIZE_MAX = 5_000
 _PARAMETER_LIMIT = 30_000
 
 
-def _field_by_attribute_name(
-    model: type[SyncableMixin],
-    attribute_name: str,
-) -> Any:
+def _field_by_attribute_name(model: type[SyncableMixin], attribute_name: str) -> Any:
     for field in model._meta.concrete_fields:
         if field.attname == attribute_name:
             return field
 
-    message = (
-        f'No field with attribute name {attribute_name!r} '
-        f'on {model._meta.label}'
-    )
+    message = f'No field with attribute name {attribute_name!r} on {model._meta.label}'
 
     raise FieldDoesNotExist(message)
 
@@ -81,10 +71,7 @@ class DjangoRecordWriter:
             raise InvalidParameterError(message)
 
         if batch_size_max < 1:
-            message = (
-                f'batch_size_max must be >= 1, '
-                f'got {batch_size_max}'
-            )
+            message = f'batch_size_max must be >= 1, got {batch_size_max}'
 
             raise InvalidParameterError(message)
 
@@ -92,59 +79,38 @@ class DjangoRecordWriter:
         self._identity_field = identity_field
 
         self._models: dict[str, type[SyncableMixin]] = {
-            model._meta.label: model
-            for model in models
+            model._meta.label: model for model in models
         }
 
         self._serializers: dict[str, SyncFieldSerializer] = {
-            model._meta.label: SyncFieldSerializer(model)
-            for model in models
+            model._meta.label: SyncFieldSerializer(model) for model in models
         }
 
-        self._upsert_strategy = (
-            upsert_strategy
-            or BulkUpsertStrategy(
-                identity_field=identity_field,
-            )
+        self._upsert_strategy = upsert_strategy or BulkUpsertStrategy(identity_field=identity_field)
+
+        self._many_to_many_applier = many_to_many_applier or ManyToManyApplier(
+            identity_field=identity_field
         )
 
-        self._many_to_many_applier = (
-            many_to_many_applier
-            or ManyToManyApplier(
-                identity_field=identity_field,
-            )
-        )
+        self._delete_strategies = delete_strategies or self._build_delete_strategies(models)
 
-        self._delete_strategies = (
-            delete_strategies or
-            self._build_delete_strategies(models)
-        )
+        self._deferred_attribute_names: dict[str, set[str]] = defaultdict(set)
 
-        self._deferred_attribute_names: dict[str, set[str]] = (
-            defaultdict(set)
-        )
-
-        self._external_nullable_attribute_names: dict[str, set[str]] = (
-            defaultdict(set)
-        )
+        self._external_nullable_attribute_names: dict[str, set[str]] = defaultdict(set)
 
         syncable_labels = set(self._models.keys())
 
-        for deferred_foreign_key in (deferred_foreign_keys or []):
+        for deferred_foreign_key in deferred_foreign_keys or []:
             if deferred_foreign_key.target_label in syncable_labels:
                 self._deferred_attribute_names[deferred_foreign_key.source_label].add(
-                    deferred_foreign_key.attribute_name,
+                    deferred_foreign_key.attribute_name
                 )
             else:
                 self._external_nullable_attribute_names[deferred_foreign_key.source_label].add(
-                    deferred_foreign_key.attribute_name,
+                    deferred_foreign_key.attribute_name
                 )
 
-    def _build_assign_sequence_sql(
-        self,
-        table: str,
-        id_column: str,
-    ) -> str:
+    def _build_assign_sequence_sql(self, table: str, id_column: str) -> str:
         return (
             f'WITH ranked AS ('
             f'  SELECT {id_column} AS pk, '
@@ -169,25 +135,18 @@ class DjangoRecordWriter:
         )
 
     def _build_delete_strategies(
-        self,
-        models: list[type[SyncableMixin]],
+        self, models: list[type[SyncableMixin]]
     ) -> dict[str, DeleteStrategy]:
         soft = SoftDeleteStrategy(identity_field=self._identity_field)
         hard = HardDeleteStrategy(identity_field=self._identity_field)
 
         return {
-            model._meta.label: (
-                soft
-                if self._has_field(model, 'is_deleted')
-                else hard
-            )
+            model._meta.label: (soft if self._has_field(model, 'is_deleted') else hard)
             for model in models
         }
 
     def _build_ensure_sync_columns_sql(
-        self,
-        connection: BaseDatabaseWrapper,
-        table_name: str,
+        self, connection: BaseDatabaseWrapper, table_name: str
     ) -> list[str]:
         quote = connection.ops.quote_name
         table = quote(table_name)
@@ -203,14 +162,10 @@ class DjangoRecordWriter:
                 f'ADD COLUMN IF NOT EXISTS sync_field_timestamps '
                 f"JSONB NOT NULL DEFAULT '{{}}'"
             ),
+            (f'ALTER TABLE {table} ADD COLUMN sync_field_sequence BIGINT NOT NULL DEFAULT 0'),
             (
                 f'ALTER TABLE {table} '
-                f'ADD COLUMN sync_field_sequence '
-                f'BIGINT NOT NULL DEFAULT 0'
-            ),
-            (
-                f'ALTER TABLE {table} '
-                f"ADD COLUMN sync_field_origin_node "
+                f'ADD COLUMN sync_field_origin_node '
                 f"VARCHAR(255) NOT NULL DEFAULT ''"
             ),
             (
@@ -218,11 +173,7 @@ class DjangoRecordWriter:
                 f'{table_name}_lm_idx ON {table} '
                 f'(sync_field_last_modified)'
             ),
-            (
-                f'CREATE INDEX '
-                f'{table_name}_seq_idx ON {table} '
-                f'(sync_field_sequence)'
-            ),
+            (f'CREATE INDEX {table_name}_seq_idx ON {table} (sync_field_sequence)'),
         ]
 
     def _build_foreign_key_backfill_sql(
@@ -240,7 +191,6 @@ class DjangoRecordWriter:
             f'UPDATE {table} '
             f'SET {foreign_key_column} = '
             f'_v.val::{foreign_key_type} '
-
             f'FROM (VALUES {placeholders}) '
             f'AS _v(pk, val) '
             f'WHERE {table}.{id_column} = '
@@ -255,104 +205,57 @@ class DjangoRecordWriter:
             f'WHERE sync_field_last_modified = 0'
         )
 
-    def _build_zero_field_count_sql(
-        self,
-        table: str,
-        column: str,
-    ) -> str:
-        return (
-            f'SELECT COUNT(*) FROM {table} '
-            f'WHERE {column} = 0'
-        )
+    def _build_zero_field_count_sql(self, table: str, column: str) -> str:
+        return f'SELECT COUNT(*) FROM {table} WHERE {column} = 0'
 
-    def _check_batch_limit(
-        self,
-        count: int,
-        operation: str,
-    ) -> None:
+    def _check_batch_limit(self, count: int, operation: str) -> None:
         if count > self._batch_size_max:
             message = (
-                f'{operation} received {count} items, '
-                f'exceeds batch_size_max='
-                f'{self._batch_size_max}'
+                f'{operation} received {count} items, exceeds batch_size_max={self._batch_size_max}'
             )
 
             raise BatchLimitError(message)
 
-    def _ensure_sync_columns(
-        self,
-        labels: list[str],
-    ) -> None:
+    def _ensure_sync_columns(self, labels: list[str]) -> None:
         for model_label in labels:
             if model_label not in self._models:
                 continue
 
             model = self._models[model_label]
 
-            connection = connections[
-                router.db_for_write(model) or
-                'default'
-            ]
+            connection = connections[router.db_for_write(model) or 'default']
 
             table_name = model._meta.db_table
 
             with connection.cursor() as cursor:
-                cursor.execute(
-                    self._build_column_check_sql(),
-                    [table_name],
-                )
+                cursor.execute(self._build_column_check_sql(), [table_name])
 
                 if cursor.fetchone()[0] > 0:
                     continue
 
-                statements = self._build_ensure_sync_columns_sql(
-                    connection,
-                    table_name,
-                )
+                statements = self._build_ensure_sync_columns_sql(connection, table_name)
 
                 for statement in statements:
                     cursor.execute(statement)
 
-                logger.info(
-                    'Added sync columns to %s',
-                    table_name,
-                )
+                logger.info('Added sync columns to %s', table_name)
 
     def _extract_field_data(
-        self,
-        sync_record: SyncRecord,
-        many_to_many_names: set[str],
+        self, sync_record: SyncRecord, many_to_many_names: set[str]
     ) -> dict[str, Any]:
         return {
-            key: value
-            for key, value in sync_record.data.items()
-            if key not in many_to_many_names
+            key: value for key, value in sync_record.data.items() if key not in many_to_many_names
         }
 
     def _extract_many_to_many_data(
-        self,
-        sync_record: SyncRecord,
-        many_to_many_names: set[str],
+        self, sync_record: SyncRecord, many_to_many_names: set[str]
     ) -> dict[str, list[Any]]:
-        return {
-            key: value
-            for key, value in sync_record.data.items()
-            if key in many_to_many_names
-        }
+        return {key: value for key, value in sync_record.data.items() if key in many_to_many_names}
 
-    def _get_many_to_many_names(
-        self,
-        model: type[SyncableMixin],
-    ) -> set[str]:
-        return {
-            field.name
-            for field in model._meta.many_to_many
-        }
+    def _get_many_to_many_names(self, model: type[SyncableMixin]) -> set[str]:
+        return {field.name for field in model._meta.many_to_many}
 
-    def _get_model(
-        self,
-        model_label: str,
-    ) -> type[SyncableMixin]:
+    def _get_model(self, model_label: str) -> type[SyncableMixin]:
         model = self._models.get(model_label)
 
         if model is None:
@@ -361,11 +264,7 @@ class DjangoRecordWriter:
 
         return model
 
-    def _has_field(
-        self,
-        model: type[SyncableMixin],
-        field_name: str,
-    ) -> bool:
+    def _has_field(self, model: type[SyncableMixin], field_name: str) -> bool:
         try:
             model._meta.get_field(field_name)
         except FieldDoesNotExist:
@@ -374,9 +273,7 @@ class DjangoRecordWriter:
             return True
 
     def _nullify_deferred_columns(
-        self,
-        model_label: str,
-        deserialized_row: dict[str, Any],
+        self, model_label: str, deserialized_row: dict[str, Any]
     ) -> dict[str, Any]:
         deferred_attribute_names = self._deferred_attribute_names.get(model_label)
         external_attribute_names = self._external_nullable_attribute_names.get(model_label)
@@ -411,9 +308,7 @@ class DjangoRecordWriter:
         return stashed
 
     def _persist_deferred_backfill(
-        self,
-        model_label: str,
-        stashes: dict[str, dict[str, Any]],
+        self, model_label: str, stashes: dict[str, dict[str, Any]]
     ) -> None:
         from django_spire.sync.django.models.deferred_backfill import (  # noqa: PLC0415
             SyncDeferredBackfill,
@@ -423,12 +318,14 @@ class DjangoRecordWriter:
 
         for record_key, attribute_name_values in stashes.items():
             for attribute_name, value in attribute_name_values.items():
-                rows.append(SyncDeferredBackfill(
-                    model_label=model_label,
-                    record_key=record_key,
-                    attname=attribute_name,
-                    fk_value=str(value),
-                ))
+                rows.append(
+                    SyncDeferredBackfill(
+                        model_label=model_label,
+                        record_key=record_key,
+                        attname=attribute_name,
+                        fk_value=str(value),
+                    )
+                )
 
         if not rows:
             return
@@ -440,11 +337,7 @@ class DjangoRecordWriter:
             unique_fields=['model_label', 'record_key', 'attname'],
         )
 
-    def _purge_deferred_backfill(
-        self,
-        model_label: str,
-        record_keys: set[str],
-    ) -> None:
+    def _purge_deferred_backfill(self, model_label: str, record_keys: set[str]) -> None:
         if not record_keys:
             return
 
@@ -453,8 +346,7 @@ class DjangoRecordWriter:
         )
 
         SyncDeferredBackfill.objects.filter(
-            model_label=model_label,
-            record_key__in=list(record_keys),
+            model_label=model_label, record_key__in=list(record_keys)
         ).delete()
 
     def _reconcile_counter(self, labels: list[str]) -> None:
@@ -471,9 +363,7 @@ class DjangoRecordWriter:
 
             model = self._models[model_label]
 
-            result = model.objects.aggregate(
-                sequence_max=Max('sync_field_sequence'),
-            )
+            result = model.objects.aggregate(sequence_max=Max('sync_field_sequence'))
 
             candidate = result['sequence_max'] or 0
 
@@ -484,15 +374,11 @@ class DjangoRecordWriter:
             SyncSequenceAllocator().reconcile_to(sequence_max)
 
     def _run_backfill(
-        self,
-        model: type[SyncableMixin],
-        key_columns: dict[str, dict[str, Any]],
+        self, model: type[SyncableMixin], key_columns: dict[str, dict[str, Any]]
     ) -> dict[str, dict[str, Any]]:
         from django_spire.sync.django.queryset import sync_bypass  # noqa: PLC0415
 
-        by_attribute_name: dict[str, list[tuple[str, Any]]] = defaultdict(
-            list,
-        )
+        by_attribute_name: dict[str, list[tuple[str, Any]]] = defaultdict(list)
 
         for key, columns in key_columns.items():
             for attribute_name, value in columns.items():
@@ -500,31 +386,22 @@ class DjangoRecordWriter:
 
         still_pending: dict[str, dict[str, Any]] = {}
 
-        connection = connections[
-            router.db_for_write(model) or
-            'default'
-        ]
+        connection = connections[router.db_for_write(model) or 'default']
 
         for attribute_name, pairs in by_attribute_name.items():
             foreign_key_field = _field_by_attribute_name(model, attribute_name)
             target_model = foreign_key_field.related_model
 
-            target_values = {
-                str(value)
-                for _, value in pairs
-            }
+            target_values = {str(value) for _, value in pairs}
 
             existing_targets = set(
-                str(primary_key) for primary_key in
-                target_model.objects.filter(
-                    pk__in=target_values,
-                ).values_list('pk', flat=True)
+                str(primary_key)
+                for primary_key in target_model.objects.filter(pk__in=target_values).values_list(
+                    'pk', flat=True
+                )
             )
 
-            can_backfill = [
-                (key, value) for key, value in pairs
-                if str(value) in existing_targets
-            ]
+            can_backfill = [(key, value) for key, value in pairs if str(value) in existing_targets]
 
             for key, value in pairs:
                 if str(value) not in existing_targets:
@@ -537,9 +414,7 @@ class DjangoRecordWriter:
             quote = connection.ops.quote_name
             table = quote(model._meta.db_table)
 
-            id_field = model._meta.get_field(
-                self._identity_field,
-            )
+            id_field = model._meta.get_field(self._identity_field)
 
             id_column = quote(id_field.column)
             foreign_key_column = quote(foreign_key_field.column)
@@ -551,33 +426,16 @@ class DjangoRecordWriter:
 
             with sync_bypass(), connection.cursor() as cursor:
                 for offset in range(0, len(can_backfill), batch_limit):
-                    batch = can_backfill[
-                        offset:offset + batch_limit
-                    ]
+                    batch = can_backfill[offset : offset + batch_limit]
 
                     params: list[Any] = []
 
                     for key, value in batch:
-                        params.append(
-                            id_field.get_db_prep_save(
-                                key,
-                                connection,
-                            ),
-                        )
-                        params.append(
-                            foreign_key_field.get_db_prep_save(
-                                value,
-                                connection,
-                            ),
-                        )
+                        params.append(id_field.get_db_prep_save(key, connection))
+                        params.append(foreign_key_field.get_db_prep_save(value, connection))
 
                     sql = self._build_foreign_key_backfill_sql(
-                        table,
-                        foreign_key_column,
-                        foreign_key_type,
-                        id_column,
-                        id_type,
-                        len(batch),
+                        table, foreign_key_column, foreign_key_type, id_column, id_type, len(batch)
                     )
 
                     cursor.execute(sql, params)
@@ -603,22 +461,13 @@ class DjangoRecordWriter:
             sync_record = records[key]
             chunk_records[key] = sync_record
 
-            field_data = self._extract_field_data(
-                sync_record,
-                many_to_many_names,
-            )
+            field_data = self._extract_field_data(sync_record, many_to_many_names)
 
-            many_to_many_data = self._extract_many_to_many_data(
-                sync_record,
-                many_to_many_names,
-            )
+            many_to_many_data = self._extract_many_to_many_data(sync_record, many_to_many_names)
 
             deserialized[key] = serializer.deserialize(field_data)
 
-            stashed = self._nullify_deferred_columns(
-                model_label,
-                deserialized[key],
-            )
+            stashed = self._nullify_deferred_columns(model_label, deserialized[key])
 
             if stashed:
                 deferred_stashes[key] = stashed
@@ -628,16 +477,10 @@ class DjangoRecordWriter:
 
         with transaction.atomic():
             if deferred_stashes:
-                self._persist_deferred_backfill(
-                    model_label,
-                    deferred_stashes,
-                )
+                self._persist_deferred_backfill(model_label, deferred_stashes)
 
             upsert_result = self._upsert_strategy.apply_many(
-                model,
-                chunk_records,
-                deserialized,
-                origin_node,
+                model, chunk_records, deserialized, origin_node
             )
 
             errored_keys = {error.key for error in upsert_result.errors}
@@ -649,37 +492,22 @@ class DjangoRecordWriter:
             for key in excluded:
                 pending_many_to_many.pop(key, None)
 
-            many_to_many_result = self._many_to_many_applier.apply(
-                model,
-                pending_many_to_many,
-            )
+            many_to_many_result = self._many_to_many_applier.apply(model, pending_many_to_many)
 
             upsert_result.skipped |= many_to_many_result.skipped
             upsert_result.errors.extend(many_to_many_result.errors)
 
         return upsert_result
 
-    def clear_tombstones(
-        self,
-        model_label: str,
-        keys: set[str],
-    ) -> None:
+    def clear_tombstones(self, model_label: str, keys: set[str]) -> None:
         if not keys:
             return
 
         from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
-        SyncTombstone.objects.filter(
-            model_label=model_label,
-            record_key__in=keys,
-        ).delete()
+        SyncTombstone.objects.filter(model_label=model_label, record_key__in=keys).delete()
 
-    def delete_many(
-        self,
-        model_label: str,
-        deletes: dict[str, int],
-        origin_node: str,
-    ) -> None:
+    def delete_many(self, model_label: str, deletes: dict[str, int], origin_node: str) -> None:
         if not deletes:
             return
 
@@ -688,7 +516,7 @@ class DjangoRecordWriter:
         keys = list(deletes.keys())
 
         for start in range(0, len(keys), self._batch_size_max):
-            chunk_keys = keys[start:start + self._batch_size_max]
+            chunk_keys = keys[start : start + self._batch_size_max]
             chunk = {key: deletes[key] for key in chunk_keys}
 
             with transaction.atomic():
@@ -712,8 +540,7 @@ class DjangoRecordWriter:
         for model_label, label_rows in by_label.items():
             if model_label not in self._models:
                 logger.warning(
-                    'Skipping %d deferred backfill row(s) for '
-                    'unknown model %s',
+                    'Skipping %d deferred backfill row(s) for unknown model %s',
                     len(label_rows),
                     model_label,
                 )
@@ -738,26 +565,19 @@ class DjangoRecordWriter:
                     ids_to_delete.append(row.id)
 
             if ids_to_delete:
-                SyncDeferredBackfill.objects.filter(
-                    id__in=ids_to_delete,
-                ).delete()
+                SyncDeferredBackfill.objects.filter(id__in=ids_to_delete).delete()
 
-            still_count = sum(
-                len(values) for values in still_pending.values()
-            )
+            still_count = sum(len(values) for values in still_pending.values())
 
             if still_count:
                 logger.debug(
-                    '%d deferred FK backfill(s) still pending '
-                    'for %s (targets not yet present)',
+                    '%d deferred FK backfill(s) still pending for %s (targets not yet present)',
                     still_count,
                     model_label,
                 )
 
     def stamp_unstamped_records(
-        self,
-        clock: HybridLogicalClock,
-        model_order: list[str] | None = None,
+        self, clock: HybridLogicalClock, model_order: list[str] | None = None
     ) -> int:
         from django_spire.sync.django.queryset import sync_bypass  # noqa: PLC0415
         from django_spire.sync.django.sequence import (  # noqa: PLC0415
@@ -777,10 +597,7 @@ class DjangoRecordWriter:
 
                 model = self._models[model_label]
 
-                connection = connections[
-                    router.db_for_write(model) or
-                    'default'
-                ]
+                connection = connections[router.db_for_write(model) or 'default']
 
                 quote = connection.ops.quote_name
                 table = quote(model._meta.db_table)
@@ -790,20 +607,12 @@ class DjangoRecordWriter:
                 id_column = quote(id_field.column)
 
                 with connection.cursor() as cursor:
-                    cursor.execute(
-                        self._build_zero_field_count_sql(
-                            table,
-                            'sync_field_sequence',
-                        ),
-                    )
+                    cursor.execute(self._build_zero_field_count_sql(table, 'sync_field_sequence'))
 
                     sequence_count = cursor.fetchone()[0]
 
                     cursor.execute(
-                        self._build_zero_field_count_sql(
-                            table,
-                            'sync_field_last_modified',
-                        ),
+                        self._build_zero_field_count_sql(table, 'sync_field_last_modified')
                     )
 
                     timestamp_count = cursor.fetchone()[0]
@@ -813,31 +622,25 @@ class DjangoRecordWriter:
 
                 stamp_timestamp = clock.now()
 
-                stamp_field_names = (
-                    list(model.get_syncable_field_names()) +
-                    list(model.get_syncable_many_to_many_names())
+                stamp_field_names = list(model.get_syncable_field_names()) + list(
+                    model.get_syncable_many_to_many_names()
                 )
 
                 stamp_timestamps_json = json.dumps(
-                    dict.fromkeys(
-                        stamp_field_names,
-                        stamp_timestamp
-                    )
+                    dict.fromkeys(stamp_field_names, stamp_timestamp)
                 )
 
                 sequence_first = 0
 
                 with transaction.atomic():
                     if sequence_count > 0:
-                        sequence_first = SyncSequenceAllocator().allocate(sequence_count).value_first
+                        sequence_first = (
+                            SyncSequenceAllocator().allocate(sequence_count).value_first
+                        )
 
                         with connection.cursor() as cursor:
                             cursor.execute(
-                                self._build_assign_sequence_sql(
-                                    table,
-                                    id_column,
-                                ),
-                                [sequence_first],
+                                self._build_assign_sequence_sql(table, id_column), [sequence_first]
                             )
 
                     if timestamp_count > 0:
@@ -850,8 +653,7 @@ class DjangoRecordWriter:
                 stamped = max(sequence_count, timestamp_count)
 
                 logger.info(
-                    'Stamped %s in %s '
-                    '(%d sequences from %d, %d timestamps, ts=%d)',
+                    'Stamped %s in %s (%d sequences from %d, %d timestamps, ts=%d)',
                     stamped,
                     model_label,
                     sequence_count,
@@ -865,10 +667,7 @@ class DjangoRecordWriter:
         return total
 
     def upsert_many(
-        self,
-        model_label: str,
-        records: dict[str, SyncRecord],
-        origin_node: str,
+        self, model_label: str, records: dict[str, SyncRecord], origin_node: str
     ) -> UpsertResult:
         if not records:
             return UpsertResult()
@@ -882,15 +681,10 @@ class DjangoRecordWriter:
         keys = sorted(records.keys())
 
         for start in range(0, len(keys), self._batch_size_max):
-            chunk_keys = keys[start:start + self._batch_size_max]
+            chunk_keys = keys[start : start + self._batch_size_max]
 
             chunk_result = self._upsert_chunk(
-                model,
-                records,
-                chunk_keys,
-                many_to_many_names,
-                serializer,
-                origin_node,
+                model, records, chunk_keys, many_to_many_names, serializer, origin_node
             )
 
             skipped |= chunk_result.skipped

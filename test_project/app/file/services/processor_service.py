@@ -5,10 +5,7 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.file.mixins import FileProcessorServiceMixin
 
-from test_project.app.file.constants import (
-    ATTACHMENTS_RELATED_FIELD,
-    PROFILE_PICTURE_RELATED_FIELD,
-)
+from test_project.app.file.constants import ATTACHMENTS_RELATED_FIELD, PROFILE_PICTURE_RELATED_FIELD
 
 if TYPE_CHECKING:
     from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -48,13 +45,9 @@ class FileExampleProcessorService(FileProcessorServiceMixin, BaseDjangoModelServ
         return self.delete_files(PROFILE_PICTURE_RELATED_FIELD)
 
     def replace_attachments(
-        self,
-        data: list[dict] | list[InMemoryUploadedFile] | None,
+        self, data: list[dict] | list[InMemoryUploadedFile] | None
     ) -> list[File]:
         return self.replace_files(data, ATTACHMENTS_RELATED_FIELD)
 
-    def replace_profile_picture(
-        self,
-        data: dict | InMemoryUploadedFile | None,
-    ) -> File | None:
+    def replace_profile_picture(self, data: dict | InMemoryUploadedFile | None) -> File | None:
         return self.replace_file(data, PROFILE_PICTURE_RELATED_FIELD)

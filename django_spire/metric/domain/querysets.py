@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING
 from django.db.models import Q
 
 from django_spire.history.querysets import HistoryQuerySet
-from django_spire.contrib.queryset.mixins import SearchQuerySetMixin, \
-    SessionFilterQuerySetMixin
+from django_spire.contrib.queryset.mixins import SearchQuerySetMixin, SessionFilterQuerySetMixin
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -14,11 +13,7 @@ if TYPE_CHECKING:
     from django_spire.metric.domain.models import Domain
 
 
-class DomainQuerySet(
-    HistoryQuerySet,
-    SearchQuerySetMixin,
-    SessionFilterQuerySetMixin
-):
+class DomainQuerySet(HistoryQuerySet, SearchQuerySetMixin, SessionFilterQuerySetMixin):
     def bulk_filter(self, filter_data: dict) -> QuerySet[Domain]:
         queryset = self
 
@@ -29,11 +24,7 @@ class DomainQuerySet(
         return queryset
 
 
-class SubDomainQuerySet(
-    HistoryQuerySet,
-    SearchQuerySetMixin,
-    SessionFilterQuerySetMixin
-):
+class SubDomainQuerySet(HistoryQuerySet, SearchQuerySetMixin, SessionFilterQuerySetMixin):
     def bulk_filter(self, filter_data: dict) -> QuerySet[Domain]:
         queryset = self
 

@@ -16,7 +16,7 @@ class EntryTemplateUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:entry:template:file_list',
-                kwargs={'collection_pk': self.collection.pk}
+                kwargs={'collection_pk': self.collection.pk},
             )
         )
         assert response.status_code == 200
@@ -25,7 +25,7 @@ class EntryTemplateUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:entry:template:file_list',
-                kwargs={'collection_pk': self.collection.pk}
+                kwargs={'collection_pk': self.collection.pk},
             )
         )
         assert 'files_json' in response.context
@@ -34,7 +34,7 @@ class EntryTemplateUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:entry:template:file_list',
-                kwargs={'collection_pk': self.collection.pk}
+                kwargs={'collection_pk': self.collection.pk},
             )
         )
         assert 'breadcrumbs' in response.context

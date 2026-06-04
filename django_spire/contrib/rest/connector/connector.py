@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import inspect
@@ -11,8 +10,10 @@ from django.core.exceptions import ImproperlyConfigured
 from requests import HTTPError
 from requests.auth import AuthBase
 
-from django_spire.contrib.rest.connector.exceptions import \
-    RestConnectorTimeoutException, RestConnectorError
+from django_spire.contrib.rest.connector.exceptions import (
+    RestConnectorTimeoutException,
+    RestConnectorError,
+)
 
 
 class BaseRestHttpConnector(ABC):

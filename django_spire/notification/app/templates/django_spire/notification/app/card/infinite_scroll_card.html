@@ -3,6 +3,8 @@
 {% block card_title %}{{ card_title }}{% endblock %}
 
 {% block card_title_content %}
-    {% include 'django_spire/notification/app/form/filter_form.html' %}
-    {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height=scroll_height|default:'300px' %}
+    <div class="card-body">
+        {% include 'django_spire/notification/app/form/filter_form.html' %}
+        {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height=scroll_height|default:'300px' %}
+    </div>
 {% endblock %}

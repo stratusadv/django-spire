@@ -10,10 +10,7 @@ from django_spire.file.models import File
 from django_spire.history.mixins import HistoryModelMixin
 
 from test_project.app.file import querysets
-from test_project.app.file.constants import (
-    ATTACHMENTS_RELATED_FIELD,
-    PROFILE_PICTURE_RELATED_FIELD,
-)
+from test_project.app.file.constants import ATTACHMENTS_RELATED_FIELD, PROFILE_PICTURE_RELATED_FIELD
 from test_project.app.file.services.service import FileExampleService
 
 
@@ -30,8 +27,7 @@ class FileExample(HistoryModelMixin, FileModelMixin):
     @cached_property
     def attachments(self) -> list[File]:
         return list(
-            self.files
-            .active()
+            self.files.active()
             .filter(related_field=ATTACHMENTS_RELATED_FIELD)
             .order_by('-created_datetime')
         )
@@ -40,10 +36,7 @@ class FileExample(HistoryModelMixin, FileModelMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'File',
-            reverse('file:page:list')
-        )
+        crumbs.add_breadcrumb('File', reverse('file:page:list'))
 
         return crumbs
 
@@ -52,13 +45,7 @@ class FileExample(HistoryModelMixin, FileModelMixin):
         crumbs.add_base_breadcrumb(self._meta.model)
 
         if self.pk:
-            crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'file:page:detail',
-                    kwargs={'pk': self.pk}
-                )
-            )
+            crumbs.add_breadcrumb(str(self), reverse('file:page:detail', kwargs={'pk': self.pk}))
 
         return crumbs
 
@@ -66,8 +53,7 @@ class FileExample(HistoryModelMixin, FileModelMixin):
     def profile_picture(self) -> File | None:
         try:
             return (
-                self.files
-                .active()
+                self.files.active()
                 .filter(related_field=PROFILE_PICTURE_RELATED_FIELD)
                 .latest('created_datetime')
             )

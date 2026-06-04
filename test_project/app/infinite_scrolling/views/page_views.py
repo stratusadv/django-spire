@@ -21,21 +21,15 @@ if TYPE_CHECKING:
 
 
 def cards_page_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'endpoint': reverse('infinite_scrolling:template:items'),
-    }
+    context_data = {'endpoint': reverse('infinite_scrolling:template:items')}
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='infinite_scrolling/page/cards_page.html',
+        request=request, context=context_data, template='infinite_scrolling/page/cards_page.html'
     )
 
 
 def container_page_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'endpoint': reverse('infinite_scrolling:template:items'),
-    }
+    context_data = {'endpoint': reverse('infinite_scrolling:template:items')}
 
     return TemplateResponse(
         request=request,
@@ -47,30 +41,21 @@ def container_page_view(request: WSGIRequest) -> TemplateResponse:
 def delete_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     infinite_scrolling = get_object_or_404(InfiniteScrolling, pk=pk)
 
-    return_url = request.GET.get(
-        'return_url',
-        reverse('infinite_scrolling:page:list')
-    )
+    return_url = request.GET.get('return_url', reverse('infinite_scrolling:page:list'))
 
-    return generic_views.delete_form_view(
-        request,
-        obj=infinite_scrolling,
-        return_url=return_url
-    )
+    return generic_views.delete_form_view(request, obj=infinite_scrolling, return_url=return_url)
 
 
 def detail_page_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     infinite_scrolling = get_object_or_404(InfiniteScrolling, pk=pk)
 
-    context_data = {
-        'infinite_scrolling': infinite_scrolling,
-    }
+    context_data = {'infinite_scrolling': infinite_scrolling}
 
     return generic_views.detail_view(
         request,
         obj=infinite_scrolling,
         context_data=context_data,
-        template='infinite_scrolling/page/detail_page.html'
+        template='infinite_scrolling/page/detail_page.html',
     )
 
 
@@ -91,9 +76,7 @@ def list_page_view(request: WSGIRequest) -> TemplateResponse:
     }
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='infinite_scrolling/page/list_page.html',
+        request=request, context=context_data, template='infinite_scrolling/page/list_page.html'
     )
 
 
@@ -114,7 +97,5 @@ def table_page_view(request: WSGIRequest) -> TemplateResponse:
     }
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='infinite_scrolling/page/table_page.html',
+        request=request, context=context_data, template='infinite_scrolling/page/table_page.html'
     )

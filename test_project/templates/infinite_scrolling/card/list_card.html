@@ -11,9 +11,11 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="my-4">
-        {% include 'infinite_scrolling/form/list_filter_form.html' %}
-    </div>
+    <div class="card-body">
+        <div class="my-4">
+            {% include 'infinite_scrolling/form/list_filter_form.html' %}
+        </div>
 
-    {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height='450px' %}
+        {% include 'django_spire/infinite_scroll/scroll.html' with scroll_height='450px' %}
+    </div>
 {% endblock %}

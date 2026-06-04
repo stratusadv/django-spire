@@ -21,28 +21,22 @@ class BaseKnowledgeAuthControllerTests(BaseTestCase):
         content_type = ContentType.objects.get_for_model(Collection)
 
         self.view_permission = Permission.objects.get(
-            codename='view_collection',
-            content_type=content_type
+            codename='view_collection', content_type=content_type
         )
         self.add_permission = Permission.objects.get(
-            codename='add_collection',
-            content_type=content_type
+            codename='add_collection', content_type=content_type
         )
         self.change_permission = Permission.objects.get(
-            codename='change_collection',
-            content_type=content_type
+            codename='change_collection', content_type=content_type
         )
         self.delete_permission = Permission.objects.get(
-            codename='delete_collection',
-            content_type=content_type
+            codename='delete_collection', content_type=content_type
         )
         self.access_all_permission = Permission.objects.get(
-            codename='can_access_all_collections',
-            content_type=content_type
+            codename='can_access_all_collections', content_type=content_type
         )
         self.change_groups_permission = Permission.objects.get(
-            codename='can_change_collection_groups',
-            content_type=content_type
+            codename='can_change_collection_groups', content_type=content_type
         )
 
     def _refresh_user_and_request(self):

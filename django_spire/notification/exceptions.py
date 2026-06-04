@@ -13,8 +13,7 @@ class NotificationError(DjangoSpireError):
 
 
 class InvalidNotificationTypeError(NotificationError):
-    def __init__(self, expected_type: NotificationTypeChoices, actual_type: NotificationTypeChoices) -> None:
-        super().__init__(
-            f'Expected notification type {expected_type}, '
-            f'but received {actual_type}'
-        )
+    def __init__(
+        self, expected_type: NotificationTypeChoices, actual_type: NotificationTypeChoices
+    ) -> None:
+        super().__init__(f'Expected notification type {expected_type}, but received {actual_type}')

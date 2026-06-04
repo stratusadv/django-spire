@@ -15,17 +15,11 @@ from django_spire.sync.core.exceptions import (
     InvalidResponseError,
     SyncAbortedError,
 )
-from django_spire.sync.database.transport.http import (
-    HttpTransport,
-    _validate_url,
-)
+from django_spire.sync.database.transport.http import HttpTransport, _validate_url
 from django_spire.sync.tests.factories import make_manifest
 
 
-def _make_urlopen_response(
-    data: dict[str, Any],
-    content_encoding: str | None = None,
-) -> MagicMock:
+def _make_urlopen_response(data: dict[str, Any], content_encoding: str | None = None) -> MagicMock:
     body = json.dumps(data).encode('utf-8')
 
     if content_encoding == 'gzip':
@@ -44,11 +38,7 @@ def _make_urlopen_response(
 
 
 def _valid_manifest_dict() -> dict[str, Any]:
-    return make_manifest(
-        node_id='server',
-        local_sequence=500,
-        node_time=500,
-    ).to_dict()
+    return make_manifest(node_id='server', local_sequence=500, node_time=500).to_dict()
 
 
 def test_validate_url_empty_raises() -> None:
@@ -105,18 +95,19 @@ def test_init_response_bytes_max_zero_raises() -> None:
 
 
 def test_init_warns_without_headers() -> None:
-    with patch.object(logging.getLogger('django_spire.sync.database.transport.http'), 'warning') as mock_warn:
+    with patch.object(
+        logging.getLogger('django_spire.sync.database.transport.http'), 'warning'
+    ) as mock_warn:
         HttpTransport(url='https://example.com')
 
     assert mock_warn.called
 
 
 def test_init_no_warning_with_headers() -> None:
-    with patch.object(logging.getLogger('django_spire.sync.database.transport.http'), 'warning') as mock_warn:
-        HttpTransport(
-            url='https://example.com',
-            headers={'Authorization': 'Bearer token'},
-        )
+    with patch.object(
+        logging.getLogger('django_spire.sync.database.transport.http'), 'warning'
+    ) as mock_warn:
+        HttpTransport(url='https://example.com', headers={'Authorization': 'Bearer token'})
 
     assert not mock_warn.called
 
@@ -127,8 +118,7 @@ def test_exchange_valid_response(mock_urlopen: Any) -> None:
     mock_urlopen.return_value = _make_urlopen_response(data)
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet', local_sequence=100)
@@ -141,13 +131,10 @@ def test_exchange_valid_response(mock_urlopen: Any) -> None:
 @patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_gzip_response(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
-    mock_urlopen.return_value = _make_urlopen_response(
-        data, content_encoding='gzip',
-    )
+    mock_urlopen.return_value = _make_urlopen_response(data, content_encoding='gzip')
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet')
@@ -197,8 +184,7 @@ def test_exchange_invalid_json_raises(mock_urlopen: Any) -> None:
     mock_urlopen.return_value = ctx
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet')
@@ -223,8 +209,7 @@ def test_exchange_non_dict_response_raises(mock_urlopen: Any) -> None:
     mock_urlopen.return_value = ctx
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet')
@@ -249,8 +234,7 @@ def test_exchange_missing_node_id_raises(mock_urlopen: Any) -> None:
     mock_urlopen.return_value = ctx
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet')
@@ -275,8 +259,7 @@ def test_exchange_missing_peer_sequence_raises(mock_urlopen: Any) -> None:
     mock_urlopen.return_value = ctx
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet')
@@ -288,11 +271,7 @@ def test_exchange_missing_peer_sequence_raises(mock_urlopen: Any) -> None:
 @patch('django_spire.sync.database.transport.http.urlopen')
 def test_exchange_http_4xx_raises_sync_aborted(mock_urlopen: Any) -> None:
     mock_urlopen.side_effect = HTTPError(
-        url='https://example.com/sync/',
-        code=403,
-        msg='Forbidden',
-        hdrs=MagicMock(),
-        fp=None,
+        url='https://example.com/sync/', code=403, msg='Forbidden', hdrs=MagicMock(), fp=None
     )
 
     transport = HttpTransport(
@@ -313,10 +292,7 @@ def test_exchange_connection_error_retries(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     success_response = _make_urlopen_response(data)
 
-    mock_urlopen.side_effect = [
-        ConnectionError('refused'),
-        success_response,
-    ]
+    mock_urlopen.side_effect = [ConnectionError('refused'), success_response]
 
     transport = HttpTransport(
         url='https://example.com/sync/',
@@ -337,10 +313,7 @@ def test_exchange_timeout_retries(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     success_response = _make_urlopen_response(data)
 
-    mock_urlopen.side_effect = [
-        TimeoutError('timed out'),
-        success_response,
-    ]
+    mock_urlopen.side_effect = [TimeoutError('timed out'), success_response]
 
     transport = HttpTransport(
         url='https://example.com/sync/',
@@ -360,10 +333,7 @@ def test_exchange_url_error_retries(mock_urlopen: Any) -> None:
     data = _valid_manifest_dict()
     success_response = _make_urlopen_response(data)
 
-    mock_urlopen.side_effect = [
-        URLError('unreachable'),
-        success_response,
-    ]
+    mock_urlopen.side_effect = [URLError('unreachable'), success_response]
 
     transport = HttpTransport(
         url='https://example.com/sync/',
@@ -392,8 +362,7 @@ def test_exchange_malformed_gzip_response_raises(mock_urlopen: Any) -> None:
     mock_urlopen.return_value = ctx
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet')
@@ -436,8 +405,7 @@ def test_exchange_sends_gzip_compressed_body(mock_urlopen: Any) -> None:
     mock_urlopen.return_value = _make_urlopen_response(data)
 
     transport = HttpTransport(
-        url='https://example.com/sync/',
-        headers={'Authorization': 'Bearer token'},
+        url='https://example.com/sync/', headers={'Authorization': 'Bearer token'}
     )
 
     manifest = make_manifest(node_id='tablet')

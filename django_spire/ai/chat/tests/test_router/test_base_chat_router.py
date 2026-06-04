@@ -35,17 +35,13 @@ class TestBaseChatRouter(BaseTestCase):
                 self,
                 request: WSGIRequest,
                 user_input: str,
-                message_history: MessageHistory | None = None
+                message_history: MessageHistory | None = None,
             ) -> BaseMessageIntel:
                 self.workflow_called = True
                 return DefaultMessageIntel(text='Test response')
 
         router = TestRouter()
-        result = router.process(
-            request=self.request,
-            user_input='Hello',
-            message_history=None
-        )
+        result = router.process(request=self.request, user_input='Hello', message_history=None)
 
         assert router.workflow_called
         assert isinstance(result, DefaultMessageIntel)
@@ -57,18 +53,14 @@ class TestBaseChatRouter(BaseTestCase):
                 self,
                 request: WSGIRequest,
                 user_input: str,
-                message_history: MessageHistory | None = None
+                message_history: MessageHistory | None = None,
             ) -> str:
                 return 'Invalid return type'
 
         router = InvalidRouter()
 
         with pytest.raises(TypeError) as cm:
-            router.process(
-                request=self.request,
-                user_input='Hello',
-                message_history=None
-            )
+            router.process(request=self.request, user_input='Hello', message_history=None)
 
         assert 'BaseMessageIntel' in str(cm.value)
 
@@ -78,16 +70,12 @@ class TestBaseChatRouter(BaseTestCase):
                 self,
                 request: WSGIRequest,
                 user_input: str,
-                message_history: MessageHistory | None = None
+                message_history: MessageHistory | None = None,
             ) -> None:
                 return None
 
         router = NoneRouter()
-        result = router.process(
-            request=self.request,
-            user_input='Hello',
-            message_history=None
-        )
+        result = router.process(request=self.request, user_input='Hello', message_history=None)
 
         assert isinstance(result, DefaultMessageIntel)
         assert result.text == 'I apologize, but I was unable to process your request.'
@@ -100,12 +88,12 @@ class TestBaseChatRouter(BaseTestCase):
                 self,
                 request: WSGIRequest,
                 user_input: str,
-                message_history: MessageHistory | None = None
+                message_history: MessageHistory | None = None,
             ) -> DefaultMessageIntel:
                 self.received_params = {
                     'request': request,
                     'user_input': user_input,
-                    'message_history': message_history
+                    'message_history': message_history,
                 }
                 return DefaultMessageIntel(text='Success')
 
@@ -113,9 +101,7 @@ class TestBaseChatRouter(BaseTestCase):
         message_history = MessageHistory()
 
         router.process(
-            request=self.request,
-            user_input='Test input',
-            message_history=message_history
+            request=self.request, user_input='Test input', message_history=message_history
         )
 
         assert router.received_params['request'] == self.request
@@ -135,16 +121,12 @@ class TestBaseChatRouter(BaseTestCase):
                 self,
                 request: WSGIRequest,
                 user_input: str,
-                message_history: MessageHistory | None = None
+                message_history: MessageHistory | None = None,
             ) -> CustomMessageIntel:
                 return CustomMessageIntel(custom_field='Custom value')
 
         router = CustomRouter()
-        result = router.process(
-            request=self.request,
-            user_input='Hello',
-            message_history=None
-        )
+        result = router.process(request=self.request, user_input='Hello', message_history=None)
 
         assert isinstance(result, CustomMessageIntel)
         assert result.custom_field == 'Custom value'
@@ -155,16 +137,12 @@ class TestBaseChatRouter(BaseTestCase):
                 self,
                 request: WSGIRequest,
                 user_input: str,
-                message_history: MessageHistory | None = None
+                message_history: MessageHistory | None = None,
             ) -> DefaultMessageIntel:
                 return DefaultMessageIntel(text=f'Received: {user_input}')
 
         router = EmptyInputRouter()
-        result = router.process(
-            request=self.request,
-            user_input='',
-            message_history=None
-        )
+        result = router.process(request=self.request, user_input='', message_history=None)
 
         assert isinstance(result, DefaultMessageIntel)
         assert result.text == 'Received: '

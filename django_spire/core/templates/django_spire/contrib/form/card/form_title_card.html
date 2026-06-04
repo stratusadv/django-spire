@@ -2,6 +2,8 @@
 
 {% block card_content %}
     <form {% block form_attributes %}{% endblock %}>
-        {{ block.super }}
+        <div class="card-body">
+            {{ block.super }}
+        </div>
     </form>
 {% endblock %}

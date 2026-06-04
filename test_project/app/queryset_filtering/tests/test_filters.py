@@ -2,7 +2,6 @@ from django.test import TestCase
 
 
 class QuerySetFilterTestCase(TestCase):
-
     def setUp(self):
         super().setUp()
 

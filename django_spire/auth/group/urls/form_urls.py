@@ -17,7 +17,9 @@ urlpatterns = [
 # Group User
 urlpatterns += [
     path('group/<int:pk>/user/form', form_views.user_form_view, name='user'),
-    path('group/<int:group_pk>/user/<int:pk>/form',
-         form_views.group_remove_user_form_view,
-         name='user_remove'),
+    path(
+        'group/<int:group_pk>/user/<int:pk>/form',
+        form_views.group_remove_user_form_view,
+        name='user_remove',
+    ),
 ]

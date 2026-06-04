@@ -24,24 +24,20 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
 
-    context_data = {
-        'domain': domain,
-    }
+    context_data = {'domain': domain}
 
     return generic_views.detail_view(
         request,
         obj=domain,
         context_data=context_data,
-        template='metric/domain/page/detail_page.html'
+        template='metric/domain/page/detail_page.html',
     )
 
 
 @permission_required('metric_domain.view_domain')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     models.Domain.objects.process_session_filter(
-        request=request,
-        session_key=LIST_FILTERING_SESSION_KEY,
-        form_class=DomainListFilterForm,
+        request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=DomainListFilterForm
     )
 
     context_data = {
@@ -54,5 +50,5 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=models.Domain,
         context_data=context_data,
-        template='metric/domain/page/list_page.html'
+        template='metric/domain/page/list_page.html',
     )

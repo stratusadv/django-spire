@@ -14,7 +14,7 @@ class HistoryEvent(models.Model):
         related_name='history_events',
         related_query_name='history_event',
         on_delete=models.CASCADE,
-        editable=False
+        editable=False,
     )
 
     object_id = models.PositiveIntegerField(editable=False)
@@ -35,4 +35,3 @@ class HistoryEvent(models.Model):
         db_table = 'django_spire_history_event'
         verbose_name = 'History Event'
         verbose_name_plural = 'History Events'
-

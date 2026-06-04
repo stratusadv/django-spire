@@ -19,10 +19,7 @@ logger = logging.getLogger(__name__)
 _TRACKED_ACTIONS = frozenset({'post_add', 'post_remove', 'post_clear'})
 
 
-def _find_field_name(
-    model: type,
-    through: type,
-) -> str | None:
+def _find_field_name(model: type, through: type) -> str | None:
     for field in model._meta.many_to_many:
         if field.remote_field.through is through:
             return field.name
@@ -30,10 +27,7 @@ def _find_field_name(
     return None
 
 
-def _stamp_forward(
-    instance: SyncableMixin,
-    field_name: str,
-) -> None:
+def _stamp_forward(instance: SyncableMixin, field_name: str) -> None:
     from django_spire.sync.django.sequence import (  # noqa: PLC0415
         SyncSequenceAllocator,
     )
@@ -43,8 +37,7 @@ def _stamp_forward(
 
     with transaction.atomic(using=instance._state.db):
         row = (
-            model.objects
-            .using(instance._state.db)
+            model.objects.using(instance._state.db)
             .select_for_update()
             .filter(pk=instance.pk)
             .values('sync_field_timestamps')
@@ -61,8 +54,7 @@ def _stamp_forward(
 
         with sync_bypass():
             (
-                model.objects
-                .using(instance._state.db)
+                model.objects.using(instance._state.db)
                 .filter(pk=instance.pk)
                 .update(
                     sync_field_timestamps=timestamps,
@@ -79,10 +71,7 @@ def _stamp_forward(
 
 
 def _stamp_reverse(
-    model: type[SyncableMixin],
-    primary_keys: set[Any],
-    field_name: str,
-    using: str | None = None,
+    model: type[SyncableMixin], primary_keys: set[Any], field_name: str, using: str | None = None
 ) -> None:
     if not primary_keys:
         return
@@ -94,12 +83,7 @@ def _stamp_reverse(
     now = model.get_clock().now()
 
     with transaction.atomic(using=using), sync_bypass():
-        instances = list(
-            model.objects
-            .using(using)
-            .select_for_update()
-            .filter(pk__in=primary_keys),
-        )
+        instances = list(model.objects.using(using).select_for_update().filter(pk__in=primary_keys))
 
         if not instances:
             return
@@ -129,12 +113,7 @@ def _stamp_reverse(
 
 
 def _on_many_to_many_changed(
-    sender: type,
-    instance: Any,
-    action: str,
-    reverse: bool,
-    pk_set: set[Any] | None,
-    **kwargs: Any,
+    sender: type, instance: Any, action: str, reverse: bool, pk_set: set[Any] | None, **kwargs: Any
 ) -> None:
     from django_spire.sync.django.mixin import SyncableMixin  # noqa: PLC0415
 
@@ -181,19 +160,10 @@ def _on_many_to_many_changed(
 
         return
 
-    _stamp_reverse(
-        forward_model,
-        set(pk_set or set()),
-        field_name,
-        using=instance._state.db
-    )
+    _stamp_reverse(forward_model, set(pk_set or set()), field_name, using=instance._state.db)
 
 
-def _on_syncable_delete(
-    sender: type,
-    instance: Any,
-    **kwargs: Any,
-) -> None:
+def _on_syncable_delete(sender: type, instance: Any, **kwargs: Any) -> None:
     _ = sender
     _ = kwargs
 
@@ -221,17 +191,11 @@ def _on_syncable_delete(
         SyncTombstone.objects.using(instance._state.db).update_or_create(
             model_label=model_label,
             record_key=key,
-            defaults={
-                'origin_node': '',
-                'sequence': sequence_last,
-                'timestamp': timestamp,
-            },
+            defaults={'origin_node': '', 'sequence': sequence_last, 'timestamp': timestamp},
         )
 
 
-def register_delete_signals(
-    models: list[type[SyncableMixin]],
-) -> None:
+def register_delete_signals(models: list[type[SyncableMixin]]) -> None:
     from django_spire.sync.django.mixin import SyncableMixin  # noqa: PLC0415
 
     for model in models:
@@ -240,16 +204,10 @@ def register_delete_signals(
 
         dispatch_uid = f'syncable_delete:{model._meta.label}'
 
-        post_delete.connect(
-            _on_syncable_delete,
-            sender=model,
-            dispatch_uid=dispatch_uid,
-        )
+        post_delete.connect(_on_syncable_delete, sender=model, dispatch_uid=dispatch_uid)
 
 
-def register_many_to_many_signals(
-    parent_models: list[type[SyncableMixin]],
-) -> None:
+def register_many_to_many_signals(parent_models: list[type[SyncableMixin]]) -> None:
     if not parent_models:
         message = 'parent_models must be a non-empty list'
         raise InvalidParameterError(message)
@@ -258,13 +216,8 @@ def register_many_to_many_signals(
         for field in parent_model._meta.many_to_many:
             through_model = field.remote_field.through
 
-            dispatch_uid = (
-                f'syncable_m2m:'
-                f'{parent_model._meta.label}:{field.name}'
-            )
+            dispatch_uid = f'syncable_m2m:{parent_model._meta.label}:{field.name}'
 
             m2m_changed.connect(
-                _on_many_to_many_changed,
-                sender=through_model,
-                dispatch_uid=dispatch_uid,
+                _on_many_to_many_changed, sender=through_model, dispatch_uid=dispatch_uid
             )

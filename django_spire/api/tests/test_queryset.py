@@ -5,13 +5,13 @@ from django_spire.api.models import ApiAccess
 
 class ApiAccessQuerySetTestCase(TestCase):
     def setUp(self) -> None:
-        self.key1 = "key1_123456789"
-        self.key2 = "key2_123456789"
+        self.key1 = 'key1_123456789'
+        self.key2 = 'key2_123456789'
 
-        self.access1 = ApiAccess.objects.create(name="Active Access")
+        self.access1 = ApiAccess.objects.create(name='Active Access')
         self.access1.set_key_and_save(self.key1)
 
-        self.access2 = ApiAccess.objects.create(name="Inactive Access")
+        self.access2 = ApiAccess.objects.create(name='Inactive Access')
         self.access2.set_key_and_save(self.key2)
         self.access2.set_inactive()
 
@@ -23,7 +23,7 @@ class ApiAccessQuerySetTestCase(TestCase):
         assert not ApiAccess.objects.is_valid_key(self.key2)
 
         # Invalid key
-        assert not ApiAccess.objects.is_valid_key("wrong_key")
+        assert not ApiAccess.objects.is_valid_key('wrong_key')
 
     def test_get_by_key_or_none(self) -> None:
         # Valid active key
@@ -35,5 +35,5 @@ class ApiAccessQuerySetTestCase(TestCase):
         assert found is None
 
         # Invalid key
-        found = ApiAccess.objects.get_by_key_or_none("wrong_key")
+        found = ApiAccess.objects.get_by_key_or_none('wrong_key')
         assert found is None

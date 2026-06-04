@@ -39,15 +39,11 @@ def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpR
             file_example = form.save()
             file_example.services.processor.save_files(**form.cleaned_data)
 
-            return redirect(
-                reverse('file:page:detail', kwargs={'pk': file_example.pk})
-            )
+            return redirect(reverse('file:page:detail', kwargs={'pk': file_example.pk}))
 
         show_form_errors(request, form)
 
-    context_data = {
-        'file_example': file_example,
-    }
+    context_data = {'file_example': file_example}
 
     return generic_views.template_view(
         request,

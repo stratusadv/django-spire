@@ -49,26 +49,27 @@ class CeleryTaskMeta(BaseModel):
         return None
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name == "progress" and isinstance(value, float):
+        if name == 'progress' and isinstance(value, float):
             if self.started_time is None:
                 self.started_time = time.time()
 
             if self._progress_updates_count >= 2:
-
                 current_time = time.time()
                 elapsed_seconds = current_time - self.started_time
                 estimated_total_seconds = elapsed_seconds / value
                 remaining_seconds = estimated_total_seconds - elapsed_seconds
 
                 new_estimated_end_time_seconds = current_time + (
-                        remaining_seconds * (_ESTIMATED_TIME_BUFFER + 1.0)
+                    remaining_seconds * (_ESTIMATED_TIME_BUFFER + 1.0)
                 )
 
                 if self.estimated_completed_time is None:
                     self.estimated_completed_time = new_estimated_end_time_seconds
 
                 else:
-                    difference_seconds = self.estimated_completed_time - new_estimated_end_time_seconds
+                    difference_seconds = (
+                        self.estimated_completed_time - new_estimated_end_time_seconds
+                    )
                     change_threshold = _ESTIMATED_TIME_BUFFER * self.estimated_run_time_seconds
 
                     if abs(difference_seconds) > abs(change_threshold):

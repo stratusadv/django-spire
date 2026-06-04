@@ -15,12 +15,8 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 
 
 STORAGES_OVERRIDE = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 
 
@@ -155,9 +151,7 @@ class FileLinkerUnlinkTests(BaseTestCase):
 
     def test_unlink_existing_soft_deletes(self) -> None:
         file = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
 
         self.linker.unlink_existing(self.ticket)
@@ -168,9 +162,7 @@ class FileLinkerUnlinkTests(BaseTestCase):
 
     def test_unlink_existing_returns_count(self) -> None:
         create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
 
         result = self.linker.unlink_existing(self.ticket)
@@ -179,9 +171,7 @@ class FileLinkerUnlinkTests(BaseTestCase):
 
     def test_unlink_existing_ignores_other_related_fields(self) -> None:
         file = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='abc',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='abc'
         )
 
         self.linker.unlink_existing(self.ticket)
@@ -191,14 +181,10 @@ class FileLinkerUnlinkTests(BaseTestCase):
 
     def test_unlink_except_keeps_specified_ids(self) -> None:
         keep = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
         remove = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
 
         self.linker.unlink_except(self.ticket, keep_ids=[keep.pk])
@@ -215,14 +201,10 @@ class FileLinkerUnlinkTests(BaseTestCase):
 
     def test_unlink_existing_multiple_files(self) -> None:
         create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
         create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
 
         result = self.linker.unlink_existing(self.ticket)
@@ -250,14 +232,10 @@ class FileLinkerUnlinkTests(BaseTestCase):
 
     def test_unlink_except_empty_keep_ids_removes_all(self) -> None:
         file1 = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
         file2 = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
 
         self.linker.unlink_except(self.ticket, keep_ids=[])
@@ -269,9 +247,7 @@ class FileLinkerUnlinkTests(BaseTestCase):
 
     def test_unlink_except_nonexistent_keep_id_removes_all(self) -> None:
         file = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
 
         self.linker.unlink_except(self.ticket, keep_ids=[999999])

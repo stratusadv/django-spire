@@ -18,10 +18,7 @@ class CollectionQuerySetTests(BaseTestCase):
         self.factory = RequestFactory()
         self.user = create_user(username='test_queryset_user')
         self.parent_collection = create_test_collection(name='Parent')
-        self.child_collection = create_test_collection(
-            parent=self.parent_collection,
-            name='Child'
-        )
+        self.child_collection = create_test_collection(parent=self.parent_collection, name='Child')
 
     def test_by_parent(self):
         result = Collection.objects.by_parent(parent=self.parent_collection)
@@ -42,28 +39,19 @@ class CollectionQuerySetTests(BaseTestCase):
         assert self.child_collection not in result
 
     def test_childless(self):
-        grandchild = create_test_collection(
-            parent=self.child_collection,
-            name='Grandchild'
-        )
+        grandchild = create_test_collection(parent=self.child_collection, name='Grandchild')
         result = Collection.objects.childless()
         assert grandchild in result
         assert self.parent_collection not in result
 
     def test_children(self):
-        grandchild = create_test_collection(
-            parent=self.child_collection,
-            name='Grandchild'
-        )
+        grandchild = create_test_collection(parent=self.child_collection, name='Grandchild')
         result = Collection.objects.children(collection_id=self.parent_collection.id)
         assert self.child_collection in result
         assert grandchild in result
 
     def test_exclude_children(self):
-        grandchild = create_test_collection(
-            parent=self.child_collection,
-            name='Grandchild'
-        )
+        grandchild = create_test_collection(parent=self.child_collection, name='Grandchild')
         result = Collection.objects.exclude_children(collection_id=self.parent_collection.id)
         assert self.parent_collection in result
         assert self.child_collection not in result
@@ -82,10 +70,7 @@ class CollectionQuerySetTests(BaseTestCase):
     def test_request_user_has_access_with_group(self):
         auth_group = create_test_auth_group(name='Access Group')
         self.user.groups.add(auth_group)
-        create_test_collection_group(
-            collection=self.parent_collection,
-            auth_group=auth_group
-        )
+        create_test_collection_group(collection=self.parent_collection, auth_group=auth_group)
 
         request = self.factory.get('/')
         request.user = self.user

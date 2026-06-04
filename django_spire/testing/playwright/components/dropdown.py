@@ -17,9 +17,11 @@ class Dropdown:
 
     @property
     def menu(self) -> Locator:
-        return self.parent.page.locator(self.menu_selector).filter(
-            has=self.parent.page.locator(':visible')
-        ).first
+        return (
+            self.parent.page.locator(self.menu_selector)
+            .filter(has=self.parent.page.locator(':visible'))
+            .first
+        )
 
     @property
     def trigger(self) -> Locator:
@@ -84,4 +86,5 @@ class EllipsisTableDropdown(EllipsisDropdown):
     Playwright component for django_spire/dropdown/ellipsis_table_dropdown.html
     Used in table rows, positioned start-0 instead of end-0
     """
+
     trigger_selector: str = 'td .bi-three-dots-vertical'

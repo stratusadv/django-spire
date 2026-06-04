@@ -16,11 +16,16 @@ class NotificationMapsTests(BaseTestCase):
 
     def test_map_contains_email(self):
         assert NotificationTypeChoices.EMAIL in NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP
-        assert NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP[NotificationTypeChoices.EMAIL] == EmailNotification
+        assert (
+            NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP[NotificationTypeChoices.EMAIL]
+            == EmailNotification
+        )
 
     def test_map_contains_push(self):
         assert NotificationTypeChoices.PUSH in NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP
-        assert NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP[NotificationTypeChoices.PUSH] == PushNotification
+        assert (
+            NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP[NotificationTypeChoices.PUSH] == PushNotification
+        )
 
     def test_map_contains_sms(self):
         assert NotificationTypeChoices.SMS in NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP

@@ -42,5 +42,5 @@ class ThemeSelector:
     def wait_for_theme_change(self, expected_mode: str, timeout: int = 5000) -> None:
         self.page.wait_for_function(
             f'() => document.documentElement.getAttribute("data-theme") === "{expected_mode}"',
-            timeout=timeout
+            timeout=timeout,
         )

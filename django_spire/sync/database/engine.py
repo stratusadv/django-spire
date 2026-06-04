@@ -7,11 +7,7 @@ from collections import defaultdict
 from contextlib import AbstractContextManager, contextmanager, nullcontext
 from typing import Any, Iterator, TYPE_CHECKING
 
-from django_spire.sync.core.enums import (
-    SyncPhase,
-    SyncStage,
-    SyncStatus,
-)
+from django_spire.sync.core.enums import SyncPhase, SyncStage, SyncStatus
 from django_spire.sync.core.exceptions import (
     ClockDriftError,
     InvalidParameterError,
@@ -21,11 +17,7 @@ from django_spire.sync.core.exceptions import (
     TransportRequiredError,
 )
 from django_spire.sync.core.model import Error
-from django_spire.sync.database.manifest import (
-    DatabaseResult,
-    ModelPayload,
-    SyncManifest,
-)
+from django_spire.sync.database.manifest import DatabaseResult, ModelPayload, SyncManifest
 from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.database.storage import UpsertResult
 
@@ -35,9 +27,7 @@ if TYPE_CHECKING:
     from django_spire.sync.core.clock import HybridLogicalClock
     from django_spire.sync.database.graph import DependencyGraph
     from django_spire.sync.database.lock import SyncLock
-    from django_spire.sync.database.reconciler import (
-        ReconciliationResult,
-    )
+    from django_spire.sync.database.reconciler import ReconciliationResult
     from django_spire.sync.database.record import SyncRecord
     from django_spire.sync.database.storage import DatabaseSyncStorage
     from django_spire.sync.database.transport import Transport
@@ -51,11 +41,7 @@ CLOCK_DRIFT_MAX_DEFAULT = 300
 
 
 class _Budget:
-    def __init__(
-        self,
-        records_max: int | None,
-        bytes_max: int | None,
-    ) -> None:
+    def __init__(self, records_max: int | None, bytes_max: int | None) -> None:
         self._records_max = records_max
         self._bytes_max = bytes_max
         self._records = 0
@@ -115,17 +101,11 @@ def _cursor_last(records: dict[str, SyncRecord]) -> dict[str, Any] | None:
     key_last = list(records.keys())[-1]
     record_last = records[key_last]
 
-    return {
-        'key': key_last,
-        'sequence': record_last.sequence,
-    }
+    return {'key': key_last, 'sequence': record_last.sequence}
 
 
 def _cursor_fresh_start(sequence: int) -> dict[str, Any]:
-    return {
-        'key': '',
-        'sequence': sequence,
-    }
+    return {'key': '', 'sequence': sequence}
 
 
 class DatabaseEngine:
@@ -161,58 +141,37 @@ class DatabaseEngine:
             raise InvalidParameterError(message)
 
         if batch_bytes is not None and batch_bytes < 1:
-            message = (
-                f'batch_bytes must be >= 1 '
-                f'or None, got {batch_bytes}'
-            )
+            message = f'batch_bytes must be >= 1 or None, got {batch_bytes}'
 
             raise InvalidParameterError(message)
 
         if batch_size is not None and batch_size < 1:
-            message = (
-                f'batch_size must be >= 1 '
-                f'or None, got {batch_size}'
-            )
+            message = f'batch_size must be >= 1 or None, got {batch_size}'
 
             raise InvalidParameterError(message)
 
         if clock_drift_max is not None and clock_drift_max < 0:
-            message = (
-                f'clock_drift_max must be non-negative '
-                f'or None, got {clock_drift_max}'
-            )
+            message = f'clock_drift_max must be non-negative or None, got {clock_drift_max}'
 
             raise InvalidParameterError(message)
 
         if payload_bytes_max is not None and payload_bytes_max < 1:
-            message = (
-                f'payload_bytes_max must be >= 1 '
-                f'or None, got {payload_bytes_max}'
-            )
+            message = f'payload_bytes_max must be >= 1 or None, got {payload_bytes_max}'
 
             raise InvalidParameterError(message)
 
         if payload_records_max is not None and payload_records_max < 1:
-            message = (
-                f'payload_records_max must be >= 1 '
-                f'or None, got {payload_records_max}'
-            )
+            message = f'payload_records_max must be >= 1 or None, got {payload_records_max}'
 
             raise InvalidParameterError(message)
 
         if transport is not None and not peer_node_id:
-            message = (
-                'peer_node_id is required when transport is set '
-                '(client mode)'
-            )
+            message = 'peer_node_id is required when transport is set (client mode)'
 
             raise InvalidParameterError(message)
 
         if peer_node_id is not None and peer_node_id == node_id:
-            message = (
-                f'peer_node_id must differ from node_id '
-                f'(both are {node_id!r})'
-            )
+            message = f'peer_node_id must differ from node_id (both are {node_id!r})'
 
             raise InvalidParameterError(message)
 
@@ -254,10 +213,7 @@ class DatabaseEngine:
         bytes_max: int | None = None,
         after_keys: dict[str, Any] | None = None,
     ) -> tuple[list[ModelPayload], bool, dict[str, Any], int]:
-        incoming_by_label = {
-            payload.model_label: payload
-            for payload in payloads
-        }
+        incoming_by_label = {payload.model_label: payload for payload in payloads}
 
         resolved_after_keys = after_keys or {}
         response_payloads: list[ModelPayload] = []
@@ -272,16 +228,14 @@ class DatabaseEngine:
             existing_cursor = resolved_after_keys.get(model_label)
 
             if incoming_payload is not None:
-                response_payload, truncated, _ = (
-                    self._process_model(
-                        incoming_payload,
-                        peer_sequence,
-                        peer_node_id,
-                        result,
-                        budget=budget,
-                        sequence_max=sequence_max,
-                        cursor=existing_cursor,
-                    )
+                response_payload, truncated, _ = self._process_model(
+                    incoming_payload,
+                    peer_sequence,
+                    peer_node_id,
+                    result,
+                    budget=budget,
+                    sequence_max=sequence_max,
+                    cursor=existing_cursor,
                 )
 
                 if truncated:
@@ -289,18 +243,14 @@ class DatabaseEngine:
                     stop = True
 
                     if response_payload.records:
-                        cursor = _cursor_last(
-                            response_payload.records,
-                        )
+                        cursor = _cursor_last(response_payload.records)
 
                         if cursor:
                             response_cursors[model_label] = cursor
                     elif existing_cursor is not None:
                         response_cursors[model_label] = existing_cursor
                     else:
-                        response_cursors[model_label] = _cursor_fresh_start(
-                            peer_sequence,
-                        )
+                        response_cursors[model_label] = _cursor_fresh_start(peer_sequence)
 
                 if response_payload.records or response_payload.deletes:
                     response_payloads.append(response_payload)
@@ -319,9 +269,7 @@ class DatabaseEngine:
                 )
 
                 probe_after_key = (
-                    existing_cursor.get('key') or None
-                    if existing_cursor is not None
-                    else None
+                    existing_cursor.get('key') or None if existing_cursor is not None else None
                 )
 
                 probe = self._storage.get_changed_since(
@@ -339,21 +287,17 @@ class DatabaseEngine:
                     if existing_cursor is not None:
                         response_cursors[model_label] = existing_cursor
                     else:
-                        response_cursors[model_label] = _cursor_fresh_start(
-                            peer_sequence,
-                        )
+                        response_cursors[model_label] = _cursor_fresh_start(peer_sequence)
 
                 continue
 
-            local_payload, truncated, _ = (
-                self._collect_local_only_payload(
-                    model_label,
-                    peer_sequence,
-                    '',
-                    budget,
-                    cursor=existing_cursor,
-                    sequence_max=sequence_max,
-                )
+            local_payload, truncated, _ = self._collect_local_only_payload(
+                model_label,
+                peer_sequence,
+                '',
+                budget,
+                cursor=existing_cursor,
+                sequence_max=sequence_max,
             )
 
             if truncated:
@@ -368,9 +312,7 @@ class DatabaseEngine:
                 elif existing_cursor is not None:
                     response_cursors[model_label] = existing_cursor
                 else:
-                    response_cursors[model_label] = _cursor_fresh_start(
-                        peer_sequence,
-                    )
+                    response_cursors[model_label] = _cursor_fresh_start(peer_sequence)
 
             if local_payload is not None:
                 response_payloads.append(local_payload)
@@ -388,10 +330,7 @@ class DatabaseEngine:
         result: DatabaseResult,
         origin_node: str,
     ) -> UpsertResult:
-        cascade_errors = self._cascade_drop_foreign_key_orphans(
-            model_label,
-            reconciliation,
-        )
+        cascade_errors = self._cascade_drop_foreign_key_orphans(model_label, reconciliation)
 
         if cascade_errors:
             reconciliation.errors.extend(cascade_errors)
@@ -400,9 +339,7 @@ class DatabaseEngine:
 
         if reconciliation.to_upsert:
             upsert_result = self._storage.upsert_many(
-                model_label,
-                reconciliation.to_upsert,
-                origin_node,
+                model_label, reconciliation.to_upsert, origin_node
             )
 
         for error in upsert_result.errors:
@@ -412,10 +349,7 @@ class DatabaseEngine:
             self._errored_keys[model_label].add(error.key)
 
         if reconciliation.to_clear_tombstones:
-            excluded = upsert_result.skipped | {
-                error.key
-                for error in upsert_result.errors
-            }
+            excluded = upsert_result.skipped | {error.key for error in upsert_result.errors}
 
             clearable = reconciliation.to_clear_tombstones - excluded
 
@@ -423,32 +357,18 @@ class DatabaseEngine:
                 self._storage.clear_tombstones(model_label, clearable)
 
         if reconciliation.to_delete:
-            self._storage.delete_many(
-                model_label,
-                reconciliation.to_delete,
-                origin_node,
-            )
+            self._storage.delete_many(model_label, reconciliation.to_delete, origin_node)
 
-        self._merge_into_result(
-            model_label,
-            reconciliation,
-            upsert_result,
-            result,
-        )
+        self._merge_into_result(model_label, reconciliation, upsert_result, result)
 
         return upsert_result
 
-    def _apply_response(
-        self,
-        response: SyncManifest,
-        result: DatabaseResult,
-    ) -> list[int]:
+    def _apply_response(self, response: SyncManifest, result: DatabaseResult) -> list[int]:
         known = self._graph.known_models()
 
-        ordered = self._order_payloads([
-            payload for payload in response.payloads
-            if payload.model_label in known
-        ])
+        ordered = self._order_payloads(
+            [payload for payload in response.payloads if payload.model_label in known]
+        )
 
         failed_sequences: list[int] = []
 
@@ -475,9 +395,7 @@ class DatabaseEngine:
         return failed_sequences
 
     def _cascade_drop_foreign_key_orphans(
-        self,
-        model_label: str,
-        reconciliation: ReconciliationResult,
+        self, model_label: str, reconciliation: ReconciliationResult
     ) -> list[Error]:
         foreign_keys = self._foreign_key_columns.get(model_label)
 
@@ -500,14 +418,16 @@ class DatabaseEngine:
                     continue
 
                 if str(value) in errored_parents:
-                    cascade_errors.append(Error(
-                        key=key,
-                        message=(
-                            f'Cascading failure: {model_label} record {key} '
-                            f'references errored parent '
-                            f'{target_label}={value!r} via {attribute_name}'
-                        ),
-                    ))
+                    cascade_errors.append(
+                        Error(
+                            key=key,
+                            message=(
+                                f'Cascading failure: {model_label} record {key} '
+                                f'references errored parent '
+                                f'{target_label}={value!r} via {attribute_name}'
+                            ),
+                        )
+                    )
 
                     keys_to_drop.append(key)
                     break
@@ -546,9 +466,7 @@ class DatabaseEngine:
                 )
 
                 probe_after_key = (
-                    existing_cursor.get('key') or None
-                    if existing_cursor is not None
-                    else None
+                    existing_cursor.get('key') or None if existing_cursor is not None else None
                 )
 
                 probe = self._storage.get_changed_since(
@@ -566,21 +484,17 @@ class DatabaseEngine:
                     if existing_cursor is not None:
                         cursors[model_label] = existing_cursor
                     else:
-                        cursors[model_label] = _cursor_fresh_start(
-                            local_sequence_pushed,
-                        )
+                        cursors[model_label] = _cursor_fresh_start(local_sequence_pushed)
 
                 continue
 
-            payload, truncated, _ = (
-                self._collect_local_only_payload(
-                    model_label,
-                    local_sequence_pushed,
-                    peer_node_id,
-                    budget,
-                    cursor=existing_cursor,
-                    sequence_max=sequence_max,
-                )
+            payload, truncated, _ = self._collect_local_only_payload(
+                model_label,
+                local_sequence_pushed,
+                peer_node_id,
+                budget,
+                cursor=existing_cursor,
+                sequence_max=sequence_max,
             )
 
             if truncated:
@@ -595,9 +509,7 @@ class DatabaseEngine:
                 elif existing_cursor is not None:
                     cursors[model_label] = existing_cursor
                 else:
-                    cursors[model_label] = _cursor_fresh_start(
-                        local_sequence_pushed,
-                    )
+                    cursors[model_label] = _cursor_fresh_start(local_sequence_pushed)
 
             if payload is not None:
                 payloads.append(payload)
@@ -659,10 +571,7 @@ class DatabaseEngine:
     ) -> tuple[ModelPayload | None, bool, int | None]:
         record_limit = budget.remaining_records
 
-        fetch_limit = (
-            None if record_limit is None
-            else record_limit + 1
-        )
+        fetch_limit = None if record_limit is None else record_limit + 1
 
         effective_seq = sequence
         effective_after_key = None
@@ -683,10 +592,7 @@ class DatabaseEngine:
         truncated = False
         skipped_sequence_first: int | None = None
 
-        if (
-            record_limit is not None
-            and len(records) > record_limit
-        ):
+        if record_limit is not None and len(records) > record_limit:
             items = list(records.items())
 
             if record_limit == 0:
@@ -713,10 +619,7 @@ class DatabaseEngine:
             budget.consume(1, record_bytes)
 
         deletes = self._storage.get_deletes_since(
-            model_label,
-            effective_seq,
-            peer_node_id,
-            sequence_max=sequence_max,
+            model_label, effective_seq, peer_node_id, sequence_max=sequence_max
         )
 
         for key in list(deletes.keys()):
@@ -726,11 +629,11 @@ class DatabaseEngine:
         if not accepted and not deletes:
             return None, truncated, skipped_sequence_first
 
-        return ModelPayload(
-            model_label=model_label,
-            records=accepted,
-            deletes=deletes,
-        ), truncated, skipped_sequence_first
+        return (
+            ModelPayload(model_label=model_label, records=accepted, deletes=deletes),
+            truncated,
+            skipped_sequence_first,
+        )
 
     def _commit(
         self,
@@ -763,21 +666,12 @@ class DatabaseEngine:
             else:
                 safe_seq = response.local_sequence
 
-            new_peer_sequence = max(
-                peer_sequence_old,
-                safe_seq,
-            )
+            new_peer_sequence = max(peer_sequence_old, safe_seq)
 
             if sent_has_more:
-                new_local_sequence_pushed = max(
-                    local_sequence_pushed_old,
-                    sent_max_sequence,
-                )
+                new_local_sequence_pushed = max(local_sequence_pushed_old, sent_max_sequence)
             else:
-                new_local_sequence_pushed = max(
-                    local_sequence_pushed_old,
-                    sent_counter_at_start,
-                )
+                new_local_sequence_pushed = max(local_sequence_pushed_old, sent_counter_at_start)
 
             if new_peer_sequence < peer_sequence_old:
                 message = (
@@ -798,16 +692,14 @@ class DatabaseEngine:
             persisted_cursors: dict[str, Any] = {}
 
             if server_cursors:
-                persisted_cursors.update({
-                    f'server:{key}': value
-                    for key, value in server_cursors.items()
-                })
+                persisted_cursors.update(
+                    {f'server:{key}': value for key, value in server_cursors.items()}
+                )
 
             if collect_cursors:
-                persisted_cursors.update({
-                    f'collect:{key}': value
-                    for key, value in collect_cursors.items()
-                })
+                persisted_cursors.update(
+                    {f'collect:{key}': value for key, value in collect_cursors.items()}
+                )
 
             self._storage.save_checkpoint(
                 self._peer_node_id,
@@ -817,20 +709,14 @@ class DatabaseEngine:
             )
 
     def _enter_phase(
-        self,
-        phase: SyncPhase,
-        session_id: str,
-        stage: SyncStage | None = None,
+        self, phase: SyncPhase, session_id: str, stage: SyncStage | None = None
     ) -> None:
         self._report_phase(phase, session_id)
 
         if stage is not None:
             self._report_progress(stage, 0, 1)
 
-    def _exchange_and_validate(
-        self,
-        manifest: SyncManifest,
-    ) -> SyncManifest:
+    def _exchange_and_validate(self, manifest: SyncManifest) -> SyncManifest:
         response = self._transport.exchange(manifest)
         self._validate_manifest(response)
         self._validate_clock(response)
@@ -851,28 +737,15 @@ class DatabaseEngine:
             self._on_complete(result)
 
         for error in result.errors:
-            logger.warning(
-                'Sync error [%s]: %s',
-                error.key,
-                error.message,
-            )
+            logger.warning('Sync error [%s]: %s', error.key, error.message)
 
-        skipped_total = sum(
-            len(keys) for keys in result.skipped.values()
-        )
+        skipped_total = sum(len(keys) for keys in result.skipped.values())
 
         if skipped_total:
-            logger.info(
-                'Sync skipped %d record(s) due to staleness',
-                skipped_total,
-            )
+            logger.info('Sync skipped %d record(s) due to staleness', skipped_total)
 
     def _flush_deferred_backfill(self) -> None:
-        flush = getattr(
-            self._storage,
-            'flush_deferred_backfill',
-            None,
-        )
+        flush = getattr(self._storage, 'flush_deferred_backfill', None)
 
         if flush is not None:
             flush()
@@ -886,24 +759,13 @@ class DatabaseEngine:
         sequence_max: int | None = None,
         limit: int | None = None,
     ) -> tuple[dict[str, SyncRecord], bool, int | None]:
-        fetch_limit = (
-            None if limit is None
-            else limit + len(incoming_keys) + 1
-        )
+        fetch_limit = None if limit is None else limit + len(incoming_keys) + 1
 
         all_changes = self._storage.get_changed_since(
-            model_label,
-            sequence,
-            peer_node_id,
-            sequence_max=sequence_max,
-            limit=fetch_limit,
+            model_label, sequence, peer_node_id, sequence_max=sequence_max, limit=fetch_limit
         )
 
-        result = {
-            key: record
-            for key, record in all_changes.items()
-            if key not in incoming_keys
-        }
+        result = {key: record for key, record in all_changes.items() if key not in incoming_keys}
 
         truncated = False
         skipped_sequence_first: int | None = None
@@ -920,10 +782,7 @@ class DatabaseEngine:
 
         return result, truncated, skipped_sequence_first
 
-    def _log_sync_summary(
-        self,
-        result: DatabaseResult,
-    ) -> None:
+    def _log_sync_summary(self, result: DatabaseResult) -> None:
         pushed_total = sum(len(keys) for keys in result.pushed.values())
         created_total = sum(len(keys) for keys in result.created.values())
         applied_total = sum(len(keys) for keys in result.applied.values())
@@ -946,27 +805,16 @@ class DatabaseEngine:
             len(result.errors),
         )
 
-    def _has_concurrent_writes_for_peer(
-        self,
-        peer_node_id: str,
-        sequence_threshold: int,
-    ) -> bool:
+    def _has_concurrent_writes_for_peer(self, peer_node_id: str, sequence_threshold: int) -> bool:
         for model_label in self._graph.sync_order():
             records = self._storage.get_changed_since(
-                model_label,
-                sequence_threshold,
-                peer_node_id,
-                limit=1,
+                model_label, sequence_threshold, peer_node_id, limit=1
             )
 
             if records:
                 return True
 
-            deletes = self._storage.get_deletes_since(
-                model_label,
-                sequence_threshold,
-                peer_node_id,
-            )
+            deletes = self._storage.get_deletes_since(model_label, sequence_threshold, peer_node_id)
 
             if deletes:
                 return True
@@ -974,10 +822,7 @@ class DatabaseEngine:
         return False
 
     @contextmanager
-    def _managed_session(
-        self,
-        result: DatabaseResult | None = None,
-    ) -> Iterator[str]:
+    def _managed_session(self, result: DatabaseResult | None = None) -> Iterator[str]:
         session_id = ''
 
         if self._lock:
@@ -994,36 +839,19 @@ class DatabaseEngine:
         finally:
             if self._lock and session_id:
                 try:
-                    self._lock.release(
-                        session_id,
-                        status,
-                        result=result,
-                    )
+                    self._lock.release(session_id, status, result=result)
                 except Exception:
-                    logger.exception(
-                        'Failed to release sync lock '
-                        'for node %s',
-                        self._node_id,
-                    )
+                    logger.exception('Failed to release sync lock for node %s', self._node_id)
 
-    def _max_applied_timestamp(
-        self,
-        manifest: SyncManifest,
-    ) -> int:
+    def _max_applied_timestamp(self, manifest: SyncManifest) -> int:
         timestamp_max = 0
 
         for payload in manifest.payloads:
             for record in payload.records.values():
-                timestamp_max = max(
-                    timestamp_max,
-                    record.sync_field_last_modified,
-                )
+                timestamp_max = max(timestamp_max, record.sync_field_last_modified)
 
             for tombstone_timestamp in payload.deletes.values():
-                timestamp_max = max(
-                    timestamp_max,
-                    tombstone_timestamp,
-                )
+                timestamp_max = max(timestamp_max, tombstone_timestamp)
 
         return timestamp_max
 
@@ -1061,24 +889,12 @@ class DatabaseEngine:
         result.errors.extend(upsert_result.errors)
         result.conflict_log.extend(reconciliation.conflict_log)
 
-    def _order_payloads(
-        self,
-        payloads: list[ModelPayload],
-    ) -> list[ModelPayload]:
+    def _order_payloads(self, payloads: list[ModelPayload]) -> list[ModelPayload]:
         order = self._graph.sync_order()
 
-        position = {
-            label: index
-            for index, label in enumerate(order)
-        }
+        position = {label: index for index, label in enumerate(order)}
 
-        return sorted(
-            payloads,
-            key=lambda p: position.get(
-                p.model_label,
-                len(position),
-            ),
-        )
+        return sorted(payloads, key=lambda p: position.get(p.model_label, len(position)))
 
     def _process_model(
         self,
@@ -1090,32 +906,16 @@ class DatabaseEngine:
         sequence_max: int | None = None,
         cursor: dict[str, Any] | None = None,
     ) -> tuple[ModelPayload, bool, int | None]:
-        all_incoming_keys = (
-            set(payload.records) |
-            set(payload.deletes)
-        )
+        all_incoming_keys = set(payload.records) | set(payload.deletes)
 
-        local_records = self._storage.get_records(
-            payload.model_label,
-            all_incoming_keys,
-        )
+        local_records = self._storage.get_records(payload.model_label, all_incoming_keys)
 
-        local_tombstones = self._storage.get_tombstones(
-            payload.model_label,
-            set(payload.records),
-        )
+        local_tombstones = self._storage.get_tombstones(payload.model_label, set(payload.records))
 
-        reconciliation = self._reconciler.reconcile(
-            payload,
-            local_records,
-            local_tombstones,
-        )
+        reconciliation = self._reconciler.reconcile(payload, local_records, local_tombstones)
 
         upsert_result = self._apply_reconciliation(
-            payload.model_label,
-            reconciliation,
-            result,
-            origin_node=peer_node_id,
+            payload.model_label, reconciliation, result, origin_node=peer_node_id
         )
 
         errored_keys = {error.key for error in upsert_result.errors}
@@ -1129,10 +929,7 @@ class DatabaseEngine:
 
         truncated = False
 
-        local_only_limit = (
-            None if budget is None
-            else budget.remaining_records
-        )
+        local_only_limit = None if budget is None else budget.remaining_records
 
         effective_seq = sequence
         effective_after_key = None
@@ -1142,8 +939,7 @@ class DatabaseEngine:
             effective_after_key = cursor.get('key') or None
 
         fetch_limit = (
-            None if local_only_limit is None
-            else local_only_limit + len(all_incoming_keys) + 1
+            None if local_only_limit is None else local_only_limit + len(all_incoming_keys) + 1
         )
 
         all_changes = self._storage.get_changed_since(
@@ -1156,9 +952,7 @@ class DatabaseEngine:
         )
 
         local_only = {
-            key: record
-            for key, record in all_changes.items()
-            if key not in all_incoming_keys
+            key: record for key, record in all_changes.items() if key not in all_incoming_keys
         }
 
         skipped_sequence_first: int | None = None
@@ -1193,27 +987,22 @@ class DatabaseEngine:
                 budget.consume(1, record_bytes)
 
         deletes = self._storage.get_deletes_since(
-            payload.model_label,
-            effective_seq,
-            '',
-            sequence_max=sequence_max,
+            payload.model_label, effective_seq, '', sequence_max=sequence_max
         )
 
         for key in list(deletes.keys()):
             if key in response_records:
                 deletes.pop(key, None)
 
-        return ModelPayload(
-            model_label=payload.model_label,
-            records=response_records,
-            deletes=deletes,
-        ), truncated, skipped_sequence_first
+        return (
+            ModelPayload(
+                model_label=payload.model_label, records=response_records, deletes=deletes
+            ),
+            truncated,
+            skipped_sequence_first,
+        )
 
-    def _record_pushed(
-        self,
-        manifest: SyncManifest,
-        result: DatabaseResult,
-    ) -> None:
+    def _record_pushed(self, manifest: SyncManifest, result: DatabaseResult) -> None:
         for payload in manifest.payloads:
             for key in payload.records:
                 result.pushed[payload.model_label].append(key)
@@ -1221,30 +1010,17 @@ class DatabaseEngine:
             for key in payload.deletes:
                 result.pushed[payload.model_label].append(key)
 
-    def _report_phase(
-        self,
-        phase: SyncPhase,
-        session_id: str,
-    ) -> None:
+    def _report_phase(self, phase: SyncPhase, session_id: str) -> None:
         if self._lock and session_id:
             try:
                 self._lock.update_phase(session_id, phase)
             except Exception:
-                logger.exception(
-                    'Failed to update sync phase '
-                    'for session %s',
-                    session_id,
-                )
+                logger.exception('Failed to update sync phase for session %s', session_id)
 
         if self._on_phase:
             self._on_phase(phase)
 
-    def _report_progress(
-        self,
-        stage: SyncStage,
-        current: int,
-        total: int,
-    ) -> None:
+    def _report_progress(self, stage: SyncStage, current: int, total: int) -> None:
         if self._progress:
             self._progress(stage, current, total)
 
@@ -1252,17 +1028,10 @@ class DatabaseEngine:
         self._errored_keys = defaultdict(set)
 
     def _stamp_unstamped_records(self) -> None:
-        stamp = getattr(
-            self._storage,
-            'stamp_unstamped_records',
-            None,
-        )
+        stamp = getattr(self._storage, 'stamp_unstamped_records', None)
 
         if stamp is not None:
-            stamp(
-                clock=self._clock,
-                model_order=self._graph.sync_order(),
-            )
+            stamp(clock=self._clock, model_order=self._graph.sync_order())
 
     def _validate_clock(self, manifest: SyncManifest) -> int:
         if self._clock_drift_max is None:
@@ -1292,9 +1061,7 @@ class DatabaseEngine:
         return drift
 
     def _validate_incoming_models(
-        self,
-        manifest: SyncManifest,
-        result: DatabaseResult,
+        self, manifest: SyncManifest, result: DatabaseResult
     ) -> list[ModelPayload]:
         known = self._graph.known_models()
         valid: list[ModelPayload] = []
@@ -1302,13 +1069,9 @@ class DatabaseEngine:
         for payload in manifest.payloads:
             if payload.model_label not in known:
                 for key in payload.records:
-                    result.errors.append(Error(
-                        key=key,
-                        message=(
-                            f'Unknown model: '
-                            f'{payload.model_label!r}'
-                        ),
-                    ))
+                    result.errors.append(
+                        Error(key=key, message=(f'Unknown model: {payload.model_label!r}'))
+                    )
 
                 continue
 
@@ -1316,10 +1079,7 @@ class DatabaseEngine:
 
         return valid
 
-    def _validate_manifest(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def _validate_manifest(self, manifest: SyncManifest) -> None:
         if not manifest.checksum:
             message = 'Manifest is missing a checksum'
             raise ManifestChecksumError(message)
@@ -1328,10 +1088,7 @@ class DatabaseEngine:
             message = 'Manifest checksum verification failed'
             raise ManifestChecksumError(message)
 
-    def process(
-        self,
-        incoming: SyncManifest,
-    ) -> tuple[SyncManifest, DatabaseResult]:
+    def process(self, incoming: SyncManifest) -> tuple[SyncManifest, DatabaseResult]:
         result = DatabaseResult()
 
         self._reset_errored_keys()
@@ -1340,10 +1097,7 @@ class DatabaseEngine:
         self._validate_manifest(incoming)
         self._validate_clock(incoming)
 
-        valid_payloads = self._validate_incoming_models(
-            incoming,
-            result,
-        )
+        valid_payloads = self._validate_incoming_models(incoming, result)
 
         peer_node_id = incoming.node_id
 
@@ -1352,21 +1106,17 @@ class DatabaseEngine:
                 self._lock.hold_global()
                 self._lock.hold(self._node_id, peer_node_id)
 
-            counter_at_start = (
-                self._storage.get_sequence_allocator().current()
-            )
+            counter_at_start = self._storage.get_sequence_allocator().current()
 
-            response_payloads, has_more, after_keys, response_sequence_max = (
-                self._apply_incoming(
-                    valid_payloads,
-                    incoming.peer_sequence,
-                    peer_node_id,
-                    result,
-                    sequence_max=counter_at_start,
-                    records_max=self._batch_size,
-                    bytes_max=self._batch_bytes,
-                    after_keys=incoming.after_keys,
-                )
+            response_payloads, has_more, after_keys, response_sequence_max = self._apply_incoming(
+                valid_payloads,
+                incoming.peer_sequence,
+                peer_node_id,
+                result,
+                sequence_max=counter_at_start,
+                records_max=self._batch_size,
+                bytes_max=self._batch_bytes,
+                after_keys=incoming.after_keys,
             )
 
             self._flush_deferred_backfill()
@@ -1396,18 +1146,12 @@ class DatabaseEngine:
 
     def sync(self, dry_run: bool = False) -> DatabaseResult:
         if self._transport is None:
-            message = (
-                'Transport is required for sync(). '
-                'Use process() for server-side.'
-            )
+            message = 'Transport is required for sync(). Use process() for server-side.'
 
             raise TransportRequiredError(message)
 
         if not self._peer_node_id:
-            message = (
-                'peer_node_id is required for sync(). '
-                'Configure it on the engine.'
-            )
+            message = 'peer_node_id is required for sync(). Configure it on the engine.'
 
             raise InvalidParameterError(message)
 
@@ -1437,19 +1181,13 @@ class DatabaseEngine:
             while True:
                 iteration += 1
 
-                self._enter_phase(
-                    SyncPhase.COLLECTING,
-                    session_id,
-                    SyncStage.VALIDATE,
-                )
+                self._enter_phase(SyncPhase.COLLECTING, session_id, SyncStage.VALIDATE)
 
                 checkpoint = self._storage.get_checkpoint(self._peer_node_id)
                 peer_sequence = checkpoint.peer_sequence
                 local_sequence_pushed = checkpoint.local_sequence_pushed
 
-                counter_at_start = (
-                    self._storage.get_sequence_allocator().current()
-                )
+                counter_at_start = self._storage.get_sequence_allocator().current()
 
                 manifest = self._collect(
                     local_sequence_pushed,
@@ -1469,19 +1207,11 @@ class DatabaseEngine:
 
                 self._record_pushed(manifest, result)
 
-                self._enter_phase(
-                    SyncPhase.EXCHANGING,
-                    session_id,
-                    SyncStage.CLASSIFY,
-                )
+                self._enter_phase(SyncPhase.EXCHANGING, session_id, SyncStage.CLASSIFY)
 
                 response = self._exchange_and_validate(manifest)
 
-                self._enter_phase(
-                    SyncPhase.RECONCILING,
-                    session_id,
-                    SyncStage.MUTATE,
-                )
+                self._enter_phase(SyncPhase.RECONCILING, session_id, SyncStage.MUTATE)
 
                 if manifest.has_more:
                     collect_cursors = manifest.after_keys or {}
@@ -1494,10 +1224,7 @@ class DatabaseEngine:
                     server_cursors = {}
 
                 if not dry_run:
-                    self._enter_phase(
-                        SyncPhase.COMMITTING,
-                        session_id,
-                    )
+                    self._enter_phase(SyncPhase.COMMITTING, session_id)
 
                     self._commit(
                         peer_sequence,
@@ -1513,19 +1240,15 @@ class DatabaseEngine:
 
                 self._advance_clock(response)
 
-                converged = (
-                    not manifest.has_more
-                    and not response.has_more
-                )
+                converged = not manifest.has_more and not response.has_more
 
                 if dry_run:
                     break
 
                 if converged:
-                    exchanged = (
-                        any(payload.records or payload.deletes for payload in manifest.payloads)
-                        or any(payload.records or payload.deletes for payload in response.payloads)
-                    )
+                    exchanged = any(
+                        payload.records or payload.deletes for payload in manifest.payloads
+                    ) or any(payload.records or payload.deletes for payload in response.payloads)
 
                     if not exchanged:
                         break

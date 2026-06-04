@@ -29,7 +29,7 @@ class BaseAiChatAuthControllerTests(BaseTestCase):
     def test_can_delete_without_permission(self) -> None:
         regular_user = User.objects.create_user(
             username='regular_user',
-            password='testpass123'  # noqa: S106
+            password='testpass123',  # noqa: S106
         )
 
         request = self.factory.get('/')

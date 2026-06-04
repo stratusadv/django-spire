@@ -13,8 +13,7 @@ if TYPE_CHECKING:
 
 
 def generate_intent_decoder(
-    request: WSGIRequest,
-    default_callable: Callable | None = None
+    request: WSGIRequest, default_callable: Callable | None = None
 ) -> type[Bot]:
     intent_dict = {}
 
@@ -31,8 +30,7 @@ def generate_intent_decoder(
             if chat_router_path:
                 try:
                     router_class = get_callable_from_module_string_and_validate_arguments(
-                        chat_router_path,
-                        []
+                        chat_router_path, []
                     )
 
                     router_instance = router_class()
@@ -42,21 +40,16 @@ def generate_intent_decoder(
                     pass
 
     if default_callable is not None:
-        intent_dict['None of the above choices match the user\'s intent'] = default_callable
+        intent_dict["None of the above choices match the user's intent"] = default_callable
 
     class DecoderBot(Bot):
-
-        def process(
-                self,
-                prompt: Prompt | str,
-                max_return_values: int
-        ) -> DecoderValuesIntel:
+        def process(self, prompt: Prompt | str, max_return_values: int) -> DecoderValuesIntel:
 
             return self.llm.decoder.prompt_to_values(
                 prompt=prompt,
-                keys_description='Intent of the User\'s Request',
+                keys_description="Intent of the User's Request",
                 keys_values=intent_dict,
-                max_return_values=max_return_values
+                max_return_values=max_return_values,
             )
 
     return DecoderBot

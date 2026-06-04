@@ -5,10 +5,7 @@ from typing import Any, TYPE_CHECKING
 from django.db import transaction
 
 from django_spire.sync.database.conflict import FieldTimestampWins
-from django_spire.sync.database.engine import (
-    BATCH_BYTES_DEFAULT,
-    DatabaseEngine,
-)
+from django_spire.sync.database.engine import BATCH_BYTES_DEFAULT, DatabaseEngine
 from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.database.transport.http import HttpTransport
 from django_spire.sync.django.graph import (
@@ -48,29 +45,17 @@ def _resolve_common(
 ]:
     resolved_clock = clock or SyncableMixin.get_clock()
     resolved_graph = graph or build_graph(models)
-    reconciler = PayloadReconciler(
-        resolver=resolver or FieldTimestampWins(),
-    )
+    reconciler = PayloadReconciler(resolver=resolver or FieldTimestampWins())
 
-    deferred_foreign_keys = get_deferred_foreign_key_columns(
-        models,
-        resolved_graph,
-    )
+    deferred_foreign_keys = get_deferred_foreign_key_columns(models, resolved_graph)
 
     resolved_storage = storage or DjangoSyncStorage(
-        models=models,
-        deferred_foreign_keys=deferred_foreign_keys,
+        models=models, deferred_foreign_keys=deferred_foreign_keys
     )
 
     foreign_key_columns = get_foreign_key_columns_for_cascade(models)
 
-    return (
-        resolved_clock,
-        resolved_graph,
-        reconciler,
-        resolved_storage,
-        foreign_key_columns,
-    )
+    return (resolved_clock, resolved_graph, reconciler, resolved_storage, foreign_key_columns)
 
 
 def build_client_engine(
@@ -94,18 +79,8 @@ def build_client_engine(
     storage: DatabaseSyncStorage | None = None,
     transaction_fn: Callable[[], AbstractContextManager[Any]] = transaction.atomic,
 ) -> DatabaseEngine:
-    (
-        resolved_clock,
-        resolved_graph,
-        reconciler,
-        resolved_storage,
-        foreign_key_columns,
-    ) = _resolve_common(
-        models,
-        clock,
-        graph,
-        resolver,
-        storage,
+    (resolved_clock, resolved_graph, reconciler, resolved_storage, foreign_key_columns) = (
+        _resolve_common(models, clock, graph, resolver, storage)
     )
 
     return DatabaseEngine(
@@ -148,18 +123,8 @@ def build_server_engine(
     storage: DatabaseSyncStorage | None = None,
     transaction_fn: Callable[[], AbstractContextManager[Any]] = transaction.atomic,
 ) -> DatabaseEngine:
-    (
-        resolved_clock,
-        resolved_graph,
-        reconciler,
-        resolved_storage,
-        foreign_key_columns,
-    ) = _resolve_common(
-        models,
-        clock,
-        graph,
-        resolver,
-        storage,
+    (resolved_clock, resolved_graph, reconciler, resolved_storage, foreign_key_columns) = (
+        _resolve_common(models, clock, graph, resolver, storage)
     )
 
     return DatabaseEngine(

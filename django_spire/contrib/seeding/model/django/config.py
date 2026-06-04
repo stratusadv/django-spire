@@ -12,7 +12,7 @@ class DjangoModelFieldsConfig(FieldsConfig):
         unknown = set(self.fields.keys()) - valid_field_names
 
         if unknown:
-            message = f"Invalid field name(s): {', '.join(unknown)}"
+            message = f'Invalid field name(s): {", ".join(unknown)}'
             raise ValueError(message)
 
         # fk_fields = {

@@ -10,7 +10,10 @@ from pydantic import BaseModel
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from django_spire.contrib.converters.to_pydantic import DjangoToPydanticFieldConverter, django_to_pydantic_model
+from django_spire.contrib.converters.to_pydantic import (
+    DjangoToPydanticFieldConverter,
+    django_to_pydantic_model,
+)
 
 
 def is_optional(t: type) -> bool:
@@ -26,21 +29,17 @@ class TestDjangoModelToPydanticModel(TestCase):
                 default='A',
                 help_text='Status of the item',
                 unique=True,
-                null=False
+                null=False,
             )
             char_field_no_choices = models.CharField(
-                max_length=20,
-                default='default',
-                help_text='Description',
-                unique=False,
-                null=True
+                max_length=20, default='default', help_text='Description', unique=False, null=True
             )
             int_field = models.IntegerField(
                 validators=[MinValueValidator(0), MaxValueValidator(100)],
                 default=50,
                 help_text='Count',
                 unique=False,
-                null=True
+                null=True,
             )
             decimal_field = models.DecimalField(
                 max_digits=5,
@@ -48,13 +47,9 @@ class TestDjangoModelToPydanticModel(TestCase):
                 default=0.0,
                 help_text='Price',
                 unique=False,
-                null=False
+                null=False,
             )
-            boolean_field = models.BooleanField(
-                default=True,
-                help_text='Active',
-                null=False
-            )
+            boolean_field = models.BooleanField(default=True, help_text='Active', null=False)
 
             class Meta:
                 managed = False
@@ -123,7 +118,7 @@ class TestDjangoModelToPydanticModel(TestCase):
         PydanticModel = django_to_pydantic_model(
             SimpleModel3,
             include_fields=['id', 'field1', 'field2', 'field3'],
-            exclude_fields=['field2']
+            exclude_fields=['field2'],
         )
 
         fields = PydanticModel.model_fields
@@ -146,7 +141,9 @@ class TestDjangoModelToPydanticModel(TestCase):
             def __str__(self) -> str:
                 return 'model'
 
-        PydanticModel = django_to_pydantic_model(SimpleModel1, include_fields=['id', 'field1', 'field3'])
+        PydanticModel = django_to_pydantic_model(
+            SimpleModel1, include_fields=['id', 'field1', 'field3']
+        )
         fields = PydanticModel.model_fields
         assert 'id' in fields
         assert 'field1' in fields
@@ -206,9 +203,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
     def test_enum_created_for_choices(self) -> None:
         class Model3(models.Model):
             status = models.CharField(
-                max_length=10,
-                choices=[('A', 'Active'), ('I', 'Inactive')],
-                default='A'
+                max_length=10, choices=[('A', 'Active'), ('I', 'Inactive')], default='A'
             )
 
             class Meta:

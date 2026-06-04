@@ -8,8 +8,12 @@ from django_spire.knowledge.entry.version.models import EntryVersion
 @admin.register(EntryVersion)
 class EntryVersionAdmin(admin.ModelAdmin):
     list_display = [
-        'entry__name', 'entry__collection', 'author', 'last_edit_datetime',
-        'published_datetime', 'is_deleted'
+        'entry__name',
+        'entry__collection',
+        'author',
+        'last_edit_datetime',
+        'published_datetime',
+        'is_deleted',
     ]
     list_select_related = ['entry__collection', 'author']
     list_filter = ['status', 'is_deleted', 'is_active']

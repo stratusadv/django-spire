@@ -17,11 +17,17 @@ urlpatterns = [
     path('help_desk/', include('test_project.app.help_desk.urls', namespace='help_desk')),
     path('history/', include('test_project.app.history.urls', namespace='history')),
     path('home/', include('test_project.app.home.urls', namespace='home')),
-    path('infinite_scrolling/', include('test_project.app.infinite_scrolling.urls', namespace='infinite_scrolling')),
+    path(
+        'infinite_scrolling/',
+        include('test_project.app.infinite_scrolling.urls', namespace='infinite_scrolling'),
+    ),
     path('lazy_tabs/', include('test_project.app.lazy_tabs.urls', namespace='lazy_tabs')),
     path('notification/', include('test_project.app.notification.urls', namespace='notification')),
     path('order/', include('test_project.app.ordering.urls', namespace='order')),
-    path('queryset-filtering/', include('test_project.app.queryset_filtering.urls', namespace='queryset_filtering')),
+    path(
+        'queryset-filtering/',
+        include('test_project.app.queryset_filtering.urls', namespace='queryset_filtering'),
+    ),
     path('rest/', include('test_project.app.rest.urls', namespace='rest')),
     path('sync/', include('test_project.app.sync.urls', namespace='sync')),
     path('tabular/', include('test_project.app.tabular.urls', namespace='tabular')),
@@ -30,15 +36,11 @@ urlpatterns = [
     path('wizard/', include('test_project.app.wizard.urls', namespace='wizard')),
 ]
 
-urlpatterns += [
-    path('ds/', include('django_spire.urls', namespace='django_spire')),
-]
+urlpatterns += [path('ds/', include('django_spire.urls', namespace='django_spire'))]
 
 urlpatterns += django_glue_urls()
 
-urlpatterns += [
-    path('admin/', admin.site.urls),
-]
+urlpatterns += [path('admin/', admin.site.urls)]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
@@ -46,11 +48,7 @@ if settings.DEBUG:
     if importlib.util.find_spec('debug_toolbar'):
         import debug_toolbar
 
-        urlpatterns += [
-            path('__debug__/', include(debug_toolbar.urls)),
-        ]
+        urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
 
     if importlib.util.find_spec('django_browser_reload'):
-        urlpatterns += [
-            path('__reload__/', include('django_browser_reload.urls')),
-        ]
+        urlpatterns += [path('__reload__/', include('django_browser_reload.urls'))]

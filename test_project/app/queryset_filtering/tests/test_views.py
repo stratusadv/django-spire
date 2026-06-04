@@ -15,10 +15,7 @@ class TaskListFilteringTestCase(BaseTestCase):
         create_test_task(name='Cook Eggs')
         create_test_task(name='Sell Eggs')
 
-        self.data = {
-            'name': '',
-            'status': ''
-        }
+        self.data = {'name': '', 'status': ''}
 
     def test_queryset_filtering(self):
         pass

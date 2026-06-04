@@ -14,15 +14,16 @@ if TYPE_CHECKING:
 
 
 class AppNotificationQuerySet(
-    HistoryQuerySet, NotificationContentObjectQuerySet,
-    SearchQuerySetMixin
+    HistoryQuerySet, NotificationContentObjectQuerySet, SearchQuerySetMixin
 ):
     def annotate_is_viewed_by_user(self, user: User) -> QuerySet:
-        return self.by_user(user=user).annotate(viewed=Case(
-            When(views__user=user, then=Value(True)),
-            default=Value(False),
-            output_field=BooleanField()
-        ))
+        return self.by_user(user=user).annotate(
+            viewed=Case(
+                When(views__user=user, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
 
     def ordered_by_priority_and_sent_datetime(self):
         priority_order = Case(
@@ -32,8 +33,7 @@ class AppNotificationQuerySet(
             output_field=IntegerField(),
         )
         return self.annotate(priority_order=priority_order).order_by(
-            '-notification__sent_datetime',
-            'priority_order'
+            '-notification__sent_datetime', 'priority_order'
         )
 
     def by_user(self, user: User) -> QuerySet:
@@ -52,6 +52,6 @@ class AppNotificationQuerySet(
         if search_value is None:
             return self
         return self.filter(
-            Q(notification__title__icontains=search_value) |
-            Q(notification__body__icontains=search_value)
+            Q(notification__title__icontains=search_value)
+            | Q(notification__body__icontains=search_value)
         )

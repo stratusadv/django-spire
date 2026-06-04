@@ -21,13 +21,15 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% with obj.comments.active.prefetch_user as comments %}
-        {% if comments %}
-            {% for comment in comments %}
-                {% include 'django_spire/comment/item/comment_item.html' %}
-            {% endfor %}
-        {% else %}
-            {% include 'django_spire/item/no_data_item.html' %}
-        {% endif %}
-    {% endwith %}
+    <div class="card-body">
+        {% with obj.comments.active.prefetch_user as comments %}
+            {% if comments %}
+                {% for comment in comments %}
+                    {% include 'django_spire/comment/item/comment_item.html' %}
+                {% endfor %}
+            {% else %}
+                {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% endif %}
+        {% endwith %}
+    </div>
 {% endblock %}

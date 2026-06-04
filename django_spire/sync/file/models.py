@@ -38,9 +38,6 @@ class FileSyncableMixin(models.Model):
         if not self._file_sync_fields or not self._file_sync_identity_field:
             return ''
 
-        record = {
-            field: getattr(self, field)
-            for field in self._file_sync_fields
-        }
+        record = {field: getattr(self, field) for field in self._file_sync_fields}
 
         return self._get_hasher().hash(record)

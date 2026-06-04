@@ -13,6 +13,7 @@ class HelpDeskTicketSeeder(DjangoModelSeeder):
         'created_by_id': ('custom', 'fk_random', {'model_class': AuthUser}),
         'created_datetime': (
             'custom',
-            'date_time_between', {'start_date': '-30d', 'end_date': 'now'}
+            'date_time_between',
+            {'start_date': '-30d', 'end_date': 'now'},
         ),
     }

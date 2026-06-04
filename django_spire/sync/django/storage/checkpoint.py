@@ -8,11 +8,7 @@ from django_spire.sync.django.models.checkpoint import SyncCheckpoint
 
 class DjangoCheckpointStore:
     def get_after_keys(self, peer_node_id: str) -> dict[str, Any]:
-        checkpoint = (
-            SyncCheckpoint.objects
-            .filter(peer_node_id=peer_node_id)
-            .first()
-        )
+        checkpoint = SyncCheckpoint.objects.filter(peer_node_id=peer_node_id).first()
 
         if checkpoint is None:
             return {}
@@ -20,11 +16,7 @@ class DjangoCheckpointStore:
         return checkpoint.after_keys or {}
 
     def get_checkpoint(self, peer_node_id: str) -> CheckpointPosition:
-        checkpoint = (
-            SyncCheckpoint.objects
-            .filter(peer_node_id=peer_node_id)
-            .first()
-        )
+        checkpoint = SyncCheckpoint.objects.filter(peer_node_id=peer_node_id).first()
 
         if checkpoint is None:
             return CheckpointPosition(peer_sequence=0, local_sequence_pushed=0)

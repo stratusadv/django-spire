@@ -49,7 +49,7 @@ class TestHistoryEvent(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpass'  # noqa: S106
+            password='testpass',  # noqa: S106
         )
         self.content_type = ContentType.objects.get_for_model(User)
 
@@ -57,7 +57,7 @@ class TestHistoryEvent(TestCase):
         event = HistoryEvent.objects.create(
             content_type=self.content_type,
             object_id=self.user.pk,
-            event=HistoryEventChoices.CREATED
+            event=HistoryEventChoices.CREATED,
         )
 
         assert event.pk is not None
@@ -68,7 +68,7 @@ class TestHistoryEvent(TestCase):
         event = HistoryEvent.objects.create(
             content_type=self.content_type,
             object_id=self.user.pk,
-            event=HistoryEventChoices.UPDATED
+            event=HistoryEventChoices.UPDATED,
         )
 
         assert event.event_verbose == 'Updated'
@@ -77,7 +77,7 @@ class TestHistoryEvent(TestCase):
         event = HistoryEvent.objects.create(
             content_type=self.content_type,
             object_id=self.user.pk,
-            event=HistoryEventChoices.CREATED
+            event=HistoryEventChoices.CREATED,
         )
 
         assert 'Created' in str(event)

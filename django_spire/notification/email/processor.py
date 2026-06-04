@@ -4,10 +4,7 @@ from django.utils.timezone import now
 
 from sendgrid import SendGridException
 
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.email.helper import SendGridEmailHelper
 from django_spire.notification.exceptions import InvalidNotificationTypeError
 from django_spire.notification.models import Notification
@@ -60,21 +57,18 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
                     notification.status = NotificationStatusChoices.FAILED
 
                     Notification.objects.bulk_update(
-                        notifications,
-                        ['status', 'sent_datetime', 'status_message']
+                        notifications, ['status', 'sent_datetime', 'status_message']
                     )
 
                     raise
 
         Notification.objects.bulk_update(
-            notifications,
-            ['status', 'sent_datetime', 'status_message']
+            notifications, ['status', 'sent_datetime', 'status_message']
         )
 
     def process_ready(self):
         self.process_list(
-            Notification.objects.
-            email_notifications()
+            Notification.objects.email_notifications()
             .ready_to_send()
             .active()
             .prefetch_related('email', 'email__attachment')
@@ -82,8 +76,7 @@ class EmailNotificationProcessor(BaseNotificationProcessor):
 
     def process_errored(self):
         self.process_list(
-            Notification.objects
-            .email_notifications()
+            Notification.objects.email_notifications()
             .errored()
             .active()
             .prefetch_related('email', 'email__attachment')

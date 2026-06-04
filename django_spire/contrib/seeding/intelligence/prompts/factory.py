@@ -9,15 +9,10 @@ if TYPE_CHECKING:
 
 
 class SeedingModelClassPromptFactory:
-
     def __init__(self, model_class: type[Model]):
         self.model_class = model_class
 
-    def objective_prompt(
-        self,
-        model_description: str,
-        sector_description: str
-    ) -> Prompt:
+    def objective_prompt(self, model_description: str, sector_description: str) -> Prompt:
         model_name = self.model_class._meta.verbose_name_plural.title()
 
         return (

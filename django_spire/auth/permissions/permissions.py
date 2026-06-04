@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django_spire.auth.group.utils import (
     codename_list_to_perm_level,
     codename_to_perm_level,
-    perm_level_to_string
+    perm_level_to_string,
 )
 from django_spire.contrib.utils import get_object_from_module_string
 
@@ -24,7 +24,7 @@ class ModelPermission:
         name: str,
         model_class_path: str,
         is_proxy_model: bool,
-        verbose_name: str | None = None
+        verbose_name: str | None = None,
     ):
         self.name = name
         self.model_class_path = model_class_path
@@ -34,7 +34,6 @@ class ModelPermission:
     @property
     def model_class(self) -> type[Model]:
         return get_object_from_module_string(self.model_class_path)
-
 
 
 class ModelPermissions:
@@ -55,13 +54,10 @@ class ModelPermissions:
         return self.model._meta.model_name
 
     def find_permissions_by_level(
-        self,
-        perm_level: VALID_PERMISSION_LEVELS | None
+        self, perm_level: VALID_PERMISSION_LEVELS | None
     ) -> list[Permission]:
         return [
-            perm
-            for perm in self.permissions
-            if codename_to_perm_level(perm.codename) <= perm_level
+            perm for perm in self.permissions if codename_to_perm_level(perm.codename) <= perm_level
         ]
 
     def get_special_role(self, codename: str) -> Permission | None:
@@ -73,18 +69,13 @@ class ModelPermissions:
 
     def _set_model_perms(self) -> QuerySet[Permission]:
         content_type = ContentType.objects.get_for_model(
-            self.model(),
-            for_concrete_model=not self.is_proxy_model
+            self.model(), for_concrete_model=not self.is_proxy_model
         )
 
         return Permission.objects.filter(content_type=content_type)
 
     def special_role_list(self) -> list[Permission]:
-        return [
-            perm
-            for perm in self.permissions
-            if perm.codename.startswith('can')
-        ]
+        return [perm for perm in self.permissions if perm.codename.startswith('can')]
 
 
 class GroupPermissions:
@@ -119,9 +110,7 @@ class GroupPermissions:
 
     @staticmethod
     def remove_special_permissions(perm_list: list | QuerySet) -> list:
-        return [
-            perm for perm in perm_list if not perm.codename.startswith('can')
-        ]
+        return [perm for perm in perm_list if not perm.codename.startswith('can')]
 
     def update_perms(self, perm_level: VALID_PERMISSION_LEVELS) -> None:
         cascading_perms = self.remove_special_permissions(
@@ -135,9 +124,7 @@ class GroupPermissions:
 
         cascading_perms_id_list = [perm.pk for perm in cascading_perms]
         prohibited_permissions = self.remove_special_permissions(
-            self.model_permissions.permissions.exclude(
-                id__in=cascading_perms_id_list
-            )
+            self.model_permissions.permissions.exclude(id__in=cascading_perms_id_list)
         )
 
         self.group.permissions.remove(*prohibited_permissions)

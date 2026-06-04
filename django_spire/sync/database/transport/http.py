@@ -10,9 +10,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
-from django_spire.sync.core.compression import (
-    gzip_decompress,
-)
+from django_spire.sync.core.compression import gzip_decompress
 from django_spire.sync.core.exceptions import (
     DecompressionLimitError,
     InvalidParameterError,
@@ -29,11 +27,7 @@ logger = logging.getLogger(__name__)
 _ALLOWED_SCHEMES = frozenset({'http', 'https'})
 _RESPONSE_BYTES_MAX = 50 * 1024 * 1024
 
-_REQUIRED_RESPONSE_FIELDS = (
-    'node_id',
-    'peer_sequence',
-    'local_sequence',
-)
+_REQUIRED_RESPONSE_FIELDS = ('node_id', 'peer_sequence', 'local_sequence')
 
 _TRANSIENT_EXCEPTIONS: tuple[type[BaseException], ...] = (
     ConnectionError,
@@ -51,10 +45,7 @@ def _validate_url(url: str) -> None:
     parsed = urlparse(url)
 
     if parsed.scheme not in _ALLOWED_SCHEMES:
-        message = (
-            f'Unsupported URL scheme: {parsed.scheme!r}. '
-            f'Only http and https are allowed.'
-        )
+        message = f'Unsupported URL scheme: {parsed.scheme!r}. Only http and https are allowed.'
 
         raise InvalidParameterError(message)
 
@@ -80,10 +71,7 @@ class HttpTransport(Transport):
             raise InvalidParameterError(message)
 
         if retry_delay < 0.0:
-            message = (
-                f'retry_delay must be non-negative, '
-                f'got {retry_delay}'
-            )
+            message = f'retry_delay must be non-negative, got {retry_delay}'
 
             raise InvalidParameterError(message)
 
@@ -92,10 +80,7 @@ class HttpTransport(Transport):
             raise InvalidParameterError(message)
 
         if response_bytes_max < 1:
-            message = (
-                f'response_bytes_max must be >= 1, '
-                f'got {response_bytes_max}'
-            )
+            message = f'response_bytes_max must be >= 1, got {response_bytes_max}'
 
             raise InvalidParameterError(message)
 
@@ -107,11 +92,7 @@ class HttpTransport(Transport):
         self._url = url
 
         if not self._headers:
-            logger.warning(
-                'HttpTransport created without '
-                'auth headers for %s',
-                self._url,
-            )
+            logger.warning('HttpTransport created without auth headers for %s', self._url)
 
     def _post(self, data: dict[str, Any]) -> dict[str, Any]:
         body = json.dumps(data).encode('utf-8')
@@ -125,10 +106,7 @@ class HttpTransport(Transport):
         }
 
         request = Request(  # noqa: S310
-            self._url,
-            data=compressed,
-            headers=headers,
-            method='POST',
+            self._url, data=compressed, headers=headers, method='POST'
         )
 
         try:
@@ -136,11 +114,7 @@ class HttpTransport(Transport):
                 raw = response.read(self._response_bytes_max + 1)
 
                 if len(raw) > self._response_bytes_max:
-                    message = (
-                        f'Response size exceeds limit '
-                        f'of {self._response_bytes_max} '
-                        f'bytes'
-                    )
+                    message = f'Response size exceeds limit of {self._response_bytes_max} bytes'
 
                     raise InvalidResponseError(message)
 
@@ -152,10 +126,7 @@ class HttpTransport(Transport):
                 return self._parse_json(raw)
         except HTTPError as exception:
             if 400 <= exception.code < 500:
-                message = (
-                    f'Client error {exception.code}: '
-                    f'{exception.reason}'
-                )
+                message = f'Client error {exception.code}: {exception.reason}'
 
                 raise SyncAbortedError(message) from exception
 
@@ -174,17 +145,11 @@ class HttpTransport(Transport):
         try:
             return json.loads(raw)
         except (json.JSONDecodeError, UnicodeDecodeError) as exception:
-            message = (
-                f'Response body is not valid JSON: '
-                f'{exception}'
-            )
+            message = f'Response body is not valid JSON: {exception}'
 
             raise InvalidResponseError(message) from exception
 
-    def exchange(
-        self,
-        manifest: SyncManifest,
-    ) -> SyncManifest:
+    def exchange(self, manifest: SyncManifest) -> SyncManifest:
         payload = manifest.to_dict()
 
         response_data = retry(
@@ -200,21 +165,14 @@ class HttpTransport(Transport):
 
         for required in _REQUIRED_RESPONSE_FIELDS:
             if required not in response_data:
-                error = response_data.get(
-                    'error',
-                    f"Missing required manifest field {required!r}",
-                )
+                error = response_data.get('error', f'Missing required manifest field {required!r}')
 
-                message = (
-                    f'Server returned an invalid sync '
-                    f'response: {error}'
-                )
+                message = f'Server returned an invalid sync response: {error}'
 
                 raise InvalidResponseError(message)
 
         logger.info(
-            'Exchanged manifest with %s '
-            '(%d payloads sent, %d received)',
+            'Exchanged manifest with %s (%d payloads sent, %d received)',
             self._url,
             len(manifest.payloads),
             len(response_data.get('payloads', [])),

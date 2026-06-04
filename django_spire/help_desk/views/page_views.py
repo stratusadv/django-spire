@@ -22,10 +22,7 @@ def ticket_delete_view(request: WSGIRequest, pk: int):
     return generic_views.delete_form_view(
         request=request,
         obj=ticket,
-        return_url=request.GET.get(
-            'return_url',
-            reverse('django_spire:help_desk:page:list')
-        )
+        return_url=request.GET.get('return_url', reverse('django_spire:help_desk:page:list')),
     )
 
 
@@ -36,9 +33,7 @@ def ticket_detail_view(request: WSGIRequest, pk: int):
     return generic_views.detail_view(
         request=request,
         obj=ticket,
-        context_data={
-            'ticket': ticket
-        },
+        context_data={'ticket': ticket},
         template='django_spire/help_desk/page/ticket_detail_page.html',
     )
 
@@ -49,9 +44,7 @@ def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
 
     return generic_views.list_view(
         request=request,
-        context_data={
-            'tickets': tickets
-        },
+        context_data={'tickets': tickets},
         model=HelpDeskTicket,
-        template='django_spire/help_desk/page/ticket_list_page.html'
+        template='django_spire/help_desk/page/ticket_list_page.html',
     )

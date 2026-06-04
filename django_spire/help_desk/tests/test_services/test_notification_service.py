@@ -16,18 +16,12 @@ if TYPE_CHECKING:
     from django_spire.help_desk.models import HelpDeskTicket
 
 
-TEST_ADMINS = [
-    ('developer1', 'developer1@stratus.com'),
-    ('developer2', 'developer2@stratus.com'),
-]
+TEST_ADMINS = [('developer1', 'developer1@stratus.com'), ('developer2', 'developer2@stratus.com')]
 
 
 class HelpDeskTicketNotificationServiceTestCase(BaseTestCase):
     def _assert_user_notification_ticket_integrity(
-        self,
-        ticket: HelpDeskTicket,
-        notification_type: type,
-        users: QuerySet[User]
+        self, ticket: HelpDeskTicket, notification_type: type, users: QuerySet[User]
     ):
         notifications = notification_type.objects.by_users(users)
         assert len(notifications) == len(users)
@@ -43,27 +37,19 @@ class HelpDeskTicketNotificationServiceTestCase(BaseTestCase):
 
         developers = User.objects.filter(Q(email__in=[admin[1] for admin in settings.ADMINS]))
 
-        managers = User.objects.filter(
-            Q(groups__permissions__codename='delete_helpdeskticket')
-        )
+        managers = User.objects.filter(Q(groups__permissions__codename='delete_helpdeskticket'))
 
         ticket = create_test_helpdesk_ticket()
         ticket.services.notification.create_new_ticket_notifications()
 
         self._assert_user_notification_ticket_integrity(
-            ticket=ticket,
-            notification_type=AppNotification,
-            users=managers
+            ticket=ticket, notification_type=AppNotification, users=managers
         )
 
         self._assert_user_notification_ticket_integrity(
-            ticket=ticket,
-            notification_type=AppNotification,
-            users=developers
+            ticket=ticket, notification_type=AppNotification, users=developers
         )
 
         self._assert_user_notification_ticket_integrity(
-            ticket=ticket,
-            notification_type=EmailNotification,
-            users=developers
+            ticket=ticket, notification_type=EmailNotification, users=developers
         )

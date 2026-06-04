@@ -20,21 +20,17 @@ class ApiPageViewsTestCase(BaseTestCase):
 
     def test_access_delete_view_get(self):
         response = self.client.get(
-            path=reverse(
-                'django_spire:api:page:delete',
-                kwargs={'pk': self.test_access.pk}
-            ),
+            path=reverse('django_spire:api:page:delete', kwargs={'pk': self.test_access.pk})
         )
         self.assertEqual(response.status_code, 200)
 
     def test_access_delete_view_post(self):
         response = self.client.post(
-            path=reverse(
-                'django_spire:api:page:delete',
-                kwargs={'pk': self.test_access.pk}
-            ),
-            data={'should_delete': True}
+            path=reverse('django_spire:api:page:delete', kwargs={'pk': self.test_access.pk}),
+            data={'should_delete': True},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(ApiAccess.objects.filter(pk=self.test_access.pk, is_deleted=False).exists())
+        self.assertFalse(
+            ApiAccess.objects.filter(pk=self.test_access.pk, is_deleted=False).exists()
+        )
         self.assertTrue(ApiAccess.objects.get(pk=self.test_access.pk).is_deleted)

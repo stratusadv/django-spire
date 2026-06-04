@@ -19,10 +19,7 @@ from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.django.queryset import sync_bypass
 from django_spire.sync.tests.database.helpers import InMemoryDatabaseStorage
 
-from test_project.app.sync.config import (
-    TABLET_COUNT_DEFAULT,
-    get_active_tablet_databases,
-)
+from test_project.app.sync.config import TABLET_COUNT_DEFAULT, get_active_tablet_databases
 from test_project.app.sync.constants import (
     DEFAULT_STRATEGY,
     RESULT_CATEGORIES,
@@ -31,12 +28,7 @@ from test_project.app.sync.constants import (
     WinnerSide,
 )
 from test_project.app.sync.context import switch_database
-from test_project.app.sync.registry import (
-    CREW_FIELDS,
-    MODEL_CONFIG,
-    MODEL_LABELS,
-    OFFICE_FIELDS,
-)
+from test_project.app.sync.registry import CREW_FIELDS, MODEL_CONFIG, MODEL_LABELS, OFFICE_FIELDS
 from test_project.app.sync.types import (
     ConflictLogEntry,
     FieldConflictDetail,
@@ -53,12 +45,14 @@ if TYPE_CHECKING:
     from test_project.app.sync.models import Client
 
 
-DEPENDENCY_GRAPH = DependencyGraph({
-    SyncModelLabel.CLIENT: set(),
-    SyncModelLabel.SITE: {SyncModelLabel.CLIENT},
-    SyncModelLabel.SURVEY_PLAN: {SyncModelLabel.SITE},
-    SyncModelLabel.STAKE: {SyncModelLabel.SURVEY_PLAN},
-})
+DEPENDENCY_GRAPH = DependencyGraph(
+    {
+        SyncModelLabel.CLIENT: set(),
+        SyncModelLabel.SITE: {SyncModelLabel.CLIENT},
+        SyncModelLabel.SURVEY_PLAN: {SyncModelLabel.SITE},
+        SyncModelLabel.STAKE: {SyncModelLabel.SURVEY_PLAN},
+    }
+)
 
 
 def _coerce_value(value: Any) -> Any:
@@ -91,7 +85,7 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
             for tablet_database in tablet_databases:
                 convergence_result = self._sync_tablet(clock, tablet_database, strategy)
                 tablet_results[tablet_database] = self._merge_results(
-                    tablet_results[tablet_database], convergence_result,
+                    tablet_results[tablet_database], convergence_result
                 )
 
         return SyncPerformResult(
@@ -126,7 +120,9 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
                 engine._storage.seed(label, key, data, record.timestamps)
 
     @staticmethod
-    def _build_engine(clock: HybridLogicalClock, database_name: str, resolver: ConflictResolver) -> DatabaseEngine:
+    def _build_engine(
+        clock: HybridLogicalClock, database_name: str, resolver: ConflictResolver
+    ) -> DatabaseEngine:
         return DatabaseEngine(
             clock=clock,
             graph=DEPENDENCY_GRAPH,
@@ -178,7 +174,11 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
                         data[field_name] = _coerce_value(getattr(instance, field_name))
 
                     for foreign_key in config.foreign_key_fields:
-                        data[foreign_key] = str(getattr(instance, foreign_key)) if getattr(instance, foreign_key) else None
+                        data[foreign_key] = (
+                            str(getattr(instance, foreign_key))
+                            if getattr(instance, foreign_key)
+                            else None
+                        )
 
                     timestamp_map = getattr(instance, 'sync_field_timestamps', {}) or {}
                     engine._storage.seed(label, key, data, timestamp_map)
@@ -187,10 +187,7 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
         return record_count
 
     @staticmethod
-    def _merge_results(
-        first: TabletSyncData,
-        second: TabletSyncData,
-    ) -> TabletSyncData:
+    def _merge_results(first: TabletSyncData, second: TabletSyncData) -> TabletSyncData:
         merged_result = SerializedSyncResult()
 
         for category in RESULT_CATEGORIES:
@@ -199,15 +196,15 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
             combined: dict[str, list[str]] = {}
 
             for label in set(first_data) | set(second_data):
-                keys = list(dict.fromkeys(
-                    first_data.get(label, []) + second_data.get(label, [])
-                ))
+                keys = list(dict.fromkeys(first_data.get(label, []) + second_data.get(label, [])))
                 combined[label] = keys
 
             setattr(merged_result, category, combined)
 
         merged_result.errors = first.tablet_result.errors + second.tablet_result.errors
-        merged_result.conflict_log = first.tablet_result.conflict_log + second.tablet_result.conflict_log
+        merged_result.conflict_log = (
+            first.tablet_result.conflict_log + second.tablet_result.conflict_log
+        )
 
         return TabletSyncData(
             cloud_record_count=second.cloud_record_count,
@@ -238,22 +235,16 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
                     pk=key,
                     defaults={
                         **data,
-                        'sync_field_last_modified': max(
-                            record.timestamps.values(), default=0,
-                        ),
+                        'sync_field_last_modified': max(record.timestamps.values(), default=0),
                         'sync_field_timestamps': dict(record.timestamps),
                     },
                 )
 
     def _serialize_result(self, result: Any) -> SerializedSyncResult:
         return SerializedSyncResult(
-            applied={
-                label: [str(key) for key in keys]
-                for label, keys in result.applied.items()
-            },
+            applied={label: [str(key) for key in keys] for label, keys in result.applied.items()},
             compatible={
-                label: [str(key) for key in keys]
-                for label, keys in result.compatible.items()
+                label: [str(key) for key in keys] for label, keys in result.compatible.items()
             },
             conflict_log=[
                 ConflictLogEntry(
@@ -281,29 +272,16 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
                 for entry in result.conflict_log
             ],
             conflicts={
-                label: [str(key) for key in keys]
-                for label, keys in result.conflicts.items()
+                label: [str(key) for key in keys] for label, keys in result.conflicts.items()
             },
-            created={
-                label: [str(key) for key in keys]
-                for label, keys in result.created.items()
-            },
-            deleted={
-                label: [str(key) for key in keys]
-                for label, keys in result.deleted.items()
-            },
+            created={label: [str(key) for key in keys] for label, keys in result.created.items()},
+            deleted={label: [str(key) for key in keys] for label, keys in result.deleted.items()},
             errors=list(result.errors) if hasattr(result, 'errors') else [],
-            skipped={
-                label: [str(key) for key in keys]
-                for label, keys in result.skipped.items()
-            },
+            skipped={label: [str(key) for key in keys] for label, keys in result.skipped.items()},
         )
 
     def _sync_tablet(
-        self,
-        clock: HybridLogicalClock,
-        tablet_database: str,
-        strategy: str,
+        self, clock: HybridLogicalClock, tablet_database: str, strategy: str
     ) -> TabletSyncData:
         tablet_resolver, cloud_resolver = self._build_resolvers(strategy)
 

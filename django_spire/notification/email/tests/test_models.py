@@ -46,7 +46,5 @@ class EmailNotificationModelTests(BaseTestCase):
         assert email_notification.bcc == ['bcc1@example.com', 'bcc2@example.com']
 
     def test_with_context_data(self):
-        email_notification = create_test_email_notification(
-            context_data={'key': 'value'}
-        )
+        email_notification = create_test_email_notification(context_data={'key': 'value'})
         assert email_notification.context_data == {'key': 'value'}

@@ -44,15 +44,11 @@ class AddUserForm(forms.ModelForm):
     class Meta:
         model = User
         exclude = ['date_joined', 'last_login', 'id', 'username']
-        widgets = {
-            'password': forms.PasswordInput()
-        }
+        widgets = {'password': forms.PasswordInput()}
 
 
 class UserGroupForm(forms.Form):
-        group_list = forms.ModelMultipleChoiceField(
-            queryset=AuthGroup.objects.all(),
-        )
+    group_list = forms.ModelMultipleChoiceField(queryset=AuthGroup.objects.all())
 
 
 class EditUserForm(forms.ModelForm):

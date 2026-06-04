@@ -10,11 +10,13 @@ if TYPE_CHECKING:
 
 class DummyJsonConnector(BaseRestHttpConnector):
     """Connector for DummyJSON API."""
+
     base_url = 'https://dummyjson.com'
 
 
 class UserSchemaSet(RestSchemaSet['UserSchema']):
     """SchemaSet for DummyJSON Users API."""
+
     connector = DummyJsonConnector()
 
     def _read_many(self, **request_params) -> list['UserSchema']:
@@ -28,6 +30,7 @@ class UserSchemaSet(RestSchemaSet['UserSchema']):
 
 class UserSchema(RestSchema):
     """Schema for DummyJSON User API."""
+
     id: int
     firstName: str
     lastName: str

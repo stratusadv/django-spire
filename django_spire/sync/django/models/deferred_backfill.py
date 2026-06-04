@@ -12,15 +12,7 @@ class SyncDeferredBackfill(models.Model):
         app_label = 'sync'
         db_table = 'django_spire_sync_deferred_backfill'
         unique_together = [('model_label', 'record_key', 'attname')]
-        indexes = [
-            models.Index(
-                fields=['model_label'],
-                name='sync_deferred_bf_idx',
-            ),
-        ]
+        indexes = [models.Index(fields=['model_label'], name='sync_deferred_bf_idx')]
 
     def __str__(self) -> str:
-        return (
-            f'{self.model_label}:{self.record_key} '
-            f'{self.attname}={self.fk_value}'
-        )
+        return f'{self.model_label}:{self.record_key} {self.attname}={self.fk_value}'

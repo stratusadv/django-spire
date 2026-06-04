@@ -75,6 +75,7 @@ class TestBaseConstructor(TestCase):
 
     def test_subclass_without_obj_annotation_raises_error(self) -> None:
         with pytest.raises(ConstructorError, match='must have an "obj" attribute'):
+
             class InvalidConstructor(BaseConstructor[str]):
                 pass
 
@@ -83,7 +84,7 @@ class TestBaseDjangoModelConstructor(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpass'  # noqa: S106
+            password='testpass',  # noqa: S106
         )
 
     def test_constructor_with_django_model(self) -> None:
@@ -181,7 +182,7 @@ class TestConstructorDescriptor(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpass'  # noqa: S106
+            password='testpass',  # noqa: S106
         )
 
     def test_descriptor_get_from_model_instance(self) -> None:

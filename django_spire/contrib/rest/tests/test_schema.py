@@ -1,6 +1,7 @@
 """
 Tests for the REST client architecture using RestSchema with DummyJSON Users API.
 """
+
 from django.test import TestCase
 
 from django_spire.contrib.rest import RestSchemaSet
@@ -22,9 +23,9 @@ class TestRestSchema(TestCase):
 
         self.assertIsInstance(user, UserSchema)
         self.assertEqual(user.id, 1)
-        self.assertEqual(user.firstName, "Emily")
-        self.assertEqual(user.lastName, "Johnson")
-        self.assertEqual(user.username, "emilys")
+        self.assertEqual(user.firstName, 'Emily')
+        self.assertEqual(user.lastName, 'Johnson')
+        self.assertEqual(user.username, 'emilys')
 
     def test_objects_limit(self):
         """Test that .objects.limit() limits results."""

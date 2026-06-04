@@ -25,24 +25,20 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(models.Visual, pk=pk)
 
-    context_data = {
-        'visual': visual,
-    }
+    context_data = {'visual': visual}
 
     return generic_views.detail_view(
         request,
         obj=visual,
         context_data=context_data,
-        template='metric/visual/page/detail_page.html'
+        template='metric/visual/page/detail_page.html',
     )
 
 
 @permission_required('metric_visual.view_visual')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     models.Visual.objects.process_session_filter(
-        request=request,
-        session_key=LIST_FILTERING_SESSION_KEY,
-        form_class=VisualListFilterForm,
+        request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=VisualListFilterForm
     )
 
     context_data = {
@@ -55,5 +51,5 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=models.Visual,
         context_data=context_data,
-        template='metric/visual/page/list_page.html'
+        template='metric/visual/page/list_page.html',
     )

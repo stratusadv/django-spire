@@ -21,10 +21,7 @@ class AuthGroup(Group, ActivityMixin):
         if self.pk:
             crumbs.add_breadcrumb(
                 name=self.name,
-                href=reverse(
-                    'django_spire:auth:group:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                href=reverse('django_spire:auth:group:page:detail', kwargs={'pk': self.pk}),
             )
 
         return crumbs

@@ -48,9 +48,7 @@ class PreprocessedSearchQuery:
 
 
 def preprocess_search_query(
-    query: str,
-    use_cache: bool = True,
-    llm_temperature: float = 0.3
+    query: str, use_cache: bool = True, llm_temperature: float = 0.3
 ) -> PreprocessedSearchQuery:
     if use_cache:
         cache_key = _get_cache_key(query)
@@ -63,10 +61,7 @@ def preprocess_search_query(
 
     search_bot.llm.options.temperature = llm_temperature
 
-    intel: PreprocessedQueryIntel = (
-        search_bot
-        .process(query=query)
-    )
+    intel: PreprocessedQueryIntel = search_bot.process(query=query)
 
     result = PreprocessedSearchQuery(
         corrected_query=intel.corrected_query,

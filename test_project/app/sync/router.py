@@ -14,12 +14,7 @@ class SyncDemoRouter:
     def _get_context_database() -> str:
         return getattr(_context, 'database_name', 'default')
 
-    def allow_migrate(
-        self,
-        database: str,
-        app_label: str,
-        **hints: Any,
-    ) -> bool | None:
+    def allow_migrate(self, database: str, app_label: str, **hints: Any) -> bool | None:
         _ = hints
 
         if app_label == 'test_project_sync':
@@ -31,10 +26,7 @@ class SyncDemoRouter:
         return None
 
     def allow_relation(
-        self,
-        object_one: models.Model,
-        object_two: models.Model,
-        **hints: Any,
+        self, object_one: models.Model, object_two: models.Model, **hints: Any
     ) -> bool | None:
         _ = hints
 
@@ -46,11 +38,7 @@ class SyncDemoRouter:
 
         return None
 
-    def db_for_read(
-        self,
-        model: type[models.Model],
-        **hints: Any,
-    ) -> str | None:
+    def db_for_read(self, model: type[models.Model], **hints: Any) -> str | None:
         _ = hints
 
         if model._meta.app_label == 'test_project_sync':
@@ -58,11 +46,7 @@ class SyncDemoRouter:
 
         return None
 
-    def db_for_write(
-        self,
-        model: type[models.Model],
-        **hints: Any,
-    ) -> str | None:
+    def db_for_write(self, model: type[models.Model], **hints: Any) -> str | None:
         _ = hints
 
         if model._meta.app_label == 'test_project_sync':

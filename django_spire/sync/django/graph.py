@@ -38,16 +38,10 @@ def _has_cycle(edges: dict[str, set[str]]) -> bool:
         state[node] = done
         return False
 
-    return any(
-        visit(node)
-        for node in edges
-        if state[node] == unvisited
-    )
+    return any(visit(node) for node in edges if state[node] == unvisited)
 
 
-def build_graph(
-    models: list[type[SyncableMixin]],
-) -> DependencyGraph:
+def build_graph(models: list[type[SyncableMixin]]) -> DependencyGraph:
     labels = {model._meta.label for model in models}
 
     required_edges: dict[str, set[str]] = {}
@@ -57,10 +51,7 @@ def build_graph(
         required: set[str] = set()
         optional: set[str] = set()
 
-        foreign_keys = chain(
-            model._meta.concrete_fields,
-            model._meta.many_to_many,
-        )
+        foreign_keys = chain(model._meta.concrete_fields, model._meta.many_to_many)
 
         for field in foreign_keys:
             if not field.is_relation:
@@ -78,28 +69,15 @@ def build_graph(
         optional_edges[model._meta.label] = optional
 
     if _has_cycle(required_edges):
-        involved = {
-            label
-            for label, dependencies in required_edges.items()
-            if dependencies
-        }
+        involved = {label for label, dependencies in required_edges.items() if dependencies}
 
-        message = (
-            f'Non-nullable foreign keys form a circular dependency '
-            f'among: {involved}'
-        )
+        message = f'Non-nullable foreign keys form a circular dependency among: {involved}'
 
         raise CircularDependencyError(message)
 
-    ordering_edges = {
-        label: set(dependencies)
-        for label, dependencies in required_edges.items()
-    }
+    ordering_edges = {label: set(dependencies) for label, dependencies in required_edges.items()}
 
-    deferred_edges: dict[str, set[str]] = {
-        label: set()
-        for label in ordering_edges
-    }
+    deferred_edges: dict[str, set[str]] = {label: set() for label in ordering_edges}
 
     for source in sorted(optional_edges):
         for target in sorted(optional_edges[source]):
@@ -109,21 +87,13 @@ def build_graph(
                 ordering_edges[source].discard(target)
                 deferred_edges[source].add(target)
 
-    deferred_edges = {
-        label: targets
-        for label, targets in deferred_edges.items()
-        if targets
-    }
+    deferred_edges = {label: targets for label, targets in deferred_edges.items() if targets}
 
-    return DependencyGraph(
-        ordering_edges,
-        deferred_edges=deferred_edges or None,
-    )
+    return DependencyGraph(ordering_edges, deferred_edges=deferred_edges or None)
 
 
 def get_deferred_foreign_key_columns(
-    models: list[type[SyncableMixin]],
-    graph: DependencyGraph,
+    models: list[type[SyncableMixin]], graph: DependencyGraph
 ) -> list[DeferredForeignKey]:
     label_to_model = {m._meta.label: m for m in models}
     syncable_labels = set(label_to_model.keys())
@@ -132,22 +102,21 @@ def get_deferred_foreign_key_columns(
     for source_label, targets in graph.deferred_edges.items():
         model = label_to_model[source_label]
 
-        for field in chain(
-            model._meta.concrete_fields,
-            model._meta.many_to_many,
-        ):
+        for field in chain(model._meta.concrete_fields, model._meta.many_to_many):
             if not field.is_relation:
                 continue
 
             target_label = field.related_model._meta.label
 
             if target_label in targets:
-                result.append(DeferredForeignKey(
-                    source_label=source_label,
-                    target_label=target_label,
-                    field_name=field.name,
-                    attribute_name=field.attname,
-                ))
+                result.append(
+                    DeferredForeignKey(
+                        source_label=source_label,
+                        target_label=target_label,
+                        field_name=field.name,
+                        attribute_name=field.attname,
+                    )
+                )
 
     for model in models:
         for field in model._meta.concrete_fields:
@@ -159,23 +128,21 @@ def get_deferred_foreign_key_columns(
 
             target_label = field.related_model._meta.label
 
-            is_self_ref = (
-                target_label == model._meta.label
-            )
+            is_self_ref = target_label == model._meta.label
 
-            is_external = (
-                target_label not in syncable_labels
-            )
+            is_external = target_label not in syncable_labels
 
             if not is_self_ref and not is_external:
                 continue
 
-            result.append(DeferredForeignKey(
-                source_label=model._meta.label,
-                target_label=target_label,
-                field_name=field.name,
-                attribute_name=field.attname,
-            ))
+            result.append(
+                DeferredForeignKey(
+                    source_label=model._meta.label,
+                    target_label=target_label,
+                    field_name=field.name,
+                    attribute_name=field.attname,
+                )
+            )
 
     return result
 

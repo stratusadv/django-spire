@@ -9,7 +9,6 @@ from django_spire.api.choices import ApiPermissionChoices
 echo_router = Router()
 
 
-@echo_router.get("", auth=ApiKeySecurity(permission_required=ApiPermissionChoices.VIEW))
+@echo_router.get('', auth=ApiKeySecurity(permission_required=ApiPermissionChoices.VIEW))
 def echo(request: HttpRequest, value: str) -> str:
     return f'Echo "{value}" '
-

@@ -16,7 +16,7 @@ class AuthGroupConfig(AppConfig):
         {
             'name': 'group',
             'model_class_path': 'django_spire.auth.group.models.AuthGroup',
-            'is_proxy_model': True
+            'is_proxy_model': True,
         },
     )
 

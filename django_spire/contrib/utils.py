@@ -8,15 +8,15 @@ from django_spire.exceptions import DjangoSpireInvalidClassStringError
 
 
 def truncate_string(string: str, length: int) -> str:
-    return string[:(length - 3)] + '...' if len(string) > length else string
+    return string[: (length - 3)] + '...' if len(string) > length else string
 
 
 def format_duration(
-        amount: float,
-        start_unit: str = 'second',
-        min_unit: str = 'second',
-        included_units: list[str] | None = None,
-        is_short_form: bool = False,
+    amount: float,
+    start_unit: str = 'second',
+    min_unit: str = 'second',
+    included_units: list[str] | None = None,
+    is_short_form: bool = False,
 ) -> str:
     """
     Converts duration into a readable format. (ex. 1h 15m or 1 hour 15 minutes)
@@ -26,7 +26,9 @@ def format_duration(
         return 'Unknown'
 
     if start_unit not in TIME_UNITS_TO_SECONDS.keys():
-        message = f'{start_unit} is not a valid start unit, choices are {TIME_UNITS_TO_SECONDS.keys()}'
+        message = (
+            f'{start_unit} is not a valid start unit, choices are {TIME_UNITS_TO_SECONDS.keys()}'
+        )
         raise ValueError(message)
 
     amount = amount * TIME_UNITS_TO_SECONDS[start_unit]
@@ -68,8 +70,7 @@ def get_object_from_module_string(module_string: str) -> Any:
 
 
 def get_callable_from_module_string_and_validate_arguments(
-    module_string: str,
-    valid_args: Sequence[str]
+    module_string: str, valid_args: Sequence[str]
 ) -> Callable:
     callable_ = get_object_from_module_string(module_string)
 

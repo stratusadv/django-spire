@@ -9,10 +9,7 @@ from django_spire.file.fields import MultipleFileField, SingleFileField
 from django_spire.file.validators import FileValidator
 
 from test_project.app.file import models
-from test_project.app.file.constants import (
-    ATTACHMENTS_RELATED_FIELD,
-    PROFILE_PICTURE_RELATED_FIELD,
-)
+from test_project.app.file.constants import ATTACHMENTS_RELATED_FIELD, PROFILE_PICTURE_RELATED_FIELD
 
 if TYPE_CHECKING:
     from typing import ClassVar
@@ -22,9 +19,7 @@ class FileExampleForm(forms.ModelForm):
     profile_picture = SingleFileField(
         related_field=PROFILE_PICTURE_RELATED_FIELD,
         required=True,
-        validator=FileValidator(
-            allowed_extensions=IMAGE_EXTENSIONS,
-        ),
+        validator=FileValidator(allowed_extensions=IMAGE_EXTENSIONS),
     )
 
     attachments = MultipleFileField(

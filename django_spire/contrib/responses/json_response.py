@@ -11,7 +11,9 @@ def info_json_response(message: str | None = None, **kwargs) -> JsonResponse:
     return json_response(type=ResponseTypeChoices.INFO, message=message, **kwargs)
 
 
-def json_response(type: ResponseTypeChoices | str, message: str | None = None, **kwargs) -> JsonResponse:
+def json_response(
+    type: ResponseTypeChoices | str, message: str | None = None, **kwargs
+) -> JsonResponse:
     response_choices = [choice.value for choice in ResponseTypeChoices]
 
     if isinstance(type, ResponseTypeChoices):
@@ -30,10 +32,7 @@ def json_response(type: ResponseTypeChoices | str, message: str | None = None, *
         message = f'{type} is not a valid option for ResponseTypeChoices: [{valid}]'
         raise TypeError(message)
 
-    return_data = {
-        'type': type_value,
-        **kwargs,
-    }
+    return_data = {'type': type_value, **kwargs}
 
     if message is not None:
         return_data['message'] = message

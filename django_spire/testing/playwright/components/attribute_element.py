@@ -18,7 +18,9 @@ class AttributeElement:
         return self.page.locator(self.container_selector)
 
     def get_attribute_by_title(self, title: str) -> Locator:
-        return self.container.locator(f'.fs-7.text-app-attribute-color:has-text("{title}")').locator('..')
+        return self.container.locator(
+            f'.fs-7.text-app-attribute-color:has-text("{title}")'
+        ).locator('..')
 
     def get_value_by_title(self, title: str) -> str:
         attribute = self.get_attribute_by_title(title)

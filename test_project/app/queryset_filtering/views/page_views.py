@@ -20,22 +20,17 @@ if TYPE_CHECKING:
 
 @login_required()
 def list_page(request: WSGIRequest):
-
     """
-        - Test glue multi select field in other projects.
-        - Review Code
-        - Update docs
+    - Test glue multi select field in other projects.
+    - Review Code
+    - Update docs
     """
 
     tasks = (
-        Task
-        .objects
-        .active()
+        Task.objects.active()
         .prefetch_users()
         .process_session_filter(
-            request=request,
-            session_key=TASK_FILTERING_SESSION_KEY,
-            form_class=TaskListFilterForm,
+            request=request, session_key=TASK_FILTERING_SESSION_KEY, form_class=TaskListFilterForm
         )
     )
 
@@ -49,33 +44,25 @@ def list_page(request: WSGIRequest):
     }
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='queryset_filtering/page/list_page.html',
+        request=request, context=context_data, template='queryset_filtering/page/list_page.html'
     )
 
 
 def list_items_view(request: WSGIRequest):
     tasks = (
-        Task
-        .objects
-        .active()
+        Task.objects.active()
         .prefetch_users()
         .process_session_filter(
-            request=request,
-            session_key=TASK_FILTERING_SESSION_KEY,
-            form_class=TaskListFilterForm,
+            request=request, session_key=TASK_FILTERING_SESSION_KEY, form_class=TaskListFilterForm
         )
     )
 
-    context_data = {
-        'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),
-    }
+    context_data = {'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY)}
 
     return generic_views.infinite_scrolling_view(
         request,
         context_data=context_data,
         queryset=tasks,
         queryset_name='tasks',
-        template='queryset_filtering/item/items.html'
+        template='queryset_filtering/item/items.html',
     )

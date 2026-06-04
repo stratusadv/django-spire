@@ -6,10 +6,7 @@ from typing import Any, TYPE_CHECKING
 
 import defusedxml.ElementTree as DefusedET
 
-from django_spire.sync.file.exceptions import (
-    FileSyncParameterError,
-    FileSyncParseError,
-)
+from django_spire.sync.file.exceptions import FileSyncParameterError, FileSyncParseError
 from django_spire.sync.file.reader.base import Reader
 
 if TYPE_CHECKING:
@@ -31,11 +28,7 @@ class XmlListField:
 
 
 class XmlReader(Reader):
-    def __init__(
-        self,
-        record_path: str,
-        fields: list[XmlField | XmlListField],
-    ) -> None:
+    def __init__(self, record_path: str, fields: list[XmlField | XmlListField]) -> None:
         self._fields: list[XmlField] = []
         self._list_fields: list[XmlListField] = []
         self._record_path = record_path
@@ -53,8 +46,7 @@ class XmlReader(Reader):
             f.cast(f.default)
         except (ValueError, TypeError) as exc:
             message = (
-                f'XmlField {f.key!r} default {f.default!r} '
-                f'cannot be cast to {f.cast.__name__}'
+                f'XmlField {f.key!r} default {f.default!r} cannot be cast to {f.cast.__name__}'
             )
 
             raise FileSyncParameterError(message) from exc
@@ -76,21 +68,14 @@ class XmlReader(Reader):
             try:
                 record[f.key] = f.cast(text)
             except (ValueError, TypeError) as exc:
-                message = (
-                    f'Failed to cast field {f.key!r} with value '
-                    f'{text!r} to {f.cast.__name__}'
-                )
+                message = f'Failed to cast field {f.key!r} with value {text!r} to {f.cast.__name__}'
 
                 raise FileSyncParseError(message) from exc
 
         for f in self._list_fields:
             elements = element.findall(f.path)
 
-            record[f.key] = [
-                el.text.strip()
-                for el in elements
-                if el.text
-            ]
+            record[f.key] = [el.text.strip() for el in elements if el.text]
 
         return record
 
@@ -98,7 +83,4 @@ class XmlReader(Reader):
         tree = DefusedET.parse(Path(file_path))
         root = tree.getroot()
 
-        return [
-            self._parse_record(element)
-            for element in root.findall(self._record_path)
-        ]
+        return [self._parse_record(element) for element in root.findall(self._record_path)]

@@ -28,10 +28,7 @@ class FileSystem:
         """
 
         shutil.copytree(
-            src,
-            dst,
-            dirs_exist_ok=True,
-            ignore=shutil.ignore_patterns('__pycache__', '*.pyc')
+            src, dst, dirs_exist_ok=True, ignore=shutil.ignore_patterns('__pycache__', '*.pyc')
         )
 
     def create_directory(self, path: Path) -> None:

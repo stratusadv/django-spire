@@ -4,9 +4,7 @@ import pytest
 
 from django.test import TestCase
 
-from django_spire.tools import (
-    app_is_installed,
-)
+from django_spire.tools import app_is_installed
 from django_spire.contrib.utils import get_class_from_string, get_class_name_from_class
 
 

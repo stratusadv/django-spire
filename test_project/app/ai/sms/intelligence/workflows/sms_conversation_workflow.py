@@ -13,16 +13,12 @@ if TYPE_CHECKING:
 class SmsConversationWorkflow:
     @staticmethod
     def process(
-        request: WSGIRequest,
-        user_input: str,
-        message_history: MessageHistory | None = None
+        request: WSGIRequest, user_input: str, message_history: MessageHistory | None = None
     ) -> SmsIntel:
         return SmsIntel(
             body=str(
                 ChatWorkflow.process(
-                    request,
-                    user_input=user_input,
-                    message_history=message_history,
+                    request, user_input=user_input, message_history=message_history
                 )
             )
         )

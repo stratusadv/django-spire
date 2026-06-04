@@ -19,11 +19,13 @@ register = template.Library()
 
 @register.simple_tag()
 def django_messages_to_json(messages: Iterable[Message]) -> str:
-    return json.dumps([
-        {
-            'id': ''.join(random.choice(string.ascii_letters) for _ in range(8)),
-            'message': message.message,
-            'type': message.level_tag
-        }
-        for message in messages
-    ])
+    return json.dumps(
+        [
+            {
+                'id': ''.join(random.choice(string.ascii_letters) for _ in range(8)),
+                'message': message.message,
+                'type': message.level_tag,
+            }
+            for message in messages
+        ]
+    )

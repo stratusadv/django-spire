@@ -5,5 +5,7 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% include 'tabular/table/migration_table.html' with endpoint=migration_endpoint %}
+    <div class="card-body">
+        {% include 'tabular/table/migration_table.html' with endpoint=migration_endpoint %}
+    </div>
 {% endblock %}

@@ -15,10 +15,7 @@ P = ParamSpec('P')
 T = TypeVar('T')
 
 
-def access_key_required(
-    setting_name: str,
-    param_name: str = 'access_key',
-) -> Callable[P, T]:
+def access_key_required(setting_name: str, param_name: str = 'access_key') -> Callable[P, T]:
     def decorator(view: Callable[P, T]) -> Callable[P, T]:
         @wraps(view)
         def wrapper(request: WSGIRequest, *args, **kwargs) -> HttpResponse:
@@ -28,7 +25,9 @@ def access_key_required(
                 raise Http404
 
             return view(request, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -43,15 +42,11 @@ def close_db_connections(func: Callable[P, T]) -> Callable[P, T]:
     return inner
 
 
-def valid_ajax_request_required(
-    method: Callable[..., HttpResponse]
-) -> Callable[..., HttpResponse]:
+def valid_ajax_request_required(method: Callable[..., HttpResponse]) -> Callable[..., HttpResponse]:
     @wraps(method)
     def wrapper(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         if request.method != 'POST' and request.content_type != 'application/json':
-            return JsonResponse(
-                {'type': 'error', 'message': 'Invalid Request'}
-            )
+            return JsonResponse({'type': 'error', 'message': 'Invalid Request'})
 
         return method(request, *args, **kwargs)
 

@@ -284,11 +284,26 @@ class ParseSizeRoundTripTests(BaseTestCase):
 
     def test_production_formatted_values_round_trip(self) -> None:
         production_sizes = [
-            '0.91 kb', '3.12 kb', '3.87 kb', '0.59 kb',
-            '0.02 kb', '0.92 kb', '4.03 kb', '6.1 kb',
-            '18.01 kb', '5.02 kb', '10.04 kb', '3.56 kb',
-            '1.92 kb', '9.63 kb', '9.61 kb', '17.46 kb',
-            '109.23 kb', '83.75 kb', '3.71 kb', '5.46 kb',
+            '0.91 kb',
+            '3.12 kb',
+            '3.87 kb',
+            '0.59 kb',
+            '0.02 kb',
+            '0.92 kb',
+            '4.03 kb',
+            '6.1 kb',
+            '18.01 kb',
+            '5.02 kb',
+            '10.04 kb',
+            '3.56 kb',
+            '1.92 kb',
+            '9.63 kb',
+            '9.61 kb',
+            '17.46 kb',
+            '109.23 kb',
+            '83.75 kb',
+            '3.71 kb',
+            '5.46 kb',
             '4.97 kb',
         ]
 
@@ -354,13 +369,13 @@ class SizeMultipliersTests(BaseTestCase):
         assert SIZE_MULTIPLIERS['KB'] == 1_024
 
     def test_mb_is_1024_squared(self) -> None:
-        assert SIZE_MULTIPLIERS['MB'] == 1_024 ** 2
+        assert SIZE_MULTIPLIERS['MB'] == 1_024**2
 
     def test_gb_is_1024_cubed(self) -> None:
-        assert SIZE_MULTIPLIERS['GB'] == 1_024 ** 3
+        assert SIZE_MULTIPLIERS['GB'] == 1_024**3
 
     def test_tb_is_1024_to_the_fourth(self) -> None:
-        assert SIZE_MULTIPLIERS['TB'] == 1_024 ** 4
+        assert SIZE_MULTIPLIERS['TB'] == 1_024**4
 
     def test_multipliers_match_utils_constants(self) -> None:
         assert SIZE_MULTIPLIERS['KB'] == SIZE_BYTES_PER_KB

@@ -12,10 +12,7 @@ class UserFormTestCase(BaseTestCase):
         super().setUp()
 
         self.user = create_user(
-            username='testuser',
-            first_name='Test',
-            last_name='User',
-            email='test@example.com'
+            username='testuser', first_name='Test', last_name='User', email='test@example.com'
         )
 
     def test_valid_form(self) -> None:
@@ -24,9 +21,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Updated',
                 'last_name': 'Name',
                 'email': 'updated@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -36,9 +33,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': 'User',
                 'email': 'newemail@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
         user = form.save()
@@ -50,9 +47,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': '',
                 'last_name': 'User',
                 'email': 'test@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -62,9 +59,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': '',
                 'email': 'test@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -74,22 +71,17 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': 'User',
                 'email': 'not-an-email',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert not form.is_valid()
         assert 'email' in form.errors
 
     def test_empty_email(self) -> None:
         form = UserForm(
-            data={
-                'first_name': 'Test',
-                'last_name': 'User',
-                'email': '',
-                'is_active': True
-            },
-            instance=self.user
+            data={'first_name': 'Test', 'last_name': 'User', 'email': '', 'is_active': True},
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -99,9 +91,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': 'User',
                 'email': 'test@example.com',
-                'is_active': False
+                'is_active': False,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
         user = form.save()
@@ -113,9 +105,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Tëst',
                 'last_name': 'Üser',
                 'email': 'test@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -142,9 +134,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Updated',
                 'last_name': 'User',
                 'email': 'updated@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         form.is_valid()
         user = form.save()
@@ -156,9 +148,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': 'User',
                 'email': 'test+alias@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -168,9 +160,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'A' * 150,
                 'last_name': 'User',
                 'email': 'test@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -180,9 +172,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': 'A' * 150,
                 'email': 'test@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -192,9 +184,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Mary-Jane',
                 'last_name': 'Watson',
                 'email': 'test@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -204,9 +196,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Patrick',
                 'last_name': "O'Brien",
                 'email': 'test@example.com',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
 
@@ -216,9 +208,9 @@ class UserFormTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': 'User',
                 'email': 'Test@Example.COM',
-                'is_active': True
+                'is_active': True,
             },
-            instance=self.user
+            instance=self.user,
         )
         assert form.is_valid()
         user = form.save()
@@ -232,7 +224,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert form.is_valid()
@@ -243,7 +235,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'short'
+                'password': 'short',
             }
         )
         assert not form.is_valid()
@@ -255,7 +247,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': '12345678'
+                'password': '12345678',
             }
         )
         assert form.is_valid()
@@ -266,7 +258,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': '1234567'
+                'password': '1234567',
             }
         )
         assert not form.is_valid()
@@ -277,7 +269,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert form.is_valid()
@@ -294,7 +286,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'NewUser@Example.COM',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert form.is_valid()
@@ -308,7 +300,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': '',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert form.is_valid()
@@ -319,7 +311,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': '',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert form.is_valid()
@@ -330,7 +322,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'invalid-email',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert not form.is_valid()
@@ -341,7 +333,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': '',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert not form.is_valid()
@@ -353,7 +345,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': ''
+                'password': '',
             }
         )
         assert not form.is_valid()
@@ -364,7 +356,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'pass word 123'
+                'password': 'pass word 123',
             }
         )
         assert form.is_valid()
@@ -375,7 +367,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'a' * 100
+                'password': 'a' * 100,
             }
         )
         assert form.is_valid()
@@ -386,7 +378,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert form.is_valid()
@@ -399,7 +391,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'short'
+                'password': 'short',
             }
         )
         form.is_valid()
@@ -418,7 +410,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'P@ssw0rd!#$%'
+                'password': 'P@ssw0rd!#$%',
             }
         )
         assert form.is_valid()
@@ -429,7 +421,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'pässwörd日本語'
+                'password': 'pässwörd日本語',
             }
         )
         assert form.is_valid()
@@ -440,7 +432,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'Tëst',
                 'last_name': 'Üsér',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         assert form.is_valid()
@@ -454,7 +446,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         form.is_valid()
@@ -467,7 +459,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         form.is_valid()
@@ -480,7 +472,7 @@ class RegisterUserFormTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
+                'password': 'securepassword123',
             }
         )
         form.is_valid()

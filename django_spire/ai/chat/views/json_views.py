@@ -18,10 +18,7 @@ def delete_chat_view(request: WSGIRequest, pk: int) -> JsonResponse:
         chat = Chat.objects.get(pk=pk)
     except Chat.DoesNotExist:
         return JsonResponse(
-            {
-                'type': 'error',
-                'message': 'Chat does not exist. Refresh and try again.'
-            }
+            {'type': 'error', 'message': 'Chat does not exist. Refresh and try again.'}
         )
 
     chat.set_deleted()
@@ -34,13 +31,10 @@ def rename_chat_view(request: WSGIRequest, pk: int) -> JsonResponse:
         chat = Chat.objects.get(pk=pk)
     except Chat.DoesNotExist:
         return JsonResponse(
-            {
-                'type': 'error',
-                'message': 'Chat does not exist. Refresh and try again.'
-            }
+            {'type': 'error', 'message': 'Chat does not exist. Refresh and try again.'}
         )
 
-    new_chat_name = json.loads(request.body.decode("utf-8")).get('new_name', '')
+    new_chat_name = json.loads(request.body.decode('utf-8')).get('new_name', '')
 
     if new_chat_name == '' or len(new_chat_name) > 128:
         return JsonResponse({'type': 'error', 'message': 'Chat name was not updated.'})

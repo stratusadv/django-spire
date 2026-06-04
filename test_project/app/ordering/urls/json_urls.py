@@ -5,6 +5,4 @@ from test_project.app.ordering.views import json_views
 
 app_name = 'json'
 
-urlpatterns = [
-    path('<int:pk>/<int:order>/reorder', json_views.reorder_view, name='reorder'),
-]
+urlpatterns = [path('<int:pk>/<int:order>/reorder', json_views.reorder_view, name='reorder')]

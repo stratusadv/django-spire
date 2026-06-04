@@ -10,8 +10,4 @@ if TYPE_CHECKING:
 
 
 def home_view(request: WSGIRequest) -> TemplateResponse:
-    return TemplateResponse(
-        request,
-        template='home/page/home_page.html',
-    )
-
+    return TemplateResponse(request, template='home/page/home_page.html')

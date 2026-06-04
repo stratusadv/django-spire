@@ -13,10 +13,7 @@ class UserPageViewsTestCase(BaseTestCase):
         super().setUp()
 
         self.user = create_user(
-            username='testuser',
-            first_name='Test',
-            last_name='User',
-            email='test@example.com'
+            username='testuser', first_name='Test', last_name='User', email='test@example.com'
         )
 
     def test_list_view_requires_permission(self) -> None:
@@ -119,10 +116,7 @@ class UserFormViewsTestCase(BaseTestCase):
         super().setUp()
 
         self.user = create_user(
-            username='testuser',
-            first_name='Test',
-            last_name='User',
-            email='test@example.com'
+            username='testuser', first_name='Test', last_name='User', email='test@example.com'
         )
 
     def test_register_form_view_get(self) -> None:
@@ -136,8 +130,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
-            }
+                'password': 'securepassword123',
+            },
         )
         assert response.status_code == 302
         assert AuthUser.objects.filter(email='newuser@example.com').exists()
@@ -149,8 +143,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'short'
-            }
+                'password': 'short',
+            },
         )
         assert response.status_code == 200
         assert not AuthUser.objects.filter(email='newuser@example.com').exists()
@@ -162,8 +156,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'invalid-email',
-                'password': 'securepassword123'
-            }
+                'password': 'securepassword123',
+            },
         )
         assert response.status_code == 200
 
@@ -203,7 +197,7 @@ class UserFormViewsTestCase(BaseTestCase):
         group = AuthGroup.objects.create(name='Test Group')
         response = self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group.pk]}
+            data={'group_list': [group.pk]},
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -214,7 +208,7 @@ class UserFormViewsTestCase(BaseTestCase):
         group2 = AuthGroup.objects.create(name='Group 2')
         response = self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group1.pk, group2.pk]}
+            data={'group_list': [group1.pk, group2.pk]},
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -242,8 +236,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': ''
-            }
+                'password': '',
+            },
         )
         assert response.status_code == 200
 
@@ -254,8 +248,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': '',
-                'password': 'securepassword123'
-            }
+                'password': 'securepassword123',
+            },
         )
         assert response.status_code == 200
 
@@ -266,8 +260,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'Tëst',
                 'last_name': 'Üsér',
                 'email': 'unicode@example.com',
-                'password': 'securepassword123'
-            }
+                'password': 'securepassword123',
+            },
         )
         assert response.status_code == 302
         user = AuthUser.objects.get(email='unicode@example.com')
@@ -281,7 +275,7 @@ class UserFormViewsTestCase(BaseTestCase):
 
         response = self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group2.pk]}
+            data={'group_list': [group2.pk]},
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -291,7 +285,7 @@ class UserFormViewsTestCase(BaseTestCase):
     def test_group_form_view_post_invalid_group_id(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [99999]}
+            data={'group_list': [99999]},
         )
         assert response.status_code == 200
 
@@ -302,8 +296,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
-            }
+                'password': 'securepassword123',
+            },
         )
         assert response.status_code == 302
         assert 'list' in response.url or 'user' in response.url
@@ -312,7 +306,7 @@ class UserFormViewsTestCase(BaseTestCase):
         group = AuthGroup.objects.create(name='Test Group')
         response = self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group.pk]}
+            data={'group_list': [group.pk]},
         )
         assert response.status_code == 302
         assert str(self.user.pk) in response.url
@@ -324,8 +318,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'Updated',
                 'last_name': 'Name',
                 'email': 'updated@example.com',
-                'is_active': True
-            }
+                'is_active': True,
+            },
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -340,8 +334,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'Test',
                 'last_name': 'User',
                 'email': 'test@example.com',
-                'is_active': False
-            }
+                'is_active': False,
+            },
         )
         assert response.status_code == 302
         self.user.refresh_from_db()
@@ -354,8 +348,8 @@ class UserFormViewsTestCase(BaseTestCase):
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'securepassword123'
-            }
+                'password': 'securepassword123',
+            },
         )
         assert response.status_code == 302
         user = AuthUser.objects.get(email='newuser@example.com')

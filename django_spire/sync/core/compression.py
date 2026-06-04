@@ -3,10 +3,7 @@ from __future__ import annotations
 import gzip
 import io
 
-from django_spire.sync.core.exceptions import (
-    DecompressionLimitError,
-    InvalidParameterError,
-)
+from django_spire.sync.core.exceptions import DecompressionLimitError, InvalidParameterError
 
 
 _CHUNK_SIZE = 65536
@@ -32,25 +29,16 @@ def gzip_decompress(data: bytes, bytes_max: int) -> bytes:
             result.extend(chunk)
 
             if len(result) > bytes_max:
-                message = (
-                    f'Decompressed data exceeds limit '
-                    f'of {bytes_max} bytes'
-                )
+                message = f'Decompressed data exceeds limit of {bytes_max} bytes'
 
                 raise DecompressionLimitError(message)
         else:
-            message = (
-                f'Decompression exceeded {chunks_max} chunks '
-                f'without completing'
-            )
+            message = f'Decompression exceeded {chunks_max} chunks without completing'
 
             raise DecompressionLimitError(message)
 
     if len(result) > bytes_max:
-        message = (
-            f'Decompressed data exceeds limit '
-            f'of {bytes_max} bytes'
-        )
+        message = f'Decompressed data exceeds limit of {bytes_max} bytes'
 
         raise DecompressionLimitError(message)
 

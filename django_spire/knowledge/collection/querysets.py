@@ -46,7 +46,10 @@ class CollectionQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
     def request_user_has_access(self, request: WSGIRequest) -> QuerySet[Collection]:
         user = request.user
 
-        if user.is_superuser or AppAuthController('knowledge', request).can_access_all_collections():
+        if (
+            user.is_superuser
+            or AppAuthController('knowledge', request).can_access_all_collections()
+        ):
             return self.all()
 
         direct_access = self.filter(group__auth_group__user=user)

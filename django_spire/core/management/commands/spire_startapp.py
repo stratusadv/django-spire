@@ -11,7 +11,8 @@ from django_spire.core.management.commands.spire_startapp_pkg.config import (
 )
 from django_spire.core.management.commands.spire_startapp_pkg.filesystem import FileSystem
 from django_spire.core.management.commands.spire_startapp_pkg.generator import (
-    AppGenerator, TemplateGenerator,
+    AppGenerator,
+    TemplateGenerator,
 )
 from django_spire.core.management.commands.spire_startapp_pkg.processor import (
     TemplateEngine,
@@ -69,7 +70,9 @@ class Command(BaseCommand):
         template_builder = TemplateBuilder(reporter)
 
         app_generator = AppGenerator(filesystem, template_processor, reporter, path_config)
-        template_generator = TemplateGenerator(filesystem, template_processor, reporter, path_config)
+        template_generator = TemplateGenerator(
+            filesystem, template_processor, reporter, path_config
+        )
 
         user_inputs = user_input_collector.collect_all_inputs()
         app_path = user_inputs['app_path']
@@ -86,10 +89,7 @@ class Command(BaseCommand):
         config = config_factory.create_config(app_path, user_inputs)
         validator.validate_root_app(config.components)
 
-        reporter.write(
-            f'\nChecking app components: {config.components}\n',
-            reporter.style_notice
-        )
+        reporter.write(f'\nChecking app components: {config.components}\n', reporter.style_notice)
 
         if not skip_app_generation:
             missing = registry.get_missing_components(config.components)
@@ -101,7 +101,7 @@ class Command(BaseCommand):
                     path_resolver.get_base_dir(),
                     config.components,
                     registry.get_installed_apps(),
-                    path_config.app_template
+                    path_config.app_template,
                 )
 
                 if reporter.prompt_confirmation('\nProceed with app creation? (y/n): '):
@@ -122,7 +122,7 @@ class Command(BaseCommand):
                 path_resolver.get_base_dir(),
                 config.components,
                 registry.get_installed_apps(),
-                path_config.html_template
+                path_config.html_template,
             )
 
             if not reporter.prompt_confirmation('\nProceed with template creation? (y/n): '):

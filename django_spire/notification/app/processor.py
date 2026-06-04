@@ -3,10 +3,7 @@ from __future__ import annotations
 from django.utils.timezone import now
 
 from django_spire.notification.app.exceptions import MissingUserError
-from django_spire.notification.choices import (
-    NotificationTypeChoices,
-    NotificationStatusChoices
-)
+from django_spire.notification.choices import NotificationTypeChoices, NotificationStatusChoices
 from django_spire.notification.exceptions import InvalidNotificationTypeError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
@@ -53,14 +50,12 @@ class AppNotificationProcessor(BaseNotificationProcessor):
                 notification.status_message = str(e)
 
                 Notification.objects.bulk_update(
-                    notifications,
-                    ['status', 'sent_datetime', 'status_message']
+                    notifications, ['status', 'sent_datetime', 'status_message']
                 )
                 raise
 
         Notification.objects.bulk_update(
-            notifications,
-            ['status', 'sent_datetime', 'status_message']
+            notifications, ['status', 'sent_datetime', 'status_message']
         )
 
     def process_ready(self):

@@ -7,9 +7,7 @@ from django_spire.history.querysets import HistoryQuerySet
 
 class SmsConversationQuerySet(HistoryQuerySet):
     def by_phone_number(self, phone_number: str) -> Self:
-        return self.filter(
-            phone_number=phone_number,
-        )
+        return self.filter(phone_number=phone_number)
 
 
 class SmsMessageQuerySet(HistoryQuerySet):

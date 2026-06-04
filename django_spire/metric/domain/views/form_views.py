@@ -26,16 +26,13 @@ if TYPE_CHECKING:
 def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
 
-    form_action = reverse(
-        'metric:domain:form:delete_modal',
-        kwargs={'pk': pk}
-    )
+    form_action = reverse('metric:domain:form:delete_modal', kwargs={'pk': pk})
 
     def add_activity() -> None:
         domain.add_activity(
             user=request.user,
             verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a domain.'
+            information=f'{request.user.get_full_name()} deleted a domain.',
         )
 
     fallback = reverse('metric:domain:page:list')
@@ -54,16 +51,9 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
 
-    return_url = request.GET.get(
-        'return_url',
-        reverse('metric:domain:page:list')
-    )
+    return_url = request.GET.get('return_url', reverse('metric:domain:page:list'))
 
-    return generic_views.delete_form_view(
-        request,
-        obj=domain,
-        return_url=return_url
-    )
+    return generic_views.delete_form_view(request, obj=domain, return_url=return_url)
 
 
 @permission_required('metric_domain.add_domain')
@@ -81,14 +71,10 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'domain', domain)
 
-    context_data = {
-        'domain': domain
-    }
+    context_data = {'domain': domain}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='metric/domain/modal/content/form.html'
+        request, context=context_data, template='metric/domain/modal/content/form.html'
     )
 
 
@@ -102,7 +88,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
+def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     domain = get_object_or_null_obj(models.Domain, pk=pk)
 
     dg.glue_model_object(request, 'domain', domain, 'view')
@@ -114,20 +100,12 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
             domain, _ = domain.services.save_model_obj(**form.cleaned_data)
             add_form_activity(domain, pk, request.user)
 
-            return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('metric:domain:page:list')
-                )
-            )
+            return redirect(request.GET.get('return_url', reverse('metric:domain:page:list')))
 
         show_form_errors(request, form)
     else:
         form = forms.DomainForm(instance=domain)
 
     return generic_views.form_view(
-        request,
-        form=form,
-        obj=domain,
-        template='metric/domain/page/form_page.html'
+        request, form=form, obj=domain, template='metric/domain/page/form_page.html'
     )

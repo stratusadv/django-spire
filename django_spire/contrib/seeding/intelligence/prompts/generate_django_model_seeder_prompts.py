@@ -12,25 +12,15 @@ def generate_django_model_seeder_system_prompt() -> Prompt:
     return (
         Prompt()
         .title('Goal')
-        .list(
-            [
-                'Write a DjangoModelSeeder Class for each model in the given module by the user.'
-            ]
-        )
+        .list(['Write a DjangoModelSeeder Class for each model in the given module by the user.'])
         .text()
         .divider()
         .title('Return Format')
         .text('A python file that contains a DjangoModelSeeder class.')
         .text('Here is the documentation on seeding a django model.')
-        .file(
-            file_path=Path(_RELATIVE_BASE_DIR, 'docs/app_guides/seeding/overview.md')
-        )
-        .file(
-            file_path=Path(_RELATIVE_BASE_DIR, 'docs/app_guides/seeding/getting_started.md')
-        )
-        .file(
-            file_path=Path(_RELATIVE_BASE_DIR, 'docs/app_guides/seeding/faker.md')
-        )
+        .file(file_path=Path(_RELATIVE_BASE_DIR, 'docs/app_guides/seeding/overview.md'))
+        .file(file_path=Path(_RELATIVE_BASE_DIR, 'docs/app_guides/seeding/getting_started.md'))
+        .file(file_path=Path(_RELATIVE_BASE_DIR, 'docs/app_guides/seeding/faker.md'))
         .title('Requirements')
         .list(
             [
@@ -38,13 +28,13 @@ def generate_django_model_seeder_system_prompt() -> Prompt:
                 'The source must be a valid Python file.',
                 'Do not include triple quotes from the example.',
                 'Always exclude the id field.',
-            ],
+            ]
         )
         .title('Specific Field Requirements.')
         .text('Follow the rules below for specific model fields.')
         .list(
             [
-                "CharField with Choice Options: use faker with no method call.",
+                'CharField with Choice Options: use faker with no method call.',
                 'Foreign key: set to exclude.',
             ]
         )
@@ -60,10 +50,7 @@ def generate_django_model_seeder_system_prompt() -> Prompt:
     )
 
 
-def generate_django_model_seeder_user_prompt(
-        model_import: str,
-        model_description: str
-) -> Prompt:
+def generate_django_model_seeder_user_prompt(model_import: str, model_description: str) -> Prompt:
     return (
         Prompt()
         .title('Django Model File')

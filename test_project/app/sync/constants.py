@@ -73,7 +73,12 @@ class WinnerSide(StrEnum):
 DEFAULT_STRATEGY: SyncStrategy = SyncStrategy.FIELD_TIMESTAMP_WINS
 
 RESULT_CATEGORIES: tuple[str, ...] = (
-    'applied', 'compatible', 'conflicts', 'created', 'deleted', 'skipped',
+    'applied',
+    'compatible',
+    'conflicts',
+    'created',
+    'deleted',
+    'skipped',
 )
 
 TRUNCATE_LIMIT: int = 40

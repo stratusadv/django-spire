@@ -47,10 +47,7 @@ class CsvReader(Reader):
         return cast_record
 
     def _map_record(self, record: dict[str, str]) -> dict[str, Any]:
-        return {
-            self._field_map.get(key, key): value
-            for key, value in record.items()
-        }
+        return {self._field_map.get(key, key): value for key, value in record.items()}
 
     def read(self, file_path: str | Path) -> list[dict[str, Any]]:
         file_path = Path(file_path)
@@ -58,7 +55,4 @@ class CsvReader(Reader):
         with open(file_path, encoding=self._encoding, newline='') as handle:
             reader = csv.DictReader(handle, delimiter=self._delimiter)
 
-            return [
-                self._cast_record(self._map_record(row))
-                for row in reader
-            ]
+            return [self._cast_record(self._map_record(row)) for row in reader]

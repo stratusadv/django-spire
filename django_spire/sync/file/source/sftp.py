@@ -59,11 +59,7 @@ class SFTPSource(Source):
         return self._sftp
 
     def _load_key(self) -> paramiko.PKey:
-        key_classes = (
-            paramiko.Ed25519Key,
-            paramiko.RSAKey,
-            paramiko.ECDSAKey,
-        )
+        key_classes = (paramiko.Ed25519Key, paramiko.RSAKey, paramiko.ECDSAKey)
 
         last_exc: paramiko.SSHException | None = None
 
@@ -71,14 +67,10 @@ class SFTPSource(Source):
             try:
                 if self._key_data:
                     return cls.from_private_key(
-                        io.StringIO(self._key_data),
-                        password=self._key_passphrase,
+                        io.StringIO(self._key_data), password=self._key_passphrase
                     )
 
-                return cls.from_private_key_file(
-                    self._key_path,
-                    password=self._key_passphrase,
-                )
+                return cls.from_private_key_file(self._key_path, password=self._key_passphrase)
             except paramiko.PasswordRequiredException:
                 raise
             except paramiko.SSHException as exc:
@@ -105,10 +97,7 @@ class SFTPSource(Source):
             key = self._load_key()
             self._transport.connect(username=self._username, pkey=key)
         else:
-            self._transport.connect(
-                username=self._username,
-                password=self._password,
-            )
+            self._transport.connect(username=self._username, password=self._password)
 
         self._transport.set_keepalive(int(self._timeout))
         self._sftp = paramiko.SFTPClient.from_transport(self._transport)
@@ -136,10 +125,7 @@ class SFTPSource(Source):
         self.close()
 
     def download(
-        self,
-        remote_path: str,
-        local_path: Path,
-        callback: Callable[[int, int], None] | None = None,
+        self, remote_path: str, local_path: Path, callback: Callable[[int, int], None] | None = None
     ) -> None:
         sftp = self._require_connection()
         local_path.parent.mkdir(parents=True, exist_ok=True)
@@ -162,10 +148,7 @@ class SFTPSource(Source):
         return sftp.open(remote_path, mode)
 
     def upload(
-        self,
-        local_path: Path,
-        remote_path: str,
-        callback: Callable[[int, int], None] | None = None,
+        self, local_path: Path, remote_path: str, callback: Callable[[int, int], None] | None = None
     ) -> None:
         sftp = self._require_connection()
 

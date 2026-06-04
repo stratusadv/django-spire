@@ -14,7 +14,7 @@ class HistoryEventAdmin(admin.ModelAdmin):
         'content_object_link',
         'content_type',
         'created_datetime',
-        'event_verbose'
+        'event_verbose',
     )
 
     list_filter = ('event', 'created_datetime')
@@ -24,7 +24,7 @@ class HistoryEventAdmin(admin.ModelAdmin):
     def content_object_link(self, history_event: models.HistoryEvent) -> str:
         url = reverse(
             f'admin:{history_event.content_type.app_label}_{history_event.content_type.model}_change',
-            args=[history_event.object_id]
+            args=[history_event.object_id],
         )
 
         return format_html(f'<a href="{url}">{history_event.content_object}</a>')

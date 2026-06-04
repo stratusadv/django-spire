@@ -7,10 +7,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.notification.app.exceptions import AppNotificationError
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.app.processor import AppNotificationProcessor
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices,
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.exceptions import NotificationError
 from django_spire.notification.models import Notification
 
@@ -91,9 +88,7 @@ class AppNotificationProcessorTests(BaseTestCase):
     def test_process_ready(self):
         pending_notification = self._create_notification()
 
-        sent_notification = self._create_notification(
-            status=NotificationStatusChoices.SENT
-        )
+        sent_notification = self._create_notification(status=NotificationStatusChoices.SENT)
 
         self.processor.process_ready()
 
@@ -101,9 +96,7 @@ class AppNotificationProcessorTests(BaseTestCase):
         assert pending_notification.status == NotificationStatusChoices.SENT
 
     def test_process_errored(self):
-        errored_notification = self._create_notification(
-            status=NotificationStatusChoices.ERRORED
-        )
+        errored_notification = self._create_notification(status=NotificationStatusChoices.ERRORED)
 
         self.processor.process_errored()
 

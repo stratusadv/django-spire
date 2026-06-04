@@ -27,10 +27,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Domain',
-            reverse('metric:domain:page:list')
-        )
+        crumbs.add_breadcrumb('Domain', reverse('metric:domain:page:list'))
 
         return crumbs
 
@@ -40,11 +37,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'metric:domain:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('metric:domain:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs
@@ -57,10 +50,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
 
 class SubDomain(HistoryModelMixin, ActivityMixin):
     domain = models.ForeignKey(
-        Domain,
-        on_delete=models.CASCADE,
-        related_name='subdomains',
-        related_query_name='subdomain',
+        Domain, on_delete=models.CASCADE, related_name='subdomains', related_query_name='subdomain'
     )
 
     name = models.CharField(max_length=255)
@@ -76,10 +66,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Sub Domain',
-            reverse('metric:domain:page:list')
-        )
+        crumbs.add_breadcrumb('Sub Domain', reverse('metric:domain:page:list'))
 
         return crumbs
 
@@ -89,11 +76,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'metric:domain:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('metric:domain:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs
@@ -102,5 +85,3 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
         verbose_name = 'Sub_Domain'
         verbose_name_plural = 'Sub Domains'
         db_table = 'metric_sub_domain'
-
-

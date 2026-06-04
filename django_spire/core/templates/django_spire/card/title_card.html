@@ -1,0 +1,9 @@
+{% extends 'django_spire/card/card.html' %}
+
+{% block card_content %}
+    <div class="card-header">
+        <div class="card-title">{% block card_title %}{% endblock %}</div>
+        <div class="text-end">{% block card_button %}{% endblock %}</div>
+    </div>
+    {% block card_title_content %}{% endblock %}
+{% endblock %}

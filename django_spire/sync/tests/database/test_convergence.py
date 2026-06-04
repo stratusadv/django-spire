@@ -7,11 +7,7 @@ from typing import Any
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from django_spire.sync.tests.database.helpers import (
-    SURVEY,
-    STAKE,
-    SyncHarness,
-)
+from django_spire.sync.tests.database.helpers import SURVEY, STAKE, SyncHarness
 
 
 class TestTwoPartyConvergence:
@@ -20,7 +16,8 @@ class TestTwoPartyConvergence:
         ts = harness.ts()
 
         harness.tablet_save(
-            STAKE, 'st-1',
+            STAKE,
+            'st-1',
             {'id': 'st-1', 'latitude': 49.69, 'is_driven': True},
             {'latitude': ts, 'is_driven': ts},
         )
@@ -40,7 +37,8 @@ class TestTwoPartyConvergence:
         ts = harness.ts()
 
         harness.server_save(
-            STAKE, 'st-1',
+            STAKE,
+            'st-1',
             {'id': 'st-1', 'latitude': 50.0, 'is_reference': True},
             {'latitude': ts, 'is_reference': ts},
         )
@@ -58,17 +56,9 @@ class TestTwoPartyConvergence:
         harness = SyncHarness()
         ts = harness.ts()
 
-        harness.tablet_save(
-            STAKE, 'st-tab',
-            {'id': 'st-tab', 'latitude': 49.0},
-            {'latitude': ts},
-        )
+        harness.tablet_save(STAKE, 'st-tab', {'id': 'st-tab', 'latitude': 49.0}, {'latitude': ts})
 
-        harness.server_save(
-            STAKE, 'st-srv',
-            {'id': 'st-srv', 'latitude': 50.0},
-            {'latitude': ts},
-        )
+        harness.server_save(STAKE, 'st-srv', {'id': 'st-srv', 'latitude': 50.0}, {'latitude': ts})
 
         harness.sync()
 
@@ -91,13 +81,15 @@ class TestTwoPartyConvergence:
         server_ts = harness.ts()
 
         harness.tablet_save(
-            STAKE, 'st-1',
+            STAKE,
+            'st-1',
             {'id': 'st-1', 'latitude': 49.69, 'is_driven': False},
             {'latitude': tablet_ts, 'is_driven': early},
         )
 
         harness.server_save(
-            STAKE, 'st-1',
+            STAKE,
+            'st-1',
             {'id': 'st-1', 'latitude': 0.0, 'is_driven': True},
             {'latitude': early, 'is_driven': server_ts},
         )
@@ -116,17 +108,9 @@ class TestTwoPartyConvergence:
         ts_low = harness.ts()
         ts_high = harness.ts()
 
-        harness.tablet_save(
-            STAKE, 'st-1',
-            {'id': 'st-1', 'latitude': 49.0},
-            {'latitude': ts_low},
-        )
+        harness.tablet_save(STAKE, 'st-1', {'id': 'st-1', 'latitude': 49.0}, {'latitude': ts_low})
 
-        harness.server_save(
-            STAKE, 'st-1',
-            {'id': 'st-1', 'latitude': 50.0},
-            {'latitude': ts_high},
-        )
+        harness.server_save(STAKE, 'st-1', {'id': 'st-1', 'latitude': 50.0}, {'latitude': ts_high})
 
         harness.sync()
 
@@ -141,13 +125,12 @@ class TestTwoPartyConvergence:
         ts = harness.ts()
 
         harness.tablet_save(
-            SURVEY, 'sv-1',
-            {'id': 'sv-1', 'stake_spacing': 40},
-            {'stake_spacing': ts},
+            SURVEY, 'sv-1', {'id': 'sv-1', 'stake_spacing': 40}, {'stake_spacing': ts}
         )
 
         harness.tablet_save(
-            STAKE, 'st-1',
+            STAKE,
+            'st-1',
             {'id': 'st-1', 'survey_id': 'sv-1', 'latitude': 49.0},
             {'survey_id': ts, 'latitude': ts},
         )
@@ -168,11 +151,7 @@ class TestIdempotency:
         harness = SyncHarness()
         ts = harness.ts()
 
-        harness.tablet_save(
-            STAKE, 'st-1',
-            {'id': 'st-1', 'latitude': 49.0},
-            {'latitude': ts},
-        )
+        harness.tablet_save(STAKE, 'st-1', {'id': 'st-1', 'latitude': 49.0}, {'latitude': ts})
 
         harness.sync()
 
@@ -196,11 +175,7 @@ class TestIdempotency:
         harness = SyncHarness()
         ts = harness.ts()
 
-        harness.tablet_save(
-            STAKE, 'st-1',
-            {'id': 'st-1', 'latitude': 49.0},
-            {'latitude': ts},
-        )
+        harness.tablet_save(STAKE, 'st-1', {'id': 'st-1', 'latitude': 49.0}, {'latitude': ts})
 
         harness.sync()
 
@@ -220,7 +195,8 @@ class TestMultiCycleConvergence:
         ts1 = harness.ts()
 
         harness.tablet_save(
-            STAKE, 'st-1',
+            STAKE,
+            'st-1',
             {'id': 'st-1', 'latitude': 49.0, 'is_driven': False},
             {'latitude': ts1, 'is_driven': ts1},
         )
@@ -232,7 +208,8 @@ class TestMultiCycleConvergence:
         ts2 = harness.ts()
 
         harness.tablet_save(
-            STAKE, 'st-1',
+            STAKE,
+            'st-1',
             {'id': 'st-1', 'latitude': 49.5, 'is_driven': True},
             {'latitude': ts2, 'is_driven': ts2},
         )
@@ -250,11 +227,7 @@ class TestMultiCycleConvergence:
         harness = SyncHarness()
 
         ts = harness.ts()
-        harness.tablet_save(
-            STAKE, 'st-1',
-            {'id': 'st-1', 'latitude': 49.0},
-            {'latitude': ts},
-        )
+        harness.tablet_save(STAKE, 'st-1', {'id': 'st-1', 'latitude': 49.0}, {'latitude': ts})
 
         harness.sync()
 
@@ -263,15 +236,11 @@ class TestMultiCycleConvergence:
 
             if i % 2 == 0:
                 harness.tablet_save(
-                    STAKE, 'st-1',
-                    {'id': 'st-1', 'latitude': 49.0 + i},
-                    {'latitude': ts},
+                    STAKE, 'st-1', {'id': 'st-1', 'latitude': 49.0 + i}, {'latitude': ts}
                 )
             else:
                 harness.server_save(
-                    STAKE, 'st-1',
-                    {'id': 'st-1', 'latitude': 49.0 + i},
-                    {'latitude': ts},
+                    STAKE, 'st-1', {'id': 'st-1', 'latitude': 49.0 + i}, {'latitude': ts}
                 )
 
             harness.sync()
@@ -289,13 +258,15 @@ class TestMultiCycleConvergence:
 
             if i % 2 == 0:
                 harness.tablet_save(
-                    STAKE, f'st-{i}',
+                    STAKE,
+                    f'st-{i}',
                     {'id': f'st-{i}', 'latitude': 49.0 + i * 0.001},
                     {'latitude': ts},
                 )
             else:
                 harness.server_save(
-                    STAKE, f'st-{i}',
+                    STAKE,
+                    f'st-{i}',
                     {'id': f'st-{i}', 'latitude': 50.0 + i * 0.001},
                     {'latitude': ts},
                 )
@@ -317,11 +288,7 @@ class TestRandomizedTwoPartyConvergence:
         num_operations=st.integers(min_value=5, max_value=40),
     )
     @settings(max_examples=50, deadline=10_000)
-    def test_random_create_and_update_converges(
-        self,
-        seed: int,
-        num_operations: int,
-    ) -> None:
+    def test_random_create_and_update_converges(self, seed: int, num_operations: int) -> None:
         rng = random.Random(seed)
         harness = SyncHarness()
         keys = [f'st-{i}' for i in range(5)]
@@ -334,21 +301,13 @@ class TestRandomizedTwoPartyConvergence:
                 ts = harness.ts()
                 lat = rng.uniform(48.0, 52.0)
 
-                harness.tablet_save(
-                    STAKE, key,
-                    {'id': key, 'latitude': lat},
-                    {'latitude': ts},
-                )
+                harness.tablet_save(STAKE, key, {'id': key, 'latitude': lat}, {'latitude': ts})
             elif action == 'server_write':
                 key = rng.choice(keys)
                 ts = harness.ts()
                 lat = rng.uniform(48.0, 52.0)
 
-                harness.server_save(
-                    STAKE, key,
-                    {'id': key, 'latitude': lat},
-                    {'latitude': ts},
-                )
+                harness.server_save(STAKE, key, {'id': key, 'latitude': lat}, {'latitude': ts})
             else:
                 harness.sync()
 
@@ -363,20 +322,14 @@ class TestRandomizedTwoPartyConvergence:
             tablet = harness.tablet_record(STAKE, key)
             server = harness.server_record(STAKE, key)
 
-            assert tablet.data == server.data, (
-                f'{key}: tablet={tablet.data} server={server.data}'
-            )
+            assert tablet.data == server.data, f'{key}: tablet={tablet.data} server={server.data}'
 
     @given(
         seed=st.integers(min_value=0, max_value=2**32),
         num_operations=st.integers(min_value=5, max_value=30),
     )
     @settings(max_examples=50, deadline=10_000)
-    def test_random_multi_field_convergence(
-        self,
-        seed: int,
-        num_operations: int,
-    ) -> None:
+    def test_random_multi_field_convergence(self, seed: int, num_operations: int) -> None:
         rng = random.Random(seed)
         harness = SyncHarness()
         field_names = ['latitude', 'longitude', 'is_driven', 'is_reference']
@@ -387,17 +340,18 @@ class TestRandomizedTwoPartyConvergence:
             if action == 'write':
                 key = rng.choice(['st-1', 'st-2', 'st-3'])
                 side = rng.choice(['tablet', 'server'])
-                fields_to_update = rng.sample(
-                    field_names,
-                    k=rng.randint(1, len(field_names)),
-                )
+                fields_to_update = rng.sample(field_names, k=rng.randint(1, len(field_names)))
 
                 data: dict[str, Any] = {'id': key}
                 timestamps: dict[str, int] = {}
 
                 for field in fields_to_update:
                     ts = harness.ts()
-                    data[field] = rng.uniform(-180, 180) if 'lat' in field or 'lon' in field else rng.choice([True, False])
+                    data[field] = (
+                        rng.uniform(-180, 180)
+                        if 'lat' in field or 'lon' in field
+                        else rng.choice([True, False])
+                    )
                     timestamps[field] = ts
 
                 storage = harness.tablet_storage if side == 'tablet' else harness.server_storage
@@ -419,7 +373,9 @@ class TestRandomizedTwoPartyConvergence:
 
         harness.sync()
 
-        all_keys = set(harness.tablet_storage._records[STAKE]) | set(harness.server_storage._records[STAKE])
+        all_keys = set(harness.tablet_storage._records[STAKE]) | set(
+            harness.server_storage._records[STAKE]
+        )
 
         for key in all_keys:
             tablet = harness.tablet_record(STAKE, key)
@@ -427,6 +383,4 @@ class TestRandomizedTwoPartyConvergence:
 
             assert tablet is not None, f'tablet missing {key}'
             assert server is not None, f'server missing {key}'
-            assert tablet.data == server.data, (
-                f'{key}: tablet={tablet.data} server={server.data}'
-            )
+            assert tablet.data == server.data, f'{key}: tablet={tablet.data} server={server.data}'

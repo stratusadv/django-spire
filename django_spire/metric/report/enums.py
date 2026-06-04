@@ -16,5 +16,3 @@ class ColumnType(StrEnum):
     PERCENT_1 = 'percent_1'
     PERCENT_2 = 'percent_2'
     PERCENT_3 = 'percent_3'
-
-

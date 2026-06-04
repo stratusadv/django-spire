@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.sync.core.exceptions import (
-    ConflictStateError,
-    InvalidParameterError,
-)
+from django_spire.sync.core.exceptions import ConflictStateError, InvalidParameterError
 from django_spire.sync.database.conflict import (
     ConflictType,
     FieldConflict,
@@ -74,10 +71,7 @@ def test_ftw_picks_higher_timestamp_per_field() -> None:
 
 
 def test_ftw_local_wins_on_equal_timestamp() -> None:
-    conflict = _make_conflict(
-        local_timestamps={'name': 100},
-        remote_timestamps={'name': 100},
-    )
+    conflict = _make_conflict(local_timestamps={'name': 100}, remote_timestamps={'name': 100})
 
     resolution = FieldTimestampWins().resolve(conflict)
 
@@ -86,10 +80,7 @@ def test_ftw_local_wins_on_equal_timestamp() -> None:
 
 
 def test_ftw_delete_vs_modify_keeps_local() -> None:
-    conflict = _make_conflict(
-        conflict_type=ConflictType.DELETE_VS_MODIFY,
-        remote_data=None,
-    )
+    conflict = _make_conflict(conflict_type=ConflictType.DELETE_VS_MODIFY, remote_data=None)
 
     resolution = FieldTimestampWins().resolve(conflict)
 
@@ -99,10 +90,7 @@ def test_ftw_delete_vs_modify_keeps_local() -> None:
 
 
 def test_ftw_modify_vs_delete_keeps_remote() -> None:
-    conflict = _make_conflict(
-        conflict_type=ConflictType.MODIFY_VS_DELETE,
-        local_data=None,
-    )
+    conflict = _make_conflict(conflict_type=ConflictType.MODIFY_VS_DELETE, local_data=None)
 
     resolution = FieldTimestampWins().resolve(conflict)
 
@@ -160,9 +148,7 @@ def test_ftw_preserves_field_conflicts() -> None:
     )
 
     conflict = _make_conflict(
-        local_timestamps={'name': 100},
-        remote_timestamps={'name': 200},
-        field_conflicts=[fc],
+        local_timestamps={'name': 100}, remote_timestamps={'name': 200}, field_conflicts=[fc]
     )
 
     resolution = FieldTimestampWins().resolve(conflict)
@@ -172,9 +158,7 @@ def test_ftw_preserves_field_conflicts() -> None:
 
 
 def test_local_wins_returns_local_record() -> None:
-    conflict = _make_conflict(
-        local_timestamps={'name': 50},
-    )
+    conflict = _make_conflict(local_timestamps={'name': 50})
 
     resolution = LocalWins().resolve(conflict)
 
@@ -185,9 +169,7 @@ def test_local_wins_returns_local_record() -> None:
 
 
 def test_local_wins_modify_vs_delete() -> None:
-    conflict = _make_conflict(
-        conflict_type=ConflictType.MODIFY_VS_DELETE,
-    )
+    conflict = _make_conflict(conflict_type=ConflictType.MODIFY_VS_DELETE)
 
     resolution = LocalWins().resolve(conflict)
 
@@ -213,9 +195,7 @@ def test_local_wins_preserves_field_conflicts() -> None:
 
 
 def test_remote_wins_returns_remote_record() -> None:
-    conflict = _make_conflict(
-        remote_timestamps={'name': 50},
-    )
+    conflict = _make_conflict(remote_timestamps={'name': 50})
 
     resolution = RemoteWins().resolve(conflict)
 
@@ -226,9 +206,7 @@ def test_remote_wins_returns_remote_record() -> None:
 
 
 def test_remote_wins_delete_vs_modify() -> None:
-    conflict = _make_conflict(
-        conflict_type=ConflictType.DELETE_VS_MODIFY,
-    )
+    conflict = _make_conflict(conflict_type=ConflictType.DELETE_VS_MODIFY)
 
     resolution = RemoteWins().resolve(conflict)
 
@@ -255,17 +233,11 @@ def test_remote_wins_preserves_field_conflicts() -> None:
 
 def test_field_ownership_overlapping_fields_raises() -> None:
     with pytest.raises(InvalidParameterError, match='overlap'):
-        FieldOwnershipWins(
-            local_fields={'name', 'value'},
-            remote_fields={'value', 'status'},
-        )
+        FieldOwnershipWins(local_fields={'name', 'value'}, remote_fields={'value', 'status'})
 
 
 def test_field_ownership_disjoint_fields_accepted() -> None:
-    resolver = FieldOwnershipWins(
-        local_fields={'name'},
-        remote_fields={'value'},
-    )
+    resolver = FieldOwnershipWins(local_fields={'name'}, remote_fields={'value'})
 
     local = SyncRecord(
         key='1',
@@ -320,23 +292,13 @@ def test_require_remote_raises_when_none() -> None:
 
 
 def test_field_ownership_delete_vs_modify_keeps_local() -> None:
-    local = SyncRecord(
-        key='1',
-        data={'id': '1', 'name': 'kept'},
-        timestamps={'name': 100},
-    )
+    local = SyncRecord(key='1', data={'id': '1', 'name': 'kept'}, timestamps={'name': 100})
 
     conflict = RecordConflict(
-        key='1',
-        model_label='app.Model',
-        conflict_type=ConflictType.DELETE_VS_MODIFY,
-        local=local,
+        key='1', model_label='app.Model', conflict_type=ConflictType.DELETE_VS_MODIFY, local=local
     )
 
-    resolver = FieldOwnershipWins(
-        local_fields={'name'},
-        remote_fields={'value'},
-    )
+    resolver = FieldOwnershipWins(local_fields={'name'}, remote_fields={'value'})
 
     resolution = resolver.resolve(conflict)
 
@@ -345,11 +307,7 @@ def test_field_ownership_delete_vs_modify_keeps_local() -> None:
 
 
 def test_field_ownership_modify_vs_delete_keeps_remote() -> None:
-    remote = SyncRecord(
-        key='1',
-        data={'id': '1', 'name': 'kept'},
-        timestamps={'name': 100},
-    )
+    remote = SyncRecord(key='1', data={'id': '1', 'name': 'kept'}, timestamps={'name': 100})
 
     conflict = RecordConflict(
         key='1',
@@ -359,10 +317,7 @@ def test_field_ownership_modify_vs_delete_keeps_remote() -> None:
         remote=remote,
     )
 
-    resolver = FieldOwnershipWins(
-        local_fields={'name'},
-        remote_fields={'value'},
-    )
+    resolver = FieldOwnershipWins(local_fields={'name'}, remote_fields={'value'})
 
     resolution = resolver.resolve(conflict)
 
@@ -371,21 +326,10 @@ def test_field_ownership_modify_vs_delete_keeps_remote() -> None:
 
 
 def test_field_ownership_empty_sets_accepted() -> None:
-    resolver = FieldOwnershipWins(
-        local_fields=set(),
-        remote_fields=set(),
-    )
+    resolver = FieldOwnershipWins(local_fields=set(), remote_fields=set())
 
-    local = SyncRecord(
-        key='1',
-        data={'id': '1', 'name': 'local'},
-        timestamps={'name': 100},
-    )
-    remote = SyncRecord(
-        key='1',
-        data={'id': '1', 'name': 'remote'},
-        timestamps={'name': 200},
-    )
+    local = SyncRecord(key='1', data={'id': '1', 'name': 'local'}, timestamps={'name': 100})
+    remote = SyncRecord(key='1', data={'id': '1', 'name': 'remote'}, timestamps={'name': 200})
 
     conflict = RecordConflict(
         key='1',

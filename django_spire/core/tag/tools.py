@@ -23,7 +23,9 @@ def get_matching_b_percentage_from_tag_sets(tag_set_a: set[str], tag_set_b: set[
         return 0.0
 
 
-def get_score_percentage_from_tag_set_weighted(tag_set_actual: set[str], tag_set_reference: set[str]) -> float:
+def get_score_percentage_from_tag_set_weighted(
+    tag_set_actual: set[str], tag_set_reference: set[str]
+) -> float:
     total_points = len(simplify_tag_set(tag_set_reference))
 
     multiplier = get_matching_count_from_tag_sets(tag_set_actual, tag_set_reference)
@@ -58,12 +60,10 @@ def simplify_and_weight_tag_set_to_dict(tag_set: set[str]) -> dict[str, int]:
     simplified_and_weighted_tag_words = {}
 
     for tag_word in simplify_tag_set_to_list(tag_set):
-        simplified_and_weighted_tag_words[tag_word] = simplified_and_weighted_tag_words.get(tag_word, 0) + 1
+        simplified_and_weighted_tag_words[tag_word] = (
+            simplified_and_weighted_tag_words.get(tag_word, 0) + 1
+        )
 
     return dict(
-        sorted(
-            simplified_and_weighted_tag_words.items(),
-            key=lambda item: item[1],
-            reverse=True
-        )
+        sorted(simplified_and_weighted_tag_words.items(), key=lambda item: item[1], reverse=True)
     )

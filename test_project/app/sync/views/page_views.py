@@ -26,14 +26,8 @@ from test_project.app.sync.context import (
     set_tablet_count,
     switch_database,
 )
-from test_project.app.sync.registry import (
-    MODEL_MAP,
-    STRATEGY_CHOICES,
-)
-from test_project.app.sync.seeding.seed import (
-    SCENARIO_CHOICES,
-    seed_sync_scenario,
-)
+from test_project.app.sync.registry import MODEL_MAP, STRATEGY_CHOICES
+from test_project.app.sync.seeding.seed import SCENARIO_CHOICES, seed_sync_scenario
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -67,12 +61,12 @@ def dashboard_page_view(request: WSGIRequest) -> TemplateResponse:
 
         elif action == DashboardAction.SYNC_CURRENT and not is_cloud_view:
             rows, counts, result, has_sync, sync_mode = _handle_sync_current(
-                active_tablet_database, selected_strategy, tablet_count,
+                active_tablet_database, selected_strategy, tablet_count
             )
 
         elif action == DashboardAction.SYNC_ALL:
             rows, counts, result, has_sync, sync_mode, merged_cloud_view = _handle_sync_all(
-                active_tablet_database, selected_strategy, tablet_count, is_cloud_view,
+                active_tablet_database, selected_strategy, tablet_count, is_cloud_view
             )
 
     if is_cloud_view:
@@ -82,27 +76,31 @@ def dashboard_page_view(request: WSGIRequest) -> TemplateResponse:
         rows = transformation.classify_databases(tablet_database=active_tablet_database)
         counts = transformation.count_kinds(rows)
 
-    return TemplateResponse(request, 'sync/page/dashboard_page.html', {
-        'active_tablet_database': active_tablet_database,
-        'cloud_database_view': cloud_database_view,
-        'counts': counts,
-        'current_database': current_database,
-        'has_sync': has_sync,
-        'is_cloud_view': is_cloud_view,
-        'merged_cloud_view': merged_cloud_view,
-        'result': result,
-        'rows': rows,
-        'scenario_choices': SCENARIO_CHOICES,
-        'seed_result': seed_result,
-        'seed_value': seed_value,
-        'selected_scenario': selected_scenario,
-        'selected_strategy': selected_strategy,
-        'strategy_choices': STRATEGY_CHOICES,
-        'sync_mode': sync_mode,
-        'tablet_count': tablet_count,
-        'tablet_count_max': TABLET_COUNT_MAX,
-        'tablet_databases': get_active_tablet_databases(tablet_count),
-    })
+    return TemplateResponse(
+        request,
+        'sync/page/dashboard_page.html',
+        {
+            'active_tablet_database': active_tablet_database,
+            'cloud_database_view': cloud_database_view,
+            'counts': counts,
+            'current_database': current_database,
+            'has_sync': has_sync,
+            'is_cloud_view': is_cloud_view,
+            'merged_cloud_view': merged_cloud_view,
+            'result': result,
+            'rows': rows,
+            'scenario_choices': SCENARIO_CHOICES,
+            'seed_result': seed_result,
+            'seed_value': seed_value,
+            'selected_scenario': selected_scenario,
+            'selected_strategy': selected_strategy,
+            'strategy_choices': STRATEGY_CHOICES,
+            'sync_mode': sync_mode,
+            'tablet_count': tablet_count,
+            'tablet_count_max': TABLET_COUNT_MAX,
+            'tablet_databases': get_active_tablet_databases(tablet_count),
+        },
+    )
 
 
 def detail_page_view(request: WSGIRequest, model: str, pk: int) -> TemplateResponse:
@@ -122,10 +120,7 @@ def detail_page_view(request: WSGIRequest, model: str, pk: int) -> TemplateRespo
         context['stakes'] = list(instance.stakes.all())
 
     return generic_views.detail_view(
-        request,
-        obj=instance,
-        context_data=context,
-        template=f'sync/page/{model}_detail_page.html',
+        request, obj=instance, context_data=context, template=f'sync/page/{model}_detail_page.html'
     )
 
 
@@ -136,10 +131,9 @@ def list_page_view(request: WSGIRequest, model: str) -> TemplateResponse:
     model_class = MODEL_MAP[model]
     objects = list(model_class.objects.all())
 
-    return TemplateResponse(request, 'sync/page/list_page.html', {
-        'objects': objects,
-        'model_name': model,
-    })
+    return TemplateResponse(
+        request, 'sync/page/list_page.html', {'objects': objects, 'model_name': model}
+    )
 
 
 def switch_database_view(request: WSGIRequest, database_name: str) -> HttpResponseRedirect:
@@ -156,9 +150,9 @@ def switch_database_view(request: WSGIRequest, database_name: str) -> HttpRespon
 def verification_page_view(request: WSGIRequest) -> TemplateResponse:
     verification = models.Client.services.transformation.build_verification()
 
-    return TemplateResponse(request, 'sync/page/verification_page.html', {
-        'verification': verification,
-    })
+    return TemplateResponse(
+        request, 'sync/page/verification_page.html', {'verification': verification}
+    )
 
 
 def _handle_seed(scenario: str, seed_value: str) -> dict:
@@ -167,17 +161,14 @@ def _handle_seed(scenario: str, seed_value: str) -> dict:
 
 
 def _handle_sync_all(
-    active_tablet_database: str,
-    strategy: str,
-    tablet_count: int,
-    is_cloud_view: bool,
+    active_tablet_database: str, strategy: str, tablet_count: int, is_cloud_view: bool
 ) -> tuple:
     transformation = models.Client.services.transformation
     rows = transformation.classify_databases(tablet_database=active_tablet_database)
     counts = transformation.count_kinds(rows)
 
     result = models.Client.services.processor.perform_sync(
-        strategy=strategy, tablet_count=tablet_count,
+        strategy=strategy, tablet_count=tablet_count
     )
 
     transformation.apply_resolutions(rows, result, tablet_database=active_tablet_database)
@@ -190,19 +181,13 @@ def _handle_sync_all(
     return rows, counts, result, True, SyncMode.ALL, merged_cloud_view
 
 
-def _handle_sync_current(
-    active_tablet_database: str,
-    strategy: str,
-    tablet_count: int,
-) -> tuple:
+def _handle_sync_current(active_tablet_database: str, strategy: str, tablet_count: int) -> tuple:
     transformation = models.Client.services.transformation
     rows = transformation.classify_databases(tablet_database=active_tablet_database)
     counts = transformation.count_kinds(rows)
 
     result = models.Client.services.processor.perform_sync(
-        strategy=strategy,
-        tablet_count=tablet_count,
-        tablet_databases=[active_tablet_database],
+        strategy=strategy, tablet_count=tablet_count, tablet_databases=[active_tablet_database]
     )
 
     transformation.apply_resolutions(rows, result, tablet_database=active_tablet_database)

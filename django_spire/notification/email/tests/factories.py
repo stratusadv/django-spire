@@ -2,10 +2,7 @@ from __future__ import annotations
 
 from django.contrib.auth.models import User
 
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices,
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.models import Notification
 

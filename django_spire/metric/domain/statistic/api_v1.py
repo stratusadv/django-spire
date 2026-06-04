@@ -5,6 +5,6 @@ from ninja import Router
 router = Router()
 
 
-@router.get("multiply")
+@router.get('multiply')
 def multiply(request, a: int, b: int):
-    return {"result": a * b}
+    return {'result': a * b}

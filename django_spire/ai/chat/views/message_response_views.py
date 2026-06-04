@@ -23,9 +23,7 @@ def response_message_render_view(request: WSGIRequest) -> HttpResponse:
     chat = Chat.objects.by_user(request.user).get(id=body_data['chat_id'])
 
     message_intel = chat_workflow(
-        request,
-        body_data['message_body'],
-        message_history=chat.generate_message_history(),
+        request, body_data['message_body'], message_history=chat.generate_message_history()
     )
 
     current_datetime = now()
@@ -36,7 +34,7 @@ def response_message_render_view(request: WSGIRequest) -> HttpResponse:
         sender=getattr(settings, 'DJANGO_SPIRE_AI_PERSONA_NAME', 'AI Assistant'),
         message_intel=message_intel,
         synthesis_speech=body_data.get('synthesis_speech', False),
-        message_timestamp=formatted_timestamp
+        message_timestamp=formatted_timestamp,
     )
 
     chat.add_message_response(response_message)

@@ -27,8 +27,7 @@ class EntryVersionProcessorServiceTests(BaseTestCase):
     def test_add_update_delete_blocks_update_existing(self):
         existing_block = create_test_version_block(version=self.entry_version)
         block_data = create_test_block_form_data(
-            id=existing_block.id,
-            data={'text': 'updated text'}
+            id=existing_block.id, data={'text': 'updated text'}
         )
         self.entry_version.services.processor.add_update_delete_blocks([block_data])
 
@@ -41,13 +40,10 @@ class EntryVersionProcessorServiceTests(BaseTestCase):
         block_to_delete = create_test_version_block(version=self.entry_version, order=2)
 
         block_data_update = create_test_block_form_data(
-            id=existing_block.id,
-            order=0,
-            data={'text': 'updated'}
+            id=existing_block.id, order=0, data={'text': 'updated'}
         )
         block_data_new = create_test_block_form_data(id='new_block', order=1)
 
-        self.entry_version.services.processor.add_update_delete_blocks([
-            block_data_update,
-            block_data_new
-        ])
+        self.entry_version.services.processor.add_update_delete_blocks(
+            [block_data_update, block_data_new]
+        )

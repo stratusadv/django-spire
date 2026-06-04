@@ -12,5 +12,7 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% include 'metric/domain/table/../table/table.html' with endpoint=domain_items_endpoint %}
+    <div class="card-body">
+        {% include 'metric/domain/table/../table/table.html' with endpoint=domain_items_endpoint %}
+    </div>
 {% endblock %}

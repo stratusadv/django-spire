@@ -19,7 +19,9 @@ class ThemeFilesystemValidationTests(TestCase):
 
     def test_themes_directory_exists(self) -> None:
         if not self.base_path.exists():
-            self.skipTest(f'Themes directory does not exist: {self.base_path}. Create it to enable filesystem validation tests.')
+            self.skipTest(
+                f'Themes directory does not exist: {self.base_path}. Create it to enable filesystem validation tests.'
+            )
 
         assert self.base_path.is_dir(), f'Themes path is not a directory: {self.base_path}'
 
@@ -32,7 +34,9 @@ class ThemeFilesystemValidationTests(TestCase):
 
         missing = expected - existing
         if missing:
-            self.fail(f'Missing theme directories: {sorted(missing)}. Create these directories: {sorted(missing)}')
+            self.fail(
+                f'Missing theme directories: {sorted(missing)}. Create these directories: {sorted(missing)}'
+            )
 
     def test_no_unexpected_theme_directories(self) -> None:
         if not self.base_path.exists():
@@ -44,7 +48,9 @@ class ThemeFilesystemValidationTests(TestCase):
         unexpected = existing - expected
 
         if unexpected:
-            self.fail(f'Unexpected theme directories: {sorted(unexpected)}. Remove these or update ThemeFamily enum: {sorted(unexpected)}')
+            self.fail(
+                f'Unexpected theme directories: {sorted(unexpected)}. Remove these or update ThemeFamily enum: {sorted(unexpected)}'
+            )
 
     def test_all_theme_mode_files_exist(self) -> None:
         if not self.base_path.exists():
@@ -78,7 +84,9 @@ class ThemeFilesystemValidationTests(TestCase):
             directory = self.base_path / family.value
 
             if directory.exists():
-                existing = {f.name for f in directory.iterdir() if f.is_file() and f.suffix == '.css'}
+                existing = {
+                    f.name for f in directory.iterdir() if f.is_file() and f.suffix == '.css'
+                }
                 files = existing - expected
 
                 if files:
@@ -175,4 +183,6 @@ class ThemeFilesystemValidationTests(TestCase):
                     file = directory / filename
 
                     if file.exists():
-                        assert file.name == filename, f'Filename {file.name} does not match expected {filename}'
+                        assert file.name == filename, (
+                            f'Filename {file.name} does not match expected {filename}'
+                        )

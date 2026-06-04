@@ -25,19 +25,16 @@ def get_config(request: WSGIRequest) -> JsonResponse:
         'default_family': Theme.DEFAULT_FAMILY.value,
         'default_mode': Theme.DEFAULT_MODE.value,
         'separator': Theme.SEPARATOR,
-        'cookie_name': get_theme_cookie_name()
+        'cookie_name': get_theme_cookie_name(),
     }
 
     for family in ThemeFamily:
         config['families'][family.value] = {
             'name': Theme.FAMILY_DISPLAY_NAMES.get(family, family.value),
-            'modes': [mode.value for mode in ThemeMode]
+            'modes': [mode.value for mode in ThemeMode],
         }
 
-    return JsonResponse({
-        'success': True,
-        'data': config
-    })
+    return JsonResponse({'success': True, 'data': config})
 
 
 @require_POST
@@ -47,27 +44,18 @@ def set_theme(request: WSGIRequest) -> JsonResponse:
 
     if not theme:
         return JsonResponse(
-            {'error': 'Theme is required', 'success': False},
-            status=HTTPStatus.BAD_REQUEST
+            {'error': 'Theme is required', 'success': False}, status=HTTPStatus.BAD_REQUEST
         )
 
     try:
         validated = Theme.from_string(theme)
     except ValueError:
         return JsonResponse(
-            {'error': f'Invalid theme: {theme}', 'success': False},
-            status=HTTPStatus.BAD_REQUEST
+            {'error': f'Invalid theme: {theme}', 'success': False}, status=HTTPStatus.BAD_REQUEST
         )
 
-    response = JsonResponse({
-        'success': True,
-        'theme': validated.to_dict()
-    })
+    response = JsonResponse({'success': True, 'theme': validated.to_dict()})
 
-    response.set_cookie(
-        get_theme_cookie_name(),
-        validated.value,
-        max_age=31536000
-    )
+    response.set_cookie(get_theme_cookie_name(), validated.value, max_age=31536000)
 
     return response

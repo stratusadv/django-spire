@@ -12,8 +12,7 @@ class EmailNotificationQuerySetTests(BaseTestCase):
         super().setUp()
         self.user = create_user(username='test_email_queryset_user')
         self.email_notification = create_test_email_notification(
-            user=self.user,
-            status=NotificationStatusChoices.SENT
+            user=self.user, status=NotificationStatusChoices.SENT
         )
 
     def test_by_user(self):
@@ -34,8 +33,7 @@ class EmailNotificationQuerySetTests(BaseTestCase):
 
     def test_is_sent(self):
         pending_notification = create_test_email_notification(
-            user=self.user,
-            status=NotificationStatusChoices.PENDING
+            user=self.user, status=NotificationStatusChoices.PENDING
         )
 
         result = EmailNotification.objects.is_sent()

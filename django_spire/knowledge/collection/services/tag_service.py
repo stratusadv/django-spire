@@ -9,7 +9,7 @@ from django_spire.core.tag.service.tag_service import BaseTagService
 from django_spire.core.tag.tools import (
     get_score_percentage_from_tag_set_weighted,
     simplify_and_weight_tag_set_to_dict,
-    simplify_tag_set
+    simplify_tag_set,
 )
 
 if TYPE_CHECKING:
@@ -25,13 +25,9 @@ class CollectionTagService(BaseTagService['Collection']):
         collection_prompt.sub_heading(self.obj.name)
         collection_prompt.text(self.obj.description)
 
-        tag_set = TagSetBot().process(
-            content=collection_prompt
-        )
+        tag_set = TagSetBot().process(content=collection_prompt)
 
-        self.set_tags_from_tag_set(
-            tag_set=tag_set,
-        )
+        self.set_tags_from_tag_set(tag_set=tag_set)
 
     def get_aggregated_tag_set(self) -> set[str]:
         tag_set = self.obj.tag_set
@@ -46,8 +42,7 @@ class CollectionTagService(BaseTagService['Collection']):
 
     def get_score_percentage_from_aggregated_tag_set_weighted(self, tag_set: set[str]) -> float:
         return get_score_percentage_from_tag_set_weighted(
-            tag_set_actual=tag_set,
-            tag_set_reference=self.get_aggregated_tag_set()
+            tag_set_actual=tag_set, tag_set_reference=self.get_aggregated_tag_set()
         )
 
     def get_simplified_aggregated_tag_set(self) -> set[str]:

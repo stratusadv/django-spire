@@ -19,7 +19,7 @@ FIELDS = {
     'static_int': 10,
     'callable_func': lambda: 'now',
     'exclude_str': 'exclude',
-    'exclude_tuple': ('exclude',)
+    'exclude_tuple': ('exclude',),
 }
 
 
@@ -50,9 +50,8 @@ class TestNormalizeSeederFields(TestCase):
 
     def test_normalizes_single_value_strings_to_tuples(self) -> None:
         fields = {
-            k: FIELDS[k] for k in (
-                'llm_type', 'faker_type', 'static_type', 'callable_type', 'custom_type'
-            )
+            k: FIELDS[k]
+            for k in ('llm_type', 'faker_type', 'static_type', 'callable_type', 'custom_type')
         }
 
         normalized = normalize_seeder_fields(fields)
@@ -64,7 +63,7 @@ class TestNormalizeSeederFields(TestCase):
         fields = {
             'static_bool': FIELDS['static_bool'],
             'static_str': FIELDS['static_str'],
-            'static_int': FIELDS['static_int']
+            'static_int': FIELDS['static_int'],
         }
 
         normalized = normalize_seeder_fields(fields)

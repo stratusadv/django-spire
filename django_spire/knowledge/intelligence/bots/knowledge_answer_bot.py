@@ -33,9 +33,8 @@ def format_marker(marker: MarkerType, label: str | None = None) -> str:
 class KnowledgeAnswerBot(Bot):
     role = 'Knowledge Entry Search Assistant'
     task = 'Read through the knowledge and answer the users request.'
-    guidelines = (
-        Prompt()
-        .list([
+    guidelines = Prompt().list(
+        [
             'The answer that you provide must be relevant and reflect knowledge entries.',
             'Do not use general knowledge to answer a question if it does not exist in the knowledge entries.',
             'Do not attempt to extrapolate an answer if it does not exist in the knowledge entries',
@@ -49,15 +48,12 @@ class KnowledgeAnswerBot(Bot):
             f'Content under a [{BlockType.HEADING}] or [{BlockType.SUBHEADING}] belongs to that section.',
             'Set is_knowledge_based to true only if the answer directly references or is derived from the knowledge entries.',
             'Set is_knowledge_based to false for greetings, small talk, conversational responses, or when the answer does not use knowledge entries.',
-        ])
+        ]
     )
     intel_class = AnswerIntel
 
     def process(
-        self,
-        user_input: str,
-        entries: list[Entry],
-        message_history: MessageHistory | None = None
+        self, user_input: str, entries: list[Entry], message_history: MessageHistory | None = None
     ) -> AnswerIntel:
         entry_prompt = Prompt()
         entry_prompt.sub_heading('User Request')
@@ -79,7 +75,4 @@ class KnowledgeAnswerBot(Bot):
             entry_prompt.text(format_marker(MarkerType.END_ARTICLE))
             entry_prompt.line_break()
 
-        return self.llm.prompt_to_intel(
-            prompt=entry_prompt,
-            message_history=message_history,
-        )
+        return self.llm.prompt_to_intel(prompt=entry_prompt, message_history=message_history)

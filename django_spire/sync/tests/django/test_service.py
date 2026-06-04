@@ -44,9 +44,7 @@ def test_save_resets_tracker(instance: SyncTestModel) -> None:
 
 
 @pytest.mark.django_db
-def test_save_no_dirty_fields_preserves_timestamps(
-    instance: SyncTestModel,
-) -> None:
+def test_save_no_dirty_fields_preserves_timestamps(instance: SyncTestModel) -> None:
     instance.save()
 
     ts_before = dict(instance.sync_field_timestamps)

@@ -18,19 +18,19 @@ if TYPE_CHECKING:
 
 
 def _dispatch_modal_form_content(
-        request: WSGIRequest,
-        *,
-        obj: Model,
-        form_action: str,
-        form_class: type,
-        context_data: dict | None = None,
-        activity_func: callable | None = None,
-        auto_add_activity: bool = True,
-        verbs: tuple[str, str] = ('', ''),  # Present and past tense of verb
-        return_url: str | None = None,
-        template: str = '',
-        show_success_message: bool = False,
-        action_kwargs: dict = {},
+    request: WSGIRequest,
+    *,
+    obj: Model,
+    form_action: str,
+    form_class: type,
+    context_data: dict | None = None,
+    activity_func: callable | None = None,
+    auto_add_activity: bool = True,
+    verbs: tuple[str, str] = ('', ''),  # Present and past tense of verb
+    return_url: str | None = None,
+    template: str = '',
+    show_success_message: bool = False,
+    action_kwargs: dict = {},
 ) -> HttpResponseRedirect | TemplateResponse:
     if context_data is None:
         context_data = {}
@@ -68,26 +68,22 @@ def _dispatch_modal_form_content(
 
     context_data = {**base_context_data, **context_data}
 
-    return TemplateResponse(
-        request,
-        template=template,
-        context=context_data
-    )
+    return TemplateResponse(request, template=template, context=context_data)
 
 
 def dispatch_modal_delete_form_content(
-        request: WSGIRequest,
-        *,
-        obj: Model,
-        form_action: str,
-        context_data: dict | None = None,
-        activity_func: callable | None = None,
-        auto_add_activity: bool = True,
-        delete_func: callable | None = None,
-        verbs: tuple[str, str] = ('delete', 'deleted'),
-        return_url: str | None = None,
-        template: str = 'django_spire/modal/content/dispatch_modal_delete_confirmation_content.html',
-        show_success_message: bool = False,
+    request: WSGIRequest,
+    *,
+    obj: Model,
+    form_action: str,
+    context_data: dict | None = None,
+    activity_func: callable | None = None,
+    auto_add_activity: bool = True,
+    delete_func: callable | None = None,
+    verbs: tuple[str, str] = ('delete', 'deleted'),
+    return_url: str | None = None,
+    template: str = 'django_spire/modal/content/dispatch_modal_delete_confirmation_content.html',
+    show_success_message: bool = False,
 ) -> HttpResponseRedirect | TemplateResponse:
     return _dispatch_modal_form_content(
         request,
@@ -101,25 +97,23 @@ def dispatch_modal_delete_form_content(
         return_url=return_url,
         template=template,
         show_success_message=show_success_message,
-        action_kwargs={
-            'delete_func': delete_func,
-        }
+        action_kwargs={'delete_func': delete_func},
     )
 
 
 def dispatch_confirmation_modal_form_content(
-        request: WSGIRequest,
-        *,
-        obj: Model,
-        form_action: str,
-        context_data: dict | None = None,
-        activity_func: callable | None = None,
-        auto_add_activity: bool = True,
-        confirmation_func: callable | None = None,
-        verbs: tuple[str, str] = ('confirm', 'confirmed'),
-        return_url: str | None = None,
-        template: str = 'django_spire/modal/content/dispatch_modal_confirmation_content.html',
-        show_success_message: bool = False,
+    request: WSGIRequest,
+    *,
+    obj: Model,
+    form_action: str,
+    context_data: dict | None = None,
+    activity_func: callable | None = None,
+    auto_add_activity: bool = True,
+    confirmation_func: callable | None = None,
+    verbs: tuple[str, str] = ('confirm', 'confirmed'),
+    return_url: str | None = None,
+    template: str = 'django_spire/modal/content/dispatch_modal_confirmation_content.html',
+    show_success_message: bool = False,
 ) -> HttpResponseRedirect | TemplateResponse:
     return _dispatch_modal_form_content(
         request,
@@ -133,7 +127,5 @@ def dispatch_confirmation_modal_form_content(
         return_url=return_url,
         template=template,
         show_success_message=show_success_message,
-        action_kwargs={
-            'confirmation_func': confirmation_func,
-        }
+        action_kwargs={'confirmation_func': confirmation_func},
     )

@@ -10,8 +10,5 @@ class EntryVersionQuerySet(HistoryQuerySet):
         from django_spire.knowledge.entry.version.block.models import EntryVersionBlock
 
         return self.prefetch_related(
-            Prefetch(
-                'blocks',
-                queryset=EntryVersionBlock.objects.order_by('order')
-            )
+            Prefetch('blocks', queryset=EntryVersionBlock.objects.order_by('order'))
         )

@@ -12,11 +12,7 @@ def signage_instruction_prompt() -> Prompt:
         .text('This prompt provides instructions for Signage operations.')
         .line_break()
         .heading('Instructions')
-        .ordered_list([
-            'Instruction 1',
-            'Instruction 2',
-            'Instruction 3',
-        ])
+        .ordered_list(['Instruction 1', 'Instruction 2', 'Instruction 3'])
         .line_break()
     )
 

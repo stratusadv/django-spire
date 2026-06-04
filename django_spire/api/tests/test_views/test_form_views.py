@@ -26,4 +26,3 @@ class ApiFormViewsTestCase(BaseTestCase):
         self.assertEqual(api_access.hashed_key, response.context['api_access'].hashed_key)
 
         self.assertTemplateUsed(response, 'django_spire/api/page/access_created_page.html')
-

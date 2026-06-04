@@ -27,9 +27,7 @@ class TestSettings(TestCase):
 
         assert result == 'custom-dark'
 
-    @override_settings(
-        DJANGO_SPIRE_AUTH_CONTROLLERS={'custom_app': 'custom.path.Controller'}
-    )
+    @override_settings(DJANGO_SPIRE_AUTH_CONTROLLERS={'custom_app': 'custom.path.Controller'})
     def test_auth_controllers_merges_dicts(self) -> None:
         fresh_settings = Settings()
 

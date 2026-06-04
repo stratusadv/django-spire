@@ -6,10 +6,7 @@ import pytest
 
 from django_spire.auth.user.tests.factories import create_user
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices,
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.email.processor import EmailNotificationProcessor
 from django_spire.notification.email.tests.factories import create_test_email_notification
@@ -79,8 +76,7 @@ class EmailNotificationProcessorTests(BaseTestCase):
         mock_helper_class.return_value = mock_helper
 
         notifications = [
-            create_test_email_notification(user=self.user).notification
-            for _ in range(3)
+            create_test_email_notification(user=self.user).notification for _ in range(3)
         ]
 
         self.processor.process_list(notifications)

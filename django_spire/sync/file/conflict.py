@@ -32,18 +32,12 @@ class ConflictStrategy(Protocol):
 
 class SourceWins:
     def resolve(self, conflict: Conflict) -> Resolution:
-        return Resolution(
-            action=ResolutionAction.USE_SOURCE,
-            record=conflict.source_record,
-        )
+        return Resolution(action=ResolutionAction.USE_SOURCE, record=conflict.source_record)
 
 
 class TargetWins:
     def resolve(self, conflict: Conflict) -> Resolution:
-        return Resolution(
-            action=ResolutionAction.USE_TARGET,
-            record=conflict.target_record,
-        )
+        return Resolution(action=ResolutionAction.USE_TARGET, record=conflict.target_record)
 
 
 class LastWriteWins:
@@ -57,24 +51,12 @@ class LastWriteWins:
             raise FileSyncConflictError(message)
 
         if conflict.source_timestamp is None:
-            return Resolution(
-                action=ResolutionAction.USE_TARGET,
-                record=conflict.target_record,
-            )
+            return Resolution(action=ResolutionAction.USE_TARGET, record=conflict.target_record)
 
         if conflict.target_timestamp is None:
-            return Resolution(
-                action=ResolutionAction.USE_SOURCE,
-                record=conflict.source_record,
-            )
+            return Resolution(action=ResolutionAction.USE_SOURCE, record=conflict.source_record)
 
         if conflict.source_timestamp >= conflict.target_timestamp:
-            return Resolution(
-                action=ResolutionAction.USE_SOURCE,
-                record=conflict.source_record,
-            )
+            return Resolution(action=ResolutionAction.USE_SOURCE, record=conflict.source_record)
 
-        return Resolution(
-            action=ResolutionAction.USE_TARGET,
-            record=conflict.target_record,
-        )
+        return Resolution(action=ResolutionAction.USE_TARGET, record=conflict.target_record)

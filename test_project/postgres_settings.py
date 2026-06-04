@@ -15,7 +15,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DATABASE_PASSWORD'),
         'HOST': os.getenv('DATABASE_HOST'),
         'PORT': os.getenv('DATABASE_PORT'),
-    },
+    }
 }
 
 _SYNC_BACKEND = os.getenv('SYNC_DB_BACKEND', 'sqlite')
@@ -53,6 +53,4 @@ else:
         'NAME': TEST_PROJECT / 'db_sync_cloud.sqlite3',
     }
 
-DATABASE_ROUTERS = [
-    'test_project.app.sync.router.SyncDemoRouter',
-]
+DATABASE_ROUTERS = ['test_project.app.sync.router.SyncDemoRouter']

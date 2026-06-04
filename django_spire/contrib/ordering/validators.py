@@ -43,4 +43,6 @@ class OrderingMixinValidator:
             self._errors.append(OrderingMixinError('Position must be a positive number.'))
 
         if self._position > len(self._destination_objects):
-            self._errors.append(OrderingMixinError('Position must be less than the number of destination objects.'))
+            self._errors.append(
+                OrderingMixinError('Position must be less than the number of destination objects.')
+            )

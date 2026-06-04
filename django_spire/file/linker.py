@@ -56,8 +56,7 @@ class FileLinker:
             file_obj.is_deleted = False
 
         File.objects.bulk_update(
-            file_objects,
-            ['content_type', 'object_id', 'related_field', 'is_active', 'is_deleted'],
+            file_objects, ['content_type', 'object_id', 'related_field', 'is_active', 'is_deleted']
         )
 
     def unlink_existing(self, instance: models.Model) -> int:
@@ -68,8 +67,7 @@ class FileLinker:
         content_type = ContentType.objects.get_for_model(instance)
 
         return (
-            File.objects
-            .active()
+            File.objects.active()
             .filter(content_type=content_type, object_id=instance.pk)
             .related_field(self.related_field)
             .update(is_active=False, is_deleted=True)
@@ -83,8 +81,7 @@ class FileLinker:
         content_type = ContentType.objects.get_for_model(instance)
 
         return (
-            File.objects
-            .active()
+            File.objects.active()
             .filter(content_type=content_type, object_id=instance.pk)
             .related_field(self.related_field)
             .exclude(id__in=keep_ids)

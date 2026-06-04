@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.sync.core.exceptions import (
-    CircularDependencyError,
-    UnknownDependencyError,
-)
+from django_spire.sync.core.exceptions import CircularDependencyError, UnknownDependencyError
 from django_spire.sync.database.graph import DependencyGraph
 
 
@@ -16,11 +13,7 @@ def test_single_node_no_deps() -> None:
 
 
 def test_linear_chain_ordered() -> None:
-    graph = DependencyGraph({
-        'a.A': set(),
-        'b.B': {'a.A'},
-        'c.C': {'b.B'},
-    })
+    graph = DependencyGraph({'a.A': set(), 'b.B': {'a.A'}, 'c.C': {'b.B'}})
 
     order = graph.sync_order()
 
@@ -29,12 +22,7 @@ def test_linear_chain_ordered() -> None:
 
 
 def test_diamond_ordered() -> None:
-    graph = DependencyGraph({
-        'a.A': set(),
-        'b.B': {'a.A'},
-        'c.C': {'a.A'},
-        'd.D': {'b.B', 'c.C'},
-    })
+    graph = DependencyGraph({'a.A': set(), 'b.B': {'a.A'}, 'c.C': {'a.A'}, 'd.D': {'b.B', 'c.C'}})
 
     order = graph.sync_order()
 
@@ -51,18 +39,11 @@ def test_unknown_dependency_raises() -> None:
 
 def test_cycle_raises() -> None:
     with pytest.raises(CircularDependencyError):
-        DependencyGraph({
-            'a.A': {'b.B'},
-            'b.B': {'a.A'},
-        })
+        DependencyGraph({'a.A': {'b.B'}, 'b.B': {'a.A'}})
 
 
 def test_sync_order_deterministic() -> None:
-    edges = {
-        'a.A': set(),
-        'b.B': set(),
-        'c.C': {'a.A', 'b.B'},
-    }
+    edges = {'a.A': set(), 'b.B': set(), 'c.C': {'a.A', 'b.B'}}
 
     assert DependencyGraph(edges).sync_order() == DependencyGraph(edges).sync_order()
 

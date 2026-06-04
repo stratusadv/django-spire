@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 
 class EntryQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
     def get_by_version_block_id(self, version_block_id: int) -> Entry:
-        return self.get(
-            current_version__block__id=version_block_id
-        )
+        return self.get(current_version__block__id=version_block_id)
 
     def has_current_version(self) -> QuerySet[Entry]:
         return self.filter(current_version__isnull=False)
@@ -29,11 +27,9 @@ class EntryQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
 
     def user_has_access(self, user: AuthUser) -> QuerySet[Entry]:
         return self.filter(
-            Q(
-                current_version__status=EntryVersionStatusChoices.PUBLISHED
-            ) |
-            Q(
+            Q(current_version__status=EntryVersionStatusChoices.PUBLISHED)
+            | Q(
                 current_version__author=user,
-                current_version__status=EntryVersionStatusChoices.DRAFT
+                current_version__status=EntryVersionStatusChoices.DRAFT,
             )
         )

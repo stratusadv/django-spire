@@ -15,7 +15,7 @@ class TestCommentModel(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='This is a test comment.'
+            information='This is a test comment.',
         )
 
     def test_str(self) -> None:
@@ -26,7 +26,7 @@ class TestCommentModel(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Short'
+            information='Short',
         )
         assert str(comment) == 'Short...'
 
@@ -35,7 +35,7 @@ class TestCommentModel(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Hello @john_doe and @jane_doe'
+            information='Hello @john_doe and @jane_doe',
         )
         usernames = comment.scrape_username_list()
         assert usernames == ['john_doe', 'jane_doe']
@@ -49,7 +49,7 @@ class TestCommentModel(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Hello @stratus'
+            information='Hello @stratus',
         )
         usernames = comment.scrape_username_list()
         assert usernames == ['stratus']
@@ -59,7 +59,7 @@ class TestCommentModel(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Hello @stratus'
+            information='Hello @stratus',
         )
         users = comment.find_user_list()
         assert self.super_user in users
@@ -84,14 +84,14 @@ class TestCommentModel(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Parent comment'
+            information='Parent comment',
         )
         child_comment = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             parent=parent_comment,
-            information='Child comment'
+            information='Child comment',
         )
         assert child_comment.parent == parent_comment
         assert child_comment in parent_comment.children.all()
@@ -101,14 +101,14 @@ class TestCommentModel(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='First'
+            information='First',
         )
 
         comment2 = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Second'
+            information='Second',
         )
 
         comments = list(Comment.objects.order_by('-pk')[:2])
@@ -124,7 +124,7 @@ class TestCommentRelationships(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Test comment'
+            information='Test comment',
         )
 
     def test_comment_user_relationship(self) -> None:
@@ -140,21 +140,21 @@ class TestCommentRelationships(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Parent'
+            information='Parent',
         )
         child1 = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             parent=parent_comment,
-            information='Child 1'
+            information='Child 1',
         )
         child2 = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             parent=parent_comment,
-            information='Child 2'
+            information='Child 2',
         )
         assert parent_comment.children.count() == 2
         assert child1 in parent_comment.children.all()
@@ -165,14 +165,14 @@ class TestCommentRelationships(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Parent'
+            information='Parent',
         )
         child_comment = Comment.objects.create(
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
             parent=parent_comment,
-            information='Child'
+            information='Child',
         )
         child_pk = child_comment.pk
         parent_comment.delete()
@@ -188,7 +188,7 @@ class TestCommentDefaults(BaseTestCase):
             content_type=self.content_type,
             object_id=self.super_user.pk,
             user=self.super_user,
-            information='Test comment'
+            information='Test comment',
         )
 
     def test_default_is_active(self) -> None:
@@ -202,9 +202,7 @@ class TestCommentDefaults(BaseTestCase):
 
     def test_default_information(self) -> None:
         comment = Comment.objects.create(
-            content_type=self.content_type,
-            object_id=self.super_user.pk,
-            user=self.super_user
+            content_type=self.content_type, object_id=self.super_user.pk, user=self.super_user
         )
         assert comment.information == ''
 

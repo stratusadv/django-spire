@@ -33,15 +33,17 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="row g-3">
-        {% for file in file_example.attachments %}
-            <div class="col-6 col-md-4 col-lg-3">
-                {% include 'file/item/attachment_item.html' %}
-            </div>
-        {% empty %}
-            <div class="col-12">
-                {% include 'django_spire/item/no_data_item.html' %}
-            </div>
-        {% endfor %}
+    <div class="card-body">
+        <div class="row g-3">
+            {% for file in file_example.attachments %}
+                <div class="col-6 col-md-4 col-lg-3">
+                    {% include 'file/item/attachment_item.html' %}
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    {% include 'django_spire/contrib/item/no_data_item.html' %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

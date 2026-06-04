@@ -38,11 +38,7 @@ class EmailHelper:
 
 
 class SendGridEmailHelper(EmailHelper):
-    def __init__(
-        self,
-        notification: Notification,
-        fail_silently: bool = False
-    ):
+    def __init__(self, notification: Notification, fail_silently: bool = False):
         super().__init__(notification, fail_silently)
 
         if notification.email.template_id == '':
@@ -55,7 +51,7 @@ class SendGridEmailHelper(EmailHelper):
             'from': settings.DEFAULT_FROM_EMAIL,
             'subject': notification.title,
             'body': notification.body,
-            'url': notification.url
+            'url': notification.url,
         }
 
         self.template_data.update(notification.email.context_data)
@@ -66,7 +62,7 @@ class SendGridEmailHelper(EmailHelper):
             to=self.to,
             cc=self.cc,
             bcc=self.bcc,
-            attachments=self.attachments
+            attachments=self.attachments,
         )
 
         msg.template_id = self.template_id

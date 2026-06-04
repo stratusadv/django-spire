@@ -25,9 +25,7 @@ class ChatQuerySet(HistoryQuerySet):
             return self.create(user=user)
 
     def search(self, query: str) -> Self:
-        return self.filter(
-            Q(name__icontains=query)
-        )
+        return self.filter(Q(name__icontains=query))
 
 
 class ChatMessageQuerySet(HistoryQuerySet):

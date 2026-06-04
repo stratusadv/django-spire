@@ -4,6 +4,4 @@ from test_project.app.notification.views import json_views
 
 app_name = 'json'
 
-urlpatterns = [
-    path('<int:pk>/process/', json_views.process_json_view, name='process')
-]
+urlpatterns = [path('<int:pk>/process/', json_views.process_json_view, name='process')]

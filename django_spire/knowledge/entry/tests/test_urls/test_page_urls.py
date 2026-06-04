@@ -20,9 +20,6 @@ class EntryPageUrlsTests(BaseTestCase):
 
     def test_delete_view_url_path(self):
         response = self.client.get(
-            reverse(
-                'django_spire:knowledge:entry:page:delete',
-                kwargs={'pk': self.test_entry.pk}
-            )
+            reverse('django_spire:knowledge:entry:page:delete', kwargs={'pk': self.test_entry.pk})
         )
         assert response.status_code == 200

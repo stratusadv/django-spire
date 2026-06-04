@@ -20,7 +20,9 @@ class TestActivityAdmin(TestCase):
 
     def test_information_snippet_long(self) -> None:
         activity = MagicMock()
-        activity.information = 'This is a very long information string that exceeds twenty characters'
+        activity.information = (
+            'This is a very long information string that exceeds twenty characters'
+        )
 
         result = self.admin.information_snippet(activity)
 

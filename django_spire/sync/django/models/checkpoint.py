@@ -13,8 +13,4 @@ class SyncCheckpoint(models.Model):
         db_table = 'django_spire_sync_checkpoint'
 
     def __str__(self) -> str:
-        return (
-            f'{self.peer_node_id} '
-            f'peer={self.peer_sequence} '
-            f'pushed={self.local_sequence_pushed}'
-        )
+        return f'{self.peer_node_id} peer={self.peer_sequence} pushed={self.local_sequence_pushed}'

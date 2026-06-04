@@ -9,7 +9,7 @@ from django_spire.ai.chat.message_intel import BaseMessageIntel, DefaultMessageI
 from test_project.app.ai.chat.intelligence.maps.intent_map import IntentDecoder
 from test_project.app.ai.chat.intelligence.message_intels import (
     ClownFlyingDistanceMessageIntel,
-    PirateMessageIntel
+    PirateMessageIntel,
 )
 
 if TYPE_CHECKING:
@@ -19,20 +19,17 @@ if TYPE_CHECKING:
 
 @recorder_to_html_file('chat_workflow')
 def chat_workflow(
-    request: WSGIRequest,
-    user_input: str,
-    message_history: MessageHistory | None = None
+    request: WSGIRequest, user_input: str, message_history: MessageHistory | None = None
 ) -> BaseMessageIntel:
-    decoder = IntentDecoder(mapping = {
-        'The user wants to talk about a clown or clowns.': 'clowns',
-        'The user wants to talk about a pirate or pirates.': 'pirates',
-        'The user does not want to talk about clowns or pirates': 'default',
-    })
-
-    intents = decoder.process(
-        user_input,
-        max_return_values=1
+    decoder = IntentDecoder(
+        mapping={
+            'The user wants to talk about a clown or clowns.': 'clowns',
+            'The user wants to talk about a pirate or pirates.': 'pirates',
+            'The user does not want to talk about clowns or pirates': 'default',
+        }
     )
+
+    intents = decoder.process(user_input, max_return_values=1)
 
     bot = Bot()
 
@@ -45,16 +42,12 @@ def chat_workflow(
 
     elif intents[0] == 'pirates':
         response = bot.llm.prompt_to_intel(
-            prompt=user_input,
-            intel_class=PirateMessageIntel,
-            message_history=message_history,
+            prompt=user_input, intel_class=PirateMessageIntel, message_history=message_history
         )
 
     else:
         response = bot.llm.prompt_to_intel(
-            prompt=user_input,
-            intel_class=DefaultMessageIntel,
-            message_history=message_history,
+            prompt=user_input, intel_class=DefaultMessageIntel, message_history=message_history
         )
 
     return response

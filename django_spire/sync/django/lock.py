@@ -22,69 +22,41 @@ logger = logging.getLogger(__name__)
 _ACTIVE_STATUSES = frozenset({SyncStatus.IN_PROGRESS, SyncStatus.PENDING})
 _STALE_TIMEOUT_DEFAULT = 600
 _PRUNE_RETENTION_DAYS_DEFAULT = 30
-_TERMINAL_STATUSES = frozenset({
-    SyncStatus.SUCCESS,
-    SyncStatus.FAILURE,
-    SyncStatus.ERROR,
-    SyncStatus.ABANDONED,
-})
+_TERMINAL_STATUSES = frozenset(
+    {SyncStatus.SUCCESS, SyncStatus.FAILURE, SyncStatus.ERROR, SyncStatus.ABANDONED}
+)
 
 
 _GLOBAL_LOCK_ID = '__exchange__'
 
 
 class DjangoSyncLock:
-    def __init__(
-        self,
-        timeout_stale: int = _STALE_TIMEOUT_DEFAULT,
-    ) -> None:
+    def __init__(self, timeout_stale: int = _STALE_TIMEOUT_DEFAULT) -> None:
         self._timeout_stale = timeout_stale
 
-    def _abandon_stale_sessions(
-        self,
-        node_id: str,
-        peer_node_id: str,
-    ) -> None:
+    def _abandon_stale_sessions(self, node_id: str, peer_node_id: str) -> None:
         cutoff = timezone.now() - timedelta(seconds=self._timeout_stale)
 
-        stale = (
-            SyncSession.objects
-            .filter(
-                node_id=node_id,
-                peer_node_id=peer_node_id,
-                started_at__lt=cutoff,
-                status__in=_ACTIVE_STATUSES,
-            )
+        stale = SyncSession.objects.filter(
+            node_id=node_id,
+            peer_node_id=peer_node_id,
+            started_at__lt=cutoff,
+            status__in=_ACTIVE_STATUSES,
         )
 
         count = stale.update(
-            completed_at=timezone.now(),
-            phase=SyncPhase.FAILED,
-            status=SyncStatus.ABANDONED,
+            completed_at=timezone.now(), phase=SyncPhase.FAILED, status=SyncStatus.ABANDONED
         )
 
         if count:
             logger.warning(
-                'Abandoned %d stale sync session(s) for %s<->%s',
-                count,
-                node_id,
-                peer_node_id,
+                'Abandoned %d stale sync session(s) for %s<->%s', count, node_id, peer_node_id
             )
 
-    def _check_active_session(
-        self,
-        node_id: str,
-        peer_node_id: str,
-    ) -> None:
-        active = (
-            SyncSession.objects
-            .filter(
-                node_id=node_id,
-                peer_node_id=peer_node_id,
-                status__in=_ACTIVE_STATUSES,
-            )
-            .first()
-        )
+    def _check_active_session(self, node_id: str, peer_node_id: str) -> None:
+        active = SyncSession.objects.filter(
+            node_id=node_id, peer_node_id=peer_node_id, status__in=_ACTIVE_STATUSES
+        ).first()
 
         if active is not None:
             message = (
@@ -95,11 +67,7 @@ class DjangoSyncLock:
 
             raise LockContentionError(message)
 
-    def _create_session(
-        self,
-        node_id: str,
-        peer_node_id: str,
-    ) -> str:
+    def _create_session(self, node_id: str, peer_node_id: str) -> str:
         session = SyncSession.objects.create(
             node_id=node_id,
             peer_node_id=peer_node_id,
@@ -109,31 +77,22 @@ class DjangoSyncLock:
 
         return str(session.id)
 
-    def _ensure_lock_row(
-        self,
-        node_id: str,
-        peer_node_id: str,
-    ) -> None:
-        SyncNodeLock.objects.get_or_create(
-            node_id=node_id,
-            peer_node_id=peer_node_id,
-        )
+    def _ensure_lock_row(self, node_id: str, peer_node_id: str) -> None:
+        SyncNodeLock.objects.get_or_create(node_id=node_id, peer_node_id=peer_node_id)
 
     def acquire(self, node_id: str, peer_node_id: str) -> str:
         self._ensure_lock_row(node_id, peer_node_id)
 
         with transaction.atomic():
             locked = (
-                SyncNodeLock.objects
-                .select_for_update()
+                SyncNodeLock.objects.select_for_update()
                 .filter(node_id=node_id, peer_node_id=peer_node_id)
                 .first()
             )
 
             if locked is None:
                 message = (
-                    f'Sync lock row for {node_id!r}<->{peer_node_id!r} '
-                    f'is missing after creation'
+                    f'Sync lock row for {node_id!r}<->{peer_node_id!r} is missing after creation'
                 )
 
                 raise LockContentionError(message)
@@ -143,10 +102,7 @@ class DjangoSyncLock:
             session_id = self._create_session(node_id, peer_node_id)
 
         logger.info(
-            'Acquired sync lock for %s<->%s (session %s)',
-            node_id,
-            peer_node_id,
-            session_id,
+            'Acquired sync lock for %s<->%s (session %s)', node_id, peer_node_id, session_id
         )
 
         return session_id
@@ -155,35 +111,23 @@ class DjangoSyncLock:
         self._ensure_lock_row(node_id, peer_node_id)
 
         SyncNodeLock.objects.select_for_update().filter(
-            node_id=node_id,
-            peer_node_id=peer_node_id,
+            node_id=node_id, peer_node_id=peer_node_id
         ).first()
 
     def hold_global(self) -> None:
         self._ensure_lock_row(_GLOBAL_LOCK_ID, _GLOBAL_LOCK_ID)
 
         SyncNodeLock.objects.select_for_update().filter(
-            node_id=_GLOBAL_LOCK_ID,
-            peer_node_id=_GLOBAL_LOCK_ID,
+            node_id=_GLOBAL_LOCK_ID, peer_node_id=_GLOBAL_LOCK_ID
         ).first()
 
     def release(
-        self,
-        session_id: str,
-        status: SyncStatus,
-        result: DatabaseResult | None = None,
+        self, session_id: str, status: SyncStatus, result: DatabaseResult | None = None
     ) -> None:
-        session = (
-            SyncSession.objects
-            .filter(id=session_id)
-            .first()
-        )
+        session = SyncSession.objects.filter(id=session_id).first()
 
         if session is None:
-            logger.warning(
-                'Sync session %s not found during release',
-                session_id,
-            )
+            logger.warning('Sync session %s not found during release', session_id)
 
             return
 
@@ -193,69 +137,38 @@ class DjangoSyncLock:
         session.completed_at = now
         session.duration_ms = int(elapsed_ms)
 
-        session.phase = (
-            SyncPhase.COMPLETE
-            if status == SyncStatus.SUCCESS
-            else SyncPhase.FAILED
-        )
+        session.phase = SyncPhase.COMPLETE if status == SyncStatus.SUCCESS else SyncPhase.FAILED
 
         session.status = status
 
         if result is not None:
-            session.records_pushed = sum(
-                len(keys)
-                for keys in result.pushed.values()
-            )
+            session.records_pushed = sum(len(keys) for keys in result.pushed.values())
 
-            session.records_applied = sum(
-                len(keys)
-                for keys in result.applied.values()
-            )
+            session.records_applied = sum(len(keys) for keys in result.applied.values())
 
-            session.records_created = sum(
-                len(keys)
-                for keys in result.created.values()
-            )
+            session.records_created = sum(len(keys) for keys in result.created.values())
 
-            session.records_deleted = sum(
-                len(keys)
-                for keys in result.deleted.values()
-            )
+            session.records_deleted = sum(len(keys) for keys in result.deleted.values())
 
-            session.conflicts = sum(
-                len(keys)
-                for keys in result.conflicts.values()
-            )
+            session.conflicts = sum(len(keys) for keys in result.conflicts.values())
 
             session.errors = len(result.errors)
 
         session.save()
 
-        logger.info(
-            'Released sync lock for session %s (status=%s)',
-            session_id,
-            status,
-        )
+        logger.info('Released sync lock for session %s (status=%s)', session_id, status)
 
     def update_phase(self, session_id: str, phase: SyncPhase) -> None:
         SyncSession.objects.filter(id=session_id).update(phase=phase)
 
-    def prune_old_sessions(
-        self,
-        days: int = _PRUNE_RETENTION_DAYS_DEFAULT,
-    ) -> int:
+    def prune_old_sessions(self, days: int = _PRUNE_RETENTION_DAYS_DEFAULT) -> int:
         cutoff = timezone.now() - timedelta(days=days)
 
         count, _ = SyncSession.objects.filter(
-            completed_at__lt=cutoff,
-            status__in=_TERMINAL_STATUSES,
+            completed_at__lt=cutoff, status__in=_TERMINAL_STATUSES
         ).delete()
 
         if count:
-            logger.info(
-                'Pruned %d old sync session(s) older than %d days',
-                count,
-                days,
-            )
+            logger.info('Pruned %d old sync session(s) older than %d days', count, days)
 
         return count

@@ -9,8 +9,7 @@ if TYPE_CHECKING:
 
 
 def foreign_key_selection_prompt(
-    model_class: type[Model],
-    related_model_class: type[Model]
+    model_class: type[Model], related_model_class: type[Model]
 ) -> Prompt:
     model_name = model_class._meta.verbose_name.title()
     related_model_name = related_model_class._meta.verbose_name.title()

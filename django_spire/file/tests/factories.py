@@ -23,9 +23,7 @@ def create_test_file(
 ) -> File:
     file_content = b'test content'
     uploaded_file = SimpleUploadedFile(
-        name=f'{name}.{file_type}',
-        content=file_content,
-        content_type='application/octet-stream'
+        name=f'{name}.{file_type}', content=file_content, content_type='application/octet-stream'
     )
 
     return File.objects.create(
@@ -42,9 +40,7 @@ def create_test_file(
 
 
 def create_test_in_memory_uploaded_file(
-    name: str = 'test_file',
-    file_type: str = 'pdf',
-    content: bytes = b'test content',
+    name: str = 'test_file', file_type: str = 'pdf', content: bytes = b'test content'
 ) -> InMemoryUploadedFile:
     file_io = BytesIO(content)
     file_io.seek(0)

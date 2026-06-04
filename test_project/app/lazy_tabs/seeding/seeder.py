@@ -16,7 +16,11 @@ class LazyTabsSeeder(DjangoModelSeeder):
 
     fields: ClassVar = {
         'id': 'exclude',
-        'created_datetime': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'}),
+        'created_datetime': (
+            'custom',
+            'date_time_between',
+            {'start_date': '-30d', 'end_date': 'now'},
+        ),
         'is_active': True,
         'is_deleted': False,
         'name': ('faker', 'catch_phrase'),

@@ -16,7 +16,7 @@ class SmsConversation(HistoryModelMixin):
         null=True,
         on_delete=models.SET_NULL,
         related_name='sms_conversations',
-        related_query_name='sms_conversation'
+        related_query_name='sms_conversation',
     )
 
     phone_number = models.CharField(max_length=20)
@@ -25,20 +25,13 @@ class SmsConversation(HistoryModelMixin):
     objects = SmsConversationQuerySet.as_manager()
 
     def __str__(self) -> str:
-        return f"SMS Conversation with {self.phone_number}"
+        return f'SMS Conversation with {self.phone_number}'
 
     def add_message(
-        self,
-        body: str,
-        is_inbound: bool,
-        twilio_sid: str,
-        is_processed: bool = False
+        self, body: str, is_inbound: bool, twilio_sid: str, is_processed: bool = False
     ) -> SmsMessage:
         message = self.messages.create(
-            body=body,
-            is_inbound=is_inbound,
-            twilio_sid=twilio_sid,
-            is_processed=is_processed,
+            body=body, is_inbound=is_inbound, twilio_sid=twilio_sid, is_processed=is_processed
         )
 
         self.last_message_datetime = now()
@@ -47,9 +40,7 @@ class SmsConversation(HistoryModelMixin):
         return message
 
     def generate_message_history(
-        self,
-        message_count: int = 20,
-        exclude_last_message: bool = True
+        self, message_count: int = 20, exclude_last_message: bool = True
     ) -> MessageHistory:
         message_history = MessageHistory()
 
@@ -61,10 +52,7 @@ class SmsConversation(HistoryModelMixin):
         messages = list(reversed(messages))
 
         for message in messages:
-            message_history.add_message(
-                role=message.role,
-                text=message.body
-            )
+            message_history.add_message(role=message.role, text=message.body)
 
         return message_history
 
@@ -84,7 +72,7 @@ class SmsMessage(HistoryModelMixin):
         SmsConversation,
         on_delete=models.CASCADE,
         related_name='messages',
-        related_query_name='message'
+        related_query_name='message',
     )
 
     body = models.TextField()
@@ -99,13 +87,13 @@ class SmsMessage(HistoryModelMixin):
 
     def __str__(self) -> str:
         if len(self.body) < 64:
-            return f"{self.direction}: {self.body}"
+            return f'{self.direction}: {self.body}'
 
-        return f"{self.direction}: {self.body[:64]}..."
+        return f'{self.direction}: {self.body[:64]}...'
 
     @property
     def direction(self) -> str:
-        return "Inbound" if self.is_inbound else "Outbound"
+        return 'Inbound' if self.is_inbound else 'Outbound'
 
     @property
     def is_outbound(self) -> bool:

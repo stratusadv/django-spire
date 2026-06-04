@@ -14,19 +14,13 @@ class HelpDeskPageUrlsTestCase(BaseTestCase):
 
     def test_ticket_delete_view_url_path(self):
         response = self.client.get(
-            path=reverse(
-                'django_spire:help_desk:page:delete',
-                kwargs={'pk': self.test_ticket.pk}
-            ),
+            path=reverse('django_spire:help_desk:page:delete', kwargs={'pk': self.test_ticket.pk})
         )
         assert response.status_code == 200
 
     def test_ticket_detail_view_url_path(self):
         response = self.client.get(
-            path=reverse(
-                'django_spire:help_desk:page:detail',
-                kwargs={'pk': self.test_ticket.pk}
-            ),
+            path=reverse('django_spire:help_desk:page:detail', kwargs={'pk': self.test_ticket.pk})
         )
         assert response.status_code == 200
 

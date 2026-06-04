@@ -13,8 +13,6 @@ class EntryFactoryServiceTests(BaseTestCase):
 
     def test_create_from_files_empty_list(self):
         entries = Entry.services.factory.create_from_files(
-            author=self.super_user,
-            collection=self.collection,
-            files=[]
+            author=self.super_user, collection=self.collection, files=[]
         )
         assert entries == []

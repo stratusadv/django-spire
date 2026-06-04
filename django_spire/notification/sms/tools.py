@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 def update_unsent_notification_status_for_deleted_temporary_media(
-    temporary_media_to_delete: list[SmsTemporaryMedia]
+    temporary_media_to_delete: list[SmsTemporaryMedia],
 ):
     for temporary_media in temporary_media_to_delete:
         if temporary_media.has_unsent_notifications():
@@ -20,7 +20,8 @@ def update_unsent_notification_status_for_deleted_temporary_media(
                 notification__status_message='SMS temporary media expired before notification was sent',
             )
 
-def format_to_international_phone_number(phone_number: str, country_code: str='1') -> str:
+
+def format_to_international_phone_number(phone_number: str, country_code: str = '1') -> str:
     """
     Args: phone_number:
     Returns: international phone number format
@@ -37,7 +38,7 @@ def format_to_international_phone_number(phone_number: str, country_code: str='1
     digit_number = re.sub(r'\D', '', main_number)
 
     if digit_number.startswith(country_code) and len(digit_number) == 10 + len(country_code):
-        digit_number = digit_number[len(country_code):]
+        digit_number = digit_number[len(country_code) :]
 
     # Check if the number is in local format or already in international format
     if len(digit_number) == 10:

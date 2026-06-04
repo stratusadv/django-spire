@@ -17,29 +17,29 @@ if TYPE_CHECKING:
 
 class Command(BaseCommand):
     help = (
-        "Removes ALL DATA from the database, including data added during "
+        'Removes ALL DATA from the database, including data added during '
         'migrations. Does not achieve a "fresh install" state.'
     )
 
-    stealth_options = ("reset_sequences", "inhibit_post_migrate")
+    stealth_options = ('reset_sequences', 'inhibit_post_migrate')
 
     def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
-            "--database",
+            '--database',
             default=DEFAULT_DB_ALIAS,
             choices=tuple(connections),
             help='Nominates a database to flush. Defaults to the "default" database.',
         )
 
     def handle(self, **options) -> None:
-        database = options["database"]
+        database = options['database']
         connection = connections[database]
-        verbosity = options["verbosity"]
+        verbosity = options['verbosity']
         allow_cascade = True
 
         # The following are stealth options used by Django's internals.
-        reset_sequences = options.get("reset_sequences", True)
-        inhibit_post_migrate = options.get("inhibit_post_migrate", False)
+        reset_sequences = options.get('reset_sequences', True)
+        inhibit_post_migrate = options.get('inhibit_post_migrate', False)
 
         self.style = no_style()
 
@@ -47,13 +47,10 @@ class Command(BaseCommand):
         # dispatcher events.
         for app_config in apps.get_app_configs():
             with contextlib.suppress(ImportError):
-                import_module(".management", app_config.name)
+                import_module('.management', app_config.name)
 
         sql_list = sql_flush(
-            self.style,
-            connection,
-            reset_sequences=reset_sequences,
-            allow_cascade=allow_cascade,
+            self.style, connection, reset_sequences=reset_sequences, allow_cascade=allow_cascade
         )
 
         try:
@@ -63,16 +60,16 @@ class Command(BaseCommand):
 
             message = (
                 f"Database {db_name} couldn't be flushed."
-                f" Possible reasons:\n"
+                f' Possible reasons:\n'
                 f"  * The database isn't running or isn't"
-                f" configured correctly.\n"
-                f"  * At least one of the expected database"
+                f' configured correctly.\n'
+                f'  * At least one of the expected database'
                 f" tables doesn't exist.\n"
-                f"  * The SQL was invalid.\n"
-                f"Hint: Look at the output of"
+                f'  * The SQL was invalid.\n'
+                f'Hint: Look at the output of'
                 f" 'django-admin sqlflush'. "
                 f"That's the SQL this command wasn't"
-                f" able to run."
+                f' able to run.'
             )
 
             raise CommandError(message) from exc

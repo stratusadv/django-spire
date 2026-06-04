@@ -5,7 +5,9 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from django_spire.ai.context.choices import PersonRoleChoices
-from django_spire.ai.context.intelligence.prompts.organization_prompts import organization_info_prompt
+from django_spire.ai.context.intelligence.prompts.organization_prompts import (
+    organization_info_prompt,
+)
 from django_spire.ai.context.models import Organization, Person
 from django_spire.core.tests.test_cases import BaseTestCase
 
@@ -13,8 +15,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class OrganizationModelTests(BaseTestCase):
     def test_organization_creation(self) -> None:
         org = Organization.objects.create(
-            name='Test Organization',
-            legal_name='Test Organization Inc.'
+            name='Test Organization', legal_name='Test Organization Inc.'
         )
 
         assert org.name == 'Test Organization'
@@ -41,7 +42,7 @@ class OrganizationModelTests(BaseTestCase):
             postal_code='10001',
             country='USA',
             phone='555-1234',
-            email='info@example.com'
+            email='info@example.com',
         )
 
         assert org.name == 'Test Org'
@@ -73,9 +74,7 @@ class OrganizationModelTests(BaseTestCase):
 class PersonModelTests(BaseTestCase):
     def test_person_creation(self) -> None:
         person = Person.objects.create(
-            first_name='John',
-            last_name='Doe',
-            role=PersonRoleChoices.ADMIN
+            first_name='John', last_name='Doe', role=PersonRoleChoices.ADMIN
         )
 
         assert person.first_name == 'John'
@@ -83,37 +82,25 @@ class PersonModelTests(BaseTestCase):
         assert person.role == PersonRoleChoices.ADMIN
 
     def test_person_default_role(self) -> None:
-        person = Person.objects.create(
-            first_name='Jane',
-            last_name='Smith'
-        )
+        person = Person.objects.create(first_name='Jane', last_name='Smith')
 
         assert person.role == PersonRoleChoices.ADMIN
 
     def test_person_default_is_internal(self) -> None:
-        person = Person.objects.create(
-            first_name='Test',
-            last_name='User'
-        )
+        person = Person.objects.create(first_name='Test', last_name='User')
 
         assert person.is_internal_to_organization is True
 
     def test_person_all_roles(self) -> None:
         for role_choice in PersonRoleChoices:
             person = Person.objects.create(
-                first_name=f'Test_{role_choice.value}',
-                last_name='User',
-                role=role_choice
+                first_name=f'Test_{role_choice.value}', last_name='User', role=role_choice
             )
 
             assert person.role == role_choice
 
     def test_person_with_user(self) -> None:
-        person = Person.objects.create(
-            user=self.super_user,
-            first_name='Super',
-            last_name='User'
-        )
+        person = Person.objects.create(user=self.super_user, first_name='Super', last_name='User')
 
         assert person.user == self.super_user
 
@@ -128,9 +115,7 @@ class PersonModelTests(BaseTestCase):
 
     def test_person_external_to_organization(self) -> None:
         person = Person.objects.create(
-            first_name='External',
-            last_name='Person',
-            is_internal_to_organization=False
+            first_name='External', last_name='Person', is_internal_to_organization=False
         )
 
         assert person.is_internal_to_organization is False
@@ -171,10 +156,7 @@ class PersonRoleChoicesTests(BaseTestCase):
 
 class OrganizationPromptTests(BaseTestCase):
     def test_organization_info_prompt_with_org(self) -> None:
-        Organization.objects.create(
-            name='Test Org',
-            legal_name='Test Org Inc.'
-        )
+        Organization.objects.create(name='Test Org', legal_name='Test Org Inc.')
 
         prompt = organization_info_prompt()
 

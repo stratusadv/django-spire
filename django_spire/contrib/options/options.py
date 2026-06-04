@@ -51,7 +51,9 @@ class Options:
 
         for section in self.sections:
             option_keys = sorted([option.key.lower() for option in section.options])
-            other_option_keys = sorted([option.key.lower() for option in other[section.name].options])
+            other_option_keys = sorted(
+                [option.key.lower() for option in other[section.name].options]
+            )
 
             if option_keys != other_option_keys:
                 return False

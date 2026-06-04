@@ -17,7 +17,7 @@ class TestBaseFieldSeeder(TestCase):
         fields = {
             'name': ('faker', 'name'),
             'email': ('faker', 'email'),
-            'description': ('llm', 'prompt')
+            'description': ('llm', 'prompt'),
         }
         seeder = DummyFieldSeeder(fields=fields)
 

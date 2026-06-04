@@ -29,11 +29,7 @@ class SyncSimulator:
         self.rng = random.Random(seed)
         self.num_keys = num_keys
 
-        self.harness = MultiTabletHarness(
-            tablet_count=tablet_count,
-            schemas=schemas,
-            seed=seed,
-        )
+        self.harness = MultiTabletHarness(tablet_count=tablet_count, schemas=schemas, seed=seed)
 
         self.oracle = SyncOracle()
         self._snapshots: dict[str, dict] = {}
@@ -69,18 +65,11 @@ class SyncSimulator:
                 return op
         return OpTag.WRITE_TABLET
 
-    def _generate_fields(
-        self,
-        model_label: str,
-        key: str,
-    ) -> tuple[dict[str, Any], dict[str, int]]:
+    def _generate_fields(self, model_label: str, key: str) -> tuple[dict[str, Any], dict[str, int]]:
         ts = self.harness.ts()
         schema = self.harness.schemas[model_label]
 
-        fields_to_update = self.rng.sample(
-            schema.fields,
-            k=self.rng.randint(1, len(schema.fields)),
-        )
+        fields_to_update = self.rng.sample(schema.fields, k=self.rng.randint(1, len(schema.fields)))
 
         data: dict[str, Any] = {'id': key}
         timestamps: dict[str, int] = {}
@@ -104,26 +93,17 @@ class SyncSimulator:
             return {**existing.data, **data}, {**existing.timestamps, **timestamps}
         return data, timestamps
 
-    def write_tablet(
-        self,
-        tablet_id: str,
-        model_label: str,
-        key: str,
-    ) -> None:
+    def write_tablet(self, tablet_id: str, model_label: str, key: str) -> None:
         data, timestamps = self._generate_fields(model_label, key)
         storage = self.harness.tablet_storages[tablet_id]
-        data, timestamps = self._merge_into_existing(
-            storage, model_label, key, data, timestamps,
-        )
+        data, timestamps = self._merge_into_existing(storage, model_label, key, data, timestamps)
         self.harness.tablet_save(tablet_id, model_label, key, data, timestamps)
         self.oracle.record_write(model_label, key, data, timestamps)
 
     def write_server(self, model_label: str, key: str) -> None:
         data, timestamps = self._generate_fields(model_label, key)
         storage = self.harness.server_storage
-        data, timestamps = self._merge_into_existing(
-            storage, model_label, key, data, timestamps,
-        )
+        data, timestamps = self._merge_into_existing(storage, model_label, key, data, timestamps)
         self.harness.server_save(model_label, key, data, timestamps)
         self.oracle.record_write(model_label, key, data, timestamps)
 
@@ -146,8 +126,7 @@ class SyncSimulator:
             },
             'checkpoints': dict(storage._checkpoints),
             'tombstones': {
-                model: dict(tombstones)
-                for model, tombstones in storage._tombstones.items()
+                model: dict(tombstones) for model, tombstones in storage._tombstones.items()
             },
             'allocator_value': storage._sequence_allocator._value,
             'after_keys': dict(storage._after_keys),
@@ -196,9 +175,7 @@ class SyncSimulator:
     def assert_converged_with_oracle(self) -> None:
         for model_label in self.model_labels:
             expected_keys = self.oracle.expected_keys(model_label)
-            server_keys = set(
-                self.harness.server_storage._records[model_label].keys()
-            )
+            server_keys = set(self.harness.server_storage._records[model_label].keys())
 
             assert expected_keys == server_keys, (
                 f'{model_label} key mismatch: '
@@ -210,9 +187,7 @@ class SyncSimulator:
                 expected = self.oracle.expected_data(model_label, key)
                 server_rec = self.harness.server_record(model_label, key)
 
-                assert server_rec is not None, (
-                    f'{model_label}:{key} missing from server'
-                )
+                assert server_rec is not None, f'{model_label}:{key} missing from server'
 
                 for field, expected_value in expected.items():
                     actual_value = server_rec.data.get(field)

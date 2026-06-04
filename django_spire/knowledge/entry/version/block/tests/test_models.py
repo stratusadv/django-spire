@@ -32,7 +32,7 @@ class EntryVersionBlockModelTests(BaseTestCase):
         self.version_block.type = BlockTypeChoices.LIST
         self.version_block._block_data = {
             'style': 'unordered',
-            'items': [{'content': 'Item 1', 'items': []}]
+            'items': [{'content': 'Item 1', 'items': []}],
         }
         result = self.version_block.editor_js_block_data
         assert isinstance(result, ListEditorBlockData)

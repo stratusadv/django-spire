@@ -9,9 +9,7 @@ from django_spire.auth.mfa import models
 
 @admin.register(models.MfaCode)
 class MfaCodeAdmin(admin.ModelAdmin):
-    list_display = (
-        'id', 'user_link', 'code', 'expiration_datetime', 'is_valid'
-    )
+    list_display = ('id', 'user_link', 'code', 'expiration_datetime', 'is_valid')
     list_filter = ('expiration_datetime',)
     search_fields = ('id', 'user__username', 'code')
     ordering = ('-expiration_datetime',)

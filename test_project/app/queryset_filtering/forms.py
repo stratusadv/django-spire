@@ -18,6 +18,4 @@ class TaskListFilterForm(forms.Form):
     search = forms.CharField(required=False)
 
     def clean_users(self):
-        return [
-            user.id for user in self.cleaned_data['users']
-        ]
+        return [user.id for user in self.cleaned_data['users']]

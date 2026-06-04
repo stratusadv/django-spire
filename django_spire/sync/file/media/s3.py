@@ -45,11 +45,7 @@ class S3Store(Store):
         target_path.parent.mkdir(parents=True, exist_ok=True)
 
         retry(
-            lambda: self._client.download_file(
-                self._bucket,
-                key,
-                str(target_path),
-            ),
+            lambda: self._client.download_file(self._bucket, key, str(target_path)),
             attempts=self._retries,
             delay=self._retry_delay,
             exceptions=(BotoCoreError, OSError),
@@ -62,10 +58,7 @@ class S3Store(Store):
         continuation_token = None
 
         while True:
-            kwargs = {
-                'Bucket': self._bucket,
-                'Prefix': prefix,
-            }
+            kwargs = {'Bucket': self._bucket, 'Prefix': prefix}
 
             if continuation_token:
                 kwargs['ContinuationToken'] = continuation_token
@@ -82,12 +75,7 @@ class S3Store(Store):
 
         return keys
 
-    def upload(
-        self,
-        key: str,
-        source_path: Path,
-        content_type: str | None = None,
-    ) -> str:
+    def upload(self, key: str, source_path: Path, content_type: str | None = None) -> str:
         extra_args = {'ACL': 'public-read'}
 
         if content_type:
@@ -95,10 +83,7 @@ class S3Store(Store):
 
         retry(
             lambda: self._client.upload_file(
-                str(source_path),
-                self._bucket,
-                key,
-                ExtraArgs=extra_args,
+                str(source_path), self._bucket, key, ExtraArgs=extra_args
             ),
             attempts=self._retries,
             delay=self._retry_delay,

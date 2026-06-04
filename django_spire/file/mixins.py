@@ -43,8 +43,7 @@ class FileProcessorServiceMixin:
     def _get_app_name(self) -> str:
         if not hasattr(self, 'obj') or self.obj is None:
             message = (
-                f'{type(self).__name__} requires "obj" to be set '
-                f'before calling file operations.'
+                f'{type(self).__name__} requires "obj" to be set before calling file operations.'
             )
 
             raise AttributeError(message)
@@ -58,9 +57,7 @@ class FileProcessorServiceMixin:
         validator: FileValidator | None = None,
     ) -> File:
         handler = SingleFileHandler.for_related_field(
-            related_field,
-            validator=validator,
-            app_name=self._get_app_name(),
+            related_field, validator=validator, app_name=self._get_app_name()
         )
 
         return handler.add(file, self.obj)
@@ -72,9 +69,7 @@ class FileProcessorServiceMixin:
         validator: FileValidator | None = None,
     ) -> File | None:
         handler = SingleFileHandler.for_related_field(
-            related_field,
-            validator=validator,
-            app_name=self._get_app_name(),
+            related_field, validator=validator, app_name=self._get_app_name()
         )
 
         return handler.replace(data, self.obj)
@@ -86,9 +81,7 @@ class FileProcessorServiceMixin:
         validator: FileValidator | None = None,
     ) -> list[File]:
         handler = MultiFileHandler.for_related_field(
-            related_field,
-            validator=validator,
-            app_name=self._get_app_name(),
+            related_field, validator=validator, app_name=self._get_app_name()
         )
 
         return handler.add_many(files, self.obj)
@@ -100,25 +93,17 @@ class FileProcessorServiceMixin:
         validator: FileValidator | None = None,
     ) -> list[File]:
         handler = MultiFileHandler.for_related_field(
-            related_field,
-            validator=validator,
-            app_name=self._get_app_name(),
+            related_field, validator=validator, app_name=self._get_app_name()
         )
 
         return handler.replace(data, self.obj)
 
     def delete_file(self, file_id: int, related_field: str = '') -> bool:
-        handler = SingleFileHandler.for_related_field(
-            related_field,
-            app_name=self._get_app_name(),
-        )
+        handler = SingleFileHandler.for_related_field(related_field, app_name=self._get_app_name())
 
         return handler.remove(file_id, self.obj)
 
     def delete_files(self, related_field: str = '') -> int:
-        handler = MultiFileHandler.for_related_field(
-            related_field,
-            app_name=self._get_app_name(),
-        )
+        handler = MultiFileHandler.for_related_field(related_field, app_name=self._get_app_name())
 
         return handler.remove_all(self.obj)

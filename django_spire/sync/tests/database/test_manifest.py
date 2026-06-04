@@ -3,19 +3,14 @@ from __future__ import annotations
 import pytest
 
 from django_spire.sync.core.exceptions import ManifestFieldError
-from django_spire.sync.database.manifest import (
-    ModelPayload,
-    SyncManifest,
-)
+from django_spire.sync.database.manifest import ModelPayload, SyncManifest
 from django_spire.sync.database.record import SyncRecord
 
 
 def test_model_payload_to_dict() -> None:
     payload = ModelPayload(
         model_label='app.Model',
-        records={
-            '1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={}),
-        },
+        records={'1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={})},
         deletes={'2': 500},
     )
 
@@ -30,9 +25,7 @@ def test_model_payload_to_dict() -> None:
 def test_model_payload_from_dict() -> None:
     data = {
         'model_label': 'app.Model',
-        'records': {
-            '1': {'data': {'name': 'Alice'}, 'timestamps': {}},
-        },
+        'records': {'1': {'data': {'name': 'Alice'}, 'timestamps': {}}},
         'deletes': {'3': 800},
     }
 
@@ -47,9 +40,7 @@ def test_model_payload_from_dict() -> None:
 def test_model_payload_round_trip() -> None:
     original = ModelPayload(
         model_label='app.Model',
-        records={
-            '1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={}),
-        },
+        records={'1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={})},
         deletes={'2': 500, '3': 700},
     )
 
@@ -71,20 +62,14 @@ def test_model_payload_from_dict_defaults() -> None:
 
 
 def test_model_payload_rejects_non_dict_deletes() -> None:
-    data = {
-        'model_label': 'app.Model',
-        'deletes': ['1', '2'],
-    }
+    data = {'model_label': 'app.Model', 'deletes': ['1', '2']}
 
     with pytest.raises(ManifestFieldError, match='deletes'):
         ModelPayload.from_dict(data)
 
 
 def test_model_payload_rejects_non_int_tombstone() -> None:
-    data = {
-        'model_label': 'app.Model',
-        'deletes': {'1': 'not-an-int'},
-    }
+    data = {'model_label': 'app.Model', 'deletes': {'1': 'not-an-int'}}
 
     with pytest.raises(ManifestFieldError, match='tombstone'):
         ModelPayload.from_dict(data)
@@ -99,10 +84,8 @@ def test_sync_manifest_to_dict() -> None:
         payloads=[
             ModelPayload(
                 model_label='app.Model',
-                records={
-                    '1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={}),
-                },
-            ),
+                records={'1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={})},
+            )
         ],
     )
 
@@ -125,10 +108,8 @@ def test_sync_manifest_from_dict() -> None:
         'payloads': [
             {
                 'model_label': 'app.Model',
-                'records': {
-                    '1': {'data': {'name': 'Alice'}, 'timestamps': {}},
-                },
-            },
+                'records': {'1': {'data': {'name': 'Alice'}, 'timestamps': {}}},
+            }
         ],
     }
 
@@ -149,16 +130,10 @@ def test_sync_manifest_round_trip() -> None:
         payloads=[
             ModelPayload(
                 model_label='app.Model',
-                records={
-                    '1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={}),
-                },
+                records={'1': SyncRecord(key='1', data={'name': 'Alice'}, timestamps={})},
                 deletes={'2': 600},
             ),
-            ModelPayload(
-                model_label='app.Other',
-                records={},
-                deletes={'5': 700},
-            ),
+            ModelPayload(model_label='app.Other', records={}, deletes={'5': 700}),
         ],
     )
 
@@ -173,11 +148,7 @@ def test_sync_manifest_round_trip() -> None:
 
 
 def test_sync_manifest_from_dict_defaults() -> None:
-    data = {
-        'node_id': 'server',
-        'peer_sequence': 0,
-        'local_sequence': 0,
-    }
+    data = {'node_id': 'server', 'peer_sequence': 0, 'local_sequence': 0}
 
     manifest = SyncManifest.from_dict(data)
 
@@ -186,22 +157,14 @@ def test_sync_manifest_from_dict_defaults() -> None:
 
 
 def test_sync_manifest_rejects_empty_node_id() -> None:
-    data = {
-        'node_id': '',
-        'peer_sequence': 0,
-        'local_sequence': 0,
-    }
+    data = {'node_id': '', 'peer_sequence': 0, 'local_sequence': 0}
 
     with pytest.raises(ManifestFieldError, match='non-empty'):
         SyncManifest.from_dict(data)
 
 
 def test_sync_manifest_rejects_negative_peer_sequence() -> None:
-    data = {
-        'node_id': 'tablet',
-        'peer_sequence': -1,
-        'local_sequence': 0,
-    }
+    data = {'node_id': 'tablet', 'peer_sequence': -1, 'local_sequence': 0}
 
     with pytest.raises(ManifestFieldError, match='non-negative'):
         SyncManifest.from_dict(data)
@@ -212,10 +175,7 @@ def test_sync_manifest_rejects_duplicate_model_label() -> None:
         'node_id': 'tablet',
         'peer_sequence': 0,
         'local_sequence': 0,
-        'payloads': [
-            {'model_label': 'app.Model'},
-            {'model_label': 'app.Model'},
-        ],
+        'payloads': [{'model_label': 'app.Model'}, {'model_label': 'app.Model'}],
     }
 
     with pytest.raises(ManifestFieldError, match='duplicate'):
@@ -224,11 +184,7 @@ def test_sync_manifest_rejects_duplicate_model_label() -> None:
 
 def test_sync_manifest_verify_rejects_empty_checksum() -> None:
     manifest = SyncManifest(
-        node_id='tablet',
-        peer_sequence=0,
-        local_sequence=0,
-        node_time=0,
-        payloads=[],
+        node_id='tablet', peer_sequence=0, local_sequence=0, node_time=0, payloads=[]
     )
 
     assert manifest.verify() is False
@@ -236,11 +192,7 @@ def test_sync_manifest_verify_rejects_empty_checksum() -> None:
 
 def test_sync_manifest_verify_valid_checksum() -> None:
     manifest = SyncManifest(
-        node_id='tablet',
-        peer_sequence=0,
-        local_sequence=0,
-        node_time=0,
-        payloads=[],
+        node_id='tablet', peer_sequence=0, local_sequence=0, node_time=0, payloads=[]
     )
     manifest.checksum = manifest.compute_checksum()
 
@@ -249,11 +201,7 @@ def test_sync_manifest_verify_valid_checksum() -> None:
 
 def test_sync_manifest_verify_tampered_checksum() -> None:
     manifest = SyncManifest(
-        node_id='tablet',
-        peer_sequence=0,
-        local_sequence=0,
-        node_time=0,
-        payloads=[],
+        node_id='tablet', peer_sequence=0, local_sequence=0, node_time=0, payloads=[]
     )
     manifest.checksum = 'deadbeef'
 
@@ -262,11 +210,7 @@ def test_sync_manifest_verify_tampered_checksum() -> None:
 
 def test_sync_manifest_to_dict_includes_checksum() -> None:
     manifest = SyncManifest(
-        node_id='tablet',
-        peer_sequence=0,
-        local_sequence=100,
-        node_time=101,
-        payloads=[],
+        node_id='tablet', peer_sequence=0, local_sequence=100, node_time=101, payloads=[]
     )
 
     data = manifest.to_dict()

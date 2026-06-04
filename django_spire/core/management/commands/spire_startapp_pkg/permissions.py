@@ -93,7 +93,7 @@ class PermissionInheritanceHandler:
 
         self.reporter.write(
             f'\nEnter the parent model instance name (default: "{default}")',
-            self.reporter.style_notice
+            self.reporter.style_notice,
         )
 
         user_input = input('Press Enter to use default or type a custom name: ').strip()
@@ -110,8 +110,7 @@ class PermissionInheritanceHandler:
         default = self._build_default_parent_model_path(components)
 
         self.reporter.write(
-            f'\nEnter the parent model path (default: "{default}")',
-            self.reporter.style_notice
+            f'\nEnter the parent model path (default: "{default}")', self.reporter.style_notice
         )
 
         user_input = input('Press Enter to use default or type a custom path: ').strip()
@@ -129,7 +128,7 @@ class PermissionInheritanceHandler:
 
         self.reporter.write(
             f'\nEnter the parent permission prefix (default: "{default}")',
-            self.reporter.style_notice
+            self.reporter.style_notice,
         )
 
         user_input = input('Press Enter to use default or type a custom prefix: ').strip()
@@ -142,6 +141,9 @@ class PermissionInheritanceHandler:
         :return: True if user wants to inherit permissions, False otherwise.
         """
 
-        self.reporter.write('\nDo you want this app to inherit permissions from its parent? (y/n)', self.reporter.style_notice)
+        self.reporter.write(
+            '\nDo you want this app to inherit permissions from its parent? (y/n)',
+            self.reporter.style_notice,
+        )
         user_input = input('Default is "n": ').strip().lower()
         return user_input == 'y'

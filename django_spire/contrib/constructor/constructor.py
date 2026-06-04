@@ -9,14 +9,11 @@ from django_spire.contrib.constructor.exceptions import ConstructorError
 TypeAny = TypeVar('TypeAny', bound=Any, covariant=True)
 
 
-class BaseConstructor(
-    ABC,
-    Generic[TypeAny]
-):
+class BaseConstructor(ABC, Generic[TypeAny]):
     def __init__(self, obj: Any = None):
-        self._obj_type_name: str = str(
-            next(iter(self.__class__.__annotations__.values()))
-        ).split('.')[-1]
+        self._obj_type_name: str = str(next(iter(self.__class__.__annotations__.values()))).split(
+            '.'
+        )[-1]
 
         if obj is None:
             return
@@ -60,7 +57,6 @@ class BaseConstructor(
                     target: cls | Any = instance
 
                 if issubclass(target.__class__, BaseConstructor):
-
                     self._validate_base_service_target_or_error(target)
 
                     return cls(target.obj)

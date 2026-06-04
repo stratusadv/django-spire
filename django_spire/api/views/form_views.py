@@ -42,10 +42,7 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
                 page_description='Your API access has been created.',
                 breadcrumbs=Breadcrumbs(),
                 template='django_spire/api/page/access_created_page.html',
-                context_data={
-                    'api_access': api_access,
-                    'raw_key': raw_key,
-                }
+                context_data={'api_access': api_access, 'raw_key': raw_key},
             )
 
         show_form_errors(request, form)
@@ -59,7 +56,5 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
         verb='Create',
         obj=api_access,
         template='django_spire/api/page/access_form_page.html',
-        context_data={
-            'form_action_url': reverse('django_spire:api:form:create'),
-        }
+        context_data={'form_action_url': reverse('django_spire:api:form:create')},
     )

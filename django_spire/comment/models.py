@@ -21,14 +21,11 @@ class Comment(HistoryModelMixin):
         blank=True,
         null=True,
         related_name='children',
-        related_query_name='child'
+        related_query_name='child',
     )
 
     user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        editable=False,
-        related_name='comment_list'
+        User, on_delete=models.CASCADE, editable=False, related_name='comment_list'
     )
 
     information = models.TextField(default='')
@@ -45,6 +42,7 @@ class Comment(HistoryModelMixin):
 
     def find_user_list(self):
         from django.contrib.auth.models import User
+
         return User.objects.filter(username__in=self.scrape_username_list())
 
     def scrape_username_list(self):

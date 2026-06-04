@@ -13,11 +13,7 @@ if TYPE_CHECKING:
     from django.db.models import QuerySet
 
 
-class BaseTagService(
-    BaseDjangoModelService[TypeDjangoModel],
-    ABC,
-    Generic[TypeDjangoModel]
-):
+class BaseTagService(BaseDjangoModelService[TypeDjangoModel], ABC, Generic[TypeDjangoModel]):
     obj: TypeDjangoModel
 
     @abstractmethod
@@ -43,11 +39,12 @@ class BaseTagService(
 
     def get_score_percentage_from_tag_set_weighted(self, tag_set: set[str]) -> float:
         return get_score_percentage_from_tag_set_weighted(
-            tag_set_actual=tag_set,
-            tag_set_reference=self.obj.tag_set
+            tag_set_actual=tag_set, tag_set_reference=self.obj.tag_set
         )
 
-    def get_simplified_and_weighted_tag_dict_above_minimum(self, minimum_weight: int = 1) -> dict[str, int]:
+    def get_simplified_and_weighted_tag_dict_above_minimum(
+        self, minimum_weight: int = 1
+    ) -> dict[str, int]:
         above_minimum_tag_dict = self.obj.simplified_and_weighted_tag_dict
 
         return {

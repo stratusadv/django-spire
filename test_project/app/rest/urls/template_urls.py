@@ -5,6 +5,4 @@ from test_project.app.rest.views import template_views
 
 app_name = 'template'
 
-urlpatterns = [
-    path('list/items/', template_views.list_items_view, name='list_items')
-]
+urlpatterns = [path('list/items/', template_views.list_items_view, name='list_items')]

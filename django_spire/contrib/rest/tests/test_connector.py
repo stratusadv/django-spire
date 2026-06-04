@@ -1,6 +1,7 @@
 """
 Tests for BaseRestHttpConnector.
 """
+
 from unittest.mock import patch, Mock
 
 from django.core.exceptions import ImproperlyConfigured
@@ -15,6 +16,7 @@ class TestBaseRestHttpConnector(TestCase):
     def test_base_url_required(self):
         """Test that base_url is required."""
         with self.assertRaises(ImproperlyConfigured) as context:
+
             class InvalidConnector(BaseRestHttpConnector):
                 pass
 
@@ -23,6 +25,7 @@ class TestBaseRestHttpConnector(TestCase):
     def test_url_validation_invalid_url(self):
         """Test that invalid URLs raise ValueError."""
         with self.assertRaises(ValueError) as context:
+
             class InvalidUrlConnector(BaseRestHttpConnector):
                 base_url = 'not-a-valid-url'
 
@@ -31,11 +34,13 @@ class TestBaseRestHttpConnector(TestCase):
     def test_url_validation_missing_scheme(self):
         """Test that URLs without scheme raise ValueError."""
         with self.assertRaises(ValueError):
+
             class NoSchemeConnector(BaseRestHttpConnector):
                 base_url = 'example.com/api'
 
     def test_valid_connector_creation(self):
         """Test that valid connectors can be created."""
+
         class ValidConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
 
@@ -44,6 +49,7 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_build_url_base_only(self):
         """Test URL building with base_url only."""
+
         class TestConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
 
@@ -54,6 +60,7 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_build_url_with_path(self):
         """Test URL building with path."""
+
         class TestConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
 
@@ -64,6 +71,7 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_build_url_with_base_path(self):
         """Test URL building with base_path."""
+
         class TestConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
             base_path = 'v1'
@@ -75,6 +83,7 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_build_url_strips_slashes(self):
         """Test that path slashes are stripped."""
+
         class TestConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
 
@@ -85,6 +94,7 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_default_timeout(self):
         """Test default timeout value."""
+
         class TestConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
 
@@ -94,6 +104,7 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_custom_timeout(self):
         """Test custom timeout value."""
+
         class TestConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
             timeout = 60
@@ -104,6 +115,7 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_default_auth_returns_none(self):
         """Test that default auth property returns None."""
+
         class TestConnector(BaseRestHttpConnector):
             base_url = 'https://api.example.com'
 

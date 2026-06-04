@@ -87,11 +87,7 @@ def storage() -> MemoryStorage:
 
 @pytest.fixture
 def engine(storage: MemoryStorage) -> Engine:
-    return Engine(
-        storage=storage,
-        identity_field='stock_number',
-        deactivation_threshold=None,
-    )
+    return Engine(storage=storage, identity_field='stock_number', deactivation_threshold=None)
 
 
 def test_initial_sync_creates_all(engine: Engine, storage: MemoryStorage) -> None:
@@ -222,16 +218,9 @@ def test_missing_fields_unit_syncs(engine: Engine, storage: MemoryStorage) -> No
 def test_sync_records_without_file() -> None:
     id_storage = MemoryStorage(identity_field='id')
 
-    engine = Engine(
-        storage=id_storage,
-        identity_field='id',
-        deactivation_threshold=None,
-    )
+    engine = Engine(storage=id_storage, identity_field='id', deactivation_threshold=None)
 
-    records = [
-        {'id': '1', 'name': 'Alpha'},
-        {'id': '2', 'name': 'Beta'},
-    ]
+    records = [{'id': '1', 'name': 'Alpha'}, {'id': '2', 'name': 'Beta'}]
 
     result = engine.sync_records(records)
 
@@ -260,16 +249,9 @@ def test_compare_fields_limits_detection(storage: MemoryStorage) -> None:
 def test_duplicate_identity_reports_error() -> None:
     id_storage = MemoryStorage(identity_field='id')
 
-    engine = Engine(
-        storage=id_storage,
-        identity_field='id',
-        deactivation_threshold=None,
-    )
+    engine = Engine(storage=id_storage, identity_field='id', deactivation_threshold=None)
 
-    records = [
-        {'id': '1', 'name': 'First'},
-        {'id': '1', 'name': 'Duplicate'},
-    ]
+    records = [{'id': '1', 'name': 'First'}, {'id': '1', 'name': 'Duplicate'}]
 
     result = engine.sync_records(records)
 
@@ -314,11 +296,7 @@ def test_unchanged_skips_get_many() -> None:
 
     tracking = TrackingStorage()
 
-    engine = Engine(
-        storage=tracking,
-        identity_field='stock_number',
-        deactivation_threshold=None,
-    )
+    engine = Engine(storage=tracking, identity_field='stock_number', deactivation_threshold=None)
 
     engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER)
     get_many_calls.clear()
@@ -387,11 +365,7 @@ def test_callbacks_fire_after_mutations() -> None:
 
 
 def test_dry_run_no_mutations(engine: Engine, storage: MemoryStorage) -> None:
-    result = engine.sync(
-        FIXTURES_DIR / 'sample_units.xml',
-        reader=UNIT_READER,
-        dry_run=True,
-    )
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER, dry_run=True)
 
     assert len(result.created) == 2
     assert storage.records == {}
@@ -404,11 +378,7 @@ def test_dry_run_reports_deactivations(engine: Engine, storage: MemoryStorage) -
     storage.records['GONE'] = {'stock_number': 'GONE'}
     storage.hashes['GONE'] = 'stale'
 
-    result = engine.sync(
-        FIXTURES_DIR / 'sample_units.xml',
-        reader=UNIT_READER,
-        dry_run=True,
-    )
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER, dry_run=True)
 
     assert 'GONE' in result.deactivated
     assert 'GONE' in storage.records
@@ -420,11 +390,7 @@ def test_dry_run_reports_updates(engine: Engine, storage: MemoryStorage) -> None
     storage.records['13511']['price'] = 999.99
     storage.hashes['13511'] = 'stale'
 
-    result = engine.sync(
-        FIXTURES_DIR / 'sample_units.xml',
-        reader=UNIT_READER,
-        dry_run=True,
-    )
+    result = engine.sync(FIXTURES_DIR / 'sample_units.xml', reader=UNIT_READER, dry_run=True)
 
     assert '13511' in result.updated
     assert storage.records['13511']['price'] == 999.99
@@ -442,16 +408,9 @@ def test_missing_hash_treated_as_changed(engine: Engine, storage: MemoryStorage)
 def test_none_identity_rejected() -> None:
     id_storage = MemoryStorage(identity_field='id')
 
-    engine = Engine(
-        storage=id_storage,
-        identity_field='id',
-        deactivation_threshold=None,
-    )
+    engine = Engine(storage=id_storage, identity_field='id', deactivation_threshold=None)
 
-    records = [
-        {'id': None, 'name': 'Ghost'},
-        {'id': '1', 'name': 'Valid'},
-    ]
+    records = [{'id': None, 'name': 'Ghost'}, {'id': '1', 'name': 'Valid'}]
 
     result = engine.sync_records(records)
 
@@ -507,11 +466,7 @@ def test_callback_error_does_not_skip_remaining(storage: MemoryStorage) -> None:
 def test_deactivation_threshold_aborts() -> None:
     storage = MemoryStorage()
 
-    engine = Engine(
-        storage=storage,
-        identity_field='stock_number',
-        deactivation_threshold=0.5,
-    )
+    engine = Engine(storage=storage, identity_field='stock_number', deactivation_threshold=0.5)
 
     for i in range(10):
         key = str(i)
@@ -529,11 +484,7 @@ def test_deactivation_threshold_aborts() -> None:
 def test_deactivation_threshold_allows_within_limit() -> None:
     storage = MemoryStorage()
 
-    engine = Engine(
-        storage=storage,
-        identity_field='stock_number',
-        deactivation_threshold=0.5,
-    )
+    engine = Engine(storage=storage, identity_field='stock_number', deactivation_threshold=0.5)
 
     for i in range(10):
         key = str(i)
@@ -551,11 +502,7 @@ def test_deactivation_threshold_allows_within_limit() -> None:
 def test_deactivation_threshold_disabled() -> None:
     storage = MemoryStorage()
 
-    engine = Engine(
-        storage=storage,
-        identity_field='stock_number',
-        deactivation_threshold=None,
-    )
+    engine = Engine(storage=storage, identity_field='stock_number', deactivation_threshold=None)
 
     for i in range(10):
         key = str(i)

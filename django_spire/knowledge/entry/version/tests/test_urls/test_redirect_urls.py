@@ -22,7 +22,7 @@ class EntryVersionRedirectUrlsTests(BaseTestCase):
         response = self.client.post(
             reverse(
                 'django_spire:knowledge:entry:version:redirect:publish',
-                kwargs={'pk': self.test_entry_version.pk}
+                kwargs={'pk': self.test_entry_version.pk},
             )
         )
         assert response.status_code == 302
@@ -31,7 +31,7 @@ class EntryVersionRedirectUrlsTests(BaseTestCase):
         self.client.post(
             reverse(
                 'django_spire:knowledge:entry:version:redirect:publish',
-                kwargs={'pk': self.test_entry_version.pk}
+                kwargs={'pk': self.test_entry_version.pk},
             )
         )
         self.test_entry_version.refresh_from_db()

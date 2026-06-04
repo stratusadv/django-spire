@@ -3,10 +3,7 @@ from __future__ import annotations
 import pytest
 from django.test import TestCase
 
-from django_spire.constants import (
-    __VERSION__,
-    MAINTENANCE_MODE_SETTINGS_KEY,
-)
+from django_spire.constants import __VERSION__, MAINTENANCE_MODE_SETTINGS_KEY
 
 
 class TestConsts(TestCase):

@@ -16,16 +16,9 @@ from django_spire.knowledge.entry.services.service import EntryService
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
-class Entry(
-    HistoryModelMixin,
-    OrderingModelMixin,
-    TagModelMixin
-):
+class Entry(HistoryModelMixin, OrderingModelMixin, TagModelMixin):
     collection = models.ForeignKey(
-        Collection,
-        on_delete=models.CASCADE,
-        related_name='entries',
-        related_query_name='entry'
+        Collection, on_delete=models.CASCADE, related_name='entries', related_query_name='entry'
     )
     current_version = models.OneToOneField(
         EntryVersion,
@@ -62,17 +55,13 @@ class Entry(
             self.top_level_collection.name_short,
             reverse(
                 'django_spire:knowledge:collection:page:top_level',
-                kwargs={'pk': self.top_level_collection.pk}
-            )
+                kwargs={'pk': self.top_level_collection.pk},
+            ),
         )
 
-        bread_crumbs.add_breadcrumb(
-            self.collection.name_short
-        )
+        bread_crumbs.add_breadcrumb(self.collection.name_short)
 
-        bread_crumbs.add_breadcrumb(
-            self.name_short,
-        )
+        bread_crumbs.add_breadcrumb(self.name_short)
 
         return bread_crumbs
 
@@ -82,11 +71,7 @@ class Entry(
         db_table = 'django_spire_knowledge_entry'
         indexes = [
             GinIndex(fields=['_search_vector'], name='entry_search_vector_idx'),
-            GinIndex(
-                name='entry_name_trgm_idx',
-                fields=['name'],
-                opclasses=['gin_trgm_ops'],
-            ),
+            GinIndex(name='entry_name_trgm_idx', fields=['name'], opclasses=['gin_trgm_ops']),
             GinIndex(
                 name='entry_search_text_trgm_idx',
                 fields=['_search_text'],

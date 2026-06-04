@@ -22,20 +22,16 @@ class BaseHelpDeskAuthControllerTests(BaseTestCase):
         content_type = ContentType.objects.get_for_model(HelpDeskTicket)
 
         self.view_permission = Permission.objects.get(
-            codename='view_helpdeskticket',
-            content_type=content_type
+            codename='view_helpdeskticket', content_type=content_type
         )
         self.add_permission = Permission.objects.get(
-            codename='add_helpdeskticket',
-            content_type=content_type
+            codename='add_helpdeskticket', content_type=content_type
         )
         self.change_permission = Permission.objects.get(
-            codename='change_helpdeskticket',
-            content_type=content_type
+            codename='change_helpdeskticket', content_type=content_type
         )
         self.delete_permission = Permission.objects.get(
-            codename='delete_helpdeskticket',
-            content_type=content_type
+            codename='delete_helpdeskticket', content_type=content_type
         )
 
     def _refresh_user_and_request(self):

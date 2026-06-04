@@ -11,15 +11,17 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="row">
-	    <div class="col-12 border-bottom pb-2">
-            {% include 'django_spire/theme/example/item/example_item.html' %}
-        </div>
-	    <div class="col-12 border-bottom pb-2">
-            {% include 'django_spire/theme/example/item/example_item.html' %}
-        </div>
-	    <div class="col-12 border-bottom pb-2">
-            {% include 'django_spire/theme/example/item/example_item.html' %}
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 border-bottom pb-2">
+                {% include 'django_spire/theme/example/item/example_item.html' %}
+            </div>
+            <div class="col-12 border-bottom pb-2">
+                {% include 'django_spire/theme/example/item/example_item.html' %}
+            </div>
+            <div class="col-12 border-bottom pb-2">
+                {% include 'django_spire/theme/example/item/example_item.html' %}
+            </div>
         </div>
     </div>
 {% endblock %}

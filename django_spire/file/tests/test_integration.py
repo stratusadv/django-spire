@@ -17,10 +17,7 @@ from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
 from django_spire.file.linker import FileLinker
 from django_spire.file.models import File
 from django_spire.file.services import copy_files_to_instance
-from django_spire.file.tests.factories import (
-    create_test_file,
-    create_test_in_memory_uploaded_file,
-)
+from django_spire.file.tests.factories import create_test_file, create_test_in_memory_uploaded_file
 from django_spire.file.utils import format_size, parse_extension, parse_name, sign_file_id
 from django_spire.file.views import file_upload_ajax_multiple, file_upload_ajax_single
 from django_spire.file.widgets import MultipleFileWidget, SingleFileWidget
@@ -29,12 +26,8 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 
 
 STORAGES_OVERRIDE = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 
 
@@ -47,28 +40,19 @@ class MultiFileHandlerMixedTypeTests(BaseTestCase):
         self.ticket = create_test_helpdesk_ticket()
 
     def test_dict_then_upload_crashes_in_ajax_path(self) -> None:
-        data = [
-            {'id': 1},
-            create_test_in_memory_uploaded_file(name='upload'),
-        ]
+        data = [{'id': 1}, create_test_in_memory_uploaded_file(name='upload')]
 
         with pytest.raises((TypeError, AttributeError, KeyError)):
             self.handler.replace(data, self.ticket)
 
     def test_upload_then_dict_crashes_in_upload_path(self) -> None:
-        data = [
-            create_test_in_memory_uploaded_file(name='upload'),
-            {'id': 1},
-        ]
+        data = [create_test_in_memory_uploaded_file(name='upload'), {'id': 1}]
 
         with pytest.raises((FileValidationError, AttributeError, TypeError)):
             self.handler.replace(data, self.ticket)
 
     def test_none_element_in_list_crashes(self) -> None:
-        data = [
-            create_test_in_memory_uploaded_file(name='good'),
-            None,
-        ]
+        data = [create_test_in_memory_uploaded_file(name='good'), None]
 
         with pytest.raises((FileValidationError, AttributeError, TypeError)):
             self.handler.replace(data, self.ticket)
@@ -93,9 +77,7 @@ class HandlerAtomicityTests(BaseTestCase):
     def test_multi_upload_rollback_on_create_many_failure(self) -> None:
         handler = MultiFileHandler.for_related_field('abc')
         existing = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='abc',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='abc'
         )
 
         good = create_test_in_memory_uploaded_file(name='good')
@@ -110,9 +92,7 @@ class HandlerAtomicityTests(BaseTestCase):
     def test_multi_ajax_rollback_on_link_many_failure(self) -> None:
         handler = MultiFileHandler.for_related_field('abc')
         existing = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='abc',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='abc'
         )
         orphan = create_test_file(name='orphan')
 
@@ -120,10 +100,7 @@ class HandlerAtomicityTests(BaseTestCase):
             patch.object(FileLinker, 'link_many', side_effect=RuntimeError('db error')),
             pytest.raises(RuntimeError),
         ):
-            handler.replace(
-                [{'id': orphan.pk, 'token': sign_file_id(orphan.pk)}],
-                self.ticket,
-            )
+            handler.replace([{'id': orphan.pk, 'token': sign_file_id(orphan.pk)}], self.ticket)
 
         existing.refresh_from_db()
         assert existing.is_active is True
@@ -131,9 +108,7 @@ class HandlerAtomicityTests(BaseTestCase):
     def test_single_upload_rollback_on_create_failure(self) -> None:
         handler = SingleFileHandler.for_related_field('pfp')
         existing = create_test_file(
-            content_type=self.content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.ticket.pk, related_field='pfp'
         )
         bad = create_test_in_memory_uploaded_file(name='bad', file_type='exe')
 
@@ -221,9 +196,9 @@ class ParseNameAdversarialTests(BaseTestCase):
         assert result == ' '
 
     def test_unicode_rtl_override_in_name(self) -> None:
-        result = parse_name('file\u202Efdp.exe')
+        result = parse_name('file\u202efdp.exe')
 
-        assert '\u202E' in result
+        assert '\u202e' in result
 
 
 class ParseExtensionAdversarialTests(BaseTestCase):
@@ -239,9 +214,9 @@ class ParseExtensionAdversarialTests(BaseTestCase):
         assert result == 'pd\nf'
 
     def test_unicode_rtl_override_in_extension(self) -> None:
-        result = parse_extension('file.\u202Eexe')
+        result = parse_extension('file.\u202eexe')
 
-        assert '\u202E' in result
+        assert '\u202e' in result
 
     def test_extension_with_only_whitespace(self) -> None:
         result = parse_extension('file.   ')
@@ -274,14 +249,10 @@ class FileLinkerEdgeCaseTests(BaseTestCase):
     def test_unlink_existing_only_affects_matching_related_field(self) -> None:
         content_type = ContentType.objects.get_for_model(self.ticket)
         pfp_file = create_test_file(
-            content_type=content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=content_type, object_id=self.ticket.pk, related_field='pfp'
         )
         other_file = create_test_file(
-            content_type=content_type,
-            object_id=self.ticket.pk,
-            related_field='banner',
+            content_type=content_type, object_id=self.ticket.pk, related_field='banner'
         )
 
         self.linker.unlink_existing(self.ticket)
@@ -294,9 +265,7 @@ class FileLinkerEdgeCaseTests(BaseTestCase):
     def test_unlink_except_with_very_large_keep_ids(self) -> None:
         content_type = ContentType.objects.get_for_model(self.ticket)
         file = create_test_file(
-            content_type=content_type,
-            object_id=self.ticket.pk,
-            related_field='pfp',
+            content_type=content_type, object_id=self.ticket.pk, related_field='pfp'
         )
 
         keep_ids = list(range(1, 1001))
@@ -326,9 +295,10 @@ class FactoryStorageOrphanTests(BaseTestCase):
             create_test_in_memory_uploaded_file(name='file2'),
         ]
 
-        with patch.object(
-            File.objects, 'bulk_create', side_effect=RuntimeError('db down')
-        ), pytest.raises(RuntimeError):
+        with (
+            patch.object(File.objects, 'bulk_create', side_effect=RuntimeError('db down')),
+            pytest.raises(RuntimeError),
+        ):
             factory.create_many(files)
 
 
@@ -343,10 +313,7 @@ class ViewEdgeCaseTests(BaseTestCase):
         content = b'x' * (10 * 1024 * 1024 + 1)
         file = create_test_in_memory_uploaded_file(content=content)
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': ''})
         request.FILES['file'] = file
         request.user = self.super_user
 
@@ -360,10 +327,7 @@ class ViewEdgeCaseTests(BaseTestCase):
         content = b'x' * (10 * 1024 * 1024 + 1)
         bad = create_test_in_memory_uploaded_file(content=content)
 
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
         request.FILES['file1'] = good
         request.FILES['file2'] = bad
         request.user = self.super_user
@@ -376,10 +340,7 @@ class ViewEdgeCaseTests(BaseTestCase):
     def test_related_field_with_unicode_returns_error(self) -> None:
         file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': 'документ'},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': 'документ'})
         request.FILES['file'] = file
         request.user = self.super_user
 
@@ -391,10 +352,7 @@ class ViewEdgeCaseTests(BaseTestCase):
     def test_related_field_with_spaces_returns_error(self) -> None:
         file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': 'has space'},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': 'has space'})
         request.FILES['file'] = file
         request.user = self.super_user
 
@@ -406,10 +364,7 @@ class ViewEdgeCaseTests(BaseTestCase):
     def test_related_field_with_dots_returns_error(self) -> None:
         file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': 'field.name'},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': 'field.name'})
         request.FILES['file'] = file
         request.user = self.super_user
 
@@ -421,10 +376,7 @@ class ViewEdgeCaseTests(BaseTestCase):
     def test_related_field_with_hyphen_returns_error(self) -> None:
         file = create_test_in_memory_uploaded_file()
 
-        request = self.factory.post(
-            '/upload/single/ajax',
-            data={'related_field': 'field-name'},
-        )
+        request = self.factory.post('/upload/single/ajax', data={'related_field': 'field-name'})
         request.FILES['file'] = file
         request.user = self.super_user
 
@@ -434,15 +386,10 @@ class ViewEdgeCaseTests(BaseTestCase):
         assert data['type'] == 'error'
 
     def test_multiple_upload_exceeding_batch_size_returns_error(self) -> None:
-        request = self.factory.post(
-            '/upload/multiple/ajax',
-            data={'related_field': ''},
-        )
+        request = self.factory.post('/upload/multiple/ajax', data={'related_field': ''})
 
         for i in range(BATCH_SIZE_MAX + 1):
-            request.FILES[f'file{i}'] = create_test_in_memory_uploaded_file(
-                name=f'file{i}'
-            )
+            request.FILES[f'file{i}'] = create_test_in_memory_uploaded_file(name=f'file{i}')
 
         request.user = self.super_user
 
@@ -471,9 +418,7 @@ class QuerySetORMEdgeCaseTests(BaseTestCase):
         create_test_file(related_field='pfp')
         create_test_file(related_field='banner')
 
-        names = list(
-            File.objects.related_field('pfp').values_list('related_field', flat=True)
-        )
+        names = list(File.objects.related_field('pfp').values_list('related_field', flat=True))
 
         assert all(n == 'pfp' for n in names)
 
@@ -625,10 +570,7 @@ class CopyFilesToInstanceTests(BaseTestCase):
             object_id=self.source_ticket.pk,
         )
 
-        result = copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
+        result = copy_files_to_instance(File.objects.filter(pk=source.pk), self.target_ticket)
 
         assert len(result) == 1
         copy = result[0]
@@ -639,44 +581,27 @@ class CopyFilesToInstanceTests(BaseTestCase):
 
     def test_copy_preserves_related_field(self) -> None:
         source = create_test_file(
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-            related_field='pfp',
+            content_type=self.content_type, object_id=self.source_ticket.pk, related_field='pfp'
         )
 
-        result = copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
+        result = copy_files_to_instance(File.objects.filter(pk=source.pk), self.target_ticket)
 
         assert result[0].related_field == 'pfp'
 
     def test_copy_links_to_target_not_source(self) -> None:
-        source = create_test_file(
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-        )
+        source = create_test_file(content_type=self.content_type, object_id=self.source_ticket.pk)
 
         target_ct = ContentType.objects.get_for_model(self.target_ticket)
-        result = copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
+        result = copy_files_to_instance(File.objects.filter(pk=source.pk), self.target_ticket)
 
         assert result[0].content_type == target_ct
         assert result[0].object_id == self.target_ticket.pk
 
     def test_copy_does_not_modify_source(self) -> None:
-        source = create_test_file(
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
-        )
+        source = create_test_file(content_type=self.content_type, object_id=self.source_ticket.pk)
         original_pk = source.pk
 
-        copy_files_to_instance(
-            File.objects.filter(pk=source.pk),
-            self.target_ticket,
-        )
+        copy_files_to_instance(File.objects.filter(pk=source.pk), self.target_ticket)
 
         source.refresh_from_db()
         assert source.pk == original_pk
@@ -684,21 +609,14 @@ class CopyFilesToInstanceTests(BaseTestCase):
 
     def test_copy_multiple_files(self) -> None:
         create_test_file(
-            name='file1',
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
+            name='file1', content_type=self.content_type, object_id=self.source_ticket.pk
         )
         create_test_file(
-            name='file2',
-            content_type=self.content_type,
-            object_id=self.source_ticket.pk,
+            name='file2', content_type=self.content_type, object_id=self.source_ticket.pk
         )
 
         result = copy_files_to_instance(
-            File.objects.filter(
-                content_type=self.content_type,
-                object_id=self.source_ticket.pk,
-            ),
+            File.objects.filter(content_type=self.content_type, object_id=self.source_ticket.pk),
             self.target_ticket,
         )
 

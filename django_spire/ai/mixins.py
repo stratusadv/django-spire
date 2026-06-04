@@ -17,6 +17,6 @@ class AiUsageMixin(models.Model):
 
 class AiUsageAdminMixin(admin.ModelAdmin):
     def run_time_seconds_formatted(self, obj) -> str:
-        return f"{obj.run_time_seconds:.3f}s"
+        return f'{obj.run_time_seconds:.3f}s'
 
     run_time_seconds_formatted.short_description = 'Run Time'

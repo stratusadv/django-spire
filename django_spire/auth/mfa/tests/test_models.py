@@ -41,7 +41,7 @@ class MfaCodeModelTestCase(BaseTestCase):
         mfa_code = MfaCode.objects.create(
             user=self.user,
             code='123456',
-            expiration_datetime=localtime() - relativedelta.relativedelta(minutes=1)
+            expiration_datetime=localtime() - relativedelta.relativedelta(minutes=1),
         )
         assert not mfa_code.is_valid()
 
@@ -49,7 +49,7 @@ class MfaCodeModelTestCase(BaseTestCase):
         mfa_code = MfaCode.objects.create(
             user=self.user,
             code='123456',
-            expiration_datetime=localtime() - relativedelta.relativedelta(seconds=1)
+            expiration_datetime=localtime() - relativedelta.relativedelta(seconds=1),
         )
         assert not mfa_code.is_valid()
 
@@ -146,9 +146,7 @@ class MfaCodeModelTestCase(BaseTestCase):
 
     def test_is_valid_exact_expiration_time(self) -> None:
         mfa_code = MfaCode.objects.create(
-            user=self.user,
-            code='654321',
-            expiration_datetime=localtime()
+            user=self.user, code='654321', expiration_datetime=localtime()
         )
         assert not mfa_code.is_valid()
 
@@ -156,7 +154,7 @@ class MfaCodeModelTestCase(BaseTestCase):
         mfa_code = MfaCode.objects.create(
             user=self.user,
             code='000123',
-            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=5)
+            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=5),
         )
         assert mfa_code.code == '000123'
         assert len(mfa_code.code) == 6
@@ -177,7 +175,7 @@ class MfaCodeQuerySetTestCase(BaseTestCase):
         MfaCode.objects.create(
             user=self.user,
             code='123456',
-            expiration_datetime=localtime() - relativedelta.relativedelta(minutes=1)
+            expiration_datetime=localtime() - relativedelta.relativedelta(minutes=1),
         )
         result = MfaCode.objects.valid_code(self.user)
         assert result is None
@@ -196,7 +194,7 @@ class MfaCodeQuerySetTestCase(BaseTestCase):
         MfaCode.objects.create(
             user=self.user,
             code='111111',
-            expiration_datetime=localtime() - relativedelta.relativedelta(minutes=1)
+            expiration_datetime=localtime() - relativedelta.relativedelta(minutes=1),
         )
         valid_code = MfaCode.generate_code(self.user)
         result = MfaCode.objects.valid_code(self.user)
@@ -227,7 +225,7 @@ class MfaCodeQuerySetTestCase(BaseTestCase):
         MfaCode.objects.create(
             user=self.user,
             code='999999',
-            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=10)
+            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=10),
         )
         result = MfaCode.objects.valid_code(self.user)
         assert result == code1

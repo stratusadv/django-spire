@@ -17,7 +17,9 @@ class SmsNotificationModelTests(BaseTestCase):
         self.sms_notification = create_test_sms_notification()
 
     def test_str(self):
-        expected = f'{self.sms_notification.to_phone_number} - {self.sms_notification.notification.title}'
+        expected = (
+            f'{self.sms_notification.to_phone_number} - {self.sms_notification.notification.title}'
+        )
         assert str(self.sms_notification) == expected
 
     def test_notification_relationship(self):
@@ -34,9 +36,7 @@ class SmsNotificationModelTests(BaseTestCase):
         assert self.sms_notification.temporary_media is None
 
     def test_with_media_url(self):
-        sms_notification = create_test_sms_notification(
-            media_url='https://example.com/image.png'
-        )
+        sms_notification = create_test_sms_notification(media_url='https://example.com/image.png')
         assert sms_notification.media_url == 'https://example.com/image.png'
 
 

@@ -8,7 +8,9 @@ from django.db import connection
 from django.db.models import Q
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
-from django_spire.knowledge.intelligence.workflows.search_preprocessing_workflow import preprocess_search_query
+from django_spire.knowledge.intelligence.workflows.search_preprocessing_workflow import (
+    preprocess_search_query,
+)
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -19,11 +21,7 @@ if TYPE_CHECKING:
 class EntrySearchService(BaseDjangoModelService['Entry']):
     obj: Entry
 
-    def search(
-        self,
-        query: str,
-        use_llm_preprocessing: bool = True,
-    ) -> QuerySet[Entry]:
+    def search(self, query: str, use_llm_preprocessing: bool = True) -> QuerySet[Entry]:
         query = query.strip() if query else ''
 
         if not query:
@@ -62,25 +60,14 @@ class EntrySearchService(BaseDjangoModelService['Entry']):
         search_query = SearchQuery(primary_query, search_type='websearch', config='english')
 
         return (
-            self.obj_class.objects
-            .active()
+            self.obj_class.objects.active()
             .has_current_version()
             .annotate(
-                vector_rank=Coalesce(
-                    SearchRank(F('_search_vector'), search_query),
-                    Value(0.0)
-                ),
+                vector_rank=Coalesce(SearchRank(F('_search_vector'), search_query), Value(0.0)),
                 name_similarity=TrigramSimilarity('name', primary_query),
-                combined_score=(
-                    F('vector_rank') * 2.0 +
-                    F('name_similarity') * 1.5
-                )
+                combined_score=(F('vector_rank') * 2.0 + F('name_similarity') * 1.5),
             )
-            .filter(
-                Q(vector_rank__gt=0.01) |
-                Q(name_similarity__gt=0.2) |
-                combined_word_filter
-            )
+            .filter(Q(vector_rank__gt=0.01) | Q(name_similarity__gt=0.2) | combined_word_filter)
             .order_by('-combined_score', '-id')
             .distinct()
         )
@@ -90,8 +77,7 @@ class EntrySearchService(BaseDjangoModelService['Entry']):
             return self.obj_class.objects.none()
 
         return (
-            self.obj_class.objects
-            .active()
+            self.obj_class.objects.active()
             .has_current_version()
             .filter(combined_word_filter)
             .order_by('-id')

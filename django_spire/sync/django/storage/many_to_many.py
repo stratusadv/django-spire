@@ -22,9 +22,7 @@ class ManyToManyApplier:
         self._identity_field = identity_field
 
     def apply(
-        self,
-        model: type[SyncableMixin],
-        pending: dict[str, dict[str, list[Any]]],
+        self, model: type[SyncableMixin], pending: dict[str, dict[str, list[Any]]]
     ) -> UpsertResult:
         result = UpsertResult()
 
@@ -45,8 +43,7 @@ class ManyToManyApplier:
 
                 if instance is None:
                     logger.warning(
-                        'Skipping M2M relations for %s key=%s: '
-                        'instance not found after upsert',
+                        'Skipping M2M relations for %s key=%s: instance not found after upsert',
                         model._meta.label,
                         key,
                     )
@@ -67,14 +64,16 @@ class ManyToManyApplier:
                             values,
                         )
 
-                        result.errors.append(Error(
-                            key=key,
-                            message=(
-                                f'M2M set failed for '
-                                f'{model._meta.label}:{key} '
-                                f'field={field_name}: {exception}'
-                            ),
-                            exception=exception,
-                        ))
+                        result.errors.append(
+                            Error(
+                                key=key,
+                                message=(
+                                    f'M2M set failed for '
+                                    f'{model._meta.label}:{key} '
+                                    f'field={field_name}: {exception}'
+                                ),
+                                exception=exception,
+                            )
+                        )
 
         return result

@@ -15,10 +15,7 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def pagination_url(
-    context: template.Context,
-    page_number: int,
-    page_name: str = 'page',
-    **kwargs: Any
+    context: template.Context, page_number: int, page_name: str = 'page', **kwargs: Any
 ) -> str:
     updated_context = context.request.GET.copy()
     updated_context[page_name] = page_number
@@ -40,12 +37,8 @@ def pagination_url(
 
 @register.simple_tag
 def get_elided_page_range(
-    page_obj: Page[Any],
-    on_each_side: int = 2,
-    on_ends: int = 2
+    page_obj: Page[Any], on_each_side: int = 2, on_ends: int = 2
 ) -> Iterator[int | str]:
     return page_obj.paginator.get_elided_page_range(
-        number=page_obj.number,
-        on_each_side=on_each_side,
-        on_ends=on_ends
+        number=page_obj.number, on_each_side=on_each_side, on_ends=on_ends
     )

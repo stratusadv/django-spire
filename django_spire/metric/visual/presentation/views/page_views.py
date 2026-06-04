@@ -24,15 +24,13 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     presentation = get_object_or_404(models.Presentation, pk=pk)
 
-    context_data = {
-        'presentation': presentation,
-    }
+    context_data = {'presentation': presentation}
 
     return generic_views.detail_view(
         request,
         obj=presentation,
         context_data=context_data,
-        template='metric/visual/presentation/page/detail_page.html'
+        template='metric/visual/presentation/page/detail_page.html',
     )
 
 
@@ -54,5 +52,5 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=models.Presentation,
         context_data=context_data,
-        template='metric/visual/presentation/page/list_page.html'
+        template='metric/visual/presentation/page/list_page.html',
     )

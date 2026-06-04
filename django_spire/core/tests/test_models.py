@@ -19,19 +19,19 @@ class DummyModel(models.Model):
 
         with connection.cursor() as cursor:
             if vendor == 'sqlite':
-                query = '''
+                query = """
                     CREATE TABLE IF NOT EXISTS django_spire_core_dummymodel (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         name VARCHAR(255) DEFAULT ''
                     )
-                '''
+                """
             else:
-                query = '''
+                query = """
                     CREATE TABLE IF NOT EXISTS django_spire_core_dummymodel (
                         id SERIAL PRIMARY KEY,
                         name VARCHAR(255) DEFAULT ''
                     )
-                '''
+                """
 
             cursor.execute(query)
 

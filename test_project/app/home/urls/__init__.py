@@ -2,6 +2,4 @@ from django.urls import path, include
 
 app_name = 'home'
 
-urlpatterns = [
-    path('', include('test_project.app.home.urls.page_urls', namespace='page')),
-]
+urlpatterns = [path('', include('test_project.app.home.urls.page_urls', namespace='page'))]

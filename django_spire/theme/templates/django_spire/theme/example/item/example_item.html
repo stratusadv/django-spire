@@ -1,4 +1,4 @@
-{% extends 'django_spire/item/item.html' %}
+{% extends 'django_spire/contrib/item/item.html' %}
 
 {% block item_title_col %}2{% endblock %}
 
@@ -8,25 +8,25 @@
 
 {% block item_row_content %}
 	<div class="col">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Title' attribute_value='Value' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Title' attribute_value='Value' %}
     </div>
 	<div class="col">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Title' attribute_value='Value' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Title' attribute_value='Value' %}
     </div>
     <div class="col text-center">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Responsive' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Responsive' %}
         {% include 'django_spire/theme/example/icon/example_responsive_icon.html' %}
     </div>
     <div class="col text-center">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Confirm' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Confirm' %}
         {% include 'django_spire/theme/example/icon/example_confirm_icon.html' %}
     </div>
     <div class="col text-center">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Dropdown' %}
-        {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url='#' delete_url='#' link_css='text-start' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Dropdown' %}
+        {% include 'django_spire/contrib/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url='#' delete_url='#' link_css='text-start' %}
     </div>
     <div class="col text-center">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Modal' %}
-        {% include 'django_spire/dropdown/ellipsis_modal_dropdown.html' with view_url='#' edit_url='#' delete_url='#' link_css='text-start' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Modal' %}
+        {% include 'django_spire/contrib/dropdown/ellipsis_modal_dropdown.html' with view_url='#' edit_url='#' delete_url='#' link_css='text-start' %}
     </div>
 {% endblock %}

@@ -54,7 +54,7 @@ class InfiniteScroll:
     def wait_for_count_to_increase(self, initial_count: int, timeout: int = 5000) -> None:
         self.page.wait_for_function(
             f'() => parseInt(document.querySelector("[x-text=\\"loaded_count\\"]").textContent) > {initial_count}',
-            timeout=timeout
+            timeout=timeout,
         )
 
     def wait_for_items_to_load(self) -> None:
@@ -87,7 +87,9 @@ class InfiniteScrollTable(InfiniteScroll):
     row_selector: str = 'tbody tr[data-row-id]'
     skeleton_selector: str = '.skeleton-box'
 
-    def __init__(self, page: Page, container_selector: str = '.table-container[x-ref="scroll_container"]') -> None:
+    def __init__(
+        self, page: Page, container_selector: str = '.table-container[x-ref="scroll_container"]'
+    ) -> None:
         super().__init__(page, container_selector)
 
     @property

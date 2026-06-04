@@ -1,19 +1,19 @@
-{% extends 'django_spire/item/item.html' %}
+{% extends 'django_spire/contrib/item/item.html' %}
 
 {% block item_title_col %}{% endblock %}
 
 {% block item_row_content %}
     <a class="col-12 col-sm-6 mb-2 mb-sm-0">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.name %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_value=api_access.name %}
     </a>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.get_permission_display attribute_title='Permission' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_value=api_access.get_permission_display attribute_title='Permission' %}
     </div>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.key_hint attribute_title='Key Hint' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_value=api_access.key_hint attribute_title='Key Hint' %}
     </div>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.created_datetime|date:'M d, Y' attribute_title='Created On' %}
+        {% include 'django_spire/contrib/element/attribute_element.html' with attribute_value=api_access.created_datetime|date:'M d, Y' attribute_title='Created On' %}
     </div>
 {% endblock %}
 
@@ -21,5 +21,5 @@
     {% if AuthController.api.can_delete %}
         {% url 'django_spire:api:page:delete' pk=api_access.pk as delete_url %}
     {% endif %}
-    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with delete_url=delete_url %}
+    {% include 'django_spire/contrib/dropdown/ellipsis_dropdown.html' with delete_url=delete_url %}
 {% endblock %}

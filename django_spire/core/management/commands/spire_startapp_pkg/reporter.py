@@ -128,7 +128,9 @@ class Reporter:
         :param missing_components: List of missing app components.
         """
 
-        self.write('\nPlease add the following to INSTALLED_APPS in settings.py:', self.style_notice)
+        self.write(
+            '\nPlease add the following to INSTALLED_APPS in settings.py:', self.style_notice
+        )
         self.write(f'\n {missing_components[-1]}', lambda x: x)
 
     def report_missing_components(self, missing_components: list[str]) -> None:
@@ -158,7 +160,9 @@ class Reporter:
         :param destination: Path where templates already exist.
         """
 
-        self.write(f'The templates for app "{app}" already exist at {destination}', self.style_warning)
+        self.write(
+            f'The templates for app "{app}" already exist at {destination}', self.style_warning
+        )
 
     def report_tree_structure(
         self,
@@ -203,6 +207,7 @@ class Reporter:
             self.command.stdout.write(f'{indent}{self.ICON_FOLDER_OPEN} {component}/')
 
             if i == len(components) - 1 and app not in registry and template.exists():
+
                 def local_formatter(item: Path, mapping: dict[str, str] = replacement) -> str:
                     base_name = formatter(item)
                     return self._apply_replacement(base_name, mapping)
@@ -255,10 +260,7 @@ class Reporter:
         return name
 
     def _show_tree_from_template(
-        self,
-        template: Path,
-        indent: str,
-        formatter: Callable[[Path], str]
+        self, template: Path, indent: str, formatter: Callable[[Path], str]
     ) -> None:
         """
         Recursively displays a tree structure from a template directory.
@@ -280,11 +282,7 @@ class Reporter:
             self.command.stdout.write(f'{indent}{icon} {formatter(item)}')
 
             if item.is_dir():
-                self._show_tree_from_template(
-                    item,
-                    indent + self.INDENTATION,
-                    formatter
-                )
+                self._show_tree_from_template(item, indent + self.INDENTATION, formatter)
 
     def _sort_template_items(self, path: Path) -> tuple[bool, str]:
         """

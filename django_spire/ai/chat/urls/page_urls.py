@@ -5,6 +5,4 @@ from django_spire.ai.chat.views import page_views
 
 app_name = 'page'
 
-urlpatterns = [
-    path('home/', page_views.chat_view, name='home'),
-]
+urlpatterns = [path('home/', page_views.chat_view, name='home')]

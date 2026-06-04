@@ -14,10 +14,7 @@ class HelpDeskFormViewsTestCase(BaseTestCase):
     def test_helpdesk_ticket_form_create_view(self):
         ticket_data = create_test_helpdesk_ticket_data()
 
-        response = self.client.post(
-            reverse('django_spire:help_desk:form:create'),
-            data=ticket_data,
-        )
+        response = self.client.post(reverse('django_spire:help_desk:form:create'), data=ticket_data)
 
         ticket = HelpDeskTicket.objects.first()
 
@@ -41,10 +38,7 @@ class HelpDeskFormViewsTestCase(BaseTestCase):
 
         response = self.client.post(
             data=updated_ticket_data,
-            path=reverse(
-                'django_spire:help_desk:form:update',
-                kwargs={'pk': test_ticket.pk}
-            ),
+            path=reverse('django_spire:help_desk:form:update', kwargs={'pk': test_ticket.pk}),
         )
 
         assert response.status_code == 302
@@ -57,15 +51,10 @@ class HelpDeskFormViewsTestCase(BaseTestCase):
         assert test_ticket.description == updated_ticket_data['description']
 
     def test_helpdesk_ticket_form_create_view_invalid_data(self):
-        invalid_data = {
-            'priority': '',
-            'purpose': '',
-            'description': '',
-        }
+        invalid_data = {'priority': '', 'purpose': '', 'description': ''}
 
         response = self.client.post(
-            reverse('django_spire:help_desk:form:create'),
-            data=invalid_data,
+            reverse('django_spire:help_desk:form:create'), data=invalid_data
         )
 
         assert response.status_code == 200
@@ -74,10 +63,7 @@ class HelpDeskFormViewsTestCase(BaseTestCase):
     def test_helpdesk_ticket_form_create_view_sets_created_by(self):
         ticket_data = create_test_helpdesk_ticket_data()
 
-        self.client.post(
-            reverse('django_spire:help_desk:form:create'),
-            data=ticket_data,
-        )
+        self.client.post(reverse('django_spire:help_desk:form:create'), data=ticket_data)
 
         ticket = HelpDeskTicket.objects.first()
         assert ticket.created_by == self.super_user

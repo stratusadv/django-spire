@@ -8,11 +8,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from django_spire.sync.tests.database.harness import ModelSchema, MultiTabletHarness
-from django_spire.sync.tests.database.schemas import (
-    FLAT_SCHEMA,
-    HIERARCHICAL_SCHEMA,
-    WIDE_SCHEMA,
-)
+from django_spire.sync.tests.database.schemas import FLAT_SCHEMA, HIERARCHICAL_SCHEMA, WIDE_SCHEMA
 
 
 class TestMultiTabletBasics:
@@ -21,7 +17,9 @@ class TestMultiTabletBasics:
         ts = harness.ts()
 
         harness.tablet_save(
-            'tablet_1', 'app.Record', 'r-1',
+            'tablet_1',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'alpha', 'value': 10, 'is_active': True},
             {'name': ts, 'value': ts, 'is_active': ts},
         )
@@ -34,13 +32,17 @@ class TestMultiTabletBasics:
         ts = harness.ts()
 
         harness.tablet_save(
-            'tablet_1', 'app.Record', 'r-1',
+            'tablet_1',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'from-tablet-1', 'value': 1},
             {'name': ts, 'value': ts},
         )
 
         harness.tablet_save(
-            'tablet_2', 'app.Record', 'r-2',
+            'tablet_2',
+            'app.Record',
+            'r-2',
             {'id': 'r-2', 'name': 'from-tablet-2', 'value': 2},
             {'name': ts, 'value': ts},
         )
@@ -57,7 +59,9 @@ class TestMultiTabletBasics:
         for i, tablet_id in enumerate(harness.tablet_ids):
             ts = harness.ts()
             harness.tablet_save(
-                tablet_id, 'app.Record', f'r-{i}',
+                tablet_id,
+                'app.Record',
+                f'r-{i}',
                 {'id': f'r-{i}', 'name': f'from-{tablet_id}', 'value': i},
                 {'name': ts, 'value': ts},
             )
@@ -90,13 +94,17 @@ class TestMultiTabletConflicts:
         ts2 = harness.ts()
 
         harness.tablet_save(
-            'tablet_1', 'app.Record', 'r-1',
+            'tablet_1',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'tablet-1-name', 'value': 100, 'is_active': True},
             {'name': ts1, 'value': early, 'is_active': early},
         )
 
         harness.tablet_save(
-            'tablet_2', 'app.Record', 'r-1',
+            'tablet_2',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'tablet-2-name', 'value': 200, 'is_active': False},
             {'name': early, 'value': ts2, 'is_active': ts_active},
         )
@@ -115,15 +123,11 @@ class TestMultiTabletConflicts:
         ts_high = harness.ts()
 
         harness.tablet_save(
-            'tablet_1', 'app.Record', 'r-1',
-            {'id': 'r-1', 'name': 'loser'},
-            {'name': ts_low},
+            'tablet_1', 'app.Record', 'r-1', {'id': 'r-1', 'name': 'loser'}, {'name': ts_low}
         )
 
         harness.tablet_save(
-            'tablet_2', 'app.Record', 'r-1',
-            {'id': 'r-1', 'name': 'winner'},
-            {'name': ts_high},
+            'tablet_2', 'app.Record', 'r-1', {'id': 'r-1', 'name': 'winner'}, {'name': ts_high}
         )
 
         harness.sync_all_converge()
@@ -134,19 +138,21 @@ class TestMultiTabletConflicts:
 
 class TestDependencyOrdering:
     def test_parent_child_sync(self) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=2, schemas=HIERARCHICAL_SCHEMA, seed=42,
-        )
+        harness = MultiTabletHarness(tablet_count=2, schemas=HIERARCHICAL_SCHEMA, seed=42)
         ts = harness.ts()
 
         harness.tablet_save(
-            'tablet_1', 'app.Parent', 'p-1',
+            'tablet_1',
+            'app.Parent',
+            'p-1',
             {'id': 'p-1', 'name': 'parent', 'value': 10},
             {'name': ts, 'value': ts},
         )
 
         harness.tablet_save(
-            'tablet_1', 'app.Child', 'c-1',
+            'tablet_1',
+            'app.Child',
+            'c-1',
             {'id': 'c-1', 'parent_id': 'p-1', 'x': 1.0, 'y': 2.0, 'is_active': True},
             {'parent_id': ts, 'x': ts, 'y': ts, 'is_active': ts},
         )
@@ -166,7 +172,9 @@ class TestIdempotency:
         for tablet_id in harness.tablet_ids:
             ts = harness.ts()
             harness.tablet_save(
-                tablet_id, 'app.Record', 'shared',
+                tablet_id,
+                'app.Record',
+                'shared',
                 {'id': 'shared', 'name': f'from-{tablet_id}'},
                 {'name': ts},
             )
@@ -190,9 +198,7 @@ class TestIdempotency:
 class TestScaleParameters:
     @pytest.mark.parametrize('tablet_count', [1, 2, 3, 5])
     def test_variable_tablet_count(self, tablet_count: int) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=tablet_count, schemas=FLAT_SCHEMA, seed=42,
-        )
+        harness = MultiTabletHarness(tablet_count=tablet_count, schemas=FLAT_SCHEMA, seed=42)
 
         harness.seed_records('app.Record', 10, target='server')
         harness.sync_all_converge()
@@ -204,9 +210,7 @@ class TestScaleParameters:
 
     @pytest.mark.parametrize('record_count', [1, 10, 50, 100])
     def test_variable_record_count(self, record_count: int) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=2, schemas=FLAT_SCHEMA, seed=42,
-        )
+        harness = MultiTabletHarness(tablet_count=2, schemas=FLAT_SCHEMA, seed=42)
 
         harness.seed_records('app.Record', record_count, target='tablet_1')
         harness.sync_all_converge()
@@ -215,9 +219,7 @@ class TestScaleParameters:
         assert len(harness.server_records('app.Record')) == record_count
 
     def test_wide_schema_20_fields(self) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=2, schemas=WIDE_SCHEMA, seed=42,
-        )
+        harness = MultiTabletHarness(tablet_count=2, schemas=WIDE_SCHEMA, seed=42)
 
         harness.seed_records('app.Wide', 10, target='tablet_1')
         harness.sync_all_converge()
@@ -229,44 +231,34 @@ class TestScaleParameters:
 
 class TestConcurrentOperations:
     def test_interleaved_writes_and_syncs(self) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=3, schemas=FLAT_SCHEMA, seed=42,
-        )
+        harness = MultiTabletHarness(tablet_count=3, schemas=FLAT_SCHEMA, seed=42)
 
         harness.run_random_operations(
-            'app.Record',
-            num_operations=50,
-            num_keys=5,
-            sync_probability=0.3,
+            'app.Record', num_operations=50, num_keys=5, sync_probability=0.3
         )
 
         harness.sync_all_converge(rounds=3)
         harness.assert_converged('app.Record')
 
     def test_high_contention_single_key(self) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=3, schemas=FLAT_SCHEMA, seed=42,
-        )
+        harness = MultiTabletHarness(tablet_count=3, schemas=FLAT_SCHEMA, seed=42)
 
         harness.run_random_operations(
-            'app.Record',
-            num_operations=30,
-            num_keys=1,
-            sync_probability=0.25,
+            'app.Record', num_operations=30, num_keys=1, sync_probability=0.25
         )
 
         harness.sync_all_converge(rounds=3)
         harness.assert_converged('app.Record')
 
     def test_staggered_sync_order(self) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=3, schemas=FLAT_SCHEMA, seed=42,
-        )
+        harness = MultiTabletHarness(tablet_count=3, schemas=FLAT_SCHEMA, seed=42)
 
         for tablet_id in harness.tablet_ids:
             ts = harness.ts()
             harness.tablet_save(
-                tablet_id, 'app.Record', 'shared',
+                tablet_id,
+                'app.Record',
+                'shared',
                 {'id': 'shared', 'name': f'from-{tablet_id}', 'value': 1},
                 {'name': ts, 'value': ts},
             )
@@ -287,22 +279,12 @@ class TestRandomizedConvergence:
     )
     @settings(max_examples=30, deadline=10_000)
     def test_random_operations_always_converge(
-        self,
-        seed: int,
-        tablet_count: int,
-        num_operations: int,
+        self, seed: int, tablet_count: int, num_operations: int
     ) -> None:
-        harness = MultiTabletHarness(
-            tablet_count=tablet_count,
-            schemas=FLAT_SCHEMA,
-            seed=seed,
-        )
+        harness = MultiTabletHarness(tablet_count=tablet_count, schemas=FLAT_SCHEMA, seed=seed)
 
         harness.run_random_operations(
-            'app.Record',
-            num_operations=num_operations,
-            num_keys=5,
-            sync_probability=0.2,
+            'app.Record', num_operations=num_operations, num_keys=5, sync_probability=0.2
         )
 
         harness.sync_all_converge(rounds=3)
@@ -315,23 +297,11 @@ class TestRandomizedConvergence:
     )
     @settings(max_examples=30, deadline=10_000)
     def test_variable_schema_width_converges(
-        self,
-        seed: int,
-        num_fields: int,
-        num_records: int,
+        self, seed: int, num_fields: int, num_records: int
     ) -> None:
-        schemas = [
-            ModelSchema(
-                label='app.Dynamic',
-                fields=[f'f_{i}' for i in range(num_fields)],
-            ),
-        ]
+        schemas = [ModelSchema(label='app.Dynamic', fields=[f'f_{i}' for i in range(num_fields)])]
 
-        harness = MultiTabletHarness(
-            tablet_count=3,
-            schemas=schemas,
-            seed=seed,
-        )
+        harness = MultiTabletHarness(tablet_count=3, schemas=schemas, seed=seed)
 
         harness.seed_records('app.Dynamic', num_records, target='tablet_1')
 
@@ -365,15 +335,9 @@ class TestRandomizedConvergence:
         tablet_count=st.integers(min_value=2, max_value=5),
     )
     @settings(max_examples=20, deadline=10_000)
-    def test_hierarchical_random_convergence(
-        self,
-        seed: int,
-        tablet_count: int,
-    ) -> None:
+    def test_hierarchical_random_convergence(self, seed: int, tablet_count: int) -> None:
         harness = MultiTabletHarness(
-            tablet_count=tablet_count,
-            schemas=HIERARCHICAL_SCHEMA,
-            seed=seed,
+            tablet_count=tablet_count, schemas=HIERARCHICAL_SCHEMA, seed=seed
         )
 
         rng = random.Random(seed)
@@ -383,7 +347,9 @@ class TestRandomizedConvergence:
             ts = harness.ts()
             tablet_id = rng.choice(harness.tablet_ids)
             harness.tablet_save(
-                tablet_id, 'app.Parent', key,
+                tablet_id,
+                'app.Parent',
+                key,
                 {'id': key, 'name': f'parent-{key}', 'value': rng.randint(0, 100)},
                 {'name': ts, 'value': ts},
             )
@@ -395,7 +361,9 @@ class TestRandomizedConvergence:
             child_key = f'c-{i}'
 
             harness.tablet_save(
-                tablet_id, 'app.Child', child_key,
+                tablet_id,
+                'app.Child',
+                child_key,
                 {
                     'id': child_key,
                     'parent_id': parent_key,

@@ -15,6 +15,6 @@
     {% for ${context_single_var} in ${context_plural_var} %}
         {% include '${template_directory_path}/item/${item_template_name}.html' %}
     {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
+        {% include 'django_spire/contrib/item/no_data_item.html' %}
     {% endfor %}
 {% endblock %}

@@ -15,11 +15,9 @@ class CollectionProcessorService(BaseDjangoModelService['Collection']):
         if self.obj.parent_id is None:
             destination_objects = self.obj_class.objects.parentless().active()
         else:
-            destination_objects = (
-                self.obj_class.objects
-                .by_parent_id(parent_id=self.obj.parent_id)
-                .active()
-            )
+            destination_objects = self.obj_class.objects.by_parent_id(
+                parent_id=self.obj.parent_id
+            ).active()
 
         self.obj.ordering_services.processor.remove_from_objects(
             destination_objects=destination_objects

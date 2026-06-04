@@ -6,10 +6,7 @@ from django_spire.help_desk.choices import (
     HelpDeskTicketPurposeChoices,
     HelpDeskTicketStatusChoices,
 )
-from django_spire.help_desk.forms import (
-    HelpDeskTicketCreateForm,
-    HelpDeskTicketUpdateForm,
-)
+from django_spire.help_desk.forms import HelpDeskTicketCreateForm, HelpDeskTicketUpdateForm
 from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 
 
@@ -33,10 +30,7 @@ class HelpDeskTicketCreateFormTests(BaseTestCase):
         assert 'purpose' in form.errors
 
     def test_invalid_form_missing_priority(self):
-        form_data = {
-            'purpose': HelpDeskTicketPurposeChoices.APP,
-            'description': 'Test description',
-        }
+        form_data = {'purpose': HelpDeskTicketPurposeChoices.APP, 'description': 'Test description'}
         form = HelpDeskTicketCreateForm(data=form_data)
         assert not form.is_valid()
         assert 'priority' in form.errors

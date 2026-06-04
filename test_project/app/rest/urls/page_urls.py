@@ -5,6 +5,4 @@ from test_project.app.rest.views import page_views
 
 app_name = 'page'
 
-urlpatterns = [
-    path('list/', page_views.list_page, name='list'),
-]
+urlpatterns = [path('list/', page_views.list_page, name='list')]

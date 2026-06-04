@@ -21,14 +21,12 @@ class TestOrderingMixinValidator(BaseTestCase):
 
         with pytest.raises(OrderingMixinGroupError):
             self.test_duck.ordering_services.processor.move_to_position(
-                destination_objects=all_ducks,
-                position=49,
+                destination_objects=all_ducks, position=49
             )
 
     def test_valid_position(self):
         all_ducks = Duck.objects.all()
 
         self.test_duck.ordering_services.processor.move_to_position(
-            destination_objects=all_ducks,
-            position=1,
+            destination_objects=all_ducks, position=1
         )

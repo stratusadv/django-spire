@@ -9,5 +9,5 @@ urlpatterns = [
     path('', page_views.notification_home_view, name='home'),
     path('list/', page_views.notification_list_view, name='list'),
     path('<int:pk>/detail/', page_views.notification_detail_view, name='detail'),
-path('<int:pk>/form/', page_views.notification_form_view, name='form')
+    path('<int:pk>/form/', page_views.notification_form_view, name='form'),
 ]

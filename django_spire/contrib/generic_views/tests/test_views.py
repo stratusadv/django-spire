@@ -25,7 +25,7 @@ class TestDispatchModalDeleteFormContent(TestCase):
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpass'  # noqa: S106
+            password='testpass',  # noqa: S106
         )
         self.obj = MagicMock()
         self.obj._meta.model._meta.verbose_name = 'Test Model'
@@ -35,11 +35,7 @@ class TestDispatchModalDeleteFormContent(TestCase):
         request = self.factory.get('/')
         request.user = self.user
 
-        response = dispatch_modal_delete_form_content(
-            request,
-            obj=self.obj,
-            form_action='/delete/'
-        )
+        response = dispatch_modal_delete_form_content(request, obj=self.obj, form_action='/delete/')
 
         assert isinstance(response, TemplateResponse)
 
@@ -47,11 +43,7 @@ class TestDispatchModalDeleteFormContent(TestCase):
         request = self.factory.get('/')
         request.user = self.user
 
-        response = dispatch_modal_delete_form_content(
-            request,
-            obj=self.obj,
-            form_action='/delete/'
-        )
+        response = dispatch_modal_delete_form_content(request, obj=self.obj, form_action='/delete/')
 
         assert 'form_title' in response.context_data
         assert 'form_action' in response.context_data
@@ -63,11 +55,11 @@ class TestDispatchModalDeleteFormContent(TestCase):
 
         del self.obj.add_activity
 
-        with patch('django_spire.contrib.generic_views.modal_views.safe_redirect_url', return_value='/'):
+        with patch(
+            'django_spire.contrib.generic_views.modal_views.safe_redirect_url', return_value='/'
+        ):
             response = dispatch_modal_delete_form_content(
-                request,
-                obj=self.obj,
-                form_action='/delete/'
+                request, obj=self.obj, form_action='/delete/'
             )
 
         assert isinstance(response, HttpResponseRedirect)
@@ -77,10 +69,7 @@ class TestDispatchModalDeleteFormContent(TestCase):
         request.user = self.user
 
         response = dispatch_modal_delete_form_content(
-            request,
-            obj=self.obj,
-            form_action='/archive/',
-            verbs=('archive', 'archived')
+            request, obj=self.obj, form_action='/archive/', verbs=('archive', 'archived')
         )
 
         assert 'Archive' in response.context_data['form_title']
@@ -92,10 +81,7 @@ class TestDispatchModalDeleteFormContent(TestCase):
         del self.obj.add_activity
 
         response = dispatch_modal_delete_form_content(
-            request,
-            obj=self.obj,
-            form_action='/delete/',
-            return_url='/custom/'
+            request, obj=self.obj, form_action='/delete/', return_url='/custom/'
         )
 
         assert response.url == '/custom/'
@@ -112,22 +98,14 @@ class TestDetailView(TestCase):
     def test_returns_template_response(self) -> None:
         request = self.factory.get('/')
 
-        response = detail_view(
-            request,
-            obj=self.obj,
-            template='test_template.html'
-        )
+        response = detail_view(request, obj=self.obj, template='test_template.html')
 
         assert isinstance(response, TemplateResponse)
 
     def test_context_contains_page_data(self) -> None:
         request = self.factory.get('/')
 
-        response = detail_view(
-            request,
-            obj=self.obj,
-            template='test_template.html'
-        )
+        response = detail_view(request, obj=self.obj, template='test_template.html')
 
         assert 'page_title' in response.context_data
         assert 'page_description' in response.context_data
@@ -140,10 +118,7 @@ class TestDetailView(TestCase):
             breadcrumbs.add_breadcrumb('Custom', '/custom/')
 
         response = detail_view(
-            request,
-            obj=self.obj,
-            template='test_template.html',
-            breadcrumbs_func=breadcrumbs_func
+            request, obj=self.obj, template='test_template.html', breadcrumbs_func=breadcrumbs_func
         )
 
         assert len(response.context_data['breadcrumbs']) == 1
@@ -154,7 +129,7 @@ class TestDeleteFormView(TestCase):
         self.factory = RequestFactory()
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpass'  # noqa: S106
+            password='testpass',  # noqa: S106
         )
         self.obj = MagicMock()
         self.obj._meta.model._meta.verbose_name = 'Test Model'
@@ -165,11 +140,7 @@ class TestDeleteFormView(TestCase):
         request = self.factory.get('/')
         request.user = self.user
 
-        response = delete_form_view(
-            request,
-            obj=self.obj,
-            return_url='/'
-        )
+        response = delete_form_view(request, obj=self.obj, return_url='/')
 
         assert isinstance(response, TemplateResponse)
 
@@ -179,11 +150,7 @@ class TestDeleteFormView(TestCase):
 
         del self.obj.add_activity
 
-        response = delete_form_view(
-            request,
-            obj=self.obj,
-            return_url='/list/'
-        )
+        response = delete_form_view(request, obj=self.obj, return_url='/list/')
 
         assert isinstance(response, HttpResponseRedirect)
         assert response.url == '/list/'
@@ -194,11 +161,7 @@ class TestDeleteFormView(TestCase):
 
         del self.obj.add_activity
 
-        delete_form_view(
-            request,
-            obj=self.obj,
-            return_url='/'
-        )
+        delete_form_view(request, obj=self.obj, return_url='/')
 
         self.obj.set_deleted.assert_called_once()
 
@@ -211,10 +174,7 @@ class TestInfiniteScrollingView(TestCase):
         request = self.factory.get('/')
 
         response = infinite_scrolling_view(
-            request,
-            queryset=[1, 2, 3, 4, 5],
-            queryset_name='items',
-            template='test_template.html'
+            request, queryset=[1, 2, 3, 4, 5], queryset_name='items', template='test_template.html'
         )
 
         assert isinstance(response, TemplateResponse)
@@ -223,10 +183,7 @@ class TestInfiniteScrollingView(TestCase):
         request = self.factory.get('/', {'page': '1'})
 
         response = infinite_scrolling_view(
-            request,
-            queryset=list(range(100)),
-            queryset_name='items',
-            template='test_template.html'
+            request, queryset=list(range(100)), queryset_name='items', template='test_template.html'
         )
 
         assert len(response.context_data['items']) == 50
@@ -236,10 +193,7 @@ class TestInfiniteScrollingView(TestCase):
         request = self.factory.get('/', {'page': '2'})
 
         response = infinite_scrolling_view(
-            request,
-            queryset=list(range(60)),
-            queryset_name='items',
-            template='test_template.html'
+            request, queryset=list(range(60)), queryset_name='items', template='test_template.html'
         )
 
         assert len(response.context_data['items']) == 10
@@ -249,10 +203,7 @@ class TestInfiniteScrollingView(TestCase):
         request = self.factory.get('/', {'batch_size': '10'})
 
         response = infinite_scrolling_view(
-            request,
-            queryset=list(range(25)),
-            queryset_name='items',
-            template='test_template.html'
+            request, queryset=list(range(25)), queryset_name='items', template='test_template.html'
         )
 
         assert len(response.context_data['items']) == 10
@@ -262,10 +213,7 @@ class TestInfiniteScrollingView(TestCase):
         request = self.factory.get('/')
 
         response = infinite_scrolling_view(
-            request,
-            queryset=list(range(75)),
-            queryset_name='items',
-            template='test_template.html'
+            request, queryset=list(range(75)), queryset_name='items', template='test_template.html'
         )
 
         assert response.context_data['total_count'] == 75
@@ -280,22 +228,14 @@ class TestListView(TestCase):
     def test_returns_template_response(self) -> None:
         request = self.factory.get('/')
 
-        response = list_view(
-            request,
-            model=self.model,
-            template='test_template.html'
-        )
+        response = list_view(request, model=self.model, template='test_template.html')
 
         assert isinstance(response, TemplateResponse)
 
     def test_context_contains_page_data(self) -> None:
         request = self.factory.get('/')
 
-        response = list_view(
-            request,
-            model=self.model,
-            template='test_template.html'
-        )
+        response = list_view(request, model=self.model, template='test_template.html')
 
         assert response.context_data['page_title'] == 'Test Model'
         assert response.context_data['page_description'] == 'List View'
@@ -311,7 +251,7 @@ class TestListView(TestCase):
             request,
             model=self.model,
             template='test_template.html',
-            breadcrumbs_func=breadcrumbs_func
+            breadcrumbs_func=breadcrumbs_func,
         )
 
         assert len(response.context_data['breadcrumbs']) == 1
@@ -330,22 +270,14 @@ class TestFormView(TestCase):
     def test_returns_template_response(self) -> None:
         request = self.factory.get('/')
 
-        response = form_view(
-            request,
-            form=self.form,
-            obj=self.obj
-        )
+        response = form_view(request, form=self.form, obj=self.obj)
 
         assert isinstance(response, TemplateResponse)
 
     def test_edit_verb_for_existing_object(self) -> None:
         request = self.factory.get('/')
 
-        response = form_view(
-            request,
-            form=self.form,
-            obj=self.obj
-        )
+        response = form_view(request, form=self.form, obj=self.obj)
 
         assert 'Edit' in response.context_data['form_title']
 
@@ -353,23 +285,14 @@ class TestFormView(TestCase):
         request = self.factory.get('/')
         self.obj.pk = None
 
-        response = form_view(
-            request,
-            form=self.form,
-            obj=self.obj
-        )
+        response = form_view(request, form=self.form, obj=self.obj)
 
         assert 'Create' in response.context_data['form_title']
 
     def test_custom_verb(self) -> None:
         request = self.factory.get('/')
 
-        response = form_view(
-            request,
-            form=self.form,
-            obj=self.obj,
-            verb='Update'
-        )
+        response = form_view(request, form=self.form, obj=self.obj, verb='Update')
 
         assert 'Update' in response.context_data['form_title']
 
@@ -387,22 +310,14 @@ class TestModelFormView(TestCase):
     def test_returns_template_response(self) -> None:
         request = self.factory.get('/')
 
-        response = model_form_view(
-            request,
-            form=self.form,
-            obj=self.obj
-        )
+        response = model_form_view(request, form=self.form, obj=self.obj)
 
         assert isinstance(response, TemplateResponse)
 
     def test_delegates_to_form_view(self) -> None:
         request = self.factory.get('/')
 
-        response = model_form_view(
-            request,
-            form=self.form,
-            obj=self.obj
-        )
+        response = model_form_view(request, form=self.form, obj=self.obj)
 
         assert 'form' in response.context_data
         assert 'breadcrumbs' in response.context_data
@@ -421,7 +336,7 @@ class TestTemplateView(TestCase):
             page_title='Test Page',
             page_description='Test Description',
             breadcrumbs=breadcrumbs,
-            template='test_template.html'
+            template='test_template.html',
         )
 
         assert isinstance(response, TemplateResponse)
@@ -436,7 +351,7 @@ class TestTemplateView(TestCase):
             page_title='Test Page',
             page_description='Test Description',
             breadcrumbs=breadcrumbs,
-            template='test_template.html'
+            template='test_template.html',
         )
 
         assert response.context_data['page_title'] == 'Test Page'
@@ -453,7 +368,7 @@ class TestTemplateView(TestCase):
             page_description='Test Description',
             breadcrumbs=breadcrumbs,
             template='test_template.html',
-            context_data={'custom_key': 'custom_value'}
+            context_data={'custom_key': 'custom_value'},
         )
 
         assert response.context_data['custom_key'] == 'custom_value'

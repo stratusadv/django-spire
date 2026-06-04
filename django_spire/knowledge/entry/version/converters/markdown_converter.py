@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 
 
 MARKO_BLOCK_TYPE_TO_BLOCK_CHOICES = defaultdict(
-    lambda:BlockTypeChoices.TEXT,
+    lambda: BlockTypeChoices.TEXT,
     {
         Paragraph: models.BlockTypeChoices.TEXT,
         BlankLine: models.BlockTypeChoices.TEXT,
         Heading: models.BlockTypeChoices.HEADING,
         List: models.BlockTypeChoices.LIST,
-    }
+    },
 )
 
 
@@ -52,10 +52,7 @@ class MarkdownConverter(BaseConverter):
         with default_storage.open(file.file.name, 'r') as f:
             return self.convert_markdown_to_blocks(f.read())
 
-    def convert_markdown_to_blocks(
-        self,
-        markdown_content: str
-    ) -> list[models.EntryVersionBlock]:
+    def convert_markdown_to_blocks(self, markdown_content: str) -> list[models.EntryVersionBlock]:
         marko_blocks = marko.parse(markdown_content).children
 
         return [
@@ -64,7 +61,7 @@ class MarkdownConverter(BaseConverter):
                 type=MARKO_BLOCK_TYPE_TO_BLOCK_CHOICES[marko_block.__class__],
                 data=self._marko_block_to_editor_block_data_dict(marko_block),
                 order=order,
-                tunes={}
+                tunes={},
             )
             for order, marko_block in enumerate(marko_blocks)
         ]
@@ -74,11 +71,7 @@ class MarkdownConverter(BaseConverter):
         return cls.html_converter.convert_string(html_content).markdown
 
     @classmethod
-    def _remove_outer_html_tags(
-            cls,
-            html_content: str,
-            tag_name: str | None = None,
-    ) -> str:
+    def _remove_outer_html_tags(cls, html_content: str, tag_name: str | None = None) -> str:
         bs = BeautifulSoup(html_content, 'html.parser')
 
         if tag_name:
@@ -115,23 +108,13 @@ class MarkdownConverter(BaseConverter):
 
         is_checklist_item = is_checked is not None
 
-        return (
-            is_checklist_item,
-            is_checked,
-            content
-        )
+        return (is_checklist_item, is_checked, content)
 
     @classmethod
     def _marko_list_item_block_to_editor_block_data_dict(
-        cls,
-        marko_list_item_block: ListItem,
-        parent_marko_list_block: List | None = None
+        cls, marko_list_item_block: ListItem, parent_marko_list_block: List | None = None
     ):
-        list_item_editor_block_data_kwargs = {
-            'items': [],
-            'content': '',
-            'meta': {},
-        }
+        list_item_editor_block_data_kwargs = {'items': [], 'content': '', 'meta': {}}
 
         # First determine if this item contains a nested list.
         # If it does, remove the list from the item's children (so the item content can be
@@ -140,9 +123,12 @@ class MarkdownConverter(BaseConverter):
             if isinstance(child, List):
                 nested_marko_list_block = marko_list_item_block.children.pop(i)
                 for nested_child in nested_marko_list_block.children:
-                    nested_list_item_editor_block_data_kwargs, _ = \
+                    nested_list_item_editor_block_data_kwargs, _ = (
                         cls._marko_list_item_block_to_editor_block_data_dict(nested_child)
-                    list_item_editor_block_data_kwargs['items'].append(nested_list_item_editor_block_data_kwargs)
+                    )
+                    list_item_editor_block_data_kwargs['items'].append(
+                        nested_list_item_editor_block_data_kwargs
+                    )
 
                 break
 
@@ -153,8 +139,7 @@ class MarkdownConverter(BaseConverter):
             cls._remove_outer_html_tags(marko.render(marko_list_item_block), 'li')
         )
 
-        is_checklist_item, is_checked, content = \
-            cls._try_parse_content_as_checklist_item(content)
+        is_checklist_item, is_checked, content = cls._try_parse_content_as_checklist_item(content)
 
         if is_checklist_item:
             # Each editor list item block data tracks its checked state through an
@@ -180,11 +165,11 @@ class MarkdownConverter(BaseConverter):
     @classmethod
     def _marko_block_to_editor_block_data_dict(cls, marko_block: BlockElement | Element):
         if isinstance(marko_block, BlankLine):
-            return { 'text': '' }
+            return {'text': ''}
 
         if isinstance(marko_block, Paragraph):
             editor_block_text_string = cls._remove_outer_html_tags(marko.render(marko_block))
-            return { 'text': editor_block_text_string }
+            return {'text': editor_block_text_string}
 
         if isinstance(marko_block, Heading):
             return {
@@ -200,8 +185,9 @@ class MarkdownConverter(BaseConverter):
             }
 
             for child in marko_block.children:
-                list_item_editor_block_data_dict, list_editor_block_data_style = \
+                list_item_editor_block_data_dict, list_editor_block_data_style = (
                     cls._marko_list_item_block_to_editor_block_data_dict(child, marko_block)
+                )
 
                 list_editor_block_data_dict['items'].append(list_item_editor_block_data_dict)
                 list_editor_block_data_dict['style'] = list_editor_block_data_style
@@ -213,8 +199,7 @@ class MarkdownConverter(BaseConverter):
             f'Rendering content to html and adding to markdown as a basic paragraph block.'
         )
 
-        return { 'text': marko.render(marko_block) }
-
+        return {'text': marko.render(marko_block)}
 
     @classmethod
     def marko_block_to_markdown_string(cls, marko_block: BlockElement) -> str:

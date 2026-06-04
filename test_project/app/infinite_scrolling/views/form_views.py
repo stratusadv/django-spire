@@ -26,16 +26,13 @@ if TYPE_CHECKING:
 def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     infinite_scrolling = get_object_or_404(models.InfiniteScrolling, pk=pk)
 
-    form_action = reverse(
-        'infinite_scrolling:form:delete_modal',
-        kwargs={'pk': pk}
-    )
+    form_action = reverse('infinite_scrolling:form:delete_modal', kwargs={'pk': pk})
 
     def add_activity() -> None:
         infinite_scrolling.add_activity(
             user=request.user,
             verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a infinite_scrolling.'
+            information=f'{request.user.get_full_name()} deleted a infinite_scrolling.',
         )
 
     fallback = reverse('infinite_scrolling:page:list')
@@ -54,16 +51,9 @@ def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     infinite_scrolling = get_object_or_404(models.InfiniteScrolling, pk=pk)
 
-    return_url = request.GET.get(
-        'return_url',
-        reverse('infinite_scrolling:page:list')
-    )
+    return_url = request.GET.get('return_url', reverse('infinite_scrolling:page:list'))
 
-    return generic_views.delete_form_view(
-        request,
-        obj=infinite_scrolling,
-        return_url=return_url
-    )
+    return generic_views.delete_form_view(request, obj=infinite_scrolling, return_url=return_url)
 
 
 def detail_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
@@ -71,14 +61,10 @@ def detail_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     dg.glue_model_object(request, 'infinite_scrolling', infinite_scrolling, 'view')
 
-    context_data = {
-        'infinite_scrolling': infinite_scrolling
-    }
+    context_data = {'infinite_scrolling': infinite_scrolling}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='infinite_scrolling/modal/content/detail.html'
+        request, context=context_data, template='infinite_scrolling/modal/content/detail.html'
     )
 
 
@@ -102,9 +88,7 @@ def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
         if form.is_valid():
             infinite_scrolling.services.factory.save_model_obj(
-                user=request.user,
-                obj=infinite_scrolling,
-                **form.cleaned_data
+                user=request.user, obj=infinite_scrolling, **form.cleaned_data
             )
 
             fallback = reverse('infinite_scrolling:page:list')
@@ -114,14 +98,10 @@ def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
         show_form_errors(request, form)
 
-    context_data = {
-        'infinite_scrolling': infinite_scrolling
-    }
+    context_data = {'infinite_scrolling': infinite_scrolling}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='infinite_scrolling/modal/content/form.html'
+        request, context=context_data, template='infinite_scrolling/modal/content/form.html'
     )
 
 
@@ -135,7 +115,7 @@ def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
+def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     infinite_scrolling = get_object_or_null_obj(models.InfiniteScrolling, pk=pk)
 
     Glue.model(request, 'infinite_scrolling', infinite_scrolling, 'view')
@@ -147,12 +127,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
             infinite_scrolling = form.save()
             add_form_activity(infinite_scrolling, pk, request.user)
 
-            return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('infinite_scrolling:page:list')
-                )
-            )
+            return redirect(request.GET.get('return_url', reverse('infinite_scrolling:page:list')))
 
         show_form_errors(request, form)
     else:
@@ -162,5 +137,5 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
         request,
         form=form,
         obj=infinite_scrolling,
-        template='infinite_scrolling/page/form_page.html'
+        template='infinite_scrolling/page/form_page.html',
     )

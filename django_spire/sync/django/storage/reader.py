@@ -18,18 +18,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _coerce_timestamp_value(
-    value: Any,
-    label: str,
-    key: str,
-    timestamp_key: str,
-) -> int | None:
+def _coerce_timestamp_value(value: Any, label: str, key: str, timestamp_key: str) -> int | None:
     if isinstance(value, bool):
         logger.warning(
-            'Boolean sync_field_timestamps value for %s key=%s field=%s',
-            label,
-            key,
-            timestamp_key,
+            'Boolean sync_field_timestamps value for %s key=%s field=%s', label, key, timestamp_key
         )
 
         return None
@@ -51,11 +43,7 @@ def _coerce_timestamp_value(
     return None
 
 
-def _coerce_timestamps(
-    raw: Any,
-    label: str,
-    key: str,
-) -> dict[str, int]:
+def _coerce_timestamps(raw: Any, label: str, key: str) -> dict[str, int]:
     if raw is None or raw == '':
         return {}
 
@@ -63,11 +51,7 @@ def _coerce_timestamps(
         try:
             raw = raw.decode('utf-8')
         except UnicodeDecodeError:
-            logger.warning(
-                'Undecodable sync_field_timestamps for %s key=%s',
-                label,
-                key,
-            )
+            logger.warning('Undecodable sync_field_timestamps for %s key=%s', label, key)
 
             return {}
 
@@ -75,21 +59,13 @@ def _coerce_timestamps(
         try:
             raw = json.loads(raw)
         except json.JSONDecodeError:
-            logger.warning(
-                'Invalid sync_field_timestamps JSON for %s key=%s: %r',
-                label,
-                key,
-                raw,
-            )
+            logger.warning('Invalid sync_field_timestamps JSON for %s key=%s: %r', label, key, raw)
 
             return {}
 
     if not isinstance(raw, dict):
         logger.warning(
-            'Unexpected sync_field_timestamps type %s for %s key=%s',
-            type(raw).__name__,
-            label,
-            key,
+            'Unexpected sync_field_timestamps type %s for %s key=%s', type(raw).__name__, label, key
         )
 
         return {}
@@ -99,10 +75,7 @@ def _coerce_timestamps(
     for timestamp_key, timestamp_value in raw.items():
         if not isinstance(timestamp_key, str):
             logger.warning(
-                'Non-string sync_field_timestamps key for %s key=%s: %r',
-                label,
-                key,
-                timestamp_key,
+                'Non-string sync_field_timestamps key for %s key=%s: %r', label, key, timestamp_key
             )
 
             continue
@@ -129,21 +102,15 @@ def _coerce_timestamps(
 
 
 class DjangoRecordReader:
-    def __init__(
-        self,
-        models: list[type[SyncableMixin]],
-        identity_field: str = 'id',
-    ) -> None:
+    def __init__(self, models: list[type[SyncableMixin]], identity_field: str = 'id') -> None:
         self._identity_field = identity_field
 
         self._models: dict[str, type[SyncableMixin]] = {
-            model._meta.label: model
-            for model in models
+            model._meta.label: model for model in models
         }
 
         self._serializers: dict[str, SyncFieldSerializer] = {
-            model._meta.label: SyncFieldSerializer(model)
-            for model in models
+            model._meta.label: SyncFieldSerializer(model) for model in models
         }
 
     def _get_many_to_many_names(self, model: type[SyncableMixin]) -> set[str]:
@@ -169,15 +136,10 @@ class DjangoRecordReader:
             related = getattr(instance, field.name)
 
             data[field.name] = sorted(
-                str(related_instance.pk)
-                for related_instance in related.all()
+                str(related_instance.pk) for related_instance in related.all()
             )
 
-        timestamps = _coerce_timestamps(
-            instance.sync_field_timestamps,
-            label,
-            key,
-        )
+        timestamps = _coerce_timestamps(instance.sync_field_timestamps, label, key)
 
         origin = instance.sync_field_origin_node or ''
 
@@ -231,44 +193,27 @@ class DjangoRecordReader:
         many_to_many_names = self._get_many_to_many_names(model)
 
         if after_key:
-            identity_gt = {
-                f'{self._identity_field}__gt': after_key,
-            }
+            identity_gt = {f'{self._identity_field}__gt': after_key}
 
             queryset = model.objects.filter(
-                Q(sync_field_sequence__gt=sequence) |
-                Q(
-                    sync_field_sequence=sequence,
-                    **identity_gt,
-                ),
+                Q(sync_field_sequence__gt=sequence) | Q(sync_field_sequence=sequence, **identity_gt)
             )
         else:
-            queryset = model.objects.filter(
-                sync_field_sequence__gt=sequence,
-            )
+            queryset = model.objects.filter(sync_field_sequence__gt=sequence)
 
         if sequence_max is not None:
-            queryset = queryset.filter(
-                sync_field_sequence__lte=sequence_max,
-            )
+            queryset = queryset.filter(sync_field_sequence__lte=sequence_max)
 
         if peer_node_id:
-            queryset = queryset.exclude(
-                sync_field_origin_node=peer_node_id,
-            )
+            queryset = queryset.exclude(sync_field_origin_node=peer_node_id)
 
-        queryset = queryset.order_by(
-            'sync_field_sequence',
-            self._identity_field,
-        )
+        queryset = queryset.order_by('sync_field_sequence', self._identity_field)
 
         if limit is not None:
             queryset = queryset[:limit]
 
         if many_to_many_names:
-            queryset = queryset.prefetch_related(
-                *many_to_many_names,
-            )
+            queryset = queryset.prefetch_related(*many_to_many_names)
 
         return {
             str(getattr(instance, self._identity_field)): self._instance_to_record(instance)
@@ -276,18 +221,11 @@ class DjangoRecordReader:
         }
 
     def get_deletes_since(
-        self,
-        model_label: str,
-        sequence: int,
-        peer_node_id: str,
-        sequence_max: int | None = None,
+        self, model_label: str, sequence: int, peer_node_id: str, sequence_max: int | None = None
     ) -> dict[str, int]:
         from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
-        queryset = SyncTombstone.objects.filter(
-            model_label=model_label,
-            sequence__gt=sequence,
-        )
+        queryset = SyncTombstone.objects.filter(model_label=model_label, sequence__gt=sequence)
 
         if sequence_max is not None:
             queryset = queryset.filter(sequence__lte=sequence_max)
@@ -299,11 +237,7 @@ class DjangoRecordReader:
 
         return dict(rows)
 
-    def get_records(
-        self,
-        model_label: str,
-        keys: set[str],
-    ) -> dict[str, SyncRecord]:
+    def get_records(self, model_label: str, keys: set[str]) -> dict[str, SyncRecord]:
         if not keys:
             return {}
 
@@ -324,20 +258,14 @@ class DjangoRecordReader:
     def get_syncable_models(self) -> list[str]:
         return sorted(self._models.keys())
 
-    def get_tombstones(
-        self,
-        model_label: str,
-        keys: set[str],
-    ) -> dict[str, int]:
+    def get_tombstones(self, model_label: str, keys: set[str]) -> dict[str, int]:
         if not keys:
             return {}
 
         from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
-        rows = (
-            SyncTombstone.objects
-            .filter(model_label=model_label, record_key__in=keys)
-            .values_list('record_key', 'timestamp')
-        )
+        rows = SyncTombstone.objects.filter(
+            model_label=model_label, record_key__in=keys
+        ).values_list('record_key', 'timestamp')
 
         return dict(rows)

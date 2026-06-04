@@ -24,9 +24,7 @@ def twilio_auth_required(func: Callable[..., HttpResponse]) -> Callable[..., Htt
             absolute_uri = 'https' + absolute_uri[4:]
 
         request_valid = request_validator.validate(
-            absolute_uri,
-            request.POST,
-            request.META.get('HTTP_X_TWILIO_SIGNATURE', '')
+            absolute_uri, request.POST, request.META.get('HTTP_X_TWILIO_SIGNATURE', '')
         )
 
         if request_valid:

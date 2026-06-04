@@ -15,7 +15,9 @@ from django_spire.auth.mfa.querysets import MfaCodeQuerySet
 
 
 class MfaCode(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_query_name='mfa_code', related_name='mfa_codes')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_query_name='mfa_code', related_name='mfa_codes'
+    )
     code = models.CharField(max_length=6, editable=False, unique=True)
     expiration_datetime = models.DateTimeField(editable=False)
 
@@ -36,9 +38,9 @@ class MfaCode(models.Model):
 
         context_data = {
             'title': 'Authentication Code',
-            'body': f"Here is your multifactor authentication code: </br> <h3>{self.code}</h3>",
+            'body': f'Here is your multifactor authentication code: </br> <h3>{self.code}</h3>',
             'name': user.first_name,
-            'button_url': f'{Site.objects.get_current()}/{reverse("authentication:redirect:login_redirect")[1:]}'
+            'button_url': f'{Site.objects.get_current()}/{reverse("authentication:redirect:login_redirect")[1:]}',
         }
 
         # Directly connecting to SendGrid to send MFA email faster
@@ -46,7 +48,7 @@ class MfaCode(models.Model):
             to=[user.email],
             template_id='d-9ae6be6be95d4f79b0daad9055f03cc9',
             template_data=context_data,
-            fail_silently=False
+            fail_silently=False,
         ).send()
 
     @classmethod
@@ -54,7 +56,7 @@ class MfaCode(models.Model):
         return MfaCode.objects.create(
             user=user,
             code=int(''.join([str(random.randint(0, 9)) for _ in range(6)])),
-            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=5)
+            expiration_datetime=localtime() + relativedelta.relativedelta(minutes=5),
         )
 
     class Meta:

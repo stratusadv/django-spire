@@ -1,6 +1,7 @@
 """
 Tests for BearerAuth authentication.
 """
+
 from unittest.mock import Mock
 
 from django.test import TestCase
@@ -31,6 +32,7 @@ class TestBearerAuth(TestCase):
 
     def test_bearer_auth_custom_header_name(self):
         """Test that custom header name can be used."""
+
         class CustomBearerAuth(BearerAuth):
             auth_header_name = 'X-Auth-Token'
 

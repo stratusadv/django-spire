@@ -16,7 +16,7 @@ class CollectionPageUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:collection:page:top_level',
-                kwargs={'pk': self.test_collection.pk}
+                kwargs={'pk': self.test_collection.pk},
             )
         )
         assert response.status_code == 200
@@ -25,13 +25,11 @@ class CollectionPageUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:collection:page:delete',
-                kwargs={'pk': self.test_collection.pk}
+                kwargs={'pk': self.test_collection.pk},
             )
         )
         assert response.status_code == 200
 
     def test_list_view_url_path(self):
-        response = self.client.get(
-            reverse('django_spire:knowledge:page:home')
-        )
+        response = self.client.get(reverse('django_spire:knowledge:page:home'))
         assert response.status_code == 200

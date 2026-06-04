@@ -18,17 +18,10 @@ if TYPE_CHECKING:
 
 class EntryVersionBlock(HistoryModelMixin, OrderingModelMixin):
     version = models.ForeignKey(
-        EntryVersion,
-        on_delete=models.CASCADE,
-        related_name='blocks',
-        related_query_name='block'
+        EntryVersion, on_delete=models.CASCADE, related_name='blocks', related_query_name='block'
     )
 
-    type = models.CharField(
-        max_length=32,
-        choices=BlockTypeChoices,
-        default=BlockTypeChoices.TEXT
-    )
+    type = models.CharField(max_length=32, choices=BlockTypeChoices, default=BlockTypeChoices.TEXT)
 
     _block_data = models.JSONField()
     _text_data = models.TextField()

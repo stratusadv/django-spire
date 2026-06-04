@@ -14,10 +14,7 @@ class ApiPageUrlsTestCase(BaseTestCase):
 
     def test_access_delete_view_url_path(self):
         response = self.client.get(
-            path=reverse(
-                'django_spire:api:page:delete',
-                kwargs={'pk': self.test_access.pk}
-            ),
+            path=reverse('django_spire:api:page:delete', kwargs={'pk': self.test_access.pk})
         )
         assert response.status_code == 200
 

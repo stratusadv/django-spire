@@ -15,10 +15,7 @@ class CollectionGroupFactoryService(BaseDjangoModelService['CollectionGroup']):
     obj: CollectionGroup
 
     def replace_groups(
-        self,
-        request: WSGIRequest,
-        group_pks: list[int] | None,
-        collection: Collection
+        self, request: WSGIRequest, group_pks: list[int] | None, collection: Collection
     ) -> list[CollectionGroup]:
         if not AppAuthController('knowledge', request).can_change_collection_groups():
             return []
@@ -29,8 +26,7 @@ class CollectionGroupFactoryService(BaseDjangoModelService['CollectionGroup']):
         old_collection_groups = list(collection.groups.all())
 
         new_collection_groups = [
-            self.obj_class(auth_group_id=group_pk, collection=collection)
-            for group_pk in group_pks
+            self.obj_class(auth_group_id=group_pk, collection=collection) for group_pk in group_pks
         ]
 
         self.obj_class.objects.bulk_create(new_collection_groups)

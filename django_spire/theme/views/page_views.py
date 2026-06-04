@@ -23,7 +23,7 @@ def dashboard_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Dashboard',
         breadcrumbs=crumbs,
-        template='django_spire/theme/page/dashboard_page.html'
+        template='django_spire/theme/page/dashboard_page.html',
     )
 
 
@@ -38,7 +38,7 @@ def colors_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Colors',
         breadcrumbs=crumbs,
-        template='django_spire/theme/page/colors_page.html'
+        template='django_spire/theme/page/colors_page.html',
     )
 
 
@@ -53,7 +53,7 @@ def django_glue_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Django Glue',
         breadcrumbs=crumbs,
-        template='django_spire/theme/page/django_glue_page.html'
+        template='django_spire/theme/page/django_glue_page.html',
     )
 
 
@@ -68,7 +68,7 @@ def example_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Core Templates',
         breadcrumbs=crumbs,
-        template='django_spire/theme/example/page/example_page.html'
+        template='django_spire/theme/example/page/example_page.html',
     )
 
 
@@ -83,7 +83,7 @@ def typography_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Typography',
         breadcrumbs=crumbs,
-        template='django_spire/theme/page/typography_page.html'
+        template='django_spire/theme/page/typography_page.html',
     )
 
 
@@ -98,7 +98,7 @@ def buttons_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Buttons',
         breadcrumbs=crumbs,
-        template='django_spire/theme/page/buttons_page.html'
+        template='django_spire/theme/page/buttons_page.html',
     )
 
 
@@ -113,7 +113,7 @@ def badges_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Badges',
         breadcrumbs=crumbs,
-        template='django_spire/theme/page/badges_page.html'
+        template='django_spire/theme/page/badges_page.html',
     )
 
 
@@ -128,5 +128,5 @@ def borders_view(request: WSGIRequest) -> TemplateResponse:
         page_title='Theme',
         page_description='Borders',
         breadcrumbs=crumbs,
-        template='django_spire/theme/page/borders_page.html'
+        template='django_spire/theme/page/borders_page.html',
     )

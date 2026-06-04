@@ -26,6 +26,7 @@ def update_blocks_view(request: WSGIRequest, pk: int) -> JsonResponse:
 
     return JsonResponse({'type': 'success'})
 
+
 @valid_ajax_request_required
 @AppAuthController('knowledge').permission_required('can_change')
 def update_entry_from_version_view(request: WSGIRequest, pk: int) -> JsonResponse:

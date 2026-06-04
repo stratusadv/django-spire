@@ -17,18 +17,13 @@ class EntryFactoryService(BaseDjangoModelService['Entry']):
     obj: Entry
 
     def create_from_files(
-        self,
-        author: AuthUser,
-        collection: Collection,
-        files: list[File]
+        self, author: AuthUser, collection: Collection, files: list[File]
     ) -> list[Entry]:
         entries = []
 
         for file in files:
             entry, _ = self.obj_class.services.save_model_obj(
-                name=file.name,
-                author=author,
-                collection=collection
+                name=file.name, author=author, collection=collection
             )
 
             entries.append(entry)
@@ -38,8 +33,7 @@ class EntryFactoryService(BaseDjangoModelService['Entry']):
             file.related_field = None
 
             entry.ordering_services.processor.move_to_position(
-                destination_objects=collection.entries.active(),
-                position=0,
+                destination_objects=collection.entries.active(), position=0
             )
 
         File.objects.bulk_update(files, ['content_type', 'object_id', 'related_field'])

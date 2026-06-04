@@ -57,10 +57,7 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         if not ordering_mixin_validator.validate():
             message = 'Ordering validation failed.'
 
-            raise OrderingMixinGroupError(
-                message,
-                ordering_mixin_validator.errors
-            )
+            raise OrderingMixinGroupError(message, ordering_mixin_validator.errors)
 
         destination_objects = destination_objects.exclude(pk=self.obj.pk).order_by('order')
         origin_objects = origin_objects.exclude(pk=self.obj.pk).order_by('order')
@@ -74,10 +71,7 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         self.obj.order = position
         self.obj.save(update_fields=['order'])
 
-    def remove_from_objects(
-        self,
-        destination_objects: QuerySet[Model],
-    ):
+    def remove_from_objects(self, destination_objects: QuerySet[Model]):
         ordering_mixin_validator = OrderingMixinValidator(
             destination_objects=destination_objects,
             position=0,
@@ -88,10 +82,7 @@ class OrderingProcessorService(BaseDjangoModelService['OrderingModelMixin']):
         if not ordering_mixin_validator.validate():
             message = 'Ordering validation failed.'
 
-            raise ExceptionGroup(
-                message,
-                ordering_mixin_validator.errors
-            )
+            raise ExceptionGroup(message, ordering_mixin_validator.errors)
 
         destination_objects = destination_objects.exclude(pk=self.obj.pk).order_by('order')
 

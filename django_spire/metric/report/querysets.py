@@ -11,11 +11,8 @@ if TYPE_CHECKING:
 class ReportRunQuerySet(QuerySet):
     def by_popular(self):
         return (
-            self
-            .values('report_key_stack')
-            .annotate(
-                run_count=Count('report_key_stack')
-            )
+            self.values('report_key_stack')
+            .annotate(run_count=Count('report_key_stack'))
             .order_by('-run_count')
         )
 

@@ -10,5 +10,9 @@ urlpatterns = [
     path('<int:task_id>/detail/rows/', template_views.detail_rows_view, name='detail_rows'),
     path('<int:task_id>/user/rows/', template_views.user_rows_view, name='user_rows'),
     path('rows/', template_views.rows_view, name='rows'),
-    path('user/<int:user_id>/task/detail/rows/', template_views.user_detail_rows_view, name='user_detail_rows'),
+    path(
+        'user/<int:user_id>/task/detail/rows/',
+        template_views.user_detail_rows_view,
+        name='user_detail_rows',
+    ),
 ]

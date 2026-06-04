@@ -13,9 +13,7 @@ class HistoryModelMixin(models.Model):
     is_deleted = models.BooleanField(default=False, editable=False)
 
     history_events = GenericRelation(
-        HistoryEvent,
-        related_query_name='history_event',
-        editable=False
+        HistoryEvent, related_query_name='history_event', editable=False
     )
 
     created_datetime = models.DateTimeField(default=localtime, editable=False)

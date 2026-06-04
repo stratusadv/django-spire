@@ -11,42 +11,26 @@ if TYPE_CHECKING:
 
 def create_test_options() -> Options:
     # Test option to match test dict for testing
-    return Options(sections=[
-        OptionSection(
-            name='notification',
-            options=[
-                Option('email', True),
-                Option('push', False),
-            ]
-        ),
-        OptionSection(
-            name='system',
-            options=[
-                Option('timezone', 'America/Edmonton'),
-            ]
-        ),
-    ])
+    return Options(
+        sections=[
+            OptionSection(
+                name='notification', options=[Option('email', True), Option('push', False)]
+            ),
+            OptionSection(name='system', options=[Option('timezone', 'America/Edmonton')]),
+        ]
+    )
 
 
 def create_test_options_dict() -> dict:
     return {
-        'notification': {
-            'email': True,
-            'push': False
-        },
-        'system': {
-            'timezone': 'America/Edmonton'
-        }
+        'notification': {'email': True, 'push': False},
+        'system': {'timezone': 'America/Edmonton'},
     }
 
 
 def create_test_option_section() -> OptionSection:
     return OptionSection(
-        name='notification',
-        options=[
-            Option('email', True),
-            Option('push', False),
-        ]
+        name='notification', options=[Option('email', True), Option('push', False)]
     )
 
 
@@ -61,4 +45,3 @@ def create_test_options_mixin() -> OptionsModelMixin:
     profile.options = create_test_options()
     profile._options = profile.options.to_dict()
     return profile
-

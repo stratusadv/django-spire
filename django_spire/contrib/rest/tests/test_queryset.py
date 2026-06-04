@@ -1,6 +1,7 @@
 """
 Tests for RestQuerySet using DummyJSON Users API.
 """
+
 from django.test import TestCase
 
 from django_spire.contrib.rest import RestSchemaSet
@@ -21,7 +22,7 @@ class TestRestSchemaQuerySet(TestCase):
 
         self.assertIsNotNone(user)
         # First user should be Emily
-        self.assertEqual(user.firstName, "Emily")
+        self.assertEqual(user.firstName, 'Emily')
 
     def test_last(self):
         user = UserSchema.objects.limit(5).last()
@@ -40,7 +41,7 @@ class TestRestSchemaQuerySet(TestCase):
     def test_chaining_returns_new_queryset(self):
         qs1 = UserSchema.objects
         qs2 = qs1.filter(lambda x: True)
-        qs3 = qs2.order_by("firstName")
+        qs3 = qs2.order_by('firstName')
         qs4 = qs3.limit(5)
 
         # Each should be a new instance (immutability)
@@ -82,26 +83,26 @@ class TestRestSchemaQuerySet(TestCase):
             self.assertEqual(offset_users[0].id, all_users[1].id)
 
     def test_order_by_ascending(self):
-        users = list(UserSchema.objects.limit(10).order_by("firstName"))
+        users = list(UserSchema.objects.limit(10).order_by('firstName'))
 
         first_names = [u.firstName for u in users]
         self.assertEqual(first_names, sorted(first_names))
 
     def test_order_by_descending(self):
-        users = list(UserSchema.objects.limit(10).order_by("-firstName"))
+        users = list(UserSchema.objects.limit(10).order_by('-firstName'))
 
         first_names = [u.firstName for u in users]
         self.assertEqual(first_names, sorted(first_names, reverse=True))
 
     def test_values_list_flat(self):
-        usernames = UserSchema.objects.limit(5).values_list("username", flat=True)
+        usernames = UserSchema.objects.limit(5).values_list('username', flat=True)
 
         self.assertIsInstance(usernames, list)
         self.assertTrue(all(isinstance(u, str) for u in usernames))
         self.assertEqual(len(usernames), 5)
 
     def test_values_list_tuple(self):
-        values = UserSchema.objects.limit(5).values_list("firstName", "lastName")
+        values = UserSchema.objects.limit(5).values_list('firstName', 'lastName')
 
         self.assertIsInstance(values, list)
         self.assertTrue(all(isinstance(v, tuple) and len(v) == 2 for v in values))
@@ -110,7 +111,7 @@ class TestRestSchemaQuerySet(TestCase):
         first = UserSchema.objects.limit(10)[0]
 
         self.assertIsNotNone(first)
-        self.assertEqual(first.firstName, "Emily")
+        self.assertEqual(first.firstName, 'Emily')
 
     def test_slicing(self):
         sliced = UserSchema.objects[0:3]
@@ -122,10 +123,9 @@ class TestRestSchemaQuerySet(TestCase):
     def test_complex_chain(self):
         """Test a complex chain of operations."""
         results = list(
-            UserSchema.objects
-            .limit(20)
+            UserSchema.objects.limit(20)
             .filter(lambda u: u.firstName is not None)
-            .order_by("firstName")
+            .order_by('firstName')
             .limit(5)
         )
 
@@ -153,10 +153,10 @@ class TestRestSchemaQuerySet(TestCase):
         qs = UserSchema.objects.limit(10)
 
         # Get by username
-        user = qs.get(username="emilys")
+        user = qs.get(username='emilys')
 
-        self.assertEqual(user.username, "emilys")
-        self.assertEqual(user.firstName, "Emily")
+        self.assertEqual(user.username, 'emilys')
+        self.assertEqual(user.firstName, 'Emily')
 
     def test_all(self):
         """Test all() method returns a new queryset."""

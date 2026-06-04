@@ -12,6 +12,6 @@ class VisualConfig(AppConfig):
         {
             'name': 'metric_visual',
             'model_class_path': 'django_spire.metric.visual.models.Visual',
-            'is_proxy_model': False
+            'is_proxy_model': False,
         },
     )

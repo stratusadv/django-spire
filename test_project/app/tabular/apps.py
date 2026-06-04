@@ -5,4 +5,3 @@ class WizardConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     label = 'test_project_tabular'
     name = 'test_project.app.tabular'
-

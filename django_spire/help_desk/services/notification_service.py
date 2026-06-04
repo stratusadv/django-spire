@@ -28,42 +28,27 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
     def create_new_ticket_notifications(self):
         event_type = TicketEventType.NEW
 
-        developers = User.objects.filter(
-            email__in=[
-                admin[1]
-                for admin in settings.ADMINS
-            ]
-        )
+        developers = User.objects.filter(email__in=[admin[1] for admin in settings.ADMINS])
 
         for notif_type in [NotificationTypeChoices.APP, NotificationTypeChoices.EMAIL]:
             self._create_ticket_event_notifications(
-                users=developers,
-                notification_type=notif_type,
-                event_type=event_type,
+                users=developers, notification_type=notif_type, event_type=event_type
             )
 
-        managers = User.objects.filter(
-            Q(groups__permissions__codename='delete_helpdeskticket')
-        )
+        managers = User.objects.filter(Q(groups__permissions__codename='delete_helpdeskticket'))
 
         self._create_ticket_event_notifications(
-            users=managers,
-            notification_type=NotificationTypeChoices.APP,
-            event_type=event_type,
+            users=managers, notification_type=NotificationTypeChoices.APP, event_type=event_type
         )
 
     @staticmethod
     def _get_ticket_event_notification_title(event_type: TicketEventType) -> str:
-        content_map = {
-            TicketEventType.NEW: 'A new help desk ticket has been created',
-        }
+        content_map = {TicketEventType.NEW: 'A new help desk ticket has been created'}
 
         return content_map[event_type]
 
     def _get_ticket_event_notification_body(
-        self,
-        event_type: TicketEventType,
-        notification_type: NotificationTypeChoices,
+        self, event_type: TicketEventType, notification_type: NotificationTypeChoices
     ) -> str:
         content_map = {
             TicketEventType.NEW: {
@@ -84,12 +69,11 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         try:
             return content_map[event_type][notification_type]
         except KeyError:
-            raise TicketEventNotificationTypeNotSupportedError(event_type, notification_type) from None
+            raise TicketEventNotificationTypeNotSupportedError(
+                event_type, notification_type
+            ) from None
 
-    def _get_ticket_notification_url(
-        self,
-        notification_type: NotificationTypeChoices
-    ) -> str:
+    def _get_ticket_notification_url(self, notification_type: NotificationTypeChoices) -> str:
         path = reverse('django_spire:help_desk:page:detail', kwargs={'pk': self.obj.pk})
 
         if notification_type == NotificationTypeChoices.EMAIL:
@@ -119,9 +103,7 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         if notification_type == NotificationTypeChoices.EMAIL:
             return EmailNotification(
                 notification=base_notification,
-                to_email_address=(
-                    settings.DEVELOPMENT_EMAIL if settings.DEBUG else user.email
-                )
+                to_email_address=(settings.DEVELOPMENT_EMAIL if settings.DEBUG else user.email),
             )
 
         if notification_type == NotificationTypeChoices.APP:
@@ -133,36 +115,25 @@ class HelpDeskTicketNotificationService(BaseDjangoModelService['HelpDeskTicket']
         self,
         users: list[User],
         notification_type: NotificationTypeChoices,
-        event_type: TicketEventType
+        event_type: TicketEventType,
     ):
         title = self._get_ticket_event_notification_title(event_type)
 
         body = self._get_ticket_event_notification_body(
-            event_type=event_type,
-            notification_type=notification_type,
+            event_type=event_type, notification_type=notification_type
         )
 
         url = self._get_ticket_notification_url(notification_type)
 
         notifications = [
             self._create_ticket_event_notification_for_user(
-                notification_type=notification_type,
-                body=body,
-                title=title,
-                url=url,
-                user=user,
+                notification_type=notification_type, body=body, title=title, url=url, user=user
             )
             for user in users
         ]
 
         Notification.objects.bulk_create(
-            [
-                notification.notification
-                for notification in notifications
-                if notification
-            ]
+            [notification.notification for notification in notifications if notification]
         )
 
-        NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP[notification_type].objects.bulk_create(
-            notifications
-        )
+        NOTIFICATION_TYPE_CHOICE_TO_MODEL_MAP[notification_type].objects.bulk_create(notifications)

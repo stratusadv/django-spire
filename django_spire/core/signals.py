@@ -25,5 +25,5 @@ def sync_site_from_settings(sender: type[AppConfig], **kwargs: Any) -> None:
         defaults={
             'domain': settings.DJANGO_SITE_DOMAIN,
             'name': getattr(settings, 'DJANGO_SITE_NAME', settings.DJANGO_SITE_DOMAIN),
-        }
+        },
     )

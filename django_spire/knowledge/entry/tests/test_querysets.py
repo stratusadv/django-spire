@@ -24,10 +24,7 @@ class EntryQuerySetTests(BaseTestCase):
         assert self.entry in result
 
     def test_has_current_version_excludes_none(self):
-        entry_without_version = create_test_entry(
-            collection=self.collection,
-            name='No Version'
-        )
+        entry_without_version = create_test_entry(collection=self.collection, name='No Version')
         result = Entry.objects.has_current_version()
         assert entry_without_version not in result
 

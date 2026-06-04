@@ -23,6 +23,6 @@
     }"
 >
     <template x-for="notification in notifications" :key="notification.id">
-        {% include 'django_spire/messages/element/messages_element.html' %}
+        {% include 'django_spire/message/message_item.html' %}
     </template>
 </div>

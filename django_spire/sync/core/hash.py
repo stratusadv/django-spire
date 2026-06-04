@@ -16,11 +16,7 @@ _SCHEMA_TAG_LENGTH = 16
 
 
 class RecordHasher:
-    def __init__(
-        self,
-        identity_field: str,
-        compare_fields: list[str] | None = None,
-    ) -> None:
+    def __init__(self, identity_field: str, compare_fields: list[str] | None = None) -> None:
         if not identity_field:
             message = 'identity_field must be a non-empty string'
             raise InvalidParameterError(message)
@@ -28,10 +24,7 @@ class RecordHasher:
         if compare_fields is not None:
             for field_name in compare_fields:
                 if not field_name:
-                    message = (
-                        'compare_fields must not contain '
-                        'empty strings'
-                    )
+                    message = 'compare_fields must not contain empty strings'
 
                     raise InvalidParameterError(message)
 
@@ -43,10 +36,7 @@ class RecordHasher:
         if self._compare_fields is not None:
             fields = self._compare_fields
         else:
-            fields = sorted(
-                key for key in record
-                if key != self._identity_field
-            )
+            fields = sorted(key for key in record if key != self._identity_field)
 
         subset: dict[str, Any] = {}
 
@@ -58,25 +48,14 @@ class RecordHasher:
             subset[field_name] = record[field_name]
 
         try:
-            return json.dumps(
-                subset,
-                sort_keys=True,
-                ensure_ascii=True,
-            ).encode('utf-8')
+            return json.dumps(subset, sort_keys=True, ensure_ascii=True).encode('utf-8')
         except TypeError as exception:
-            message = (
-                f'Record contains non-serializable value: '
-                f'{exception}'
-            )
+            message = f'Record contains non-serializable value: {exception}'
 
             raise RecordSerializationError(message) from exception
 
     def _compute_schema_tag(self) -> str:
-        token = (
-            ','.join(sorted(self._compare_fields))
-            if self._compare_fields is not None
-            else '*'
-        )
+        token = ','.join(sorted(self._compare_fields)) if self._compare_fields is not None else '*'
 
         encoded = token.encode('utf-8')
         return hashlib.sha256(encoded).hexdigest()[:_SCHEMA_TAG_LENGTH]

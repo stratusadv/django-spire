@@ -25,10 +25,7 @@ class AiDecoratorTestCase(BaseTestCase):
         @recorder_to_html_file('horse')
         def generate_horse_intel(user_input: str) -> HorseIntel:
             bot = Bot()
-            return bot.llm.prompt_to_intel(
-                prompt=user_input,
-                intel_class=HorseIntel,
-            )
+            return bot.llm.prompt_to_intel(prompt=user_input, intel_class=HorseIntel)
 
         horse_intel = generate_horse_intel('Make me a magical horse that grants wishes!')
 
@@ -43,10 +40,7 @@ class AiDecoratorTestCase(BaseTestCase):
         @recorder_to_html_file('test_interaction')
         def generate_horse_intel(user_input: str) -> HorseIntel:
             bot = Bot()
-            return bot.llm.prompt_to_intel(
-                prompt=user_input,
-                intel_class=HorseIntel,
-            )
+            return bot.llm.prompt_to_intel(prompt=user_input, intel_class=HorseIntel)
 
         generate_horse_intel('Create a horse')
 
@@ -55,6 +49,7 @@ class AiDecoratorTestCase(BaseTestCase):
     @pytest.mark.ai
     def test_ai_interaction_decorator_requires_user_or_actor(self) -> None:
         try:
+
             @log_ai_interaction_from_recorder()
             def dummy_func() -> None:
                 pass
@@ -69,10 +64,7 @@ class AiDecoratorTestCase(BaseTestCase):
         @recorder_to_html_file('test_actor_only')
         def generate_horse_intel(user_input: str) -> HorseIntel:
             bot = Bot()
-            return bot.llm.prompt_to_intel(
-                prompt=user_input,
-                intel_class=HorseIntel,
-            )
+            return bot.llm.prompt_to_intel(prompt=user_input, intel_class=HorseIntel)
 
         horse_intel = generate_horse_intel('Create a horse')
 
@@ -88,10 +80,7 @@ class AiDecoratorTestCase(BaseTestCase):
         @recorder_to_html_file('module_test')
         def test_callable(user_input: str) -> HorseIntel:
             bot = Bot()
-            return bot.llm.prompt_to_intel(
-                prompt=user_input,
-                intel_class=HorseIntel,
-            )
+            return bot.llm.prompt_to_intel(prompt=user_input, intel_class=HorseIntel)
 
         test_callable('Test input')
 
@@ -150,10 +139,7 @@ class AiInteractionModelTestCase(BaseTestCase):
     def test_ai_interaction_default_values(self) -> None:
         ai_usage = AiUsage.objects.create()
         ai_interaction = AiInteraction.objects.create(
-            ai_usage=ai_usage,
-            actor='test',
-            module_name='test',
-            callable_name='test',
+            ai_usage=ai_usage, actor='test', module_name='test', callable_name='test'
         )
 
         assert ai_interaction.event_count == 0

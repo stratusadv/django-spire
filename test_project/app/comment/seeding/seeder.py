@@ -10,7 +10,11 @@ class CommentExampleSeeder(DjangoModelSeeder):
         'id': 'exclude',
         'name': ('faker'),
         'description': ('faker'),
-        'created_datetime': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'}),
+        'created_datetime': (
+            'custom',
+            'date_time_between',
+            {'start_date': '-30d', 'end_date': 'now'},
+        ),
         'is_active': True,
         'is_deleted': False,
     }

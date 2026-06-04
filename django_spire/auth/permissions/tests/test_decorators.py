@@ -34,11 +34,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
         def dummy_view(_request: WSGIRequest) -> str:
             return 'success'
 
-        response = permission_required_decorator_function(
-            'some.permission',
-            dummy_view,
-            request
-        )
+        response = permission_required_decorator_function('some.permission', dummy_view, request)
         assert response.status_code == 302
 
     def test_user_without_permission_raises_denied(self) -> None:
@@ -50,9 +46,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
 
         with pytest.raises(PermissionDenied):
             permission_required_decorator_function(
-                'some.nonexistent_permission',
-                dummy_view,
-                request
+                'some.nonexistent_permission', dummy_view, request
             )
 
     def test_superuser_has_all_permissions(self) -> None:
@@ -63,11 +57,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
         def dummy_view(_request: WSGIRequest) -> str:
             return 'success'
 
-        result = permission_required_decorator_function(
-            'any.permission',
-            dummy_view,
-            request
-        )
+        result = permission_required_decorator_function('any.permission', dummy_view, request)
         assert result == 'success'
 
     def test_redirects_to_login(self) -> None:
@@ -77,11 +67,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
         def dummy_view(_request: WSGIRequest) -> str:
             return 'success'
 
-        response = permission_required_decorator_function(
-            'some.permission',
-            dummy_view,
-            request
-        )
+        response = permission_required_decorator_function('some.permission', dummy_view, request)
         assert 'login' in response.url.lower()
 
     def test_multiple_permissions_all_required(self) -> None:
@@ -93,10 +79,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
 
         with pytest.raises(PermissionDenied):
             permission_required_decorator_function(
-                ['perm1', 'perm2'],
-                dummy_view,
-                request,
-                all_required=True
+                ['perm1', 'perm2'], dummy_view, request, all_required=True
             )
 
     def test_multiple_permissions_any_required(self) -> None:
@@ -108,10 +91,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
             return 'success'
 
         result = permission_required_decorator_function(
-            ['perm1', 'perm2'],
-            dummy_view,
-            request,
-            all_required=False
+            ['perm1', 'perm2'], dummy_view, request, all_required=False
         )
         assert result == 'success'
 
@@ -124,11 +104,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
             return f'{arg1}-{arg2}'
 
         result = permission_required_decorator_function(
-            'any.permission',
-            dummy_view,
-            request,
-            'hello',
-            'world'
+            'any.permission', dummy_view, request, 'hello', 'world'
         )
         assert result == 'hello-world'
 
@@ -141,10 +117,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
             return kwargs.get('key', 'default')
 
         result = permission_required_decorator_function(
-            'any.permission',
-            dummy_view,
-            request,
-            key='value'
+            'any.permission', dummy_view, request, key='value'
         )
         assert result == 'value'
 
@@ -156,11 +129,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
         def dummy_view(_request: WSGIRequest) -> str:
             return 'success'
 
-        result = permission_required_decorator_function(
-            'single.permission',
-            dummy_view,
-            request
-        )
+        result = permission_required_decorator_function('single.permission', dummy_view, request)
         assert result == 'success'
 
     def test_empty_permissions_list(self) -> None:
@@ -170,11 +139,7 @@ class PermissionRequiredDecoratorFunctionTestCase(BaseTestCase):
         def dummy_view(_request: WSGIRequest) -> str:
             return 'success'
 
-        result = permission_required_decorator_function(
-            [],
-            dummy_view,
-            request
-        )
+        result = permission_required_decorator_function([], dummy_view, request)
         assert result == 'success'
 
 
@@ -214,7 +179,7 @@ class PermissionRequiredDecoratorTestCase(BaseTestCase):
         @permission_required(
             'django_spire_auth_group.view_authgroup',
             'django_spire_auth_group.change_authgroup',
-            all_required=True
+            all_required=True,
         )
         def dummy_view(_request: WSGIRequest) -> str:
             return 'success'

@@ -1,13 +1,15 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% block card_padding_class %}p-0{% endblock %}
+{% block card_class %}{{ block.super }} p-0{% endblock %}
 
 {% block card_title %}
    {{ group.name }} Permissions - {{ group.user_set.count }} Users
 {% endblock %}
 
 {% block card_title_content %}
-    {% for perm_data in permission_data %}
-        {% include 'django_spire/auth/group/item/group_perm_item.html' %}
-    {% endfor %}
+    <div class="card-body">
+        {% for perm_data in permission_data %}
+            {% include 'django_spire/auth/group/item/group_perm_item.html' %}
+        {% endfor %}
+    </div>
 {% endblock %}

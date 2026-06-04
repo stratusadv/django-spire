@@ -22,21 +22,14 @@ if TYPE_CHECKING:
 def report_view(request: WSGIRequest) -> TemplateResponse:
     breadcrumbs = Breadcrumbs()
 
-    breadcrumbs.add_breadcrumb(
-        'Reports',
-        reverse('django_spire:metric:report:page:report'),
-    )
+    breadcrumbs.add_breadcrumb('Reports', reverse('django_spire:metric:report:page:report'))
 
     page_report_registry = ReportRegistry()
 
     for report_registry in settings.DJANGO_SPIRE_REPORT_REGISTRIES:
-        report_registry_class = get_object_from_module_string(
-            report_registry
-        )
+        report_registry_class = get_object_from_module_string(report_registry)
 
-        page_report_registry.add_registry(
-            report_registry_class()
-        )
+        page_report_registry.add_registry(report_registry_class())
 
     context_data = dict()
 
@@ -50,9 +43,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
             if report:
                 for key in report_key_stack.split('|'):
-                    breadcrumbs.add_breadcrumb(
-                        key,
-                    )
+                    breadcrumbs.add_breadcrumb(key)
 
                 context_data['report_run_arguments'] = report.run_arguments
 
@@ -70,7 +61,6 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         else:
                             get_request_value = date_str
 
-
                     elif context_data['report_run_arguments'][argument]['annotation'] == 'datetime':
                         datetime_str = request.GET.get(argument, None)
 
@@ -79,14 +69,19 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         else:
                             get_request_value = datetime_str
 
-                    elif context_data['report_run_arguments'][argument]['annotation'] == 'multi_select':
+                    elif (
+                        context_data['report_run_arguments'][argument]['annotation']
+                        == 'multi_select'
+                    ):
                         get_request_value = request.GET.getlist(argument, [])
 
                     else:
                         value = request.GET.get(argument, None)
 
                         if value:
-                            get_request_value = context_data['report_run_arguments'][argument]['annotation_class'](value)
+                            get_request_value = context_data['report_run_arguments'][argument][
+                                'annotation_class'
+                            ](value)
                         else:
                             get_request_value = value
 
@@ -97,9 +92,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         if value is None:
                             break
                     else:
-                        ReportRun.objects.create(
-                            report_key_stack=report_key_stack,
-                        )
+                        ReportRun.objects.create(report_key_stack=report_key_stack)
                         report.run(**context_data['report_run_arguments_values'])
 
                 context_data['report'] = report
@@ -111,8 +104,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                 **report_run,
                 'report_key_stack_verbose': report_run['report_key_stack'].replace('|', ' > '),
             }
-            for report_run in
-            ReportRun.objects.by_top_ten()
+            for report_run in ReportRun.objects.by_top_ten()
         ]
 
         context_data['top_ten_report_runs'] = top_ten_report_runs
@@ -123,5 +115,5 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
         page_description='More Reporting Info',
         breadcrumbs=breadcrumbs,
         context_data=context_data,
-        template='django_spire/metric/report/page/report_page.html'
+        template='django_spire/metric/report/page/report_page.html',
     )

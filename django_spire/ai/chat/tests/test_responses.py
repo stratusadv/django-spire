@@ -11,7 +11,7 @@ class MessageResponseTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
 
         assert response.type == MessageResponseType.REQUEST
@@ -23,7 +23,7 @@ class MessageResponseTests(BaseTestCase):
             type=MessageResponseType.REQUEST,
             sender='User',
             message_intel=DefaultMessageIntel(text='Hello'),
-            message_timestamp='Jan 01, 2024 at 12:00 PM'
+            message_timestamp='Jan 01, 2024 at 12:00 PM',
         )
 
         assert response.message_timestamp == 'Jan 01, 2024 at 12:00 PM'
@@ -33,7 +33,7 @@ class MessageResponseTests(BaseTestCase):
             type=MessageResponseType.RESPONSE,
             sender='Assistant',
             message_intel=DefaultMessageIntel(text='Hello'),
-            synthesis_speech=True
+            synthesis_speech=True,
         )
 
         assert response.synthesis_speech is True
@@ -42,7 +42,7 @@ class MessageResponseTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
 
         html = response.render_to_html_string()
@@ -54,7 +54,7 @@ class MessageResponseTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.RESPONSE,
             sender='Assistant',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
 
         html = response.render_to_html_string()
@@ -66,7 +66,7 @@ class MessageResponseTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.LOADING_RESPONSE,
             sender='Assistant',
-            message_intel=DefaultMessageIntel(text='Loading...')
+            message_intel=DefaultMessageIntel(text='Loading...'),
         )
 
         html = response.render_to_html_string()
@@ -78,7 +78,7 @@ class MessageResponseTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
 
         html = response.render_to_html_string(context_data={'chat_id': 123})
@@ -89,7 +89,7 @@ class MessageResponseTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
 
         assert response.synthesis_speech is False
@@ -98,7 +98,7 @@ class MessageResponseTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
 
         assert response.message_timestamp is None
@@ -115,7 +115,7 @@ class MessageResponseGroupTests(BaseTestCase):
         response = MessageResponse(
             type=MessageResponseType.REQUEST,
             sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
+            message_intel=DefaultMessageIntel(text='Hello'),
         )
 
         group.add_message_response(response)
@@ -129,7 +129,7 @@ class MessageResponseGroupTests(BaseTestCase):
             response = MessageResponse(
                 type=MessageResponseType.REQUEST,
                 sender='User',
-                message_intel=DefaultMessageIntel(text=f'Message {i}')
+                message_intel=DefaultMessageIntel(text=f'Message {i}'),
             )
             group.add_message_response(response)
 
@@ -144,16 +144,20 @@ class MessageResponseGroupTests(BaseTestCase):
 
     def test_render_to_html_string_with_messages(self) -> None:
         group = MessageResponseGroup()
-        group.add_message_response(MessageResponse(
-            type=MessageResponseType.REQUEST,
-            sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
-        ))
-        group.add_message_response(MessageResponse(
-            type=MessageResponseType.RESPONSE,
-            sender='Assistant',
-            message_intel=DefaultMessageIntel(text='Hi')
-        ))
+        group.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.REQUEST,
+                sender='User',
+                message_intel=DefaultMessageIntel(text='Hello'),
+            )
+        )
+        group.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.RESPONSE,
+                sender='Assistant',
+                message_intel=DefaultMessageIntel(text='Hi'),
+            )
+        )
 
         html = group.render_to_html_string()
 
@@ -162,11 +166,13 @@ class MessageResponseGroupTests(BaseTestCase):
 
     def test_render_to_html_string_with_context(self) -> None:
         group = MessageResponseGroup()
-        group.add_message_response(MessageResponse(
-            type=MessageResponseType.REQUEST,
-            sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
-        ))
+        group.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.REQUEST,
+                sender='User',
+                message_intel=DefaultMessageIntel(text='Hello'),
+            )
+        )
 
         html = group.render_to_html_string(context_data={'chat_id': 123})
 
@@ -174,11 +180,13 @@ class MessageResponseGroupTests(BaseTestCase):
 
     def test_render_to_html_string_with_is_loading(self) -> None:
         group = MessageResponseGroup()
-        group.add_message_response(MessageResponse(
-            type=MessageResponseType.REQUEST,
-            sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
-        ))
+        group.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.REQUEST,
+                sender='User',
+                message_intel=DefaultMessageIntel(text='Hello'),
+            )
+        )
 
         html = group.render_to_html_string(context_data={'is_loading': True})
 
@@ -186,11 +194,13 @@ class MessageResponseGroupTests(BaseTestCase):
 
     def test_render_to_html_string_default_is_loading(self) -> None:
         group = MessageResponseGroup()
-        group.add_message_response(MessageResponse(
-            type=MessageResponseType.REQUEST,
-            sender='User',
-            message_intel=DefaultMessageIntel(text='Hello')
-        ))
+        group.add_message_response(
+            MessageResponse(
+                type=MessageResponseType.REQUEST,
+                sender='User',
+                message_intel=DefaultMessageIntel(text='Hello'),
+            )
+        )
 
         html = group.render_to_html_string(context_data={})
 

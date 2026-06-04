@@ -13,14 +13,13 @@ if TYPE_CHECKING:
 class KnowledgeEntriesBot(Bot):
     role = 'Knowledge Entry Search Assistant'
     task = 'Read through the knowledge entries and return the most relevant for the user request.'
-    guidelines = (
-        Prompt()
-        .list([
+    guidelines = Prompt().list(
+        [
             'Return 1 to 5 of the most relevant knowledge entries using block ids.',
             'The relevant headings should be the nearest heading above the selected knowledge entry block.',
             'Make sure the relevant heading text is from a heading with mark down formatting.',
             'When returning the relevant heading remove any of the markdown formating characters.',
-        ])
+        ]
     )
     intel_class = EntriesIntel
 
@@ -42,6 +41,4 @@ class KnowledgeEntriesBot(Bot):
 
             entry_prompt.line_break()
 
-        return self.llm.prompt_to_intel(
-            prompt=entry_prompt,
-        )
+        return self.llm.prompt_to_intel(prompt=entry_prompt)

@@ -14,10 +14,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def seed_clock(
-    clock: HybridLogicalClock,
-    models: list[type[SyncableMixin]],
-) -> None:
+def seed_clock(clock: HybridLogicalClock, models: list[type[SyncableMixin]]) -> None:
     water_high = 0
 
     for model in models:

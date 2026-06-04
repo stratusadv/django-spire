@@ -15,10 +15,7 @@ class AuthUserModelTestCase(BaseTestCase):
         super().setUp()
 
         self.user = create_user(
-            username='testuser',
-            first_name='Test',
-            last_name='User',
-            email='test@example.com'
+            username='testuser', first_name='Test', last_name='User', email='test@example.com'
         )
 
     def test_meta_proxy(self) -> None:
@@ -48,10 +45,7 @@ class AuthUserModelTestCase(BaseTestCase):
 
     def test_user_creation(self) -> None:
         user = create_user(
-            username='newuser',
-            first_name='New',
-            last_name='User',
-            email='new@example.com'
+            username='newuser', first_name='New', last_name='User', email='new@example.com'
         )
         assert user.pk is not None
         assert AuthUser.objects.filter(pk=user.pk).exists()
@@ -142,6 +136,7 @@ class AuthUserModelTestCase(BaseTestCase):
 
     def test_user_inheritance_from_django_user(self) -> None:
         from django.contrib.auth.models import User
+
         assert issubclass(AuthUser, User)
 
     def test_activity_mixin(self) -> None:
@@ -191,11 +186,7 @@ class AuthUserModelTestCase(BaseTestCase):
         assert max_length == 254
 
     def test_user_with_unicode_names(self) -> None:
-        user = create_user(
-            username='unicodeuser',
-            first_name='Tëst',
-            last_name='Üsér'
-        )
+        user = create_user(username='unicodeuser', first_name='Tëst', last_name='Üsér')
         assert user.first_name == 'Tëst'
         assert user.last_name == 'Üsér'
         assert 'Tëst' in user.get_full_name()
@@ -209,13 +200,11 @@ class AuthUserModelTestCase(BaseTestCase):
 
     def test_user_get_or_create(self) -> None:
         user, created = AuthUser.objects.get_or_create(
-            username='getorcreate',
-            defaults={'first_name': 'Get', 'last_name': 'OrCreate'}
+            username='getorcreate', defaults={'first_name': 'Get', 'last_name': 'OrCreate'}
         )
         assert created
         user2, created2 = AuthUser.objects.get_or_create(
-            username='getorcreate',
-            defaults={'first_name': 'Different', 'last_name': 'Name'}
+            username='getorcreate', defaults={'first_name': 'Different', 'last_name': 'Name'}
         )
         assert not created2
         assert user.pk == user2.pk

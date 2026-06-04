@@ -3,15 +3,9 @@ import robit
 from django.core.wsgi import get_wsgi_application
 
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE",
-    'test_project.postgres_settings'
-)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
 
-os.environ.setdefault(
-    "DANDY_SETTINGS_MODULE",
-    'test_project.dandy_settings'
-)
+os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
 
 application = get_wsgi_application()
 
@@ -35,19 +29,19 @@ wo = robit.Worker(
 wo.add_group('Notifications')
 
 wo.add_job(
-    name="Process Ready Notifications",
+    name='Process Ready Notifications',
     method=notification_automations.process_notifications,
     group='Notifications',
-    cron='0 0 * * 6'
+    cron='0 0 * * 6',
 )
 
 wo.add_group('Knowledge Base')
 
 wo.add_job(
-    name="Convert Files to Model Objects",
+    name='Convert Files to Model Objects',
     method=Entry.services.automation.convert_files_to_model_objects,
     group='Knowledge Base',
-    cron='0 0 * * 6'
+    cron='0 0 * * 6',
 )
 
 

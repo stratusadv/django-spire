@@ -26,16 +26,13 @@ if TYPE_CHECKING:
 def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     statistic = get_object_or_404(models.Statistic, pk=pk)
 
-    form_action = reverse(
-        'metric:domain:statistic:form:delete_modal',
-        kwargs={'pk': pk}
-    )
+    form_action = reverse('metric:domain:statistic:form:delete_modal', kwargs={'pk': pk})
 
     def add_activity() -> None:
         statistic.add_activity(
             user=request.user,
             verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a statistic.'
+            information=f'{request.user.get_full_name()} deleted a statistic.',
         )
 
     fallback = reverse('metric:domain:statistic:page:list')
@@ -54,16 +51,9 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     statistic = get_object_or_404(models.Statistic, pk=pk)
 
-    return_url = request.GET.get(
-        'return_url',
-        reverse('metric:domain:statistic:page:list')
-    )
+    return_url = request.GET.get('return_url', reverse('metric:domain:statistic:page:list'))
 
-    return generic_views.delete_form_view(
-        request,
-        obj=statistic,
-        return_url=return_url
-    )
+    return generic_views.delete_form_view(request, obj=statistic, return_url=return_url)
 
 
 @permission_required('domain_statistic.add_statistic')
@@ -81,14 +71,10 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'statistic', statistic)
 
-    context_data = {
-        'statistic': statistic
-    }
+    context_data = {'statistic': statistic}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='metric/domain/statistic/modal/content/form.html'
+        request, context=context_data, template='metric/domain/statistic/modal/content/form.html'
     )
 
 
@@ -102,7 +88,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
+def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     statistic = get_object_or_null_obj(models.Statistic, pk=pk)
 
     Glue.model(request, 'statistic', statistic, 'view')
@@ -115,10 +101,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
             add_form_activity(statistic, pk, request.user)
 
             return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('metric:domain:statistic:page:list')
-                )
+                request.GET.get('return_url', reverse('metric:domain:statistic:page:list'))
             )
 
         show_form_errors(request, form)
@@ -126,8 +109,5 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
         form = forms.StatisticForm(instance=statistic)
 
     return generic_views.form_view(
-        request,
-        form=form,
-        obj=statistic,
-        template='metric/domain/statistic/page/form_page.html'
+        request, form=form, obj=statistic, template='metric/domain/statistic/page/form_page.html'
     )

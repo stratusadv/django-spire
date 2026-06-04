@@ -11,11 +11,7 @@ from django_spire.contrib.constructor.constructor import BaseConstructor
 TypeDjangoModel = TypeVar('TypeDjangoModel', bound=Model, covariant=True)
 
 
-class BaseDjangoModelConstructor(
-    BaseConstructor[TypeDjangoModel],
-    ABC,
-    Generic[TypeDjangoModel]
-):
+class BaseDjangoModelConstructor(BaseConstructor[TypeDjangoModel], ABC, Generic[TypeDjangoModel]):
     @property
     def _model_obj_id_is_empty(self) -> bool:
         return self.obj.id is None or self.obj.id in {0, ''}
@@ -38,4 +34,8 @@ class BaseDjangoModelConstructor(
 
     @property
     def _obj_is_valid(self) -> bool:
-        return super()._obj_is_valid and isinstance(self.obj, Model) and issubclass(self._obj_type, Model)
+        return (
+            super()._obj_is_valid
+            and isinstance(self.obj, Model)
+            and issubclass(self._obj_type, Model)
+        )

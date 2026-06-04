@@ -16,22 +16,16 @@ class ChatJsonUrlTests(BaseTestCase):
 
     def test_delete_view_url_path(self) -> None:
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:delete',
-                kwargs={'pk': self.test_chat.pk}
-            ),
-            content_type='application/json'
+            reverse('django_spire:ai:chat:json:delete', kwargs={'pk': self.test_chat.pk}),
+            content_type='application/json',
         )
 
         assert response.status_code == 200
 
     def test_delete_view_success_response(self) -> None:
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:delete',
-                kwargs={'pk': self.test_chat.pk}
-            ),
-            content_type='application/json'
+            reverse('django_spire:ai:chat:json:delete', kwargs={'pk': self.test_chat.pk}),
+            content_type='application/json',
         )
 
         data = response.json()
@@ -41,11 +35,8 @@ class ChatJsonUrlTests(BaseTestCase):
 
     def test_delete_view_sets_deleted_flag(self) -> None:
         self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:delete',
-                kwargs={'pk': self.test_chat.pk}
-            ),
-            content_type='application/json'
+            reverse('django_spire:ai:chat:json:delete', kwargs={'pk': self.test_chat.pk}),
+            content_type='application/json',
         )
 
         self.test_chat.refresh_from_db()
@@ -54,11 +45,8 @@ class ChatJsonUrlTests(BaseTestCase):
 
     def test_delete_view_nonexistent_chat(self) -> None:
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:delete',
-                kwargs={'pk': 99999}
-            ),
-            content_type='application/json'
+            reverse('django_spire:ai:chat:json:delete', kwargs={'pk': 99999}),
+            content_type='application/json',
         )
 
         data = response.json()
@@ -67,24 +55,18 @@ class ChatJsonUrlTests(BaseTestCase):
 
     def test_rename_view_url_path(self) -> None:
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:rename',
-                kwargs={'pk': self.test_chat.pk}
-            ),
+            reverse('django_spire:ai:chat:json:rename', kwargs={'pk': self.test_chat.pk}),
             data=json.dumps({'new_name': 'New Chat Name'}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         assert response.status_code == 200
 
     def test_rename_view_success_response(self) -> None:
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:rename',
-                kwargs={'pk': self.test_chat.pk}
-            ),
+            reverse('django_spire:ai:chat:json:rename', kwargs={'pk': self.test_chat.pk}),
             data=json.dumps({'new_name': 'Updated Name'}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         data = response.json()
@@ -95,12 +77,9 @@ class ChatJsonUrlTests(BaseTestCase):
         new_name = 'Brand New Name'
 
         self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:rename',
-                kwargs={'pk': self.test_chat.pk}
-            ),
+            reverse('django_spire:ai:chat:json:rename', kwargs={'pk': self.test_chat.pk}),
             data=json.dumps({'new_name': new_name}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         self.test_chat.refresh_from_db()
@@ -109,12 +88,9 @@ class ChatJsonUrlTests(BaseTestCase):
 
     def test_rename_view_empty_name(self) -> None:
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:rename',
-                kwargs={'pk': self.test_chat.pk}
-            ),
+            reverse('django_spire:ai:chat:json:rename', kwargs={'pk': self.test_chat.pk}),
             data=json.dumps({'new_name': ''}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         data = response.json()
@@ -125,12 +101,9 @@ class ChatJsonUrlTests(BaseTestCase):
         long_name = 'A' * 200
 
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:rename',
-                kwargs={'pk': self.test_chat.pk}
-            ),
+            reverse('django_spire:ai:chat:json:rename', kwargs={'pk': self.test_chat.pk}),
             data=json.dumps({'new_name': long_name}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         data = response.json()
@@ -139,12 +112,9 @@ class ChatJsonUrlTests(BaseTestCase):
 
     def test_rename_view_nonexistent_chat(self) -> None:
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:rename',
-                kwargs={'pk': 99999}
-            ),
+            reverse('django_spire:ai:chat:json:rename', kwargs={'pk': 99999}),
             data=json.dumps({'new_name': 'New Name'}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         data = response.json()
@@ -155,12 +125,9 @@ class ChatJsonUrlTests(BaseTestCase):
         max_length_name = 'A' * 128
 
         response = self.client.post(
-            reverse(
-                'django_spire:ai:chat:json:rename',
-                kwargs={'pk': self.test_chat.pk}
-            ),
+            reverse('django_spire:ai:chat:json:rename', kwargs={'pk': self.test_chat.pk}),
             data=json.dumps({'new_name': max_length_name}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         data = response.json()
@@ -178,12 +145,12 @@ class ChatJsonUrlAdditionalTests(BaseTestCase):
 
         self.client.post(
             reverse('django_spire:ai:chat:json:delete', kwargs={'pk': chat1.pk}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         self.client.post(
             reverse('django_spire:ai:chat:json:delete', kwargs={'pk': chat2.pk}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         chat1.refresh_from_db()
@@ -194,12 +161,12 @@ class ChatJsonUrlAdditionalTests(BaseTestCase):
 
     def test_rename_with_special_characters(self) -> None:
         chat = create_test_chat(user=self.super_user)
-        special_name = "Chat with 'quotes' and \"double quotes\""
+        special_name = 'Chat with \'quotes\' and "double quotes"'
 
         response = self.client.post(
             reverse('django_spire:ai:chat:json:rename', kwargs={'pk': chat.pk}),
             data=json.dumps({'new_name': special_name}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         data = response.json()
@@ -213,7 +180,7 @@ class ChatJsonUrlAdditionalTests(BaseTestCase):
         response = self.client.post(
             reverse('django_spire:ai:chat:json:rename', kwargs={'pk': chat.pk}),
             data=json.dumps({'new_name': unicode_name}),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         data = response.json()

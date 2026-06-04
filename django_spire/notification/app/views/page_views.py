@@ -23,8 +23,7 @@ if TYPE_CHECKING:
 @login_required()
 def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
     (
-        AppNotification.objects
-        .active()
+        AppNotification.objects.active()
         .is_sent()
         .annotate_is_viewed_by_user(request.user)
         .select_related('notification')
@@ -44,5 +43,5 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
             'priority_choices': json.dumps(NotificationPriorityChoices.choices[::-1]),
         },
         model=AppNotification,
-        template='django_spire/page/page.html'
+        template='django_spire/page/page.html',
     )

@@ -60,7 +60,9 @@ class FormModal(TitleModal):
 
     @property
     def cancel_button(self) -> Locator:
-        return self.modal.locator('button:has-text("Cancel"), [type="button"]:has-text("Cancel")').first
+        return self.modal.locator(
+            'button:has-text("Cancel"), [type="button"]:has-text("Cancel")'
+        ).first
 
     @property
     def form(self) -> Locator:

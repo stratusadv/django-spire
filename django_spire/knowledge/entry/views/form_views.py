@@ -26,9 +26,7 @@ if TYPE_CHECKING:
 
 @AppAuthController('knowledge').permission_required('can_add')
 def form_view(
-    request: WSGIRequest,
-    collection_pk: int,
-    pk: int = 0
+    request: WSGIRequest, collection_pk: int, pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     entry = get_object_or_null_obj(Entry, pk=pk)
     collection = Collection.objects.get(pk=collection_pk)
@@ -43,10 +41,7 @@ def form_view(
             entry, _ = entry.services.save_model_obj(author=request.user, **form.cleaned_data)
 
             return HttpResponseRedirect(
-                reverse(
-                    'django_spire:knowledge:entry:version:page:editor',
-                    kwargs={'pk': entry.pk}
-                )
+                reverse('django_spire:knowledge:entry:version:page:editor', kwargs={'pk': entry.pk})
             )
 
         show_form_errors(request, form)
@@ -62,30 +57,24 @@ def form_view(
             'action_url': (
                 reverse(
                     'django_spire:knowledge:entry:form:create',
-                    kwargs={'collection_pk': collection_pk}
+                    kwargs={'collection_pk': collection_pk},
                 )
                 if pk == 0
                 else reverse(
                     'django_spire:knowledge:entry:form:update',
-                    kwargs={'pk': pk, 'collection_pk': collection_pk}
+                    kwargs={'pk': pk, 'collection_pk': collection_pk},
                 )
-            )
+            ),
         },
-        template='django_spire/knowledge/entry/page/form_page.html'
+        template='django_spire/knowledge/entry/page/form_page.html',
     )
 
 
 @AppAuthController('knowledge').permission_required('can_add')
 def import_form_view(
-    request: WSGIRequest,
-    collection_pk: int
+    request: WSGIRequest, collection_pk: int
 ) -> TemplateResponse | HttpResponseRedirect:
-    Glue.queryset(
-        request,
-        'collections',
-        Collection.objects.active(),
-        fields=['name']
-    )
+    Glue.queryset(request, 'collections', Collection.objects.active(), fields=['name'])
 
     if request.method == 'POST':
         file_form = EntryFilesForm(request.POST, request.FILES)
@@ -98,13 +87,13 @@ def import_form_view(
             Entry.services.factory.create_from_files(
                 author=request.user,
                 collection=Collection.objects.get(pk=collection_pk),
-                files=file_objects
+                files=file_objects,
             )
 
             return HttpResponseRedirect(
                 reverse(
                     'django_spire:knowledge:entry:template:file_list',
-                    kwargs={'collection_pk': collection_pk}
+                    kwargs={'collection_pk': collection_pk},
                 )
             )
 
@@ -112,9 +101,7 @@ def import_form_view(
 
     breadcrumbs = Breadcrumbs()
     breadcrumbs.add_breadcrumb(name='Import Files')
-    supported_file_types = [
-        '.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())
-    ]
+    supported_file_types = ['.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())]
 
     return generic_views.template_view(
         request,
@@ -124,7 +111,7 @@ def import_form_view(
         context_data={
             'collection_pk': collection_pk,
             'supported_file_types': supported_file_types,
-            'supported_file_types_verbose': ', '.join(supported_file_types)
+            'supported_file_types_verbose': ', '.join(supported_file_types),
         },
-        template='django_spire/knowledge/entry/page/import_form_page.html'
+        template='django_spire/knowledge/entry/page/import_form_page.html',
     )

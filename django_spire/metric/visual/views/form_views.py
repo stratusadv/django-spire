@@ -28,16 +28,13 @@ if TYPE_CHECKING:
 def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(models.Visual, pk=pk)
 
-    form_action = reverse(
-        'metric:visual:form:delete_modal',
-        kwargs={'pk': pk}
-    )
+    form_action = reverse('metric:visual:form:delete_modal', kwargs={'pk': pk})
 
     def add_activity() -> None:
         visual.add_activity(
             user=request.user,
             verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a visual.'
+            information=f'{request.user.get_full_name()} deleted a visual.',
         )
 
     fallback = reverse('metric:visual:page:list')
@@ -56,16 +53,9 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(models.Visual, pk=pk)
 
-    return_url = request.GET.get(
-        'return_url',
-        reverse('metric:visual:page:list')
-    )
+    return_url = request.GET.get('return_url', reverse('metric:visual:page:list'))
 
-    return generic_views.delete_form_view(
-        request,
-        obj=visual,
-        return_url=return_url
-    )
+    return generic_views.delete_form_view(request, obj=visual, return_url=return_url)
 
 
 @permission_required('metric_visual.add_visual')
@@ -83,14 +73,10 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'visual', visual)
 
-    context_data = {
-        'visual': visual
-    }
+    context_data = {'visual': visual}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='metric/visual/modal/content/form.html'
+        request, context=context_data, template='metric/visual/modal/content/form.html'
     )
 
 
@@ -104,7 +90,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
+def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     visual = get_object_or_null_obj(models.Visual, pk=pk)
 
     Glue.model(request, 'visual', visual, 'view')
@@ -116,20 +102,12 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
             visual, _ = visual.services.save_model_obj(**form.cleaned_data)
             add_form_activity(visual, pk, request.user)
 
-            return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('metric:visual:page:list')
-                )
-            )
+            return redirect(request.GET.get('return_url', reverse('metric:visual:page:list')))
 
         show_form_errors(request, form)
     else:
         form = forms.VisualForm(instance=visual)
 
     return generic_views.form_view(
-        request,
-        form=form,
-        obj=visual,
-        template='metric/visual/page/form_page.html'
+        request, form=form, obj=visual, template='metric/visual/page/form_page.html'
     )

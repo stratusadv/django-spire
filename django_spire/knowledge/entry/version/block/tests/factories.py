@@ -14,7 +14,7 @@ def create_test_block_form_data(**kwargs) -> dict:
         'order': 0,
         'type': BlockTypeChoices.TEXT,
         'data': {'text': 'test text'},
-        'tunes': {}
+        'tunes': {},
     }
     data.update(kwargs)
     return data
@@ -26,7 +26,7 @@ def create_test_version_block(**kwargs) -> EntryVersionBlock:
         'order': 1,
         'type': BlockTypeChoices.TEXT,
         '_block_data': json.dumps({}),
-        '_text_data': ''
+        '_text_data': '',
     }
     data.update(kwargs)
     version_block = EntryVersionBlock.objects.create(**data)

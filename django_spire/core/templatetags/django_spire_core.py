@@ -146,15 +146,9 @@ def query_param_url(context: RequestContext, url_name: str, **kwargs) -> str:
 
     for index, query_param in enumerate(context.request.GET):
         if index == 0:
-            query_string = (
-                query_string +
-                f'{query_param}={context.request.GET[query_param]}'
-            )
+            query_string = query_string + f'{query_param}={context.request.GET[query_param]}'
         else:
-            query_string = (
-                query_string +
-                f'&{query_param}={context.request.GET[query_param]}'
-            )
+            query_string = query_string + f'&{query_param}={context.request.GET[query_param]}'
 
     return reverse(url_name, kwargs=kwargs) + query_string
 

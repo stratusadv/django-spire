@@ -1,7 +1,5 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% block card_title_content_style %}{% endblock %}
-
 {% block card_title %}
     Tickets
 {% endblock %}
@@ -16,9 +14,11 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% for ticket in tickets %}
-        {% include 'django_spire/help_desk/item/ticket_item.html' %}
-    {% empty %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endfor %}
+    <div class="card-body">
+        {% for ticket in tickets %}
+            {% include 'django_spire/help_desk/item/ticket_item.html' %}
+        {% empty %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endfor %}
+    </div>
 {% endblock %}

@@ -27,11 +27,10 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=ApiAccess,
         breadcrumbs_func=breadcrumbs_func,
-        context_data={
-            'api_accesses': ApiAccess.objects.active(),
-        },
+        context_data={'api_accesses': ApiAccess.objects.active()},
         template='django_spire/api/page/access_list_page.html',
     )
+
 
 @AppAuthController('api').permission_required('can_delete')
 def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateResponse:
@@ -40,8 +39,5 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
     return generic_views.delete_form_view(
         request=request,
         obj=ticket,
-        return_url=request.GET.get(
-            'return_url',
-            reverse('django_spire:api:page:list')
-        )
+        return_url=request.GET.get('return_url', reverse('django_spire:api:page:list')),
     )

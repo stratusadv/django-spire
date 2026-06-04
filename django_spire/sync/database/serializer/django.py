@@ -10,11 +10,7 @@ from django_spire.sync.database.serializer.base import Serializer
 
 
 class DjangoModelSerializer(Serializer):
-    def __init__(
-        self,
-        models: list[type],
-        identity_field: str = 'id',
-    ) -> None:
+    def __init__(self, models: list[type], identity_field: str = 'id') -> None:
         self._identity_field = identity_field
         self._models = {model._meta.label: model for model in models}
 
@@ -36,17 +32,12 @@ class DjangoModelSerializer(Serializer):
 
         return model
 
-    def deserialize(
-        self,
-        model_label: str,
-        record: SyncRecord,
-    ) -> Any:
+    def deserialize(self, model_label: str, record: SyncRecord) -> Any:
         model = self._resolve_model(model_label)
         many_to_many_names = set(self._get_many_to_many_names(model))
 
         field_data = {
-            key: value for key, value in record.data.items()
-            if key not in many_to_many_names
+            key: value for key, value in record.data.items() if key not in many_to_many_names
         }
 
         instance = model(**field_data)
@@ -69,8 +60,7 @@ class DjangoModelSerializer(Serializer):
             related = getattr(instance, field.name)
 
             data[field.name] = sorted(
-                str(primary_key)
-                for primary_key in related.values_list('pk', flat=True)
+                str(primary_key) for primary_key in related.values_list('pk', flat=True)
             )
 
         key = str(getattr(instance, self._identity_field))

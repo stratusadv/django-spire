@@ -36,10 +36,7 @@ class EntryService(BaseDjangoModelService['Entry']):
         self.obj, created = super().save_model_obj(**field_data)
 
         if created:
-            entry_version, _ = EntryVersion.services.save_model_obj(
-                entry=self.obj,
-                author=author
-            )
+            entry_version, _ = EntryVersion.services.save_model_obj(entry=self.obj, author=author)
 
             self.obj.current_version = entry_version
             self.obj.save()

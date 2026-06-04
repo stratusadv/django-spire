@@ -20,7 +20,9 @@ if TYPE_CHECKING:
 
 
 @csrf_exempt
-def external_temporary_media_view(request: WSGIRequest, external_access_key: uuid.UUID) -> HttpResponse:
+def external_temporary_media_view(
+    request: WSGIRequest, external_access_key: uuid.UUID
+) -> HttpResponse:
     try:
         temporary_media = SmsTemporaryMedia.objects.get(external_access_key=external_access_key)
     except SmsTemporaryMedia.DoesNotExist:
@@ -30,16 +32,11 @@ def external_temporary_media_view(request: WSGIRequest, external_access_key: uui
         message = 'Content for Temporary Media cannot be empty'
         raise SmsTemporaryMediaError(message)
 
-    image = Image.open(
-        BytesIO(base64.b64decode(temporary_media.content))
-    )
+    image = Image.open(BytesIO(base64.b64decode(temporary_media.content)))
 
     image = image.convert('P', palette=Image.ADAPTIVE, colors=32)
 
     buffer = BytesIO()
     image.save(buffer, 'PNG')
 
-    return HttpResponse(
-        content=buffer.getvalue(),
-        content_type=temporary_media.content_type,
-    )
+    return HttpResponse(content=buffer.getvalue(), content_type=temporary_media.content_type)

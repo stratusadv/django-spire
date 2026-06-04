@@ -4,11 +4,7 @@ from django.db import models
 
 
 class SyncSession(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     node_id = models.CharField(max_length=255)
     peer_node_id = models.CharField(max_length=255, default='', blank=True)
     phase = models.CharField(max_length=20, default='collecting')
@@ -30,13 +26,9 @@ class SyncSession(models.Model):
         app_label = 'sync'
         db_table = 'django_spire_sync_session'
         indexes = [
+            models.Index(fields=['node_id', 'status'], name='sync_session_node_status_idx'),
             models.Index(
-                fields=['node_id', 'status'],
-                name='sync_session_node_status_idx',
-            ),
-            models.Index(
-                fields=['node_id', 'peer_node_id', 'status'],
-                name='sync_session_pair_status_idx',
+                fields=['node_id', 'peer_node_id', 'status'], name='sync_session_pair_status_idx'
             ),
         ]
         ordering = ['-started_at']

@@ -52,8 +52,7 @@ class NotificationQuerySetTests(BaseTestCase):
         self.notification.save()
 
         email_notification = create_test_notification(
-            user=self.user,
-            type=NotificationTypeChoices.EMAIL
+            user=self.user, type=NotificationTypeChoices.EMAIL
         )
 
         result = Notification.objects.app_notifications()
@@ -65,8 +64,7 @@ class NotificationQuerySetTests(BaseTestCase):
         self.notification.save()
 
         app_notification = create_test_notification(
-            user=self.user,
-            type=NotificationTypeChoices.APP
+            user=self.user, type=NotificationTypeChoices.APP
         )
 
         result = Notification.objects.email_notifications()
@@ -85,8 +83,7 @@ class NotificationQuerySetTests(BaseTestCase):
         self.notification.save()
 
         sent_notification = create_test_notification(
-            user=self.user,
-            status=NotificationStatusChoices.SENT
+            user=self.user, status=NotificationStatusChoices.SENT
         )
 
         result = Notification.objects.pending()
@@ -122,18 +119,11 @@ class NotificationQuerySetTests(BaseTestCase):
         assert self.notification in result
 
     def test_unsent(self):
-        pending = create_test_notification(
-            user=self.user,
-            status=NotificationStatusChoices.PENDING
-        )
+        pending = create_test_notification(user=self.user, status=NotificationStatusChoices.PENDING)
         processing = create_test_notification(
-            user=self.user,
-            status=NotificationStatusChoices.PROCESSING
+            user=self.user, status=NotificationStatusChoices.PROCESSING
         )
-        sent = create_test_notification(
-            user=self.user,
-            status=NotificationStatusChoices.SENT
-        )
+        sent = create_test_notification(user=self.user, status=NotificationStatusChoices.SENT)
 
         result = Notification.objects.unsent()
         assert pending in result
@@ -144,12 +134,12 @@ class NotificationQuerySetTests(BaseTestCase):
         past_notification = create_test_notification(
             user=self.user,
             status=NotificationStatusChoices.PENDING,
-            publish_datetime=now() - timedelta(hours=1)
+            publish_datetime=now() - timedelta(hours=1),
         )
         future_notification = create_test_notification(
             user=self.user,
             status=NotificationStatusChoices.PENDING,
-            publish_datetime=now() + timedelta(hours=1)
+            publish_datetime=now() + timedelta(hours=1),
         )
 
         result = Notification.objects.ready_to_send()
@@ -161,8 +151,7 @@ class NotificationQuerySetTests(BaseTestCase):
         self.notification.save()
 
         low_priority = create_test_notification(
-            user=self.user,
-            priority=NotificationPriorityChoices.LOW
+            user=self.user, priority=NotificationPriorityChoices.LOW
         )
 
         result = Notification.objects.high_priority()

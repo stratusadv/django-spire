@@ -19,30 +19,21 @@ class MultipleFileWidgetTests(BaseTestCase):
         assert self.widget.template_name == 'django_spire/file/widget/multiple_file_widget.html'
 
     def test_value_from_datadict(self) -> None:
-        data = {
-            'files_data': json.dumps([{'id': 1, 'name': 'test'}])
-        }
+        data = {'files_data': json.dumps([{'id': 1, 'name': 'test'}])}
 
         result = self.widget.value_from_datadict(data, None, 'files')
 
         assert result == [{'id': 1, 'name': 'test'}]
 
     def test_value_from_datadict_empty(self) -> None:
-        data = {
-            'files_data': json.dumps([])
-        }
+        data = {'files_data': json.dumps([])}
 
         result = self.widget.value_from_datadict(data, None, 'files')
 
         assert result == []
 
     def test_value_from_datadict_multiple_files(self) -> None:
-        data = {
-            'files_data': json.dumps([
-                {'id': 1, 'name': 'file1'},
-                {'id': 2, 'name': 'file2'},
-            ])
-        }
+        data = {'files_data': json.dumps([{'id': 1, 'name': 'file1'}, {'id': 2, 'name': 'file2'}])}
 
         result = self.widget.value_from_datadict(data, None, 'files')
 
@@ -126,18 +117,14 @@ class SingleFileWidgetTests(BaseTestCase):
         assert self.widget.template_name == 'django_spire/file/widget/single_file_widget.html'
 
     def test_value_from_datadict(self) -> None:
-        data = {
-            'file_data': json.dumps({'id': 1, 'name': 'test'})
-        }
+        data = {'file_data': json.dumps({'id': 1, 'name': 'test'})}
 
         result = self.widget.value_from_datadict(data, None, 'file')
 
         assert result == {'id': 1, 'name': 'test'}
 
     def test_value_from_datadict_null(self) -> None:
-        data = {
-            'file_data': json.dumps(None)
-        }
+        data = {'file_data': json.dumps(None)}
 
         result = self.widget.value_from_datadict(data, None, 'file')
 

@@ -18,27 +18,23 @@ class EntryVersionBlockFactoryService(BaseDjangoModelService['EntryVersionBlock'
     obj: EntryVersionBlock
 
     def create_blocks_from_file(
-            self,
-            file: File,
-            entry_version: EntryVersion
+        self, file: File, entry_version: EntryVersion
     ) -> list[EntryVersionBlock]:
         if file.type not in FILE_TYPE_CONVERTER_MAP:
             return []
 
         converter = FILE_TYPE_CONVERTER_MAP[file.type](entry_version=entry_version)
 
-        return self.obj_class.objects.bulk_create(
-            converter.convert_file_to_blocks(file=file)
-        )
+        return self.obj_class.objects.bulk_create(converter.convert_file_to_blocks(file=file))
 
     def create_validated_block(
-            self,
-            entry_version: EntryVersion,
-            type: BlockTypeChoices,
-            data: dict,
-            order: int,
-            tunes: dict = {},
-            **kwargs,
+        self,
+        entry_version: EntryVersion,
+        type: BlockTypeChoices,
+        data: dict,
+        order: int,
+        tunes: dict = {},
+        **kwargs,
     ):
         self.obj.version = entry_version
         self.obj.type = type

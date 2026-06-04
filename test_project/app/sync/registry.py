@@ -49,23 +49,28 @@ LABEL_TO_DISPLAY: dict[str, str] = {
 DISPLAY_FIELDS: dict[str, tuple[str, ...]] = {
     'Client': ('name', 'contact_name', 'contact_email'),
     'Site': ('name', 'description', 'region', 'status'),
-    'Stake': (
-        'latitude', 'longitude', 'elevation', 'is_placed',
-        'stake_type', 'label',
-    ),
+    'Stake': ('latitude', 'longitude', 'elevation', 'is_placed', 'stake_type', 'label'),
     'SurveyPlan': (
         'plan_number',
-        'stake_spacing_m', 'line_direction', 'headland_offset_m', 'office_notes',
-        'baseline_a_latitude', 'baseline_a_longitude',
-        'baseline_b_latitude', 'baseline_b_longitude',
-        'heading_degrees', 'crew_notes',
+        'stake_spacing_m',
+        'line_direction',
+        'headland_offset_m',
+        'office_notes',
+        'baseline_a_latitude',
+        'baseline_a_longitude',
+        'baseline_b_latitude',
+        'baseline_b_longitude',
+        'heading_degrees',
+        'crew_notes',
         'status',
     ),
 }
 
 FOREIGN_KEY_DISPLAY: dict[str, list[tuple[str, Any]]] = {
     'Site': [('client', lambda instance: instance.client.name if instance.client else '')],
-    'Stake': [('survey_plan', lambda instance: str(instance.survey_plan) if instance.survey_plan else '')],
+    'Stake': [
+        ('survey_plan', lambda instance: str(instance.survey_plan) if instance.survey_plan else '')
+    ],
     'SurveyPlan': [('site', lambda instance: instance.site.name if instance.site else '')],
 }
 
@@ -80,9 +85,7 @@ MODEL_LABELS: list[str] = [
 
 MODEL_CONFIG: dict[str, ModelConfig] = {
     SyncModelLabel.CLIENT: ModelConfig(
-        fields=('name', 'contact_name', 'contact_email'),
-        foreign_key_fields=(),
-        model=models.Client,
+        fields=('name', 'contact_name', 'contact_email'), foreign_key_fields=(), model=models.Client
     ),
     SyncModelLabel.SITE: ModelConfig(
         fields=('name', 'description', 'region', 'status'),
@@ -90,20 +93,23 @@ MODEL_CONFIG: dict[str, ModelConfig] = {
         model=models.Site,
     ),
     SyncModelLabel.STAKE: ModelConfig(
-        fields=(
-            'latitude', 'longitude', 'elevation', 'is_placed',
-            'stake_type', 'label',
-        ),
+        fields=('latitude', 'longitude', 'elevation', 'is_placed', 'stake_type', 'label'),
         foreign_key_fields=('survey_plan_id',),
         model=models.Stake,
     ),
     SyncModelLabel.SURVEY_PLAN: ModelConfig(
         fields=(
             'plan_number',
-            'stake_spacing_m', 'line_direction', 'headland_offset_m', 'office_notes',
-            'baseline_a_latitude', 'baseline_a_longitude',
-            'baseline_b_latitude', 'baseline_b_longitude',
-            'heading_degrees', 'crew_notes',
+            'stake_spacing_m',
+            'line_direction',
+            'headland_offset_m',
+            'office_notes',
+            'baseline_a_latitude',
+            'baseline_a_longitude',
+            'baseline_b_latitude',
+            'baseline_b_longitude',
+            'heading_degrees',
+            'crew_notes',
             'status',
         ),
         foreign_key_fields=('site_id',),

@@ -39,13 +39,8 @@ class BaseFileHandler:
         content_type = ContentType.objects.get_for_model(instance)
 
         updated = (
-            File.objects
-            .active()
-            .filter(
-                pk=file_id,
-                content_type=content_type,
-                object_id=instance.pk,
-            )
+            File.objects.active()
+            .filter(pk=file_id, content_type=content_type, object_id=instance.pk)
             .related_field(self.linker.related_field)
             .update(is_active=False, is_deleted=True)
         )
@@ -71,14 +66,11 @@ class SingleFileHandler(BaseFileHandler):
             factory_kwargs['validator'] = validator
 
         return cls(
-            factory=FileFactory(**factory_kwargs),
-            linker=FileLinker(related_field=related_field),
+            factory=FileFactory(**factory_kwargs), linker=FileLinker(related_field=related_field)
         )
 
     def replace(
-        self,
-        data: dict | InMemoryUploadedFile | None,
-        instance: models.Model,
+        self, data: dict | InMemoryUploadedFile | None, instance: models.Model
     ) -> File | None:
         if data is None:
             return None
@@ -107,9 +99,7 @@ class SingleFileHandler(BaseFileHandler):
         content_type = ContentType.objects.get_for_model(instance)
 
         existing = File.objects.filter(
-            id=file_id,
-            content_type=content_type,
-            object_id=instance.pk,
+            id=file_id, content_type=content_type, object_id=instance.pk
         ).first()
 
         if existing is not None:
@@ -121,9 +111,7 @@ class SingleFileHandler(BaseFileHandler):
             return None
 
         file_obj = File.objects.filter(
-            id=file_id,
-            content_type__isnull=True,
-            object_id__isnull=True,
+            id=file_id, content_type__isnull=True, object_id__isnull=True
         ).first()
 
         if file_obj is None:
@@ -155,8 +143,7 @@ class MultiFileHandler(BaseFileHandler):
             factory_kwargs['validator'] = validator
 
         return cls(
-            factory=FileFactory(**factory_kwargs),
-            linker=FileLinker(related_field=related_field),
+            factory=FileFactory(**factory_kwargs), linker=FileLinker(related_field=related_field)
         )
 
     def add_many(self, files: list[InMemoryUploadedFile], instance: models.Model) -> list[File]:
@@ -168,9 +155,7 @@ class MultiFileHandler(BaseFileHandler):
         return file_objs
 
     def replace(
-        self,
-        data: list[dict] | list[InMemoryUploadedFile] | None,
-        instance: models.Model,
+        self, data: list[dict] | list[InMemoryUploadedFile] | None, instance: models.Model
     ) -> list[File]:
         if not data:
             return []
@@ -183,14 +168,18 @@ class MultiFileHandler(BaseFileHandler):
 
         if isinstance(first, dict):
             if not all(isinstance(element, dict) for element in data):
-                message = 'Cannot mix file uploads and existing file references in the same request.'
+                message = (
+                    'Cannot mix file uploads and existing file references in the same request.'
+                )
                 raise TypeError(message)
 
             return self._replace_from_ajax(data, instance)
 
         if isinstance(first, UploadedFile):
             if not all(isinstance(element, UploadedFile) for element in data):
-                message = 'Cannot mix file uploads and existing file references in the same request.'
+                message = (
+                    'Cannot mix file uploads and existing file references in the same request.'
+                )
                 raise TypeError(message)
 
             return self._replace_from_upload(data, instance)
@@ -213,37 +202,31 @@ class MultiFileHandler(BaseFileHandler):
                 message = f'Invalid file ID: {file_id_raw}'
                 raise FileIDError(message) from None
 
-            file_entries.append({
-                'id': file_id,
-                'token': entry.get('token', ''),
-            })
+            file_entries.append({'id': file_id, 'token': entry.get('token', '')})
 
         content_type = ContentType.objects.get_for_model(instance)
 
         entry_ids = [entry['id'] for entry in file_entries]
 
         already_linked_ids = set(
-            File.objects
-            .filter(
-                id__in=entry_ids,
-                content_type=content_type,
-                object_id=instance.pk,
-            )
-            .values_list('id', flat=True)
+            File.objects.filter(
+                id__in=entry_ids, content_type=content_type, object_id=instance.pk
+            ).values_list('id', flat=True)
         )
 
         orphan_q = Q()
 
         for entry in file_entries:
-            if entry['id'] not in already_linked_ids and verify_file_token(entry['id'], entry['token']):
+            if entry['id'] not in already_linked_ids and verify_file_token(
+                entry['id'], entry['token']
+            ):
                 orphan_q |= Q(id=entry['id'])
 
         claimable_orphan_ids = set()
 
         if orphan_q:
             claimable_orphan_ids = set(
-                File.objects
-                .filter(orphan_q)
+                File.objects.filter(orphan_q)
                 .filter(content_type__isnull=True, object_id__isnull=True)
                 .values_list('id', flat=True)
             )
@@ -255,9 +238,7 @@ class MultiFileHandler(BaseFileHandler):
 
             unlinked = list(
                 File.objects.filter(
-                    id__in=verified_ids,
-                    content_type__isnull=True,
-                    object_id__isnull=True,
+                    id__in=verified_ids, content_type__isnull=True, object_id__isnull=True
                 )
             )
 
@@ -265,16 +246,13 @@ class MultiFileHandler(BaseFileHandler):
                 self.linker.link_many(unlinked, instance)
 
         return list(
-            File.objects
-            .active()
+            File.objects.active()
             .filter(content_type=content_type, object_id=instance.pk)
             .related_field(self.linker.related_field)
         )
 
     def _replace_from_upload(
-        self,
-        files: list[InMemoryUploadedFile],
-        instance: models.Model,
+        self, files: list[InMemoryUploadedFile], instance: models.Model
     ) -> list[File]:
         with transaction.atomic():
             self.linker.unlink_existing(instance)

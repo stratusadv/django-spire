@@ -9,9 +9,7 @@ from django_spire.file import models
 
 @admin.register(models.File)
 class FileAdmin(admin.ModelAdmin):
-    list_display = (
-        'id', 'name', 'type', 'formatted_size', 'content_object_link', 'file_link'
-    )
+    list_display = ('id', 'name', 'type', 'formatted_size', 'content_object_link', 'file_link')
     list_filter = ('type',)
     search_fields = ('id', 'name', 'type')
     ordering = ('-id',)
@@ -32,7 +30,7 @@ class FileAdmin(admin.ModelAdmin):
 
         url = reverse(
             f'admin:{file.content_type.app_label}_{file.content_type.model}_change',
-            args=[file.object_id]
+            args=[file.object_id],
         )
 
         return format_html('<a href="{}">{}</a>', url, content_object)

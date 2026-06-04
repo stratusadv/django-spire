@@ -5,9 +5,15 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 from django_spire.metric.domain.statistic.services.factory_service import StatisticFactoryService
-from django_spire.metric.domain.statistic.services.intelligence_service import StatisticIntelligenceService
-from django_spire.metric.domain.statistic.services.processor_service import StatisticProcessorService
-from django_spire.metric.domain.statistic.services.transformation_service import StatisticTransformationService
+from django_spire.metric.domain.statistic.services.intelligence_service import (
+    StatisticIntelligenceService,
+)
+from django_spire.metric.domain.statistic.services.processor_service import (
+    StatisticProcessorService,
+)
+from django_spire.metric.domain.statistic.services.transformation_service import (
+    StatisticTransformationService,
+)
 
 if TYPE_CHECKING:
     from django_spire.metric.domain.statistic.models import Statistic

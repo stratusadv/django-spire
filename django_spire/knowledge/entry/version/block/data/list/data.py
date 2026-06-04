@@ -4,7 +4,10 @@ from pydantic import model_validator, BaseModel
 
 from django_spire.knowledge.entry.version.block.constants import SPACES_PER_INDENT
 from django_spire.knowledge.entry.version.block.data.data import BaseEditorJsBlockData
-from django_spire.knowledge.entry.version.block.data.list.meta import ChecklistItemMeta, OrderedListItemMeta
+from django_spire.knowledge.entry.version.block.data.list.meta import (
+    ChecklistItemMeta,
+    OrderedListItemMeta,
+)
 from django_spire.knowledge.entry.version.block.data.list.choices import ListEditorBlockDataStyle
 
 
@@ -39,12 +42,7 @@ class ListItemEditorBlockData(BaseModel):
     meta: ChecklistItemMeta | OrderedListItemMeta | dict | None = None
     items: list[ListItemEditorBlockData] | None = []
 
-    def get_prefix(
-        self,
-        style: ListEditorBlockDataStyle,
-        indent_level: int,
-        index = None
-    ):
+    def get_prefix(self, style: ListEditorBlockDataStyle, indent_level: int, index=None):
         prefix = ' ' * indent_level * SPACES_PER_INDENT
 
         if style == ListEditorBlockDataStyle.ORDERED:
@@ -58,13 +56,10 @@ class ListItemEditorBlockData(BaseModel):
 
         return prefix
 
-    def render_to_text(
-        self,
-        style: ListEditorBlockDataStyle,
-        indent_level: int,
-        index: int
-    ) -> str:
-        from django_spire.knowledge.entry.version.converters.markdown_converter import MarkdownConverter
+    def render_to_text(self, style: ListEditorBlockDataStyle, indent_level: int, index: int) -> str:
+        from django_spire.knowledge.entry.version.converters.markdown_converter import (
+            MarkdownConverter,
+        )
 
         prefix = self.get_prefix(style, indent_level, index)
         parsed_content = MarkdownConverter.html_to_markdown(self.content)
@@ -77,12 +72,11 @@ class ListItemEditorBlockData(BaseModel):
 
     @classmethod
     def style_aware_create_from_dict(
-        cls,
-        values: dict,
-        style: ListEditorBlockDataStyle
+        cls, values: dict, style: ListEditorBlockDataStyle
     ) -> ListItemEditorBlockData:
-        from django_spire.knowledge.entry.version.block.data.list.maps import \
-            LIST_BLOCK_DATA_META_MAP
+        from django_spire.knowledge.entry.version.block.data.list.maps import (
+            LIST_BLOCK_DATA_META_MAP,
+        )
 
         if 'meta' in values:
             meta_type = LIST_BLOCK_DATA_META_MAP[style]

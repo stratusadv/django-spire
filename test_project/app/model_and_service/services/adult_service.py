@@ -22,5 +22,3 @@ class AdultService(BaseDjangoModelService['Adult']):
 
     def find_all(self):
         return self.obj_class.objects.all()
-
-

@@ -5,10 +5,7 @@ from typing import Any, TYPE_CHECKING
 from django.db import transaction
 
 from django_spire.sync.database.conflict import FieldTimestampWins
-from django_spire.sync.database.engine import (
-    BATCH_BYTES_DEFAULT,
-    DatabaseEngine,
-)
+from django_spire.sync.database.engine import BATCH_BYTES_DEFAULT, DatabaseEngine
 from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.django.graph import (
     build_graph,
@@ -57,10 +54,7 @@ class SyncClient:
     ) -> None:
         resolved_graph = graph or build_graph(models)
 
-        deferred_foreign_keys = get_deferred_foreign_key_columns(
-            models,
-            resolved_graph,
-        )
+        deferred_foreign_keys = get_deferred_foreign_key_columns(models, resolved_graph)
 
         foreign_key_columns = get_foreign_key_columns_for_cascade(models)
 
@@ -79,14 +73,9 @@ class SyncClient:
             payload_records_max=payload_records_max,
             peer_node_id=peer_node_id,
             progress=progress,
-            reconciler=PayloadReconciler(
-                resolver=resolver or
-                FieldTimestampWins(),
-            ),
-            storage=storage or DjangoSyncStorage(
-                models=models,
-                deferred_foreign_keys=deferred_foreign_keys,
-            ),
+            reconciler=PayloadReconciler(resolver=resolver or FieldTimestampWins()),
+            storage=storage
+            or DjangoSyncStorage(models=models, deferred_foreign_keys=deferred_foreign_keys),
             transaction=transaction_fn,
             transport=transport,
         )

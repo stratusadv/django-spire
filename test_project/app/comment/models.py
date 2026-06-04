@@ -23,10 +23,7 @@ class CommentExample(HistoryModelMixin, CommentModelMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Comment',
-            reverse('comment:page:list')
-        )
+        crumbs.add_breadcrumb('Comment', reverse('comment:page:list'))
 
         return crumbs
 
@@ -35,13 +32,7 @@ class CommentExample(HistoryModelMixin, CommentModelMixin):
         crumbs.add_base_breadcrumb(self._meta.model)
 
         if self.pk:
-            crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'comment:page:detail',
-                    kwargs={'pk': self.pk}
-                )
-            )
+            crumbs.add_breadcrumb(str(self), reverse('comment:page:detail', kwargs={'pk': self.pk}))
 
         return crumbs
 

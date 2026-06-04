@@ -132,7 +132,7 @@ class GenerateUserPermDataTestCase(BaseTestCase):
         model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         group_perms = GroupPermissions(group, model_permission)
         group_perms.update_perms(3)
@@ -168,7 +168,7 @@ class GenerateUserPermDataTestCase(BaseTestCase):
         model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         group_perms = GroupPermissions(group, model_permission)
         group_perms.update_perms(4)
@@ -215,7 +215,7 @@ class GenerateGroupPermDataTestCase(BaseTestCase):
         model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         group_perms = GroupPermissions(self.group, model_permission)
         group_perms.update_perms(4)
@@ -259,7 +259,7 @@ class GenerateSpecialRoleDataTestCase(BaseTestCase):
         self.model_permission = ModelPermission(
             name='group',
             model_class_path='django_spire.auth.group.models.AuthGroup',
-            is_proxy_model=True
+            is_proxy_model=True,
         )
         self.group_permissions = GroupPermissions(self.group, self.model_permission)
 

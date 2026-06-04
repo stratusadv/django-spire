@@ -4,10 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
 
-from django_spire.contrib.responses.json_response import (
-    error_json_response,
-    success_json_response,
-)
+from django_spire.contrib.responses.json_response import error_json_response, success_json_response
 from django_spire.file.exceptions import FileValidationError
 from django_spire.file.validators import FileValidator
 
@@ -145,6 +142,4 @@ def replace_profile_picture_view(request: WSGIRequest, pk: int) -> JsonResponse:
     except (FileValidationError, TypeError, ValueError) as e:
         return error_json_response(str(e))
 
-    return success_json_response(
-        file=result.to_dict() if result else None,
-    )
+    return success_json_response(file=result.to_dict() if result else None)

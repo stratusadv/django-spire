@@ -20,8 +20,7 @@ class TestSessionController(TestCase):
         middleware.process_request(self.request)
 
         self.shopping_cart_session = SessionController(
-            request=self.request,
-            session_key='shopping_cart'
+            request=self.request, session_key='shopping_cart'
         )
 
     def test_add_data(self) -> None:
@@ -91,7 +90,10 @@ class TestSessionController(TestCase):
 
         assert self.shopping_cart_session.session_key in session_data
         assert 'favorites' in session_data[self.shopping_cart_session.session_key]
-        assert session_data[self.shopping_cart_session.session_key]['favorites'] == ['cool_shirt', 'fun_hat']
+        assert session_data[self.shopping_cart_session.session_key]['favorites'] == [
+            'cool_shirt',
+            'fun_hat',
+        ]
 
     def test_set_modified(self) -> None:
         self.shopping_cart_session.add_data('currency', 'CAD')
@@ -119,10 +121,7 @@ class TestSessionController(TestCase):
         assert isinstance(self.shopping_cart_session.timeout_datestamp, float)
 
     def test_timeout_datestamp_returns_zero_when_not_set(self) -> None:
-        controller = SessionController(
-            request=self.request,
-            session_key='new_session'
-        )
+        controller = SessionController(request=self.request, session_key='new_session')
 
         assert controller.timeout_datestamp == 0
 

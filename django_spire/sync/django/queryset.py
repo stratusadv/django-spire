@@ -27,29 +27,18 @@ def sync_bypass() -> Iterator[None]:
 
 
 def _relation_attname_map(model: type) -> dict[str, str]:
-    return {
-        field.name: field.attname
-        for field in model._meta.concrete_fields
-        if field.is_relation
-    }
+    return {field.name: field.attname for field in model._meta.concrete_fields if field.is_relation}
 
 
 class SyncableQuerySet(models.QuerySet):
-    def bulk_create(
-        self,
-        objs: list[Any],
-        **kwargs: Any,
-    ) -> list[Any]:
+    def bulk_create(self, objs: list[Any], **kwargs: Any) -> list[Any]:
         if _is_bypassed():
             return super().bulk_create(objs, **kwargs)
 
         if not objs:
             return super().bulk_create(objs, **kwargs)
 
-        syncable = [
-            instance for instance in objs
-            if hasattr(instance, 'get_syncable_field_names')
-        ]
+        syncable = [instance for instance in objs if hasattr(instance, 'get_syncable_field_names')]
 
         if not syncable:
             return super().bulk_create(objs, **kwargs)
@@ -61,7 +50,9 @@ class SyncableQuerySet(models.QuerySet):
         clock = self.model.get_clock()
 
         with transaction.atomic(using=self.db):
-            sequence_first = SyncSequenceAllocator(using=self.db).allocate(len(syncable)).value_first
+            sequence_first = (
+                SyncSequenceAllocator(using=self.db).allocate(len(syncable)).value_first
+            )
             sequence_next = sequence_first
 
             for instance in syncable:
@@ -87,10 +78,7 @@ class SyncableQuerySet(models.QuerySet):
             return super().bulk_create(objs, **kwargs)
 
     def bulk_update(
-        self,
-        objs: list[Any],
-        fields: list[str] | tuple[str, ...],
-        **kwargs: Any,
+        self, objs: list[Any], fields: list[str] | tuple[str, ...], **kwargs: Any
     ) -> int:
         if _is_bypassed():
             return super().bulk_update(objs, fields, **kwargs)
@@ -98,10 +86,7 @@ class SyncableQuerySet(models.QuerySet):
         if not objs:
             return super().bulk_update(objs, fields, **kwargs)
 
-        syncable = [
-            instance for instance in objs
-            if hasattr(instance, 'get_syncable_field_names')
-        ]
+        syncable = [instance for instance in objs if hasattr(instance, 'get_syncable_field_names')]
 
         if not syncable:
             return super().bulk_update(objs, fields, **kwargs)
@@ -115,15 +100,20 @@ class SyncableQuerySet(models.QuerySet):
 
         field_set = set(fields)
 
-        stamped_fields = list(field_set | {
-            'sync_field_last_modified',
-            'sync_field_origin_node',
-            'sync_field_sequence',
-            'sync_field_timestamps',
-        })
+        stamped_fields = list(
+            field_set
+            | {
+                'sync_field_last_modified',
+                'sync_field_origin_node',
+                'sync_field_sequence',
+                'sync_field_timestamps',
+            }
+        )
 
         with transaction.atomic(using=self.db):
-            sequence_first = SyncSequenceAllocator(using=self.db).allocate(len(syncable)).value_first
+            sequence_first = (
+                SyncSequenceAllocator(using=self.db).allocate(len(syncable)).value_first
+            )
             sequence_next = sequence_first
 
             for instance in syncable:
@@ -174,17 +164,11 @@ class SyncableQuerySet(models.QuerySet):
         attname_map = _relation_attname_map(self.model)
 
         stampable_field_names = [
-            attname_map.get(name, name) for name in kwargs
-            if name not in exclude
+            attname_map.get(name, name) for name in kwargs if name not in exclude
         ]
 
         with transaction.atomic(using=self.db):
-            rows = list(
-                self.select_for_update().values_list(
-                    'pk',
-                    'sync_field_timestamps',
-                )
-            )
+            rows = list(self.select_for_update().values_list('pk', 'sync_field_timestamps'))
 
             if not rows:
                 return 0
@@ -210,8 +194,7 @@ class SyncableQuerySet(models.QuerySet):
                     }
 
                     total += (
-                        self.model.objects
-                        .using(self.db)
+                        self.model.objects.using(self.db)
                         .filter(pk=primary_key)
                         .update(**update_kwargs)
                     )

@@ -6,10 +6,7 @@ from test_project.app.sync.config import TABLET_COUNT_MAX
 TEST_PROJECT = BASE_DIR / 'test_project'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'django_spire_test_project.db',
-    }
+    'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': 'django_spire_test_project.db'}
 }
 
 for _i in range(1, TABLET_COUNT_MAX + 1):
@@ -23,6 +20,4 @@ DATABASES['cloud'] = {
     'NAME': TEST_PROJECT / 'db_sync_cloud.sqlite3',
 }
 
-DATABASE_ROUTERS = [
-    'test_project.app.sync.router.SyncDemoRouter',
-]
+DATABASE_ROUTERS = ['test_project.app.sync.router.SyncDemoRouter']

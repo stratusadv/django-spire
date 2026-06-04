@@ -11,5 +11,3 @@ class ApiAccessCreateForm(forms.ModelForm):
     class Meta:
         model = ApiAccess
         exclude: ClassVar[list] = ['hashed_key', 'key_hint']
-
-

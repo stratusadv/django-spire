@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from django.apps import apps
 
-from django_spire.exceptions import (
-    DjangoSpireMissingRequiredAppError
-)
+from django_spire.exceptions import DjangoSpireMissingRequiredAppError
 
 
 def app_is_installed(app_label: str) -> bool:
@@ -18,5 +16,3 @@ def check_required_apps(app_label: str) -> None:
         if not app_is_installed(required_app_name):
             message = f'{app_label} requires {required_app_name} is be in the "INSTALLED_APPS" list before {app_label} in the django settings module.'
             raise DjangoSpireMissingRequiredAppError(message)
-
-

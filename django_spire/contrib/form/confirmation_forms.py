@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class ConfirmationForm(forms.Form):
     should_confirm = forms.BooleanField(required=False, initial=False)
 
-    def __init__(self, *args, obj = None, field = [], **kwargs):
+    def __init__(self, *args, obj=None, field=[], **kwargs):
         if obj is None:
             message = 'Passing an object to ConfirmationForm is required.'
             raise ValueError(message)
@@ -37,14 +37,14 @@ class ConfirmationForm(forms.Form):
             self.obj.add_activity(
                 user=user,
                 verb=verbs[1],
-                information=f'{user.get_full_name()} {verbs[1].lower()} {self.obj._meta.verbose_name} "{self.obj}".'
+                information=f'{user.get_full_name()} {verbs[1].lower()} {self.obj._meta.verbose_name} "{self.obj}".',
             )
 
 
 class DeleteConfirmationForm(forms.Form):
     should_delete = forms.BooleanField(required=False, initial=False)
 
-    def __init__(self, *args, obj = None, **kwargs):
+    def __init__(self, *args, obj=None, **kwargs):
         if obj is None:
             message = 'Passing an object to DeleteConfirmationForm is required.'
             raise ValueError(message)
@@ -72,5 +72,5 @@ class DeleteConfirmationForm(forms.Form):
             self.obj.add_activity(
                 user=user,
                 verb=verbs[1],
-                information=f'{user.get_full_name()} {verbs[1].lower()} {self.obj._meta.verbose_name} "{self.obj}".'
+                information=f'{user.get_full_name()} {verbs[1].lower()} {self.obj._meta.verbose_name} "{self.obj}".',
             )

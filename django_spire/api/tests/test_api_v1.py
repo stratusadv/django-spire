@@ -11,7 +11,9 @@ class NinjaApiV1TestCase(TestCase):
     def setUp(self) -> None:
         self.client = Client()
         self.raw_key = 'ninja_test_key'
-        self.access = ApiAccess.objects.create(name='Ninja Test', permission=ApiPermissionChoices.CHANGE)
+        self.access = ApiAccess.objects.create(
+            name='Ninja Test', permission=ApiPermissionChoices.CHANGE
+        )
         self.access.set_key_and_save(self.raw_key)
 
     # def test_api_v1_authenticated_success(self) -> None:

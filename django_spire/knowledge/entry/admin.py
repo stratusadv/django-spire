@@ -35,7 +35,7 @@ class EntryAdmin(admin.ModelAdmin):
     current_version_link.short_description = 'Current Version'
     current_version_link.allow_tags = True
 
-    @admin.action(description="Set Tags for Entries (Allow 5 Seconds Per)")
+    @admin.action(description='Set Tags for Entries (Allow 5 Seconds Per)')
     def set_tags_for_entries(self, request, queryset: QuerySet[Entry]):
         processed = 0
         for entry in queryset:

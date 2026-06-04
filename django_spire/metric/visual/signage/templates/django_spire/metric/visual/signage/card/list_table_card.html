@@ -12,5 +12,7 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% include 'metric/visual/signage/table/table.html' with endpoint=signage_items_endpoint %}
+    <div class="card-body">
+        {% include 'metric/visual/signage/table/table.html' with endpoint=signage_items_endpoint %}
+    </div>
 {% endblock %}

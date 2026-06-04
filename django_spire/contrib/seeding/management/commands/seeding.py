@@ -22,16 +22,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument(
-            'model_import',
-            type=str,
-            help='The import path to the Django model class',
+            'model_import', type=str, help='The import path to the Django model class'
         )
 
         parser.add_argument(
-            'model_description',
-            type=str,
-            help='A small descript of the model',
-            nargs='+',
+            'model_description', type=str, help='A small descript of the model', nargs='+'
         )
 
     # @recorder_to_html_file('seeding_generator')
@@ -52,4 +47,6 @@ class Command(BaseCommand):
         with open(Path(_SEEDING_OUTPUT_PATH, source_intel.file_name), 'w') as f:
             f.write(source_intel.python_source_code)
 
-        self.stdout.write(f'Done ... saved to "{Path(_SEEDING_OUTPUT_PATH, source_intel.file_name)}"')
+        self.stdout.write(
+            f'Done ... saved to "{Path(_SEEDING_OUTPUT_PATH, source_intel.file_name)}"'
+        )

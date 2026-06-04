@@ -17,7 +17,7 @@ class ThemeEnumTests(TestCase):
             'one-dark',
             'palenight',
             'rose-pine',
-            'tokyo-night'
+            'tokyo-night',
         }
 
         actual = {family.value for family in ThemeFamily}

@@ -16,7 +16,7 @@ class EntryVersionBlockFactoryServiceTests(BaseTestCase):
             entry_version=self.entry_version,
             type=BlockTypeChoices.TEXT,
             data={'text': 'Test content'},
-            order=0
+            order=0,
         )
         assert block.type == BlockTypeChoices.TEXT
         assert block.order == 0
@@ -27,7 +27,7 @@ class EntryVersionBlockFactoryServiceTests(BaseTestCase):
             entry_version=self.entry_version,
             type=BlockTypeChoices.HEADING,
             data={'text': 'Title', 'level': 1},
-            order=0
+            order=0,
         )
         assert block.type == BlockTypeChoices.HEADING
         assert block._block_data['level'] == 1
@@ -36,11 +36,8 @@ class EntryVersionBlockFactoryServiceTests(BaseTestCase):
         block = EntryVersionBlock.services.factory.create_validated_block(
             entry_version=self.entry_version,
             type=BlockTypeChoices.LIST,
-            data={
-                'style': 'unordered',
-                'items': [{'content': 'Item', 'items': []}]
-            },
-            order=0
+            data={'style': 'unordered', 'items': [{'content': 'Item', 'items': []}]},
+            order=0,
         )
         assert block.type == BlockTypeChoices.LIST
 
@@ -51,7 +48,7 @@ class EntryVersionBlockFactoryServiceTests(BaseTestCase):
             type=BlockTypeChoices.TEXT,
             data={'text': 'Centered'},
             order=0,
-            tunes=tunes
+            tunes=tunes,
         )
         assert block.tunes == tunes
 
@@ -60,6 +57,6 @@ class EntryVersionBlockFactoryServiceTests(BaseTestCase):
             entry_version=self.entry_version,
             type=BlockTypeChoices.TEXT,
             data={'text': 'Test'},
-            order=0
+            order=0,
         )
         assert block.version == self.entry_version

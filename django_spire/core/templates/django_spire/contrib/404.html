@@ -1,0 +1,5 @@
+{% extends 'django_spire/base/base.html' %}
+
+{% block base_body_content %}
+    {% include 'django_spire/contrib/error/error.html' with error_code='404' heading='There is Nothing Here' subheading='Please Look Some Where Else!' %}
+{% endblock %}

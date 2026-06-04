@@ -24,8 +24,7 @@ class NotificationQuerySet(HistoryQuerySet):
 
     def by_content_object(self, content_object: type[Model]):
         return self.filter(
-            content_type=get_content_type_for_model(content_object),
-            object_id=content_object.pk,
+            content_type=get_content_type_for_model(content_object), object_id=content_object.pk
         )
 
     def by_content_objects(self, content_objects: list[type[Model]]):
@@ -35,16 +34,13 @@ class NotificationQuerySet(HistoryQuerySet):
         content_type_to_object_ids = defaultdict(list)
 
         for content_object in content_objects:
-            content_type_to_object_ids[
-                get_content_type_for_model(content_object)
-            ].append(content_object.pk)
+            content_type_to_object_ids[get_content_type_for_model(content_object)].append(
+                content_object.pk
+            )
 
         queries = Q()
         for content_type, object_ids in content_type_to_object_ids.items():
-            queries |= Q(
-                content_type=content_type,
-                object_id__in=object_ids
-            )
+            queries |= Q(content_type=content_type, object_id__in=object_ids)
 
         return self.filter(queries)
 
@@ -91,7 +87,9 @@ class NotificationQuerySet(HistoryQuerySet):
         return self.filter(type=NotificationTypeChoices.SMS)
 
     def unsent(self):
-        return self.filter(status__in=[NotificationStatusChoices.PENDING, NotificationStatusChoices.PROCESSING])
+        return self.filter(
+            status__in=[NotificationStatusChoices.PENDING, NotificationStatusChoices.PROCESSING]
+        )
 
 
 class NotificationContentObjectQuerySet(QuerySet):
@@ -108,16 +106,15 @@ class NotificationContentObjectQuerySet(QuerySet):
         content_type_to_object_ids = defaultdict(list)
 
         for content_object in content_objects:
-            content_type_to_object_ids[
-                get_content_type_for_model(content_object)
-            ].append(content_object.pk)
+            content_type_to_object_ids[get_content_type_for_model(content_object)].append(
+                content_object.pk
+            )
 
         queries = Q()
 
         for content_type, object_ids in content_type_to_object_ids.items():
             queries |= Q(
-                notification__content_type=content_type,
-                notification__object_id__in=object_ids
+                notification__content_type=content_type, notification__object_id__in=object_ids
             )
 
         return self.filter(queries)

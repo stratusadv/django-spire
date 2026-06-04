@@ -34,7 +34,7 @@ class PathConfig:
 
         return cls(
             app_template=base / 'core/management/commands/spire_startapp_pkg/template/app',
-            html_template=base / 'core/management/commands/spire_startapp_pkg/template/templates'
+            html_template=base / 'core/management/commands/spire_startapp_pkg/template/templates',
         )
 
 
@@ -111,5 +111,5 @@ class AppConfigFactory:
             components=components,
             destination=self._path_resolver.get_app_destination(components),
             template_destination=self._path_resolver.get_template_destination(components),
-            user_inputs=user_inputs
+            user_inputs=user_inputs,
         )

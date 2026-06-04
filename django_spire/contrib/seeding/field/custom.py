@@ -58,13 +58,15 @@ class CustomFieldSeeder(BaseFieldSeeder):
                     raise TypeError(message)
 
                 if method_name in ['in_order', 'fk_in_order']:
-                    kwargs["index"] = i
+                    kwargs['index'] = i
 
                 if method_name in ['fk_random', 'fk_in_order']:
-                    model_class = kwargs["model_class"]
+                    model_class = kwargs['model_class']
 
                     if model_class not in foreign_keys:
-                        foreign_keys[model_class] = list(model_class.objects.all().values_list('id', flat=True))
+                        foreign_keys[model_class] = list(
+                            model_class.objects.all().values_list('id', flat=True)
+                        )
 
                     kwargs['ids'] = foreign_keys[model_class]
 

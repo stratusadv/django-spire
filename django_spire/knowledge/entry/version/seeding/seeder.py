@@ -35,11 +35,7 @@ class EntryVersionSeeder(DjangoModelSeeder):
     }
 
     @classmethod
-    def seed_database(
-            cls,
-            count: int = 1,
-            fields: dict | None = None
-    ) -> list[models.EntryVersion]:
+    def seed_database(cls, count: int = 1, fields: dict | None = None) -> list[models.EntryVersion]:
         entry_versions = super().seed_database(count=count, fields=fields)
 
         for entry_version in entry_versions:

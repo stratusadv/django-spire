@@ -32,17 +32,10 @@ _SHARED_STAKE_3_ID = uuid.UUID('dddddddd-dddd-dddd-dddd-000000000003')
 _SHARED_STAKE_4_ID = uuid.UUID('dddddddd-dddd-dddd-dddd-000000000004')
 _SHARED_STAKE_5_ID = uuid.UUID('dddddddd-dddd-dddd-dddd-000000000005')
 
-_TABLET_STAKE_IDS = [
-    _SHARED_STAKE_3_ID,
-    _SHARED_STAKE_4_ID,
-    _SHARED_STAKE_5_ID,
-]
+_TABLET_STAKE_IDS = [_SHARED_STAKE_3_ID, _SHARED_STAKE_4_ID, _SHARED_STAKE_5_ID]
 
 
-def seed_sync_scenario(
-    scenario: str = SeedScenario.LAND_SURVEY,
-    seed: int | None = None,
-) -> dict:
+def seed_sync_scenario(scenario: str = SeedScenario.LAND_SURVEY, seed: int | None = None) -> dict:
     if seed is None:
         seed = random.randint(1000, 9999)
 
@@ -202,56 +195,64 @@ def _seed_randomized(seed: int, tablet_count: int) -> dict:
 
     for _ in range(num_clients):
         client_id = uuid.UUID(int=rng.getrandbits(128))
-        shared_clients.append({
-            'id': client_id,
-            'contact_email': fake.email(),
-            'contact_name': fake.name(),
-            'name': fake.company(),
-        })
+        shared_clients.append(
+            {
+                'id': client_id,
+                'contact_email': fake.email(),
+                'contact_name': fake.name(),
+                'name': fake.company(),
+            }
+        )
 
         for _ in range(num_sites_per_client):
             site_id = uuid.UUID(int=rng.getrandbits(128))
-            shared_sites.append({
-                'id': site_id,
-                'client_id': client_id,
-                'description': fake.paragraph(nb_sentences=2),
-                'name': fake.catch_phrase(),
-                'region': fake.city(),
-                'status': rng.choice(site_statuses),
-            })
+            shared_sites.append(
+                {
+                    'id': site_id,
+                    'client_id': client_id,
+                    'description': fake.paragraph(nb_sentences=2),
+                    'name': fake.catch_phrase(),
+                    'region': fake.city(),
+                    'status': rng.choice(site_statuses),
+                }
+            )
 
             for _ in range(num_plans_per_site):
                 plan_id = uuid.UUID(int=rng.getrandbits(128))
 
-                shared_plans.append({
-                    'id': plan_id,
-                    'site_id': site_id,
-                    'baseline_a_latitude': 0,
-                    'baseline_a_longitude': 0,
-                    'baseline_b_latitude': 0,
-                    'baseline_b_longitude': 0,
-                    'crew_notes': '',
-                    'heading_degrees': 0,
-                    'headland_offset_m': 0,
-                    'line_direction': rng.choice(line_directions),
-                    'office_notes': '',
-                    'plan_number': f'SP-{rng.randint(1000, 9999):04d}',
-                    'stake_spacing_m': rng.choice([25, 50, 75, 100]),
-                    'status': 'draft',
-                })
+                shared_plans.append(
+                    {
+                        'id': plan_id,
+                        'site_id': site_id,
+                        'baseline_a_latitude': 0,
+                        'baseline_a_longitude': 0,
+                        'baseline_b_latitude': 0,
+                        'baseline_b_longitude': 0,
+                        'crew_notes': '',
+                        'heading_degrees': 0,
+                        'headland_offset_m': 0,
+                        'line_direction': rng.choice(line_directions),
+                        'office_notes': '',
+                        'plan_number': f'SP-{rng.randint(1000, 9999):04d}',
+                        'stake_spacing_m': rng.choice([25, 50, 75, 100]),
+                        'status': 'draft',
+                    }
+                )
 
                 for j in range(num_stakes_per_plan):
                     stake_id = uuid.UUID(int=rng.getrandbits(128))
-                    shared_stakes.append({
-                        'id': stake_id,
-                        'survey_plan_id': plan_id,
-                        'elevation': 0,
-                        'is_placed': False,
-                        'label': f'STK-{j + 1:04d}',
-                        'latitude': 0,
-                        'longitude': 0,
-                        'stake_type': rng.choice(stake_types),
-                    })
+                    shared_stakes.append(
+                        {
+                            'id': stake_id,
+                            'survey_plan_id': plan_id,
+                            'elevation': 0,
+                            'is_placed': False,
+                            'label': f'STK-{j + 1:04d}',
+                            'latitude': 0,
+                            'longitude': 0,
+                            'stake_type': rng.choice(stake_types),
+                        }
+                    )
 
     all_databases = [*get_active_tablet_databases(tablet_count), 'cloud']
 
@@ -279,8 +280,7 @@ def _seed_randomized(seed: int, tablet_count: int) -> dict:
         time.sleep(0.005)
 
         stakes_to_modify = tablet_rng.sample(
-            shared_stakes,
-            k=min(len(shared_stakes), tablet_rng.randint(1, 3)),
+            shared_stakes, k=min(len(shared_stakes), tablet_rng.randint(1, 3))
         )
 
         for stake_data in stakes_to_modify:

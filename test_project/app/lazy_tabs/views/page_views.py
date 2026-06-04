@@ -21,7 +21,5 @@ def demo_page_view(request: WSGIRequest) -> TemplateResponse:
     }
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='lazy_tabs/page/demo_page.html',
+        request=request, context=context_data, template='lazy_tabs/page/demo_page.html'
     )

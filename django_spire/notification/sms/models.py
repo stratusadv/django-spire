@@ -9,7 +9,7 @@ from django_spire.notification.models import Notification
 from django_spire.notification.sms.choices import SmsMediaContentTypeChoices
 from django_spire.notification.sms.querysets import (
     SmsNotificationQuerySet,
-    SmsTemporaryMediaQuerySet
+    SmsTemporaryMediaQuerySet,
 )
 
 

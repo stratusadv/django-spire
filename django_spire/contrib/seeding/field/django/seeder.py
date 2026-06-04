@@ -24,7 +24,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
         seed_intel_class = django_to_pydantic_model(
             model_class=model_seeder.model_class,
             base_class=BaseIntel,
-            include_fields=include_fields
+            include_fields=include_fields,
         )
 
         class SeedingIntel(BaseIntel):
@@ -54,10 +54,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                 .prompt(base_prompt)
             )
 
-            intel_data = bot.process(
-                prompt=prompt,
-                intel_class=SeedingIntel
-            )
+            intel_data = bot.process(prompt=prompt, intel_class=SeedingIntel)
         else:
             # Process in batches of 25 using futures. Seems like that is the limit for good results
             futures = []
@@ -81,10 +78,7 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                     .prompt(base_prompt)
                 )
 
-                future = bot.process_to_future(
-                    prompt=batch_prompt,
-                    intel_class=SeedingIntel
-                )
+                future = bot.process_to_future(prompt=batch_prompt, intel_class=SeedingIntel)
                 futures.append(future)
 
                 # Only send max_futures calls at a time or when it's the last batch.
@@ -98,7 +92,6 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
                         completed_futures.append(future)
 
                     futures = []
-
 
         # Ensure the generated count matches the requested count
         if len(intel_data) > count:
@@ -115,17 +108,18 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
             field_prompt = (
                 Prompt()
                 .heading('Fields Context Data')
-                .list([
-                    f'{name}: {info[1]}'
-                    for name, info in self.seeder_fields.items()
-                    if info[0] == 'llm' and len(info) > 1
-                ])
+                .list(
+                    [
+                        f'{name}: {info[1]}'
+                        for name, info in self.seeder_fields.items()
+                        if info[0] == 'llm' and len(info) > 1
+                    ]
+                )
             )
         else:
             field_prompt = Prompt()
 
         return field_prompt
-
 
 
 class DjangoFieldFakerSeeder(BaseFieldSeeder):
@@ -144,7 +138,7 @@ class DjangoFieldFakerSeeder(BaseFieldSeeder):
                     row[field_name] = fake_model_field_value(
                         model_class=model_seeder.model_class,
                         field_name=field_name,
-                        faker_method=faker_method
+                        faker_method=faker_method,
                     )
                 except Exception as e:
                     message = f"Error generating faker value for field '{field_name}': {e}"

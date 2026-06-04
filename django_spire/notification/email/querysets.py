@@ -14,11 +14,13 @@ if TYPE_CHECKING:
 
 class EmailNotificationQuerySet(HistoryQuerySet, NotificationContentObjectQuerySet):
     def annotate_is_viewed_by_user(self, user: User) -> QuerySet:
-        return self.by_user(user=user).annotate(viewed=Case(
-            When(views__user=user, then=Value(True)),
-            default=Value(False),
-            output_field=BooleanField()
-        ))
+        return self.by_user(user=user).annotate(
+            viewed=Case(
+                When(views__user=user, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
 
     def by_user(self, user: User) -> QuerySet:
         return self.filter(notification__user=user)

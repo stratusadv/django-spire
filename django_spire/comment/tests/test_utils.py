@@ -33,9 +33,7 @@ class TestGenerateCommentUserListData(BaseTestCase):
         self.super_user.last_name = 'User'
         self.super_user.save()
         other_user = AuthUser.objects.create_user(
-            username='other',
-            first_name='Other',
-            last_name='User'
+            username='other', first_name='Other', last_name='User'
         )
         user_list = [self.super_user, other_user]
         data = generate_comment_user_list_data(user_list)
@@ -63,10 +61,7 @@ class TestParseUserIdToIntList(BaseTestCase):
 class TestFindUserListFromContentType(BaseTestCase):
     def test_find_users_with_permission(self) -> None:
         content_type = ContentType.objects.get_for_model(Comment)
-        permission = Permission.objects.get(
-            content_type=content_type,
-            codename='view_comment'
-        )
+        permission = Permission.objects.get(content_type=content_type, codename='view_comment')
         group = Group.objects.create(name='test_group')
         group.permissions.add(permission)
         self.super_user.groups.add(group)
@@ -77,10 +72,7 @@ class TestFindUserListFromContentType(BaseTestCase):
     def test_excludes_users_without_permission(self) -> None:
         other_user = AuthUser.objects.create_user(username='other')
         content_type = ContentType.objects.get_for_model(Comment)
-        permission = Permission.objects.get(
-            content_type=content_type,
-            codename='view_comment'
-        )
+        permission = Permission.objects.get(content_type=content_type, codename='view_comment')
         group = Group.objects.create(name='test_group')
         group.permissions.add(permission)
         self.super_user.groups.add(group)

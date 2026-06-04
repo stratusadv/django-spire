@@ -21,7 +21,7 @@ class AiUsageAdmin(AiUsageAdminMixin):
         'run_time_seconds_formatted',
         'view_interactions_link',
         'view_successful_interactions_link',
-        'view_failed_interactions_link'
+        'view_failed_interactions_link',
     )
     search_fields = ('recorded_date',)
     ordering = ('-recorded_date',)
@@ -30,16 +30,16 @@ class AiUsageAdmin(AiUsageAdminMixin):
         return [field.name for field in self.model._meta.fields]
 
     def view_interactions_link(
-        self,
-        ai_usage: models.AiUsage,
-        was_successful: bool | None = None
+        self, ai_usage: models.AiUsage, was_successful: bool | None = None
     ) -> str:
-        was_successful_filter = '' if was_successful is None else f'&was_successful__exact={int(was_successful)}'
+        was_successful_filter = (
+            '' if was_successful is None else f'&was_successful__exact={int(was_successful)}'
+        )
 
         url = (
-            reverse("admin:django_spire_ai_aiinteraction_changelist")
-            + "?"
-            + urlencode({"ai_usage__id": f"{ai_usage.id}"})
+            reverse('admin:django_spire_ai_aiinteraction_changelist')
+            + '?'
+            + urlencode({'ai_usage__id': f'{ai_usage.id}'})
             + was_successful_filter
         )
 
@@ -50,27 +50,19 @@ class AiUsageAdmin(AiUsageAdminMixin):
         else:
             interactions_count = ai_usage.interactions.filter(was_successful=False).count()
 
-        return format_html(
-            f'<a href="{url}">{interactions_count} Interactions</a>'
-        )
+        return format_html(f'<a href="{url}">{interactions_count} Interactions</a>')
 
-    view_interactions_link.short_description = "All"
+    view_interactions_link.short_description = 'All'
 
-    def view_successful_interactions_link(
-        self,
-        ai_usage: models.AiUsage
-    ) -> str:
+    def view_successful_interactions_link(self, ai_usage: models.AiUsage) -> str:
         return self.view_interactions_link(ai_usage, was_successful=True)
 
-    view_successful_interactions_link.short_description = "Successful"
+    view_successful_interactions_link.short_description = 'Successful'
 
-    def view_failed_interactions_link(
-        self,
-        ai_usage: models.AiUsage
-    ) -> str:
+    def view_failed_interactions_link(self, ai_usage: models.AiUsage) -> str:
         return self.view_interactions_link(ai_usage, was_successful=False)
 
-    view_failed_interactions_link.short_description = "Failed"
+    view_failed_interactions_link.short_description = 'Failed'
 
 
 class AiInteractionModelForm(forms.ModelForm):
@@ -95,7 +87,14 @@ class AiInteractionAdmin(AiUsageAdminMixin):
         'created_datetime',
     )
     list_filter = ('module_name', 'callable_name', 'was_successful')
-    search_fields = ('actor', 'user_email', 'user_first_name', 'user_last_name', 'module_name', 'callable_name')
+    search_fields = (
+        'actor',
+        'user_email',
+        'user_first_name',
+        'user_last_name',
+        'module_name',
+        'callable_name',
+    )
     ordering = ('-created_datetime',)
 
     readonly_fields = [

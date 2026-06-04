@@ -14,7 +14,7 @@ from django_spire.notification.sms.exceptions import (
     InvalidPhoneNumberError,
     TwilioAPIConcurrentError,
     TwilioError,
-    TwilioResponseError
+    TwilioResponseError,
 )
 from typing import TYPE_CHECKING
 
@@ -70,9 +70,7 @@ class BulkTwilioSMSHelper:
 
 class TwilioSMSHelper:
     def __init__(self, notification: Notification, client: Client):
-        self.to_phone_number = self._format_phone_number(
-            notification.sms.to_phone_number
-        )
+        self.to_phone_number = self._format_phone_number(notification.sms.to_phone_number)
         self.notification = notification
         self.message = f'{notification.title}: {notification.body}'
         self.client = client
@@ -103,10 +101,7 @@ class TwilioSMSHelper:
             retry_response = self._attempt_send()
 
             if retry_response.status in TWILIO_UNSUCCESSFUL_STATUSES:
-                raise TwilioResponseError(
-                    retry_response.error_code,
-                    retry_response.error_message
-                )
+                raise TwilioResponseError(retry_response.error_code, retry_response.error_message)
 
     @staticmethod
     def _format_phone_number(phone_number: str) -> str:

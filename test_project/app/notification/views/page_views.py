@@ -25,15 +25,13 @@ if TYPE_CHECKING:
 def notification_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     notification = get_object_or_404(models.Notification, pk=pk)
 
-    context_data = {
-        'notification': notification,
-    }
+    context_data = {'notification': notification}
 
     return generic_views.detail_view(
         request,
         obj=notification,
         context_data=context_data,
-        template='notification/page/notification_detail_page.html'
+        template='notification/page/notification_detail_page.html',
     )
 
 
@@ -48,20 +46,14 @@ def notification_form_view(request, pk: int):
     else:
         notification = models.Notification.objects.get(pk=pk)
 
-    Glue.model(
-        request=request,
-        target=notification,
-        unique_name='notification',
-    )
+    Glue.model(request=request, target=notification, unique_name='notification')
 
     return generic_views.form_view(
         request,
         obj=notification,
-        context_data={
-            "notification": notification
-        },
-        template="notification/form/page/form_page.html",
-        form=NotificationForm(instance=notification)
+        context_data={'notification': notification},
+        template='notification/form/page/form_page.html',
+        form=NotificationForm(instance=notification),
     )
 
 
@@ -75,19 +67,18 @@ def notification_home_view(request: WSGIRequest) -> TemplateResponse:
 def notification_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {
         'notifications': (
-            models.Notification.objects
-            .all()
+            models.Notification.objects.all()
             .order_by('-created_datetime')
             .prefetch_related('sms', 'email')
         ),
         'statuses': NotificationStatusChoices,
         'types': NotificationTypeChoices,
-        'priorities': NotificationPriorityChoices
+        'priorities': NotificationPriorityChoices,
     }
 
     return generic_views.list_view(
         request,
         model=models.Notification,
         context_data=context_data,
-        template='notification/page/notification_list_page.html'
+        template='notification/page/notification_list_page.html',
     )

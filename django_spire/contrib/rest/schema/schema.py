@@ -28,6 +28,7 @@ class RestSchema(ABC, BaseModel):
 
         if not isabstract(cls):
             from django_spire.contrib.rest.schema.schemaset import RestSchemaSet
+
             objects = getattr(cls, 'objects', None)
 
             if not isinstance(objects, RestSchemaSet):

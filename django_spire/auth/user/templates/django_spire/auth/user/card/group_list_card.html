@@ -14,13 +14,15 @@
 {% endblock %}
 
 {% block card_title_content %}
-    {% if group_list %}
-        {% include 'django_spire/auth/user/item/user_master_perm_item.html' %}
+    <div class="card-body">
+        {% if group_list %}
+            {% include 'django_spire/auth/user/item/user_master_perm_item.html' %}
 
-        {% for group in group_list %}
-            {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='user' delete_url_name='Remove' %}
-        {% endfor %}
-    {% else %}
-        {% include 'django_spire/item/no_data_item.html' %}
-    {% endif %}
+            {% for group in group_list %}
+                {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='user' delete_url_name='Remove' %}
+            {% endfor %}
+        {% else %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endif %}
+    </div>
 {% endblock %}

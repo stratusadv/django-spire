@@ -20,18 +20,14 @@ def find_user_list_from_content_type(app_label: str, model_name: str) -> QuerySe
 
 def generate_comment_user_list_data(user_list: QuerySet[User] | list[User]) -> list[dict]:
     return [
-        {
-            'full_name': user.get_full_name().replace(' ', '_'),
-            'id': user.pk,
-        }
-        for user in user_list
+        {'full_name': user.get_full_name().replace(' ', '_'), 'id': user.pk} for user in user_list
     ]
 
 
 def parse_user_id_to_int_list(user_id_str: str) -> QuerySet[User]:
     from django.contrib.auth.models import User
 
-    user_id_list =  [int(user_id) for user_id in user_id_str.split(',')]
+    user_id_list = [int(user_id) for user_id in user_id_str.split(',')]
     return User.objects.filter(id__in=user_id_list)
 
 
@@ -39,7 +35,7 @@ def process_comment_notifications(
     user_list: QuerySet[User] | list[User],
     comment_information: str,
     related_obj: Model,
-    user_commenting: User
+    user_commenting: User,
 ) -> None:
     from django.contrib.sites.models import Site
     from django_spire.notification.models import Notification
@@ -50,5 +46,5 @@ def process_comment_notifications(
                 email=user.email,
                 title='New Comment',
                 body=f'You were tagged in a new comment! {user_commenting.get_full_name()} wrote "{comment_information}" on {related_obj}.',
-                url=Site.objects.get_current()
+                url=Site.objects.get_current(),
             )

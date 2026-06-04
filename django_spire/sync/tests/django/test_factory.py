@@ -6,10 +6,7 @@ from django_spire.sync.core.clock import HybridLogicalClock
 from django_spire.sync.database.conflict import RemoteWins
 from django_spire.sync.database.engine import DatabaseEngine
 from django_spire.sync.database.graph import DependencyGraph
-from django_spire.sync.django.factory import (
-    build_client_engine,
-    build_server_engine,
-)
+from django_spire.sync.django.factory import build_client_engine, build_server_engine
 from django_spire.sync.django.mixin import SyncableMixin
 from django_spire.sync.django.storage import DjangoSyncStorage
 from django_spire.sync.tests.models import SyncTestModel
@@ -91,10 +88,7 @@ def test_build_server_engine_returns_engine() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
-    engine = build_server_engine(
-        models=[SyncTestModel],
-        node_id='server',
-    )
+    engine = build_server_engine(models=[SyncTestModel], node_id='server')
 
     assert isinstance(engine, DatabaseEngine)
 
@@ -104,10 +98,7 @@ def test_build_server_engine_has_lock_by_default() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
-    engine = build_server_engine(
-        models=[SyncTestModel],
-        node_id='server',
-    )
+    engine = build_server_engine(models=[SyncTestModel], node_id='server')
 
     assert engine._lock is not None
 
@@ -117,10 +108,7 @@ def test_build_server_engine_no_transport() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
-    engine = build_server_engine(
-        models=[SyncTestModel],
-        node_id='server',
-    )
+    engine = build_server_engine(models=[SyncTestModel], node_id='server')
 
     assert engine._transport is None
 
@@ -133,10 +121,6 @@ def test_build_server_engine_custom_graph() -> None:
     label = SyncTestModel._meta.label
     graph = DependencyGraph({label: set()})
 
-    engine = build_server_engine(
-        models=[SyncTestModel],
-        node_id='server',
-        graph=graph,
-    )
+    engine = build_server_engine(models=[SyncTestModel], node_id='server', graph=graph)
 
     assert engine._graph is graph

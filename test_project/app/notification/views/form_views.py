@@ -16,9 +16,7 @@ def notification_form_view(request, pk: int):
 
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse(
-                'notification:page:list',
-            ))
+            return HttpResponseRedirect(reverse('notification:page:list'))
 
         show_form_errors(request, form)
     return HttpResponseRedirect(safe_redirect_url(request))

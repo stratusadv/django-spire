@@ -57,11 +57,7 @@ class TestContentTypeUrl(TestCase):
             pass
 
         dummy = Dummy()
-        dummy._meta = type(
-            'meta',
-            (),
-            {'app_label': 'myapp', 'model_name': 'dummy'}
-        )
+        dummy._meta = type('meta', (), {'app_label': 'myapp', 'model_name': 'dummy'})
 
         func = 'django_spire.core.templatetags.django_spire_core.reverse'
         return_value = 'http://example.com/dummy'
@@ -70,8 +66,7 @@ class TestContentTypeUrl(TestCase):
             url = content_type_url('dummy_url', dummy)
 
             mock_reverse.assert_called_once_with(
-                'dummy_url',
-                kwargs={'app_label': 'myapp', 'model_name': 'dummy'}
+                'dummy_url', kwargs={'app_label': 'myapp', 'model_name': 'dummy'}
             )
 
             assert url == 'http://example.com/dummy'

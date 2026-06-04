@@ -25,8 +25,7 @@ class CollectionGroupFactoryServiceTests(BaseTestCase):
 
         content_type = ContentType.objects.get_for_model(Collection)
         self.change_groups_permission = Permission.objects.get(
-            codename='can_change_collection_groups',
-            content_type=content_type
+            codename='can_change_collection_groups', content_type=content_type
         )
 
     def _refresh_user(self):
@@ -37,9 +36,7 @@ class CollectionGroupFactoryServiceTests(BaseTestCase):
         request.user = self.user
 
         result = CollectionGroup.services.factory.replace_groups(
-            request=request,
-            group_pks=[self.auth_group1.pk],
-            collection=self.collection
+            request=request, group_pks=[self.auth_group1.pk], collection=self.collection
         )
         assert result == []
 
@@ -53,7 +50,7 @@ class CollectionGroupFactoryServiceTests(BaseTestCase):
         result = CollectionGroup.services.factory.replace_groups(
             request=request,
             group_pks=[self.auth_group1.pk, self.auth_group2.pk],
-            collection=self.collection
+            collection=self.collection,
         )
         assert len(result) == 2
         assert self.collection.groups.count() == 2
@@ -62,18 +59,13 @@ class CollectionGroupFactoryServiceTests(BaseTestCase):
         self.user.user_permissions.add(self.change_groups_permission)
         self._refresh_user()
 
-        create_test_collection_group(
-            collection=self.collection,
-            auth_group=self.auth_group1
-        )
+        create_test_collection_group(collection=self.collection, auth_group=self.auth_group1)
 
         request = self.factory.get('/')
         request.user = self.user
 
         CollectionGroup.services.factory.replace_groups(
-            request=request,
-            group_pks=[self.auth_group2.pk],
-            collection=self.collection
+            request=request, group_pks=[self.auth_group2.pk], collection=self.collection
         )
 
         assert self.collection.groups.count() == 1
@@ -83,18 +75,13 @@ class CollectionGroupFactoryServiceTests(BaseTestCase):
         self.user.user_permissions.add(self.change_groups_permission)
         self._refresh_user()
 
-        create_test_collection_group(
-            collection=self.collection,
-            auth_group=self.auth_group1
-        )
+        create_test_collection_group(collection=self.collection, auth_group=self.auth_group1)
 
         request = self.factory.get('/')
         request.user = self.user
 
         CollectionGroup.services.factory.replace_groups(
-            request=request,
-            group_pks=None,
-            collection=self.collection
+            request=request, group_pks=None, collection=self.collection
         )
 
         assert self.collection.groups.count() == 0

@@ -18,9 +18,20 @@ class NotificationAdminTests(BaseTestCase):
 
     def test_list_display(self):
         expected = (
-            'id', 'title', 'type', 'user', 'view_body_snippet', 'url_link', 'status',
-            'status_message', 'priority', 'sent_datetime', 'publish_datetime',
-            'content_type', 'object_id', 'is_deleted'
+            'id',
+            'title',
+            'type',
+            'user',
+            'view_body_snippet',
+            'url_link',
+            'status',
+            'status_message',
+            'priority',
+            'sent_datetime',
+            'publish_datetime',
+            'content_type',
+            'object_id',
+            'is_deleted',
         )
         assert self.admin.list_display == expected
 

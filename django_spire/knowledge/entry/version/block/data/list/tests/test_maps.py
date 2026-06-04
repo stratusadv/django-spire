@@ -23,10 +23,16 @@ class ListBlockDataMapTests(BaseTestCase):
         assert LIST_BLOCK_DATA_META_MAP[ListEditorBlockDataStyle.UNORDERED] is None
 
     def test_reverse_meta_map_ordered(self):
-        assert LIST_BLOCK_DATA_REVERSE_META_MAP[OrderedListItemMeta] == ListEditorBlockDataStyle.ORDERED
+        assert (
+            LIST_BLOCK_DATA_REVERSE_META_MAP[OrderedListItemMeta]
+            == ListEditorBlockDataStyle.ORDERED
+        )
 
     def test_reverse_meta_map_checklist(self):
-        assert LIST_BLOCK_DATA_REVERSE_META_MAP[ChecklistItemMeta] == ListEditorBlockDataStyle.CHECKLIST
+        assert (
+            LIST_BLOCK_DATA_REVERSE_META_MAP[ChecklistItemMeta]
+            == ListEditorBlockDataStyle.CHECKLIST
+        )
 
     def test_reverse_meta_map_unordered(self):
         assert LIST_BLOCK_DATA_REVERSE_META_MAP[None] == ListEditorBlockDataStyle.UNORDERED

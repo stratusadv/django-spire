@@ -11,15 +11,13 @@ class TestViewed(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpass'  # noqa: S106
+            password='testpass',  # noqa: S106
         )
         self.content_type = ContentType.objects.get_for_model(User)
 
     def test_create_viewed(self) -> None:
         viewed = Viewed.objects.create(
-            content_type=self.content_type,
-            object_id=self.user.pk,
-            user=self.user
+            content_type=self.content_type, object_id=self.user.pk, user=self.user
         )
 
         assert viewed.pk is not None
@@ -28,18 +26,14 @@ class TestViewed(TestCase):
 
     def test_created_datetime_auto_set(self) -> None:
         viewed = Viewed.objects.create(
-            content_type=self.content_type,
-            object_id=self.user.pk,
-            user=self.user
+            content_type=self.content_type, object_id=self.user.pk, user=self.user
         )
 
         assert viewed.created_datetime is not None
 
     def test_str_representation(self) -> None:
         viewed = Viewed.objects.create(
-            content_type=self.content_type,
-            object_id=self.user.pk,
-            user=self.user
+            content_type=self.content_type, object_id=self.user.pk, user=self.user
         )
 
         assert 'testuser' in str(viewed)

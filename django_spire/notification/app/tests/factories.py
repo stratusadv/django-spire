@@ -4,10 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 
 from django_spire.notification.app.models import AppNotification
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices,
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.models import Notification
 
 

@@ -2,10 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.auth.permissions.consts import (
-    PERMISSIONS_LEVEL_CHOICES,
-    VALID_PERMISSION_LEVELS
-)
+from django_spire.auth.permissions.consts import PERMISSIONS_LEVEL_CHOICES, VALID_PERMISSION_LEVELS
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import Group, User
@@ -54,29 +51,17 @@ def perm_level_to_string(perm_level: VALID_PERMISSION_LEVELS | str) -> str:
 
 
 def perm_level_to_django_permission(
-        perm_level: VALID_PERMISSION_LEVELS,
-        app_label: str,
-        model_name: str
+    perm_level: VALID_PERMISSION_LEVELS, app_label: str, model_name: str
 ) -> str:
     perm_level = dict(PERMISSIONS_LEVEL_CHOICES)[perm_level_to_int(perm_level)]
     return f'{app_label}.{perm_level.lower()}_{model_name}'
 
 
-def has_app_permission(
-    user: User,
-    app_label: str,
-    model_name: str,
-    action: str
-) -> bool:
+def has_app_permission(user: User, app_label: str, model_name: str, action: str) -> bool:
     return user.has_perm(f'{app_label}.{action}_{model_name}')
 
 
-def has_app_permission_or_404(
-    user: User,
-    app_label: str,
-    model_name: str,
-    action: str
-) -> bool:
+def has_app_permission_or_404(user: User, app_label: str, model_name: str, action: str) -> bool:
     if not has_app_permission(user, app_label, model_name, action):
         raise PermissionError
 

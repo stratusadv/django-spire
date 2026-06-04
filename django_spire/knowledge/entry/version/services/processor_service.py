@@ -46,8 +46,7 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
 
             else:
                 entry_block = EntryVersionBlock.services.factory.create_validated_block(
-                    entry_version=self.obj,
-                    **block_data,
+                    entry_version=self.obj, **block_data
                 )
                 entry_blocks_to_add.append(entry_block)
 
@@ -61,7 +60,9 @@ class EntryVersionProcessorService(BaseDjangoModelService['EntryVersion']):
 
         with transaction.atomic():
             EntryVersionBlock.objects.filter(id__in=entry_blocks_to_delete).delete()
-            EntryVersionBlock.objects.bulk_update(entry_blocks_to_update, ['order', 'type', '_block_data', '_text_data'])
+            EntryVersionBlock.objects.bulk_update(
+                entry_blocks_to_update, ['order', 'type', '_block_data', '_text_data']
+            )
             EntryVersionBlock.objects.bulk_create(entry_blocks_to_add)
 
         self.obj.entry.services.search_index.rebuild_search_index()

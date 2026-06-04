@@ -21,5 +21,5 @@ def generate_test_model() -> Adult:
         weight_lbs=round(random.uniform(100, 250), 3),
         best_friend=None,
         bed_time=datetime.time(hour=22, minute=0),
-        likes_to_party=random.choice([True, False])
+        likes_to_party=random.choice([True, False]),
     )

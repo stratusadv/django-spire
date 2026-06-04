@@ -1,6 +1,6 @@
 {# Renaming this file means a production admin action must be created to update notification objects with template `notification_item.html`. #}
 
-{% extends 'django_spire/item/../../../../../../../core/templates/django_spire/infinite_scroll/infinite_scroll_item.html' %}
+{% extends 'django_spire/contrib/item/../../../../../../../core/templates/django_spire/infinite_scroll/infinite_scroll_item.html' %}
 
 {% block item_class %}lh-sm py-{% if is_dropdown_item %}1{% else %}2{% endif %}{% endblock %}
 
@@ -26,7 +26,7 @@
         </div>
         {% if not is_dropdown_item %}
         <div  class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Priority' %}
+            {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Priority' %}
             {% include 'django_spire/notification/app/badge/priority_badge.html' %}
         </div>
         {% endif %}

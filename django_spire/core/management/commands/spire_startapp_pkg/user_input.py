@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING, Tuple
 
 from django.core.management.base import CommandError
 
-from django_spire.core.management.commands.spire_startapp_pkg.exceptions import \
-    AppExistsError
+from django_spire.core.management.commands.spire_startapp_pkg.exceptions import AppExistsError
 
 if TYPE_CHECKING:
     from django_spire.core.management.commands.spire_startapp_pkg.reporter import Reporter
@@ -54,7 +53,9 @@ class UserInputCollector:
         app_label = self._collect_app_label(components, app_name)
         model_name = self._collect_model_name(app_name)
         model_name_plural = self._collect_model_name_plural(model_name)
-        db_table_name = self._collect_db_table_name(components, app_name)  # Changed from app_label to components, app_name
+        db_table_name = self._collect_db_table_name(
+            components, app_name
+        )  # Changed from app_label to components, app_name
         model_permission_path = self._collect_model_permission_path(app_path, model_name)
 
         if not self.skip_app_creation:
@@ -64,7 +65,9 @@ class UserInputCollector:
 
         template_options = self._collect_template_generation_options(components)
 
-        verbose_name, verbose_name_plural = self._derive_verbose_names(model_name, model_name_plural)
+        verbose_name, verbose_name_plural = self._derive_verbose_names(
+            model_name, model_name_plural
+        )
 
         return {
             'app_path': app_path,
@@ -78,7 +81,7 @@ class UserInputCollector:
             'verbose_name': verbose_name,
             'verbose_name_plural': verbose_name_plural,
             **permission_data,
-            **template_options
+            **template_options,
         }
 
     def _collect_app_label(self, components: list[str], app_name: str) -> str:
@@ -92,7 +95,11 @@ class UserInputCollector:
 
         immediate_parent = components[-2] if len(components) > 2 else None
 
-        default = immediate_parent.lower() + '_' + app_name.lower() if immediate_parent else app_name.lower()
+        default = (
+            immediate_parent.lower() + '_' + app_name.lower()
+            if immediate_parent
+            else app_name.lower()
+        )
         if self.skip_app_creation:
             return default
         else:
@@ -120,7 +127,9 @@ class UserInputCollector:
         :raises CommandError: If the app path is empty or invalid.
         """
 
-        app_path = self._collect_simple_input('Enter the app path (e.g., "app.human_resource.employee.skill")', '1/8')
+        app_path = self._collect_simple_input(
+            'Enter the app path (e.g., "app.human_resource.employee.skill")', '1/8'
+        )
 
         if not app_path:
             self.reporter.write('\n', self.reporter.style_notice)
@@ -148,7 +157,11 @@ class UserInputCollector:
         """
 
         parent_parts = components[1:-1] if len(components) > 1 else []
-        default = '_'.join(parent_parts).lower() + '_' + app_name.lower() if parent_parts else app_name.lower()
+        default = (
+            '_'.join(parent_parts).lower() + '_' + app_name.lower()
+            if parent_parts
+            else app_name.lower()
+        )
         if self.skip_app_creation:
             return default
         else:
@@ -164,7 +177,9 @@ class UserInputCollector:
         :return: User-provided input or default value.
         """
 
-        self.reporter.write(f'\n[{step_number}]: {prompt} (default: "{default}")', self.reporter.style_notice)
+        self.reporter.write(
+            f'\n[{step_number}]: {prompt} (default: "{default}")', self.reporter.style_notice
+        )
         user_input = input('Press Enter to use default or type a custom value: ').strip()
         return user_input if user_input else default
 
@@ -209,8 +224,7 @@ class UserInputCollector:
         if self.skip_app_creation:
             return default
         else:
-            return self._collect_input('Enter the model permission path', default,
-                                       '7/8')
+            return self._collect_input('Enter the model permission path', default, '7/8')
 
     def _collect_permission_inheritance(self, components: list[str]) -> dict[str, str]:
         """
@@ -224,33 +238,39 @@ class UserInputCollector:
         """
 
         if len(components) <= 1:
-            return {'inherit_permissions': False, 'parent_permission_prefix': '', 'parent_model_instance_name': ''}
+            return {
+                'inherit_permissions': False,
+                'parent_permission_prefix': '',
+                'parent_model_instance_name': '',
+            }
 
         if not self._should_inherit_permissions():
-            return {'inherit_permissions': False, 'parent_permission_prefix': '', 'parent_model_instance_name': ''}
+            return {
+                'inherit_permissions': False,
+                'parent_permission_prefix': '',
+                'parent_model_instance_name': '',
+            }
 
         parent_parts = components[1:-1]
         parent_name = components[-2]
         parent_model_class = ''.join(word.title() for word in parent_name.split('_'))
 
-        self.reporter.write('\n[Permission Inheritance Configuration]\n', self.reporter.style_notice)
+        self.reporter.write(
+            '\n[Permission Inheritance Configuration]\n', self.reporter.style_notice
+        )
 
         return {
             'inherit_permissions': True,
             'parent_permission_prefix': self._collect_input(
-                'Enter the parent permission prefix',
-                '_'.join(parent_parts).lower(),
-                '1/3'
+                'Enter the parent permission prefix', '_'.join(parent_parts).lower(), '1/3'
             ),
             'parent_model_instance_name': self._collect_input(
-                'Enter the parent model instance name',
-                parent_name.lower(),
-                '2/3'
+                'Enter the parent model instance name', parent_name.lower(), '2/3'
             ),
             'parent_model_path': self._collect_input(
                 'Enter the parent model path',
                 '.'.join(components[:-1]) + f'.models.{parent_model_class}',
-                '3/3'
+                '3/3',
             ),
         }
 
@@ -287,7 +307,10 @@ class UserInputCollector:
         :return: True if user wants to inherit permissions, False otherwise.
         """
 
-        self.reporter.write('\n[8/8]: Do you want this app to inherit permissions from its parent? (y/n)', self.reporter.style_notice)
+        self.reporter.write(
+            '\n[8/8]: Do you want this app to inherit permissions from its parent? (y/n)',
+            self.reporter.style_notice,
+        )
         user_input = input('Default is "n": ').strip().lower()
         return user_input == 'y'
 
@@ -300,17 +323,14 @@ class UserInputCollector:
             user_input['skip_template_generation'] = True
             return user_input
 
-        self.reporter.write('\n[Template Creation Wizard]\n\n',
-                            self.reporter.style_success)
+        self.reporter.write('\n[Template Creation Wizard]\n\n', self.reporter.style_success)
 
-        user_input[
-            'skip_template_generation'] = self._collect_skip_template_generation()
+        user_input['skip_template_generation'] = self._collect_skip_template_generation()
 
         if not user_input['skip_template_generation']:
             user_input['list_display_type'] = self._collect_input(
-                'How do you want to display items on the list page? (items/table)',
-                'items',
-                '2/2')
+                'How do you want to display items on the list page? (items/table)', 'items', '2/2'
+            )
 
         return user_input
 
@@ -322,7 +342,7 @@ class UserInputCollector:
         """
 
         user_input = self._collect_input(
-            'Do you want to generate templates for this app? (y/n)', 'n',
-            '1/2')
+            'Do you want to generate templates for this app? (y/n)', 'n', '1/2'
+        )
 
         return user_input == 'n'

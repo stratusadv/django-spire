@@ -10,11 +10,7 @@ if TYPE_CHECKING:
 
 class SyncableModelService:
     @staticmethod
-    def set_many_to_many(
-        instance: SyncableMixin,
-        field_name: str,
-        values: list[Any],
-    ) -> None:
+    def set_many_to_many(instance: SyncableMixin, field_name: str, values: list[Any]) -> None:
         if instance._state.adding:
             message = (
                 f'Cannot set M2M field {field_name!r} before the '

@@ -30,7 +30,5 @@ def mfa_form_view(request):
     }
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='django_spire/auth/mfa/mfa_form.html'
+        request, context=context_data, template='django_spire/auth/mfa/mfa_form.html'
     )

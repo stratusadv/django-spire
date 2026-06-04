@@ -38,7 +38,9 @@ class InfiniteScrollingCardPage(BasePage):
 
     def scroll_container_to_bottom(self, index: int) -> None:
         container = self.scroll_containers.nth(index)
-        container.locator('[x-ref="scroll_container"]').evaluate('el => el.scrollTop = el.scrollHeight')
+        container.locator('[x-ref="scroll_container"]').evaluate(
+            'el => el.scrollTop = el.scrollHeight'
+        )
 
     def wait_for_containers_to_load(self) -> None:
         self.scroll_containers.first.wait_for()

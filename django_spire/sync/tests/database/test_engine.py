@@ -11,35 +11,21 @@ from django_spire.sync.core.exceptions import (
     SyncAbortedError,
     TransportRequiredError,
 )
-from django_spire.sync.database.conflict import (
-    RecordConflict,
-    RecordResolution,
-    RemoteWins,
-)
+from django_spire.sync.database.conflict import RecordConflict, RecordResolution, RemoteWins
 from django_spire.sync.database.engine import DatabaseEngine
 from django_spire.sync.database.graph import DependencyGraph
-from django_spire.sync.database.manifest import (
-    ModelPayload,
-    SyncManifest,
-)
+from django_spire.sync.database.manifest import ModelPayload, SyncManifest
 from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.database.storage import CheckpointPosition
 
-from django_spire.sync.tests.database.helpers import (
-    FakeTransport,
-    InMemoryDatabaseStorage,
-    MODEL,
-)
+from django_spire.sync.tests.database.helpers import FakeTransport, InMemoryDatabaseStorage, MODEL
 from django_spire.sync.tests.factories import make_manifest, make_record
 
 
 class _MutatingTransport:
     def __init__(
-        self,
-        response: SyncManifest,
-        storage: InMemoryDatabaseStorage,
-        mutation: Any,
+        self, response: SyncManifest, storage: InMemoryDatabaseStorage, mutation: Any
     ) -> None:
         self._response = response
         self._storage = storage
@@ -66,10 +52,7 @@ def _make_engine(
     models = storage.get_syncable_models()
     graph = DependencyGraph({m: set() for m in models})
 
-    peer_node_id = kwargs.pop(
-        'peer_node_id',
-        'server' if transport is not None else None,
-    )
+    peer_node_id = kwargs.pop('peer_node_id', 'server' if transport is not None else None)
 
     return DatabaseEngine(
         storage=storage,
@@ -83,9 +66,7 @@ def _make_engine(
     )
 
 
-def test_process_creates_new_record(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_creates_new_record(storage: InMemoryDatabaseStorage) -> None:
     engine = _make_engine(storage, node_id='server')
 
     incoming = make_manifest(
@@ -93,10 +74,8 @@ def test_process_creates_new_record(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'Alice'}, {'name': 200}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'Alice'}, {'name': 200})},
+            )
         ],
     )
 
@@ -107,9 +86,7 @@ def test_process_creates_new_record(
     assert storage._records[MODEL]['1'].data['name'] == 'Alice'
 
 
-def test_process_applies_when_local_unchanged(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_applies_when_local_unchanged(storage: InMemoryDatabaseStorage) -> None:
     storage.seed(MODEL, '1', {'id': '1', 'name': 'old'}, {'name': 50})
 
     engine = _make_engine(storage, node_id='server')
@@ -120,10 +97,8 @@ def test_process_applies_when_local_unchanged(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'new'}, {'name': 200}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'new'}, {'name': 200})},
+            )
         ],
     )
 
@@ -133,9 +108,7 @@ def test_process_applies_when_local_unchanged(
     assert storage._records[MODEL]['1'].data['name'] == 'new'
 
 
-def test_process_detects_conflict_when_local_changed(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_detects_conflict_when_local_changed(storage: InMemoryDatabaseStorage) -> None:
     storage.seed(MODEL, '1', {'id': '1', 'name': 'local'}, {'name': 150})
 
     engine = _make_engine(storage, node_id='server')
@@ -146,10 +119,8 @@ def test_process_detects_conflict_when_local_changed(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200})},
+            )
         ],
     )
 
@@ -158,14 +129,8 @@ def test_process_detects_conflict_when_local_changed(
     assert '1' in result.conflicts.get(MODEL, [])
 
 
-def test_process_compatible_merge_not_in_conflicts(
-    storage: InMemoryDatabaseStorage,
-) -> None:
-    storage.seed(
-        MODEL, '1',
-        {'id': '1', 'name': 'same', 'value': 20},
-        {'name': 150, 'value': 50},
-    )
+def test_process_compatible_merge_not_in_conflicts(storage: InMemoryDatabaseStorage) -> None:
+    storage.seed(MODEL, '1', {'id': '1', 'name': 'same', 'value': 20}, {'name': 150, 'value': 50})
 
     engine = _make_engine(storage, node_id='server')
 
@@ -177,12 +142,10 @@ def test_process_compatible_merge_not_in_conflicts(
                 model_label=MODEL,
                 records={
                     '1': make_record(
-                        '1',
-                        {'id': '1', 'name': 'same', 'value': 20},
-                        {'name': 50, 'value': 200},
-                    ),
+                        '1', {'id': '1', 'name': 'same', 'value': 20}, {'name': 50, 'value': 200}
+                    )
                 },
-            ),
+            )
         ],
     )
 
@@ -192,15 +155,11 @@ def test_process_compatible_merge_not_in_conflicts(
     assert '1' in result.compatible.get(MODEL, [])
 
 
-def test_process_conflict_uses_resolver(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_conflict_uses_resolver(storage: InMemoryDatabaseStorage) -> None:
     storage.seed(MODEL, '1', {'id': '1', 'name': 'local'}, {'name': 150})
 
     engine = _make_engine(
-        storage,
-        node_id='server',
-        reconciler=PayloadReconciler(resolver=RemoteWins()),
+        storage, node_id='server', reconciler=PayloadReconciler(resolver=RemoteWins())
     )
 
     incoming = make_manifest(
@@ -209,10 +168,8 @@ def test_process_conflict_uses_resolver(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200})},
+            )
         ],
     )
 
@@ -220,9 +177,7 @@ def test_process_conflict_uses_resolver(
     assert storage._records[MODEL]['1'].data['name'] == 'remote'
 
 
-def test_process_deletes_unchanged_record(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_deletes_unchanged_record(storage: InMemoryDatabaseStorage) -> None:
     storage.seed(MODEL, '1', {'id': '1', 'name': 'Alice'}, {'name': 50})
 
     engine = _make_engine(storage, node_id='server')
@@ -230,9 +185,7 @@ def test_process_deletes_unchanged_record(
     incoming = make_manifest(
         node_id='tablet',
         local_sequence=100,
-        payloads=[
-            ModelPayload(model_label=MODEL, deletes={'1': 100}),
-        ],
+        payloads=[ModelPayload(model_label=MODEL, deletes={'1': 100})],
     )
 
     _response, result = engine.process(incoming)
@@ -241,9 +194,7 @@ def test_process_deletes_unchanged_record(
     assert '1' not in storage._records[MODEL]
 
 
-def test_process_delete_conflict_local_changed(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_delete_conflict_local_changed(storage: InMemoryDatabaseStorage) -> None:
     storage.seed(MODEL, '1', {'id': '1', 'name': 'modified'}, {'name': 150})
 
     engine = _make_engine(storage, node_id='server')
@@ -251,9 +202,7 @@ def test_process_delete_conflict_local_changed(
     incoming = make_manifest(
         node_id='tablet',
         local_sequence=100,
-        payloads=[
-            ModelPayload(model_label=MODEL, deletes={'1': 100}),
-        ],
+        payloads=[ModelPayload(model_label=MODEL, deletes={'1': 100})],
     )
 
     _response, result = engine.process(incoming)
@@ -262,16 +211,11 @@ def test_process_delete_conflict_local_changed(
     assert '1' in result.conflicts.get(MODEL, [])
 
 
-def test_process_delete_nonexistent_is_noop(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_delete_nonexistent_is_noop(storage: InMemoryDatabaseStorage) -> None:
     engine = _make_engine(storage, node_id='server')
 
     incoming = make_manifest(
-        node_id='tablet',
-        payloads=[
-            ModelPayload(model_label=MODEL, deletes={'999': 999}),
-        ],
+        node_id='tablet', payloads=[ModelPayload(model_label=MODEL, deletes={'999': 999})]
     )
 
     _response, result = engine.process(incoming)
@@ -289,11 +233,9 @@ def test_manifest_rejects_key_in_both_records_and_deletes() -> None:
         'payloads': [
             {
                 'model_label': MODEL,
-                'records': {
-                    '1': {'data': {'id': '1'}, 'timestamps': {'x': 1}},
-                },
+                'records': {'1': {'data': {'id': '1'}, 'timestamps': {'x': 1}}},
                 'deletes': {'1': 200},
-            },
+            }
         ],
     }
 
@@ -301,9 +243,7 @@ def test_manifest_rejects_key_in_both_records_and_deletes() -> None:
         SyncManifest.from_dict(data)
 
 
-def test_process_includes_local_only_changes(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_includes_local_only_changes(storage: InMemoryDatabaseStorage) -> None:
     storage.seed(MODEL, '99', {'id': '99', 'name': 'local-only'}, {'name': 150})
 
     engine = _make_engine(storage, node_id='server')
@@ -314,10 +254,8 @@ def test_process_includes_local_only_changes(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200})},
+            )
         ],
     )
 
@@ -332,18 +270,12 @@ def test_process_includes_local_only_changes(
     assert '99' in response_keys
 
 
-def test_process_includes_unreferenced_models(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_includes_unreferenced_models(storage: InMemoryDatabaseStorage) -> None:
     _ = storage
 
     other_model = 'app.OtherModel'
     multi_storage = InMemoryDatabaseStorage([MODEL, other_model])
-    multi_storage.seed(
-        other_model, '50',
-        {'id': '50', 'name': 'other'},
-        {'name': 150},
-    )
+    multi_storage.seed(other_model, '50', {'id': '50', 'name': 'other'}, {'name': 150})
 
     engine = _make_engine(multi_storage, node_id='server')
 
@@ -353,10 +285,8 @@ def test_process_includes_unreferenced_models(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'Alice'}, {'name': 200}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'Alice'}, {'name': 200})},
+            )
         ],
     )
 
@@ -367,9 +297,7 @@ def test_process_includes_unreferenced_models(
     assert other_model in response_labels
 
 
-def test_process_returns_local_sequence(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_returns_local_sequence(storage: InMemoryDatabaseStorage) -> None:
     engine = _make_engine(storage, node_id='server')
 
     incoming = make_manifest(node_id='tablet')
@@ -379,9 +307,7 @@ def test_process_returns_local_sequence(
     assert response.local_sequence >= 0
 
 
-def test_process_resolver_error_recorded(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_resolver_error_recorded(storage: InMemoryDatabaseStorage) -> None:
     storage.seed(MODEL, '1', {'id': '1', 'name': 'local'}, {'name': 150})
 
     class ExplodingResolver:
@@ -392,9 +318,7 @@ def test_process_resolver_error_recorded(
             raise RuntimeError(message)
 
     engine = _make_engine(
-        storage,
-        node_id='server',
-        reconciler=PayloadReconciler(resolver=ExplodingResolver()),
+        storage, node_id='server', reconciler=PayloadReconciler(resolver=ExplodingResolver())
     )
 
     incoming = make_manifest(
@@ -403,10 +327,8 @@ def test_process_resolver_error_recorded(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'remote'}, {'name': 200})},
+            )
         ],
     )
 
@@ -416,17 +338,11 @@ def test_process_resolver_error_recorded(
     assert any(e.key == '1' for e in result.errors)
 
 
-def test_process_rejects_missing_checksum(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_rejects_missing_checksum(storage: InMemoryDatabaseStorage) -> None:
     engine = _make_engine(storage, node_id='server')
 
     incoming = SyncManifest(
-        node_id='tablet',
-        peer_sequence=0,
-        local_sequence=0,
-        node_time=0,
-        payloads=[],
+        node_id='tablet', peer_sequence=0, local_sequence=0, node_time=0, payloads=[]
     )
 
     with pytest.raises(SyncAbortedError, match='checksum'):
@@ -434,10 +350,7 @@ def test_process_rejects_missing_checksum(
 
 
 @patch('django_spire.sync.database.engine.time')
-def test_process_clock_drift_aborts(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_clock_drift_aborts(mock_time: Any, storage: InMemoryDatabaseStorage) -> None:
     mock_time.time.return_value = 1000
 
     engine = _make_engine(storage, node_id='server', clock_drift_max=60)
@@ -449,10 +362,7 @@ def test_process_clock_drift_aborts(
 
 
 @patch('django_spire.sync.database.engine.time')
-def test_process_clock_drift_disabled(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_process_clock_drift_disabled(mock_time: Any, storage: InMemoryDatabaseStorage) -> None:
     mock_time.time.return_value = 1000
 
     engine = _make_engine(storage, node_id='server', clock_drift_max=None)
@@ -466,9 +376,7 @@ def test_process_clock_drift_disabled(
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_pushes_local_changes(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-    empty_response: SyncManifest,
+    mock_time: Any, storage: InMemoryDatabaseStorage, empty_response: SyncManifest
 ) -> None:
     mock_time.time.return_value = 500
 
@@ -491,10 +399,7 @@ def test_sync_pushes_local_changes(
 
 
 @patch('django_spire.sync.database.engine.time')
-def test_sync_applies_remote_response(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_sync_applies_remote_response(mock_time: Any, storage: InMemoryDatabaseStorage) -> None:
     mock_time.time.return_value = 500
 
     response = make_manifest(
@@ -505,9 +410,9 @@ def test_sync_applies_remote_response(
             ModelPayload(
                 model_label=MODEL,
                 records={
-                    '99': make_record('99', {'id': '99', 'name': 'from-server'}, {'name': 400}),
+                    '99': make_record('99', {'id': '99', 'name': 'from-server'}, {'name': 400})
                 },
-            ),
+            )
         ],
     )
 
@@ -523,15 +428,12 @@ def test_sync_applies_remote_response(
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_applies_conflict_resolved_response(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
+    mock_time: Any, storage: InMemoryDatabaseStorage
 ) -> None:
     mock_time.time.return_value = 500
 
     storage.seed(
-        MODEL, '1',
-        {'id': '1', 'name': 'client-name', 'value': 10},
-        {'name': 200, 'value': 100},
+        MODEL, '1', {'id': '1', 'name': 'client-name', 'value': 10}, {'name': 200, 'value': 100}
     )
 
     response = make_manifest(
@@ -546,9 +448,9 @@ def test_sync_applies_conflict_resolved_response(
                         '1',
                         {'id': '1', 'name': 'client-name', 'value': 99},
                         {'name': 200, 'value': 150},
-                    ),
+                    )
                 },
-            ),
+            )
         ],
     )
 
@@ -562,17 +464,10 @@ def test_sync_applies_conflict_resolved_response(
 
 
 @patch('django_spire.sync.database.engine.time')
-def test_sync_skips_stale_response_record(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_sync_skips_stale_response_record(mock_time: Any, storage: InMemoryDatabaseStorage) -> None:
     mock_time.time.return_value = 500
 
-    storage.seed(
-        MODEL, '1',
-        {'id': '1', 'name': 'current'},
-        {'name': 300},
-    )
+    storage.seed(MODEL, '1', {'id': '1', 'name': 'current'}, {'name': 300})
 
     response = make_manifest(
         node_id='server',
@@ -581,14 +476,8 @@ def test_sync_skips_stale_response_record(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record(
-                        '1',
-                        {'id': '1', 'name': 'stale'},
-                        {'name': 100},
-                    ),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'stale'}, {'name': 100})},
+            )
         ],
     )
 
@@ -602,10 +491,7 @@ def test_sync_skips_stale_response_record(
 
 
 @patch('django_spire.sync.database.engine.time')
-def test_sync_tracks_response_deletes(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_sync_tracks_response_deletes(mock_time: Any, storage: InMemoryDatabaseStorage) -> None:
     mock_time.time.return_value = 500
 
     storage.seed(MODEL, '1', {'id': '1', 'name': 'doomed'}, {'name': 100})
@@ -614,9 +500,7 @@ def test_sync_tracks_response_deletes(
         node_id='server',
         local_sequence=500,
         node_time=500,
-        payloads=[
-            ModelPayload(model_label=MODEL, deletes={'1': 400}),
-        ],
+        payloads=[ModelPayload(model_label=MODEL, deletes={'1': 400})],
     )
 
     transport = FakeTransport(response)
@@ -630,24 +514,17 @@ def test_sync_tracks_response_deletes(
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_response_delete_skipped_when_local_modified(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
+    mock_time: Any, storage: InMemoryDatabaseStorage
 ) -> None:
     mock_time.time.return_value = 500
 
-    storage.seed(
-        MODEL, '1',
-        {'id': '1', 'name': 'still-here'},
-        {'name': 500},
-    )
+    storage.seed(MODEL, '1', {'id': '1', 'name': 'still-here'}, {'name': 500})
 
     response = make_manifest(
         node_id='server',
         local_sequence=500,
         node_time=500,
-        payloads=[
-            ModelPayload(model_label=MODEL, deletes={'1': 300}),
-        ],
+        payloads=[ModelPayload(model_label=MODEL, deletes={'1': 300})],
     )
 
     transport = FakeTransport(response)
@@ -660,10 +537,7 @@ def test_sync_response_delete_skipped_when_local_modified(
 
 
 @patch('django_spire.sync.database.engine.time')
-def test_sync_dry_run_does_not_mutate(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_sync_dry_run_does_not_mutate(mock_time: Any, storage: InMemoryDatabaseStorage) -> None:
     mock_time.time.return_value = 500
 
     response = make_manifest(
@@ -674,9 +548,9 @@ def test_sync_dry_run_does_not_mutate(
             ModelPayload(
                 model_label=MODEL,
                 records={
-                    '99': make_record('99', {'id': '99', 'name': 'from-server'}, {'name': 400}),
+                    '99': make_record('99', {'id': '99', 'name': 'from-server'}, {'name': 400})
                 },
-            ),
+            )
         ],
     )
 
@@ -688,9 +562,7 @@ def test_sync_dry_run_does_not_mutate(
     assert '99' not in storage._records[MODEL]
 
 
-def test_sync_no_transport_raises(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_sync_no_transport_raises(storage: InMemoryDatabaseStorage) -> None:
     engine = _make_engine(storage, transport=None)
 
     with pytest.raises(TransportRequiredError, match='Transport is required'):
@@ -699,9 +571,7 @@ def test_sync_no_transport_raises(
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_saves_checkpoint(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-    empty_response: SyncManifest,
+    mock_time: Any, storage: InMemoryDatabaseStorage, empty_response: SyncManifest
 ) -> None:
     mock_time.time.return_value = 500
 
@@ -717,9 +587,7 @@ def test_sync_saves_checkpoint(
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_dry_run_does_not_save_checkpoint(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-    empty_response: SyncManifest,
+    mock_time: Any, storage: InMemoryDatabaseStorage, empty_response: SyncManifest
 ) -> None:
     mock_time.time.return_value = 500
 
@@ -729,27 +597,20 @@ def test_sync_dry_run_does_not_save_checkpoint(
     engine.sync(dry_run=True)
 
     assert storage.get_checkpoint('server') == CheckpointPosition(
-        peer_sequence=0,
-        local_sequence_pushed=0,
+        peer_sequence=0, local_sequence_pushed=0
     )
 
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_on_complete_callback(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-    empty_response: SyncManifest,
+    mock_time: Any, storage: InMemoryDatabaseStorage, empty_response: SyncManifest
 ) -> None:
     mock_time.time.return_value = 500
 
     captured: list[Any] = []
 
     transport = FakeTransport(empty_response)
-    engine = _make_engine(
-        storage,
-        transport=transport,
-        on_complete=captured.append,
-    )
+    engine = _make_engine(storage, transport=transport, on_complete=captured.append)
 
     engine.sync()
 
@@ -757,10 +618,7 @@ def test_sync_on_complete_callback(
 
 
 @patch('django_spire.sync.database.engine.time')
-def test_sync_response_clock_drift_aborts(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_sync_response_clock_drift_aborts(mock_time: Any, storage: InMemoryDatabaseStorage) -> None:
     mock_time.time.return_value = 1000
 
     response = make_manifest(node_id='server', node_time=9999)
@@ -774,16 +632,11 @@ def test_sync_response_clock_drift_aborts(
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_response_clock_drift_does_not_save_checkpoint(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
+    mock_time: Any, storage: InMemoryDatabaseStorage
 ) -> None:
     mock_time.time.return_value = 1000
 
-    response = make_manifest(
-        node_id='server',
-        local_sequence=9999,
-        node_time=9999,
-    )
+    response = make_manifest(node_id='server', local_sequence=9999, node_time=9999)
     transport = FakeTransport(response)
 
     engine = _make_engine(storage, transport=transport, clock_drift_max=60)
@@ -792,15 +645,13 @@ def test_sync_response_clock_drift_does_not_save_checkpoint(
         engine.sync()
 
     assert storage.get_checkpoint('server') == CheckpointPosition(
-        peer_sequence=0,
-        local_sequence_pushed=0,
+        peer_sequence=0, local_sequence_pushed=0
     )
 
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_advances_clock_past_response_timestamps(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
+    mock_time: Any, storage: InMemoryDatabaseStorage
 ) -> None:
     mock_time.time.return_value = 500
 
@@ -816,10 +667,8 @@ def test_sync_advances_clock_past_response_timestamps(
         payloads=[
             ModelPayload(
                 model_label=MODEL,
-                records={
-                    '1': make_record('1', {'id': '1', 'name': 'x'}, {'name': high_ts}),
-                },
-            ),
+                records={'1': make_record('1', {'id': '1', 'name': 'x'}, {'name': high_ts})},
+            )
         ],
     )
 
@@ -835,20 +684,14 @@ def test_sync_advances_clock_past_response_timestamps(
 
 @patch('django_spire.sync.database.engine.time')
 def test_sync_local_write_after_response_is_not_stranded(
-    mock_time: Any,
-    storage: InMemoryDatabaseStorage,
+    mock_time: Any, storage: InMemoryDatabaseStorage
 ) -> None:
     mock_time.time.return_value = 500
 
     clock = HybridLogicalClock()
     clock._physical = lambda: 1_000
 
-    response = make_manifest(
-        node_id='server',
-        local_sequence=100,
-        node_time=500,
-        payloads=[],
-    )
+    response = make_manifest(node_id='server', local_sequence=100, node_time=500, payloads=[])
 
     transport = FakeTransport(response)
     engine = _make_engine(storage, transport=transport, clock=clock)
@@ -856,11 +699,7 @@ def test_sync_local_write_after_response_is_not_stranded(
     engine.sync()
 
     local_ts = clock.now()
-    storage.seed(
-        MODEL, 'after',
-        {'id': 'after', 'name': 'written-after-sync'},
-        {'name': local_ts},
-    )
+    storage.seed(MODEL, 'after', {'id': 'after', 'name': 'written-after-sync'}, {'name': local_ts})
 
     local_pushed = storage.get_checkpoint('server').local_sequence_pushed
     after_record = storage._records[MODEL]['after']
@@ -872,19 +711,14 @@ def test_sync_local_write_after_response_is_not_stranded(
     assert 'after' in changes
 
 
-def test_apply_response_orders_by_sync_dependency(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_apply_response_orders_by_sync_dependency(storage: InMemoryDatabaseStorage) -> None:
     _ = storage
 
     parent_label = 'app.Parent'
     child_label = 'app.Child'
 
     multi_storage = InMemoryDatabaseStorage([parent_label, child_label])
-    graph = DependencyGraph({
-        parent_label: set(),
-        child_label: {parent_label},
-    })
+    graph = DependencyGraph({parent_label: set(), child_label: {parent_label}})
 
     engine = DatabaseEngine(
         storage=multi_storage,
@@ -901,16 +735,10 @@ def test_apply_response_orders_by_sync_dependency(
         node_time=0,
         payloads=[
             ModelPayload(
-                model_label=child_label,
-                records={
-                    '1': make_record('1', {'id': '1'}, {'id': 100}),
-                },
+                model_label=child_label, records={'1': make_record('1', {'id': '1'}, {'id': 100})}
             ),
             ModelPayload(
-                model_label=parent_label,
-                records={
-                    'p': make_record('p', {'id': 'p'}, {'id': 100}),
-                },
+                model_label=parent_label, records={'p': make_record('p', {'id': 'p'}, {'id': 100})}
             ),
         ],
     )
@@ -958,15 +786,9 @@ def test_detect_field_conflicts_different_timestamps_same_value() -> None:
     assert conflicts[0].field_name == 'name'
 
 
-def test_upsert_skips_ghost_record(
-    storage: InMemoryDatabaseStorage,
-) -> None:
+def test_upsert_skips_ghost_record(storage: InMemoryDatabaseStorage) -> None:
     records = {
-        'ghost': SyncRecord(
-            key='ghost',
-            data={'id': 'ghost', 'name': 'Ghost'},
-            timestamps={},
-        ),
+        'ghost': SyncRecord(key='ghost', data={'id': 'ghost', 'name': 'Ghost'}, timestamps={})
     }
 
     result = storage.upsert_many(MODEL, records, '')

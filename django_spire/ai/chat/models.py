@@ -21,7 +21,7 @@ class Chat(HistoryModelMixin):
         null=True,
         on_delete=models.SET_NULL,
         related_name='chats',
-        related_query_name='chat'
+        related_query_name='chat',
     )
 
     name = models.CharField(max_length=128)
@@ -43,15 +43,13 @@ class Chat(HistoryModelMixin):
             _intel_data=message_response.message_intel.model_dump(),
             _intel_class_name=get_class_name_from_class(message_response.message_intel.__class__),
             is_processed=True,
-            is_viewed=True
+            is_viewed=True,
         )
         self.last_message_datetime = now()
         self.save()
 
     def generate_message_history(
-            self,
-            message_count: int = 20,
-            exclude_last_message: bool = True
+        self, message_count: int = 20, exclude_last_message: bool = True
     ) -> MessageHistory:
         message_history = MessageHistory()
 
@@ -63,10 +61,7 @@ class Chat(HistoryModelMixin):
         messages = list(reversed(messages))
 
         for message in messages:
-            message_history.add_message(
-                role=message.role,
-                text=message.intel.render_to_str()
-            )
+            message_history.add_message(role=message.role, text=message.intel.render_to_str())
 
         return message_history
 
@@ -90,10 +85,7 @@ class Chat(HistoryModelMixin):
 
 class ChatMessage(HistoryModelMixin):
     chat = models.ForeignKey(
-        Chat,
-        on_delete=models.CASCADE,
-        related_name='messages',
-        related_query_name='message'
+        Chat, on_delete=models.CASCADE, related_name='messages', related_query_name='message'
     )
 
     response_type = models.CharField(max_length=32, choices=MessageResponseType)
@@ -121,9 +113,7 @@ class ChatMessage(HistoryModelMixin):
 
         except (ImportError, ValidationError):
             intel_class: type[BaseMessageIntel] = DefaultMessageIntel
-            return intel_class.model_validate(
-                {'text': str(self._intel_data)}
-            )
+            return intel_class.model_validate({'text': str(self._intel_data)})
 
     @intel.setter
     def intel(self, message_intel: BaseMessageIntel) -> None:
@@ -145,7 +135,7 @@ class ChatMessage(HistoryModelMixin):
             type=MessageResponseType(self.response_type),
             sender=self.sender,
             message_intel=self.intel,
-            message_timestamp=self.created_datetime.strftime('%b %d, %Y at %I:%M %p')
+            message_timestamp=self.created_datetime.strftime('%b %d, %Y at %I:%M %p'),
         )
 
     class Meta:

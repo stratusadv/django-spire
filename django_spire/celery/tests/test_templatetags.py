@@ -72,7 +72,9 @@ class DjangoSpireCeleryTaskToastWidgetTestCase(TestCase):
         manager = TestCeleryTaskManager()
         django_spire_celery_task_toast_widget([manager])
 
-        mock_get_template.assert_called_once_with('django_spire/celery/toast/task_toast_widget.html')
+        mock_get_template.assert_called_once_with(
+            'django_spire/celery/toast/task_toast_widget.html'
+        )
 
     @patch('django_spire.celery.templatetags.django_spire_celery.get_template')
     def test_tag_passes_key_pairs_to_context(self, mock_get_template) -> None:
@@ -157,8 +159,7 @@ class DjangoSpireCeleryTaskItemBlockTestCase(TestCase):
 class DjangoSpireCeleryTemplateTagIntegrationTestCase(TestCase):
     def test_toast_widget_tag_in_template(self) -> None:
         template = Template(
-            '{% load django_spire_celery %}'
-            '{% django_spire_celery_task_toast_widget managers %}'
+            '{% load django_spire_celery %}{% django_spire_celery_task_toast_widget managers %}'
         )
         manager = TestCeleryTaskManager()
         context = Context({'managers': [manager]})
@@ -169,8 +170,7 @@ class DjangoSpireCeleryTemplateTagIntegrationTestCase(TestCase):
 
     def test_item_block_tag_in_template(self) -> None:
         template = Template(
-            '{% load django_spire_celery %}'
-            '{% django_spire_celery_task_item_block managers %}'
+            '{% load django_spire_celery %}{% django_spire_celery_task_item_block managers %}'
         )
         manager = TestCeleryTaskManager()
         context = Context({'managers': [manager]})

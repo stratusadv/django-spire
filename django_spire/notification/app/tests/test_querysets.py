@@ -19,11 +19,7 @@ class AppNotificationQuerySetTests(BaseTestCase):
 
     def _create_viewed_for_notification(self, app_notification: AppNotification, user):
         content_type = ContentType.objects.get_for_model(AppNotification)
-        Viewed.objects.create(
-            user=user,
-            object_id=app_notification.id,
-            content_type=content_type
-        )
+        Viewed.objects.create(user=user, object_id=app_notification.id, content_type=content_type)
 
     def test_by_user(self):
         other_user = create_user(username='other_user')
@@ -43,8 +39,7 @@ class AppNotificationQuerySetTests(BaseTestCase):
 
     def test_is_sent(self):
         pending_notification = create_test_app_notification(
-            user=self.user,
-            status=NotificationStatusChoices.PENDING
+            user=self.user, status=NotificationStatusChoices.PENDING
         )
 
         result = AppNotification.objects.is_sent()
@@ -70,20 +65,16 @@ class AppNotificationQuerySetTests(BaseTestCase):
     def test_ordered_by_priority_and_sent_datetime(self):
         same_time = now()
         high_priority = create_test_app_notification(
-            user=self.user,
-            priority='high',
-            sent_datetime=same_time
+            user=self.user, priority='high', sent_datetime=same_time
         )
         low_priority = create_test_app_notification(
-            user=self.user,
-            priority='low',
-            sent_datetime=same_time
+            user=self.user, priority='low', sent_datetime=same_time
         )
 
         result = list(
-            AppNotification.objects
-            .filter(pk__in=[high_priority.pk, low_priority.pk])
-            .ordered_by_priority_and_sent_datetime()
+            AppNotification.objects.filter(
+                pk__in=[high_priority.pk, low_priority.pk]
+            ).ordered_by_priority_and_sent_datetime()
         )
 
         assert result[0].pk == high_priority.pk

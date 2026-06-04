@@ -40,13 +40,13 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
         days = hours // 24
 
         if days > 0:
-            return f"{int(days)} day{'s' if days != 1 else ''} ago"
+            return f'{int(days)} day{"s" if days != 1 else ""} ago'
 
         if hours > 0:
-            return f"{int(hours)} hour{'s' if hours != 1 else ''} ago"
+            return f'{int(hours)} hour{"s" if hours != 1 else ""} ago'
 
         if minutes > 0:
-            return f"{int(minutes)} minute{'s' if minutes != 1 else ''} ago"
+            return f'{int(minutes)} minute{"s" if minutes != 1 else ""} ago'
 
         return 'just now'
 

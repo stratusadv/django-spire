@@ -5,13 +5,15 @@
 {% endblock %}
 
 {% block card_title_content %}
-	<div class="row g-3">
-        <div class="col-12">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=comment_example.name %}
-        </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-12">
+                {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=comment_example.name %}
+            </div>
 
-        <div class="col-12">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=comment_example.description|linebreaksbr %}
+            <div class="col-12">
+                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=comment_example.description|linebreaksbr %}
+            </div>
         </div>
     </div>
 {% endblock %}

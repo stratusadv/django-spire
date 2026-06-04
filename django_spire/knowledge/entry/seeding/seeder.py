@@ -14,10 +14,7 @@ class EntrySeeder(DjangoModelSeeder):
         'id': 'exclude',
         'current_version': 'exclude',
         'collection_id': ('custom', 'fk_random', {'model_class': Collection}),
-        'name': (
-            'llm',
-            'A name for a document. Make it fun and give it a theme'
-        ),
+        'name': ('llm', 'A name for a document. Make it fun and give it a theme'),
     }
 
     @classmethod
@@ -33,15 +30,8 @@ class EntrySeeder(DjangoModelSeeder):
         return entries
 
     @classmethod
-    def seed_database(
-        cls,
-        count: int = 1,
-        fields: dict | None = None
-    ) -> list[models.Entry]:
-        entries = super().seed_database(
-            count=count,
-            fields=fields
-        )
+    def seed_database(cls, count: int = 1, fields: dict | None = None) -> list[models.Entry]:
+        entries = super().seed_database(count=count, fields=fields)
 
         cls._correct_order(entries)
         entries = cls._set_current_version(entries=entries, count=count)

@@ -41,8 +41,7 @@ class FileFactory:
             raise ValueError(message)
 
         self.path_builder = FilePathBuilder(
-            base_folder=settings.BASE_FOLDER_NAME,
-            app_name=self.app_name,
+            base_folder=settings.BASE_FOLDER_NAME, app_name=self.app_name
         )
 
     def create(self, file: InMemoryUploadedFile) -> File:
@@ -105,12 +104,7 @@ class FileFactory:
         size = file.size if file.size is not None else 0
         path = self.path_builder.build(name, extension, self.related_field)
 
-        file_obj = File(
-            name=name,
-            type=extension,
-            size=size,
-            related_field=self.related_field,
-        )
+        file_obj = File(name=name, type=extension, size=size, related_field=self.related_field)
 
         file.seek(0)
         file_obj.file.save(path, file, save=False)

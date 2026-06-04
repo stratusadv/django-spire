@@ -72,11 +72,7 @@ def process_request_body(request: HttpRequest, key: str = 'data') -> Any:
     return json.loads(body_unicode)
 
 
-def model_object_from_app_label(
-    app_label: str,
-    model_name: str,
-    object_pk: int
-) -> Model | None:
+def model_object_from_app_label(app_label: str, model_name: str, object_pk: int) -> Model | None:
     """
     Retrieves a model instance based on the application label, model name, and primary key.
 
@@ -87,10 +83,7 @@ def model_object_from_app_label(
     """
 
     try:
-        content_type = ContentType.objects.get(
-            app_label=app_label,
-            model=model_name
-        )
+        content_type = ContentType.objects.get(app_label=app_label, model=model_name)
     except ContentType.DoesNotExist:
         return None
 

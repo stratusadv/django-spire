@@ -5,10 +5,7 @@ import time
 
 from typing import Callable, TypeVar
 
-from django_spire.sync.core.exceptions import (
-    InvalidParameterError,
-    RetryExhaustedError,
-)
+from django_spire.sync.core.exceptions import InvalidParameterError, RetryExhaustedError
 
 
 T = TypeVar('T')
@@ -54,24 +51,14 @@ def retry(
             if attempt == attempts:
                 break
 
-            wait = min(
-                delay * (backoff ** (attempt - 1)),
-                _DELAY_MAX,
-            )
+            wait = min(delay * (backoff ** (attempt - 1)), _DELAY_MAX)
 
             logger.warning(
-                'Attempt %d/%d failed: %s. Retrying in %.1fs',
-                attempt,
-                attempts,
-                exception,
-                wait,
+                'Attempt %d/%d failed: %s. Retrying in %.1fs', attempt, attempts, exception, wait
             )
 
             time.sleep(wait)
 
-    message = (
-        f'retry exhausted {attempts} attempt(s): '
-        f'{exception_last}'
-    )
+    message = f'retry exhausted {attempts} attempt(s): {exception_last}'
 
     raise RetryExhaustedError(message) from exception_last

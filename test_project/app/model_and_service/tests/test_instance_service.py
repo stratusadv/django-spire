@@ -11,10 +11,7 @@ class TestInstanceService(TestCase):
         self.adult = create_adult()
 
     def test_valid_update_model_fields(self):
-        data = {
-            'first_name': 'John',
-            'last_name': 'Smith'
-        }
+        data = {'first_name': 'John', 'last_name': 'Smith'}
 
         self.adult, created = self.adult.services.save_model_obj(**data)
         assert self.adult.first_name == 'John'
@@ -28,7 +25,7 @@ class TestInstanceService(TestCase):
             'first_name': 'John',
             'last_name': 'Smith',
             'favorite_number': 42,
-            'weight_lbs': 400
+            'weight_lbs': 400,
         }
 
         new_adult, created = new_adult.services.save_model_obj(**data)
@@ -41,9 +38,7 @@ class TestInstanceService(TestCase):
 
     def test_invalid_field_name(self):
         # Skips the field and saves the instance.
-        data = {
-            'invalid_field': 'test'
-        }
+        data = {'invalid_field': 'test'}
         self.adult, created = self.adult.services.save_model_obj(**data)
         assert not created
 
@@ -51,9 +46,7 @@ class TestInstanceService(TestCase):
         new_adult = create_adult()
         new_kid = create_kid()
 
-        data = {
-            'parent_id': new_adult.id,
-        }
+        data = {'parent_id': new_adult.id}
 
         new_kid, created = new_kid.services.save_model_obj(**data)
         assert new_kid.parent_id == new_adult.id
@@ -63,9 +56,7 @@ class TestInstanceService(TestCase):
         new_adult = create_adult()
         new_kid = create_kid()
 
-        data = {
-            'parent': new_adult,
-        }
+        data = {'parent': new_adult}
 
         new_kid, created = new_kid.services.save_model_obj(**data)
         assert new_kid.parent_id == new_adult.id
@@ -75,9 +66,7 @@ class TestInstanceService(TestCase):
         new_adult = create_adult()
         new_kid = create_kid()
 
-        data = {
-            'parent': new_adult,
-        }
+        data = {'parent': new_adult}
 
         new_kid, created = new_kid.services.save_model_obj(**data)
 

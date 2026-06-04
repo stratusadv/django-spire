@@ -17,5 +17,5 @@ def list_items_view(request: WSGIRequest):
         context_data={'pirates': pirate_rest_schemas},
         queryset=pirate_rest_schemas,
         queryset_name='pirates',
-        template='rest/item/items.html'
+        template='rest/item/items.html',
     )

@@ -5,17 +5,11 @@ from django.conf import settings
 
 from twilio.rest import Client
 
-from django_spire.notification.choices import (
-    NotificationTypeChoices,
-    NotificationStatusChoices
-)
+from django_spire.notification.choices import NotificationTypeChoices, NotificationStatusChoices
 from django_spire.notification.exceptions import InvalidNotificationTypeError
 from django_spire.notification.models import Notification
 from django_spire.notification.processors.processor import BaseNotificationProcessor
-from django_spire.notification.sms.exceptions import (
-    TwilioAPIConcurrentError,
-    TwilioError
-)
+from django_spire.notification.sms.exceptions import TwilioAPIConcurrentError, TwilioError
 from django_spire.notification.sms.helper import TwilioSMSHelper, BulkTwilioSMSHelper
 
 
@@ -62,8 +56,7 @@ class SMSNotificationProcessor(BaseNotificationProcessor):
             BulkTwilioSMSHelper(notifications, twilio_sms_client).send_notifications()
         finally:
             Notification.objects.bulk_update(
-                notifications,
-                ['status', 'sent_datetime', 'status_message']
+                notifications, ['status', 'sent_datetime', 'status_message']
             )
 
     def process_ready(self):

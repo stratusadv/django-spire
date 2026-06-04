@@ -17,7 +17,7 @@ def create_adult(**kwargs) -> Adult:
         'birth_date': '1990-01-01',
         'weight_lbs': 175.5,
         'bed_time': '20:00',
-        'likes_to_party': True
+        'likes_to_party': True,
     }
     data.update(kwargs)
     return Adult.objects.create(**data)
@@ -25,10 +25,6 @@ def create_adult(**kwargs) -> Adult:
 
 def create_kid(**kwargs) -> Kid:
     parent = kwargs.pop('parent', create_adult())
-    data = {
-        'parent': parent,
-        'first_name': 'Junior',
-        'last_name': 'Doe'
-    }
+    data = {'parent': parent, 'first_name': 'Junior', 'last_name': 'Doe'}
     data.update(kwargs)
     return Kid.objects.create(**data)

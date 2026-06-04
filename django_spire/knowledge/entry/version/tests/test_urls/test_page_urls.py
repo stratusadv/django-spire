@@ -22,7 +22,7 @@ class EntryVersionPageUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:entry:version:page:editor',
-                kwargs={'pk': self.test_entry_version.pk}
+                kwargs={'pk': self.test_entry_version.pk},
             )
         )
         assert response.status_code == 200
@@ -31,7 +31,8 @@ class EntryVersionPageUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:entry:version:page:editor',
-                kwargs={'pk': self.test_entry_version.pk}
-            ) + '?view_mode=edit'
+                kwargs={'pk': self.test_entry_version.pk},
+            )
+            + '?view_mode=edit'
         )
         assert response.status_code == 200

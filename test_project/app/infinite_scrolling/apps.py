@@ -10,6 +10,6 @@ class InfiniteScrollingConfig(AppConfig):
         {
             'name': 'infinite_scrolling',
             'model_class_path': 'test_project.app.infinite_scrolling.models.InfiniteScrolling',
-            'is_proxy_model': False
+            'is_proxy_model': False,
         },
     )

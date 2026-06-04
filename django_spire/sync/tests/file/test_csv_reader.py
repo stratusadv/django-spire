@@ -65,12 +65,7 @@ def test_record_fields(csv_file: Path) -> None:
 
 def test_field_map(csv_file: Path) -> None:
     reader = CsvReader(
-        field_map={
-            'StockNumber': 'stock_number',
-            'Year': 'year',
-            'Make': 'make',
-            'Price': 'price',
-        },
+        field_map={'StockNumber': 'stock_number', 'Year': 'year', 'Make': 'make', 'Price': 'price'}
     )
 
     records = reader.read(csv_file)
@@ -82,15 +77,8 @@ def test_field_map(csv_file: Path) -> None:
 
 def test_type_map(csv_file: Path) -> None:
     reader = CsvReader(
-        field_map={
-            'StockNumber': 'stock_number',
-            'Year': 'year',
-            'Price': 'price',
-        },
-        type_map={
-            'year': int,
-            'price': float,
-        },
+        field_map={'StockNumber': 'stock_number', 'Year': 'year', 'Price': 'price'},
+        type_map={'year': int, 'price': float},
     )
 
     records = reader.read(csv_file)
@@ -135,9 +123,7 @@ def test_empty_file(tmp_path: Path) -> None:
 
 
 def test_field_map_preserves_unmapped(csv_file: Path) -> None:
-    reader = CsvReader(
-        field_map={'StockNumber': 'stock_number'},
-    )
+    reader = CsvReader(field_map={'StockNumber': 'stock_number'})
 
     records = reader.read(csv_file)
 

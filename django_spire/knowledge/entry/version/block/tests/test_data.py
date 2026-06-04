@@ -40,10 +40,7 @@ class ListEditorBlockDataTests(BaseTestCase):
     def test_render_to_text_unordered(self):
         data = ListEditorBlockData(
             style=ListEditorBlockDataStyle.UNORDERED,
-            items=[
-                {'content': 'Item 1', 'items': []},
-                {'content': 'Item 2', 'items': []},
-            ]
+            items=[{'content': 'Item 1', 'items': []}, {'content': 'Item 2', 'items': []}],
         )
         result = data.render_to_text()
         assert '- Item 1' in result
@@ -56,7 +53,7 @@ class ListEditorBlockDataTests(BaseTestCase):
             items=[
                 {'content': 'First', 'items': [], 'meta': {'start': 1}},
                 {'content': 'Second', 'items': [], 'meta': {'start': 1}},
-            ]
+            ],
         )
         result = data.render_to_text()
         assert '1. First' in result
@@ -67,7 +64,7 @@ class ListEditorBlockDataTests(BaseTestCase):
             items=[
                 {'content': 'Done', 'items': [], 'meta': {'checked': True}},
                 {'content': 'Not done', 'items': [], 'meta': {'checked': False}},
-            ]
+            ],
         )
         result = data.render_to_text()
         assert '[X] Done' in result
@@ -76,14 +73,7 @@ class ListEditorBlockDataTests(BaseTestCase):
     def test_render_to_text_nested(self):
         data = ListEditorBlockData(
             style=ListEditorBlockDataStyle.UNORDERED,
-            items=[
-                {
-                    'content': 'Parent',
-                    'items': [
-                        {'content': 'Child', 'items': []}
-                    ]
-                },
-            ]
+            items=[{'content': 'Parent', 'items': [{'content': 'Child', 'items': []}]}],
         )
         result = data.render_to_text()
         assert 'Parent' in result

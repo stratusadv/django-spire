@@ -8,7 +8,9 @@ from django.views.decorators.http import require_POST
 from twilio.twiml.messaging_response import MessagingResponse
 
 from django_spire.ai.sms.decorators import twilio_auth_required
-from django_spire.ai.sms.intelligence.workflows.sms_conversation_workflow import sms_conversation_workflow
+from django_spire.ai.sms.intelligence.workflows.sms_conversation_workflow import (
+    sms_conversation_workflow,
+)
 from django_spire.ai.sms.models import SmsConversation
 
 if TYPE_CHECKING:
@@ -27,15 +29,9 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
     body = request.POST.get('Body', '')
     message_sid = request.POST.get('MessageSid', '')
 
-    conversation, _ = SmsConversation.objects.get_or_create(
-        phone_number=from_number
-    )
+    conversation, _ = SmsConversation.objects.get_or_create(phone_number=from_number)
 
-    message = conversation.add_message(
-        body=body,
-        is_inbound=True,
-        twilio_sid=message_sid,
-    )
+    message = conversation.add_message(body=body, is_inbound=True, twilio_sid=message_sid)
 
     sms_intel = sms_conversation_workflow(
         request=request,
@@ -48,10 +44,7 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
     twiml_response.message(sms_intel.body)
 
     conversation.add_message(
-        body=sms_intel.body,
-        is_inbound=False,
-        twilio_sid=message_sid,
-        is_processed=True
+        body=sms_intel.body, is_inbound=False, twilio_sid=message_sid, is_processed=True
     )
 
     message.is_processed = True

@@ -45,7 +45,9 @@ class GroupForm(forms.ModelForm):
 
 
 class GroupUserForm(forms.Form):
-    users = forms.ModelMultipleChoiceField(required=False, queryset=User.objects.filter(is_active=True))
+    users = forms.ModelMultipleChoiceField(
+        required=False, queryset=User.objects.filter(is_active=True)
+    )
 
     @staticmethod
     def user_label(obj):

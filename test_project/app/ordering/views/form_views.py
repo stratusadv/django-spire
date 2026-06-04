@@ -35,26 +35,17 @@ def create_form_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateRes
             duck.services.save_model_obj(**form.cleaned_data)
             all_ducks = models.Duck.objects.active().order_by('order')
             duck.ordering_services.processor.move_to_position(
-                destination_objects=all_ducks,
-                position=duck.order
+                destination_objects=all_ducks, position=duck.order
             )
 
-            return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('ordering:page:demo')
-                )
-            )
+            return redirect(request.GET.get('return_url', reverse('ordering:page:demo')))
 
         show_form_errors(request, form)
     else:
         form = forms.DuckForm(instance=duck)
 
     return generic_views.form_view(
-        request,
-        form=form,
-        obj=duck,
-        template='ordering/page/form_page.html'
+        request, form=form, obj=duck, template='ordering/page/form_page.html'
     )
 
 
@@ -62,19 +53,12 @@ def create_form_view(request: WSGIRequest) -> HttpResponseRedirect | TemplateRes
 def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     duck = get_object_or_404(models.Duck, pk=pk)
 
-    form_action = reverse(
-        'ordering:form:delete_form_modal',
-        kwargs={'pk': pk}
-    )
+    form_action = reverse('ordering:form:delete_form_modal', kwargs={'pk': pk})
 
-    fallback = reverse(
-        'ordering:page:demo'
-    )
+    fallback = reverse('ordering:page:demo')
 
     def remove_duck():
-        duck.ordering_services.processor.remove_from_objects(
-            models.Duck.objects.active()
-        )
+        duck.ordering_services.processor.remove_from_objects(models.Duck.objects.active())
 
         duck.set_inactive()
 
@@ -93,31 +77,20 @@ def delete_form_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('apps.change_appsordering')
 def form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     duck = get_object_or_null_obj(models.Duck, pk=pk)
-    action_url = reverse(
-        'ordering:form:form',
-        kwargs={'pk': pk}
-    )
+    action_url = reverse('ordering:form:form', kwargs={'pk': pk})
     unique_name = f'{duck.pk}_duck'
 
     if duck.id is None:
         duck = models.Duck()
-        action_url = reverse(
-            'ordering:form:create'
-        )
+        action_url = reverse('ordering:form:create')
         unique_name = 'duck'
 
     dg.glue_model_object(request, unique_name, duck)
 
-    context_data = {
-        'duck': duck,
-        'action_url': action_url,
-        'unique_name': unique_name
-    }
+    context_data = {'duck': duck, 'action_url': action_url, 'unique_name': unique_name}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='ordering/modal/content/form_modal_content.html'
+        request, context=context_data, template='ordering/modal/content/form_modal_content.html'
     )
 
 
@@ -133,20 +106,12 @@ def form_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateR
         if form.is_valid():
             duck.services.save_model_obj(**form.cleaned_data)
 
-            return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('ordering:page:demo')
-                )
-            )
+            return redirect(request.GET.get('return_url', reverse('ordering:page:demo')))
 
         show_form_errors(request, form)
     else:
         form = forms.DuckForm(instance=duck)
 
     return generic_views.form_view(
-        request,
-        form=form,
-        obj=duck,
-        template='ordering/page/form_page.html'
+        request, form=form, obj=duck, template='ordering/page/form_page.html'
     )

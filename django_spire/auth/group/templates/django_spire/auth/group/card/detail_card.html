@@ -14,12 +14,14 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="row">
-        <div class="col">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=group.name %}
-        </div>
-        <div class="col">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Number of Users' attribute_value=group.user_set.count|default:'0' %}
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=group.name %}
+            </div>
+            <div class="col">
+                {% include 'django_spire/element/attribute_element.html' with attribute_title='Number of Users' attribute_value=group.user_set.count|default:'0' %}
+            </div>
         </div>
     </div>
 {% endblock %}

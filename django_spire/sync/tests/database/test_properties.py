@@ -18,10 +18,7 @@ from django_spire.sync.database.conflict import (
     RemoteWins,
     ResolutionSource,
 )
-from django_spire.sync.database.manifest import (
-    ModelPayload,
-    SyncManifest,
-)
+from django_spire.sync.database.manifest import ModelPayload, SyncManifest
 from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.tests.database.strategies import (
     DATA_DICTS,
@@ -48,11 +45,7 @@ class TestClockMonotonicity:
         remote_counter=st.integers(min_value=0, max_value=100),
     )
     @settings(max_examples=100)
-    def test_receive_always_advances(
-        self,
-        remote_wall: int,
-        remote_counter: int,
-    ) -> None:
+    def test_receive_always_advances(self, remote_wall: int, remote_counter: int) -> None:
         clock = HybridLogicalClock()
         clock._physical = lambda: 1000
 
@@ -65,16 +58,11 @@ class TestClockMonotonicity:
 
     @given(
         physical_times=st.lists(
-            st.integers(min_value=1, max_value=100_000),
-            min_size=3,
-            max_size=20,
-        ),
+            st.integers(min_value=1, max_value=100_000), min_size=3, max_size=20
+        )
     )
     @settings(max_examples=50)
-    def test_never_goes_backward_with_wall_clock_jitter(
-        self,
-        physical_times: list[int],
-    ) -> None:
+    def test_never_goes_backward_with_wall_clock_jitter(self, physical_times: list[int]) -> None:
         clock = HybridLogicalClock()
         idx = [0]
 
@@ -101,13 +89,10 @@ class TestClockMonotonicity:
             ),
             min_size=2,
             max_size=10,
-        ),
+        )
     )
     @settings(max_examples=50)
-    def test_receive_sequence_always_monotonic(
-        self,
-        remotes: list[int],
-    ) -> None:
+    def test_receive_sequence_always_monotonic(self, remotes: list[int]) -> None:
         clock = HybridLogicalClock()
 
         previous = 0
@@ -122,11 +107,7 @@ class TestClockMonotonicity:
         remote_b=st.integers(min_value=1, max_value=2**50),
     )
     @settings(max_examples=100)
-    def test_two_clocks_converge_past_both(
-        self,
-        remote_a: int,
-        remote_b: int,
-    ) -> None:
+    def test_two_clocks_converge_past_both(self, remote_a: int, remote_b: int) -> None:
         _ = remote_a
         _ = remote_b
 
@@ -150,60 +131,45 @@ class TestClockMonotonicity:
 class TestManifestRoundTrip:
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_to_dict_from_dict_preserves_node_id(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def test_to_dict_from_dict_preserves_node_id(self, manifest: SyncManifest) -> None:
         restored = SyncManifest.from_dict(manifest.to_dict())
 
         assert restored.node_id == manifest.node_id
 
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_to_dict_from_dict_preserves_payload_count(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def test_to_dict_from_dict_preserves_payload_count(self, manifest: SyncManifest) -> None:
         restored = SyncManifest.from_dict(manifest.to_dict())
 
         assert len(restored.payloads) == len(manifest.payloads)
 
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_to_dict_from_dict_preserves_record_keys(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def test_to_dict_from_dict_preserves_record_keys(self, manifest: SyncManifest) -> None:
         restored = SyncManifest.from_dict(manifest.to_dict())
 
         for original_payload, restored_payload in zip(
-            manifest.payloads, restored.payloads, strict=False,
+            manifest.payloads, restored.payloads, strict=False
         ):
             assert set(restored_payload.records.keys()) == set(original_payload.records.keys())
 
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_to_dict_from_dict_preserves_deletes(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def test_to_dict_from_dict_preserves_deletes(self, manifest: SyncManifest) -> None:
         restored = SyncManifest.from_dict(manifest.to_dict())
 
         for original_payload, restored_payload in zip(
-            manifest.payloads, restored.payloads, strict=False,
+            manifest.payloads, restored.payloads, strict=False
         ):
             assert restored_payload.deletes == original_payload.deletes
 
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_to_dict_from_dict_preserves_record_data(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def test_to_dict_from_dict_preserves_record_data(self, manifest: SyncManifest) -> None:
         restored = SyncManifest.from_dict(manifest.to_dict())
 
         for original_payload, restored_payload in zip(
-            manifest.payloads, restored.payloads, strict=False,
+            manifest.payloads, restored.payloads, strict=False
         ):
             for key in original_payload.records:
                 original = original_payload.records[key]
@@ -214,10 +180,7 @@ class TestManifestRoundTrip:
 
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_checksum_is_deterministic(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def test_checksum_is_deterministic(self, manifest: SyncManifest) -> None:
         a = manifest.compute_checksum()
         b = manifest.compute_checksum()
 
@@ -225,10 +188,7 @@ class TestManifestRoundTrip:
 
     @given(manifest=sync_manifests())
     @settings(max_examples=100)
-    def test_to_dict_always_produces_valid_checksum(
-        self,
-        manifest: SyncManifest,
-    ) -> None:
+    def test_to_dict_always_produces_valid_checksum(self, manifest: SyncManifest) -> None:
         data = manifest.to_dict()
         restored = SyncManifest.from_dict(data)
 
@@ -240,9 +200,7 @@ class TestManifestRoundTrip:
     )
     @settings(max_examples=50)
     def test_checksum_changes_when_data_changes(
-        self,
-        manifest: SyncManifest,
-        extra_key: str,
+        self, manifest: SyncManifest, extra_key: str
     ) -> None:
         existing_labels = {p.model_label for p in manifest.payloads}
         injected_label = 'injected.Model'
@@ -264,10 +222,10 @@ class TestManifestRoundTrip:
                         extra_key: SyncRecord(
                             key=extra_key,
                             data={'id': extra_key, 'injected': True},
-                            timestamps={'injected': 999}
+                            timestamps={'injected': 999},
                         )
-                    }
-                )
+                    },
+                ),
             ],
         )
 
@@ -279,10 +237,7 @@ class TestManifestRoundTrip:
 class TestSyncRecordRoundTrip:
     @given(record=sync_records())
     @settings(max_examples=100)
-    def test_to_dict_from_dict_preserves_data(
-        self,
-        record: SyncRecord,
-    ) -> None:
+    def test_to_dict_from_dict_preserves_data(self, record: SyncRecord) -> None:
         restored = SyncRecord.from_dict(record.key, record.to_dict())
 
         assert restored.data == record.data
@@ -290,10 +245,7 @@ class TestSyncRecordRoundTrip:
 
     @given(record=sync_records())
     @settings(max_examples=100)
-    def test_sync_field_last_modified_equals_max_timestamp(
-        self,
-        record: SyncRecord,
-    ) -> None:
+    def test_sync_field_last_modified_equals_max_timestamp(self, record: SyncRecord) -> None:
         if record.timestamps:
             assert record.sync_field_last_modified == max(record.timestamps.values())
         else:
@@ -319,14 +271,11 @@ class TestHasherProperties:
 
         assert hasher.hash(data) == hasher.hash(reversed_data)
 
-    @given(data=DATA_DICTS, id_a=st.text(min_size=1, max_size=5), id_b=st.text(min_size=1, max_size=5))
+    @given(
+        data=DATA_DICTS, id_a=st.text(min_size=1, max_size=5), id_b=st.text(min_size=1, max_size=5)
+    )
     @settings(max_examples=100)
-    def test_hash_ignores_identity_field(
-        self,
-        data: dict[str, Any],
-        id_a: str,
-        id_b: str,
-    ) -> None:
+    def test_hash_ignores_identity_field(self, data: dict[str, Any], id_a: str, id_b: str) -> None:
         hasher = RecordHasher(identity_field='id')
 
         a = {**data, 'id': id_a}
@@ -339,8 +288,7 @@ class TestFieldTimestampWinsProperties:
     @given(pair=field_conflict_pairs())
     @settings(max_examples=200)
     def test_merged_record_contains_all_non_meta_fields(
-        self,
-        pair: tuple[dict, dict, dict, dict],
+        self, pair: tuple[dict, dict, dict, dict]
     ) -> None:
         local_data, remote_data, local_ts, remote_ts = pair
 
@@ -359,18 +307,17 @@ class TestFieldTimestampWinsProperties:
 
         assert resolution.record is not None
 
-        expected_fields = (
-            (set(local_data) | set(remote_data))
-            - {'sync_field_timestamps', 'sync_field_last_modified'}
-        )
+        expected_fields = (set(local_data) | set(remote_data)) - {
+            'sync_field_timestamps',
+            'sync_field_last_modified',
+        }
 
         assert set(resolution.record.data.keys()) == expected_fields
 
     @given(pair=field_conflict_pairs())
     @settings(max_examples=200)
     def test_merged_timestamps_are_elementwise_max(
-        self,
-        pair: tuple[dict, dict, dict, dict],
+        self, pair: tuple[dict, dict, dict, dict]
     ) -> None:
         local_data, remote_data, local_ts, remote_ts = pair
 
@@ -401,8 +348,7 @@ class TestFieldTimestampWinsProperties:
     @given(pair=field_conflict_pairs())
     @settings(max_examples=200)
     def test_winning_value_comes_from_higher_timestamp_side(
-        self,
-        pair: tuple[dict, dict, dict, dict],
+        self, pair: tuple[dict, dict, dict, dict]
     ) -> None:
         local_data, remote_data, local_ts, remote_ts = pair
 
@@ -438,13 +384,16 @@ class TestFieldTimestampWinsProperties:
     @given(pair=field_conflict_pairs())
     @settings(max_examples=100)
     def test_prefer_remote_on_tie_flips_tie_behavior(
-        self,
-        pair: tuple[dict, dict, dict, dict],
+        self, pair: tuple[dict, dict, dict, dict]
     ) -> None:
         local_data, remote_data, local_ts, remote_ts = pair
 
         tied_ts = 500
-        shared_fields = set(local_data) & set(remote_data) - {'id', 'sync_field_timestamps', 'sync_field_last_modified'}
+        shared_fields = set(local_data) & set(remote_data) - {
+            'id',
+            'sync_field_timestamps',
+            'sync_field_last_modified',
+        }
 
         assume(len(shared_fields) > 0)
 
@@ -477,16 +426,14 @@ class TestFieldTimestampWinsProperties:
 class TestFieldOwnershipWinsProperties:
     @given(pair=field_conflict_pairs())
     @settings(max_examples=200)
-    def test_owned_fields_always_come_from_owner(
-        self,
-        pair: tuple[dict, dict, dict, dict],
-    ) -> None:
+    def test_owned_fields_always_come_from_owner(self, pair: tuple[dict, dict, dict, dict]) -> None:
         local_data, remote_data, local_ts, remote_ts = pair
 
-        all_fields = (
-            (set(local_data) | set(remote_data))
-            - {'id', 'sync_field_timestamps', 'sync_field_last_modified'}
-        )
+        all_fields = (set(local_data) | set(remote_data)) - {
+            'id',
+            'sync_field_timestamps',
+            'sync_field_last_modified',
+        }
 
         assume(len(all_fields) >= 2)
 
@@ -507,8 +454,7 @@ class TestFieldOwnershipWinsProperties:
         )
 
         resolution = FieldOwnershipWins(
-            local_fields=local_owned,
-            remote_fields=remote_owned,
+            local_fields=local_owned, remote_fields=remote_owned
         ).resolve(conflict)
 
         assert resolution.record is not None
@@ -525,10 +471,7 @@ class TestFieldOwnershipWinsProperties:
 class TestLocalRemoteWinsDuality:
     @given(pair=field_conflict_pairs())
     @settings(max_examples=100)
-    def test_local_wins_always_returns_local(
-        self,
-        pair: tuple[dict, dict, dict, dict],
-    ) -> None:
+    def test_local_wins_always_returns_local(self, pair: tuple[dict, dict, dict, dict]) -> None:
         local_data, remote_data, local_ts, remote_ts = pair
 
         local = SyncRecord(key='1', data=local_data, timestamps=local_ts)
@@ -550,10 +493,7 @@ class TestLocalRemoteWinsDuality:
 
     @given(pair=field_conflict_pairs())
     @settings(max_examples=100)
-    def test_remote_wins_always_returns_remote(
-        self,
-        pair: tuple[dict, dict, dict, dict],
-    ) -> None:
+    def test_remote_wins_always_returns_remote(self, pair: tuple[dict, dict, dict, dict]) -> None:
         local_data, remote_data, local_ts, remote_ts = pair
 
         local = SyncRecord(key='1', data=local_data, timestamps=local_ts)

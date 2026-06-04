@@ -65,11 +65,7 @@ class TestValidAjaxRequestRequired(TestCase):
         def sample_view(_request: HttpRequest) -> JsonResponse:
             return JsonResponse({'success': True})
 
-        request = self.factory.post(
-            '/test/',
-            data='{}',
-            content_type='application/json'
-        )
+        request = self.factory.post('/test/', data='{}', content_type='application/json')
         response = sample_view(request)
 
         assert response.status_code == 200

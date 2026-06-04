@@ -44,5 +44,7 @@ class CollectionGroupModelTests(BaseTestCase):
         self.collection_group = create_test_collection_group()
 
     def test_str(self):
-        expected = f'{self.collection_group.collection.name} - {self.collection_group.auth_group.name}'
+        expected = (
+            f'{self.collection_group.collection.name} - {self.collection_group.auth_group.name}'
+        )
         assert str(self.collection_group) == expected

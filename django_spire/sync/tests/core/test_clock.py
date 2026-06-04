@@ -115,10 +115,7 @@ def test_concurrent_now_monotonic() -> None:
         with lock:
             results.extend(local)
 
-    threads = [
-        threading.Thread(target=collect_timestamps)
-        for _ in range(8)
-    ]
+    threads = [threading.Thread(target=collect_timestamps) for _ in range(8)]
 
     for t in threads:
         t.start()
@@ -147,10 +144,7 @@ def test_concurrent_receive_monotonic() -> None:
         with lock:
             results.extend(local)
 
-    threads = [
-        threading.Thread(target=receive_and_collect, args=(1000 * i,))
-        for i in range(4)
-    ]
+    threads = [threading.Thread(target=receive_and_collect, args=(1000 * i,)) for i in range(4)]
 
     for t in threads:
         t.start()

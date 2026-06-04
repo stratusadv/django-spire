@@ -9,7 +9,7 @@ from django_spire.contrib.shortcuts import (
     get_object_or_none,
     get_object_or_null_obj,
     model_object_from_app_label,
-    process_request_body
+    process_request_body,
 )
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.core.tests.test_models import DummyModel, DummyModelMixin
@@ -65,9 +65,7 @@ class ShortcutsTestCase(DummyModelMixin, BaseTestCase):
         data = {'data': {'key': 'value'}}
 
         request = self.request_factory.post(
-            '/dummy-url/',
-            data=json.dumps(data),
-            content_type='application/json'
+            '/dummy-url/', data=json.dumps(data), content_type='application/json'
         )
 
         result = process_request_body(request)

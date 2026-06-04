@@ -30,9 +30,7 @@ def update_form_view(request: WSGIRequest, model: str, pk: int) -> TemplateRespo
 
 
 def _form_view(
-    request: WSGIRequest,
-    model_name: str,
-    pk: int = 0,
+    request: WSGIRequest, model_name: str, pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     if model_name not in MODEL_FORM_MAP:
         raise PermissionDenied
@@ -61,8 +59,5 @@ def _form_view(
         form = form_cls(instance=obj)
 
     return generic_views.form_view(
-        request,
-        form=form,
-        obj=obj,
-        template=f'sync/page/{model_name}_form_page.html',
+        request, form=form, obj=obj, template=f'sync/page/{model_name}_form_page.html'
     )

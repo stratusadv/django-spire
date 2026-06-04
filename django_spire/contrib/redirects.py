@@ -44,10 +44,7 @@ def is_url_valid_and_safe(url: str, allowed_hosts: set[str]) -> bool:
         if any(character in unquote(url.path) for character in harmful):
             return False
 
-        return not any(
-            character in unquote(url.query)
-            for character in harmful
-        )
+        return not any(character in unquote(url.query) for character in harmful)
 
     return False
 
@@ -80,14 +77,7 @@ def safe_redirect_url(request: WSGIRequest, fallback: str = '/') -> str:
         query_string = urlencode(parse_qs(url.query), doseq=True)
         path = resolve_url(url.path)
 
-        full = (
-            url.scheme,
-            url.netloc,
-            path,
-            '',
-            query_string,
-            url.fragment
-        )
+        full = (url.scheme, url.netloc, path, '', query_string, url.fragment)
 
         return urlunparse(full)
 

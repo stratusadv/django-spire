@@ -27,6 +27,7 @@ class ManagerTestCeleryTaskManagerWithModel(BaseCeleryTaskManager):
 class BaseCeleryTaskManagerSendTaskRetriesValidationTestCase(TestCase):
     def test_raises_error_when_send_task_retries_exceeds_max(self) -> None:
         with self.assertRaises(ValueError) as context:
+
             class ExceedsMaxManager(BaseCeleryTaskManager):
                 task_name = 'exceeds_max'
                 display_name = 'Exceeds Max'
@@ -43,6 +44,7 @@ class BaseCeleryTaskManagerSendTaskRetriesValidationTestCase(TestCase):
 class BaseCeleryTaskManagerRequiredAttributesTestCase(TestCase):
     def test_raises_error_when_task_name_not_set(self) -> None:
         with self.assertRaises(TypeError) as context:
+
             class InvalidManager(BaseCeleryTaskManager):
                 display_name = 'Test'
 
@@ -50,6 +52,7 @@ class BaseCeleryTaskManagerRequiredAttributesTestCase(TestCase):
 
     def test_raises_error_when_display_name_not_set(self) -> None:
         with self.assertRaises(TypeError) as context:
+
             class InvalidManager(BaseCeleryTaskManager):
                 task_name = 'test_task'
 
@@ -57,6 +60,7 @@ class BaseCeleryTaskManagerRequiredAttributesTestCase(TestCase):
 
     def test_raises_error_when_task_name_not_string(self) -> None:
         with self.assertRaises(TypeError) as context:
+
             class InvalidManager(BaseCeleryTaskManager):
                 task_name = 123
                 display_name = 'Test'
@@ -65,6 +69,7 @@ class BaseCeleryTaskManagerRequiredAttributesTestCase(TestCase):
 
     def test_raises_error_when_display_name_not_string(self) -> None:
         with self.assertRaises(TypeError) as context:
+
             class InvalidManager(BaseCeleryTaskManager):
                 task_name = 'test_task'
                 display_name = 123
@@ -287,7 +292,9 @@ class BaseCeleryTaskManagerRetryTestCase(TestCase):
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.time.sleep')
     @patch('django_spire.celery.manager.send_task')
-    def test_retries_on_connection_error(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
+    def test_retries_on_connection_error(
+        self, mock_send_task: MagicMock, mock_sleep: MagicMock
+    ) -> None:
         from kombu.exceptions import OperationalError as KombuOperationalError
 
         valid_uuid = uuid.uuid4()
@@ -310,7 +317,9 @@ class BaseCeleryTaskManagerRetryTestCase(TestCase):
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.time.sleep')
     @patch('django_spire.celery.manager.send_task')
-    def test_respects_send_task_retries_class_attribute(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
+    def test_respects_send_task_retries_class_attribute(
+        self, mock_send_task: MagicMock, mock_sleep: MagicMock
+    ) -> None:
         from kombu.exceptions import OperationalError as KombuOperationalError
 
         class LowRetryManager(BaseCeleryTaskManager):
@@ -329,7 +338,9 @@ class BaseCeleryTaskManagerRetryTestCase(TestCase):
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.time.sleep')
     @patch('django_spire.celery.manager.send_task')
-    def test_exponential_backoff_calculation(self, mock_send_task: MagicMock, mock_sleep: MagicMock) -> None:
+    def test_exponential_backoff_calculation(
+        self, mock_send_task: MagicMock, mock_sleep: MagicMock
+    ) -> None:
         from kombu.exceptions import OperationalError as KombuOperationalError
 
         valid_uuid = uuid.uuid4()
@@ -429,11 +440,15 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
 
         result_data = pickle.loads(celery_task._result)
         self.assertEqual(result_data.get('args'), ())
-        self.assertEqual(result_data.get('kwargs'), {'arg1': 'value1', 'arg2': 'value2', 'key': 'value'})
+        self.assertEqual(
+            result_data.get('kwargs'), {'arg1': 'value1', 'arg2': 'value2', 'key': 'value'}
+        )
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')
-    def test_can_distinguish_send_failure_from_task_failure(self, mock_send_task: MagicMock) -> None:
+    def test_can_distinguish_send_failure_from_task_failure(
+        self, mock_send_task: MagicMock
+    ) -> None:
         valid_uuid = uuid.uuid4()
         mock_async_result = MagicMock()
         mock_async_result.id = str(valid_uuid)
@@ -443,7 +458,9 @@ class BaseCeleryTaskManagerFailSafeTestCase(TestCase):
 
         success_task = manager.send_task()
         result_data = pickle.loads(success_task._result)
-        self.assertNotEqual(result_data.get('error') if isinstance(result_data, dict) else None, 'SEND_FAILED')
+        self.assertNotEqual(
+            result_data.get('error') if isinstance(result_data, dict) else None, 'SEND_FAILED'
+        )
 
     @override_settings(SECRET_KEY=SECRET_KEY)
     @patch('django_spire.celery.manager.send_task')

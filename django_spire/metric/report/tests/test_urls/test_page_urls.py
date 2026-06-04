@@ -10,7 +10,5 @@ class ReportPageUrlsTests(BaseTestCase):
         super().setUp()
 
     def test_report_view_url_path(self):
-        response = self.client.get(
-            reverse('django_spire:metric:report:page:report')
-        )
+        response = self.client.get(reverse('django_spire:metric:report:page:report'))
         assert response.status_code == 200

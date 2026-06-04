@@ -33,31 +33,31 @@ class ReportCell:
     @staticmethod
     def cell_value_verbose(value, cell_type):
         if cell_type == ColumnType.DOLLAR:
-            return f"${float(value):,.0f}"
+            return f'${float(value):,.0f}'
         elif cell_type == ColumnType.DOLLAR_1:
-            return f"${float(value):,.1f}%"
+            return f'${float(value):,.1f}%'
         elif cell_type == ColumnType.DOLLAR_2:
-            return f"${float(value):,.2f}%"
+            return f'${float(value):,.2f}%'
         elif cell_type == ColumnType.DOLLAR_3:
-            return f"${float(value):,.3f}%"
+            return f'${float(value):,.3f}%'
 
         elif cell_type == ColumnType.PERCENT:
-            return f"{float(value):,.0f}%"
+            return f'{float(value):,.0f}%'
         elif cell_type == ColumnType.PERCENT_1:
-            return f"{float(value):,.1f}%"
+            return f'{float(value):,.1f}%'
         elif cell_type == ColumnType.PERCENT_2:
-            return f"{float(value):,.2f}%"
+            return f'{float(value):,.2f}%'
         elif cell_type == ColumnType.PERCENT_3:
-            return f"{float(value):,.3f}%"
+            return f'{float(value):,.3f}%'
 
         elif cell_type == ColumnType.NUMBER:
-            return f"{float(value):,.0f}"
+            return f'{float(value):,.0f}'
         elif cell_type == ColumnType.NUMBER_1:
-            return f"{float(value):,.1f}"
+            return f'{float(value):,.1f}'
         elif cell_type == ColumnType.NUMBER_2:
-            return f"{float(value):,.2f}"
+            return f'{float(value):,.2f}'
         elif cell_type == ColumnType.NUMBER_3:
-            return f"{float(value):,.3f}"
+            return f'{float(value):,.3f}'
 
         return str(value)
 
@@ -134,16 +134,14 @@ class BaseReport(ABC):
         raise NotImplementedError
 
     def add_blank_row(
-            self,
-            text: str = '',
-            page_break: bool = False,
-            border_top: bool = False,
-            border_bottom: bool = False
+        self,
+        text: str = '',
+        page_break: bool = False,
+        border_top: bool = False,
+        border_bottom: bool = False,
     ):
         self.add_row(
-            cell_values=[
-                text
-            ],
+            cell_values=[text],
             span_all_columns=True,
             page_break=page_break,
             border_top=border_top,
@@ -151,23 +149,22 @@ class BaseReport(ABC):
         )
 
     def add_column(
-            self,
-            title: str,
-            sub_title: str | None = None,
-            type: ColumnType = ColumnType.TEXT,
-            sub_type: ColumnType = ColumnType.TEXT,
-
+        self,
+        title: str,
+        sub_title: str | None = None,
+        type: ColumnType = ColumnType.TEXT,
+        sub_type: ColumnType = ColumnType.TEXT,
     ):
         self.columns.append(
             ReportColumn(title=title, sub_title=sub_title, type=type, sub_type=sub_type)
         )
 
     def add_divider_row(
-            self,
-            title: str,
-            description: str | None = None,
-            page_break: bool = False,
-            border_bottom: bool = True,
+        self,
+        title: str,
+        description: str | None = None,
+        page_break: bool = False,
+        border_bottom: bool = True,
     ):
         self.add_row(
             cell_values=[title],
@@ -179,10 +176,10 @@ class BaseReport(ABC):
         )
 
     def add_footer_row(
-            self,
-            cell_values: list[Any],
-            cell_sub_values: list[Any] | None = None,
-            border_top: bool = True,
+        self,
+        cell_values: list[Any],
+        cell_sub_values: list[Any] | None = None,
+        border_top: bool = True,
     ):
         self.add_row(
             cell_values=cell_values,
@@ -192,23 +189,26 @@ class BaseReport(ABC):
         )
 
     def add_row(
-            self,
-            cell_values: list[Any],
-            cell_sub_values: list[Any] | None = None,
-            bold: bool = False,
-            page_break: bool = False,
-            span_all_columns: bool = False,
-            table_break: bool = False,
-            border_top: bool = False,
-            border_bottom: bool = False,
+        self,
+        cell_values: list[Any],
+        cell_sub_values: list[Any] | None = None,
+        bold: bool = False,
+        page_break: bool = False,
+        span_all_columns: bool = False,
+        table_break: bool = False,
+        border_top: bool = False,
+        border_bottom: bool = False,
     ):
         if span_all_columns or table_break:
             if len(cell_values) > 1:
-                message = 'Cannot span all columns or have a table break with more than one cell value'
+                message = (
+                    'Cannot span all columns or have a table break with more than one cell value'
+                )
                 raise ValueError(message)
 
         elif len(cell_values) != len(self.columns) or (
-                cell_sub_values is not None and len(cell_sub_values) != len(self.columns)):
+            cell_sub_values is not None and len(cell_sub_values) != len(self.columns)
+        ):
             message = f'Number of cell values ({len(cell_values)}) and sub values ({len(cell_sub_values) if cell_sub_values else "None"}) must match number of columns: {len(self.columns)}'
             raise ValueError(message)
 
@@ -219,7 +219,7 @@ class BaseReport(ABC):
                         value=cell_values[i],
                         sub_value=cell_sub_values[i] if cell_sub_values else None,
                         type=self.columns[i].type,
-                        sub_type=self.columns[i].sub_type
+                        sub_type=self.columns[i].sub_type,
                     )
                     for i in range(len(cell_values))
                 ],

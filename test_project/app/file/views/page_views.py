@@ -17,26 +17,19 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     file_example = get_object_or_404(models.FileExample, pk=pk)
 
-    context_data = {
-        'file_example': file_example,
-    }
+    context_data = {'file_example': file_example}
 
     return generic_views.detail_view(
-        request,
-        obj=file_example,
-        context_data=context_data,
-        template='file/page/detail_page.html'
+        request, obj=file_example, context_data=context_data, template='file/page/detail_page.html'
     )
 
 
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'file_examples': models.FileExample.objects.active()
-    }
+    context_data = {'file_examples': models.FileExample.objects.active()}
 
     return generic_views.list_view(
         request,
         model=models.FileExample,
         context_data=context_data,
-        template='file/page/list_page.html'
+        template='file/page/list_page.html',
     )

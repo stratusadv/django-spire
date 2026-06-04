@@ -10,11 +10,7 @@ class TestDjangoChoicesToEnums(TestCase):
     def test_basic_conversion(self) -> None:
         """Test basic conversion with simple choices"""
 
-        choices = [
-            ('ACTIVE', 'Active'),
-            ('INACTIVE', 'Inactive'),
-            ('PENDING', 'Pending')
-        ]
+        choices = [('ACTIVE', 'Active'), ('INACTIVE', 'Inactive'), ('PENDING', 'Pending')]
 
         ResultEnum = django_choices_to_enums('Status', choices)
 
@@ -30,11 +26,7 @@ class TestDjangoChoicesToEnums(TestCase):
     def test_different_key_value(self) -> None:
         """Test when keys and values differ"""
 
-        choices = [
-            ('A', 'Alpha'),
-            ('B', 'Beta'),
-            ('G', 'Gamma')
-        ]
+        choices = [('A', 'Alpha'), ('B', 'Beta'), ('G', 'Gamma')]
 
         ResultEnum = django_choices_to_enums('Greek', choices)
 
@@ -47,10 +39,7 @@ class TestDjangoChoicesToEnums(TestCase):
     def test_duplicate_keys(self) -> None:
         """Test behavior with duplicate keys (should use last occurrence)"""
 
-        choices = [
-            ('STATUS', 'First'),
-            ('STATUS', 'Second')
-        ]
+        choices = [('STATUS', 'First'), ('STATUS', 'Second')]
 
         ResultEnum = django_choices_to_enums('DuplicateStatus', choices)
 
@@ -71,10 +60,7 @@ class TestDjangoChoicesToEnums(TestCase):
     def test_lowercase_keys_converted_to_uppercase(self) -> None:
         """Test that lowercase keys are converted to uppercase"""
 
-        choices = [
-            ('active', 'Active'),
-            ('inactive', 'Inactive')
-        ]
+        choices = [('active', 'Active'), ('inactive', 'Inactive')]
 
         ResultEnum = django_choices_to_enums('Status', choices)
 

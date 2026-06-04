@@ -9,9 +9,7 @@ from django_spire.history.viewed.models import Viewed
 
 @admin.register(Viewed)
 class ViewAdmin(admin.ModelAdmin):
-    list_display = (
-        'id', 'content_object_link', 'user_link', 'created_datetime'
-    )
+    list_display = ('id', 'content_object_link', 'user_link', 'created_datetime')
     list_filter = ('created_datetime',)
     search_fields = ('id', 'user__first_name', 'user__last_name', 'content_type__model')
     ordering = ('-created_datetime',)
@@ -19,7 +17,7 @@ class ViewAdmin(admin.ModelAdmin):
     def content_object_link(self, view: Viewed) -> str:
         url = reverse(
             f'admin:{view.content_type.app_label}_{view.content_type.model}_change',
-            args=[view.object_id]
+            args=[view.object_id],
         )
 
         return format_html(f'<a href="{url}">{view.content_object}</a>')

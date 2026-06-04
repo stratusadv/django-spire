@@ -42,14 +42,12 @@ class FileValidatorInitTests(BaseTestCase):
     def test_overlapping_extensions_raises_value_error(self) -> None:
         with pytest.raises(ValueError, match='cannot be both allowed and blocked'):
             FileValidator(
-                allowed_extensions=frozenset({'exe', 'pdf'}),
-                blocked_extensions=frozenset({'exe'}),
+                allowed_extensions=frozenset({'exe', 'pdf'}), blocked_extensions=frozenset({'exe'})
             )
 
     def test_no_overlap_does_not_raise(self) -> None:
         validator = FileValidator(
-            allowed_extensions=frozenset({'pdf', 'docx'}),
-            blocked_extensions=frozenset({'exe'}),
+            allowed_extensions=frozenset({'pdf', 'docx'}), blocked_extensions=frozenset({'exe'})
         )
 
         assert validator.allowed_extensions == frozenset({'pdf', 'docx'})
@@ -91,8 +89,7 @@ class FileValidatorValidateTests(BaseTestCase):
 
     def test_allowed_extensions_rejects_unlisted(self) -> None:
         validator = FileValidator(
-            allowed_extensions=frozenset({'pdf'}),
-            blocked_extensions=frozenset(),
+            allowed_extensions=frozenset({'pdf'}), blocked_extensions=frozenset()
         )
         file = create_test_in_memory_uploaded_file(file_type='txt')
 
@@ -101,8 +98,7 @@ class FileValidatorValidateTests(BaseTestCase):
 
     def test_allowed_extensions_accepts_listed(self) -> None:
         validator = FileValidator(
-            allowed_extensions=frozenset({'pdf'}),
-            blocked_extensions=frozenset(),
+            allowed_extensions=frozenset({'pdf'}), blocked_extensions=frozenset()
         )
         file = create_test_in_memory_uploaded_file(file_type='pdf')
 
@@ -149,8 +145,7 @@ class FileValidatorDotfileTests(BaseTestCase):
 
     def test_dotfile_with_allowed_extensions_rejects(self) -> None:
         validator = FileValidator(
-            allowed_extensions=frozenset({'pdf'}),
-            blocked_extensions=frozenset(),
+            allowed_extensions=frozenset({'pdf'}), blocked_extensions=frozenset()
         )
         file = create_test_in_memory_uploaded_file()
         file.name = '.gitignore'
@@ -178,8 +173,7 @@ class FileValidatorExtensionCaseTests(BaseTestCase):
 
     def test_allowed_extension_uppercase_accepted(self) -> None:
         validator = FileValidator(
-            allowed_extensions=frozenset({'pdf'}),
-            blocked_extensions=frozenset(),
+            allowed_extensions=frozenset({'pdf'}), blocked_extensions=frozenset()
         )
         file = create_test_in_memory_uploaded_file()
         file.name = 'document.PDF'
@@ -190,8 +184,7 @@ class FileValidatorExtensionCaseTests(BaseTestCase):
 class FileValidatorDoubleExtensionTests(BaseTestCase):
     def test_exe_pdf_double_extension_passes_with_pdf_allowed(self) -> None:
         validator = FileValidator(
-            allowed_extensions=frozenset({'pdf'}),
-            blocked_extensions=frozenset(),
+            allowed_extensions=frozenset({'pdf'}), blocked_extensions=frozenset()
         )
         file = create_test_in_memory_uploaded_file()
         file.name = 'payload.exe.pdf'
@@ -226,10 +219,7 @@ class FileValidatorEmptyNameTests(BaseTestCase):
 class FileValidatorContentTests(BaseTestCase):
     def test_windows_pe_executable_rejected(self) -> None:
         validator = FileValidator(blocked_extensions=frozenset())
-        file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'MZ' + b'\x00' * 100,
-        )
+        file = create_test_in_memory_uploaded_file(file_type='pdf', content=b'MZ' + b'\x00' * 100)
 
         with pytest.raises(FileValidationError, match='executable binary'):
             validator.validate(file)
@@ -237,8 +227,7 @@ class FileValidatorContentTests(BaseTestCase):
     def test_linux_elf_executable_rejected(self) -> None:
         validator = FileValidator(blocked_extensions=frozenset())
         file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'\x7fELF' + b'\x00' * 100,
+            file_type='pdf', content=b'\x7fELF' + b'\x00' * 100
         )
 
         with pytest.raises(FileValidationError, match='executable binary'):
@@ -247,8 +236,7 @@ class FileValidatorContentTests(BaseTestCase):
     def test_macho_fat_binary_rejected(self) -> None:
         validator = FileValidator(blocked_extensions=frozenset())
         file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'\xca\xfe\xba\xbe' + b'\x00' * 100,
+            file_type='pdf', content=b'\xca\xfe\xba\xbe' + b'\x00' * 100
         )
 
         with pytest.raises(FileValidationError, match='executable binary'):
@@ -257,8 +245,7 @@ class FileValidatorContentTests(BaseTestCase):
     def test_macho_64_rejected(self) -> None:
         validator = FileValidator(blocked_extensions=frozenset())
         file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'\xfe\xed\xfa\xcf' + b'\x00' * 100,
+            file_type='pdf', content=b'\xfe\xed\xfa\xcf' + b'\x00' * 100
         )
 
         with pytest.raises(FileValidationError, match='executable binary'):
@@ -267,8 +254,7 @@ class FileValidatorContentTests(BaseTestCase):
     def test_macho_reverse_rejected(self) -> None:
         validator = FileValidator(blocked_extensions=frozenset())
         file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'\xcf\xfa\xed\xfe' + b'\x00' * 100,
+            file_type='pdf', content=b'\xcf\xfa\xed\xfe' + b'\x00' * 100
         )
 
         with pytest.raises(FileValidationError, match='executable binary'):
@@ -277,8 +263,7 @@ class FileValidatorContentTests(BaseTestCase):
     def test_normal_pdf_content_passes(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'%PDF-1.4 fake pdf content',
+            file_type='pdf', content=b'%PDF-1.4 fake pdf content'
         )
 
         validator.validate(file)
@@ -286,27 +271,20 @@ class FileValidatorContentTests(BaseTestCase):
     def test_normal_png_content_passes(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file(
-            file_type='png',
-            content=b'\x89PNG\r\n\x1a\n' + b'\x00' * 100,
+            file_type='png', content=b'\x89PNG\r\n\x1a\n' + b'\x00' * 100
         )
 
         validator.validate(file)
 
     def test_plain_text_content_passes(self) -> None:
         validator = FileValidator()
-        file = create_test_in_memory_uploaded_file(
-            file_type='txt',
-            content=b'just some text',
-        )
+        file = create_test_in_memory_uploaded_file(file_type='txt', content=b'just some text')
 
         validator.validate(file)
 
     def test_empty_content_passes(self) -> None:
         validator = FileValidator()
-        file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'',
-        )
+        file = create_test_in_memory_uploaded_file(file_type='pdf', content=b'')
         file.size = 0
 
         validator.validate(file)
@@ -321,22 +299,15 @@ class FileValidatorContentTests(BaseTestCase):
         assert file.tell() == 5
 
     def test_validate_content_false_skips_check(self) -> None:
-        validator = FileValidator(
-            blocked_extensions=frozenset(),
-            content_validation=False,
-        )
-        file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'MZ' + b'\x00' * 100,
-        )
+        validator = FileValidator(blocked_extensions=frozenset(), content_validation=False)
+        file = create_test_in_memory_uploaded_file(file_type='pdf', content=b'MZ' + b'\x00' * 100)
 
         validator.validate(file)
 
     def test_pe_disguised_as_jpg_rejected(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file(
-            file_type='jpg',
-            content=b'MZ\x90\x00' + b'\x00' * 100,
+            file_type='jpg', content=b'MZ\x90\x00' + b'\x00' * 100
         )
 
         with pytest.raises(FileValidationError, match='executable binary'):
@@ -344,28 +315,21 @@ class FileValidatorContentTests(BaseTestCase):
 
     def test_pe_disguised_as_docx_rejected(self) -> None:
         validator = FileValidator()
-        file = create_test_in_memory_uploaded_file(
-            file_type='docx',
-            content=b'MZ' + b'\x00' * 100,
-        )
+        file = create_test_in_memory_uploaded_file(file_type='docx', content=b'MZ' + b'\x00' * 100)
 
         with pytest.raises(FileValidationError, match='executable binary'):
             validator.validate(file)
 
     def test_partial_signature_not_rejected(self) -> None:
         validator = FileValidator()
-        file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'M',
-        )
+        file = create_test_in_memory_uploaded_file(file_type='pdf', content=b'M')
 
         validator.validate(file)
 
     def test_signature_at_offset_not_rejected(self) -> None:
         validator = FileValidator()
         file = create_test_in_memory_uploaded_file(
-            file_type='pdf',
-            content=b'\x00\x00MZ' + b'\x00' * 100,
+            file_type='pdf', content=b'\x00\x00MZ' + b'\x00' * 100
         )
 
         validator.validate(file)

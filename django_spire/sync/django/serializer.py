@@ -12,19 +12,17 @@ from django.db import models
 _FIELD_SERIALIZERS: dict[type, tuple[Any, Any]] = {}
 
 
-_SYNC_FIELD_NAMES = frozenset({
-    'sync_field_last_modified',
-    'sync_field_origin_node',
-    'sync_field_sequence',
-    'sync_field_timestamps',
-})
+_SYNC_FIELD_NAMES = frozenset(
+    {
+        'sync_field_last_modified',
+        'sync_field_origin_node',
+        'sync_field_sequence',
+        'sync_field_timestamps',
+    }
+)
 
 
-def _register(
-    field_type: type,
-    serialize: Any,
-    deserialize: Any,
-) -> None:
+def _register(field_type: type, serialize: Any, deserialize: Any) -> None:
     _FIELD_SERIALIZERS[field_type] = (serialize, deserialize)
 
 

@@ -43,13 +43,15 @@ def test_upsert_5000_records_single_batch() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_ten_writers_500_keys_each_no_loss() -> None:
     num_workers = 10
     keys_per_worker = 500
     barrier = threading.Barrier(num_workers)
     errors: list[Exception] = []
-    all_keys: list[str] = [uuid_from_ints(w + 1, i) for w in range(num_workers) for i in range(keys_per_worker)]
+    all_keys: list[str] = [
+        uuid_from_ints(w + 1, i) for w in range(num_workers) for i in range(keys_per_worker)
+    ]
 
     def batch_upsert(worker_id: int) -> None:
         storage = make_storage()
@@ -59,20 +61,28 @@ def test_ten_writers_500_keys_each_no_loss() -> None:
             records[key] = make_named_record(key, f'w{worker_id}-r{i}', 200, value=i)
         storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
-    threads = [threading.Thread(target=thread_safe(batch_upsert, errors, barrier=barrier, barrier_timeout=10.0), args=(w,)) for w in range(num_workers)]
+    threads = [
+        threading.Thread(
+            target=thread_safe(batch_upsert, errors, barrier=barrier, barrier_timeout=10.0),
+            args=(w,),
+        )
+        for w in range(num_workers)
+    ]
     for t in threads:
         t.start()
     for t in threads:
         t.join(timeout=120)
 
     assert not errors, f'errors: {errors[:3]}'
-    existing = {str(pk) for pk in SyncTestModel.objects.filter(pk__in=all_keys).values_list('pk', flat=True)}
+    existing = {
+        str(pk) for pk in SyncTestModel.objects.filter(pk__in=all_keys).values_list('pk', flat=True)
+    }
     assert existing == set(all_keys)
 
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_twenty_writers_single_key_highest_ts_wins() -> None:
     key = uuid_from_ints(0xDEAD, 0xBEEF)
     num_workers = 20
@@ -81,11 +91,18 @@ def test_twenty_writers_single_key_highest_ts_wins() -> None:
 
     def upsert_one(worker_id: int) -> None:
         storage = make_storage()
-        storage.upsert_many('sync_tests.SyncTestModel', {
-            key: make_named_record(key, f'writer-{worker_id}', 100 + worker_id, value=worker_id),
-        }, '')
+        storage.upsert_many(
+            'sync_tests.SyncTestModel',
+            {key: make_named_record(key, f'writer-{worker_id}', 100 + worker_id, value=worker_id)},
+            '',
+        )
 
-    threads = [threading.Thread(target=thread_safe(upsert_one, errors, barrier=barrier, barrier_timeout=10.0), args=(w,)) for w in range(num_workers)]
+    threads = [
+        threading.Thread(
+            target=thread_safe(upsert_one, errors, barrier=barrier, barrier_timeout=10.0), args=(w,)
+        )
+        for w in range(num_workers)
+    ]
     for t in threads:
         t.start()
     for t in threads:
@@ -101,7 +118,7 @@ def test_twenty_writers_single_key_highest_ts_wins() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_process_interleaved_creates() -> None:
     barrier = threading.Barrier(3)
     errors: list[Exception] = []
@@ -113,14 +130,32 @@ def test_concurrent_process_interleaved_creates() -> None:
         storage = make_storage()
         models = storage.get_syncable_models()
         graph = DependencyGraph({m: set() for m in models})
-        engine = DatabaseEngine(storage=storage, graph=graph, clock=HybridLogicalClock(), node_id='server', clock_drift_max=None)
+        engine = DatabaseEngine(
+            storage=storage,
+            graph=graph,
+            clock=HybridLogicalClock(),
+            node_id='server',
+            clock_drift_max=None,
+        )
         records = {}
         for i, key in enumerate(tablet_keys[tablet_id]):
-            records[key] = SyncRecord(key=key, data={'id': key, 'name': f'{tablet_id}-r{i}', 'value': i}, timestamps={'name': 200, 'value': 200})
-        manifest = make_manifest(node_id=tablet_id, local_sequence=0, node_time=int(time.time()), payloads=[ModelPayload(model_label='sync_tests.SyncTestModel', records=records)])
+            records[key] = SyncRecord(
+                key=key,
+                data={'id': key, 'name': f'{tablet_id}-r{i}', 'value': i},
+                timestamps={'name': 200, 'value': 200},
+            )
+        manifest = make_manifest(
+            node_id=tablet_id,
+            local_sequence=0,
+            node_time=int(time.time()),
+            payloads=[ModelPayload(model_label='sync_tests.SyncTestModel', records=records)],
+        )
         engine.process(manifest)
 
-    threads = [threading.Thread(target=thread_safe(process_creates, errors, barrier=barrier), args=(tid,)) for tid in tablet_keys]
+    threads = [
+        threading.Thread(target=thread_safe(process_creates, errors, barrier=barrier), args=(tid,))
+        for tid in tablet_keys
+    ]
     for t in threads:
         t.start()
     for t in threads:
@@ -136,7 +171,7 @@ def test_concurrent_process_interleaved_creates() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_sustained_throughput_floor() -> None:
     duration = 5.0
     num_workers = 8
@@ -150,11 +185,20 @@ def test_sustained_throughput_floor() -> None:
         ts = 1
         while not stop.is_set():
             key = uuid_from_ints(wid + 1, counters[wid])
-            storage.upsert_many('sync_tests.SyncTestModel', {key: make_named_record(key, f'w{wid}', ts, value=counters[wid])}, '')
+            storage.upsert_many(
+                'sync_tests.SyncTestModel',
+                {key: make_named_record(key, f'w{wid}', ts, value=counters[wid])},
+                '',
+            )
             counters[wid] += 1
             ts += 1
 
-    threads = [threading.Thread(target=thread_safe(worker, errors, barrier=barrier, barrier_timeout=10.0), args=(w,)) for w in range(num_workers)]
+    threads = [
+        threading.Thread(
+            target=thread_safe(worker, errors, barrier=barrier, barrier_timeout=10.0), args=(w,)
+        )
+        for w in range(num_workers)
+    ]
     start = time.monotonic()
     for t in threads:
         t.start()
@@ -167,7 +211,9 @@ def test_sustained_throughput_floor() -> None:
     assert not errors, f'errors: {errors[:3]}'
     total = sum(counters)
     throughput = total / elapsed
-    assert throughput >= 50.0, f'throughput {throughput:.1f} ops/s under floor (total={total}, elapsed={elapsed:.2f}s)'
+    assert throughput >= 50.0, (
+        f'throughput {throughput:.1f} ops/s under floor (total={total}, elapsed={elapsed:.2f}s)'
+    )
     assert SyncTestModel.objects.count() == total
 
 
@@ -192,7 +238,7 @@ def test_get_changed_since_returns_all_records_under_load() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_mixed_read_write_load() -> None:
     setup = make_storage()
     seed_records = {}
@@ -212,7 +258,11 @@ def test_mixed_read_write_load() -> None:
         ts = 200 + wid * 100_000
         while not stop.is_set():
             key = uuid_from_ints(0xBEEF, write_counts[wid] % 100)
-            storage.upsert_many('sync_tests.SyncTestModel', {key: make_named_record(key, f'w{wid}', ts, value=write_counts[wid])}, '')
+            storage.upsert_many(
+                'sync_tests.SyncTestModel',
+                {key: make_named_record(key, f'w{wid}', ts, value=write_counts[wid])},
+                '',
+            )
             write_counts[wid] += 1
             ts += 1
 
@@ -220,14 +270,15 @@ def test_mixed_read_write_load() -> None:
         storage = make_storage()
         local = 0
         while not stop.is_set():
-            fetched = storage.get_records('sync_tests.SyncTestModel', {uuid_from_ints(0xBEEF, i) for i in range(0, 100, 5)})
+            fetched = storage.get_records(
+                'sync_tests.SyncTestModel', {uuid_from_ints(0xBEEF, i) for i in range(0, 100, 5)}
+            )
             local += len(fetched)
         read_counts.append(local)
 
-    threads = (
-        [threading.Thread(target=thread_safe(writer, errors), args=(w,)) for w in range(4)]
-        + [threading.Thread(target=thread_safe(reader, errors)) for _ in range(4)]
-    )
+    threads = [
+        threading.Thread(target=thread_safe(writer, errors), args=(w,)) for w in range(4)
+    ] + [threading.Thread(target=thread_safe(reader, errors)) for _ in range(4)]
     for t in threads:
         t.start()
     time.sleep(duration)

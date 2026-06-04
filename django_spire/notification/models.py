@@ -10,7 +10,7 @@ from django_spire.history.mixins import HistoryModelMixin
 from django_spire.notification.choices import (
     NotificationPriorityChoices,
     NotificationStatusChoices,
-    NotificationTypeChoices
+    NotificationTypeChoices,
 )
 from django_spire.notification.querysets import NotificationQuerySet
 
@@ -23,13 +23,13 @@ class Notification(HistoryModelMixin):
         blank=True,
         null=True,
         related_name='notifications',
-        related_query_name='notification'
+        related_query_name='notification',
     )
 
     type = models.CharField(
         max_length=32,
         default=NotificationTypeChoices.EMAIL,
-        choices=NotificationTypeChoices.choices
+        choices=NotificationTypeChoices.choices,
     )
     title = models.CharField(max_length=124)
     body = models.TextField(default='')
@@ -37,13 +37,13 @@ class Notification(HistoryModelMixin):
     status = models.CharField(
         max_length=32,
         default=NotificationStatusChoices.PENDING,
-        choices=NotificationStatusChoices.choices
+        choices=NotificationStatusChoices.choices,
     )
     status_message = models.TextField(default='')
     priority = models.CharField(
         max_length=32,
         default=NotificationPriorityChoices.LOW,
-        choices=NotificationPriorityChoices.choices
+        choices=NotificationPriorityChoices.choices,
     )
 
     publish_datetime = models.DateTimeField(default=now)
@@ -56,7 +56,7 @@ class Notification(HistoryModelMixin):
         on_delete=models.CASCADE,
         editable=False,
         null=True,
-        blank=True
+        blank=True,
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
 

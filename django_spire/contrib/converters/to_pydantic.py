@@ -15,8 +15,8 @@ from django_spire.contrib.maps import MODEL_FIELD_TYPE_TO_TYPE_MAP
 def django_to_pydantic_model(
     model_class: type[models.Model],
     base_class: type | None = None,
-    include_fields: str | list| tuple | None = None,
-    exclude_fields: str | list | tuple | None = None
+    include_fields: str | list | tuple | None = None,
+    exclude_fields: str | list | tuple | None = None,
 ):
     if not issubclass(model_class, models.Model):
         message = 'model_class must be a subclass of django.db.models.Model'
@@ -42,11 +42,7 @@ def django_to_pydantic_model(
         converter = DjangoToPydanticFieldConverter(model_field)
         pydantic_fields[field_name] = converter.build_field()
 
-    return create_model(
-        f'{model_class.__name__}',
-        __base__=base_class,
-        **pydantic_fields
-    )
+    return create_model(f'{model_class.__name__}', __base__=base_class, **pydantic_fields)
 
 
 class DjangoToPydanticFieldConverter:
@@ -61,9 +57,9 @@ class DjangoToPydanticFieldConverter:
     @staticmethod
     def bool_to_json_schema(value: bool):
         if value:
-            return "true"
+            return 'true'
 
-        return "false"
+        return 'false'
 
     @property
     def field_handlers(self):
@@ -77,10 +73,7 @@ class DjangoToPydanticFieldConverter:
         }
 
     def _base_type(self):
-        return MODEL_FIELD_TYPE_TO_TYPE_MAP.get(
-            self.model_field.get_internal_type(),
-            str
-        )
+        return MODEL_FIELD_TYPE_TO_TYPE_MAP.get(self.model_field.get_internal_type(), str)
 
     def _build_char_field(self) -> type:
         if self.model_field.max_length:
@@ -110,12 +103,11 @@ class DjangoToPydanticFieldConverter:
         self.kwargs['json_schema_extra']['decimal_places'] = self.model_field.decimal_places
 
         return condecimal(
-            max_digits=self.model_field.max_digits,
-            decimal_places=self.model_field.decimal_places
+            max_digits=self.model_field.max_digits, decimal_places=self.model_field.decimal_places
         )
 
     def _build_enum_type(self):
-        enum_name = f"{self.model_field.name.capitalize()}Enum"
+        enum_name = f'{self.model_field.name.capitalize()}Enum'
         return django_choices_to_enums(enum_name, self.model_field.choices)
 
     def build_field(self) -> tuple[type, Any]:
@@ -141,14 +133,18 @@ class DjangoToPydanticFieldConverter:
             'required': self.bool_to_json_schema(not self.model_field.null),
             'is_unique': self.bool_to_json_schema(self.model_field.unique),
             # 'is_required': self.bool_to_json_schema(not self.model_field.null),
-            'field_name': self.model_field.name
+            'field_name': self.model_field.name,
         }
 
         if self.model_field.choices:
-            self.kwargs['json_schema_extra']['enum'] = [choice[0] for choice in self.model_field.choices]
-            self.kwargs['description'] = f"Select a {self.model_field.name.lower()} category. Options: " + ", ".join(
-                f"{value} ({label})" for value, label in self.model_field.choices
-            ) + "."
+            self.kwargs['json_schema_extra']['enum'] = [
+                choice[0] for choice in self.model_field.choices
+            ]
+            self.kwargs['description'] = (
+                f'Select a {self.model_field.name.lower()} category. Options: '
+                + ', '.join(f'{value} ({label})' for value, label in self.model_field.choices)
+                + '.'
+            )
 
     def _get_pydantic_type(self) -> type:
         if self.model_field.choices:

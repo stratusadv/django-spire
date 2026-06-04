@@ -45,23 +45,29 @@ class TestOracleConvergence:
         ts_late = sim.harness.ts()
 
         sim.harness.tablet_save(
-            'tablet_1', 'app.Record', 'r-1',
+            'tablet_1',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'tablet-1-name', 'value': 100},
             {'name': ts_late, 'value': ts_early},
         )
         sim.oracle.record_write(
-            'app.Record', 'r-1',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'tablet-1-name', 'value': 100},
             {'name': ts_late, 'value': ts_early},
         )
 
         sim.harness.tablet_save(
-            'tablet_2', 'app.Record', 'r-1',
+            'tablet_2',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'tablet-2-name', 'value': 200},
             {'name': ts_early, 'value': ts_late},
         )
         sim.oracle.record_write(
-            'app.Record', 'r-1',
+            'app.Record',
+            'r-1',
             {'id': 'r-1', 'name': 'tablet-2-name', 'value': 200},
             {'name': ts_early, 'value': ts_late},
         )
@@ -132,15 +138,11 @@ class TestCrashRecovery:
 
         sim.write_tablet('tablet_1', 'app.Record', 'r-1')
 
-        before = dict(
-            sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].data
-        )
+        before = dict(sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].data)
 
         sim.crash_mid_sync('tablet_1')
 
-        after = dict(
-            sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].data
-        )
+        after = dict(sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].data)
 
         assert before == after
 
@@ -219,16 +221,9 @@ class TestSwarmSimulation:
     )
     @settings(max_examples=50, deadline=15_000)
     def test_random_ops_converge_with_oracle(
-        self,
-        seed: int,
-        tablet_count: int,
-        num_operations: int,
+        self, seed: int, tablet_count: int, num_operations: int
     ) -> None:
-        sim = SyncSimulator(
-            tablet_count=tablet_count,
-            schemas=FLAT_SCHEMA,
-            seed=seed,
-        )
+        sim = SyncSimulator(tablet_count=tablet_count, schemas=FLAT_SCHEMA, seed=seed)
         sim.run(num_operations)
         sim.assert_converged_with_oracle()
 
@@ -237,16 +232,8 @@ class TestSwarmSimulation:
         num_operations=st.integers(min_value=20, max_value=100),
     )
     @settings(max_examples=30, deadline=15_000)
-    def test_crash_heavy_converges_with_oracle(
-        self,
-        seed: int,
-        num_operations: int,
-    ) -> None:
-        sim = SyncSimulator(
-            tablet_count=3,
-            schemas=FLAT_SCHEMA,
-            seed=seed,
-        )
+    def test_crash_heavy_converges_with_oracle(self, seed: int, num_operations: int) -> None:
+        sim = SyncSimulator(tablet_count=3, schemas=FLAT_SCHEMA, seed=seed)
         sim._weights = {
             OpTag.WRITE_TABLET: 40,
             OpTag.WRITE_SERVER: 15,
@@ -263,47 +250,23 @@ class TestSwarmSimulation:
         num_keys=st.integers(min_value=1, max_value=15),
     )
     @settings(max_examples=30, deadline=15_000)
-    def test_variable_schema_converges(
-        self,
-        seed: int,
-        num_fields: int,
-        num_keys: int,
-    ) -> None:
-        schemas = [
-            ModelSchema(
-                label='app.Dynamic',
-                fields=[f'f_{i}' for i in range(num_fields)],
-            ),
-        ]
-        sim = SyncSimulator(
-            tablet_count=3,
-            schemas=schemas,
-            num_keys=num_keys,
-            seed=seed,
-        )
+    def test_variable_schema_converges(self, seed: int, num_fields: int, num_keys: int) -> None:
+        schemas = [ModelSchema(label='app.Dynamic', fields=[f'f_{i}' for i in range(num_fields)])]
+        sim = SyncSimulator(tablet_count=3, schemas=schemas, num_keys=num_keys, seed=seed)
         sim.run(40)
         sim.assert_converged_with_oracle()
 
     @given(seed=st.integers(min_value=0, max_value=2**32))
     @settings(max_examples=20, deadline=15_000)
     def test_high_contention_single_key(self, seed: int) -> None:
-        sim = SyncSimulator(
-            tablet_count=5,
-            schemas=FLAT_SCHEMA,
-            num_keys=1,
-            seed=seed,
-        )
+        sim = SyncSimulator(tablet_count=5, schemas=FLAT_SCHEMA, num_keys=1, seed=seed)
         sim.run(60)
         sim.assert_converged_with_oracle()
 
     @given(seed=st.integers(min_value=0, max_value=2**32))
     @settings(max_examples=20, deadline=15_000)
     def test_wide_schema_under_chaos(self, seed: int) -> None:
-        sim = SyncSimulator(
-            tablet_count=3,
-            schemas=WIDE_SCHEMA,
-            seed=seed,
-        )
+        sim = SyncSimulator(tablet_count=3, schemas=WIDE_SCHEMA, seed=seed)
         sim._weights[OpTag.CRASH_MID_SYNC] = 10
         sim.run(50)
         sim.assert_converged_with_oracle()
@@ -311,11 +274,7 @@ class TestSwarmSimulation:
     @given(seed=st.integers(min_value=0, max_value=2**32))
     @settings(max_examples=20, deadline=15_000)
     def test_write_heavy_no_sync_then_converge(self, seed: int) -> None:
-        sim = SyncSimulator(
-            tablet_count=4,
-            schemas=FLAT_SCHEMA,
-            seed=seed,
-        )
+        sim = SyncSimulator(tablet_count=4, schemas=FLAT_SCHEMA, seed=seed)
         sim._weights = {
             OpTag.WRITE_TABLET: 100,
             OpTag.WRITE_SERVER: 30,
@@ -331,11 +290,7 @@ class TestSwarmSimulation:
     @given(seed=st.integers(min_value=0, max_value=2**32))
     @settings(max_examples=20, deadline=15_000)
     def test_sync_heavy_with_sparse_writes(self, seed: int) -> None:
-        sim = SyncSimulator(
-            tablet_count=3,
-            schemas=FLAT_SCHEMA,
-            seed=seed,
-        )
+        sim = SyncSimulator(tablet_count=3, schemas=FLAT_SCHEMA, seed=seed)
         sim._weights = {
             OpTag.WRITE_TABLET: 5,
             OpTag.WRITE_SERVER: 2,
@@ -350,40 +305,23 @@ class TestSwarmSimulation:
 class TestScaleParameters:
     @pytest.mark.parametrize('tablet_count', [1, 2, 3, 5])
     def test_oracle_holds_across_tablet_counts(self, tablet_count: int) -> None:
-        sim = SyncSimulator(
-            tablet_count=tablet_count,
-            schemas=FLAT_SCHEMA,
-            seed=42,
-        )
+        sim = SyncSimulator(tablet_count=tablet_count, schemas=FLAT_SCHEMA, seed=42)
         sim.run(40)
         sim.assert_converged_with_oracle()
 
     @pytest.mark.parametrize('record_count', [1, 10, 50])
     def test_oracle_holds_across_record_counts(self, record_count: int) -> None:
-        sim = SyncSimulator(
-            tablet_count=2,
-            schemas=FLAT_SCHEMA,
-            num_keys=record_count,
-            seed=42,
-        )
+        sim = SyncSimulator(tablet_count=2, schemas=FLAT_SCHEMA, num_keys=record_count, seed=42)
         sim.run(60)
         sim.assert_converged_with_oracle()
 
     def test_twenty_field_schema(self) -> None:
-        sim = SyncSimulator(
-            tablet_count=3,
-            schemas=WIDE_SCHEMA,
-            seed=42,
-        )
+        sim = SyncSimulator(tablet_count=3, schemas=WIDE_SCHEMA, seed=42)
         sim.run(50)
         sim.assert_converged_with_oracle()
 
     def test_five_tablets_crash_heavy(self) -> None:
-        sim = SyncSimulator(
-            tablet_count=5,
-            schemas=FLAT_SCHEMA,
-            seed=42,
-        )
+        sim = SyncSimulator(tablet_count=5, schemas=FLAT_SCHEMA, seed=42)
         sim._weights[OpTag.CRASH_MID_SYNC] = 20
         sim.run(80)
         sim.assert_converged_with_oracle()

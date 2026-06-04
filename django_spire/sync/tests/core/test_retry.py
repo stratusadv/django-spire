@@ -5,10 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from django_spire.sync.core.exceptions import (
-    InvalidParameterError,
-    RetryExhaustedError,
-)
+from django_spire.sync.core.exceptions import InvalidParameterError, RetryExhaustedError
 from django_spire.sync.core.retry import retry, _DELAY_MAX
 
 
@@ -30,12 +27,7 @@ def test_retries_on_failure() -> None:
 
         return 'ok'
 
-    result = retry(
-        flaky,
-        attempts=3,
-        delay=0,
-        exceptions=(OSError,),
-    )
+    result = retry(flaky, attempts=3, delay=0, exceptions=(OSError,))
 
     assert result == 'ok'
     assert len(calls) == 3
@@ -133,13 +125,7 @@ def test_backoff_multiplies_delay(mock_sleep: object) -> None:
         raise OSError(message)
 
     with pytest.raises(RetryExhaustedError):
-        retry(
-            always_fail,
-            attempts=4,
-            delay=1.0,
-            backoff=2.0,
-            exceptions=(OSError,),
-        )
+        retry(always_fail, attempts=4, delay=1.0, backoff=2.0, exceptions=(OSError,))
 
     sleep_values = [c[0][0] for c in mock_sleep.call_args_list]
 
@@ -159,13 +145,7 @@ def test_delay_capped_at_max(mock_sleep: object) -> None:
         raise OSError(message)
 
     with pytest.raises(RetryExhaustedError):
-        retry(
-            always_fail,
-            attempts=3,
-            delay=200.0,
-            backoff=2.0,
-            exceptions=(OSError,),
-        )
+        retry(always_fail, attempts=3, delay=200.0, backoff=2.0, exceptions=(OSError,))
 
     sleep_values = [c[0][0] for c in mock_sleep.call_args_list]
 
@@ -192,13 +172,7 @@ def test_backoff_exactly_one_keeps_constant_delay() -> None:
         return 42
 
     with patch('django_spire.sync.core.retry.time.sleep') as mock_sleep:
-        result = retry(
-            fail_twice,
-            attempts=3,
-            delay=5.0,
-            backoff=1.0,
-            exceptions=(OSError,),
-        )
+        result = retry(fail_twice, attempts=3, delay=5.0, backoff=1.0, exceptions=(OSError,))
 
     assert result == 42
 

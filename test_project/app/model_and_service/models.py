@@ -15,9 +15,7 @@ class Adult(ActivityMixin, HistoryModelMixin):
     last_name = models.CharField(max_length=32)
     description = models.TextField()
     personality_type = models.CharField(
-        max_length=3,
-        choices=[('int', 'Introvert'), ('ext', 'Extrovert')],
-        default='int',
+        max_length=3, choices=[('int', 'Introvert'), ('ext', 'Extrovert')], default='int'
     )
     email = models.EmailField(blank=True, null=True)
     favorite_number = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(999)])
@@ -25,12 +23,7 @@ class Adult(ActivityMixin, HistoryModelMixin):
     birth_date = models.DateField(default=localdate)
     weight_lbs = models.DecimalField(max_digits=7, decimal_places=3)
 
-    best_friend = models.ForeignKey(
-        'self',
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
-    )
+    best_friend = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 
     bed_time = models.TimeField(default='20:00')
     likes_to_party = models.BooleanField(default=True)
@@ -54,10 +47,7 @@ class Adult(ActivityMixin, HistoryModelMixin):
 
 class Kid(ActivityMixin, HistoryModelMixin):
     parent = models.ForeignKey(
-        Adult,
-        on_delete=models.CASCADE,
-        related_name='children',
-        related_query_name='child'
+        Adult, on_delete=models.CASCADE, related_name='children', related_query_name='child'
     )
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)

@@ -7,7 +7,7 @@ from django_spire.file.exceptions import (
     FileContentError,
     FileExtensionError,
     FileNameError,
-    FileSizeError
+    FileSizeError,
 )
 from django_spire.file.extensions import DEFAULT_BLOCKED_EXTENSIONS
 from django_spire.file.utils import parse_extension
@@ -26,19 +26,14 @@ _EXECUTABLE_SIGNATURES = (
     b'\xce\xfa\xed\xfe',
 )
 
-_SIGNATURE_READ_SIZE = max(
-    len(signature)
-    for signature in _EXECUTABLE_SIGNATURES
-)
+_SIGNATURE_READ_SIZE = max(len(signature) for signature in _EXECUTABLE_SIGNATURES)
 
 
 @dataclass
 class FileValidator:
     size_bytes_max: int = 10 * 1024 * 1024
     allowed_extensions: frozenset[str] | None = None
-    blocked_extensions: frozenset[str] = field(
-        default_factory=lambda: DEFAULT_BLOCKED_EXTENSIONS
-    )
+    blocked_extensions: frozenset[str] = field(default_factory=lambda: DEFAULT_BLOCKED_EXTENSIONS)
     content_validation: bool = True
 
     def __post_init__(self) -> None:
@@ -79,8 +74,7 @@ class FileValidator:
 
         if file.size > self.size_bytes_max:
             message = (
-                f'File size ({file.size} bytes) exceeds '
-                f'maximum ({self.size_bytes_max} bytes).'
+                f'File size ({file.size} bytes) exceeds maximum ({self.size_bytes_max} bytes).'
             )
             raise FileSizeError(message)
 

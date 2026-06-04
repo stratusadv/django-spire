@@ -6,10 +6,7 @@ from django_spire.ai.context import choices
 from faker import Faker
 
 
-models.Organization.objects.create(
-    name='Spire Candy',
-    legal_name='Spire Candy Processors Limited',
-)
+models.Organization.objects.create(name='Spire Candy', legal_name='Spire Candy Processors Limited')
 
 for people_role_choice in choices.PersonRoleChoices:
     first_name = Faker().first_name()

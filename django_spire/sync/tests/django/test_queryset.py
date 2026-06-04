@@ -196,10 +196,7 @@ def test_bulk_create_sets_timestamps() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
-    instances = [
-        SyncTestModel(name=f'bulk-{i}', value=i)
-        for i in range(3)
-    ]
+    instances = [SyncTestModel(name=f'bulk-{i}', value=i) for i in range(3)]
 
     created = SyncTestModel.objects.bulk_create(instances)
 
@@ -213,10 +210,7 @@ def test_bulk_create_with_bypass_skips_timestamps() -> None:
     clock = HybridLogicalClock()
     SyncableMixin.configure(clock)
 
-    instances = [
-        SyncTestModel(name=f'bypass-bulk-{i}', value=i)
-        for i in range(3)
-    ]
+    instances = [SyncTestModel(name=f'bypass-bulk-{i}', value=i) for i in range(3)]
 
     with sync_bypass():
         created = SyncTestModel.objects.bulk_create(instances)

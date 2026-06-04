@@ -3,9 +3,7 @@ from __future__ import annotations
 from dandy import Prompt
 
 
-def negation_prompt(
-    negation_rules: list[str]
-) -> Prompt:
+def negation_prompt(negation_rules: list[str]) -> Prompt:
     return (
         Prompt()
         .text('This step is mission critical. Do NOT deviate from this requirement.')

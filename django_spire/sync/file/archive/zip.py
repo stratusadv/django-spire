@@ -30,21 +30,14 @@ class ZipArchive(Archive):
         self._flatten = flatten
         self._collision = collision
 
-    def _resolve_target(
-        self,
-        info: zipfile.ZipInfo,
-        target_dir: Path,
-    ) -> Path:
+    def _resolve_target(self, info: zipfile.ZipInfo, target_dir: Path) -> Path:
         if self._flatten:
             return target_dir / Path(info.filename).name
 
         target = (target_dir / info.filename).resolve()
 
         if not target.is_relative_to(target_dir.resolve()):
-            message = (
-                f'Path traversal detected in archive entry: '
-                f'{info.filename!r}'
-            )
+            message = f'Path traversal detected in archive entry: {info.filename!r}'
 
             raise FileSyncArchiveError(message)
 
@@ -78,11 +71,7 @@ class ZipArchive(Archive):
                         raise FileSyncArchiveError(message)
 
                     if self._collision is CollisionStrategy.SKIP:
-                        logger.debug(
-                            'Skipping duplicate %s from %s',
-                            target,
-                            info.filename,
-                        )
+                        logger.debug('Skipping duplicate %s from %s', target, info.filename)
                         continue
 
                 seen.add(target_key)
@@ -91,11 +80,6 @@ class ZipArchive(Archive):
                 target.write_bytes(zf.read(info.filename))
                 extracted.append(target)
 
-        logger.info(
-            'Extracted %d files from %s to %s',
-            len(extracted),
-            archive_path,
-            target_dir,
-        )
+        logger.info('Extracted %d files from %s to %s', len(extracted), archive_path, target_dir)
 
         return extracted

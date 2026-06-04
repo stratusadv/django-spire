@@ -26,16 +26,13 @@ if TYPE_CHECKING:
 def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     signage = get_object_or_404(models.Signage, pk=pk)
 
-    form_action = reverse(
-        'metric:visual:signage:form:delete_modal',
-        kwargs={'pk': pk}
-    )
+    form_action = reverse('metric:visual:signage:form:delete_modal', kwargs={'pk': pk})
 
     def add_activity() -> None:
         signage.add_activity(
             user=request.user,
             verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a signage.'
+            information=f'{request.user.get_full_name()} deleted a signage.',
         )
 
     fallback = reverse('metric:visual:signage:page:list')
@@ -54,16 +51,9 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     signage = get_object_or_404(models.Signage, pk=pk)
 
-    return_url = request.GET.get(
-        'return_url',
-        reverse('metric:visual:signage:page:list')
-    )
+    return_url = request.GET.get('return_url', reverse('metric:visual:signage:page:list'))
 
-    return generic_views.delete_form_view(
-        request,
-        obj=signage,
-        return_url=return_url
-    )
+    return generic_views.delete_form_view(request, obj=signage, return_url=return_url)
 
 
 @permission_required('visual_signage.add_signage')
@@ -81,14 +71,10 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'signage', signage)
 
-    context_data = {
-        'signage': signage
-    }
+    context_data = {'signage': signage}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='metric/visual/signage/modal/content/form.html'
+        request, context=context_data, template='metric/visual/signage/modal/content/form.html'
     )
 
 
@@ -102,7 +88,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
+def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     signage = get_object_or_null_obj(models.Signage, pk=pk)
 
     Glue.model(request, 'signage', signage, 'view')
@@ -115,10 +101,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
             add_form_activity(signage, pk, request.user)
 
             return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('metric:visual:signage:page:list')
-                )
+                request.GET.get('return_url', reverse('metric:visual:signage:page:list'))
             )
 
         show_form_errors(request, form)
@@ -126,8 +109,5 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpRespon
         form = forms.SignageForm(instance=signage)
 
     return generic_views.form_view(
-        request,
-        form=form,
-        obj=signage,
-        template='metric/visual/signage/page/form_page.html'
+        request, form=form, obj=signage, template='metric/visual/signage/page/form_page.html'
     )

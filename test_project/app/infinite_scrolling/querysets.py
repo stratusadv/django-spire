@@ -12,16 +12,11 @@ if TYPE_CHECKING:
     from test_project.app.infinite_scrolling.models import InfiniteScrolling
 
 
-class InfiniteScrollingQuerySet(
-    HistoryQuerySet,
-):
+class InfiniteScrollingQuerySet(HistoryQuerySet):
     def search(self, search_value: str | None) -> QuerySet[InfiniteScrolling]:
         if not search_value:
             return self
 
         search_value = search_value.strip()
 
-        return self.filter(
-            Q(name__icontains=search_value) |
-            Q(description__icontains=search_value)
-        )
+        return self.filter(Q(name__icontains=search_value) | Q(description__icontains=search_value))

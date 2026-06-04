@@ -26,11 +26,9 @@ def app_notification_dropdown_context_data(user: WSGIRequest) -> dict:
             'body': app_notification.notification.message,
             'url': app_notification.notification.url,
             'time_since_delivered': app_notification.verbose_time_since_delivered,
-            'viewed': app_notification.viewed
+            'viewed': app_notification.viewed,
         }
         for app_notification in app_notification_list
     ]
 
-    return {
-        'notification_list_json': json.dumps(formatted_notification_data),
-    }
+    return {'notification_list_json': json.dumps(formatted_notification_data)}

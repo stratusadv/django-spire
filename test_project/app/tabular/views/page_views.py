@@ -26,9 +26,7 @@ def list_page(request: WSGIRequest):
     task = get_object_or_null_obj(Task, pk=0)
 
     Task.objects.process_session_filter(
-        request=request,
-        session_key=TASK_FILTERING_SESSION_KEY,
-        form_class=TaskListFilterForm,
+        request=request, session_key=TASK_FILTERING_SESSION_KEY, form_class=TaskListFilterForm
     )
 
     Glue.model(request, 'task', task)
@@ -43,19 +41,13 @@ def list_page(request: WSGIRequest):
     }
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='tabular/page/list_page.html',
+        request=request, context=context_data, template='tabular/page/list_page.html'
     )
 
 
 def migration_list_page(request: WSGIRequest):
-    context_data = {
-        'endpoint': reverse('tabular:template:migration_rows'),
-    }
+    context_data = {'endpoint': reverse('tabular:template:migration_rows')}
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='tabular/page/migration_list_page.html',
+        request=request, context=context_data, template='tabular/page/migration_list_page.html'
     )

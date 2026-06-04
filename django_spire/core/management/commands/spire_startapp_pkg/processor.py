@@ -52,10 +52,7 @@ class TemplateProcessor:
         self._filesystem = filesystem
 
     def process_app_templates(
-        self,
-        directory: Path,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        self, directory: Path, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> None:
         """
         Processes all template files in an app directory.
@@ -78,10 +75,7 @@ class TemplateProcessor:
         self._rename_template_files(directory)
 
     def process_html_templates(
-        self,
-        directory: Path,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        self, directory: Path, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> None:
         """
         Processes all HTML template files in a directory.
@@ -100,10 +94,7 @@ class TemplateProcessor:
         self._rename_template_files(directory)
 
     def _process_file(
-        self,
-        path: Path,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        self, path: Path, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> None:
         """
         Processes a single template file.
@@ -119,10 +110,7 @@ class TemplateProcessor:
         self._rename_file(path, components, user_inputs)
 
     def _rename_file(
-        self,
-        path: Path,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        self, path: Path, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> None:
         """
         Renames a file by replacing placeholders in its filename.
@@ -152,10 +140,7 @@ class TemplateProcessor:
             self._filesystem.rename(template_file, new_path)
 
     def _replace_content(
-        self,
-        path: Path,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        self, path: Path, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> None:
         """
         Replaces placeholders in a file's content.

@@ -22,12 +22,6 @@ class EntryTagService(BaseTagService['Entry']):
         for version_block in self.obj.current_version.blocks.all():
             entry_prompt.text(f'{version_block.render_to_text()}')
 
-        tag_set = TagSetBot().process(
-            content=entry_prompt
-        )
+        tag_set = TagSetBot().process(content=entry_prompt)
 
-        self.set_tags_from_tag_set(
-            tag_set=tag_set,
-        )
-
-
+        self.set_tags_from_tag_set(tag_set=tag_set)

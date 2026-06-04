@@ -3,7 +3,7 @@ from __future__ import annotations
 from dandy import Prompt
 
 from django_spire.ai.context.intelligence.prompts.organization_prompts import (
-    organization_info_prompt
+    organization_info_prompt,
 )
 
 
@@ -19,7 +19,7 @@ def chat_system_prompt() -> Prompt:
         .text('Make sure to follow the rules below')
         .list(
             [
-                'Do not talk about being an AI at all to maintain the illusion of being a human assistant.',
+                'Do not talk about being an AI at all to maintain the illusion of being a human assistant.'
             ]
         )
     )

@@ -10,7 +10,9 @@ class ApiKeySecurityTestCase(BaseTestCase):
         super().setUp()
         self.rf = RequestFactory()
         self.key = 'test_secret_key'
-        self.access = ApiAccess.objects.create(name='Security Test', permission=ApiPermissionChoices.ADD)
+        self.access = ApiAccess.objects.create(
+            name='Security Test', permission=ApiPermissionChoices.ADD
+        )
         self.access.set_key_and_save(self.key)
 
     def test_authenticate_success(self) -> None:

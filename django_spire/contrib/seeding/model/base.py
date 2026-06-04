@@ -75,21 +75,11 @@ class BaseModelSeeder(ABC):
 
     @classmethod
     @recorder_to_html_file('model_seeder')
-    def seed_data(
-        cls,
-        count: int = 1,
-        fields: dict | None = None,
-    ) -> list[dict]:
-        field_config = (
-            cls.get_field_config().override(fields)
-            if fields
-            else cls.get_field_config()
-        )
+    def seed_data(cls, count: int = 1, fields: dict | None = None) -> list[dict]:
+        field_config = cls.get_field_config().override(fields) if fields else cls.get_field_config()
 
         if cls.cache_seed:
-            cache_key = generate_cache_key(
-                cls.seed_data, count=count, fields=field_config.fields
-            )
+            cache_key = generate_cache_key(cls.seed_data, count=count, fields=field_config.fields)
 
             cache = SqliteCache(cache_name=cls.cache_name, limit=cls.cache_limit)
             formatted_seed_data = cache.get(cache_key)
@@ -105,9 +95,7 @@ class BaseModelSeeder(ABC):
             if len(seeder.seeder_fields) > 0:
                 seed_data.append(seeder.seed(cls, count))
 
-        formatted_seed_data = [
-            {} for _ in range(count)
-        ]
+        formatted_seed_data = [{} for _ in range(count)]
 
         for sublist in seed_data:
             for data, sub_data in zip(formatted_seed_data, sublist, strict=False):
@@ -119,11 +107,5 @@ class BaseModelSeeder(ABC):
         return formatted_seed_data
 
     @classmethod
-    def seed(
-        cls,
-        count: int = 1,
-        fields: dict | None = None,
-    ) -> list:
-        return [
-            cls.model_class(**seed_data) for seed_data in cls.seed_data(count, fields)
-        ]
+    def seed(cls, count: int = 1, fields: dict | None = None) -> list:
+        return [cls.model_class(**seed_data) for seed_data in cls.seed_data(count, fields)]

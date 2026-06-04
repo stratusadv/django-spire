@@ -23,10 +23,7 @@ class EmailNotification(models.Model):
     )
 
     attachments = models.ManyToManyField(
-        File,
-        blank=True,
-        related_name='attachments',
-        related_query_name='attachment',
+        File, blank=True, related_name='attachments', related_query_name='attachment'
     )
 
     to_email_address = models.EmailField()

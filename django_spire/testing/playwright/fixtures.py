@@ -16,19 +16,12 @@ def pytest_configure(config: Any) -> None:
 
 @pytest.fixture(scope='session')
 def browser_context_args(browser_context_args: dict[str, Any]) -> dict[str, Any]:
-    return {
-        **browser_context_args,
-        'no_viewport': True,
-        'viewport': None,
-    }
+    return {**browser_context_args, 'no_viewport': True, 'viewport': None}
 
 
 @pytest.fixture(scope='session')
 def browser_type_launch_args(browser_type_launch_args: dict[str, Any]) -> dict[str, Any]:
-    return {
-        **browser_type_launch_args,
-        'args': ['--start-maximized'],
-    }
+    return {**browser_type_launch_args, 'args': ['--start-maximized']}
 
 
 @pytest.fixture
@@ -38,10 +31,7 @@ def authenticated_page(page: Page, live_server: _LiveServer, transactional_db: N
     User = get_user_model()
 
     User.objects.create_user(
-        username='testuser',
-        password='testpass123',
-        is_staff=True,
-        is_superuser=True
+        username='testuser', password='testpass123', is_staff=True, is_superuser=True
     )
 
     page.goto(f'{live_server.url}/admin/login/')

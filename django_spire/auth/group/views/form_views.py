@@ -26,10 +26,7 @@ if TYPE_CHECKING:
 
 
 @permission_required('django_spire_auth_group.change_authgroup')
-def form_view(
-    request: WSGIRequest,
-    pk: int = 0
-) -> TemplateResponse | HttpResponseRedirect:
+def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_null_obj(models.AuthGroup, pk=pk)
 
     Glue.model(request, 'group', group)
@@ -60,18 +57,12 @@ def form_view(
 
 
 @permission_required('django_spire_auth_group.add_authgroup')
-def user_form_view(
-    request: WSGIRequest,
-    pk: int
-) -> TemplateResponse | HttpResponseRedirect:
+def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     user_choices = AuthUser.services.get_user_choices()
 
     selected_user_ids = list(
-        AuthUser.objects
-        .filter(groups=group)
-        .values_list('id', flat=True)
-        .distinct()
+        AuthUser.objects.filter(groups=group).values_list('id', flat=True).distinct()
     )
 
     if request.method == 'POST':
@@ -87,7 +78,7 @@ def user_form_view(
                 information=(
                     f'{request.user.get_full_name()} added {len(user_list)} users to '
                     f'the group "{group.name}".'
-                )
+                ),
             )
 
             return_url = reverse('django_spire:auth:group:page:detail', kwargs={'pk': pk})
@@ -103,7 +94,7 @@ def user_form_view(
     context_data = {
         'group': group,
         'user_choices': user_choices,
-        'selected_user_ids': selected_user_ids
+        'selected_user_ids': selected_user_ids,
     }
 
     return generic_views.form_view(
@@ -126,15 +117,13 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         obj=group,
         delete_func=group.delete,
         activity_func=lambda: None,
-        return_url=return_url
+        return_url=return_url,
     )
 
 
 @permission_required('django_spire_auth_group.delete_authgroup')
 def group_remove_user_form_view(
-    request: WSGIRequest,
-    group_pk: int,
-    pk: int
+    request: WSGIRequest, group_pk: int, pk: int
 ) -> HttpResponseRedirect | TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=group_pk)
     user = get_object_or_404(AuthUser, pk=pk)
@@ -151,14 +140,11 @@ def group_remove_user_form_view(
                 information=(
                     f'{request.user.get_full_name()} removed {user.get_full_name()} '
                     f'from the group "{group.name}".'
-                )
+                ),
             )
 
             return HttpResponseRedirect(
-                reverse(
-                    'django_spire:auth:group:page:detail',
-                    kwargs={'pk': group_pk}
-                )
+                reverse('django_spire:auth:group:page:detail', kwargs={'pk': group_pk})
             )
 
     form = DeleteConfirmationForm(request.GET, obj=user)
@@ -174,5 +160,5 @@ def group_remove_user_form_view(
         verb=f'remove {user.get_full_name()} from',
         obj=group,
         breadcrumbs_func=get_breadcrumbs,
-        template = 'django_spire/page/delete_confirmation_form_page.html'
+        template='django_spire/page/delete_confirmation_form_page.html',
     )

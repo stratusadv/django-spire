@@ -32,20 +32,12 @@ class Theme:
         if isinstance(self.family, str):
             self._validate_family(self.family)
 
-            object.__setattr__(
-                self,
-                'family',
-                ThemeFamily(self.family)
-            )
+            object.__setattr__(self, 'family', ThemeFamily(self.family))
 
         if isinstance(self.mode, str):
             self._validate_mode(self.mode)
 
-            object.__setattr__(
-                self,
-                'mode',
-                ThemeMode(self.mode)
-            )
+            object.__setattr__(self, 'mode', ThemeMode(self.mode))
 
     @classmethod
     def _parse(cls, theme: str) -> tuple[str, str]:
@@ -97,11 +89,7 @@ class Theme:
 
     @classmethod
     def get_available(cls) -> list[Theme]:
-        return [
-            cls(family=family, mode=mode)
-            for family in ThemeFamily
-            for mode in ThemeMode
-        ]
+        return [cls(family=family, mode=mode) for family in ThemeFamily for mode in ThemeMode]
 
     @classmethod
     def get_default(cls) -> Theme:

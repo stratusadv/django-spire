@@ -10,17 +10,31 @@ from django_spire.history.activity.models import Activity
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'content_object_link', 'content_type', 'created_datetime',
-        'verb', 'user_link', 'recipient_link', 'information_snippet'
+        'id',
+        'content_object_link',
+        'content_type',
+        'created_datetime',
+        'verb',
+        'user_link',
+        'recipient_link',
+        'information_snippet',
     )
     list_filter = ('verb', 'created_datetime')
-    search_fields = ('id', 'user__first_name', 'user__last_name', 'recipient__first_name', 'recipient__last_name', 'content_type__model', 'verb')
+    search_fields = (
+        'id',
+        'user__first_name',
+        'user__last_name',
+        'recipient__first_name',
+        'recipient__last_name',
+        'content_type__model',
+        'verb',
+    )
     ordering = ('-created_datetime',)
 
     def content_object_link(self, activity: Activity) -> str:
         url = reverse(
             f'admin:{activity.content_type.app_label}_{activity.content_type.model}_change',
-            args=[activity.object_id]
+            args=[activity.object_id],
         )
 
         return format_html(f'<a href="{url}">{activity.content_object}</a>')

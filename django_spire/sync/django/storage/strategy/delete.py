@@ -10,30 +10,19 @@ if TYPE_CHECKING:
 
 class DeleteStrategy(Protocol):
     def delete(
-        self,
-        model: type[SyncableMixin],
-        deletes: dict[str, int],
-        origin_node: str,
+        self, model: type[SyncableMixin], deletes: dict[str, int], origin_node: str
     ) -> None: ...
 
 
 def _record_tombstone(
-    model_label: str,
-    record_key: str,
-    timestamp: int,
-    sequence: int,
-    origin_node: str,
+    model_label: str, record_key: str, timestamp: int, sequence: int, origin_node: str
 ) -> None:
     from django_spire.sync.django.models.tombstone import SyncTombstone  # noqa: PLC0415
 
     SyncTombstone.objects.update_or_create(
         model_label=model_label,
         record_key=record_key,
-        defaults={
-            'origin_node': origin_node,
-            'sequence': sequence,
-            'timestamp': timestamp,
-        },
+        defaults={'origin_node': origin_node, 'sequence': sequence, 'timestamp': timestamp},
     )
 
 
@@ -41,12 +30,7 @@ class HardDeleteStrategy:
     def __init__(self, identity_field: str = 'id') -> None:
         self._identity_field = identity_field
 
-    def delete(
-        self,
-        model: type[SyncableMixin],
-        deletes: dict[str, int],
-        origin_node: str,
-    ) -> None:
+    def delete(self, model: type[SyncableMixin], deletes: dict[str, int], origin_node: str) -> None:
         if not deletes:
             return
 
@@ -70,11 +54,7 @@ class HardDeleteStrategy:
                 model.objects.filter(**staleness_filter).delete()
 
                 _record_tombstone(
-                    model_label,
-                    key,
-                    tombstone_timestamp,
-                    sequence_first + index,
-                    origin_node,
+                    model_label, key, tombstone_timestamp, sequence_first + index, origin_node
                 )
 
 
@@ -83,9 +63,7 @@ class SoftDeleteStrategy:
         self._identity_field = identity_field
 
     def _collect_pending(
-        self,
-        instances: list[SyncableMixin],
-        deletes: dict[str, int],
+        self, instances: list[SyncableMixin], deletes: dict[str, int]
     ) -> list[SyncableMixin]:
         pending: list[SyncableMixin] = []
 
@@ -103,20 +81,14 @@ class SoftDeleteStrategy:
             instance.sync_field_timestamps = timestamps
 
             instance.sync_field_last_modified = max(
-                instance.sync_field_last_modified,
-                tombstone_timestamp,
+                instance.sync_field_last_modified, tombstone_timestamp
             )
 
             pending.append(instance)
 
         return pending
 
-    def delete(
-        self,
-        model: type[SyncableMixin],
-        deletes: dict[str, int],
-        origin_node: str,
-    ) -> None:
+    def delete(self, model: type[SyncableMixin], deletes: dict[str, int], origin_node: str) -> None:
         if not deletes:
             return
 
@@ -155,9 +127,5 @@ class SoftDeleteStrategy:
                 )
 
                 _record_tombstone(
-                    model_label,
-                    key,
-                    tombstone_timestamp,
-                    local_sequence,
-                    origin_node,
+                    model_label, key, tombstone_timestamp, local_sequence, origin_node
                 )

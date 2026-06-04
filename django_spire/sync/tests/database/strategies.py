@@ -10,11 +10,7 @@ from django_spire.sync.database.manifest import ModelPayload, SyncManifest
 from django_spire.sync.database.record import SyncRecord
 
 
-FIELD_NAMES = st.text(
-    alphabet=string.ascii_lowercase,
-    min_size=1,
-    max_size=8,
-)
+FIELD_NAMES = st.text(alphabet=string.ascii_lowercase, min_size=1, max_size=8)
 
 FIELD_VALUES = st.one_of(
     st.integers(min_value=-10_000, max_value=10_000),
@@ -26,29 +22,14 @@ FIELD_VALUES = st.one_of(
 
 TIMESTAMPS = st.integers(min_value=0, max_value=2**47)
 
-DATA_DICTS = st.dictionaries(
-    keys=FIELD_NAMES,
-    values=FIELD_VALUES,
-    min_size=1,
-    max_size=6,
-)
+DATA_DICTS = st.dictionaries(keys=FIELD_NAMES, values=FIELD_VALUES, min_size=1, max_size=6)
 
-TIMESTAMP_DICTS = st.dictionaries(
-    keys=FIELD_NAMES,
-    values=TIMESTAMPS,
-    min_size=1,
-    max_size=6,
-)
+TIMESTAMP_DICTS = st.dictionaries(keys=FIELD_NAMES, values=TIMESTAMPS, min_size=1, max_size=6)
 
 
 @st.composite
 def sync_records(draw: st.DrawFn) -> SyncRecord:
-    fields = draw(st.lists(
-        FIELD_NAMES,
-        min_size=1,
-        max_size=6,
-        unique=True,
-    ))
+    fields = draw(st.lists(FIELD_NAMES, min_size=1, max_size=6, unique=True))
 
     data = {'id': draw(st.text(alphabet=string.digits, min_size=1, max_size=5))}
     timestamps: dict[str, int] = {}
@@ -64,11 +45,7 @@ def sync_records(draw: st.DrawFn) -> SyncRecord:
 
 @st.composite
 def model_payloads(draw: st.DrawFn) -> ModelPayload:
-    label = draw(st.text(
-        alphabet=string.ascii_lowercase + '.',
-        min_size=3,
-        max_size=15,
-    ))
+    label = draw(st.text(alphabet=string.ascii_lowercase + '.', min_size=3, max_size=15))
 
     records: dict[str, SyncRecord] = {}
     num_records = draw(st.integers(min_value=0, max_value=3))
@@ -76,16 +53,9 @@ def model_payloads(draw: st.DrawFn) -> ModelPayload:
     for i in range(num_records):
         key = str(i)
         record = draw(sync_records())
-        records[key] = SyncRecord(
-            key=key,
-            data=record.data,
-            timestamps=record.timestamps,
-        )
+        records[key] = SyncRecord(key=key, data=record.data, timestamps=record.timestamps)
 
-    delete_keys = draw(st.sets(
-        st.text(alphabet=string.digits, min_size=1, max_size=3),
-        max_size=3,
-    ))
+    delete_keys = draw(st.sets(st.text(alphabet=string.digits, min_size=1, max_size=3), max_size=3))
 
     delete_keys -= set(records.keys())
 
@@ -94,20 +64,12 @@ def model_payloads(draw: st.DrawFn) -> ModelPayload:
     for key in delete_keys:
         deletes[key] = draw(TIMESTAMPS)
 
-    return ModelPayload(
-        model_label=label,
-        records=records,
-        deletes=deletes,
-    )
+    return ModelPayload(model_label=label, records=records, deletes=deletes)
 
 
 @st.composite
 def sync_manifests(draw: st.DrawFn) -> SyncManifest:
-    node_id = draw(st.text(
-        alphabet=string.ascii_lowercase + '-',
-        min_size=1,
-        max_size=10,
-    ))
+    node_id = draw(st.text(alphabet=string.ascii_lowercase + '-', min_size=1, max_size=10))
 
     peer_sequence = draw(st.integers(min_value=0, max_value=2**47))
     local_sequence = draw(st.integers(min_value=0, max_value=2**47))
@@ -139,12 +101,7 @@ def sync_manifests(draw: st.DrawFn) -> SyncManifest:
 def field_conflict_pairs(
     draw: st.DrawFn,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, int], dict[str, int]]:
-    fields = draw(st.lists(
-        FIELD_NAMES,
-        min_size=1,
-        max_size=6,
-        unique=True,
-    ))
+    fields = draw(st.lists(FIELD_NAMES, min_size=1, max_size=6, unique=True))
 
     local_data: dict[str, Any] = {'id': '1'}
     remote_data: dict[str, Any] = {'id': '1'}
@@ -166,12 +123,7 @@ def reconciler_scenario(
 ) -> tuple[dict[str, SyncRecord], dict[str, SyncRecord], dict[str, int]]:
     num_keys = draw(st.integers(min_value=1, max_value=8))
 
-    fields = draw(st.lists(
-        FIELD_NAMES,
-        min_size=1,
-        max_size=4,
-        unique=True,
-    ))
+    fields = draw(st.lists(FIELD_NAMES, min_size=1, max_size=4, unique=True))
 
     local_records: dict[str, SyncRecord] = {}
     remote_records: dict[str, SyncRecord] = {}
@@ -190,14 +142,9 @@ def reconciler_scenario(
 
             for field in fields:
                 data[field] = draw(st.integers(min_value=0, max_value=1000))
-                timestamps[field] = draw(st.integers(
-                    min_value=1,
-                    max_value=2000,
-                ))
+                timestamps[field] = draw(st.integers(min_value=1, max_value=2000))
 
-            local_records[key] = SyncRecord(
-                key=key, data=data, timestamps=timestamps,
-            )
+            local_records[key] = SyncRecord(key=key, data=data, timestamps=timestamps)
 
         if has_remote:
             data = {'id': key}
@@ -205,13 +152,8 @@ def reconciler_scenario(
 
             for field in fields:
                 data[field] = draw(st.integers(min_value=0, max_value=1000))
-                timestamps[field] = draw(st.integers(
-                    min_value=1,
-                    max_value=2000,
-                ))
+                timestamps[field] = draw(st.integers(min_value=1, max_value=2000))
 
-            remote_records[key] = SyncRecord(
-                key=key, data=data, timestamps=timestamps,
-            )
+            remote_records[key] = SyncRecord(key=key, data=data, timestamps=timestamps)
 
     return local_records, remote_records, {}

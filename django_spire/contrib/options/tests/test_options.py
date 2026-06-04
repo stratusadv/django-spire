@@ -67,10 +67,7 @@ class TestOptionSection(TestCase):
 
     def test_not_equal(self) -> None:
         section1 = factories.create_test_option_section()
-        section2 = OptionSection(
-            name='other',
-            options=[Option('different', 'value')]
-        )
+        section2 = OptionSection(name='other', options=[Option('different', 'value')])
 
         assert section1 != section2
 
@@ -100,22 +97,15 @@ class TestOptions(TestCase):
 
     def test_equal_different_sections(self) -> None:
         options1 = factories.create_test_options()
-        options2 = Options.load_dict({
-            'General': {'volume': 10},
-            'Notifications': {'email': True}
-        })
+        options2 = Options.load_dict({'General': {'volume': 10}, 'Notifications': {'email': True}})
 
         assert options1 != options2
 
     def test_equal_different_values_same_keys(self) -> None:
-        options1 = Options.load_dict({
-            'General': {'volume': 10, 'language': 'en'},
-            'Notifications': {'email': True}
-        })
-        options2 = Options.load_dict({
-            'General': {'volume': 10},
-            'Notifications': {'email': True}
-        })
+        options1 = Options.load_dict(
+            {'General': {'volume': 10, 'language': 'en'}, 'Notifications': {'email': True}}
+        )
+        options2 = Options.load_dict({'General': {'volume': 10}, 'Notifications': {'email': True}})
 
         assert options1 != options2
 
@@ -150,37 +140,26 @@ class TestOptions(TestCase):
         assert 'notification' in options
 
     def test_sync_options_adds_new_sections(self) -> None:
-        original = Options.load_dict({
-            'General': {'volume': 10},
-        })
-        new_structure = Options.load_dict({
-            'General': {'volume': 5},
-            'Privacy': {'location': False}
-        })
+        original = Options.load_dict({'General': {'volume': 10}})
+        new_structure = Options.load_dict(
+            {'General': {'volume': 5}, 'Privacy': {'location': False}}
+        )
 
         original.sync_options(new_structure)
 
         assert 'Privacy' in original
 
     def test_sync_options_adds_new_settings(self) -> None:
-        original = Options.load_dict({
-            'General': {'volume': 10},
-        })
-        new_structure = Options.load_dict({
-            'General': {'volume': 5, 'brightness': 70},
-        })
+        original = Options.load_dict({'General': {'volume': 10}})
+        new_structure = Options.load_dict({'General': {'volume': 5, 'brightness': 70}})
 
         original.sync_options(new_structure)
 
         assert 'brightness' in original['General']
 
     def test_sync_options_preserves_existing_values(self) -> None:
-        original = Options.load_dict({
-            'General': {'volume': 10},
-        })
-        new_structure = Options.load_dict({
-            'General': {'volume': 5, 'brightness': 70},
-        })
+        original = Options.load_dict({'General': {'volume': 10}})
+        new_structure = Options.load_dict({'General': {'volume': 5, 'brightness': 70}})
 
         original.sync_options(new_structure)
 

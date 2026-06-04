@@ -33,20 +33,13 @@ class Client(SyncableMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'sync:page:detail',
-                    kwargs={'model': 'client', 'pk': self.pk}
-                )
+                str(self), reverse('sync:page:detail', kwargs={'model': 'client', 'pk': self.pk})
             )
 
         return crumbs
 
     def get_absolute_url(self) -> str:
-        return reverse(
-            'sync:page:detail',
-            kwargs={'model': 'client', 'pk': self.pk}
-        )
+        return reverse('sync:page:detail', kwargs={'model': 'client', 'pk': self.pk})
 
 
 class Site(SyncableMixin):
@@ -84,7 +77,9 @@ class Site(SyncableMixin):
         crumbs.add_base_breadcrumb(self._meta.model)
 
         if self.pk:
-            crumbs.add_breadcrumb(str(self), reverse('sync:page:detail', kwargs={'model': 'site', 'pk': self.pk}))
+            crumbs.add_breadcrumb(
+                str(self), reverse('sync:page:detail', kwargs={'model': 'site', 'pk': self.pk})
+            )
 
         return crumbs
 
@@ -131,14 +126,19 @@ class SurveyPlan(SyncableMixin):
     @classmethod
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
-        crumbs.add_breadcrumb('Survey Plans', reverse('sync:page:list', kwargs={'model': 'surveyplan'}))
+        crumbs.add_breadcrumb(
+            'Survey Plans', reverse('sync:page:list', kwargs={'model': 'surveyplan'})
+        )
         return crumbs
 
     def breadcrumbs(self) -> Breadcrumbs:
         crumbs = Breadcrumbs()
         crumbs.add_base_breadcrumb(self._meta.model)
         if self.pk:
-            crumbs.add_breadcrumb(str(self), reverse('sync:page:detail', kwargs={'model': 'surveyplan', 'pk': self.pk}))
+            crumbs.add_breadcrumb(
+                str(self),
+                reverse('sync:page:detail', kwargs={'model': 'surveyplan', 'pk': self.pk}),
+            )
         return crumbs
 
     def get_absolute_url(self) -> str:
@@ -182,7 +182,9 @@ class Stake(SyncableMixin):
         crumbs.add_base_breadcrumb(self._meta.model)
 
         if self.pk:
-            crumbs.add_breadcrumb(str(self), reverse('sync:page:detail', kwargs={'model': 'stake', 'pk': self.pk}))
+            crumbs.add_breadcrumb(
+                str(self), reverse('sync:page:detail', kwargs={'model': 'stake', 'pk': self.pk})
+            )
 
         return crumbs
 

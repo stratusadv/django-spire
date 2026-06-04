@@ -9,4 +9,3 @@ if TYPE_CHECKING:
 
 class OrderingService(BaseDjangoModelService['Duck']):
     obj: Duck
-

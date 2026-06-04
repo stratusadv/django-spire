@@ -50,10 +50,7 @@ class TestFieldOverride(TestCase):
 
         override.seed(count=2)
 
-        self.seeder_class.seed.assert_called_once_with(
-            count=2,
-            fields={'name': 'override_value'}
-        )
+        self.seeder_class.seed.assert_called_once_with(count=2, fields={'name': 'override_value'})
 
     def test_seed_returns_seeder_class_result(self) -> None:
         override = FieldOverride(self.seeder_class)

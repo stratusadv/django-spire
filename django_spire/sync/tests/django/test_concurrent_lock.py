@@ -14,7 +14,7 @@ from django_spire.sync.tests.django.helpers import thread_safe
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_lock_five_threads_one_winner() -> None:
     lock = DjangoSyncLock()
     barrier = threading.Barrier(5)
@@ -31,11 +31,8 @@ def test_lock_five_threads_one_winner() -> None:
     threads = [
         threading.Thread(
             target=thread_safe(
-                try_acquire,
-                errors,
-                barrier=barrier,
-                on_caught={LockContentionError: contentions},
-            ),
+                try_acquire, errors, barrier=barrier, on_caught={LockContentionError: contentions}
+            )
         )
         for _ in range(5)
     ]
@@ -53,7 +50,7 @@ def test_lock_five_threads_one_winner() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_lock_rapid_acquire_release_cycling() -> None:
     lock = DjangoSyncLock()
     errors: list[Exception] = []
@@ -64,10 +61,7 @@ def test_lock_rapid_acquire_release_cycling() -> None:
             lock.release(session_id, SyncStatus.SUCCESS)
 
     threads = [
-        threading.Thread(
-            target=thread_safe(cycle, errors),
-            args=(f'cycle-node-{i}', 10),
-        )
+        threading.Thread(target=thread_safe(cycle, errors), args=(f'cycle-node-{i}', 10))
         for i in range(3)
     ]
 
@@ -86,7 +80,7 @@ def test_lock_rapid_acquire_release_cycling() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_lock_release_then_two_competitors_only_one_wins() -> None:
     lock = DjangoSyncLock()
     initial = lock.acquire('race-node', '')
@@ -108,7 +102,7 @@ def test_lock_release_then_two_competitors_only_one_wins() -> None:
                 errors,
                 barrier=barrier,
                 on_caught={LockContentionError: contentions},
-            ),
+            )
         )
         for _ in range(2)
     ]
@@ -123,9 +117,6 @@ def test_lock_release_then_two_competitors_only_one_wins() -> None:
     assert len(successes) == 1
     assert len(contentions) == 1
 
-    active = SyncSession.objects.filter(
-        node_id='race-node',
-        status=SyncStatus.IN_PROGRESS,
-    ).count()
+    active = SyncSession.objects.filter(node_id='race-node', status=SyncStatus.IN_PROGRESS).count()
 
     assert active == 1

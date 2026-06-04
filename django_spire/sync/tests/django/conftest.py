@@ -10,18 +10,12 @@ from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
 @pytest.fixture
 def storage() -> DjangoSyncStorage:
-    return DjangoSyncStorage(
-        models=[SyncTestModel, SyncTestSimpleModel],
-        identity_field='id',
-    )
+    return DjangoSyncStorage(models=[SyncTestModel, SyncTestSimpleModel], identity_field='id')
 
 
 @pytest.fixture
 def simple_storage() -> DjangoSyncStorage:
-    return DjangoSyncStorage(
-        models=[SyncTestSimpleModel],
-        identity_field='id',
-    )
+    return DjangoSyncStorage(models=[SyncTestSimpleModel], identity_field='id')
 
 
 @pytest.fixture

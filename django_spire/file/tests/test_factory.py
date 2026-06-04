@@ -10,19 +10,15 @@ from django_spire.file.factory import (
     FileFactory,
     BATCH_SIZE_MAX,
     FILENAME_LENGTH_MAX,
-    RELATED_FIELD_LENGTH_MAX
+    RELATED_FIELD_LENGTH_MAX,
 )
 from django_spire.file.models import File
 from django_spire.file.tests.factories import create_test_in_memory_uploaded_file
 
 
 STORAGES_OVERRIDE = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
-    },
-    'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
-    },
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
 }
 
 
@@ -125,8 +121,7 @@ class FileFactoryCreateManyTests(BaseTestCase):
 
     def test_create_many_exceeding_batch_size_raises(self) -> None:
         files = [
-            create_test_in_memory_uploaded_file(name=f'file{i}')
-            for i in range(BATCH_SIZE_MAX + 1)
+            create_test_in_memory_uploaded_file(name=f'file{i}') for i in range(BATCH_SIZE_MAX + 1)
         ]
 
         with pytest.raises(FileBatchLimitError):
@@ -134,8 +129,7 @@ class FileFactoryCreateManyTests(BaseTestCase):
 
     def test_create_many_at_exact_batch_size(self) -> None:
         files = [
-            create_test_in_memory_uploaded_file(name=f'file{i}')
-            for i in range(BATCH_SIZE_MAX)
+            create_test_in_memory_uploaded_file(name=f'file{i}') for i in range(BATCH_SIZE_MAX)
         ]
 
         result = self.factory.create_many(files)

@@ -12,18 +12,14 @@ from django_spire.sync.database.engine import DatabaseEngine
 from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.manifest import ModelPayload
 from django_spire.sync.database.record import SyncRecord
-from django_spire.sync.tests.django.helpers import (
-    make_named_record,
-    make_storage,
-    thread_safe,
-)
+from django_spire.sync.tests.django.helpers import make_named_record, make_storage, thread_safe
 from django_spire.sync.tests.factories import make_manifest
 from django_spire.sync.tests.models import SyncTestModel
 
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_upsert_same_key_no_data_loss() -> None:
     key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
     barrier = threading.Barrier(4)
@@ -31,9 +27,7 @@ def test_concurrent_upsert_same_key_no_data_loss() -> None:
 
     def upsert_worker(name: str, ts: int) -> None:
         storage = make_storage()
-        storage.upsert_many('sync_tests.SyncTestModel', {
-            key: make_named_record(key, name, ts),
-        }, '')
+        storage.upsert_many('sync_tests.SyncTestModel', {key: make_named_record(key, name, ts)}, '')
 
     threads = [
         threading.Thread(
@@ -59,7 +53,7 @@ def test_concurrent_upsert_same_key_no_data_loss() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_upsert_highest_timestamp_wins() -> None:
     key = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
     barrier = threading.Barrier(2)
@@ -67,12 +61,14 @@ def test_concurrent_upsert_highest_timestamp_wins() -> None:
 
     def upsert_worker(name: str, ts: int) -> None:
         storage = make_storage()
-        storage.upsert_many('sync_tests.SyncTestModel', {
-            key: make_named_record(key, name, ts),
-        }, '')
+        storage.upsert_many('sync_tests.SyncTestModel', {key: make_named_record(key, name, ts)}, '')
 
-    t1 = threading.Thread(target=thread_safe(upsert_worker, errors, barrier=barrier), args=('low', 100))
-    t2 = threading.Thread(target=thread_safe(upsert_worker, errors, barrier=barrier), args=('high', 999))
+    t1 = threading.Thread(
+        target=thread_safe(upsert_worker, errors, barrier=barrier), args=('low', 100)
+    )
+    t2 = threading.Thread(
+        target=thread_safe(upsert_worker, errors, barrier=barrier), args=('high', 999)
+    )
     t1.start()
     t2.start()
     t1.join(timeout=10)
@@ -87,7 +83,7 @@ def test_concurrent_upsert_highest_timestamp_wins() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_upsert_many_keys_no_missing_records() -> None:
     num_workers = 4
     keys_per_worker = 10
@@ -118,17 +114,21 @@ def test_concurrent_upsert_many_keys_no_missing_records() -> None:
         t.join(timeout=15)
 
     assert not errors, f'worker errors: {errors}'
-    existing = {str(pk) for pk in SyncTestModel.objects.filter(pk__in=all_keys).values_list('pk', flat=True)}
+    existing = {
+        str(pk) for pk in SyncTestModel.objects.filter(pk__in=all_keys).values_list('pk', flat=True)
+    }
     assert existing == set(all_keys)
 
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_soft_delete_and_upsert() -> None:
     key = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
     setup_storage = make_storage()
-    setup_storage.upsert_many('sync_tests.SyncTestModel', {key: make_named_record(key, 'original', 100)}, '')
+    setup_storage.upsert_many(
+        'sync_tests.SyncTestModel', {key: make_named_record(key, 'original', 100)}, ''
+    )
 
     barrier = threading.Barrier(2)
     errors: list[Exception] = []
@@ -139,7 +139,9 @@ def test_concurrent_soft_delete_and_upsert() -> None:
 
     def do_upsert() -> None:
         storage = make_storage()
-        storage.upsert_many('sync_tests.SyncTestModel', {key: make_named_record(key, 'updated', 600, value=99)}, '')
+        storage.upsert_many(
+            'sync_tests.SyncTestModel', {key: make_named_record(key, 'updated', 600, value=99)}, ''
+        )
 
     t1 = threading.Thread(target=thread_safe(do_delete, errors, barrier=barrier))
     t2 = threading.Thread(target=thread_safe(do_upsert, errors, barrier=barrier))
@@ -156,7 +158,7 @@ def test_concurrent_soft_delete_and_upsert() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_process_calls_no_data_loss() -> None:
     barrier = threading.Barrier(2)
     results: list[Any] = []
@@ -167,22 +169,42 @@ def test_concurrent_process_calls_no_data_loss() -> None:
         models = storage.get_syncable_models()
         graph = DependencyGraph({m: set() for m in models})
         engine = DatabaseEngine(
-            storage=storage, graph=graph, clock=HybridLogicalClock(),
-            node_id='server', clock_drift_max=None,
+            storage=storage,
+            graph=graph,
+            clock=HybridLogicalClock(),
+            node_id='server',
+            clock_drift_max=None,
         )
         manifest = make_manifest(
-            node_id=node_id, local_sequence=0, node_time=int(time.time()),
-            payloads=[ModelPayload(model_label='sync_tests.SyncTestModel', records={
-                key: SyncRecord(key=key, data={'id': key, 'name': name, 'value': 0}, timestamps={'name': ts, 'value': ts}),
-            })],
+            node_id=node_id,
+            local_sequence=0,
+            node_time=int(time.time()),
+            payloads=[
+                ModelPayload(
+                    model_label='sync_tests.SyncTestModel',
+                    records={
+                        key: SyncRecord(
+                            key=key,
+                            data={'id': key, 'name': name, 'value': 0},
+                            timestamps={'name': ts, 'value': ts},
+                        )
+                    },
+                )
+            ],
         )
         _response, result = engine.process(manifest)
         results.append(result)
 
     key_a = 'dddddddd-dddd-dddd-dddd-dddddddddddd'
     key_b = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
-    t1 = threading.Thread(target=thread_safe(process_tablet, errors, barrier=barrier), args=('tablet-1', key_a, 'from-t1', 300))
-    t2 = threading.Thread(target=thread_safe(process_tablet, errors, barrier=barrier), args=('tablet-2', key_b, 'from-t2', 300))
+    t1 = threading.Thread(
+        target=thread_safe(process_tablet, errors, barrier=barrier),
+        args=('tablet-1', key_a, 'from-t1', 300),
+    )
+    t2 = threading.Thread(
+        target=thread_safe(process_tablet, errors, barrier=barrier),
+        args=('tablet-2', key_b, 'from-t2', 300),
+    )
     t1.start()
     t2.start()
     t1.join(timeout=15)
@@ -198,11 +220,13 @@ def test_concurrent_process_calls_no_data_loss() -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_process_same_key_no_duplicate_rows() -> None:
     key = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
     setup_storage = make_storage()
-    setup_storage.upsert_many('sync_tests.SyncTestModel', {key: make_named_record(key, 'seed', 50)}, '')
+    setup_storage.upsert_many(
+        'sync_tests.SyncTestModel', {key: make_named_record(key, 'seed', 50)}, ''
+    )
 
     barrier = threading.Barrier(2)
     errors: list[Exception] = []
@@ -212,19 +236,37 @@ def test_concurrent_process_same_key_no_duplicate_rows() -> None:
         models = storage.get_syncable_models()
         graph = DependencyGraph({m: set() for m in models})
         engine = DatabaseEngine(
-            storage=storage, graph=graph, clock=HybridLogicalClock(),
-            node_id='server', clock_drift_max=None,
+            storage=storage,
+            graph=graph,
+            clock=HybridLogicalClock(),
+            node_id='server',
+            clock_drift_max=None,
         )
         manifest = make_manifest(
-            node_id=node_id, local_sequence=0, node_time=int(time.time()),
-            payloads=[ModelPayload(model_label='sync_tests.SyncTestModel', records={
-                key: SyncRecord(key=key, data={'id': key, 'name': name, 'value': 0}, timestamps={'name': ts, 'value': ts}),
-            })],
+            node_id=node_id,
+            local_sequence=0,
+            node_time=int(time.time()),
+            payloads=[
+                ModelPayload(
+                    model_label='sync_tests.SyncTestModel',
+                    records={
+                        key: SyncRecord(
+                            key=key,
+                            data={'id': key, 'name': name, 'value': 0},
+                            timestamps={'name': ts, 'value': ts},
+                        )
+                    },
+                )
+            ],
         )
         engine.process(manifest)
 
-    t1 = threading.Thread(target=thread_safe(process_update, errors, barrier=barrier), args=('tablet-1', 'low', 100))
-    t2 = threading.Thread(target=thread_safe(process_update, errors, barrier=barrier), args=('tablet-2', 'high', 999))
+    t1 = threading.Thread(
+        target=thread_safe(process_update, errors, barrier=barrier), args=('tablet-1', 'low', 100)
+    )
+    t2 = threading.Thread(
+        target=thread_safe(process_update, errors, barrier=barrier), args=('tablet-2', 'high', 999)
+    )
     t1.start()
     t2.start()
     t1.join(timeout=15)

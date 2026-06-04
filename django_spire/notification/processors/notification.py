@@ -3,10 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from django_spire.notification.app.processor import AppNotificationProcessor
-from django_spire.notification.choices import (
-    NotificationStatusChoices,
-    NotificationTypeChoices
-)
+from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
 from django_spire.notification.email.processor import EmailNotificationProcessor
 from django_spire.notification.exceptions import NotificationError
 from django_spire.notification.models import Notification
@@ -47,7 +44,7 @@ class NotificationProcessor(BaseNotificationProcessor):
 
     @staticmethod
     def _get_processor(
-        notification_type: NotificationTypeChoices
+        notification_type: NotificationTypeChoices,
     ) -> type[BaseNotificationProcessor] | None:
         if notification_type == NotificationTypeChoices.APP:
             return AppNotificationProcessor

@@ -5,6 +5,7 @@ from django_spire.core.tests.test_cases import BaseTestCase
 from test_project.app.ordering.models import Duck
 from test_project.app.ordering.tests.test_ordering.factories import create_test_duck
 
+
 class TestOrderingProcessorService(BaseTestCase):
     def setUp(self):
         self.test_duck = create_test_duck()
@@ -15,8 +16,7 @@ class TestOrderingProcessorService(BaseTestCase):
     def test_reorder_existing(self):
         all_ducks = Duck.objects.all()
         self.test_duck.ordering_services.processor.move_to_position(
-            destination_objects=all_ducks,
-            position=1,
+            destination_objects=all_ducks, position=1
         )
 
         self.test_duck.refresh_from_db()
@@ -31,9 +31,7 @@ class TestOrderingProcessorService(BaseTestCase):
         other_ducks = all_ducks.filter(name=self.test_other_duck.name)
 
         self.test_duck.ordering_services.processor.move_to_position(
-            destination_objects=some_ducks,
-            position=1,
-            origin_objects=other_ducks,
+            destination_objects=some_ducks, position=1, origin_objects=other_ducks
         )
 
         self.test_duck.refresh_from_db()
@@ -52,8 +50,7 @@ class TestOrderingProcessorService(BaseTestCase):
         self.test_other_duck.save()
 
         new_duck.ordering_services.processor.move_to_position(
-            destination_objects=all_ducks,
-            position=1,
+            destination_objects=all_ducks, position=1
         )
 
         self.test_duck.refresh_from_db()

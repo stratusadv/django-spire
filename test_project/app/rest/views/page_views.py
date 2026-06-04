@@ -13,12 +13,8 @@ if TYPE_CHECKING:
 
 @login_required()
 def list_page(request: WSGIRequest):
-    context_data = {
-        'endpoint': reverse('rest:template:list_items'),
-    }
+    context_data = {'endpoint': reverse('rest:template:list_items')}
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='rest/page/list_page.html',
+        request=request, context=context_data, template='rest/page/list_page.html'
     )

@@ -30,8 +30,7 @@ class BaseMessageIntel(BaseIntel, ABC):
 
     def render_template_to_str(self, context_data: dict | None = None) -> str:
         return render_to_string(
-            template_name=self._template,
-            context={**self.model_dump(), **(context_data or {})},
+            template_name=self._template, context={**self.model_dump(), **(context_data or {})}
         )
 
     @property

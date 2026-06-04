@@ -17,10 +17,7 @@ class CreateUserTestCase(BaseTestCase):
 
     def test_creates_user_with_kwargs(self) -> None:
         user = create_user(
-            username='testuser',
-            first_name='Test',
-            last_name='User',
-            email='test@example.com'
+            username='testuser', first_name='Test', last_name='User', email='test@example.com'
         )
         assert user.first_name == 'Test'
         assert user.last_name == 'User'

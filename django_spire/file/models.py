@@ -13,11 +13,7 @@ from django_spire.history.mixins import HistoryModelMixin
 
 class File(HistoryModelMixin):
     content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
-        editable=False,
-        blank=True,
-        null=True,
+        ContentType, on_delete=models.CASCADE, editable=False, blank=True, null=True
     )
 
     object_id = models.PositiveIntegerField(editable=False, blank=True, null=True)
@@ -40,12 +36,7 @@ class File(HistoryModelMixin):
         return format_size(self.size)
 
     def to_dict(self) -> dict[str, str | int]:
-        result = {
-            'id': self.id,
-            'name': self.name,
-            'type': self.type,
-            'size': self.size,
-        }
+        result = {'id': self.id, 'name': self.name, 'type': self.type, 'size': self.size}
 
         if self.id is not None:
             result['token'] = sign_file_id(self.id)
@@ -59,6 +50,4 @@ class File(HistoryModelMixin):
         db_table = 'django_spire_file'
         verbose_name = 'File'
         verbose_name_plural = 'Files'
-        indexes = [
-            models.Index(fields=['content_type', 'object_id']),
-        ]
+        indexes = [models.Index(fields=['content_type', 'object_id'])]

@@ -58,17 +58,10 @@ class BulkUpsertStrategy:
         return instance
 
     def _build_row_params(
-        self,
-        instance: SyncableMixin,
-        fields: list[Field],
-        connection: BaseDatabaseWrapper,
+        self, instance: SyncableMixin, fields: list[Field], connection: BaseDatabaseWrapper
     ) -> list[Any]:
         return [
-            field.get_db_prep_save(
-                getattr(instance, field.attname),
-                connection,
-            )
-            for field in fields
+            field.get_db_prep_save(getattr(instance, field.attname), connection) for field in fields
         ]
 
     def _build_upsert_sql(
@@ -81,28 +74,18 @@ class BulkUpsertStrategy:
         quote = connection.ops.quote_name
         table = quote(model._meta.db_table)
 
-        identity_column = quote(
-            model._meta.get_field(self._identity_field).column,
-        )
+        identity_column = quote(model._meta.get_field(self._identity_field).column)
 
-        column_last_modified = quote(
-            model._meta.get_field('sync_field_last_modified').column,
-        )
+        column_last_modified = quote(model._meta.get_field('sync_field_last_modified').column)
 
         columns = [quote(field.column) for field in fields]
 
-        placeholder_row = (
-            '(' + ', '.join(['%s'] * len(fields)) + ')'
-        )
+        placeholder_row = '(' + ', '.join(['%s'] * len(fields)) + ')'
 
-        values_clause = ', '.join(
-            [placeholder_row] * row_count,
-        )
+        values_clause = ', '.join([placeholder_row] * row_count)
 
         set_clause = ', '.join(
-            f'{column} = EXCLUDED.{column}'
-            for column in columns
-            if column != identity_column
+            f'{column} = EXCLUDED.{column}' for column in columns if column != identity_column
         )
 
         return (
@@ -115,17 +98,12 @@ class BulkUpsertStrategy:
             f'RETURNING {identity_column}'
         )
 
-    def _connection(
-        self,
-        model: type[SyncableMixin],
-    ) -> BaseDatabaseWrapper:
+    def _connection(self, model: type[SyncableMixin]) -> BaseDatabaseWrapper:
         db_alias = router.db_for_write(model) or 'default'
         return connections[db_alias]
 
     def _validate_records(
-        self,
-        model_label: str,
-        records: dict[str, SyncRecord],
+        self, model_label: str, records: dict[str, SyncRecord]
     ) -> tuple[dict[str, SyncRecord], list[Error]]:
         writable: dict[str, SyncRecord] = {}
         errors: list[Error] = []
@@ -156,10 +134,7 @@ class BulkUpsertStrategy:
     def _rows_per_batch(self, field_count: int) -> int:
         return max(1, _PARAMETER_LIMIT // field_count)
 
-    def _writable_fields(
-        self,
-        model: type[SyncableMixin],
-    ) -> list[Field]:
+    def _writable_fields(self, model: type[SyncableMixin]) -> list[Field]:
         return list(model._meta.concrete_fields)
 
     def apply_many(
@@ -175,10 +150,7 @@ class BulkUpsertStrategy:
         connection = self._connection(model)
 
         if connection.vendor not in _SUPPORTED_VENDORS:
-            message = (
-                f'BulkUpsertStrategy requires postgresql or sqlite, '
-                f'got {connection.vendor!r}'
-            )
+            message = f'BulkUpsertStrategy requires postgresql or sqlite, got {connection.vendor!r}'
 
             raise NotImplementedError(message)
 
@@ -198,14 +170,16 @@ class BulkUpsertStrategy:
         sequence_first = SyncSequenceAllocator().allocate(len(sorted_keys)).value_first
 
         instances = [
-            self._build_instance(RecordContext(
-                model=model,
-                key=key,
-                sync_record=writable[key],
-                field_data=deserialized[key],
-                sequence=sequence_first + index,
-                origin_node=origin_node,
-            ))
+            self._build_instance(
+                RecordContext(
+                    model=model,
+                    key=key,
+                    sync_record=writable[key],
+                    field_data=deserialized[key],
+                    sequence=sequence_first + index,
+                    origin_node=origin_node,
+                )
+            )
             for index, key in enumerate(sorted_keys)
         ]
 
@@ -215,32 +189,18 @@ class BulkUpsertStrategy:
 
         with sync_bypass(), connection.cursor() as cursor:
             for offset in range(0, len(instances), rows_per_batch):
-                batch = instances[offset:offset + rows_per_batch]
+                batch = instances[offset : offset + rows_per_batch]
 
                 params: list[Any] = []
 
                 for instance in batch:
-                    params.extend(
-                        self._build_row_params(
-                            instance,
-                            fields,
-                            connection,
-                        ),
-                    )
+                    params.extend(self._build_row_params(instance, fields, connection))
 
-                sql = self._build_upsert_sql(
-                    model,
-                    fields,
-                    connection,
-                    len(batch),
-                )
+                sql = self._build_upsert_sql(model, fields, connection, len(batch))
 
                 cursor.execute(sql, params)
 
-                applied.update(
-                    str(identity.to_python(row[0]))
-                    for row in cursor.fetchall()
-                )
+                applied.update(str(identity.to_python(row[0])) for row in cursor.fetchall())
 
         skipped: set[str] = set()
 
@@ -257,18 +217,12 @@ class StalenessGuardedUpsertStrategy:
 
     def _build_update_values(self, ctx: RecordContext) -> dict[str, Any]:
         values = {
-            key: value
-            for key, value in ctx.field_data.items()
-            if key != self._identity_field
+            key: value for key, value in ctx.field_data.items() if key != self._identity_field
         }
 
-        values['sync_field_timestamps'] = dict(
-            ctx.sync_record.timestamps,
-        )
+        values['sync_field_timestamps'] = dict(ctx.sync_record.timestamps)
 
-        values['sync_field_last_modified'] = (
-            ctx.sync_record.sync_field_last_modified
-        )
+        values['sync_field_last_modified'] = ctx.sync_record.sync_field_last_modified
 
         values['sync_field_sequence'] = ctx.sequence
         values['sync_field_origin_node'] = ctx.origin_node
@@ -285,11 +239,7 @@ class StalenessGuardedUpsertStrategy:
             if not is_auto_add and not is_auto_now:
                 continue
 
-            attribute_name = (
-                field.attname
-                if field.is_relation
-                else field.name
-            )
+            attribute_name = field.attname if field.is_relation else field.name
 
             if attribute_name not in ctx.field_data:
                 continue

@@ -22,6 +22,7 @@ def _sleep(task: Task, length: int) -> None:
 
     tracker.set_completed()
 
+
 @shared_task(bind=True)
 def pirate_noise_task(self, length: int) -> str:
     _sleep(self, length)

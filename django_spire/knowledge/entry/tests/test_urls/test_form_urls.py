@@ -22,7 +22,7 @@ class EntryFormUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:entry:form:create',
-                kwargs={'collection_pk': self.collection.pk}
+                kwargs={'collection_pk': self.collection.pk},
             )
         )
         assert response.status_code == 200
@@ -31,10 +31,7 @@ class EntryFormUrlsTests(BaseTestCase):
         response = self.client.get(
             reverse(
                 'django_spire:knowledge:entry:form:update',
-                kwargs={
-                    'pk': self.test_entry.pk,
-                    'collection_pk': self.collection.pk
-                }
+                kwargs={'pk': self.test_entry.pk, 'collection_pk': self.collection.pk},
             )
         )
         assert response.status_code == 200

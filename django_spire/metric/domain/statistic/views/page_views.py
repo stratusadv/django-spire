@@ -24,24 +24,20 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     statistic = get_object_or_404(models.Statistic, pk=pk)
 
-    context_data = {
-        'statistic': statistic,
-    }
+    context_data = {'statistic': statistic}
 
     return generic_views.detail_view(
         request,
         obj=statistic,
         context_data=context_data,
-        template='metric/domain/statistic/page/detail_page.html'
+        template='metric/domain/statistic/page/detail_page.html',
     )
 
 
 @permission_required('domain_statistic.view_statistic')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     models.Statistic.objects.process_session_filter(
-        request=request,
-        session_key=LIST_FILTERING_SESSION_KEY,
-        form_class=StatisticListFilterForm,
+        request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=StatisticListFilterForm
     )
 
     context_data = {
@@ -54,5 +50,5 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request,
         model=models.Statistic,
         context_data=context_data,
-        template='metric/domain/statistic/page/list_page.html'
+        template='metric/domain/statistic/page/list_page.html',
     )

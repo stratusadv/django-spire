@@ -15,9 +15,7 @@ class EntryServiceTests(BaseTestCase):
 
     def test_save_model_obj_creates_new_with_version(self):
         entry, created = Entry.services.save_model_obj(
-            author=self.super_user,
-            name='New Entry',
-            collection=self.collection
+            author=self.super_user, name='New Entry', collection=self.collection
         )
         assert created is True
         assert entry.name == 'New Entry'
@@ -30,8 +28,7 @@ class EntryServiceTests(BaseTestCase):
 
         self.entry.services.obj = self.entry
         updated_entry, created = self.entry.services.save_model_obj(
-            author=self.super_user,
-            name='Updated Name'
+            author=self.super_user, name='Updated Name'
         )
         assert created is False
         assert updated_entry.name == 'Updated Name'

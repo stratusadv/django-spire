@@ -3,10 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
-from django_spire.sync.core.exceptions import (
-    InvalidParameterError,
-    RecordFieldError,
-)
+from django_spire.sync.core.exceptions import InvalidParameterError, RecordFieldError
 
 if TYPE_CHECKING:
     from django_spire.sync.django.mixin import SyncableMixin
@@ -14,10 +11,7 @@ if TYPE_CHECKING:
 
 def _coerce_int(value: Any, label: str, record_key: str) -> int:
     if isinstance(value, bool):
-        message = (
-            f'Record {record_key!r}: {label} must be an int, '
-            f'got bool'
-        )
+        message = f'Record {record_key!r}: {label} must be an int, got bool'
 
         raise RecordFieldError(message)
 
@@ -27,10 +21,7 @@ def _coerce_int(value: Any, label: str, record_key: str) -> int:
     if isinstance(value, float):
         return int(value)
 
-    message = (
-        f'Record {record_key!r}: {label} must be an int, '
-        f'got {type(value).__name__}'
-    )
+    message = f'Record {record_key!r}: {label} must be an int, got {type(value).__name__}'
 
     raise RecordFieldError(message)
 
@@ -50,28 +41,18 @@ class SyncRecord:
             raise InvalidParameterError(message)
 
         if self.received_at < 0:
-            message = (
-                f'received_at must be non-negative, '
-                f'got {self.received_at}'
-            )
+            message = f'received_at must be non-negative, got {self.received_at}'
 
             raise InvalidParameterError(message)
 
         if self.sequence < 0:
-            message = (
-                f'sequence must be non-negative, '
-                f'got {self.sequence}'
-            )
+            message = f'sequence must be non-negative, got {self.sequence}'
 
             raise InvalidParameterError(message)
 
     @property
     def sync_field_last_modified(self) -> int:
-        timestamp_maximum = (
-            max(self.timestamps.values())
-            if self.timestamps
-            else 0
-        )
+        timestamp_maximum = max(self.timestamps.values()) if self.timestamps else 0
 
         return max(timestamp_maximum, self.received_at)
 
@@ -88,10 +69,7 @@ class SyncRecord:
         record_origin_node = data.get('origin_node', '')
 
         if not isinstance(record_data, dict):
-            message = (
-                f"Record {key!r}: 'data' must be a dict, "
-                f'got {type(record_data).__name__}'
-            )
+            message = f"Record {key!r}: 'data' must be a dict, got {type(record_data).__name__}"
 
             raise RecordFieldError(message)
 
@@ -103,31 +81,19 @@ class SyncRecord:
 
             raise RecordFieldError(message)
 
-        record_received_at = _coerce_int(
-            record_received_at,
-            "'received_at'",
-            key,
-        )
+        record_received_at = _coerce_int(record_received_at, "'received_at'", key)
 
         if record_received_at < 0:
             message = (
-                f"Record {key!r}: 'received_at' must be "
-                f'non-negative, got {record_received_at}'
+                f"Record {key!r}: 'received_at' must be non-negative, got {record_received_at}"
             )
 
             raise RecordFieldError(message)
 
-        record_sequence = _coerce_int(
-            record_sequence,
-            "'sequence'",
-            key,
-        )
+        record_sequence = _coerce_int(record_sequence, "'sequence'", key)
 
         if record_sequence < 0:
-            message = (
-                f"Record {key!r}: 'sequence' must be "
-                f'non-negative, got {record_sequence}'
-            )
+            message = f"Record {key!r}: 'sequence' must be non-negative, got {record_sequence}"
 
             raise RecordFieldError(message)
 
@@ -143,18 +109,11 @@ class SyncRecord:
 
         for timestamp_key, timestamp_value in record_timestamps.items():
             if not isinstance(timestamp_key, str):
-                message = (
-                    f'Record {key!r}: timestamp key '
-                    f'{timestamp_key!r} must be a string'
-                )
+                message = f'Record {key!r}: timestamp key {timestamp_key!r} must be a string'
 
                 raise RecordFieldError(message)
 
-            coerced = _coerce_int(
-                timestamp_value,
-                f'timestamp for {timestamp_key!r}',
-                key,
-            )
+            coerced = _coerce_int(timestamp_value, f'timestamp for {timestamp_key!r}', key)
 
             if coerced < 0:
                 message = (

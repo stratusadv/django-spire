@@ -19,6 +19,7 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
     horse_intel = None
 
     if request.method == 'POST':
+
         class HorseIntel(BaseIntel):
             first_name: str
             breed: str
@@ -41,7 +42,7 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
                     .line_break()
                     .text(horse_description)
                 ),
-                intel_class=HorseIntel
+                intel_class=HorseIntel,
             )
 
         if not request.POST.get('legal_user_input'):
@@ -49,6 +50,8 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
         else:
             horse_intel = generate_horse_intel(request.POST['legal_user_input'])
 
-    return TemplateResponse(request, template, context={
-        'horse_intel': horse_intel.model_dump() if horse_intel else None
-    })
+    return TemplateResponse(
+        request,
+        template,
+        context={'horse_intel': horse_intel.model_dump() if horse_intel else None},
+    )

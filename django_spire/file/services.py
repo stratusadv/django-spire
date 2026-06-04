@@ -19,10 +19,7 @@ logger = logging.getLogger(__name__)
 COPY_BATCH_SIZE_MAX = 200
 
 
-def copy_files_to_instance(
-    source_files: models.QuerySet,
-    target: models.Model,
-) -> list[File]:
+def copy_files_to_instance(source_files: models.QuerySet, target: models.Model) -> list[File]:
     if target.pk is None:
         message = 'Cannot copy files to an unsaved model instance.'
         raise ValueError(message)
@@ -34,16 +31,14 @@ def copy_files_to_instance(
 
     if source_count > COPY_BATCH_SIZE_MAX:
         message = (
-            f'Cannot copy more than {COPY_BATCH_SIZE_MAX} '
-            f'files at once ({source_count} requested).'
+            f'Cannot copy more than {COPY_BATCH_SIZE_MAX} files at once ({source_count} requested).'
         )
         raise ValueError(message)
 
     target_content_type = ContentType.objects.get_for_model(target)
 
     path_builder = FilePathBuilder(
-        base_folder=settings.BASE_FOLDER_NAME,
-        app_name=target._meta.app_label,
+        base_folder=settings.BASE_FOLDER_NAME, app_name=target._meta.app_label
     )
 
     copies = []
@@ -59,9 +54,7 @@ def copy_files_to_instance(
         )
 
         path = path_builder.build(
-            source_file.name or 'unnamed',
-            source_file.type or 'bin',
-            source_file.related_field,
+            source_file.name or 'unnamed', source_file.type or 'bin', source_file.related_field
         )
 
         source_file.file.open('rb')

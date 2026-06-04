@@ -12,7 +12,9 @@ from django_spire.core.management.commands.spire_startapp_pkg.generator import (
     TemplateGenerator,
 )
 from django_spire.core.management.commands.spire_startapp_pkg.maps import generate_replacement_map
-from django_spire.core.management.commands.spire_startapp_pkg.permissions import PermissionInheritanceHandler
+from django_spire.core.management.commands.spire_startapp_pkg.permissions import (
+    PermissionInheritanceHandler,
+)
 from django_spire.core.management.commands.spire_startapp_pkg.processor import (
     TemplateEngine,
     TemplateProcessor,

@@ -3,10 +3,7 @@ from __future__ import annotations
 import threading
 import time
 
-from django_spire.sync.core.exceptions import (
-    ClockOverflowError,
-    InvalidParameterError,
-)
+from django_spire.sync.core.exceptions import ClockOverflowError, InvalidParameterError
 
 
 _COUNTER_BITS = 16
@@ -54,10 +51,7 @@ class HybridLogicalClock:
                     self._last = (wall_time << _COUNTER_BITS) | counter
 
                     if self._last <= previous:
-                        message = (
-                            f'HLC monotonicity violated: '
-                            f'{self._last} <= {previous}'
-                        )
+                        message = f'HLC monotonicity violated: {self._last} <= {previous}'
 
                         raise ClockOverflowError(message)
 
@@ -65,19 +59,13 @@ class HybridLogicalClock:
 
             time.sleep(0.001)
 
-        message = (
-            f'HLC counter overflow: unable to advance '
-            f'after {_SPINS_MAX} attempts'
-        )
+        message = f'HLC counter overflow: unable to advance after {_SPINS_MAX} attempts'
 
         raise ClockOverflowError(message)
 
     def receive(self, remote: int) -> int:
         if remote < 0:
-            message = (
-                f'The remote timestamp must be non-negative, '
-                f'got {remote}'
-            )
+            message = f'The remote timestamp must be non-negative, got {remote}'
 
             raise InvalidParameterError(message)
 
@@ -105,10 +93,7 @@ class HybridLogicalClock:
                     self._last = (wall_time << _COUNTER_BITS) | counter
 
                     if self._last <= previous:
-                        message = (
-                            f'HLC monotonicity violated: '
-                            f'{self._last} <= {previous}'
-                        )
+                        message = f'HLC monotonicity violated: {self._last} <= {previous}'
 
                         raise ClockOverflowError(message)
 
@@ -116,10 +101,7 @@ class HybridLogicalClock:
 
             time.sleep(0.001)
 
-        message = (
-            f'HLC counter overflow: unable to advance '
-            f'after {_SPINS_MAX} attempts'
-        )
+        message = f'HLC counter overflow: unable to advance after {_SPINS_MAX} attempts'
         raise ClockOverflowError(message)
 
     def update(self, remote: int) -> None:

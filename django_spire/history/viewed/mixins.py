@@ -12,11 +12,7 @@ if TYPE_CHECKING:
 
 
 class ViewedModelMixin(models.Model):
-    views = GenericRelation(
-        Viewed,
-        related_query_name='views',
-        editable=False
-    )
+    views = GenericRelation(Viewed, related_query_name='views', editable=False)
 
     def add_view(self, user: User) -> None:
         self.views.create(user=user)

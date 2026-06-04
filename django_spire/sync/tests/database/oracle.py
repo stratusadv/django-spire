@@ -8,11 +8,7 @@ class SyncOracle:
         self._field_state: dict[tuple[str, str, str], tuple[Any, int]] = {}
 
     def record_write(
-        self,
-        model_label: str,
-        key: str,
-        data: dict[str, Any],
-        timestamps: dict[str, int],
+        self, model_label: str, key: str, data: dict[str, Any], timestamps: dict[str, int]
     ) -> None:
         for field, ts in timestamps.items():
             state_key = (model_label, key, field)

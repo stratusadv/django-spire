@@ -25,10 +25,7 @@ class Presentation(HistoryModelMixin, ActivityMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Presentation',
-            reverse('metric:visual:presentation:page:list')
-        )
+        crumbs.add_breadcrumb('Presentation', reverse('metric:visual:presentation:page:list'))
 
         return crumbs
 
@@ -38,11 +35,7 @@ class Presentation(HistoryModelMixin, ActivityMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'metric:visual:presentation:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('metric:visual:presentation:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs

@@ -18,8 +18,7 @@ class FileConfig(AppConfig):
     def ready(self) -> None:
         if not hasattr(settings, 'BASE_FOLDER_NAME'):
             message = (
-                f'"BASE_FOLDER_NAME" must be set in the Django '
-                f'settings when using "{self.label}".'
+                f'"BASE_FOLDER_NAME" must be set in the Django settings when using "{self.label}".'
             )
 
             raise ValueError(message)

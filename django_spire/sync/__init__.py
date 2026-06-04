@@ -32,10 +32,7 @@ from django_spire.sync.database.manifest import (
     ModelPayload,
     SyncManifest,
 )
-from django_spire.sync.database.reconciler import (
-    PayloadReconciler,
-    ReconciliationResult,
-)
+from django_spire.sync.database.reconciler import PayloadReconciler, ReconciliationResult
 from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.database.storage import DatabaseSyncStorage
 from django_spire.sync.database.tracker import FieldUpdateTracker

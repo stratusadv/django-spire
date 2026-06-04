@@ -14,18 +14,9 @@ class SyncTombstone(models.Model):
         db_table = 'django_spire_sync_tombstone'
         unique_together = [('model_label', 'record_key')]
         indexes = [
-            models.Index(
-                fields=['model_label', 'sequence'],
-                name='sync_tombstone_model_seq_idx',
-            ),
-            models.Index(
-                fields=['model_label', 'timestamp'],
-                name='sync_tombstone_model_ts_idx',
-            ),
+            models.Index(fields=['model_label', 'sequence'], name='sync_tombstone_model_seq_idx'),
+            models.Index(fields=['model_label', 'timestamp'], name='sync_tombstone_model_ts_idx'),
         ]
 
     def __str__(self) -> str:
-        return (
-            f'{self.model_label}:{self.record_key} '
-            f'seq={self.sequence} ts={self.timestamp}'
-        )
+        return f'{self.model_label}:{self.record_key} seq={self.sequence} ts={self.timestamp}'

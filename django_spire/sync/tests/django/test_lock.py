@@ -34,9 +34,7 @@ def test_acquire_creates_in_progress_session(lock: DjangoSyncLock) -> None:
 
 
 @pytest.mark.django_db
-def test_acquire_rejects_when_active_session_exists(
-    lock: DjangoSyncLock,
-) -> None:
+def test_acquire_rejects_when_active_session_exists(lock: DjangoSyncLock) -> None:
     lock.acquire('node-1', '')
 
     with pytest.raises(LockContentionError, match='already in progress'):
@@ -60,7 +58,7 @@ def test_acquire_abandons_stale_session() -> None:
     first_session_id = lock.acquire('node-1', '')
 
     SyncSession.objects.filter(id=first_session_id).update(
-        started_at=timezone.now() - timedelta(seconds=300),
+        started_at=timezone.now() - timedelta(seconds=300)
     )
 
     second_session_id = lock.acquire('node-1', '')
@@ -106,7 +104,7 @@ def test_update_phase(lock: DjangoSyncLock) -> None:
 
 @pytest.mark.postgres_only
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skip(reason="Test isolation issues when run with full suite")
+@pytest.mark.skip(reason='Test isolation issues when run with full suite')
 def test_concurrent_acquire_serializes() -> None:
     if connection.vendor == 'sqlite':
         pytest.skip('SQLite does not support concurrent writers for this test')
@@ -125,11 +123,8 @@ def test_concurrent_acquire_serializes() -> None:
     threads = [
         threading.Thread(
             target=thread_safe(
-                try_acquire,
-                errors,
-                barrier=barrier,
-                on_caught={LockContentionError: contentions},
-            ),
+                try_acquire, errors, barrier=barrier, on_caught={LockContentionError: contentions}
+            )
         )
         for _ in range(2)
     ]

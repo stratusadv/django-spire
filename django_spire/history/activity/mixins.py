@@ -12,11 +12,7 @@ if TYPE_CHECKING:
 
 
 class ActivityMixin(models.Model):
-    activities = GenericRelation(
-        Activity,
-        related_query_name='activity',
-        editable=False
-    )
+    activities = GenericRelation(Activity, related_query_name='activity', editable=False)
 
     def add_activity(
         self,
@@ -24,20 +20,16 @@ class ActivityMixin(models.Model):
         verb: str,
         information: str,
         recipient: User = None,
-        subscribers: list[User] | None = None
+        subscribers: list[User] | None = None,
     ) -> Activity:
 
         activity = self.activities.create(
-            user=user,
-            verb=verb,
-            information=information,
-            recipient=recipient
+            user=user, verb=verb, information=information, recipient=recipient
         )
 
         if subscribers:
             subscriber_list = [
-                ActivitySubscriber(user=subscriber, activity=activity)
-                for subscriber in subscribers
+                ActivitySubscriber(user=subscriber, activity=activity) for subscriber in subscribers
             ]
 
             ActivitySubscriber.objects.bulk_create(subscriber_list)

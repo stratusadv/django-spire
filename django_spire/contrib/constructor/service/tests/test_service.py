@@ -31,7 +31,7 @@ class TestBaseDjangoModelService(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpass'  # noqa: S106
+            password='testpass',  # noqa: S106
         )
 
     def test_set_non_m2m_fields_sets_attribute(self) -> None:

@@ -59,7 +59,7 @@ class TestOrderingMixinValidator(TestCase):
             destination_objects=self.destination_objects,
             position=-1,
             obj=self.obj,
-            origin_objects=self.origin_objects
+            origin_objects=self.origin_objects,
         )
 
         validator.validate()
@@ -71,7 +71,7 @@ class TestOrderingMixinValidator(TestCase):
             destination_objects=self.destination_objects,
             position=0,
             obj=self.obj,
-            origin_objects=self.origin_objects
+            origin_objects=self.origin_objects,
         )
 
         assert isinstance(validator.errors, list)
@@ -81,7 +81,7 @@ class TestOrderingMixinValidator(TestCase):
             destination_objects=self.destination_objects,
             position=5,
             obj=self.obj,
-            origin_objects=self.origin_objects
+            origin_objects=self.origin_objects,
         )
 
         assert validator.validate() is True
@@ -91,7 +91,7 @@ class TestOrderingMixinValidator(TestCase):
             destination_objects=self.destination_objects,
             position=0,
             obj=self.obj,
-            origin_objects=self.origin_objects
+            origin_objects=self.origin_objects,
         )
 
         assert validator.validate() is True
@@ -101,7 +101,7 @@ class TestOrderingMixinValidator(TestCase):
             destination_objects=self.destination_objects,
             position=-1,
             obj=self.obj,
-            origin_objects=self.origin_objects
+            origin_objects=self.origin_objects,
         )
 
         assert validator.validate() is False
@@ -112,7 +112,7 @@ class TestOrderingMixinValidator(TestCase):
             destination_objects=self.destination_objects,
             position=10,
             obj=self.obj,
-            origin_objects=self.origin_objects
+            origin_objects=self.origin_objects,
         )
 
         assert validator.validate() is False
@@ -123,7 +123,7 @@ class TestOrderingMixinValidator(TestCase):
             destination_objects=self.destination_objects,
             position=2,
             obj=self.obj,
-            origin_objects=self.origin_objects
+            origin_objects=self.origin_objects,
         )
 
         assert validator.validate() is True

@@ -22,10 +22,7 @@ class FakeLock:
         pass
 
     def release(
-        self,
-        session_id: str,
-        status: SyncStatus,
-        result: DatabaseResult | None = None,
+        self, session_id: str, status: SyncStatus, result: DatabaseResult | None = None
     ) -> None:
         self.released.append((session_id, status))
 

@@ -9,8 +9,7 @@ from django_spire.knowledge.collection.models import Collection
 class TestTags(TestCase):
     def setUp(self) -> None:
         self.collection = Collection.objects.create(
-            name='Test Collection',
-            description='Test Collection Description'
+            name='Test Collection', description='Test Collection Description'
         )
 
         self.tag_set_a = {'apple', 'banana', 'orange'}
@@ -52,31 +51,57 @@ class TestTags(TestCase):
 
         assert len(self.collection.services.tag.get_matching_tags_from_tag_set(self.tag_set_a)) == 0
         assert len(self.collection.services.tag.get_matching_tags_from_tag_set(self.tag_set_b)) == 3
-        assert len(self.collection.services.tag.get_matching_tags_from_tag_set(self.mixed_tag_set)) == 2
+        assert (
+            len(self.collection.services.tag.get_matching_tags_from_tag_set(self.mixed_tag_set))
+            == 2
+        )
 
         self.collection.services.tag.remove_tags_by_tag_set(self.tag_set_b)
 
         assert len(self.collection.services.tag.get_matching_tags_from_tag_set(self.tag_set_b)) == 0
-        assert len(self.collection.services.tag.get_matching_tags_from_tag_set(self.mixed_tag_set)) == 1
+        assert (
+            len(self.collection.services.tag.get_matching_tags_from_tag_set(self.mixed_tag_set))
+            == 1
+        )
 
     def test_tag_metric_methods(self) -> None:
-        assert abs(
-            self.collection.services.tag.get_matching_percentage_of_tag_set(self.tag_set_a) - 1.00
-        ) < 0.01
+        assert (
+            abs(
+                self.collection.services.tag.get_matching_percentage_of_tag_set(self.tag_set_a)
+                - 1.00
+            )
+            < 0.01
+        )
 
-        assert abs(
-            self.collection.services.tag.get_matching_percentage_of_model_tags_from_tag_set(self.tag_set_b) - 0.25
-        ) < 0.01
+        assert (
+            abs(
+                self.collection.services.tag.get_matching_percentage_of_model_tags_from_tag_set(
+                    self.tag_set_b
+                )
+                - 0.25
+            )
+            < 0.01
+        )
 
         self.collection.services.tag.remove_tags_by_tag_set(self.mixed_tag_set)
 
-        assert abs(
-            self.collection.services.tag.get_matching_percentage_of_tag_set(self.tag_set_a) - 0.666
-        ) < 0.01
+        assert (
+            abs(
+                self.collection.services.tag.get_matching_percentage_of_tag_set(self.tag_set_a)
+                - 0.666
+            )
+            < 0.01
+        )
 
-        assert abs(
-            self.collection.services.tag.get_matching_percentage_of_model_tags_from_tag_set(self.tag_set_b) - 0.222
-        ) < 0.01
+        assert (
+            abs(
+                self.collection.services.tag.get_matching_percentage_of_model_tags_from_tag_set(
+                    self.tag_set_b
+                )
+                - 0.222
+            )
+            < 0.01
+        )
 
     def test_tag_removal(self) -> None:
         assert 'apple' in self.collection.tag_set

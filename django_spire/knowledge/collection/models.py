@@ -11,22 +11,18 @@ from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.querysets import CollectionQuerySet
 from django_spire.knowledge.collection.services.service import (
     CollectionGroupService,
-    CollectionService
+    CollectionService,
 )
 
 
-class Collection(
-    HistoryModelMixin,
-    OrderingModelMixin,
-    TagModelMixin,
-):
+class Collection(HistoryModelMixin, OrderingModelMixin, TagModelMixin):
     parent = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
         related_name='children',
         related_query_name='child',
         null=True,
-        blank=True
+        blank=True,
     )
 
     name = models.CharField(max_length=255)
@@ -69,10 +65,7 @@ class Collection(
 
 class CollectionGroup(models.Model):
     collection = models.ForeignKey(
-        Collection,
-        on_delete=models.CASCADE,
-        related_name='groups',
-        related_query_name='group',
+        Collection, on_delete=models.CASCADE, related_name='groups', related_query_name='group'
     )
 
     auth_group = models.ForeignKey(

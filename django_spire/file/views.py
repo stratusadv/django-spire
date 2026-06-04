@@ -6,10 +6,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
 
-from django_spire.contrib.responses.json_response import (
-    error_json_response,
-    success_json_response,
-)
+from django_spire.contrib.responses.json_response import error_json_response, success_json_response
 from django_spire.file.exceptions import FileError
 from django_spire.file.factory import FileFactory, RELATED_FIELD_LENGTH_MAX
 

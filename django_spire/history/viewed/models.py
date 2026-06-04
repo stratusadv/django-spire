@@ -17,7 +17,7 @@ class Viewed(models.Model):
         on_delete=models.CASCADE,
         editable=False,
         related_name='views',
-        related_query_name='view'
+        related_query_name='view',
     )
 
     created_datetime = models.DateTimeField(default=localtime, editable=False)

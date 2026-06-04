@@ -11,8 +11,7 @@ class ApiAccess(HistoryModelMixin):
     hashed_key = models.CharField(max_length=128, editable=False)
     key_hint = models.CharField(max_length=16, editable=False)
     permission = models.PositiveSmallIntegerField(
-        default=ApiPermissionChoices.VIEW,
-        choices=ApiPermissionChoices,
+        default=ApiPermissionChoices.VIEW, choices=ApiPermissionChoices
     )
 
     objects = ApiAccessQuerySet.as_manager()  # ty:ignore[missing-argument]

@@ -22,10 +22,7 @@ class HomeExample(HistoryModelMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Home',
-            reverse('home:page:list')
-        )
+        crumbs.add_breadcrumb('Home', reverse('home:page:list'))
 
         return crumbs
 
@@ -34,13 +31,7 @@ class HomeExample(HistoryModelMixin):
         crumbs.add_base_breadcrumb(self._meta.model)
 
         if self.pk:
-            crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'home:page:detail',
-                    kwargs={'pk': self.pk}
-                )
-            )
+            crumbs.add_breadcrumb(str(self), reverse('home:page:detail', kwargs={'pk': self.pk}))
 
         return crumbs
 

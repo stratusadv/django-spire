@@ -18,22 +18,14 @@ LLM_CONFIGS = {
         'MAX_INPUT_TOKENS': 32000,
         'MAX_OUTPUT_TOKENS': 32000,
     },
-    'BASIC': {
-        'MODEL': 'stratus.smart',
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
-    },
+    'BASIC': {'MODEL': 'stratus.smart', 'MAX_INPUT_TOKENS': 16000, 'MAX_OUTPUT_TOKENS': 16000},
     'ADVANCED': {
         'MODEL': 'stratus.smart',
         'TEMPERATURE': 0.3,
         'MAX_INPUT_TOKENS': 16000,
         'MAX_OUTPUT_TOKENS': 16000,
     },
-    'COMPLEX': {
-        'MODEL': 'stratus.smart',
-        'MAX_INPUT_TOKENS': 16000,
-        'MAX_OUTPUT_TOKENS': 16000,
-    },
+    'COMPLEX': {'MODEL': 'stratus.smart', 'MAX_INPUT_TOKENS': 16000, 'MAX_OUTPUT_TOKENS': 16000},
     'SEEDING_LLM_BOT': {
         'MODEL': 'stratus.smart',
         'TEMPERATURE': 0.0,

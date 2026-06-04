@@ -20,53 +20,33 @@ from django_spire.sync.database.graph import DependencyGraph
 from django_spire.sync.database.record import SyncRecord
 from django_spire.sync.django.storage import DjangoSyncStorage
 from django_spire.sync.tests.database.fakes import FakeLock
-from django_spire.sync.tests.database.helpers import (
-    FakeTransport,
-    InMemoryDatabaseStorage,
-    MODEL,
-)
+from django_spire.sync.tests.database.helpers import FakeTransport, InMemoryDatabaseStorage, MODEL
 from django_spire.sync.tests.factories import make_manifest
 from django_spire.sync.tests.models import SyncTestModel, SyncTestSimpleModel
 
 
 @pytest.fixture
 def batch_storage() -> DjangoSyncStorage:
-    return DjangoSyncStorage(
-        models=[SyncTestModel],
-        identity_field='id',
-        batch_size_max=5,
-    )
+    return DjangoSyncStorage(models=[SyncTestModel], identity_field='id', batch_size_max=5)
 
 
 @pytest.fixture
 def simple_batch_storage() -> DjangoSyncStorage:
-    return DjangoSyncStorage(
-        models=[SyncTestSimpleModel],
-        identity_field='id',
-        batch_size_max=5,
-    )
+    return DjangoSyncStorage(models=[SyncTestSimpleModel], identity_field='id', batch_size_max=5)
 
 
 def test_batch_size_max_zero_raises() -> None:
     with pytest.raises(InvalidParameterError, match='batch_size_max must be >= 1'):
-        DjangoSyncStorage(
-            models=[SyncTestModel],
-            batch_size_max=0,
-        )
+        DjangoSyncStorage(models=[SyncTestModel], batch_size_max=0)
 
 
 def test_batch_size_max_negative_raises() -> None:
     with pytest.raises(InvalidParameterError, match='batch_size_max must be >= 1'):
-        DjangoSyncStorage(
-            models=[SyncTestModel],
-            batch_size_max=-1,
-        )
+        DjangoSyncStorage(models=[SyncTestModel], batch_size_max=-1)
 
 
 @pytest.mark.django_db
-def test_upsert_many_allows_exactly_at_limit(
-    batch_storage: DjangoSyncStorage,
-) -> None:
+def test_upsert_many_allows_exactly_at_limit(batch_storage: DjangoSyncStorage) -> None:
     records = {
         f'{i:08d}-0000-0000-0000-000000000001': SyncRecord(
             key=f'{i:08d}-0000-0000-0000-000000000001',
@@ -79,15 +59,11 @@ def test_upsert_many_allows_exactly_at_limit(
     result = batch_storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
     assert len(result.skipped) == 0
-    assert SyncTestModel.objects.filter(
-        pk__in=list(records.keys()),
-    ).count() == 5
+    assert SyncTestModel.objects.filter(pk__in=list(records.keys())).count() == 5
 
 
 @pytest.mark.django_db
-def test_upsert_many_chunks_oversized_batch(
-    batch_storage: DjangoSyncStorage,
-) -> None:
+def test_upsert_many_chunks_oversized_batch(batch_storage: DjangoSyncStorage) -> None:
     records = {
         f'{i:08d}-0000-0000-0000-000000000000': SyncRecord(
             key=f'{i:08d}-0000-0000-0000-000000000000',
@@ -100,15 +76,11 @@ def test_upsert_many_chunks_oversized_batch(
     result = batch_storage.upsert_many('sync_tests.SyncTestModel', records, '')
 
     assert len(result.skipped) == 0
-    assert SyncTestModel.objects.filter(
-        pk__in=list(records.keys()),
-    ).count() == 12
+    assert SyncTestModel.objects.filter(pk__in=list(records.keys())).count() == 12
 
 
 @pytest.mark.django_db
-def test_delete_many_chunks_oversized_batch(
-    simple_batch_storage: DjangoSyncStorage,
-) -> None:
+def test_delete_many_chunks_oversized_batch(simple_batch_storage: DjangoSyncStorage) -> None:
     keys = []
 
     for i in range(8):
@@ -145,9 +117,7 @@ def test_engine_sync_acquires_and_releases_lock(mock_time: Any) -> None:
     mem_storage = InMemoryDatabaseStorage([MODEL])
     graph = DependencyGraph({MODEL: set()})
 
-    response = make_manifest(
-        node_id='server', local_sequence=500, node_time=500,
-    )
+    response = make_manifest(node_id='server', local_sequence=500, node_time=500)
     transport = FakeTransport(response)
 
     engine = DatabaseEngine(
@@ -177,9 +147,7 @@ def test_engine_sync_releases_lock_on_failure(mock_time: Any) -> None:
     mem_storage = InMemoryDatabaseStorage([MODEL])
     graph = DependencyGraph({MODEL: set()})
 
-    response = make_manifest(
-        node_id='server', local_sequence=500, node_time=9999,
-    )
+    response = make_manifest(node_id='server', local_sequence=500, node_time=9999)
     transport = FakeTransport(response)
 
     engine = DatabaseEngine(
@@ -208,9 +176,7 @@ def test_engine_sync_reports_phases_to_lock(mock_time: Any) -> None:
     mem_storage = InMemoryDatabaseStorage([MODEL])
     graph = DependencyGraph({MODEL: set()})
 
-    response = make_manifest(
-        node_id='server', local_sequence=500, node_time=500,
-    )
+    response = make_manifest(node_id='server', local_sequence=500, node_time=500)
     transport = FakeTransport(response)
 
     engine = DatabaseEngine(
@@ -239,9 +205,7 @@ def test_engine_sync_without_lock_still_works(mock_time: Any) -> None:
     mem_storage = InMemoryDatabaseStorage([MODEL])
     graph = DependencyGraph({MODEL: set()})
 
-    response = make_manifest(
-        node_id='server', local_sequence=500, node_time=500,
-    )
+    response = make_manifest(node_id='server', local_sequence=500, node_time=500)
     transport = FakeTransport(response)
 
     engine = DatabaseEngine(

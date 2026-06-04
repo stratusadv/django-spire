@@ -20,16 +20,9 @@ class SyncSequenceAllocator:
     def _get_or_create_locked(self) -> SyncSequenceCounter:
         manager = SyncSequenceCounter.objects.using(self._using)
 
-        manager.get_or_create(
-            name=self._counter_name,
-            defaults={'value': 0},
-        )
+        manager.get_or_create(name=self._counter_name, defaults={'value': 0})
 
-        return (
-            manager
-            .select_for_update()
-            .get(name=self._counter_name)
-        )
+        return manager.select_for_update().get(name=self._counter_name)
 
     def allocate(self, count: int = 1) -> SequenceRange:
         if count < 1:
@@ -46,11 +39,7 @@ class SyncSequenceAllocator:
         return SequenceRange(value_first=value_first, value_last=value_last)
 
     def current(self) -> int:
-        counter = (
-            SyncSequenceCounter.objects
-            .filter(name=self._counter_name)
-            .first()
-        )
+        counter = SyncSequenceCounter.objects.filter(name=self._counter_name).first()
 
         if counter is None:
             return 0
@@ -61,12 +50,8 @@ class SyncSequenceAllocator:
         if value < 1:
             return
 
-        SyncSequenceCounter.objects.get_or_create(
-            name=self._counter_name,
-            defaults={'value': 0},
-        )
+        SyncSequenceCounter.objects.get_or_create(name=self._counter_name, defaults={'value': 0})
 
-        SyncSequenceCounter.objects.filter(
-            name=self._counter_name,
-            value__lt=value,
-        ).update(value=value)
+        SyncSequenceCounter.objects.filter(name=self._counter_name, value__lt=value).update(
+            value=value
+        )

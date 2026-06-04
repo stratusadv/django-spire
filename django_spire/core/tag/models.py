@@ -9,10 +9,7 @@ from django_spire.core.tag.querysets import TagQuerySet
 
 
 class Tag(models.Model):
-    name = models.SlugField(
-        max_length=128,
-        unique=True
-    )
+    name = models.SlugField(max_length=128, unique=True)
 
     objects = TagQuerySet.as_manager()
 
@@ -28,10 +25,7 @@ class Tag(models.Model):
 
     @classmethod
     def add_tags(cls, tags: Sequence[Self]):
-        cls.objects.bulk_create(
-            tags,
-            ignore_conflicts=True
-        )
+        cls.objects.bulk_create(tags, ignore_conflicts=True)
 
     class Meta:
         db_table = 'django_spire_core_tag'

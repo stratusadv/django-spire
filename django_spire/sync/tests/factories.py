@@ -25,11 +25,7 @@ def make_payload(
     records: dict[str, SyncRecord] | None = None,
     deletes: dict[str, int] | None = None,
 ) -> ModelPayload:
-    return ModelPayload(
-        model_label=model_label,
-        records=records or {},
-        deletes=deletes or {},
-    )
+    return ModelPayload(model_label=model_label, records=records or {}, deletes=deletes or {})
 
 
 def make_manifest(

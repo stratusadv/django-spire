@@ -6,23 +6,15 @@ from django.db.models.functions import Cast
 from django_spire.history.querysets import HistoryQuerySet
 
 
-class TaskQuerySet(
-    HistoryQuerySet,
-):
+class TaskQuerySet(HistoryQuerySet):
     def annotate_calculated_cost(self) -> QuerySet:
-        return self.annotate(
-            calculated_cost=Cast(F('id') * Value(100), FloatField())
-        )
+        return self.annotate(calculated_cost=Cast(F('id') * Value(100), FloatField()))
 
     def annotate_calculated_price(self) -> QuerySet:
-        return self.annotate(
-            calculated_price=Cast(F('id') * Value(150), FloatField())
-        )
+        return self.annotate(calculated_price=Cast(F('id') * Value(150), FloatField()))
 
     def annotate_user_count(self) -> QuerySet:
-        return self.annotate(
-            user_count=Count('user')
-        )
+        return self.annotate(user_count=Count('user'))
 
     def complete(self) -> QuerySet:
         return self.filter(is_complete=True)
@@ -36,10 +28,7 @@ class TaskQuerySet(
 
         search_value = search_value.strip()
 
-        return self.filter(
-            Q(name__icontains=search_value) |
-            Q(description__icontains=search_value)
-        )
+        return self.filter(Q(name__icontains=search_value) | Q(description__icontains=search_value))
 
     def sort_by_column(self, sort_column: str, sort_direction: str = 'asc') -> QuerySet:
         sort_mapping = {
@@ -51,23 +40,17 @@ class TaskQuerySet(
         }
 
         sort_field = sort_mapping.get(sort_column, 'created_datetime')
-        order_by = f"{'-' if sort_direction == 'desc' else ''}{sort_field}"
+        order_by = f'{"-" if sort_direction == "desc" else ""}{sort_field}'
 
         return self.order_by(order_by)
 
 
 class TaskUserQuerySet(QuerySet):
     def annotate_calculated_cost(self) -> QuerySet:
-        return self.annotate(
-            calculated_cost=Cast(Value(50) + F('task_id'), FloatField())
-        )
+        return self.annotate(calculated_cost=Cast(Value(50) + F('task_id'), FloatField()))
 
     def annotate_calculated_price(self) -> QuerySet:
-        return self.annotate(
-            calculated_price=Cast(Value(75) + F('task_id'), FloatField())
-        )
+        return self.annotate(calculated_price=Cast(Value(75) + F('task_id'), FloatField()))
 
     def annotate_user_cost(self) -> QuerySet:
-        return self.annotate(
-            calculated_cost=Cast(F('task__id') * Value(100), FloatField())
-        )
+        return self.annotate(calculated_cost=Cast(F('task__id') * Value(100), FloatField()))

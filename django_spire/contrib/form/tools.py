@@ -39,7 +39,7 @@ def form_error_as_str(*form: BaseForm):
     error_message = ''
 
     for form in form:
-        error_message += " ".join(form_errors_as_list(form))
+        error_message += ' '.join(form_errors_as_list(form))
 
     return error_message
 

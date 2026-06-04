@@ -161,7 +161,7 @@ class TaskItemListViewTestCase(TestCase):
         response = self.client.post(
             reverse('django_spire:celery:task:item_list'),
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 302
 
@@ -169,7 +169,7 @@ class TaskItemListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/item_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -181,7 +181,7 @@ class TaskItemListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/item_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -193,7 +193,7 @@ class TaskItemListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/item_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -205,7 +205,7 @@ class TaskItemListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/item_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -220,7 +220,7 @@ class TaskItemListViewTestCase(TestCase):
         request = self.factory.post(
             f'/celery/task/item_list/?show_all=true',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
         request.GET = {'show_all': 'true'}
@@ -237,7 +237,7 @@ class TaskItemListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/item_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': reference_with_model}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -262,7 +262,7 @@ class TaskToastListViewTestCase(TestCase):
         response = self.client.post(
             reverse('django_spire:celery:task:toast_list'),
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         assert response.status_code == 302
 
@@ -270,7 +270,7 @@ class TaskToastListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/toast_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -282,7 +282,7 @@ class TaskToastListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/toast_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -294,7 +294,7 @@ class TaskToastListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/toast_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -306,7 +306,7 @@ class TaskToastListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/toast_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 
@@ -321,7 +321,7 @@ class TaskToastListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/toast_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
         request.GET = {'show_all': 'true'}
@@ -341,7 +341,7 @@ class TaskToastListViewTestCase(TestCase):
         request = self.factory.post(
             '/celery/task/toast_list/',
             data=json.dumps({'django_spire_celery_task_key_pairs': key_pairs}),
-            content_type='application/json'
+            content_type='application/json',
         )
         request.user = self.super_user
 

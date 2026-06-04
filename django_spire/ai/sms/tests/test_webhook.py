@@ -19,12 +19,7 @@ class SmsWebhookTests(BaseTestCase):
         mock_validate.return_value = True
 
         response = self.client.post(
-            self.webhook_url,
-            {
-                'From': '+15551234567',
-                'Body': 'Hello',
-                'MessageSid': 'SM123456789'
-            }
+            self.webhook_url, {'From': '+15551234567', 'Body': 'Hello', 'MessageSid': 'SM123456789'}
         )
 
         assert response.status_code == 200
@@ -47,11 +42,7 @@ class SmsWebhookTests(BaseTestCase):
 
         self.client.post(
             self.webhook_url,
-            {
-                'From': '+15559999999',
-                'Body': 'New conversation',
-                'MessageSid': 'SM999999999'
-            }
+            {'From': '+15559999999', 'Body': 'New conversation', 'MessageSid': 'SM999999999'},
         )
 
         assert SmsConversation.objects.count() == initial_count + 1
@@ -66,11 +57,7 @@ class SmsWebhookTests(BaseTestCase):
 
         self.client.post(
             self.webhook_url,
-            {
-                'From': '+15551234567',
-                'Body': 'Another message',
-                'MessageSid': 'SM123456789'
-            }
+            {'From': '+15551234567', 'Body': 'Another message', 'MessageSid': 'SM123456789'},
         )
 
         assert SmsConversation.objects.count() == initial_count
@@ -80,12 +67,7 @@ class SmsWebhookTests(BaseTestCase):
         mock_validate.return_value = False
 
         response = self.client.post(
-            self.webhook_url,
-            {
-                'From': '+15551234567',
-                'Body': 'Hello',
-                'MessageSid': 'SM123456789'
-            }
+            self.webhook_url, {'From': '+15551234567', 'Body': 'Hello', 'MessageSid': 'SM123456789'}
         )
 
         assert response.status_code == 403
@@ -95,12 +77,7 @@ class SmsWebhookTests(BaseTestCase):
         mock_validate.return_value = True
 
         response = self.client.post(
-            self.webhook_url,
-            {
-                'From': '1234',
-                'Body': 'Hello',
-                'MessageSid': 'SM123456789'
-            }
+            self.webhook_url, {'From': '1234', 'Body': 'Hello', 'MessageSid': 'SM123456789'}
         )
 
         assert response.status_code == 403
@@ -110,12 +87,7 @@ class SmsWebhookTests(BaseTestCase):
         mock_validate.return_value = True
 
         response = self.client.post(
-            self.webhook_url,
-            {
-                'From': '+15551234567',
-                'Body': '',
-                'MessageSid': 'SM123456789'
-            }
+            self.webhook_url, {'From': '+15551234567', 'Body': '', 'MessageSid': 'SM123456789'}
         )
 
         assert response.status_code == 200
@@ -126,11 +98,7 @@ class SmsWebhookTests(BaseTestCase):
 
         self.client.post(
             self.webhook_url,
-            {
-                'From': '+15551234567',
-                'Body': 'Test message',
-                'MessageSid': 'SM123456789'
-            }
+            {'From': '+15551234567', 'Body': 'Test message', 'MessageSid': 'SM123456789'},
         )
 
         conversation = SmsConversation.objects.get(phone_number='+15551234567')
@@ -143,12 +111,7 @@ class SmsWebhookTests(BaseTestCase):
         mock_validate.return_value = True
 
         response = self.client.post(
-            self.webhook_url,
-            {
-                'From': '+15551234567',
-                'Body': 'Hello',
-                'MessageSid': 'SM123456789'
-            }
+            self.webhook_url, {'From': '+15551234567', 'Body': 'Hello', 'MessageSid': 'SM123456789'}
         )
 
         assert b'<Response>' in response.content or b'Response' in response.content
@@ -158,11 +121,7 @@ class SmsWebhookTests(BaseTestCase):
         mock_validate.return_value = True
 
         response = self.client.post(
-            self.webhook_url,
-            {
-                'Body': 'Hello',
-                'MessageSid': 'SM123456789'
-            }
+            self.webhook_url, {'Body': 'Hello', 'MessageSid': 'SM123456789'}
         )
 
         assert response.status_code == 403
@@ -173,11 +132,7 @@ class SmsWebhookTests(BaseTestCase):
 
         self.client.post(
             self.webhook_url,
-            {
-                'From': '+15551234567',
-                'Body': 'Hello',
-                'MessageSid': 'SM_TEST_SID_123'
-            }
+            {'From': '+15551234567', 'Body': 'Hello', 'MessageSid': 'SM_TEST_SID_123'},
         )
 
         conversation = SmsConversation.objects.get(phone_number='+15551234567')

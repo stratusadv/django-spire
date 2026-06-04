@@ -25,10 +25,7 @@ class InfiniteScrolling(ActivityMixin, HistoryModelMixin):
     def base_breadcrumb(cls) -> Breadcrumbs:
         crumbs = Breadcrumbs()
 
-        crumbs.add_breadcrumb(
-            'Infinite Scrolling',
-            reverse('infinite_scrolling:page:list')
-        )
+        crumbs.add_breadcrumb('Infinite Scrolling', reverse('infinite_scrolling:page:list'))
 
         return crumbs
 
@@ -38,11 +35,7 @@ class InfiniteScrolling(ActivityMixin, HistoryModelMixin):
 
         if self.pk:
             crumbs.add_breadcrumb(
-                str(self),
-                reverse(
-                    'infinite_scrolling:page:detail',
-                    kwargs={'pk': self.pk}
-                )
+                str(self), reverse('infinite_scrolling:page:detail', kwargs={'pk': self.pk})
             )
 
         return crumbs

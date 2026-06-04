@@ -21,7 +21,7 @@ class CollectionAdmin(admin.ModelAdmin):
     autocomplete_fields = ['parent']
     actions = ['set_tags_for_collections']
 
-    @admin.action(description="Set Tags for Collections (Allow 5 Seconds Per)")
+    @admin.action(description='Set Tags for Collections (Allow 5 Seconds Per)')
     def set_tags_for_collections(self, request, queryset: QuerySet[Collection]):
         processed = 0
         for collection in queryset:
@@ -41,5 +41,3 @@ class CollectionGroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'collection', 'auth_group']
     list_select_related = ['collection', 'auth_group']
     search_fields = ['id', 'collection__name', 'auth_group__name']
-
-

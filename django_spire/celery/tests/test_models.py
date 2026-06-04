@@ -149,13 +149,15 @@ class CeleryTaskSendFailedPropertiesTestCase(TestCase):
 
     def test_send_failed_true_when_result_is_send_failed(self) -> None:
         task = create_test_celery_task()
-        task._result = pickle.dumps({
-            'error': 'SEND_FAILED',
-            'message': 'Connection refused',
-            'args': (),
-            'kwargs': {},
-            'task_name': 'test_task',
-        })
+        task._result = pickle.dumps(
+            {
+                'error': 'SEND_FAILED',
+                'message': 'Connection refused',
+                'args': (),
+                'kwargs': {},
+                'task_name': 'test_task',
+            }
+        )
         task.save()
         result_data = pickle.loads(task._result)
         assert result_data.get('error') == 'SEND_FAILED'
@@ -169,13 +171,15 @@ class CeleryTaskSendFailedPropertiesTestCase(TestCase):
 
     def test_send_error_message_returns_message_on_failure(self) -> None:
         task = create_test_celery_task()
-        task._result = pickle.dumps({
-            'error': 'SEND_FAILED',
-            'message': 'RabbitMQ unavailable',
-            'args': ('arg1',),
-            'kwargs': {'key': 'value'},
-            'task_name': 'my_task',
-        })
+        task._result = pickle.dumps(
+            {
+                'error': 'SEND_FAILED',
+                'message': 'RabbitMQ unavailable',
+                'args': ('arg1',),
+                'kwargs': {'key': 'value'},
+                'task_name': 'my_task',
+            }
+        )
         task.save()
         result_data = pickle.loads(task._result)
         assert result_data.get('message') == 'RabbitMQ unavailable'
@@ -189,13 +193,15 @@ class CeleryTaskSendFailedPropertiesTestCase(TestCase):
 
     def test_send_error_details_returns_full_error_data(self) -> None:
         task = create_test_celery_task()
-        task._result = pickle.dumps({
-            'error': 'SEND_FAILED',
-            'message': 'Connection lost',
-            'args': ('arg1', 'arg2'),
-            'kwargs': {'key': 'value'},
-            'task_name': 'my_task',
-        })
+        task._result = pickle.dumps(
+            {
+                'error': 'SEND_FAILED',
+                'message': 'Connection lost',
+                'args': ('arg1', 'arg2'),
+                'kwargs': {'key': 'value'},
+                'task_name': 'my_task',
+            }
+        )
         task.save()
         result_data = pickle.loads(task._result)
         assert result_data['task_name'] == 'my_task'
@@ -205,13 +211,15 @@ class CeleryTaskSendFailedPropertiesTestCase(TestCase):
 
     def test_failed_task_result_contains_error_data(self) -> None:
         task = create_test_celery_task()
-        task._result = pickle.dumps({
-            'error': 'SEND_FAILED',
-            'message': 'Failed',
-            'args': (),
-            'kwargs': {},
-            'task_name': 'test',
-        })
+        task._result = pickle.dumps(
+            {
+                'error': 'SEND_FAILED',
+                'message': 'Failed',
+                'args': (),
+                'kwargs': {},
+                'task_name': 'test',
+            }
+        )
         task.save()
         result_data = pickle.loads(task._result)
         assert result_data['error'] == 'SEND_FAILED'

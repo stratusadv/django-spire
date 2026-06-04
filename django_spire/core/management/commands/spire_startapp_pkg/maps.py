@@ -25,28 +25,17 @@ class AppConfiguration:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> AppConfiguration:
         immediate_parent = components[-2] if len(components) > 2 else None
         parent_parts = components[1:-1] if len(components) > 1 else []
 
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
-        default_model_name = ''.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_model_name = ''.join(word.title() for word in app_name.split('_'))
 
         model_name = (
-            user_inputs.get('model_name', default_model_name)
-            if user_inputs
-            else default_model_name
+            user_inputs.get('model_name', default_model_name) if user_inputs else default_model_name
         )
 
         default_label = (
@@ -55,11 +44,7 @@ class AppConfiguration:
             else app_name.lower()
         )
 
-        app_label = (
-            user_inputs.get('app_label', default_label)
-            if user_inputs
-            else default_label
-        )
+        app_label = user_inputs.get('app_label', default_label) if user_inputs else default_label
 
         default_db_table = (
             '_'.join(parent_parts).lower() + '_' + app_name.lower()
@@ -68,15 +53,11 @@ class AppConfiguration:
         )
 
         db_table = (
-            user_inputs.get('db_table_name', default_db_table)
-            if user_inputs
-            else default_db_table
+            user_inputs.get('db_table_name', default_db_table) if user_inputs else default_db_table
         )
 
         inherit_permissions = (
-            user_inputs.get('inherit_permissions', False)
-            if user_inputs
-            else False
+            user_inputs.get('inherit_permissions', False) if user_inputs else False
         )
 
         if inherit_permissions and user_inputs:
@@ -111,15 +92,9 @@ class ContextVariables:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> ContextVariables:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
         return cls(
             context_plural_var=app_name.lower() + 's',
@@ -145,26 +120,13 @@ class DataClasses:
     seeder_class_name: str
 
     @classmethod
-    def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
-    ) -> DataClasses:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+    def build(cls, components: list[str], user_inputs: dict[str, str] | None = None) -> DataClasses:
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
-        default_model_name = ''.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_model_name = ''.join(word.title() for word in app_name.split('_'))
 
         model_name = (
-            user_inputs.get('model_name', default_model_name)
-            if user_inputs
-            else default_model_name
+            user_inputs.get('model_name', default_model_name) if user_inputs else default_model_name
         )
 
         return cls(
@@ -190,31 +152,17 @@ class IntelligenceClasses:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> IntelligenceClasses:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
-        default_model_name = ''.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_model_name = ''.join(word.title() for word in app_name.split('_'))
 
         model_name = (
-            user_inputs.get('model_name', default_model_name)
-            if user_inputs
-            else default_model_name
+            user_inputs.get('model_name', default_model_name) if user_inputs else default_model_name
         )
 
-        return cls(
-            bot_class_name=model_name + 'Bot',
-            intel_class_name=model_name + 'Intel',
-        )
+        return cls(bot_class_name=model_name + 'Bot', intel_class_name=model_name + 'Intel')
 
 
 @dataclass
@@ -240,26 +188,13 @@ class ModelNames:
     model_verbose_name_plural: str
 
     @classmethod
-    def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
-    ) -> ModelNames:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+    def build(cls, components: list[str], user_inputs: dict[str, str] | None = None) -> ModelNames:
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
-        default_model_name = ''.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_model_name = ''.join(word.title() for word in app_name.split('_'))
 
         model_name = (
-            user_inputs.get('model_name', default_model_name)
-            if user_inputs
-            else default_model_name
+            user_inputs.get('model_name', default_model_name) if user_inputs else default_model_name
         )
 
         model_name_plural = (
@@ -268,10 +203,7 @@ class ModelNames:
             else model_name + 's'
         )
 
-        default_verbose_name = ' '.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_verbose_name = ' '.join(word.title() for word in app_name.split('_'))
 
         verbose_name = (
             user_inputs.get('verbose_name', default_verbose_name)
@@ -286,9 +218,7 @@ class ModelNames:
         )
 
         inherit_permissions = (
-            user_inputs.get('inherit_permissions', False)
-            if user_inputs
-            else False
+            user_inputs.get('inherit_permissions', False) if user_inputs else False
         )
 
         if inherit_permissions and user_inputs:
@@ -326,28 +256,17 @@ class ModelPermissions:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> ModelPermissions:
         module = '.'.join(components)
         immediate_parent = components[-2] if len(components) > 2 else None
 
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
-        default_model_name = ''.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_model_name = ''.join(word.title() for word in app_name.split('_'))
 
         model_name = (
-            user_inputs.get('model_name', default_model_name)
-            if user_inputs
-            else default_model_name
+            user_inputs.get('model_name', default_model_name) if user_inputs else default_model_name
         )
 
         default_permission_name = (
@@ -357,9 +276,7 @@ class ModelPermissions:
         )
 
         inherit_permissions = (
-            user_inputs.get('inherit_permissions', False)
-            if user_inputs
-            else False
+            user_inputs.get('inherit_permissions', False) if user_inputs else False
         )
 
         if inherit_permissions and user_inputs:
@@ -418,10 +335,7 @@ class ParentReferences:
 
         return cls(
             parent_app_name=parent.lower(),
-            parent_model_class_name=''.join(
-                word.title()
-                for word in parent.split('_')
-            ),
+            parent_model_class_name=''.join(word.title() for word in parent.split('_')),
         )
 
 
@@ -441,15 +355,9 @@ class PromptFunctions:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> PromptFunctions:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
         return cls(
             instruction_prompt_function_name=app_name.lower() + '_instruction_prompt',
@@ -478,9 +386,7 @@ class ReplacementMapBuilder:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> ReplacementMapBuilder:
         return cls(
             app_config=AppConfiguration.build(components, user_inputs=user_inputs),
@@ -542,25 +448,14 @@ class ServiceClasses:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> ServiceClasses:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
-        default_model_name = ''.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_model_name = ''.join(word.title() for word in app_name.split('_'))
 
         model_name = (
-            user_inputs.get('model_name', default_model_name)
-            if user_inputs
-            else default_model_name
+            user_inputs.get('model_name', default_model_name) if user_inputs else default_model_name
         )
 
         return cls(
@@ -607,15 +502,9 @@ class TemplatePaths:
 
     @classmethod
     def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
+        cls, components: list[str], user_inputs: dict[str, str] | None = None
     ) -> TemplatePaths:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
         parent_parts = components[1:-1] if len(components) > 1 else []
 
@@ -626,9 +515,7 @@ class TemplatePaths:
         )
 
         list_display_type = (
-            user_inputs.get('list_display_type', 'items')
-            if user_inputs
-            else 'items'
+            user_inputs.get('list_display_type', 'items') if user_inputs else 'items'
         )
 
         return cls(
@@ -679,26 +566,13 @@ class TestClasses:
     view_test_class_name: str
 
     @classmethod
-    def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
-    ) -> TestClasses:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+    def build(cls, components: list[str], user_inputs: dict[str, str] | None = None) -> TestClasses:
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
-        default_model_name = ''.join(
-            word.title()
-            for word in app_name.split('_')
-        )
+        default_model_name = ''.join(word.title() for word in app_name.split('_'))
 
         model_name = (
-            user_inputs.get('model_name', default_model_name)
-            if user_inputs
-            else default_model_name
+            user_inputs.get('model_name', default_model_name) if user_inputs else default_model_name
         )
 
         return cls(
@@ -731,16 +605,8 @@ class URLPatterns:
     url_reverse_path: str
 
     @classmethod
-    def build(
-        cls,
-        components: list[str],
-        user_inputs: dict[str, str] | None = None
-    ) -> URLPatterns:
-        app_name = (
-            user_inputs.get('app_name', components[-1])
-            if user_inputs
-            else components[-1]
-        )
+    def build(cls, components: list[str], user_inputs: dict[str, str] | None = None) -> URLPatterns:
+        app_name = user_inputs.get('app_name', components[-1]) if user_inputs else components[-1]
 
         parent_parts = components[1:-1] if len(components) > 1 else []
 
@@ -805,8 +671,7 @@ class ViewFunctions:
 
 
 def generate_replacement_map(
-    components: list[str],
-    user_inputs: dict[str, str] | None = None
+    components: list[str], user_inputs: dict[str, str] | None = None
 ) -> dict[str, str]:
     """Generate replacement mappings for template processing."""
 

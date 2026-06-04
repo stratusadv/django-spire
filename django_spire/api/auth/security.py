@@ -44,5 +44,4 @@ class ApiKeySecurity(APIKeyBase):
             if key:
                 return key
 
-
         return None

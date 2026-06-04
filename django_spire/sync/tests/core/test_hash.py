@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from django_spire.sync.core.exceptions import (
-    RecordFieldError,
-    RecordSerializationError
-)
+from django_spire.sync.core.exceptions import RecordFieldError, RecordSerializationError
 from django_spire.sync.core.hash import RecordHasher
 
 

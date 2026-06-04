@@ -9,11 +9,6 @@ app_name = 'page'
 
 # Group
 urlpatterns = [
-    path('group/<int:pk>/detail/',
-         page_views.detail_view,
-         name='detail'),
-
-    path('group/list/',
-         page_views.list_view,
-         name='list'),
+    path('group/<int:pk>/detail/', page_views.detail_view, name='detail'),
+    path('group/list/', page_views.list_view, name='list'),
 ]

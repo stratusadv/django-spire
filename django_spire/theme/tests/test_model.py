@@ -119,8 +119,16 @@ class ThemeModelTests(TestCase):
         cases = [
             (ThemeFamily.DEFAULT, ThemeMode.LIGHT, 'django_spire/css/themes/default/app-light.css'),
             (ThemeFamily.GRUVBOX, ThemeMode.DARK, 'django_spire/css/themes/gruvbox/app-dark.css'),
-            (ThemeFamily.ONE_DARK, ThemeMode.LIGHT, 'django_spire/css/themes/one-dark/app-light.css'),
-            (ThemeFamily.TOKYO_NIGHT, ThemeMode.DARK, 'django_spire/css/themes/tokyo-night/app-dark.css'),
+            (
+                ThemeFamily.ONE_DARK,
+                ThemeMode.LIGHT,
+                'django_spire/css/themes/one-dark/app-light.css',
+            ),
+            (
+                ThemeFamily.TOKYO_NIGHT,
+                ThemeMode.DARK,
+                'django_spire/css/themes/tokyo-night/app-dark.css',
+            ),
         ]
 
         for family, mode, path in cases:
@@ -145,15 +153,7 @@ class ThemeModelTests(TestCase):
         theme = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)
         result = theme.to_dict()
 
-        keys = {
-            'display',
-            'family',
-            'family_display',
-            'full',
-            'is_dark',
-            'mode',
-            'stylesheet'
-        }
+        keys = {'display', 'family', 'family_display', 'full', 'is_dark', 'mode', 'stylesheet'}
 
         assert set(result.keys()) == keys
 

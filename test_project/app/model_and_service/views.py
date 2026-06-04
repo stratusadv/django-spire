@@ -17,31 +17,20 @@ def test_model_detail_view(request: WSGIRequest) -> TemplateResponse:
     test_model = generate_test_model()
 
     user, _ = User.objects.get_or_create(
-        username="test_user",
-        defaults={"password": "test_password"}
+        username='test_user', defaults={'password': 'test_password'}
     )
 
-    fields = {
-        field.name: getattr(test_model, field.name)
-        for field in test_model._meta.fields
-    }
+    fields = {field.name: getattr(test_model, field.name) for field in test_model._meta.fields}
 
-    test_model.add_activity(
-        user=user,
-        verb='created',
-        information=f'{request.user} added a model.'
-    )
+    test_model.add_activity(user=user, verb='created', information=f'{request.user} added a model.')
 
-
-    context_data = {
-        'fields': fields
-    }
+    context_data = {'fields': fields}
 
     return generic_views.detail_view(
         request,
         obj=test_model,
         context_data=context_data,
-        template='test_model/page/test_model_detail_page.html'
+        template='test_model/page/test_model_detail_page.html',
     )
 
 
@@ -51,13 +40,11 @@ def test_model_home_view(request: WSGIRequest) -> TemplateResponse:
 
 
 def test_model_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'test_models': []
-    }
+    context_data = {'test_models': []}
 
     return generic_views.list_view(
         request,
         model=generate_test_model,
         context_data=context_data,
-        template='test_model/page/test_model_list_page.html'
+        template='test_model/page/test_model_list_page.html',
     )

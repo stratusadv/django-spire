@@ -5,10 +5,7 @@ from typing import Any, TYPE_CHECKING
 from django.db import transaction
 
 from django_spire.sync.database.conflict import FieldTimestampWins
-from django_spire.sync.database.engine import (
-    BATCH_BYTES_DEFAULT,
-    DatabaseEngine,
-)
+from django_spire.sync.database.engine import BATCH_BYTES_DEFAULT, DatabaseEngine
 from django_spire.sync.database.reconciler import PayloadReconciler
 from django_spire.sync.django.graph import (
     build_graph,
@@ -31,10 +28,7 @@ if TYPE_CHECKING:
     from django_spire.sync.database.conflict import ConflictResolver
     from django_spire.sync.database.graph import DependencyGraph
     from django_spire.sync.database.lock import SyncLock
-    from django_spire.sync.database.manifest import (
-        DatabaseResult,
-        SyncManifest,
-    )
+    from django_spire.sync.database.manifest import DatabaseResult, SyncManifest
     from django_spire.sync.database.storage import DatabaseSyncStorage
 
 
@@ -61,10 +55,7 @@ class SyncServer:
     ) -> None:
         resolved_graph = graph or build_graph(models)
 
-        deferred_foreign_keys = get_deferred_foreign_key_columns(
-            models,
-            resolved_graph,
-        )
+        deferred_foreign_keys = get_deferred_foreign_key_columns(models, resolved_graph)
 
         foreign_key_columns = get_foreign_key_columns_for_cascade(models)
 
@@ -82,20 +73,13 @@ class SyncServer:
             payload_bytes_max=payload_bytes_max,
             payload_records_max=payload_records_max,
             progress=progress,
-            reconciler=PayloadReconciler(
-                resolver=resolver or FieldTimestampWins(),
-            ),
-            storage=storage or DjangoSyncStorage(
-                models=models,
-                deferred_foreign_keys=deferred_foreign_keys,
-            ),
+            reconciler=PayloadReconciler(resolver=resolver or FieldTimestampWins()),
+            storage=storage
+            or DjangoSyncStorage(models=models, deferred_foreign_keys=deferred_foreign_keys),
             transaction=transaction_fn,
         )
 
-    def handle(
-        self,
-        incoming: SyncManifest,
-    ) -> tuple[SyncManifest, DatabaseResult]:
+    def handle(self, incoming: SyncManifest) -> tuple[SyncManifest, DatabaseResult]:
         return self._engine.process(incoming)
 
     def serve(
@@ -103,8 +87,4 @@ class SyncServer:
         request: HttpRequest,
         validate_node_id: Callable[[HttpRequest, str], bool] | None = None,
     ) -> JsonResponse:
-        return process_sync_request(
-            request,
-            self._engine,
-            validate_node_id=validate_node_id,
-        )
+        return process_sync_request(request, self._engine, validate_node_id=validate_node_id)

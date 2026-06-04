@@ -48,8 +48,7 @@ class SyncDemoConfig(AppConfig):
 
         with warnings.catch_warnings():
             warnings.filterwarnings(
-                'ignore',
-                message='Accessing the database during app initialization'
+                'ignore', message='Accessing the database during app initialization'
             )
 
             for database in get_all_sync_databases():
