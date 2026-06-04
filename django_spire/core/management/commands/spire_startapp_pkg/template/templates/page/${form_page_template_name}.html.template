@@ -3,7 +3,7 @@
 {% block full_page_content %}
     <div class="row g-3">
         <div class="col-12">
-            {% include '${template_directory_path}/card/${form_card_template_name}.html' %}
+            {{ form }}
         </div>
     </div>
 {% endblock %}

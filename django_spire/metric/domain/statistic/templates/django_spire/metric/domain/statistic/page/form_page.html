@@ -3,10 +3,9 @@
 {% block full_page_content %}
     <form method="post">
         {% csrf_token %}
-
         <div class="row g-3">
             <div class="col-12">
-                {% include 'metric/domain/statistic/card/form_card.html' %}
+                {{ form }}
             </div>
         </div>
     </form>

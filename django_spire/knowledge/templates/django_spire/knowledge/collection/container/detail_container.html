@@ -1,13 +1,7 @@
-{% extends 'django_spire/container/container.html' %}
+<h1 class="fs-1 fw-semi-bold mb-4">{{ collection.name }}</h1>
 
-{% block container_title %}
-	{{ collection.name }}
-{% endblock %}
-
-{% block container_content %}
-    <div class="row">
-        <div class="col-12">
-            {% include 'django_spire/knowledge/entry/card/list_card.html' %}
-        </div>
+<div class="row">
+    <div class="col-12">
+        {% include 'django_spire/knowledge/entry/card/list_card.html' %}
     </div>
-{% endblock %}
+</div>

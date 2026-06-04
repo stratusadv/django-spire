@@ -1,10 +1,5 @@
-{% extends 'django_spire/knowledge/container/container.html' %}
-
-{% block container_title %}
-    {{ entry.name }}
-{% endblock %}
-
-{% block container_subtitle %}
+<h1 class="fs-2 fw-bold mb-2 text-app-primary text-center">{{ entry.name }}</h1>
+<div class="fs-6 text-alt-color text-center mb-3">
     <div class="row">
         <div class="col text-end">
             {% if not entry.current_version.is_published and AuthController.knowledge.can_change %}
@@ -13,69 +8,57 @@
                 {% include 'django_spire/knowledge/entry/badge/entry_status_badge.html' with status=entry.current_version.status %}
             {% endif %}
         </div>
-    {% if AuthController.knowledge.can_change %}
-        <div class="col text-start"
-                x-data="{
-                editor_is_readonly: !should_init_editor_in_edit_mode(),
-                toggle_editor_readonly() {
-                    KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.toggle()
-                    this.editor_is_readonly = KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.isEnabled
-
-                    if (this.editor_is_readonly) {
-                        Glue.fetch(
-                            '{% url "django_spire:knowledge:entry:version:json:update_entry_from_version" pk=entry.id %}',
-                        )
-                    }
-
-                    let view_mode = this.editor_is_readonly ? 'readonly' : 'edit'
-
-                    let url = new URL(window.location)
-                    url.searchParams.set('view_mode', view_mode)
-                    history.pushState(null, '', url);
-                }
-            }"
-        >
-            <div
-                    @click="toggle_editor_readonly();"
-                    class="btn btn-sm shadow-sm px-3"
-                    :class="editor_is_readonly ? 'btn-app-primary-outlined' : 'btn-app-primary'"
-            >
-                <i :class="editor_is_readonly ? 'bi bi-pencil' : 'bi bi-check-lg'" class="me-1"></i>
-                <span x-text="editor_is_readonly ? 'Edit' : 'Save'"></span>
-            </div>
-        </div>
-    {% endif %}
-    </div>
-{% endblock %}
-
-
-{% block container_content %}
-    <div class="container">
-        <div class="row px-3">
-            <div class="col">
-                <script>
-                    // Define editor instance outside of alpine js scope to avoid potential issues caused by reactivity
-                    // and to allow above button to access
-                    let KNOWLEDGE_ENTRY_VERSION_EDITOR;
-                </script>
-
-                {# The EditorJS will be attached to this div #}
-                <div
-                    :id="editor_element_id"
+        {% if AuthController.knowledge.can_change %}
+            <div class="col text-start"
                     x-data="{
-                    editor_element_id: 'knowledge-entry-version-editor',
-                    init() {
-                        KNOWLEDGE_ENTRY_VERSION_EDITOR = create_editorjs_instance({
-                            holder_id: this.editor_element_id,
-                            initial_editor_blocks: {{ version_blocks }},
-                            update_url: '{% url "django_spire:knowledge:entry:version:json:update_blocks" pk=entry.id %}'
-                        })
+                    editor_is_readonly: !should_init_editor_in_edit_mode(),
+                    toggle_editor_readonly() {
+                        KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.toggle()
+                        this.editor_is_readonly = KNOWLEDGE_ENTRY_VERSION_EDITOR?.readOnly?.isEnabled
+                        if (this.editor_is_readonly) {
+                            Glue.fetch(
+                                '{% url "django_spire:knowledge:entry:version:json:update_entry_from_version" pk=entry.id %}',
+                            )
+                        }
+                        let view_mode = this.editor_is_readonly ? 'readonly' : 'edit'
+                        let url = new URL(window.location)
+                        url.searchParams.set('view_mode', view_mode)
+                        history.pushState(null, '', url);
                     }
-
                 }"
+            >
+                <div
+                        @click="toggle_editor_readonly();"
+                        class="btn btn-sm shadow-sm px-3"
+                        :class="editor_is_readonly ? 'btn-app-primary-outlined' : 'btn-app-primary'"
                 >
+                    <i :class="editor_is_readonly ? 'bi bi-pencil' : 'bi bi-check-lg'" class="me-1"></i>
+                    <span x-text="editor_is_readonly ? 'Edit' : 'Save'"></span>
                 </div>
             </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container">
+    <div class="row px-3">
+        <div class="col">
+            <script>
+                let KNOWLEDGE_ENTRY_VERSION_EDITOR;
+            </script>
+            <div
+                :id="editor_element_id"
+                x-data="{
+                editor_element_id: 'knowledge-entry-version-editor',
+                init() {
+                    KNOWLEDGE_ENTRY_VERSION_EDITOR = create_editorjs_instance({
+                        holder_id: this.editor_element_id,
+                        initial_editor_blocks: {{ version_blocks }},
+                        update_url: '{% url "django_spire:knowledge:entry:version:json:update_blocks" pk=entry.id %}'
+                    })
+                }
+            }"
+            ></div>
         </div>
     </div>
-{% endblock %}
+</div>

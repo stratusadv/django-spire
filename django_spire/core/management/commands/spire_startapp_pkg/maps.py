@@ -580,7 +580,6 @@ class TemplatePaths:
     Example:
         template_directory_path: 'employee/skill'
         detail_card_template_name: 'employee_skill_detail_card.html'
-        form_card_template_name: 'employee_skill_form_card.html'
         list_card_template_name: 'employee_skill_list_card.html'
         item_template_name: 'employee_skill_item.html'
         form_template_name: 'employee_skill_form.html'
@@ -591,17 +590,13 @@ class TemplatePaths:
     """
 
     detail_card_template_name: str
-    detail_container_template_name: str
     detail_page_template_name: str
-    form_card_template_name: str
-    form_container_template_name: str
     form_page_template_name: str
     form_template_name: str
     item_template_name: str
     list_items_card_template_name: str
     list_table_card_template_name: str
     list_card_template_name: str
-    list_container_template_name: str
     list_items_template_name: str
     list_filter_form_template_name: str
     list_page_template_name: str
@@ -638,17 +633,13 @@ class TemplatePaths:
 
         return cls(
             detail_card_template_name='detail_card',
-            detail_container_template_name='detail_container',
             detail_page_template_name='detail_page',
-            form_card_template_name='form_card',
-            form_container_template_name='form_container',
             form_page_template_name='form_page',
             form_template_name='form',
             item_template_name='detail_item',
             list_items_card_template_name=f'list_card',
             list_table_card_template_name=f'table_card',
             list_card_template_name=f'list_card',
-            list_container_template_name='list_container',
             list_filter_form_template_name='list_filter_form',
             list_items_template_name='list_items',
             table_row_template_name='row',

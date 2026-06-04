@@ -6,7 +6,6 @@
         method="post"
     >
         {% csrf_token %}
-
-        {% include 'tabular/card/form_card.html' %}
+        {{ form }}
     </form>
 {% endblock %}

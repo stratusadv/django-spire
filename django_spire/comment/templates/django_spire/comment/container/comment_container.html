@@ -1,21 +1,15 @@
-{% extends 'django_spire/container/container.html' %}
+<h1 class="fs-1 fw-semi-bold mb-4">Comments</h1>
 
-{% block container_title %}
-    Comments
-{% endblock %}
+{% with model.active_comments as comment_list %}
+    {% if has_comment_permission %}
+        {% include 'comment/card/comment_textarea_card.html' %}
+    {% endif %}
 
-{% block container_content %}
-    {% with model.active_comments as comment_list %}
-        {% if has_comment_permission %}
-            {% include 'comment/card/comment_textarea_card.html' %}
-        {% endif %}
+    {% for comment in comment_list %}
+        {% include 'comment/item/comment_item.html' %}
+    {% endfor %}
 
-        {% for comment in comment_list %}
-            {% include 'comment/item/comment_item.html' %}
-        {% endfor %}
-
-        {% if not comment_list and not has_comment_permission %}
-            {% include 'item/no_data_item.html' %}
-        {% endif %}
-    {% endwith %}
-{% endblock %}
+    {% if not comment_list and not has_comment_permission %}
+        {% include 'item/no_data_item.html' %}
+    {% endif %}
+{% endwith %}

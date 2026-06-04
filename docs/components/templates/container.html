@@ -1,30 +1,21 @@
-{% extends 'django_spire/container/container.html' %}
+<h1 class="fs-1 fw-semi-bold mb-4">Recipes</h1>
 
-{% block container_title %}
-	Recipes
-{% endblock %}
+<div class="mb-3">
+    {% include 'django_spire/button/button.html' with button_class='btn-app-primary' button_text='Add' button_icon='bi bi-plus' %}
+</div>
 
-{% block container_button %}
-	{% include 'django_spire/button/button.html' with button_class='btn-app-primary' button_text='Add' button_icon='bi bi-plus' %}
-{% endblock %}
+<form
+    class="mb-3"
+    x-data="{
+        search_recipe() {
+            alert('Nothing happens, but imagine in your mind the recipes being filtered!')
+        }
+    }"
+>
+    <label>
+        <input class="form-control" type="text" placeholder="Search Ingredients...">
+    </label>
+    {% include 'django_spire/button/button.html' with button_class='btn-app-primary' button_text='Search' x_button_click="search_recipe()" %}
+</form>
 
-{% block container_filter_section %}
-	<form
-        x-data="{
-            search_recipe() {
-                alert('Nothing happens, but imagine in your mind the recipes being filtered!')
-            }
-        }"
-    >
-        <label>
-            <input class="form-control" type="text" placeholder="Search Ingredients...">
-        </label>
-        {% include 'django_spire/button/button.html' with button_class='btn-app-primary' button_text='Search' x_button_click="search_recipe()" %}
-    </form>
-{% endblock %}
-
-{% block container_class %}pt-3{% endblock %}
-
-{% block container_content %}
-    {% include 'component/item/example_item.html' %}
-{% endblock %}
+{% include 'component/item/example_item.html' %}
