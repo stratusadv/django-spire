@@ -1,10 +1,8 @@
 {% extends 'django_spire/navigation/accordion/nav_accordion.html' %}
 
-{% block nav_title %}
-    Settings
-{% endblock %}
-
 {% block nav_icon %}bi bi-gear-fill{% endblock %}
+
+{% block nav_title %}Settings{% endblock %}
 
 {% block accordion_content %}
     {% if perms.django_spire_auth_group.view_authgroup %}

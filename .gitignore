@@ -18,6 +18,8 @@ dev-requirements.txt
 
 .prompt_generator_output
 
+.hypothesis
+
 *.db-journal
 *.http
 *.tar.gz
