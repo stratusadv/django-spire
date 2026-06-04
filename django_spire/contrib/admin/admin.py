@@ -57,7 +57,7 @@ class SpireModelAdmin(admin.ModelAdmin):
         for field in cls.model_fields:
             if not isinstance(
                 field,
-                (models.ManyToManyField, models.ManyToOneRel, GenericRelation),
+                (models.ManyToManyField, models.ManyToManyRel, models.ManyToOneRel, GenericRelation),
             ):
                 if hasattr(field, 'name') and not field.name.startswith('_'):
                     if field.name not in cls.trailing_fields:
@@ -77,7 +77,10 @@ class SpireModelAdmin(admin.ModelAdmin):
         filters = []
 
         for field in cls.model_fields:
-            if not isinstance(field, (models.ManyToManyField, models.ManyToOneRel)):
+            if not isinstance(
+                    field,
+                    (models.ManyToManyField, models.ManyToManyRel, models.ManyToOneRel)
+            ):
                 if isinstance(field, models.BooleanField):
                     filters.append(field.name)
 
