@@ -22,7 +22,7 @@ def django_spire(request: WSGIRequest) -> dict[str, Any]:
 
 
 def theme_context(request: WSGIRequest) -> dict[str, Any]:
-    default_string = getattr(settings, 'DJANGO_SPIRE_DEFAULT_THEME', 'default-light')
+    default_string = getattr(settings, 'DJANGO_SPIRE_DEFAULT_THEME', 'default')
 
     default = Theme.from_string(default_string, default=Theme.get_default())
 
@@ -33,7 +33,7 @@ def theme_context(request: WSGIRequest) -> dict[str, Any]:
     path = getattr(
         settings,
         'DJANGO_SPIRE_THEME_PATH',
-        '/static/django_spire/css/themes/{family}/app-{mode}.css',
+        '/static/django_spire/css/{family}.css',
     )
 
     return {

@@ -3,7 +3,7 @@
 {% block page_content %}
     <script>
         document.documentElement.style.setProperty(
-            '--app-side-navigation-width',
+            '--side-navigation-width',
             JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false') ? '68px' : '240px'
         );
     </script>
@@ -51,7 +51,7 @@
 
             update_command_bar_height() {
                 let sticky_header = $refs.sticky_header
-                let top_nav_height = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-top-navigation-height'))
+                let top_nav_height = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--top-navigation-height'))
                 let command_bar_height = sticky_header.offsetHeight - top_nav_height
 
                 document.documentElement.style.setProperty(
@@ -151,7 +151,7 @@
     >
         <div
             class="d-none d-lg-block side-navigation hide-on-print sticky-top vh-100 align-self-start flex-shrink-0"
-            style="width: var(--app-side-navigation-width, 240px);"
+            style="width: var(--side-navigation-width, 240px);"
         >
             {% block full_page_side_navigation %}
                 {% include 'django_spire/navigation/side_navigation.html' %}
@@ -170,7 +170,7 @@
 
             <div class="row flex-grow-1 g-0">
                 <div
-                    :class="is_narrow_viewport ? '' : 'position-relative col-auto border-end border-app-primary bg-app-layer-one'"
+                    :class="is_narrow_viewport ? '' : 'position-relative col-auto border-end border-primary bg-layer-one'"
                     :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', left: '0', top: '0', zIndex: 1050 } : (sub_nav_has_been_resized ? { width: sub_nav_width + 'px', minWidth: sub_nav_width + 'px', maxWidth: sub_nav_width + 'px' } : { minWidth: sub_nav_min_width + 'px' })"
                     x-cloak
                     x-ref="sub_nav_container"
@@ -180,7 +180,7 @@
                         :style="is_narrow_viewport ? { height: '100dvh' } : {}"
                         class="sticky-top side-panel overflow-y-auto d-flex flex-column"
                     >
-                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-primary" style="height: 52px;">
                             <div class="d-flex align-items-center gap-2 overflow-hidden" style="min-width: 0;">
                                 <span class="fw-semibold text-truncate ds-fs-9">
                                     {% block full_page_sub_navigation_title %}
@@ -232,16 +232,16 @@
                 </div>
 
                 <div
-                    :class="is_narrow_viewport ? '' : 'position-relative col-auto border-start border-app-primary bg-app-layer-one'"
+                    :class="is_narrow_viewport ? '' : 'position-relative col-auto border-start border-primary bg-layer-one'"
                     :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', right: '0', top: '0', zIndex: 1050 } : { width: info_nav_width + 'px', minWidth: info_nav_width + 'px', maxWidth: info_nav_width + 'px', marginLeft: '-' + info_nav_width + 'px' }"
                     x-cloak
                     x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
                 >
                     <div
                         :style="is_narrow_viewport ? { height: '100dvh' } : {}"
-                        class="sticky-top side-panel overflow-y-auto bg-app-layer-one d-flex flex-column"
+                        class="sticky-top side-panel overflow-y-auto bg-layer-one d-flex flex-column"
                     >
-                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+                        <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-primary" style="height: 52px;">
                             <span class="fw-semibold" style="font-size: 0.875rem;">
                                 {% block full_page_info_navigation_title %}
                                 {% endblock %}

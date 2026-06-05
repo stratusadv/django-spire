@@ -82,7 +82,7 @@
 >
     <div
         :class="is_active ?
-            'bg-app-primary-soft' : ''"
+            'bg-primary-soft' : ''"
         class="d-flex align-items-center justify-content-between px-2 py-1 rounded"
         data-chat-id="{{ recent_chat.id }}"
         style="transition: background-color 0.15s ease;"
@@ -92,7 +92,7 @@
                 :class="{
                     'bi-chat-dots-fill': !can_rename_chat,
                     'bi-chat-dots': can_rename_chat,
-                    'text-app-primary': is_active || can_rename_chat,
+                    'text-primary': is_active || can_rename_chat,
                     'text-muted': !is_active && !can_rename_chat
                 }"
                 class="bi me-2 flex-shrink-0"

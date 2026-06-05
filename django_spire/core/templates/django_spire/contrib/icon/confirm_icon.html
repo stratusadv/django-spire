@@ -17,8 +17,8 @@
             {% block icon_element_class %}
             {{ icon }}
             {{ font_size|default:'ds-fs-2' }}
-            {{ icon_color|default:'text-app-default-text-color' }}
-            {{ hover_class|default:'text-app-primary-hover' }}
+            {{ icon_color|default:'text-default-text-color' }}
+            {{ hover_class|default:'text-primary-hover' }}
             {{ icon_class }}
             cursor-pointer
             {% endblock %}
@@ -64,8 +64,8 @@
                     {% block confirm_icon_element_class %}
                     {{ confirm_icon|default:'bi bi-check' }}
                     {{ confirm_font_size|default:'ds-fs-2' }}
-                    {{ confirm_icon_color|default:'text-app-success' }}
-                    {{ confirm_hover_class|default:'text-app-success-dark-hover' }}
+                    {{ confirm_icon_color|default:'text-success' }}
+                    {{ confirm_hover_class|default:'text-success-dark-hover' }}
                     {{ confirm_icon_class }}
                     cursor-pointer
                     {% endblock %}
@@ -77,8 +77,8 @@
                 {% block cancel_icon_element_class %}
                 {{ cancel_icon|default:'bi bi-x' }}
                 {{ cancel_font_size|default:'ds-fs-2' }}
-                {{ cancel_icon_color|default:'text-app-danger' }}
-                {{ cancel_hover_class|default:'text-app-danger-dark-hover' }}
+                {{ cancel_icon_color|default:'text-danger' }}
+                {{ cancel_hover_class|default:'text-danger-dark-hover' }}
                 {{ cancel_icon_class }}
                 cursor-pointer
                 {% endblock %}

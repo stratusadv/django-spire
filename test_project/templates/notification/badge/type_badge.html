@@ -1,9 +1,9 @@
 {% if type == types.APP %}
-    {% include 'django_spire/badge/badge.html' with badge_text='App' badge_class='bg-app-warning text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='App' badge_class='bg-warning text-white' %}
 {% elif type == types.EMAIL %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Email' badge_class='bg-app-success text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Email' badge_class='bg-success text-white' %}
 {% elif type == types.SMS %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Sms' badge_class='bg-app-danger text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Sms' badge_class='bg-danger text-white' %}
 {% elif type == types.PUSH %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Push' badge_class='bg-app-primary text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Push' badge_class='bg-primary text-white' %}
 {% endif %}

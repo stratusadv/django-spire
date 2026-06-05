@@ -24,6 +24,21 @@ python *ARGS:
     {{ PYTHON }} {{ ARGS }}
 run-server:
     {{ PYTHON }} ./manage.py runserver
+scss:
+	bun add bootstrap
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/default.scss django_spire/core/static/django_spire/css/bootstrap.css
+
+themes:
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_default.scss django_spire/core/static/django_spire/css/default.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_nord.scss django_spire/core/static/django_spire/css/nord.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_gruvbox.scss django_spire/core/static/django_spire/css/gruvbox.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_catppuccin.scss django_spire/core/static/django_spire/css/catppuccin.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_palenight.scss django_spire/core/static/django_spire/css/palenight.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_tokyo-night.scss django_spire/core/static/django_spire/css/tokyo-night.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_rose-pine.scss django_spire/core/static/django_spire/css/rose-pine.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_one-dark.scss django_spire/core/static/django_spire/css/one-dark.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_material.scss django_spire/core/static/django_spire/css/material.css
+	bun sass --load-path=node_modules django_spire/core/static/django_spire/scss/themes/_ayu.scss django_spire/core/static/django_spire/css/ayu.css
 test:
     {{ PYTHON }} -m pytest . --reuse-db
 test-app app:

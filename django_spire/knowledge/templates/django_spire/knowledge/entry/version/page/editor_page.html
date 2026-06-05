@@ -54,7 +54,7 @@
             {% include 'django_spire/element/attribute_element.html' with attribute_title='Tags' %}
             {% for tag, weight in entry.simplified_and_weighted_tag_dict|safe_dict_items %}
                 {% with badge_text=tag|title|add:' '|add:weight|default_if_none:'1' %}
-                    {% include 'django_spire/badge/badge.html' with badge_class='badge bg-app-primary' %}
+                    {% include 'django_spire/badge/badge.html' with badge_class='badge bg-primary' %}
                 {% endwith %}
             {% endfor %}
         </div>

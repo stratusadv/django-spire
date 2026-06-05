@@ -15,7 +15,7 @@
     <div class="col">
         {% include 'django_spire/element/attribute_element.html' with attribute_title='Groups' %}
         {% for group in user.groups.all %}
-            {% include 'django_spire/badge/badge.html' with badge_text=group.name badge_class='bg-app-secondary text-white' %}
+            {% include 'django_spire/badge/badge.html' with badge_text=group.name badge_class='bg-secondary text-white' %}
         {% empty %}
             N/A
         {% endfor %}

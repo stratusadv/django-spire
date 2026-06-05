@@ -25,7 +25,7 @@
             {% block knowledge_sub_navigation_add_button %}
                 {% url 'django_spire:knowledge:collection:form:create' as create_url %}
                 <a
-                    class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium ds-fs-10"
+                    class="btn btn-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium ds-fs-10"
                     href="{{ create_url }}"
                     style="height: 36px;"
                 >
@@ -52,7 +52,7 @@
 {% endblock %}
 
 {% block full_page_command_bar %}
-    <div class="d-flex align-items-center px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one" style="height: 52px;">
+    <div class="d-flex align-items-center px-4 border-bottom border-primary flex-shrink-0 bg-layer-one" style="height: 52px;">
         <div class="d-flex align-items-center gap-3">
             {% block knowledge_command_bar_collections %}
                 <a
@@ -60,7 +60,7 @@
                     class="user-select-none text-muted d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                     role="button"
                     style="transition: background-color 0.15s ease;"
-                    :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                    :class="show_sub_nav ? 'bg-primary-soft text-primary' : 'text-muted'"
                 >
                     <i class="bi bi-folder2 ds-fs-7"></i>
                     <span class="fw-medium">Collections</span>
@@ -78,7 +78,7 @@
                     class="user-select-none text-muted d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                     role="button"
                     style="transition: background-color 0.15s ease;"
-                    :class="show_info_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                    :class="show_info_nav ? 'bg-primary-soft text-primary' : 'text-muted'"
                 >
                     <i class="bi bi-info-circle ds-fs-7"></i>
                     <span class="fw-medium">More Info</span>

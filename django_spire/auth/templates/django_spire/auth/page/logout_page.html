@@ -13,7 +13,7 @@
             <hr class="mt-0">
         </div>
         <div class="col px-4">
-            <form method="post" action="{% url 'django_spire:auth:redirect:logout' %}" class="text-app-secondary">
+            <form method="post" action="{% url 'django_spire:auth:redirect:logout' %}" class="text-secondary">
                 {% csrf_token %}
                 <button type="submit" class="d-block mx-auto shadow-sm btn my-4 w-100">Logout</button>
             </form>

@@ -16,6 +16,7 @@ just seed              # Seed test data (superuser: stratus/stratus)
 # Development
 just run-server        # Start dev server (port 8000)
 just celery            # Run Celery worker (separate terminal)
+just scss              # Compile SCSS to CSS
 
 # Testing
 just test              # All tests (-m 'not ai' by default)
@@ -531,6 +532,19 @@ Themes are defined in `django_spire/theme/` and support light/dark modes. The ba
 ```
 
 Custom CSS files: `app-light.css`, `app-dark.css` in `test_project/static/css/`
+
+### SCSS
+
+SCSS is compiled using Dart Sass via `bun`. Bootstrap SCSS is included as a local dependency to allow customization.
+
+```bash
+just scss   # Compiles SCSS to CSS
+```
+
+- SCSS source: `django_spire/core/static/django_spire/scss/`
+- Output CSS: `django_spire/core/static/django_spire/css/default.css`
+- Bootstrap imported via `--load-path=node_modules`
+- Add new Bootstrap versions: `bun add bootstrap`
 
 ## Reference Examples
 

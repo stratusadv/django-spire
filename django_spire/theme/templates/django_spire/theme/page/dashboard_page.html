@@ -1,14 +1,14 @@
 {% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_command_bar %}
-    <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one" style="height: 52px;">
+    <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-primary flex-shrink-0 bg-body" style="height: 52px;">
         <div class="d-flex align-items-center gap-2">
             <a
                 @click="toggle_sub()"
                 class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                 role="button"
                 style="transition: background-color 0.15s ease;"
-                :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                :class="show_sub_nav ? 'bg-primary bg-opacity-10 text-primary' : 'text-muted'"
                 x-show="has_content($refs.full_page_sub_navigation)"
             >
                 <i class="bi bi-layout-sidebar ds-fs-7"></i>
@@ -21,7 +21,7 @@
                 class="d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                 role="button"
                 style="transition: background-color 0.15s ease;"
-                :class="show_info_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                :class="show_info_nav ? 'bg-primary bg-opacity-10 text-primary' : 'text-muted'"
                 x-show="has_content($refs.full_page_info_navigation)"
             >
                 <i class="bi bi-layout-sidebar-reverse ds-fs-7"></i>
@@ -39,37 +39,37 @@
     <div class="p-3">
         <div class="mb-3">
             <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Components</div>
-            <a href="{% url 'django_spire:theme:page:colors' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+            <a href="{% url 'django_spire:theme:page:colors' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-body" data-closes-nav>
                 <i class="bi bi-palette text-muted"></i>
                 Colors
             </a>
-            <a href="{% url 'django_spire:theme:page:typography' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+            <a href="{% url 'django_spire:theme:page:typography' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-body" data-closes-nav>
                 <i class="bi bi-type text-muted"></i>
                 Typography
             </a>
-            <a href="{% url 'django_spire:theme:page:buttons' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+            <a href="{% url 'django_spire:theme:page:buttons' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-body" data-closes-nav>
                 <i class="bi bi-hand-index-thumb text-muted"></i>
                 Buttons
             </a>
-            <a href="{% url 'django_spire:theme:page:badges' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+            <a href="{% url 'django_spire:theme:page:badges' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-body" data-closes-nav>
                 <i class="bi bi-tag text-muted"></i>
                 Badges
             </a>
-            <a href="{% url 'django_spire:theme:page:borders' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+            <a href="{% url 'django_spire:theme:page:borders' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-body" data-closes-nav>
                 <i class="bi bi-bounding-box text-muted"></i>
                 Borders
             </a>
         </div>
         <div class="mb-3">
             <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Integrations</div>
-            <a href="{% url 'django_spire:theme:page:django_glue' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+            <a href="{% url 'django_spire:theme:page:django_glue' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-body" data-closes-nav>
                 <i class="bi bi-file-text text-muted"></i>
                 Django Glue
             </a>
         </div>
         <div>
             <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">Examples</div>
-            <a href="{% url 'django_spire:theme:page:example' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-app-default-text-color" data-closes-nav>
+            <a href="{% url 'django_spire:theme:page:example' %}" class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 text-body" data-closes-nav>
                 <i class="bi bi-grid-1x2 text-muted"></i>
                 Example Page
             </a>
@@ -96,10 +96,10 @@
             {% include 'django_spire/theme/card/borders_preview_card.html' with card_link=borders_url %}
         </div>
         <div class="col-md-4 mb-4">
-            {% include 'django_spire/theme/card/django_glue_preview_card.html' with card_link=borders_url %}
+            {% include 'django_spire/theme/card/django_glue_preview_card.html' with card_link=django_glue_url %}
         </div>
         <div class="col-md-4 mb-4">
-            {% include 'django_spire/theme/card/example_preview_card.html' with card_link=borders_url %}
+            {% include 'django_spire/theme/card/example_preview_card.html' with card_link=example_url %}
         </div>
     </div>
 {% endblock %}

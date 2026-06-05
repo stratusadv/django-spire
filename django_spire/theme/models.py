@@ -111,7 +111,7 @@ class Theme:
 
     @property
     def stylesheet(self) -> str:
-        return f'django_spire/css/themes/{self.family.value}/app-{self.mode.value}.css'
+        return f'django_spire/css/{self.family.value}.css'
 
     @property
     def value(self) -> str:

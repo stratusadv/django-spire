@@ -16,7 +16,7 @@
     <form method="post">
          {% csrf_token %}
         {{ form }}
-        <button type="submit" class="w-100 btn btn-app-primary mt-2">Submit</button>
+        <button type="submit" class="w-100 btn btn-primary mt-2">Submit</button>
     </form>
 
     <a class="text-center text-decoration-none" href={% url 'django_spire:auth:mfa:redirect:notification' %}?resend=True>Resend Code?</a>

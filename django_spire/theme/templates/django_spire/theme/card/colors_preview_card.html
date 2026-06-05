@@ -5,7 +5,7 @@
 
 {% block card_button %}
     {% url 'django_spire:theme:page:colors' as colors_url %}
-    {% include 'django_spire/button/button.html' with button_text='Full Preview' button_class='btn-app-primary' button_href=colors_url %}
+    {% include 'django_spire/button/button.html' with button_text='Full Preview' button_class='btn-primary' button_href=colors_url %}
 {% endblock %}
 
 {% block preview_card_icon %}bi bi-palette{% endblock %}
@@ -21,20 +21,14 @@
 {% block preview_card_content %}
     <div class="preview-sample">
         <div class="d-flex flex-wrap">
-            <!-- Primary colors -->
-            <div class="p-2 m-1 bg-app-primary" style="width: 40px; height: 40px;"></div>
-            <div class="p-2 m-1 bg-app-primary-soft" style="width: 40px; height: 40px;"></div>
-            <div class="p-2 m-1 bg-app-primary-dark" style="width: 40px; height: 40px;"></div>
-
-            <!-- Secondary colors -->
-            <div class="p-2 m-1 bg-app-secondary" style="width: 40px; height: 40px;"></div>
-            <div class="p-2 m-1 bg-app-secondary-soft" style="width: 40px; height: 40px;"></div>
-            <div class="p-2 m-1 bg-app-secondary-dark" style="width: 40px; height: 40px;"></div>
-
-            <!-- Accent colors -->
-            <div class="p-2 m-1 bg-app-accent" style="width: 40px; height: 40px;"></div>
-            <div class="p-2 m-1 bg-app-accent-soft" style="width: 40px; height: 40px;"></div>
-            <div class="p-2 m-1 bg-app-accent-dark" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 bg-primary" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 text-bg-primary" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 bg-secondary" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 text-bg-secondary" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 bg-success" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 bg-warning" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 bg-danger" style="width: 40px; height: 40px;"></div>
+            <div class="p-2 m-1 bg-info" style="width: 40px; height: 40px;"></div>
         </div>
     </div>
 {% endblock %}

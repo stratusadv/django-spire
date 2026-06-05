@@ -45,6 +45,7 @@ site/
 django_spire.egg-info/
 inspectionProfiles/
 .opencode/node_modules/
+node_modules/
 
 *~
 nul

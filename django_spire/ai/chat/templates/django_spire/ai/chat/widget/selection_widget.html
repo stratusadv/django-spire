@@ -23,7 +23,7 @@
     @new-chat-created.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})"
     @load-chat.window="active_chat_id = $event.detail.chat_id; $dispatch('chat-activated', {chat_id: $event.detail.chat_id})"
 >
-    <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-app-primary" style="height: 52px;">
+    <div class="d-flex align-items-center justify-content-between px-3 flex-shrink-0 border-bottom border-primary" style="height: 52px;">
         <span class="fw-semibold ds-fs-9">Chat History</span>
         <a
             @click="show_history = false"
@@ -38,7 +38,7 @@
     <div class="px-3 pt-3 flex-shrink-0">
         <button
             @click="$dispatch('load-chat', {chat_id: 0}); show_history = false;"
-            class="btn btn-app-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium ds-fs-9"
+            class="btn btn-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium ds-fs-9"
             style="height: 36px;"
         >
             <i class="bi bi-plus-lg"></i>
@@ -51,7 +51,7 @@
             <i class="bi bi-search position-absolute text-muted ds-fs-9" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
             <input
                 @input.debounce.300ms="search_chats()"
-                class="form-control form-control-sm rounded bg-app-layer-two border-app-primary ds-fs-9"
+                class="form-control form-control-sm rounded bg-layer-two border-primary ds-fs-9"
                 placeholder="Search conversations..."
                 style="padding-left: 2.25rem; height: 36px;"
                 type="text"

@@ -8,7 +8,7 @@
     {% if AuthController.api.can_add %}
         <div class="col text-end mb-1">
             {% url 'django_spire:api:page:list' as list_url %}
-            {% include 'django_spire/button/button.html' with button_text='Done' button_class='btn-app-danger' button_href=list_url button_icon="bi bi-check" %}
+            {% include 'django_spire/button/button.html' with button_text='Done' button_class='btn-danger' button_href=list_url button_icon="bi bi-check" %}
         </div>
     {% endif %}
 {% endblock %}
@@ -29,7 +29,7 @@
         </div>
         <div class="row">
             <div class="col">
-                <span class="text-app-danger">
+                <span class="text-danger">
                     Make sure to copy this key as it will never be shown again!
                 </span>
             </div>

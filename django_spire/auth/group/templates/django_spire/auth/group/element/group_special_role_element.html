@@ -31,18 +31,18 @@
     }"
 >
     <div class="position-relative">
-        <div @click="show_dropdown = true" class="btn btn-sm btn-app-primary-outlined dropdown-toggle">
+        <div @click="show_dropdown = true" class="btn btn-sm btn-outline-primary dropdown-toggle">
             <span x-text="has_access_verbose"></span>
         </div>
         <div
             style="width: 80px; z-index: 2"
-            class="card position-absolute bg-app-layer-one mt-1 border"
+            class="card position-absolute bg-layer-one mt-1 border"
             x-show="show_dropdown"
             @click.outside="show_dropdown = false"
         >
             <template x-for="perm in permission_choices">
                 <div
-                    class="py-1 ps-2 cursor-pointer bg-app-layer-three-hover"
+                    class="py-1 ps-2 cursor-pointer bg-layer-three-hover"
                     :class="{ 'border-bottom': perm !== 'Yes' }"
                     :style="
                         perm === 'No' ? 'border-top-left-radius: 0.30rem !important; border-top-right-radius: 0.30rem !important;' :
@@ -52,7 +52,7 @@
                 >
                     <span
                         class="fs--1"
-                        :class="{ 'text-app-secondary': has_access_verbose === perm }"
+                        :class="{ 'text-secondary': has_access_verbose === perm }"
                         x-text="perm"
                     ></span>
                 </div>
@@ -60,6 +60,6 @@
         </div>
     </div>
     <template x-if="error_message">
-        <div x-text="error_message" class="fs--1 text-app-danger"></div>
+        <div x-text="error_message" class="fs--1 text-danger"></div>
     </template>
 </div>

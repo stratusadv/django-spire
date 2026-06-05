@@ -1,9 +1,0 @@
-.knowledge-nav-item {
-    transition: all 0.10s ease;
-    border-radius: 8px;
-    padding: 3px 3px;
-}
-
-.knowledge-nav-item:hover {
-    background-color: var(--app-layer-three);
-}

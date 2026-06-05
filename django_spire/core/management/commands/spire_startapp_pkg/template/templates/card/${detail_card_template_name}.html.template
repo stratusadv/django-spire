@@ -7,7 +7,7 @@
 {% block card_button %}
     {% if perms.${permission_prefix}.change_${model_instance_name} %}
         {% url '${url_reverse_path}:form:update' pk=${context_single_var}.pk as ${context_single_var}_edit_url %}
-        {% include 'django_spire/button/button.html' with button_text='Edit' button_class='btn-app-primary-dark' button_icon='bi bi-pencil' button_href=${context_single_var}_edit_url %}
+        {% include 'django_spire/button/button.html' with button_text='Edit' button_class='btn-primary' button_icon='bi bi-pencil' button_href=${context_single_var}_edit_url %}
     {% endif %}
 {% endblock %}
 

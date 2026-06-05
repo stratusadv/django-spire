@@ -11,7 +11,7 @@
 {% block card_button %}
     {% if perms.django_spire_auth_group.change_authgroup %}
         {% url 'django_spire:auth:group:form:add' as add_group_url %}
-        {% include 'django_spire/button/button.html' with button_class='btn-app-primary-dark' button_href=add_group_url button_text='Add' button_icon='bi bi-plus' %}
+        {% include 'django_spire/button/button.html' with button_class='btn-primary' button_href=add_group_url button_text='Add' button_icon='bi bi-plus' %}
     {% endif %}
 {% endblock %}
 

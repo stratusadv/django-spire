@@ -6,7 +6,7 @@
 
 {% block card_button %}
     {% url 'placeholder:page:form' pk=0 as new_placeholder_url %}
-	{% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-app-primary-dark' button_icon='bi bi-plus' button_href=new_placeholder_url %}
+	{% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_icon='bi bi-plus' button_href=new_placeholder_url %}
 {% endblock %}
 
 {% block card_title_content %}

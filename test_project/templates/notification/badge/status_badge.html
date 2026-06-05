@@ -1,9 +1,9 @@
 {% if status == statuses.PENDING %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Pending' badge_class='bg-app-warning text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Pending' badge_class='bg-warning text-white' %}
 {% elif status == statuses.SENT %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Sent' badge_class='bg-app-success text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Sent' badge_class='bg-success text-white' %}
 {% elif status == statuses.ERRORED %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Errored' badge_class='bg-app-danger text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Errored' badge_class='bg-danger text-white' %}
 {% elif status == statuses.FAILED %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Failed' badge_class='bg-app-danger text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Failed' badge_class='bg-danger text-white' %}
 {% endif %}

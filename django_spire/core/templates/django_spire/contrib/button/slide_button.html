@@ -106,8 +106,8 @@
                 height: thumbSize + 'px',
                 width: (thumbSize + x) + 'px',
                 borderRadius: (thumbSize / 2) + 'px',
-                background: 'color-mix(in srgb, var(--app-layer-one) 18%, transparent)',
-                boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--app-layer-one) 12%, transparent)',
+                background: 'color-mix(in srgb, var(--layer-one) 18%, transparent)',
+                boxShadow: 'inset 0 0 0 1px color-mix(in srgb, var(--layer-one) 12%, transparent)',
                 transition: dragging ? 'none' : 'width 0.42s cubic-bezier(.4, 0, .2, 1)'
             }"
         ></div>
@@ -140,7 +140,7 @@
             :style="{
                 top: pad + 'px',
                 left: pad + 'px',
-                background: 'var(--app-layer-one)',
+                background: 'var(--layer-one)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06)',
                 transform: 'translateX(' + x + 'px) scale(' + (pressed && !submitted ? 0.96 : 1) + ')',
                 transition: dragging ? 'transform 0s, box-shadow 0.2s' : 'transform 0.42s cubic-bezier(.4, 0, .2, 1), box-shadow 0.2s',

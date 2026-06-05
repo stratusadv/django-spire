@@ -4,7 +4,7 @@
     <div class="col-11 col-md-10 col-lg-8 col-xl-6 mx-auto my-3">
 
         <div class="row">
-            <div class="col h5 text-center text-app-primary">
+            <div class="col h5 text-center text-primary">
                 {{ report.title }}
             </div>
         </div>
@@ -71,9 +71,9 @@
                 loading: false
             }" class="row">
                 <div class="col mt-3 text-center" x-show="!loading">
-                    <input class="btn btn-app-primary" @click="loading = true" type="submit" value="Run Report">
+                    <input class="btn btn-primary" @click="loading = true" type="submit" value="Run Report">
                 </div>
-                <div class="col mt-3 text-center text-app-primary" x-show="loading">
+                <div class="col mt-3 text-center text-primary" x-show="loading">
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </div>
             </div>

@@ -13,7 +13,7 @@
 
 {% block scroll_container %}
     <div
-        class="position-relative p-3 mt-3 bg-app-layer-one"
+        class="position-relative p-3 mt-3 bg-layer-one"
         style="height: calc(100vh - 350px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;"
         x-ref="scroll_container"
     >
@@ -32,7 +32,7 @@
 {% block scroll_footer %}
     <div class="row mt-3 mb-5 px-3">
         <div class="col text-start">
-            <span class="fs-7 text-app-secondary">
+            <span class="fs-7 text-secondary">
                 Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> items
             </span>
         </div>

@@ -31,14 +31,14 @@
         @deleted_chat.window="load_chat(0)"
         @load-chat.window="load_chat($event.detail.chat_id); if (is_narrow_viewport) show_history = false"
     >
-        <div class="d-flex align-items-center px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one" style="height: 52px;">
+        <div class="d-flex align-items-center px-4 border-bottom border-primary flex-shrink-0 bg-layer-one" style="height: 52px;">
             <div class="d-flex align-items-center gap-2">
                 <a
                     @click="show_history = !show_history"
                     class="user-select-none d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                     role="button"
                     style="transition: background-color 0.15s ease;"
-                    :class="show_history ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                    :class="show_history ? 'bg-primary-soft text-primary' : 'text-muted'"
                     x-cloak
                 >
                     <i class="bi bi-clock-history ds-fs-7"></i>
@@ -49,7 +49,7 @@
 
         <div class="d-flex flex-grow-1 overflow-hidden">
             <div
-                class="flex-shrink-0 bg-app-layer-one overflow-hidden"
+                class="flex-shrink-0 bg-layer-one overflow-hidden"
                 :class="is_narrow_viewport ? '' : ''"
                 :style="show_history
                     ? (is_narrow_viewport

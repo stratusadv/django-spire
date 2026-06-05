@@ -1,6 +1,6 @@
 {% extends 'django_spire/contrib/infinite_scroll/base.html' %}
 
-{% block scroll_wrapper_class %}bg-app-layer-two rounded-2{% endblock %}
+{% block scroll_wrapper_class %}bg-layer-two rounded-2{% endblock %}
 
 {% block scroll_container %}
     <div class="row">
@@ -26,9 +26,9 @@
             <template x-if="show_loading && !is_refreshing">
                 <div
                     class="position-absolute d-flex justify-content-center align-items-center"
-                    style="top: 0; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--app-layer-one) 85%, transparent);"
+                    style="top: 0; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--layer-one) 85%, transparent);"
                 >
-                    <div class="spinner-border text-app-primary" role="status"></div>
+                    <div class="spinner-border text-primary" role="status"></div>
                 </div>
             </template>
         </div>
@@ -38,7 +38,7 @@
 {% block scroll_footer %}
     <div class="row text-center border-top border-dark-subtle m-0">
         <div class="col-12">
-            <span class="fs-7 text-app-secondary">
+            <span class="fs-7 text-secondary">
                 Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> {{ footer_label|default:'items' }}
             </span>
         </div>
@@ -47,7 +47,7 @@
             {% if not app_notification_list_url %}
                 {% url "django_spire:notification:app:page:list" as app_notification_list_url %}
             {% endif %}
-            <a href='{{ app_notification_list_url }}' class="text-decoration-none text-app-secondary my-2">View All</a>
+            <a href='{{ app_notification_list_url }}' class="text-decoration-none text-secondary my-2">View All</a>
         </div>
     </div>
 {% endblock %}

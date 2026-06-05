@@ -39,9 +39,9 @@
                 <template x-if="show_loading && !is_refreshing">
                     <div
                         class="position-absolute d-flex justify-content-center align-items-center"
-                        style="top: 0; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--app-layer-one) 85%, transparent);"
+                        style="top: 0; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--layer-one) 85%, transparent);"
                     >
-                        <div class="spinner-border text-app-primary" role="status"></div>
+                        <div class="spinner-border text-primary" role="status"></div>
                     </div>
                 </template>
             </div>
@@ -52,7 +52,7 @@
 {% block scroll_footer %}
     <div class="row mb-4 mt-3 px-md-3">
         <div class="col text-start">
-            <span class="fs-7 text-app-secondary">
+            <span class="fs-7 text-secondary">
                 Showing <span x-text="loaded_count"></span> of <span x-text="total_count"></span> items
             </span>
         </div>

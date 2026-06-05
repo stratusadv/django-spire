@@ -1,7 +1,7 @@
 {% if priority == priorities.LOW %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Low' badge_class='bg-app-secondary text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Low' badge_class='bg-secondary text-white' %}
 {% elif priority == priorities.MEDIUM %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Med' badge_class='bg-app-warning text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Med' badge_class='bg-warning text-white' %}
 {% elif priority == priorities.HIGH %}
-    {% include 'django_spire/badge/badge.html' with badge_text='High' badge_class='bg-app-danger text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='High' badge_class='bg-danger text-white' %}
 {% endif %}

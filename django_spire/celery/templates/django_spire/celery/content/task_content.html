@@ -8,7 +8,7 @@
             }
         }
     }"
-        class="{{ task_header_class }} pe-1 py-1 border-0  {% if celery_task.is_processing %}text-app-primary bg-app-layer-three{% elif celery_task.is_successful %}text-app-success bg-app-success-soft{% elif celery_task.is_failed %}text-app-danger bg-app-danger-soft{% endif %}"
+        class="{{ task_header_class }} pe-1 py-1 border-0  {% if celery_task.is_processing %}text-primary bg-layer-three{% elif celery_task.is_successful %}text-success bg-success-soft{% elif celery_task.is_failed %}text-danger bg-danger-soft{% endif %}"
 >
     <div class="me-auto fw-semibold">
         {% if celery_task.is_pending %}
@@ -45,7 +45,7 @@
     {% if celery_task.is_pending %}
         Pending
         <div class="progress mt-1" style="height: 3px;">
-            <div class="progress-bar bg-app-primary" role="progressbar"
+            <div class="progress-bar bg-primary" role="progressbar"
                  style="width: 0%;"
                  aria-valuenow="0" aria-valuemin="0"
                  aria-valuemax="100"></div>
@@ -62,7 +62,7 @@
             • Completing Soon
         {% endif %}
             <div class="progress mt-1" style="height: 3px;">
-                <div class="progress-bar bg-app-primary" role="progressbar"
+                <div class="progress-bar bg-primary" role="progressbar"
                      :style="{ width: progress + '%' }"
                      aria-valuenow="{{ celery_task.progress_hundred }}" aria-valuemin="0"
                      aria-valuemax="100"></div>

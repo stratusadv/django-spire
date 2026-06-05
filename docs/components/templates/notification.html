@@ -26,9 +26,9 @@
                 class="mb-3 p-3 rounded border shadow"
                 :class="{
                     'border-success': notification.type === 'success',
-                    'border-app-warning': notification.type === 'warning',
-                    'border-app-danger': notification.type === 'error',
-                    'border-app-primary': notification.type === 'info'
+                    'border-warning': notification.type === 'warning',
+                    'border-danger': notification.type === 'error',
+                    'border-primary': notification.type === 'info'
                 }"
                 style="max-width: 400px; pointer-events: auto;"
             >
@@ -41,9 +41,9 @@
     </div>
 
     <div>
-        <button @click="$dispatch('notify', { message: 'This is a success message!', type: 'success' })" class="btn btn-app-success">Show Success</button>
-        <button @click="$dispatch('notify', { message: 'This is a warning message!', type: 'warning' })" class="btn btn-app-warning">Show Warning</button>
-        <button @click="$dispatch('notify', { message: 'This is an error message!', type: 'error' })" class="btn btn-app-danger">Show Error</button>
-        <button @click="$dispatch('notify', { message: 'This is an info message!', type: 'info' })" class="btn btn-app-primary">Show Info</button>
+        <button @click="$dispatch('notify', { message: 'This is a success message!', type: 'success' })" class="btn btn-success">Show Success</button>
+        <button @click="$dispatch('notify', { message: 'This is a warning message!', type: 'warning' })" class="btn btn-warning">Show Warning</button>
+        <button @click="$dispatch('notify', { message: 'This is an error message!', type: 'error' })" class="btn btn-danger">Show Error</button>
+        <button @click="$dispatch('notify', { message: 'This is an info message!', type: 'info' })" class="btn btn-primary">Show Info</button>
     </div>
 </div>

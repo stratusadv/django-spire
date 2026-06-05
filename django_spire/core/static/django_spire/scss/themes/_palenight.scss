@@ -1,0 +1,51 @@
+@import '../variables';
+@import '../font';
+
+$primary: #4A90E2;
+$primary-light: #82aaff;
+$secondary: #8087a2;
+$secondary-light: #676e95;
+
+$success: #7CB342;
+$warning: #FB8C00;
+$danger: #E53935;
+
+$body-bg: #fafafa;
+$body-color: #4e5579;
+$body-color-dark: #a6accd;
+$body-bg-dark: #1e1e2e;
+
+$link-color: $primary;
+$link-hover-color: #7986CB;
+$link-color-dark: $primary-light;
+$link-hover-color-dark: #c792ea;
+
+$border-color: #eeeff2;
+$border-color-dark: #676e95;
+
+$side-navigation-bg: #fafafa;
+$side-navigation-bg-dark: #1e1e2e;
+$top-navigation-bg: #fafafa;
+$top-navigation-bg-dark: #1e1e2e;
+$footer-bg: #fafafa;
+$footer-bg-dark: #1e1e2e;
+
+$enable-dark-mode: true;
+
+@import "bootstrap/scss/bootstrap";
+
+:root,
+[data-bs-theme=light] {
+    --side-navigation-bg-color: #{$side-navigation-bg};
+    --top-navigation-bg-color: #{$top-navigation-bg};
+    --footer-bg-color: #{$footer-bg};
+}
+
+[data-bs-theme=dark] {
+    --side-navigation-bg-color: #{$side-navigation-bg-dark};
+    --top-navigation-bg-color: #{$top-navigation-bg-dark};
+    --footer-bg-color: #{$footer-bg-dark};
+}
+
+@import '../components';
+@import '../user-overrides';

@@ -1,18 +1,18 @@
 <div class="dropdown" x-data="{ families: [] }" x-init="$store.theme.families().then(f => families = f)">
     <i
-        class="bi bi-palette {{ icon_color|default:'text-app-primary-hover' }} {{ icon_size|default:'fs-2' }} mx-2 cursor-pointer"
+        class="bi bi-palette {{ icon_color|default:'text-primary' }} {{ icon_size|default:'fs-2' }} mx-2 cursor-pointer"
         id="theme_dropdown_button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
     ></i>
 
-    <ul class="bg-app-layer-one dropdown-menu py-0" aria-labelledby="theme_dropdown_button">
+    <ul class="dropdown-menu py-0" aria-labelledby="theme_dropdown_button">
         <li>
             <small><p class="dropdown-header fs--1" x-text="$store.theme.get_current_display_name()"></p></small>
         </li>
 
         <li>
-            <a class="dropdown-item fs--1 bg-app-layer-three-hover" href="#" @click.prevent="$store.theme.toggle()">
+            <a class="dropdown-item fs--1" href="#" @click.prevent="$store.theme.toggle()">
                 Toggle Mode
             </a>
         </li>
@@ -22,7 +22,7 @@
         <template x-for="family in families" :key="family.value">
             <li>
                 <a
-                    class="dropdown-item fs--1 bg-app-layer-three-hover"
+                    class="dropdown-item fs--1"
                     href="#"
                     @click.prevent="$store.theme.set_family(family.value)"
                     x-text="family.name"

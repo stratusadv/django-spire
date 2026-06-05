@@ -6,5 +6,5 @@
 
 {% block item_button %}
     {% url 'file:page:detail' pk=file_example.pk as detail_url %}
-    {% include 'django_spire/button/button.html' with button_text='View' button_class='btn-app-primary-dark' button_icon='bi bi-eye' button_href=detail_url %}
+    {% include 'django_spire/button/button.html' with button_text='View' button_class='btn-primary' button_icon='bi bi-eye' button_href=detail_url %}
 {% endblock %}

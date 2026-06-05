@@ -16,10 +16,10 @@
             {% with full_key=key_stack|add:'|'|add:key %}
                 <a
                     href="?report_key_stack={{ full_key }}"
-                    class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 {% if request.GET.report_key_stack == full_key %}bg-app-primary-soft text-app-primary fw-medium{% else %}text-app-default-text-color{% endif %}"
+                    class="d-flex align-items-center gap-2 px-2 py-1 rounded text-decoration-none ds-fs-10 {% if request.GET.report_key_stack == full_key %}bg-primary-soft text-primary fw-medium{% else %}text-default-text-color{% endif %}"
                     data-closes-nav
                 >
-                    <i class="bi bi-file-earmark-bar-graph {% if request.GET.report_key_stack == full_key %}text-app-primary{% else %}text-muted{% endif %}"></i>
+                    <i class="bi bi-file-earmark-bar-graph {% if request.GET.report_key_stack == full_key %}text-primary{% else %}text-muted{% endif %}"></i>
                     {{ key }}
                 </a>
             {% endwith %}

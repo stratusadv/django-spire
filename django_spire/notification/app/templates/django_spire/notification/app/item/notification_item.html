@@ -10,7 +10,7 @@
     {% else %}
     <div
     {% endif %}
-        class="row bg-app-layer-two-hover rounded m-0 align-items-center"
+        class="row bg-layer-two-hover rounded m-0 align-items-center"
     >
         {% if is_dropdown_item %}
         <div class="col-12">
@@ -19,10 +19,10 @@
         {% endif %}
             <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
             {% if not app_notification.viewed %}
-                {% include 'django_spire/badge/badge.html' with badge_text='New' badge_class='bg-app-primary text-white' %}
+                {% include 'django_spire/badge/badge.html' with badge_text='New' badge_class='bg-primary text-white' %}
             {% endif %}
             <span class="fs--1">{{ app_notification.notification.body }}</span><br>
-            <span class="text-app-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
+            <span class="text-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
         </div>
         {% if not is_dropdown_item %}
         <div  class="col-3">

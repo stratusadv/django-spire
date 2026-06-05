@@ -1,11 +1,11 @@
 {% if permission_level|lower == 'view' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-app-primary text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-primary text-white' %}
 {% elif permission_level|lower == 'add' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-app-primary text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-primary text-white' %}
 {% elif permission_level|lower == 'change' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-app-success text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-success text-white' %}
 {% elif permission_level|lower == 'delete' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-app-danger text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-danger text-white' %}
 {% else %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-app-secondary text-white' %}
+    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-secondary text-white' %}
 {% endif %}

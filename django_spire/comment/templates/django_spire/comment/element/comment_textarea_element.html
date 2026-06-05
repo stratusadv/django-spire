@@ -97,7 +97,7 @@
                 <textarea required :id="id" x-model="comment" @keyup="user_dropdown_toggle" rows="6" type="text" name="comment"
                           autocomplete="off" size="26" class="w-100 fs--1" placeholder="Type your comment here..."></textarea>
             </div>
-            <button class="btn-app-primary btn w-100">Submit</button>
+            <button class="btn-primary btn w-100">Submit</button>
         </form>
 
         <div style="max-height: 125px; z-index: 2; overflow-x: hidden; overflow-y: auto" x-show="show_user_list" @click.outside="show_user_list=false" x-transition

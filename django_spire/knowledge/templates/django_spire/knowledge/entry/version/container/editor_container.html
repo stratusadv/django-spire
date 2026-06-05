@@ -1,4 +1,4 @@
-<h1 class="fs-2 fw-bold mb-2 text-app-primary text-center">{{ entry.name }}</h1>
+<h1 class="fs-2 fw-bold mb-2 text-primary text-center">{{ entry.name }}</h1>
 <div class="fs-6 text-alt-color text-center mb-3">
     <div class="row">
         <div class="col text-end">
@@ -30,7 +30,7 @@
                 <div
                         @click="toggle_editor_readonly();"
                         class="btn btn-sm shadow-sm px-3"
-                        :class="editor_is_readonly ? 'btn-app-primary-outlined' : 'btn-app-primary'"
+                        :class="editor_is_readonly ? 'btn-outline-primary' : 'btn-primary'"
                 >
                     <i :class="editor_is_readonly ? 'bi bi-pencil' : 'bi bi-check-lg'" class="me-1"></i>
                     <span x-text="editor_is_readonly ? 'Edit' : 'Save'"></span>

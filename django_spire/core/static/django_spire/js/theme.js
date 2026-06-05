@@ -49,7 +49,7 @@ document.addEventListener('alpine:init', () => {
 
         get_current_theme() {
             let { family, mode } = this.parse(this.current);
-            let path = window.django_spire?.theme?.path || '/static/django_spire/css/themes/{family}/app-{mode}.css';
+            let path = window.django_spire?.theme?.path || '/static/django_spire/css/{family}.css';
             let family_name = this.get_family_display_name(family);
 
             return {
@@ -101,15 +101,6 @@ document.addEventListener('alpine:init', () => {
 
             if (window.django_spire && window.django_spire.theme) {
                 window.django_spire.theme.active = theme.value;
-            }
-
-            if (!document.querySelector('link[data-input-css]')) {
-                let link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = '/static/django_spire/css/themes/input.css';
-                link.setAttribute('data-input-css', 'true');
-
-                document.head.appendChild(link);
             }
 
             setTimeout(() => this.apply_input_icon_theme(), 100);

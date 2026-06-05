@@ -91,24 +91,24 @@
         }"
         @send-message.window="send_chat({message_body: $event.detail.message_body})" @speak.window="speak_text($event.detail.text)"
     >
-        <div class="col-12 d-flex flex-column" style="{{ dialog_height|default:'height: calc(100dvh - 52px - var(--app-top-navigation-height));' }}">
+        <div class="col-12 d-flex flex-column" style="{{ dialog_height|default:'height: calc(100dvh - 52px - var(--top-navigation-height));' }}">
             <div class="flex-grow-1 overflow-y-auto overflow-x-hidden">
                 <div class="mx-auto py-3" style="max-width: 56rem;" x-ref="target_div"></div>
             </div>
 
-            <div class="flex-shrink-0 bg-app-layer-one">
+            <div class="flex-shrink-0 bg-layer-one">
                 <div class="mx-auto px-3 py-3" style="max-width: 56rem;">
                     <div class="d-flex align-items-center gap-2">
                         <button
                             @click="speech_listening ? stop_listening() : start_listening()"
-                            class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 border-0 bg-app-primary"
+                            class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 border-0 bg-primary"
                             style="width: 34px; height: 34px;"
-                            :class="speech_listening ? 'text-app-primary' : 'text-muted'"
+                            :class="speech_listening ? 'text-primary' : 'text-muted'"
                         >
                             <i class="bi text-white" :class="speech_listening ? 'bi-mic-fill' : 'bi-mic'"></i>
                         </button>
 
-                        <div class="d-flex align-items-center flex-grow-1 rounded-pill ps-3 pe-1 py-1 border bg-app-layer-two" style="height: 44px;">
+                        <div class="d-flex align-items-center flex-grow-1 rounded-pill ps-3 pe-1 py-1 border bg-layer-two" style="height: 44px;">
                             <input
                                 @keyup.enter="send_chat({message_body: message_body})"
                                 autocomplete="off"
@@ -123,7 +123,7 @@
 
                             <button
                                 @click="send_chat({message_body: message_body})"
-                                class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 border-0 bg-app-primary text-white"
+                                class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0 border-0 bg-primary text-white"
                                 style="width: 34px; height: 34px;"
                             >
                                 <i class="bi bi-send-fill"></i>

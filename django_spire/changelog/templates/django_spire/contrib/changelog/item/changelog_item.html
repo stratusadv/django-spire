@@ -11,7 +11,7 @@
     ></div>
 
     <div
-        class="position-absolute bg-app-layer-two border-app-layer-four z-1 d-flex align-items-center justify-content-center rounded-circle border border-2 flex-shrink-0"
+        class="position-absolute bg-layer-two border-layer-four z-1 d-flex align-items-center justify-content-center rounded-circle border border-2 flex-shrink-0"
         style="
             left: 0;
             top: 0.375rem;
@@ -19,22 +19,22 @@
             height: 1.125rem;
         "
     >
-        <div class="rounded-circle bg-app-primary" style="width: 6px; height: 6px;"></div>
+        <div class="rounded-circle bg-primary" style="width: 6px; height: 6px;"></div>
     </div>
 
     <div class="flex-grow-1 min-w-0">
         <div class="d-flex flex-wrap align-items-center gap-2">
-            <span class="fw-bold text-app-primary-dark">v{{ changelog_entry.version }}</span>
+            <span class="fw-bold text-primary-dark">v{{ changelog_entry.version }}</span>
 
             {% if changelog_entry.type == 'bug' %}
-                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-app-danger text-white' %}
+                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-danger text-white' %}
             {% elif changelog_entry.type == 'feat' %}
-                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-app-success text-white' %}
+                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-success text-white' %}
             {% else %}
-                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-app-primary text-white' %}
+                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-primary text-white' %}
             {% endif %}
 
-            <span class="font-monospace fs-7 text-app-secondary ms-auto">
+            <span class="font-monospace fs-7 text-secondary ms-auto">
                 {{ changelog_entry.date|date:"Y-m-d" }}
             </span>
         </div>
@@ -42,7 +42,7 @@
         <div class="mt-2">
             {% for change in changelog_entry.changes %}
             <div class="d-flex gap-2 mb-1 align-items-baseline">
-                {% include 'django_spire/badge/badge.html' with badge_text=change.app|title badge_class='border-app-secondary text-app-secondary' %}
+                {% include 'django_spire/badge/badge.html' with badge_text=change.app|title badge_class='border-secondary text-secondary' %}
                 <span class="fs-7">
                     {{ change.description }}
                 </span>

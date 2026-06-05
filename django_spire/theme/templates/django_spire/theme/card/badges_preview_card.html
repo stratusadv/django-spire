@@ -4,7 +4,7 @@
 
 {% block card_button %}
     {% url 'django_spire:theme:page:badges' as badges_url %}
-    {% include 'django_spire/button/button.html' with button_text='Full Preview' button_class='btn-app-primary' button_href=badges_url %}
+    {% include 'django_spire/button/button.html' with button_text='Full Preview' button_class='btn-primary' button_href=badges_url %}
 {% endblock %}
 
 {% block preview_card_icon %}bi bi-tag{% endblock %}
@@ -18,12 +18,10 @@
 {% endblock %}
 
 {% block preview_card_content %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Primary' badge_class='bg-app-primary text-white me-1' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Secondary' badge_class='bg-app-secondary text-white me-1' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Accent' badge_class='bg-app-accent text-white me-1' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Success' badge_class='bg-app-success text-white me-1' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Warning' badge_class='bg-app-warning text-white me-1' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Danger' badge_class='bg-app-danger text-white me-1' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Outlined' badge_class='border-app-primary text-app-primary me-1' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Secondary' badge_class='border-app-secondary text-app-secondary me-1' %}
+    <span class="badge bg-primary me-1">Primary</span>
+    <span class="badge bg-secondary me-1">Secondary</span>
+    <span class="badge bg-success me-1">Success</span>
+    <span class="badge bg-warning me-1">Warning</span>
+    <span class="badge bg-danger me-1">Danger</span>
+    <span class="badge bg-info me-1">Info</span>
 {% endblock %}

@@ -117,18 +117,10 @@ class ThemeModelTests(TestCase):
 
     def test_stylesheet_property(self) -> None:
         cases = [
-            (ThemeFamily.DEFAULT, ThemeMode.LIGHT, 'django_spire/css/themes/default/app-light.css'),
-            (ThemeFamily.GRUVBOX, ThemeMode.DARK, 'django_spire/css/themes/gruvbox/app-dark.css'),
-            (
-                ThemeFamily.ONE_DARK,
-                ThemeMode.LIGHT,
-                'django_spire/css/themes/one-dark/app-light.css',
-            ),
-            (
-                ThemeFamily.TOKYO_NIGHT,
-                ThemeMode.DARK,
-                'django_spire/css/themes/tokyo-night/app-dark.css',
-            ),
+            (ThemeFamily.DEFAULT, ThemeMode.LIGHT, 'django_spire/css/default.css'),
+            (ThemeFamily.GRUVBOX, ThemeMode.DARK, 'django_spire/css/gruvbox.css'),
+            (ThemeFamily.ONE_DARK, ThemeMode.LIGHT, 'django_spire/css/one-dark.css'),
+            (ThemeFamily.TOKYO_NIGHT, ThemeMode.DARK, 'django_spire/css/tokyo-night.css'),
         ]
 
         for family, mode, path in cases:
@@ -163,7 +155,7 @@ class ThemeModelTests(TestCase):
         assert result['full'] == 'gruvbox-dark'
         assert result['is_dark']
         assert result['mode'] == 'dark'
-        assert result['stylesheet'] == 'django_spire/css/themes/gruvbox/app-dark.css'
+        assert result['stylesheet'] == 'django_spire/css/gruvbox.css'
 
     def test_theme_immutability(self) -> None:
         theme = Theme(family=ThemeFamily.GRUVBOX, mode=ThemeMode.DARK)

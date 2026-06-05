@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="top-navigation bg-app-top-navigation d-flex justify-content-between align-items-center px-3 border-bottom flex-shrink-0" style="height: 64px;">
+<div class="top-navigation bg-top-navigation d-flex justify-content-between align-items-center px-3 border-bottom flex-shrink-0" style="height: 64px;">
     {% block top_navigation_content %}
         <div class="d-flex align-items-center">
             {% block top_navigation_mobile_menu %}
@@ -41,22 +41,22 @@
                 {% if request.user.is_authenticated %}
                     <div class="dropdown">
                         <i
-                            class="bi bi-person-circle ds-fs-3 mx-1 cursor-pointer text-app-default-text-color text-app-primary-hover"
+                            class="bi bi-person-circle ds-fs-3 mx-1 cursor-pointer text-default-text-color text-primary-hover"
                             id="dropdownMenuButton1"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                         >
                         </i>
-                        <ul class="dropdown-menu py-0 bg-app-layer-one" aria-labelledby="dropdownMenuButton1">
+                        <ul class="dropdown-menu py-0 bg-layer-one" aria-labelledby="dropdownMenuButton1">
                             {% if request.user.is_superuser %}
                                 <li class="py-0">
-                                    <a class="dropdown-item fs--1 bg-app-layer-three-hover"
+                                    <a class="dropdown-item fs--1 bg-layer-three-hover"
                                        href="{% url 'admin:index' %}" target="_blank">
                                         Admin Panel
                                     </a>
                                 </li>
                                 <li class="py-0">
-                                    <a class="dropdown-item fs--1 bg-app-layer-three-hover"
+                                    <a class="dropdown-item fs--1 bg-layer-three-hover"
                                        href="{% url 'django_spire:theme:page:dashboard' %}" target="_blank">
                                         Theme Dashboard
                                     </a>
@@ -64,13 +64,13 @@
                             {% endif %}
                             <li class="py-0">
                                 <a href="{% url 'django_spire:auth:admin:password_change' %}"
-                                   class="dropdown-item fs--1 bg-app-layer-three-hover">
+                                   class="dropdown-item fs--1 bg-layer-three-hover">
                                     Change Password
                                 </a>
                             </li>
                             <li class="py-0">
                                 <a href="{% url 'django_spire:auth:redirect:logout' %}"
-                                   class="dropdown-item fs--1 bg-app-layer-three-hover">
+                                   class="dropdown-item fs--1 bg-layer-three-hover">
                                     Logout
                                 </a>
                             </li>

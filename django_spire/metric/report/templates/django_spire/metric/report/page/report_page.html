@@ -3,7 +3,7 @@
 {% load django_spire_variable_types %}
 
 {% block full_page_command_bar %}
-    <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-app-primary flex-shrink-0 bg-app-layer-one"
+    <div class="d-flex align-items-center justify-content-between px-4 border-bottom border-primary flex-shrink-0 bg-layer-one"
          style="height: 52px;">
         <div class="d-flex align-items-center gap-2">
             <a
@@ -11,7 +11,7 @@
                     class="user-select-none d-flex align-items-center gap-2 rounded px-2 py-1 cursor-pointer ds-fs-10"
                     role="button"
                     style="transition: background-color 0.15s ease;"
-                    :class="show_sub_nav ? 'bg-app-primary-soft text-app-primary' : 'text-muted'"
+                    :class="show_sub_nav ? 'bg-primary-soft text-primary' : 'text-muted'"
                     x-cloak
                     x-show="has_content($refs.full_page_sub_navigation)"
             >

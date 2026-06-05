@@ -10,8 +10,7 @@ class ThemeIntegrationTests(BaseTestCase):
         for theme in Theme.get_available():
             stylesheet = theme.stylesheet
 
-            assert f'{theme.family.value}/' in stylesheet
-            assert f'app-{theme.mode.value}.css' in stylesheet
+            assert f'{theme.family.value}.css' in stylesheet
 
     def test_roundtrip_conversion(self) -> None:
         for theme in Theme.get_available():
@@ -43,6 +42,5 @@ class ThemeIntegrationTests(BaseTestCase):
         theme = Theme(family=ThemeFamily.GRUVBOX, mode='dark')
         stylesheet = theme.stylesheet
 
-        assert 'django_spire/css/themes/' in stylesheet
-        assert 'gruvbox' in stylesheet
-        assert 'app-dark.css' in stylesheet
+        assert 'django_spire/css/' in stylesheet
+        assert 'gruvbox.css' in stylesheet
