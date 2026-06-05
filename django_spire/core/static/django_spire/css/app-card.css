@@ -3,4 +3,5 @@
     border-width: 1px;
     border-color: var(--bs-border-color);
     background-color: var(--bs-card-bg);
+    padding: 1.5rem;
 }

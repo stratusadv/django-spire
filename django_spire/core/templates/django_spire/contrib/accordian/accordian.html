@@ -1,0 +1,23 @@
+<div x-data="{
+        show_accordion: false,
+        toggle() {
+            this.show_accordion = !this.show_accordion
+        }
+    }"
+>
+    <div @click="toggle()" class="cursor-pointer">
+        {% block accordion_toggle %}
+        {% endblock %}
+    </div>
+    {% block accordion_child_toggle %}
+        {# Used if accordion is toggled by a child component. Must call toggle() #}
+    {% endblock %}
+    <div
+        x-cloak
+        x-show="show_accordion"
+        x-transition
+    >
+        {% block accordion_content %}
+        {% endblock %}
+    </div>
+</div>

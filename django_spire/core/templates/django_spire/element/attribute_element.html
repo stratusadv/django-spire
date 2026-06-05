@@ -1,0 +1,16 @@
+{% if attribute_title %}
+    <div class="fs-7 text-app-muted">
+        {{ attribute_title }}
+    </div>
+{% endif %}
+
+{% if attribute_href %}
+    <a href="{{ attribute_href }}" {% if x_attribute_value %}x-text="{{ x_attribute_value }}"{% endif %}>
+        {{ attribute_value }}
+    </a>
+{% else %}
+    <div {% if x_attribute_value %}x-text="{{ x_attribute_value }}"{% endif %}>
+        {{ attribute_value }}
+    </div>
+{% endif %}
+

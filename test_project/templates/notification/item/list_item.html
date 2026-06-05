@@ -33,7 +33,7 @@
             <div class="col-auto align-self-end">
                 {% url 'notification:page:form' pk=notification.pk as form_url %}
                 {% url 'notification:page:detail' pk=notification.pk as detail_url %}
-                {% include 'django_spire/contrib/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=form_url delete_url='#' %}
+                {% include 'django_spire/contrib/../../../../django_spire/core/templates/django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=form_url delete_url='#' %}
             </div>
         </div>
 </div>

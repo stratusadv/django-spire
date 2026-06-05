@@ -18,7 +18,7 @@
         {% for user in user_list %}
             {% include 'django_spire/auth/group/item/group_user_item.html' with small_view=True %}
         {% empty %}
-            {% include 'django_spire/item/no_data_item.html' %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
         {% endfor %}
     </div>
     <div class="card-footer">

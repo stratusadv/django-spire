@@ -9,10 +9,10 @@
                         <div class="row mt-3">
                             <div class="col-6">
                                 {% url 'metric:domain:statistic:page:detail' pk=statistic.pk as statistic_view_url %}
-                                {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Statistic' attribute_value=statistic.name attribute_href=statistic_view_url %}
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Statistic' attribute_value=statistic.name attribute_href=statistic_view_url %}
                             </div>
                             <div class="col-6">
-                                {% include 'django_spire/contrib/element/attribute_element.html' with attribute_title='Description' attribute_value=statistic.description %}
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=statistic.description %}
                             </div>
                         </div>
                     </div>
@@ -28,7 +28,7 @@
                         {% url 'metric:domain:statistic:form:delete' pk=statistic.pk as statistic_delete_url %}
                     {% endif %}
 
-                    {% include 'django_spire/contrib/dropdown/ellipsis_dropdown.html' with view_url=statistic_view_url edit_url=statistic_edit_url delete_url=statistic_delete_url %}
+                    {% include 'django_spire/contrib/../../../../../../../../../core/templates/django_spire/dropdown/ellipsis_dropdown.html' with view_url=statistic_view_url edit_url=statistic_edit_url delete_url=statistic_delete_url %}
                 </div>
             </div>
         </div>
