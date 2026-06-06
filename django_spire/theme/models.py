@@ -28,7 +28,7 @@ class Theme:
         ThemeFamily.TOKYO_NIGHT: 'Tokyo Night',
     }
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if isinstance(self.family, str):
             self._validate_family(self.family)
 

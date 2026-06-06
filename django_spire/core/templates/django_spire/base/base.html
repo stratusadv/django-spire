@@ -1,4 +1,5 @@
 {% load static %}
+
 {% load django_glue %}
 
 <!doctype html>
@@ -159,7 +160,7 @@
         {% block base_body_additional_bottom_js %}
         {% endblock %}
 
-        {% django_glue_init %}
+        {% django_glue_init %}  
     {% endblock %}
 </body>
 </html>

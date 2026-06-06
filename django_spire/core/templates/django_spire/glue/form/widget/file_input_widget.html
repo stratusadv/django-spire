@@ -1,8 +1,8 @@
-{% extends "django_spire/glue/form/field/field_base.html" %}
+{% extends "django_spire/glue/form/widget/widget.html" %}
 
-{% block field_content %}
+{% block widget_content %}
     <div x-data="{ _filePreview: null }">
-        {% include 'django_spire/glue/form/field/../label/label.html' %}
+        {% include 'django_spire/glue/form/label/label.html' %}
         {% if not hide_preview %}
         <div class="mb-2" x-show="!!_filePreview || !!glue_field?.url">
             <img :src="_filePreview ?? glue_field?.url" alt="" class="img-fluid rounded" style="max-height: {{ max_preview_height|default:'200px' }};">
@@ -10,7 +10,7 @@
         {% endif %}
         <input
             type="file"
-            {% include 'django_spire/glue/form/field/base_input_attributes.html' with exclude_x_model=True %}
+            {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' with exclude_x_model=True %}
             {% if accept %}accept="{{ accept }}"{% endif %}
             @change="
                 const file = $event.target.files[0];

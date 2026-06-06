@@ -4,12 +4,12 @@
             async init() {
                 await this.group.get()
             },
-            group: new ModelObjectGlue('group')
+            group: Glue.model.group
         }"
         class="row">
             {% csrf_token %}
             <div class="col-4 mb-2">
-                {% include 'django_spire/glue/form/field/char_field.html' with glue_model_field='group.name' %}
+                {% include 'django_spire/glue/form/field/char_field.html' with glue_field='group' %}
             </div>
             <div class="col-12">
                 {% include 'django_spire/contrib/form/button/form_submit_button.html' %}

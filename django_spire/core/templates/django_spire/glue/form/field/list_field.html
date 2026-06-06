@@ -1,7 +1,7 @@
-{% extends 'django_spire/glue/form/field/../widget/base_widget.html' %}
+{% extends 'django_spire/glue/form/widget/widget.html' %}
 
 {% block field_content %}
-    {% include 'django_spire/glue/form/field/../label/label.html' %}
+    {% include 'django_spire/glue/form/label/label.html' %}
     <div
         class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}"
         x-data="{
