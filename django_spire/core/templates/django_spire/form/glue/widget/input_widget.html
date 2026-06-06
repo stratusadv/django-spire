@@ -4,7 +4,7 @@
     {% include 'django_spire/glue/form/label/label.html' %}
     <input
         type="{% block input_type %}{{ type|default:'text' }}{% endblock %}"
-        {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' %}
+        {% include 'django_spire/form/glue/widget/attributes/input_attributes.html' %}
         :maxlength="{{ glue_field }}?.max_length"
         :minlength="{{ glue_field }}?.min_length"
         placeholder="{% block placeholder %}{{ placeholder }}{% endblock %}">
