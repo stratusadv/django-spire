@@ -24,10 +24,19 @@ $border-color: #e9eaef;
 $border-color-dark: #3b4261;
 
 $side-navigation-bg: #d5d6db;
+$side-navigation-text-color: #343b58;
+$side-navigation-link-color: #0097c9;
+$side-navigation-link-hover-color: #007ba3;
 $side-navigation-bg-dark: #16161e;
 $top-navigation-bg: #d5d6db;
+$top-navigation-text-color: #343b58;
+$top-navigation-link-color: #0097c9;
+$top-navigation-link-hover-color: #007ba3;
 $top-navigation-bg-dark: #16161e;
 $footer-bg: #d5d6db;
+$footer-text-color: #343b58;
+$footer-link-color: #0097c9;
+$footer-link-hover-color: #007ba3;
 $footer-bg-dark: #16161e;
 
 $enable-dark-mode: true;
@@ -37,8 +46,17 @@ $enable-dark-mode: true;
 :root,
 [data-bs-theme=light] {
     --side-navigation-bg-color: #{$side-navigation-bg};
+    --side-navigation-text-color: #{$side-navigation-text-color};
+    --side-navigation-link-color: #{$side-navigation-link-color};
+    --side-navigation-link-hover-color: #{$side-navigation-link-hover-color};
     --top-navigation-bg-color: #{$top-navigation-bg};
+    --top-navigation-text-color: #{$top-navigation-text-color};
+    --top-navigation-link-color: #{$top-navigation-link-color};
+    --top-navigation-link-hover-color: #{$top-navigation-link-hover-color};
     --footer-bg-color: #{$footer-bg};
+    --footer-text-color: #{$footer-text-color};
+    --footer-link-color: #{$footer-link-color};
+    --footer-link-hover-color: #{$footer-link-hover-color};
 }
 
 [data-bs-theme=dark] {
@@ -48,4 +66,4 @@ $enable-dark-mode: true;
 }
 
 @import '../components';
-@import '../user-overrides';
+@import '../overrides';

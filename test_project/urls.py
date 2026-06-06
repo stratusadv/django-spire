@@ -21,7 +21,6 @@ urlpatterns = [
         'infinite_scrolling/',
         include('test_project.app.infinite_scrolling.urls', namespace='infinite_scrolling'),
     ),
-    path('lazy_tabs/', include('test_project.app.lazy_tabs.urls', namespace='lazy_tabs')),
     path('notification/', include('test_project.app.notification.urls', namespace='notification')),
     path('order/', include('test_project.app.ordering.urls', namespace='order')),
     path(
@@ -30,10 +29,8 @@ urlpatterns = [
     ),
     path('rest/', include('test_project.app.rest.urls', namespace='rest')),
     path('sync/', include('test_project.app.sync.urls', namespace='sync')),
-    path('tabular/', include('test_project.app.tabular.urls', namespace='tabular')),
     path('test_model/', include('test_project.app.model_and_service.urls', namespace='test_model')),
     path('theme/', include('django_spire.theme.urls', namespace='theme')),
-    path('wizard/', include('test_project.app.wizard.urls', namespace='wizard')),
 ]
 
 urlpatterns += [path('ds/', include('django_spire.urls', namespace='django_spire'))]

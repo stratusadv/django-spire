@@ -15,6 +15,14 @@
     --bg-footer: var(--footer-bg-color);
 }
 
+.bg-side-navigation {
+    background-color: var(--side-navigation-bg-color);
+}
+
+.bg-top-navigation {
+    background-color: var(--top-navigation-bg-color);
+}
+
 .vh-minus-top-nav {
     height: calc(100vh - var(--top-navigation-height));
 }

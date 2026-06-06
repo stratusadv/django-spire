@@ -1,0 +1,9 @@
+<div>
+    {% if not hide_label %}
+        {% include 'django_spire/glue/form/label/label.html' %}
+    {% endif %}
+    <div class="invalid-feedback" x-text="{{ glue_field }}.error_text"></div>
+    {% block field_content %}
+    {% endblock %}
+    <small class="text-muted d-block" x-show="{{ glue_field }}.help_text" x-text="{{ glue_field }}.help_text"></small>
+</div>

@@ -120,7 +120,6 @@ INSTALLED_APPS += [
     'test_project.app.home',
     'test_project.app.infinite_scrolling',
     'test_project.app.landing',
-    'test_project.app.lazy_tabs',
     'test_project.app.ordering',
     'test_project.app.history',
     'test_project.app.notification',
@@ -128,8 +127,6 @@ INSTALLED_APPS += [
     'test_project.app.queryset_filtering',
     'test_project.app.rest',
     'test_project.app.sync',
-    'test_project.app.tabular',
-    'test_project.app.wizard',
 ]
 
 INSTALLED_APPS += ['django_spire.sync.tests.apps.SyncTestsConfig']

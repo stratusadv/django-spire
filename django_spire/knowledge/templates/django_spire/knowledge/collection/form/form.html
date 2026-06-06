@@ -20,11 +20,11 @@
     {% csrf_token %}
 
     <div class="col-12">
-        {% include 'django_spire/glue/form/field/text_input.html' with glue_field='collection.$form.$fields.name' %}
+        {% include 'django_spire/glue/form/field/../../../../../../core/templates/django_spire/glue/form/widget/text_input_widget.html' with glue_field='collection.$form.$fields.name' %}
     </div>
 
     <div class="col-12 mt-2">
-        {% include 'django_spire/glue/form/field/text_input.html' with glue_field='collection.$form.$fields.description' %}
+        {% include 'django_spire/glue/form/field/../../../../../../core/templates/django_spire/glue/form/widget/text_input_widget.html' with glue_field='collection.$form.$fields.description' %}
     </div>
 
 {#    {% if AuthController.knowledge.can_change_collection_groups %}#}
@@ -35,7 +35,7 @@
 
     {% if request.GET.top_level != 'True' %}
         <div class="col-12 col-lg mt-2">
-            {% include 'django_spire/glue/form/field/select.html' with glue_field='collection.$form.$fields.parent' %}
+            {% include 'django_spire/glue/form/field/../../../../../../core/templates/django_spire/glue/form/widget/select_widget.html' with glue_field='collection.$form.$fields.parent' %}
         </div>
     {% endif %}
 
