@@ -1,7 +1,6 @@
-@import '../variables';
 @import '../font';
+@import 'theme_variables';
 
-// Colors
 $primary: #0097c9;
 $primary-light: #00b8e6;
 $secondary: #797c7d;
@@ -26,8 +25,8 @@ $border-color-dark: #3a3d3e;
 
 $side-navigation-bg: #181818;
 $side-navigation-text-color: #ffffff;
-$side-navigation-link-color: #ffffff;
-$side-navigation-link-hover-color: #0097c9;
+$side-navigation-link-color: #0097c9;
+$side-navigation-link-hover-color: #007ba3;
 $side-navigation-bg-dark: #212529;
 
 $top-navigation-bg: #ffffff;
@@ -46,27 +45,6 @@ $enable-dark-mode: true;
 
 @import "bootstrap/scss/bootstrap";
 
-:root,
-[data-bs-theme=light] {
-    --side-navigation-bg-color: #{$side-navigation-bg};
-    --side-navigation-text-color: #{$side-navigation-text-color};
-    --side-navigation-link-color: #{$side-navigation-link-color};
-    --side-navigation-link-hover-color: #{$side-navigation-link-hover-color};
-    --top-navigation-bg-color: #{$top-navigation-bg};
-    --top-navigation-text-color: #{$top-navigation-text-color};
-    --top-navigation-link-color: #{$top-navigation-link-color};
-    --top-navigation-link-hover-color: #{$top-navigation-link-hover-color};
-    --footer-bg-color: #{$footer-bg};
-    --footer-text-color: #{$footer-text-color};
-    --footer-link-color: #{$footer-link-color};
-    --footer-link-hover-color: #{$footer-link-hover-color};
-}
+@include theme-variables;
 
-[data-bs-theme=dark] {
-    --side-navigation-bg-color: #{$side-navigation-bg-dark};
-    --top-navigation-bg-color: #{$top-navigation-bg-dark};
-    --footer-bg-color: #{$footer-bg-dark};
-}
-
-@import '../components';
-@import '../overrides';
+@import '../app';

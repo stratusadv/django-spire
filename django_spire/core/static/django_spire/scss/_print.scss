@@ -1,0 +1,57 @@
+.fs-print-1 {
+    font-size: 1rem !important;
+}
+
+.fs-print-2 {
+    font-size: 0.9rem !important;
+}
+
+.fs-print-3 {
+    font-size: 0.7rem !important;
+}
+
+.table-print {
+    font-family: monospace !important;
+}
+
+.hide-on-print {
+    display: none !important;
+}
+
+@media print {
+    .fs-print-1 {
+        font-size: 0.8rem !important;
+    }
+
+    .fs-print-2 {
+        font-size: 0.7rem !important;
+    }
+
+    .fs-print-3 {
+        font-size: 0.55rem !important;
+    }
+
+    @page {
+        margin: 1cm !important;
+    }
+
+    div {
+        page-break-inside: auto !important;
+    }
+
+    .page-break-before {
+        display: block;
+        clear: both;
+        height: 1px;
+        page-break-before: always !important;
+    }
+
+    .table-hover > tbody > tr:hover > * {
+        background-color: var(--bs-body-bg) !important;
+        color: var(--bs-body-color) !important;
+    }
+
+    .hide-on-print {
+        display: none !important;
+    }
+}

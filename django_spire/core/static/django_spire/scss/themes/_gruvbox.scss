@@ -1,7 +1,6 @@
-@import '../variables';
 @import '../font';
+@import 'theme_variables';
 
-// Colors
 $primary: #b57614;
 $primary-light: #fabd2f;
 $secondary: #665c54;
@@ -44,27 +43,6 @@ $enable-dark-mode: true;
 
 @import "bootstrap/scss/bootstrap";
 
-:root,
-[data-bs-theme=light] {
-    --side-navigation-bg-color: #{$side-navigation-bg};
-    --side-navigation-text-color: #{$side-navigation-text-color};
-    --side-navigation-link-color: #{$side-navigation-link-color};
-    --side-navigation-link-hover-color: #{$side-navigation-link-hover-color};
-    --top-navigation-bg-color: #{$top-navigation-bg};
-    --top-navigation-text-color: #{$top-navigation-text-color};
-    --top-navigation-link-color: #{$top-navigation-link-color};
-    --top-navigation-link-hover-color: #{$top-navigation-link-hover-color};
-    --footer-bg-color: #{$footer-bg};
-    --footer-text-color: #{$footer-text-color};
-    --footer-link-color: #{$footer-link-color};
-    --footer-link-hover-color: #{$footer-link-hover-color};
-}
+@include theme-variables;
 
-[data-bs-theme=dark] {
-    --side-navigation-bg-color: #{$side-navigation-bg-dark};
-    --top-navigation-bg-color: #{$top-navigation-bg-dark};
-    --footer-bg-color: #{$footer-bg-dark};
-}
-
-@import '../components';
-@import '../overrides';
+@import '../app';

@@ -1,0 +1,36 @@
+.navbar-nav-scroll {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.no-select {
+    user-select: none;
+}
+
+.scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+.full-page-content {
+    width: 100%;
+}
+
+.main-content-with-panels {
+    transition: margin-left $transition-slow, margin-right $transition-slow;
+}
+
+.main-content-with-panels.with-left-panel {
+    margin-left: calc(var(--side-panel-width) * 0.5);
+}
+
+@media (min-width: 992px) {
+    .full-page-content {
+        transition: width $transition-slow;
+        width: calc(100% - var(--side-navigation-width));
+    }
+}
