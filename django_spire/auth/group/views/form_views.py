@@ -29,8 +29,6 @@ if TYPE_CHECKING:
 def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     group = get_object_or_null_obj(models.AuthGroup, pk=pk)
 
-    Glue.model(request, 'group', group)
-
     if request.method == 'POST':
         form = forms.GroupForm(request.POST, instance=group)
 

@@ -26,7 +26,7 @@ WSGI_APPLICATION = 'test_project.wsgi.application'
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE_DIR))
 
-BASE_FOLDER_NAME = 'test-project'
+BASE_FOLDER_NAME = 'test_project'
 
 # Notification Settings
 DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100

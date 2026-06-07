@@ -1,10 +1,10 @@
-{% extends "django_spire/glue/form/widget/widget.html" %}
+{% extends "django_spire/form/glue/widget/widget.html" %}
 
 {% block widget_content %}
-    {% include 'django_spire/glue/form/label/label.html' %}
+    {% include 'django_spire/form/glue/label/label.html' %}
     <textarea
             rows="{% block rows %}{{ rows|default:'3' }}{% endblock %}"
-            {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' %}
+            {% include 'django_spire/form/glue/widget/attributes/input_attributes.html' %}
             :maxlength="{{ glue_field }}?.max_length"
             :minlength="{{ glue_field }}?.min_length"
             placeholder="{% block placeholder %}{{ placeholder }}{% endblock %}">

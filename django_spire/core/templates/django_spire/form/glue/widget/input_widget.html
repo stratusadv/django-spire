@@ -1,7 +1,6 @@
-{% extends "django_spire/glue/form/widget/widget.html" %}
+{% extends "django_spire/form/glue/widget/widget.html" %}
 
 {% block widget_content %}
-    {% include 'django_spire/glue/form/label/label.html' %}
     <input
         type="{% block input_type %}{{ type|default:'text' }}{% endblock %}"
         {% include 'django_spire/form/glue/widget/attributes/input_attributes.html' %}

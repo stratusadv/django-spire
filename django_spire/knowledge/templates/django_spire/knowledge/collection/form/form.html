@@ -20,22 +20,22 @@
     {% csrf_token %}
 
     <div class="col-12">
-        {% include 'django_spire/glue/form/field/../../../../../../core/templates/django_spire/glue/form/widget/text_input_widget.html' with glue_field='collection.$form.$fields.name' %}
+        {% include 'django_spire/form/glue/field/../../../../../../core/templates/django_spire/form/glue/widget/text_input_widget.html' with glue_field='collection.$form.$fields.name' %}
     </div>
 
     <div class="col-12 mt-2">
-        {% include 'django_spire/glue/form/field/../../../../../../core/templates/django_spire/glue/form/widget/text_input_widget.html' with glue_field='collection.$form.$fields.description' %}
+        {% include 'django_spire/form/glue/field/../../../../../../core/templates/django_spire/form/glue/widget/text_input_widget.html' with glue_field='collection.$form.$fields.description' %}
     </div>
 
 {#    {% if AuthController.knowledge.can_change_collection_groups %}#}
 {#        <div class="col-12 col-lg mt-2">#}
-{#            {% include 'django_spire/glue/form/field/select.html' with glue_field='groups' %}#}
+{#            {% include 'django_spire/form/glue/field/select.html' with glue_field='groups' %}#}
 {#        </div>#}
 {#    {% endif %}#}
 
     {% if request.GET.top_level != 'True' %}
         <div class="col-12 col-lg mt-2">
-            {% include 'django_spire/glue/form/field/../../../../../../core/templates/django_spire/glue/form/widget/select_widget.html' with glue_field='collection.$form.$fields.parent' %}
+            {% include 'django_spire/form/glue/field/../../../../../../core/templates/django_spire/form/glue/widget/select_widget.html' with glue_field='collection.$form.$fields.parent' %}
         </div>
     {% endif %}
 

@@ -1,14 +1,13 @@
-{% extends 'django_spire/glue/form/widget/widget.html' %}
+{% extends 'django_spire/form/glue/widget/widget.html' %}
 
-{% block field_content %}
+{% block widget_content %}
     <div class="d-flex align-items-center">
         <input
             type="checkbox"
             class="form-check-input me-2"
             :id="{{ glue_field }}.id"
             :name="{{ glue_field }}.name"
-            x-model="value"
-            style="accent-color: var(--glue-primary, #0d6efd);"
+            x-model="{{ glue_field }}.value"
         >
         <label
             class="form-check-label"

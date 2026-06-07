@@ -14,7 +14,7 @@ document.addEventListener('alpine:init', () => {
             try {
                 let response = await ajax_request(
                     'GET',
-                    '/django_spire/theme/json/get_config/'
+                    '/ds/theme/json/get_config/'
                 );
 
                 if (response && response.data) {
