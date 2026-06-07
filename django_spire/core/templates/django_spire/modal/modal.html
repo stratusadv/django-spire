@@ -1,0 +1,29 @@
+{% load django_spire_string_formatting %}
+
+{% load django_spire_core %}
+
+{% with modal_camel_case_id=modal_id|to_camel_case_javascript_safe %}
+
+    <div data-bs-toggle="modal" data-bs-target="#{{ modal_camel_case_id }}Modal">
+        {% block modal_trigger %}
+        {% endblock %}
+    </div>
+
+    <div
+            class="modal fade {% block modal_class %}{% endblock %} {{ modal_class }}"
+            id="{{ modal_camel_case_id }}Modal"
+            {% block modal_attributes %}
+            {% endblock %}
+            tabindex="-1"
+            aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                {% block modal_content %}
+
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+{% endwith %}

@@ -1,0 +1,16 @@
+{% load django_spire_string_formatting %}
+
+{% with tab_camel_case_id=tab_id|to_camel_case_javascript_safe %}
+
+    <div
+            class="tab-pane fade {% if tab_active %}show active{% endif %}"
+            id="{{ tab_camel_case_id }}TabPane"
+            role="tabpanel"
+            aria-labelledby="{{ tab_camel_case_id }}TabPane"
+    >
+        {% block tab_pane_content %}
+
+        {% endblock %}
+    </div>
+
+{% endwith %}

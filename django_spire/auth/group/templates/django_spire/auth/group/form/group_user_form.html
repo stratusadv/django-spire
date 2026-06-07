@@ -1,20 +1,13 @@
 {{ user_choices|json_script:'user_choices' }}
 
 <form method="post">
-    <div x-data="{
-    init() {
-        this.users.choices = JSON.parse(document.getElementById('user_choices').textContent)
-        this.users.value = {{ selected_user_ids }}
-    },
-    users: Glue.model('users')
-    }" class="row">
+    <div class="row">
         {% csrf_token %}
         <div class="col-6 mb-2">
-            {% include 'django_spire/form/glue/field/multi_select_field.html' with glue_field='users' %}
+            {% include 'django_spire/form/field/multi_select_field.html' with field=form.users %}
         </div>
         <div class="col-12">
             {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
         </div>
-
     </div>
 </form>

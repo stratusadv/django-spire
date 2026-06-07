@@ -1,0 +1,18 @@
+{% load django_spire_string_formatting %}
+
+{% with tab_camel_case_id=tab_id|to_camel_case_javascript_safe %}
+
+    <li class="nav-item" role="presentation">
+        <button class="nav-link {% if tab_active %}active{% endif %}"
+                id="{{ tab_camel_case_id }}Tab"
+                data-bs-toggle="tab"
+                data-bs-target="#{{ tab_camel_case_id }}TabPane"
+                type="button"
+                role="tab"
+                aria-controls="{{ tab_camel_case_id }}TabPane"
+                aria-selected="{% if tab_active %}true{% else %}false{% endif %}">
+            {{ tab_name }}
+        </button>
+    </li>
+
+{% endwith %}

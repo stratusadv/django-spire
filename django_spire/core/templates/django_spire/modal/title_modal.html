@@ -1,0 +1,15 @@
+{% extends 'django_spire/modal/modal.html' %}
+
+{% load django_spire_string_formatting %}
+
+{% block modal_content %}
+    <div class="modal-header">
+        <div class="modal-title" id="{{ modal_camel_case_id }}Label">
+            {% block modal_title %}
+            {% endblock %}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    {% block modal_title_content %}
+    {% endblock %}
+{% endblock %}

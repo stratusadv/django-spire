@@ -20,13 +20,13 @@ from django_spire.core.templatetags.django_spire_core import (
     not_in_list,
     query_param_url,
     safe_dict_items,
-    to_snake_case,
 )
-from django_spire.core.templatetags.django_spire_string_formating import (
+from django_spire.core.templatetags.django_spire_string_formatting import (
     dashes_and_spaces_to_underscore,
     dashes_to_underscore,
     spaces_to_underscore,
     underscores_to_spaces,
+    to_snake_case,
 )
 from django_spire.core.templatetags.django_spire_variable_types import (
     is_dict,

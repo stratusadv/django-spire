@@ -1,35 +1,55 @@
 {% extends 'django_spire/contrib/accordian/accordian.html' %}
 
-{% block accordion_toggle %}
-    <div
-        class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-link-side-navigation ds-fs-9"
-        :class="{
+
+<div x-data="{
+        show_accordion: false,
+        toggle() {
+            this.show_accordion = !this.show_accordion
+        }
+    }"
+>
+    <div @click="toggle()" class="cursor-pointer">
+        {% block accordion_toggle %}
+            <div
+                    class="d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-medium cursor-pointer text-link-side-navigation ds-fs-9"
+                    :class="{
             'justify-content-center px-0 gap-0': collapsed,
             'gap-2 px-3': !collapsed
         }"
-    >
-        <i class="{% block nav_icon %}{% endblock %} flex-shrink-0" style="width: 1.25rem;" :style="collapsed ? 'font-size: 1.25rem; width: auto;' : 'width: 1.25rem;'"></i>
+            >
+                <i class="{% block nav_icon %}{% endblock %} flex-shrink-0" style="width: 1.25rem;"
+                   :style="collapsed ? 'font-size: 1.25rem; width: auto;' : 'width: 1.25rem;'"></i>
 
-        <span class="text-truncate" x-show="!collapsed">
+                <span class="text-truncate" x-show="!collapsed">
             {% block nav_title %}
             {% endblock %}
         </span>
 
-        <span
-            class="ms-auto small"
-            :class="{'bi bi-chevron-right': !show_accordion, 'bi bi-chevron-down': show_accordion}"
-            x-show="!collapsed"
-        >
+                <span
+                        class="ms-auto small"
+                        :class="{'bi bi-chevron-right': !show_accordion, 'bi bi-chevron-down': show_accordion}"
+                        x-show="!collapsed"
+                >
         </span>
+            </div>
+        {% endblock %}
     </div>
-{% endblock %}
 
-{% block accordion_content %}
+    {% block accordion_child_toggle %}
+        {# Used if accordion is toggled by a child component. Must call toggle() #}
+    {% endblock %}
+
     <div
-        class="ms-2 mb-2 mt-1 border-start border-2"
-        x-show="!collapsed"
-        @accordion-link="accordion_paths.push($event.detail.url_path); check_path()"
-        x-data="{
+            x-cloak
+            x-show="show_accordion"
+            x-transition
+    >
+        {% block accordion_content %}
+            <div
+                    class="ms-2 mb-2 mt-1 border-start border-2"
+                    x-show="!collapsed"
+                    @accordion-link="accordion_paths.push($event.detail.url_path); check_path()"
+                    x-data="{
             accordion_paths: [],
             current_path: '{{ request.path }}',
             check_path() {
@@ -38,10 +58,14 @@
                 }
             }
         }"
-    >
-        <div class="ps-2">
-            {% block accordion_links %}
-            {% endblock %}
-        </div>
+            >
+                <div class="ps-2">
+                    {% block accordion_links %}
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
     </div>
-{% endblock %}
+</div>
+
+

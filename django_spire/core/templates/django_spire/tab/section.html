@@ -1,0 +1,10 @@
+{% load django_spire_string_formatting %}
+
+<ul class="nav nav-tabs" id="{% if tab_section_id %}{{ tab_section_id|to_camel_case_javascript_safe }}Tabs{% else %}tabs{% endif %}" role="tablist">
+    {% block tab_section_tabs %}
+    {% endblock %}
+</ul>
+<div class="tab-content" id="{% if tab_section_id %}{{ tab_section_id|to_camel_case_javascript_safe }}Panes{% else %}panes{% endif %}">
+    {% block tab_section_panes %}
+    {% endblock %}
+</div>

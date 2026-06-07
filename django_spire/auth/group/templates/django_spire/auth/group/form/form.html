@@ -1,16 +1,12 @@
 <form method="post">
-    <div
-        x-data="{
-            group: Glue.model.group,
-        }"
-        class="row">
-            {% csrf_token %}
-            <div class="col-4 mb-2">
-                {% include 'django_spire/form/glue/field/char_field.html' with glue_field='group.$fields.name' %}
-            </div>
-            <div class="col-12">
-                {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
-            </div>
+    <div class="row">
+        {% csrf_token %}
+        <div class="col-4 mb-2">
+            {% include 'django_spire/form/field/char_field.html' with field=form.name %}
+        </div>
+        <div class="col-12">
+            {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        </div>
     </div>
 
 </form>

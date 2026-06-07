@@ -152,15 +152,3 @@ def query_param_url(context: RequestContext, url_name: str, **kwargs) -> str:
 
     return reverse(url_name, kwargs=kwargs) + query_string
 
-
-@register.simple_tag()
-def to_snake_case(label: str) -> str:
-    """
-    Converts a label to snake_case by replacing spaces with underscores
-    and then converting it to lowercase.
-
-    :param label: The label string to convert.
-    :return: The snake_case version of the label.
-    """
-
-    return label.replace(' ', '_').lower()

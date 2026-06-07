@@ -45,7 +45,7 @@ dependencies = [
     "celery-types==0.26.0",
     "crispy-bootstrap5==2024.10",
     "dandy>=2.2.0",
-    "django>=5.1.8",
+    "django>=6.0.6",
     "django-crispy-forms==2.3",
     "django-glue @ git+https://github.com/stratusadv/django-glue.git@v1/base",
     "django-ninja==1.6.2",
