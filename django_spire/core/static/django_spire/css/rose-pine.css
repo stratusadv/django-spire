@@ -12062,22 +12062,6 @@ textarea.form-control-lg {
   --spire-z-tooltip: 1070;
   --spire-z-overlay: 1080;
   --spire-z-sidebar: 1090;
-  --primary: var(--bs-primary);
-  --footer-bg-color: var(--bs-body-bg);
-  --footer-text-color: var(--bs-body-color);
-  --footer-link-color: var(--bs-link-color);
-  --footer-link-hover-color: var(--bs-link-hover-color);
-  --top-navigation-bg-color: var(--bs-body-bg);
-  --top-navigation-text-color: var(--bs-body-color);
-  --top-navigation-link-color: var(--bs-link-color);
-  --top-navigation-link-hover-color: var(--bs-link-hover-color);
-  --side-navigation-bg-color: var(--bs-body-bg);
-  --side-navigation-text-color: var(--bs-body-color);
-  --side-navigation-link-color: var(--bs-link-color);
-  --side-navigation-link-hover-color: var(--bs-link-hover-color);
-  --bg-side-navigation: var(--side-navigation-bg-color);
-  --bg-top-navigation: var(--top-navigation-bg-color);
-  --bg-footer: var(--footer-bg-color);
 }
 
 .footer {
@@ -12602,10 +12586,6 @@ textarea.form-control-lg {
 
 .table-print {
   font-family: monospace !important;
-}
-
-.hide-on-print {
-  display: none !important;
 }
 
 @media print {
