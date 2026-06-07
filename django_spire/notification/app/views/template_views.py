@@ -8,7 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.generic_views.page_views import infinite_scrolling_view
+# from django_spire.contrib.generic_views.page_views import infinite_scrolling_view
 from django_spire.contrib.session.controller import SessionController
 from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSION_KEY_NAME
 from django_spire.notification.app.forms import NotificationListFilterForm
@@ -25,13 +25,13 @@ def _infinite_scroll_view(
 ) -> TemplateResponse:
     body_data = json.loads(request.body.decode('utf-8'))
 
-    return infinite_scrolling_view(
-        request,
-        queryset=notification_queryset,
-        queryset_name='notifications',
-        context_data={'app_notification_list_url': body_data.get('app_notification_list_url')},
-        template='django_spire/notification/app/scroll/item/items.html',
-    )
+    # return infinite_scrolling_view(
+    #     request,
+    #     queryset=notification_queryset,
+    #     queryset_name='notifications',
+    #     context_data={'app_notification_list_url': body_data.get('app_notification_list_url')},
+    #     template='django_spire/notification/app/scroll/item/items.html',
+    # )
 
 
 @login_required()

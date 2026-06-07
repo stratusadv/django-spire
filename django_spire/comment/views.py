@@ -15,7 +15,6 @@ from django_spire.auth.group.utils import has_app_permission_or_404
 from django_spire.comment import models
 from django_spire.comment.forms import CommentForm
 from django_spire.contrib.form.tools import show_form_errors
-from django_spire.contrib.generic_views import dispatch_modal_delete_form_content
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj, model_object_from_app_label
 
@@ -112,11 +111,11 @@ def comment_modal_delete_form_view(
             information=f'{request.user.get_full_name()} deleted a comment on "{obj}".',
         )
 
-    return dispatch_modal_delete_form_content(
-        request,
-        obj=comment,
-        form_action=form_action,
-        activity_func=add_activity,
-        return_url=return_url,
-        show_success_message=True,
-    )
+    # return dispatch_modal_delete_form_content(
+    #     request,
+    #     obj=comment,
+    #     form_action=form_action,
+    #     activity_func=add_activity,
+    #     return_url=return_url,
+    #     show_success_message=True,
+    # )

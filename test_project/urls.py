@@ -17,18 +17,11 @@ urlpatterns = [
     path('help_desk/', include('test_project.app.help_desk.urls', namespace='help_desk')),
     path('history/', include('test_project.app.history.urls', namespace='history')),
     path('home/', include('test_project.app.home.urls', namespace='home')),
-    path(
-        'infinite_scrolling/',
-        include('test_project.app.infinite_scrolling.urls', namespace='infinite_scrolling'),
-    ),
     path('notification/', include('test_project.app.notification.urls', namespace='notification')),
     path('order/', include('test_project.app.ordering.urls', namespace='order')),
-    path(
-        'queryset-filtering/',
-        include('test_project.app.queryset_filtering.urls', namespace='queryset_filtering'),
-    ),
     path('rest/', include('test_project.app.rest.urls', namespace='rest')),
     path('sync/', include('test_project.app.sync.urls', namespace='sync')),
+    path('task/', include('test_project.app.task.urls', namespace='task')),
     path('test_model/', include('test_project.app.model_and_service.urls', namespace='test_model')),
     path('theme/', include('django_spire.theme.urls', namespace='theme')),
 ]

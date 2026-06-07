@@ -1,1 +1,0 @@
-TASK_FILTERING_SESSION_KEY = 'task_list_filter'

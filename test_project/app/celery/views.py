@@ -1,5 +1,4 @@
 from __future__ import annotations
-from test_project.app.queryset_filtering.models import Task
 
 from typing import TYPE_CHECKING
 
@@ -11,6 +10,7 @@ from test_project.app.celery.celery.managers import (
     PirateSongCeleryTaskManager,
     NinjaAttackCeleryTaskManager,
 )
+from test_project.app.celery.models import CeleryStalk
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 def celery_home_view(request: WSGIRequest) -> TemplateResponse:
     template = 'celery/page/home_page.html'
 
-    task = Task.objects.first()
+    celery_stalk = CeleryStalk.objects.first()
 
     context = {}
     context['length'] = 5
@@ -34,7 +34,7 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
             if request.POST.get('ninja'):
                 async_result = NinjaAttackCeleryTaskManager().send_task(length=length)
             else:
-                async_result = PirateSongCeleryTaskManager(task).send_task(length=length)
+                async_result = PirateSongCeleryTaskManager(celery_stalk).send_task(length=length)
 
             context['task_id'] = async_result.id
             context['length'] = length
@@ -53,7 +53,7 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
 
     context['celery_task_managers'] = [
         NinjaAttackCeleryTaskManager(),
-        PirateSongCeleryTaskManager(task),
+        PirateSongCeleryTaskManager(celery_stalk),
     ]
 
     return TemplateResponse(request, template, context=context)

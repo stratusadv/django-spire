@@ -138,11 +138,11 @@ class TestCrashRecovery:
 
         sim.write_tablet('tablet_1', 'app.Record', 'r-1')
 
-        before = dict(sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].data)
+        before = dict(sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].items)
 
         sim.crash_mid_sync('tablet_1')
 
-        after = dict(sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].data)
+        after = dict(sim.harness.tablet_storages['tablet_1']._records['app.Record']['r-1'].items)
 
         assert before == after
 
@@ -177,10 +177,10 @@ class TestIdempotency:
         sim.crash_mid_sync('tablet_1')
 
         sim.harness.sync_tablet('tablet_1')
-        snapshot_first = dict(sim.harness.server_record('app.Record', 'r-1').data)
+        snapshot_first = dict(sim.harness.server_record('app.Record', 'r-1').items)
 
         sim.harness.sync_tablet('tablet_1')
-        snapshot_second = dict(sim.harness.server_record('app.Record', 'r-1').data)
+        snapshot_second = dict(sim.harness.server_record('app.Record', 'r-1').items)
 
         assert snapshot_first == snapshot_second
 
@@ -191,12 +191,12 @@ class TestIdempotency:
             sim.write_tablet(tablet_id, 'app.Record', 'shared')
 
         sim.harness.sync_all_converge()
-        snapshot = dict(sim.harness.server_record('app.Record', 'shared').data)
+        snapshot = dict(sim.harness.server_record('app.Record', 'shared').items)
 
         for _ in range(10):
             sim.harness.sync_all()
 
-        assert sim.harness.server_record('app.Record', 'shared').data == snapshot
+        assert sim.harness.server_record('app.Record', 'shared').items == snapshot
 
     def test_timestamps_stable_across_idempotent_syncs(self) -> None:
         sim = SyncSimulator(tablet_count=2, schemas=FLAT_SCHEMA, seed=1)

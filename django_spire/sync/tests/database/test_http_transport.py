@@ -417,7 +417,7 @@ def test_exchange_sends_gzip_compressed_body(mock_urlopen: Any) -> None:
     assert request_obj.get_header('Content-encoding') == 'gzip'
     assert request_obj.get_header('Content-type') == 'application/json'
 
-    decompressed = gzip.decompress(request_obj.data)
+    decompressed = gzip.decompress(request_obj.items)
     parsed = json.loads(decompressed)
 
     assert parsed['node_id'] == 'tablet'

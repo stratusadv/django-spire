@@ -224,12 +224,12 @@ class SyncProcessorService(BaseDjangoModelService['Client']):
                 data = {}
 
                 for field_name in config.fields:
-                    if field_name in record.data:
-                        data[field_name] = _coerce_value(record.data[field_name])
+                    if field_name in record.items:
+                        data[field_name] = _coerce_value(record.items[field_name])
 
                 for foreign_key in config.foreign_key_fields:
-                    if foreign_key in record.data:
-                        data[foreign_key] = record.data[foreign_key]
+                    if foreign_key in record.items:
+                        data[foreign_key] = record.items[foreign_key]
 
                 config.model.objects.update_or_create(
                     pk=key,

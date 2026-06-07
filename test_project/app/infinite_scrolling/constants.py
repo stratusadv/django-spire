@@ -1,1 +1,0 @@
-INFINITE_SCROLLING_FILTERING_SESSION_KEY = 'infinite_scrolling_list_filter'

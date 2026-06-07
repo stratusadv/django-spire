@@ -111,47 +111,6 @@ def delete_form_view(
     return TemplateResponse(request, template=template, context=context_data)
 
 
-def infinite_scrolling_view(
-    request: WSGIRequest,
-    *,
-    queryset: QuerySet | list,
-    queryset_name: str,
-    template: str,
-    context_data: dict[str, Any] | None = None,
-) -> TemplateResponse:
-    if context_data is None:
-        context_data = {}
-
-    default_batch_size = 50
-
-    page = int(request.GET.get('page', 1))
-
-    batch_size = (
-        context_data.get('batch_size')
-        if 'batch_size' in context_data
-        else request.GET.get('batch_size', default_batch_size)
-    )
-
-    batch_size = int(batch_size)
-    offset = (page - 1) * batch_size
-
-    total_count = queryset.count() if isinstance(queryset, QuerySet) else len(queryset)
-
-    object_list = queryset[offset : offset + batch_size]
-    has_next = offset + batch_size < total_count
-
-    base_context_data = {
-        'batch_size': batch_size,
-        'has_next': has_next,
-        'total_count': total_count,
-        queryset_name: object_list,
-    }
-
-    context_data.update(base_context_data)
-
-    return TemplateResponse(request, context=context_data, template=template)
-
-
 def list_view(
     request: WSGIRequest,
     *,
@@ -201,7 +160,7 @@ def form_view(
     breadcrumbs = Breadcrumbs()
 
     if breadcrumbs_func is None:
-        breadcrumbs.add_form_breadcrumbs(obj=obj)
+        breadcrumbs.add_form_breadcrumbs(django_model=obj)
     else:
         breadcrumbs_func(breadcrumbs)
 

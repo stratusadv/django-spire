@@ -12,13 +12,13 @@ class TestBreadcrumbItem(TestCase):
         item = BreadcrumbItem(name='Home', href='/home/')
 
         assert item.name == 'Home'
-        assert item.href == '/home/'
+        assert item.url == '/home/'
 
     def test_create_without_href(self) -> None:
         item = BreadcrumbItem(name='Current Page')
 
         assert item.name == 'Current Page'
-        assert item.href is None
+        assert item.url is None
 
     def test_to_dict(self) -> None:
         item = BreadcrumbItem(name='Home', href='/home/')
@@ -60,16 +60,16 @@ class TestBreadcrumbs(TestCase):
         breadcrumbs.add_breadcrumb('Home', '/home/')
 
         assert len(breadcrumbs) == 1
-        assert breadcrumbs.data[0].name == 'Home'
-        assert breadcrumbs.data[0].href == '/home/'
+        assert breadcrumbs.items[0].name == 'Home'
+        assert breadcrumbs.items[0].url == '/home/'
 
     def test_add_breadcrumb_without_href(self) -> None:
         breadcrumbs = Breadcrumbs()
         breadcrumbs.add_breadcrumb('Current Page')
 
         assert len(breadcrumbs) == 1
-        assert breadcrumbs.data[0].name == 'Current Page'
-        assert breadcrumbs.data[0].href is None
+        assert breadcrumbs.items[0].name == 'Current Page'
+        assert breadcrumbs.items[0].url is None
 
     def test_add_form_breadcrumbs_create(self) -> None:
         breadcrumbs = Breadcrumbs()
@@ -82,8 +82,8 @@ class TestBreadcrumbs(TestCase):
         breadcrumbs.add_form_breadcrumbs(obj)
 
         assert len(breadcrumbs) == 2
-        assert breadcrumbs.data[0].name == 'Test Model'
-        assert breadcrumbs.data[1].name == 'Create'
+        assert breadcrumbs.items[0].name == 'Test Model'
+        assert breadcrumbs.items[1].name == 'Create'
 
     def test_add_form_breadcrumbs_edit(self) -> None:
         breadcrumbs = Breadcrumbs()
@@ -95,7 +95,7 @@ class TestBreadcrumbs(TestCase):
         breadcrumbs.add_form_breadcrumbs(obj)
 
         assert len(breadcrumbs) == 1
-        assert breadcrumbs.data[0].name == 'Edit'
+        assert breadcrumbs.items[0].name == 'Edit'
 
     def test_add_obj_breadcrumbs(self) -> None:
         breadcrumbs = Breadcrumbs()
@@ -109,7 +109,7 @@ class TestBreadcrumbs(TestCase):
         breadcrumbs.add_obj_breadcrumbs(obj)
 
         assert len(breadcrumbs) == 1
-        assert breadcrumbs.data[0].name == 'Object'
+        assert breadcrumbs.items[0].name == 'Object'
 
     def test_add_obj_breadcrumbs_no_method(self) -> None:
         breadcrumbs = Breadcrumbs()
@@ -130,8 +130,8 @@ class TestBreadcrumbs(TestCase):
         result = breadcrumbs1 + breadcrumbs2
 
         assert len(result) == 2
-        assert result.data[0].name == 'Home'
-        assert result.data[1].name == 'Page'
+        assert result.items[0].name == 'Home'
+        assert result.items[1].name == 'Page'
 
     def test_empty_breadcrumbs(self) -> None:
         breadcrumbs = Breadcrumbs()
@@ -172,8 +172,8 @@ class TestBreadcrumbs(TestCase):
         result = breadcrumbs.remove(1)
 
         assert len(breadcrumbs) == 2
-        assert breadcrumbs.data[0].name == 'Home'
-        assert breadcrumbs.data[1].name == 'Current'
+        assert breadcrumbs.items[0].name == 'Home'
+        assert breadcrumbs.items[1].name == 'Current'
         assert result is breadcrumbs
 
     def test_reverse(self) -> None:
@@ -184,9 +184,9 @@ class TestBreadcrumbs(TestCase):
 
         result = breadcrumbs.reverse()
 
-        assert breadcrumbs.data[0].name == 'Third'
-        assert breadcrumbs.data[1].name == 'Second'
-        assert breadcrumbs.data[2].name == 'First'
+        assert breadcrumbs.items[0].name == 'Third'
+        assert breadcrumbs.items[1].name == 'Second'
+        assert breadcrumbs.items[2].name == 'First'
         assert result is breadcrumbs
 
     def test_str(self) -> None:

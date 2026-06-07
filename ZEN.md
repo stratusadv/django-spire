@@ -7,10 +7,11 @@
 
 ## Templates
 
-- ... for Logic and Structure
+- ... are for Logic and Structure
 - ... not for Design of Style
-- ... Django first, JavaScript second
-- ... prioritize extending over modifying
+- ... use HTML first, Django second, Bootstrap third, Alpine fourth, JavaScript only when all else can't do it.
+- ... have short extends
+- ... need less conditions
 
 ## Cascading Style Sheets
 

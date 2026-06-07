@@ -62,7 +62,7 @@ def _process_field_attributes(
         old_tag = field.tag
 
         def tag(self, _wrap_label: bool = False) -> str:  # noqa: ANN001
-            attrs = self.data['attrs']  # type: ignore[union-attr]
+            attrs = self.items['attrs']  # type: ignore[union-attr]
             process(self.parent_widget, attrs, attribute, value)  # type: ignore[union-attr]
             html = old_tag(wrap_label=False)
             self.tag = old_tag  # type: ignore[union-attr]

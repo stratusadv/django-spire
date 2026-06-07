@@ -12,10 +12,10 @@ if TYPE_CHECKING:
 def list_items_view(request: WSGIRequest):
     pirate_rest_schemas = PirateRestSchema.objects.all()
 
-    return generic_views.infinite_scrolling_view(
-        request,
-        context_data={'pirates': pirate_rest_schemas},
-        queryset=pirate_rest_schemas,
-        queryset_name='pirates',
-        template='rest/item/items.html',
-    )
+    # return generic_views.infinite_scrolling_view(
+    #     request,
+    #     context_data={'pirates': pirate_rest_schemas},
+    #     queryset=pirate_rest_schemas,
+    #     queryset_name='pirates',
+    #     template='rest/item/items.html',
+    # )

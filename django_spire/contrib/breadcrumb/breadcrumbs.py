@@ -1,29 +1,51 @@
 from __future__ import annotations
 
-from typing import Any, TypedDict
+from typing import Any, TypedDict, Self
+
+from django.db.models import Model
+from django.urls import reverse
+
+from django_spire.conf import settings
 
 
-class BreadcrumbDict(TypedDict):
+class _BreadcrumbDict(TypedDict):
     name: str
     href: str | None
 
 
-class BreadcrumbItem:
-    def __init__(self, name: str, href: str | None = None) -> None:
+class _Breadcrumb:
+    def __init__(
+        self, name: str, url: str | None = None, url_kwargs: dict[str, Any] | None = None
+    ) -> None:
         self.name = name
-        self.href = href
+        self.url = url
+        self.url_kwargs = url_kwargs
 
-    def to_dict(self) -> BreadcrumbDict:
+    @property
+    def href(self) -> str | None:
+        if self.url:
+            return reverse(viewname=self.url, kwargs=self.url_kwargs)
+
+        return None
+
+    def to_dict(self) -> _BreadcrumbDict:
         return {'name': self.name, 'href': self.href}
 
 
 class Breadcrumbs:
     def __init__(self) -> None:
-        self.data: list[BreadcrumbItem] = []
+        self.items: list[_Breadcrumb] = []
         self.index: int = 0
 
-    def __add__(self, other: Breadcrumbs) -> Breadcrumbs:
-        self.data += other.data
+        if settings.DJANGO_SPIRE_BREADCRUMBS_HOME_URL:
+            self.add_breadcrumb(name='Home', url=settings.DJANGO_SPIRE_BREADCRUMBS_HOME_URL)
+
+    def __add__(self, other: Breadcrumbs) -> Self:
+        self.items += other.items
+        return self
+
+    def __iadd__(self, other: Breadcrumbs) -> Self:
+        self.items += other.items
         return self
 
     def __iter__(self) -> Breadcrumbs:
@@ -31,46 +53,34 @@ class Breadcrumbs:
         return self
 
     def __len__(self) -> int:
-        return len(self.data)
+        return len(self.items)
 
-    def __next__(self) -> BreadcrumbDict:
-        if self.index >= len(self.data):
+    def __next__(self) -> _BreadcrumbDict:
+        if self.index >= len(self.items):
             raise StopIteration
 
-        breadcrumb_item = self.data[self.index]
+        breadcrumb_item = self.items[self.index]
         self.index += 1
         return breadcrumb_item.to_dict()
 
     def __str__(self) -> str:
-        return str(self.data)
+        return str(self.items)
 
-    def add_base_breadcrumb(self, model: Any) -> None:
-        if hasattr(model, 'base_breadcrumb'):
-            self += model.base_breadcrumb()
+    def add_breadcrumb(
+        self, name: str, url: str | None = None, url_kwargs: dict[str, Any] | None = None
+    ) -> None:
+        self.items.append(_Breadcrumb(name=name, url=url, url_kwargs=url_kwargs))
 
-    def add_breadcrumb(self, name: str, href: str | None = None) -> None:
-        breadcrumb_item = BreadcrumbItem(name=name, href=href)
-        self.data.append(breadcrumb_item)
-
-    def add_form_breadcrumbs(self, obj: Any) -> None:
-        self.add_obj_breadcrumbs(obj)
-
-        if obj.pk is None:
-            self.add_breadcrumb(name=obj._meta.model._meta.verbose_name)
-            self.add_breadcrumb(name='Create')
-        else:
-            self.add_breadcrumb(name='Edit')
-
-    def add_obj_breadcrumbs(self, obj: Any) -> None:
-        # It expects a breadcrumb object to be returned from the object
-        if hasattr(obj, 'breadcrumbs'):
-            object_breadcrumbs = obj.breadcrumbs()
-            self.data += object_breadcrumbs.data
+    def add_breadcrumb_from_model(self, model: Model) -> None:
+        if hasattr(model, '__str__'):
+            self.add_breadcrumb(
+                name=model.__str__(),
+            )
 
     def remove(self, index: int) -> Breadcrumbs:
-        del self.data[index]
+        del self.items[index]
         return self
 
     def reverse(self) -> Breadcrumbs:
-        self.data.reverse()
+        self.items.reverse()
         return self

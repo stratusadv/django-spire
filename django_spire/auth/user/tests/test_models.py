@@ -122,7 +122,7 @@ class AuthUserModelTestCase(BaseTestCase):
 
     def test_breadcrumbs_contains_user_name(self) -> None:
         crumbs = self.user.breadcrumbs()
-        names = [c.name for c in crumbs.data]
+        names = [c.name for c in crumbs.items]
         assert 'Test User' in names
 
     def test_base_breadcrumb_returns_breadcrumbs(self) -> None:
@@ -131,7 +131,7 @@ class AuthUserModelTestCase(BaseTestCase):
 
     def test_base_breadcrumb_contains_users(self) -> None:
         crumbs = AuthUser.base_breadcrumb()
-        names = [c.name for c in crumbs.data]
+        names = [c.name for c in crumbs.items]
         assert 'Users' in names
 
     def test_user_inheritance_from_django_user(self) -> None:

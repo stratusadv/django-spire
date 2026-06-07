@@ -118,15 +118,14 @@ INSTALLED_APPS += [
     'test_project.app.file',
     'test_project.app.help_desk',
     'test_project.app.home',
-    'test_project.app.infinite_scrolling',
     'test_project.app.landing',
     'test_project.app.ordering',
     'test_project.app.history',
     'test_project.app.notification',
     'test_project.app.model_and_service',
-    'test_project.app.queryset_filtering',
     'test_project.app.rest',
     'test_project.app.sync',
+    'test_project.app.task',
 ]
 
 INSTALLED_APPS += ['django_spire.sync.tests.apps.SyncTestsConfig']
@@ -151,8 +150,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 ROOT_URLCONF = 'test_project.urls'
 
+DJANGO_SPIRE_BREADCRUMBS_HOME_URL = 'home:page:home'
+
 LOGIN_URL = 'django_spire:auth:admin:login'
-LOGIN_REDIRECT_SUCCESS_URL = 'home:page:home'
+LOGIN_REDIRECT_SUCCESS_URL = DJANGO_SPIRE_BREADCRUMBS_HOME_URL
 LOGIN_REDIRECT_URL = 'django_spire:auth:redirect:login'
 LOGOUT_REDIRECT_URL = 'django_spire:auth:admin:login'
 
@@ -188,7 +189,7 @@ TEMPLATES = [
 
 # Report Registry
 DJANGO_SPIRE_REPORT_REGISTRIES = [
-    'test_project.app.queryset_filtering.reports.task_report_registry.TaskReportRegistry'
+    'test_project.app.task.reports.task_report_registry.TaskReportRegistry'
 ]
 
 # Storages - We are using Digital Ocean, which uses AWS S3 service
