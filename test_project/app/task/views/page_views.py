@@ -12,6 +12,7 @@ from django_spire.contrib.session.controller import SessionController
 from test_project.app.task.constants import TASK_FILTERING_SESSION_KEY
 from test_project.app.task.forms import TaskListFilterForm
 from test_project.app.task.models import Task
+from test_project.app.task.navigation import TaskNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -19,12 +20,9 @@ if TYPE_CHECKING:
 
 @login_required()
 def list_page(request: WSGIRequest):
-
-    """
-        - Test glue multi select field in other projects.
-        - Review Code
-        - Update docs
-    """
+    nav = TaskNavigation()
+    nav.set_page_title_from_model_plural_name(Task)
+    nav.breadcrumbs.add_breadcrumb('Task')
 
     tasks = (
         Task
@@ -45,6 +43,7 @@ def list_page(request: WSGIRequest):
         'endpoint': reverse('queryset_filtering:page:list_items'),
         'tasks': tasks,
         'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),
+        **nav.as_context()
     }
 
     return TemplateResponse(

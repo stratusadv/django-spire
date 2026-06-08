@@ -11,6 +11,7 @@ from test_project.app.celery.celery.managers import (
     NinjaAttackCeleryTaskManager,
 )
 from test_project.app.celery.models import CeleryStalk
+from test_project.app.celery.navigation import CeleryNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -18,11 +19,16 @@ if TYPE_CHECKING:
 
 @login_required
 def celery_home_view(request: WSGIRequest) -> TemplateResponse:
+    nav = CeleryNavigation()
+    nav.page_title = 'Celery Stalking Tasks'
+    nav.breadcrumbs.add_breadcrumb('Example')
+
     template = 'celery/page/home_page.html'
 
     celery_stalk = CeleryStalk.objects.first()
 
-    context = {}
+    context = nav.as_context()
+
     context['length'] = 5
 
     if request.method == 'POST':

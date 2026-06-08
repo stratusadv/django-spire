@@ -12,25 +12,31 @@ from django_spire.auth.user.tests.factories import create_super_user
 create_super_user()
 
 print('Seeding Users')
-from django_spire.auth.seeding.seed import *  # noqa
+from django_spire.auth.seeding.seed import *  # noqa: F401
 
 print('Seeding Api Data...')
-from django_spire.api.seeding.seed import *  # noqa
+from django_spire.api.seeding.seed import *  # noqa: F401
+
+print('Seeding Celery Stalks...')
+from test_project.app.celery.seeding.seed import *  # noqa: F401
 
 print('Seeding Help Desk Data...')
-from test_project.app.help_desk.seeding.seed import *  # noqa
+from test_project.app.help_desk.seeding.seed import *  # noqa: F401
 
 print('Seeding Query Set Filtering Models')
-from test_project.app.task.seeding.seed import *  # noqa
+from test_project.app.task.seeding.seed import *  # noqa: F401
 
 # print('Seeding Knowledge Data...')
-# from django_spire.knowledge.seeding.seed import * # noqa
+# from django_spire.knowledge.seeding.seed import * # noqa: F401
 
 # print('Seeding AI Context Data...')
-# from django_spire.ai.context.seeding.seed import * # noqa
+# from django_spire.ai.context.seeding.seed import * # noqa: F401
 
 print('Seeding Comment Examples...')
-from test_project.app.comment.seeding.seed import *  # noqa
+from test_project.app.comment.seeding.seed import *  # noqa: F401
 
 print('Seeding Notification...')
-from test_project.app.notification.seeding.seed import *  # noqa
+from test_project.app.notification.seeding.seed import *  # noqa: F401
+
+print('Seeding Task...')
+from test_project.app.task.seeding.seed import *  # noqa: F401

@@ -10,7 +10,6 @@ from django_glue import Glue
 from django_spire.api import forms
 from django_spire.api.models import ApiAccess
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib import generic_views
 from django_spire.contrib.shortcuts import get_object_or_null_obj
@@ -40,7 +39,6 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
                 request,
                 page_title='API Access Created',
                 page_description='Your API access has been created.',
-                breadcrumbs=Breadcrumbs(),
                 template='django_spire/api/page/access_created_page.html',
                 context_data={'api_access': api_access, 'raw_key': raw_key},
             )

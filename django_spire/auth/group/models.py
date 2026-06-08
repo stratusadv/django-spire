@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
-from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
+from django_spire.contrib.navigation.breadcrumbs import Breadcrumbs
 from django_spire.history.activity.mixins import ActivityMixin
 
 

@@ -1,12 +1,25 @@
+
+{% url 'home:page:home' as home_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Home' link_icon='bi bi-house-door' link_url=home_url %}
+
+{% include 'django_spire/navigation/divider.html' with divider_text='Tasks' %}
+
+{% url 'task:page:list' as task_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Task' link_icon='bi bi-list-task' link_url=task_url %}
+
+{% include 'django_spire/navigation/divider.html' with divider_text='Configuration' %}
+
 {% include 'django_spire/auth/group/navigation/accordion/permission_nav_accordion.html' %}
 
-{% include 'django_spire/navigation/divider.html' with divider_text='Django Spire' %}
+{% include 'django_spire/navigation/divider.html' with divider_text='Artificial Intelligence' %}
 
 {% url 'ai:home' as ai_home_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Ai Home' link_icon='bi bi-robot' link_url=ai_home_url %}
 
 {% url 'django_spire:ai:chat:page:home' as ai_chat_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Ai Chat' link_icon='bi bi-chat-heart' link_url=ai_chat_url %}
+
+{% include 'django_spire/navigation/divider.html' with divider_text='Examples' %}
 
 {% url 'celery:home' as celery_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Celery' link_icon='bi bi-ui-checks' link_url=celery_url %}
@@ -22,9 +35,6 @@
 
 {% url 'history:home' as history_url %}
 {% include 'django_spire/navigation/link.html' with link_text='History' link_icon='bi bi-clock-history' link_url=history_url %}
-
-{% url 'home:page:home' as home_url %}
-{% include 'django_spire/navigation/link.html' with link_text='Home' link_icon='bi bi-house-door' link_url=home_url %}
 
 {% url 'ordering:page:demo' as ordering_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Ordering' link_icon='bi bi-list-ol' link_url=ordering_url %}

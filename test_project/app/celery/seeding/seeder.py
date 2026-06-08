@@ -9,5 +9,5 @@ class CeleryStalkSeeder(DjangoModelSeeder):
     fields = {
         'id': 'exclude',
         'is_crisp': ('faker', 'boolean'),
-        'length': ('faker', 'pyfloat'),
+        'length_inches': ('faker', 'pyfloat', {'left_digits': 3, 'right_digits': 2}),
     }

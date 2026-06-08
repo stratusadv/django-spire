@@ -1,0 +1,14 @@
+{% load static %}
+
+<div class="top-navigation bg-top-navigation d-flex align-items-center justify-content-between px-3 border-bottom flex-shrink-0"
+     style="height: 64px;">
+    {% block top_navigation_content %}
+        <div class="align-items-center">
+            {% include 'django_spire/navigation/top/information.html' %}
+        </div>
+
+        <div class="d-flex align-items-center">
+            {% include 'django_spire/navigation/top/menu/menu.html' %}
+        </div>
+    {% endblock %}
+</div>

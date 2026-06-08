@@ -6,7 +6,6 @@ from django.db.models import QuerySet, Model
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 
-from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 
 if TYPE_CHECKING:
@@ -14,38 +13,6 @@ if TYPE_CHECKING:
 
     from django.core.handlers.wsgi import WSGIRequest
     from django.forms import BaseForm
-
-
-BreadcrumbCallable = Callable[[Breadcrumbs], None]
-
-
-def detail_view(
-    request: WSGIRequest,
-    *,
-    context_data: dict | None = None,
-    breadcrumbs_func: BreadcrumbCallable | None = None,
-    obj: Model,
-    template: str,
-) -> TemplateResponse:
-    if context_data is None:
-        context_data = {}
-
-    breadcrumbs = Breadcrumbs()
-
-    if breadcrumbs_func is None:
-        breadcrumbs.add_obj_breadcrumbs(obj)
-    else:
-        breadcrumbs_func(breadcrumbs)
-
-    base_context_data = {
-        'page_title': obj._meta.model._meta.verbose_name,
-        'page_description': obj.__str__(),
-        'breadcrumbs': breadcrumbs,
-    }
-
-    context_data = {**base_context_data, **context_data}
-
-    return TemplateResponse(request, template=template, context=context_data)
 
 
 def delete_form_view(
@@ -111,43 +78,12 @@ def delete_form_view(
     return TemplateResponse(request, template=template, context=context_data)
 
 
-def list_view(
-    request: WSGIRequest,
-    *,
-    context_data: dict | None = None,
-    breadcrumbs_func: BreadcrumbCallable | None = None,
-    model: type[Model],
-    template: str,
-) -> TemplateResponse:
-
-    if context_data is None:
-        context_data = {}
-
-    breadcrumbs = Breadcrumbs()
-
-    if breadcrumbs_func is None:
-        breadcrumbs.add_breadcrumb(name=f'{model._meta.verbose_name} List')
-    else:
-        breadcrumbs_func(breadcrumbs)
-
-    base_context_data = {
-        'page_title': model._meta.verbose_name,
-        'page_description': 'List View',
-        'breadcrumbs': breadcrumbs,
-    }
-
-    context_data = {**base_context_data, **context_data}
-
-    return TemplateResponse(request, template=template, context=context_data)
-
-
 def form_view(
     request: WSGIRequest,
     *,
     form: BaseForm,
     context_data: dict | None = None,
     obj: Model,
-    breadcrumbs_func: BreadcrumbCallable | None = None,
     verb: str | None = None,
     template: str = 'django_spire/page/form_full_page.html',
 ) -> TemplateResponse:
@@ -156,13 +92,6 @@ def form_view(
         context_data = {}
 
     model = obj._meta.model
-
-    breadcrumbs = Breadcrumbs()
-
-    if breadcrumbs_func is None:
-        breadcrumbs.add_form_breadcrumbs(django_model=obj)
-    else:
-        breadcrumbs_func(breadcrumbs)
 
     if verb is None:
         verb = 'Edit' if obj.pk else 'Create'
@@ -179,7 +108,6 @@ def form_view(
     base_context_data = {
         'page_title': model._meta.verbose_name,
         'page_description': f'{verb} {obj}'.title(),
-        'breadcrumbs': breadcrumbs,
         'form': form,
         'form_title': form_title,
         'form_description': form_description,
@@ -196,24 +124,15 @@ def model_form_view(
     form: BaseForm,
     context_data: dict | None = None,
     obj: Model,
-    breadcrumbs_func: BreadcrumbCallable | None = None,
     verb: str | None = None,
     template: str = 'django_spire/page/form_full_page.html',
 ) -> TemplateResponse:
-    if breadcrumbs_func is None:
-
-        def breadcrumbs_func(crumbs: Breadcrumbs) -> None:
-            if obj.pk is None:
-                crumbs.add_form_breadcrumbs(obj)
-            else:
-                crumbs.add_form_breadcrumbs(obj)
 
     return form_view(
         request,
         form=form,
         context_data=context_data,
         obj=obj,
-        breadcrumbs_func=breadcrumbs_func,
         verb=verb,
         template=template,
     )
@@ -223,7 +142,6 @@ def template_view(
     request: WSGIRequest,
     page_title: str,
     page_description: str,
-    breadcrumbs: Breadcrumbs,
     template: str,
     context_data: dict | None = None,
 ) -> TemplateResponse:
@@ -233,8 +151,8 @@ def template_view(
     base_context_data = {
         'page_title': page_title,
         'page_description': page_description,
-        'breadcrumbs': breadcrumbs,
     }
+
     context_data = {**base_context_data, **context_data}
 
     return TemplateResponse(request, template, context=context_data)

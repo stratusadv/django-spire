@@ -81,10 +81,8 @@ INSTALLED_APPS += [
     'django_spire.auth.group',
     'django_spire.auth.user',
     'django_spire.celery',
-    'django_spire.contrib.breadcrumb',
     'django_spire.comment',
     'django_spire.core',
-    'django_spire.contrib.session',
     'django_spire.file',
     'django_spire.contrib.form',
     'django_spire.contrib.help',
@@ -150,10 +148,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 ROOT_URLCONF = 'test_project.urls'
 
-DJANGO_SPIRE_BREADCRUMBS_HOME_URL = 'home:page:home'
+DJANGO_SPIRE_NAVIGATION_HOME_URL = 'home:page:home'
 
 LOGIN_URL = 'django_spire:auth:admin:login'
-LOGIN_REDIRECT_SUCCESS_URL = DJANGO_SPIRE_BREADCRUMBS_HOME_URL
+LOGIN_REDIRECT_SUCCESS_URL = DJANGO_SPIRE_NAVIGATION_HOME_URL
 LOGIN_REDIRECT_URL = 'django_spire:auth:redirect:login'
 LOGOUT_REDIRECT_URL = 'django_spire:auth:admin:login'
 
