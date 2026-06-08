@@ -9,15 +9,14 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django_glue import Glue
 
-from django_spire.contrib import generic_views
-from django_spire.contrib.generic_views import page_views
+from test_project.app.notification.forms import NotificationForm
+
 from django_spire.notification import models
 from django_spire.notification.choices import (
     NotificationStatusChoices,
     NotificationTypeChoices,
     NotificationPriorityChoices,
 )
-from test_project.app.notification.forms import NotificationForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -29,33 +28,48 @@ def notification_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     context_data = {'notification': notification}
 
-    return generic_views.detail_view(
-        request,
-        obj=notification,
-        context_data=context_data,
-        template='notification/page/notification_detail_page.html',
+    context_data['page_title'] = str(notification)
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'Notifications', 'href': None},
+        {'name': str(notification), 'href': None},
+    ]
+
+    return TemplateResponse(
+        request, context=context_data, template='notification/page/notification_detail_page.html'
     )
 
 
 @login_required()
-def notification_form_view(request, pk: int):
+def notification_form_view(
+    request: WSGIRequest, pk: int
+) -> TemplateResponse | HttpResponseRedirect:
     if pk == 0:
         notification = models.Notification.objects.create(user=request.user)
 
         return HttpResponseRedirect(
             reverse('notification:page:form', kwargs={'pk': notification.pk})
         )
-    else:
-        notification = models.Notification.objects.get(pk=pk)
+
+    notification = models.Notification.objects.get(pk=pk)
 
     Glue.model(request=request, target=notification, unique_name='notification')
 
-    return generic_views.form_view(
-        request,
-        obj=notification,
-        context_data={'notification': notification},
-        template='notification/form/page/form_page.html',
-        form=NotificationForm(instance=notification),
+    context_data = {
+        'request': request,
+        'notification': notification,
+        'obj': notification,
+        'form': NotificationForm(instance=notification),
+    }
+    context_data['page_title'] = 'Notification'
+    context_data['page_description'] = 'Edit'
+    context_data['breadcrumbs'] = [
+        {'name': 'Notifications', 'href': None},
+        {'name': str(notification), 'href': None},
+    ]
+
+    return TemplateResponse(
+        request, context=context_data, template='notification/form/page/form_page.html'
     )
 
 
@@ -78,9 +92,10 @@ def notification_list_view(request: WSGIRequest) -> TemplateResponse:
         'priorities': NotificationPriorityChoices,
     }
 
-    return generic_views.list_view(
-        request,
-        model=models.Notification,
-        context_data=context_data,
-        template='notification/page/notification_list_page.html',
+    context_data['page_title'] = 'Notification'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'Notifications', 'href': None}]
+
+    return TemplateResponse(
+        request, context=context_data, template='notification/page/notification_list_page.html'
     )

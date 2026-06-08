@@ -36,6 +36,7 @@ def comment_modal_form_content(
     Glue.model(request, 'comment', comment)
 
     context_data = {
+        'request': request,
         'app_label': app_label,
         'model_name': model_name,
         'comment': comment,

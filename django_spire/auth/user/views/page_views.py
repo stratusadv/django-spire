@@ -4,15 +4,16 @@ from typing import TYPE_CHECKING
 
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.urls import reverse
 
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data, generate_user_perm_data
 from django_spire.auth.user.models import AuthUser
-from django_spire.contrib import generic_views
+
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @permission_required('django_spire_auth_user.view_authuser')
@@ -27,11 +28,14 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'user_perm_data': generate_user_perm_data(user),
     }
 
-    return generic_views.detail_view(
-        request,
-        context_data=context_data,
-        obj=user,
-        template='django_spire/auth/user/page/detail_page.html',
+    context_data['page_title'] = str(user)
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'Users', 'href': reverse('django_spire:auth:user:page:list')},
+        {'name': str(user), 'href': None},
+    ]
+    return TemplateResponse(
+        request, context=context_data, template='django_spire/auth/user/page/detail_page.html'
     )
 
 
@@ -60,9 +64,10 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         'inactive_user_list': paginated_inactive_user_list,
     }
 
-    return generic_views.list_view(
-        request,
-        context_data=context_data,
-        model=AuthUser,
-        template='django_spire/auth/user/page/list_page.html',
+    context_data['page_title'] = 'User'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'Users', 'href': None}]
+
+    return TemplateResponse(
+        request, context=context_data, template='django_spire/auth/user/page/list_page.html'
     )

@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
 import django_glue as dg
 
 from django_spire.contrib.form.tools import show_form_errors
-from django_spire.contrib import generic_views
+
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 
 from test_project.app.file import forms, models
@@ -16,7 +17,6 @@ from test_project.app.file import forms, models
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.http import HttpResponseRedirect
-    from django.template.response import TemplateResponse
 
 
 def create_view(request: WSGIRequest) -> TemplateResponse | HttpResponseRedirect:
@@ -43,13 +43,11 @@ def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpR
 
         show_form_errors(request, form)
 
-    context_data = {'file_example': file_example}
-
-    return generic_views.template_view(
-        request,
-        page_title='Update File Example' if pk else 'Create File Example',
-        page_description='',
-        breadcrumbs=file_example.breadcrumbs(),
-        context_data=context_data,
-        template='file/page/form_page.html',
-    )
+    context = {'file_example': file_example}
+    context['page_title'] = 'Update File Example' if pk else 'Create File Example'
+    context['page_description'] = ''
+    context['breadcrumbs'] = [
+        {'name': 'File Examples', 'href': reverse('file:page:list')},
+        {'name': 'Update' if pk else 'Create', 'href': None},
+    ]
+    return TemplateResponse(request, 'file/page/form_page.html', context=context)

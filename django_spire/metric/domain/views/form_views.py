@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
-from django_spire.contrib import generic_views
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
@@ -19,7 +20,6 @@ from django_spire.metric.domain import forms, models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.http import HttpResponseRedirect
 
 
 @permission_required('metric_domain.delete_domain')
@@ -27,33 +27,77 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
 
     form_action = reverse('metric:domain:form:delete_modal', kwargs={'pk': pk})
-
-    def add_activity() -> None:
-        domain.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a domain.',
-        )
-
     fallback = reverse('metric:domain:page:list')
     return_url = safe_redirect_url(request, fallback=fallback)
 
-    return modal_views.dispatch_modal_delete_form_content(
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=domain)
+
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                domain.add_activity(
+                    user=request.user,
+                    verb='deleted',
+                    information=f'{request.user.get_full_name()} deleted a domain.',
+                )
+                domain.set_deleted()
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=domain)
+
+    return TemplateResponse(
         request,
-        obj=domain,
-        form_action=form_action,
-        activity_func=add_activity,
-        return_url=return_url,
+        context={
+            'form': form,
+            'form_title': 'Delete Domain',
+            'form_description': f'Are you sure you would like to delete domain "{domain}"?',
+            'form_action': form_action,
+            'django_spire_navigation': {'page_title': 'Delete Domain'},
+        },
+        template='django_spire/page/delete_confirmation_form_page.html',
     )
 
 
 @permission_required('metric_domain.delete_domain')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
-
     return_url = request.GET.get('return_url', reverse('metric:domain:page:list'))
 
-    return generic_views.delete_form_view(request, obj=domain, return_url=return_url)
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=domain)
+
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                domain.set_deleted()
+                domain.add_activity(
+                    user=request.user,
+                    verb='deleted',
+                    information=f'{request.user.get_full_name()} deleted domain "{domain}".',
+                )
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=domain)
+
+    return TemplateResponse(
+        request,
+        context={
+            'request': request,
+            'form': form,
+            'form_title': f'Delete {domain}',
+            'form_description': f'Are you sure you would like to delete domain "{domain}"?',
+            'django_spire_navigation': {
+                'page_title': 'Delete Domain',
+                'breadcrumbs': [
+                    {'name': 'Domains', 'href': reverse('metric:domain:page:list')},
+                    {'name': str(domain), 'href': None},
+                    {'name': 'Delete', 'href': None},
+                ],
+            },
+        },
+        template='django_spire/page/delete_confirmation_form_page.html',
+    )
 
 
 @permission_required('metric_domain.add_domain')
@@ -71,7 +115,7 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'domain', domain)
 
-    context_data = {'domain': domain}
+    context_data = {'request': request, 'domain': domain}
 
     return TemplateResponse(
         request, context=context_data, template='metric/domain/modal/content/form.html'
@@ -91,7 +135,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
     domain = get_object_or_null_obj(models.Domain, pk=pk)
 
-    dg.glue_model_object(request, 'domain', domain, 'view')
+    Glue.model(request, 'domain', domain, 'view')
 
     if request.method == 'POST':
         form = forms.DomainForm(request.POST, instance=domain)
@@ -106,6 +150,13 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     else:
         form = forms.DomainForm(instance=domain)
 
-    return generic_views.form_view(
-        request, form=form, obj=domain, template='metric/domain/page/form_page.html'
-    )
+    context = {
+        'form': form,
+        'page_title': str(domain._meta.verbose_name.title()),
+        'page_description': 'Edit' if domain.pk else 'Create',
+        'breadcrumbs': [
+            {'name': 'Domains', 'href': reverse('metric:domain:page:list')},
+            {'name': 'Edit' if domain.pk else 'Create', 'href': None},
+        ],
+    }
+    return TemplateResponse(request, 'metric/domain/page/form_page.html', context)

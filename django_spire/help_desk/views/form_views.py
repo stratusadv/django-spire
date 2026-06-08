@@ -8,13 +8,14 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.tools import show_form_errors
-from django_spire.contrib import generic_views
+
 from django_spire.help_desk import forms
 from django_spire.help_desk.models import HelpDeskTicket
 
+from django.template.response import TemplateResponse
+
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @AppAuthController('help_desk').permission_required('can_add')
@@ -35,14 +36,20 @@ def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
     else:
         form = forms.HelpDeskTicketCreateForm(instance=ticket)
 
-    return generic_views.form_view(
-        request,
-        form=form,
-        template='django_spire/help_desk/page/ticket_form_page.html',
-        verb='Create',
-        obj=ticket,
-        context_data={'form_action_url': reverse('django_spire:help_desk:form:create')},
-    )
+    context = {
+        'request': request,
+        'form': form,
+        'form_title': f'Create {ticket._meta.verbose_name.title()}',
+        'form_description': '',
+        'page_title': ticket._meta.verbose_name.title(),
+        'page_description': 'Create',
+        'form_action_url': reverse('django_spire:help_desk:form:create'),
+        'breadcrumbs': [
+            {'name': 'Help Desk', 'href': reverse('django_spire:help_desk:page:list')},
+            {'name': 'Create', 'href': None},
+        ],
+    }
+    return TemplateResponse(request, 'django_spire/help_desk/page/ticket_form_page.html', context)
 
 
 @AppAuthController('help_desk').permission_required('can_change')
@@ -62,15 +69,24 @@ def ticket_update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = forms.HelpDeskTicketUpdateForm(instance=ticket)
 
-    return generic_views.model_form_view(
-        request=request,
-        obj=ticket,
-        template='django_spire/help_desk/page/ticket_form_page.html',
-        form=form,
-        context_data={
-            'ticket': ticket,
-            'form_action_url': (
-                reverse('django_spire:help_desk:form:update', kwargs={'pk': ticket.pk})
-            ),
-        },
-    )
+    context = {
+        'request': request,
+        'form': form,
+        'ticket': ticket,
+        'form_title': f'Edit {ticket._meta.verbose_name.title()} {ticket}',
+        'form_description': (
+            f'Are you sure you would like to edit {ticket._meta.verbose_name} "{ticket}"?'
+        ),
+        'page_title': ticket._meta.verbose_name.title(),
+        'page_description': 'Edit',
+        'form_action_url': reverse('django_spire:help_desk:form:update', kwargs={'pk': ticket.pk}),
+        'breadcrumbs': [
+            {'name': 'Help Desk', 'href': reverse('django_spire:help_desk:page:list')},
+            {
+                'name': str(ticket),
+                'href': reverse('django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk}),
+            },
+            {'name': 'Edit', 'href': None},
+        ],
+    }
+    return TemplateResponse(request, 'django_spire/help_desk/page/ticket_form_page.html', context)

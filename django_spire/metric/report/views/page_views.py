@@ -7,8 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib import Breadcrumbs, generic_views
-from django_spire.contrib.generic_views import page_views
+from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.utils import get_object_from_module_string
 from django_spire.metric.report.models import ReportRun
 from django_spire.metric.report.registry import ReportRegistry
@@ -109,11 +108,10 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
         context_data['top_ten_report_runs'] = top_ten_report_runs
 
-    return generic_views.template_view(
-        request,
-        page_title='Reports',
-        page_description='More Reporting Info',
-        breadcrumbs=breadcrumbs,
-        context_data=context_data,
-        template='django_spire/metric/report/page/report_page.html',
+    context_data['page_title'] = 'Reports'
+    context_data['page_description'] = 'More Reporting Info'
+    context_data['breadcrumbs'] = list(breadcrumbs)
+
+    return TemplateResponse(
+        request, 'django_spire/metric/report/page/report_page.html', context=context_data
     )

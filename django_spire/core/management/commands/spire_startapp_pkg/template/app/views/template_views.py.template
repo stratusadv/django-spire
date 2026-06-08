@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 
-from django_spire.contrib.generic_views import portal_views
+from django.template.response import TemplateResponse
 
 from ${module_path} import models
 from ${module_path}.constants import LIST_FILTERING_SESSION_KEY
@@ -12,7 +12,6 @@ from ${module_path}.forms import ${model_class_name}ListFilterForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @permission_required('${permission_prefix}.view_${model_instance_name}')
@@ -31,10 +30,22 @@ def ${list_items_view_name}(request: WSGIRequest) -> TemplateResponse:
         )
     )
 
-    return generic_views.infinite_scrolling_view(
+    batch_size = int(request.GET.get('batch_size', 10))
+    page = int(request.GET.get('page', 1))
+    total_count = ${context_plural_var}.count()
+    start = (page - 1) * batch_size
+    end = start + batch_size
+    items = list(${context_plural_var}[start:end])
+
+    context = {
+        '${context_plural_var}': items,
+        'has_next': total_count > end,
+        'total_count': total_count,
+        'batch_size': batch_size,
+    }
+
+    return TemplateResponse(
         request,
-        context_data={'batch_size': 10,},
-        queryset=${context_plural_var},
-        queryset_name='${context_plural_var}',
-        template='${template_directory_path}/table/${table_rows_template_name}.html'
+        context=context,
+        template='${template_directory_path}/table/${table_rows_template_name}.html',
     )

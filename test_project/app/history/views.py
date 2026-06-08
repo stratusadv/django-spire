@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-
-from django_spire.contrib import generic_views
+from django.urls import reverse
 
 from test_project.app.history import models
 
@@ -17,12 +16,14 @@ def history_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     history = get_object_or_404(models.HistoryExample, pk=pk)
 
     context_data = {'history': history}
-
-    return generic_views.detail_view(
-        request,
-        obj=history,
-        context_data=context_data,
-        template='history/page/history_detail_page.html',
+    context_data['page_title'] = str(history)
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'History Examples', 'href': reverse('history:page:list')},
+        {'name': str(history), 'href': None},
+    ]
+    return TemplateResponse(
+        request, context=context_data, template='history/page/history_detail_page.html'
     )
 
 
@@ -33,10 +34,10 @@ def history_home_view(request: WSGIRequest) -> TemplateResponse:
 
 def history_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {'history': models.HistoryExample.objects.all()}
+    context_data['page_title'] = 'History Example'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'History Examples', 'href': None}]
 
-    return generic_views.list_view(
-        request,
-        model=models.HistoryExample,
-        context_data=context_data,
-        template='history/page/history_list_page.html',
+    return TemplateResponse(
+        request, context=context_data, template='history/page/history_list_page.html'
     )

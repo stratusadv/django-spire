@@ -2,25 +2,54 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib import generic_views
+from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.knowledge.entry.models import Entry
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @AppAuthController('knowledge').permission_required('can_delete')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     entry = get_object_or_404(Entry, pk=pk)
+    return_url = request.GET.get('return_url', reverse('django_spire:knowledge:page:home'))
 
-    return generic_views.delete_form_view(
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=entry)
+
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                entry.services.processor.set_deleted()
+                entry.add_activity(
+                    user=request.user,
+                    verb='deleted',
+                    information=f'{request.user.get_full_name()} deleted entry "{entry}".',
+                )
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=entry)
+
+    return TemplateResponse(
         request,
-        obj=entry,
-        delete_func=entry.services.processor.set_deleted,
-        return_url=request.GET.get('return_url', reverse('django_spire:knowledge:page:home')),
+        context={
+            'form': form,
+            'form_title': f'Delete {entry}',
+            'form_description': f'Are you sure you would like to delete entry "{entry}"?',
+            'django_spire_navigation': {
+                'page_title': 'Delete Entry',
+                'breadcrumbs': [
+                    {'name': 'Knowledge', 'href': reverse('django_spire:knowledge:page:home')},
+                    {'name': str(entry), 'href': None},
+                    {'name': 'Delete', 'href': None},
+                ],
+            },
+        },
+        template='django_spire/page/delete_confirmation_form_page.html',
     )

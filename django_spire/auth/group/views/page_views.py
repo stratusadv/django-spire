@@ -4,15 +4,16 @@ from typing import TYPE_CHECKING
 
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.urls import reverse
 
 from django_spire.auth.group import models
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data
-from django_spire.contrib import generic_views
+
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @permission_required('django_spire_auth_group.view_authgroup')
@@ -36,11 +37,14 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         'inactive_user_list': paginated_inactive_user_list,
     }
 
-    return generic_views.detail_view(
-        request,
-        context_data=context_data,
-        obj=group,
-        template='django_spire/auth/group/page/detail_page.html',
+    context_data['page_title'] = str(group)
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'Groups', 'href': reverse('django_spire:auth:group:page:list')},
+        {'name': str(group), 'href': None},
+    ]
+    return TemplateResponse(
+        request, context=context_data, template='django_spire/auth/group/page/detail_page.html'
     )
 
 
@@ -53,9 +57,10 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         'group_list_permission_data': [generate_group_perm_data(group) for group in group_list],
     }
 
-    return generic_views.list_view(
-        request,
-        context_data=context_data,
-        model=models.AuthGroup,
-        template='django_spire/auth/group/page/list_page.html',
+    context_data['page_title'] = 'Group'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'Groups', 'href': None}]
+
+    return TemplateResponse(
+        request, context=context_data, template='django_spire/auth/group/page/list_page.html'
     )

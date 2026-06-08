@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 
-from django_spire.contrib import generic_views
-from django_spire.contrib.generic_views import modal_views
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
@@ -21,7 +21,47 @@ from django_spire.metric.visual import forms, models
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.http import HttpResponseRedirect
+
+
+@permission_required('metric_visual.delete_visual')
+def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    visual = get_object_or_404(models.Visual, pk=pk)
+    return_url = request.GET.get('return_url', reverse('metric:visual:page:list'))
+
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=visual)
+
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                visual.set_deleted()
+                visual.add_activity(
+                    user=request.user,
+                    verb='deleted',
+                    information=f'{request.user.get_full_name()} deleted visual "{visual}".',
+                )
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=visual)
+
+    return TemplateResponse(
+        request,
+        context={
+            'request': request,
+            'form': form,
+            'form_title': f'Delete {visual}',
+            'form_description': f'Are you sure you would like to delete visual "{visual}"?',
+            'django_spire_navigation': {
+                'page_title': 'Delete Visual',
+                'breadcrumbs': [
+                    {'name': 'Visuals', 'href': reverse('metric:visual:page:list')},
+                    {'name': str(visual), 'href': None},
+                    {'name': 'Delete', 'href': None},
+                ],
+            },
+        },
+        template='django_spire/page/delete_confirmation_form_page.html',
+    )
 
 
 @permission_required('metric_visual.delete_visual')
@@ -29,33 +69,37 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(models.Visual, pk=pk)
 
     form_action = reverse('metric:visual:form:delete_modal', kwargs={'pk': pk})
-
-    def add_activity() -> None:
-        visual.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a visual.',
-        )
-
     fallback = reverse('metric:visual:page:list')
     return_url = safe_redirect_url(request, fallback=fallback)
 
-    return modal_views.dispatch_modal_delete_form_content(
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=visual)
+
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                visual.add_activity(
+                    user=request.user,
+                    verb='deleted',
+                    information=f'{request.user.get_full_name()} deleted a visual.',
+                )
+                visual.set_deleted()
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=visual)
+
+    return TemplateResponse(
         request,
-        obj=visual,
-        form_action=form_action,
-        activity_func=add_activity,
-        return_url=return_url,
+        context={
+            'request': request,
+            'form': form,
+            'form_title': 'Delete Visual',
+            'form_description': f'Are you sure you would like to delete visual "{visual}"?',
+            'form_action': form_action,
+            'django_spire_navigation': {'page_title': 'Delete Visual'},
+        },
+        template='django_spire/page/delete_confirmation_form_page.html',
     )
-
-
-@permission_required('metric_visual.delete_visual')
-def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    visual = get_object_or_404(models.Visual, pk=pk)
-
-    return_url = request.GET.get('return_url', reverse('metric:visual:page:list'))
-
-    return generic_views.delete_form_view(request, obj=visual, return_url=return_url)
 
 
 @permission_required('metric_visual.add_visual')
@@ -73,7 +117,7 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'visual', visual)
 
-    context_data = {'visual': visual}
+    context_data = {'request': request, 'visual': visual}
 
     return TemplateResponse(
         request, context=context_data, template='metric/visual/modal/content/form.html'
@@ -108,6 +152,13 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     else:
         form = forms.VisualForm(instance=visual)
 
-    return generic_views.form_view(
-        request, form=form, obj=visual, template='metric/visual/page/form_page.html'
-    )
+    context = {
+        'form': form,
+        'page_title': str(visual._meta.verbose_name.title()),
+        'page_description': 'Edit' if visual.pk else 'Create',
+        'breadcrumbs': [
+            {'name': 'Visuals', 'href': reverse('metric:visual:page:list')},
+            {'name': 'Edit' if visual.pk else 'Create', 'href': None},
+        ],
+    }
+    return TemplateResponse(request, 'metric/visual/page/form_page.html', context)

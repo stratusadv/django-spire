@@ -5,11 +5,11 @@ from django_glue import Glue
 from typing import TYPE_CHECKING
 
 from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.auth.group.models import AuthGroup
-from django_spire.contrib import generic_views
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.knowledge.collection.models import Collection, CollectionGroup
@@ -17,7 +17,6 @@ from django_spire.knowledge.collection.forms import CollectionForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @AppAuthController('knowledge').permission_required('can_add')
@@ -69,13 +68,19 @@ def form_view(
     else:
         form = CollectionForm(instance=collection)
 
-    return generic_views.form_view(
+    return TemplateResponse(
         request,
-        form=form,
-        obj=collection,
-        context_data={
+        context={
+            'request': request,
+            'form': form,
             'collection': collection,
             'collection_parent_pk': parent_pk,
+            'page_title': 'Collection',
+            'page_description': 'Edit' if pk else 'Create',
+            'breadcrumbs': [
+                {'name': 'Collections', 'href': reverse('django_spire:knowledge:page:home')},
+                {'name': 'Edit' if pk else 'Create', 'href': None},
+            ],
             'group_ids': list(collection.groups.all().values_list('auth_group_id', flat=True))
             if collection.id
             else [],

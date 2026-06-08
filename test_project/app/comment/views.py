@@ -5,8 +5,6 @@ from typing import TYPE_CHECKING
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
-from django_spire.contrib import generic_views
-
 from test_project.app.comment import models
 
 if TYPE_CHECKING:
@@ -18,11 +16,15 @@ def comment_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     context_data = {'comment_example': comment}
 
-    return generic_views.detail_view(
-        request,
-        obj=comment,
-        context_data=context_data,
-        template='comment/page/comment_detail_page.html',
+    context_data['page_title'] = str(comment)
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'Comment Examples', 'href': None},
+        {'name': str(comment), 'href': None},
+    ]
+
+    return TemplateResponse(
+        request, context=context_data, template='comment/page/comment_detail_page.html'
     )
 
 
@@ -33,12 +35,12 @@ def comment_home_view(request: WSGIRequest) -> TemplateResponse:
 
 def comment_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {'comment_examples': models.CommentExample.objects.all()}
+    context_data['page_title'] = 'Comment Example'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'Comment Examples', 'href': None}]
 
-    return generic_views.list_view(
-        request,
-        model=models.CommentExample,
-        context_data=context_data,
-        template='comment/page/comment_list_page.html',
+    return TemplateResponse(
+        request, context=context_data, template='comment/page/comment_list_page.html'
     )
 
 

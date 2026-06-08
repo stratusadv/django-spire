@@ -6,8 +6,7 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from django_spire.contrib import generic_views
-from django_spire.contrib.generic_views import page_views
+from django.template.response import TemplateResponse
 from django_spire.core.table.enums import ResponsiveMode
 from django_spire.contrib.session.controller import SessionController
 
@@ -18,6 +17,7 @@ from django_spire.metric.visual.constants import LIST_FILTERING_SESSION_KEY
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+else:
     from django.template.response import TemplateResponse
 
 
@@ -26,12 +26,14 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(models.Visual, pk=pk)
 
     context_data = {'visual': visual}
-
-    return generic_views.detail_view(
-        request,
-        obj=visual,
-        context_data=context_data,
-        template='metric/visual/page/detail_page.html',
+    context_data['page_title'] = str(visual)
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'Visuals', 'href': reverse('metric:visual:page:list')},
+        {'name': str(visual), 'href': None},
+    ]
+    return TemplateResponse(
+        request, context=context_data, template='metric/visual/page/detail_page.html'
     )
 
 
@@ -47,9 +49,10 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
     }
 
-    return generic_views.list_view(
-        request,
-        model=models.Visual,
-        context_data=context_data,
-        template='metric/visual/page/list_page.html',
+    context_data['page_title'] = 'Visual'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'Visuals', 'href': None}]
+
+    return TemplateResponse(
+        request, context=context_data, template='metric/visual/page/list_page.html'
     )

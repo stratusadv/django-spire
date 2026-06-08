@@ -5,18 +5,15 @@ import json
 from typing import TYPE_CHECKING
 
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib import generic_views
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
-
-    from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 
 
 @AppAuthController('knowledge').permission_required('can_view')
@@ -27,25 +24,25 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     top_level_collection = entry.top_level_collection
     version_blocks = entry_version.blocks.format_for_editor()
 
-    def breadcrumbs_func(breadcrumbs: Breadcrumbs):
-        breadcrumbs.add_breadcrumb(
-            name='Knowledge', href=reverse('django_spire:knowledge:page:home')
-        )
+    context_data = {
+        'entry': entry,
+        'current_version': entry_version,
+        'collection': top_level_collection,
+        'version_blocks': json.dumps(list(version_blocks)),
+        'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
+            request=request, parent_id=top_level_collection.id
+        ),
+    }
 
-        breadcrumbs.add_base_breadcrumb(entry)
+    context_data['page_title'] = str(entry)
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'Knowledge', 'href': reverse('django_spire:knowledge:page:home')},
+        {'name': str(entry), 'href': None},
+    ]
 
-    return generic_views.detail_view(
+    return TemplateResponse(
         request,
-        obj=entry,
-        breadcrumbs_func=breadcrumbs_func,
-        context_data={
-            'entry': entry,
-            'current_version': entry_version,
-            'collection': top_level_collection,
-            'version_blocks': json.dumps(list(version_blocks)),
-            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-                request=request, parent_id=top_level_collection.id
-            ),
-        },
+        context=context_data,
         template='django_spire/knowledge/entry/version/page/editor_page.html',
     )

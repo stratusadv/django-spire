@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_glue import Glue
@@ -11,12 +12,10 @@ from django_spire.api import forms
 from django_spire.api.models import ApiAccess
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.tools import show_form_errors
-from django_spire.contrib import generic_views
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @AppAuthController('api').permission_required('can_add')
@@ -35,12 +34,15 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
 
             api_access.set_key_and_save(raw_key)
 
-            return generic_views.template_view(
-                request,
-                page_title='API Access Created',
-                page_description='Your API access has been created.',
-                template='django_spire/api/page/access_created_page.html',
-                context_data={'api_access': api_access, 'raw_key': raw_key},
+            context = {'request': request, 'api_access': api_access, 'raw_key': raw_key}
+            context['page_title'] = 'API Access Created'
+            context['page_description'] = 'Your API access has been created.'
+            context['breadcrumbs'] = [
+                {'name': 'API Access', 'href': reverse('django_spire:api:page:list')},
+                {'name': 'Created', 'href': None},
+            ]
+            return TemplateResponse(
+                request, 'django_spire/api/page/access_created_page.html', context=context
             )
 
         show_form_errors(request, form)
@@ -48,11 +50,15 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
     else:
         form = forms.ApiAccessCreateForm(instance=api_access)
 
-    return generic_views.form_view(
-        request,
-        form=form,
-        verb='Create',
-        obj=api_access,
-        template='django_spire/api/page/access_form_page.html',
-        context_data={'form_action_url': reverse('django_spire:api:form:create')},
-    )
+    context = {
+        'request': request,
+        'form': form,
+        'page_title': api_access._meta.verbose_name.title(),
+        'page_description': 'Create',
+        'form_action_url': reverse('django_spire:api:form:create'),
+        'breadcrumbs': [
+            {'name': 'API Access', 'href': reverse('django_spire:api:page:list')},
+            {'name': 'Create', 'href': None},
+        ],
+    }
+    return TemplateResponse(request, 'django_spire/api/page/access_form_page.html', context)

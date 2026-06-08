@@ -4,20 +4,18 @@ import json
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib import generic_views
-from django_spire.contrib.generic_views import page_views
 from django_spire.contrib.session.controller import SessionController
 from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSION_KEY_NAME
 from django_spire.notification.app.forms import NotificationListFilterForm
 
 from django_spire.notification.app.models import AppNotification
-from django_spire.notification.choices import NotificationStatusChoices, NotificationPriorityChoices
+from django_spire.notification.choices import NotificationPriorityChoices
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @login_required()
@@ -35,13 +33,12 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         )
     )
 
-    return generic_views.list_view(
-        request,
-        context_data={
-            'notification_endpoint': reverse('django_spire:notification:app:template:scroll_items'),
-            'filter_session': SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME),
-            'priority_choices': json.dumps(NotificationPriorityChoices.choices[::-1]),
-        },
-        model=AppNotification,
-        template='django_spire/page/page.html',
-    )
+    context_data = {
+        'notification_endpoint': reverse('django_spire:notification:app:template:scroll_items'),
+        'filter_session': SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME),
+        'priority_choices': json.dumps(NotificationPriorityChoices.choices[::-1]),
+        'page_title': 'Notification',
+        'page_description': 'List View',
+        'breadcrumbs': [{'name': 'Notifications', 'href': None}],
+    }
+    return TemplateResponse(request, context=context_data, template='django_spire/page/page.html')

@@ -5,8 +5,7 @@ from typing_extensions import TYPE_CHECKING
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-
-from django_spire.contrib import generic_views
+from django.urls import reverse
 
 from test_project.app.sync import models
 from test_project.app.sync.config import (
@@ -119,8 +118,14 @@ def detail_page_view(request: WSGIRequest, model: str, pk: int) -> TemplateRespo
     elif model == 'surveyplan':
         context['stakes'] = list(instance.stakes.all())
 
-    return generic_views.detail_view(
-        request, obj=instance, context_data=context, template=f'sync/page/{model}_detail_page.html'
+    context['page_title'] = str(instance)
+    context['page_description'] = 'Detail View'
+    context['breadcrumbs'] = [
+        {'name': model.title(), 'href': reverse('sync:page:list', kwargs={'model': model})},
+        {'name': str(instance), 'href': None},
+    ]
+    return TemplateResponse(
+        request, context=context, template=f'sync/page/{model}_detail_page.html'
     )
 
 

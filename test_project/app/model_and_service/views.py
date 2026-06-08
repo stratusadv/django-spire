@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
-
-from django_spire.contrib import generic_views
+from django.urls import reverse
 
 from test_project.app.model_and_service.factories import generate_test_model
 
@@ -25,12 +24,14 @@ def test_model_detail_view(request: WSGIRequest) -> TemplateResponse:
     test_model.add_activity(user=user, verb='created', information=f'{request.user} added a model.')
 
     context_data = {'fields': fields}
-
-    return generic_views.detail_view(
-        request,
-        obj=test_model,
-        context_data=context_data,
-        template='test_model/page/test_model_detail_page.html',
+    context_data['page_title'] = 'Test Model'
+    context_data['page_description'] = 'Detail View'
+    context_data['breadcrumbs'] = [
+        {'name': 'Test Models', 'href': reverse('test_model:page:list')},
+        {'name': 'Test Model', 'href': None},
+    ]
+    return TemplateResponse(
+        request, context=context_data, template='test_model/page/test_model_detail_page.html'
     )
 
 
@@ -41,10 +42,10 @@ def test_model_home_view(request: WSGIRequest) -> TemplateResponse:
 
 def test_model_list_view(request: WSGIRequest) -> TemplateResponse:
     context_data = {'test_models': []}
+    context_data['page_title'] = 'Test Model'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'Test Models', 'href': None}]
 
-    return generic_views.list_view(
-        request,
-        model=generate_test_model,
-        context_data=context_data,
-        template='test_model/page/test_model_list_page.html',
+    return TemplateResponse(
+        request, context=context_data, template='test_model/page/test_model_list_page.html'
     )

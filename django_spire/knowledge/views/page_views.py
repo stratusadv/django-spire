@@ -2,28 +2,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.template.response import TemplateResponse
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib import generic_views
 from django_spire.knowledge.collection.models import Collection
 
 if TYPE_CHECKING:
-    from django.template.response import TemplateResponse
     from django.core.handlers.wsgi import WSGIRequest
-
-    from django_spire.contrib.breadcrumb import Breadcrumbs
 
 
 @AppAuthController('knowledge').permission_required('can_view')
 def home_view(request: WSGIRequest) -> TemplateResponse:
-    def breadcrumbs_func(breadcrumbs: Breadcrumbs):
-        breadcrumbs.add_breadcrumb(name='Knowledge')
+    context_data = {
+        'collections': Collection.objects.active().parentless().request_user_has_access(request)
+    }
+    context_data['page_title'] = 'Collection'
+    context_data['page_description'] = 'List View'
+    context_data['breadcrumbs'] = [{'name': 'Knowledge', 'href': None}]
 
-    return generic_views.list_view(
-        request,
-        model=Collection,
-        breadcrumbs_func=breadcrumbs_func,
-        context_data={
-            'collections': Collection.objects.active().parentless().request_user_has_access(request)
-        },
-        template='django_spire/knowledge/page/home_page.html',
+    return TemplateResponse(
+        request, context=context_data, template='django_spire/knowledge/page/home_page.html'
     )

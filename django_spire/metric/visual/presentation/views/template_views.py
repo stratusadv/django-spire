@@ -1,22 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from django.contrib.auth.decorators import permission_required
-
-from django_spire.contrib import generic_views
+from django.template.response import TemplateResponse
 
 from django_spire.metric.visual.presentation import models
 from django_spire.metric.visual.presentation.constants import LIST_FILTERING_SESSION_KEY
 from django_spire.metric.visual.presentation.forms import PresentationListFilterForm
 
-if TYPE_CHECKING:
-    from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
-
 
 @permission_required('visual_presentation.view_presentation')
-def items_view(request: WSGIRequest) -> TemplateResponse:
+def items_view(request) -> TemplateResponse:  # noqa: ANN001
     sort_field = request.GET.get('sort', 'name')
     sort_direction = request.GET.get('direction', 'asc')
 
@@ -26,10 +19,16 @@ def items_view(request: WSGIRequest) -> TemplateResponse:
         form_class=PresentationListFilterForm,
     ).order_by(f'{"-" if sort_direction == "desc" else ""}{sort_field}')
 
-    return generic_views.infinite_scrolling_view(
-        request,
-        context_data={'batch_size': 10},
-        queryset=presentations,
-        queryset_name='presentations',
-        template='metric/visual/presentation/table/rows.html',
-    )
+    batch_size = int(request.GET.get('batch_size', 10))
+    page = int(request.GET.get('page', 1))
+    total_count = presentations.count()
+    start = (page - 1) * batch_size
+    end = start + batch_size
+    items = list(presentations[start:end])
+    context = {
+        'presentations': items,
+        'has_next': total_count > end,
+        'total_count': total_count,
+        'batch_size': batch_size,
+    }
+    return TemplateResponse(request, 'metric/visual/presentation/table/rows.html', context=context)

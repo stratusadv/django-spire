@@ -4,9 +4,8 @@ from typing import TYPE_CHECKING
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 from django.urls import reverse
-
-from django_glue import Glue
 
 from django_spire.auth.group import models, forms
 from django_spire.auth.group.utils import set_group_users
@@ -15,14 +14,10 @@ from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-from django_spire.contrib import generic_views
 from django_spire.history.activity.utils import add_form_activity
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
-
-    from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 
 
 @permission_required('django_spire_auth_group.change_authgroup')
@@ -43,14 +38,20 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpRespo
 
     form = forms.GroupForm(instance=group)
 
-    context_data = {'group': group}
-
-    return generic_views.model_form_view(
+    return TemplateResponse(
         request,
-        form=form,
-        context_data=context_data,
+        context={
+            'request': request,
+            'form': form,
+            'group': group,
+            'page_title': str(group._meta.verbose_name.title()),
+            'page_description': 'Edit' if group.pk else 'Create',
+            'breadcrumbs': [
+                {'name': 'Groups', 'href': reverse('django_spire:auth:group:page:list')},
+                {'name': 'Edit' if group.pk else 'Create', 'href': None},
+            ],
+        },
         template='django_spire/auth/group/page/form_page.html',
-        obj=group,
     )
 
 
@@ -86,22 +87,26 @@ def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResp
 
     form = forms.GroupUserForm()
 
-    def crumbs(breadcrumbs: Breadcrumbs) -> None:
-        breadcrumbs.add_breadcrumb(name='Edit Users')
-
-    context_data = {
-        'group': group,
-        'user_choices': user_choices,
-        'selected_user_ids': selected_user_ids,
-    }
-
-    return generic_views.form_view(
+    return TemplateResponse(
         request,
-        form=form,
-        obj=group,
+        context={
+            'request': request,
+            'form': form,
+            'group': group,
+            'user_choices': user_choices,
+            'selected_user_ids': selected_user_ids,
+            'page_title': 'Group',
+            'page_description': 'Edit Users',
+            'breadcrumbs': [
+                {'name': 'Groups', 'href': reverse('django_spire:auth:group:page:list')},
+                {
+                    'name': str(group),
+                    'href': reverse('django_spire:auth:group:page:detail', kwargs={'pk': group.pk}),
+                },
+                {'name': 'Edit Users', 'href': None},
+            ],
+        },
         template='django_spire/auth/group/page/group_user_form_page.html',
-        context_data=context_data,
-        breadcrumbs_func=crumbs,
     )
 
 
@@ -110,12 +115,32 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.AuthGroup, pk=pk)
     return_url = reverse('django_spire:auth:group:page:list')
 
-    return generic_views.delete_form_view(
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=group)
+
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                group.delete()
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=group)
+
+    return TemplateResponse(
         request,
-        obj=group,
-        delete_func=group.delete,
-        activity_func=lambda: None,
-        return_url=return_url,
+        context={
+            'request': request,
+            'form': form,
+            'form_title': f'Delete {group}',
+            'form_description': f'Are you sure you would like to delete group "{group}"?',
+            'page_title': 'Delete Group',
+            'breadcrumbs': [
+                {'name': 'Groups', 'href': reverse('django_spire:auth:group:page:list')},
+                {'name': str(group), 'href': None},
+                {'name': 'Delete', 'href': None},
+            ],
+        },
+        template='django_spire/page/delete_confirmation_form_page.html',
     )
 
 
@@ -147,16 +172,19 @@ def group_remove_user_form_view(
 
     form = DeleteConfirmationForm(request.GET, obj=user)
 
-    def get_breadcrumbs(breadcrumbs: Breadcrumbs) -> None:
-        breadcrumbs = group.breadcrumbs()
-        breadcrumbs.add_breadcrumb(name=user.get_full_name())
-        breadcrumbs.add_breadcrumb(name='Remove')
-
-    return generic_views.form_view(
+    return TemplateResponse(
         request,
-        form=form,
-        verb=f'remove {user.get_full_name()} from',
-        obj=group,
-        breadcrumbs_func=get_breadcrumbs,
+        context={
+            'request': request,
+            'form': form,
+            'page_title': 'Group',
+            'page_description': f'Remove {user.get_full_name()} from',
+            'breadcrumbs': [
+                {'name': 'Groups', 'href': reverse('django_spire:auth:group:page:list')},
+                {'name': str(group), 'href': None},
+                {'name': user.get_full_name(), 'href': None},
+                {'name': 'Remove', 'href': None},
+            ],
+        },
         template='django_spire/page/delete_confirmation_form_page.html',
     )

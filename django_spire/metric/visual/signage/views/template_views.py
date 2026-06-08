@@ -3,9 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
-
-from django_spire.contrib import generic_views
-from django_spire.contrib.generic_views import page_views
+from django.template.response import TemplateResponse
 
 from django_spire.metric.visual.signage import models
 from django_spire.metric.visual.signage.constants import LIST_FILTERING_SESSION_KEY
@@ -13,7 +11,6 @@ from django_spire.metric.visual.signage.forms import SignageListFilterForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @permission_required('visual_signage.view_signage')
@@ -25,10 +22,16 @@ def items_view(request: WSGIRequest) -> TemplateResponse:
         request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=SignageListFilterForm
     ).order_by(f'{"-" if sort_direction == "desc" else ""}{sort_field}')
 
-    return generic_views.infinite_scrolling_view(
-        request,
-        context_data={'batch_size': 10},
-        queryset=signages,
-        queryset_name='signages',
-        template='metric/visual/signage/table/rows.html',
-    )
+    batch_size = int(request.GET.get('batch_size', 10))
+    page = int(request.GET.get('page', 1))
+    total_count = signages.count()
+    start = (page - 1) * batch_size
+    end = start + batch_size
+    items = list(signages[start:end])
+    context = {
+        'signages': items,
+        'has_next': total_count > end,
+        'total_count': total_count,
+        'batch_size': batch_size,
+    }
+    return TemplateResponse(request, 'metric/visual/signage/table/rows.html', context=context)
