@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.api.models import ApiAccess
+from django_spire.api.navigation import ApiNavigation
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 
@@ -17,15 +18,13 @@ if TYPE_CHECKING:
 
 @AppAuthController('api').permission_required('can_view')
 def access_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {'api_accesses': ApiAccess.objects.active()}
-
-    context_data['page_title'] = 'Api Access'
-    context_data['page_description'] = 'List View'
-    context_data['breadcrumbs'] = [{'name': 'API Access', 'href': None}]
-
-    return TemplateResponse(
-        request, context=context_data, template='django_spire/api/page/access_list_page.html'
-    )
+    nav = ApiNavigation()
+    nav.page_title = 'Api Access'
+    nav.page_description = 'List View'
+    nav.breadcrumbs.add_breadcrumb('API Access', None)
+    context = nav.as_context()
+    context['api_accesses'] = ApiAccess.objects.active()
+    return TemplateResponse(request, 'django_spire/api/page/access_list_page.html', context=context)
 
 
 @AppAuthController('api').permission_required('can_delete')
@@ -51,21 +50,17 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
     else:
         form = DeleteConfirmationForm(obj=api_access)
 
+    nav = ApiNavigation()
+    nav.page_title = 'Delete API Access'
+    nav.breadcrumbs.add_breadcrumb('API Access', reverse('django_spire:api:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(api_access), None)
+    nav.breadcrumbs.add_breadcrumb('Delete', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {api_access}'
+    context['form_description'] = (
+        f'Are you sure you would like to delete API access "{api_access}"?'
+    )
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'form_title': f'Delete {api_access}',
-            'form_description': f'Are you sure you would like to delete API access "{api_access}"?',
-            'django_spire_navigation': {
-                'page_title': 'Delete API Access',
-                'breadcrumbs': [
-                    {'name': 'API Access', 'href': reverse('django_spire:api:page:list')},
-                    {'name': str(api_access), 'href': None},
-                    {'name': 'Delete', 'href': None},
-                ],
-            },
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context=context
     )

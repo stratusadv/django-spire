@@ -103,7 +103,12 @@ def form_content_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     Glue.model(request, unique_name, duck)
 
-    context_data = {'request': request, 'duck': duck, 'action_url': action_url, 'unique_name': unique_name}
+    context_data = {
+        'request': request,
+        'duck': duck,
+        'action_url': action_url,
+        'unique_name': unique_name,
+    }
 
     return TemplateResponse(
         request, context=context_data, template='ordering/modal/content/form_modal_content.html'

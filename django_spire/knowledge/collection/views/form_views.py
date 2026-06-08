@@ -14,6 +14,7 @@ from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.knowledge.collection.models import Collection, CollectionGroup
 from django_spire.knowledge.collection.forms import CollectionForm
+from django_spire.knowledge.collection.navigation import CollectionNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -68,22 +69,20 @@ def form_view(
     else:
         form = CollectionForm(instance=collection)
 
+    nav = CollectionNavigation()
+    nav.page_title = 'Collection'
+    nav.page_description = 'Edit' if pk else 'Create'
+    nav.breadcrumbs.add_breadcrumb('Collections', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add_breadcrumb('Edit' if pk else 'Create')
+    context = nav.as_context()
+    context['form'] = form
+    context['collection'] = collection
+    context['collection_parent_pk'] = parent_pk
+    context['group_ids'] = (
+        list(collection.groups.all().values_list('auth_group_id', flat=True))
+        if collection.id
+        else []
+    )
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'collection': collection,
-            'collection_parent_pk': parent_pk,
-            'page_title': 'Collection',
-            'page_description': 'Edit' if pk else 'Create',
-            'breadcrumbs': [
-                {'name': 'Collections', 'href': reverse('django_spire:knowledge:page:home')},
-                {'name': 'Edit' if pk else 'Create', 'href': None},
-            ],
-            'group_ids': list(collection.groups.all().values_list('auth_group_id', flat=True))
-            if collection.id
-            else [],
-        },
-        template='django_spire/knowledge/collection/page/form_page.html',
+        request, context=context, template='django_spire/knowledge/collection/page/form_page.html'
     )

@@ -13,6 +13,7 @@ from django_spire.contrib.session.controller import SessionController
 from django_spire.metric.domain import models
 from django_spire.metric.domain.forms import DomainListFilterForm
 from django_spire.metric.domain.constants import LIST_FILTERING_SESSION_KEY
+from django_spire.metric.domain.navigation import DomainNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -24,15 +25,15 @@ from django.template.response import TemplateResponse
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
 
-    context_data = {'domain': domain}
-    context_data['page_title'] = str(domain)
-    context_data['page_description'] = 'Detail View'
-    context_data['breadcrumbs'] = [
-        {'name': 'Domains', 'href': reverse('metric:domain:page:list')},
-        {'name': str(domain), 'href': None},
-    ]
+    nav = DomainNavigation()
+    nav.page_title = str(domain)
+    nav.breadcrumbs.add_breadcrumb('Domains', reverse('metric:domain:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(domain), None)
+    context = nav.as_context()
+    context['domain'] = domain
+
     return TemplateResponse(
-        request, context=context_data, template='metric/domain/page/detail_page.html'
+        request, context=context, template='metric/domain/page/detail_page.html'
     )
 
 
@@ -42,15 +43,12 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=DomainListFilterForm
     )
 
-    context_data = {
-        'responsive_mode': ResponsiveMode.SCROLL,
-        'domain_items_endpoint': reverse('metric:domain:template:items'),
-        'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
-        'page_title': 'Domain',
-        'page_description': 'List View',
-        'breadcrumbs': [{'name': 'Domains', 'href': None}],
-    }
+    nav = DomainNavigation()
+    nav.page_title = 'Domains'
+    nav.breadcrumbs.add_breadcrumb('Domains', None)
+    context = nav.as_context()
+    context['responsive_mode'] = ResponsiveMode.SCROLL
+    context['domain_items_endpoint'] = reverse('metric:domain:template:items')
+    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
 
-    return TemplateResponse(
-        request, context=context_data, template='metric/domain/page/list_page.html'
-    )
+    return TemplateResponse(request, context=context, template='metric/domain/page/list_page.html')

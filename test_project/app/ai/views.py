@@ -7,6 +7,8 @@ from django.template.response import TemplateResponse
 
 from django_spire.ai.decorators import log_ai_interaction_from_recorder
 
+from test_project.app.ai.navigation import AiNavigation
+
 if TYPE_CHECKING:
     from typing import Any
 
@@ -50,8 +52,10 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
         else:
             horse_intel = generate_horse_intel(request.POST['legal_user_input'])
 
-    return TemplateResponse(
-        request,
-        template,
-        context={'horse_intel': horse_intel.model_dump() if horse_intel else None},
-    )
+    nav = AiNavigation()
+    nav.page_title = 'AI'
+    nav.breadcrumbs.add_breadcrumb('AI')
+
+    context = nav.as_context()
+    context['horse_intel'] = horse_intel.model_dump() if horse_intel else None
+    return TemplateResponse(request, template, context=context)

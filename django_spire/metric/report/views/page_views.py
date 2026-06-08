@@ -9,6 +9,7 @@ from django.urls import reverse
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.utils import get_object_from_module_string
+from django_spire.metric.domain.navigation import DomainNavigation
 from django_spire.metric.report.models import ReportRun
 from django_spire.metric.report.registry import ReportRegistry
 
@@ -30,7 +31,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
         page_report_registry.add_registry(report_registry_class())
 
-    context_data = dict()
+    context_data = {}
 
     context_data['registry'] = page_report_registry
 
@@ -108,10 +109,14 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
         context_data['top_ten_report_runs'] = top_ten_report_runs
 
-    context_data['page_title'] = 'Reports'
-    context_data['page_description'] = 'More Reporting Info'
-    context_data['breadcrumbs'] = list(breadcrumbs)
+    nav = DomainNavigation()
+    nav.page_title = 'Reports'
+    nav.page_description = 'More Reporting Info'
+    for crumb in breadcrumbs:
+        nav.breadcrumbs.add_breadcrumb(crumb.get('name', ''), crumb.get('href'))
+    context = nav.as_context()
+    context.update(context_data)
 
     return TemplateResponse(
-        request, 'django_spire/metric/report/page/report_page.html', context=context_data
+        request, 'django_spire/metric/report/page/report_page.html', context=context
     )

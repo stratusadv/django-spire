@@ -14,6 +14,7 @@ from django.urls import reverse
 from django_spire.auth.group.utils import has_app_permission_or_404
 from django_spire.comment import models
 from django_spire.comment.forms import CommentForm
+from django_spire.comment.navigation import CommentNavigation
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj, model_object_from_app_label
@@ -35,17 +36,14 @@ def comment_modal_form_content(
 
     Glue.model(request, 'comment', comment)
 
-    context_data = {
-        'request': request,
-        'app_label': app_label,
-        'model_name': model_name,
-        'comment': comment,
-        'obj_pk': obj_pk,
-    }
-
-    return TemplateResponse(
-        request, context=context_data, template='django_spire/comment/form/comment_form.html'
-    )
+    nav = CommentNavigation()
+    nav.page_title = 'Add Comment'
+    context = nav.as_context()
+    context['app_label'] = app_label
+    context['model_name'] = model_name
+    context['comment'] = comment
+    context['obj_pk'] = obj_pk
+    return TemplateResponse(request, 'django_spire/comment/form/comment_form.html', context=context)
 
 
 @login_required()
@@ -68,7 +66,6 @@ def comment_form_view(
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
-            # TODO: Create comment factory.
             if comment_pk == 0:
                 obj.add_comment(user=request.user, information=form.cleaned_data['information'])
             else:
@@ -111,12 +108,3 @@ def comment_modal_delete_form_view(
             verb='deleted',
             information=f'{request.user.get_full_name()} deleted a comment on "{obj}".',
         )
-
-    # return dispatch_modal_delete_form_content(
-    #     request,
-    #     obj=comment,
-    #     form_action=form_action,
-    #     activity_func=add_activity,
-    #     return_url=return_url,
-    #     show_success_message=True,
-    # )

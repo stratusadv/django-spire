@@ -10,6 +10,7 @@ from django_glue import Glue
 
 from django_spire.api import forms
 from django_spire.api.models import ApiAccess
+from django_spire.api.navigation import ApiNavigation
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
@@ -34,13 +35,14 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
 
             api_access.set_key_and_save(raw_key)
 
-            context = {'request': request, 'api_access': api_access, 'raw_key': raw_key}
-            context['page_title'] = 'API Access Created'
-            context['page_description'] = 'Your API access has been created.'
-            context['breadcrumbs'] = [
-                {'name': 'API Access', 'href': reverse('django_spire:api:page:list')},
-                {'name': 'Created', 'href': None},
-            ]
+            nav = ApiNavigation()
+            nav.page_title = 'API Access Created'
+            nav.page_description = 'Your API access has been created.'
+            nav.breadcrumbs.add_breadcrumb('API Access', reverse('django_spire:api:page:list'))
+            nav.breadcrumbs.add_breadcrumb('Created', None)
+            context = nav.as_context()
+            context['api_access'] = api_access
+            context['raw_key'] = raw_key
             return TemplateResponse(
                 request, 'django_spire/api/page/access_created_page.html', context=context
             )
@@ -50,15 +52,14 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
     else:
         form = forms.ApiAccessCreateForm(instance=api_access)
 
-    context = {
-        'request': request,
-        'form': form,
-        'page_title': api_access._meta.verbose_name.title(),
-        'page_description': 'Create',
-        'form_action_url': reverse('django_spire:api:form:create'),
-        'breadcrumbs': [
-            {'name': 'API Access', 'href': reverse('django_spire:api:page:list')},
-            {'name': 'Create', 'href': None},
-        ],
-    }
-    return TemplateResponse(request, 'django_spire/api/page/access_form_page.html', context)
+    nav = ApiNavigation()
+    nav.page_title = api_access._meta.verbose_name.title()
+    nav.page_description = 'Create'
+    nav.breadcrumbs.add_breadcrumb('API Access', reverse('django_spire:api:page:list'))
+    nav.breadcrumbs.add_breadcrumb('Create', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Create {api_access._meta.verbose_name.title()}'
+    context['form_description'] = ''
+    context['form_action_url'] = reverse('django_spire:api:form:create')
+    return TemplateResponse(request, 'django_spire/api/page/access_form_page.html', context=context)

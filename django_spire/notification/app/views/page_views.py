@@ -10,8 +10,8 @@ from django.urls import reverse
 from django_spire.contrib.session.controller import SessionController
 from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSION_KEY_NAME
 from django_spire.notification.app.forms import NotificationListFilterForm
-
 from django_spire.notification.app.models import AppNotification
+from django_spire.notification.app.navigation import AppNotificationNavigation
 from django_spire.notification.choices import NotificationPriorityChoices
 
 if TYPE_CHECKING:
@@ -33,12 +33,14 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
         )
     )
 
-    context_data = {
-        'notification_endpoint': reverse('django_spire:notification:app:template:scroll_items'),
-        'filter_session': SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME),
-        'priority_choices': json.dumps(NotificationPriorityChoices.choices[::-1]),
-        'page_title': 'Notification',
-        'page_description': 'List View',
-        'breadcrumbs': [{'name': 'Notifications', 'href': None}],
-    }
-    return TemplateResponse(request, context=context_data, template='django_spire/page/page.html')
+    nav = AppNotificationNavigation()
+    nav.page_title = 'Notification'
+    nav.page_description = 'List View'
+    nav.breadcrumbs.add_breadcrumb('Notifications')
+    context = nav.as_context()
+    context['notification_endpoint'] = reverse(
+        'django_spire:notification:app:template:scroll_items'
+    )
+    context['filter_session'] = SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME)
+    context['priority_choices'] = json.dumps(NotificationPriorityChoices.choices[::-1])
+    return TemplateResponse(request, context=context, template='django_spire/page/page.html')

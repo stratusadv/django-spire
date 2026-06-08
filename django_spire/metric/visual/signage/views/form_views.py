@@ -18,6 +18,7 @@ from django_spire.history.activity.utils import add_form_activity
 from django_glue import Glue
 
 from django_spire.metric.visual.signage import forms, models
+from django_spire.metric.visual.signage.navigation import SignageNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -47,16 +48,16 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=signage)
 
+    nav = SignageNavigation()
+    nav.page_title = 'Delete Signage'
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = 'Delete Signage'
+    context['form_description'] = f'Are you sure you would like to delete signage "{signage}"?'
+    context['form_action'] = form_action
+
     return TemplateResponse(
-        request,
-        context={
-            'form': form,
-            'form_title': 'Delete Signage',
-            'form_description': f'Are you sure you would like to delete signage "{signage}"?',
-            'form_action': form_action,
-            'django_spire_navigation': {'page_title': 'Delete Signage'},
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -81,23 +82,18 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=signage)
 
+    nav = SignageNavigation()
+    nav.page_title = 'Delete Signage'
+    nav.breadcrumbs.add_breadcrumb('Signage', reverse('metric:visual:signage:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(signage), None)
+    nav.breadcrumbs.add_breadcrumb('Delete', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {signage}'
+    context['form_description'] = f'Are you sure you would like to delete signage "{signage}"?'
+
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'form_title': f'Delete {signage}',
-            'form_description': f'Are you sure you would like to delete signage "{signage}"?',
-            'django_spire_navigation': {
-                'page_title': 'Delete Signage',
-                'breadcrumbs': [
-                    {'name': 'Signage', 'href': reverse('metric:visual:signage:page:list')},
-                    {'name': str(signage), 'href': None},
-                    {'name': 'Delete', 'href': None},
-                ],
-            },
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -116,7 +112,7 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'signage', signage)
 
-    context_data = {'request': request, 'signage': signage}
+    context_data = {'signage': signage}
 
     return TemplateResponse(
         request, context=context_data, template='metric/visual/signage/modal/content/form.html'
@@ -153,13 +149,13 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     else:
         form = forms.SignageForm(instance=signage)
 
-    context = {
-        'form': form,
-        'page_title': str(signage._meta.verbose_name.title()),
-        'page_description': 'Edit' if signage.pk else 'Create',
-        'breadcrumbs': [
-            {'name': 'Signage', 'href': reverse('metric:visual:signage:page:list')},
-            {'name': 'Edit' if signage.pk else 'Create', 'href': None},
-        ],
-    }
+    nav = SignageNavigation()
+    nav.page_title = str(signage._meta.verbose_name.title())
+    nav.breadcrumbs.add_breadcrumb('Signage', reverse('metric:visual:signage:page:list'))
+    nav.breadcrumbs.add_breadcrumb('Edit' if signage.pk else 'Create', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = str(signage._meta.verbose_name.title())
+    context['form_description'] = 'Edit' if signage.pk else 'Create'
+
     return TemplateResponse(request, 'metric/visual/signage/page/form_page.html', context)

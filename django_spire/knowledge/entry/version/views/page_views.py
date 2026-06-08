@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.collection.models import Collection
+from django_spire.knowledge.entry.navigation import EntryNavigation
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 if TYPE_CHECKING:
@@ -24,25 +25,22 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     top_level_collection = entry.top_level_collection
     version_blocks = entry_version.blocks.format_for_editor()
 
-    context_data = {
-        'entry': entry,
-        'current_version': entry_version,
-        'collection': top_level_collection,
-        'version_blocks': json.dumps(list(version_blocks)),
-        'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-            request=request, parent_id=top_level_collection.id
-        ),
-    }
-
-    context_data['page_title'] = str(entry)
-    context_data['page_description'] = 'Detail View'
-    context_data['breadcrumbs'] = [
-        {'name': 'Knowledge', 'href': reverse('django_spire:knowledge:page:home')},
-        {'name': str(entry), 'href': None},
-    ]
+    nav = EntryNavigation()
+    nav.page_title = str(entry)
+    nav.page_description = 'Detail View'
+    nav.breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add_breadcrumb(str(entry))
+    context = nav.as_context()
+    context['entry'] = entry
+    context['current_version'] = entry_version
+    context['collection'] = top_level_collection
+    context['version_blocks'] = json.dumps(list(version_blocks))
+    context['collection_tree_json'] = Collection.services.transformation.to_hierarchy_json(
+        request=request, parent_id=top_level_collection.id
+    )
 
     return TemplateResponse(
         request,
-        context=context_data,
+        context=context,
         template='django_spire/knowledge/entry/version/page/editor_page.html',
     )

@@ -7,12 +7,13 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.session.controller import SessionController
-
-
 from ${module_path} import models
 from ${module_path}.forms import ${model_class_name}ListFilterForm
 from ${module_path}.constants import LIST_FILTERING_SESSION_KEY
+from ${module_path}.navigation import ${model_class_name}Navigation
+
+from django_spire.contrib.session.controller import SessionController
+
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -22,25 +23,25 @@ if TYPE_CHECKING:
 def ${detail_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
     ${context_single_var} = get_object_or_404(models.${model_class_name}, pk=pk)
 
-    context_data = {
-        '${context_single_var}': ${context_single_var},
-        'page_title': str(${context_single_var}),
-        'page_description': 'Detail View',
-        'breadcrumbs': [
-            {
-                'name': models.${model_class_name}._meta.verbose_name_plural.title(),
-                'href': reverse('${url_reverse_path}:page:list'),
-            },
-            {
-                'name': str(${context_single_var}),
-                'href': None,
-            },
-        ],
-    }
+    nav = ${model_class_name}Navigation()
+    nav.page_title = str(${context_single_var})
+    nav.page_description = 'Detail View'
+    nav.breadcrumbs.add_breadcrumb(
+        models.${model_class_name}._meta.verbose_name_plural.title(),
+        reverse('${url_reverse_path}:page:list'),
+    )
+    nav.breadcrumbs.add_model_instance_breadcrumb(
+        ${context_single_var},
+        url='${url_reverse_path}:page:detail',
+        url_kwargs={'pk': ${context_single_var}.pk},
+    )
 
+    context = nav.as_context()
+    context['${context_single_var}'] = ${context_single_var}
+    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
     return TemplateResponse(
         request,
-        context=context_data,
+        context=context,
         template='${template_directory_path}/page/${detail_page_template_name}.html',
     )
 
@@ -53,21 +54,18 @@ def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
         form_class=${model_class_name}ListFilterForm,
     )
 
-    context_data = {
-        '${context_plural_var}': ${context_plural_var},
-        'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
-        'page_title': models.${model_class_name}._meta.verbose_name_plural.title(),
-        'page_description': 'List View',
-        'breadcrumbs': [
-            {
-                'name': models.${model_class_name}._meta.verbose_name_plural.title(),
-                'href': None,
-            },
-        ],
-    }
+    nav = ${model_class_name}Navigation()
+    nav.page_title = models.${model_class_name}._meta.verbose_name_plural.title()
+    nav.page_description = 'List View'
+    nav.breadcrumbs.add_breadcrumb(
+        models.${model_class_name}._meta.verbose_name_plural.title(),
+    )
 
+    context = nav.as_context()
+    context['${context_plural_var}'] = ${context_plural_var}
+    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
     return TemplateResponse(
         request,
-        context=context_data,
+        context=context,
         template='${template_directory_path}/page/${list_page_template_name}.html',
     )

@@ -10,6 +10,7 @@ from django.urls import reverse
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.knowledge.collection.models import Collection
+from django_spire.knowledge.collection.navigation import CollectionNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -19,18 +20,16 @@ if TYPE_CHECKING:
 def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 
-    context = {
-        'collection': collection,
-        'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
-            request=request, parent_id=collection.id
-        ),
-    }
-    context['page_title'] = 'Knowledge Collection'
-    context['page_description'] = ''
-    context['breadcrumbs'] = [
-        {'name': 'Knowledge', 'href': reverse('django_spire:knowledge:page:home')},
-        {'name': str(collection), 'href': None},
-    ]
+    nav = CollectionNavigation()
+    nav.page_title = 'Knowledge Collection'
+    nav.page_description = ''
+    nav.breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add_breadcrumb(str(collection))
+    context = nav.as_context()
+    context['collection'] = collection
+    context['collection_tree_json'] = Collection.services.transformation.to_hierarchy_json(
+        request=request, parent_id=collection.id
+    )
     return TemplateResponse(
         request, 'django_spire/knowledge/collection/page/display_page.html', context=context
     )
@@ -69,22 +68,17 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=collection)
 
+    nav = CollectionNavigation()
+    nav.page_title = 'Delete Collection'
+    nav.breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add_breadcrumb(str(collection))
+    nav.breadcrumbs.add_breadcrumb('Delete')
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {collection}'
+    context['form_description'] = (
+        f'Are you sure you would like to delete collection "{collection}"?'
+    )
     return TemplateResponse(
-        request,
-        context={
-            'form': form,
-            'form_title': f'Delete {collection}',
-            'form_description': (
-                f'Are you sure you would like to delete collection "{collection}"?'
-            ),
-            'django_spire_navigation': {
-                'page_title': 'Delete Collection',
-                'breadcrumbs': [
-                    {'name': 'Knowledge', 'href': reverse('django_spire:knowledge:page:home')},
-                    {'name': str(collection), 'href': None},
-                    {'name': 'Delete', 'href': None},
-                ],
-            },
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
     )

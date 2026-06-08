@@ -16,6 +16,8 @@ from django_spire.history.activity.utils import add_form_activity
 from django_glue import Glue
 
 from ${module_path} import forms, models
+from ${module_path}.navigation import ${model_class_name}Navigation
+
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -44,26 +46,25 @@ def ${delete_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=${context_single_var})
 
-    context = {
-        'form': form,
-        'form_title': f'Delete {{{context_single_var}}}',
-        'form_description': (
-            f'Are you sure you would like to delete ${model_instance_name} "{{{context_single_var}}}"?'
-        ),
-        'page_title': 'Delete ${model_name}',
-        'breadcrumbs': [
-            {
-                'name': models.${model_class_name}._meta.verbose_name_plural.title(),
-                'href': reverse('${url_reverse_path}:page:list'),
-            },
-            {
-                'name': str(${context_single_var}),
-                'href': None,
-            },
-            {'name': 'Delete', 'href': None},
-        ],
-    }
+    nav = ${model_class_name}Navigation()
+    nav.page_title = f'Delete {${context_single_var}._meta.verbose_name.title()}'
+    nav.breadcrumbs.add_breadcrumb(
+        models.${model_class_name}._meta.verbose_name_plural.title(),
+        reverse('${url_reverse_path}:page:list'),
+    )
+    nav.breadcrumbs.add_model_instance_breadcrumb(
+        ${context_single_var},
+        url='${url_reverse_path}:page:detail',
+        url_kwargs={'pk': ${context_single_var}.pk},
+    )
+    nav.breadcrumbs.add_breadcrumb('Delete')
 
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {str(${context_single_var})}'
+    context['form_description'] = (
+        f'Are you sure you would like to delete ${model_instance_name} "{str(${context_single_var})}"?'
+    )
     return TemplateResponse(
         request,
         context=context,
@@ -106,19 +107,17 @@ def _form_view(
     else:
         form = forms.${form_class_name}(instance=${context_single_var})
 
-    context = {
-        'form': form,
-        'page_title': models.${model_class_name}._meta.verbose_name.title(),
-        'page_description': 'Edit' if ${context_single_var}.pk else 'Create',
-        'breadcrumbs': [
-            {
-                'name': models.${model_class_name}._meta.verbose_name_plural.title(),
-                'href': reverse('${url_reverse_path}:page:list'),
-            },
-            {'name': 'Edit' if ${context_single_var}.pk else 'Create', 'href': None},
-        ],
-    }
+    nav = ${model_class_name}Navigation()
+    nav.set_page_title_from_model_name(${context_single_var})
+    nav.page_description = 'Edit' if ${context_single_var}.pk else 'Create'
+    nav.breadcrumbs.add_breadcrumb(
+        models.${model_class_name}._meta.verbose_name_plural.title(),
+        reverse('${url_reverse_path}:page:list'),
+    )
+    nav.breadcrumbs.add_breadcrumb('Edit' if ${context_single_var}.pk else 'Create')
 
+    context = nav.as_context()
+    context['form'] = form
     return TemplateResponse(
         request,
         context=context,

@@ -17,6 +17,7 @@ from django_spire.history.activity.utils import add_form_activity
 from django_glue import Glue
 
 from django_spire.metric.domain.statistic import forms, models
+from django_spire.metric.domain.statistic.navigation import StatisticNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -46,16 +47,15 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=statistic)
 
+    nav = StatisticNavigation()
+    nav.page_title = 'Delete Statistic'
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = 'Delete Statistic'
+    context['form_description'] = f'Are you sure you would like to delete statistic "{statistic}"?'
+    context['form_action'] = form_action
     return TemplateResponse(
-        request,
-        context={
-            'form': form,
-            'form_title': 'Delete Statistic',
-            'form_description': f'Are you sure you would like to delete statistic "{statistic}"?',
-            'form_action': form_action,
-            'django_spire_navigation': {'page_title': 'Delete Statistic'},
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
     )
 
 
@@ -80,21 +80,17 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=statistic)
 
+    nav = StatisticNavigation()
+    nav.page_title = 'Delete Statistic'
+    nav.breadcrumbs.add_breadcrumb('Statistics', reverse('metric:domain:statistic:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(statistic))
+    nav.breadcrumbs.add_breadcrumb('Delete')
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {statistic}'
+    context['form_description'] = f'Are you sure you would like to delete statistic "{statistic}"?'
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'form_title': f'Delete {statistic}',
-            'form_description': f'Are you sure you would like to delete statistic "{statistic}"?',
-            'page_title': 'Delete Statistic',
-            'breadcrumbs': [
-                {'name': 'Statistics', 'href': reverse('metric:domain:statistic:page:list')},
-                {'name': str(statistic), 'href': None},
-                {'name': 'Delete', 'href': None},
-            ],
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
     )
 
 
@@ -113,7 +109,7 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'statistic', statistic)
 
-    context_data = {'request': request, 'statistic': statistic}
+    context_data = {'statistic': statistic}
 
     return TemplateResponse(
         request, context=context_data, template='metric/domain/statistic/modal/content/form.html'
@@ -150,14 +146,11 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     else:
         form = forms.StatisticForm(instance=statistic)
 
-    context = {
-        'request': request,
-        'form': form,
-        'page_title': str(statistic._meta.verbose_name.title()),
-        'page_description': 'Edit' if statistic.pk else 'Create',
-        'breadcrumbs': [
-            {'name': 'Statistics', 'href': reverse('metric:domain:statistic:page:list')},
-            {'name': 'Edit' if statistic.pk else 'Create', 'href': None},
-        ],
-    }
+    nav = StatisticNavigation()
+    nav.page_title = str(statistic._meta.verbose_name.title())
+    nav.page_description = 'Edit' if statistic.pk else 'Create'
+    nav.breadcrumbs.add_breadcrumb('Statistics', reverse('metric:domain:statistic:page:list'))
+    nav.breadcrumbs.add_breadcrumb('Edit' if statistic.pk else 'Create')
+    context = nav.as_context()
+    context['form'] = form
     return TemplateResponse(request, 'metric/domain/statistic/page/form_page.html', context)

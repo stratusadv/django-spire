@@ -14,6 +14,7 @@ from django_spire.contrib.session.controller import SessionController
 from django_spire.metric.visual.signage import models
 from django_spire.metric.visual.signage.forms import SignageListFilterForm
 from django_spire.metric.visual.signage.constants import LIST_FILTERING_SESSION_KEY
+from django_spire.metric.visual.signage.navigation import SignageNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -23,15 +24,15 @@ if TYPE_CHECKING:
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     signage = get_object_or_404(models.Signage, pk=pk)
 
-    context_data = {'signage': signage}
-    context_data['page_title'] = str(signage)
-    context_data['page_description'] = 'Detail View'
-    context_data['breadcrumbs'] = [
-        {'name': 'Signage', 'href': reverse('metric:visual:signage:page:list')},
-        {'name': str(signage), 'href': None},
-    ]
+    nav = SignageNavigation()
+    nav.page_title = str(signage)
+    nav.breadcrumbs.add_breadcrumb('Signage', reverse('metric:visual:signage:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(signage), None)
+    context = nav.as_context()
+    context['signage'] = signage
+
     return TemplateResponse(
-        request, context=context_data, template='metric/visual/signage/page/detail_page.html'
+        request, context=context, template='metric/visual/signage/page/detail_page.html'
     )
 
 
@@ -41,16 +42,14 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=SignageListFilterForm
     )
 
-    context_data = {
-        'responsive_mode': ResponsiveMode.SCROLL,
-        'signage_items_endpoint': reverse('metric:visual:signage:template:items'),
-        'filter_session': SessionController(request, LIST_FILTERING_SESSION_KEY),
-    }
-
-    context_data['page_title'] = 'Signage'
-    context_data['page_description'] = 'List View'
-    context_data['breadcrumbs'] = [{'name': 'Signage', 'href': None}]
+    nav = SignageNavigation()
+    nav.page_title = 'Signage'
+    nav.breadcrumbs.add_breadcrumb('Signage', None)
+    context = nav.as_context()
+    context['responsive_mode'] = ResponsiveMode.SCROLL
+    context['signage_items_endpoint'] = reverse('metric:visual:signage:template:items')
+    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
 
     return TemplateResponse(
-        request, context=context_data, template='metric/visual/signage/page/list_page.html'
+        request, context=context, template='metric/visual/signage/page/list_page.html'
     )

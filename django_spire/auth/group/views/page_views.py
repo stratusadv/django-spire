@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from django_spire.auth.group import models
+from django_spire.auth.group.navigation import AuthGroupNavigation
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data
 
@@ -30,21 +31,21 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         request.GET.get('page', 1)
     )
 
-    context_data = {
-        'group': group,
-        'permission_data': generate_group_perm_data(group, with_special_role=True),
-        'active_user_list': paginated_active_user_list,
-        'inactive_user_list': paginated_inactive_user_list,
-    }
+    nav = AuthGroupNavigation()
+    nav.page_title = str(group)
+    nav.page_description = 'Detail View'
+    nav.breadcrumbs.add_breadcrumb('Groups', reverse('django_spire:auth:group:page:list'))
+    nav.breadcrumbs.add_model_instance_breadcrumb(
+        group, url='django_spire:auth:group:page:detail', url_kwargs={'pk': group.pk}
+    )
 
-    context_data['page_title'] = str(group)
-    context_data['page_description'] = 'Detail View'
-    context_data['breadcrumbs'] = [
-        {'name': 'Groups', 'href': reverse('django_spire:auth:group:page:list')},
-        {'name': str(group), 'href': None},
-    ]
+    context = nav.as_context()
+    context['group'] = group
+    context['permission_data'] = generate_group_perm_data(group, with_special_role=True)
+    context['active_user_list'] = paginated_active_user_list
+    context['inactive_user_list'] = paginated_inactive_user_list
     return TemplateResponse(
-        request, context=context_data, template='django_spire/auth/group/page/detail_page.html'
+        request, context=context, template='django_spire/auth/group/page/detail_page.html'
     )
 
 
@@ -52,15 +53,16 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def list_view(request: WSGIRequest) -> TemplateResponse:
     group_list = models.AuthGroup.objects.all().prefetch_related('permissions').order_by('name')
 
-    context_data = {
-        'group_list': group_list,
-        'group_list_permission_data': [generate_group_perm_data(group) for group in group_list],
-    }
+    nav = AuthGroupNavigation()
+    nav.page_title = 'Groups'
+    nav.page_description = 'List View'
+    nav.breadcrumbs.add_breadcrumb('Groups')
 
-    context_data['page_title'] = 'Group'
-    context_data['page_description'] = 'List View'
-    context_data['breadcrumbs'] = [{'name': 'Groups', 'href': None}]
-
+    context = nav.as_context()
+    context['group_list'] = group_list
+    context['group_list_permission_data'] = [
+        generate_group_perm_data(group) for group in group_list
+    ]
     return TemplateResponse(
-        request, context=context_data, template='django_spire/auth/group/page/list_page.html'
+        request, context=context, template='django_spire/auth/group/page/list_page.html'
     )

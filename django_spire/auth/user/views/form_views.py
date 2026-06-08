@@ -14,6 +14,7 @@ from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.user import forms
 from django_spire.auth.user.models import AuthUser
+from django_spire.auth.user.navigation import AuthUserNavigation
 from django_spire.auth.user.tools import add_user_to_all_user_group
 
 from django_spire.contrib.form.tools import show_form_errors
@@ -46,13 +47,16 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
     else:
         user_form = forms.RegisterUserForm(instance=portal_user)
 
-    context = {'request': request, 'user_form_data': json.dumps(user_form.data, cls=DjangoJSONEncoder)}
-    context['page_title'] = 'Register'
-    context['page_description'] = 'New User'
-    context['breadcrumbs'] = [
-        {'name': 'Users', 'href': reverse('django_spire:auth:user:page:list')},
-        {'name': 'Register New User', 'href': None},
-    ]
+    nav = AuthUserNavigation()
+    nav.page_title = 'Register'
+    nav.page_description = 'New User'
+    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add_breadcrumb('Register New User')
+
+    context = nav.as_context()
+    context['user_form_data'] = json.dumps(user_form.data, cls=DjangoJSONEncoder)
+    context['form_title'] = 'Register New User'
+    context['form_description'] = 'Create a new user account.'
     return TemplateResponse(
         request, 'django_spire/auth/user/page/register_form_page.html', context=context
     )
@@ -78,24 +82,21 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = forms.UserForm(instance=portal_user)
 
-    context = {
-        'request': request,
-        'portal_user': portal_user,
-        'form': form,
-        'initial_data': json.dumps(form.data, cls=DjangoJSONEncoder),
-        'page_title': portal_user._meta.verbose_name.title(),
-        'page_description': 'Edit',
-        'breadcrumbs': [
-            {'name': 'Users', 'href': reverse('django_spire:auth:user:page:list')},
-            {
-                'name': str(portal_user),
-                'href': reverse(
-                    'django_spire:auth:user:page:detail', kwargs={'pk': portal_user.pk}
-                ),
-            },
-            {'name': 'Edit', 'href': None},
-        ],
-    }
+    nav = AuthUserNavigation()
+    nav.page_description = 'Edit'
+    nav.set_page_title_from_model_name(portal_user)
+    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add_model_instance_breadcrumb(
+        portal_user, url='django_spire:auth:user:page:detail', url_kwargs={'pk': portal_user.pk}
+    )
+    nav.breadcrumbs.add_breadcrumb('Edit')
+
+    context = nav.as_context()
+    context['portal_user'] = portal_user
+    context['form'] = form
+    context['initial_data'] = json.dumps(form.data, cls=DjangoJSONEncoder)
+    context['form_title'] = f'Edit {portal_user}'
+    context['form_description'] = 'Update user information.'
     return TemplateResponse(request, 'django_spire/auth/user/page/form_page.html', context)
 
 
@@ -117,19 +118,18 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     form = forms.UserGroupForm()
 
-    context = {
-        'request': request,
-        'user': user,
-        'form': forms.UserGroupForm(),
-        'page_title': 'User',
-        'page_description': 'Edit Groups',
-        'breadcrumbs': [
-            {'name': 'Users', 'href': reverse('django_spire:auth:user:page:list')},
-            {
-                'name': str(user),
-                'href': reverse('django_spire:auth:user:page:detail', kwargs={'pk': user.pk}),
-            },
-            {'name': 'Edit Groups', 'href': None},
-        ],
-    }
+    nav = AuthUserNavigation()
+    nav.page_title = 'User'
+    nav.page_description = 'Edit Groups'
+    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add_model_instance_breadcrumb(
+        user, url='django_spire:auth:user:page:detail', url_kwargs={'pk': user.pk}
+    )
+    nav.breadcrumbs.add_breadcrumb('Edit Groups')
+
+    context = nav.as_context()
+    context['user'] = user
+    context['form'] = form
+    context['form_title'] = f'Edit Groups for {user}'
+    context['form_description'] = 'Manage group membership for this user.'
     return TemplateResponse(request, 'django_spire/auth/user/page/group_form_page.html', context)

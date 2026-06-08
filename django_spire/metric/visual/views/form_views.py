@@ -18,6 +18,7 @@ from django_spire.history.activity.utils import add_form_activity
 from django_glue import Glue
 
 from django_spire.metric.visual import forms, models
+from django_spire.metric.visual.navigation import VisualNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -44,23 +45,18 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=visual)
 
+    nav = VisualNavigation()
+    nav.page_title = 'Delete Visual'
+    nav.breadcrumbs.add_breadcrumb('Visuals', reverse('metric:visual:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(visual), None)
+    nav.breadcrumbs.add_breadcrumb('Delete', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {visual}'
+    context['form_description'] = f'Are you sure you would like to delete visual "{visual}"?'
+
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'form_title': f'Delete {visual}',
-            'form_description': f'Are you sure you would like to delete visual "{visual}"?',
-            'django_spire_navigation': {
-                'page_title': 'Delete Visual',
-                'breadcrumbs': [
-                    {'name': 'Visuals', 'href': reverse('metric:visual:page:list')},
-                    {'name': str(visual), 'href': None},
-                    {'name': 'Delete', 'href': None},
-                ],
-            },
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -88,17 +84,16 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=visual)
 
+    nav = VisualNavigation()
+    nav.page_title = 'Delete Visual'
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = 'Delete Visual'
+    context['form_description'] = f'Are you sure you would like to delete visual "{visual}"?'
+    context['form_action'] = form_action
+
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'form_title': 'Delete Visual',
-            'form_description': f'Are you sure you would like to delete visual "{visual}"?',
-            'form_action': form_action,
-            'django_spire_navigation': {'page_title': 'Delete Visual'},
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -117,7 +112,7 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'visual', visual)
 
-    context_data = {'request': request, 'visual': visual}
+    context_data = {'visual': visual}
 
     return TemplateResponse(
         request, context=context_data, template='metric/visual/modal/content/form.html'
@@ -152,13 +147,13 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     else:
         form = forms.VisualForm(instance=visual)
 
-    context = {
-        'form': form,
-        'page_title': str(visual._meta.verbose_name.title()),
-        'page_description': 'Edit' if visual.pk else 'Create',
-        'breadcrumbs': [
-            {'name': 'Visuals', 'href': reverse('metric:visual:page:list')},
-            {'name': 'Edit' if visual.pk else 'Create', 'href': None},
-        ],
-    }
+    nav = VisualNavigation()
+    nav.page_title = str(visual._meta.verbose_name.title())
+    nav.breadcrumbs.add_breadcrumb('Visuals', reverse('metric:visual:page:list'))
+    nav.breadcrumbs.add_breadcrumb('Edit' if visual.pk else 'Create', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = str(visual._meta.verbose_name.title())
+    context['form_description'] = 'Edit' if visual.pk else 'Create'
+
     return TemplateResponse(request, 'metric/visual/page/form_page.html', context)

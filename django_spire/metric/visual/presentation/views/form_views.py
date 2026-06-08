@@ -17,6 +17,7 @@ from django_spire.history.activity.utils import add_form_activity
 from django_glue import Glue
 
 from django_spire.metric.visual.presentation import forms, models
+from django_spire.metric.visual.presentation.navigation import PresentationNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -46,18 +47,17 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=presentation)
 
+    nav = PresentationNavigation()
+    nav.page_title = 'Delete Presentation'
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = 'Delete Presentation'
+    context['form_description'] = (
+        f'Are you sure you would like to delete presentation "{presentation}"?'
+    )
+    context['form_action'] = form_action
     return TemplateResponse(
-        request,
-        context={
-            'form': form,
-            'form_title': 'Delete Presentation',
-            'form_description': (
-                f'Are you sure you would like to delete presentation "{presentation}"?'
-            ),
-            'form_action': form_action,
-            'django_spire_navigation': {'page_title': 'Delete Presentation'},
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
     )
 
 
@@ -84,23 +84,19 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=presentation)
 
+    nav = PresentationNavigation()
+    nav.page_title = 'Delete Presentation'
+    nav.breadcrumbs.add_breadcrumb('Presentations', reverse('metric:visual:presentation:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(presentation))
+    nav.breadcrumbs.add_breadcrumb('Delete')
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {presentation}'
+    context['form_description'] = (
+        f'Are you sure you would like to delete presentation "{presentation}"?'
+    )
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'form_title': f'Delete {presentation}',
-            'form_description': (
-                f'Are you sure you would like to delete presentation "{presentation}"?'
-            ),
-            'page_title': 'Delete Presentation',
-            'breadcrumbs': [
-                {'name': 'Presentations', 'href': reverse('metric:visual:presentation:page:list')},
-                {'name': str(presentation), 'href': None},
-                {'name': 'Delete', 'href': None},
-            ],
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
     )
 
 
@@ -119,7 +115,7 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'presentation', presentation)
 
-    context_data = {'request': request, 'presentation': presentation}
+    context_data = {'presentation': presentation}
 
     return TemplateResponse(
         request, context=context_data, template='metric/visual/presentation/modal/content/form.html'
@@ -156,14 +152,11 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     else:
         form = forms.PresentationForm(instance=presentation)
 
-    context = {
-        'request': request,
-        'form': form,
-        'page_title': str(presentation._meta.verbose_name.title()),
-        'page_description': 'Edit' if presentation.pk else 'Create',
-        'breadcrumbs': [
-            {'name': 'Presentations', 'href': reverse('metric:visual:presentation:page:list')},
-            {'name': 'Edit' if presentation.pk else 'Create', 'href': None},
-        ],
-    }
+    nav = PresentationNavigation()
+    nav.page_title = str(presentation._meta.verbose_name.title())
+    nav.page_description = 'Edit' if presentation.pk else 'Create'
+    nav.breadcrumbs.add_breadcrumb('Presentations', reverse('metric:visual:presentation:page:list'))
+    nav.breadcrumbs.add_breadcrumb('Edit' if presentation.pk else 'Create')
+    context = nav.as_context()
+    context['form'] = form
     return TemplateResponse(request, 'metric/visual/presentation/page/form_page.html', context)

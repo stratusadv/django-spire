@@ -29,18 +29,24 @@ class ThemeFilesystemValidationTests(TestCase):
         if not self.base_path.exists():
             self.skipTest(f'CSS directory does not exist: {self.base_path}')
 
-        existing = {path.stem for path in self.base_path.glob('*.css') if path.stem != 'flatpickr.min'}
+        existing = {
+            path.stem for path in self.base_path.glob('*.css') if path.stem != 'flatpickr.min'
+        }
         expected = {family.value for family in ThemeFamily}
 
         missing = expected - existing
         if missing:
-            self.fail(f'Missing CSS files: {sorted(missing)}. Expected files: {sorted(missing)}.css')
+            self.fail(
+                f'Missing CSS files: {sorted(missing)}. Expected files: {sorted(missing)}.css'
+            )
 
     def test_no_unexpected_css_files(self) -> None:
         if not self.base_path.exists():
             self.skipTest(f'CSS directory does not exist: {self.base_path}')
 
-        existing = {path.stem for path in self.base_path.glob('*.css') if path.stem != 'flatpickr.min'}
+        existing = {
+            path.stem for path in self.base_path.glob('*.css') if path.stem != 'flatpickr.min'
+        }
         expected = {family.value for family in ThemeFamily}
 
         unexpected = existing - expected

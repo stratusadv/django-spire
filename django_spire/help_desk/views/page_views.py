@@ -10,6 +10,7 @@ from django.urls import reverse
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.help_desk.models import HelpDeskTicket
+from django_spire.help_desk.navigation import HelpDeskNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -36,20 +37,17 @@ def ticket_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=ticket)
 
+    nav = HelpDeskNavigation()
+    nav.page_title = 'Delete Ticket'
+    nav.breadcrumbs.add_breadcrumb('Help Desk', reverse('django_spire:help_desk:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(ticket), None)
+    nav.breadcrumbs.add_breadcrumb('Delete', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {ticket}'
+    context['form_description'] = f'Are you sure you would like to delete ticket "{ticket}"?'
     return TemplateResponse(
-        request,
-        context={
-            'form': form,
-            'form_title': f'Delete {ticket}',
-            'form_description': f'Are you sure you would like to delete ticket "{ticket}"?',
-            'page_title': 'Delete Ticket',
-            'breadcrumbs': [
-                {'name': 'Help Desk', 'href': reverse('django_spire:help_desk:page:list')},
-                {'name': str(ticket), 'href': None},
-                {'name': 'Delete', 'href': None},
-            ],
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context=context
     )
 
 
@@ -57,19 +55,15 @@ def ticket_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def ticket_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
-    context_data = {'ticket': ticket}
-
-    context_data['page_title'] = str(ticket)
-    context_data['page_description'] = 'Detail View'
-    context_data['breadcrumbs'] = [
-        {'name': 'Help Desk', 'href': reverse('django_spire:help_desk:page:list')},
-        {'name': str(ticket), 'href': None},
-    ]
-
+    nav = HelpDeskNavigation()
+    nav.page_title = str(ticket)
+    nav.page_description = 'Detail View'
+    nav.breadcrumbs.add_breadcrumb('Help Desk', reverse('django_spire:help_desk:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(ticket), None)
+    context = nav.as_context()
+    context['ticket'] = ticket
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='django_spire/help_desk/page/ticket_detail_page.html',
+        request, 'django_spire/help_desk/page/ticket_detail_page.html', context=context
     )
 
 
@@ -77,14 +71,12 @@ def ticket_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
     tickets = HelpDeskTicket.objects.order_by('-created_datetime').active()
 
-    context_data = {'tickets': tickets}
-
-    context_data['page_title'] = 'Ticket'
-    context_data['page_description'] = 'List View'
-    context_data['breadcrumbs'] = [
-        {'name': 'Help Desk', 'href': reverse('django_spire:help_desk:page:list')}
-    ]
-
+    nav = HelpDeskNavigation()
+    nav.page_title = 'Ticket'
+    nav.page_description = 'List View'
+    nav.breadcrumbs.add_breadcrumb('Help Desk', reverse('django_spire:help_desk:page:list'))
+    context = nav.as_context()
+    context['tickets'] = tickets
     return TemplateResponse(
-        request, context=context_data, template='django_spire/help_desk/page/ticket_list_page.html'
+        request, 'django_spire/help_desk/page/ticket_list_page.html', context=context
     )

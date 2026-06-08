@@ -17,6 +17,7 @@ from django_spire.history.activity.utils import add_form_activity
 from django_glue import Glue
 
 from django_spire.metric.domain import forms, models
+from django_spire.metric.domain.navigation import DomainNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -46,16 +47,16 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=domain)
 
+    nav = DomainNavigation()
+    nav.page_title = 'Delete Domain'
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = 'Delete Domain'
+    context['form_description'] = f'Are you sure you would like to delete domain "{domain}"?'
+    context['form_action'] = form_action
+
     return TemplateResponse(
-        request,
-        context={
-            'form': form,
-            'form_title': 'Delete Domain',
-            'form_description': f'Are you sure you would like to delete domain "{domain}"?',
-            'form_action': form_action,
-            'django_spire_navigation': {'page_title': 'Delete Domain'},
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -80,23 +81,18 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     else:
         form = DeleteConfirmationForm(obj=domain)
 
+    nav = DomainNavigation()
+    nav.page_title = 'Delete Domain'
+    nav.breadcrumbs.add_breadcrumb('Domains', reverse('metric:domain:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(domain), None)
+    nav.breadcrumbs.add_breadcrumb('Delete', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {domain}'
+    context['form_description'] = f'Are you sure you would like to delete domain "{domain}"?'
+
     return TemplateResponse(
-        request,
-        context={
-            'request': request,
-            'form': form,
-            'form_title': f'Delete {domain}',
-            'form_description': f'Are you sure you would like to delete domain "{domain}"?',
-            'django_spire_navigation': {
-                'page_title': 'Delete Domain',
-                'breadcrumbs': [
-                    {'name': 'Domains', 'href': reverse('metric:domain:page:list')},
-                    {'name': str(domain), 'href': None},
-                    {'name': 'Delete', 'href': None},
-                ],
-            },
-        },
-        template='django_spire/page/delete_confirmation_form_page.html',
+        request, 'django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -115,7 +111,7 @@ def _modal_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'domain', domain)
 
-    context_data = {'request': request, 'domain': domain}
+    context_data = {'domain': domain}
 
     return TemplateResponse(
         request, context=context_data, template='metric/domain/modal/content/form.html'
@@ -150,13 +146,13 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     else:
         form = forms.DomainForm(instance=domain)
 
-    context = {
-        'form': form,
-        'page_title': str(domain._meta.verbose_name.title()),
-        'page_description': 'Edit' if domain.pk else 'Create',
-        'breadcrumbs': [
-            {'name': 'Domains', 'href': reverse('metric:domain:page:list')},
-            {'name': 'Edit' if domain.pk else 'Create', 'href': None},
-        ],
-    }
+    nav = DomainNavigation()
+    nav.page_title = str(domain._meta.verbose_name.title())
+    nav.breadcrumbs.add_breadcrumb('Domains', reverse('metric:domain:page:list'))
+    nav.breadcrumbs.add_breadcrumb('Edit' if domain.pk else 'Create', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = str(domain._meta.verbose_name.title())
+    context['form_description'] = 'Edit' if domain.pk else 'Create'
+
     return TemplateResponse(request, 'metric/domain/page/form_page.html', context)
