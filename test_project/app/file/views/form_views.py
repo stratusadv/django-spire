@@ -7,6 +7,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 import django_glue as dg
+from django_glue import Glue
 
 from django_spire.contrib.form.tools import show_form_errors
 
@@ -30,7 +31,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpResponseRedirect:
     file_example = get_object_or_null_obj(models.FileExample, pk=pk)
 
-    dg.glue_model_object(request, 'file_example', file_example)
+    Glue.model(request, 'file_example', file_example)
 
     if request.method == 'POST':
         form = forms.FileExampleForm(request.POST, files=request.FILES, instance=file_example)

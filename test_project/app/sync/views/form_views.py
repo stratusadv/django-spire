@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django_glue import Glue
 
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
@@ -37,7 +38,7 @@ def _form_view(
     model_cls, form_cls = MODEL_FORM_MAP[model_name]
     obj = get_object_or_null_obj(model_cls, pk=pk)
 
-    dg.glue_model_object(request, model_name, obj, 'view')
+    Glue.model(request, model_name, obj, 'view')
 
     if request.method == 'POST':
         form = form_cls(request.POST, instance=obj)
