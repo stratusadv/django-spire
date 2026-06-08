@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.6
+
+### Fixes
+- Updated Knowledge base transformation service to have https added to it so it redirects correctly
+
 ## v0.32.5
 
 ### Changes

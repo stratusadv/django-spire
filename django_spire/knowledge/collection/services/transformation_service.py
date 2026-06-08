@@ -61,7 +61,14 @@ class CollectionTransformationService(BaseDjangoModelService['Collection']):
         return json.dumps(tree)
 
     def to_dict(self):
-        site = Site.objects.get_current() if not settings.DEBUG else ''
+        base_site_url = str(Site.objects.get_current())
+        if settings.DEBUG:
+            site = ''
+        elif not base_site_url.startswith('https://'):
+            site = f'https://{base_site_url}'
+        else:
+            site = base_site_url
+
         entries = self.obj.entries.all()
 
         return {
