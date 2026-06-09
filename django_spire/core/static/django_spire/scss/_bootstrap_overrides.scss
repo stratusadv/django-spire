@@ -4,6 +4,10 @@
     font-weight: 600;
 }
 
+.card {
+    background-color: var(--bs-tertiary-bg)
+}
+
 .dropdown-item {
     border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
 }

@@ -101,7 +101,6 @@ INSTALLED_APPS += [
     'django_spire.notification.push',
     'django_spire.contrib.options',
     'django_spire.contrib.ordering',
-    'django_spire.contrib.pagination',
     'django_spire.theme',
 ]
 

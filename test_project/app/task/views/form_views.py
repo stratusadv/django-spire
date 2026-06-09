@@ -2,76 +2,93 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
 from django_glue import Glue
 
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+
 from test_project.app.task import forms, models
+from test_project.app.task.navigation import TaskNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.http import HttpResponseRedirect
 
 
-@permission_required('test_project_queryset_filtering.delete_task')
-def delete_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def create_view(request: WSGIRequest) -> TemplateResponse | redirect:
+    task = models.Task()
+
+    return _form_view(request, task)
+
+
+def update_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
     task = get_object_or_404(models.Task, pk=pk)
 
-    form_action = reverse(
-        'queryset_filtering:form:delete_modal',
-        kwargs={'pk': pk}
-    )
+    return _form_view(request, task)
 
-    def add_activity() -> None:
+
+def _form_view(request: WSGIRequest, task: models.Task) -> TemplateResponse | redirect:
+    if request.method == 'POST':
+        form = forms.TaskForm(request.POST, instance=task)
+
+        if form.is_valid():
+            task.services.save_model_obj(user=request.user, obj=task, **form.cleaned_data)
+
+            return redirect(request.GET.get('return_url', reverse('task:page:list')))
+
+        show_form_errors(request, form)
+    else:
+        form = forms.TaskForm(instance=task)
+
+    nav = TaskNavigation()
+    nav.set_page_title_from_model_form_action(task)
+    nav.breadcrumbs.add_breadcrumb('Tasks', reverse('task:page:list'))
+    nav.breadcrumbs.add_breadcrumb(f'{task.name}' if task.pk else 'New Task')
+
+    context = nav.as_context()
+    context['form'] = form
+    context['task'] = task
+
+    return TemplateResponse(request=request, context=context, template='task/page/form_page.html')
+
+
+def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
+    task = get_object_or_404(models.Task, pk=pk)
+
+    return_url = request.GET.get('return_url', reverse('task:page:list'))
+
+    if request.method == 'POST':
+        task.set_deleted()
+
         task.add_activity(
             user=request.user,
             verb='deleted',
-            device=request.device,
-            information=f'{request.user.get_full_name()} deleted a task.'
+            information=f'{request.user.get_full_name()} deleted task {task.name}.',
         )
 
-    fallback = reverse('queryset_filtering:page:list')
-    return_url = safe_redirect_url(request, fallback=fallback)
+        return redirect(return_url)
 
-    # return modal_views.dispatch_modal_delete_form_content(
-    #     request,
-    #     obj=task,
-    #     form_action=form_action,
-    #     activity_func=add_activity,
-    #     return_url=return_url,
-    # )
+    nav = TaskNavigation()
+    nav.page_title = f'Delete {task.name}'
+    nav.breadcrumbs.add_breadcrumb('Tasks', reverse('task:page:list'))
+    nav.breadcrumbs.add_breadcrumb(f'Delete {task.name}')
 
+    context = nav.as_context()
+    context['task'] = task
+    context['return_url'] = return_url
 
-@permission_required('test_project_queryset_filtering.delete_task')
-def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    task = get_object_or_404(models.Task, pk=pk)
-
-    return_url = request.GET.get(
-        'return_url',
-        reverse('queryset_filtering:page:list')
-    )
-
-    # return portal_views.delete_form_view(
-    #     request,
-    #     obj=task,
-    #     return_url=return_url
-    # )
+    return TemplateResponse(request=request, context=context, template='task/page/delete_page.html')
 
 
-@permission_required('test_project_queryset_filtering.add_task')
-def create_modal_form_view(request: WSGIRequest) -> TemplateResponse:
+def create_modal_view(request: WSGIRequest) -> TemplateResponse:
     return _modal_form_view(request)
 
 
-@permission_required('test_project_queryset_filtering.change_task')
-def update_modal_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+def update_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _modal_form_view(request, pk)
 
 
@@ -80,56 +97,35 @@ def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
     Glue.model(request, 'task', task)
 
-    context_data = {
-        'task': task
-    }
+    context = {'task': task}
 
     return TemplateResponse(
-        request,
-        context=context_data,
-        template='queryset_filtering/modal/content/queryset_filtering_modal_content.html'
+        request, context=context, template='task/modal/content/task_modal_content.html'
     )
 
 
-@permission_required('test_project_queryset_filtering.add_task')
-def create_form_view(request: WSGIRequest) -> TemplateResponse:
-    return _form_view(request)
+def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    task = get_object_or_404(models.Task, pk=pk)
 
-
-@permission_required('test_project_queryset_filtering.change_task')
-def update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    return _form_view(request, pk)
-
-
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse|HttpResponseRedirect:
-    task = get_object_or_null_obj(models.Task, pk=pk)
-
-    Glue.model(request, 'task', task)
+    return_url = safe_redirect_url(request, fallback=reverse('task:page:list'))
 
     if request.method == 'POST':
-        form = forms.TaskForm(request.POST, instance=task)
+        task.set_deleted()
 
-        if form.is_valid():
-            task.services.save_model_obj(
-                user=request.user,
-                obj=task,
-                **form.cleaned_data
-            )
+        task.add_activity(
+            user=request.user,
+            verb='deleted',
+            information=f'{request.user.get_full_name()} deleted task {task.name}.',
+        )
 
-            return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('tabular:page:list')
-                )
-            )
+        return redirect(return_url)
 
-        show_form_errors(request, form)
-    else:
-        form = forms.TaskForm(instance=task)
+    context = {
+        'task': task,
+        'form_action': reverse('task:form:delete_modal', kwargs={'pk': pk}),
+        'return_url': return_url,
+    }
 
-    # return portal_views.form_view(
-    #     request,
-    #     form=form,
-    #     obj=task,
-    #     template='queryset_filtering/page/form_page.html'
-    # )
+    return TemplateResponse(
+        request, context=context, template='task/modal/content/delete_modal_content.html'
+    )

@@ -22,6 +22,7 @@ def celery_home_view(request: WSGIRequest) -> TemplateResponse:
     nav = CeleryNavigation()
     nav.page_title = 'Celery Stalking Tasks'
     nav.breadcrumbs.add_breadcrumb('Example')
+    nav.breadcrumbs.add_breadcrumb_from_model_name(CeleryStalk)
 
     template = 'celery/page/home_page.html'
 

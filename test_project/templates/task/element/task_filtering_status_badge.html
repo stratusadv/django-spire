@@ -1,0 +1,10 @@
+{% if status == 'New' %}
+    {% include 'django_spire/badge/primary_badge.html' with badge_text=status %}
+{% elif status == 'In Progress' %}
+    {% include 'django_spire/badge/secondary_badge.html' with badge_text=status %}
+{% elif status == 'Complete' %}
+    {% include 'django_spire/badge/success_badge.html' with badge_text=status %}
+{% elif status == 'Cancelled' %}
+    {% include 'django_spire/badge/warning_badge.html' with badge_text=status %}
+{% endif %}
+

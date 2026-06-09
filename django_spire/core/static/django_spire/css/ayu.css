@@ -12593,10 +12593,10 @@ textarea.form-control-lg {
     font-size: 0.8rem !important;
   }
   .fs-print-2 {
-    font-size: 0.7rem !important;
+    font-size: 0.65rem !important;
   }
   .fs-print-3 {
-    font-size: 0.55rem !important;
+    font-size: 0.5rem !important;
   }
   @page {
     margin: 1cm !important;
@@ -13229,6 +13229,10 @@ body.darken-background::before {
   font-size: 1.25rem;
   margin: 0;
   font-weight: 600;
+}
+
+.card {
+  background-color: var(--bs-tertiary-bg);
 }
 
 .dropdown-item {

@@ -4,6 +4,8 @@
 
 - ... is for extending and interfacing
 - ... prioritizes magic
+- ... you can use Django Spire templates, but you don't have to!
+- ... let django do its job
 
 ## Templates
 
@@ -25,3 +27,7 @@
 ## Alpine
 
 - ... is for individual logic
+
+## Views
+
+- ... should be opt in logic not enforced

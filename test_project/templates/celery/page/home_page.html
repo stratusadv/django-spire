@@ -4,81 +4,91 @@
 
 {% block full_page_content %}
 
-    <div class="row mt3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-info">
-            This uses our powerful compute to make pirate noises.
+    <div class="card mb-3">
+        <div class="card-header">
+            <div class="card-title">New Stalk Tasks</div>
+        </div>
+        <div class="card-body">
+            <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
+                    Set your noise length
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="pirate" value="pirate"/>
+                        <input type="number" name="length" value="{{ length }}"/>
+                        <input type="submit" value="Pirate Noise"/>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
+                    Set your noise length
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="ninja" value="ninja"/>
+                        <input type="number" name="length" value="{{ length }}"/>
+                        <input type="submit" value="Ninja Attack"/>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div class="row mt-3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
-            Set your noise length
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="pirate" value="pirate"/>
-                <input type="number" name="length" value="{{ length }}"/>
-                <input type="submit" value="Pirate Noise"/>
-            </form>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Stalk Status</div>
         </div>
-    </div>
+        <div class="card-body">
 
-    <div class="row mt-3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
-            Set your noise length
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="ninja" value="ninja"/>
-                <input type="number" name="length" value="{{ length }}"/>
-                <input type="submit" value="Ninja Attack"/>
-            </form>
-        </div>
-    </div>
+            <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
+                    {% if info %}
+                        {{ info }}
+                    {% else %}
+                        No Information
+                    {% endif %}
+                </div>
+            </div>
 
-    <div class="row mt-3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
-            {% if info %}
-                {{ info }}
-            {% else %}
-                No Information
-            {% endif %}
-        </div>
-    </div>
+            <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
+                    Check Last Pirate or Ninja Task
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="text" name="check_task_id" value="{{ task_id }}"/>
+                        <input type="submit" value="Submit"/>
+                    </form>
+                </div>
+            </div>
 
-    <div class="row mt-3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-success">
-            Check Last Pirate or Ninja Task
-            <form method="post">
-                {% csrf_token %}
-                <input type="text" name="check_task_id" value="{{ task_id }}"/>
-                <input type="submit" value="Submit"/>
-            </form>
-        </div>
-    </div>
+            <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
+                    {% if state %}
+                        {{ state }}
+                    {% else %}
+                        No Task State
+                    {% endif %}
+                </div>
+            </div>
 
-    <div class="row mt-3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-danger">
-            {% if state %}
-                {{ state }}
-            {% else %}
-                No Task State
-            {% endif %}
-        </div>
-    </div>
+            <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
+                    {% if result %}
+                        {{ result }}
+                    {% else %}
+                        No Task Result
+                    {% endif %}
+                </div>
+            </div>
 
-    <div class="row mt-3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
-            {% if result %}
-                {{ result }}
-            {% else %}
-                No Task Result
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
-            <div class="btn btn-secondary" @click="$dispatch('django_spire_celery_reload_task_toast_widget')">
-                Celery Reload Task Widget
+            <div class="row mt-3">
+                <div class="col-12 col-lg-6 mx-lg-auto text-center text-warning fs-2">
+                    <div class="btn btn-primary" @click="$dispatch('django_spire_celery_reload_task_toast_widget')">
+                        Celery Reload Task Widget
+                    </div>
+                </div>
             </div>
         </div>
     </div>

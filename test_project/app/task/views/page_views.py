@@ -2,16 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_glue import Glue
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.contrib.session.controller import SessionController
-from test_project.app.task.constants import TASK_FILTERING_SESSION_KEY
-from test_project.app.task.forms import TaskListFilterForm
-from test_project.app.task.models import Task
+from django_glue import Glue
+
+from test_project.app.task import models
 from test_project.app.task.navigation import TaskNavigation
 
 if TYPE_CHECKING:
@@ -19,51 +18,41 @@ if TYPE_CHECKING:
 
 
 @login_required()
-def list_page(request: WSGIRequest):
+def list_view(request: WSGIRequest) -> TemplateResponse:
+    tasks = models.Task.objects.active().prefetch_users()
+
+    paginated_tasks = Paginator(tasks, 10).get_page(request.GET.get('page', 1))
+
+    Glue.model(request, 'task', models.Task())
+
     nav = TaskNavigation()
-    nav.set_page_title_from_model_plural_name(Task)
-    nav.breadcrumbs.add_breadcrumb('Task')
+    nav.set_page_title_from_model_plural_name(models.Task)
+    nav.breadcrumbs.add_breadcrumb('Tasks')
 
-    tasks = (
-        Task
-        .objects
-        .active()
-        .prefetch_users()
-    )
+    context = nav.as_context()
+    context['tasks'] = paginated_tasks
+    context['task_count'] = tasks.count()
 
-    Glue.model(request, 'task', Task())
-    Glue.queryset(request, 'users', User.objects.all())
+    return TemplateResponse(request=request, context=context, template='task/page/list_page.html')
 
-    context_data = {
-        'endpoint': reverse('queryset_filtering:page:list_items'),
-        'tasks': tasks,
-        'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),
-        **nav.as_context()
-    }
+
+def list_items_view(request: WSGIRequest) -> TemplateResponse:
+    tasks = models.Task.objects.active().prefetch_users()
 
     return TemplateResponse(
-        request=request,
-        context=context_data,
-        template='queryset_filtering/page/list_page.html',
+        request=request, context={'tasks': tasks}, template='task/item/items.html'
     )
 
 
-def list_items_view(request: WSGIRequest):
-    tasks = (
-        Task
-        .objects
-        .active()
-        .prefetch_users()
-    )
+def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    task = get_object_or_404(models.Task, pk=pk)
 
-    context_data = {
-        'filter_session': SessionController(request, TASK_FILTERING_SESSION_KEY),
-    }
+    nav = TaskNavigation()
+    nav.page_title = str(task)
+    nav.breadcrumbs.add_breadcrumb('Tasks', reverse('task:page:list'))
+    nav.breadcrumbs.add_breadcrumb(str(task))
 
-    # return portal_views.infinite_scrolling_view(
-    #     request,
-    #     context_data=context_data,
-    #     queryset=tasks,
-    #     queryset_name='tasks',
-    #     template='queryset_filtering/item/items.html'
-    # )
+    context = nav.as_context()
+    context['task'] = task
+
+    return TemplateResponse(request=request, context=context, template='task/page/detail_page.html')

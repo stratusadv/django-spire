@@ -1,0 +1,66 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% load django_spire_pagination %}
+
+{% block full_page_content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="fs-1 fw-semi-bold">Tasks</h1>
+        <div>
+            <a href="{% url 'task:form:create' %}" class="btn btn-primary">
+                <i class="bi bi-plus"></i> New Task
+            </a>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        {% include 'task/form/list_filter_form.html' %}
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in tasks %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'task:page:detail' task.pk %}">{{ task.name }}</a>
+                                </td>
+                                <td>
+                                    {% include 'task/element/task_filtering_status_badge.html' %}
+                                </td>
+                                <td>{{ task.created_datetime|date:"M d, Y" }}</td>
+                                <td class="text-end">
+                                    <a href="{% url 'task:form:update' task.pk %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'task:form:delete' task.pk %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <span class="text-muted">No tasks found</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if tasks.paginator.num_pages > 1 %}
+        {% include 'django_spire/contrib/element/pagination_element.html' with paginated_list=tasks %}
+    {% endif %}
+{% endblock %}

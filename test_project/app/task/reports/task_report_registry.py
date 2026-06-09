@@ -3,12 +3,11 @@ from test_project.app.task.reports.sub_task_report_registry import SubTaskReport
 
 from test_project.app.task.reports.task_counting_monthly_report import TaskCountingMonthlyReport
 
+
 class TaskReportRegistry(ReportRegistry):
     category = 'Queryset Tasks'
     report_names_classes = {
-            'Counting Monthly': TaskCountingMonthlyReport,
-            'Counting Monthly Again': TaskCountingMonthlyReport
+        'Counting Monthly': TaskCountingMonthlyReport,
+        'Counting Monthly Again': TaskCountingMonthlyReport,
     }
-    report_registries = [
-        SubTaskReportRegistry
-    ]
+    report_registries = [SubTaskReportRegistry]

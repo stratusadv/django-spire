@@ -15,12 +15,11 @@ class TaskListFilteringTestCase(BaseTestCase):
         create_test_task(name='Cook Eggs')
         create_test_task(name='Sell Eggs')
 
-        self.data = {
-            'name': '',
-            'status': ''
-        }
+        self.data = {'name': '', 'status': ''}
 
-    def test_queryset_filtering(self):
-        url = reverse('queryset_filtering:page:list')
-        response = self.client.get(f'{url}?session_filter_key=task_list_filter&search_value=&name=&status=com')
+    def test_task(self):
+        url = reverse('task:page:list')
+        response = self.client.get(
+            f'{url}?session_filter_key=task_list_filter&search_value=&name=&status=com'
+        )
         assert response.status_code == 200
