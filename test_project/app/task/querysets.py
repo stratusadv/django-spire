@@ -19,8 +19,6 @@ class TaskQuerySet(HistoryQuerySet):
     def bulk_filter(self, filter_data: dict) -> QuerySet[TaskQuerySet]:
         queryset = self
 
-        filter_map = {'name': 'name__icontains', 'status': 'status', 'users': 'user__user__id__in'}
-
         search_term = filter_data.get('search')
         if search_term:
             queryset = queryset.search(search_term)
@@ -28,7 +26,7 @@ class TaskQuerySet(HistoryQuerySet):
         return queryset
 
     def complete(self) -> QuerySet:
-        return self.filter(is_complete=True)
+        return self.filter(status='com')
 
     def prefetch_users(self) -> QuerySet:
         return self.prefetch_related('users__user')

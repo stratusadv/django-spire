@@ -3,33 +3,24 @@
     {% include 'django_spire/contrib/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='mx-1' %}
 {% endif %}
 
-{% include 'django_spire/theme/element/theme_selector.html' %}
-
 {% if request.user.is_authenticated %}
-        {% include 'django_spire/notification/app/element/notification_bell.html' %}
+    {% include 'django_spire/notification/app/element/notification_bell.html' %}
 {% endif %}
 
 {% if request.user.is_authenticated %}
     <div class="dropdown">
         <i
-                class="bi bi-person-circle fs-2 mx-1 cursor-pointer text-primary"
-                id="dropdownMenuButton1"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-        >
-        </i>
+            class="bi bi-person-circle fs-2 mx-1 cursor-pointer text-primary"
+            id="dropdownMenuButton1"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+        ></i>
         <ul class="dropdown-menu py-0 bg-layer-one" aria-labelledby="dropdownMenuButton1">
             {% if request.user.is_superuser %}
                 <li class="py-0">
                     <a class="dropdown-item fs--1 bg-layer-three-hover"
                        href="{% url 'admin:index' %}" target="_blank">
                         Admin Panel
-                    </a>
-                </li>
-                <li class="py-0">
-                    <a class="dropdown-item fs--1 bg-layer-three-hover"
-                       href="{% url 'django_spire:theme:page:dashboard' %}" target="_blank">
-                        Theme Dashboard
                     </a>
                 </li>
             {% endif %}
@@ -40,6 +31,9 @@
                 </a>
             </li>
             <li class="py-0">
+                {% include 'django_spire/navigation/top/menu/light_dark_selector.html' %}
+            </li>
+            <li class="py-0">
                 <a href="{% url 'django_spire:auth:redirect:logout' %}"
                    class="dropdown-item fs--1 bg-layer-three-hover">
                     Logout
@@ -48,4 +42,3 @@
         </ul>
     </div>
 {% endif %}
-

@@ -70,6 +70,7 @@ nav:
       - Choices: app_guides/contrib/choices.md
       - JSON Responses: app_guides/contrib/json_responses.md
       - Changelog: app_guides/contrib/changelog.md
+      - SCSS Customization: app_guides/contrib/scss_customization.md
       - HTML Renderer: app_guides/contrib/html_renderer.md
       - Pagination: app_guides/contrib/pagination.md
       - Progress: app_guides/contrib/progress.md

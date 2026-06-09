@@ -1,10 +1,10 @@
-{% if status == 'New' %}
-    {% include 'django_spire/badge/primary_badge.html' with badge_text=status %}
-{% elif status == 'In Progress' %}
-    {% include 'django_spire/badge/secondary_badge.html' with badge_text=status %}
-{% elif status == 'Complete' %}
-    {% include 'django_spire/badge/success_badge.html' with badge_text=status %}
-{% elif status == 'Cancelled' %}
-    {% include 'django_spire/badge/warning_badge.html' with badge_text=status %}
+{% if task.status == 'new' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='New' badge_class='bg-primary text-white' %}
+{% elif task.status == 'inp' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='In Progress' badge_class='bg-secondary text-white' %}
+{% elif task.status == 'com' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Complete' badge_class='bg-success text-white' %}
+{% elif task.status == 'can' %}
+    {% include 'django_spire/badge/badge.html' with badge_text='Cancelled' badge_class='bg-warning text-white' %}
 {% endif %}
 

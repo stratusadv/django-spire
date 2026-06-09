@@ -1,0 +1,7 @@
+    <a href="#"
+        class="dropdown-item fs--1 d-flex align-items-center justify-content-between"
+        @click="Alpine.store('theme').toggle()"
+        style="cursor: pointer;"
+    >
+        <span x-text="Alpine.store('theme').current === 'dark' ? 'Light Mode' : 'Dark Mode'"></span>
+    </a>

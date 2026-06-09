@@ -11,7 +11,7 @@ class TaskModelSeeder(DjangoModelSeeder):
 
     fields = {
         'id': 'exclude',
-        'name': ('faker'),
+        'name': ('faker', 'sentence', {'nb_words': 5}),
         'description': ('faker'),
         'created_datetime': (
             'custom',

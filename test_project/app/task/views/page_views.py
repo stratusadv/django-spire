@@ -21,6 +21,10 @@ if TYPE_CHECKING:
 def list_view(request: WSGIRequest) -> TemplateResponse:
     tasks = models.Task.objects.active().prefetch_users()
 
+    search = request.GET.get('search')
+    if search:
+        tasks = tasks.search(search)
+
     paginated_tasks = Paginator(tasks, 10).get_page(request.GET.get('page', 1))
 
     Glue.model(request, 'task', models.Task())
@@ -34,14 +38,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     context['task_count'] = tasks.count()
 
     return TemplateResponse(request=request, context=context, template='task/page/list_page.html')
-
-
-def list_items_view(request: WSGIRequest) -> TemplateResponse:
-    tasks = models.Task.objects.active().prefetch_users()
-
-    return TemplateResponse(
-        request=request, context={'tasks': tasks}, template='task/item/items.html'
-    )
 
 
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:

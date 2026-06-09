@@ -7,8 +7,6 @@ if TYPE_CHECKING:
 
 
 class ThemeSelector:
-    """Playwright component for django_spire/theme/element/theme_selector.html"""
-
     def __init__(self, page: Page) -> None:
         self.page = page
 
@@ -21,11 +19,7 @@ class ThemeSelector:
 
     def get_current_mode(self) -> str:
         html = self.page.locator('html')
-        return html.get_attribute('data-theme') or 'light'
-
-    def get_current_theme_family(self) -> str:
-        html = self.page.locator('html')
-        return html.get_attribute('data-theme-family') or ''
+        return html.get_attribute('data-bs-theme') or 'light'
 
     def is_dark_mode(self) -> bool:
         return self.get_current_mode() == 'dark'
@@ -41,6 +35,6 @@ class ThemeSelector:
 
     def wait_for_theme_change(self, expected_mode: str, timeout: int = 5000) -> None:
         self.page.wait_for_function(
-            f'() => document.documentElement.getAttribute("data-theme") === "{expected_mode}"',
+            f'() => document.documentElement.getAttribute("data-bs-theme") === "{expected_mode}"',
             timeout=timeout,
         )

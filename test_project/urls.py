@@ -23,7 +23,6 @@ urlpatterns = [
     path('sync/', include('test_project.app.sync.urls', namespace='sync')),
     path('task/', include('test_project.app.task.urls', namespace='task')),
     path('test_model/', include('test_project.app.model_and_service.urls', namespace='test_model')),
-    path('theme/', include('django_spire.theme.urls', namespace='theme')),
 ]
 
 urlpatterns += [path('ds/', include('django_spire.urls', namespace='django_spire'))]

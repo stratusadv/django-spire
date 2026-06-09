@@ -101,7 +101,6 @@ INSTALLED_APPS += [
     'django_spire.notification.push',
     'django_spire.contrib.options',
     'django_spire.contrib.ordering',
-    'django_spire.theme',
 ]
 
 DJANGO_SPIRE_AUTH_CONTROLLERS = {
@@ -175,7 +174,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django_spire.core.context_processors.django_spire',
-                'django_spire.core.context_processors.theme_context',
+                
                 'test_project.app.core.context_processors.django_spire',
             ],
             'builtins': [],

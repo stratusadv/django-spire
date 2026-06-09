@@ -12,9 +12,28 @@
         </div>
     </div>
 
-    <div class="mb-4">
-        {% include 'task/form/list_filter_form.html' %}
-    </div>
+    <form method="get" class="mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Search tasks..."
+                            value="{{ request.GET.search|default:'' }}"
+                        >
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <div class="card">
         <div class="card-body p-0">

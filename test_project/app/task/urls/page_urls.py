@@ -8,5 +8,4 @@ app_name = 'page'
 urlpatterns = [
     path('list/', page_views.list_view, name='list'),
     path('detail/<int:pk>/', page_views.detail_view, name='detail'),
-    path('list/items/', page_views.list_items_view, name='list_items'),
 ]

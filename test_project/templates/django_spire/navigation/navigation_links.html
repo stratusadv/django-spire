@@ -7,10 +7,6 @@
 {% url 'task:page:list' as task_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Task' link_icon='bi bi-list-task' link_url=task_url %}
 
-{% include 'django_spire/navigation/divider.html' with divider_text='Configuration' %}
-
-{% include 'django_spire/auth/group/navigation/accordion/permission_nav_accordion.html' %}
-
 {% include 'django_spire/navigation/divider.html' with divider_text='Artificial Intelligence' %}
 
 {% url 'ai:home' as ai_home_url %}
@@ -45,9 +41,6 @@
 {% url 'notification:page:list' as notification_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Notification' link_icon='bi bi-bell' link_url=notification_url %}
 
-{% url 'django_spire:theme:page:dashboard' as theme_url %}
-{% include 'django_spire/navigation/link.html' with link_text='Theme' link_icon='bi bi-brush' link_url=theme_url %}
-
 {% url 'rest:page:list' as rest_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Rest Clients' link_icon='bi bi-arrow-down-up' link_url=rest_url %}
 
@@ -62,6 +55,10 @@
 
 {% url 'sync:page:dashboard' as sync_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Sync' link_icon='bi bi-arrow-repeat' link_url=sync_url %}
+
+{% include 'django_spire/navigation/divider.html' with divider_text='Configuration' %}
+
+{% include 'django_spire/auth/group/navigation/accordion/permission_nav_accordion.html' %}
 
 {% include 'django_spire/navigation/divider.html' with divider_text='Scrolling' %}
 

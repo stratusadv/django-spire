@@ -1,116 +1,30 @@
 document.addEventListener('alpine:init', () => {
     Alpine.store('theme', {
-        config: null,
-        current: window.django_spire?.theme?.active || 'default-light',
-        loading_config: false,
+        storage_key: 'django_spire-theme-mode',
+        current: 'light',
 
-        async load_config() {
-            if (this.config || this.loading_config) {
-                return this.config;
-            }
-
-            this.loading_config = true;
-
-            try {
-                let response = await ajax_request(
-                    'GET',
-                    '/ds/theme/json/get_config/'
-                );
-
-                if (response && response.data) {
-                    this.config = response.data.data;
-                }
-            } catch (error) {
-                console.error('Failed to load theme config:', error);
-            }
-
-            this.loading_config = false;
-            return this.config;
-        },
-
-        parse(value) {
-            let parts = value.split('-');
-            let mode = parts.pop();
-            let family = parts.join('-');
-            return { family, mode };
-        },
-
-        build(family, mode) {
-            return `${family}-${mode}`;
-        },
-
-        get_family_display_name(family) {
-            if (this.config && this.config.families && this.config.families[family]) {
-                return this.config.families[family].name;
-            }
-
-            return family;
-        },
-
-        get_current_theme() {
-            let { family, mode } = this.parse(this.current);
-            let path = window.django_spire?.theme?.path || '/static/django_spire/css/{family}.css';
-            let family_name = this.get_family_display_name(family);
-
-            return {
-                family: family,
-                family_name: family_name,
-                mode: mode,
-                value: this.build(family, mode),
-                display: `${family_name} - ${mode.charAt(0).toUpperCase() + mode.slice(1)}`,
-                is_dark: mode === 'dark',
-                stylesheet: path.replace('{family}', family).replace('{mode}', mode)
-            };
-        },
-
-        get_current_display_name() {
-            let { family, mode } = this.parse(this.current);
-            let family_name = this.get_family_display_name(family);
-            return `${family_name} - ${mode.charAt(0).toUpperCase() + mode.slice(1)}`;
-        },
-
-        get_current_family_name() {
-            let { family } = this.parse(this.current);
-            return family;
-        },
-
-        async families() {
-            let config = await this.load_config();
-
-            if (!config || !config.families) {
-                return [];
-            }
-
-            return Object.entries(config.families).map(([key, value]) => ({
-                value: key,
-                name: value.name
-            }));
+        toggle() {
+            this.current = this.current === 'dark' ? 'light' : 'dark';
+            this.apply();
+            this.persist();
         },
 
         apply() {
-            let theme = this.get_current_theme();
-
-            if (theme.is_dark) {
-                document.documentElement.setAttribute('data-theme', 'dark');
+            if (this.current === 'dark') {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
             } else {
-                document.documentElement.removeAttribute('data-theme');
-            }
-
-            document.documentElement.setAttribute('data-theme-family', theme.family);
-            this.load_theme_css(theme.family, theme.mode);
-
-            if (window.django_spire && window.django_spire.theme) {
-                window.django_spire.theme.active = theme.value;
+                document.documentElement.removeAttribute('data-bs-theme');
             }
 
             setTimeout(() => this.apply_input_icon_theme(), 100);
         },
 
-        apply_input_icon_theme() {
-            // This is a fix for a Chromium-based browser. We have to dynamically
-            // target the input field icon, otherwise it won't be styled properly.
+        persist() {
+            localStorage.setItem(this.storage_key, this.current);
+        },
 
-            let text_color = getComputedStyle(document.documentElement).getPropertyValue('--app-default-text-color').trim();
+        apply_input_icon_theme() {
+            let text_color = getComputedStyle(document.documentElement).getPropertyValue('--bs-body-color').trim();
 
             if (!text_color) return;
 
@@ -143,91 +57,9 @@ document.addEventListener('alpine:init', () => {
             document.head.appendChild(style);
         },
 
-        load_theme_css(family, mode) {
-            let existing = document.querySelector('link[data-theme-css]');
-            let path = window.django_spire?.theme?.path;
-
-            if (!path) {
-                console.error('Theme path is not defined');
-                return;
-            }
-
-            if (!family || !mode) {
-                console.error('Missing family or mode:', family, mode);
-                return;
-            }
-
-            let href = path.replace('{family}', family).replace('{mode}', mode);
-            let absolute = new URL(href, window.location).href;
-
-            if (existing && existing.href === absolute) {
-                return;
-            }
-
-            let link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = href;
-            link.setAttribute('data-theme-css', 'true');
-
-            link.onload = () => {
-                if (existing) {
-                    existing.remove();
-                }
-
-                this.apply_input_icon_theme();
-
-                let theme = this.get_current_theme();
-                window.dispatchEvent(new CustomEvent('theme-changed', { detail: theme }));
-            };
-
-            document.head.appendChild(link);
-        },
-
-        async persist_to_server(value) {
-            await ajax_request(
-                'POST',
-                '/django_spire/theme/json/set_theme/',
-                { theme: value }
-            );
-        },
-
-        async set(value) {
-            this.current = value;
-            this.apply();
-
-            await this.persist_to_server(value);
-        },
-
-        async set_family(family) {
-            let { mode } = this.parse(this.current);
-            let config = await this.load_config();
-
-            if (config && config.families && config.families[family]) {
-                if (!config.families[family].modes.includes(mode)) {
-                    mode = config.families[family].modes[0];
-                }
-            }
-
-            await this.set(this.build(family, mode));
-        },
-
-        async toggle() {
-            let { family, mode } = this.parse(this.current);
-            let newmode = mode === 'dark' ? 'light' : 'dark';
-            await this.set(this.build(family, newmode));
-        },
-
-        is_family(family) {
-            let { family: current } = this.parse(this.current);
-            return current === family;
-        },
-
-        is_mode(mode) {
-            let { mode: current } = this.parse(this.current);
-            return current === mode;
-        },
-
         init() {
+            this.current = localStorage.getItem(this.storage_key) || 
+                window.django_spire?.theme?.mode || 'light';
             this.apply();
         }
     });
@@ -235,22 +67,20 @@ document.addEventListener('alpine:init', () => {
 
 window.get_echarts_theme = function() {
     let styles = getComputedStyle(document.documentElement);
-    let is_dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    let is_dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
 
     return {
-        bg: styles.getPropertyValue('--app-layer-one').trim(),
+        bg: styles.getPropertyValue('--bs-body-bg').trim(),
         border: styles.getPropertyValue('--bs-border-color').trim(),
-        danger: styles.getPropertyValue('--app-danger').trim(),
+        danger: styles.getPropertyValue('--bs-danger').trim(),
         is_dark: is_dark,
-        layer_two: styles.getPropertyValue('--app-layer-two').trim(),
-        layer_three: styles.getPropertyValue('--app-layer-three').trim(),
-        layer_four: styles.getPropertyValue('--app-layer-four').trim(),
-        primary: styles.getPropertyValue('--app-primary').trim(),
-        primary_dark: styles.getPropertyValue('--app-primary-dark').trim(),
-        secondary: styles.getPropertyValue('--app-secondary').trim(),
-        secondary_dark: styles.getPropertyValue('--app-secondary-dark').trim(),
-        success: styles.getPropertyValue('--app-success').trim(),
-        text: styles.getPropertyValue('--app-default-text-color').trim(),
-        warning: styles.getPropertyValue('--app-warning').trim(),
+        layer_two: styles.getPropertyValue('--bs-tertiary-bg').trim(),
+        primary: styles.getPropertyValue('--bs-primary').trim(),
+        primary_dark: styles.getPropertyValue('--bs-primary').trim(),
+        secondary: styles.getPropertyValue('--bs-secondary').trim(),
+        secondary_dark: styles.getPropertyValue('--bs-secondary').trim(),
+        success: styles.getPropertyValue('--bs-success').trim(),
+        text: styles.getPropertyValue('--bs-body-color').trim(),
+        warning: styles.getPropertyValue('--bs-warning').trim(),
     };
 };

@@ -12,6 +12,7 @@ from django_spire.contrib.form.tools import show_form_errors
 class LoginView(auth_views.LoginView):
     authentication_form = CaseInsensitiveAuthenticationForm
     template_name = 'django_spire/auth/page/login_page.html'
+    redirect_authenticated_user = True
 
     def form_invalid(self, form):
         show_form_errors(self.request, form)
@@ -21,7 +22,9 @@ class LoginView(auth_views.LoginView):
         form_user = form.get_user()
         if form_user.last_login is None:
             auth_login(self.request, form_user)
-            return HttpResponseRedirect(reverse('django_spire:auth:admin:password_change'))
+            return HttpResponseRedirect(
+                reverse('django_spire:auth:admin:password_change')
+            )
         return super().form_valid(form)
 
 

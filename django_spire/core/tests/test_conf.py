@@ -10,22 +10,22 @@ class TestSettings(TestCase):
         assert settings.DEBUG is not None
 
     def test_getattr_returns_django_spire_default(self) -> None:
-        result = settings.DJANGO_SPIRE_DEFAULT_THEME
+        result = settings.DJANGO_SPIRE_DEFAULT_THEME_MODE
 
-        assert result == 'default-light'
+        assert result == 'light'
 
     def test_getattr_returns_none_for_unknown_setting(self) -> None:
         result = settings.NONEXISTENT_SETTING_NAME
 
         assert result is None
 
-    @override_settings(DJANGO_SPIRE_DEFAULT_THEME='custom-dark')
+    @override_settings(DJANGO_SPIRE_DEFAULT_THEME_MODE='dark')
     def test_django_setting_overrides_default(self) -> None:
         fresh_settings = Settings()
 
-        result = fresh_settings.DJANGO_SPIRE_DEFAULT_THEME
+        result = fresh_settings.DJANGO_SPIRE_DEFAULT_THEME_MODE
 
-        assert result == 'custom-dark'
+        assert result == 'dark'
 
     @override_settings(DJANGO_SPIRE_AUTH_CONTROLLERS={'custom_app': 'custom.path.Controller'})
     def test_auth_controllers_merges_dicts(self) -> None:

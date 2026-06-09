@@ -37,9 +37,5 @@ class TestDefaultSettings(TestCase):
     def test_auth_controllers_is_dict(self) -> None:
         assert isinstance(settings.DJANGO_SPIRE_AUTH_CONTROLLERS, dict)
 
-    def test_default_theme(self) -> None:
-        assert settings.DJANGO_SPIRE_DEFAULT_THEME == 'default-light'
-
-    def test_theme_path_contains_placeholders(self) -> None:
-        assert '{family}' in settings.DJANGO_SPIRE_THEME_PATH
-        assert '{mode}' in settings.DJANGO_SPIRE_THEME_PATH
+    def test_default_theme_mode(self) -> None:
+        assert settings.DJANGO_SPIRE_DEFAULT_THEME_MODE == 'light'
