@@ -1,0 +1,81 @@
+@import 'font';
+
+$primary: #0097c9;
+$primary-light: #00b8e6;
+$secondary: #797c7d;
+$secondary-light: #949799;
+
+$success: #059669;
+$warning: #d97706;
+$danger: #dc2626;
+
+$body-bg: #ffffff;
+$body-color: #181818;
+$body-color-dark: #ffffff;
+$body-bg-dark: #181818;
+
+$link-color: $primary;
+$link-hover-color: #007ba3;
+$link-color-dark: $primary-light;
+$link-hover-color-dark: #00b8e6;
+
+$border-color: #ededee;
+$border-color-dark: #3a3d3e;
+
+$side-navigation-bg: #181818;
+$side-navigation-text-color: #ffffff;
+$side-navigation-link-color: #0097c9;
+$side-navigation-link-hover-color: #007ba3;
+$side-navigation-bg-dark: #212529;
+
+$top-navigation-bg: #ffffff;
+$top-navigation-text-color: #181818;
+$top-navigation-link-color: #0097c9;
+$top-navigation-link-hover-color: #007ba3;
+$top-navigation-bg-dark: #212529;
+
+$footer-bg: #f5f5f6;
+$footer-text-color: #181818;
+$footer-link-color: #0097c9;
+$footer-link-hover-color: #007ba3;
+$footer-bg-dark: #212529;
+
+$enable-dark-mode: true;
+
+@import "./bootstrap/bootstrap";
+
+:root,
+[data-bs-theme=light] {
+    --side-navigation-bg-color: #{$side-navigation-bg};
+    --side-navigation-text-color: #{$side-navigation-text-color};
+    --side-navigation-link-color: #{$side-navigation-link-color};
+    --side-navigation-link-hover-color: #{$side-navigation-link-hover-color};
+    --top-navigation-bg-color: #{$top-navigation-bg};
+    --top-navigation-text-color: #{$top-navigation-text-color};
+    --top-navigation-link-color: #{$top-navigation-link-color};
+    --top-navigation-link-hover-color: #{$top-navigation-link-hover-color};
+    --footer-bg-color: #{$footer-bg};
+    --footer-text-color: #{$footer-text-color};
+    --footer-link-color: #{$footer-link-color};
+    --footer-link-hover-color: #{$footer-link-hover-color};
+}
+
+[data-bs-theme=dark] {
+    --side-navigation-bg-color: #{$side-navigation-bg-dark};
+    --top-navigation-bg-color: #{$top-navigation-bg-dark};
+    --footer-bg-color: #{$footer-bg-dark};
+}
+
+@import 'variables_z_index';
+@import 'variables_transition';
+@import 'variables_border';
+@import 'variables_shadow';
+@import 'utilities';
+@import 'navigation';
+@import 'panels';
+@import 'components';
+@import 'loader';
+@import 'item';
+@import 'print';
+@import 'bootstrap_extensions';
+@import 'bootstrap_overrides';

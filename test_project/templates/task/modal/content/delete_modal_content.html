@@ -1,0 +1,31 @@
+{% extends 'django_spire/modal/title_modal.html' %}
+
+{% load django_spire_string_formatting %}
+
+{% block modal_title %}
+    Delete Task
+{% endblock %}
+
+{% block modal_content %}
+    <div class="modal-header">
+        <div class="modal-title" id="{{ modal_camel_case_id }}Label">
+            Delete Task
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <form method="post" action="{{ form_action }}">
+        {% csrf_token %}
+        <div class="modal-body">
+            <p>Are you sure you want to delete the task "<strong>{{ task.name }}</strong>"?</p>
+            <p class="text-muted">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Delete
+            </button>
+            <a href="{{ return_url }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Cancel
+            </a>
+        </div>
+    </form>
+{% endblock %}
