@@ -367,8 +367,7 @@ class DjangoRecordWriter:
 
             candidate = result['sequence_max'] or 0
 
-            if candidate > sequence_max:
-                sequence_max = candidate
+            sequence_max = max(sequence_max, candidate)
 
         if sequence_max > 0:
             SyncSequenceAllocator().reconcile_to(sequence_max)

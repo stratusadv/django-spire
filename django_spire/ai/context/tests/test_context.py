@@ -53,9 +53,9 @@ class OrganizationModelTests(BaseTestCase):
     def test_organization_nullable_fields(self) -> None:
         org = Organization.objects.create()
 
-        assert org.name is None
-        assert org.legal_name is None
-        assert org.description is None
+        assert org.name == ''
+        assert org.legal_name == ''
+        assert org.description == ''
 
     def test_organization_get_only_or_none_exists(self) -> None:
         Organization.objects.create(name='Test Org')
@@ -107,11 +107,11 @@ class PersonModelTests(BaseTestCase):
     def test_person_nullable_fields(self) -> None:
         person = Person.objects.create()
 
-        assert person.first_name is None
-        assert person.last_name is None
-        assert person.phone is None
-        assert person.email is None
-        assert person.role_details is None
+        assert person.first_name == ''
+        assert person.last_name == ''
+        assert person.phone == ''
+        assert person.email == ''
+        assert person.role_details == ''
 
     def test_person_external_to_organization(self) -> None:
         person = Person.objects.create(

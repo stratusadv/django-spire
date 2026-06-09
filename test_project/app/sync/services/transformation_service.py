@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from decimal import Decimal
 
 from typing_extensions import TYPE_CHECKING
@@ -469,7 +469,7 @@ class SyncTransformationService(BaseDjangoModelService['Client']):
 
         wall_ms = hybrid_logical_clock >> _COUNTER_BITS
         counter = hybrid_logical_clock & ((1 << _COUNTER_BITS) - 1)
-        datetime_utc = datetime.fromtimestamp(wall_ms / 1000, tz=timezone.utc)
+        datetime_utc = datetime.fromtimestamp(wall_ms / 1000, tz=UTC)
 
         return HybridLogicalClockDecoded(
             counter=counter,

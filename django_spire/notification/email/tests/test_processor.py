@@ -7,7 +7,6 @@ import pytest
 from django_spire.auth.user.tests.factories import create_user
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.notification.choices import NotificationStatusChoices, NotificationTypeChoices
-from django_spire.notification.email.models import EmailNotification
 from django_spire.notification.email.processor import EmailNotificationProcessor
 from django_spire.notification.email.tests.factories import create_test_email_notification
 from django_spire.notification.exceptions import NotificationError

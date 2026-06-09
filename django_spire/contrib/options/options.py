@@ -88,7 +88,7 @@ class Options:
     def get_setting(self, section_name: str, option_key: str):
         return self[section_name][option_key].value
 
-    def sync_options(self, default_options: 'Options'):
+    def sync_options(self, default_options: Options):
         new_sections = []
         for section in default_options.sections:
             new_section = OptionSection(name=section.name)

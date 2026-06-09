@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from django.test import TestCase, Client
-from django.urls import reverse
 
 from django_spire.api.models import ApiAccess
 from django_spire.api.choices import ApiPermissionChoices

@@ -59,7 +59,7 @@ class Comment(HistoryModelMixin):
             #     head=f'{self.user.get_full_name()} commented on a task',
             #     subject='Business Base - New Comment',
             #     body=f'"{self.information}" on {self.content_object}',
-            #     # Todo: Need to generate URL. Use generic reverse?
+            #     # TODO: Need to generate URL. Use generic reverse?
             #     url='',
             # )
 

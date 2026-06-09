@@ -22,9 +22,7 @@ class LoginView(auth_views.LoginView):
         form_user = form.get_user()
         if form_user.last_login is None:
             auth_login(self.request, form_user)
-            return HttpResponseRedirect(
-                reverse('django_spire:auth:admin:password_change')
-            )
+            return HttpResponseRedirect(reverse('django_spire:auth:admin:password_change'))
         return super().form_valid(form)
 
 

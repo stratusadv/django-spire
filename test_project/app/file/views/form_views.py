@@ -6,7 +6,6 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-import django_glue as dg
 from django_glue import Glue
 
 from django_spire.contrib.form.tools import show_form_errors

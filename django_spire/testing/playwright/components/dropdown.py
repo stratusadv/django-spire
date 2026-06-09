@@ -78,7 +78,6 @@ class EllipsisModalDropdown(EllipsisDropdown):
     Dropdown options trigger modals via dispatch_modal_view()
     """
 
-    pass
 
 
 class EllipsisTableDropdown(EllipsisDropdown):

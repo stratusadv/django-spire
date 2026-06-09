@@ -90,7 +90,7 @@ class SyncSimulator:
     ) -> tuple[dict[str, Any], dict[str, int]]:
         existing = storage._records[model_label].get(key)
         if existing is not None:
-            return {**existing.items, **data}, {**existing.timestamps, **timestamps}
+            return {**existing.data, **data}, {**existing.timestamps, **timestamps}
         return data, timestamps
 
     def write_tablet(self, tablet_id: str, model_label: str, key: str) -> None:

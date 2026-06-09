@@ -53,7 +53,7 @@ class RegisterNewUserTestCase(BaseTestCase):
             email='test@example.com',
             password='securepassword123',  # noqa: S106
         )
-        assert user.password != 'securepassword123'  # noqa: S106
+        assert user.password != 'securepassword123'
 
     def test_user_is_active_by_default(self) -> None:
         user = register_new_user(

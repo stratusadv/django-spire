@@ -14,6 +14,7 @@ def model_app_label(model_obj: Model) -> str:
 
     Returns:
         The app label defined by the model's app configuration.
+
     """
 
     return model_obj._meta.app_label
@@ -29,6 +30,7 @@ def model_name(model_obj: Model) -> str:
 
     Returns:
         The model name (lowercased) as defined by Django's model metadata.
+
     """
 
     return model_obj._meta.model_name

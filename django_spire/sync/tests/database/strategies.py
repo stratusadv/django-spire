@@ -53,7 +53,7 @@ def model_payloads(draw: st.DrawFn) -> ModelPayload:
     for i in range(num_records):
         key = str(i)
         record = draw(sync_records())
-        records[key] = SyncRecord(key=key, data=record.items, timestamps=record.timestamps)
+        records[key] = SyncRecord(key=key, data=record.data, timestamps=record.timestamps)
 
     delete_keys = draw(st.sets(st.text(alphabet=string.digits, min_size=1, max_size=3), max_size=3))
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from celery import states
 from django.contrib.auth.models import User
@@ -218,7 +218,7 @@ class TaskItemListViewTestCase(TestCase):
 
     def test_task_item_list_view_with_show_all_parameter(self) -> None:
         request = self.factory.post(
-            f'/celery/task/item_list/?show_all=true',
+            '/celery/task/item_list/?show_all=true',
             data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
             content_type='application/json',
         )

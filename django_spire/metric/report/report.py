@@ -34,29 +34,29 @@ class ReportCell:
     def cell_value_verbose(value, cell_type):
         if cell_type == ColumnType.DOLLAR:
             return f'${float(value):,.0f}'
-        elif cell_type == ColumnType.DOLLAR_1:
+        if cell_type == ColumnType.DOLLAR_1:
             return f'${float(value):,.1f}%'
-        elif cell_type == ColumnType.DOLLAR_2:
+        if cell_type == ColumnType.DOLLAR_2:
             return f'${float(value):,.2f}%'
-        elif cell_type == ColumnType.DOLLAR_3:
+        if cell_type == ColumnType.DOLLAR_3:
             return f'${float(value):,.3f}%'
 
-        elif cell_type == ColumnType.PERCENT:
+        if cell_type == ColumnType.PERCENT:
             return f'{float(value):,.0f}%'
-        elif cell_type == ColumnType.PERCENT_1:
+        if cell_type == ColumnType.PERCENT_1:
             return f'{float(value):,.1f}%'
-        elif cell_type == ColumnType.PERCENT_2:
+        if cell_type == ColumnType.PERCENT_2:
             return f'{float(value):,.2f}%'
-        elif cell_type == ColumnType.PERCENT_3:
+        if cell_type == ColumnType.PERCENT_3:
             return f'{float(value):,.3f}%'
 
-        elif cell_type == ColumnType.NUMBER:
+        if cell_type == ColumnType.NUMBER:
             return f'{float(value):,.0f}'
-        elif cell_type == ColumnType.NUMBER_1:
+        if cell_type == ColumnType.NUMBER_1:
             return f'{float(value):,.1f}'
-        elif cell_type == ColumnType.NUMBER_2:
+        if cell_type == ColumnType.NUMBER_2:
             return f'{float(value):,.2f}'
-        elif cell_type == ColumnType.NUMBER_3:
+        if cell_type == ColumnType.NUMBER_3:
             return f'{float(value):,.3f}'
 
         return str(value)
@@ -257,9 +257,8 @@ class BaseReport(ABC):
                 markdown += f'| {row.cells[0].value}' + '|' * len(self.columns) + '\n'
                 continue
 
-            else:
-                for cell in row.cells:
-                    markdown += f'| {cell.value_verbose()} '
+            for cell in row.cells:
+                markdown += f'| {cell.value_verbose()} '
 
             markdown += '|\n'
 

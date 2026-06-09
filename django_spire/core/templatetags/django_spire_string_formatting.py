@@ -31,7 +31,7 @@ def underscores_to_spaces(value: str) -> str:
 @register.filter
 def to_camel_case(value: Any) -> str:
     value = str(value)
-    parts = re.sub(r'[-_\s]+', ' ', value).split()
+    parts = re.sub(r'[\s-]+', ' ', value).split()
     if not parts:
         parts = re.findall(r'[A-Z][a-z]+|[a-z]+', value)
     if not parts:
@@ -51,5 +51,5 @@ def to_camel_case_javascript_safe(value: Any) -> str:
 def to_snake_case(value: Any) -> str:
     value = str(value)
     s1 = re.sub(r'[\s-]+', '_', value)
-    s2 = re.sub(r'(?<!^)(?=[A-Z])', '_', s1)
+    s2 = re.sub(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', '_', s1)
     return s2.lower()

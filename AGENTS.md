@@ -340,7 +340,7 @@ breadcrumb = Breadcrumbs()
 breadcrumb.add_breadcrumb('Home', '/')
 breadcrumb.add_obj_breadcrumbs(obj)  # Uses obj.breadcrumbs()
 breadcrumb.add_form_breadcrumbs(obj)  # Creates edit/create breadcrumbs
-breadcrumb.add_base_breadcrumb(MyModel)  # Uses model.base_breadcrumb()
+breadcrumb.add_breadcrumb(MyModel)  # Uses model.base_breadcrumb()
 ```
 
 ## Forms

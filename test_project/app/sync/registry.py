@@ -4,8 +4,6 @@ from typing_extensions import TYPE_CHECKING
 
 from test_project.app.sync import forms as sync_forms, models
 from test_project.app.sync.constants import (
-    DEFAULT_STRATEGY,
-    TRUNCATE_LIMIT,
     SyncModelLabel,
     SyncStrategy,
 )

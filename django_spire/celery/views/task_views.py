@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 
-from docutils.nodes import reference
 
 from typing import TYPE_CHECKING
 

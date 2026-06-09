@@ -37,5 +37,5 @@
     {% if AuthController.knowledge.can_delete %}
         {% url 'django_spire:knowledge:entry:page:delete' pk=entry.pk as entry_delete_url %}
     {% endif %}
-    {% include 'django_spire/contrib/../../../../../../core/templates/django_spire/dropdown/ellipsis_dropdown.html' with view_url=entry_detail_url edit_url=entry_edit_url delete_url=entry_delete_url %}
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=entry_detail_url edit_url=entry_edit_url delete_url=entry_delete_url %}
 {% endblock %}

@@ -7,11 +7,9 @@ from uuid import uuid4
 from celery import states
 from celery.result import AsyncResult
 from django.test import TestCase
-from django.utils.timezone import now
 
 from django_spire.celery.models import CeleryTask
 from django_spire.celery.tests.factories import create_test_celery_task
-from django_spire.celery.result import CeleryNoResult
 
 
 class AsyncResultPropertyTestCase(TestCase):

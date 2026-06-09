@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import re
 import string
 
 from typing import Any, Sequence, TYPE_CHECKING, TypeVar
@@ -152,3 +153,10 @@ def query_param_url(context: RequestContext, url_name: str, **kwargs) -> str:
 
     return reverse(url_name, kwargs=kwargs) + query_string
 
+
+@register.simple_tag
+def to_snake_case(value: Any) -> str:
+    value = str(value)
+    s1 = re.sub(r'[\s-]+', '_', value)
+    s2 = re.sub(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', '_', s1)
+    return s2.lower()

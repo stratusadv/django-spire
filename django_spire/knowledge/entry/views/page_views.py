@@ -47,5 +47,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['form_title'] = f'Delete {entry}'
     context['form_description'] = f'Are you sure you would like to delete entry "{entry}"?'
     return TemplateResponse(
-        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
+        request,
+        context=context,
+        template='django_spire/contrib/page/delete_confirmation_form_page.html',
     )

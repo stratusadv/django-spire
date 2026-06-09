@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.notification.app.tests.factories import create_test_app_notification

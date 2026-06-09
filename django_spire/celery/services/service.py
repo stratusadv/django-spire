@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timezone
+from datetime import UTC
 
 from celery import states
 from celery.result import AsyncResult
@@ -29,7 +29,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 date_done = async_result.date_done
 
                 if is_naive(date_done):
-                    date_done_aware = make_aware(date_done, timezone.utc)
+                    date_done_aware = make_aware(date_done, UTC)
                 else:
                     date_done_aware = date_done
 

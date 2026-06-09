@@ -1,4 +1,3 @@
-from typing import Type, Tuple
 
 from django.contrib import admin
 from django.contrib.contenttypes.fields import GenericRelation
@@ -6,14 +5,14 @@ from django.db import models
 
 
 class SpireModelAdmin(admin.ModelAdmin):
-    model_class: Type[models.Model] = None
+    model_class: type[models.Model] = None
 
     max_search_fields: int = 5
     max_list_display: int = 10
 
     trailing_fields = ('is_active', 'is_deleted')
 
-    auto_readonly_fields: Tuple[str] = ('created_datetime', 'is_active', 'is_deleted')
+    auto_readonly_fields: tuple[str] = ('created_datetime', 'is_active', 'is_deleted')
 
     filter_field_types = (
         models.BooleanField,
@@ -75,16 +74,7 @@ class SpireModelAdmin(admin.ModelAdmin):
 
         for field in cls.model_fields:
             if not isinstance(field, (models.ManyToManyField, models.ManyToOneRel)):
-                if isinstance(field, models.BooleanField):
-                    filters.append(field.name)
-
-                elif isinstance(field, (models.DateField, models.DateTimeField)):
-                    filters.append(field.name)
-
-                elif isinstance(field, models.ForeignKey):
-                    filters.append(field.name)
-
-                elif (
+                if isinstance(field, models.BooleanField) or isinstance(field, (models.DateField, models.DateTimeField)) or isinstance(field, models.ForeignKey) or (
                     isinstance(field, models.CharField)
                     and hasattr(field, 'choices')
                     and field.choices

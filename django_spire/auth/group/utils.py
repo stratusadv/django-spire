@@ -13,7 +13,7 @@ def set_group_users(group: Group, user_list: list[User]) -> None:
 
 
 def codename_to_perm_level(codename: str) -> int:
-    return perm_level_to_int(codename.split('_')[0])
+    return perm_level_to_int(codename.split('_', maxsplit=1)[0])
 
 
 def codename_list_to_perm_level(codenames_list: list[str]) -> int:
@@ -22,8 +22,7 @@ def codename_list_to_perm_level(codenames_list: list[str]) -> int:
     for codename in codenames_list:
         temp_perm_level = perm_level_to_int(codename.split('_')[0])
 
-        if temp_perm_level > perm_level:
-            perm_level = temp_perm_level
+        perm_level = max(perm_level, temp_perm_level)
 
     return perm_level
 

@@ -68,6 +68,6 @@ def create_test_celery_task(
         queued_datetime=queued_datetime,
         started_datetime=started_datetime,
         completed_datetime=completed_datetime,
-        _task_meta=task_meta if task_meta else {},
+        _task_meta=task_meta or {},
         _result=result_value,
     )

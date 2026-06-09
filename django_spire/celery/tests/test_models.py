@@ -3,7 +3,7 @@ from __future__ import annotations
 import pickle
 import uuid
 from datetime import timedelta
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock
 
 from celery import states
 from django.test import TestCase

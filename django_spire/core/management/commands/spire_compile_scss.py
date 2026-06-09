@@ -54,19 +54,21 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'Compiled successfully: {output_file}'))
 
-    def _get_scss_source_path(self) -> Path:
+    @staticmethod
+    def _get_scss_source_path() -> Path:
         for parent in Path(__file__).resolve().parents:
             candidate = parent / 'static' / 'django_spire' / 'scss'
             if candidate.exists():
                 return candidate
 
-        message = 'Could not locate django-spire SCSS source directory. Is django-spire installed?'
+        message = 'Could not locate django-spire SCSS source directory.'
         raise FileNotFoundError(message)
 
-    def _get_default_output_dir(self) -> Path:
+    @staticmethod
+    def _get_default_output_dir() -> Path:
         static_root = getattr(settings, 'STATIC_ROOT', None)
         if static_root:
-            return Path(static_root) / 'css'
+            return Path(static_root, 'django_spire', 'css')
 
         staticfiles_dir = getattr(settings, 'STATICFILES_DIRS', [])
         if staticfiles_dir:
@@ -74,4 +76,4 @@ class Command(BaseCommand):
             if isinstance(first_dir, (str, Path)):
                 return Path(first_dir) / 'css'
 
-        return Path('static') / 'css'
+        return Path('static') / 'django_spire' / 'css'

@@ -256,8 +256,7 @@ class DatabaseEngine:
                     response_payloads.append(response_payload)
 
                     for record in response_payload.records.values():
-                        if record.sequence > response_sequence_max:
-                            response_sequence_max = record.sequence
+                        response_sequence_max = max(response_sequence_max, record.sequence)
 
                 continue
 
@@ -318,8 +317,7 @@ class DatabaseEngine:
                 response_payloads.append(local_payload)
 
                 for record in local_payload.records.values():
-                    if record.sequence > response_sequence_max:
-                        response_sequence_max = record.sequence
+                    response_sequence_max = max(response_sequence_max, record.sequence)
 
         return response_payloads, has_more, response_cursors, response_sequence_max
 
@@ -515,8 +513,7 @@ class DatabaseEngine:
                 payloads.append(payload)
 
                 for record in payload.records.values():
-                    if record.sequence > sent_sequence_max:
-                        sent_sequence_max = record.sequence
+                    sent_sequence_max = max(sent_sequence_max, record.sequence)
 
         if self._payload_records_max is not None:
             if budget.consumed_records > self._payload_records_max:

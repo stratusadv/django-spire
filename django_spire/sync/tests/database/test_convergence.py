@@ -358,7 +358,7 @@ class TestRandomizedTwoPartyConvergence:
                 existing = storage._records[STAKE].get(key)
 
                 if existing is not None:
-                    merged_data = {**existing.items, **data}
+                    merged_data = {**existing.data, **data}
                     merged_ts = {**existing.timestamps, **timestamps}
                 else:
                     merged_data = data

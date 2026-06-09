@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.file.exceptions import FileBatchLimitError, FileIDError, FileValidationError
+from django_spire.file.exceptions import FileBatchLimitError, FileIDError
 from django_spire.file.factory import BATCH_SIZE_MAX
 from django_spire.file.handlers import MultiFileHandler, SingleFileHandler
 from django_spire.file.models import File

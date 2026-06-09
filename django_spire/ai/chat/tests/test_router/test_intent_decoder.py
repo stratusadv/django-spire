@@ -1,15 +1,10 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from unittest.mock import Mock
 
-from django.contrib.auth.models import Permission, User
-from django.test import RequestFactory, override_settings
 
-from django_spire.ai.chat.intelligence.decoders.intent_decoder import generate_intent_decoder
 from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.router import BaseChatRouter
-from django_spire.core.tests.test_cases import BaseTestCase
 
 if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory
@@ -24,7 +19,7 @@ class TestRouter(BaseChatRouter):
 
 
 # class TestIntentDecoder(BaseTestCase):
-# Todo(brayden): Decoders no longer work this way. Can you review and delete?
+# TODO(brayden): Decoders no longer work this way. Can you review and delete?
 #     def setUp(self) -> None:
 #         super().setUp()
 #

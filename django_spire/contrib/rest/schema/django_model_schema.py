@@ -12,9 +12,9 @@ class DjangoModelRestSchema(RestSchema, Generic[TModel], ABC):
     @classmethod
     @abstractmethod
     def from_django_model(cls, model: type[TModel]) -> Self:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def to_django_model(cls) -> TModel:
-        raise NotImplementedError()
+        raise NotImplementedError

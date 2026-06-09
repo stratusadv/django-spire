@@ -52,8 +52,7 @@ class CeleryTask(models.Model):
         if self.completed_datetime:
             time_delta = self.completed_datetime - self.queued_datetime
             return int(time_delta.total_seconds())
-        else:
-            return 0
+        return 0
 
     @property
     def completion_time_verbose(self) -> str:
@@ -113,8 +112,7 @@ class CeleryTask(models.Model):
     def meta(self) -> CeleryTaskMeta:
         if isinstance(self._task_meta, dict):
             return CeleryTaskMeta(**self._task_meta)
-        else:
-            return CeleryTaskMeta()
+        return CeleryTaskMeta()
 
     @meta.setter
     def meta(self, value: Any) -> None:
@@ -125,8 +123,7 @@ class CeleryTask(models.Model):
         if self.queued_datetime and self.started_datetime:
             time_delta = self.started_datetime - self.queued_datetime
             return int(time_delta.total_seconds())
-        else:
-            return 1
+        return 1
 
     @property
     def remaining_time_verbose(self) -> str | None:

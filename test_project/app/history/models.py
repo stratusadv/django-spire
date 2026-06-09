@@ -28,7 +28,7 @@ class HistoryExample(HistoryModelMixin):
 
     def breadcrumbs(self) -> Breadcrumbs:
         crumbs = Breadcrumbs()
-        crumbs.add_base_breadcrumb(self._meta.model)
+        crumbs.add_breadcrumb(self._meta.model)
 
         if self.pk:
             crumbs.add_breadcrumb(str(self), reverse('history:page:detail', kwargs={'pk': self.pk}))

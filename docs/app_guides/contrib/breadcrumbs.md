@@ -113,7 +113,7 @@ Useful when you want the section root without the object-level crumb:
 
 ```python
 breadcrumbs = Breadcrumbs()
-breadcrumbs.add_base_breadcrumb(Project)
+breadcrumbs.add_breadcrumb(Project)
 # Calls Project.base_breadcrumb() if it exists
 ```
 

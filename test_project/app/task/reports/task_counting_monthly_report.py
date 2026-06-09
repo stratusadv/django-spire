@@ -30,7 +30,7 @@ class TaskCountingMonthlyReport(BaseReport):
     ):
         sleep(1.0)  # Simulate loading!
 
-        self.add_column(f'People', sub_title=str(end_datetime))
+        self.add_column('People', sub_title=str(end_datetime))
         self.add_column('Type', type=self.ColumnType.CHOICE)
         self.add_column('Quality', type=self.ColumnType.PERCENT)
         self.add_column('Tasks', type=self.ColumnType.NUMBER)

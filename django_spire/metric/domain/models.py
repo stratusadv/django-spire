@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from uuid import uuid4
 
 from django.db import models
 from django.urls import reverse
@@ -33,7 +32,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
 
     def breadcrumbs(self) -> Breadcrumbs:
         crumbs = Breadcrumbs()
-        crumbs.add_base_breadcrumb(self._meta.model)
+        crumbs.add_breadcrumb(self._meta.model)
 
         if self.pk:
             crumbs.add_breadcrumb(
@@ -72,7 +71,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
 
     def breadcrumbs(self) -> Breadcrumbs:
         crumbs = Breadcrumbs()
-        crumbs.add_base_breadcrumb(self._meta.model)
+        crumbs.add_breadcrumb(self._meta.model)
 
         if self.pk:
             crumbs.add_breadcrumb(

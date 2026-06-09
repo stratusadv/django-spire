@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 from unittest.mock import Mock, patch
 
 from dandy.llm.request.message import MessageHistory
-from django.contrib.auth.models import Permission, User
 from django.test import RequestFactory, override_settings
 
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import chat_workflow
@@ -58,7 +57,7 @@ class TestRouterIntegration(BaseTestCase):
     #     }
     # )
     # def test_intent_routing_with_permission(self) -> None:
-    # Todo(brayden): Review tests.
+    # TODO(brayden): Review tests.
     #     permission = Permission.objects.get(codename='view_user')
     #     self.super_user.user_permissions.add(permission)
     #

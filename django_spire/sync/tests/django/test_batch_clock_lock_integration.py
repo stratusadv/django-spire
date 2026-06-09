@@ -10,7 +10,6 @@ from django.db import models as db_models
 from django_spire.sync.core.clock import HybridLogicalClock
 from django_spire.sync.core.enums import SyncPhase, SyncStatus
 from django_spire.sync.core.exceptions import (
-    BatchLimitError,
     ClockOverflowError,
     InvalidParameterError,
     SyncAbortedError,
@@ -92,7 +91,7 @@ def test_delete_many_chunks_oversized_batch(simple_batch_storage: DjangoSyncStor
         obj.sync_field_last_modified = 100
         db_models.Model.save(obj)
 
-    deletes = {key: 500 for key in keys}
+    deletes = dict.fromkeys(keys, 500)
 
     simple_batch_storage.delete_many('sync_tests.SyncTestSimpleModel', deletes, '')
 

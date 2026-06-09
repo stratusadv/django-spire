@@ -1,5 +1,5 @@
 from django_spire.core.tests.test_cases import BaseTestCase
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory
 from django_spire.api.auth.security import ApiKeySecurity
 from django_spire.api.models import ApiAccess
 from django_spire.api.choices import ApiPermissionChoices

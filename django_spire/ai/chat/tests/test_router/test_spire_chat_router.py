@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from unittest.mock import Mock, patch
 
-from dandy.llm.request.message import MessageHistory
-from django.test import RequestFactory, override_settings
+from django.test import RequestFactory
 
 from django_spire.ai.chat.message_intel import DefaultMessageIntel
 from django_spire.ai.chat.router import SpireChatRouter
@@ -55,7 +54,7 @@ class TestSpireChatRouter(BaseTestCase):
             assert isinstance(result, DefaultMessageIntel)
 
     # def test_workflow_uses_intent_decoder(self) -> None:
-    # Todo(brayden) here is another place the decoder tests need to be updated.
+    # TODO(brayden) here is another place the decoder tests need to be updated.
     #     router = SpireChatRouter()
     #
     #     with patch('django_spire.ai.chat.router.generate_intent_decoder') as mock_decoder:

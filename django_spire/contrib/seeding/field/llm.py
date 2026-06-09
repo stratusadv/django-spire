@@ -18,7 +18,7 @@
 #
 #
 #     def seed(self, manager, count = 1) -> list[dict]:
-#         # Todo: Need to turn fields into llm call?
+#         # TODO: Need to turn fields into llm call?
 #         # How does that work with pydantic?
 #
 #         class SeedingIntel(BaseIntel):

@@ -18,6 +18,10 @@ logging.basicConfig(
 ADMINS = [('Stratus', 'stratus@stratusadv.com')]
 
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
+
+if DEBUG:  # This is to speed up testing as the normal password hasher is very slow
+    PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0,127.0.0.1,localhost').split(',')
 
 ASGI_APPLICATION = 'test_project.asgi.application'
@@ -174,7 +178,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django_spire.core.context_processors.django_spire',
-                
                 'test_project.app.core.context_processors.django_spire',
             ],
             'builtins': [],
@@ -241,3 +244,6 @@ CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{databa
     port=os.getenv('CELERY_PGSQL_PORT'),
     database=os.getenv('CELERY_PGSQL_DATABASE'),
 )
+
+if DEBUG:  # Adjust based on your environment
+    PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']

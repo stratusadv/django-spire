@@ -57,7 +57,9 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
     context['form_action'] = form_action
     return TemplateResponse(
-        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
+        request,
+        context=context,
+        template='django_spire/contrib/page/delete_confirmation_form_page.html',
     )
 
 
@@ -96,7 +98,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         f'Are you sure you would like to delete presentation "{presentation}"?'
     )
     return TemplateResponse(
-        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
+        request,
+        context=context,
+        template='django_spire/contrib/page/delete_confirmation_form_page.html',
     )
 
 

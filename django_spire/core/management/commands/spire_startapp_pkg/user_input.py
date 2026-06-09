@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from django.core.management.base import CommandError
 
@@ -102,8 +102,7 @@ class UserInputCollector:
         )
         if self.skip_app_creation:
             return default
-        else:
-            return self._collect_input('Enter the app label', default, '3/8')
+        return self._collect_input('Enter the app label', default, '3/8')
 
     def _collect_app_name(self, components: list[str]) -> str:
         """
@@ -116,8 +115,7 @@ class UserInputCollector:
         default = components[-1]
         if self.skip_app_creation:
             return default
-        else:
-            return self._collect_input('Enter the app name', default, '2/8')
+        return self._collect_input('Enter the app name', default, '2/8')
 
     def _collect_app_path(self) -> str:
         """
@@ -141,7 +139,7 @@ class UserInputCollector:
 
         try:
             self.validator.validate_app_path(components)
-        except AppExistsError as exc:
+        except AppExistsError:
             self.reporter.write('\nSkipping app creation.', self.reporter.style_notice)
             self.skip_app_creation = True
 
@@ -164,8 +162,7 @@ class UserInputCollector:
         )
         if self.skip_app_creation:
             return default
-        else:
-            return self._collect_input('Enter the database table name', default, '6/8')
+        return self._collect_input('Enter the database table name', default, '6/8')
 
     def _collect_input(self, prompt: str, default: str, step_number: str) -> str:
         """
@@ -181,7 +178,7 @@ class UserInputCollector:
             f'\n[{step_number}]: {prompt} (default: "{default}")', self.reporter.style_notice
         )
         user_input = input('Press Enter to use default or type a custom value: ').strip()
-        return user_input if user_input else default
+        return user_input or default
 
     def _collect_model_name(self, app_name: str) -> str:
         """
@@ -194,8 +191,7 @@ class UserInputCollector:
         default = ''.join(word.title() for word in app_name.split('_'))
         if self.skip_app_creation:
             return default
-        else:
-            return self._collect_input('Enter the model name', default, '4/8')
+        return self._collect_input('Enter the model name', default, '4/8')
 
     def _collect_model_name_plural(self, model_name: str) -> str:
         """
@@ -208,8 +204,7 @@ class UserInputCollector:
         default = model_name + 's'
         if self.skip_app_creation:
             return default
-        else:
-            return self._collect_input('Enter the model name plural', default, '5/8')
+        return self._collect_input('Enter the model name plural', default, '5/8')
 
     def _collect_model_permission_path(self, app_path: str, model_name: str) -> str:
         """
@@ -223,8 +218,7 @@ class UserInputCollector:
         default = f'{app_path}.models.{model_name}'
         if self.skip_app_creation:
             return default
-        else:
-            return self._collect_input('Enter the model permission path', default, '7/8')
+        return self._collect_input('Enter the model permission path', default, '7/8')
 
     def _collect_permission_inheritance(self, components: list[str]) -> dict[str, str]:
         """

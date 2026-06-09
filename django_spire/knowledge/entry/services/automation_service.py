@@ -33,7 +33,7 @@ class EntryAutomationService(BaseDjangoModelService['Entry']):
                     file=file_object,
                     entry_version=entry_pk_map[file_object.object_id].current_version,
                 )
-            except Exception as e:
+            except Exception:
                 errored.append({'file': file_object.name, 'error': traceback.format_exc()})
                 file_object.set_deleted()
             else:

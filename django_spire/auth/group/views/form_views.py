@@ -133,7 +133,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['form_title'] = f'Delete {group}'
     context['form_description'] = f'Are you sure you would like to delete group "{group}"?'
     return TemplateResponse(
-        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
+        request,
+        context=context,
+        template='django_spire/contrib/page/delete_confirmation_form_page.html',
     )
 
 
@@ -178,5 +180,7 @@ def group_remove_user_form_view(
     context = nav.as_context()
     context['form'] = form
     return TemplateResponse(
-        request, context=context, template='django_spire/page/delete_confirmation_form_page.html'
+        request,
+        context=context,
+        template='django_spire/contrib/page/delete_confirmation_form_page.html',
     )

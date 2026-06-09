@@ -62,5 +62,5 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
         f'Are you sure you would like to delete API access "{api_access}"?'
     )
     return TemplateResponse(
-        request, 'django_spire/page/delete_confirmation_form_page.html', context=context
+        request, 'django_spire/contrib/page/delete_confirmation_form_page.html', context=context
     )

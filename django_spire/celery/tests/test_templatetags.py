@@ -3,7 +3,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 from django.template import Context, Template
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from django_spire.celery.manager import BaseCeleryTaskManager
 from django_spire.celery.templatetags.django_spire_celery import (

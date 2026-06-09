@@ -97,7 +97,7 @@ class PermissionInheritanceHandler:
         )
 
         user_input = input('Press Enter to use default or type a custom name: ').strip()
-        return user_input if user_input else default
+        return user_input or default
 
     def _collect_parent_model_path(self, components: list[str]) -> str:
         """
@@ -114,7 +114,7 @@ class PermissionInheritanceHandler:
         )
 
         user_input = input('Press Enter to use default or type a custom path: ').strip()
-        return user_input if user_input else default
+        return user_input or default
 
     def _collect_parent_permission_prefix(self, components: list[str]) -> str:
         """
@@ -132,7 +132,7 @@ class PermissionInheritanceHandler:
         )
 
         user_input = input('Press Enter to use default or type a custom prefix: ').strip()
-        return user_input if user_input else default
+        return user_input or default
 
     def _should_inherit_permissions(self) -> bool:
         """

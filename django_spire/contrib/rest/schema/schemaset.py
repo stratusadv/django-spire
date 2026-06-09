@@ -142,7 +142,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             if result is None:
                 raise IndexError('RestSchemaQuerySet index out of range')
             return result
-        elif isinstance(key, slice):
+        if isinstance(key, slice):
             clone = self
             start = key.start or 0
             if start:
@@ -171,6 +171,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
             .filter(lambda p: p.weight > 100)
             .filter(name="pikachu")
             .filter(type__name="electric")
+
         """
         new_filters = list(self._filters)
         if predicate:
@@ -195,6 +196,7 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         Examples:
             .order_by('name')
             .order_by('-weight', 'name')
+
         """
         ordering = []
         for field in fields:
@@ -280,4 +282,4 @@ class RestSchemaSet(ABC, Generic[TSchema]):
         raise NotImplementedError
 
     def _read_one(self, **request_params) -> TSchema:
-        raise NotImplementedError()
+        raise NotImplementedError

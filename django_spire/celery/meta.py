@@ -1,5 +1,5 @@
 import time
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
@@ -20,7 +20,7 @@ class CeleryTaskMeta(BaseModel):
     @property
     def completed_datetime(self) -> datetime | None:
         if self.completed_time:
-            return datetime.fromtimestamp(self.completed_time, tz=timezone.utc)
+            return datetime.fromtimestamp(self.completed_time, tz=UTC)
 
         return None
 
@@ -99,7 +99,7 @@ class CeleryTaskMeta(BaseModel):
     @property
     def started_datetime(self) -> datetime | None:
         if self.started_time:
-            return datetime.fromtimestamp(self.started_time, tz=timezone.utc)
+            return datetime.fromtimestamp(self.started_time, tz=UTC)
 
         return None
 

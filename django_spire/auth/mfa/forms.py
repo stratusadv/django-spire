@@ -4,7 +4,6 @@ from django import forms
 
 
 class MFAForm(forms.Form):
-    pass
 
     # def __init__(self, generated_mfa_code, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
