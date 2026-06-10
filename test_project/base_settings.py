@@ -224,8 +224,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static')]
-STATIC_ROOT = str(BASE_DIR / 'static')
+STATICFILES_DIRS = [str(BASE_DIR / 'test_project/static_files')]
+STATIC_ROOT = str(BASE_DIR / 'test_project/static')
 
 # Celery
 

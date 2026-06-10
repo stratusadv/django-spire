@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import sass
@@ -25,27 +26,23 @@ class Command(BaseCommand):
     def handle(self, **options) -> None:
         output_dir = options['output']
         if output_dir is None:
-            output_dir = self._get_default_output_dir()
+            output_dir = self._get_static_files_dir() / 'css'
 
         django_spire_scss_source_path = self._get_django_spire_scss_source_path()
         bundled_entry_file = django_spire_scss_source_path / '_theme.scss'
 
-        external_scss_source_path = self._get_external_scss_source_path()
-        external_entry_file = external_scss_source_path / '_theme.scss'
+        external_scss_source_path = self._get_static_files_dir()
+        external_entry_file = external_scss_source_path / 'scss' / '_theme.scss'
 
-        if external_entry_file.exists():
-            entry_file = external_entry_file
-            include_paths = [str(external_scss_source_path), str(django_spire_scss_source_path)]
-            self.stdout.write('Using external theme entry file.')
-        else:
-            entry_file = bundled_entry_file
-            include_paths = [str(django_spire_scss_source_path)]
-            if external_scss_source_path.exists():
-                include_paths.append(str(external_scss_source_path))
+        if not external_entry_file.exists():
+            external_scss_dir = external_scss_source_path / 'scss'
+            external_scss_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(bundled_entry_file, external_entry_file)
+            self.stdout.write(f'No external theme found. Created {external_entry_file}.')
 
-        if not entry_file.exists():
-            self.stderr.write(f'Entry file not found: {entry_file}')
-            return
+        entry_file = external_entry_file
+        include_paths = [str(external_scss_source_path), str(django_spire_scss_source_path)]
+        self.stdout.write('Using external theme entry file.')
 
         self.stdout.write(f'Compiling SCSS from: {entry_file}')
         self.stdout.write(f'Output directory: {output_dir}')
@@ -76,29 +73,12 @@ class Command(BaseCommand):
         raise FileNotFoundError(message)
 
     @staticmethod
-    def _get_external_scss_source_path() -> Path:
-        static_root = getattr(settings, 'STATIC_ROOT', None)
-        if static_root:
-            return Path(static_root, 'django_spire', 'scss')
-
+    def _get_static_files_dir() -> Path:
         staticfiles_dir = getattr(settings, 'STATICFILES_DIRS', [])
         if staticfiles_dir:
             first_dir = staticfiles_dir[0]
             if isinstance(first_dir, (str, Path)):
-                return Path(first_dir) / 'scss'
+                return Path(first_dir)
 
-        return Path('static') / 'django_spire' / 'scss'
-
-    @staticmethod
-    def _get_default_output_dir() -> Path:
-        static_root = getattr(settings, 'STATIC_ROOT', None)
-        if static_root:
-            return Path(static_root, 'django_spire', 'css')
-
-        staticfiles_dir = getattr(settings, 'STATICFILES_DIRS', [])
-        if staticfiles_dir:
-            first_dir = staticfiles_dir[0]
-            if isinstance(first_dir, (str, Path)):
-                return Path(first_dir) / 'css'
-
-        return Path('static') / 'django_spire' / 'css'
+        message = 'Could not locate static files directory.'
+        raise ValueError(message)
