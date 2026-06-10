@@ -49,15 +49,13 @@ def form_view(
     nav = EntryNavigation()
     nav.page_title = 'Entry'
     nav.page_description = 'Edit' if pk else 'Create'
-    nav.breadcrumbs.add_breadcrumb(
-        'Entries',
-        reverse('django_spire:knowledge:entry:page:list', kwargs={'collection_pk': collection_pk}),
-    )
-    nav.breadcrumbs.add_breadcrumb(
+    nav.breadcrumbs.add(
         collection.name,
-        reverse('django_spire:knowledge:collection:page:detail', kwargs={'pk': collection_pk}),
+        url='django_spire:knowledge:collection:page:top_level',
+        url_kwargs={'pk': collection_pk}
     )
-    nav.breadcrumbs.add_breadcrumb('Edit' if pk else 'Create')
+    nav.breadcrumbs.add_model_form_action(entry)
+
     context = nav.as_context()
     context['form'] = form
     context['entry'] = entry
@@ -108,7 +106,7 @@ def import_form_view(
     nav = EntryNavigation()
     nav.page_title = 'Import Files'
     nav.page_description = 'Import Files'
-    nav.breadcrumbs.add_breadcrumb('Import Files')
+    nav.breadcrumbs.add('Import Files')
     context = nav.as_context()
     context['collection_pk'] = collection_pk
     context['supported_file_types'] = supported_file_types

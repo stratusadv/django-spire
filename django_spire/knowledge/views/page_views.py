@@ -16,7 +16,7 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
     nav = CollectionNavigation()
     nav.page_title = 'Collection'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add_breadcrumb('Knowledge')
+    nav.breadcrumbs.add('Knowledge')
     context = nav.as_context()
     context['collections'] = (
         Collection.objects.active().parentless().request_user_has_access(request)

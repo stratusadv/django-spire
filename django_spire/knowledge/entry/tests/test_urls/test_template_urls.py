@@ -37,4 +37,4 @@ class EntryTemplateUrlsTests(BaseTestCase):
                 kwargs={'collection_pk': self.collection.pk},
             )
         )
-        assert 'breadcrumbs' in response.context
+        assert 'django_spire_navigation' in response.context

@@ -23,8 +23,8 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     nav = CollectionNavigation()
     nav.page_title = 'Knowledge Collection'
     nav.page_description = ''
-    nav.breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
-    nav.breadcrumbs.add_breadcrumb(str(collection))
+    nav.breadcrumbs.add('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add(str(collection))
     context = nav.as_context()
     context['collection'] = collection
     context['collection_tree_json'] = Collection.services.transformation.to_hierarchy_json(
@@ -70,9 +70,9 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = CollectionNavigation()
     nav.page_title = 'Delete Collection'
-    nav.breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
-    nav.breadcrumbs.add_breadcrumb(str(collection))
-    nav.breadcrumbs.add_breadcrumb('Delete')
+    nav.breadcrumbs.add('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add(str(collection))
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {collection}'

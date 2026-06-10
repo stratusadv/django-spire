@@ -84,9 +84,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = SignageNavigation()
     nav.page_title = 'Delete Signage'
-    nav.breadcrumbs.add_breadcrumb('Signage', reverse('metric:visual:signage:page:list'))
-    nav.breadcrumbs.add_breadcrumb(str(signage), None)
-    nav.breadcrumbs.add_breadcrumb('Delete', None)
+    nav.breadcrumbs.add('Signage', reverse('metric:visual:signage:page:list'))
+    nav.breadcrumbs.add(str(signage), None)
+    nav.breadcrumbs.add('Delete', None)
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {signage}'
@@ -151,8 +151,8 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
 
     nav = SignageNavigation()
     nav.page_title = str(signage._meta.verbose_name.title())
-    nav.breadcrumbs.add_breadcrumb('Signage', reverse('metric:visual:signage:page:list'))
-    nav.breadcrumbs.add_breadcrumb('Edit' if signage.pk else 'Create', None)
+    nav.breadcrumbs.add('Signage', reverse('metric:visual:signage:page:list'))
+    nav.breadcrumbs.add('Edit' if signage.pk else 'Create', None)
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = str(signage._meta.verbose_name.title())

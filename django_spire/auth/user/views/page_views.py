@@ -25,8 +25,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_title = str(user)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
-    nav.breadcrumbs.add_model_instance_breadcrumb(
+    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add_model_instance_string(
         user, url='django_spire:auth:user:page:detail', url_kwargs={'pk': user.pk}
     )
 
@@ -65,7 +65,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_title = 'Users'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add_breadcrumb('Users')
+    nav.breadcrumbs.add('Users')
 
     context = nav.as_context()
     context['active_user_list'] = paginated_active_user_list
@@ -84,8 +84,8 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_title = 'API Access'
     nav.page_description = 'Manage API access for users'
-    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
-    nav.breadcrumbs.add_breadcrumb('API Access')
+    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add('API Access')
 
     context = nav.as_context()
     context['user_list'] = paginated_user_list

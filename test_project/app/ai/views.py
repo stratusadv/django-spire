@@ -54,7 +54,7 @@ def ai_home_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = AiNavigation()
     nav.page_title = 'AI'
-    nav.breadcrumbs.add_breadcrumb('AI')
+    nav.breadcrumbs.add('AI')
 
     context = nav.as_context()
     context['horse_intel'] = horse_intel.model_dump() if horse_intel else None

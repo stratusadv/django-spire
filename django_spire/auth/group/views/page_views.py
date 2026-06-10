@@ -34,8 +34,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = AuthGroupNavigation()
     nav.page_title = str(group)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add_breadcrumb('Groups', reverse('django_spire:auth:group:page:list'))
-    nav.breadcrumbs.add_model_instance_breadcrumb(
+    nav.breadcrumbs.add('Groups', reverse('django_spire:auth:group:page:list'))
+    nav.breadcrumbs.add_model_instance_string(
         group, url='django_spire:auth:group:page:detail', url_kwargs={'pk': group.pk}
     )
 
@@ -56,7 +56,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     nav = AuthGroupNavigation()
     nav.page_title = 'Groups'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add_breadcrumb('Groups')
+    nav.breadcrumbs.add('Groups')
 
     context = nav.as_context()
     context['group_list'] = group_list

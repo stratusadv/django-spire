@@ -30,12 +30,12 @@ class Project(models.Model):
     @staticmethod
     def base_breadcrumb() -> Breadcrumbs:
         breadcrumbs = Breadcrumbs()
-        breadcrumbs.add_breadcrumb(name='Projects', href=reverse('projects:page:list'))
+        breadcrumbs.add(name='Projects', href=reverse('projects:page:list'))
         return breadcrumbs
 
     def breadcrumbs(self) -> Breadcrumbs:
         breadcrumbs = self.base_breadcrumb()
-        breadcrumbs.add_breadcrumb(name=self.name, href=reverse('projects:page:detail', kwargs={'pk': self.pk}))
+        breadcrumbs.add(name=self.name, href=reverse('projects:page:detail', kwargs={'pk': self.pk}))
         return breadcrumbs
 ```
 
@@ -95,8 +95,8 @@ The breadcrumb system is model-driven. Models implement two methods:
 
 ```python
 breadcrumbs = Breadcrumbs()
-breadcrumbs.add_breadcrumb(name='Dashboard', href='/dashboard/')
-breadcrumbs.add_breadcrumb(name='Current Page')  # No href — renders as plain text
+breadcrumbs.add(name='Dashboard', href='/dashboard/')
+breadcrumbs.add(name='Current Page')  # No href — renders as plain text
 ```
 
 ### Building from a Model Object
@@ -113,7 +113,7 @@ Useful when you want the section root without the object-level crumb:
 
 ```python
 breadcrumbs = Breadcrumbs()
-breadcrumbs.add_breadcrumb(Project)
+breadcrumbs.add(Project)
 # Calls Project.base_breadcrumb() if it exists
 ```
 
@@ -132,10 +132,10 @@ breadcrumbs.add_form_breadcrumbs(project)
 
 ```python
 section_crumbs = Breadcrumbs()
-section_crumbs.add_breadcrumb(name='Admin', href='/admin/')
+section_crumbs.add(name='Admin', href='/admin/')
 
 page_crumbs = Breadcrumbs()
-page_crumbs.add_breadcrumb(name='Users', href='/admin/users/')
+page_crumbs.add(name='Users', href='/admin/users/')
 
 combined = section_crumbs + page_crumbs
 # Admin > Users

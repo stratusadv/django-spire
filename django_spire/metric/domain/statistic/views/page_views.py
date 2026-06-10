@@ -26,8 +26,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = StatisticNavigation()
     nav.page_title = str(statistic)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add_breadcrumb('Statistics', reverse('metric:domain:statistic:page:list'))
-    nav.breadcrumbs.add_breadcrumb(str(statistic))
+    nav.breadcrumbs.add('Statistics', reverse('metric:domain:statistic:page:list'))
+    nav.breadcrumbs.add(str(statistic))
     context = nav.as_context()
     context['statistic'] = statistic
     return TemplateResponse(
@@ -44,7 +44,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     nav = StatisticNavigation()
     nav.page_title = 'Statistic'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add_breadcrumb('Statistics')
+    nav.breadcrumbs.add('Statistics')
     context = nav.as_context()
     context['responsive_mode'] = 'scroll'
     context['statistic_items_endpoint'] = reverse('metric:domain:statistic:template:items')

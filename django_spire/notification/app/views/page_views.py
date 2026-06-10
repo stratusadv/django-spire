@@ -36,7 +36,7 @@ def app_notification_list_view(request: WSGIRequest) -> TemplateResponse:
     nav = AppNotificationNavigation()
     nav.page_title = 'Notification'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add_breadcrumb('Notifications')
+    nav.breadcrumbs.add('Notifications')
     context = nav.as_context()
     context['notification_endpoint'] = reverse(
         'django_spire:notification:app:template:scroll_items'

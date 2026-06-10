@@ -26,8 +26,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = PresentationNavigation()
     nav.page_title = str(presentation)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add_breadcrumb('Presentations', reverse('metric:visual:presentation:page:list'))
-    nav.breadcrumbs.add_breadcrumb(str(presentation))
+    nav.breadcrumbs.add('Presentations', reverse('metric:visual:presentation:page:list'))
+    nav.breadcrumbs.add(str(presentation))
     context = nav.as_context()
     context['presentation'] = presentation
     return TemplateResponse(
@@ -46,7 +46,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     nav = PresentationNavigation()
     nav.page_title = 'Presentation'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add_breadcrumb('Presentations')
+    nav.breadcrumbs.add('Presentations')
     context = nav.as_context()
     context['responsive_mode'] = ResponsiveMode.SCROLL
     context['presentation_items_endpoint'] = reverse('metric:visual:presentation:template:items')

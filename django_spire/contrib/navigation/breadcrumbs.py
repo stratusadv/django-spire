@@ -66,34 +66,34 @@ class Breadcrumbs:
     def __str__(self) -> str:
         return str(self.items)
 
-    def add_breadcrumb(
+    def add(
         self, name: str, url: str | None = None, url_kwargs: dict[str, Any] | None = None
     ) -> None:
         self.items.append(_Breadcrumb(name=name, url=url, url_kwargs=url_kwargs))
 
-    def add_breadcrumb_from_model_plural_name(
+    def add_model_plural_name(
         self,
         model: type[Model] | Model,
         url: str | None = None,
         url_kwargs: dict[str, Any] | None = None,
     ) -> None:
-        self.add_breadcrumb(name=model._meta.verbose_name_plural.title(), url=url, url_kwargs=url_kwargs)
+        self.add(name=model._meta.verbose_name_plural.title(), url=url, url_kwargs=url_kwargs)
 
-    def add_breadcrumb_from_model_name(
+    def add_model_name(
         self,
         model: type[Model] | Model,
         url: str | None = None,
         url_kwargs: dict[str, Any] | None = None,
     ) -> None:
-        self.add_breadcrumb(name=model._meta.verbose_name.title(), url=url, url_kwargs=url_kwargs)
+        self.add(name=model._meta.verbose_name.title(), url=url, url_kwargs=url_kwargs)
 
-    def add_model_instance_breadcrumb(
+    def add_model_instance_string(
         self, model: Model, url: str | None = None, url_kwargs: dict[str, Any] | None = None
     ) -> None:
-        self.add_breadcrumb(name=str(model), url=url, url_kwargs=url_kwargs)
+        self.add(name=str(model), url=url, url_kwargs=url_kwargs)
 
-    def add_breadcrumb_from_model_form_action(self, model: Model) -> None:
-        self.add_breadcrumb(name=form_action_name(has_pk=model.pk is not None))
+    def add_model_form_action(self, model: Model) -> None:
+        self.add(name=form_action_name(has_pk=model.pk is not None))
 
     def remove(self, index: int) -> Breadcrumbs:
         del self.items[index]

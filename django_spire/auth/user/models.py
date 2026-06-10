@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import User
-from django.urls import reverse
 
 from django_spire.auth.user.services.services import AuthUserService
-from django_spire.contrib import Breadcrumbs
 from django_spire.history.activity.mixins import ActivityMixin
 
 

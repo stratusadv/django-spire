@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.urls import reverse
 
 from django_spire.conf import settings
-from django_spire.contrib import Breadcrumbs
+from django_spire.contrib.navigation.breadcrumbs import Breadcrumbs
 from django_spire.contrib.navigation.tools import form_action_name
 from typing import TYPE_CHECKING, Any
 

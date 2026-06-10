@@ -4,25 +4,25 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.conf import settings
-from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.utils import get_object_from_module_string
 from django_spire.metric.domain.navigation import DomainNavigation
 from django_spire.metric.report.models import ReportRun
 from django_spire.metric.report.registry import ReportRegistry
+from django.template.response import TemplateResponse
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.template.response import TemplateResponse
 
 
 @AppAuthController('report').permission_required('can_view')
 def report_view(request: WSGIRequest) -> TemplateResponse:
-    breadcrumbs = Breadcrumbs()
+    nav = DomainNavigation()
+    nav.page_title = 'Reports'
+    nav.page_description = 'More Reporting Info'
 
-    breadcrumbs.add_breadcrumb('Reports', reverse('django_spire:metric:report:page:report'))
+    nav.breadcrumbs.add(name='Reports', url='django_spire:metric:report:page:report')
 
     page_report_registry = ReportRegistry()
 
@@ -31,9 +31,9 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
         page_report_registry.add_registry(report_registry_class())
 
-    context_data = {}
+    context = {}
 
-    context_data['registry'] = page_report_registry
+    context['registry'] = page_report_registry
 
     if request.GET:
         report_key_stack = request.GET.get('report_key_stack', None)
@@ -43,17 +43,17 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
             if report:
                 for key in report_key_stack.split('|'):
-                    breadcrumbs.add_breadcrumb(key)
+                    nav.breadcrumbs.add(name=key)
 
-                context_data['report_run_arguments'] = report.run_arguments
+                context['report_run_arguments'] = report.run_arguments
 
-                context_data['report_run_arguments_values'] = {}
+                context['report_run_arguments_values'] = {}
 
-                for argument in context_data['report_run_arguments']:
-                    if context_data['report_run_arguments'][argument]['annotation'] == 'bool':
+                for argument in context['report_run_arguments']:
+                    if context['report_run_arguments'][argument]['annotation'] == 'bool':
                         get_request_value = request.GET.get(argument, False)
 
-                    elif context_data['report_run_arguments'][argument]['annotation'] == 'date':
+                    elif context['report_run_arguments'][argument]['annotation'] == 'date':
                         date_str = request.GET.get(argument, None)
 
                         if date_str:
@@ -61,7 +61,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         else:
                             get_request_value = date_str
 
-                    elif context_data['report_run_arguments'][argument]['annotation'] == 'datetime':
+                    elif context['report_run_arguments'][argument]['annotation'] == 'datetime':
                         datetime_str = request.GET.get(argument, None)
 
                         if datetime_str:
@@ -70,7 +70,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                             get_request_value = datetime_str
 
                     elif (
-                        context_data['report_run_arguments'][argument]['annotation']
+                        context['report_run_arguments'][argument]['annotation']
                         == 'multi_select'
                     ):
                         get_request_value = request.GET.getlist(argument, [])
@@ -79,24 +79,24 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         value = request.GET.get(argument, None)
 
                         if value:
-                            get_request_value = context_data['report_run_arguments'][argument][
+                            get_request_value = context['report_run_arguments'][argument][
                                 'annotation_class'
                             ](value)
                         else:
                             get_request_value = value
 
-                    context_data['report_run_arguments_values'][argument] = get_request_value
+                    context['report_run_arguments_values'][argument] = get_request_value
 
                 if request.GET.get('report_should_run', 'false').lower() == 'true':
-                    for argument, value in context_data['report_run_arguments_values'].items():
+                    for argument, value in context['report_run_arguments_values'].items():
                         if value is None:
                             break
                     else:
                         ReportRun.objects.create(report_key_stack=report_key_stack)
-                        report.run(**context_data['report_run_arguments_values'])
+                        report.run(**context['report_run_arguments_values'])
 
-                context_data['report'] = report
-                context_data['report_run_count'] = ReportRun.objects.run_count(report_key_stack)
+                context['report'] = report
+                context['report_run_count'] = ReportRun.objects.run_count(report_key_stack)
 
     else:
         top_ten_report_runs = [
@@ -107,15 +107,9 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
             for report_run in ReportRun.objects.by_top_ten()
         ]
 
-        context_data['top_ten_report_runs'] = top_ten_report_runs
+        context['top_ten_report_runs'] = top_ten_report_runs
 
-    nav = DomainNavigation()
-    nav.page_title = 'Reports'
-    nav.page_description = 'More Reporting Info'
-    for crumb in breadcrumbs:
-        nav.breadcrumbs.add_breadcrumb(crumb.get('name', ''), crumb.get('href'))
-    context = nav.as_context()
-    context.update(context_data)
+    context.update(nav.as_context())
 
     return TemplateResponse(
         request, 'django_spire/metric/report/page/report_page.html', context=context

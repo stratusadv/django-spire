@@ -50,8 +50,8 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_title = 'Register'
     nav.page_description = 'New User'
-    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
-    nav.breadcrumbs.add_breadcrumb('Register New User')
+    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add('Register New User')
 
     context = nav.as_context()
     context['user_form_data'] = json.dumps(user_form.data, cls=DjangoJSONEncoder)
@@ -85,11 +85,11 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_description = 'Edit'
     nav.set_page_title_from_model_name(portal_user)
-    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
-    nav.breadcrumbs.add_model_instance_breadcrumb(
+    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add_model_instance_string(
         portal_user, url='django_spire:auth:user:page:detail', url_kwargs={'pk': portal_user.pk}
     )
-    nav.breadcrumbs.add_breadcrumb('Edit')
+    nav.breadcrumbs.add('Edit')
 
     context = nav.as_context()
     context['portal_user'] = portal_user
@@ -121,11 +121,11 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_title = 'User'
     nav.page_description = 'Edit Groups'
-    nav.breadcrumbs.add_breadcrumb('Users', reverse('django_spire:auth:user:page:list'))
-    nav.breadcrumbs.add_model_instance_breadcrumb(
+    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add_model_instance_string(
         user, url='django_spire:auth:user:page:detail', url_kwargs={'pk': user.pk}
     )
-    nav.breadcrumbs.add_breadcrumb('Edit Groups')
+    nav.breadcrumbs.add('Edit Groups')
 
     context = nav.as_context()
     context['user'] = user

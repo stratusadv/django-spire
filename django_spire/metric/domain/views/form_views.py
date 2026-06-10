@@ -83,9 +83,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Domain'
-    nav.breadcrumbs.add_breadcrumb('Domains', reverse('metric:domain:page:list'))
-    nav.breadcrumbs.add_breadcrumb(str(domain), None)
-    nav.breadcrumbs.add_breadcrumb('Delete', None)
+    nav.breadcrumbs.add('Domains', reverse('metric:domain:page:list'))
+    nav.breadcrumbs.add(str(domain), None)
+    nav.breadcrumbs.add('Delete', None)
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {domain}'
@@ -148,8 +148,8 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
 
     nav = DomainNavigation()
     nav.page_title = str(domain._meta.verbose_name.title())
-    nav.breadcrumbs.add_breadcrumb('Domains', reverse('metric:domain:page:list'))
-    nav.breadcrumbs.add_breadcrumb('Edit' if domain.pk else 'Create', None)
+    nav.breadcrumbs.add('Domains', reverse('metric:domain:page:list'))
+    nav.breadcrumbs.add('Edit' if domain.pk else 'Create', None)
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = str(domain._meta.verbose_name.title())

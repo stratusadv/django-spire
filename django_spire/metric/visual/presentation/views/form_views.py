@@ -88,9 +88,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = PresentationNavigation()
     nav.page_title = 'Delete Presentation'
-    nav.breadcrumbs.add_breadcrumb('Presentations', reverse('metric:visual:presentation:page:list'))
-    nav.breadcrumbs.add_breadcrumb(str(presentation))
-    nav.breadcrumbs.add_breadcrumb('Delete')
+    nav.breadcrumbs.add('Presentations', reverse('metric:visual:presentation:page:list'))
+    nav.breadcrumbs.add(str(presentation))
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {presentation}'
@@ -159,8 +159,8 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     nav = PresentationNavigation()
     nav.page_title = str(presentation._meta.verbose_name.title())
     nav.page_description = 'Edit' if presentation.pk else 'Create'
-    nav.breadcrumbs.add_breadcrumb('Presentations', reverse('metric:visual:presentation:page:list'))
-    nav.breadcrumbs.add_breadcrumb('Edit' if presentation.pk else 'Create')
+    nav.breadcrumbs.add('Presentations', reverse('metric:visual:presentation:page:list'))
+    nav.breadcrumbs.add('Edit' if presentation.pk else 'Create')
     context = nav.as_context()
     context['form'] = form
     return TemplateResponse(request, 'metric/visual/presentation/page/form_page.html', context)

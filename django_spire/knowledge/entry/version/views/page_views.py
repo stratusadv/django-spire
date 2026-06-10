@@ -28,8 +28,8 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = EntryNavigation()
     nav.page_title = str(entry)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add_breadcrumb('Knowledge', reverse('django_spire:knowledge:page:home'))
-    nav.breadcrumbs.add_breadcrumb(str(entry))
+    nav.breadcrumbs.add('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add(str(entry))
     context = nav.as_context()
     context['entry'] = entry
     context['current_version'] = entry_version

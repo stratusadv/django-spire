@@ -337,10 +337,10 @@ from django_spire.contrib.generic_views.modal_views import (
 from django_spire.contrib.breadcrumb.breadcrumbs import Breadcrumbs
 
 breadcrumb = Breadcrumbs()
-breadcrumb.add_breadcrumb('Home', '/')
+breadcrumb.add('Home', '/')
 breadcrumb.add_obj_breadcrumbs(obj)  # Uses obj.breadcrumbs()
 breadcrumb.add_form_breadcrumbs(obj)  # Creates edit/create breadcrumbs
-breadcrumb.add_breadcrumb(MyModel)  # Uses model.base_breadcrumb()
+breadcrumb.add(MyModel)  # Uses model.base_breadcrumb()
 ```
 
 ## Forms

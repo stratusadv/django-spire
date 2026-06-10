@@ -26,22 +26,13 @@ def form_view(
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=pk)
 
-    Glue.model(request, unique_name='collection', target=collection, access=Glue.Access.DELETE)
+    nav = CollectionNavigation()
+    nav.page_title = 'Collection'
+    nav.page_description = 'Edit' if pk else 'Create'
+    nav.breadcrumbs.add('Collections', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add('Edit' if pk else 'Create')
 
-    Glue.queryset(
-        request,
-        unique_name='collections',
-        target=(
-            Collection.objects.active()
-            .request_user_has_access(request)
-            .exclude(pk=collection.pk)
-            .exclude_children(collection_id=pk)
-        ),
-        fields=['name'],
-    )
-    Glue.queryset(
-        request, unique_name='group_query_set', target=AuthGroup.objects.all(), fields=['name']
-    )
+    context = nav.as_context()
 
     if request.method == 'POST':
         form = CollectionForm(request.POST, instance=collection)
@@ -67,14 +58,8 @@ def form_view(
 
         show_form_errors(request, form)
     else:
-        form = CollectionForm(instance=collection)
+        form = CollectionForm(instance=collection, initial={'parent': parent_pk})
 
-    nav = CollectionNavigation()
-    nav.page_title = 'Collection'
-    nav.page_description = 'Edit' if pk else 'Create'
-    nav.breadcrumbs.add_breadcrumb('Collections', reverse('django_spire:knowledge:page:home'))
-    nav.breadcrumbs.add_breadcrumb('Edit' if pk else 'Create')
-    context = nav.as_context()
     context['form'] = form
     context['collection'] = collection
     context['collection_parent_pk'] = parent_pk
