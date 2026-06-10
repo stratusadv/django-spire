@@ -1460,6 +1460,8 @@ class DatabaseEngine:
                     after_keys=collect_cursors,
                 )
 
+                collected_cursors = manifest.after_keys or {}
+
                 manifest.peer_sequence = peer_sequence
                 manifest.after_keys = server_cursors
                 manifest.checksum = manifest.compute_checksum()
@@ -1484,7 +1486,7 @@ class DatabaseEngine:
                 )
 
                 if manifest.has_more:
-                    collect_cursors = manifest.after_keys or {}
+                    collect_cursors = collected_cursors
                 else:
                     collect_cursors = {}
 
