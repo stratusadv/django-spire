@@ -26,13 +26,13 @@ class Command(BaseCommand):
     def handle(self, **options) -> None:
         output_dir = options['output']
         if output_dir is None:
-            output_dir = self._get_static_files_dir() / 'css'
+            output_dir = self._get_static_files_dir() / 'django_spire' / 'css'
 
         django_spire_scss_source_path = self._get_django_spire_scss_source_path()
         bundled_entry_file = django_spire_scss_source_path / '_theme.scss'
 
         external_scss_source_path = self._get_static_files_dir()
-        external_entry_file = external_scss_source_path / 'scss' / '_theme.scss'
+        external_entry_file = external_scss_source_path / 'django_spire' / 'scss' / '_theme.scss'
 
         if not external_entry_file.exists():
             external_scss_dir = external_scss_source_path / 'scss'
@@ -57,7 +57,7 @@ class Command(BaseCommand):
             self.stderr.write(f'Sass compilation error: {exc}')
             return
 
-        output_file = output_dir / 'django_spire.css'
+        output_file = output_dir / 'django-spire-bootstrap.css'
         output_file.write_bytes(css_content.encode('utf-8'))
 
         self.stdout.write(self.style.SUCCESS(f'Compiled successfully: {output_file}'))
