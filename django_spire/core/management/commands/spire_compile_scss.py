@@ -28,17 +28,24 @@ class Command(BaseCommand):
             output_dir = self._get_default_output_dir()
 
         django_spire_scss_source_path = self._get_django_spire_scss_source_path()
-        entry_file = django_spire_scss_source_path / '_theme.scss'
+        bundled_entry_file = django_spire_scss_source_path / '_theme.scss'
+
+        external_scss_source_path = self._get_external_scss_source_path()
+        external_entry_file = external_scss_source_path / '_theme.scss'
+
+        if external_entry_file.exists():
+            entry_file = external_entry_file
+            include_paths = [str(external_scss_source_path), str(django_spire_scss_source_path)]
+            self.stdout.write('Using external theme entry file.')
+        else:
+            entry_file = bundled_entry_file
+            include_paths = [str(django_spire_scss_source_path)]
+            if external_scss_source_path.exists():
+                include_paths.append(str(external_scss_source_path))
 
         if not entry_file.exists():
             self.stderr.write(f'Entry file not found: {entry_file}')
             return
-
-        include_paths = [str(django_spire_scss_source_path)]
-
-        external_scss_source_path = self._get_external_scss_source_path()
-        if external_scss_source_path.exists():
-            include_paths.append(str(external_scss_source_path))
 
         self.stdout.write(f'Compiling SCSS from: {entry_file}')
         self.stdout.write(f'Output directory: {output_dir}')
@@ -47,9 +54,7 @@ class Command(BaseCommand):
 
         try:
             css_content = sass.compile(
-                filename=str(entry_file),
-                output_style='expanded',
-                include_paths=include_paths,
+                filename=str(entry_file), output_style='expanded', include_paths=include_paths
             )
         except sass.CompileError as exc:
             self.stderr.write(f'Sass compilation error: {exc}')
