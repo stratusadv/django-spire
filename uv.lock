@@ -871,7 +871,7 @@ requires-dist = [
     { name = "pytest-playwright", marker = "extra == 'development'" },
     { name = "pytest-xdist", marker = "extra == 'development'" },
     { name = "python-dateutil" },
-    { name = "robit", specifier = "==0.4.8" },
+    { name = "robit", specifier = "==0.4.9" },
     { name = "ruff", marker = "extra == 'development'" },
     { name = "setuptools", marker = "extra == 'development'" },
     { name = "sqlalchemy", specifier = "==2.0.49" },
@@ -2720,14 +2720,14 @@ wheels = [
 
 [[package]]
 name = "robit"
-version = "0.4.8"
+version = "0.4.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pytz" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5a/1d/99a4c967b3df0c302a2e6e77ec8742a4cbd1e9c003694ac09ecb49d713d5/robit-0.4.8.tar.gz", hash = "sha256:076ecf50c32e38b3d854f90ee55861d65ff1f82334762bf21d9e4297701c371e", size = 94821, upload-time = "2024-09-11T01:54:41.343Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/23/c91031e2421420bd94181e5869dd223f8293965c6e4272ac6ca5c167a2ac/robit-0.4.9.tar.gz", hash = "sha256:44d20123f22e26b444a433faf63775424bd8b185f7633966dec42f40531724d6", size = 93538, upload-time = "2025-10-20T02:02:00.828Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/19/8d044f6d06433572ce039862e092c6980bc250e7dc0f8f23fdf13547c715/robit-0.4.8-py3-none-any.whl", hash = "sha256:7372fd8f1b9c8a082e96221493125a3a8178e7707a912fc5c32c08a414a0766b", size = 107853, upload-time = "2024-09-11T01:54:39.619Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/c4/41ee0db9e570abddbbd8be47ebc4b3eca9176bce402ff6c57c539c545f3d/robit-0.4.9-py3-none-any.whl", hash = "sha256:84ec5e17e6c210ce299ae77c49abaacb2c9e8c3c5ca1e07a317b19fcd8d9de20", size = 107107, upload-time = "2025-10-20T02:01:59.394Z" },
 ]
 
 [[package]]
