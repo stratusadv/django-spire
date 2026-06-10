@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import sass
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from typing import TYPE_CHECKING
+from importlib.util import find_spec
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
@@ -64,12 +65,22 @@ class Command(BaseCommand):
 
     @staticmethod
     def _get_django_spire_scss_source_path() -> Path:
+        spec = find_spec('django_spire.core')
+        if spec and spec.submodule_search_locations:
+            core_dir = Path(spec.submodule_search_locations[0])
+            candidate = core_dir.parent / 'static' / 'django_spire' / 'scss'
+            if candidate.exists():
+                return candidate
+
         for parent in Path(__file__).resolve().parents:
             candidate = parent / 'static' / 'django_spire' / 'scss'
             if candidate.exists():
                 return candidate
 
-        message = 'Could not locate django-spire SCSS source directory.'
+        message = (
+            'Could not locate django-spire SCSS source directory. '
+            'Please ensure django-spire is properly installed.'
+        )
         raise FileNotFoundError(message)
 
     @staticmethod
