@@ -123,6 +123,7 @@ django_spire = [
     "**/*.py.template",
     "**/*.html.template",
     "**/*.css",
+    "**/*.scss",
     "**/*.js",
     "**/*.png",
     "**/*.gif",
