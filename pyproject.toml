@@ -195,8 +195,9 @@ include = [
 DJANGO_SETTINGS_MODULE = "test_project.test_settings"
 pythonpath = ["."]
 django_find_project = false
-# log_cli = true
-# log_cli_level = "INFO"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 markers = [
     "ai: AI/LLM tests",
     "playwright: Playwright tests",
@@ -205,5 +206,5 @@ markers = [
     "postgres_only: Skip when the default database is not Postgres",
 ]
 norecursedirs = [".hypothesis", "atlassian", "test_playwright"]
-addopts = "-m 'not ai'"
+addopts = "-v --tb=short -m 'not ai and not playwright'"
 
