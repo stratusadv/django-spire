@@ -32,7 +32,3 @@ class EntryModelTests(BaseTestCase):
 
     def test_top_level_collection_when_already_top(self):
         assert self.entry.top_level_collection == self.collection
-
-    def test_base_breadcrumb(self):
-        breadcrumbs = self.entry.base_breadcrumb()
-        assert breadcrumbs is not None

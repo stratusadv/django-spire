@@ -27,12 +27,18 @@ class Command(BaseCommand):
         if output_dir is None:
             output_dir = self._get_default_output_dir()
 
-        scss_source_path = self._get_scss_source_path()
-        entry_file = scss_source_path / '_theme.scss'
+        django_spire_scss_source_path = self._get_django_spire_scss_source_path()
+        entry_file = django_spire_scss_source_path / '_theme.scss'
 
         if not entry_file.exists():
             self.stderr.write(f'Entry file not found: {entry_file}')
             return
+
+        include_paths = [str(django_spire_scss_source_path)]
+
+        external_scss_source_path = self._get_external_scss_source_path()
+        if external_scss_source_path.exists():
+            include_paths.append(str(external_scss_source_path))
 
         self.stdout.write(f'Compiling SCSS from: {entry_file}')
         self.stdout.write(f'Output directory: {output_dir}')
@@ -43,7 +49,7 @@ class Command(BaseCommand):
             css_content = sass.compile(
                 filename=str(entry_file),
                 output_style='expanded',
-                include_paths=[str(scss_source_path)],
+                include_paths=include_paths,
             )
         except sass.CompileError as exc:
             self.stderr.write(f'Sass compilation error: {exc}')
@@ -55,7 +61,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Compiled successfully: {output_file}'))
 
     @staticmethod
-    def _get_scss_source_path() -> Path:
+    def _get_django_spire_scss_source_path() -> Path:
         for parent in Path(__file__).resolve().parents:
             candidate = parent / 'static' / 'django_spire' / 'scss'
             if candidate.exists():
@@ -63,6 +69,20 @@ class Command(BaseCommand):
 
         message = 'Could not locate django-spire SCSS source directory.'
         raise FileNotFoundError(message)
+
+    @staticmethod
+    def _get_external_scss_source_path() -> Path:
+        static_root = getattr(settings, 'STATIC_ROOT', None)
+        if static_root:
+            return Path(static_root, 'django_spire', 'scss')
+
+        staticfiles_dir = getattr(settings, 'STATICFILES_DIRS', [])
+        if staticfiles_dir:
+            first_dir = staticfiles_dir[0]
+            if isinstance(first_dir, (str, Path)):
+                return Path(first_dir) / 'scss'
+
+        return Path('static') / 'django_spire' / 'scss'
 
     @staticmethod
     def _get_default_output_dir() -> Path:

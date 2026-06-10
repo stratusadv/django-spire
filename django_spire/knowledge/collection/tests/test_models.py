@@ -33,10 +33,6 @@ class CollectionModelTests(BaseTestCase):
         grandchild = create_test_collection(parent=child, name='Grandchild')
         assert grandchild.top_level_parent == self.collection
 
-    def test_base_breadcrumb(self):
-        breadcrumbs = self.collection.base_breadcrumb()
-        assert breadcrumbs is not None
-
 
 class CollectionGroupModelTests(BaseTestCase):
     def setUp(self):

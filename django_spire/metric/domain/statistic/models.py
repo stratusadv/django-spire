@@ -7,7 +7,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.timezone import now
 
-from django_spire.contrib.breadcrumb import Breadcrumbs
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.activity.mixins import ActivityMixin
 
@@ -24,25 +23,6 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
     def __str__(self):
         return self.name
-
-    @classmethod
-    def base_breadcrumb(cls) -> Breadcrumbs:
-        crumbs = Breadcrumbs()
-
-        crumbs.add_breadcrumb('Statistic', reverse('metric:domain:statistic:page:list'))
-
-        return crumbs
-
-    def breadcrumbs(self) -> Breadcrumbs:
-        crumbs = Breadcrumbs()
-        crumbs.add_breadcrumb(self._meta.model)
-
-        if self.pk:
-            crumbs.add_breadcrumb(
-                str(self), reverse('metric:domain:statistic:page:detail', kwargs={'pk': self.pk})
-            )
-
-        return crumbs
 
     class Meta:
         verbose_name = 'Statistic Group'
@@ -113,25 +93,6 @@ class Statistic(HistoryModelMixin, ActivityMixin):
 
         self.has_initial_value = True
         self.save()
-
-    @classmethod
-    def base_breadcrumb(cls) -> Breadcrumbs:
-        crumbs = Breadcrumbs()
-
-        crumbs.add_breadcrumb('Statistic', reverse('metric:domain:statistic:page:list'))
-
-        return crumbs
-
-    def breadcrumbs(self) -> Breadcrumbs:
-        crumbs = Breadcrumbs()
-        crumbs.add_breadcrumb(self._meta.model)
-
-        if self.pk:
-            crumbs.add_breadcrumb(
-                str(self), reverse('metric:domain:statistic:page:detail', kwargs={'pk': self.pk})
-            )
-
-        return crumbs
 
     class Meta:
         verbose_name = 'Statistic'

@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 from django.db import models
-from django.urls import reverse
 from django.utils.functional import cached_property
 
-from django_spire.contrib import Breadcrumbs
 from django_spire.file.mixins import FileModelMixin
 from django_spire.file.models import File
 from django_spire.history.mixins import HistoryModelMixin
@@ -31,23 +29,6 @@ class FileExample(HistoryModelMixin, FileModelMixin):
             .filter(related_field=ATTACHMENTS_RELATED_FIELD)
             .order_by('-created_datetime')
         )
-
-    @classmethod
-    def base_breadcrumb(cls) -> Breadcrumbs:
-        crumbs = Breadcrumbs()
-
-        crumbs.add_breadcrumb('File', reverse('file:page:list'))
-
-        return crumbs
-
-    def breadcrumbs(self) -> Breadcrumbs:
-        crumbs = Breadcrumbs()
-        crumbs.add_breadcrumb(self._meta.model)
-
-        if self.pk:
-            crumbs.add_breadcrumb(str(self), reverse('file:page:detail', kwargs={'pk': self.pk}))
-
-        return crumbs
 
     @cached_property
     def profile_picture(self) -> File | None:

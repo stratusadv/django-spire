@@ -3,7 +3,6 @@ from __future__ import annotations
 from django.db import models
 
 from django_spire.auth.group.models import AuthGroup
-from django_spire.contrib import Breadcrumbs
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
 from django_spire.core.tag.mixins import TagModelMixin
 from django_spire.contrib.utils import truncate_string
@@ -45,12 +44,6 @@ class Collection(HistoryModelMixin, OrderingModelMixin, TagModelMixin):
 
         return self.parent.top_level_parent
 
-    def base_breadcrumb(self) -> Breadcrumbs:
-        breadcrumbs = Breadcrumbs()
-
-        breadcrumbs.add_breadcrumb(self.name_short)
-
-        return breadcrumbs
 
     class Meta:
         verbose_name = 'Collection'

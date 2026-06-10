@@ -21,19 +21,6 @@ class AuthGroupModelTestCase(BaseTestCase):
         group = AuthGroup.objects.create(name='Test & Group <Special>')
         assert str(group) == 'Test & Group <Special>'
 
-    def test_base_breadcrumb_returns_breadcrumbs(self) -> None:
-        crumbs = AuthGroup.base_breadcrumb()
-        assert crumbs is not None
-
-    def test_breadcrumbs_with_pk_returns_breadcrumbs(self) -> None:
-        crumbs = self.group.breadcrumbs()
-        assert crumbs is not None
-
-    def test_breadcrumbs_without_pk_returns_breadcrumbs(self) -> None:
-        unsaved_group = AuthGroup(name='Unsaved Group')
-        crumbs = unsaved_group.breadcrumbs()
-        assert crumbs is not None
-
     def test_meta_proxy(self) -> None:
         assert AuthGroup._meta.proxy
 
@@ -125,16 +112,6 @@ class AuthGroupModelTestCase(BaseTestCase):
         long_name = 'A' * 150
         group = AuthGroup.objects.create(name=long_name)
         assert group.name == long_name
-
-    def test_breadcrumbs_contains_group_name(self) -> None:
-        crumbs = self.group.breadcrumbs()
-        names = [c['name'] for c in crumbs]
-        assert 'Test Group' in names
-
-    def test_base_breadcrumb_contains_groups(self) -> None:
-        crumbs = AuthGroup.base_breadcrumb()
-        names = [c['name'] for c in crumbs]
-        assert 'Groups' in names
 
     def test_group_user_set_query(self) -> None:
         user = create_user(username='queryuser')

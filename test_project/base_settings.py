@@ -19,9 +19,6 @@ ADMINS = [('Stratus', 'stratus@stratusadv.com')]
 
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-if DEBUG:  # This is to speed up testing as the normal password hasher is very slow
-    PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
-
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '0.0.0.0,127.0.0.1,localhost').split(',')
 
 ASGI_APPLICATION = 'test_project.asgi.application'
@@ -67,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.messages',
+    'django.contrib.postgres',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.staticfiles',

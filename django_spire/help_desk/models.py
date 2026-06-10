@@ -5,12 +5,13 @@ from django.contrib.auth.models import User
 
 from django_spire.help_desk.querysets import HelpDeskTicketQuerySet
 from django_spire.help_desk.services.service import HelpDeskTicketService
+from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 
 from django_spire.help_desk import choices
 
 
-class HelpDeskTicket(HistoryModelMixin):
+class HelpDeskTicket(ActivityMixin, HistoryModelMixin):
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
