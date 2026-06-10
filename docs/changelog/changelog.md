@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.7
+
+### Fixes
+- Fixed issue causing backlogged foreign keys from being left behind during `sync`
+
 ## v0.32.6
 
 ### Fixes
@@ -7,7 +12,7 @@
 
 ## v0.32.5
 
-### Changes
+### Fixes
 - Fix pagination in `sync` module
 
 ## v0.32.4
