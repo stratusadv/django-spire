@@ -68,7 +68,7 @@ class Command(BaseCommand):
         spec = find_spec('django_spire.core')
         if spec and spec.submodule_search_locations:
             core_dir = Path(spec.submodule_search_locations[0])
-            candidate = core_dir.parent / 'static' / 'django_spire' / 'scss'
+            candidate = core_dir / 'static' / 'django_spire' / 'scss'
             if candidate.exists():
                 return candidate
 
