@@ -1,5 +1,29 @@
-{% extends 'django_spire/dropdown/element/dropdown_link_element.html' %}
+{% load django_spire_string_formatting %}
+{% load django_spire_core %}
+{% load django_spire_comment_tags %}
 
-{% block link_content %}
-    {% include 'django_spire/comment/modal/comment_edit_modal.html' %}
-{% endblock %}
+{% with modal_camel_case_id=comment.id|to_camel_case_javascript_safe %}
+
+<li>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="#" data-bs-toggle="modal" data-bs-target="#{{ modal_camel_case_id }}EditModal">
+        <i class="bi bi-pencil"></i>Edit
+    </a>
+</li>
+
+<div class="modal fade" id="{{ modal_camel_case_id }}EditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Edit Comment</div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% comment_form related_obj request.get_full_path request.user comment=comment user_list=comment_user_list as comment_form %}
+                <div class="h6">Edit</div>
+                {% crispy comment_form %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endwith %}

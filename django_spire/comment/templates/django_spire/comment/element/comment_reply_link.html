@@ -1,5 +1,35 @@
-{% extends 'django_spire/dropdown/element/dropdown_link_element.html' %}
+{% load django_spire_string_formatting %}
+{% load django_spire_core %}
+{% load django_spire_comment_tags %}
 
-{% block link_content %}
-    {% include 'django_spire/comment/modal/comment_reply_modal.html' %}
-{% endblock %}
+{% with modal_camel_case_id=comment.id|to_camel_case_javascript_safe %}
+
+<li>
+    <a class="dropdown-item d-flex align-items-center gap-2" href="#" data-bs-toggle="modal" data-bs-target="#{{ modal_camel_case_id }}ReplyModal">
+        <i class="bi bi-chat"></i>Reply
+    </a>
+</li>
+
+<div class="modal fade" id="{{ modal_camel_case_id }}ReplyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Reply to Comment</div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="bg-layer-two border rounded p-3 my-2">
+                    <div class="fs--1 text-secondary">{{ comment.user.get_full_name }}</div>
+                    <div>{{ comment.information }}</div>
+                </div>
+                <div class="mx-4">
+                    {% comment_form related_obj request.get_full_path request.user parent=comment user_list=comment_user_list as comment_form %}
+                    <div class="h6">Reply*</div>
+                    {{ comment_form }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endwith %}

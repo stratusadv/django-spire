@@ -12,7 +12,11 @@
 
 {% block dropdown_content %}
     {% if recent_chat %}
-        {% include 'django_spire/dropdown/element/dropdown_link_element.html' with x_click="enable_rename_chat(); toggle_dropdown()" link_text='Rename' link_css='text-start' %}
+        <li>
+            <a class="dropdown-item text-start" x-on:click.prevent="enable_rename_chat(); toggle_dropdown()">
+                Rename
+            </a>
+        </li>
 
         {% url 'django_spire:ai:chat:template:confirm_delete' pk=recent_chat.id as delete_url %}
         {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=delete_url link_text='Delete' link_css='text-app-danger text-start' %}
