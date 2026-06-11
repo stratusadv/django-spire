@@ -17,6 +17,7 @@ from django.db.models import Model, QuerySet
 from django.utils.timezone import now
 from kombu.exceptions import ChannelError
 from kombu.exceptions import ConnectionError as KombuConnectionError
+from pydantic import create_model, BaseModel
 
 from django_spire.celery.models import CeleryTask
 
@@ -88,6 +89,16 @@ class BaseCeleryTaskManager(ABC):
     @property
     def class_and_send_task_method(self) -> str:
         return f'{self.__class__.__name__}.send_task(**kwargs)'
+
+    def create_pydantic_model(self, model_name: str) -> type[BaseModel]:
+        if self.required_kwargs_keys_types is None:
+            message = 'Cannot create pydantic model without required kwargs keys'
+            raise ValueError(message)
+
+        return create_model(
+            model_name,
+            **{key: (type_, ...) for key, type_ in self.required_kwargs_keys_types.items()},
+        )
 
     def filter_celery_tasks(self) -> QuerySet[CeleryTask]:
         return CeleryTask.objects.by_reference_keys_model_keys({self.reference_key: self.model_key})
