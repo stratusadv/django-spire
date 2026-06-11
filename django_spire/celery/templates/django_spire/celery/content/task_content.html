@@ -8,7 +8,7 @@
             }
         }
     }"
-        class="{{ task_header_class }} pe-1 py-1 border-0  {% if celery_task.is_processing %}text-primary bg-layer-three{% elif celery_task.is_successful %}text-success bg-success-soft{% elif celery_task.is_failed %}text-danger bg-danger-soft{% endif %}"
+        class="{{ task_header_class }} pe-1 py-1 border-0 bg-body-tertiary {% if celery_task.is_processing %}text-primary{% elif celery_task.is_successful %}text-success{% elif celery_task.is_failed %}text-danger{% endif %}"
 >
     <div class="me-auto fw-semibold">
         {% if celery_task.is_pending %}
