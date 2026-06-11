@@ -137,7 +137,7 @@ class CeleryTask(models.Model):
         if self.state == states.FAILURE and not self.send_failed:
             return None
 
-        if isinstance(self.result, CeleryNoResult) and not self.send_failed:
+        if isinstance(pickle.loads(self._result), CeleryNoResult) and not self.send_failed:
             self.services.update_result()
 
         if self.has_result:
