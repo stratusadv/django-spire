@@ -13681,18 +13681,3 @@ body.darken-background::before {
   border-bottom-left-radius: 0.30rem !important;
   border-bottom-right-radius: 0.30rem !important;
 }
-
-.test-compilation-verification {
-  color: #ff0000;
-  background-color: #00ff00;
-}
-
-.test-class-from-external {
-  border: 1px solid #ff0000;
-}
-
-.test-selector {
-  font-size: 16px;
-  padding: 10px;
-  margin: 5px;
-}
