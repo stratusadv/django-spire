@@ -90,14 +90,15 @@ class BaseCeleryTaskManager(ABC):
     def class_and_send_task_method(self) -> str:
         return f'{self.__class__.__name__}.send_task(**kwargs)'
 
-    def create_pydantic_model(self, model_name: str) -> type[BaseModel]:
-        if self.required_kwargs_keys_types is None:
+    @classmethod
+    def create_pydantic_model_class(cls, model_name: str) -> type[BaseModel]:
+        if cls.required_kwargs_keys_types is None:
             message = 'Cannot create pydantic model without required kwargs keys'
             raise ValueError(message)
 
         return create_model(
             model_name,
-            **{key: (type_, ...) for key, type_ in self.required_kwargs_keys_types.items()},
+            **{key: (type_, ...) for key, type_ in cls.required_kwargs_keys_types.items()},
         )
 
     def filter_celery_tasks(self) -> QuerySet[CeleryTask]:
