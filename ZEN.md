@@ -2,18 +2,16 @@
 
 ## Django Spire
 
-- ... is for extending and interfacing
-- ... prioritizes magic
-- ... you can use Django Spire templates, but you don't have to!
+- ... if the interface cannot be near perfect it cannot live in Django Spire
+- ... you should only use Base, Page & Nav Templates from Django Spire
 - ... let django do its job
 
 ## Templates
 
-- ... are for Logic and Structure
-- ... not for Design of Style
+- ... are for Logic, Functionality or Structure
+- ... are NOT for Design, Colors or Style
 - ... use HTML first, Django second, Bootstrap third, Alpine fourth, JavaScript only when all else can't do it.
-- ... have short extends
-- ... need less conditions
+- ... have short extends and as little conditions as possible
 
 ## Cascading Style Sheets
 
@@ -31,3 +29,5 @@
 ## Views
 
 - ... should be opt in logic not enforced
+
+## Forms
