@@ -36,17 +36,15 @@ class Command(BaseCommand):
         external_entry_file = external_scss_source_path / 'django_spire' / 'scss' / '_theme.scss'
 
         if not external_entry_file.exists():
-            external_scss_dir = external_scss_source_path / 'scss'
+            external_scss_dir = external_entry_file.parent
             external_scss_dir.mkdir(parents=True, exist_ok=True)
+            self.stdout.write(f'No project "_theme.scss" file found. Creating {external_entry_file}')
             shutil.copy2(bundled_entry_file, external_entry_file)
-            self.stdout.write(f'No external theme found. Created {external_entry_file}.')
 
         entry_file = external_entry_file
         include_paths = [str(external_scss_source_path), str(django_spire_scss_source_path)]
-        self.stdout.write('Using external theme entry file.')
 
         self.stdout.write(f'Compiling SCSS from: {entry_file}')
-        self.stdout.write(f'Output directory: {output_dir}')
 
         output_dir.mkdir(parents=True, exist_ok=True)
 

@@ -75,7 +75,7 @@ class CeleryTask(models.Model):
 
     @property
     def has_result(self) -> bool:
-        return not isinstance(self.result, CeleryNoResult)
+        return not isinstance(pickle.loads(self._result), CeleryNoResult)
 
     @property
     def has_no_result(self) -> bool:
@@ -146,8 +146,8 @@ class CeleryTask(models.Model):
         return None
 
     @result.setter
-    def result(self, result) -> Any:
-        self._result = pickle.dumps(result)
+    def result(self, value: Any) -> Any:
+        self._result = pickle.dumps(value)
 
     @result.deleter
     def result(self) -> Any:
@@ -158,6 +158,7 @@ class CeleryTask(models.Model):
         if self.has_result and self._result:
             result_data = pickle.loads(self._result)
             return isinstance(result_data, dict) and result_data.get('error') == 'SEND_FAILED'
+
         return False
 
     @property
