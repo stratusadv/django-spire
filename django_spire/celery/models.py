@@ -138,7 +138,7 @@ class CeleryTask(models.Model):
             return None
 
         if self.has_no_result and not self.send_failed:
-            self.services.update_result()
+            self.services.update_result(self.async_result)
 
         if self.has_result:
             return pickle.loads(self._result)
