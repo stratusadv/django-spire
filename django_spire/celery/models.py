@@ -75,7 +75,7 @@ class CeleryTask(models.Model):
 
     @property
     def has_result(self) -> bool:
-        return not isinstance(self.result, CeleryNoResult)
+        return not isinstance(pickle.loads(self._result), CeleryNoResult)
 
     @property
     def has_no_result(self) -> bool:
@@ -137,7 +137,7 @@ class CeleryTask(models.Model):
         if self.state == states.FAILURE and not self.send_failed:
             return None
 
-        if isinstance(pickle.loads(self._result), CeleryNoResult) and not self.send_failed:
+        if self.has_no_result and not self.send_failed:
             self.services.update_result()
 
         if self.has_result:
@@ -146,8 +146,8 @@ class CeleryTask(models.Model):
         return None
 
     @result.setter
-    def result(self, result) -> Any:
-        self._result = pickle.dumps(result)
+    def result(self, value: Any) -> Any:
+        self._result = pickle.dumps(value)
 
     @result.deleter
     def result(self) -> Any:
