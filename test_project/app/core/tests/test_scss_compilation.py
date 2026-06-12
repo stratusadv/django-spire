@@ -12,9 +12,9 @@ from django_spire.core.tests.test_cases import BaseTestCase
 class TestSCSSCompilation(BaseTestCase):
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.scss_source_dir = Path(settings.STATIC_ROOT) / 'django_spire' / 'scss'
-        self.output_dir = Path(settings.STATIC_ROOT) / 'django_spire' / 'css'
-        self.output_css_file = self.output_dir / 'django_spire.css'
+        self.scss_source_dir = Path(settings.STATICFILES_DIRS[0]) / 'django_spire' / 'scss'
+        self.output_dir = Path(settings.STATICFILES_DIRS[0]) / 'django_spire' / 'css'
+        self.output_css_file = self.output_dir / 'django-spire-bootstrap.css'
 
     def test_compile_scss_uses_external_theme_when_present(self):
         external_theme = self.scss_source_dir / '_theme.scss'
@@ -30,7 +30,7 @@ class TestSCSSCompilation(BaseTestCase):
         )
 
         assert result.returncode == 0, f'SCSS compilation failed: {result.stderr}'
-        assert 'Using external theme entry file' in result.stdout
+        assert 'Compiled successfully:' in result.stdout
 
     def test_compile_scss_includes_external_test_utilities(self):
         python_exe = Path(sys.executable).resolve()

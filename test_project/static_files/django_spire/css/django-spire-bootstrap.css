@@ -13660,10 +13660,14 @@ body.darken-background::before {
 .card-title {
   font-size: 1.25rem;
   margin: 0;
-  font-weight: 600;
+  font-weight: 550;
 }
 
 .card {
+  background-color: var(--bs-tertiary-bg);
+}
+
+.toast {
   background-color: var(--bs-tertiary-bg);
 }
 
