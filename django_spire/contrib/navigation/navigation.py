@@ -31,7 +31,7 @@ class Navigation:
     def set_page_title_from_model_name(self, model: type[Model] | Model) -> None:
         self.page_title = str(model._meta.verbose_name.title())
 
-    def set_page_title_from_model_form_action(self, model: Model) -> None:
+    def set_page_title_from_model_instance_form_action(self, model: Model) -> None:
         self.page_title = (
             f'{form_action_name(has_pk=model.pk is not None)} {model._meta.verbose_name.title()}'
         )

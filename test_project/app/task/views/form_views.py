@@ -45,7 +45,7 @@ def _form_view(request: WSGIRequest, task: models.Task) -> TemplateResponse | re
         form = forms.TaskForm(instance=task)
 
     nav = TaskNavigation()
-    nav.set_page_title_from_model_form_action(task)
+    nav.set_page_title_from_model_instance_form_action(task)
     nav.breadcrumbs.add('Tasks', reverse('task:page:list'))
     nav.breadcrumbs.add(f'{task.name}' if task.pk else 'New Task')
 

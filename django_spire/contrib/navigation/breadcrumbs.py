@@ -92,7 +92,7 @@ class Breadcrumbs:
     ) -> None:
         self.add(name=str(model), url=url, url_kwargs=url_kwargs)
 
-    def add_model_form_action(self, model: Model) -> None:
+    def add_model_instance_form_action(self, model: Model) -> None:
         self.add(name=form_action_name(has_pk=model.pk is not None))
 
     def remove(self, index: int) -> Breadcrumbs:

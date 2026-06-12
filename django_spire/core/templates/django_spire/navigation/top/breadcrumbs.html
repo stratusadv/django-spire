@@ -1,5 +1,5 @@
 <ol
-        class="breadcrumb text-body text-decoration-none fs-7"
+        class="breadcrumb text-body fs-7"
         style="--bs-breadcrumb-divider: '>';"
 >
     {% if django_spire_navigation.home_href %}
@@ -13,7 +13,7 @@
     {% for breadcrumb in django_spire_navigation.breadcrumbs %}
         <li class="breadcrumb-item">
             {% if breadcrumb.href and forloop.counter != breadcrumb_list|length %}
-                <a href="{{ breadcrumb.href }}">
+                <a href="{{ breadcrumb.href }}" class="text-decoration-none">
                     {{ breadcrumb.name }}
                 </a>
             {% else %}

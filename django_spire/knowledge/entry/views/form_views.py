@@ -54,7 +54,7 @@ def form_view(
         url='django_spire:knowledge:collection:page:top_level',
         url_kwargs={'pk': collection_pk}
     )
-    nav.breadcrumbs.add_model_form_action(entry)
+    nav.breadcrumbs.add_model_instance_form_action(entry)
 
     context = nav.as_context()
     context['form'] = form

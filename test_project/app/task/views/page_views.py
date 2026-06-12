@@ -31,7 +31,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = TaskNavigation()
     nav.set_page_title_from_model_plural_name(models.Task)
-    nav.breadcrumbs.add('Tasks')
 
     context = nav.as_context()
     context['tasks'] = paginated_tasks
@@ -44,9 +43,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     task = get_object_or_404(models.Task, pk=pk)
 
     nav = TaskNavigation()
-    nav.page_title = str(task)
-    nav.breadcrumbs.add('Tasks', reverse('task:page:list'))
-    nav.breadcrumbs.add(str(task))
+    nav.page_title = 'Task Details'
+    nav.breadcrumbs.add_model_instance_string(task)
 
     context = nav.as_context()
     context['task'] = task
