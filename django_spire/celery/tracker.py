@@ -35,6 +35,7 @@ class CeleryTaskTracker:
         self._additional_meta = None
         self._cumulative_progress = 0
         self._pending_future: Future | None = None
+        self._cumulative_target_value: int | None = None
 
     @property
     def task(self) -> Task:
@@ -66,6 +67,9 @@ class CeleryTaskTracker:
         if self._is_overdue_for_update():
             self._update_celery_task_state()
 
+    def set_cumulative_progress_target_value(self, value: int) -> None:
+        self._cumulative_target_value = value
+
     def _update_celery_task_state(self) -> None:
         meta_payload = {**self._meta.model_dump(), **(self._additional_meta or {})}
 
@@ -96,10 +100,14 @@ class CeleryTaskTracker:
         self._meta.progress = range_min + (range_max - range_min) * (current_count / target_count)
         self._process_overdue_update()
 
-    def update_cumulative_progress(self, added_value: int, target_value: int) -> None:
+    def update_cumulative_progress(self, added_value: int) -> None:
         self._cumulative_progress += added_value
 
-        self._meta.progress = self._cumulative_progress / target_value
+        if self._cumulative_target_value is None:
+            message = f'{self.__class__.__name__}: Cumulative Progress Target Value is None'
+            raise ValueError(message)
+
+        self._meta.progress = self._cumulative_progress / self._cumulative_target_value
         self._process_overdue_update()
 
     def set_completed(self):
