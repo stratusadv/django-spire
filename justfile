@@ -25,7 +25,7 @@ python *ARGS:
 run-server:
     {{ PYTHON }} ./manage.py runserver
 scss:
-	{{ PYTHON }} ./manage.py spire_compile_scss
+    {{ PYTHON }} ./manage.py spire_compile_scss
 test:
     {{ PYTHON }} -m pytest . --reuse-db
 test-app app:
