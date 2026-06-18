@@ -99,12 +99,11 @@ class DjangoFieldLlmSeeder(BaseFieldSeeder):
 
                     futures = []
 
-
         # Ensure the generated count matches the requested count
         if len(intel_data) > count:
             intel_data = intel_data[:count]
         if len(intel_data) < count:
-            intel_data = list(itertools.cycle(intel_data))
+            intel_data = list(itertools.islice(itertools.cycle(intel_data), count))
 
         return intel_data
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.8
+
+### Fixes
+- Fixed bug causing OOM error in seeder 
+
 ## v0.32.7
 
 ### Fixes
