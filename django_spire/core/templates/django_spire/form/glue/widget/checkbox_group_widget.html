@@ -1,10 +1,9 @@
 {% extends "django_spire/form/glue/widget/widget.html" %}
 
 {% block widget_content %}
-    {% include 'django_spire/form/glue/label/label.html' %}
     <div class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}" {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}>
         <div class="row">
-            <template x-for="choice in glue_field?.choices || []" :key="choice[0]">
+            <template x-for="choice in {{ glue_field }}?.choices || []" :key="choice[0]">
                 <div class="col-md-{{ columns|default:'4' }} col-lg-{{ columns|default:'4' }}">
                     <div class="form-check">
                         <input

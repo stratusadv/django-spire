@@ -1,0 +1,17 @@
+<div x-data="{
+    glueObject: {% block glue_object %}{% endblock %},
+    async submit()
+        try {
+            const result = await this.glueObject.save();
+            if (result.success) {
+                $store.notifications.success('Fighter created successfully!');
+                bootstrap.Modal.getInstance(document.getElementById('{{ modal_id }}')).hide();
+            }
+        } finally {
+            this.saving = false;
+        }
+    }
+}">
+{% block glue_form_content %}
+{% endblock %}
+</div>

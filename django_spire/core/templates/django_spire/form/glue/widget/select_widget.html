@@ -1,14 +1,58 @@
-{% extends "django_spire/form/glue/widget/widget.html" %}
+{% extends 'django_spire/form/glue/widget/widget.html' %}
 
 {% block widget_content %}
-    {% include 'django_spire/form/glue/label/label.html' %}
-    <select
-        {% include 'django_spire/form/glue/widget/attributes/input_attributes.html' with form_class_type='select' %}
+    <div
+        class="position-relative"
+        x-data="{
+            placeholder: '{{ placeholder|default:"------------" }}',
+            show_dropdown: false,
+            choice_verbose: '',
+
+            init() {
+                this.choice_verbose = this.placeholder;
+                this.update_choice();
+                $watch('value', () => this.update_choice());
+                $watch('{{ glue_field }}.choices', () => this.update_choice());
+            },
+
+            update_choice() {
+                if (!{{ glue_field }}?.choices) return;
+                let match = {{ glue_field }}.choices.find(choice => String(choice[0]) === String({{ glue_field }}.value));
+                this.choice_verbose = match ? match[1] : this.placeholder;
+            }
+        }"
+        x-effect="update_choice();"
     >
-        {% if include_empty %}<option value="">{{ empty_label|default:"Select..." }}</option>{% endif %}
-        <template x-for="choice in glue_field?.choices || []" :key="choice[0]">
-            <option :value="choice[0]" x-text="choice[1]"></option>
-        </template>
-    </select>
-    {{ block.super }}
+        <button
+            class="form-control text-start d-flex justify-content-between {{ select_padding|default:'pe-3' }}"
+            type="button"
+            @click="show_dropdown = !show_dropdown"
+        >
+            <span x-text="choice_verbose"></span>
+            <span class="d-flex align-items-center">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div
+            x-cloak
+            x-show="show_dropdown"
+            @click.outside="show_dropdown = false"
+            class="shadow border rounded-2 mt-2 position-absolute w-100 list-group"
+            style="max-height: 300px; overflow-y: auto; z-index: 3;"
+            @keydown.escape="show_dropdown = false"
+        >
+            <template x-for="choice in {{ glue_field }}?.choices || []" :key="choice[0]">
+                <div
+                    class="py-2 px-3 list-group-item"
+                    :class="{{ glue_field }}.disabled_choices?.includes(choice[0]) ? 'opacity-50' : ''"
+                    @click="{{ glue_field }}.disabled_choices?.includes(choice[0]) ? '' : {{ glue_field }}.value = choice[0]; show_dropdown = false"
+                    @keydown.enter.prevent="{{ glue_field }}.value = choice[0]; show_dropdown = false"
+                >
+                    <span x-text="choice[1]"></span>
+                </div>
+            </template>
+        </div>
+    </div>
 {% endblock %}

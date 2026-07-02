@@ -1,9 +1,14 @@
 <form
     class="row align-items-center"
     x-data="{
-        ticket: new ModelObjectGlue('ticket'),
-        async init () {
-            await this.ticket.get()
+        ticket: Glue.model.ticket,
+        tacos: Glue.field.textField(),
+        async submit() {
+            this.ticket.validate()
+            let result = this.ticket.save()
+            if(result.status === 'success') {
+                window.location.href = '/detail_page/' + ticket.id
+            }
         }
     }"
     method="post"
@@ -12,18 +17,18 @@
     {% csrf_token %}
 
     <div class="col-12 col-sm mb-3 mb-sm-0">
-        {% include 'django_spire/form/glue/field/select_field.html' with glue_model_field='ticket.purpose' %}
+        {% include 'django_spire/form/glue/field/select_field.html' with glue_field='ticket.$fields.purpose' %}
     </div>
     <div class="col-12 col-sm mb-3 mb-sm-0">
-        {% include 'django_spire/form/glue/field/select_field.html' with glue_model_field='ticket.priority' %}
+        {% include 'django_spire/form/glue/field/select_field.html' with glue_field='ticket.$fields.priority' %}
     </div>
     {% if ticket.pk is not None %}
         <div class="col-12 col-sm mb-3 mb-sm-0">
-            {% include 'django_spire/form/glue/field/select_field.html' with glue_model_field='ticket.status' %}
+            {% include 'django_spire/form/glue/field/select_field.html' with glue_field='ticket.$fields.status' %}
         </div>
     {% endif %}
     <div class="col-12 mb-1 mt-3">
-        {% include 'django_spire/form/glue/field/text_field.html' with glue_model_field='ticket.description' %}
+        {% include 'django_spire/form/glue/field/text_field.html' with glue_field='ticket.$fields.description' %}
     </div>
     <div class="my-2">
         {% include 'django_spire/contrib/form/button/form_submit_button.html' %}

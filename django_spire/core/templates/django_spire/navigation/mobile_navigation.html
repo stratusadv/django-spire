@@ -2,7 +2,7 @@
 
 <div class="d-lg-none" x-data="{ collapsed: false, show_mobile_nav: false }">
     <i
-        class="bi bi-list fs-2 cursor-pointer me-2"
+        class="bi bi-list fs-2 cursor-pointer me-2 text-primary"
         @click.stop="show_mobile_nav = !show_mobile_nav; setTimeout(() => { let active = $refs.mobile_nav.querySelector('a.active'); if (active) { active.scrollIntoView({ block: 'center' }); document.activeElement.blur(); } }, 50)"
     ></i>
 

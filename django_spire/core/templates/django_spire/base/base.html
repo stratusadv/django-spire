@@ -22,9 +22,11 @@
         {% endblock %}
 
         {% block base_head_css %}
-            <link rel="stylesheet" href="{% static 'django_spire/css/django-spire-bootstrap.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+            <link rel="stylesheet"
+                  href="{% static 'django_spire/css/django-spire-bootstrap.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
 
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.x/font/bootstrap-icons.min.css">
+            <link rel="stylesheet"
+                  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.x/font/bootstrap-icons.min.css">
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         {% endblock %}
 
@@ -46,18 +48,29 @@
 
             <script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
 
-            <script type="application/javascript" src="{% static 'django_spire/js/theme.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/ui.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/cookie.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/ajax.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/dropdown.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/notification.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/full_screen.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/date_time_helpers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript" src="{% static 'django_spire/js/session_controller.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/theme.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/ui.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/cookie.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/ajax.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/dropdown.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/notification.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/full_screen.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/date_time_helpers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/session_controller.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 
-            <script type="application/javascript" src="{% static 'django_spire/js/django_glue/helpers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+            <script type="application/javascript"
+                    src="{% static 'django_spire/js/django_glue/helpers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.15.x/dist/cdn.min.js"></script>
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.15.x/dist/cdn.min.js"></script>
@@ -77,26 +90,27 @@
 </head>
 
 <body class="{% block base_body_class %}{% endblock %}">
-    {% block base_body %}
-        {% block base_body_top_js %}
-        {% endblock %}
-
-        {% block base_body_additional_top_js %}
-        {% endblock %}
-
-        {% block base_body_content %}
-        {% endblock %}
-
-        {% block base_body_bottom_js %}
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
-        {% endblock %}
-
-            <script type="application/javascript" src="{% static 'django_spire/js/pull_to_refresh.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-
-        {% block base_body_additional_bottom_js %}
-        {% endblock %}
-
-        {% django_glue_init %}  
+{% block base_body %}
+    {% block base_body_top_js %}
     {% endblock %}
+
+    {% block base_body_additional_top_js %}
+    {% endblock %}
+
+    {% block base_body_content %}
+    {% endblock %}
+
+    {% block base_body_bottom_js %}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
+    {% endblock %}
+
+    <script type="application/javascript"
+            src="{% static 'django_spire/js/pull_to_refresh.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
+
+    {% block base_body_additional_bottom_js %}
+    {% endblock %}
+
+    {% django_glue_init %}
+{% endblock %}
 </body>
 </html>
