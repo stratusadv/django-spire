@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.seeding import DjangoModelSeeder
-
 from django_spire.metric.domain import models
 
 if TYPE_CHECKING:
@@ -15,12 +14,24 @@ class DomainSeeder(DjangoModelSeeder):
 
     model_class = models.Domain
     default_to = 'faker'
+    # cache_name?
 
-    fields: ClassVar = {
+    fields = {
         'id': 'exclude',
         'created_datetime': 'exclude',
-        'is_active': True,
-        'is_deleted': False,
-        # 'name': ('faker', 'company'),
-        # 'status': ('faker'),
+        'name': ('llm', 'A name for a metrics domain.'),
+        'description': ('llm', 'Domain description. Put a random description here for metrics domain.'),
+        'sub_domain_description': ('llm', 'Sub Domain description. Put a random description here for metrics sub_domain like clients.'),
+    }
+
+
+class SubDomainSeeder(DjangoModelSeeder):
+    model_class = models.SubDomain
+    default_to = 'faker'
+    fields = {
+        'id': 'exclude',
+        'created_datetime': 'exclude',
+        'domain_id': ('custom', 'fk_random', {'model_class': models.Domain}),
+        'name': ('llm', 'A name for a sub_domain'),
+        'description': ('llm', 'Sub Domain description'),
     }
