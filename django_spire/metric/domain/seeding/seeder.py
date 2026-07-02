@@ -13,8 +13,7 @@ class DomainSeeder(DjangoModelSeeder):
     """https://django-spire.stratusadv.com/app_guides/seeding/overview/"""
 
     model_class = models.Domain
-    default_to = 'faker'
-    # cache_name?
+    cache_name = 'domain_seeder'
 
     fields = {
         'id': 'exclude',
@@ -27,7 +26,8 @@ class DomainSeeder(DjangoModelSeeder):
 
 class SubDomainSeeder(DjangoModelSeeder):
     model_class = models.SubDomain
-    default_to = 'faker'
+    cache_name = 'subdomain_seeder'
+
     fields = {
         'id': 'exclude',
         'created_datetime': 'exclude',
