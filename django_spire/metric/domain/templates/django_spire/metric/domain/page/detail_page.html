@@ -3,11 +3,7 @@
 {% block full_page_content %}
     <div class="row g-3">
         <div class="col-12">
-            {% include 'metric/domain/card/../card/detail_card.html' %}
-        </div>
-
-        <div class="col-4">
-            {% include 'django_spire/activity/card/list_card.html' with activity_log=domain.activity_log.prefetch_user %}
+            {% include 'django_spire/metric/domain/card/detail_card.html' %}
         </div>
     </div>
 {% endblock %}

@@ -1,21 +1,14 @@
-<div
-    x-data="{
-        async init() {
-            await this.domain.get()
-        },
-        domain: new ModelObjectGlue('domain')
-    }"
->
-    {% include 'django_spire/contrib/element/divider_element.html' with divider_title='Details' %}
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        {% include 'django_spire/form/widget/field_widget.html' with field=form.name %}
+    </div>
 
-    <div class="row g-3 mb-3">
-        <div class="col-12">
-            {% include 'django_spire/form/glue/field/char_field.html' with glue_model_field='domain.name' %}
-        </div>
+    <div class="col-12">
+        {% include 'django_spire/form/widget/field_widget.html' with field=form.description %}
+    </div>
 
-        <div class="col-12">
-            {% include 'django_spire/form/glue/field/text_field.html' with glue_model_field='domain.description' %}
-        </div>
+    <div class="col-12">
+        {% include 'django_spire/form/widget/field_widget.html' with field=form.sub_domain_description %}
     </div>
 </div>
 

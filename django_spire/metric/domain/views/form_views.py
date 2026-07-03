@@ -63,7 +63,7 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('metric_domain.delete_domain')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
-    return_url = request.GET.get('return_url', reverse('metric:domain:page:list'))
+    return_url = request.GET.get('return_url', reverse('django_spire:metric:domain:page:list'))
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(data=request.POST, obj=domain)
@@ -83,7 +83,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Domain'
-    nav.breadcrumbs.add('Domains', reverse('metric:domain:page:list'))
+    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
     nav.breadcrumbs.add(str(domain), None)
     nav.breadcrumbs.add('Delete', None)
     context = nav.as_context()
@@ -92,7 +92,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['form_description'] = f'Are you sure you would like to delete domain "{domain}"?'
 
     return TemplateResponse(
-        request, 'django_spire/contrib/page/delete_confirmation_form_page.html', context
+        request, 'django_spire/metric/domain/form/delete_confirmation_form_page.html', context
     )
 
 
@@ -140,7 +140,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
             domain, _ = domain.services.save_model_obj(**form.cleaned_data)
             add_form_activity(domain, pk, request.user)
 
-            return redirect(request.GET.get('return_url', reverse('metric:domain:page:list')))
+            return redirect(request.GET.get('return_url', reverse('django_spire:metric:domain:page:list')))
 
         show_form_errors(request, form)
     else:
@@ -148,11 +148,11 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
 
     nav = DomainNavigation()
     nav.page_title = str(domain._meta.verbose_name.title())
-    nav.breadcrumbs.add('Domains', reverse('metric:domain:page:list'))
+    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
     nav.breadcrumbs.add('Edit' if domain.pk else 'Create', None)
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = str(domain._meta.verbose_name.title())
     context['form_description'] = 'Edit' if domain.pk else 'Create'
 
-    return TemplateResponse(request, 'metric/domain/page/form_page.html', context)
+    return TemplateResponse(request, 'django_spire/metric/domain/page/form_page.html', context)
