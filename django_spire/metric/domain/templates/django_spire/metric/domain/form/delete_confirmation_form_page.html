@@ -5,7 +5,7 @@
         {% csrf_token %}
         {{ form_description }}
         {{ form }}
-        <button type="submit">Delete</button>
-        <a href="{% url 'django_spire:metric:domain:page:list' %}">Cancel</a>
+        <button type="submit" class="btn btn-primary">Delete</button>
+        <a class="btn btn-primary" href="{% url 'django_spire:metric:domain:page:list' %}">Cancel</a>
     </form>
 {% endblock %}
