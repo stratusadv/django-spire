@@ -69,13 +69,12 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         form = DeleteConfirmationForm(data=request.POST, obj=domain)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                domain.set_deleted()
-                domain.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=f'{request.user.get_full_name()} deleted domain "{domain}".',
-                )
+            domain.set_deleted()
+            domain.add_activity(
+                user=request.user,
+                verb='deleted',
+                information=f'{request.user.get_full_name()} deleted domain "{domain}".',
+            )
 
             return HttpResponseRedirect(return_url)
     else:
@@ -234,13 +233,12 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
         form = DeleteConfirmationForm(data=request.POST, obj=subdomain)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                subdomain.set_deleted()
-                subdomain.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=f'{request.user.get_full_name()} deleted sub domain "{subdomain}".',
-                )
+            subdomain.set_deleted()
+            subdomain.add_activity(
+                user=request.user,
+                verb='deleted',
+                information=f'{request.user.get_full_name()} deleted sub domain "{subdomain}".',
+            )
 
             return HttpResponseRedirect(return_url)
     else:
