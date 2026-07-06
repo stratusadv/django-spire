@@ -83,7 +83,6 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Domain'
-    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
     nav.breadcrumbs.add(str(domain), None)
     nav.breadcrumbs.add('Delete', None)
     context = nav.as_context()
@@ -140,7 +139,9 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
             domain, _ = domain.services.save_model_obj(**form.cleaned_data)
             add_form_activity(domain, pk, request.user)
 
-            return redirect(request.GET.get('return_url', reverse('django_spire:metric:domain:page:list')))
+            return redirect(
+                request.GET.get('return_url', reverse('django_spire:metric:domain:page:list'))
+            )
 
         show_form_errors(request, form)
     else:
@@ -148,8 +149,10 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
 
     nav = DomainNavigation()
     nav.page_title = str(domain._meta.verbose_name.title())
-    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
-    nav.breadcrumbs.add(str(domain), None)
+
+    if pk:
+        nav.breadcrumbs.add(str(domain), None)
+
     nav.breadcrumbs.add('Edit' if domain.pk else 'Create', None)
     context = nav.as_context()
     context['form'] = form
@@ -200,10 +203,16 @@ def _subdomain_form_view(
 
     nav = DomainNavigation()
     nav.page_title = str(subdomain._meta.verbose_name.title())
-    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
-    nav.breadcrumbs.add(get_object_or_404(models.Domain, pk=domain_pk), None)
-    nav.breadcrumbs.add('Sub Domains', reverse('django_spire:metric:domain:page:subdomain_list', kwargs={'domain_pk': domain_pk}))
-    nav.breadcrumbs.add(str(subdomain), None)
+    nav.breadcrumbs.add(str(get_object_or_404(models.Domain, pk=domain_pk)), None)
+    nav.breadcrumbs.add(
+        name='Sub Domains',
+        url='django_spire:metric:domain:page:subdomain_list',
+        url_kwargs={'domain_pk': domain_pk},
+    )
+
+    if pk:
+        nav.breadcrumbs.add(str(subdomain), None)
+
     nav.breadcrumbs.add('Edit' if subdomain.pk else 'Create', None)
     context = nav.as_context()
     context['form'] = form
@@ -242,9 +251,12 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Sub Domain'
-    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
-    nav.breadcrumbs.add(get_object_or_404(models.Domain, pk=domain_pk), None)
-    nav.breadcrumbs.add('Sub Domains', reverse('django_spire:metric:domain:page:subdomain_list', kwargs={'domain_pk': domain_pk}),)
+    nav.breadcrumbs.add(str(subdomain.domain), None)
+    nav.breadcrumbs.add(
+        name='Sub Domains',
+        url='django_spire:metric:domain:page:subdomain_list',
+        url_kwargs={'domain_pk': domain_pk},
+    )
     nav.breadcrumbs.add(str(subdomain), None)
     nav.breadcrumbs.add('Delete', None)
     context = nav.as_context()
@@ -254,5 +266,7 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
     context['domain_pk'] = domain_pk
 
     return TemplateResponse(
-        request, 'django_spire/metric/domain/form/subdomain_delete_confirmation_form_page.html', context
+        request,
+        'django_spire/metric/domain/form/subdomain_delete_confirmation_form_page.html',
+        context,
     )

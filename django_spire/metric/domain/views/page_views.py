@@ -26,8 +26,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
 
     nav = DomainNavigation()
-    nav.page_title = str(domain)
-    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
     nav.breadcrumbs.add(str(domain), None)
     context = nav.as_context()
     context['domain'] = domain
@@ -40,8 +38,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('metric_domain.view_domain')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     nav = DomainNavigation()
-    nav.page_title = 'Domains'
-    nav.breadcrumbs.add('Domains', None)
     context = nav.as_context()
     context['responsive_mode'] = 'scroll'
     context['domains'] = models.Domain.objects.active()
@@ -56,10 +52,9 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     subdomain = get_object_or_404(models.SubDomain, domain_id=domain_pk, pk=pk)
 
     nav = DomainNavigation()
-    nav.breadcrumbs.add('Domains', None)
-    nav.breadcrumbs.add(get_object_or_404(models.Domain, pk=domain_pk), None)
     nav.page_title = str(subdomain)
-    nav.breadcrumbs.add('Sub Domains', reverse('django_spire:metric:domain:page:subdomain_list', kwargs={'domain_pk': domain_pk}))
+    nav.breadcrumbs.add(str(subdomain.domain), None)
+    nav.breadcrumbs.add(name='Sub Domains', url='django_spire:metric:domain:page:subdomain_list', url_kwargs={'domain_pk': domain_pk})
     nav.breadcrumbs.add(str(subdomain), None)
     context = nav.as_context()
     context['subdomain'] = subdomain
@@ -74,8 +69,7 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
 def subdomain_list_view(request: WSGIRequest, domain_pk: int) -> TemplateResponse:
     nav = DomainNavigation()
     nav.page_title = 'Sub Domains'
-    nav.breadcrumbs.add('Domains', None)
-    nav.breadcrumbs.add(get_object_or_404(models.Domain, pk=domain_pk), None)
+    nav.breadcrumbs.add(str(get_object_or_404(models.Domain, pk=domain_pk)), None)
     nav.breadcrumbs.add('Sub Domains', None)
     context = nav.as_context()
     context['responsive_mode'] = 'scroll'
