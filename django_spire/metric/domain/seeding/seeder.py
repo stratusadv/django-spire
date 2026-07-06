@@ -19,8 +19,8 @@ class DomainSeeder(DjangoModelSeeder):
         'id': 'exclude',
         'created_datetime': 'exclude',
         'name': ('llm', 'A name for a metrics domain.'),
-        'description': ('llm', 'Domain description. Put a random description here for metrics domain.'),
-        'sub_domain_description': ('llm', 'Sub Domain description. Put a random description here for metrics sub_domain like clients.'),
+        'description': ('llm', 'Domain description. Put a random description here for metric domain.'),
+        'sub_domain_description': ('llm', 'Sub Domain description. Put a random description here for metric sub_domain like clients.'),
     }
 
 
@@ -33,5 +33,5 @@ class SubDomainSeeder(DjangoModelSeeder):
         'created_datetime': 'exclude',
         'domain_id': ('custom', 'fk_random', {'model_class': models.Domain}),
         'name': ('llm', 'A name for a sub_domain'),
-        'description': ('llm', 'Sub Domain description'),
+        'description': ('llm', 'Sub Domain description. Put a random description here for metric sub_domain like clients or departments.'),
     }
