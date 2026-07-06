@@ -10,9 +10,13 @@
                 <div class="col">
                     <div class="row align-items-center {% block item_content_gutter %}g-2{% endblock %}">
                         <div class="row mt-3">
-                            <div class="col-12">
+                            <div class="col-3">
                                 {% url 'django_spire:metric:domain:page:detail' pk=domain.pk as domain_view_url %}
                                 {% include 'django_spire/element/attribute_element.html' with attribute_title='Domain' attribute_value=domain.name attribute_href=domain_view_url %}
+                            </div>
+                            <div class="col-9">
+                                {% url 'django_spire:metric:domain:page:subdomain_list' domain_pk=domain.pk as subdomain_list_view_url %}
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Sub Domains' attribute_value='Sub Domains' attribute_href=subdomain_list_view_url %}
                             </div>
                         </div>
                         <div class="row mt-3">
@@ -20,7 +24,7 @@
                                 {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=domain.description %}
                             </div>
                             <div class="col-6">
-                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Sub Domain Description' attribute_value=domain.sub_domain_description %}
+                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Sub Domain Description' attribute_value=domain.sub_domain_description|linebreaksbr %}
                             </div>
                         </div>
                     </div>

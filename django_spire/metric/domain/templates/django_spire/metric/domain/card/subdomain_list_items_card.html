@@ -1,0 +1,22 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Sub Domains
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.metric_domain.add_subdomain %}
+        {% url 'django_spire:metric:domain:form:create_subdomain' domain_pk=domain_pk as new_subdomain_url %}
+        {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_icon='bi bi-plus' button_href=new_subdomain_url %}
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body">
+        {% if subdomains %}
+            {% include 'django_spire/metric/domain/item/subdomain_list_items.html' %}
+        {% else %}
+            No Sub Domains
+        {% endif %}
+    </div>
+{% endblock %}

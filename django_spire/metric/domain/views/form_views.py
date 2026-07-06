@@ -149,6 +149,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     nav = DomainNavigation()
     nav.page_title = str(domain._meta.verbose_name.title())
     nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
+    nav.breadcrumbs.add(str(domain), None)
     nav.breadcrumbs.add('Edit' if domain.pk else 'Create', None)
     context = nav.as_context()
     context['form'] = form
@@ -156,3 +157,102 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     context['form_description'] = 'Edit' if domain.pk else 'Create'
 
     return TemplateResponse(request, 'django_spire/metric/domain/page/form_page.html', context)
+
+
+@permission_required('metric_domain.add_subdomain')
+def create_subdomain_view(request: WSGIRequest, domain_pk: int) -> TemplateResponse:
+    return _subdomain_form_view(request, domain_pk)
+
+
+@permission_required('metric_domain.change_subdomain')
+def update_subdomain_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse:
+    return _subdomain_form_view(request, domain_pk, pk)
+
+
+def _subdomain_form_view(
+    request: WSGIRequest, domain_pk: int, pk: int = 0
+) -> TemplateResponse | HttpResponseRedirect:
+    subdomain = get_object_or_null_obj(models.SubDomain, pk=pk)
+
+    Glue.model(request, 'subdomain', subdomain, 'view')
+
+    if request.method == 'POST':
+        form = forms.SubDomainForm(request.POST, instance=subdomain)
+
+        if form.is_valid():
+            subdomain.domain = get_object_or_404(models.Domain, pk=domain_pk)
+            subdomain, _ = subdomain.services.save_model_obj(**form.cleaned_data)
+            add_form_activity(subdomain, pk, request.user)
+
+            return redirect(
+                request.GET.get(
+                    'return_url',
+                    reverse(
+                        'django_spire:metric:domain:page:subdomain_list',
+                        kwargs={'domain_pk': domain_pk},
+                    ),
+                )
+            )
+
+        show_form_errors(request, form)
+    else:
+        form = forms.SubDomainForm(instance=subdomain)
+
+    nav = DomainNavigation()
+    nav.page_title = str(subdomain._meta.verbose_name.title())
+    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
+    nav.breadcrumbs.add(get_object_or_404(models.Domain, pk=domain_pk), None)
+    nav.breadcrumbs.add('Sub Domains', reverse('django_spire:metric:domain:page:subdomain_list', kwargs={'domain_pk': domain_pk}))
+    nav.breadcrumbs.add(str(subdomain), None)
+    nav.breadcrumbs.add('Edit' if subdomain.pk else 'Create', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = str(subdomain._meta.verbose_name.title())
+    context['form_description'] = 'Edit' if subdomain.pk else 'Create'
+    context['domain_pk'] = domain_pk
+
+    return TemplateResponse(
+        request, 'django_spire/metric/domain/page/subdomain_form_page.html', context
+    )
+
+
+@permission_required('metric_domain.delete_domain')
+def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse:
+    subdomain = get_object_or_404(models.SubDomain, domain_id=domain_pk, pk=pk)
+    return_url = request.GET.get(
+        'return_url',
+        reverse('django_spire:metric:domain:page:subdomain_list', kwargs={'domain_pk': domain_pk}),
+    )
+
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=subdomain)
+
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                subdomain.set_deleted()
+                subdomain.add_activity(
+                    user=request.user,
+                    verb='deleted',
+                    information=f'{request.user.get_full_name()} deleted sub domain "{subdomain}".',
+                )
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=subdomain)
+
+    nav = DomainNavigation()
+    nav.page_title = 'Delete Sub Domain'
+    nav.breadcrumbs.add('Domains', reverse('django_spire:metric:domain:page:list'))
+    nav.breadcrumbs.add(get_object_or_404(models.Domain, pk=domain_pk), None)
+    nav.breadcrumbs.add('Sub Domains', reverse('django_spire:metric:domain:page:subdomain_list', kwargs={'domain_pk': domain_pk}),)
+    nav.breadcrumbs.add(str(subdomain), None)
+    nav.breadcrumbs.add('Delete', None)
+    context = nav.as_context()
+    context['form'] = form
+    context['form_title'] = f'Delete {subdomain}'
+    context['form_description'] = f'Are you sure you would like to delete sub domain "{subdomain}"?'
+    context['domain_pk'] = domain_pk
+
+    return TemplateResponse(
+        request, 'django_spire/metric/domain/form/subdomain_delete_confirmation_form_page.html', context
+    )

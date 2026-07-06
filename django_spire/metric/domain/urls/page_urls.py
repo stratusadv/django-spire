@@ -10,4 +10,6 @@ app_name = 'page'
 urlpatterns = [
     path('list/', page_views.list_view, name='list'),
     path('<int:pk>/detail/', page_views.detail_view, name='detail'),
+    path('subdomain/<int:domain_pk>/list/', page_views.subdomain_list_view, name='subdomain_list'),
+    path('subdomain/<int:domain_pk>/<int:pk>/detail/', page_views.subdomain_detail_view, name='subdomain_detail'),
 ]

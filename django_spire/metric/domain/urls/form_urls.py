@@ -14,4 +14,10 @@ urlpatterns = [
     path('create/modal/', form_views.create_modal_view, name='create_modal'),
     path('<int:pk>/update/modal/', form_views.update_modal_view, name='update_modal'),
     path('<int:pk>/delete/modal/', form_views.delete_modal_view, name='delete_modal'),
+
+    path('subdomain/<int:domain_pk>/create/', form_views.create_subdomain_view, name='create_subdomain'),
+    path('subdomain/<int:domain_pk>/<int:pk>/update/', form_views.update_subdomain_view, name='update_subdomain'),
+    path('subdomain/<int:domain_pk>/<int:pk>/delete/', form_views.delete_subdomain_form_view, name='delete_subdomain'),
 ]
+
+
