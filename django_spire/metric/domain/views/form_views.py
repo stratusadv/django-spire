@@ -190,10 +190,7 @@ def _subdomain_form_view(
             return redirect(
                 request.GET.get(
                     'return_url',
-                    reverse(
-                        'django_spire:metric:domain:page:subdomain_list',
-                        kwargs={'domain_pk': domain_pk},
-                    ),
+                    reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk}),
                 )
             )
 
@@ -206,8 +203,8 @@ def _subdomain_form_view(
     nav.breadcrumbs.add(str(get_object_or_404(models.Domain, pk=domain_pk)), None)
     nav.breadcrumbs.add(
         name='Sub Domains',
-        url='django_spire:metric:domain:page:subdomain_list',
-        url_kwargs={'domain_pk': domain_pk},
+        url='django_spire:metric:domain:page:detail',
+        url_kwargs={'pk': domain_pk},
     )
 
     if pk:
@@ -230,7 +227,7 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
     subdomain = get_object_or_404(models.SubDomain, domain_id=domain_pk, pk=pk)
     return_url = request.GET.get(
         'return_url',
-        reverse('django_spire:metric:domain:page:subdomain_list', kwargs={'domain_pk': domain_pk}),
+        reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk}),
     )
 
     if request.method == 'POST':
@@ -254,8 +251,8 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
     nav.breadcrumbs.add(str(subdomain.domain), None)
     nav.breadcrumbs.add(
         name='Sub Domains',
-        url='django_spire:metric:domain:page:subdomain_list',
-        url_kwargs={'domain_pk': domain_pk},
+        url='django_spire:metric:domain:page:detail',
+        url_kwargs={'pk': domain_pk},
     )
     nav.breadcrumbs.add(str(subdomain), None)
     nav.breadcrumbs.add('Delete', None)

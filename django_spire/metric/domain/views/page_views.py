@@ -29,6 +29,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.breadcrumbs.add(str(domain), None)
     context = nav.as_context()
     context['domain'] = domain
+    context['subdomains'] = models.SubDomain.objects.filter(domain_id=domain.pk).active()
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/domain/page/detail_page.html'
@@ -54,7 +55,7 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     nav = DomainNavigation()
     nav.page_title = str(subdomain)
     nav.breadcrumbs.add(str(subdomain.domain), None)
-    nav.breadcrumbs.add(name='Sub Domains', url='django_spire:metric:domain:page:subdomain_list', url_kwargs={'domain_pk': domain_pk})
+    nav.breadcrumbs.add(name='Sub Domains', url='django_spire:metric:domain:page:detail', url_kwargs={'pk': domain_pk})
     nav.breadcrumbs.add(str(subdomain), None)
     context = nav.as_context()
     context['subdomain'] = subdomain
@@ -62,20 +63,4 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/domain/page/subdomain_detail_page.html'
-    )
-
-
-@permission_required('metric_domain.view_subdomain')
-def subdomain_list_view(request: WSGIRequest, domain_pk: int) -> TemplateResponse:
-    nav = DomainNavigation()
-    nav.page_title = 'Sub Domains'
-    nav.breadcrumbs.add(str(get_object_or_404(models.Domain, pk=domain_pk)), None)
-    nav.breadcrumbs.add('Sub Domains', None)
-    context = nav.as_context()
-    context['responsive_mode'] = 'scroll'
-    context['subdomains'] = models.SubDomain.objects.filter(domain_id=domain_pk).active()
-    context['domain_pk'] = domain_pk
-
-    return TemplateResponse(
-        request, context=context, template='django_spire/metric/domain/page/subdomain_list_page.html'
     )

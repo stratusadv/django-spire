@@ -6,6 +6,6 @@
         {{ form_description }}
         {{ form }}
         <button type="submit">Delete</button>
-        <a href="{% url 'django_spire:metric:domain:page:subdomain_list' domain_pk=domain_pk %}">Cancel</a>
+        <a href="{% url 'django_spire:metric:domain:page:detail' pk=domain_pk %}">Cancel</a>
     </form>
 {% endblock %}
