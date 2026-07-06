@@ -13,6 +13,7 @@ from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 
 from test_project.app.file import forms, models
+from test_project.app.file.forms import FileExampleForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -42,6 +43,11 @@ def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpR
             return redirect(reverse('file:page:detail', kwargs={'pk': file_example.pk}))
 
         show_form_errors(request, form)
+
+    else:
+        form = forms.FileExampleForm(instance=file_example)
+
+    Glue.form(request, 'file_example_form', target=form, access=Glue.Access.DELETE)
 
     context = {'file_example': file_example}
     context['page_title'] = 'Update File Example' if pk else 'Create File Example'

@@ -1,6 +1,6 @@
-{% extends 'django_spire/form/glue/field/../../../../../../core/templates/django_spire/form/glue/widget/widget.html' %}
+{% extends 'django_spire/form/glue/widget/widget.html' %}
 
-{% block field_content %}
+{% block widget_content %}
     <div
         x-data="{
             preview: null,
@@ -37,14 +37,14 @@
             }
         }"
     >
-        {% include 'django_spire/form/glue/field/../../../../../../core/templates/django_spire/form/glue/label/label.html' %}
+        {% include 'django_spire/form/glue/label/label.html' %}
         <div class="mb-2" x-show="preview || value?.url || current_file?.preview">
             <img :src="preview || value?.url || current_file?.preview" alt="" class="img-fluid rounded" style="max-height: {{ max_preview_height|default:'200px' }};">
         </div>
         <div class="d-flex align-items-center gap-2">
             <input
                 type="file"
-                {% include 'django_spire/form/glue/field/../../../../../../core/templates/django_spire/form/glue/widget/attributes/input_attributes.html' with exclude_x_model=True %}
+                {% include 'django_spire/form/glue/widget/attributes/input_attributes.html' with exclude_x_model=True %}
                 {% if accept %}accept="{{ accept }}"{% endif %}
                 @change="handle_file_change($event)"
                 class="form-control"
