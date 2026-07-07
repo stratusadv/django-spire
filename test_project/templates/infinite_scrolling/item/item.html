@@ -4,15 +4,18 @@
     <div class="align-items-center row" data-testid="infinite-scrolling-item">
         <div class="col-12 col-md-3">
             {% url 'infinite_scrolling:page:detail' pk=infinite_scrolling.pk as detail_url %}
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Infinite Scrolling' attribute_value=infinite_scrolling.name attribute_href=detail_url %}
+            <div class="attribute-label">Infinite Scrolling</div>
+            <a href="{{ detail_url }}">{{ infinite_scrolling.name }}</a>
         </div>
 
         <div class="col-12 col-md-6">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=infinite_scrolling.description|truncatechars:150 %}
+            <div class="attribute-label">Description</div>
+            <div>{{ infinite_scrolling.description|truncatechars:150 }}</div>
         </div>
 
         <div class="col-12 col-md-2">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Created' attribute_value=infinite_scrolling.created_datetime|date:"M d, Y" %}
+            <div class="attribute-label">Created</div>
+            <div>{{ infinite_scrolling.created_datetime|date:"M d, Y" }}</div>
         </div>
 
         <div class="col-auto">

@@ -18,11 +18,13 @@
     <div class="card-body">
         <div class="row g-3">
             <div class="col-12">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=signage.name %}
+                <div class="attribute-label">Name</div>
+                <div>{{ signage.name }}</div>
             </div>
 
             <div class="col-12">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=signage.description|linebreaksbr %}
+                <div class="attribute-label">Description</div>
+                <div>{{ signage.description|linebreaksbr }}</div>
             </div>
         </div>
     </div>

@@ -9,10 +9,12 @@
                         <div class="row mt-3">
                             <div class="col-6">
                                 {% url 'metric:visual:presentation:page:detail' pk=presentation.pk as presentation_view_url %}
-                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Presentation' attribute_value=presentation.name attribute_href=presentation_view_url %}
+                                <div class="attribute-label">Presentation</div>
+                                <a href="{{ presentation_view_url }}">{{ presentation.name }}</a>
                             </div>
                             <div class="col-6">
-                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=presentation.description %}
+                                <div class="attribute-label">Description</div>
+                                <div>{{ presentation.description }}</div>
                             </div>
                         </div>
                     </div>

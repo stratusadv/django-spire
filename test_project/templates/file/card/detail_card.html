@@ -56,11 +56,13 @@
             <div class="{% if file_example.profile_picture %}col-12 col-md-8{% else %}col-12{% endif %}">
                 <div class="row g-3">
                     <div class="col-6">
-                        {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=file_example.name %}
+                        <div class="attribute-label">Name</div>
+                        <div>{{ file_example.name }}</div>
                     </div>
 
                     <div class="col-12">
-                        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=file_example.description|linebreaksbr|default:'N/A' %}
+                        <div class="attribute-label">Description</div>
+                        <div>{{ file_example.description|linebreaksbr|default:'N/A' }}</div>
                     </div>
                 </div>
             </div>

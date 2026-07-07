@@ -3,15 +3,18 @@
 {% block item_content %}
     <div class="row">
         <div class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=pirate.firstName|add:' '|add:pirate.lastName %}
+            <div class="attribute-label">Name</div>
+            <div>{{ pirate.firstName|add:' '|add:pirate.lastName }}</div>
         </div>
 
         <div class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Username' attribute_value=pirate.username %}
+            <div class="attribute-label">Username</div>
+            <div>{{ pirate.username }}</div>
         </div>
 
         <div class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Email' attribute_value=pirate.email %}
+            <div class="attribute-label">Email</div>
+            <div>{{ pirate.email }}</div>
         </div>
     </div>
 {% endblock %}

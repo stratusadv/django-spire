@@ -13098,6 +13098,11 @@ body.darken-background::before {
   font-size: .80rem !important;
 }
 
+.attribute-label {
+  font-size: .80rem !important;
+  color: var(--app-muted, var(--bs-secondary-color));
+}
+
 .fs-8 {
   font-size: .70rem !important;
 }

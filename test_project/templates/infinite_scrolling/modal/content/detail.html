@@ -1,11 +1,14 @@
 <div class="row g-2">
     <div class="col-12 col-md-6">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=infinite_scrolling.name %}
+        <div class="attribute-label">Name</div>
+        <div>{{ infinite_scrolling.name }}</div>
     </div>
     <div class="col-12 col-md-6">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Created' attribute_value=infinite_scrolling.created_datetime|date:"M d, Y g:i A" %}
+        <div class="attribute-label">Created</div>
+        <div>{{ infinite_scrolling.created_datetime|date:"M d, Y g:i A" }}</div>
     </div>
     <div class="col-12">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=infinite_scrolling.description|linebreaksbr %}
+        <div class="attribute-label">Description</div>
+        <div>{{ infinite_scrolling.description|linebreaksbr }}</div>
     </div>
 </div>

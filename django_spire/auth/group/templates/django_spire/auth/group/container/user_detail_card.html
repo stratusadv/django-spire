@@ -14,25 +14,30 @@
     <div class="card-body">
         <div class="row mb-3">
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='First Name' attribute_value=user.first_name %}
+                <div class="attribute-label">First Name</div>
+                <div>{{ user.first_name }}</div>
             </div>
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Name' attribute_value=user.last_name %}
+                <div class="attribute-label">Last Name</div>
+                <div>{{ user.last_name }}</div>
             </div>
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Email' attribute_value=user.email %}
+                <div class="attribute-label">Email</div>
+                <div>{{ user.email }}</div>
             </div>
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
+                <div class="attribute-label">Status</div>
                 {% include 'django_spire/auth/group/element/is_active_badge.html' with is_active=user.is_active %}
             </div>
         </div>
         <div class="row">
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Last Login' attribute_value=user.last_login %}
+                <div class="attribute-label">Last Login</div>
+                <div>{{ user.last_login }}</div>
             </div>
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Date Created' attribute_value=user.date_joined %}
+                <div class="attribute-label">Date Created</div>
+                <div>{{ user.date_joined }}</div>
             </div>
         </div>
     </div>

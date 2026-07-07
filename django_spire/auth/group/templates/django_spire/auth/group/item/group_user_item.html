@@ -7,11 +7,12 @@
 {% block item_row_content %}
     <div class="col-8">
         {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=user.get_full_name attribute_href=detail_url %}
+        <div class="attribute-label">Name</div>
+        <a href="{{ detail_url }}">{{ user.get_full_name }}</a>
     </div>
 
     <div class="col-4">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
+        <div class="attribute-label">Status</div>
         {% include 'django_spire/auth/group/element/is_active_badge.html' with is_active=user.is_active %}
     </div>
 {% endblock %}

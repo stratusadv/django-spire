@@ -18,20 +18,21 @@
     <div class="card-body">
         <div class="row mb-4">
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Purpose' %}
+                <div class="attribute-label">Purpose</div>
                 {% include 'django_spire/help_desk/element/ticket_purpose_badge.html' %}
             </div>
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Priority' %}
+                <div class="attribute-label">Priority</div>
                 {% include 'django_spire/help_desk/element/ticket_priority_badge.html' %}
             </div>
             <div class="col">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' %}
+                <div class="attribute-label">Status</div>
                 {% include 'django_spire/help_desk/element/ticket_status_badge.html' %}
             </div>
         </div>
         <div class="row">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Ticket Description' attribute_value=ticket.description|linebreaks %}
+            <div class="attribute-label">Ticket Description</div>
+            <div>{{ ticket.description|linebreaks }}</div>
         </div>
     </div>
 {% endblock %}

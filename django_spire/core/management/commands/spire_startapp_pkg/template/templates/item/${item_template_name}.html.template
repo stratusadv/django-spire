@@ -2,15 +2,18 @@
 
 {% block item_title %}
     {% url '${url_reverse_path}:page:detail' pk=${context_single_var}.pk as ${context_single_var}_view_url %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=${context_single_var}.name attribute_href=${context_single_var}_view_url %}
+    <div class="attribute-label">Name</div>
+    <a href="{{ ${context_single_var}_view_url }}">{{ ${context_single_var}.name }}</a>
 {% endblock %}
 
 {% block item_row_content %}
     <div class="col-6">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=${context_single_var}.name %}
+        <div class="attribute-label">Name</div>
+        <div>{{ ${context_single_var}.name }}</div>
     </div>
     <div class="col-6">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=${context_single_var}.description %}
+        <div class="attribute-label">Description</div>
+        <div>{{ ${context_single_var}.description }}</div>
     </div>
 {% endblock %}
 

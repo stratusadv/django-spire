@@ -2,16 +2,18 @@
 
 {% block item_title %}
     {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_type='User' attribute_value=user.get_full_name attribute_href=detail_url %}
+    <div class="attribute-label">User</div>
+    <a href="{{ detail_url }}">{{ user.get_full_name }}</a>
 {% endblock %}
 
 {% block item_row_content %}
     <div class="col">
-        {% include 'django_spire/element/attribute_element.html' with attribute_type='Email' attribute_value=user.email %}
+        <div class="attribute-label">Email</div>
+        <div>{{ user.email }}</div>
     </div>
 
     <div class="col">
-        {% include 'django_spire/element/attribute_element.html' with attribute_type='Status' %}
+        <div class="attribute-label">Status</div>
         {% include 'django_spire/auth/user/element/is_active_badge.html' with is_active=user.is_active %}
     </div>
 {% endblock %}
