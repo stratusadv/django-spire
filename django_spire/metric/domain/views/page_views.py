@@ -26,8 +26,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = str(domain)
-    nav.breadcrumbs.add('Domains', reverse('metric:domain:page:list'))
-    nav.breadcrumbs.add(str(domain), None)
+    nav.breadcrumbs.add('Domains', 'metric:domain:page:list')
+    nav.breadcrumbs.add(str(domain))
     context = nav.as_context()
     context['domain'] = domain
 
@@ -40,7 +40,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def list_view(request: WSGIRequest) -> TemplateResponse:
     nav = DomainNavigation()
     nav.page_title = 'Domains'
-    nav.breadcrumbs.add('Domains', None)
+    nav.breadcrumbs.add('Domains')
     context = nav.as_context()
     context['responsive_mode'] = 'scroll'
     context['domains'] = models.Domain.objects.all()

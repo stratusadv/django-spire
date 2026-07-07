@@ -1,3 +1,5 @@
+{% load django_spire_core %}
+
 <ol
         class="breadcrumb text-body fs-7"
         style="--bs-breadcrumb-divider: '>';"
@@ -21,7 +23,4 @@
             {% endif %}
         </li>
     {% endfor %}
-    {% if django_spire_navigation.help_template %}
-        {% include 'django_spire/help/help_modal.html' with help_template=help_template only %}
-    {% endif %}
 </ol>

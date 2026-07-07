@@ -5,4 +5,4 @@ class TaskNavigation(Navigation):
     def __init__(self) -> None:
         super().__init__()
         self.icon_class = 'bi bi-list-task'
-        self.breadcrumbs.add('Tasks', url='task:page:list')
+        self.breadcrumbs.add('Tasks', 'task:page:list')

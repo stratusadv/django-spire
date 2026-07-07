@@ -51,8 +51,8 @@ def form_view(
     nav.page_description = 'Edit' if pk else 'Create'
     nav.breadcrumbs.add(
         collection.name,
-        url='django_spire:knowledge:collection:page:top_level',
-        url_kwargs={'pk': collection_pk}
+        view_name='django_spire:knowledge:collection:page:top_level',
+        view_kwargs={'pk': collection_pk}
     )
     nav.breadcrumbs.add_model_instance_form_action(entry)
 

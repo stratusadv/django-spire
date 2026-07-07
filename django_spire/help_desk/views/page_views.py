@@ -39,9 +39,9 @@ def ticket_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = HelpDeskNavigation()
     nav.page_title = 'Delete Ticket'
-    nav.breadcrumbs.add('Help Desk', reverse('django_spire:help_desk:page:list'))
-    nav.breadcrumbs.add(str(ticket), None)
-    nav.breadcrumbs.add('Delete', None)
+    nav.breadcrumbs.add('Help Desk', 'django_spire:help_desk:page:list')
+    nav.breadcrumbs.add(str(ticket))
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {ticket}'
@@ -58,8 +58,8 @@ def ticket_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = HelpDeskNavigation()
     nav.page_title = str(ticket)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add('Help Desk', reverse('django_spire:help_desk:page:list'))
-    nav.breadcrumbs.add(str(ticket), None)
+    nav.breadcrumbs.add('Help Desk', 'django_spire:help_desk:page:list')
+    nav.breadcrumbs.add(str(ticket))
     context = nav.as_context()
     context['ticket'] = ticket
     return TemplateResponse(
@@ -74,7 +74,7 @@ def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
     nav = HelpDeskNavigation()
     nav.page_title = 'Ticket'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add('Help Desk', reverse('django_spire:help_desk:page:list'))
+    nav.breadcrumbs.add('Help Desk', 'django_spire:help_desk:page:list')
     context = nav.as_context()
     context['tickets'] = tickets
     return TemplateResponse(

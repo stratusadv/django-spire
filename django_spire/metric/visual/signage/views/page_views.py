@@ -26,8 +26,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = SignageNavigation()
     nav.page_title = str(signage)
-    nav.breadcrumbs.add('Signage', reverse('metric:visual:signage:page:list'))
-    nav.breadcrumbs.add(str(signage), None)
+    nav.breadcrumbs.add('Signage', 'metric:visual:signage:page:list')
+    nav.breadcrumbs.add(str(signage))
     context = nav.as_context()
     context['signage'] = signage
 
@@ -44,7 +44,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = SignageNavigation()
     nav.page_title = 'Signage'
-    nav.breadcrumbs.add('Signage', None)
+    nav.breadcrumbs.add('Signage')
     context = nav.as_context()
     context['responsive_mode'] = ResponsiveMode.SCROLL
     context['signage_items_endpoint'] = reverse('metric:visual:signage:template:items')

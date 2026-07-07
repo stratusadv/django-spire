@@ -3,7 +3,6 @@
 {% load django_spire_core %}
 
 {% with modal_camel_case_id=modal_id|to_camel_case_javascript_safe %}
-
     <div data-bs-toggle="modal" data-bs-target="#{{ modal_camel_case_id }}Modal">
         {% block modal_trigger %}
         {% endblock %}

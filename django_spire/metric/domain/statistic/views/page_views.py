@@ -26,7 +26,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = StatisticNavigation()
     nav.page_title = str(statistic)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add('Statistics', reverse('metric:domain:statistic:page:list'))
+    nav.breadcrumbs.add('Statistics', 'metric:domain:statistic:page:list')
     nav.breadcrumbs.add(str(statistic))
     context = nav.as_context()
     context['statistic'] = statistic

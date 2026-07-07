@@ -39,7 +39,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = EntryNavigation()
     nav.page_title = 'Delete Entry'
-    nav.breadcrumbs.add('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add('Knowledge', 'django_spire:knowledge:page:home')
     nav.breadcrumbs.add(str(entry))
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()

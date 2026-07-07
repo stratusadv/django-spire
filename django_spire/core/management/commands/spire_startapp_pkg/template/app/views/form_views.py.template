@@ -48,16 +48,16 @@ def ${delete_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = ${model_class_name}Navigation()
     nav.page_title = f'Delete {${context_single_var}._meta.verbose_name.title()}'
-    nav.breadcrumbs.add_breadcrumb(
+    nav.breadcrumbs.add(
         models.${model_class_name}._meta.verbose_name_plural.title(),
-        reverse('${url_reverse_path}:page:list'),
+        '${url_reverse_path}:page:list',
     )
     nav.breadcrumbs.add_model_instance_breadcrumb(
         ${context_single_var},
-        url='${url_reverse_path}:page:detail',
-        url_kwargs={'pk': ${context_single_var}.pk},
+        view_name='${url_reverse_path}:page:detail',
+        view_kwargs={'pk': ${context_single_var}.pk},
     )
-    nav.breadcrumbs.add_breadcrumb('Delete')
+    nav.breadcrumbs.add('Delete')
 
     context = nav.as_context()
     context['form'] = form
@@ -110,11 +110,11 @@ def _form_view(
     nav = ${model_class_name}Navigation()
     nav.set_page_title_from_model_name(${context_single_var})
     nav.page_description = 'Edit' if ${context_single_var}.pk else 'Create'
-    nav.breadcrumbs.add_breadcrumb(
+    nav.breadcrumbs.add(
         models.${model_class_name}._meta.verbose_name_plural.title(),
-        reverse('${url_reverse_path}:page:list'),
+        '${url_reverse_path}:page:list',
     )
-    nav.breadcrumbs.add_breadcrumb('Edit' if ${context_single_var}.pk else 'Create')
+    nav.breadcrumbs.add('Edit' if ${context_single_var}.pk else 'Create')
 
     context = nav.as_context()
     context['form'] = form

@@ -1,13 +1,13 @@
-{% extends 'django_spire/modal/title_modal.html' %}
+{% extends 'django_spire/modal/modal.html' %}
 
 {% block modal_trigger %}
-	<i class="bi bi-question-circle"></i>
+	<i class="bi cursor-pointer text-primary bi-question-circle"></i>
 {% endblock %}
 
-{% block modal_title %}
-	{{ help_title }}
-{% endblock %}
-
-{% block modal_title_content %}
-    {% include help_template %}
+{% block modal_content %}
+    <div class="modal-content">
+        <div class="modal-body">
+            {% include help_template %}
+        </div>
+    </div>
 {% endblock %}

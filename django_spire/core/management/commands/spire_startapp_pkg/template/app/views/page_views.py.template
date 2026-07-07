@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.urls import reverse
 
 from ${module_path} import models
 from ${module_path}.forms import ${model_class_name}ListFilterForm
@@ -26,14 +25,14 @@ def ${detail_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = ${model_class_name}Navigation()
     nav.page_title = str(${context_single_var})
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add_breadcrumb(
+    nav.breadcrumbs.add(
         models.${model_class_name}._meta.verbose_name_plural.title(),
-        reverse('${url_reverse_path}:page:list'),
+        '${url_reverse_path}:page:list',
     )
     nav.breadcrumbs.add_model_instance_breadcrumb(
         ${context_single_var},
-        url='${url_reverse_path}:page:detail',
-        url_kwargs={'pk': ${context_single_var}.pk},
+        view_name='${url_reverse_path}:page:detail',
+        view_kwargs={'pk': ${context_single_var}.pk},
     )
 
     context = nav.as_context()
@@ -57,7 +56,7 @@ def ${list_view_name}(request: WSGIRequest) -> TemplateResponse:
     nav = ${model_class_name}Navigation()
     nav.page_title = models.${model_class_name}._meta.verbose_name_plural.title()
     nav.page_description = 'List View'
-    nav.breadcrumbs.add_breadcrumb(
+    nav.breadcrumbs.add(
         models.${model_class_name}._meta.verbose_name_plural.title(),
     )
 

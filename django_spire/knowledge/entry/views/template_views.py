@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
-from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.collection.models import Collection
@@ -17,14 +16,14 @@ if TYPE_CHECKING:
 @AppAuthController('knowledge').permission_required('can_view')
 def file_list_view(request: WSGIRequest, collection_pk: int = 0) -> TemplateResponse:
     nav = EntryNavigation()
-    nav.breadcrumbs.add(name='Knowledge')
+    nav.breadcrumbs.add('Knowledge')
 
     if collection_pk != 0:
         collection = Collection.objects.select_related('parent').get(pk=collection_pk)
 
-        nav.breadcrumbs.add(name='Collections', url='django_spire:knowledge:page:home')
+        nav.breadcrumbs.add('Collections', 'django_spire:knowledge:page:home')
 
-        nav.breadcrumbs.add(name='Importing Files')
+        nav.breadcrumbs.add('Importing Files')
 
     return TemplateResponse(
         request,

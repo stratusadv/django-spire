@@ -43,6 +43,7 @@ class Navigation:
                 'page_title': self.page_title,
                 'home_href': self.home_href,
                 'icon_class': self.icon_class,
+                'help_template': self.help_template,
                 **self.breadcrumbs.as_context(),
             }
         }

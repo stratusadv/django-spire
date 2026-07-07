@@ -47,9 +47,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = VisualNavigation()
     nav.page_title = 'Delete Visual'
-    nav.breadcrumbs.add('Visuals', reverse('metric:visual:page:list'))
-    nav.breadcrumbs.add(str(visual), None)
-    nav.breadcrumbs.add('Delete', None)
+    nav.breadcrumbs.add('Visuals', 'metric:visual:page:list')
+    nav.breadcrumbs.add(str(visual))
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {visual}'
@@ -151,8 +151,8 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
 
     nav = VisualNavigation()
     nav.page_title = str(visual._meta.verbose_name.title())
-    nav.breadcrumbs.add('Visuals', reverse('metric:visual:page:list'))
-    nav.breadcrumbs.add('Edit' if visual.pk else 'Create', None)
+    nav.breadcrumbs.add('Visuals', 'metric:visual:page:list')
+    nav.breadcrumbs.add('Edit' if visual.pk else 'Create')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = str(visual._meta.verbose_name.title())

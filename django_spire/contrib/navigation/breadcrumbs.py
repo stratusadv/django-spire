@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, TypedDict, Self, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Self, TypedDict
 
 from django.urls import reverse
 
-from django_spire.conf import settings
 from django_spire.contrib.navigation.tools import form_action_name
 
 if TYPE_CHECKING:
@@ -18,14 +17,15 @@ class _BreadcrumbDict(TypedDict):
 
 class _Breadcrumb:
     def __init__(
-            self, name: str,
-            view_name: str | None = None,
-            view_kwargs: dict[str, Any] | None = None,
-            href: str | None = None,
+        self,
+        name: str,
+        view_name: str | None = None,
+        view_kwargs: dict[str, Any] | None = None,
+        href: str | None = None,
     ) -> None:
         if view_name is not None and href is not None:
-            message = 'Cannot specify both "href" and "view_name" on a breadcrumbs'
-            raise ValueError(message)
+            msg = 'Cannot specify both "href" and "view_name" on a breadcrumbs'
+            raise ValueError(msg)
 
         self.name = name
         self.view_name = view_name
@@ -75,35 +75,65 @@ class Breadcrumbs:
         return str(self.items)
 
     def add(
-            self, name: str, view_name: str | None = None, view_kwargs: dict[str, Any] | None = None, href: str | None = None
+        self,
+        name: str,
+        view_name: str | None = None,
+        view_kwargs: dict[str, Any] | None = None,
+        href: str | None = None,
     ) -> None:
-        self.items.append(_Breadcrumb(name=name, view_name=view_name, view_kwargs=view_kwargs, href=href))
+        self.items.append(
+            _Breadcrumb(name=name, view_name=view_name, view_kwargs=view_kwargs, href=href)
+        )
 
     def add_model_plural_name(
-            self,
-            model: type[Model] | Model,
-            view_name: str | None = None,
-            view_kwargs: dict[str, Any] | None = None,
-            href: str | None = None
+        self,
+        model: type[Model] | Model,
+        view_name: str | None = None,
+        view_kwargs: dict[str, Any] | None = None,
+        href: str | None = None,
     ) -> None:
-        self.add(name=model._meta.verbose_name_plural.title(), view_name=view_name, view_kwargs=view_kwargs, href=href)
+        self.add(
+            name=model._meta.verbose_name_plural.title(),
+            view_name=view_name,
+            view_kwargs=view_kwargs,
+            href=href,
+        )
 
     def add_model_name(
-            self,
-            model: type[Model] | Model,
-            view_name: str | None = None,
-            view_kwargs: dict[str, Any] | None = None,
-            href: str | None = None
+        self,
+        model: type[Model] | Model,
+        view_name: str | None = None,
+        view_kwargs: dict[str, Any] | None = None,
+        href: str | None = None,
     ) -> None:
-        self.add(name=model._meta.verbose_name.title(), view_name=view_name, view_kwargs=view_kwargs, href=href)
+        self.add(
+            name=model._meta.verbose_name.title(),
+            view_name=view_name,
+            view_kwargs=view_kwargs,
+            href=href,
+        )
 
     def add_model_instance_string(
-            self, model: Model, view_name: str | None = None, view_kwargs: dict[str, Any] | None = None
+        self, model: Model, view_name: str | None = None, view_kwargs: dict[str, Any] | None = None
     ) -> None:
         self.add(name=str(model), view_name=view_name, view_kwargs=view_kwargs)
 
     def add_model_instance_form_action(self, model: Model) -> None:
         self.add(name=form_action_name(has_pk=model.pk is not None))
+
+    def add_breadcrumb(
+        self,
+        name: str,
+        view_name: str | None = None,
+        view_kwargs: dict[str, Any] | None = None,
+        href: str | None = None,
+    ) -> None:
+        self.add(name=name, view_name=view_name, view_kwargs=view_kwargs, href=href)
+
+    def add_model_instance_breadcrumb(
+        self, model: Model, view_name: str | None = None, view_kwargs: dict[str, Any] | None = None
+    ) -> None:
+        self.add(name=str(model), view_name=view_name, view_kwargs=view_kwargs)
 
     def remove(self, index: int) -> Breadcrumbs:
         del self.items[index]
