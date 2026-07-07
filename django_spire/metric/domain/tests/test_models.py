@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from django_spire.core.tests.test_cases import BaseTestCase
-
 from django_spire.metric.domain.tests.factories import create_test_domain, create_test_subdomain
 
 

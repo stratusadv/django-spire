@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from django.urls.conf import include, path
 
-
 app_name = 'domain'
 
 urlpatterns = [

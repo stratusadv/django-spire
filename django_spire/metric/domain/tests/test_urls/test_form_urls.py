@@ -37,7 +37,8 @@ class SubDomainUrlTestCase(BaseTestCase):
     def test_create_view_url_path(self):
         response = self.client.get(
             path=reverse(
-                'django_spire:metric:domain:form:create_subdomain', kwargs={'domain_pk': self.domain.pk}
+                'django_spire:metric:domain:form:create_subdomain',
+                kwargs={'domain_pk': self.domain.pk},
             )
         )
         assert response.status_code == 200
@@ -45,14 +46,18 @@ class SubDomainUrlTestCase(BaseTestCase):
     def test_update_view_url_path(self):
         subdomain = create_test_subdomain(self.domain)
         response = self.client.get(
-            path=reverse('django_spire:metric:domain:form:update_subdomain',
-            kwargs={'domain_pk': self.domain.pk, 'pk': subdomain.pk}),
+            path=reverse(
+                'django_spire:metric:domain:form:update_subdomain',
+                kwargs={'domain_pk': self.domain.pk, 'pk': subdomain.pk},
+            )
         )
 
     def test_delete_view_url_path(self):
         subdomain = create_test_subdomain(self.domain)
         response = self.client.get(
-            path=reverse('django_spire:metric:domain:form:delete_subdomain',
-            kwargs={'domain_pk': self.domain.pk, 'pk': subdomain.pk}),
+            path=reverse(
+                'django_spire:metric:domain:form:delete_subdomain',
+                kwargs={'domain_pk': self.domain.pk, 'pk': subdomain.pk},
+            )
         )
         assert response.status_code == 200
