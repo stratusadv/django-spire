@@ -17,13 +17,7 @@ def create_test_domain(
 
 
 def create_test_subdomain(
-    domain=Domain.objects.create(
-        name='domain_inside_subdomain',
-        description='just for testing subdomain',
-        sub_domain_description='to test subdomain',
-    ),
-    name='subdomain_name',
-    description='testing subdomain_description',
+    domain: Domain, name: str = 'subdomain_name', description: str = 'testing subdomain_description'
 ) -> SubDomain:
 
     return SubDomain.objects.create(domain=domain, name=name, description=description)

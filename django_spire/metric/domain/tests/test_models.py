@@ -19,7 +19,8 @@ class SubDomainModelTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.subdomain = create_test_subdomain()
+        self.domain = create_test_domain()
+        self.subdomain = create_test_subdomain(domain=self.domain)
 
     def test_str(self):
         assert str(self.subdomain) == str(self.subdomain.name)

@@ -11,21 +11,23 @@ class DomainViewTestCase(BaseTestCase):
         super().setUp()
 
         self.domain = create_test_domain()
-        self.subdomain = create_test_subdomain()
+        self.subdomain = create_test_subdomain(domain=self.domain)
 
     def test_list_view(self):
         response = self.client.get(path=reverse('django_spire:metric:domain:page:list'))
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertTemplateUsed(response, 'django_spire/metric/domain/page/list_page.html')
-        self.assertIn(self.domain, response.context['domains'])
-        self.assertIn('scroll', response.context['responsive_mode'])
+        assert self.domain in response.context['domains']
+        assert 'scroll' in response.context['responsive_mode']
 
     def test_detail_view(self):
-        response = self.client.get(path=reverse('django_spire:metric:domain:page:detail', kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(
+            path=reverse('django_spire:metric:domain:page:detail', kwargs={'pk': self.domain.pk})
+        )
+        assert response.status_code == 200
         self.assertTemplateUsed(response, 'django_spire/metric/domain/page/detail_page.html')
-        self.assertIn(self.domain, response.context['domain'])
-        self.assertIn(self.subdomain, response.context['subdomains'])
+        assert self.domain == response.context['domain']
+        assert self.subdomain in response.context['subdomains']
 
 
 class SubDomainViewTestCase(BaseTestCase):
@@ -33,10 +35,15 @@ class SubDomainViewTestCase(BaseTestCase):
         super().setUp()
 
         self.domain = create_test_domain()
-        self.subdomains = create_test_subdomain()
+        self.subdomain = create_test_subdomain(domain=self.domain)
 
     def test_subdomain_detail_view(self):
-        response = self.client.get(path=reverse('django_spire:metric:domain:page:detail', kwargs={'pk': 1}))
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(self.subdomain, response.context['subdomain'])
-        self.assertIn(self.subdomains.domain_id, response.context['domain_pk'])
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:page:subdomain_detail',
+                kwargs={'pk': self.subdomain.pk, 'domain_pk': self.domain.pk},
+            )
+        )
+        assert response.status_code == 200
+        assert self.subdomain == response.context['subdomain']
+        assert self.subdomain.domain.pk == response.context['domain_pk']
