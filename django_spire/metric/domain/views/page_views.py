@@ -4,14 +4,8 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 
-from django_spire.contrib.session.controller import SessionController
-from django_spire.history.mixins import HistoryModelMixin
 from django_spire.metric.domain import models
-from django_spire.metric.domain.constants import LIST_FILTERING_SESSION_KEY
-from django_spire.metric.domain.forms import DomainListFilterForm
-from django_spire.metric.domain.models import SubDomain
 from django_spire.metric.domain.navigation import DomainNavigation
 
 if TYPE_CHECKING:
