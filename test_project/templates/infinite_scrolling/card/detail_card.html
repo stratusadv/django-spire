@@ -8,7 +8,10 @@
     {% if perms.infinite_scrolling.change_infinite_scrolling %}
         <div class="d-flex gap-2">
             {% url 'infinite_scrolling:form:update_modal' pk=infinite_scrolling.pk as update_url %}
-            {% include 'django_spire/button/button.html' with button_text='Edit' button_class='btn-secondary btn-sm' button_icon='bi bi-pencil' button_modal_href=update_url %}
+            <a class="btn btn-sm btn-secondary btn-sm" href="{{ update_url }}">
+                <i class="bi bi-pencil"></i>
+                Edit
+            </a>
         </div>
     {% endif %}
 {% endblock %}

@@ -7,5 +7,7 @@
         }
     }"
 >
-    {% include 'django_spire/button/button.html' with button_class='btn-primary' button_text='Open Recipe' x_button_click="open_recipe()" %}
+    <a class="btn btn-sm btn-primary" @click="open_recipe()">
+        Open Recipe
+    </a>
 </div>

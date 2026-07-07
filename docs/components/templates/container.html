@@ -1,7 +1,10 @@
 <h1 class="fs-1 fw-semi-bold mb-4">Recipes</h1>
 
 <div class="mb-3">
-    {% include 'django_spire/button/button.html' with button_class='btn-primary' button_text='Add' button_icon='bi bi-plus' %}
+    <a class="btn btn-sm btn-primary" href="#">
+        <i class="bi bi-plus"></i>
+        Add
+    </a>
 </div>
 
 <form
@@ -15,7 +18,9 @@
     <label>
         <input class="form-control" type="text" placeholder="Search Ingredients...">
     </label>
-    {% include 'django_spire/button/button.html' with button_class='btn-primary' button_text='Search' x_button_click="search_recipe()" %}
+    <a class="btn btn-sm btn-primary" @click="search_recipe()">
+        Search
+    </a>
 </form>
 
 {% include 'component/item/example_item.html' %}

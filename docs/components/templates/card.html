@@ -12,7 +12,9 @@
 
 {% block card_button %}
     <div @click="toggle_card_title_dropdown()">
-        {% include 'django_spire/button/button.html' with button_class='btn-primary' button_text='Toggle Food Dropdown' %}
+        <a class="btn btn-sm btn-primary" href="#">
+            Toggle Food Dropdown
+        </a>
     </div>
 {% endblock %}
 

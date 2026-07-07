@@ -8,7 +8,10 @@
     {% if AuthController.help_desk.can_add %}
         <div class="col text-end mb-1">
             {% url 'django_spire:help_desk:form:create' as create_url %}
-            {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_href=create_url button_icon="bi bi-plus" %}
+            <a class="btn btn-sm btn-primary" href="{{ create_url }}">
+                <i class="bi bi-plus"></i>
+                Add
+            </a>
         </div>
     {% endif %}
 {% endblock %}

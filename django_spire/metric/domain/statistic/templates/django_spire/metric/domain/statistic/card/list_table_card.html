@@ -7,7 +7,10 @@
 {% block card_button %}
     {% if perms.domain_statistic.add_statistic %}
         {% url 'metric:domain:statistic:form:create' as new_statistic_url %}
-        {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_icon='bi bi-plus' button_href=new_statistic_url %}
+        <a class="btn btn-sm btn-primary" href="{{ new_statistic_url }}">
+            <i class="bi bi-plus"></i>
+            Add
+        </a>
     {% endif %}
 {% endblock %}
 

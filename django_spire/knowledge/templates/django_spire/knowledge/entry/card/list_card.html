@@ -10,11 +10,17 @@
             <div class='row'>
                 <div class='col-auto'>
                     {% url 'django_spire:knowledge:entry:form:import' collection_pk=collection.pk as import_url %}
-                    {% include 'django_spire/button/button.html' with button_text='Import' button_class='btn-primary' button_href=import_url button_icon='bi bi-upload' %}
+                    <a class="btn btn-sm btn-primary" href="{{ import_url }}">
+                        <i class="bi bi-upload"></i>
+                        Import
+                    </a>
                 </div>
                 <div class='col-auto'>
                     {% url 'django_spire:knowledge:entry:form:create' collection_pk=collection.pk as create_url %}
-                    {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_href=create_url button_icon='bi bi-plus' %}
+                    <a class="btn btn-sm btn-primary" href="{{ create_url }}">
+                        <i class="bi bi-plus"></i>
+                        Add
+                    </a>
                 </div>
             </div>
         </div>

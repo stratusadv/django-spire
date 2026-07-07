@@ -7,7 +7,10 @@
 {% block card_button %}
     {% if perms.visual_signage.change_signage %}
         {% url 'metric:visual:signage:form:update' pk=signage.pk as signage_edit_url %}
-        {% include 'django_spire/button/button.html' with button_text='Edit' button_class='btn-primary' button_icon='bi bi-pencil' button_href=signage_edit_url %}
+        <a class="btn btn-sm btn-primary" href="{{ signage_edit_url }}">
+            <i class="bi bi-pencil"></i>
+            Edit
+        </a>
     {% endif %}
 {% endblock %}
 
