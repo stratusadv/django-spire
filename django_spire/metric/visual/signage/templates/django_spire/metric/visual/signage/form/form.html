@@ -6,17 +6,17 @@
         signage: new ModelObjectGlue('signage')
     }"
 >
-    {% include 'django_spire/contrib/element/divider_element.html' with divider_title='Details' %}
+    {% include 'django_spire/element/divider_element.html' with divider_title='Details' %}
 
     <div class="row g-3 mb-3">
         <div class="col-12">
-            {% include 'django_spire/form/glue/field/char_field.html' with glue_model_field='signage.name' %}
+            {% include 'django_spire/form/../../../../../../../../../core/templates/django_spire/contrib/glue/field/char_field.html' with glue_model_field='signage.name' %}
         </div>
 
         <div class="col-12">
-            {% include 'django_spire/form/glue/field/text_field.html' with glue_model_field='signage.description' %}
+            {% include 'django_spire/form/../../../../../../../../../core/templates/django_spire/contrib/glue/field/text_field.html' with glue_model_field='signage.description' %}
         </div>
     </div>
 </div>
 
-{% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+{% include 'django_spire/form/button/submit_button.html' %}

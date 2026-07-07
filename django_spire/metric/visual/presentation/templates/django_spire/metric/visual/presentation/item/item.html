@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/item/../../../../../../../../../core/templates/django_spire/infinite_scroll/infinite_scroll_item.html' %}
+{% extends 'django_spire/item/../../../../../../../../../core/templates/django_spire/infinite_scroll/infinite_scroll_item.html' %}
 
 {% block item_content %}
     <div class="row justify-content-center align-items-center position-relative">
@@ -28,7 +28,7 @@
                         {% url 'metric:visual:presentation:form:delete' pk=presentation.pk as presentation_delete_url %}
                     {% endif %}
 
-                    {% include 'django_spire/contrib/../../../../../../../../../core/templates/django_spire/dropdown/ellipsis_dropdown.html' with view_url=presentation_view_url edit_url=presentation_edit_url delete_url=presentation_delete_url %}
+                    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=presentation_view_url edit_url=presentation_edit_url delete_url=presentation_delete_url %}
                 </div>
             </div>
         </div>

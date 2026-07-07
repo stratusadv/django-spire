@@ -20,7 +20,7 @@
         {% for api_access in api_accesses %}
             {% include 'django_spire/api/item/access_item.html' %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

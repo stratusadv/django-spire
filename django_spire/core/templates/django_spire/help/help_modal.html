@@ -1,0 +1,13 @@
+{% extends 'django_spire/modal/title_modal.html' %}
+
+{% block modal_trigger %}
+	<i class="bi bi-question-circle"></i>
+{% endblock %}
+
+{% block modal_title %}
+	{{ help_title }}
+{% endblock %}
+
+{% block modal_title_content %}
+    {% include help_template %}
+{% endblock %}

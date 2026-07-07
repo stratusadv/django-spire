@@ -1,0 +1,43 @@
+{% extends 'django_spire/form/glue/widget/widget.html' %}
+
+{% block widget_content %}
+    {% include 'django_spire/form/glue/label/../label/label.html' %}
+    <div
+        class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}"
+        x-data="{
+            selected_items: [],
+
+            init() {
+                this.selected_items = this.value || [];
+            },
+
+            toggle_item(item) {
+                if (this.selected_items.includes(item)) {
+                    this.selected_items = this.selected_items.filter(i => i !== item);
+                } else {
+                    this.selected_items = [...this.selected_items, item];
+                }
+                this.value = this.selected_items;
+            },
+
+            is_selected(item) {
+                return this.selected_items.includes(item);
+            }
+        }"
+    >
+        <div class="row">
+            <template x-for="item in {{ glue_field }}?.choices || []" :key="item[0]">
+                <div class="col-{{ columns|default:'12' }}">
+                    <div
+                        class="p-2 mb-2 rounded cursor-pointer"
+                        :class="is_selected(item[0]) ? 'bg-primary text-white' : 'bg-light'"
+                        @click="toggle_item(item[0])"
+                    >
+                        <span x-text="item[1]"></span>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

@@ -1,3 +1,6 @@
-from .celery import app as celery_app
+import contextlib
 
-__all__ = ('celery_app',)
+with contextlib.suppress(ModuleNotFoundError):
+    from .celery import app as celery_app
+
+    __all__ = ('celery_app',)

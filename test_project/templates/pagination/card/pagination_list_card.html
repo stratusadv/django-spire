@@ -14,7 +14,7 @@
         {% for placeholder in placeholders %}
             {% include 'placeholder/item/placeholder_item.html' %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/core/templates/django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

@@ -80,6 +80,6 @@
     </div>
 
     {% if tasks.paginator.num_pages > 1 %}
-        {% include 'django_spire/contrib/element/pagination_element.html' with paginated_list=tasks %}
+        {% include 'django_spire/core/templates/django_spire/element/pagination_element.html' with paginated_list=tasks %}
     {% endif %}
 {% endblock %}

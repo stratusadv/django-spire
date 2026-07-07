@@ -17,20 +17,20 @@
     {% csrf_token %}
 
     <div class="col-12 col-sm mb-3 mb-sm-0">
-        {% include 'django_spire/form/glue/field/select_field.html' with glue_field='ticket.$fields.purpose' %}
+        {% include 'django_spire/glue/field/select_field.html' with glue_field='ticket.$fields.purpose' %}
     </div>
     <div class="col-12 col-sm mb-3 mb-sm-0">
-        {% include 'django_spire/form/glue/field/select_field.html' with glue_field='ticket.$fields.priority' %}
+        {% include 'django_spire/glue/field/select_field.html' with glue_field='ticket.$fields.priority' %}
     </div>
     {% if ticket.pk is not None %}
         <div class="col-12 col-sm mb-3 mb-sm-0">
-            {% include 'django_spire/form/glue/field/select_field.html' with glue_field='ticket.$fields.status' %}
+            {% include 'django_spire/glue/field/select_field.html' with glue_field='ticket.$fields.status' %}
         </div>
     {% endif %}
     <div class="col-12 mb-1 mt-3">
-        {% include 'django_spire/form/glue/field/text_field.html' with glue_field='ticket.$fields.description' %}
+        {% include 'django_spire/glue/field/text_field.html' with glue_field='ticket.$fields.description' %}
     </div>
     <div class="my-2">
-        {% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+        {% include 'django_spire/form/button/submit_button.html' %}
     </div>
 </form>

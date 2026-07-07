@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/infinite_scroll/item.html' %}
+{% extends 'django_spire/core/templates/django_spire/infinite_scroll/item.html' %}
 
 {% block item_content %}
     <div class="align-items-center row" data-testid="infinite-scrolling-item">
@@ -19,7 +19,7 @@
             {% url 'infinite_scrolling:form:detail_modal' pk=infinite_scrolling.pk as view_url %}
             {% url 'infinite_scrolling:form:update_modal' pk=infinite_scrolling.pk as edit_url %}
             {% url 'infinite_scrolling:form:delete_modal' pk=infinite_scrolling.pk as delete_url %}
-            {% include 'django_spire/contrib/../../../../django_spire/core/templates/django_spire/dropdown/ellipsis_modal_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}
+            {% include 'django_spire/core/templates/django_spire/dropdown/ellipsis_modal_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}
         </div>
     </div>
 {% endblock %}

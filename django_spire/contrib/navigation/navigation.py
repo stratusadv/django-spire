@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 class Navigation:
     def __init__(self) -> None:
         self.page_title: str | None = None
+        self.help_template: str | None = None
         self.icon_class: str | None = None
         self.home_url: str | None = settings.DJANGO_SPIRE_NAVIGATION_HOME_URL
         self.breadcrumbs: Breadcrumbs = Breadcrumbs()

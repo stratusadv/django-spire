@@ -20,7 +20,7 @@
         {% for group in group_list %}
             {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

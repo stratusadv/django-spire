@@ -6,17 +6,17 @@
         domain: new ModelObjectGlue('domain')
     }"
 >
-    {% include 'django_spire/contrib/element/divider_element.html' with divider_title='Details' %}
+    {% include 'django_spire/element/divider_element.html' with divider_title='Details' %}
 
     <div class="row g-3 mb-3">
         <div class="col-12">
-            {% include 'django_spire/form/glue/field/char_field.html' with glue_model_field='domain.name' %}
+            {% include 'django_spire/glue/field/char_field.html' with glue_model_field='domain.name' %}
         </div>
 
         <div class="col-12">
-            {% include 'django_spire/form/glue/field/text_field.html' with glue_model_field='domain.description' %}
+            {% include 'django_spire/glue/field/text_field.html' with glue_model_field='domain.description' %}
         </div>
     </div>
 </div>
 
-{% include 'django_spire/contrib/form/button/form_submit_button.html' %}
+{% include 'django_spire/form/button/submit_button.html' %}
