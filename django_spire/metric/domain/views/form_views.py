@@ -7,15 +7,13 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.history.activity.utils import add_form_activity
-
-from django_glue import Glue
-
 from django_spire.metric.domain import forms, models
 from django_spire.metric.domain.navigation import DomainNavigation
 
@@ -225,8 +223,7 @@ def _subdomain_form_view(
 def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse:
     subdomain = get_object_or_404(models.SubDomain, domain_id=domain_pk, pk=pk)
     return_url = request.GET.get(
-        'return_url',
-        reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk}),
+        'return_url', reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk})
     )
 
     if request.method == 'POST':

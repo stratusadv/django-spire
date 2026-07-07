@@ -8,10 +8,9 @@ from django.urls import reverse
 
 from django_spire.contrib.session.controller import SessionController
 from django_spire.history.mixins import HistoryModelMixin
-
 from django_spire.metric.domain import models
-from django_spire.metric.domain.forms import DomainListFilterForm
 from django_spire.metric.domain.constants import LIST_FILTERING_SESSION_KEY
+from django_spire.metric.domain.forms import DomainListFilterForm
 from django_spire.metric.domain.models import SubDomain
 from django_spire.metric.domain.navigation import DomainNavigation
 
@@ -55,12 +54,18 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     nav = DomainNavigation()
     nav.page_title = str(subdomain)
     nav.breadcrumbs.add(str(subdomain.domain), None)
-    nav.breadcrumbs.add(name='Sub Domains', url='django_spire:metric:domain:page:detail', url_kwargs={'pk': domain_pk})
+    nav.breadcrumbs.add(
+        name='Sub Domains',
+        url='django_spire:metric:domain:page:detail',
+        url_kwargs={'pk': domain_pk},
+    )
     nav.breadcrumbs.add(str(subdomain), None)
     context = nav.as_context()
     context['subdomain'] = subdomain
     context['domain_pk'] = domain_pk
 
     return TemplateResponse(
-        request, context=context, template='django_spire/metric/domain/page/subdomain_detail_page.html'
+        request,
+        context=context,
+        template='django_spire/metric/domain/page/subdomain_detail_page.html',
     )

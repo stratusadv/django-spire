@@ -13,6 +13,7 @@ class DomainAdmin(admin.ModelAdmin):
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')
     search_fields = ('description', 'created_by__username', 'created_by__email')
 
+
 @admin.register(SubDomain)
 class SubDomainAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'description', 'created_datetime')
