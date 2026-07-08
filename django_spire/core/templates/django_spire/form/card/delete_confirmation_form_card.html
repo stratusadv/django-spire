@@ -1,0 +1,34 @@
+<div class="card">
+
+    <div class="card-body">
+        <form x-data="{
+                submit_value(value) {
+                    document.getElementById('delete_confirmation_should_delete').value = value
+                    document.getElementById('delete_form').submit()
+                }
+            }" id="delete_form" method="post">
+            {% if form_description %}
+                <div class="mb-3">
+                    {{ form_description }}
+                </div>
+            {% endif %}
+
+            <div class="row text-center">
+                {% csrf_token %}
+                <input hidden id="delete_confirmation_should_delete" value="false" name="should_delete" type="text">
+
+                <div class="col-auto me-3">
+                    <a class="btn btn-sm btn-danger" @click="submit_value(true)">
+                        Delete
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a class="btn btn-sm btn-secondary" @click="submit_value(false)">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>

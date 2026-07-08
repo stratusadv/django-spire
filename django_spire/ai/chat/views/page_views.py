@@ -16,6 +16,6 @@ def chat_view(request: WSGIRequest) -> TemplateResponse:
     nav = AuthGroupNavigation()
     nav.page_title = 'AI Chat'
     nav.page_description = 'Chat with AI'
-    nav.breadcrumbs.add(name='AI Chat')
+    nav.breadcrumbs.add('AI Chat')
     context = nav.as_context()
     return TemplateResponse(request, 'django_spire/ai/chat/page/chat_page.html', context=context)

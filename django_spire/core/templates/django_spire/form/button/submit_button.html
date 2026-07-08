@@ -1,6 +1,19 @@
 <div
     x-data="{
         loading: false,
+
+        async submit_form(form) {
+            if (form.checkValidity() && await this.$validation?.() !== false) {
+                this.loading = true;
+                try {
+                    form.submit();
+                } finally {
+                    this.loading = false;
+                }
+            } else {
+                form.reportValidity();
+            }
+        }
     }"
 >
     <button

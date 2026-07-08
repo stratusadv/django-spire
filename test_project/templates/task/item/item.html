@@ -1,17 +1,19 @@
-{% extends 'django_spire/contrib/infinite_scroll/item.html' %}
+{% extends 'django_spire/core/templates/django_spire/infinite_scroll/item.html' %}
 
 {% block item_content %}
     <div class="row">
         <div class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=task.name %}
+            <div class="attribute-label">Name</div>
+            <div>{{ task.name }}</div>
         </div>
 
         <div class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Status' attribute_value=task.get_status_display %}
+            <div class="attribute-label">Status</div>
+            <div>{{ task.get_status_display }}</div>
         </div>
 
         <div class="col-3">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title='Users' %}
+            <div class="attribute-label">Users</div>
             {% for user_initial in task.user_initials %}
                 {{ user_initial }}
             {% endfor %}

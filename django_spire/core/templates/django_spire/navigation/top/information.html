@@ -1,6 +1,12 @@
 <div class="row">
-    <div class="col fs-5 text-body text-truncate">
+    <div class="col fs-5 text-body text-truncate pe-0">
         {{ django_spire_navigation.page_title }}
+    </div>
+    <div class="col-auto fs-5 px-0">
+        {% if django_spire_navigation.help_template %}
+            {% include 'django_spire/help/help_modal.html' with help_template=django_spire_navigation.help_template modal_id='informationHelp' only %}
+        {% endif %}
+
     </div>
 </div>
 <div class="row d-none d-lg-flex mb-0 mb-n3 text-truncate">

@@ -15,6 +15,6 @@
         {% url 'infinite_scrolling:form:update_modal' pk=row.pk as edit_url %}
         {% url 'infinite_scrolling:form:delete_modal' pk=row.pk as delete_url %}
 
-        {% include 'django_spire/contrib/../../../../django_spire/core/templates/django_spire/dropdown/ellipsis_table_dropdown.html' with edit_url=edit_url delete_url=delete_url %}
+        {% include 'django_spire/core/templates/django_spire/dropdown/ellipsis_table_dropdown.html' with edit_url=edit_url delete_url=delete_url %}
     </td>
 {% endblock %}

@@ -6,7 +6,10 @@
 
 {% block card_button %}
     {% url 'placeholder:page:form' pk=0 as new_placeholder_url %}
-	{% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_icon='bi bi-plus' button_href=new_placeholder_url %}
+	<a class="btn btn-sm btn-primary" href="{{ new_placeholder_url }}">
+        <i class="bi bi-plus"></i>
+        Add
+    </a>
 {% endblock %}
 
 {% block card_title_content %}
@@ -14,7 +17,7 @@
         {% for placeholder in placeholders %}
             {% include 'placeholder/item/placeholder_item.html' %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/core/templates/django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

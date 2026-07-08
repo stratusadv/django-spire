@@ -6,7 +6,10 @@
 
 {% block card_button %}
     {% url 'notification:page:form' pk=0 as new_notification_url %}
-	{% include 'django_spire/button/button.html' with button_class='btn-primary' button_href=new_notification_url button_text='Add' button_icon='bi bi-plus' %}
+	<a class="btn btn-sm btn-primary" href="{{ new_notification_url }}">
+        <i class="bi bi-plus"></i>
+        Add
+    </a>
 {% endblock %}
 
 {% block card_title_content %}
@@ -49,7 +52,7 @@
                 <hr class="m-0 mt-1">
             {% endif %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/core/templates/django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

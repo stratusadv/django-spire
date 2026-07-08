@@ -84,7 +84,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = StatisticNavigation()
     nav.page_title = 'Delete Statistic'
-    nav.breadcrumbs.add('Statistics', reverse('metric:domain:statistic:page:list'))
+    nav.breadcrumbs.add('Statistics', 'metric:domain:statistic:page:list')
     nav.breadcrumbs.add(str(statistic))
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
@@ -153,7 +153,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     nav = StatisticNavigation()
     nav.page_title = str(statistic._meta.verbose_name.title())
     nav.page_description = 'Edit' if statistic.pk else 'Create'
-    nav.breadcrumbs.add('Statistics', reverse('metric:domain:statistic:page:list'))
+    nav.breadcrumbs.add('Statistics', 'metric:domain:statistic:page:list')
     nav.breadcrumbs.add('Edit' if statistic.pk else 'Create')
     context = nav.as_context()
     context['form'] = form

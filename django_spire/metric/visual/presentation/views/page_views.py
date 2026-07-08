@@ -26,7 +26,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = PresentationNavigation()
     nav.page_title = str(presentation)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add('Presentations', reverse('metric:visual:presentation:page:list'))
+    nav.breadcrumbs.add('Presentations', 'metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation))
     context = nav.as_context()
     context['presentation'] = presentation

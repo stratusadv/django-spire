@@ -1,15 +1,18 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title_col %}d-none{% endblock %}
 
 {% block item_row_content %}
     <div class="col-12 col-md-6">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='User' attribute_value=activity.user.get_full_name %}
+        <div class="attribute-label">User</div>
+        <div>{{ activity.user.get_full_name }}</div>
     </div>
     <div class="col-12 col-md-6">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Date' attribute_value=activity.created_datetime %}
+        <div class="attribute-label">Date</div>
+        <div>{{ activity.created_datetime }}</div>
     </div>
     <div class="col-12">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Information' attribute_value=activity.information|linebreaksbr %}
+        <div class="attribute-label">Information</div>
+        <div>{{ activity.information|linebreaksbr }}</div>
     </div>
 {% endblock %}

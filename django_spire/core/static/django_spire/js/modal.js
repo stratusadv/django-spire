@@ -1,15 +1,17 @@
-/**
- * Quick accessor to dispatch a modal and pass in x-data conext
- * @param html_content {HTML}
- * @param eventData {Object}
- */
-function dispatch_modal(html_content, eventData = {}) {
+function dispatchModal(
+    htmlContent,
+    {
+        eventData = {},
+        dialogClasses = ''
+    } = {}
+) {
     window.dispatchEvent(
         new CustomEvent(
             'dispatch-modal', {
                 detail: {
-                    'html_content': html_content,
-                    'eventData': eventData
+                    'htmlContent': htmlContent,
+                    'eventData': eventData,
+                    'dialogClasses': dialogClasses,
                 },
                 bubbles: true
             }
@@ -17,15 +19,26 @@ function dispatch_modal(html_content, eventData = {}) {
     )
 }
 
-/**
- * Quick accessor to dispatch a modal by fetching the template using Glue.view and pass in x-data context
- * @param url {string}
- * @param payload {Object}
- * @param eventData {Object}
- * @returns {Promise<void>}
- */
-async function dispatch_modal_view(url, payload = {}, eventData = {}) {
-    let html = await Glue.view(url).get(payload);
-    dispatch_modal(html, eventData);
+async function dispatchElementToModal(
+    elementId,
+    {
+        eventData = {},
+        dialogClasses = ''
+    } = {}
+) {
+    let htmlContent = document.getElementById(elementId).innerHTML
+    dispatchModal(htmlContent, {eventData, dialogClasses})
+}
+
+async function dispatchViewToModal(
+    url,
+    {
+        payload = {},
+        eventData = {},
+        dialogClasses = ''
+    } = {}
+) {
+    let htmlContent = await Glue.view(url).get(payload)
+    dispatchModal(htmlContent, {eventData, dialogClasses})
 }
 

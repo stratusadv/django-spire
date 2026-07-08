@@ -1,0 +1,12 @@
+{% extends "django_spire/form/glue/widget/widget.html" %}
+
+{% block widget_content %}
+    <div class="form-check {% if input_class %}{{ input_class }}{% endif %}">
+        <input
+            type="checkbox"
+            class="form-check-input"
+            :id="{{ glue_field }}.id"
+            {% include 'django_spire/form/glue/widget/attributes/attributes/input_attributes.html' with exclude_class=True %}>
+        {{ block.super }}
+    </div>
+{% endblock %}

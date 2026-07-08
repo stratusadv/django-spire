@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/core/templates/django_spire/item/item.html' %}
 
 {% block item_title %}
     {{ file_example.name }}
@@ -6,5 +6,8 @@
 
 {% block item_button %}
     {% url 'file:page:detail' pk=file_example.pk as detail_url %}
-    {% include 'django_spire/button/button.html' with button_text='View' button_class='btn-primary' button_icon='bi bi-eye' button_href=detail_url %}
+    <a class="btn btn-sm btn-primary" href="{{ detail_url }}">
+        <i class="bi bi-eye"></i>
+        View
+    </a>
 {% endblock %}

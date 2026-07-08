@@ -28,8 +28,8 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = VisualNavigation()
     nav.page_title = str(visual)
-    nav.breadcrumbs.add('Visuals', reverse('metric:visual:page:list'))
-    nav.breadcrumbs.add(str(visual), None)
+    nav.breadcrumbs.add('Visuals', 'metric:visual:page:list')
+    nav.breadcrumbs.add(str(visual))
     context = nav.as_context()
     context['visual'] = visual
 
@@ -46,7 +46,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = VisualNavigation()
     nav.page_title = 'Visuals'
-    nav.breadcrumbs.add('Visuals', None)
+    nav.breadcrumbs.add('Visuals')
     context = nav.as_context()
     context['responsive_mode'] = ResponsiveMode.SCROLL
     context['visual_items_endpoint'] = reverse('metric:visual:template:items')

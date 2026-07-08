@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title_col %}8{% endblock %}
 
@@ -11,11 +11,11 @@
 
 {% block item_row_content %}
 	<div class="col">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Type' %}
+        <div class="attribute-label">Type</div>
         <span x-text="file_json.type"></span>
     </div>
 	<div class="col">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Size' %}
+        <div class="attribute-label">Size</div>
         <span x-text="file_json.size"></span>
     </div>
 {% endblock %}

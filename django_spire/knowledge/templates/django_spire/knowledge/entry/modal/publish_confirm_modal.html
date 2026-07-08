@@ -1,7 +1,9 @@
 {% extends 'django_spire/modal/modal.html' %}
 
 {% block modal_trigger %}
-    {% include 'django_spire/button/button.html' with button_text='Publish' button_class='btn-primary btn-sm' %}
+    <a class="btn btn-sm btn-primary btn-sm" href="#">
+    Publish
+</a>
 {% endblock %}
 
 {% block modal_content %}
@@ -15,7 +17,7 @@
             Are you sure you want to publish {{ entry }}?
         </div>
         <div class="col-12 mt-2">
-            {% include 'django_spire/contrib/form/button/form_submit_button.html' with button_text='Publish' %}
+            {% include 'django_spire/form/button/submit_button.html' with button_text='Publish' %}
         </div>
     </form>
 {% endblock %}

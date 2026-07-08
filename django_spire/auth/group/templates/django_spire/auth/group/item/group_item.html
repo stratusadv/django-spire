@@ -1,17 +1,18 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 {% load django_spire_core %}
 
 {% block item_title %}
     {% if perms.django_spire_auth_group.view_authgroup %}
         {% url 'django_spire:auth:group:page:detail' pk=group.pk as group_detail_url %}
     {% endif %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_href=group_detail_url attribute_title='Name' attribute_value=group.name %}
+    <div class="attribute-label">Name</div>
+    <a href="{{ group_detail_url }}">{{ group.name }}</a>
 {% endblock %}
 
 {% block item_row_content %}
     {% for perm in perm_data %}
         <div class="col-lg-4 col-sm-3 col-4 mb-2">
-            {% include 'django_spire/element/attribute_element.html' with attribute_title=perm.verbose_app_name|default:perm.app_name|title %}
+            <div class="attribute-label">{{ perm.verbose_app_name|default:perm.app_name|title }}</div>
             {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with permission_level=perm.level_verbose|title %}
         </div>
     {% endfor %}

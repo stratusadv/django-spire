@@ -9,7 +9,10 @@
 {% block card_button %}
     {% if perms.django_spire_auth_user.add_authuser %}
         {% url 'django_spire:auth:user:form:register' as register_user_url %}
-        {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_icon='bi bi-plus-lg' button_href=register_user_url %}
+        <a class="btn btn-sm btn-primary" href="{{ register_user_url }}">
+            <i class="bi bi-plus-lg"></i>
+            Add
+        </a>
     {% endif %}
 {% endblock %}
 
@@ -18,10 +21,10 @@
         {% for user in user_list %}
             {% include 'django_spire/auth/user/item/user_item.html' %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
     <div class="card-footer">
-        {% include 'django_spire/contrib/element/pagination_element.html' with paginated_list=user_list %}
+        {% include 'django_spire/element/pagination_element.html' with paginated_list=user_list %}
     </div>
 {% endblock %}

@@ -7,7 +7,10 @@
 {% block card_button %}
     {% if perms.visual_signage.add_signage %}
         {% url 'metric:visual:signage:form:create' as new_signage_url %}
-        {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_icon='bi bi-plus' button_href=new_signage_url %}
+        <a class="btn btn-sm btn-primary" href="{{ new_signage_url }}">
+            <i class="bi bi-plus"></i>
+            Add
+        </a>
     {% endif %}
 {% endblock %}
 

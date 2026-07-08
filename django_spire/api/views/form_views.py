@@ -38,8 +38,8 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
             nav = ApiNavigation()
             nav.page_title = 'API Access Created'
             nav.page_description = 'Your API access has been created.'
-            nav.breadcrumbs.add('API Access', reverse('django_spire:api:page:list'))
-            nav.breadcrumbs.add('Created', None)
+            nav.breadcrumbs.add('API Access', 'django_spire:api:page:list')
+            nav.breadcrumbs.add('Created')
             context = nav.as_context()
             context['api_access'] = api_access
             context['raw_key'] = raw_key
@@ -55,8 +55,8 @@ def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateRespon
     nav = ApiNavigation()
     nav.page_title = api_access._meta.verbose_name.title()
     nav.page_description = 'Create'
-    nav.breadcrumbs.add('API Access', reverse('django_spire:api:page:list'))
-    nav.breadcrumbs.add('Create', None)
+    nav.breadcrumbs.add('API Access', 'django_spire:api:page:list')
+    nav.breadcrumbs.add('Create')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Create {api_access._meta.verbose_name.title()}'

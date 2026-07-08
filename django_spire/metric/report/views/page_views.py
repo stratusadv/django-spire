@@ -22,7 +22,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
     nav.page_title = 'Reports'
     nav.page_description = 'More Reporting Info'
 
-    nav.breadcrumbs.add(name='Reports', url='django_spire:metric:report:page:report')
+    nav.breadcrumbs.add('Reports', 'django_spire:metric:report:page:report')
 
     page_report_registry = ReportRegistry()
 

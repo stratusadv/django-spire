@@ -29,7 +29,7 @@ def form_view(
     nav = CollectionNavigation()
     nav.page_title = 'Collection'
     nav.page_description = 'Edit' if pk else 'Create'
-    nav.breadcrumbs.add('Collections', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add('Collections', 'django_spire:knowledge:page:home')
     nav.breadcrumbs.add('Edit' if pk else 'Create')
 
     context = nav.as_context()

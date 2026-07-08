@@ -11,7 +11,10 @@
 {% block card_button %}
     {% if perms.django_spire_auth_group.change_authgroup %}
         {% url 'django_spire:auth:group:form:add' as add_group_url %}
-        {% include 'django_spire/button/button.html' with button_class='btn-primary' button_href=add_group_url button_text='Add' button_icon='bi bi-plus' %}
+        <a class="btn btn-sm btn-primary" href="{{ add_group_url }}">
+            <i class="bi bi-plus"></i>
+            Add
+        </a>
     {% endif %}
 {% endblock %}
 
@@ -20,7 +23,7 @@
         {% for group in group_list %}
             {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

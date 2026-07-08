@@ -87,7 +87,6 @@ INSTALLED_APPS += [
     'django_spire.core',
     'django_spire.file',
     'django_spire.contrib.form',
-    'django_spire.contrib.help',
     'django_spire.sync',
     'django_spire.help_desk',
     'django_spire.history',

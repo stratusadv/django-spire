@@ -8,9 +8,15 @@
     {% if AuthController.api.can_add %}
         <div class="col text-end mb-1">
             {% url 'django_spire:api_v1:openapi-view' as api_docs_url %}
-            {% include 'django_spire/button/button.html' with button_text='Api Docs' button_class='btn-primary' button_href=api_docs_url button_icon="bi bi-share-fill" button_attributes='target="_blank"' %}
-            {% url 'django_spire:api:form:create' as create_url  %}
-            {% include 'django_spire/button/button.html' with button_text='Add Key' button_class='btn-primary' button_href=create_url button_icon="bi bi-plus" %}
+            <a class="btn btn-sm btn-primary" href="{{ api_docs_url }}" target="_blank">
+                <i class="bi bi-share-fill"></i>
+                Api Docs
+            </a>
+            {% url 'django_spire:api:form:create' as create_url %}
+            <a class="btn btn-sm btn-primary" href="{{ create_url }}">
+                <i class="bi bi-plus"></i>
+                Add Key
+            </a>
         </div>
     {% endif %}
 {% endblock %}
@@ -20,7 +26,7 @@
         {% for api_access in api_accesses %}
             {% include 'django_spire/api/item/access_item.html' %}
         {% empty %}
-            {% include 'django_spire/contrib/item/no_data_item.html' %}
+            {% include 'django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

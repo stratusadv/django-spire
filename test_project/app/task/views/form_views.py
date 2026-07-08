@@ -46,7 +46,7 @@ def _form_view(request: WSGIRequest, task: models.Task) -> TemplateResponse | re
 
     nav = TaskNavigation()
     nav.set_page_title_from_model_instance_form_action(task)
-    nav.breadcrumbs.add('Tasks', reverse('task:page:list'))
+    nav.breadcrumbs.add('Tasks', 'task:page:list')
     nav.breadcrumbs.add(f'{task.name}' if task.pk else 'New Task')
 
     context = nav.as_context()
@@ -74,7 +74,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
 
     nav = TaskNavigation()
     nav.page_title = f'Delete {task.name}'
-    nav.breadcrumbs.add('Tasks', reverse('task:page:list'))
+    nav.breadcrumbs.add('Tasks', 'task:page:list')
     nav.breadcrumbs.add(f'Delete {task.name}')
 
     context = nav.as_context()

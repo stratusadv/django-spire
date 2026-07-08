@@ -40,8 +40,8 @@ def ticket_create_form_view(request: WSGIRequest) -> TemplateResponse:
     nav = HelpDeskNavigation()
     nav.page_title = ticket._meta.verbose_name.title()
     nav.page_description = 'Create'
-    nav.breadcrumbs.add('Help Desk', reverse('django_spire:help_desk:page:list'))
-    nav.breadcrumbs.add('Create', None)
+    nav.breadcrumbs.add('Help Desk', 'django_spire:help_desk:page:list')
+    nav.breadcrumbs.add('Create')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Create {ticket._meta.verbose_name.title()}'
@@ -70,11 +70,11 @@ def ticket_update_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = HelpDeskNavigation()
     nav.page_title = ticket._meta.verbose_name.title()
     nav.page_description = 'Edit'
-    nav.breadcrumbs.add('Help Desk', reverse('django_spire:help_desk:page:list'))
+    nav.breadcrumbs.add('Help Desk', 'django_spire:help_desk:page:list')
     nav.breadcrumbs.add(
-        str(ticket), reverse('django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk})
+        str(ticket), 'django_spire:help_desk:page:detail', view_kwargs={'pk': ticket.pk}
     )
-    nav.breadcrumbs.add('Edit', None)
+    nav.breadcrumbs.add('Edit')
     context = nav.as_context()
     context['form'] = form
     context['ticket'] = ticket

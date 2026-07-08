@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/item/../../../../../../../../../core/templates/django_spire/infinite_scroll/infinite_scroll_item.html' %}
+{% extends 'django_spire/item/../../../../../../../../../core/templates/django_spire/infinite_scroll/infinite_scroll_item.html' %}
 
 {% block item_content %}
     <div class="row justify-content-center align-items-center position-relative">
@@ -9,10 +9,12 @@
                         <div class="row mt-3">
                             <div class="col-6">
                                 {% url 'metric:visual:signage:page:detail' pk=signage.pk as signage_view_url %}
-                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Signage' attribute_value=signage.name attribute_href=signage_view_url %}
+                                <div class="attribute-label">Signage</div>
+                                <a href="{{ signage_view_url }}">{{ signage.name }}</a>
                             </div>
                             <div class="col-6">
-                                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=signage.description %}
+                                <div class="attribute-label">Description</div>
+                                <div>{{ signage.description }}</div>
                             </div>
                         </div>
                     </div>
@@ -28,7 +30,7 @@
                         {% url 'metric:visual:signage:form:delete' pk=signage.pk as signage_delete_url %}
                     {% endif %}
 
-                    {% include 'django_spire/contrib/../../../../../../../../../core/templates/django_spire/dropdown/ellipsis_dropdown.html' with view_url=signage_view_url edit_url=signage_edit_url delete_url=signage_delete_url %}
+                    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=signage_view_url edit_url=signage_edit_url delete_url=signage_delete_url %}
                 </div>
             </div>
         </div>

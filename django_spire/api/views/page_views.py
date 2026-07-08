@@ -21,7 +21,7 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
     nav = ApiNavigation()
     nav.page_title = 'Api Access'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add('API Access', None)
+    nav.breadcrumbs.add('API Access')
     context = nav.as_context()
     context['api_accesses'] = ApiAccess.objects.active()
     return TemplateResponse(request, 'django_spire/api/page/access_list_page.html', context=context)
@@ -52,9 +52,9 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
 
     nav = ApiNavigation()
     nav.page_title = 'Delete API Access'
-    nav.breadcrumbs.add('API Access', reverse('django_spire:api:page:list'))
-    nav.breadcrumbs.add(str(api_access), None)
-    nav.breadcrumbs.add('Delete', None)
+    nav.breadcrumbs.add('API Access', 'django_spire:api:page:list')
+    nav.breadcrumbs.add(str(api_access))
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {api_access}'
@@ -62,5 +62,5 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
         f'Are you sure you would like to delete API access "{api_access}"?'
     )
     return TemplateResponse(
-        request, 'django_spire/contrib/page/delete_confirmation_form_page.html', context=context
+        request, 'django_spire/contrib/page/../../core/templates/django_spire/page/delete_confirmation_form_page.html', context=context
     )

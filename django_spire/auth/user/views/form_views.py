@@ -50,7 +50,7 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_title = 'Register'
     nav.page_description = 'New User'
-    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
     nav.breadcrumbs.add('Register New User')
 
     context = nav.as_context()
@@ -85,9 +85,9 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_description = 'Edit'
     nav.set_page_title_from_model_name(portal_user)
-    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
     nav.breadcrumbs.add_model_instance_string(
-        portal_user, url='django_spire:auth:user:page:detail', url_kwargs={'pk': portal_user.pk}
+        portal_user, view_name='django_spire:auth:user:page:detail', view_kwargs={'pk': portal_user.pk}
     )
     nav.breadcrumbs.add('Edit')
 
@@ -121,9 +121,9 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = AuthUserNavigation()
     nav.page_title = 'User'
     nav.page_description = 'Edit Groups'
-    nav.breadcrumbs.add('Users', reverse('django_spire:auth:user:page:list'))
+    nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
     nav.breadcrumbs.add_model_instance_string(
-        user, url='django_spire:auth:user:page:detail', url_kwargs={'pk': user.pk}
+        user, view_name='django_spire:auth:user:page:detail', view_kwargs={'pk': user.pk}
     )
     nav.breadcrumbs.add('Edit Groups')
 

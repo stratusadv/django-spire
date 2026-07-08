@@ -1,19 +1,22 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title_col %}{% endblock %}
 
 {% block item_row_content %}
     <a class="col-12 col-sm-6 mb-2 mb-sm-0">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.name %}
+        {{ api_access.name }}
     </a>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.get_permission_display attribute_title='Permission' %}
+        <div class="attribute-label">Permission</div>
+        <div>{{ api_access.get_permission_display }}</div>
     </div>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.key_hint attribute_title='Key Hint' %}
+        <div class="attribute-label">Key Hint</div>
+        <div>{{ api_access.key_hint }}</div>
     </div>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
-        {% include 'django_spire/element/attribute_element.html' with attribute_value=api_access.created_datetime|date:'M d, Y' attribute_title='Created On' %}
+        <div class="attribute-label">Created On</div>
+        <div>{{ api_access.created_datetime|date:'M d, Y' }}</div>
     </div>
 {% endblock %}
 

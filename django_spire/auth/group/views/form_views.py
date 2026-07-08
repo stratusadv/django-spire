@@ -42,7 +42,7 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpRespo
     nav = AuthGroupNavigation()
     nav.set_page_title_from_model_name(group)
     nav.page_description = 'Edit' if group.pk else 'Create'
-    nav.breadcrumbs.add('Groups', reverse('django_spire:auth:group:page:list'))
+    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
     nav.breadcrumbs.add('Edit' if group.pk else 'Create')
 
     context = nav.as_context()
@@ -88,9 +88,9 @@ def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResp
     nav = AuthGroupNavigation()
     nav.page_title = 'Group'
     nav.page_description = 'Edit Users'
-    nav.breadcrumbs.add('Groups', reverse('django_spire:auth:group:page:list'))
+    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
     nav.breadcrumbs.add_model_instance_string(
-        group, url='django_spire:auth:group:page:detail', url_kwargs={'pk': group.pk}
+        group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
     )
     nav.breadcrumbs.add('Edit Users')
 
@@ -122,9 +122,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = AuthGroupNavigation()
     nav.page_title = 'Delete Group'
-    nav.breadcrumbs.add('Groups', reverse('django_spire:auth:group:page:list'))
+    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
     nav.breadcrumbs.add_model_instance_string(
-        group, url='django_spire:auth:group:page:detail', url_kwargs={'pk': group.pk}
+        group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
     )
     nav.breadcrumbs.add('Delete')
 
@@ -170,9 +170,9 @@ def group_remove_user_form_view(
     nav = AuthGroupNavigation()
     nav.page_title = 'Group'
     nav.page_description = f'Remove {user.get_full_name()} from'
-    nav.breadcrumbs.add('Groups', reverse('django_spire:auth:group:page:list'))
+    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
     nav.breadcrumbs.add_model_instance_string(
-        group, url='django_spire:auth:group:page:detail', url_kwargs={'pk': group.pk}
+        group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
     )
     nav.breadcrumbs.add(user.get_full_name())
     nav.breadcrumbs.add('Remove')

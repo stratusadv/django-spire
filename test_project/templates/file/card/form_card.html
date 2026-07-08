@@ -1,0 +1,57 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    {{ page_title }}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body">
+
+        <form
+                method="POST"
+                enctype="multipart/form-data"
+                x-data="{
+            file_example: Glue.model.file_example,
+            file_example_form: Glue.model.file_example_form,
+        }"
+        >
+            {% csrf_token %}
+
+            {#        {% include 'django_spire/contrib/element/divider_element.html' with divider_title='Details' %}#}
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-12">
+                    {% include 'django_spire/glue/field/char_field.html' with glue_field='file_example.$fields.name' %}
+                </div>
+
+                <div class="col-12">
+                    {% include 'django_spire/glue/field/text_field.html' with glue_field='file_example.$fields.description' %}
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-12 col-12">
+                    {% include 'django_spire/file/form/field/single_file_field.html' with glue_field='file_example_form.$fields.profile_picture' %}
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-12">
+                    {% include 'django_spire/file/form/field/multi_file_field.html' with glue_field='file_example_form.$fields.attachments' %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex gap-2 mt-4">
+                        {% url 'file:page:list' as list_url %}
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ list_url }}">
+                            Cancel
+                        </a>
+                        {% include 'django_spire/core/templates/django_spire/form/button/submit_button.html' %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% load django_spire_core %}
 
@@ -8,13 +8,16 @@
 
 {% block item_row_content %}
     <div class="col-8">
-        {% include 'django_spire/element/attribute_element.html' with attribute_type='Name' attribute_value=file.name attribute_href=file.file.url target='_blank' %}
+        <div class="attribute-label">Name</div>
+        <a href="{{ file.file.url }}" target="_blank">{{ file.name }}</a>
     </div>
     <div class="col-2">
-        {% include 'django_spire/element/attribute_element.html' with attribute_type='Size' attribute_value=file.formatted_size %}
+        <div class="attribute-label">Size</div>
+        <div>{{ file.formatted_size }}</div>
     </div>
     <div class="col-2">
-        {% include 'django_spire/element/attribute_element.html' with attribute_type='Type' attribute_value=file.type %}
+        <div class="attribute-label">Type</div>
+        <div>{{ file.type }}</div>
     </div>
 {% endblock %}
 

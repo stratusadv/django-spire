@@ -7,7 +7,10 @@
 {% block card_button %}
     {% if perms.visual_signage.change_signage %}
         {% url 'metric:visual:signage:form:update' pk=signage.pk as signage_edit_url %}
-        {% include 'django_spire/button/button.html' with button_text='Edit' button_class='btn-primary' button_icon='bi bi-pencil' button_href=signage_edit_url %}
+        <a class="btn btn-sm btn-primary" href="{{ signage_edit_url }}">
+            <i class="bi bi-pencil"></i>
+            Edit
+        </a>
     {% endif %}
 {% endblock %}
 
@@ -15,11 +18,13 @@
     <div class="card-body">
         <div class="row g-3">
             <div class="col-12">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=signage.name %}
+                <div class="attribute-label">Name</div>
+                <div>{{ signage.name }}</div>
             </div>
 
             <div class="col-12">
-                {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=signage.description|linebreaksbr %}
+                <div class="attribute-label">Description</div>
+                <div>{{ signage.description|linebreaksbr }}</div>
             </div>
         </div>
     </div>

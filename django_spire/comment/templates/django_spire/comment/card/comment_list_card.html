@@ -14,7 +14,10 @@
             <span
                     @click="dispatch_modal_view('{% url "django_spire:comment:form_content" obj_pk=obj.pk comment_pk=0 app_label=app_label model_name=model_name %}')"
             >
-                    {% include 'django_spire/button/button.html' with button_text='Add' button_class='btn-primary' button_icon='bi bi-plus' %}
+                    <a class="btn btn-sm btn-primary" href="#">
+                <i class="bi bi-plus"></i>
+                Add
+            </a>
                 </span>
         {% endif %}
     {% endwith %}
@@ -28,7 +31,7 @@
                     {% include 'django_spire/comment/item/comment_item.html' %}
                 {% endfor %}
             {% else %}
-                {% include 'django_spire/contrib/item/no_data_item.html' %}
+                {% include 'django_spire/item/no_data_item.html' %}
             {% endif %}
         {% endwith %}
     </div>

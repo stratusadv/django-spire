@@ -87,8 +87,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Domain'
-    nav.breadcrumbs.add(str(domain), None)
-    nav.breadcrumbs.add('Delete', None)
+    nav.breadcrumbs.add('Domains', 'metric:domain:page:list')
+    nav.breadcrumbs.add(str(domain))
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {domain}'

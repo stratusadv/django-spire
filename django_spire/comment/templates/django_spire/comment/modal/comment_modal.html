@@ -3,7 +3,9 @@
 {% load django_spire_comment_tags %}
 
 {% block modal_trigger %}
-    {% include 'django_spire/button/button.html' with button_class='btn-outline-secondary' button_icon='bi bi-plus' button_text='' %}
+    <a class="btn btn-sm btn-outline-secondary" href="#">
+    <i class="bi bi-plus"></i>
+</a>
 {% endblock %}
 
 {% block modal_title %}

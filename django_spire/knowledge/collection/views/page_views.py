@@ -23,7 +23,7 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     nav = CollectionNavigation()
     nav.page_title = 'Knowledge Collection'
     nav.page_description = ''
-    nav.breadcrumbs.add('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add('Knowledge', 'django_spire:knowledge:page:home')
     nav.breadcrumbs.add(str(collection))
     context = nav.as_context()
     context['collection'] = collection
@@ -70,7 +70,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = CollectionNavigation()
     nav.page_title = 'Delete Collection'
-    nav.breadcrumbs.add('Knowledge', reverse('django_spire:knowledge:page:home'))
+    nav.breadcrumbs.add('Knowledge', 'django_spire:knowledge:page:home')
     nav.breadcrumbs.add(str(collection))
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()

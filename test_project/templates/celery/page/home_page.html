@@ -6,7 +6,12 @@
 
     <div class="card mb-3">
         <div class="card-header">
-            <div class="card-title">New Stalk Tasks</div>
+            <div class="card-title" x-data="{}">
+                New Stalk Tasks
+                <button class="btn btn-sm btn-outline-secondary cursor-pointer float-end" onclick="dispatchModal(htmlContent='Celery is amazing!', {dialogClasses: 'modal-lg'})">
+                    About
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <div class="row mt-3">

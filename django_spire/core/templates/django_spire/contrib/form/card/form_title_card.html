@@ -1,9 +1,0 @@
-{% extends 'django_spire/card/card.html' %}
-
-{% block card_content %}
-    <form {% block form_attributes %}{% endblock %}>
-        <div class="card-body">
-            {{ block.super }}
-        </div>
-    </form>
-{% endblock %}

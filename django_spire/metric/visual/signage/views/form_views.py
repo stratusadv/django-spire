@@ -57,7 +57,8 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['form_action'] = form_action
 
     return TemplateResponse(
-        request, 'django_spire/contrib/page/delete_confirmation_form_page.html', context
+        request,
+        'django_spire/contrib/page/../../../../core/templates/django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -84,16 +85,17 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = SignageNavigation()
     nav.page_title = 'Delete Signage'
-    nav.breadcrumbs.add('Signage', reverse('metric:visual:signage:page:list'))
-    nav.breadcrumbs.add(str(signage), None)
-    nav.breadcrumbs.add('Delete', None)
+    nav.breadcrumbs.add('Signage', 'metric:visual:signage:page:list')
+    nav.breadcrumbs.add(str(signage))
+    nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = f'Delete {signage}'
     context['form_description'] = f'Are you sure you would like to delete signage "{signage}"?'
 
     return TemplateResponse(
-        request, 'django_spire/contrib/page/delete_confirmation_form_page.html', context
+        request,
+        'django_spire/contrib/page/../../../../core/templates/django_spire/page/delete_confirmation_form_page.html', context
     )
 
 
@@ -151,8 +153,8 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
 
     nav = SignageNavigation()
     nav.page_title = str(signage._meta.verbose_name.title())
-    nav.breadcrumbs.add('Signage', reverse('metric:visual:signage:page:list'))
-    nav.breadcrumbs.add('Edit' if signage.pk else 'Create', None)
+    nav.breadcrumbs.add('Signage', 'metric:visual:signage:page:list')
+    nav.breadcrumbs.add('Edit' if signage.pk else 'Create')
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = str(signage._meta.verbose_name.title())
