@@ -50,8 +50,8 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     nav.breadcrumbs.add(str(subdomain.domain), None)
     nav.breadcrumbs.add(
         name='Sub Domains',
-        url='django_spire:metric:domain:page:detail',
-        url_kwargs={'pk': domain_pk},
+        view_name='django_spire:metric:domain:page:detail',
+        view_kwargs={'pk': domain_pk},
     )
     nav.breadcrumbs.add(str(subdomain), None)
     context = nav.as_context()

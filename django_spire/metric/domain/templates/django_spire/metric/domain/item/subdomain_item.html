@@ -1,16 +1,19 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
     {% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=domain.pk pk=subdomain.pk as subdomain_view_url %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=subdomain.name attribute_href=subdomain_view_url %}
+    <div class="attribute-label">Sub Domain</div>
+    <a href="{{ subdomain_view_url }}"> {{ subdomain.name }} </a>
 {% endblock %}
 
 {% block item_row_content %}
     <div class="col-4">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Domain' attribute_value=subdomain.domain.name %}
+        <div class="attribute-label">Domain</div>
+        {{ subdomain.domain.name }}
     </div>
     <div class="col-8">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=subdomain.description %}
+        <div class="attribute-label">Description</div>
+        {{ subdomain.description }}
     </div>
 {% endblock %}
 

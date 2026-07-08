@@ -1,16 +1,19 @@
-{% extends 'django_spire/contrib/item/item.html' %}
+{% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
     {% url 'django_spire:metric:domain:page:detail' pk=domain.pk as domain_view_url %}
-    {% include 'django_spire/element/attribute_element.html' with attribute_title='Domain' attribute_value=domain.name attribute_href=domain_view_url %}
+    <div class="attribute-label">Domain</div>
+    <a href="{{ domain_view_url }}"> {{ domain.name }} </a>
 {% endblock %}
 
 {% block item_row_content %}
     <div class="col-4">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=domain.description %}
+        <div class="attribute-label">Description</div>
+        {{ domain.description }}
     </div>
     <div class="col-8">
-        {% include 'django_spire/element/attribute_element.html' with attribute_title='Sub Domain Description' attribute_value=domain.sub_domain_description|linebreaksbr %}
+        <div class="attribute-label">Sub Domain Description</div>
+        {{ domain.sub_domain_description }}
     </div>
 {% endblock %}
 
