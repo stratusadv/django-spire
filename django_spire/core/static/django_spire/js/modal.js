@@ -1,10 +1,4 @@
-/**
- * Quick accessor to dispatch a modal and pass in x-data context
- * @param htmlContent {string}
- * @param eventData {Object}
- * @param dialogClasses {string}
- */
-function dispatch_modal(
+function dispatchModal(
     htmlContent,
     {
         eventData = {},
@@ -25,15 +19,18 @@ function dispatch_modal(
     )
 }
 
-/**
- * Quick accessor to dispatch a modal by fetching the template using Glue.view and pass in x-data context
- * @param url {string}
- * @param payload {Object}
- * @param eventData {Object}
- * @param dialogClasses {string}
- * @returns {Promise<void>}
- */
-async function dispatch_modal_view(
+async function dispatchElementToModal(
+    elementId,
+    {
+        eventData = {},
+        dialogClasses = ''
+    } = {}
+) {
+    let htmlContent = document.getElementById(elementId).innerHTML
+    dispatchModal(htmlContent, {eventData, dialogClasses})
+}
+
+async function dispatchViewToModal(
     url,
     {
         payload = {},
@@ -41,7 +38,7 @@ async function dispatch_modal_view(
         dialogClasses = ''
     } = {}
 ) {
-    let html = await Glue.view(url).get(payload);
-    dispatch_modal(html, eventData, dialogClasses);
+    let htmlContent = await Glue.view(url).get(payload)
+    dispatchModal(htmlContent, {eventData, dialogClasses})
 }
 
