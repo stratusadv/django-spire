@@ -13,10 +13,10 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% if subdomains %}
-            {% include 'django_spire/metric/domain/item/subdomain_list_items.html' %}
-        {% else %}
-            No Sub Domains
-        {% endif %}
+        {% for subdomain in subdomains %}
+            {% include 'django_spire/metric/domain/item/subdomain_item.html' %}
+        {% empty %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endfor %}
     </div>
 {% endblock %}

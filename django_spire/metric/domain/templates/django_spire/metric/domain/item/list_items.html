@@ -1,8 +1,0 @@
-{% for domain in domains %}
-    {% include 'django_spire/metric/domain/item/item.html' %}
-{% empty %}
-    {% include 'django_spire/contrib/item/no_data_item.html' %}
-{% endfor %}
-
-
-

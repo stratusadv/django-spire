@@ -19,6 +19,12 @@ class Domain(HistoryModelMixin, ActivityMixin):
     def __str__(self) -> str:
         return self.name
 
+    def set_deleted(self) -> None:
+        super().set_deleted()
+
+        for subdomain in self.subdomains.all():
+            subdomain.set_deleted()
+
     class Meta:
         verbose_name = 'Domain'
         verbose_name_plural = 'Domains'
