@@ -1,13 +1,13 @@
 {% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
-    Domains
+    Sub Domains
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.metric_domain.add_domain %}
-        {% url 'django_spire:metric:domain:form:create' as new_domain_url %}
-        <a class="btn btn-sm btn-primary" href="{{ new_domain_url }}">
+    {% if perms.metric_domain.add_subdomain %}
+        {% url 'django_spire:metric:domain:form:create_subdomain' domain_pk=domain.pk as new_subdomain_url %}
+        <a class="btn btn-sm btn-primary" href="{{ new_subdomain_url }}">
             <i class="bi bi-plus"></i>
             Add
         </a>
@@ -16,8 +16,8 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% for domain in domains %}
-            {% include 'django_spire/metric/domain/item/item.html' %}
+        {% for subdomain in subdomains %}
+            {% include 'django_spire/metric/domain/item/subdomain_item.html' %}
         {% empty %}
             No data to display
         {% endfor %}

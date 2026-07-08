@@ -1,0 +1,39 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Sub Domain
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.metric_domain.change_subdomain %}
+        {% url 'django_spire:metric:domain:form:update_subdomain' domain_pk=domain_pk pk=subdomain.pk as subdomain_edit_url %}
+        <a class="btn btn-sm btn-primary" href="{{ subdomain_edit_url }}">
+            <i class="bi bi-pencil"></i>
+            Edit
+        </a>
+    {% endif %}
+
+    {% if perms.metric_domain.delete_subdomain %}
+        {% url 'django_spire:metric:domain:form:delete_subdomain' domain_pk=domain_pk pk=subdomain.pk as subdomain_delete_url %}
+        <a class="btn btn-sm btn-primary" href="{{ subdomain_delete_url }}">
+            <i class="bi bi-eraser"></i>
+            Delete
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="attribute-label">Name</div>
+                <div>{{ subdomain.name }}</div>
+            </div>
+
+            <div class="col-12">
+                <div class="attribute-label">Description</div>
+                <div>{{ subdomain.description }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

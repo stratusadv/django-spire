@@ -10,7 +10,7 @@ from django_spire.metric.domain.services.processor_service import DomainProcesso
 from django_spire.metric.domain.services.transformation_service import DomainTransformationService
 
 if TYPE_CHECKING:
-    from django_spire.metric.domain.models import Domain
+    from django_spire.metric.domain.models import Domain, SubDomain
 
 
 class DomainService(BaseDjangoModelService['Domain']):
@@ -20,3 +20,7 @@ class DomainService(BaseDjangoModelService['Domain']):
     processor = DomainProcessorService()
     factory = DomainFactoryService()
     transformation = DomainTransformationService()
+
+
+class SubDomainService(BaseDjangoModelService['SubDomain']):
+    obj: SubDomain
