@@ -1,0 +1,31 @@
+<div
+        x-data="{
+            searchQuery: '',
+            sliceStart: 0,
+            sliceStop: 50,
+            orderBy: '-name',
+            items: Glue.querySet.{% block scroll_glue_unique_name %}{% endblock %},
+            get queryParams() {
+                return {
+                    filter: {name__icontains: this.searchQuery},
+                    slice: {start: this.sliceStart, stop: this.sliceStop},
+                    order_by: this.orderBy,
+                };
+            },
+            toggleOrder() {
+                this.orderBy = 'name'
+            },
+            incrementSlice() {
+                this.sliceStop += 50
+            }
+        }"
+        class=""
+>
+    <input type="search" x-model.debounce="searchQuery" @keyup.enter="search()">
+    <button @click="toggleOrder()">ORDER</button>
+    <template x-for="item in items.queryWithParams(queryParams)">
+        {% block scroll_template_item %}
+        {% endblock %}
+    </template>
+    <span @click="incrementSlice()">SLICE</span>
+</div>

@@ -6,8 +6,11 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="fs-1 fw-semi-bold">Tasks</h1>
         <div>
-            <a href="{% url 'task:form:create' %}" class="btn btn-primary">
+            <a href="{% url 'task:form:create' %}" class="btn btn-sm btn-primary">
                 <i class="bi bi-plus"></i> New Task
+            </a>
+            <a href="{% url 'task:form:glue' pk=0 %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-plus"></i> New Task (Glue)
             </a>
         </div>
     </div>
@@ -80,6 +83,8 @@
     </div>
 
     {% if tasks.paginator.num_pages > 1 %}
-        {% include 'django_spire/core/templates/django_spire/element/pagination_element.html' with paginated_list=tasks %}
+        {% include 'django_spire/element/pagination_element.html' with paginated_list=tasks %}
     {% endif %}
+
+    {% include 'task/scroll/scroll.html' %}
 {% endblock %}

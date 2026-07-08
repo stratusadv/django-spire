@@ -1,7 +1,7 @@
 {% if ticket.status == 'read'  %}
-    {% include 'django_spire/badge/badge.html' with badge_text=ticket.get_status_display badge_class='bg-secondary text-white' %}
+    <span class="badge bg-secondary text-white">{{ ticket.get_status_display }}</span>
 {% elif ticket.status == 'prog' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=ticket.get_status_display badge_class='bg-primary text-white' %}
+    <span class="badge bg-primary text-white">{{ ticket.get_status_display }}</span>
 {% elif ticket.status == 'done' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=ticket.get_status_display badge_class='bg-success text-white' %}
+    <span class="badge bg-success text-white">{{ ticket.get_status_display }}</span>
 {% endif %}

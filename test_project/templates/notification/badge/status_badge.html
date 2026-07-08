@@ -1,9 +1,9 @@
 {% if status == statuses.PENDING %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Pending' badge_class='bg-warning text-white' %}
+    <span class="badge bg-warning text-white">Pending</span>
 {% elif status == statuses.SENT %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Sent' badge_class='bg-success text-white' %}
+    <span class="badge bg-success text-white">Sent</span>
 {% elif status == statuses.ERRORED %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Errored' badge_class='bg-danger text-white' %}
+    <span class="badge bg-danger text-white">Errored</span>
 {% elif status == statuses.FAILED %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Failed' badge_class='bg-danger text-white' %}
+    <span class="badge bg-danger text-white">Failed</span>
 {% endif %}

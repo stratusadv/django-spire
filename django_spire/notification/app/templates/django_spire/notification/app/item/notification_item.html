@@ -19,7 +19,7 @@
         {% endif %}
             <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
             {% if not app_notification.viewed %}
-                {% include 'django_spire/badge/badge.html' with badge_text='New' badge_class='bg-primary text-white' %}
+                <span class="badge bg-primary text-white">New</span>
             {% endif %}
             <span class="fs--1">{{ app_notification.notification.body }}</span><br>
             <span class="text-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>

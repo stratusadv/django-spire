@@ -1,11 +1,11 @@
 {% if permission_level|lower == 'view' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-primary text-white' %}
+    <span class="badge bg-primary text-white">{{ permission_level }}</span>
 {% elif permission_level|lower == 'add' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-primary text-white' %}
+    <span class="badge bg-primary text-white">{{ permission_level }}</span>
 {% elif permission_level|lower == 'change' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-success text-white' %}
+    <span class="badge bg-success text-white">{{ permission_level }}</span>
 {% elif permission_level|lower == 'delete' %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-danger text-white' %}
+    <span class="badge bg-danger text-white">{{ permission_level }}</span>
 {% else %}
-    {% include 'django_spire/badge/badge.html' with badge_text=permission_level badge_class='bg-secondary text-white' %}
+    <span class="badge bg-secondary text-white">{{ permission_level }}</span>
 {% endif %}

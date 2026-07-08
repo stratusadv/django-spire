@@ -24,6 +24,10 @@
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         {% block modal_content %}
+                            <div class="modal-body">
+                                {% block modal_body %}
+                                {% endblock %}
+                            </div>
                         {% endblock %}
                     </div>
                 </div>

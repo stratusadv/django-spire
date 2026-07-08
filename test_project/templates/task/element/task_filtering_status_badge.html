@@ -1,10 +1,10 @@
 {% if task.status == 'new' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='New' badge_class='bg-primary text-white' %}
+    <span class="badge bg-primary text-white">New</span>
 {% elif task.status == 'inp' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='In Progress' badge_class='bg-secondary text-white' %}
+    <span class="badge bg-secondary text-white">In Progress</span>
 {% elif task.status == 'com' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Complete' badge_class='bg-success text-white' %}
+    <span class="badge bg-success text-white">Complete</span>
 {% elif task.status == 'can' %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Cancelled' badge_class='bg-warning text-white' %}
+    <span class="badge bg-warning text-white">Cancelled</span>
 {% endif %}
 

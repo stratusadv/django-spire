@@ -1,9 +1,9 @@
 {% if type == types.APP %}
-    {% include 'django_spire/badge/badge.html' with badge_text='App' badge_class='bg-warning text-white' %}
+    <span class="badge bg-warning text-white">App</span>
 {% elif type == types.EMAIL %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Email' badge_class='bg-success text-white' %}
+    <span class="badge bg-success text-white">Email</span>
 {% elif type == types.SMS %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Sms' badge_class='bg-danger text-white' %}
+    <span class="badge bg-danger text-white">Sms</span>
 {% elif type == types.PUSH %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Push' badge_class='bg-primary text-white' %}
+    <span class="badge bg-primary text-white">Push</span>
 {% endif %}
