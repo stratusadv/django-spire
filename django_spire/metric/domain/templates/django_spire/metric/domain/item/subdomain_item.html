@@ -1,0 +1,29 @@
+{% extends 'django_spire/contrib/item/item.html' %}
+
+{% block item_title %}
+    {% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=domain.pk pk=subdomain.pk as subdomain_view_url %}
+    {% include 'django_spire/element/attribute_element.html' with attribute_title='Name' attribute_value=subdomain.name attribute_href=subdomain_view_url %}
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-4">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Domain' attribute_value=subdomain.domain.name %}
+    </div>
+    <div class="col-8">
+        {% include 'django_spire/element/attribute_element.html' with attribute_title='Description' attribute_value=subdomain.description %}
+    </div>
+{% endblock %}
+
+{% block item_button %}
+    {% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=domain.pk as subdomain_view_url %}
+
+    {% if perms.metric_domain.change_subdomain %}
+        {% url 'django_spire:metric:domain:form:update_subdomain' domain_pk=domain.pk as subdomain_edit_url %}
+    {% endif %}
+
+    {% if perms.metric_domain.delete_subdomain %}
+        {% url 'django_spire:metric:domain:form:delete_subdomain' domain_pk=domain.pk as subdomain_delete_url %}
+    {% endif %}
+
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=subdomain_view_url edit_url=subdomain_edit_url delete_url=subdomain_delete_url %}
+{% endblock %}

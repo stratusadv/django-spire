@@ -16,11 +16,10 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% if domains %}
-            {% for domain in domains %}
-            {% endfor %}
-        {% else %}
-            No Domains
-        {% endif %}
+        {% for domain in domains %}
+            {% include 'django_spire/metric/domain/item/item.html' %}
+        {% empty %}
+            {% include 'django_spire/contrib/item/no_data_item.html' %}
+        {% endfor %}
     </div>
 {% endblock %}

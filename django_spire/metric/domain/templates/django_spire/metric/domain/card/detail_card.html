@@ -12,6 +12,11 @@
             Edit
         </a>
     {% endif %}
+
+    {% if perms.metric_domain.delete_domain %}
+        {% url 'django_spire:metric:domain:form:delete' pk=domain.pk as domain_delete_url %}
+        {% include 'django_spire/button/button.html' with button_text='Delete' button_class='btn-primary' button_icon='bi bi-eraser' button_href=domain_delete_url %}
+    {% endif %}
 {% endblock %}
 
 {% block card_title_content %}
@@ -26,6 +31,11 @@
                 <div class="attribute-label">Description</div>
                 <div>{{ domain.description|linebreaksbr }}</div>
             </div>
+
+            <div class="col-12">
+                {% include 'django_spire/element/attribute_element.html' with attribute_title='Sub Domain Description' attribute_value=domain.sub_domain_description|linebreaksbr %}
+            </div>
         </div>
     </div>
+
 {% endblock %}
