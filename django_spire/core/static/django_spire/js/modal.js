@@ -2,7 +2,8 @@ function dispatchModal(
     htmlContent,
     {
         eventData = {},
-        dialogClasses = ''
+        dialogClasses = '',
+        renderToBody = true,
     } = {}
 ) {
     window.dispatchEvent(
@@ -12,6 +13,7 @@ function dispatchModal(
                     'htmlContent': htmlContent,
                     'eventData': eventData,
                     'dialogClasses': dialogClasses,
+                    'renderToBody': renderToBody,
                 },
                 bubbles: true
             }
@@ -19,15 +21,16 @@ function dispatchModal(
     )
 }
 
-async function dispatchElementToModal(
+async function dispatchElementByIdToModal(
     elementId,
     {
         eventData = {},
-        dialogClasses = ''
+        dialogClasses = '',
+        renderToBody = true,
     } = {}
 ) {
     let htmlContent = document.getElementById(elementId).innerHTML
-    dispatchModal(htmlContent, {eventData, dialogClasses})
+    dispatchModal(htmlContent, {eventData, dialogClasses, renderToBody})
 }
 
 async function dispatchViewToModal(
@@ -35,10 +38,12 @@ async function dispatchViewToModal(
     {
         payload = {},
         eventData = {},
-        dialogClasses = ''
+        dialogClasses = '',
+        renderToBody = true,
     } = {}
 ) {
     let htmlContent = await Glue.view(url).get(payload)
-    dispatchModal(htmlContent, {eventData, dialogClasses})
+    console.log(htmlContent)
+    dispatchModal(htmlContent, {eventData, dialogClasses, renderToBody})
 }
 

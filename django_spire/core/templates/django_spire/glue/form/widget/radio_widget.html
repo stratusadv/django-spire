@@ -1,4 +1,4 @@
-{% extends 'django_spire/form/glue/widget/widget.html' %}
+{% extends 'django_spire/glue/form/widget/widget.html' %}
 
 {% block widget_content %}
     <div class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}" {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}>

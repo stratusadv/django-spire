@@ -19,6 +19,24 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
+def glue_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
+    task = get_object_or_null_obj(models.Task, pk=pk)
+
+    nav = TaskNavigation()
+    nav.set_page_title_from_model_instance_form_action(task)
+    nav.breadcrumbs.add(f'{task.name}' if task.pk else 'New Task (With Glue)')
+
+    form = forms.TaskGlueModelForm(request.POST or None, instance=task)
+
+    Glue.form(request, 'task_model_form', form, Glue.Access.DELETE)
+
+    context = {
+        **nav.as_context(),
+    }
+
+    return TemplateResponse(request=request, context=context, template='task/page/glue_form_page.html')
+
+
 def create_view(request: WSGIRequest) -> TemplateResponse | redirect:
     task = models.Task()
 
@@ -33,7 +51,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
 
 def _form_view(request: WSGIRequest, task: models.Task) -> TemplateResponse | redirect:
     if request.method == 'POST':
-        form = forms.TaskForm(request.POST, instance=task)
+        form = forms.TaskModelForm(request.POST, instance=task)
 
         if form.is_valid():
             task.services.save_model_obj(user=request.user, obj=task, **form.cleaned_data)
@@ -42,11 +60,10 @@ def _form_view(request: WSGIRequest, task: models.Task) -> TemplateResponse | re
 
         show_form_errors(request, form)
     else:
-        form = forms.TaskForm(instance=task)
+        form = forms.TaskModelForm(instance=task)
 
     nav = TaskNavigation()
     nav.set_page_title_from_model_instance_form_action(task)
-    nav.breadcrumbs.add('Tasks', 'task:page:list')
     nav.breadcrumbs.add(f'{task.name}' if task.pk else 'New Task')
 
     context = nav.as_context()

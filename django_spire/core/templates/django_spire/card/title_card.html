@@ -1,4 +1,5 @@
 <div class="card">
+
     <div class="card-header">
         <div class="row">
             <div class="col card-title">
@@ -9,5 +10,12 @@
             </div>
         </div>
     </div>
-    {% block card_title_content %}{% endblock %}
+
+    {% block card_title_content %}
+        <div class="card-body">
+            {% block card_title_body %}
+            {% endblock %}
+        </div>
+    {% endblock %}
+
 </div>

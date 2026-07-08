@@ -1,4 +1,4 @@
-{% extends 'django_spire/form/glue/widget/widget.html' %}
+{% extends 'django_spire/glue/form/widget/widget.html' %}
 
 {% block widget_content %}
     <div
@@ -11,7 +11,7 @@
             init() {
                 this.choice_verbose = this.placeholder;
                 this.update_choice();
-                $watch('value', () => this.update_choice());
+                $watch('{{ glue_field }}.value', () => this.update_choice());
                 $watch('{{ glue_field }}.choices', () => this.update_choice());
             },
 

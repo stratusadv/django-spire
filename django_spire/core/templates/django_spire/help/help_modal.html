@@ -6,10 +6,6 @@
 	<i class="bi cursor-pointer text-primary bi-question-circle px-2"></i>
 {% endblock %}
 
-{% block modal_content %}
-    <div class="modal-content">
-        <div class="modal-body">
-            {% include help_template %}
-        </div>
-    </div>
+{% block modal_body %}
+    {% include help_template %}
 {% endblock %}

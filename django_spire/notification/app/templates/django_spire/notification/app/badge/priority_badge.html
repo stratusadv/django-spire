@@ -1,7 +1,7 @@
 {% if app_notification.notification.priority == priorities.LOW %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Low' badge_class='bg-secondary text-white' %}
+    <span class="badge bg-secondary text-white">Low</span>
 {% elif app_notification.notification.priority == priorities.MEDIUM %}
-    {% include 'django_spire/badge/badge.html' with badge_text='Med' badge_class='bg-warning text-white' %}
+    <span class="badge bg-warning text-white">Med</span>
 {% elif app_notification.notification.priority == priorities.HIGH %}
-    {% include 'django_spire/badge/badge.html' with badge_text='High' badge_class='bg-danger text-white' %}
+    <span class="badge bg-danger text-white">High</span>
 {% endif %}

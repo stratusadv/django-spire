@@ -1,0 +1,20 @@
+<button
+        class="btn btn-primary"
+        x-on:click="submit_form()"
+        x-show="!is_processing"
+>
+    {% if button_text %}
+        {{ button_text }}
+    {% else %}
+        Submit
+    {% endif %}
+</button>
+<button
+        type="button"
+        class="btn btn-outline-dark"
+        x-show="is_processing"
+        disabled
+>
+    <span class="spinner-border spinner-border-sm me-1"></span>
+    Processing...
+</button>

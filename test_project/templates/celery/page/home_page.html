@@ -8,7 +8,8 @@
         <div class="card-header">
             <div class="card-title" x-data="{}">
                 New Stalk Tasks
-                <button class="btn btn-sm btn-outline-secondary cursor-pointer float-end" onclick="dispatchModal(htmlContent='Celery is amazing!', {dialogClasses: 'modal-lg'})">
+                <button class="btn btn-sm btn-outline-secondary cursor-pointer float-end"
+                        onclick="dispatchModal(htmlContent='<h2>Celery is amazing!<h2>', {dialogClasses: 'modal-lg'})">
                     About
                 </button>
             </div>
@@ -43,7 +44,13 @@
 
     <div class="card">
         <div class="card-header">
-            <div class="card-title">Stalk Status</div>
+            <div class="card-title">
+                Stalk Status
+                <button class="btn btn-sm btn-outline-secondary cursor-pointer float-end"
+                        onclick="dispatchViewToModal('{% url 'celery:help_modal' %}', {dialogClasses: 'modal-lg'})">
+                    Help
+                </button>
+            </div>
         </div>
         <div class="card-body">
 

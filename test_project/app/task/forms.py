@@ -1,11 +1,29 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.handlers.wsgi import WSGIRequest
+from django.urls import reverse
+from django_glue.form.form import GlueModelForm
+from django_glue.response import GlueJsonResponse
 
 from test_project.app.task.choices import TaskStatusChoices
 from test_project.app.task.models import Task
 
 
-class TaskForm(forms.ModelForm):
+class TaskModelForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['name', 'description', 'status']
+
+
+class TaskGlueModelForm(GlueModelForm):
+    def process(self, request: WSGIRequest, payload: dict) -> GlueJsonResponse:
+        if self.is_valid():
+            task = Task.objects.create(**self.cleaned_data)
+
+            return GlueJsonResponse(payload={
+                'redirect_url': reverse('task:page:detail', kwargs={'pk': task.pk}),
+            })
+
     class Meta:
         model = Task
         fields = ['name', 'description', 'status']

@@ -27,11 +27,11 @@
             <span class="fw-bold text-primary-dark">v{{ changelog_entry.version }}</span>
 
             {% if changelog_entry.type == 'bug' %}
-                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-danger text-white' %}
+                <span class="badge bg-danger text-white">{{ changelog_entry.type.label }}</span>
             {% elif changelog_entry.type == 'feat' %}
-                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-success text-white' %}
+                <span class="badge bg-success text-white">{{ changelog_entry.type.label }}</span>
             {% else %}
-                {% include 'django_spire/badge/badge.html' with badge_text=changelog_entry.type.label badge_class='bg-primary text-white' %}
+                <span class="badge bg-primary text-white">{{ changelog_entry.type.label }}</span>
             {% endif %}
 
             <span class="font-monospace fs-7 text-secondary ms-auto">
@@ -42,7 +42,7 @@
         <div class="mt-2">
             {% for change in changelog_entry.changes %}
             <div class="d-flex gap-2 mb-1 align-items-baseline">
-                {% include 'django_spire/badge/badge.html' with badge_text=change.app|title badge_class='border-secondary text-secondary' %}
+                <span class="badge border-secondary text-secondary">{{ change.app|title }}</span>
                 <span class="fs-7">
                     {{ change.description }}
                 </span>

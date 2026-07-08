@@ -6,6 +6,7 @@ app_name = 'form'
 
 urlpatterns = [
     path('create/', form_views.create_view, name='create'),
+    path('<int:pk>/glue/', form_views.glue_form_view, name='glue'),
     path('<int:pk>/update/', form_views.update_view, name='update'),
     path('<int:pk>/delete/', form_views.delete_view, name='delete'),
     path('create/modal/', form_views.create_modal_view, name='create_modal'),

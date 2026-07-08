@@ -56,9 +56,7 @@
         <div class="col-12 mb-3">
             <div class="attribute-label">Tags</div>
             {% for tag, weight in entry.simplified_and_weighted_tag_dict|safe_dict_items %}
-                {% with badge_text=tag|title|add:' '|add:weight|default_if_none:'1' %}
-                    {% include 'django_spire/badge/badge.html' with badge_class='badge bg-primary' %}
-                {% endwith %}
+                <span class="badge bg-primary">{{ tag|title }} {{ weight|default_if_none:'1' }}</span>
             {% endfor %}
         </div>
     </div>

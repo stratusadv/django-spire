@@ -14,8 +14,11 @@
 
                 this.dialogClasses = event.detail.dialogClasses || ''
                 this.eventData = event.detail.eventData
-
-                document.getElementById('baseDispatchModalContent').innerHTML = htmlContent
+                if(event.detail.renderToBody) {
+                    document.getElementById('baseDispatchModalBody').innerHTML = event.detail.htmlContent
+                } else {
+                    document.getElementById('baseDispatchModalContent').innerHTML = event.detail.htmlContent
+                }
 
                 this.showModal()
             },
@@ -37,6 +40,8 @@
             :class="dialogClasses"
     >
         <div id="baseDispatchModalContent" class="modal-content">
+            <div id="baseDispatchModalBody" class="modal-body">
+            </div>
         </div>
     </div>
 </div>
