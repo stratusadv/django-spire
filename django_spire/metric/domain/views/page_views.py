@@ -22,7 +22,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.breadcrumbs.add(str(domain), None)
     context = nav.as_context()
     context['domain'] = domain
-    context['subdomains'] = models.SubDomain.objects.filter(domain_id=domain.pk).active()
+    context['subdomains'] = domain.subdomains.active()
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/domain/page/detail_page.html'

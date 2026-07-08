@@ -18,17 +18,9 @@ class DomainForm(forms.ModelForm):
         exclude: ClassVar = []
 
 
-class DomainListFilterForm(forms.Form):
-    search = forms.CharField(required=False)
-
-
 class SubDomainForm(forms.ModelForm):
     field = forms.JSONField(required=False)
 
     class Meta:
         model = models.SubDomain
         exclude: ClassVar = ['domain']
-
-
-class SubDomainListFilterForm(forms.Form):
-    search = forms.CharField(required=False)
