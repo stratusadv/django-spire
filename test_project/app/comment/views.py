@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
+from django_spire.comment.navigation import CommentNavigation
 from test_project.app.comment import models
 
 if TYPE_CHECKING:
@@ -14,17 +15,15 @@ if TYPE_CHECKING:
 def comment_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     comment = get_object_or_404(models.CommentExample, pk=pk)
 
-    context_data = {'comment_example': comment}
-
-    context_data['page_title'] = str(comment)
-    context_data['page_description'] = 'Detail View'
-    context_data['breadcrumbs'] = [
-        {'name': 'Comment Examples', 'href': None},
-        {'name': str(comment), 'href': None},
-    ]
+    nav = CommentNavigation()
+    nav.breadcrumbs.add(str(comment), None)
+    nav.page_title = str(comment)
+    context = nav.as_context()
+    context['comment_example'] = comment
+    context['page_description'] = 'Detail View'
 
     return TemplateResponse(
-        request, context=context_data, template='comment/page/comment_detail_page.html'
+        request, context=context, template='comment/page/comment_detail_page.html'
     )
 
 
@@ -34,13 +33,13 @@ def comment_home_view(request: WSGIRequest) -> TemplateResponse:
 
 
 def comment_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {'comment_examples': models.CommentExample.objects.all()}
-    context_data['page_title'] = 'Comment Example'
-    context_data['page_description'] = 'List View'
-    context_data['breadcrumbs'] = [{'name': 'Comment Examples', 'href': None}]
+    nav = CommentNavigation()
+    context = nav.as_context()
+    context['comment_examples'] = models.CommentExample.objects.all()
+    context['page_description'] = 'List View'
 
     return TemplateResponse(
-        request, context=context_data, template='comment/page/comment_list_page.html'
+        request, context=context, template='comment/page/comment_list_page.html'
     )
 
 
