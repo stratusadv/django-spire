@@ -100,6 +100,8 @@
     {% block base_body_content %}
     {% endblock %}
 
+    {% include 'django_spire/base/modal/dispatch_modal.html' %}
+
     {% block base_body_bottom_js %}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
     {% endblock %}
