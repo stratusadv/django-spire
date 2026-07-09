@@ -32,6 +32,5 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     context['file_examples'] = models.FileExample.objects.active()
     context['page_title'] = 'File Example'
     context['page_description'] = 'List View'
-    # context['breadcrumbs'] = [{'name': 'File Examples', 'href': None}]
 
     return TemplateResponse(request, context=context, template='file/page/list_page.html')

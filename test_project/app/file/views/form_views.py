@@ -52,6 +52,7 @@ def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpR
 
     nav = FileNavigation()
     nav.breadcrumbs.add('Update' if pk else 'Create', None)
+    nav.page_title = 'Update File Example' if pk else 'Create File Example'
     context = nav.as_context()
     context['file_example'] = file_example
     context['page_title'] = 'Update File Example' if pk else 'Create File Example'
