@@ -15,76 +15,76 @@
         </div>
     </div>
 
-    <form method="get" class="mb-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="row g-2">
-                    <div class="col-12 col-md-4">
-                        <input
-                            type="text"
-                            name="search"
-                            class="form-control"
-                            placeholder="Search tasks..."
-                            value="{{ request.GET.search|default:'' }}"
-                        >
-                    </div>
-                    <div class="col-12 col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i> Search
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
+{#    <form method="get" class="mb-4">#}
+{#        <div class="card">#}
+{#            <div class="card-body">#}
+{#                <div class="row g-2">#}
+{#                    <div class="col-12 col-md-4">#}
+{#                        <input#}
+{#                            type="text"#}
+{#                            name="search"#}
+{#                            class="form-control"#}
+{#                            placeholder="Search tasks..."#}
+{#                            value="{{ request.GET.search|default:'' }}"#}
+{#                        >#}
+{#                    </div>#}
+{#                    <div class="col-12 col-md-2">#}
+{#                        <button type="submit" class="btn btn-primary w-100">#}
+{#                            <i class="bi bi-search"></i> Search#}
+{#                        </button>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </form>#}
 
-    <div class="card">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for task in tasks %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'task:page:detail' task.pk %}">{{ task.name }}</a>
-                                </td>
-                                <td>
-                                    {% include 'task/element/task_filtering_status_badge.html' %}
-                                </td>
-                                <td>{{ task.created_datetime|date:"M d, Y" }}</td>
-                                <td class="text-end">
-                                    <a href="{% url 'task:form:update' task.pk %}" class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <a href="{% url 'task:form:delete' task.pk %}" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-4">
-                                    <span class="text-muted">No tasks found</span>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+{#    <div class="card">#}
+{#        <div class="card-body p-0">#}
+{#            <div class="table-responsive">#}
+{#                <table class="table table-hover mb-0">#}
+{#                    <thead>#}
+{#                        <tr>#}
+{#                            <th>Name</th>#}
+{#                            <th>Status</th>#}
+{#                            <th>Created</th>#}
+{#                            <th class="text-end">Actions</th>#}
+{#                        </tr>#}
+{#                    </thead>#}
+{#                    <tbody>#}
+{#                        {% for task in tasks %}#}
+{#                            <tr>#}
+{#                                <td>#}
+{#                                    <a href="{% url 'task:page:detail' task.pk %}">{{ task.name }}</a>#}
+{#                                </td>#}
+{#                                <td>#}
+{#                                    {% include 'task/element/task_filtering_status_badge.html' %}#}
+{#                                </td>#}
+{#                                <td>{{ task.created_datetime|date:"M d, Y" }}</td>#}
+{#                                <td class="text-end">#}
+{#                                    <a href="{% url 'task:form:update' task.pk %}" class="btn btn-sm btn-outline-secondary">#}
+{#                                        <i class="bi bi-pencil"></i>#}
+{#                                    </a>#}
+{#                                    <a href="{% url 'task:form:delete' task.pk %}" class="btn btn-sm btn-outline-danger">#}
+{#                                        <i class="bi bi-trash"></i>#}
+{#                                    </a>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        {% empty %}#}
+{#                            <tr>#}
+{#                                <td colspan="4" class="text-center py-4">#}
+{#                                    <span class="text-muted">No tasks found</span>#}
+{#                                </td>#}
+{#                            </tr>#}
+{#                        {% endfor %}#}
+{#                    </tbody>#}
+{#                </table>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
 
-    {% if tasks.paginator.num_pages > 1 %}
-        {% include 'django_spire/element/pagination_element.html' with paginated_list=tasks %}
-    {% endif %}
+{#    {% if tasks.paginator.num_pages > 1 %}#}
+{#        {% include 'django_spire/element/pagination_element.html' with paginated_list=tasks %}#}
+{#    {% endif %}#}
 
     {% include 'task/scroll/scroll.html' %}
 {% endblock %}
