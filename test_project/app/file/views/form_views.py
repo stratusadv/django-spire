@@ -11,6 +11,7 @@ from django_glue import Glue
 from django_spire.contrib.form.tools import show_form_errors
 
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.file.navigation import FileNavigation
 
 from test_project.app.file import forms, models
 from test_project.app.file.forms import FileExampleForm
@@ -49,11 +50,11 @@ def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpR
 
     Glue.form(request, 'file_example_form', target=form, access=Glue.Access.DELETE)
 
-    context = {'file_example': file_example}
+    nav = FileNavigation()
+    nav.breadcrumbs.add('Update' if pk else 'Create', None)
+    context = nav.as_context()
+    context['file_example'] = file_example
     context['page_title'] = 'Update File Example' if pk else 'Create File Example'
     context['page_description'] = ''
-    context['breadcrumbs'] = [
-        {'name': 'File Examples', 'href': reverse('file:page:list')},
-        {'name': 'Update' if pk else 'Create', 'href': None},
-    ]
+
     return TemplateResponse(request, 'file/page/form_page.html', context=context)
