@@ -1,7 +1,6 @@
 {% extends 'django_spire/card/title_card.html' %}
 
-{% load django_spire_permission_tags %}
-{% load django_spire_model_tags %}
+{% load django_spire_model %}
 
 {% block card_title %}
     Comments
@@ -9,17 +8,14 @@
 
 {% block card_button %}
     {% with app_label=obj|model_app_label model_name=obj|model_name %}
-        {% check_permission user app_label model_name 'add' as has_access %}
-        {% if has_access %}
-            <span
-                    @click="dispatch_modal_view('{% url "django_spire:comment:form_content" obj_pk=obj.pk comment_pk=0 app_label=app_label model_name=model_name %}')"
-            >
-                    <a class="btn btn-sm btn-primary" href="#">
+        <span
+                @click="dispatch_modal_view('{% url "django_spire:comment:form_content" obj_pk=obj.pk comment_pk=0 app_label=app_label model_name=model_name %}')"
+        >
+            <a class="btn btn-sm btn-primary" href="#">
                 <i class="bi bi-plus"></i>
                 Add
             </a>
-                </span>
-        {% endif %}
+        </span>
     {% endwith %}
 {% endblock %}
 
