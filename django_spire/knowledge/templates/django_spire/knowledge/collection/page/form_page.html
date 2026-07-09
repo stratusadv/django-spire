@@ -5,18 +5,18 @@
         {% csrf_token %}
         <div class="row mb-3">
             <div class="col-12">
-                {% include 'django_spire/form/field/text_field.html' with field=form.name %}
+                {% include 'django_spire/form/field/field.html' with field=form.name %}
             </div>
         </div>
         <div class="row mb-3">
             <div class="col-12">
-                {% include 'django_spire/form/field/text_field.html' with field=form.description %}
+                {% include 'django_spire/form/field/field.html' with field=form.description %}
             </div>
         </div>
         {% if request.GET.top_level != 'True' %}
             <div class="row mb-3">
                 <div class="col-12">
-                    {% include 'django_spire/form/field/text_field.html' with field=form.parent %}
+                    {% include 'django_spire/form/field/field.html' with field=form.parent %}
                 </div>
             </div>
         {% endif %}
