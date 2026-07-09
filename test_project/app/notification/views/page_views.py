@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django_glue import Glue
 
+from django_spire.notification.app.navigation import AppNotificationNavigation
 from test_project.app.notification.forms import NotificationForm
 
 from django_spire.notification import models
@@ -55,21 +56,18 @@ def notification_form_view(
 
     Glue.model(request=request, target=notification, unique_name='notification')
 
-    context_data = {
-        'request': request,
-        'notification': notification,
-        'obj': notification,
-        'form': NotificationForm(instance=notification),
-    }
-    context_data['page_title'] = 'Notification'
-    context_data['page_description'] = 'Edit'
-    context_data['breadcrumbs'] = [
-        {'name': 'Notifications', 'href': None},
-        {'name': str(notification), 'href': None},
-    ]
+    nav = AppNotificationNavigation()
+    nav.page_title = 'Notification'
+    nav.breadcrumbs.add('Edit')
+    context = nav.as_context()
+    context['request'] = request
+    context['notification'] = notification
+    context['obj'] = notification
+    context['form'] = NotificationForm(instance=notification)
+    context['page_description'] = 'Edit'
 
     return TemplateResponse(
-        request, context=context_data, template='notification/form/page/form_page.html'
+        request, context=context, template='notification/form/page/form_page.html'
     )
 
 
@@ -81,21 +79,18 @@ def notification_home_view(request: WSGIRequest) -> TemplateResponse:
 
 @login_required()
 def notification_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {
-        'notifications': (
-            models.Notification.objects.all()
-            .order_by('-created_datetime')
-            .prefetch_related('sms', 'email')
-        ),
-        'statuses': NotificationStatusChoices,
-        'types': NotificationTypeChoices,
-        'priorities': NotificationPriorityChoices,
-    }
-
-    context_data['page_title'] = 'Notification'
-    context_data['page_description'] = 'List View'
-    context_data['breadcrumbs'] = [{'name': 'Notifications', 'href': None}]
+    nav = AppNotificationNavigation()
+    context = nav.as_context()
+    context['notifications'] = (
+        models.Notification.objects.all()
+        .order_by('-created_datetime')
+        .prefetch_related('sms', 'email')
+    )
+    context['statuses'] = NotificationStatusChoices
+    context['types'] = NotificationTypeChoices
+    context['priorities'] = NotificationPriorityChoices
+    context['page_description'] = 'List View'
 
     return TemplateResponse(
-        request, context=context_data, template='notification/page/notification_list_page.html'
+        request, context=context, template='notification/page/notification_list_page.html'
     )
