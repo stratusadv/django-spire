@@ -17,18 +17,22 @@
     {% csrf_token %}
 
     <div class="col-12 col-sm mb-3 mb-sm-0">
-        {% include 'django_spire/glue/field/select_field.html' with glue_field='ticket.$fields.purpose' %}
+        <div class="attribute-label">Purpose</div>
+        {% include 'django_spire/glue/form/field/select_field.html' with glue_field='ticket.$fields.purpose' %}
     </div>
     <div class="col-12 col-sm mb-3 mb-sm-0">
-        {% include 'django_spire/glue/field/select_field.html' with glue_field='ticket.$fields.priority' %}
+        <div class="attribute-label">Priority</div>
+        {% include 'django_spire/glue/form/field/select_field.html' with glue_field='ticket.$fields.priority' %}
     </div>
     {% if ticket.pk is not None %}
         <div class="col-12 col-sm mb-3 mb-sm-0">
-            {% include 'django_spire/glue/field/select_field.html' with glue_field='ticket.$fields.status' %}
+            <div class="attribute-label">Status</div>
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='ticket.$fields.status' %}
         </div>
     {% endif %}
     <div class="col-12 mb-1 mt-3">
-        {% include 'django_spire/glue/field/text_field.html' with glue_field='ticket.$fields.description' %}
+        <div class="attribute-label">Description</div>
+        {% include 'django_spire/glue/form/field/text_field.html' with glue_field='ticket.$fields.description' %}
     </div>
     <div class="my-2">
         {% include 'django_spire/form/button/submit_button.html' %}
