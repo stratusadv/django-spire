@@ -54,7 +54,11 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
     nav.page_title = str(domain._meta.verbose_name.title())
 
     if pk:
-        nav.breadcrumbs.add(str(domain), None)
+        nav.breadcrumbs.add(
+            name=str(domain),
+            view_name='django_spire:metric:domain:page:detail',
+            view_kwargs={'pk': pk},
+        )
 
     nav.breadcrumbs.add('Edit' if domain.pk else 'Create', None)
     context = nav.as_context()
@@ -87,8 +91,9 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Domain'
-    nav.breadcrumbs.add('Domains', 'metric:domain:page:list')
-    nav.breadcrumbs.add(str(domain))
+    nav.breadcrumbs.add(
+        name=str(domain), view_name='django_spire:metric:domain:page:detail', view_kwargs={'pk': pk}
+    )
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form
@@ -138,7 +143,11 @@ def _subdomain_form_view(
 
     nav = DomainNavigation()
     nav.page_title = str(subdomain._meta.verbose_name.title())
-    nav.breadcrumbs.add(str(get_object_or_404(models.Domain, pk=domain_pk)), None)
+    nav.breadcrumbs.add(
+        name=str(get_object_or_404(models.Domain, pk=domain_pk)),
+        view_name='django_spire:metric:domain:page:detail',
+        view_kwargs={'pk': domain_pk},
+    )
     nav.breadcrumbs.add(
         name='Sub Domains',
         view_name='django_spire:metric:domain:page:detail',
@@ -146,7 +155,11 @@ def _subdomain_form_view(
     )
 
     if pk:
-        nav.breadcrumbs.add(str(subdomain), None)
+        nav.breadcrumbs.add(
+            name=str(subdomain),
+            view_name='django_spire:metric:domain:page:detail',
+            view_kwargs={'pk': domain_pk},
+        )
 
     nav.breadcrumbs.add('Edit' if subdomain.pk else 'Create', None)
     context = nav.as_context()
@@ -184,13 +197,21 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
 
     nav = DomainNavigation()
     nav.page_title = 'Delete Sub Domain'
-    nav.breadcrumbs.add(str(subdomain.domain), None)
+    nav.breadcrumbs.add(
+        name=str(subdomain.domain),
+        view_name='django_spire:metric:domain:page:detail',
+        view_kwargs={'pk': subdomain.domain.pk},
+    )
     nav.breadcrumbs.add(
         name='Sub Domains',
         view_name='django_spire:metric:domain:page:detail',
         view_kwargs={'pk': domain_pk},
     )
-    nav.breadcrumbs.add(str(subdomain), None)
+    nav.breadcrumbs.add(
+        name=str(subdomain),
+        view_name='django_spire:metric:domain:page:detail',
+        view_kwargs={'pk': domain_pk},
+    )
     nav.breadcrumbs.add('Delete', None)
     context = nav.as_context()
     context['form'] = form
