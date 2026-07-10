@@ -1,6 +1,7 @@
 {% extends 'django_spire/item/item.html' %}
 
 {% block item_title %}
+    <div class="attribute-label">Name</div>
     <a href="{% url 'django_spire:knowledge:collection:page:top_level' pk=collection.id %}">
         {{ collection.name }}
     </a>

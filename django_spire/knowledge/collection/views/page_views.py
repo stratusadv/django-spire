@@ -54,15 +54,12 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         form = DeleteConfirmationForm(data=request.POST, obj=collection)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                collection.services.processor.set_deleted()
-                collection.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} deleted collection "{collection}".'
-                    ),
-                )
+            collection.set_deleted()
+            collection.add_activity(
+                user=request.user,
+                verb='deleted',
+                information=(f'{request.user.get_full_name()} deleted collection "{collection}".'),
+            )
 
             return HttpResponseRedirect(return_url)
     else:
@@ -82,5 +79,5 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context,
-        template='django_spire/contrib/page/delete_confirmation_form_page.html',
+        template='django_spire/knowledge/collection/form/delete_confirmation_form_page.html',
     )

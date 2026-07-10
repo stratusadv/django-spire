@@ -1,0 +1,13 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form_description }}
+
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary bi bi-eraser"> Delete</button>
+            <a class="btn btn-danger bi bi-x-circle" href="{% url 'django_spire:metric:domain:page:list' %}"> Cancel</a>
+        </div>
+    </form>
+{% endblock %}
