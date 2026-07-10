@@ -1,5 +1,3 @@
-window.Spire = window.Spire || {};
-
 let lastTouchedElement = null;
 
 document.addEventListener('touchstart', function (e) {

@@ -1,5 +1,3 @@
-window.Spire = window.Spire || {};
-
 let loadingOverlayTimeout = null;
 let loadingSpinnerTimeout = null;
 const DEFAULT_LOADING_DURATION = 60000;

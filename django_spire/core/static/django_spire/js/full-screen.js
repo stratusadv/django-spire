@@ -1,5 +1,3 @@
-window.Spire = window.Spire || {};
-
 Spire.fullScreen = {
     toggle() {
         if (!document.fullscreenElement) {

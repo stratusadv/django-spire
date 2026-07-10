@@ -1,5 +1,3 @@
-window.Spire = window.Spire || {};
-
 Spire.date = {
     /**
      * @param {Date} date

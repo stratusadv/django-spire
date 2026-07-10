@@ -1,5 +1,3 @@
-window.Spire = window.Spire || {};
-
 Spire.session = {
     Controller: class SessionController {
         constructor(session_json) {

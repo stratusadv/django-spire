@@ -1,0 +1,1 @@
+window.Spire = window.Spire || {};

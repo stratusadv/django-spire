@@ -1,5 +1,3 @@
-window.Spire = window.Spire || {};
-
 const NOTIFICATION_TYPES = {
     error: 'error',
     warning: 'warning',
