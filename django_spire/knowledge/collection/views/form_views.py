@@ -30,10 +30,10 @@ def form_view(
     nav.page_title = 'Collection'
     nav.page_description = 'Edit' if pk else 'Create'
 
-    breadcrumbs = []
-
     if collection.parent or parent_pk:
         parent_collection = get_object_or_null_obj(Collection, pk=parent_pk if parent_pk else collection.parent.pk)
+
+        breadcrumbs = []
 
         while parent_collection:
             breadcrumbs.append(

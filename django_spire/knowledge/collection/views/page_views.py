@@ -24,8 +24,10 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     nav.page_title = 'Knowledge Collection'
     nav.page_description = ''
 
-    breadcrumbs = []
     temp_collection = collection
+
+    breadcrumbs = []
+    
     while temp_collection.parent:
         breadcrumbs.append(
             {
@@ -87,8 +89,10 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = CollectionNavigation()
     nav.page_title = 'Delete Collection'
 
-    breadcrumbs = []
     temp_collection = collection
+
+    breadcrumbs = []
+
     while temp_collection.parent:
         breadcrumbs.append(
             {

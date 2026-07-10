@@ -29,8 +29,10 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.page_title = str(entry)
     nav.page_description = 'Detail View'
 
-    breadcrumbs = []
     temp_collection = entry_version.entry.collection
+
+    breadcrumbs = []
+
     while temp_collection.parent:
         breadcrumbs.append(
             {

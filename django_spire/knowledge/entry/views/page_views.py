@@ -39,8 +39,10 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = EntryNavigation()
     nav.page_title = 'Delete Entry'
 
-    breadcrumbs = []
     temp_collection = entry.collection
+
+    breadcrumbs = []
+
     while temp_collection.parent:
         breadcrumbs.append(
             {
