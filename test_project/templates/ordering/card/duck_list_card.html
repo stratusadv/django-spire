@@ -1,0 +1,30 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Ducks
+{% endblock %}
+
+{% block card_button %}
+    {% url 'order:create' as create_url %}
+    <a class="btn btn-sm btn-primary" href="{{ create_url }}">
+        <i class="bi bi-plus"></i>
+        Add
+    </a>
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body" x-data="{
+        async reorder(newOrder, oldOrder, item) {
+            let pk = item.dataset.duckPk;
+            await fetch(`/order/${pk}/${newOrder}/reorder/`)
+                .then(r => r.json())
+                .catch(err => console.error('Reorder failed:', err));
+        }
+    }" x-sort="await reorder($position, $originalPosition, $item)">
+        {% for duck in ducks %}
+            {% include 'ordering/item/duck_item.html' %}
+        {% empty %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endfor %}
+    </div>
+{% endblock %}

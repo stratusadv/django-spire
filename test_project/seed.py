@@ -43,3 +43,6 @@ from test_project.app.task.seeding.seed import *
 
 print('Seeding Domain & Sub Domain...')
 from django_spire.metric.domain.seeding.seed import *
+
+print('Seeding Ordering...')
+from test_project.app.ordering.seeding.seed import *

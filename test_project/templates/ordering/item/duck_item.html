@@ -1,0 +1,25 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_x_data %}data-duck-pk="{{ duck.pk }}"{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-auto" x-sort:handle>
+        <i class="bi bi-grip-vertical text-muted"></i>
+    </div>
+    <a class="col" href="{% url 'order:detail' duck.pk %}">
+        {{ duck.name }}
+    </a>
+    <div class="col-auto">
+        {% include 'ordering/element/duck_order_badge.html' %}
+    </div>
+    <div class="col-auto">
+        <span class="badge" style="background-color: {{ duck.color }}; min-width: 40px;">&nbsp;</span>
+    </div>
+{% endblock %}
+
+{% block item_button %}
+    {% url 'order:detail' duck.pk as detail_url %}
+    {% url 'order:update' duck.pk as update_url %}
+    {% url 'order:delete' duck.pk as delete_url %}
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=update_url delete_url=delete_url %}
+{% endblock %}

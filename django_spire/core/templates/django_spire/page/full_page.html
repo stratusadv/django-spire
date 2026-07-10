@@ -174,7 +174,7 @@
                     :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', left: '0', top: '0', zIndex: 1050 } : (sub_nav_has_been_resized ? { width: sub_nav_width + 'px', minWidth: sub_nav_width + 'px', maxWidth: sub_nav_width + 'px' } : { minWidth: sub_nav_min_width + 'px' })"
                     x-cloak
                     x-ref="sub_nav_container"
-                    x-show="has_content($refs.full_page_sub_navigation) && show_sub_nav"
+                    x-show="Spire.ui.hasContent($refs.full_page_sub_navigation) && show_sub_nav"
                 >
                     <div
                         :style="is_narrow_viewport ? { height: '100dvh' } : {}"
@@ -235,7 +235,7 @@
                     :class="is_narrow_viewport ? '' : 'position-relative col-auto border-start border-primary bg-layer-one'"
                     :style="is_narrow_viewport ? { position: 'fixed', width: '100vw', height: '100dvh', right: '0', top: '0', zIndex: 1050 } : { width: info_nav_width + 'px', minWidth: info_nav_width + 'px', maxWidth: info_nav_width + 'px', marginLeft: '-' + info_nav_width + 'px' }"
                     x-cloak
-                    x-show="has_content($refs.full_page_info_navigation) && show_info_nav"
+                    x-show="Spire.ui.hasContent($refs.full_page_info_navigation) && show_info_nav"
                 >
                     <div
                         :style="is_narrow_viewport ? { height: '100dvh' } : {}"

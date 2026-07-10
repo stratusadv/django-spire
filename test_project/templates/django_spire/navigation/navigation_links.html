@@ -32,7 +32,7 @@
 {% url 'history:home' as history_url %}
 {% include 'django_spire/navigation/link.html' with link_text='History' link_icon='bi bi-clock-history' link_url=history_url %}
 
-{% url 'ordering:page:demo' as ordering_url %}
+{% url 'order:list' as ordering_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Ordering' link_icon='bi bi-list-ol' link_url=ordering_url %}
 
 {% url 'django_spire:knowledge:page:home' as knowledge_url %}
