@@ -1,17 +1,63 @@
 {% extends 'django_spire/glue/scroll/scroll.html' %}
 
-{% block scroll_glue_unique_name %}tasks{% endblock %}
+{% block scroll_queryset_unique_name %}tasks{% endblock %}
+
+{% block scroll_header %}
+    <div class="row">
+        <div class="col">
+            <input class="form-control" placeholder="Search Tasks ..." type="search" x-model.debounce="searchQuery">
+        </div>
+        <div class="col">
+            <button class="btn btn-outline-secondary form-control" @click="toggleOrder()"> Sort By Name</button>
+        </div>
+    </div>
+
+    <div class="row py-2">
+        <div class="col-7 fw-bold">
+            Name
+        </div>
+        <div class="col-2 fw-bold">
+            Status
+        </div>
+        <div class="col-2 fw-bold">
+            Created
+        </div>
+        <div class="col-1 fw-bold text-end">
+            Actions
+        </div>
+    </div>
+{% endblock %}
 
 {% block scroll_template_item %}
-    <div class="row border">
-        <div class="col-3">
-            <span x-text="item.name"></span>
-        </div>
+    <div class="row border-bottom py-2">
         <div class="col-7">
-            <span x-text="item.description"></span>
+            <a :href="`{% url 'task:page:detail' pk=0 %}`.replace('0', item.id)">
+                <span x-text="item.name"></span>
+            </a>
         </div>
         <div class="col-2">
-            <span x-text="item.status"></span>
+            <span
+                    class="badge text-white"
+                    :class="
+                        item.status === 'inp' ? 'bg-secondary' :
+                        item.status === 'com' ? 'bg-success' :
+                        item.status === 'can' ? 'bg-warning' :
+                        'bg-primary'
+"
+                    x-text="item.status"
+            ></span>
+        </div>
+        <div class="col-2">
+            <span x-text="item.created_datetime"></span>
+        </div>
+        <div class="col-1 text-end">
+            <a class="btn btn-sm btn-outline-secondary"
+               :href="`{% url 'task:form:update' pk=0 %}`.replace('0', item.id)">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a class="btn btn-sm btn-outline-danger" :href="`{% url 'task:form:delete' pk=0 %}`.replace('0', item.id)">
+                <i class="bi bi-trash"></i>
+            </a>
         </div>
     </div>
 {% endblock %}

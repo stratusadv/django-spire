@@ -30,11 +30,11 @@ def glue_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect
 
     Glue.form(request, 'task_model_form', form, Glue.Access.DELETE)
 
-    context = {
-        **nav.as_context(),
-    }
+    context = {**nav.as_context()}
 
-    return TemplateResponse(request=request, context=context, template='task/page/glue_form_page.html')
+    return TemplateResponse(
+        request=request, context=context, template='task/page/glue_form_page.html'
+    )
 
 
 def create_view(request: WSGIRequest) -> TemplateResponse | redirect:

@@ -25,7 +25,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     if search:
         tasks = tasks.search(search)
 
-    paginated_tasks = Paginator(tasks, 10).get_page(request.GET.get('page', 1))
+    paginated_tasks = Paginator(tasks.order_by('name'), 10).get_page(request.GET.get('page', 1))
 
     Glue.model(request, 'task', models.Task())
     Glue.queryset(request, 'tasks', tasks)

@@ -7,5 +7,5 @@ app_name = 'celery'
 
 urlpatterns = [
     path('home/', views.celery_home_view, name='home'),
-    path('help_modal/', views.celery_help_modal_view, name='help_modal')
+    path('help_modal/', views.celery_help_modal_view, name='help_modal'),
 ]

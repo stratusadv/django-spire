@@ -2,9 +2,9 @@
         x-data="{
             searchQuery: '',
             sliceStart: 0,
-            sliceStop: 50,
-            orderBy: '-name',
-            items: Glue.querySet.{% block scroll_glue_unique_name %}{% endblock %},
+            sliceStop: 30,
+            orderBy: 'name',
+            items: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
             get queryParams() {
                 return {
                     filter: {name__icontains: this.searchQuery},
@@ -13,19 +13,50 @@
                 };
             },
             toggleOrder() {
-                this.orderBy = 'name'
+                this.orderBy = this.orderBy === 'name' ? '-name' : 'name'
             },
             incrementSlice() {
-                this.sliceStop += 50
+                this.sliceStop += 60
             }
         }"
         class=""
 >
-    <input type="search" x-model.debounce="searchQuery" @keyup.enter="search()">
-    <button @click="toggleOrder()">ORDER</button>
-    <template x-for="item in items.queryWithParams(queryParams)">
-        {% block scroll_template_item %}
-        {% endblock %}
-    </template>
-    <span @click="incrementSlice()">SLICE</span>
+
+    <div class="row">
+        <div class="col">
+            {% block scroll_header %}
+            {% endblock %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+
+            <template x-for="item in items.queryWithParams(queryParams)">
+                {% block scroll_template_item %}
+                {% endblock %}
+            </template>
+
+            <div
+                    x-data="{
+                        init() {
+                            const observer = new IntersectionObserver((entries) => {entries.forEach(entry => {
+                                    if (entry.isIntersecting) {
+                                        incrementSlice()
+                                    }
+                                })}, { threshold: 0 })
+                            observer.observe($el)
+                        }
+                    }"
+                    style=" height: 100vh; margin-top: -100vh; pointer-events: none; "
+            >
+            </div>
+            <div class="p-4">
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>

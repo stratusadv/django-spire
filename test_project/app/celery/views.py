@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 def celery_help_modal_view(request: WSGIRequest) -> TemplateResponse:
     return TemplateResponse(request, 'celery/help/celery_help.html')
 
+
 @login_required
 def celery_home_view(request: WSGIRequest) -> TemplateResponse:
     nav = CeleryNavigation()

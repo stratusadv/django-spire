@@ -69,10 +69,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
                         else:
                             get_request_value = datetime_str
 
-                    elif (
-                        context['report_run_arguments'][argument]['annotation']
-                        == 'multi_select'
-                    ):
+                    elif context['report_run_arguments'][argument]['annotation'] == 'multi_select':
                         get_request_value = request.GET.getlist(argument, [])
 
                     else:

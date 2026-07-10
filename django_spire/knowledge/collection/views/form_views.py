@@ -32,7 +32,11 @@ def form_view(
     nav.breadcrumbs.add('Collections', 'django_spire:knowledge:page:home')
 
     if pk:
-        nav.breadcrumbs.add(collection.name, view_name='django_spire:knowledge:collection:page:top_level', view_kwargs={'pk': pk})
+        nav.breadcrumbs.add(
+            collection.name,
+            view_name='django_spire:knowledge:collection:page:top_level',
+            view_kwargs={'pk': pk},
+        )
 
     nav.breadcrumbs.add('Edit' if pk else 'Create')
 

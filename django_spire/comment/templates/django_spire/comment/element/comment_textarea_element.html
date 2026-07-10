@@ -38,7 +38,7 @@
                     return id_list
                  },
                 async set_user_list(){
-                    let response = await ajax_request(
+                    let response = await Spire.ajax.request(
                         'GET',
                         '{% content_type_url "comment:user_list" obj %}'
                     )

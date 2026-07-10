@@ -12,7 +12,7 @@
             this.show_dropdown = false
             this.error_message = null
             this.loading = true
-            let response = await ajax_request(
+            let response = await Spire.ajax.request(
                 'POST',
                 '{% url "django_spire:auth:group:json:group_special_role_ajax" app_name=perm_data.app_name pk=group.pk %}',
                 {
