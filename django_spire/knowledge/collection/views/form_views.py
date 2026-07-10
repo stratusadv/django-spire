@@ -29,11 +29,28 @@ def form_view(
     nav = CollectionNavigation()
     nav.page_title = 'Collection'
     nav.page_description = 'Edit' if pk else 'Create'
-    nav.breadcrumbs.add('Collections', 'django_spire:knowledge:page:home')
+
+    breadcrumbs = []
+
+    if collection.parent or parent_pk:
+        parent_collection = get_object_or_null_obj(Collection, pk=parent_pk if parent_pk else collection.parent.pk)
+
+        while parent_collection:
+            breadcrumbs.append(
+                {
+                    'name': str(parent_collection),
+                    'view_name': 'django_spire:knowledge:collection:page:top_level',
+                    'view_kwargs': {'pk': parent_collection.pk},
+                }
+            )
+            parent_collection = parent_collection.parent
+
+        for crumb in reversed(breadcrumbs):
+            nav.breadcrumbs.add(**crumb)
 
     if pk:
         nav.breadcrumbs.add(
-            collection.name,
+            name=str(collection),
             view_name='django_spire:knowledge:collection:page:top_level',
             view_kwargs={'pk': pk},
         )
@@ -54,10 +71,10 @@ def form_view(
 
             collection.services.tag.process_and_set_tags()
 
-            if collection.parent_id:
+            if collection.parent:
                 return_url = reverse(
                     'django_spire:knowledge:collection:page:top_level',
-                    kwargs={'pk': collection.services.tool.get_root_collection_pk()},
+                    kwargs={'pk': collection.parent.pk},
                 )
             else:
                 return_url = reverse('django_spire:knowledge:page:home')
@@ -66,7 +83,10 @@ def form_view(
 
         show_form_errors(request, form)
     else:
-        form = CollectionForm(instance=collection, initial={'parent': parent_pk})
+        form = CollectionForm(
+            instance=collection,
+            initial={'parent': collection.parent.pk if collection.parent else parent_pk},
+        )
 
     context['form'] = form
     context['collection'] = collection

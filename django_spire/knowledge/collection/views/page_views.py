@@ -23,8 +23,27 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     nav = CollectionNavigation()
     nav.page_title = 'Knowledge Collection'
     nav.page_description = ''
-    nav.breadcrumbs.add('Collections', 'django_spire:knowledge:page:home')
-    nav.breadcrumbs.add(str(collection))
+
+    breadcrumbs = []
+    temp_collection = collection
+    while temp_collection.parent:
+        breadcrumbs.append(
+            {
+                'name': str(temp_collection.parent),
+                'view_name': 'django_spire:knowledge:collection:page:top_level',
+                'view_kwargs': {'pk': temp_collection.parent.pk},
+            }
+        )
+        temp_collection = temp_collection.parent
+
+    for crumb in reversed(breadcrumbs):
+        nav.breadcrumbs.add(**crumb)
+
+    nav.breadcrumbs.add(
+        name=str(collection),
+        view_name='django_spire:knowledge:collection:page:top_level',
+        view_kwargs={'pk': collection.pk},
+    )
     context = nav.as_context()
     context['collection'] = collection
     context['collection_tree_json'] = Collection.services.transformation.to_hierarchy_json(
@@ -67,8 +86,27 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = CollectionNavigation()
     nav.page_title = 'Delete Collection'
-    nav.breadcrumbs.add('Knowledge', 'django_spire:knowledge:page:home')
-    nav.breadcrumbs.add(str(collection))
+
+    breadcrumbs = []
+    temp_collection = collection
+    while temp_collection.parent:
+        breadcrumbs.append(
+            {
+                'name': str(temp_collection.parent),
+                'view_name': 'django_spire:knowledge:collection:page:top_level',
+                'view_kwargs': {'pk': temp_collection.parent.pk},
+            }
+        )
+        temp_collection = temp_collection.parent
+
+    for crumb in reversed(breadcrumbs):
+        nav.breadcrumbs.add(**crumb)
+
+    nav.breadcrumbs.add(
+        name=str(collection),
+        view_name='django_spire:knowledge:collection:page:top_level',
+        view_kwargs={'pk': collection.pk},
+    )
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
     context['form'] = form

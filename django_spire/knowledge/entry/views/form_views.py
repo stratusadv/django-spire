@@ -49,11 +49,28 @@ def form_view(
     nav = EntryNavigation()
     nav.page_title = 'Entry'
     nav.page_description = 'Edit' if pk else 'Create'
+
+    breadcrumbs = []
+    temp_collection = collection
+    while temp_collection.parent:
+        breadcrumbs.append(
+            {
+                'name': str(temp_collection.parent),
+                'view_name': 'django_spire:knowledge:collection:page:top_level',
+                'view_kwargs': {'pk': temp_collection.parent.pk},
+            }
+        )
+        temp_collection = temp_collection.parent
+
+    for crumb in reversed(breadcrumbs):
+        nav.breadcrumbs.add(**crumb)
+    
     nav.breadcrumbs.add(
-        collection.name,
+        name=str(collection.name),
         view_name='django_spire:knowledge:collection:page:top_level',
         view_kwargs={'pk': collection_pk},
     )
+    nav.breadcrumbs.add(str(entry))
     nav.breadcrumbs.add_model_instance_form_action(entry)
 
     context = nav.as_context()
