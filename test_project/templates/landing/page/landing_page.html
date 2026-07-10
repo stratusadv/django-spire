@@ -3,20 +3,134 @@
 {% load static %}
 
 {% block base_body_content %}
-    <div class="container-fluid">
-        <div class="row border-bottom bg-layer-two p-3 mb-3 shadow-sm">
-            <div class="col-6 col-lg-3 mx-auto text-start fs-4">
-                Django Spire Test Project
-            </div>
-            <div class="col-6 col-lg-3 mx-auto text-end">
-                <a class="btn btn-outline-primary" href="{% url 'django_spire:auth:admin:login' %}">Login</a>
+    <div x-data x-init="$nextTick(() => Alpine.store('theme') && Alpine.store('theme').init())">
+    <nav class="navbar navbar-expand-lg navbar-{{ DJANGO_SPIRE_THEME_MODE }} bg-{{ DJANGO_SPIRE_THEME_MODE }} border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">Test Project</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item me-3">
+                        <a href="#"
+                           class="btn btn-outline-dark"
+                           @click="Alpine.store('theme').toggle()"
+                           style="cursor: pointer;">
+                            <i class="bi" :class="Alpine.store('theme').current === 'dark' ? 'bi-sun' : 'bi-moon'"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary" href="{% url 'django_spire:auth:admin:login' %}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 col-lg-6 mx-auto text-center">
-                <img class="img-fluid" src="{% static 'django_spire/img/django-spire-logo-512.png' %}">
+    </nav>
+
+    <header class="bg-{{ DJANGO_SPIRE_THEME_MODE }} py-5 text-center">
+        <div class="container">
+            <img class="img-fluid mb-4" style="max-height: 200px;"
+                 src="{% static 'django_spire/img/django-spire-logo-512.png' %}"
+                 alt="Django Spire Logo">
+            <h1 class="display-3 fw-bold mb-3">Django Spire</h1>
+            <p class="lead mb-0">A powerful Django framework for building modern web applications</p>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-shield-lock text-primary fs-1"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Authentication</h5>
+                            <p class="card-text text-muted">Secure user authentication with support for MFA, API keys, and group-based permissions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-folder text-success fs-1"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">File Management</h5>
+                            <p class="card-text text-muted">Comprehensive file handling with cloud storage integration and versioning support.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-bell text-warning fs-1"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Notifications</h5>
+                            <p class="card-text text-muted">Send email, SMS, and push notifications with a unified notification system.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-question-circle text-info fs-1"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Help Desk</h5>
+                            <p class="card-text text-muted">Full-featured ticketing system for customer support and issue tracking.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-book text-danger fs-1"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Knowledge Base</h5>
+                            <p class="card-text text-muted">Organize and share documentation with a powerful wiki and search system.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-code-slash text-secondary fs-1"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">API Access</h5>
+                            <p class="card-text text-muted">RESTful API with django-ninja, featuring API key authentication and rate limiting.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </section>
+
+    <section class="py-5" style="background-color: var(--bs-secondary-bg);">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-3">Ready to Get Started?</h2>
+            <p class="lead mb-4">Login to explore the full capabilities of Django Spire</p>
+            <a class="btn btn-primary btn-lg px-5" href="{% url 'django_spire:auth:admin:login' %}">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login Now
+            </a>
+        </div>
+    </section>
+
+    <footer class="py-4 border-top bg-{{ DJANGO_SPIRE_THEME_MODE }}">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                <i class="bi bi-lightning-charge me-1"></i>Django Spire Test Project
+                <span class="mx-2">|</span>
+                <small>&copy; 2024</small>
+            </p>
+        </div>
+    </footer>
     </div>
 {% endblock %}
-

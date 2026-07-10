@@ -8,12 +8,12 @@
             <div class="px-4 py-4">
                 {% block authentication_page_top_content %}
                     <div class="text-center pb-3">
-                        <a class="text-default-text-color" href="/">
-                            {% block authentication_page_img %}
-                                <img height="120px" class="ms-1" src="{% static 'django_spire/img/django-spire-logo-256.png' %}"
-                                     alt="">
-                            {% endblock %}
-                        </a>
+                        {% block authentication_page_img %}
+                            <img height="120px" class="ms-1"
+                                 src="{% static 'django_spire/img/django-spire-logo-256.png' %}"
+                                 alt="">
+                            <h3 class="pt-3 text-decoration-none text-dark">Django Spire Test Project</h3>
+                        {% endblock %}
                     </div>
                 {% endblock %}
                 {% block authentication_page_content %}
