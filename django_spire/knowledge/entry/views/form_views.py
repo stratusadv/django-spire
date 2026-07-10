@@ -52,7 +52,7 @@ def form_view(
     nav.breadcrumbs.add(
         collection.name,
         view_name='django_spire:knowledge:collection:page:top_level',
-        view_kwargs={'pk': collection_pk}
+        view_kwargs={'pk': collection_pk},
     )
     nav.breadcrumbs.add_model_instance_form_action(entry)
 

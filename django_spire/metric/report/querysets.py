@@ -4,7 +4,6 @@ from __future__ import annotations
 from django.db.models import QuerySet, Count
 
 
-
 class ReportRunQuerySet(QuerySet):
     def by_popular(self):
         return (

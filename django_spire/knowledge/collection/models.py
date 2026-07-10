@@ -44,7 +44,6 @@ class Collection(HistoryModelMixin, OrderingModelMixin, TagModelMixin):
 
         return self.parent.top_level_parent
 
-
     class Meta:
         verbose_name = 'Collection'
         verbose_name_plural = 'Collections'

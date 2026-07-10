@@ -87,7 +87,9 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.set_page_title_from_model_name(portal_user)
     nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
     nav.breadcrumbs.add_model_instance_string(
-        portal_user, view_name='django_spire:auth:user:page:detail', view_kwargs={'pk': portal_user.pk}
+        portal_user,
+        view_name='django_spire:auth:user:page:detail',
+        view_kwargs={'pk': portal_user.pk},
     )
     nav.breadcrumbs.add('Edit')
 

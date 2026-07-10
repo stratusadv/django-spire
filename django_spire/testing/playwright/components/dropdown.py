@@ -79,7 +79,6 @@ class EllipsisModalDropdown(EllipsisDropdown):
     """
 
 
-
 class EllipsisTableDropdown(EllipsisDropdown):
     """
     Playwright component for django_spire/dropdown/ellipsis_table_dropdown.html

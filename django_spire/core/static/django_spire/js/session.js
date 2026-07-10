@@ -1,11 +1,13 @@
-if (typeof window.SessionController === 'undefined') {
-    window.SessionController = class SessionController {
+window.Spire = window.Spire || {};
+
+Spire.session = {
+    Controller: class SessionController {
         constructor(session_json) {
             this.data = JSON.parse(session_json);
         }
 
-        get_data(key, default_value) {
+        getData(key, default_value) {
             return this.data[key] !== undefined ? this.data[key] : default_value;
         }
-    };
-}
+    }
+};

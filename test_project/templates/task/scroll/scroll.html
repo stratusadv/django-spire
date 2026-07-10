@@ -29,7 +29,7 @@
 {% endblock %}
 
 {% block scroll_template_item %}
-    <div class="row border-bottom">
+    <div class="row border-bottom py-2">
         <div class="col-7">
             <a :href="`{% url 'task:page:detail' pk=0 %}`.replace('0', item.id)">
                 <span x-text="item.name"></span>

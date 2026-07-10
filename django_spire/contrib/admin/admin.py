@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
@@ -74,10 +73,15 @@ class SpireModelAdmin(admin.ModelAdmin):
 
         for field in cls.model_fields:
             if not isinstance(field, (models.ManyToManyField, models.ManyToOneRel)):
-                if isinstance(field, models.BooleanField) or isinstance(field, (models.DateField, models.DateTimeField)) or isinstance(field, models.ForeignKey) or (
-                    isinstance(field, models.CharField)
-                    and hasattr(field, 'choices')
-                    and field.choices
+                if (
+                    isinstance(field, models.BooleanField)
+                    or isinstance(field, (models.DateField, models.DateTimeField))
+                    or isinstance(field, models.ForeignKey)
+                    or (
+                        isinstance(field, models.CharField)
+                        and hasattr(field, 'choices')
+                        and field.choices
+                    )
                 ):
                     filters.append(field.name)
 

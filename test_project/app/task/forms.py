@@ -20,9 +20,9 @@ class TaskGlueModelForm(GlueModelForm):
         if self.is_valid():
             task = Task.objects.create(**self.cleaned_data)
 
-            return GlueJsonResponse(payload={
-                'redirect_url': reverse('task:page:detail', kwargs={'pk': task.pk}),
-            })
+            return GlueJsonResponse(
+                payload={'redirect_url': reverse('task:page:detail', kwargs={'pk': task.pk})}
+            )
 
     class Meta:
         model = Task

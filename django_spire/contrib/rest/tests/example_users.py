@@ -4,7 +4,6 @@ from __future__ import annotations
 from django_spire.contrib.rest import BaseRestHttpConnector, RestSchema, RestSchemaSet
 
 
-
 class DummyJsonConnector(BaseRestHttpConnector):
     """Connector for DummyJSON API."""
 

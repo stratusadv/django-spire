@@ -3,10 +3,7 @@ from __future__ import annotations
 from typing_extensions import TYPE_CHECKING
 
 from test_project.app.sync import forms as sync_forms, models
-from test_project.app.sync.constants import (
-    SyncModelLabel,
-    SyncStrategy,
-)
+from test_project.app.sync.constants import SyncModelLabel, SyncStrategy
 from test_project.app.sync.types import ModelConfig
 
 if TYPE_CHECKING:

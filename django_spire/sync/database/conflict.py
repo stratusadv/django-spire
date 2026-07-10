@@ -118,8 +118,10 @@ def _merge_fields(
 
             if has_any_timestamp:
                 timestamps[field_name] = local_timestamp
-        elif (remote_fields is not None and field_name in remote_fields) or remote_timestamp > local_timestamp or (
-            remote_timestamp == local_timestamp and prefer_remote_on_tie
+        elif (
+            (remote_fields is not None and field_name in remote_fields)
+            or remote_timestamp > local_timestamp
+            or (remote_timestamp == local_timestamp and prefer_remote_on_tie)
         ):
             data[field_name] = remote_data.get(field_name)
 
