@@ -2,7 +2,7 @@
         x-data="{
             searchQuery: '',
             sliceStart: 0,
-            sliceStop: 20,
+            sliceStop: 30,
             orderBy: 'name',
             items: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
             get queryParams() {
@@ -16,7 +16,7 @@
                 this.orderBy = this.orderBy === 'name' ? '-name' : 'name'
             },
             incrementSlice() {
-                this.sliceStop += 20
+                this.sliceStop += 60
             }
         }"
         class=""
@@ -48,11 +48,15 @@
                             observer.observe($el)
                         }
                     }"
-                    style=" height: 50vh; margin-top: -50vh; pointer-events: none; "
+                    style=" height: 100vh; margin-top: -100vh; pointer-events: none; "
             >
+            </div>
+            <div class="p-3">
+
             </div>
 
         </div>
+
     </div>
 
 </div>

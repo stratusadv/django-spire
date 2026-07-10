@@ -12,7 +12,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row py-2">
         <div class="col-7 fw-bold">
             Name
         </div>
@@ -36,7 +36,16 @@
             </a>
         </div>
         <div class="col-2">
-            <span class="badge text-bg-primary text-white" x-text="item.status"></span>
+            <span
+                    class="badge text-white"
+                    :class="
+                        item.status === 'inp' ? 'bg-secondary' :
+                        item.status === 'com' ? 'bg-success' :
+                        item.status === 'can' ? 'bg-warning' :
+                        'bg-primary'
+"
+                    x-text="item.status"
+            ></span>
         </div>
         <div class="col-2">
             <span x-text="item.created_datetime"></span>
