@@ -30,7 +30,7 @@ class EntryAdmin(admin.ModelAdmin):
             + urlencode({'entry_id': f'{entry.id}'})
         )
 
-        return format_html(f'<a href="{url}">View Versions</a>')
+        return format_html('<a href="{}">View Versions</a>', url)
 
     current_version_link.short_description = 'Current Version'
     current_version_link.allow_tags = True
