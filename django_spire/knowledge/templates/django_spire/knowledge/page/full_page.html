@@ -23,7 +23,8 @@
     {% if AuthController.knowledge.can_add %}
         <div class="px-3 py-3 flex-shrink-0">
             {% block knowledge_sub_navigation_add_button %}
-                {% url 'django_spire:knowledge:collection:form:create' as create_url %}
+{#                {% url 'django_spire:knowledge:collection:form:create' as create_url %}#}
+                {% url 'django_spire:knowledge:collection:form:create_with_parent' parent_pk=collection.id as create_url %}
                 <a
                     class="btn btn-primary d-flex align-items-center justify-content-center gap-2 w-100 fw-medium ds-fs-10"
                     href="{{ create_url }}"

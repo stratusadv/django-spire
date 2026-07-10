@@ -3,9 +3,11 @@ from __future__ import annotations
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
+
 from django_spire.contrib.ordering.mixins import OrderingModelMixin
-from django_spire.core.tag.mixins import TagModelMixin
 from django_spire.contrib.utils import truncate_string
+from django_spire.core.tag.mixins import TagModelMixin
+from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.querysets import EntryQuerySet
@@ -13,7 +15,7 @@ from django_spire.knowledge.entry.services.service import EntryService
 from django_spire.knowledge.entry.version.models import EntryVersion
 
 
-class Entry(HistoryModelMixin, OrderingModelMixin, TagModelMixin):
+class Entry(HistoryModelMixin, OrderingModelMixin, TagModelMixin, ActivityMixin):
     collection = models.ForeignKey(
         Collection, on_delete=models.CASCADE, related_name='entries', related_query_name='entry'
     )

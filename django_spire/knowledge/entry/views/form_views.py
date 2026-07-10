@@ -49,11 +49,30 @@ def form_view(
     nav = EntryNavigation()
     nav.page_title = 'Entry'
     nav.page_description = 'Edit' if pk else 'Create'
+
+    temp_collection = collection
+
+    breadcrumbs = []
+
+    while temp_collection.parent:
+        breadcrumbs.append(
+            {
+                'name': str(temp_collection.parent),
+                'view_name': 'django_spire:knowledge:collection:page:top_level',
+                'view_kwargs': {'pk': temp_collection.parent.pk},
+            }
+        )
+        temp_collection = temp_collection.parent
+
+    for crumb in reversed(breadcrumbs):
+        nav.breadcrumbs.add(**crumb)
+    
     nav.breadcrumbs.add(
-        collection.name,
+        name=str(collection.name),
         view_name='django_spire:knowledge:collection:page:top_level',
         view_kwargs={'pk': collection_pk},
     )
+    nav.breadcrumbs.add(str(entry))
     nav.breadcrumbs.add_model_instance_form_action(entry)
 
     context = nav.as_context()
@@ -78,6 +97,8 @@ def import_form_view(
 ) -> TemplateResponse | HttpResponseRedirect:
     Glue.queryset(request, 'collections', Collection.objects.active(), fields=['name'])
 
+    collection = get_object_or_null_obj(Collection, pk=collection_pk)
+
     if request.method == 'POST':
         file_form = EntryFilesForm(request.POST, request.FILES)
 
@@ -88,7 +109,7 @@ def import_form_view(
 
             Entry.services.factory.create_from_files(
                 author=request.user,
-                collection=Collection.objects.get(pk=collection_pk),
+                collection=collection,
                 files=file_objects,
             )
 
@@ -106,6 +127,30 @@ def import_form_view(
     nav = EntryNavigation()
     nav.page_title = 'Import Files'
     nav.page_description = 'Import Files'
+
+    temp_collection = collection
+
+    breadcrumbs = []
+
+    while temp_collection.parent:
+        breadcrumbs.append(
+            {
+                'name': str(temp_collection.parent),
+                'view_name': 'django_spire:knowledge:collection:page:top_level',
+                'view_kwargs': {'pk': temp_collection.parent.pk},
+            }
+        )
+        temp_collection = temp_collection.parent
+
+    for crumb in reversed(breadcrumbs):
+        nav.breadcrumbs.add(**crumb)
+
+    nav.breadcrumbs.add(
+        name=str(collection),
+        view_name='django_spire:knowledge:collection:page:top_level',
+        view_kwargs={'pk': collection.pk},
+    )
+
     nav.breadcrumbs.add('Import Files')
     context = nav.as_context()
     context['collection_pk'] = collection_pk

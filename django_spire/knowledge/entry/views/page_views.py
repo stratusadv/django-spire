@@ -25,13 +25,12 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         form = DeleteConfirmationForm(data=request.POST, obj=entry)
 
         if form.is_valid():
-            if form.cleaned_data['should_delete']:
-                entry.services.processor.set_deleted()
-                entry.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=f'{request.user.get_full_name()} deleted entry "{entry}".',
-                )
+            entry.set_deleted()
+            entry.add_activity(
+                user=request.user,
+                verb='deleted',
+                information=f'{request.user.get_full_name()} deleted entry "{entry}".',
+            )
 
             return HttpResponseRedirect(return_url)
     else:
@@ -39,7 +38,30 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = EntryNavigation()
     nav.page_title = 'Delete Entry'
-    nav.breadcrumbs.add('Knowledge', 'django_spire:knowledge:page:home')
+
+    temp_collection = entry.collection
+
+    breadcrumbs = []
+
+    while temp_collection.parent:
+        breadcrumbs.append(
+            {
+                'name': str(temp_collection.parent),
+                'view_name': 'django_spire:knowledge:collection:page:top_level',
+                'view_kwargs': {'pk': temp_collection.parent.pk},
+            }
+        )
+        temp_collection = temp_collection.parent
+
+    for crumb in reversed(breadcrumbs):
+        nav.breadcrumbs.add(**crumb)
+
+    nav.breadcrumbs.add(
+        name=str(entry.collection),
+        view_name='django_spire:knowledge:collection:page:top_level',
+        view_kwargs={'pk': entry.collection.pk},
+    )
+
     nav.breadcrumbs.add(str(entry))
     nav.breadcrumbs.add('Delete')
     context = nav.as_context()
@@ -49,5 +71,8 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return TemplateResponse(
         request,
         context=context,
-        template='django_spire/contrib/page/delete_confirmation_form_page.html',
+        template='django_spire/knowledge/collection/form/delete_confirmation_form_page.html',
     )
+
+
+

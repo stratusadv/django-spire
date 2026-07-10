@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.collection.models import Collection
+from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.navigation import EntryNavigation
 from django_spire.knowledge.entry.version.models import EntryVersion
 
@@ -27,7 +28,29 @@ def editor_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = EntryNavigation()
     nav.page_title = str(entry)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add('Knowledge', 'django_spire:knowledge:page:home')
+
+    temp_collection = entry_version.entry.collection
+
+    breadcrumbs = []
+
+    while temp_collection.parent:
+        breadcrumbs.append(
+            {
+                'name': str(temp_collection.parent),
+                'view_name': 'django_spire:knowledge:collection:page:top_level',
+                'view_kwargs': {'pk': temp_collection.parent.pk},
+            }
+        )
+        temp_collection = temp_collection.parent
+
+    for crumb in reversed(breadcrumbs):
+        nav.breadcrumbs.add(**crumb)
+
+    nav.breadcrumbs.add(
+        name=str(entry_version.entry.collection),
+        view_name='django_spire:knowledge:collection:page:top_level',
+        view_kwargs={'pk': entry_version.entry.collection.pk},
+    )
     nav.breadcrumbs.add(str(entry))
     context = nav.as_context()
     context['entry'] = entry
