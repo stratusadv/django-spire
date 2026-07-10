@@ -1,0 +1,23 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">{{ page_description }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Save
+                    </button>
+                    <a href="{% url 'order:list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

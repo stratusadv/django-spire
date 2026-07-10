@@ -1,0 +1,37 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    {{ duck.name }}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-12 col-sm-4">
+                <div class="attribute-label">Color</div>
+                <div>
+                    <span class="badge" style="background-color: {{ duck.color }}; min-width: 60px;">&nbsp;</span>
+                </div>
+            </div>
+            <div class="col-12 col-sm-4">
+                <div class="attribute-label">Order</div>
+                <div>{% include 'ordering/element/duck_order_badge.html' %}</div>
+            </div>
+            <div class="col-12 col-sm-4">
+                <div class="attribute-label">Created</div>
+                <div>{{ duck.created_datetime|date:'M d, Y' }}</div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <a href="{% url 'order:update' duck.pk %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="{% url 'order:delete' duck.pk %}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i> Delete
+            </a>
+            <a href="{% url 'order:list' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+{% endblock %}
