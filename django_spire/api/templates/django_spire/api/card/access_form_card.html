@@ -10,12 +10,12 @@
             {% csrf_token %}
             <div class="row mb-3">
                 <div class="col-12">
-                    {% include 'django_spire/form/field/text_field.html' with field=form.name %}
+                    {% include 'django_spire/form/field/field.html' with field=form.name %}
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col-12">
-                    {% include 'django_spire/form/field/text_field.html' with field=form.permission %}
+                    {% include 'django_spire/form/field/field.html' with field=form.permission %}
                 </div>
             </div>
             <div class="row">
