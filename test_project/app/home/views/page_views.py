@@ -12,12 +12,8 @@ if TYPE_CHECKING:
 
 def home_view(request: WSGIRequest) -> TemplateResponse:
     nav = HomeNavigation()
-    nav.page_title = 'Welcome'
-    nav.breadcrumbs.add('Tacos')
-    nav.breadcrumbs.add('Tacos')
-    nav.breadcrumbs.add('Tacos')
-    nav.breadcrumbs.add('Tacos')
-    nav.breadcrumbs.add('Tacos')
+    nav.page_title = 'Test Project Landing'
+    nav.breadcrumbs.add('Welcome')
 
     return TemplateResponse(request, template='home/page/home_page.html', context=nav.as_context())
 

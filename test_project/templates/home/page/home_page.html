@@ -7,7 +7,7 @@
             <h1 class="mb-3">Welcome to Django Spire</h1>
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Quick Links</h5>
+                    <div class="card-title">Quick Links</div>
                 </div>
                 <div class="card-body">
                     <a href="{% url 'home:page:markdown_demo' %}" class="btn btn-primary">
@@ -22,9 +22,9 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">
+                    <div class="card-title">
                         <i class="bi bi-clock-history"></i> Latest Changes
-                    </h5>
+                    </div>
                 </div>
                 <div class="card-body">
                     {% render_markdown "docs/changelog/v1_changelog.md" as changelog %}

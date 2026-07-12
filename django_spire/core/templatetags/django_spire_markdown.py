@@ -11,20 +11,22 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
+_markdown = marko.Markdown(extensions=['gfm'])
+
 
 def _read_markdown_file(file_path: str) -> str | None:
     full_path = Path(settings.BASE_DIR) / file_path
     if not full_path.exists():
         return None
-    return marko.convert(full_path.read_text())
+    return _markdown.convert(full_path.read_text())
 
 
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=32)
 def _render_markdown_cached(file_path: str) -> str | None:
     return _read_markdown_file(file_path)
 
 
-@lru_cache(maxsize=128)
+@lru_cache(maxsize=32)
 def _render_markdown_stripped_cached(file_path: str) -> str | None:
     html = _render_markdown_cached(file_path)
     if html is None:
@@ -48,3 +50,4 @@ def render_markdown_stripped(file_path: str) -> str | None:
             return None
         return BeautifulSoup(html, 'html.parser').get_text()
     return _render_markdown_stripped_cached(file_path)
+

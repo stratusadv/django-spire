@@ -18,12 +18,14 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">1. Basic Render</h5>
+                    <div class="card-title">
+                        Basic Render
+                    </div>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted small mb-2">Code: <code>{% verbatim %}{% render_markdown "docs/sample_readme.md" %}{% endverbatim %}</code></p>
+                    <p class="text-muted small mb-2">Code: <code>{% verbatim %}{% render_markdown "test_project/docs/sample_readme.md" %}{% endverbatim %}</code></p>
                     <hr>
-                    {% render_markdown "docs/sample_readme.md" %}
+                    {% render_markdown "test_project/docs/sample_readme.md" %}
                 </div>
             </div>
         </div>
@@ -33,16 +35,18 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">2. As Context Variable</h5>
+                    <div class="card-title">
+                        As Context Variable
+                    </div>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small mb-2">
                         Code:
-                        <code>{% verbatim %}{% render_markdown "docs/sample_readme.md" as md %}{% endverbatim %}</code><br>
+                        <code>{% verbatim %}{% render_markdown "test_project/docs/sample_readme.md" as md %}{% endverbatim %}</code><br>
                         <code>{% verbatim %}{% if md %}{{ md|safe }}{% endif %}{% endverbatim %}</code>
                     </p>
                     <hr>
-                    {% render_markdown "docs/sample_readme.md" as md %}
+                    {% render_markdown "test_project/docs/sample_readme.md" as md %}
                     {% if md %}
                         <div class="alert alert-success border-success">
                             <strong>Success!</strong> File was found and rendered below:<br><br>
@@ -62,15 +66,17 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">3. Stripped (Plain Text)</h5>
+                    <div class="card-title">
+                        Stripped (Plain Text)
+                    </div>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small mb-2">
-                        Code: <code>{% verbatim %}{% render_markdown_stripped "docs/sample_readme.md" as stripped %}{% endverbatim %}</code>
+                        Code: <code>{% verbatim %}{% render_markdown_stripped "test_project/docs/sample_readme.md" as stripped %}{% endverbatim %}</code>
                     </p>
                     <p class="text-muted small">Useful for previews, search, or excerpts without HTML formatting.</p>
                     <hr>
-                    {% render_markdown_stripped "docs/sample_readme.md" as stripped %}
+                    {% render_markdown_stripped "test_project/docs/sample_readme.md" as stripped %}
                     <div class="bg-light p-3 border rounded">
                         <pre class="mb-0" style="white-space: pre-wrap;">{{ stripped|truncatewords:50 }}</pre>
                     </div>
@@ -83,7 +89,9 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">4. Missing File (Graceful None)</h5>
+                    <div class="card-title">
+                        Missing File (Graceful None)
+                    </div>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small mb-2">
