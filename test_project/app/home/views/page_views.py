@@ -20,3 +20,12 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
     nav.breadcrumbs.add('Tacos')
 
     return TemplateResponse(request, template='home/page/home_page.html', context=nav.as_context())
+
+
+def markdown_demo_view(request: WSGIRequest) -> TemplateResponse:
+    nav = HomeNavigation()
+    nav.page_title = 'Markdown Demo'
+    nav.breadcrumbs.add('Home', '/')
+    nav.breadcrumbs.add('Markdown Demo')
+
+    return TemplateResponse(request, template='home/page/markdown_demo_page.html', context=nav.as_context())

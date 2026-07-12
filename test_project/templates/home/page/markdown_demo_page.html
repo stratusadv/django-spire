@@ -1,0 +1,107 @@
+{% extends 'django_spire/page/full_page.html' %}
+{% load django_spire_markdown %}
+
+{% block page_title %}Markdown Demo - {{ block.super }}{% endblock %}
+
+{% block full_page_content %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-3">Markdown Template Tag Demo</h1>
+            <p class="text-muted">
+                This page demonstrates the <code>{% verbatim %}{% render_markdown %}{% endverbatim %}</code>
+                and <code>{% verbatim %}{% render_markdown_stripped %}{% endverbatim %}</code> template tags.
+            </p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">1. Basic Render</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">Code: <code>{% verbatim %}{% render_markdown "docs/sample_readme.md" %}{% endverbatim %}</code></p>
+                    <hr>
+                    {% render_markdown "docs/sample_readme.md" %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">2. As Context Variable</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">
+                        Code:
+                        <code>{% verbatim %}{% render_markdown "docs/sample_readme.md" as md %}{% endverbatim %}</code><br>
+                        <code>{% verbatim %}{% if md %}{{ md|safe }}{% endif %}{% endverbatim %}</code>
+                    </p>
+                    <hr>
+                    {% render_markdown "docs/sample_readme.md" as md %}
+                    {% if md %}
+                        <div class="alert alert-success border-success">
+                            <strong>Success!</strong> File was found and rendered below:<br><br>
+                            {{ md|safe }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning border-warning">
+                            <strong>File not found</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">3. Stripped (Plain Text)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">
+                        Code: <code>{% verbatim %}{% render_markdown_stripped "docs/sample_readme.md" as stripped %}{% endverbatim %}</code>
+                    </p>
+                    <p class="text-muted small">Useful for previews, search, or excerpts without HTML formatting.</p>
+                    <hr>
+                    {% render_markdown_stripped "docs/sample_readme.md" as stripped %}
+                    <div class="bg-light p-3 border rounded">
+                        <pre class="mb-0" style="white-space: pre-wrap;">{{ stripped|truncatewords:50 }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">4. Missing File (Graceful None)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">
+                        Code: <code>{% verbatim %}{% render_markdown "docs/does_not_exist.md" as missing %}{% endverbatim %}</code>
+                    </p>
+                    <p class="text-muted small">When a file doesn't exist, the tag returns <code>None</code>, allowing for graceful fallbacks.</p>
+                    <hr>
+                    {% render_markdown "docs/does_not_exist.md" as missing %}
+                    {% if missing %}
+                        {{ missing|safe }}
+                    {% else %}
+                        <div class="alert alert-info border-info">
+                            <strong>No file found</strong> — The file <code>docs/does_not_exist.md</code> does not exist.
+                            This is the expected behavior when a file is missing.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

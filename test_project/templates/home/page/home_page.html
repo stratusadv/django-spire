@@ -1,10 +1,42 @@
 {% extends 'django_spire/page/full_page.html' %}
+{% load django_spire_markdown %}
 
 {% block full_page_content %}
-    <div class="row">
-        <div class="card">
-            NO CHANGES HERE
-{#            {% include 'django_spire/contrib/changelog/card/changelog_card.html' %}#}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-3">Welcome to Django Spire</h1>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Links</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'home:page:markdown_demo' %}" class="btn btn-primary">
+                        <i class="bi bi-markdown"></i> Markdown Template Tag Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> Latest Changes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% render_markdown "docs/changelog/v1_changelog.md" as changelog %}
+                    {% if changelog %}
+                        {{ changelog|safe }}
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <strong>Changelog not found.</strong> The file <code>docs/changelog/v1_changelog.md</code> could not be found.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
