@@ -3,7 +3,7 @@
 {# To dispatch notification in other x-data use  $dispatch('notify', { message, type }) #}
 <div
     class="fixed-top"
-    style="pointer-events: none"
+    style="pointer-events: none; z-index: 9999;"
     @notify.window="add($event)"
     x-data="{
         notifications: [],

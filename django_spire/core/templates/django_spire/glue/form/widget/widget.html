@@ -5,8 +5,8 @@
         {% endblock %}
     {% endif %}
 
-    <div class="invalid-feedback" x-text="{{ glue_field }}.error_text"></div>
     {% block widget_content %}
     {% endblock %}
+    <div class="invalid-feedback" x-text="{{ glue_field }}.errorText"></div>
     <small class="text-muted d-block" x-show="{{ glue_field }}.help_text" x-text="{{ glue_field }}.help_text"></small>
 </div>
