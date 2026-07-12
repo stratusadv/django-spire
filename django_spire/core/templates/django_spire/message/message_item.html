@@ -1,10 +1,12 @@
 <div
-    class="ms-auto mt-1 me-sm-3 mx-2 rounded border border-1 bg-layer-three shadow p-3"
+    class="alert ms-auto my-2 me-sm-3 me-0 shadow p-2"
+    role="alert"
     :class="{
-        'border-success': notification.type === 'success',
-        'border-warning': notification.type === 'warning',
-        'border-danger': notification.type === 'error',
-        'border-primary': notification.type === 'info'
+        'alert-success': notification.type === 'success',
+        'alert-warning': notification.type === 'warning',
+        'alert-danger': notification.type === 'error',
+        'alert-primary': notification.type === 'info',
+        'alert-secondary': notification.type === 'debug'
     }"
     style="max-width: 400px; pointer-events: auto;"
     x-show="show"
@@ -22,7 +24,7 @@
     }"
 >
     <div class="row align-items-center">
-        <div class="col-auto">
+        <div class="col-auto ps-3">
             <template x-if="notification.type === 'success'">
                 <i class="text-success bi bi-check-circle-fill h3 m-0"></i>
             </template>
@@ -35,11 +37,14 @@
             <template x-if="notification.type === 'info'">
                 <i class="text-primary bi bi-info-circle-fill h3 m-0"></i>
             </template>
+            <template x-if="notification.type === 'debug'">
+                <i class="text-secondary bi bi-bug h3 m-0"></i>
+            </template>
         </div>
-        <div class="col position-relative pe-4">
+        <div class="col position-relative ps-0 pe-4">
             <div x-text="notification.message"></div>
             <i
-                class="position-absolute top-0 end-0 mt-n2 me-1 bi bi-x-lg cursor-pointer"
+                class="position-absolute text-dark top-0 end-0 mt-n2 me-2 bi bi-x-lg cursor-pointer"
                 @click="transitionOut()"
             >
             </i>

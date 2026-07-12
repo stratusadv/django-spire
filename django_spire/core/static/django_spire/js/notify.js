@@ -3,6 +3,7 @@ const NOTIFICATION_TYPES = {
     warning: 'warning',
     info: 'info',
     success: 'success',
+    debug: 'debug',
 };
 
 const NOTIFY_EVENT = 'notify';
