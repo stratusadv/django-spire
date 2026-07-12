@@ -9,6 +9,11 @@ from django.utils.http import urlencode
 from django_spire.ai import models
 from django_spire.ai.mixins import AiUsageAdminMixin
 from django_spire.contrib.form.widgets import JsonTreeWidget
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models import Model
+    from django.core.handlers.wsgi import WSGIRequest
 
 
 @admin.register(models.AiUsage)
@@ -26,7 +31,7 @@ class AiUsageAdmin(AiUsageAdminMixin):
     search_fields = ('recorded_date',)
     ordering = ('-recorded_date',)
 
-    def get_readonly_fields(self, request, obj=None) -> list[str]:
+    def get_readonly_fields(self, request: WSGIRequest, obj: Model|None=None) -> list[str]:
         return [field.name for field in self.model._meta.fields]
 
     def view_interactions_link(

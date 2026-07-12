@@ -1,13 +1,10 @@
 <div
     x-data="{
         current_permission: '{{ perm_data.level_verbose }}',
-        permission_choices: ['None', 'View', 'Add', 'Change', 'Delete'],
         loading: false,
         error_message: '',
-        show_dropdown: false,
 
         async update(perm) {
-            this.show_dropdown = false
             this.error_message = null
 
             if(this.current_permission !== perm) {
@@ -28,34 +25,32 @@
         }
     }"
 >
-    <div class="position-relative">
-        <div @click="show_dropdown = true" class="btn btn-sm border dropdown-toggle">
-            <span x-text="current_permission"></span>
-        </div>
-        <div
-            style="width: 80px; z-index: 2"
-            class="card position-absolute bg-layer-one mt-1 border"
-            x-show="show_dropdown"
-            @click.outside="show_dropdown = false"
+    <div class="dropdown">
+        <button
+            class="btn btn-sm border dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            :disabled="loading"
         >
-            <template x-for="perm in permission_choices">
-                <div
-                    class="py-1 ps-2 cursor-pointer bg-layer-three-hover"
-                    :class="{ 'border-bottom': perm !== 'Delete' }"
-                    :style="
-                        perm === 'None' ? 'border-top-left-radius: 0.30rem !important; border-top-right-radius: 0.30rem !important;' :
-                        perm === 'Delete' ? 'border-bottom-left-radius: 0.30rem !important; border-bottom-right-radius: 0.30rem !important;' : ''
-                    "
-                    @click="update(perm)"
-                >
-                    <span
-                        class="fs--1"
-                        :class="{ 'text-secondary': perm === current_permission }"
-                        x-text="perm"
-                    ></span>
-                </div>
-            </template>
-        </div>
+            <span x-text="current_permission"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="dropdown-item" :class="{ 'active': current_permission === 'None', 'text-muted': current_permission === 'None' }" href="#" @click.prevent="update('None')">None</a>
+            </li>
+            <li>
+                <a class="dropdown-item" :class="{ 'active': current_permission === 'View', 'text-muted': current_permission === 'View' }" href="#" @click.prevent="update('View')">View</a>
+            </li>
+            <li>
+                <a class="dropdown-item" :class="{ 'active': current_permission === 'Add', 'text-muted': current_permission === 'Add' }" href="#" @click.prevent="update('Add')">Add</a>
+            </li>
+            <li>
+                <a class="dropdown-item" :class="{ 'active': current_permission === 'Change', 'text-muted': current_permission === 'Change' }" href="#" @click.prevent="update('Change')">Change</a>
+            </li>
+            <li>
+                <a class="dropdown-item" :class="{ 'active': current_permission === 'Delete', 'text-muted': current_permission === 'Delete' }" href="#" @click.prevent="update('Delete')">Delete</a>
+            </li>
+        </ul>
     </div>
     <template x-if="error_message">
         <div x-text="error_message" class="fs--1 text-danger"></div>

@@ -3,3 +3,27 @@
 {% block dropdown_trigger %}
     <span class="bi bi-three-dots-vertical cursor-pointer"></span>
 {% endblock %}
+
+{% block dropdown_content %}
+    {% if view_url and view_url != '#' %}
+    <li>
+        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ view_url }}">
+            <i class="bi bi-eye"></i>View
+        </a>
+    </li>
+    {% endif %}
+    {% if edit_url and edit_url != '#' %}
+    <li>
+        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ edit_url }}">
+            <i class="bi bi-pencil"></i>Edit
+        </a>
+    </li>
+    {% endif %}
+    {% if delete_url and delete_url != '#' %}
+    <li>
+        <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="{{ delete_url }}">
+            <i class="bi bi-trash"></i>Delete
+        </a>
+    </li>
+    {% endif %}
+{% endblock %}

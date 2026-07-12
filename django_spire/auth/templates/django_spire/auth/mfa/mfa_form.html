@@ -1,4 +1,4 @@
-{% extends "django_spire/page/../../../../../core/templates/django_spire/contrib/page/center_card_page.html" %}
+{% extends "django_spire/page/center_card_page.html" %}
 
 {% load static %}
 
@@ -7,10 +7,12 @@
 {% endblock %}
 
 {% block page_center_card_content %}
-    {% include 'django_spire/messages/message_widget.html' %}
+    {% include 'django_spire/message/message_widget.html' %}
 
     {% if form_description %}
-        {% include 'django_spire/note/info_note.html' with note_type='Note' note_text=form_description %}
+        <div class="alert alert-info">
+            {{ form_description }}
+        </div>
     {% endif %}
 
     <form method="post">

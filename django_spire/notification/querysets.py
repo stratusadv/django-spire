@@ -19,15 +19,15 @@ if TYPE_CHECKING:
 
 
 class NotificationQuerySet(HistoryQuerySet):
-    def app_notifications(self):
+    def app_notifications(self) -> QuerySet:
         return self.filter(type=NotificationTypeChoices.APP)
 
-    def by_content_object(self, content_object: type[Model]):
+    def by_content_object(self, content_object: type[Model]) -> QuerySet:
         return self.filter(
             content_type=get_content_type_for_model(content_object), object_id=content_object.pk
         )
 
-    def by_content_objects(self, content_objects: list[type[Model]]):
+    def by_content_objects(self, content_objects: list[type[Model]]) -> QuerySet:
         if not content_objects:
             return self.none()
 
@@ -44,62 +44,62 @@ class NotificationQuerySet(HistoryQuerySet):
 
         return self.filter(queries)
 
-    def by_user(self, user: User):
+    def by_user(self, user: User) -> QuerySet:
         return self.filter(user=user)
 
-    def by_users(self, users: list[User]):
+    def by_users(self, users: list[User]) -> QuerySet:
         return self.filter(user__in=users)
 
-    def email_notifications(self):
+    def email_notifications(self) -> QuerySet:
         return self.filter(type=NotificationTypeChoices.EMAIL)
 
-    def errored(self):
+    def errored(self) -> QuerySet:
         return self.filter(status=NotificationStatusChoices.ERRORED)
 
-    def failed(self):
+    def failed(self) -> QuerySet:
         return self.filter(status=NotificationStatusChoices.FAILED)
 
-    def high_priority(self):
+    def high_priority(self) -> QuerySet:
         return self.filter(priority=NotificationPriorityChoices.HIGH)
 
-    def low_priority(self):
+    def low_priority(self) -> QuerySet:
         return self.filter(priority=NotificationPriorityChoices.LOW)
 
-    def medium_priority(self):
+    def medium_priority(self) -> QuerySet:
         return self.filter(priority=NotificationPriorityChoices.MEDIUM)
 
-    def pending(self):
+    def pending(self) -> QuerySet:
         return self.filter(status=NotificationStatusChoices.PENDING)
 
-    def processing(self):
+    def processing(self) -> QuerySet:
         return self.filter(status=NotificationStatusChoices.PROCESSING)
 
-    def push_notifications(self):
+    def push_notifications(self) -> QuerySet:
         return self.filter(status=NotificationTypeChoices.PUSH)
 
-    def ready_to_send(self):
+    def ready_to_send(self) -> QuerySet:
         return self.pending().filter(publish_datetime__lte=now())
 
-    def sent(self):
+    def sent(self) -> QuerySet:
         return self.filter(status=NotificationStatusChoices.SENT)
 
-    def sms_notifications(self):
+    def sms_notifications(self) -> QuerySet:
         return self.filter(type=NotificationTypeChoices.SMS)
 
-    def unsent(self):
+    def unsent(self) -> QuerySet:
         return self.filter(
             status__in=[NotificationStatusChoices.PENDING, NotificationStatusChoices.PROCESSING]
         )
 
 
 class NotificationContentObjectQuerySet(QuerySet):
-    def by_notification_content_object(self, content_object: type[Model]):
+    def by_notification_content_object(self, content_object: type[Model]) -> QuerySet:
         return self.filter(
             notification__content_type=get_content_type_for_model(content_object),
             notification__object_id=content_object.pk,
         )
 
-    def by_notification_content_objects(self, content_objects: list[type[Model]]):
+    def by_notification_content_objects(self, content_objects: list[type[Model]]) -> QuerySet:
         if not content_objects:
             return self.none()
 

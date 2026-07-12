@@ -32,10 +32,14 @@
     <div class="row">
         <div class="col">
 
-            <template x-for="item in items.queryWithParams(queryParams)">
-                {% block scroll_template_item %}
-                {% endblock %}
-            </template>
+            {% block scroll_content %}
+
+                <template x-for="item in items.queryWithParams(queryParams)">
+                    {% block scroll_template_item %}
+                    {% endblock %}
+                </template>
+
+            {% endblock %}
 
             <div
                     x-data="{
@@ -51,12 +55,16 @@
                     style=" height: 100vh; margin-top: -100vh; pointer-events: none; "
             >
             </div>
-            <div class="p-4">
-
-            </div>
-
         </div>
 
     </div>
+
+    <div class="row">
+        <div class="col pb-5">
+            {% block scroll_footer %}
+            {% endblock %}
+        </div>
+    </div>
+
 
 </div>

@@ -6,7 +6,7 @@ from django_spire import settings as django_spire_default_settings
 
 
 class Settings:
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> None:
         django_value = None
         django_spire_value = None
 

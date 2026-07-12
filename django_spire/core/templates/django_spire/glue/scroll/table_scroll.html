@@ -1,0 +1,25 @@
+{% extends 'django_spire/glue/scroll/scroll.html' %}
+
+{% block scroll_content %}
+
+    <div class="table-responsive">
+
+        <table class="table {% block scroll_table_class %}table-sm table-hover{% endblock %}">
+
+            <thead>
+            {% block scroll_table_header %}
+            {% endblock %}
+            </thead>
+            <tbody>
+            {{ block.super }}
+            </tbody>
+            <tfoot>
+            {% block scroll_table_footer %}
+            {% endblock %}
+            </tfoot>
+
+        </table>
+
+    </div>
+
+{% endblock %}

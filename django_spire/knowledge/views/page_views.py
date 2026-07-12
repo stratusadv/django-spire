@@ -6,6 +6,7 @@ from django.template.response import TemplateResponse
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.collection.navigation import CollectionNavigation
+from django_spire.knowledge.navigation import KnowledgeNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -13,8 +14,7 @@ if TYPE_CHECKING:
 
 @AppAuthController('knowledge').permission_required('can_view')
 def home_view(request: WSGIRequest) -> TemplateResponse:
-    nav = CollectionNavigation()
-    nav.page_title = 'Knowledge Collection'
+    nav = KnowledgeNavigation()
     nav.page_description = 'List View'
     context = nav.as_context()
     context['collections'] = (

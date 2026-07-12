@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from django_spire.exceptions import DjangoSpireError
 
-class AuthControllerRequestError(Exception):
+
+class AuthControllerRequestError(DjangoSpireError):
     pass
 
 
-class AuthControllerNotFoundError(Exception):
+class AuthControllerNotFoundError(DjangoSpireError):
     pass

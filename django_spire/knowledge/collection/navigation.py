@@ -1,8 +1,7 @@
-from django_spire.contrib.navigation.navigation import Navigation
+from django_spire.knowledge.navigation import KnowledgeNavigation
 
 
-class CollectionNavigation(Navigation):
+class CollectionNavigation(KnowledgeNavigation):
     def __init__(self) -> None:
         super().__init__()
-        self.icon_class = 'bi bi-folder'
         self.breadcrumbs.add('Knowledge', 'django_spire:knowledge:page:home')

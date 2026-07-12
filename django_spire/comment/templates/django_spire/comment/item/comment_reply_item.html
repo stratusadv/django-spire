@@ -19,7 +19,7 @@
                     {% if comment_delete_url_name %}
                         {% grouping_url comment_delete_url_name object_pk=model.pk pk=comment.pk as comment_delete_url %}
                     {% endif %}
-                    {% include 'django_spire/element/dropdown_table_element.html' with dropdown_icon='fas fa-ellipsis-h' edit_url=comment_edit_url delete_url=comment_delete_url %}
+                    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url='#' edit_url=comment_edit_url delete_url=comment_delete_url %}
                 {% endif %}
             </div>
         </div>

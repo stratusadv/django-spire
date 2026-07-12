@@ -130,8 +130,8 @@
             {% endif %}
 
             <div x-show="show_comment_dropdown" @click.outside="show_comment_dropdown = false" x-transition
-                 class="position-absolute top-100 end-100 z-index-1 py-0">
-                <div class="card shadow-none border position-relative" style="width: 20rem;">
+                 class="dropdown-menu p-0" style="width: 20rem;">
+                <div class="card shadow-none border">
                     <div class="card-body p-1">
                         <form method="post" action={{ button_url }}>
                             {% csrf_token %}
@@ -143,12 +143,11 @@
 
                             <div style="max-height: 100px; overflow-x: hidden; overflow-y: auto"
                                  x-show="show_user_list_dropdown" @click.outside="show_user_list_dropdown = false"
-                                 class="text-business-base-blue fs-0 w-75 ms-3 border rounded position-absolute top-25 start-0">
+                                 class="dropdown-menu show p-0"
+                                 style="width: 75%; position: absolute; top: 25%; left: 0; transform: none !important;">
                                 <template x-for="(user, index) in filtered_users" :key="user.username">
-                                    <a class="text-decoration-none text-business-base-blue" href="#">
-                                        <li @click="add_user_to_comment(user)"
-                                            class="list-unstyled text-start item-hover px-3 py-1"
-                                            x-text="user.username"></li>
+                                    <a class="dropdown-item text-business-base-blue" href="#" @click.prevent="add_user_to_comment(user)">
+                                        <span x-text="user.username"></span>
                                     </a>
                                 </template>
                             </div>
