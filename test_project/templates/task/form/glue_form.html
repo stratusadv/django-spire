@@ -6,9 +6,9 @@
         async submit_form() {
             this.is_processing = true
             this.task_form.validate()
-            let payload = await this.task_form.process({payload: ''})
-            if(payload?.payload.redirect_url) {
-                window.location.href=payload.payload.redirect_url
+            let result = await this.task_form.process()
+            if(result?.redirect_url) {
+                window.location.href=result.redirect_url
             }
             this.is_processing = false
         }

@@ -208,4 +208,3 @@ markers = [
 ]
 norecursedirs = [".hypothesis", "atlassian", "test_playwright"]
 addopts = "-v --tb=short -m 'not ai and not playwright'"
-

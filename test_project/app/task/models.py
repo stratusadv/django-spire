@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.core.handlers.wsgi import WSGIRequest
+
+from django_glue.bound_attributes.decorators import bind_attribute
+from django_glue.access.access import GlueAccess
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
@@ -22,6 +26,11 @@ class Task(ActivityMixin, HistoryModelMixin):
     objects = TaskQuerySet().as_manager()
     services = TaskService()
 
+    @bind_attribute(access=GlueAccess.CHANGE)
+    def complete(self, request: WSGIRequest) -> None:
+        self.status = TaskStatusChoices.DONE
+        self.services.save_model_obj(user=request.user, obj=self, status=self.status)
+
     def __str__(self):
         return self.name
 
@@ -35,6 +44,11 @@ class Task(ActivityMixin, HistoryModelMixin):
         verbose_name = 'Task'
         verbose_name_plural = 'Tasks'
         db_table = 'test_project_task_task'
+
+    class GlueMeta:
+        attributes = [
+            ('services', {'access': GlueAccess.VIEW, 'perist_state': True}),
+        ]
 
 
 class TaskUser(ActivityMixin, HistoryModelMixin):

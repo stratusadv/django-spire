@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
+from django_glue.access.access import GlueAccess
+from test_project.app.task.services.factory_service import TaskFactoryService
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -12,6 +14,8 @@ if TYPE_CHECKING:
 
 class TaskService(BaseDjangoModelService['Task']):
     obj: Task
+
+    factory = TaskFactoryService()
 
     def save_model_obj(self, user: User, **field_data: dict) -> Task:
         obj, created = super().save_model_obj(**field_data)
@@ -23,3 +27,8 @@ class TaskService(BaseDjangoModelService['Task']):
         )
 
         return obj
+
+    class GlueMeta:
+        attributes = [
+            ('factory', {'access': GlueAccess.VIEW, 'perist_state': True}),
+        ]

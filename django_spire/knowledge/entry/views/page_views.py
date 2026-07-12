@@ -43,24 +43,18 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     breadcrumbs = []
 
-    while temp_collection.parent:
+    while temp_collection:
         breadcrumbs.append(
             {
-                'name': str(temp_collection.parent),
+                'name': str(temp_collection),
                 'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.parent.pk},
+                'view_kwargs': {'pk': temp_collection.pk},
             }
         )
         temp_collection = temp_collection.parent
 
     for crumb in reversed(breadcrumbs):
         nav.breadcrumbs.add(**crumb)
-
-    nav.breadcrumbs.add(
-        name=str(entry.collection),
-        view_name='django_spire:knowledge:collection:page:top_level',
-        view_kwargs={'pk': entry.collection.pk},
-    )
 
     nav.breadcrumbs.add(str(entry))
     nav.breadcrumbs.add('Delete')
