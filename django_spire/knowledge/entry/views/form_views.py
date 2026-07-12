@@ -54,24 +54,18 @@ def form_view(
 
     breadcrumbs = []
 
-    while temp_collection.parent:
+    while temp_collection:
         breadcrumbs.append(
             {
-                'name': str(temp_collection.parent),
+                'name': str(temp_collection),
                 'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.parent.pk},
+                'view_kwargs': {'pk': temp_collection.pk},
             }
         )
         temp_collection = temp_collection.parent
 
     for crumb in reversed(breadcrumbs):
         nav.breadcrumbs.add(**crumb)
-    
-    nav.breadcrumbs.add(
-        name=str(collection.name),
-        view_name='django_spire:knowledge:collection:page:top_level',
-        view_kwargs={'pk': collection_pk},
-    )
 
     if entry.name:
         nav.breadcrumbs.add(str(entry))
@@ -135,24 +129,18 @@ def import_form_view(
 
     breadcrumbs = []
 
-    while temp_collection.parent:
+    while temp_collection:
         breadcrumbs.append(
             {
-                'name': str(temp_collection.parent),
+                'name': str(temp_collection),
                 'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.parent.pk},
+                'view_kwargs': {'pk': temp_collection.pk},
             }
         )
         temp_collection = temp_collection.parent
 
     for crumb in reversed(breadcrumbs):
         nav.breadcrumbs.add(**crumb)
-
-    nav.breadcrumbs.add(
-        name=str(collection),
-        view_name='django_spire:knowledge:collection:page:top_level',
-        view_kwargs={'pk': collection.pk},
-    )
 
     nav.breadcrumbs.add('Import Files')
     context = nav.as_context()
