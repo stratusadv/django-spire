@@ -15,28 +15,36 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
         ></i>
-        <ul class="dropdown-menu py-0 bg-layer-one" aria-labelledby="dropdownMenuButton1">
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li>
+                <div class="dropdown-item-text text-center">
+                    {{ user.get_full_name }}
+                </div>
+            </li>
+            <li><hr class="dropdown-divider"></li>
             {% if request.user.is_superuser %}
-                <li class="py-0">
+                <li>
                     <a class="dropdown-item fs--1 bg-layer-three-hover"
                        href="{% url 'admin:index' %}" target="_blank">
                         Admin Panel
                     </a>
                 </li>
             {% endif %}
-            <li class="py-0">
+            <li>
                 <a href="{% url 'django_spire:auth:admin:password_change' %}"
                    class="dropdown-item fs--1 bg-layer-three-hover">
                     Change Password
                 </a>
             </li>
-            <li class="py-0">
+            <li>
                 {% include 'django_spire/navigation/top/menu/light_dark_selector.html' %}
             </li>
-            <li class="py-0">
+            <li><hr class="dropdown-divider"></li>
+            <li>
                 <a href="{% url 'django_spire:auth:redirect:logout' %}"
                    class="dropdown-item fs--1 bg-layer-three-hover">
                     Logout
+                    <i class="float-end bi bi-door-closed"></i>
                 </a>
             </li>
         </ul>
