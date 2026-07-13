@@ -30,5 +30,5 @@ class TaskService(BaseDjangoModelService['Task']):
 
     class GlueMeta:
         attributes = [
-            ('factory', {'access': GlueAccess.VIEW, 'perist_state': True}),
+            ('factory', GlueAccess.VIEW),
         ]
