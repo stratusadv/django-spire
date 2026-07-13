@@ -26,7 +26,3 @@ class TaskFactoryService(BaseDjangoModelService['Task']):
         )
         return {'success': True, 'new_task_id': new_task.id}
 
-    class GlueMeta:
-        attributes = [
-            ('duplicate', {'access': GlueAccess.CHANGE}),
-        ]
