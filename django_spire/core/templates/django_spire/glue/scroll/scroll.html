@@ -3,11 +3,11 @@
             searchQuery: '',
             sliceStart: 0,
             sliceStop: 30,
-            orderBy: 'name',
+            orderBy: '{% block scroll_queryset_order_by_field %}{% endblock %}',
             items: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
             get queryParams() {
                 return {
-                    filter: {name__icontains: this.searchQuery},
+                    filter: {{% block scroll_queryset_filter_field %}{% endblock %}__icontains: this.searchQuery},
                     slice: {start: this.sliceStart, stop: this.sliceStop},
                     order_by: this.orderBy,
                 };

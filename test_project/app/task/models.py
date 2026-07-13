@@ -15,7 +15,12 @@ from test_project.app.task.services.service import TaskService
 
 
 class Task(ActivityMixin, HistoryModelMixin):
+    parent = models.ForeignKey(
+        'self', blank=True, null=True, related_name='children', related_query_name='child', on_delete=models.CASCADE
+    )
+
     name = models.CharField(max_length=255)
+
     description = models.TextField(default='')
 
     status = models.CharField(

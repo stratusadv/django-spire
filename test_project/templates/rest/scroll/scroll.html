@@ -1,0 +1,78 @@
+{% extends 'django_spire/glue/scroll/scroll.html' %}
+
+{% block scroll_queryset_unique_name %}pirates{% endblock %}
+
+{% block scroll_header %}
+    <div class="row">
+        <div class="col">
+            <input
+                class="form-control"
+                placeholder="Search pirates ..."
+                type="search"
+                x-model.debounce="searchQuery"
+            >
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-secondary" @click="toggleOrder()">
+                Sort By Name
+            </button>
+        </div>
+    </div>
+
+    <div class="row py-2 border-bottom">
+        <div class="col-3 fw-bold">Name</div>
+        <div class="col-3 fw-bold">Username</div>
+        <div class="col-3 fw-bold">Email</div>
+        <div class="col-3 fw-bold text-end">Actions</div>
+    </div>
+{% endblock %}
+
+{% block scroll_template_item %}
+    <div
+        class="row border-bottom py-2"
+        x-data="{
+            duplicatePirate() {
+                item.services.factory.duplicate().then(() => {
+                    items.refresh();
+                    this.$dispatch('notify', {
+                        type: 'success',
+                        message: `Pirate '${item.first_name} ${item.last_name}' duplicated successfully!`
+                    });
+                });
+            }
+        }"
+    >
+        <div class="col-3">
+            <span x-text="`${item.first_name} ${item.last_name}`"></span>
+        </div>
+        <div class="col-3">
+            <span x-text="item.username"></span>
+        </div>
+        <div class="col-3">
+            <span x-text="item.email"></span>
+        </div>
+        <div class="col-3 text-end">
+            <a
+                class="btn btn-sm btn-outline-secondary"
+                :href="`{% url 'rest:form:update' pk=0 %}`.replace('0', item.id)"
+                title="Edit"
+            >
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a
+                class="btn btn-sm btn-outline-danger"
+                :href="`{% url 'rest:form:delete' pk=0 %}`.replace('0', item.id)"
+                title="Delete"
+            >
+                <i class="bi bi-trash"></i>
+            </a>
+            <button
+                class="btn btn-sm btn-outline-primary"
+                @click="duplicatePirate()"
+                title="Duplicate"
+            >
+                <i class="bi bi-copy"></i>
+            </button>
+        </div>
+    </div>
+{% endblock %}
