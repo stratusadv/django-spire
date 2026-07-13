@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 class CollectionTagService(BaseTagService['Collection']):
     obj: Collection
 
-    def process_and_set_tags(self):
+    def process_and_set_tags(self) -> None:
         collection_prompt = Prompt()
 
         collection_prompt.sub_heading(self.obj.name)

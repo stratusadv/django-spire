@@ -19,9 +19,9 @@ class Tag(models.Model):
         verbose_name_plural = 'Tags'
 
     def __init__(self, *args, **kwargs) -> None:
-        name = str(kwargs.get('name'))
+        name = kwargs.get('name')
         if name:
-            kwargs['name'] = slugify(name)
+            kwargs['name'] = slugify(str(name))
 
         super().__init__(*args, **kwargs)
 

@@ -17,15 +17,15 @@ class BaseTagService(BaseDjangoModelService[TypeDjangoModel], ABC, Generic[TypeD
     obj: TypeDjangoModel
 
     @abstractmethod
-    def process_and_set_tags(self):
+    def process_and_set_tags(self) -> None:
         raise NotImplementedError
 
-    def add_tags_from_tag_set(self, tag_set: set[str]):
+    def add_tags_from_tag_set(self, tag_set: set[str]) -> None:
         self._update_global_tags_from_set(tag_set)
 
         self.obj.tags.add(*Tag.objects.in_tag_set(tag_set))
 
-    def clear_tags(self):
+    def clear_tags(self) -> None:
         self.obj.tags.clear()
 
     def get_matching_tags_from_tag_set(self, tag_set: set[str]) -> QuerySet:
@@ -56,17 +56,17 @@ class BaseTagService(BaseDjangoModelService[TypeDjangoModel], ABC, Generic[TypeD
     def has_tags_in_tag_set(self, tag_set: set[str]) -> bool:
         return self.obj.tag_set.issuperset(tag_set)
 
-    def remove_tags_by_tag_set(self, tag_set: set[str]):
+    def remove_tags_by_tag_set(self, tag_set: set[str]) -> None:
         tag_objects = Tag.objects.in_tag_set(tag_set)
 
         self.obj.tags.remove(*tag_objects)
 
-    def set_tags_from_tag_set(self, tag_set: set[str]):
+    def set_tags_from_tag_set(self, tag_set: set[str]) -> None:
         self._update_global_tags_from_set(tag_set)
 
         tag_objects = Tag.objects.in_tag_set(tag_set)
         self.obj.tags.set(tag_objects)
 
     @staticmethod
-    def _update_global_tags_from_set(tag_set: set[str]):
+    def _update_global_tags_from_set(tag_set: set[str]) -> None:
         Tag.add_tags([Tag(name=tag) for tag in tag_set])
