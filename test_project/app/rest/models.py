@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
+from django_glue import Glue
 
 from django_glue.access.access import GlueAccess
-from django_glue.bound_attributes.decorators import bind_attribute
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
@@ -40,7 +40,7 @@ class Pirate(ActivityMixin, HistoryModelMixin):
     objects = PirateQuerySet().as_manager()
     services = PirateService()
 
-    @bind_attribute(access=GlueAccess.CHANGE)
+    @Glue.Attribute(access=GlueAccess.CHANGE)
     def duplicate(self, request: WSGIRequest) -> dict:
         return self.services.factory.duplicate(request)
 

@@ -1,9 +1,24 @@
 {% extends 'django_spire/page/full_page.html' %}
 
+{% load django_spire_pagination %}
+
 {% block full_page_content %}
-    <div class="row">
-        <div class="col-12">
-            {% include 'django_spire/help_desk/card/ticket_list_card.html' %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="fs-1 fw-semi-bold">Tickets</h1>
+        <div>
+            <a href="{% url 'django_spire:help_desk:form:form' pk=0 %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus"></i> New Ticket
+            </a>
         </div>
     </div>
+
+{#{% block full_page_content %}#}
+{#    <div class="row">#}
+{#        <div class="col-12">#}
+{#            {% include 'django_spire/help_desk/card/ticket_list_card.html' %}#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}
+
+    {% include 'django_spire/help_desk/scroll/scroll.html' %}
 {% endblock %}

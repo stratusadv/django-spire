@@ -31,10 +31,10 @@
 {% block item_button %}
     {% url 'django_spire:help_desk:page:detail' pk=ticket.pk as detail_url %}
     {% if AuthController.help_desk.can_change %}
-        {% url 'django_spire:help_desk:form:update' pk=ticket.pk as update_url %}
+        {% url 'django_spire:help_desk:form:form' pk=ticket.pk as update_url %}
     {% endif %}
     {% if AuthController.help_desk.can_delete %}
-        {% url 'django_spire:help_desk:page:delete' pk=ticket.pk as delete_url %}
+        {% url 'django_spire:help_desk:form:form:delete' pk=ticket.pk as delete_url %}
     {% endif %}
     {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=detail_url edit_url=update_url delete_url=delete_url %}
 {% endblock %}

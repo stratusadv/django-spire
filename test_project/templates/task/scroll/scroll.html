@@ -1,6 +1,8 @@
 {% extends 'django_spire/glue/scroll/scroll.html' %}
 
+{% block scroll_queryset_order_by_field %}name{% endblock %}
 {% block scroll_queryset_unique_name %}tasks{% endblock %}
+{% block scroll_queryset_filter_field %}description{% endblock %}
 
 {% block scroll_header %}
     <div class="row">

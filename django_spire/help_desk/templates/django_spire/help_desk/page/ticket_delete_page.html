@@ -1,0 +1,24 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Delete Ticket</h5>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete the ticket "<strong>{{ ticket.name }}</strong>"?</p>
+            <p class="text-muted">This action cannot be undone.</p>
+        </div>
+        <div class="card-footer d-flex gap-2">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </form>
+            <a href="{{ return_url }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Cancel
+            </a>
+        </div>
+    </div>
+{% endblock %}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.db import models
 from django.contrib.auth.models import User
+from django_glue import Glue
 
 from django_spire.help_desk.querysets import HelpDeskTicketQuerySet
 from django_spire.help_desk.services.service import HelpDeskTicketService
@@ -35,7 +36,8 @@ class HelpDeskTicket(ActivityMixin, HistoryModelMixin):
     description = models.TextField()
 
     objects = HelpDeskTicketQuerySet.as_manager()
-    services = HelpDeskTicketService()
+    services = Glue.Attribute(HelpDeskTicketService(), access=Glue.Access.DELETE)
+
 
     def __str__(self):
         return f'Ticket #{self.pk}'

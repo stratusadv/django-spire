@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.handlers.wsgi import WSGIRequest
 
-from django_glue.bound_attributes.decorators import bind_attribute
+from django_glue import Glue
 from django_glue.access.access import GlueAccess
 
 from django_spire.history.activity.mixins import ActivityMixin
@@ -26,7 +26,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     objects = TaskQuerySet().as_manager()
     services = TaskService()
 
-    @bind_attribute(access=GlueAccess.CHANGE)
+    @Glue.Attribute(access=GlueAccess.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
         self.status = TaskStatusChoices.DONE
         self.services.save_model_obj(user=request.user, obj=self, status=self.status)

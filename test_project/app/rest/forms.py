@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class PirateModelForm(forms.ModelForm):
-    @Glue.attribute(Glue.Access.CHANGE)
+    @Glue.Attribute(access=Glue.Access.CHANGE)
     def process(self, request: HttpRequest, **kwargs) -> GlueResponse | None:
         if self.is_valid():
             pirate = Pirate.objects.create(**self.cleaned_data)
