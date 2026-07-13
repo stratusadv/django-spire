@@ -6,7 +6,7 @@
         async submit_form() {
             this.is_processing = true
             this.task_form.validate()
-            let result = await this.task_form.save_model_obj()
+            let result = await this.task_form.save_model_obj({time_of_day: 'Noon'})
             if(result?.redirect_url) {
                 window.location.href=result.redirect_url
             }

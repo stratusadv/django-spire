@@ -24,7 +24,7 @@ class TaskModelForm(ModelForm):
 
         return GlueResponse(
             messages=[
-                GlueMessage.error('Hello')
+                GlueMessage.error('Invalid Fields')
             ]
         )
 
