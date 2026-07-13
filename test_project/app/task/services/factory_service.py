@@ -2,22 +2,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.core.handlers.wsgi import WSGIRequest
-from django_glue.bound_attributes.decorators import bind_attribute
-from django_glue.access.access import GlueAccess
+from django_glue import Glue
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from test_project.app.task.choices import TaskStatusChoices
 
 if TYPE_CHECKING:
+    from django.http import HttpRequest
     from test_project.app.task.models import Task
 
 
 class TaskFactoryService(BaseDjangoModelService['Task']):
     obj: Task
 
-    @bind_attribute(access=GlueAccess.CHANGE)
-    def duplicate(self, request: WSGIRequest) -> dict:
+    @Glue.Attribute(access=Glue.Access.CHANGE)
+    def duplicate(self, request: HttpRequest) -> dict:
         new_task = self.obj_class.services.save_model_obj(
             user=request.user,
             name=f"{self.obj.name} (Copy)",
@@ -25,4 +24,3 @@ class TaskFactoryService(BaseDjangoModelService['Task']):
             status=TaskStatusChoices.NEW,
         )
         return {'success': True, 'new_task_id': new_task.id}
-

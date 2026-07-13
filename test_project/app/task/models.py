@@ -4,8 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.handlers.wsgi import WSGIRequest
 
-from django_glue.bound_attributes.decorators import bind_attribute
-from django_glue.access.access import GlueAccess
+from django_glue import Glue
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
@@ -24,30 +23,25 @@ class Task(ActivityMixin, HistoryModelMixin):
     )
 
     objects = TaskQuerySet().as_manager()
-    services = TaskService()
-
-    @bind_attribute(access=GlueAccess.CHANGE)
-    def complete(self, request: WSGIRequest) -> None:
-        self.status = TaskStatusChoices.DONE
-        self.services.save_model_obj(user=request.user, obj=self, status=self.status)
-
-    def __str__(self):
-        return self.name
-
-    def user_initials(self):
-        return [
-            f'{user_bridge.user.first_name} {user_bridge.user.id}'
-            for user_bridge in self.users.all()
-        ]
-
+    services = Glue.Attribute(TaskService(), access=Glue.Access.DELETE)
     class Meta:
         verbose_name = 'Task'
         verbose_name_plural = 'Tasks'
         db_table = 'test_project_task_task'
 
-    class GlueMeta:
-        attributes = [
-            ('services', {'access': GlueAccess.VIEW, 'perist_state': True}),
+    def __str__(self) -> str:
+        return self.name
+
+    @Glue.Attribute(access=Glue.Access.CHANGE)
+    def complete(self, request: WSGIRequest) -> None:
+        self.status = TaskStatusChoices.DONE
+        self.services.save_model_obj(user=request.user, obj=self, status=self.status)
+
+
+    def user_initials(self) -> list[str]:
+        return [
+            f'{user_bridge.user.first_name} {user_bridge.user.id}'
+            for user_bridge in self.users.all()
         ]
 
 

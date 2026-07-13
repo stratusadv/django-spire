@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django_glue import Glue
 from django_spire.contrib.constructor.service import BaseDjangoModelService
-from django_glue.access.access import GlueAccess
 from test_project.app.task.services.factory_service import TaskFactoryService
 
 if TYPE_CHECKING:
@@ -15,11 +15,10 @@ if TYPE_CHECKING:
 class TaskService(BaseDjangoModelService['Task']):
     obj: Task
 
-    factory = TaskFactoryService()
+    factory = Glue.Attribute(TaskFactoryService(), access=Glue.Access.DELETE)
 
     def save_model_obj(self, user: User, **field_data: dict) -> Task:
         obj, created = super().save_model_obj(**field_data)
-
         verb = 'created' if created else 'updated'
 
         obj.add_activity(
@@ -27,8 +26,3 @@ class TaskService(BaseDjangoModelService['Task']):
         )
 
         return obj
-
-    class GlueMeta:
-        attributes = [
-            ('factory', GlueAccess.VIEW),
-        ]
