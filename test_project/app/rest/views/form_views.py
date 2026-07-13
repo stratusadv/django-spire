@@ -74,7 +74,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
 
 def glue_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
     pirate = get_object_or_null_obj(models.Pirate, pk=pk)
-    form = forms.PirateGlueModelForm(request.POST or None, instance=pirate)
+    form = forms.PirateModelForm(request.POST or None, instance=pirate)
 
     Glue.form(request, 'pirate_model_form', form, Glue.Access.DELETE)
 

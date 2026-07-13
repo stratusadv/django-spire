@@ -10,6 +10,11 @@ from test_project.app.task.models import Task
 class TaskModelForm(ModelForm):
     @Glue.attribute(Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest, time_of_day: str | None = None) -> GlueResponse:
+        if len(self.data['name']) < 10:
+            return GlueResponse(messages=[
+                GlueMessage.warning('Your name is not long enough ... but I dont care!')
+            ])
+
         if self.is_valid():
             task = Task.services.save_model_obj(request.user, **self.cleaned_data)
 
@@ -19,10 +24,7 @@ class TaskModelForm(ModelForm):
 
         return GlueResponse(
             messages=[
-                GlueMessage(
-                    GlueMessage.Level.ERROR,
-                    'HELLO WORLD!'
-                )
+                GlueMessage.error('Hello')
             ]
         )
 
