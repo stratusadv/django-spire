@@ -1,11 +1,14 @@
 {% extends 'django_spire/page/full_page.html' %}
 
-{% load static %}
-
-{% block base_head_additional_js %}
-    <script type="application/javascript" src="{% static 'django_spire/js/session_controller.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-{% endblock %}
-
 {% block full_page_content %}
-    {% include 'rest/container/container.html' %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="fs-1 fw-semi-bold">Pirates</h1>
+        <div>
+            <a href="{% url 'rest:form:create' %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus"></i> New Pirate
+            </a>
+        </div>
+    </div>
+
+    {% include 'rest/scroll/scroll.html' %}
 {% endblock %}
