@@ -59,8 +59,6 @@
             <script type="application/javascript"
                     src="{% static 'django_spire/js/ajax.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript"
-                    src="{% static 'django_spire/js/dropdown.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-            <script type="application/javascript"
                     src="{% static 'django_spire/js/modal.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript"
                     src="{% static 'django_spire/js/notify.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
@@ -70,9 +68,6 @@
                     src="{% static 'django_spire/js/date.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
             <script type="application/javascript"
                     src="{% static 'django_spire/js/session.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
-
-            <script type="application/javascript"
-                    src="{% static 'django_spire/js/django_glue/helpers.js' %}?v={{ DJANGO_SPIRE_VERSION }}"></script>
 
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.15.x/dist/cdn.min.js"></script>
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.15.x/dist/cdn.min.js"></script>
@@ -115,6 +110,13 @@
     {% endblock %}
 
     {% django_glue_init %}
+    <script type="application/javascript">
+        Glue.onMessage(({messages}) => {
+            messages.forEach((message) => {
+                Spire.notify.dispatch({type: message.level_tag, message: message.message})
+            })
+        })
+    </script>
 {% endblock %}
 </body>
 </html>
