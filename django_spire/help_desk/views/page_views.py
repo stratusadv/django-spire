@@ -51,6 +51,7 @@ def ticket_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.breadcrumbs.add(str(ticket))
     context = nav.as_context()
     context['ticket'] = ticket
+
     return TemplateResponse(
         request, 'django_spire/help_desk/page/ticket_detail_page.html', context=context
     )

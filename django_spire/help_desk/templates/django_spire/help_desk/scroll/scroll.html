@@ -59,8 +59,8 @@
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                         :class="
-                            item.purpose === 'app' ? 'bg-warning' :
-                            item.purpose === 'comp' ? 'bg-success' :
+                            item.purpose === 'app' ? 'bg-success' :
+                            item.purpose === 'comp' ? 'bg-primary' :
                             'bg-primary'
                         "
                         x-text="{app: 'App', comp: 'Company'}[item.purpose]"
@@ -82,7 +82,7 @@
                         aria-expanded="false"
                         :class="
                             item.priority === 'low' ? 'bg-secondary' :
-                            item.priority === 'med' ? 'bg-success' :
+                            item.priority === 'med' ? 'bg-primary' :
                             item.priority === 'high' ? 'bg-warning' :
                             item.priority === 'urge' ? 'bg-danger' :
                             'bg-primary'
@@ -110,8 +110,8 @@
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                         :class="
-                            item.status === 'read' ? 'bg-warning' :
-                            item.status === 'prog' ? 'bg-secondary' :
+                            item.status === 'read' ? 'bg-secondary' :
+                            item.status === 'prog' ? 'bg-primary' :
                             item.status === 'done' ? 'bg-success' :
                             'bg-primary'
                         "

@@ -1,5 +1,5 @@
 {% if ticket.purpose == 'app'  %}
-    <span class="badge bg-accent text-white">{{ ticket.get_purpose_display }}</span>
+    <span class="badge bg-success text-white">{{ ticket.get_purpose_display }}</span>
 {% elif ticket.purpose == 'comp' %}
     <span class="badge bg-primary text-white">{{ ticket.get_purpose_display }}</span>
 {% endif %}

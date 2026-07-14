@@ -26,7 +26,7 @@ class HelpDeskTicketQuerySet(HistoryQuerySet):
         return queryset
 
     def complete(self) -> QuerySet:
-        return self.filter(status='com')
+        return self.filter(status='done')
 
     def prefetch_users(self) -> QuerySet:
         return self.prefetch_related('users__user')
@@ -41,10 +41,9 @@ class HelpDeskTicketQuerySet(HistoryQuerySet):
 
     def sort_by_column(self, sort_column: str, sort_direction: str = 'asc') -> QuerySet:
         sort_mapping = {
-            'name': 'name',
-            'status': 'status',
+            'user': 'user',
+            'description': 'description',
             'quantity': 'user_count',
-            'cost': 'calculated_cost',
             'date': 'created_datetime',
         }
 
