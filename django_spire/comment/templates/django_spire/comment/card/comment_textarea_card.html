@@ -1,7 +1,5 @@
-{% extends 'django_spire/card/card.html' %}
-
-{% block card_class %}p-1{% endblock %}
-
-{% block card_content %}
-    {% include 'comment/element/comment_textarea_element.html' %}
-{% endblock %}
+<div class="card">
+    <div class="card-body">
+        {% include 'django_spire/comment/element/comment_textarea_element.html' %}
+    </div>
+</div>

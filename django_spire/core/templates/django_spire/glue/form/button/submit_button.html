@@ -1,6 +1,7 @@
 <button
         class="btn btn-primary"
-        x-on:click="submit_form()"
+        @click="submit_form()"
+        type="button"
         x-show="!is_processing"
 >
     {% if button_text %}

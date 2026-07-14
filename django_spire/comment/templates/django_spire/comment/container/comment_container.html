@@ -2,14 +2,14 @@
 
 {% with model.active_comments as comment_list %}
     {% if has_comment_permission %}
-        {% include 'comment/card/comment_textarea_card.html' %}
+        {% include 'django_spire/comment/card/comment_textarea_card.html' %}
     {% endif %}
 
     {% for comment in comment_list %}
-        {% include 'comment/item/comment_item.html' %}
+        {% include 'django_spire/comment/item/comment_item.html' %}
     {% endfor %}
 
     {% if not comment_list and not has_comment_permission %}
-        {% include 'item/no_data_item.html' %}
+        {% include 'django_spire/item/no_data_item.html' %}
     {% endif %}
 {% endwith %}

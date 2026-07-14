@@ -27,10 +27,10 @@ from django_spire.help_desk.models import HelpDeskTicket
 class HelpDeskTicketModelForm(ModelForm):
     @Glue.Attribute(access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
-        # if len(self.data['description']) < 10:
-        #     return GlueResponse(
-        #         messages=[GlueMessage.warning('Your description is not long enough ... but I dont care!')]
-        #     )
+        if len(self.data['description']) < 10:
+            return GlueResponse(
+                messages=[GlueMessage.warning('Your description is not long enough ... but I do care!')]
+            )
 
         if self.is_valid():
             ticket = HelpDeskTicket.services.save_model_obj(request.user, **self.cleaned_data)
