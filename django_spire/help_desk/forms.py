@@ -33,7 +33,7 @@ class HelpDeskTicketModelForm(ModelForm):
             )
 
         if self.is_valid():
-            ticket = HelpDeskTicket.services.save_model_obj(request.user, **self.cleaned_data)
+            ticket = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
 
             return GlueResponse(
                 result={'redirect_url': reverse('django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk})}

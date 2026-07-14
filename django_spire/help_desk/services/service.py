@@ -18,26 +18,17 @@ class HelpDeskTicketService(BaseDjangoModelService['HelpDeskTicket']):
 
     notification: HelpDeskTicketNotificationService = HelpDeskTicketNotificationService()
 
-    # def create(self, created_by: User, **kwargs) -> HelpDeskTicket:
-    #     self.obj.created_by = created_by
-    #     self.obj, _ = self.obj.services.save_model_obj(**kwargs)
-    #
-    #     self.obj.services.notification.create_new_ticket_notifications()
-    #
-    #     return self.obj
-
     def save_model_obj(self, user: User, **field_data: dict) -> HelpDeskTicket:
         obj, created = super().save_model_obj(created_by=user, **field_data)
 
         verb = 'created' if created else 'updated'
 
         obj.add_activity(
-            user=user, verb=verb, information=f'{user.get_full_name()} {verb} task {obj.description}.'
+            user=user,
+            verb=verb,
+            information=f'{user.get_full_name()} {verb} task {obj.description}.',
         )
 
-        return obj
+        #     self.obj.services.notification.create_new_ticket_notifications()
 
-    class GlueMeta:
-        attributes = [
-            # ('factory', GlueAccess.VIEW),
-        ]
+        return obj

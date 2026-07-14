@@ -5,23 +5,23 @@
 {% block scroll_queryset_filter_field %}description{% endblock %}
 
 {% block scroll_header %}
-        <div class="row">
-            <div class="col">
-                <input class="form-control" placeholder="Search Tickets ..." type="search" x-model.debounce="searchQuery">
-            </div>
-            <div class="col">
-{#                <button class="btn btn-outline-secondary form-control" @click="toggleOrder()"> Sort By Name</button>#}
-            </div>
+    <div class="row">
+        <div class="col">
+            <input class="form-control" placeholder="Search Tickets ..." type="search" x-model.debounce="searchQuery">
         </div>
+        <div class="col">
+            {#                <button class="btn btn-outline-secondary form-control" @click="toggleOrder()"> Sort By Name</button>#}
+        </div>
+    </div>
 
     <div class="row py-2">
         <div class="col-5 fw-bold">
             Description
         </div>
-        <div class="col-2 fw-bold">
+        <div class="col-1 fw-bold">
             Created By
         </div>
-        <div class="col-2 fw-bold">
+        <div class="col-1 fw-bold">
             Created At
         </div>
         <div class="col-1 fw-bold">
@@ -33,6 +33,9 @@
         <div class="col-1 fw-bold">
             Status
         </div>
+        <div class="col-2 fw-bold text-end">
+            Actions
+        </div>
     </div>
 {% endblock %}
 
@@ -43,49 +46,100 @@
                 <span x-text="item.description"></span>
             </a>
         </div>
-{#        <div class="col-2">#}
-{#            <div class="dropdown">#}
-{#                <button class="btn btn-sm dropdown-toggle text-white badge border-0"#}
-{#                        type="button"#}
-{#                        data-bs-toggle="dropdown"#}
-{#                        aria-expanded="false"#}
-{#                        :class="#}
-{#                            item.status === 'inp' ? 'bg-secondary' :#}
-{#                            item.status === 'com' ? 'bg-success' :#}
-{#                            item.status === 'can' ? 'bg-warning' :#}
-{#                            'bg-primary'#}
-{#                        "#}
-{#                        x-text="{new: 'New', inp: 'In Progress', com: 'Complete', can: 'Cancelled'}[item.status]"#}
-{#                >#}
-{#                </button>#}
-{#                <ul class="dropdown-menu">#}
-{#                    <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'new'; item.save()">New</a></li>#}
-{#                    <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'inp'; item.save()">In#}
-{#                        Progress</a></li>#}
-{#                    <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'com'; item.save()">Complete</a>#}
-{#                    </li>#}
-{#                    <li><a class="dropdown-item" href="#"#}
-{#                           @click.prevent="item.status = 'can'; item.save()">Cancelled</a></li>#}
-{#                </ul>#}
-{#            </div>#}
-{#        </div>#}
-        <div class="col-2">
-            <span x-text="item.purpose"></span>
+        <div class="col-1">
+            <span x-text="item.created_by.username"></span>
         </div>
-{#        <div class="col-2 text-end">#}
-{#            <button class="btn btn-sm btn-outline-success" @click="item.complete()" x-show="item.status !== 'com'">#}
-{#                <i class="bi bi-check-lg"></i>#}
-{#            </button>#}
-{#            <button class="btn btn-sm btn-outline-primary" @click="duplicateTask()" title="Duplicate Task">#}
-{#                <i class="bi bi-copy"></i>#}
-{#            </button>#}
-{#            <a class="btn btn-sm btn-outline-secondary"#}
-{#               :href="`{% url 'django_spire:help_desk:form:form' pk=0 %}`.replace('0', item.id)">#}
-{#                <i class="bi bi-pencil"></i>#}
-{#            </a>#}
-{#            <a class="btn btn-sm btn-outline-danger" :href="`{% url 'django_spire:help_desk:form:delete' pk=0 %}`.replace('0', item.id)">#}
-{#                <i class="bi bi-trash"></i>#}
-{#            </a>#}
-{#        </div>#}
+        <div class="col-1">
+            <span x-text="item.created_datetime"></span>
+        </div>
+        <div class="col-1">
+            <div class="dropdown">
+                <button class="btn btn-sm dropdown-toggle text-white badge border-0"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        :class="
+                            item.purpose === 'app' ? 'bg-warning' :
+                            item.purpose === 'comp' ? 'bg-success' :
+                            'bg-primary'
+                        "
+                        x-text="{app: 'App', comp: 'Company'}[item.purpose]"
+                >
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" @click.prevent="item.purpose = 'app'; item.save()">App</a>
+                    </li>
+                    <li><a class="dropdown-item" href="#"
+                           @click.prevent="item.purpose = 'comp'; item.save()">Company</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-1">
+            <div class="dropdown">
+                <button class="btn btn-sm dropdown-toggle text-white badge border-0"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        :class="
+                            item.priority === 'low' ? 'bg-secondary' :
+                            item.priority === 'med' ? 'bg-success' :
+                            item.priority === 'high' ? 'bg-warning' :
+                            item.priority === 'urge' ? 'bg-danger' :
+                            'bg-primary'
+                        "
+                        x-text="{low: 'Low', med: 'Medium', high: 'High', urge: 'Urgent'}[item.priority]"
+                >
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" @click.prevent="item.priority = 'low'; item.save()">Low</a>
+                    </li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="item.priority = 'med'; item.save()">Medium</a>
+                    </li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="item.priority = 'high'; item.save()">High</a>
+                    </li>
+                    <li><a class="dropdown-item" href="#"
+                           @click.prevent="item.priority = 'urge'; item.save()">Urgent</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-1">
+            <div class="dropdown">
+                <button class="btn btn-sm dropdown-toggle text-white badge border-0"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        :class="
+                            item.status === 'read' ? 'bg-warning' :
+                            item.status === 'prog' ? 'bg-secondary' :
+                            item.status === 'done' ? 'bg-success' :
+                            'bg-primary'
+                        "
+                        x-text="{read: 'Ready', prog: 'In Progress', done: 'Done'}[item.status]"
+                >
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'read'; item.save()">Ready</a>
+                    </li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'prog'; item.save()">In
+                        Progress</a></li>
+                    <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'done'; item.save()">Done</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-2 text-end">
+            <button class="btn btn-sm btn-outline-success" @click="item.complete()" x-show="item.status !== 'done'">
+                <i class="bi bi-check-lg"></i>
+            </button>
+            <a class="btn btn-sm btn-outline-secondary"
+               :href="`{% url 'django_spire:help_desk:form:form' pk=0 %}`.replace('0', item.id)">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a class="btn btn-sm btn-outline-danger"
+               :href="`{% url 'django_spire:help_desk:form:delete' pk=0 %}`.replace('0', item.id)">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
     </div>
 {% endblock %}
