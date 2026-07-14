@@ -7,7 +7,6 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
-
 from django_glue import Glue
 
 from test_project.app.task import models
@@ -40,6 +39,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     return TemplateResponse(request=request, context=context, template='task/page/list_page.html')
 
 
+@login_required()
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     task = get_object_or_404(models.Task, pk=pk)
 
