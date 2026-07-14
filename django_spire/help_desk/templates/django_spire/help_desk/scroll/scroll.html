@@ -1,17 +1,25 @@
 {% extends 'django_spire/glue/scroll/scroll.html' %}
 
-{% block scroll_queryset_order_by_field %}status{% endblock %}
+{% block scroll_queryset_order_by_field %}description{% endblock %}
 {% block scroll_queryset_unique_name %}tickets{% endblock %}
 {% block scroll_queryset_filter_field %}description{% endblock %}
 
 {% block scroll_header %}
     <div class="row">
-        <div class="col">
+        <div class="col-6">
             <input class="form-control" placeholder="Search Tickets ..." type="search" x-model.debounce="searchQuery">
         </div>
         <div class="col">
-            {#                <button class="btn btn-outline-secondary form-control" @click="toggleOrder()"> Sort By Name</button>#}
+            <select class="form-select form-select-sm" x-model="orderBy">
+                <option value="description">Description</option>
+                <option value="purpose">Purpose</option>
+                <option value="priority">Priority</option>
+                <option value="status">Status</option>
+            </select>
         </div>
+{#        <div class="col">#}
+{#                        <button class="btn btn-outline-success-secondary form-control" @click="toggleOrder()">Sort by Name</button>#}
+{#        </div>#}
     </div>
 
     <div class="row py-2">
