@@ -8,14 +8,22 @@ from django_spire.help_desk.tests.factories import create_test_helpdesk_ticket
 
 class HelpDeskFormUrlsTestCase(BaseTestCase):
     def test_helpdesk_ticket_form_create_url_path(self):
-        response = self.client.get(path=reverse('django_spire:help_desk:form:create'))
+        response = self.client.get(
+            path=reverse(viewname='django_spire:help_desk:form:form', kwargs={'pk': 0})
+        )
         assert response.status_code == 200
 
     def test_helpdesk_ticket_form_update_url_path(self):
         response = self.client.get(
             path=reverse(
-                'django_spire:help_desk:form:update',
+                viewname='django_spire:help_desk:form:form',
                 kwargs={'pk': create_test_helpdesk_ticket().pk},
             )
+        )
+        assert response.status_code == 200
+
+    def test_helpdesk_ticket_form_delete_url_path(self):
+        response = self.client.get(
+            path=reverse('django_spire:help_desk:form:delete', kwargs={'pk': create_test_helpdesk_ticket().pk})
         )
         assert response.status_code == 200
