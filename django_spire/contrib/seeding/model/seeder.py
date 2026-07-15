@@ -21,7 +21,7 @@ class classproperty:
         return self.fget(owner)
 
 
-class Seeder(ABC):
+class BaseModelSeeder(ABC):
     model_class = None
 
     fields = None

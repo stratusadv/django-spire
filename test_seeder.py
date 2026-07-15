@@ -1,0 +1,52 @@
+import os
+import random
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
+os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
+
+application = get_wsgi_application()
+
+from test_project.app.task.models import Task  # noqa
+
+from django_spire.contrib.seeder import Seeder  # noqa
+
+
+def random_boolean(true_weight: float = 0.5) -> bool:
+    number = random.random()
+    return number <= true_weight
+
+
+class TaskSeeder(Seeder):
+    model_class = Task
+
+    fields_seeds = {
+        # 'id': Seeder.exclude(),
+        # 'parent_id': Seeder.exclude(),
+        'name': Seeder.fake.sentence(),
+        'description': Seeder.llm.automatic(str),
+        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.custom.callable(random_boolean, true_weight=0.8),
+    }
+
+    def __post_seed__(self) -> None:
+        print('POST SEEDING LIKE A BOSS!')
+
+    def __post_seed_database__(self) -> None:
+        print('POST DATABASE LIKE A BOSS!!!!!')
+
+
+task_seeder = TaskSeeder(count=100)
+
+task_seeder.seed()
+
+task_seeder.seed_database()
+
+for seed in task_seeder.seeds:
+    seed['name'] = 'MR/MS' + seed['name']
+
+
+print(f'{task_seeder.queryset.filter(is_deleted=False).count()=}')
+print(f'{Task.objects.all().count()=}')
