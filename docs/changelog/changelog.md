@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.10
+
+### Changes
+- Raise error when field fails to cast in XML reader
+
 ## v0.32.9
 
 ### Fixes

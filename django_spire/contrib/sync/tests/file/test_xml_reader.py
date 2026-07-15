@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from django_spire.contrib.sync.file.exceptions import FileSyncParseError
 from django_spire.contrib.sync.file.reader.xml import XmlField, XmlListField, XmlReader
 
 
@@ -106,3 +107,47 @@ def test_empty_elements(reader: XmlReader) -> None:
 
     assert units[0]['misc_1'] == ''
     assert units[0]['public_comment'] == ''
+
+
+def test_cast_failure_raises_without_fallback(tmp_path: Path) -> None:
+    path = tmp_path / 'units.xml'
+    path.write_text(
+        '<Units><Unit><StockNumber>1</StockNumber><Year>soon</Year></Unit></Units>'
+    )
+
+    reader = XmlReader(
+        record_path='.//Unit',
+        fields=[
+            XmlField(key='stock_number', path='StockNumber'),
+            XmlField(key='year', path='Year', cast=int, default='0'),
+        ],
+    )
+
+    with pytest.raises(FileSyncParseError):
+        reader.read(path)
+
+
+def test_cast_failure_falls_back_to_default_when_opted_in(tmp_path: Path) -> None:
+    path = tmp_path / 'units.xml'
+    path.write_text(
+        '<Units><Unit><StockNumber>1</StockNumber><Year>soon</Year></Unit></Units>'
+    )
+
+    reader = XmlReader(
+        record_path='.//Unit',
+        fields=[
+            XmlField(key='stock_number', path='StockNumber'),
+            XmlField(
+                key='year',
+                path='Year',
+                cast=int,
+                default='0',
+                cast_fallback_to_default=True,
+            ),
+        ],
+    )
+
+    units = reader.read(path)
+
+    assert units[0]['stock_number'] == '1'
+    assert units[0]['year'] == 0
