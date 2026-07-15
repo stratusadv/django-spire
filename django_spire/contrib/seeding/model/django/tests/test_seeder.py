@@ -45,18 +45,18 @@ class TestProductSeeder(TestCase):
     def test_field_override_applies(self) -> None:
         override_time = now()
 
-        result = ProductSeeder.seed(count=1, fields={'updated_at': ('static', override_time)})
+        result = ProductSeeder.seed_to_list(count=1, fields={'updated_at': ('static', override_time)})
 
         assert result[0].updated_at == override_time
 
     def test_raises_for_invalid_field(self) -> None:
         with pytest.raises(Exception) as exc_info:
-            ProductSeeder.seed(count=1, fields={'not_a_field': ('static', 'value')})
+            ProductSeeder.seed_to_list(count=1, fields={'not_a_field': ('static', 'value')})
 
         assert 'not_a_field' in str(exc_info.value)
 
     def test_seeds_three_objects(self) -> None:
-        result = ProductSeeder.seed(count=3)
+        result = ProductSeeder.seed_to_list(count=3)
 
         assert len(result) == 3
 

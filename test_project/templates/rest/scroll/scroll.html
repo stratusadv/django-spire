@@ -2,6 +2,8 @@
 
 {% block scroll_queryset_unique_name %}pirates{% endblock %}
 
+{% block scroll_queryset_filter_field %}first_name{% endblock %}
+
 {% block scroll_header %}
     <div class="row">
         <div class="col">
@@ -54,7 +56,7 @@
         <div class="col-3 text-end">
             <a
                 class="btn btn-sm btn-outline-secondary"
-                :href="`{% url 'rest:form:update' pk=0 %}`.replace('0', item.id)"
+                :href="`{% url 'rest:form:form' pk=0 %}`.replace('0', item.id)"
                 title="Edit"
             >
                 <i class="bi bi-pencil"></i>

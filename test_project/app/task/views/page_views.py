@@ -18,22 +18,16 @@ if TYPE_CHECKING:
 
 @login_required()
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    tasks = models.Task.objects.active().prefetch_users()
+    tasks = models.Task.objects.active().top_level().prefetch_users()
+    child_tasks = models.Task.objects.active().children().prefetch_users()
 
-    search = request.GET.get('search')
-    if search:
-        tasks = tasks.search(search)
-
-    paginated_tasks = Paginator(tasks.order_by('name'), 10).get_page(request.GET.get('page', 1))
-
-    Glue.model(request, 'task', models.Task())
     Glue.queryset(request, 'tasks', tasks, Glue.Access.CHANGE)
+    Glue.queryset(request, 'child_tasks', child_tasks, Glue.Access.CHANGE)
 
     nav = TaskNavigation()
     nav.set_page_title_from_model_plural_name(models.Task)
 
     context = nav.as_context()
-    context['tasks'] = paginated_tasks
     context['task_count'] = tasks.count()
 
     return TemplateResponse(request=request, context=context, template='task/page/list_page.html')

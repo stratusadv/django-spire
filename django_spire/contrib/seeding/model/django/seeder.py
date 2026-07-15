@@ -12,7 +12,7 @@ from django_spire.contrib.seeding.field.django.seeder import (
     DjangoFieldLlmSeeder,
 )
 from django_spire.contrib.seeding.field.static import StaticFieldSeeder
-from django_spire.contrib.seeding.model.base import BaseModelSeeder
+from django_spire.contrib.seeding.model.seeder import Seeder
 from django_spire.contrib.seeding.model.django.config import DjangoModelFieldsConfig
 
 if TYPE_CHECKING:
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 TypeModel = TypeVar('TypeModel', bound=Model)
 
 
-class DjangoModelSeeder(BaseModelSeeder):
+class DjangoModelSeeder(Seeder):
     field_config_class = DjangoModelFieldsConfig
 
     model_class: type[Model]
@@ -56,5 +56,5 @@ class DjangoModelSeeder(BaseModelSeeder):
 
     @classmethod
     def seed_database(cls, count: int = 1, fields: dict | None = None) -> list[TypeModel]:
-        model_objects = cls.seed(count, fields)
+        model_objects = cls.seed_to_list(count, fields)
         return cls.model_class.objects.bulk_create(model_objects)

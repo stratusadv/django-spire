@@ -41,4 +41,4 @@ class FieldOverride:
         return self
 
     def seed(self, count: int = 1) -> list:
-        return self.seeder_class.seed(count=count, fields=self.overrides)
+        return self.seeder_class.seed_to_list(count=count, fields=self.overrides)

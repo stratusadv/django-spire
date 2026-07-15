@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.models import User
 from django.db.models import Model
 
@@ -11,8 +13,34 @@ class TaskModelSeeder(DjangoModelSeeder):
 
     fields = {
         'id': 'exclude',
+        'parent_id': 'exclude',
         'name': ('faker', 'sentence', {'nb_words': 5}),
-        'description': ('faker'),
+        'description': ('faker',),
+        'created_datetime': (
+            'custom',
+            'date_time_between',
+            {'start_date': '-30d', 'end_date': 'now'},
+        ),
+        'is_active': True,
+        'is_deleted': False,
+    }
+
+    default_to = 'faker'
+
+
+class SubTaskModelSeeder(DjangoModelSeeder):
+    model_class = Task
+    cache_name = 'queryset_sub_task_seeder'
+
+    fields = {
+        'id': 'exclude',
+        'parent_id': (
+            'faker',
+            'random_element',
+            {'elements': Task.objects.filter(parent_id=None).values_list('id', flat=True)},
+        ),
+        'name': ('faker', 'sentence', {'nb_words': 5}),
+        'description': ('faker',),
         'created_datetime': (
             'custom',
             'date_time_between',
@@ -31,8 +59,16 @@ class TaskUserModelSeeder(DjangoModelSeeder):
 
     fields = {
         'id': 'exclude',
-        'user_id': 'exclude',
-        'task_id': 'exclude',
+        'user_id': (
+            'faker',
+            'random_element',
+            {'elements': User.objects.all().values_list('id', flat=True)},
+        ),
+        'task_id': (
+            'faker',
+            'random_element',
+            {'elements': Task.objects.filter(parent_id=None).values_list('id', flat=True)},
+        ),
         'role': 'faker',
         'created_datetime': (
             'custom',
@@ -44,17 +80,3 @@ class TaskUserModelSeeder(DjangoModelSeeder):
     }
 
     default_to = 'faker'
-
-    @classmethod
-    def seed_database(cls, count=1, fields: dict | None = None) -> list[Model]:
-        if fields is None:
-            fields = {}
-
-        return super().seed_database(
-            count=count,
-            fields=fields
-            | {
-                'user_id': ('custom', 'fk_in_order', {'model_class': User}),
-                'task_id': ('custom', 'fk_random', {'model_class': Task}),
-            },
-        )

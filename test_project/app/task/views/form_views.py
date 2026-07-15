@@ -22,7 +22,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     task = get_object_or_null_obj(models.Task, pk=pk)
 
     nav = TaskNavigation()
-    nav.set_page_title_from_model_instance_form_action(task)
+    nav.set_page_title_to_form_action_from_model_instance(task)
     nav.breadcrumbs.add(f'{task.name}' if task.pk else 'New Task (With Glue)')
 
     form = forms.TaskModelForm(request.POST or None, instance=task)

@@ -4,9 +4,22 @@ from django.db.models import Count, F, FloatField, Q, QuerySet, Value
 from django.db.models.functions import Cast
 
 from django_spire.history.querysets import HistoryQuerySet
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 class TaskQuerySet(HistoryQuerySet):
+    def by_user(self, user: User) -> TaskQuerySet:
+        return self.filter(user__user=user)
+
+    def top_level(self) -> QuerySet:
+        return self.filter(parent__isnull=True)
+
+    def children(self) -> QuerySet:
+        return self.filter(parent__isnull=False)
+
     def annotate_calculated_cost(self) -> QuerySet:
         return self.annotate(calculated_cost=Cast(F('id') * Value(100), FloatField()))
 

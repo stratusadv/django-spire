@@ -11,6 +11,11 @@ class DuckSeeder(DjangoModelSeeder):
         'id': 'exclude',
         'name': ('faker', 'first_name'),
         'color': ('faker', 'hex_color'),
+        'created_datetime': (
+            'custom',
+            'date_time_between',
+            {'start_date': '-30d', 'end_date': 'now'},
+        ),
         'is_active': True,
         'is_deleted': False,
     }

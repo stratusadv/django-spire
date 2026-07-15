@@ -21,7 +21,7 @@ class classproperty:
         return self.fget(owner)
 
 
-class BaseModelSeeder(ABC):
+class Seeder(ABC):
     model_class = None
 
     fields = None
@@ -93,7 +93,7 @@ class BaseModelSeeder(ABC):
             seeder = seeder_cls(field_config.fields, field_config.default_to)
 
             if len(seeder.seeder_fields) > 0:
-                seed_data.append(seeder.seed(cls, count))
+                seed_data.append(seeder.seed_to_list(cls, count))
 
         formatted_seed_data = [{} for _ in range(count)]
 
@@ -107,5 +107,5 @@ class BaseModelSeeder(ABC):
         return formatted_seed_data
 
     @classmethod
-    def seed(cls, count: int = 1, fields: dict | None = None) -> list:
+    def seed_to_list(cls, count: int = 1, fields: dict | None = None) -> list:
         return [cls.model_class(**seed_data) for seed_data in cls.seed_data(count, fields)]

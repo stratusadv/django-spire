@@ -22,7 +22,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     ticket = get_object_or_null_obj(HelpDeskTicket, pk=pk)
 
     nav = HelpDeskNavigation()
-    nav.set_page_title_from_model_instance_form_action(ticket)
+    nav.set_page_title_to_form_action_from_model_instance(ticket)
     nav.breadcrumbs.add('Tickets', 'django_spire:help_desk:page:list')
 
     if pk:
