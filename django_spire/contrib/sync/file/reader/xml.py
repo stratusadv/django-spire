@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TYPE_CHECKING
@@ -16,12 +18,16 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
 
+logger = logging.getLogger(__name__)
+
+
 @dataclass
 class XmlField:
     key: str
     path: str
     cast: type = str
     default: str = ''
+    cast_fallback_to_default: bool = False
 
 
 @dataclass
@@ -76,12 +82,23 @@ class XmlReader(Reader):
             try:
                 record[f.key] = f.cast(text)
             except (ValueError, TypeError) as exc:
-                message = (
-                    f'Failed to cast field {f.key!r} with value '
-                    f'{text!r} to {f.cast.__name__}'
+                if not f.cast_fallback_to_default:
+                    message = (
+                        f'Failed to cast field {f.key!r} with value '
+                        f'{text!r} to {f.cast.__name__}'
+                    )
+
+                    raise FileSyncParseError(message) from exc
+
+                logger.warning(
+                    'Cast failed for field %r with value %r; '
+                    'falling back to default %r',
+                    f.key,
+                    text,
+                    f.default,
                 )
 
-                raise FileSyncParseError(message) from exc
+                record[f.key] = f.cast(f.default)
 
         for f in self._list_fields:
             elements = element.findall(f.path)
