@@ -29,6 +29,6 @@ class HelpDeskTicketService(BaseDjangoModelService['HelpDeskTicket']):
             information=f'{user.get_full_name()} {verb} task {obj.description}.',
         )
 
-        #     self.obj.services.notification.create_new_ticket_notifications()
+        self.obj.services.notification.create_new_ticket_notifications()
 
         return obj

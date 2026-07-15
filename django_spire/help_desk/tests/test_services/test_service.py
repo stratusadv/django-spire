@@ -17,27 +17,26 @@ class HelpDeskTicketServiceTests(BaseTestCase):
         super().setUp()
         self.ticket = create_test_helpdesk_ticket()
 
-    def test_save_model_obj_updates_existing(self):
+    def test_save_model_obj_updates_purpose(self):
         self.ticket.services.obj = self.ticket
-        updated_ticket, created = self.ticket.services.save_model_obj(
-            description='Updated description'
+        updated_ticket = self.ticket.services.save_model_obj(
+            user=self.super_user, priority=HelpDeskTicketPurposeChoices.COMPANY
         )
 
-        assert created is False
-        assert updated_ticket.description == 'Updated description'
+        assert updated_ticket.priority == HelpDeskTicketPurposeChoices.COMPANY
 
     def test_save_model_obj_updates_priority(self):
         self.ticket.services.obj = self.ticket
-        updated_ticket, _ = self.ticket.services.save_model_obj(
-            priority=HelpDeskTicketPriorityChoices.URGENT
+        updated_ticket = self.ticket.services.save_model_obj(
+            user=self.super_user, priority=HelpDeskTicketPriorityChoices.URGENT
         )
 
         assert updated_ticket.priority == HelpDeskTicketPriorityChoices.URGENT
 
     def test_save_model_obj_updates_status(self):
         self.ticket.services.obj = self.ticket
-        updated_ticket, _ = self.ticket.services.save_model_obj(
-            status=HelpDeskTicketStatusChoices.DONE
+        updated_ticket = self.ticket.services.save_model_obj(
+            user=self.super_user, status=HelpDeskTicketStatusChoices.DONE
         )
 
         assert updated_ticket.status == HelpDeskTicketStatusChoices.DONE
@@ -49,10 +48,11 @@ class HelpDeskTicketServiceTests(BaseTestCase):
     def test_create_sets_created_by(self, _mock_notifications: MagicMock):
         ticket = HelpDeskTicket()
 
-        created_ticket = ticket.services.create(
-            created_by=self.super_user,
+        created_ticket = ticket.services.save_model_obj(
+            user=self.super_user,
             purpose=HelpDeskTicketPurposeChoices.APP,
             priority=HelpDeskTicketPriorityChoices.LOW,
+            status=HelpDeskTicketStatusChoices.READY,
             description='Test ticket',
         )
 
@@ -65,10 +65,11 @@ class HelpDeskTicketServiceTests(BaseTestCase):
     def test_create_calls_notification_service(self, mock_notifications: MagicMock):
         ticket = HelpDeskTicket()
 
-        ticket.services.create(
-            created_by=self.super_user,
+        ticket.services.save_model_obj(
+            user=self.super_user,
             purpose=HelpDeskTicketPurposeChoices.APP,
             priority=HelpDeskTicketPriorityChoices.LOW,
+            status=HelpDeskTicketStatusChoices.READY,
             description='Test ticket',
         )
 
@@ -81,10 +82,11 @@ class HelpDeskTicketServiceTests(BaseTestCase):
     def test_create_returns_ticket(self, _mock_notifications: MagicMock):
         ticket = HelpDeskTicket()
 
-        created_ticket = ticket.services.create(
-            created_by=self.super_user,
+        created_ticket = ticket.services.save_model_obj(
+            user=self.super_user,
             purpose=HelpDeskTicketPurposeChoices.APP,
             priority=HelpDeskTicketPriorityChoices.LOW,
+            status=HelpDeskTicketStatusChoices.READY,
             description='Test ticket',
         )
 
