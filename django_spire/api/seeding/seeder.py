@@ -1,15 +1,22 @@
-from __future__ import annotations
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
+os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
+
+application = get_wsgi_application()
 
 from django_spire.api import models
-from django_spire.contrib.seeding import DjangoModelSeeder
+from django_spire.contrib.seeding import Seeder
 
 
-class ApiAccessSeeder(DjangoModelSeeder):
+class ApiAccessSeeder(Seeder):
     model_class = models.ApiAccess
-    fields = {
-        'id': 'exclude',
-        'name': ('llm', 'A Short name to identify an API access key, like a fake client name etc.'),
-        'permission': ('static', 1),
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'name': Seeder.llm(str),
+        'permission': Seeder.static(1),
     }
 
     @staticmethod
@@ -17,3 +24,10 @@ class ApiAccessSeeder(DjangoModelSeeder):
         for i, api_access in enumerate(models.ApiAccess.objects.all(), start=1):
             api_access.permission = min(i, 4)
             api_access.set_key_and_save(f'stratus{i}')
+
+
+api_seeder = ApiAccessSeeder(count=5)
+
+api_seeder.seed_database()
+
+api_seeder.update_hashed_keys()

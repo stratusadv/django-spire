@@ -7,42 +7,38 @@ os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
 
 application = get_wsgi_application()
 
-from django_spire.auth.user.tests.factories import create_super_user
+from django_spire.auth.user.tests.factories import create_super_user # noqa
 
 create_super_user()
 
-print('Seeding Users')
-from django_spire.auth.seeding.seed import *
+print('Seeding Users') # not yet...
+from django_spire.auth.seeding.seed import * # noqa
 
-print('Seeding Api Data...')
-from django_spire.api.seeding.seed import *
+from django_spire.api.seeding.seed import * # noqa
 
-print('Seeding Celery Stalks...')
-from test_project.app.celery.seeding.seed import *
+print('Seeding Celery Stalks...') # not yet...
+from test_project.app.celery.seeding.seed import * # noqa
 
-print('Seeding Help Desk Data...')
-from test_project.app.help_desk.seeding.seed import *
-
-print('Seeding Query Set Filtering Models')
-from test_project.app.task.seeding.seed import *
+from test_project.app.help_desk.seeding.seed import * # noqa
 
 # print('Seeding Knowledge Data...')
-# from django_spire.knowledge.seeding.seed import *
+# from django_spire.knowledge.seeding.seed import * # noqa
 
 # print('Seeding AI Context Data...')
-# from django_spire.ai.context.seeding.seed import *
+# from django_spire.ai.context.seeding.seed import * # noqa
 
-print('Seeding Comment Examples...')
-from test_project.app.comment.seeding.seed import *
+from test_project.app.comment.seeding.seed import * # noqa
 
 print('Seeding Notification...')
-from test_project.app.notification.seeding.seed import *
+from test_project.app.notification.seeding.seed import * # noqa
 
 print('Seeding Task...')
-from test_project.app.task.seeding.seed import *
+from test_project.app.task.seeding.seed import * # noqa
 
-print('Seeding Domain & Sub Domain...')
-from django_spire.metric.domain.seeding.seed import *
+from django_spire.metric.domain.seeding.seed import * # noqa
 
 print('Seeding Ordering...')
-from test_project.app.ordering.seeding.seed import *
+from test_project.app.ordering.seeding.seed import * # noqa
+
+print('Seeding Rest Data...')
+from test_project.app.rest.seeding.seed import * # noqa

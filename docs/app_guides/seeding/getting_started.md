@@ -59,7 +59,7 @@ class ProductSeeder(DjangoModelSeeder):
     }
 
 
-ProductSeeder.seed(count=5)  # Initialized model objects
+ProductSeeder.seed_to_list(count=5)  # Initialized model objects
 
 # or
 
@@ -106,7 +106,7 @@ ProductSeeder.seed_database(count=5)
 You can override fields on any call to `.seed()` or `.seed_database()`:
 
 ```python
-ProductSeeder.seed(
+ProductSeeder.seed_to_list(
     count=1,
     fields={"in_stock": ("static", False)}
 )
@@ -238,6 +238,7 @@ A sample seeder file might look like this:
 from django_spire.contrib.seeding import DjangoModelSeeder
 from application.models import Product
 
+
 class ProductSeeder(DjangoModelSeeder):
     model_class = Product
     default_to = 'faker'
@@ -265,6 +266,7 @@ class ProductSeeder(DjangoModelSeeder):
             }
         )
 
-ProductSeeder.seed(count=5)
+
+ProductSeeder.seed_to_list(count=5)
 ProductSeeder.seed_grocery_product(count=5)
 ```

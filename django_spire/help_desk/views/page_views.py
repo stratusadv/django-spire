@@ -4,14 +4,10 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.urls import reverse
 from django_glue import Glue
 
-from django_spire.auth.controller.controller import AppAuthController
-from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.help_desk.models import HelpDeskTicket
 from django_spire.help_desk.navigation import HelpDeskNavigation
 
@@ -33,7 +29,7 @@ def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
     nav = HelpDeskNavigation()
     nav.page_title = 'Ticket'
     nav.page_description = 'List View'
-    nav.breadcrumbs.add('Help Desk', 'django_spire:help_desk:page:list')
+    nav.breadcrumbs.add('Tickets', 'django_spire:help_desk:page:list')
     context = nav.as_context()
     context['tickets'] = paginated_tickets
     context['ticket_count'] = tickets.count()
@@ -44,16 +40,18 @@ def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
+@login_required()
 def ticket_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     ticket = get_object_or_404(HelpDeskTicket, pk=pk)
 
     nav = HelpDeskNavigation()
     nav.page_title = str(ticket)
     nav.page_description = 'Detail View'
-    nav.breadcrumbs.add('Help Desk', 'django_spire:help_desk:page:list')
+    nav.breadcrumbs.add('Tickets', 'django_spire:help_desk:page:list')
     nav.breadcrumbs.add(str(ticket))
     context = nav.as_context()
     context['ticket'] = ticket
+
     return TemplateResponse(
         request, 'django_spire/help_desk/page/ticket_detail_page.html', context=context
     )

@@ -1,13 +1,29 @@
-from django_spire.contrib.seeding import DjangoModelSeeder
+import os
+import random
 
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
+os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
+
+application = get_wsgi_application()
+
+from django_spire.contrib.seeding import Seeder
 from test_project.app.celery.models import CeleryStalk
 
 
-class CeleryStalkSeeder(DjangoModelSeeder):
-    cache_name = 'celery_stalk_seeder'
+class CeleryStalkSeeder(Seeder):
     model_class = CeleryStalk
-    fields = {
-        'id': 'exclude',
-        'is_crisp': ('faker', 'boolean'),
-        'length_inches': ('faker', 'pyfloat', {'left_digits': 3, 'right_digits': 2}),
+    # cache_name = 'celery_stalk_seeder'
+    cache_enabled = True
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'is_crisp': Seeder.fake.boolean(),
+        'length_inches': Seeder.random.float(0, 999.99),
     }
+
+
+celery_stalk_seeder = CeleryStalkSeeder()
+
+celery_stalk_seeder.seed_database(count=50)

@@ -14,10 +14,11 @@ class CommentExample(HistoryModelMixin, CommentModelMixin):
 
     objects = querysets.CommentExampleQuerySet().as_manager()
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
         db_table = 'test_project_comment'
+
+    def __str__(self) -> str:
+        return self.name
+

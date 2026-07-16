@@ -18,31 +18,18 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-def create_view(request: WSGIRequest) -> TemplateResponse | redirect:
-    pirate = models.Pirate()
-    return _form_view(request, pirate)
-
-
-def update_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
-    pirate = get_object_or_404(models.Pirate, pk=pk)
-    return _form_view(request, pirate)
-
-
-def _form_view(request: WSGIRequest, pirate: models.Pirate) -> TemplateResponse | redirect:
-    if request.method == 'POST':
-        form = forms.PirateModelForm(request.POST, instance=pirate)
-        if form.is_valid():
-            pirate.services.save_model_obj(user=request.user, **form.cleaned_data)
-            return redirect(request.GET.get('return_url', reverse('rest:page:list')))
-    else:
-        form = forms.PirateModelForm(instance=pirate)
+def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    pirate = get_object_or_null_obj(models.Pirate, pk=pk)
 
     nav = RestNavigation()
-    nav.set_page_title_from_model_instance_form_action(pirate)
+    nav.set_page_title_to_form_action_from_model_instance(pirate)
     nav.breadcrumbs.add(str(pirate) if pirate.pk else 'New Pirate')
 
-    context = nav.as_context()
-    context['form'] = form
+    form = forms.PirateModelForm(request.POST or None, instance=pirate)
+
+    Glue.form(request, 'pirate_model_form', form, Glue.Access.DELETE)
+
+    context = {**nav.as_context()}
 
     return TemplateResponse(request=request, context=context, template='rest/page/form_page.html')
 
@@ -79,7 +66,7 @@ def glue_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect
     Glue.form(request, 'pirate_model_form', form, Glue.Access.DELETE)
 
     nav = RestNavigation()
-    nav.set_page_title_from_model_instance_form_action(pirate)
+    nav.set_page_title_to_form_action_from_model_instance(pirate)
     nav.breadcrumbs.add(str(pirate) if pirate.pk else 'New Pirate (Glue)')
 
     context = {**nav.as_context()}

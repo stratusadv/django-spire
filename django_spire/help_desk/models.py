@@ -1,15 +1,19 @@
 from __future__ import annotations
 
-from django.db import models
 from django.contrib.auth.models import User
-from django_glue import Glue
+from django.core.handlers.wsgi import WSGIRequest
+from django.db import models
+from django_glue import Glue, GlueAccess
 
+from django_spire.help_desk.choices import (
+    HelpDeskTicketPriorityChoices,
+    HelpDeskTicketPurposeChoices,
+    HelpDeskTicketStatusChoices,
+)
 from django_spire.help_desk.querysets import HelpDeskTicketQuerySet
 from django_spire.help_desk.services.service import HelpDeskTicketService
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
-
-from django_spire.help_desk import choices
 
 
 class HelpDeskTicket(ActivityMixin, HistoryModelMixin):
@@ -22,15 +26,15 @@ class HelpDeskTicket(ActivityMixin, HistoryModelMixin):
         verbose_name='Created By',
     )
     purpose = models.CharField(
-        max_length=4, choices=choices.HelpDeskTicketPurposeChoices.choices, verbose_name='Purpose'
+        max_length=4, choices=HelpDeskTicketPurposeChoices.choices, verbose_name='Purpose'
     )
     priority = models.CharField(
-        max_length=4, choices=choices.HelpDeskTicketPriorityChoices.choices, verbose_name='Priority'
+        max_length=4, choices=HelpDeskTicketPriorityChoices.choices, verbose_name='Priority'
     )
     status = models.CharField(
         max_length=4,
-        choices=choices.HelpDeskTicketStatusChoices.choices,
-        default=choices.HelpDeskTicketStatusChoices.READY,
+        choices=HelpDeskTicketStatusChoices.choices,
+        default=HelpDeskTicketStatusChoices.READY,
         verbose_name='Status',
     )
     description = models.TextField()
@@ -38,6 +42,10 @@ class HelpDeskTicket(ActivityMixin, HistoryModelMixin):
     objects = HelpDeskTicketQuerySet.as_manager()
     services = Glue.Attribute(HelpDeskTicketService(), access=Glue.Access.DELETE)
 
+    @Glue.Attribute(access=GlueAccess.CHANGE)
+    def complete(self, request: WSGIRequest) -> None:
+        self.status = HelpDeskTicketStatusChoices.DONE
+        self.services.save_model_obj(user=request.user, obj=self, status=self.status)
 
     def __str__(self):
         return f'Ticket #{self.pk}'

@@ -1,46 +1,59 @@
-from __future__ import annotations
+import os
 
-from typing import TYPE_CHECKING
+from django.core.wsgi import get_wsgi_application
 
-from django_spire.contrib.seeding import DjangoModelSeeder
-from django_spire.metric.domain import models
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
+os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
 
-if TYPE_CHECKING:
-    from typing import ClassVar
+application = get_wsgi_application()
+
+from django_spire.contrib.seeding import Seeder
+from django_spire.metric.domain.models import Domain, SubDomain
 
 
-class DomainSeeder(DjangoModelSeeder):
-    """https://django-spire.stratusadv.com/app_guides/seeding/overview/"""
+class DomainSeeder(Seeder):
+    model_class = Domain
+    cache_enabled = True
 
-    model_class = models.Domain
-    cache_name = 'domain_seeder'
-
-    fields = {
-        'id': 'exclude',
-        'created_datetime': 'exclude',
-        'name': ('llm', 'A name for a metrics domain.'),
-        'description': (
-            'llm',
-            'Domain description. Put a random description here for metric domain.',
-        ),
-        'sub_domain_description': (
-            'llm',
-            'Sub Domain description. Put a random description here for metric sub_domain like clients.',
-        ),
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
+        'name': Seeder.fake.sentence(),
+        'description': Seeder.llm(str),
+        'sub_domain_description': Seeder.llm(str),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
     }
 
 
-class SubDomainSeeder(DjangoModelSeeder):
-    model_class = models.SubDomain
-    cache_name = 'subdomain_seeder'
+domain_seeder = DomainSeeder(count=10)
 
-    fields = {
-        'id': 'exclude',
-        'created_datetime': 'exclude',
-        'domain_id': ('custom', 'fk_random', {'model_class': models.Domain}),
-        'name': ('llm', 'A name for a sub_domain'),
-        'description': (
-            'llm',
-            'Sub Domain description. Put a random description here for metric sub_domain like clients or departments.',
-        ),
+domain_seeder.seed_database()
+
+print(f'{domain_seeder.queryset.filter(is_deleted=False).count()=}')
+print(f'{Domain.objects.all().count()=}')
+
+domain_ids = list(Domain.objects.values_list('id', flat=True))
+
+
+class SubDomainSeeder(Seeder):
+    model_class = SubDomain
+    cache_enabled = False
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
+        'domain_id': Seeder.model.random_foreign_key(Domain),
+        'name': Seeder.fake.sentence(),
+        'description': Seeder.llm(str),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.fake.boolean(),
     }
+
+
+subdomain_seeder = SubDomainSeeder(count=200)
+
+subdomain_seeder.seed_database()
+
+print(f'{subdomain_seeder.queryset.filter(is_deleted=False).count()=}')
+print(f'{SubDomain.objects.all().count()=}')

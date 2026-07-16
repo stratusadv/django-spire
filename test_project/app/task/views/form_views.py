@@ -2,15 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-
 from django_glue import Glue
 
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-
 from test_project.app.task import forms, models
 from test_project.app.task.navigation import TaskNavigation
 
@@ -18,11 +17,12 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
+@login_required()
 def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     task = get_object_or_null_obj(models.Task, pk=pk)
 
     nav = TaskNavigation()
-    nav.set_page_title_from_model_instance_form_action(task)
+    nav.set_page_title_to_form_action_from_model_instance(task)
     nav.breadcrumbs.add(f'{task.name}' if task.pk else 'New Task (With Glue)')
 
     form = forms.TaskModelForm(request.POST or None, instance=task)
@@ -31,10 +31,10 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     context = {**nav.as_context()}
 
-    return TemplateResponse(
-        request=request, context=context, template='task/page/form_page.html'
-    )
+    return TemplateResponse(request=request, context=context, template='task/page/form_page.html')
 
+
+@login_required()
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
     task = get_object_or_404(models.Task, pk=pk)
 

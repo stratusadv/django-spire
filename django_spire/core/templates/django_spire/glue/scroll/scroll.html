@@ -13,7 +13,7 @@
                 };
             },
             toggleOrder() {
-                this.orderBy = this.orderBy === 'name' ? '-name' : 'name'
+                this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
             },
             incrementSlice() {
                 this.sliceStop += 60

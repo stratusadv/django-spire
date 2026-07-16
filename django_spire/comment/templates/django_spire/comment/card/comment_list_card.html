@@ -9,7 +9,7 @@
 {% block card_button %}
     {% with app_label=obj|model_app_label model_name=obj|model_name %}
         <span
-                @click="dispatch_modal_view('{% url "django_spire:comment:form_content" obj_pk=obj.pk comment_pk=0 app_label=app_label model_name=model_name %}')"
+                @click="Spire.modal.dispatchView('{% url "django_spire:comment:form_content" obj_pk=obj.pk comment_pk=0 app_label=app_label model_name=model_name %}')"
         >
             <a class="btn btn-sm btn-primary" href="#">
                 <i class="bi bi-plus"></i>

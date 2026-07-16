@@ -1,15 +1,15 @@
-{% extends 'django_spire/infinite_scroll/item.html' %}
-
-{% block item_content %}
-    {% url 'comment:page:detail' pk=comment_example.pk as comment_detail_url %}
-    <a class="row" href="{{ comment_detail_url }}">
-        <div class="col-6">
-            <div class="attribute-label">Name</div>
-            <div>{{ comment_example.name }}</div>
-        </div>
-        <div class="col-6">
-            <div class="attribute-label">Description</div>
-            <div>{{ comment_example.description }}</div>
-        </div>
-    </a>
-{% endblock %}
+<div class="row border-bottom py-2">
+    <div class="col">
+        {% url 'comment:page:detail' pk=comment_example.pk as comment_detail_url %}
+        <a class="row" href="{{ comment_detail_url }}">
+            <div class="col-6">
+                <div class="attribute-label">Name</div>
+                <div>{{ comment_example.name }}</div>
+            </div>
+            <div class="col-6">
+                <div class="attribute-label">Description</div>
+                <div>{{ comment_example.description }}</div>
+            </div>
+        </a>
+    </div>
+</div>

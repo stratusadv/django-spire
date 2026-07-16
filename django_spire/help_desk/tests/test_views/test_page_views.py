@@ -12,16 +12,6 @@ class HelpDeskPageViewsTestCase(BaseTestCase):
 
         self.test_ticket = create_test_helpdesk_ticket()
 
-    def test_ticket_delete_view(self):
-        response = self.client.post(
-            reverse('django_spire:help_desk:page:delete', kwargs={'pk': self.test_ticket.pk}),
-            data={'should_delete': 'on'},
-        )
-
-        assert response.status_code == 302
-        self.test_ticket.refresh_from_db()
-        assert self.test_ticket.is_deleted is True
-
     def test_ticket_detail_view(self):
         response = self.client.get(
             reverse('django_spire:help_desk:page:detail', kwargs={'pk': self.test_ticket.pk})

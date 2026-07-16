@@ -1,3 +1,3 @@
-from django_spire.contrib.seeding.model.django.seeder import DjangoModelSeeder
+from django_spire.contrib.seeding.seeder import Seeder
 
-__all__ = ['DjangoModelSeeder']
+__all__ = ['Seeder']
