@@ -30,9 +30,6 @@ domain_seeder = DomainSeeder(count=10)
 
 domain_seeder.seed_database()
 
-print(f'{domain_seeder.queryset.filter(is_deleted=False).count()=}')
-print(f'{Domain.objects.all().count()=}')
-
 domain_ids = list(Domain.objects.values_list('id', flat=True))
 
 
@@ -54,6 +51,3 @@ class SubDomainSeeder(Seeder):
 subdomain_seeder = SubDomainSeeder(count=200)
 
 subdomain_seeder.seed_database()
-
-print(f'{subdomain_seeder.queryset.filter(is_deleted=False).count()=}')
-print(f'{SubDomain.objects.all().count()=}')

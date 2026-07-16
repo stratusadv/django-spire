@@ -11,12 +11,10 @@ from django_spire.auth.user.tests.factories import create_super_user # noqa
 
 create_super_user()
 
-print('Seeding Users') # not yet...
 from django_spire.auth.seeding.seed import * # noqa
 
 from django_spire.api.seeding.seed import * # noqa
 
-print('Seeding Celery Stalks...') # not yet...
 from test_project.app.celery.seeding.seed import * # noqa
 
 from test_project.app.help_desk.seeding.seed import * # noqa
@@ -29,16 +27,12 @@ from test_project.app.help_desk.seeding.seed import * # noqa
 
 from test_project.app.comment.seeding.seed import * # noqa
 
-print('Seeding Notification...')
 from test_project.app.notification.seeding.seed import * # noqa
 
-print('Seeding Task...')
 from test_project.app.task.seeding.seed import * # noqa
 
 from django_spire.metric.domain.seeding.seed import * # noqa
 
-print('Seeding Ordering...')
 from test_project.app.ordering.seeding.seed import * # noqa
 
-print('Seeding Rest Data...')
 from test_project.app.rest.seeding.seed import * # noqa

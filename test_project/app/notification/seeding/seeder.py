@@ -1,61 +1,70 @@
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
+os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
+
+application = get_wsgi_application()
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from django_spire.contrib.seeding import DjangoModelSeeder
+from django_spire.contrib.seeding import Seeder
 from django_spire.notification.app.models import AppNotification
-from django_spire.notification.choices import NotificationTypeChoices
+from django_spire.notification.choices import (
+    NotificationTypeChoices,
+    NotificationStatusChoices,
+    NotificationPriorityChoices,
+)
 from django_spire.notification.models import Notification
 
 
-class NotificationSeeder(DjangoModelSeeder):
+class NotificationSeeder(Seeder):
     model_class = Notification
-    default_to = 'faker'
-    fields = {
-        'id': 'exclude',
-        'is_active': 'True',
-        'is_deleted': 'False',
-        'created_datetime': 'exclude',
-        'title': ('faker', 'word'),
-        'body': ('faker', 'sentence'),
-        'url': ('faker', 'url'),
-        'status_message': ('faker', 'sentence'),
-        'content_type_id': 'exclude',
-        'user_id': 1,  # stratus,Bob,Robertson,bobert@stratusadv.com
-        'publish_datetime': timezone.now(),
-        'sent_datetime': timezone.now(),
+    cache_enabled = False
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'user_id': Seeder.model.random_foreign_key(User),
+        'type': Seeder.model.random_field_choice(NotificationTypeChoices),
+        'title': Seeder.fake.sentence(nb_words=1),
+        'body': Seeder.fake.sentence(),
+        'url': Seeder.llm(field_type=str, prompt='url'),
+        'status': Seeder.model.random_field_choice(NotificationStatusChoices),
+        'status_message': Seeder.fake.sentence(),
+        'priority': Seeder.model.random_field_choice(NotificationPriorityChoices),
+        'publish_datetime': Seeder.fake.date_time_between(start_date='now', end_date='now'),
+        'sent_datetime': Seeder.fake.date_time_between(start_date='now', end_date='now'),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
+        'created_datetime': Seeder.exclude(),
+        'content_type_id': Seeder.exclude(),
     }
 
-    @classmethod
-    def seed_app_notification(cls, count=10):
-        notifications = cls.seed_database(
-            count=count, fields=cls.fields | {'type': NotificationTypeChoices.APP}
-        )
-        return notifications
 
-
-class AppNotificationSeeder(DjangoModelSeeder):
+class AppNotificationSeeder(Seeder):
     model_class = AppNotification
-    default_to = 'faker'
-    fields = {
-        'id': 'exclude',
-        'is_active': 'True',
-        'is_deleted': 'False',
-        'created_datetime': 'exclude',
-        'template': 'django_spire/notification/app/item/notification_item.html',
-        'context_data': {},
+    cache_enabled = False
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        # 'notification_id': Seeder.model.ordered_foreign_key(Notification),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
+        'created_datetime': Seeder.exclude(),
+        'template': Seeder.static('django_spire/notification/app/item/notification_item.html'),
+        'context_data': Seeder.static({}),
     }
 
-    @classmethod
-    def seed_database(cls, count=10, fields={}):
-        app_notifications = super().seed_database(
-            count=count,
-            fields=cls.fields
-            | {
-                'notification_id': (
-                    'custom',
-                    'in_order',
-                    {'values': [user.id for user in User.objects.all()]},
-                )
-            },
-        )
-        return app_notifications
+    def __post_seed__(self) -> None:
+        notification_ids = Notification.objects.all().values_list('id', flat=True)
+        for index, seed in enumerate(self.seeds):
+            seed['notification_id'] = notification_ids[index]
+
+
+notification_seeder = NotificationSeeder(count=10)
+notification_seeder.seed_database()
+
+app_notification_seeder = AppNotificationSeeder(count=10)
+app_notification_seeder.seed_database()

@@ -16,7 +16,7 @@ from test_project.app.task.models import Task, TaskUser
 
 class TaskModelSeeder(Seeder):
     model_class = Task
-    cache_enabled = True
+    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -30,9 +30,13 @@ class TaskModelSeeder(Seeder):
     }
 
 
+task_model_seeder = TaskModelSeeder(count=20)
+task_model_seeder.seed_database()
+
+
 class SubTaskModelSeeder(Seeder):
     model_class = Task
-    cache_enabled = True
+    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -48,7 +52,7 @@ class SubTaskModelSeeder(Seeder):
 
 class TaskUserModelSeeder(Seeder):
     model_class = TaskUser
-    cache_enabled = True
+    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -61,11 +65,8 @@ class TaskUserModelSeeder(Seeder):
     }
 
 
-task_model_seeder = TaskModelSeeder(count=5)
-task_model_seeder.seed_database()
-
-sub_task_model_seeder = SubTaskModelSeeder(count=20)
+sub_task_model_seeder = SubTaskModelSeeder(count=100)
 sub_task_model_seeder.seed_database()
 
-task_user_model_seeder = TaskUserModelSeeder(count=50)
+task_user_model_seeder = TaskUserModelSeeder(count=400)
 task_user_model_seeder.seed_database()

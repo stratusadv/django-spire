@@ -18,10 +18,10 @@ class UserSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        'username': Seeder.fake.text(12),
+        'username': Seeder.llm(field_type=str, prompt='username'),
         'first_name': Seeder.fake.first_name(),
         'last_name': Seeder.fake.last_name(),
-        'email': Seeder.llm.automatic(str),
+        'email': Seeder.llm(str),
         'is_staff': Seeder.fake.boolean(),
         'is_superuser': Seeder.static(False),
         'is_active': Seeder.static(True),
