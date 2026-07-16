@@ -16,7 +16,7 @@ class DomainAdmin(admin.ModelAdmin):
 
 @admin.register(SubDomain)
 class SubDomainAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'description', 'created_datetime')
+    list_display = ('pk', 'domain_id', 'name', 'description', 'created_datetime')
     list_filter = ('is_active', 'is_deleted')
     ordering = ('-created_datetime',)
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')
