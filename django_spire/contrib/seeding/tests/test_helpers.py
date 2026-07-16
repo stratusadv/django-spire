@@ -8,6 +8,7 @@ from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldS
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.random_seed import RandomFieldSeed as RandomSeed
+from django_spire.contrib.seeding.field.seed.model_seed import OrderedForeignKeyModelFieldSeed
 
 from test_project.app.task.choices import TaskStatusChoices
 
@@ -109,6 +110,14 @@ class TestModelFieldSeedHelper(TestCase):
     def test_random_foreign_key_returns_callable_field_seed(self):
         seed = Seeder.model.random_foreign_key(TaskStatusChoices)
         assert isinstance(seed, CallableFieldSeed)
+
+    def test_ordered_foreign_key_returns_ordered_foreign_key_seed(self):
+        seed = Seeder.model.ordered_foreign_key(TaskStatusChoices)
+        assert isinstance(seed, OrderedForeignKeyModelFieldSeed)
+
+    def test_ordered_foreign_key_stores_ids(self):
+        seed = Seeder.model.ordered_foreign_key(TaskStatusChoices)
+        assert isinstance(seed.model_foreign_keys, list)
 
 
 class TestRandomFieldSeedHelper(TestCase):

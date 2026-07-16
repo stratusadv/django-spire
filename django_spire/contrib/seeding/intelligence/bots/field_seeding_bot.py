@@ -67,8 +67,8 @@ class FieldSeedingBot(Bot):
     def _process_non_llm_fields(fields_seeds: dict[str, Any]) -> dict[str, Any]:
         fields_values = {}
 
-        for field, seed in fields_seeds.items():
+        for index, (field, seed) in enumerate(fields_seeds.items()):
             if not isinstance(seed, ExcludeFieldSeed) and not isinstance(seed, LlmFieldSeed):
-                fields_values[field] = seed.generate_value()
+                fields_values[field] = seed.generate_value(seed_index=index)
 
         return fields_values

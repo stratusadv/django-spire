@@ -1,5 +1,3 @@
-import random
-
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder

@@ -4,6 +4,7 @@ from django.test import TestCase
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
+from django_spire.contrib.seeding.field.seed.model_seed import OrderedForeignKeyModelFieldSeed
 from django_spire.contrib.seeding.field.seed.random_seed import RandomFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeding.seed.seed import Seed
@@ -98,6 +99,26 @@ class TestRandomFieldSeed(TestCase):
     def test_without_enum_returns_none(self):
         seed = RandomFieldSeed()
         assert seed.generate_value() is None
+
+
+class TestOrderedForeignKeyModelFieldSeed(TestCase):
+    def test_init_stores_foreign_keys(self):
+        seed = OrderedForeignKeyModelFieldSeed(model_foreign_keys=[1, 2, 3])
+        assert seed.model_foreign_keys == [1, 2, 3]
+
+    def test_generate_value_returns_indexed_value(self):
+        seed = OrderedForeignKeyModelFieldSeed(model_foreign_keys=[10, 20, 30])
+        assert seed.generate_value(seed_index=0) == 10
+        assert seed.generate_value(seed_index=1) == 20
+        assert seed.generate_value(seed_index=2) == 30
+
+    def test_generate_value_index_out_of_bounds_returns_last(self):
+        seed = OrderedForeignKeyModelFieldSeed(model_foreign_keys=[1, 2])
+        assert seed.generate_value(seed_index=99) == 2
+
+    def test_generate_value_empty_list_returns_none(self):
+        seed = OrderedForeignKeyModelFieldSeed(model_foreign_keys=[])
+        assert seed.generate_value(seed_index=0) is None
 
 
 class TestSeedContainer(TestCase):
