@@ -13,7 +13,7 @@ application = get_wsgi_application()
 
 from test_project.app.task.models import Task  # noqa
 
-from django_spire.contrib.seeder import Seeder  # noqa
+from django_spire.contrib.seeding import Seeder  # noqa
 
 
 def random_boolean(true_weight: float = 0.5) -> bool:
@@ -28,9 +28,9 @@ class TaskSeeder(Seeder):
 
     fields_seeds = {
         # 'id': Seeder.exclude(),
-        'parent_id': Seeder.model.foreign_key_random(ParentModel),
+        'parent_id': Seeder.model.random_foreign_key(Task),
         'name': Seeder.fake.sentence(),
-        'status': Seeder.model.choices_random(TaskStatusChoices),
+        'status': Seeder.model.random_field_choice(TaskStatusChoices),
         'description': Seeder.llm.automatic(str),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'is_active': Seeder.static(True),
