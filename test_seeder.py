@@ -22,16 +22,18 @@ def random_boolean(true_weight: float = 0.5) -> bool:
 
 
 class TaskSeeder(Seeder):
+    locale: str = 'en_US'
+
     model_class = Task
 
-    # cache_enabled = True
+    cache_enabled = False
 
     fields_seeds = {
         # 'id': Seeder.exclude(),
-        'parent_id': Seeder.model.random_foreign_key(Task),
+        # 'parent_id': Seeder.model.random_foreign_key(Task),
         'name': Seeder.fake.sentence(),
         'status': Seeder.model.random_field_choice(TaskStatusChoices),
-        'description': Seeder.llm.automatic(str),
+        'description': Seeder.llm(str),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.custom.callable(random_boolean, true_weight=0.8),
@@ -39,15 +41,16 @@ class TaskSeeder(Seeder):
 
     # def __post_seed__(self) -> None:
     #     for seed in self.seeds:
-    #         seed['parent_id'] = 10
-    #
+    #         print(seed['status'])
+
     # def __post_seed_database__(self) -> None:
     #     sleep(2)
 
 
-task_seeder = TaskSeeder(count=100)
+task_seeder = TaskSeeder(count=10)
 
-task_seeder.seed(1)
+task_seeder.seed()
+# task_seeder.seed_database()
 
 tasks = task_seeder.to_list_of_dicts()
 

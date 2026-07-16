@@ -14,5 +14,7 @@ class RandomFieldSeed(BaseFieldSeed):
 
     def generate_value(self) -> Any:
         if self.enum_:
-            random.choice(list(self.enum_))
+            return random.choice(list(self.enum_))
+
+        return None
 

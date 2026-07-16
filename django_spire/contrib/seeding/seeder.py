@@ -14,8 +14,8 @@ from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSee
 from django_spire.contrib.seeding.field.seed.helper.custom_helper import CustomFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.fake_helper import FakeFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.model_helper import ModelFieldSeedHelper
-from django_spire.contrib.seeding.field.seed.helper.llm_helper import LlmFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.random_helper import RandomFieldSeedHelper
+from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
 from django_spire.contrib.seeding.seed.factory.model_factory import ModelSeedFactory
@@ -29,7 +29,6 @@ class Seeder:
 
     custom = CustomFieldSeedHelper(locale)
     fake = FakeFieldSeedHelper(locale)
-    llm = LlmFieldSeedHelper(locale)
     model = ModelFieldSeedHelper(locale)
     random = RandomFieldSeedHelper(locale)
 
@@ -76,6 +75,10 @@ class Seeder:
     def static(value: Any) -> StaticFieldSeed:
         return StaticFieldSeed(value)
 
+    @classmethod
+    def llm(cls, field_type: type, prompt: str | None = None) -> LlmFieldSeed:
+        return LlmFieldSeed(field_type=field_type, prompt=prompt, locale=cls.locale)
+
     def __post_seed__(self) -> None:
         pass
 
@@ -86,7 +89,6 @@ class Seeder:
         seed_count = self._count if count is None else count
 
         if not self.seeds:
-
             start_time = time.perf_counter()
 
             if self.verbose:
@@ -112,7 +114,6 @@ class Seeder:
             if self.verbose:
                 print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
                 print(f'Completed in {time.perf_counter() - start_time:6.2f} seconds')
-
 
     def seed_class(self, class_: type, count: int | None = None) -> list[type]:
         self.seed(count)
@@ -182,7 +183,7 @@ class Seeder:
 
         self.seed(count=count)
 
-        return [self.model_class(**fields_values) for fields_values in self.to_list()]
+        return [self.model_class(**fields_values) for fields_values in self.to_list_of_dicts()]
 
     def _validate(self) -> None:
         for field, seed in self.fields_seeds.items():
