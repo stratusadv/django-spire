@@ -1,6 +1,6 @@
 from typing import Any
 
-from django_spire.contrib.seeder.field.seeds.base import BaseFieldSeed
+from django_spire.contrib.seeder.field.seed.base import BaseFieldSeed
 
 
 class ExcludeFieldSeed(BaseFieldSeed):

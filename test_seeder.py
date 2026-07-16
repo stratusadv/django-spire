@@ -1,5 +1,6 @@
 import os
 import random
+from time import sleep
 
 from django.core.wsgi import get_wsgi_application
 
@@ -21,9 +22,11 @@ def random_boolean(true_weight: float = 0.5) -> bool:
 class TaskSeeder(Seeder):
     model_class = Task
 
+    cache_enabled = True
+
     fields_seeds = {
-        # 'id': Seeder.exclude(),
-        # 'parent_id': Seeder.exclude(),
+        'id': Seeder.exclude(),
+        'parent_id': Seeder.exclude(),
         'name': Seeder.fake.sentence(),
         'description': Seeder.llm.automatic(str),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
@@ -32,10 +35,10 @@ class TaskSeeder(Seeder):
     }
 
     def __post_seed__(self) -> None:
-        print('POST SEEDING LIKE A BOSS!')
+        sleep(2)
 
     def __post_seed_database__(self) -> None:
-        print('POST DATABASE LIKE A BOSS!!!!!')
+        sleep(2)
 
 
 task_seeder = TaskSeeder(count=100)
@@ -43,10 +46,6 @@ task_seeder = TaskSeeder(count=100)
 task_seeder.seed()
 
 task_seeder.seed_database()
-
-for seed in task_seeder.seeds:
-    seed['name'] = 'MR/MS' + seed['name']
-
 
 print(f'{task_seeder.queryset.filter(is_deleted=False).count()=}')
 print(f'{Task.objects.all().count()=}')

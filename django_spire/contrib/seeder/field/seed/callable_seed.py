@@ -1,6 +1,6 @@
 from typing import Callable, Any
 
-from django_spire.contrib.seeder.field.seeds.base import BaseFieldSeed
+from django_spire.contrib.seeder.field.seed.base import BaseFieldSeed
 
 
 class CallableFieldSeed(BaseFieldSeed):

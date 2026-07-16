@@ -1,4 +1,6 @@
 import json
+import re
+import time
 from typing import Any, TYPE_CHECKING
 
 from django.core import serializers
@@ -33,10 +35,11 @@ class Seeder:
 
     fields_seeds: dict[str, BaseFieldSeed]
 
-    def __init__(self, count: int = 1) -> None:
-        self.seeds: list[Seed] = []
+    def __init__(self, count: int = 1, verbose: bool = True) -> None:
+        self._seeds: list[Seed] = []
         self._model_object_ids: list[int | str] = []
         self._count: int = count
+        self.verbose: bool = verbose
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
@@ -48,6 +51,10 @@ class Seeder:
     @property
     def _cache_name(self) -> str:
         return f'{self.__class__.__name__.lower()}_cache'
+
+    @property
+    def name_verbose(self) -> str:
+        return re.sub(r'(?<!^)(?=[A-Z])', ' ', self.__class__.__name__)
 
     @property
     def queryset(self) -> QuerySet[models.Model]:
@@ -74,18 +81,34 @@ class Seeder:
     def seed(self, count: int | None = None) -> None:
         seed_count = self._count if count is None else count
 
-        if not self.seeds:
+        if not self._seeds:
+
+            start_time = time.perf_counter()
+
+            if self.verbose:
+                print(f'\n{self.name_verbose}')
+                print(f' -> Seeding > {seed_count} > ', end='', flush=True)
+
             if self.model_class is None:
-                self.seeds = SeedFactory(seeder=self).generate_seeds(
+                self._seeds = SeedFactory(seeder=self).generate_seeds(
                     count=seed_count, cache_enabled=self.cache_enabled, cache_name=self._cache_name
                 )
 
             else:
-                self.seeds = ModelSeedFactory(seeder=self).generate_seeds(
+                self._seeds = ModelSeedFactory(seeder=self).generate_seeds(
                     count=seed_count, cache_enabled=self.cache_enabled, cache_name=self._cache_name
                 )
 
+            if self.verbose:
+                print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
+                print('Post', end='', flush=True)
+
             self.__post_seed__()
+
+            if self.verbose:
+                print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
+                print(f'Completed in {time.perf_counter() - start_time:6.2f} seconds')
+
 
     def seed_class(self, class_: type, count: int | None = None) -> list[type]:
         self.seed(count)
@@ -93,11 +116,17 @@ class Seeder:
         return [class_(**fields_values) for fields_values in self.to_list()]
 
     def seed_database(self, count: int | None = None) -> QuerySet:
+
         if self.model_class is None:
             message = 'Cannot seed database without a model class'
             raise DjangoSpireSeederError(message)
 
         self.seed(count)
+
+        start_time = time.perf_counter()
+
+        if self.verbose:
+            print(f' -> Saving to Database {"." * 7} Waiting', end='', flush=True)
 
         model_objects = self.model_class.objects.bulk_create(
             objs=self.to_model_instances(), batch_size=1000
@@ -105,7 +134,15 @@ class Seeder:
 
         self._model_object_ids = [model_object.id for model_object in model_objects]
 
+        if self.verbose:
+            print('\b' * 7 + ' ' * 7 + '\b' * 7, end='', flush=True)
+            print('Post', end='', flush=True)
+
         self.__post_seed_database__()
+
+        if self.verbose:
+            print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
+            print(f'Completed in {time.perf_counter() - start_time:6.2f} seconds')
 
         return self.queryset
 
@@ -118,7 +155,7 @@ class Seeder:
         self.seed(count=count)
 
     def reset(self) -> None:
-        self.seeds.clear()
+        self._seeds.clear()
         self._model_object_ids.clear()
 
     def to_json(self, count: int | None = None) -> str:
@@ -127,12 +164,12 @@ class Seeder:
         if self.model_class is not None:
             return serializers.serialize('json', self.queryset)
 
-        return json.dumps(self.seeds, cls=DjangoJSONEncoder)
+        return json.dumps(self._seeds, cls=DjangoJSONEncoder)
 
     def to_list(self, count: int | None = None) -> list[dict[str, Any]]:
         self.seed(count=count)
 
-        return [seed.to_dict() for seed in self.seeds]
+        return [seed.to_dict() for seed in self._seeds]
 
     def to_model_instances(self, count: int | None = None) -> list[models.Model]:
         if self.model_class is None:
