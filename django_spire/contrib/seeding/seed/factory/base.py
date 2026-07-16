@@ -26,21 +26,16 @@ class BaseSeedFactory(ABC):
         futures = []
         seeds: list[Seed] = []
 
-        if self.seeder.verbose:
-            print(f'{0:3}%', end='', flush=True)
+        self.print_zero_progress()
 
         for i in range(count):
             futures.append(
                 FieldSeedingBot().process_to_future(
-                    seeder_name=self.seeder.name_verbose, fields_seeds=self.seeder.fields_seeds
+                    seeder_name=self.seeder.name_verbose, fields_seeds=self.seeder.fields_seeds, seed_index=i
                 )
             )
 
-            if self.seeder.verbose:
-                progress = int(((i + 1) / count) * 100)
-                if progress % 5 == 0:
-                    print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
-                    print(f'{progress:3}%', end='', flush=True)
+            self.print_progress(i, count)
 
             if len(futures) >= 15 or i == count - 1:
                 seeds.extend([future.get_result(timeout_seconds=10) for future in futures])
@@ -76,6 +71,17 @@ class BaseSeedFactory(ABC):
             cache.set(cache_key, fresh_seeds)  # noqa
 
         return fresh_seeds
+
+    def print_progress(self, index: int, count: int) -> None:
+        if self.seeder.verbose:
+            progress = int(((index + 1) / count) * 100)
+            if progress % 5 == 0:
+                print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
+                print(f'{progress:3}%', end='', flush=True)
+
+    def print_zero_progress(self) -> None:
+        if self.seeder.verbose:
+            print(f'{0:3}%', end='', flush=True)
 
     @abstractmethod
     def _validate(self) -> None:

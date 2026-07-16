@@ -7,5 +7,5 @@ class StaticFieldSeed(BaseFieldSeed):
     def __init__(self, value: Any) -> None:
         self.value = value
 
-    def generate_value(self) -> Any:
+    def generate_value(self, seed_index: int) -> Any:
         return self.value

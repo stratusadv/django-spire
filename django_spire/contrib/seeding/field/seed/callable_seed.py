@@ -9,7 +9,7 @@ class CallableFieldSeed(BaseFieldSeed):
         self.wrapper = wrapper
         self.kwargs = kwargs
 
-    def generate_value(self) -> Any:
+    def generate_value(self, seed_index: int) -> Any:
         if self.wrapper:
             return self.wrapper(self.callable(**self.kwargs))
 

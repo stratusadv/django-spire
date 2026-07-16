@@ -12,7 +12,7 @@ class RandomFieldSeed(BaseFieldSeed):
     ) -> None:
         self.enum_ = enum_
 
-    def generate_value(self) -> Any:
+    def generate_value(self, seed_index: int) -> Any:
         if self.enum_:
             return random.choice(list(self.enum_))
 

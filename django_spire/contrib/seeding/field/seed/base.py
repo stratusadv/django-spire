@@ -8,5 +8,5 @@ class BaseFieldSeed(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def generate_value(self, **kwargs) -> Any:
+    def generate_value(self, seed_index: int) -> Any:
         raise NotImplementedError

@@ -25,7 +25,7 @@ class FieldSeedingBot(Bot):
         )
     )
 
-    def process(self, seeder_name: str, fields_seeds: dict[str, Any]) -> Seed:
+    def process(self, seeder_name: str, fields_seeds: dict[str, Any], seed_index: int) -> Seed:
         fields_dict = {}
 
         prompt = Prompt()

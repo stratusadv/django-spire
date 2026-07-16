@@ -7,5 +7,5 @@ class ExcludeFieldSeed(BaseFieldSeed):
     def __init__(self) -> None:
         pass
 
-    def generate_value(self) -> Any:
+    def generate_value(self, seed_index: int) -> Any:
         pass
