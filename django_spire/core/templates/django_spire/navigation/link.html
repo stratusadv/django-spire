@@ -18,7 +18,7 @@
             this.$dispatch('nav-redirect', { path: url });
 
             let spinnerTimer = setTimeout(() => {
-                toggleLoadingSpinner();
+                Spire.ui.toggleLoadingSpinner();
             }, SPINNER_DELAY);
 
             fetch(url, { method: 'GET' })
