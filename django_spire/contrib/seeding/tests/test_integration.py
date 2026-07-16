@@ -3,26 +3,10 @@ import random
 from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
+from django_spire.contrib.seeding.tests.test_seeder import TaskSeeder
 
 from test_project.app.task.choices import TaskStatusChoices
 from test_project.app.task.models import Task
-
-
-def random_boolean(true_weight: float = 0.5) -> bool:
-    return random.random() <= true_weight
-
-
-class TaskSeeder(Seeder):
-    model_class = Task
-    cache_enabled = False
-    fields_seeds = {
-        'name': Seeder.fake.sentence(),
-        'status': Seeder.model.random_field_choice(TaskStatusChoices),
-        'description': Seeder.llm(str),
-        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-        'is_active': Seeder.static(value=True),
-        'is_deleted': Seeder.custom.callable(random_boolean, true_weight=0.8),
-    }
 
 
 class TestSeederIntegration(TestCase):
