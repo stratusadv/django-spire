@@ -13,8 +13,9 @@ from django_spire.contrib.seeder.field.seed.base import BaseFieldSeed
 from django_spire.contrib.seeder.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeder.field.seed.helper.custom_helper import CustomFieldSeedHelper
 from django_spire.contrib.seeder.field.seed.helper.fake_helper import FakeFieldSeedHelper
-from django_spire.contrib.seeder.field.seed.helper.key_helper import KeyFieldSeedHelper
+from django_spire.contrib.seeder.field.seed.helper.model_helper import ModelFieldSeedHelper
 from django_spire.contrib.seeder.field.seed.helper.llm_helper import LlmFieldSeedHelper
+from django_spire.contrib.seeder.field.seed.helper.random_helper import RandomFieldSeedHelper
 from django_spire.contrib.seeder.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeder.seed.factory.factory import SeedFactory
 from django_spire.contrib.seeder.seed.factory.model_factory import ModelSeedFactory
@@ -28,8 +29,9 @@ class Seeder:
 
     custom = CustomFieldSeedHelper(locale)
     fake = FakeFieldSeedHelper(locale)
-    key = KeyFieldSeedHelper(locale)
     llm = LlmFieldSeedHelper(locale)
+    model = ModelFieldSeedHelper(locale)
+    random = RandomFieldSeedHelper(locale)
 
     cache_enabled = True
 
@@ -38,7 +40,7 @@ class Seeder:
     fields_seeds: dict[str, BaseFieldSeed]
 
     def __init__(self, count: int = 1, verbose: bool = True) -> None:
-        self._seeds: list[Seed] = []
+        self.seeds: list[Seed] = []
         self._model_object_ids: list[int | str] = []
         self._count: int = count
         self.verbose: bool = verbose
@@ -83,7 +85,7 @@ class Seeder:
     def seed(self, count: int | None = None) -> None:
         seed_count = self._count if count is None else count
 
-        if not self._seeds:
+        if not self.seeds:
 
             start_time = time.perf_counter()
 
@@ -92,12 +94,12 @@ class Seeder:
                 print(f' -> Seeding > {seed_count} > ', end='', flush=True)
 
             if self.model_class is None:
-                self._seeds = SeedFactory(seeder=self).generate_seeds(
+                self.seeds = SeedFactory(seeder=self).generate_seeds(
                     count=seed_count, cache_enabled=self.cache_enabled, cache_name=self._cache_name
                 )
 
             else:
-                self._seeds = ModelSeedFactory(seeder=self).generate_seeds(
+                self.seeds = ModelSeedFactory(seeder=self).generate_seeds(
                     count=seed_count, cache_enabled=self.cache_enabled, cache_name=self._cache_name
                 )
 
@@ -157,7 +159,7 @@ class Seeder:
         self.seed(count=count)
 
     def reset(self) -> None:
-        self._seeds.clear()
+        self.seeds.clear()
         self._model_object_ids.clear()
 
     def to_json(self, count: int | None = None) -> str:
@@ -166,12 +168,12 @@ class Seeder:
         if self.model_class is not None:
             return serializers.serialize('json', self.queryset)
 
-        return json.dumps(self._seeds, cls=DjangoJSONEncoder)
+        return json.dumps(self.seeds, cls=DjangoJSONEncoder)
 
-    def to_list(self, count: int | None = None) -> list[dict[str, Any]]:
+    def to_list_of_dicts(self, count: int | None = None) -> list[dict[str, Any]]:
         self.seed(count=count)
 
-        return [seed.to_dict() for seed in self._seeds]
+        return [seed.to_dict() for seed in self.seeds]
 
     def to_model_instances(self, count: int | None = None) -> list[models.Model]:
         if self.model_class is None:
