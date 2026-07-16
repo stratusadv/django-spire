@@ -34,7 +34,9 @@ class FieldSeedingBot(Bot):
 
         prompt.sub_heading('Already Filled Fields for Context')
 
-        non_llm_fields_values = self._process_non_llm_fields(fields_seeds)
+        non_llm_fields_values = self._process_non_llm_fields(
+            fields_seeds=fields_seeds, seed_index=seed_index
+        )
 
         for field, value in non_llm_fields_values.items():
             prompt.text(f'{field}: {value}')
@@ -64,11 +66,11 @@ class FieldSeedingBot(Bot):
         return Seed(non_llm_fields_values)
 
     @staticmethod
-    def _process_non_llm_fields(fields_seeds: dict[str, Any]) -> dict[str, Any]:
+    def _process_non_llm_fields(fields_seeds: dict[str, Any], seed_index: int) -> dict[str, Any]:
         fields_values = {}
 
-        for index, (field, seed) in enumerate(fields_seeds.items()):
+        for field, seed in fields_seeds.items():
             if not isinstance(seed, ExcludeFieldSeed) and not isinstance(seed, LlmFieldSeed):
-                fields_values[field] = seed.generate_value(seed_index=index)
+                fields_values[field] = seed.generate_value(seed_index=seed_index)
 
         return fields_values
