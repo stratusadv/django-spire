@@ -1,22 +1,30 @@
-from django_spire.contrib.seeding import DjangoModelSeeder
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
+os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
+
+application = get_wsgi_application()
+
+from django_spire.contrib.seeding import Seeder
 from test_project.app.comment.models import CommentExample
 
 
-class CommentExampleSeeder(DjangoModelSeeder):
+class CommentExampleSeeder(Seeder):
     model_class = CommentExample
-    cache_name = 'queryset_task_seeder'
+    chech_enabled = True
 
-    fields = {
-        'id': 'exclude',
-        'name': ('faker'),
-        'description': ('faker'),
-        'created_datetime': (
-            'custom',
-            'date_time_between',
-            {'start_date': '-30d', 'end_date': 'now'},
-        ),
-        'is_active': True,
-        'is_deleted': False,
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'name': Seeder.fake.sentence(),
+        'description': Seeder.llm(str),
+        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
     }
 
-    default_to = 'faker'
+
+comment_example = CommentExampleSeeder(count=10)
+
+comment_example.seed_database()

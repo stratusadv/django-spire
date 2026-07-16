@@ -118,7 +118,7 @@ class Seeder:
     def seed_class(self, class_: type, count: int | None = None) -> list[type]:
         self.seed(count)
 
-        return [class_(**fields_values) for fields_values in self.to_list()]
+        return [class_(**fields_values) for fields_values in self.to_list_of_dicts()]
 
     def seed_database(self, count: int | None = None) -> QuerySet:
 
