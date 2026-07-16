@@ -58,12 +58,12 @@ class BaseSeedFactory(ABC):
 
             if cached_seeds:
                 if self.seeder.verbose:
-                    print(f'Cached {"." * 3}{" " * 4} ', end='', flush=True)
+                    print(f'Cached {"." * 6}{" " * 4} ', end='', flush=True)
 
                 return cached_seeds
 
         if self.seeder.verbose:
-            print(f'Fresh {"." * 4} ', end='', flush=True)
+            print(f'Fresh {"." * 7} ', end='', flush=True)
 
         fresh_seeds = self._generate_seeds(count)
 

@@ -93,7 +93,7 @@ class Seeder:
 
             if self.verbose:
                 print(f'\n{self.name_verbose}')
-                print(f' -> Seeding > {seed_count} > ', end='', flush=True)
+                print(f' -> Seeding > {seed_count:6} > ', end='', flush=True)
 
             if self.model_class is None:
                 self.seeds = SeedFactory(seeder=self).generate_seeds(
@@ -131,7 +131,7 @@ class Seeder:
         start_time = time.perf_counter()
 
         if self.verbose:
-            print(f' -> Saving to Database {"." * 7} Waiting', end='', flush=True)
+            print(f' -> Saving to Database {"." * 10} Waiting', end='', flush=True)
 
         model_objects = self.model_class.objects.bulk_create(
             objs=self.to_model_instances(), batch_size=1000
