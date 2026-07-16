@@ -44,9 +44,7 @@ class FieldSeedingBot(Bot):
         prompt.sub_heading('Empty Fields Required to have Data')
 
         fields_llm_seeds = {
-            field: seed
-            for field, seed in fields_seeds.items()
-            if isinstance(seed, LlmFieldSeed)
+            field: seed for field, seed in fields_seeds.items() if isinstance(seed, LlmFieldSeed)
         }
 
         for field, llm_seed in fields_llm_seeds.items():
@@ -56,11 +54,14 @@ class FieldSeedingBot(Bot):
             else:
                 prompt.text(f'{field}: "No description provided, use context"')
 
-        FieldIntel = create_model('FieldIntel', __base__=BaseIntel, **fields_dict)
+        if fields_dict:
+            FieldIntel = create_model('FieldIntel', __base__=BaseIntel, **fields_dict)
 
-        field_intel = self.llm.prompt_to_intel(prompt=prompt, intel_class=FieldIntel)
+            field_intel = self.llm.prompt_to_intel(prompt=prompt, intel_class=FieldIntel)
 
-        return Seed({**field_intel.model_dump(), **non_llm_fields_values})
+            return Seed({**field_intel.model_dump(), **non_llm_fields_values})
+
+        return Seed(non_llm_fields_values)
 
     @staticmethod
     def _process_non_llm_fields(fields_seeds: dict[str, Any]) -> dict[str, Any]:
