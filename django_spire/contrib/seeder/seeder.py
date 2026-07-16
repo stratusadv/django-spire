@@ -13,6 +13,7 @@ from django_spire.contrib.seeder.field.seed.base import BaseFieldSeed
 from django_spire.contrib.seeder.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeder.field.seed.helper.custom_helper import CustomFieldSeedHelper
 from django_spire.contrib.seeder.field.seed.helper.fake_helper import FakeFieldSeedHelper
+from django_spire.contrib.seeder.field.seed.helper.key_helper import KeyFieldSeedHelper
 from django_spire.contrib.seeder.field.seed.helper.llm_helper import LlmFieldSeedHelper
 from django_spire.contrib.seeder.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeder.seed.factory.factory import SeedFactory
@@ -25,9 +26,10 @@ if TYPE_CHECKING:
 class Seeder:
     locale: str | list[str] = 'en_CA'
 
-    fake = FakeFieldSeedHelper(locale)
-    llm = LlmFieldSeedHelper(locale)
     custom = CustomFieldSeedHelper(locale)
+    fake = FakeFieldSeedHelper(locale)
+    key = KeyFieldSeedHelper(locale)
+    llm = LlmFieldSeedHelper(locale)
 
     cache_enabled = True
 
