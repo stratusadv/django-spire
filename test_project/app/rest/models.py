@@ -6,7 +6,6 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
 from django_glue import Glue
 
-from django_glue.access.access import GlueAccess
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
@@ -40,7 +39,7 @@ class Pirate(ActivityMixin, HistoryModelMixin):
     objects = PirateQuerySet().as_manager()
     services = PirateService()
 
-    @Glue.Attribute(access=GlueAccess.CHANGE)
+    @Glue.Attribute(access=Glue.Access.CHANGE)
     def duplicate(self, request: WSGIRequest) -> dict:
         return self.services.factory.duplicate(request)
 
@@ -57,5 +56,5 @@ class Pirate(ActivityMixin, HistoryModelMixin):
         db_table = 'test_project_rest_pirate'
 
     class GlueMeta:
-        attributes = [('services', GlueAccess.VIEW)]
-        exposed_attributes = [('name', GlueAccess.VIEW)]
+        attributes = [('services', Glue.Access.VIEW)]
+        exposed_attributes = [('name', Glue.Access.VIEW)]

@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.core.handlers.wsgi import WSGIRequest
-from django_glue.access.access import GlueAccess
 from django_glue import Glue
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
 class PirateFactoryService(BaseDjangoModelService['Pirate']):
     obj: Pirate
 
-    @Glue.Attribute(access=GlueAccess.CHANGE)
+    @Glue.Attribute(access=Glue.Access.CHANGE)
     def duplicate(self, request: WSGIRequest) -> dict:
         new_pirate = self.obj_class.services.save_model_obj(
             user=request.user,

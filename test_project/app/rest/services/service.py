@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
-from django_glue.access.access import GlueAccess
 
 from test_project.app.rest.services.factory_service import PirateFactoryService
 
@@ -27,6 +26,3 @@ class PirateService(BaseDjangoModelService['Pirate']):
                 information=f'{user.get_full_name()} created pirate {obj}.',
             )
         return obj
-
-    class GlueMeta:
-        attributes = [('factory', GlueAccess.VIEW)]

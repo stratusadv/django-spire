@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_glue.access.access import GlueAccess
-
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.help_desk.services.notification_service import HelpDeskTicketNotificationService
 
