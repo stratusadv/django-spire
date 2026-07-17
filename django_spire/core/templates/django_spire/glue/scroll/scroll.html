@@ -44,11 +44,11 @@
             <div
                     x-data="{
                         init() {
-                            const observer = new IntersectionObserver((entries) => {entries.forEach(entry => {
+                            const observer = new IntersectionObserver((entries) => {entries.forEach((entry) => {
                                     if (entry.isIntersecting) {
                                         incrementSlice()
                                     }
-                                })}, { threshold: 0 })
+                                })}, { threshold: [0.0, 0.1, 0.2, 0.3] })
                             observer.observe($el)
                         }
                     }"
