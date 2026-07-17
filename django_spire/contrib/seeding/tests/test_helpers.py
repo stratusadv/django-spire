@@ -72,6 +72,51 @@ class TestFakeFieldSeedHelper(TestCase):
         assert isinstance(seed, CallableFieldSeed)
         assert seed.kwargs == {}
 
+    def test_city_returns_callable_field_seed(self):
+        seed = Seeder.fake.city()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.city
+
+    def test_company_returns_callable_field_seed(self):
+        seed = Seeder.fake.company()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.company
+
+    def test_email_returns_callable_field_seed(self):
+        seed = Seeder.fake.email()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.email
+
+    def test_name_returns_callable_field_seed(self):
+        seed = Seeder.fake.name()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.name
+
+    def test_url_returns_callable_field_seed(self):
+        seed = Seeder.fake.url()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.url
+
+    def test_uuid4_returns_callable_field_seed(self):
+        seed = Seeder.fake.uuid4()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.uuid4
+
+    def test_word_returns_callable_field_seed(self):
+        seed = Seeder.fake.word()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.word
+
+    def test_paragraph_default(self):
+        seed = Seeder.fake.paragraph()
+        assert isinstance(seed, CallableFieldSeed)
+        assert seed.callable is Seeder.fake.faker.paragraph
+        assert seed.kwargs == {'nb_sentences': 3}
+
+    def test_paragraph_custom_sentences(self):
+        seed = Seeder.fake.paragraph(nb_sentences=5)
+        assert seed.kwargs == {'nb_sentences': 5}
+
     def test_provider_with_kwargs(self):
         seed = Seeder.fake.provider('random_int', min=1, max=10)
         assert seed.kwargs == {'min': 1, 'max': 10}
