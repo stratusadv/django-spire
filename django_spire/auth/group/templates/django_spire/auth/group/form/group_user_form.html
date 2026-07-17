@@ -4,7 +4,7 @@
     <div class="row">
         {% csrf_token %}
         <div class="col-6 mb-2">
-            {% include 'django_spire/form/field/multi_select_field.html' with field=form.users %}
+            {% include 'django_spire/form/field/field.html' with field=form.users %}
         </div>
         <div class="col-12">
             {% include 'django_spire/form/button/submit_button.html' %}
