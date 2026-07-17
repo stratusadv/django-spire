@@ -1,20 +1,16 @@
 from __future__ import annotations
 
-import time
 from abc import ABC, abstractmethod
-from time import sleep
 from typing import TYPE_CHECKING, Any
 
-from dandy import generate_cache_key, SqliteCache
+from dandy import DandyRecoverableError, SqliteCache, generate_cache_key
 
 from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
-from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
-from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.intelligence.bots.field_seeding_bot import FieldSeedingBot
 
 if TYPE_CHECKING:
-    from django_spire.contrib.seeding.seed.seed import Seed
     from django_spire.contrib.seeding import Seeder
+    from django_spire.contrib.seeding.seed.seed import Seed
 
 
 class BaseSeedFactory(ABC):
@@ -66,10 +62,13 @@ class BaseSeedFactory(ABC):
 
         self._print_fresh()
 
-        fresh_seeds = self._generate_seeds(count)
+        try:
+            fresh_seeds = self._generate_seeds(count)
+        except DandyRecoverableError:
+            fresh_seeds = self._generate_seeds(count)
 
         if cache_enabled:
-            cache.set(cache_key, fresh_seeds)  # noqa
+            cache.set(cache_key, fresh_seeds)
 
         return fresh_seeds
 

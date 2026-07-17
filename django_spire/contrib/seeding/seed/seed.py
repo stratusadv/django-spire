@@ -17,5 +17,13 @@ class Seed:
     def __repr__(self) -> str:
         return repr(self._fields_values)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Seed):
+            return NotImplemented
+        return self._fields_values == other._fields_values
+
+    def __hash__(self) -> int:
+        return hash(id(self._fields_values))
+
     def to_dict(self) -> dict[str, Any]:
-        return self._fields_values
+        return dict(self._fields_values)

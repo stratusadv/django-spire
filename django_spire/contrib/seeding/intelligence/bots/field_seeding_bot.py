@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import Any
 
 from dandy import BaseIntel, Bot, Prompt
 from django.utils.timezone import localdate
@@ -17,9 +17,9 @@ class FieldSeedingBot(Bot):
     guidelines = Prompt().unordered_random_list(
         [
             'Field names have context behind the meaning of the data and how it should be created.',
-            f"Today's date is {localdate().strftime('%Y-%m-%d')} use this for context.",
+            f'The date for today is {localdate().strftime("%Y-%m-%d")} use this for context.',
             'The user will provide you with seeder name, filled fields and missing fields.',
-            'Use the already filled fields as context on how to fill the empty ones.'
+            'Use the already filled fields as context on how to fill the empty ones.',
         ]
     )
 
