@@ -1,12 +1,3 @@
-import os
-
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
-os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
-
-application = get_wsgi_application()
-
 from django_spire.contrib.seeding import Seeder
 from django_spire.metric.domain.models import Domain, SubDomain
 
@@ -30,12 +21,10 @@ domain_seeder = DomainSeeder(count=10)
 
 domain_seeder.seed_database()
 
-domain_ids = list(Domain.objects.values_list('id', flat=True))
-
 
 class SubDomainSeeder(Seeder):
     model_class = SubDomain
-    cache_enabled = False
+    cache_enabled = True
 
     fields_seeds = {
         'id': Seeder.exclude(),

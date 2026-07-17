@@ -1,12 +1,3 @@
-import os
-
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
-os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
-
-application = get_wsgi_application()
-
 from django.contrib.auth.models import User
 
 from django_spire.contrib.seeding import Seeder
@@ -31,6 +22,7 @@ class TaskModelSeeder(Seeder):
 
 
 task_model_seeder = TaskModelSeeder(count=20)
+
 task_model_seeder.seed_database()
 
 
@@ -66,7 +58,10 @@ class TaskUserModelSeeder(Seeder):
 
 
 sub_task_model_seeder = SubTaskModelSeeder(count=100)
+
 sub_task_model_seeder.seed_database()
 
+
 task_user_model_seeder = TaskUserModelSeeder(count=400)
+
 task_user_model_seeder.seed_database()
