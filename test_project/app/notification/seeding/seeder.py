@@ -1,21 +1,12 @@
-import os
-
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
-os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
-
-application = get_wsgi_application()
-
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.choices import (
-    NotificationTypeChoices,
-    NotificationStatusChoices,
     NotificationPriorityChoices,
+    NotificationStatusChoices,
+    NotificationTypeChoices,
 )
 from django_spire.notification.models import Notification
 
@@ -59,7 +50,10 @@ class AppNotificationSeeder(Seeder):
 
 
 notification_seeder = NotificationSeeder(count=10)
+
 notification_seeder.seed_database()
 
+
 app_notification_seeder = AppNotificationSeeder(count=10)
+
 app_notification_seeder.seed_database()

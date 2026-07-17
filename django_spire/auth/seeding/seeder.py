@@ -1,12 +1,3 @@
-import os
-
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
-os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
-
-application = get_wsgi_application()
-
 from django.contrib.auth.models import User
 
 from django_spire.contrib.seeding import Seeder
@@ -34,5 +25,3 @@ class UserSeeder(Seeder):
 user_seeder = UserSeeder(count=20)
 
 user_seeder.seed_database()
-
-print(f'{User.objects.all().count()=}')

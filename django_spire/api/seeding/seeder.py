@@ -1,23 +1,10 @@
-import os
-
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
-os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
-
-application = get_wsgi_application()
-
 from django_spire.api import models
 from django_spire.contrib.seeding import Seeder
 
 
 class ApiAccessSeeder(Seeder):
     model_class = models.ApiAccess
-    fields_seeds = {
-        'id': Seeder.exclude(),
-        'name': Seeder.llm(str),
-        'permission': Seeder.static(1),
-    }
+    fields_seeds = {'id': Seeder.exclude(), 'name': Seeder.llm(str), 'permission': Seeder.static(1)}
 
     @staticmethod
     def update_hashed_keys() -> None:
