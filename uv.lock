@@ -787,7 +787,7 @@ wheels = [
 [[package]]
 name = "django-glue"
 version = "1.0.0a5"
-source = { git = "https://github.com/stratusadv/django-glue.git?rev=v1%2Fbase#266cd72fa030b6795b699dbe1ed1058c54f49b06" }
+source = { git = "https://github.com/stratusadv/django-glue.git?rev=v1%2Fbase#00893ebbdc234404e15973164a2ab3b00ef26967" }
 dependencies = [
     { name = "django" },
     { name = "pydantic" },

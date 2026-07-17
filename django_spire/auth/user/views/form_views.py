@@ -49,22 +49,27 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
 @permission_required('django_spire_auth_user.change_authuser')
 def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     portal_user = get_object_or_404(AuthUser, pk=pk)
-    Glue.model(
-        request=request, unique_name='portal_user', target=portal_user, access=Glue.Access.VIEW
-    )
 
-    if request.method == 'POST':
-        form = forms.UserForm(request.POST, instance=portal_user)
+    form = forms.UserForm(instance=portal_user)
 
-        if form.is_valid():
-            portal_user = form.save()
-            add_form_activity(portal_user, pk, request.user)
+    Glue.form(request, unique_name='user_form', target=form, access=Glue.Access.CHANGE)
 
-            return HttpResponseRedirect(
-                reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk})
-            )
-    else:
-        form = forms.UserForm(instance=portal_user)
+    # Glue.model(
+    #     request=request, unique_name='portal_user', target=portal_user, access=Glue.Access.VIEW
+    # )
+    #
+    # if request.method == 'POST':
+    #     form = forms.UserForm(request.POST, instance=portal_user)
+    #
+    #     if form.is_valid():
+    #         portal_user = form.save()
+    #         add_form_activity(portal_user, pk, request.user)
+    #
+    #         return HttpResponseRedirect(
+    #             reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk})
+    #         )
+    # else:
+    #     form = forms.UserForm(instance=portal_user)
 
     nav = AuthUserNavigation()
     nav.page_description = 'Edit'
@@ -78,11 +83,11 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.breadcrumbs.add('Edit')
 
     context = nav.as_context()
-    context['portal_user'] = portal_user
-    context['form'] = form
-    context['initial_data'] = json.dumps(form.data, cls=DjangoJSONEncoder)
-    context['form_title'] = f'Edit {portal_user}'
-    context['form_description'] = 'Update user information.'
+    # context['portal_user'] = portal_user
+    # context['form'] = form
+    # context['initial_data'] = json.dumps(form.data, cls=DjangoJSONEncoder)
+    # context['form_title'] = f'Edit {portal_user}'
+    # context['form_description'] = 'Update user information.'
     return TemplateResponse(request, 'django_spire/auth/user/page/form_page.html', context)
 
 

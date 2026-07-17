@@ -4,18 +4,18 @@
 
 {% block glue_form_content %}
 
-    <div class="row g-2 mb-3">
-        <div class="col-6">
+    <div class="row g-3">
+        <div class="col-12">
             {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.first_name' %}
         </div>
-        <div class="col-6">
+        <div class="col-12">
             {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.last_name' %}
         </div>
-        <div class="col-6">
+        <div class="col-12">
             {% include 'django_spire/glue/form/field/email_field.html' with glue_field='glue_form.$fields.email' %}
         </div>
-        <div class="col-6">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.is_active' %}
+        <div class="col-12">
+            {% include 'django_spire/glue/form/field/boolean_field.html' with glue_field='glue_form.$fields.is_active' %}
         </div>
     </div>
 

@@ -3,8 +3,7 @@ from __future__ import annotations
 from django import forms
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from django.urls import reverse
-from django_glue import Glue, GlueResponse
+from django_glue import Glue
 
 from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.user.models import AuthUser
