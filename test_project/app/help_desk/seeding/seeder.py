@@ -1,12 +1,3 @@
-import os
-
-from django.core.wsgi import get_wsgi_application
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'test_project.postgres_settings')
-os.environ.setdefault('DANDY_SETTINGS_MODULE', 'test_project.dandy_settings')
-
-application = get_wsgi_application()
-
 from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.seeding import Seeder
 from django_spire.help_desk.choices import (
