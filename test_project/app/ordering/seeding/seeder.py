@@ -14,8 +14,3 @@ class DuckSeeder(Seeder):
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
-
-
-duck_seeder = DuckSeeder(count=20)
-
-duck_seeder.seed_database()

@@ -17,16 +17,9 @@ class DomainSeeder(Seeder):
     }
 
 
-domain_seeder = DomainSeeder(count=10)
-
-domain_seeder.seed_database()
-
-domain_ids = list(Domain.objects.values_list('id', flat=True))
-
-
 class SubDomainSeeder(Seeder):
     model_class = SubDomain
-    cache_enabled = False
+    cache_enabled = True
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -37,8 +30,3 @@ class SubDomainSeeder(Seeder):
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.fake.boolean(),
     }
-
-
-subdomain_seeder = SubDomainSeeder(count=200)
-
-subdomain_seeder.seed_database()

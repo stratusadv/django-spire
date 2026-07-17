@@ -14,8 +14,3 @@ class CommentExampleSeeder(Seeder):
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
-
-
-comment_example = CommentExampleSeeder(count=10)
-
-comment_example.seed_database()

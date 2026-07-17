@@ -11,10 +11,3 @@ class ApiAccessSeeder(Seeder):
         for i, api_access in enumerate(models.ApiAccess.objects.all(), start=1):
             api_access.permission = min(i, 4)
             api_access.set_key_and_save(f'stratus{i}')
-
-
-api_seeder = ApiAccessSeeder(count=5)
-
-api_seeder.seed_database()
-
-api_seeder.update_hashed_keys()

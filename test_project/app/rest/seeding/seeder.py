@@ -14,8 +14,3 @@ class PirateModelSeeder(Seeder):
         'username': Seeder.llm(field_type=str, prompt='username'),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
     }
-
-
-pirate_model_seeder = PirateModelSeeder(count=50)
-
-pirate_model_seeder.seed_database()

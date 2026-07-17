@@ -21,8 +21,3 @@ class HelpDeskTicketSeeder(Seeder):
         'created_by_id': Seeder.model.random_foreign_key(AuthUser),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
     }
-
-
-help_desk_ticket_seeder = HelpDeskTicketSeeder(count=5)
-
-help_desk_ticket_seeder.seed_database()

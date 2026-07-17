@@ -11,8 +11,3 @@ class CeleryStalkSeeder(Seeder):
         'is_crisp': Seeder.fake.boolean(),
         'length_inches': Seeder.random.float(0, 999.99),
     }
-
-
-celery_stalk_seeder = CeleryStalkSeeder()
-
-celery_stalk_seeder.seed_database(count=50)
