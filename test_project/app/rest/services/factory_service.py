@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class PirateFactoryService(BaseDjangoModelService['Pirate']):
     obj: Pirate
 
-    @Glue.Attribute(access=Glue.Access.CHANGE)
+    @Glue.attribute(access=Glue.Access.CHANGE)
     def duplicate(self, request: WSGIRequest) -> dict:
         new_pirate = self.obj_class.services.save_model_obj(
             user=request.user,

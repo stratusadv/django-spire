@@ -7,6 +7,7 @@ from django_spire.contrib.seeding.field.seed.mutate import MutateSeverity
 from django_spire.contrib.seeding.field.seed.mutate import NullableMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate import TransformMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate import TypeCoercionMutateFieldSeed
+from django_spire.contrib.seeding.field.seed.mutate.exclude_seed import ExcludeMutateFieldSeed
 
 
 class MutateFieldSeedHelper(FieldSeedHelper):
@@ -20,6 +21,12 @@ class MutateFieldSeedHelper(FieldSeedHelper):
     ) -> CorruptMutateFieldSeed:
         return CorruptMutateFieldSeed(
             field_seed=field_seed, corrupt_chance=corrupt_chance, severity=severity
+        )
+
+    @staticmethod
+    def exclude(field_seed: BaseFieldSeed, exclude_chance: float = 0.5) -> ExcludeMutateFieldSeed:
+        return ExcludeMutateFieldSeed(
+            field_seed=field_seed, exclude_chance=exclude_chance
         )
 
     @staticmethod

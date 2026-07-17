@@ -1,38 +1,23 @@
-<form
-        class="row align-items-center"
-        x-data="{
-        ticket_form: Glue.form.ticket_form,
-        is_processing: false,
-        async submit_form() {
-            this.is_processing = true;
-            await this.ticket_form.validate()
-            debugger
-            let result = await this.ticket_form.save_model_obj()
-            debugger
-            if(result?.redirect_url) {
-                window.location.href=result.redirect_url
-            }
-            this.is_processing = false
-        }
-    }"
->
-    <div class="col-12 col-sm mb-3 mb-sm-0">
-        <div class="attribute-label">Purpose</div>
-        {% include 'django_spire/glue/form/field/select_field.html' with glue_field='ticket_form.$fields.purpose' %}
+{% extends 'django_spire/glue/form/form.html' %}
+
+{% block glue_form_unique_name %}ticket_form{% endblock %}
+
+{% block glue_form_content %}
+    <div class="row">
+        <div class="col-12 col-sm mb-3 mb-sm-0">
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.purpose' %}
+        </div>
+
+        <div class="col-12 col-sm mb-3 mb-sm-0">
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.priority' %}
+        </div>
+
+        <div class="col-12 col-sm mb-3 mb-sm-0">
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.status' %}
+        </div>
+
+        <div class="col-12 mb-1 mt-3">
+            {% include 'django_spire/glue/form/field/text_field.html' with glue_field='glue_form.$fields.description' %}
+        </div>
     </div>
-    <div class="col-12 col-sm mb-3 mb-sm-0">
-        <div class="attribute-label">Priority</div>
-        {% include 'django_spire/glue/form/field/select_field.html' with glue_field='ticket_form.$fields.priority' %}
-    </div>
-    <div class="col-12 col-sm mb-3 mb-sm-0">
-        <div class="attribute-label">Status</div>
-        {% include 'django_spire/glue/form/field/select_field.html' with glue_field='ticket_form.$fields.status' %}
-    </div>
-    <div class="col-12 mb-1 mt-3">
-        <div class="attribute-label">Description</div>
-        {% include 'django_spire/glue/form/field/text_field.html' with glue_field='ticket_form.$fields.description' %}
-    </div>
-    <div class="col-12 pt-4">
-        {% include 'django_spire/glue/form/button/submit_button.html' %}
-    </div>
-</form>
+{% endblock %}

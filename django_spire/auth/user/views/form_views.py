@@ -28,24 +28,10 @@ if TYPE_CHECKING:
 @permission_required('django_spire_auth_user.add_authuser')
 def register_form_view(request: WSGIRequest) -> TemplateResponse:
     portal_user = AuthUser()
-    Glue.model(
-        request=request, unique_name='portal_user', target=portal_user, access=Glue.Access.VIEW
-    )
 
-    if request.method == 'POST':
-        user_form = forms.RegisterUserForm(request.POST, instance=portal_user)
+    form = forms.UserForm(instance=portal_user)
 
-        if user_form.is_valid():
-            user = user_form.save()
-            add_user_to_all_user_group(user)
-
-            add_form_activity(user, 0, request.user)
-
-            return HttpResponseRedirect(reverse('django_spire:auth:user:page:list'))
-
-        show_form_errors(request, user_form)
-    else:
-        user_form = forms.RegisterUserForm(instance=portal_user)
+    Glue.form(request, unique_name='user_form', target=form, access=Glue.Access.CHANGE)
 
     nav = AuthUserNavigation()
     nav.page_title = 'Register'
@@ -54,9 +40,7 @@ def register_form_view(request: WSGIRequest) -> TemplateResponse:
     nav.breadcrumbs.add('Register New User')
 
     context = nav.as_context()
-    context['user_form_data'] = json.dumps(user_form.data, cls=DjangoJSONEncoder)
-    context['form_title'] = 'Register New User'
-    context['form_description'] = 'Create a new user account.'
+
     return TemplateResponse(
         request, 'django_spire/auth/user/page/register_form_page.html', context=context
     )

@@ -13,7 +13,7 @@ from django_spire.help_desk.models import HelpDeskTicket
 
 
 class HelpDeskTicketModelForm(ModelForm):
-    @Glue.Attribute(access=Glue.Access.CHANGE)
+    @Glue.attribute(access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if len(self.data['description']) < 10:
             return GlueResponse(

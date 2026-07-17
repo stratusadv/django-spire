@@ -8,7 +8,7 @@ from test_project.app.task.models import Task
 
 
 class TaskModelForm(ModelForm):
-    @Glue.Attribute(access=Glue.Access.CHANGE)
+    @Glue.attribute(access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest, time_of_day: str | None = None) -> GlueResponse:
         if len(self.data['name']) < 10:
             return GlueResponse(messages=[

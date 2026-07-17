@@ -1,21 +1,24 @@
 <div x-data="{
-    glueObject: {% block glue_object %}{% endblock %},
-    async submit()
-        try {
-            const result = await this.glueObject.save();
-            if (result.success) {
-                $store.notifications.success('Fighter created successfully!');
-                bootstrap.Modal.getInstance(document.getElementById('{{ modal_id }}')).hide();
-            }
-        } finally {
-            this.saving = false;
+    glue_form: Glue.form.{% block glue_form_unique_name %}{% endblock %},
+    is_processing: false,
+    async submit_form() {
+        this.is_processing = true;
+        await this.glue_form.validate()
+        let result = await this.glue_form.save_model_obj()
+        if(result?.redirect?.url) {
+            window.location.href=result.redirect.url
         }
+        this.is_processing = false
     }
 }">
 
     {% block glue_form_content %}
     {% endblock %}
 
-    {% block glue_form_submit_button %}
-    {% endblock %}
+    <div class="row">
+        <div class="col-12 mt-3">
+            {% include 'django_spire/glue/form/button/submit_button.html' %}
+        </div>
+    </div>
+
 </div>

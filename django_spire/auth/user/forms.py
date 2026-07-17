@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from django import forms
 from django.contrib.auth.models import User
+from django.http import HttpRequest
+from django.urls import reverse
+from django_glue import Glue, GlueResponse
 
 from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.user.models import AuthUser
@@ -9,7 +12,16 @@ from django_spire.auth.user.factories import register_new_user
 
 
 class UserForm(forms.ModelForm):
-    def save(self, commit: bool = True):
+    @Glue.attribute(access=Glue.Access.CHANGE)
+    def save_model_obj(self, request: HttpRequest) -> Glue.Response | None:
+        if self.is_valid():
+            user = self.save()
+
+            return Glue.RedirectResponse(view_name='django_spire:auth:user:page:detail', pk=user.pk)
+
+        return None
+
+    def save(self, commit: bool = True) -> User:
         self.instance.username = self.cleaned_data['email'].lower()
         return super().save(commit=commit)
 

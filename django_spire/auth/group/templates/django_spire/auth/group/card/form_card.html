@@ -1,0 +1,15 @@
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3">
+                {% csrf_token %}
+                <div class="col-12">
+                    {% include 'django_spire/form/field/field.html' with field=form.name %}
+                </div>
+                <div class="col-12">
+                    {% include 'django_spire/form/button/submit_button.html' %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

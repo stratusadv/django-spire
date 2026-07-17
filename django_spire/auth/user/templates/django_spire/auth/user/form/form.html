@@ -1,28 +1,22 @@
-<form
-        x-data="{
-                async init () {
-                    await this.user.get()
-                },
-                user: new ModelObjectGlue('portal_user'),
-            }"
-        method="post"
->
-    {% csrf_token %}
+{% extends 'django_spire/glue/form/form.html' %}
+
+{% block glue_form_unique_name %}user_form{% endblock %}
+
+{% block glue_form_content %}
 
     <div class="row g-2 mb-3">
         <div class="col-6">
-            {% include 'django_spire/glue/field/char_field.html' with glue_model_field='user.first_name' %}
+            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.first_name' %}
         </div>
         <div class="col-6">
-            {% include 'django_spire/glue/field/char_field.html' with glue_model_field='user.last_name' %}
+            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.last_name' %}
         </div>
         <div class="col-6">
-            {% include 'django_spire/glue/field/email_field.html' with glue_model_field='user.email' %}
+            {% include 'django_spire/glue/form/field/email_field.html' with glue_field='glue_form.$fields.email' %}
         </div>
         <div class="col-6">
-            {% include 'django_spire/glue/field/select_field.html' with glue_model_field='user.is_active' %}
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.is_active' %}
         </div>
     </div>
 
-    {% include 'django_spire/form/button/submit_button.html' %}
-</form>
+{% endblock %}

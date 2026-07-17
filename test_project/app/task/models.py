@@ -28,7 +28,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     )
 
     objects = TaskQuerySet().as_manager()
-    services = Glue.Attribute(TaskService(), access=Glue.Access.DELETE)
+    services = Glue.attribute(TaskService(), access=Glue.Access.DELETE)
     class Meta:
         verbose_name = 'Task'
         verbose_name_plural = 'Tasks'
@@ -37,7 +37,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     def __str__(self) -> str:
         return self.name
 
-    @Glue.Attribute(access=Glue.Access.CHANGE)
+    @Glue.attribute(access=Glue.Access.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
         self.status = TaskStatusChoices.DONE
         self.services.save_model_obj(user=request.user, obj=self, status=self.status)

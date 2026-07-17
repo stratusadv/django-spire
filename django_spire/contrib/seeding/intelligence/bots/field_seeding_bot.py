@@ -7,6 +7,7 @@ from django.utils.timezone import localdate
 from pydantic import create_model
 
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
+from django_spire.contrib.seeding.field.seed.mutate.exclude_seed import ExcludeMutateFieldSeed
 from django_spire.contrib.seeding.seed.seed import Seed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 
@@ -68,6 +69,12 @@ class FieldSeedingBot(Bot):
         fields_values = {}
 
         for field, seed in fields_seeds.items():
+            if isinstance(seed, ExcludeMutateFieldSeed):
+                possible_seed = seed.generate_value(seed_index)
+
+                if possible_seed:
+                    fields_values[field] = possible_seed.generate_value(seed_index)
+
             if not isinstance(seed, ExcludeFieldSeed) and not isinstance(seed, LlmFieldSeed):
                 fields_values[field] = seed.generate_value(seed_index=seed_index)
 

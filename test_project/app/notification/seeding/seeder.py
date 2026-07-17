@@ -40,10 +40,13 @@ class AppNotificationSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        'notification_id': Seeder.model.ordered_foreign_key(Notification),
+        'notification_id': Seeder.model.ordered_queryset_foreign_key(
+            Notification.objects.filter(app__isnull=True)
+        ),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
         'created_datetime': Seeder.exclude(),
         'template': Seeder.static('django_spire/notification/app/item/notification_item.html'),
         'context_data': Seeder.static({}),
     }
+

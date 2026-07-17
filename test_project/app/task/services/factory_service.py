@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class TaskFactoryService(BaseDjangoModelService['Task']):
     obj: Task
 
-    @Glue.Attribute(access=Glue.Access.CHANGE)
+    @Glue.attribute(access=Glue.Access.CHANGE)
     def duplicate(self, request: HttpRequest) -> dict:
         new_task = self.obj_class.services.save_model_obj(
             user=request.user,
