@@ -49,18 +49,13 @@ class AppNotificationSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        # 'notification_id': Seeder.model.ordered_foreign_key(Notification),
+        'notification_id': Seeder.model.ordered_foreign_key(Notification),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
         'created_datetime': Seeder.exclude(),
         'template': Seeder.static('django_spire/notification/app/item/notification_item.html'),
         'context_data': Seeder.static({}),
     }
-
-    def __post_seed__(self) -> None:
-        notification_ids = Notification.objects.all().values_list('id', flat=True)
-        for index, seed in enumerate(self.seeds):
-            seed['notification_id'] = notification_ids[index]
 
 
 notification_seeder = NotificationSeeder(count=10)

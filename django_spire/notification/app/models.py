@@ -19,7 +19,9 @@ class AppNotification(ViewedModelMixin, HistoryModelMixin):
         related_name='app',
         related_query_name='app',
     )
+
     template = models.TextField(default='django_spire/notification/app/item/notification_item.html')
+
     context_data = models.JSONField(default=dict)
 
     objects = AppNotificationQuerySet.as_manager()

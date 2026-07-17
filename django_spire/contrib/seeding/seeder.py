@@ -91,9 +91,7 @@ class Seeder:
         if not self.seeds:
             start_time = time.perf_counter()
 
-            if self.verbose:
-                print(f'\n{self.name_verbose}')
-                print(f' -> Seeding > {seed_count:6} > ', end='', flush=True)
+            self._print_seeder_start(seed_count)
 
             if self.model_class is None:
                 self.seeds = SeedFactory(seeder=self).generate_seeds(
@@ -105,15 +103,11 @@ class Seeder:
                     count=seed_count, cache_enabled=self.cache_enabled, cache_name=self._cache_name
                 )
 
-            if self.verbose:
-                print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
-                print('Post', end='', flush=True)
+            self._print_post(spacing=4)
 
             self.__post_seed__()
 
-            if self.verbose:
-                print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
-                print(f'Completed in {time.perf_counter() - start_time:6.2f} seconds')
+            self._print_completed(start_time)
 
     def seed_class(self, class_: type, count: int | None = None) -> list[type]:
         self.seed(count)
@@ -130,8 +124,7 @@ class Seeder:
 
         start_time = time.perf_counter()
 
-        if self.verbose:
-            print(f' -> Saving to Database {"." * 10} Waiting', end='', flush=True)
+        self._print_saving_to_database()
 
         model_objects = self.model_class.objects.bulk_create(
             objs=self.to_model_instances(), batch_size=1000
@@ -139,17 +132,36 @@ class Seeder:
 
         self._model_object_ids = [model_object.id for model_object in model_objects]
 
-        if self.verbose:
-            print('\b' * 7 + ' ' * 7 + '\b' * 7, end='', flush=True)
-            print('Post', end='', flush=True)
+        self._print_post(spacing=7)
 
         self.__post_seed_database__()
 
-        if self.verbose:
-            print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
-            print(f'Completed in {time.perf_counter() - start_time:6.2f} seconds')
+        self._print_completed(start_time)
 
         return self.queryset
+
+    def _print_completed(self, start_time: float) -> None:
+        if self.verbose:
+            print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
+            completed_time = time.perf_counter() - start_time
+            if completed_time >= 2.0:
+                print(f'Completed in \033[31m{completed_time:6.2f}s\033[0m')
+            else:
+                print(f'Completed in {completed_time:6.2f}s')
+
+    def _print_post(self, spacing: int) -> None:
+        if self.verbose:
+            print('\b' * spacing + ' ' * spacing + '\b' * spacing, end='', flush=True)
+            print('Post', end='', flush=True)
+
+    def _print_saving_to_database(self) -> None:
+        if self.verbose:
+            print(f' -> Saving to Database {"." * 13} Waiting', end='', flush=True)
+
+    def _print_seeder_start(self, seed_count: int) -> None:
+        if self.verbose:
+            print(f'\n\033[34m{self.name_verbose}\033[0m')
+            print(f' -> Seeding > {seed_count:6} > ', end='', flush=True)
 
     def reseed_database(self, count: int | None = None) -> QuerySet:
         self.reset()

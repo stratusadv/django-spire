@@ -20,24 +20,27 @@ if TYPE_CHECKING:
 class BaseSeedFactory(ABC):
     def __init__(self, seeder: Seeder) -> None:
         self.seeder = seeder
+        self.current_progress = 0
         self._validate()
 
     def _generate_seeds(self, count: int) -> list[Seed]:
         futures = []
         seeds: list[Seed] = []
 
-        self.print_zero_progress()
+        self._print_zero_progress()
 
         for i in range(count):
             futures.append(
                 FieldSeedingBot().process_to_future(
-                    seeder_name=self.seeder.name_verbose, fields_seeds=self.seeder.fields_seeds, seed_index=i
+                    seeder_name=self.seeder.name_verbose,
+                    fields_seeds=self.seeder.fields_seeds,
+                    seed_index=i,
                 )
             )
 
-            self.print_progress(i, count)
+            self._print_progress(i, count)
 
-            if len(futures) >= 15 or i == count - 1:
+            if len(futures) >= 13 or i == count - 1:
                 seeds.extend([future.get_result(timeout_seconds=10) for future in futures])
                 futures = []
 
@@ -57,13 +60,11 @@ class BaseSeedFactory(ABC):
             cached_seeds: list[Seed] | None = cache.get(cache_key)
 
             if cached_seeds:
-                if self.seeder.verbose:
-                    print(f'Cached {"." * 6}{" " * 4} ', end='', flush=True)
+                self._print_cached()
 
                 return cached_seeds
 
-        if self.seeder.verbose:
-            print(f'Fresh {"." * 7} ', end='', flush=True)
+        self._print_fresh()
 
         fresh_seeds = self._generate_seeds(count)
 
@@ -72,14 +73,25 @@ class BaseSeedFactory(ABC):
 
         return fresh_seeds
 
-    def print_progress(self, index: int, count: int) -> None:
+    def _print_cached(self) -> None:
+        if self.seeder.verbose:
+            print(f'\033[35mCached\033[0m {"." * 6}{" " * 4} ', end='', flush=True)
+
+    def _print_fresh(self) -> None:
+        if self.seeder.verbose:
+            print(f'\033[32mFresh\033[0m {"." * 7} ', end='', flush=True)
+
+    def _print_progress(self, index: int, count: int) -> None:
         if self.seeder.verbose:
             progress = int(((index + 1) / count) * 100)
-            if progress % 5 == 0:
+
+            if progress != self.current_progress:
                 print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
                 print(f'{progress:3}%', end='', flush=True)
 
-    def print_zero_progress(self) -> None:
+            self.current_progress = progress
+
+    def _print_zero_progress(self) -> None:
         if self.seeder.verbose:
             print(f'{0:3}%', end='', flush=True)
 

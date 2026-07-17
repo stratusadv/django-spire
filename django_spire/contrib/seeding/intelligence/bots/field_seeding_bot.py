@@ -13,16 +13,14 @@ from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 
 class FieldSeedingBot(Bot):
     role = 'Data Generation Expert'
-    task = 'Create seed data for a software application.'
-    guidelines = (
-        Prompt()
-        .text('ALL EMPTY FIELDS ARE REQUIRED TO HAVE DATA.')
-        .text(
-            'Instructions have context behind the meaning of the data and how it should be created.'
-        )
-        .text(
-            f"Today's date is {localdate().strftime('%Y-%m-%d')} use this in context for generating dates and datetimes"
-        )
+    task = 'Create field seed data for a software application based on request.'
+    guidelines = Prompt().unordered_random_list(
+        [
+            'Field names have context behind the meaning of the data and how it should be created.',
+            f"Today's date is {localdate().strftime('%Y-%m-%d')} use this for context.",
+            'The user will provide you with seeder name, filled fields and missing fields.',
+            'Use the already filled fields as context on how to fill the empty ones.'
+        ]
     )
 
     def process(self, seeder_name: str, fields_seeds: dict[str, Any], seed_index: int) -> Seed:
