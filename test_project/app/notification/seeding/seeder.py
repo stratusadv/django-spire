@@ -47,13 +47,3 @@ class AppNotificationSeeder(Seeder):
         'template': Seeder.static('django_spire/notification/app/item/notification_item.html'),
         'context_data': Seeder.static({}),
     }
-
-
-notification_seeder = NotificationSeeder(count=10)
-
-notification_seeder.seed_database()
-
-
-app_notification_seeder = AppNotificationSeeder(count=10)
-
-app_notification_seeder.seed_database()

@@ -20,8 +20,3 @@ class UserSeeder(Seeder):
         'password': Seeder.exclude(),  # password hash slows down seeding
         'last_login': Seeder.exclude(),
     }
-
-
-user_seeder = UserSeeder(count=20)
-
-user_seeder.seed_database()

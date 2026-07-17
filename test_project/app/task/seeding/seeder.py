@@ -21,11 +21,6 @@ class TaskModelSeeder(Seeder):
     }
 
 
-task_model_seeder = TaskModelSeeder(count=20)
-
-task_model_seeder.seed_database()
-
-
 class SubTaskModelSeeder(Seeder):
     model_class = Task
     cache_enabled = False
@@ -55,13 +50,3 @@ class TaskUserModelSeeder(Seeder):
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
-
-
-sub_task_model_seeder = SubTaskModelSeeder(count=100)
-
-sub_task_model_seeder.seed_database()
-
-
-task_user_model_seeder = TaskUserModelSeeder(count=400)
-
-task_user_model_seeder.seed_database()
