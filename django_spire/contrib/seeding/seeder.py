@@ -14,7 +14,9 @@ from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSee
 from django_spire.contrib.seeding.field.seed.helper.custom_helper import CustomFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.fake_helper import FakeFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.model_helper import ModelFieldSeedHelper
+from django_spire.contrib.seeding.field.seed.helper.mutate_helper import MutateFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.random_helper import RandomFieldSeedHelper
+from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
@@ -30,6 +32,7 @@ class Seeder:
     custom = CustomFieldSeedHelper(locale)
     fake = FakeFieldSeedHelper(locale)
     model = ModelFieldSeedHelper(locale)
+    mutate = MutateFieldSeedHelper(locale)
     random = RandomFieldSeedHelper(locale)
 
     cache_enabled = True
@@ -43,6 +46,8 @@ class Seeder:
         self._model_object_ids: list[int | str] = []
         self._count: int = count
         self.verbose: bool = verbose
+
+        self._validate()
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
@@ -70,6 +75,10 @@ class Seeder:
     @staticmethod
     def exclude() -> ExcludeFieldSeed:
         return ExcludeFieldSeed()
+
+    @staticmethod
+    def index(index_start: int = 0, index_step: int = 1) -> IndexFieldSeed:
+        return IndexFieldSeed(index_start, index_step)
 
     @staticmethod
     def static(value: Any) -> StaticFieldSeed:
@@ -204,5 +213,5 @@ class Seeder:
                 raise DjangoSpireSeederError(message)
 
             if not isinstance(seed, BaseFieldSeed):
-                message = f'{self.__class__.__name__}.fields_seeds keys must all be BaseFieldSeed'
+                message = f'{self.__class__.__name__}.fields_seeds values must all be BaseFieldSeed'
                 raise DjangoSpireSeederError(message)

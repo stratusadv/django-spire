@@ -8,4 +8,6 @@ class ExcludeFieldSeed(BaseFieldSeed):
         pass
 
     def generate_value(self, seed_index: int) -> Any:
-        pass
+        _ = seed_index
+
+        return None

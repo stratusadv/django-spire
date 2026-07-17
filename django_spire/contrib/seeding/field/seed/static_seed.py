@@ -8,4 +8,6 @@ class StaticFieldSeed(BaseFieldSeed):
         self.value = value
 
     def generate_value(self, seed_index: int) -> Any:
+        _ = seed_index
+
         return self.value

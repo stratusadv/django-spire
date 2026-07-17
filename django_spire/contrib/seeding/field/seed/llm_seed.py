@@ -12,4 +12,6 @@ class LlmFieldSeed(BaseFieldSeed):
         self.locale = locale
 
     def generate_value(self, seed_index: int) -> Any:
+        _ = seed_index
+
         return None

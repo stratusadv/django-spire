@@ -1,6 +1,5 @@
 from typing import Any
 
-from django.db import models
 from django.db.models import QuerySet
 
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
@@ -15,8 +14,6 @@ class OrderedForeignKeyModelFieldSeed(BaseFieldSeed):
 
     def generate_value(self, seed_index: int) -> Any:
         if self.__class__.model_foreign_keys is None:
-            self.__class__.model_foreign_keys = list(
-                self.queryset.values_list('id', flat=True)
-            )
+            self.__class__.model_foreign_keys = list(self.queryset.values_list('id', flat=True))
 
         return self.__class__.model_foreign_keys[seed_index]
