@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 @login_required()
 def list_view(request: WSGIRequest) -> TemplateResponse:
     # REMOVE SLICING AFTER GLUE IS FIXED
-    tasks = models.Task.objects.active().top_level().prefetch_users()[:100]
-    child_tasks = models.Task.objects.active().children().prefetch_users()[:100]
+    tasks = models.Task.objects.active().top_level().prefetch_users()
+    child_tasks = models.Task.objects.active().children().prefetch_users()
 
     Glue.queryset(request, 'tasks', tasks, Glue.Access.CHANGE)
     Glue.queryset(request, 'child_tasks', child_tasks, Glue.Access.CHANGE)

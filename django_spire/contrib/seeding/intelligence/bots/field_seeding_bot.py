@@ -75,7 +75,7 @@ class FieldSeedingBot(Bot):
                 if possible_seed:
                     fields_values[field] = possible_seed.generate_value(seed_index)
 
-            if not isinstance(seed, ExcludeFieldSeed) and not isinstance(seed, LlmFieldSeed):
+            elif not isinstance(seed, ExcludeFieldSeed) and not isinstance(seed, LlmFieldSeed):
                 fields_values[field] = seed.generate_value(seed_index=seed_index)
 
         return fields_values

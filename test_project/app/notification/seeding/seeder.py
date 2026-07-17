@@ -50,3 +50,4 @@ class AppNotificationSeeder(Seeder):
         'context_data': Seeder.static({}),
     }
 
+
