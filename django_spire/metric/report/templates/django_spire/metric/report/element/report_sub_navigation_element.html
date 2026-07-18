@@ -3,8 +3,8 @@
 {% if sub_nav_value|is_dict %}
     {% for key, val in sub_nav_value.items %}
         {% if val|is_dict %}
-            <div class="mb-3">
-                <div class="text-muted ds-fs-11 fw-semibold text-uppercase mb-2">{{ key }}</div>
+            <div class="mt-3">
+                <div class="text-muted ds-fs-11 fw-semibold text-uppercase">{{ key }}</div>
 
                 {% if key_stack is None %}
                     {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=True sub_nav_value=val key_stack=key %}

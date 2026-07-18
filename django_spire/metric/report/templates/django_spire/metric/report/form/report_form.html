@@ -68,7 +68,10 @@
             {% endfor %}
 
             <div x-data="{
-                loading: false
+                loading: false,
+                init() {
+                    window.addEventListener('pagehide', (event) => {this.loading = false})
+                }
             }" class="row">
                 <div class="col mt-3 text-center" x-show="!loading">
                     <input class="btn btn-primary" @click="loading = true" type="submit" value="Run Report">

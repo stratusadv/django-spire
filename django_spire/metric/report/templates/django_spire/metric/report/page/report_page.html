@@ -25,12 +25,14 @@
 {% endblock %}
 
 {% block full_page_sub_navigation_title %}
-    Reports
+    {% if not report.is_ready %}
+        Reports
+    {% endif %}
 {% endblock %}
 
 {% block full_page_sub_navigation %}
     {% if not report.is_ready %}
-        <div class="p-3">
+        <div class="px-3">
             {% include 'django_spire/metric/report/element/report_sub_navigation_element.html' with depth=0 sub_nav_value=registry.report_names_classes %}
         </div>
     {% endif %}
