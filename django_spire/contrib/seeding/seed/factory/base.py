@@ -36,8 +36,12 @@ class BaseSeedFactory(ABC):
 
             self._print_progress(i, count)
 
-            if len(futures) >= 13 or i == count - 1:
+            if len(futures) >= 13 or i in [
+                count - 1,
+                0,
+            ]:  # NJ: Need to complete first future to populate seed class attributes (Not Perfect)
                 seeds.extend([future.get_result(timeout_seconds=10) for future in futures])
+
                 futures = []
 
         if len(seeds) != count:
@@ -65,6 +69,7 @@ class BaseSeedFactory(ABC):
         try:
             fresh_seeds = self._generate_seeds(count)
         except DandyRecoverableError:
+            self._print_retry()
             fresh_seeds = self._generate_seeds(count)
 
         if cache_enabled:
@@ -89,6 +94,11 @@ class BaseSeedFactory(ABC):
                 print(f'{progress:3}%', end='', flush=True)
 
             self.current_progress = progress
+
+    def _print_retry(self) -> None:
+        if self.seeder.verbose:
+            print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
+            print('\033[31mRetry\033[0m ', end='', flush=True)
 
     def _print_zero_progress(self) -> None:
         if self.seeder.verbose:

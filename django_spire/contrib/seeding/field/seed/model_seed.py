@@ -8,27 +8,26 @@ from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 
 
 class BaseForeignKeyModelFieldSeed(BaseFieldSeed, ABC):
-    model_foreign_keys: list | None = None
+    _model_foreign_keys: dict[str, list | None] = {}
 
     def __init__(self, queryset: QuerySet) -> None:
         self.queryset = queryset
-        self.__class__.model_foreign_keys = None
+        self.queryset_key = str(queryset.query)
 
-    def _load_foreign_keys(self) -> None:
-        if self.__class__.model_foreign_keys is None:
-            self.__class__.model_foreign_keys = list(self.queryset.values_list('id', flat=True))
+    def model_foreign_keys(self, seed_index: int) -> list:
+        if self.__class__._model_foreign_keys.get(self.queryset_key) is None or seed_index == 0:
+            self.__class__._model_foreign_keys[self.queryset_key] = list(
+                self.queryset.values_list('id', flat=True)
+            )
+
+        return self.__class__._model_foreign_keys[self.queryset_key]
 
 
 class OrderedForeignKeyModelFieldSeed(BaseForeignKeyModelFieldSeed):
     def generate_value(self, seed_index: int) -> Any:
-        self._load_foreign_keys()
-
-        return self.__class__.model_foreign_keys[seed_index]
+        return self.model_foreign_keys(seed_index)[seed_index]
 
 
 class RandomForeignKeyModelFieldSeed(BaseForeignKeyModelFieldSeed):
     def generate_value(self, seed_index: int) -> Any:
-        _ = seed_index
-        self._load_foreign_keys()
-
-        return random.choice(self.__class__.model_foreign_keys)
+        return random.choice(self.model_foreign_keys(seed_index))
