@@ -20,9 +20,8 @@ class TestSCSSCompilation(BaseTestCase):
         external_theme = self.scss_source_dir / '_theme.scss'
         assert external_theme.exists(), 'External _theme.scss should exist for testing'
 
-        python_exe = Path(sys.executable).resolve()
         result = subprocess.run(
-            [str(python_exe), 'manage.py', 'spire_compile_scss'],
+            [sys.executable, 'manage.py', 'spire_compile_scss'],
             capture_output=True,
             text=True,
             cwd=settings.BASE_DIR,
@@ -33,9 +32,8 @@ class TestSCSSCompilation(BaseTestCase):
         assert 'Compiled successfully:' in result.stdout
 
     def test_compile_scss_includes_external_test_utilities(self):
-        python_exe = Path(sys.executable).resolve()
         result = subprocess.run(
-            [str(python_exe), 'manage.py', 'spire_compile_scss'],
+            [sys.executable, 'manage.py', 'spire_compile_scss'],
             capture_output=True,
             text=True,
             cwd=settings.BASE_DIR,
@@ -52,9 +50,8 @@ class TestSCSSCompilation(BaseTestCase):
         assert '.test-selector' in css_content
 
     def test_compile_scss_output_contains_expected_test_values(self):
-        python_exe = Path(sys.executable).resolve()
         result = subprocess.run(
-            [str(python_exe), 'manage.py', 'spire_compile_scss'],
+            [sys.executable, 'manage.py', 'spire_compile_scss'],
             capture_output=True,
             text=True,
             cwd=settings.BASE_DIR,
