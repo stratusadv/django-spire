@@ -58,7 +58,7 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     return TemplateResponse(
         request,
-        'django_spire/contrib/page/../../../../core/templates/django_spire/page/delete_confirmation_form_page.html',
+        'django_spire/page/delete_confirmation_form_page.html',
         context,
     )
 
@@ -96,7 +96,7 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     return TemplateResponse(
         request,
-        'django_spire/contrib/page/../../../../core/templates/django_spire/page/delete_confirmation_form_page.html',
+        'django_spire/page/delete_confirmation_form_page.html',
         context,
     )
 

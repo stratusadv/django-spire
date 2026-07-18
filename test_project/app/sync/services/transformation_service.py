@@ -4,7 +4,7 @@ from dataclasses import replace
 from datetime import datetime, UTC
 from decimal import Decimal
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 
@@ -47,7 +47,7 @@ from test_project.app.sync.types import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import Any
+    from typing import Any
 
     from test_project.app.sync.models import Client
 

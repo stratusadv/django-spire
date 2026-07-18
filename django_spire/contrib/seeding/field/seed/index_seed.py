@@ -1,5 +1,3 @@
-from typing import Any
-
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 
 
@@ -9,4 +7,4 @@ class IndexFieldSeed(BaseFieldSeed):
         self.index_step = index_step
 
     def generate_value(self, seed_index: int) -> int:
-        return (seed_index + self.index_start) * self.index_step
+        return self.index_start + seed_index * self.index_step

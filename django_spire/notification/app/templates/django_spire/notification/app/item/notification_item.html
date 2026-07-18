@@ -1,10 +1,6 @@
 {# Renaming this file means a production admin action must be created to update notification objects with template `notification_item.html`. #}
 
-{% extends 'django_spire/item/../../../../../../../core/templates/django_spire/infinite_scroll/infinite_scroll_item.html' %}
-
-{% block item_class %}lh-sm py-{% if is_dropdown_item %}1{% else %}2{% endif %}{% endblock %}
-
-{% block item_content %}
+<div class="border-bottom lh-sm py-{% if is_dropdown_item %}1{% else %}2{% endif %}">
     {% if app_notification.notification.url %}
     <a href="{{ app_notification.notification.url }}"
     {% else %}
@@ -35,4 +31,4 @@
     {% else %}
     </div>
     {% endif %}
-{% endblock %}
+</div>

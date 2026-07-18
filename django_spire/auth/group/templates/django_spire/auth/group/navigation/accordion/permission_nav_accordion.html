@@ -1,5 +1,9 @@
 {% extends 'django_spire/navigation/accordion/accordion.html' %}
 
+{% load django_spire_core %}
+
+{% block accordion_root_class %}{% navigation_namespace_is_active request 'django_spire:auth:group,django_spire:auth:user' as is_active %}{% if is_active %}side-nav-accordion-open{% endif %}{% endblock %}
+
 {% block nav_title %}
     Permission
 {% endblock %}

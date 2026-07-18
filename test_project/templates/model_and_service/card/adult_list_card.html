@@ -1,23 +1,17 @@
 {% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
-	Placeholders
-{% endblock %}
-
-{% block card_button %}
-    {% url 'placeholder:page:form' pk=0 as new_placeholder_url %}
-	<a class="btn btn-sm btn-primary" href="{{ new_placeholder_url }}">
-        <i class="bi bi-plus"></i>
-        Add
-    </a>
+	Adults
 {% endblock %}
 
 {% block card_title_content %}
     <div class="card-body">
-        {% for placeholder in placeholders %}
-            {% include 'placeholder/item/placeholder_item.html' %}
+        {% for adult in adults %}
+            <div class="row">
+                <div class="col">{{ adult.get_full_name }}</div>
+            </div>
         {% empty %}
-            {% include 'django_spire/core/templates/django_spire/item/no_data_item.html' %}
+            {% include 'django_spire/item/no_data_item.html' %}
         {% endfor %}
     </div>
 {% endblock %}

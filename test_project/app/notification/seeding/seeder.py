@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.notification.app.models import AppNotification
@@ -49,5 +48,3 @@ class AppNotificationSeeder(Seeder):
         'template': Seeder.static('django_spire/notification/app/item/notification_item.html'),
         'context_data': Seeder.static({}),
     }
-
-

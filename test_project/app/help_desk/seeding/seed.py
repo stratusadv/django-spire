@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from test_project.app.help_desk.seeding.seeder import HelpDeskTicketSeeder
 
 

@@ -52,9 +52,11 @@ class Seeder:
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
-        if cls.fields_seeds is None:
+        if getattr(cls, 'fields_seeds', None) is None:
             message = f'{cls.__name__}.fields_seeds is None and must be defined'
             raise ValueError(message)
+
+        cls._validate()
 
     @property
     def _cache_name(self) -> str:
@@ -188,9 +190,12 @@ class Seeder:
         self.seed(count=count)
 
         if self.model_class is not None:
-            return serializers.serialize('json', self.queryset)
+            if self._model_object_ids:
+                return serializers.serialize('json', self.queryset)
 
-        return json.dumps(self.seeds, cls=DjangoJSONEncoder)
+            return serializers.serialize('json', self.to_model_instances())
+
+        return json.dumps(self.to_list_of_dicts(), cls=DjangoJSONEncoder)
 
     def to_list_of_dicts(self, count: int | None = None) -> list[dict[str, Any]]:
         self.seed(count=count)
@@ -206,12 +211,13 @@ class Seeder:
 
         return [self.model_class(**fields_values) for fields_values in self.to_list_of_dicts()]
 
-    def _validate(self) -> None:
-        for field, seed in self.fields_seeds.items():
+    @classmethod
+    def _validate(cls) -> None:
+        for field, seed in cls.fields_seeds.items():
             if not isinstance(field, str):
-                message = f'{self.__class__.__name__}.fields_seeds keys must all be strings'
+                message = f'{cls.__name__}.fields_seeds keys must all be strings'
                 raise DjangoSpireSeederError(message)
 
             if not isinstance(seed, BaseFieldSeed):
-                message = f'{self.__class__.__name__}.fields_seeds values must all be BaseFieldSeed'
+                message = f'{cls.__name__}.fields_seeds values must all be BaseFieldSeed'
                 raise DjangoSpireSeederError(message)

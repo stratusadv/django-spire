@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from test_project.app.rest.seeding.seeder import PirateModelSeeder
 
 
