@@ -38,4 +38,4 @@ class TestIndexFieldSeed:
     def test_large_values(self):
         seed = IndexFieldSeed(index_start=1000000, index_step=100)
         assert seed.generate_value(0) == 1000000
-        assert seed.generate_value(10) == 2000000
+        assert seed.generate_value(10) == 1001000

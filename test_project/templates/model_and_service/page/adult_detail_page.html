@@ -4,11 +4,11 @@
 
 	<div class="row g-3">
         <div class="col-12">
-            {% include 'test_model/card/test_model_detail_card.html' %}
+            {% include 'model_and_service/card/adult_detail_card.html' %}
         </div>
 
         <div class="col-4">
-            {% include 'django_spire/history/card/activity_list_card.html' with activity_log=test_model.activity_log.prefetch_user %}
+            {% include 'django_spire/activity/card/list_card.html' with activity_log=adult.activity_log.prefetch_user %}
         </div>
     </div>
 {% endblock %}

@@ -8,7 +8,7 @@
         </div>
 
         <div class="col-4">
-            {% include 'django_spire/history/card/activity_list_card.html' with activity_log=user_account.activity_log.prefetch_user %}
+            {% include 'django_spire/activity/card/list_card.html' with activity_log=user_account.activity_log.prefetch_user %}
         </div>
     </div>
 {% endblock %}

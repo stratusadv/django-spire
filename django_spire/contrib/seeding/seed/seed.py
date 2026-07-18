@@ -1,9 +1,15 @@
 from typing import Any
 
 
-class Seed:
+class Seed:  # noqa: PLW1641
     def __init__(self, fields_values: dict[str, Any]) -> None:
-        self._fields_values = fields_values
+        self._fields_values = dict(fields_values)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Seed):
+            return NotImplemented
+
+        return self._fields_values == other._fields_values
 
     def __getitem__(self, key: str) -> Any:
         return self._fields_values[key]

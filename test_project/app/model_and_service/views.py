@@ -23,29 +23,29 @@ def test_model_detail_view(request: WSGIRequest) -> TemplateResponse:
 
     test_model.add_activity(user=user, verb='created', information=f'{request.user} added a model.')
 
-    context_data = {'fields': fields}
+    context_data = {'adult': test_model, 'fields': fields}
     context_data['page_title'] = 'Test Model'
     context_data['page_description'] = 'Detail View'
     context_data['breadcrumbs'] = [
-        {'name': 'Test Models', 'href': reverse('test_model:page:list')},
+        {'name': 'Test Models', 'href': reverse('test_model:list')},
         {'name': 'Test Model', 'href': None},
     ]
     return TemplateResponse(
-        request, context=context_data, template='test_model/page/test_model_detail_page.html'
+        request, context=context_data, template='model_and_service/page/adult_detail_page.html'
     )
 
 
 def test_model_home_view(request: WSGIRequest) -> TemplateResponse:
-    template = 'test_model/page/test_model_home_page.html'
+    template = 'model_and_service/page/model_and_service_home_page.html'
     return TemplateResponse(request, template)
 
 
 def test_model_list_view(request: WSGIRequest) -> TemplateResponse:
-    context_data = {'test_models': []}
+    context_data = {'adults': []}
     context_data['page_title'] = 'Test Model'
     context_data['page_description'] = 'List View'
     context_data['breadcrumbs'] = [{'name': 'Test Models', 'href': None}]
 
     return TemplateResponse(
-        request, context=context_data, template='test_model/page/test_model_list_page.html'
+        request, context=context_data, template='model_and_service/page/adult_list_page.html'
     )

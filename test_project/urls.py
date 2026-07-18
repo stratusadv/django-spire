@@ -34,10 +34,5 @@ urlpatterns += [path('admin/', admin.site.urls)]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-    if importlib.util.find_spec('debug_toolbar'):
-        import debug_toolbar
-
-        urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
-
     if importlib.util.find_spec('django_browser_reload'):
         urlpatterns += [path('__reload__/', include('django_browser_reload.urls'))]

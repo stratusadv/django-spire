@@ -16,6 +16,7 @@ from django_spire.core.templatetags.django_spire_core import (
     in_list,
     index,
     is_path,
+    navigation_namespace_is_active,
     not_in_list,
     query_param_url,
     safe_dict_items,
@@ -281,3 +282,50 @@ class TestDjangoSpireCoreTemplateRendering(unittest.TestCase):
         rendered = tmpl.render(context)
         assert 'key:val' in rendered
         assert 'other:data' in rendered
+
+
+class TestNavigationNamespaceIsActive(unittest.TestCase):
+    @staticmethod
+    def _request(namespaces: list[str] | None):
+        request = RequestFactory().get('/')
+
+        if namespaces is None:
+            request.resolver_match = None
+        else:
+            request.resolver_match = type('match', (), {'namespaces': namespaces})
+
+        return request
+
+    def test_exact_namespace_matches(self) -> None:
+        request = self._request(['django_spire', 'auth', 'group'])
+        assert navigation_namespace_is_active(request, 'django_spire:auth:group') is True
+
+    def test_nested_namespace_matches(self) -> None:
+        request = self._request(['django_spire', 'auth', 'group', 'page'])
+        assert navigation_namespace_is_active(request, 'django_spire:auth:group') is True
+
+    def test_second_candidate_matches(self) -> None:
+        request = self._request(['django_spire', 'auth', 'user', 'page'])
+        candidates = 'django_spire:auth:group,django_spire:auth:user'
+        assert navigation_namespace_is_active(request, candidates) is True
+
+    def test_sibling_namespace_does_not_match(self) -> None:
+        request = self._request(['django_spire', 'auth', 'admin'])
+        candidates = 'django_spire:auth:group,django_spire:auth:user'
+        assert navigation_namespace_is_active(request, candidates) is False
+
+    def test_prefix_collision_does_not_match(self) -> None:
+        request = self._request(['django_spire', 'auth', 'groups'])
+        assert navigation_namespace_is_active(request, 'django_spire:auth:group') is False
+
+    def test_unrelated_namespace_does_not_match(self) -> None:
+        request = self._request(['home', 'page'])
+        assert navigation_namespace_is_active(request, 'django_spire:auth:group') is False
+
+    def test_no_resolver_match_returns_false(self) -> None:
+        request = self._request(None)
+        assert navigation_namespace_is_active(request, 'django_spire:auth:group') is False
+
+    def test_empty_namespaces_returns_false(self) -> None:
+        request = self._request(['django_spire', 'auth', 'group'])
+        assert navigation_namespace_is_active(request, '') is False

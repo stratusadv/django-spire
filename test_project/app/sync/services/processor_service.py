@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.sync.core import HybridLogicalClock
@@ -38,7 +38,7 @@ from test_project.app.sync.types import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import Any
+    from typing import Any
 
     from django_spire.sync.database.manifest import SyncManifest
 

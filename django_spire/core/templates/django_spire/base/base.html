@@ -21,6 +21,29 @@
         {% block base_head_additional_meta %}
         {% endblock %}
 
+        {% block base_head_fouc %}
+            <style>
+                [x-cloak] {
+                    display: none !important;
+                }
+            </style>
+
+            <script>
+                (function () {
+                    let collapsed = JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false');
+
+                    document.documentElement.style.setProperty(
+                        '--side-navigation-width',
+                        collapsed ? '68px' : '240px'
+                    );
+
+                    if (collapsed) {
+                        document.documentElement.classList.add('side-nav-collapsed');
+                    }
+                })();
+            </script>
+        {% endblock %}
+
         {% block base_head_css %}
             <link rel="stylesheet"
                   href="{% static 'django_spire/css/django-spire-bootstrap.css' %}?v={{ DJANGO_SPIRE_VERSION }}">

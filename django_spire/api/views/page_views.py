@@ -63,6 +63,6 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
     )
     return TemplateResponse(
         request,
-        'django_spire/contrib/page/../../core/templates/django_spire/page/delete_confirmation_form_page.html',
+        'django_spire/page/delete_confirmation_form_page.html',
         context=context,
     )

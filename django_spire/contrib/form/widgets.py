@@ -10,7 +10,7 @@ class JsonTreeWidget(forms.Textarea):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.template_name = 'django_spire/form/widgets/json_tree_widget.html'
+        self.template_name = 'django_spire/contrib/form/widgets/json_tree_widget.html'
 
     def get_context(self, *args, **kwargs) -> dict:
         context = super().get_context(*args, **kwargs)

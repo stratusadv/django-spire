@@ -64,7 +64,6 @@ dependencies = [
     "python-dateutil",
     "robit==0.4.9",
     "sqlalchemy==2.0.49",
-    "typing_extensions",
     "twilio",
 ]
 
@@ -72,7 +71,7 @@ dependencies = [
 development = [
     "build",
     "django-browser-reload",
-    "django-debug-toolbar",
+    "django-kaleidoscope",
     "django-watchfiles",
     "hypothesis",
     "pip",
@@ -206,5 +205,5 @@ markers = [
     "slow: Fuzz tests",
     "postgres_only: Skip when the default database is not Postgres",
 ]
-norecursedirs = [".hypothesis", "atlassian", "test_playwright"]
-addopts = "-v --tb=short -m 'not ai and not playwright'"
+norecursedirs = [".*", "atlassian", "test_playwright"]
+addopts = "-v --tb=short -n 12 --ds=test_project.test_settings -m 'not ai and not playwright'"

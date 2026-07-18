@@ -155,6 +155,22 @@ def query_param_url(context: RequestContext, url_name: str, **kwargs) -> str:
 
 
 @register.simple_tag
+def navigation_namespace_is_active(request: Any, namespaces: str) -> bool:
+    resolver_match = getattr(request, 'resolver_match', None)
+
+    if resolver_match is None or not namespaces:
+        return False
+
+    current = ':'.join(resolver_match.namespaces)
+
+    return any(
+        current == candidate or current.startswith(f'{candidate}:')
+        for candidate in (part.strip() for part in namespaces.split(','))
+        if candidate
+    )
+
+
+@register.simple_tag
 def to_snake_case(value: Any) -> str:
     value = str(value)
     s1 = re.sub(r'[\s-]+', '_', value)

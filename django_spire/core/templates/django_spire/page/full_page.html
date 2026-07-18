@@ -1,13 +1,6 @@
 {% extends 'django_spire/page/page.html' %}
 
 {% block page_content %}
-    <script>
-        document.documentElement.style.setProperty(
-            '--side-navigation-width',
-            JSON.parse(localStorage.getItem('side_nav_collapsed') || 'false') ? '68px' : '240px'
-        );
-    </script>
-
     <div
         @mousemove.window="
             if (is_resizing_sub && !is_mobile) {

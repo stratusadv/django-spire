@@ -36,6 +36,10 @@ test-coverage-app app:
     {{ PYTHON }} -m pytest {{ app }} --cov={{ app }} --cov-report=term-missing --reuse-db
 test-failed:
     {{ PYTHON }} -m pytest --ff --lf --reuse-db
+test-parallel workers="auto":
+    {{ PYTHON }} -m pytest . -n {{ workers }} --reuse-db
+test-serial:
+    {{ PYTHON }} -m pytest . -n 0 --reuse-db
 seed:
     {{ PYTHON }} test_project/seed.py
 venv:

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from test_project.app.task.seeding.seeder import (
+    SubTaskModelSeeder,
     TaskModelSeeder,
     TaskUserModelSeeder,
-    SubTaskModelSeeder,
 )
 
 

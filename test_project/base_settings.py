@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import importlib.util
 import logging
 import os
 import sys
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from dotenv import load_dotenv
+
+if TYPE_CHECKING:
+    from django.http import HttpRequest
 
 env_file = Path(__file__).parent / 'development.env'
 load_dotenv(env_file)
@@ -128,10 +133,9 @@ INSTALLED_APPS += [
 
 INSTALLED_APPS += ['django_spire.sync.tests.apps.SyncTestsConfig']
 
-INSTALLED_APPS += ['django_glue', 'debug_toolbar']
+INSTALLED_APPS += ['django_glue']
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -142,6 +146,25 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
 ]
+
+KALEIDOSCOPE_IGNORE_PATHS = [
+    '/__dg__/',
+    '/__reload__/',
+    '/ds/notification/app/json/check/notification/ajax/',
+    '/static/',
+]
+
+KALEIDOSCOPE_SHOW_CALLBACK = 'test_project.base_settings.show_toolbar'
+
+
+def show_toolbar(request: HttpRequest) -> bool:
+    _ = request
+    return DEBUG
+
+
+if DEBUG and importlib.util.find_spec('kaleidoscope'):
+    INSTALLED_APPS.insert(0, 'kaleidoscope')
+    MIDDLEWARE.insert(0, 'kaleidoscope.middleware.KaleidoscopeMiddleware')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -160,8 +183,6 @@ SITE_ID = 1
 
 TIME_ZONE = 'America/Edmonton'
 USE_TZ = True
-
-DEBUG_TOOLBAR_CONFIG = {'INSERT_BEFORE': '</head>'}
 
 TEMPLATES = [
     {
@@ -228,19 +249,28 @@ STATIC_ROOT = str(BASE_DIR / 'test_project/static')
 
 # Celery
 
-CELERY_BROKER_URL = 'amqp://{user}:{password}@{host}:5672//'.format(
-    user=os.getenv('CELERY_AMQP_USER'),
-    password=os.getenv('CELERY_AMQP_PASSWORD'),
-    host=os.getenv('CELERY_AMQP_HOST'),
-)
+_CELERY_AMQP_HOST = os.getenv('CELERY_AMQP_HOST')
+_CELERY_PGSQL_HOST = os.getenv('CELERY_PGSQL_HOST')
 
-CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{database}'.format(
-    user=os.getenv('CELERY_PGSQL_USER'),
-    password=os.getenv('CELERY_PGSQL_PASSWORD'),
-    host=os.getenv('CELERY_PGSQL_HOST'),
-    port=os.getenv('CELERY_PGSQL_PORT'),
-    database=os.getenv('CELERY_PGSQL_DATABASE'),
-)
+if _CELERY_AMQP_HOST:
+    CELERY_BROKER_URL = 'amqp://{user}:{password}@{host}:5672//'.format(
+        user=os.getenv('CELERY_AMQP_USER'),
+        password=os.getenv('CELERY_AMQP_PASSWORD'),
+        host=_CELERY_AMQP_HOST,
+    )
+else:
+    CELERY_BROKER_URL = 'memory://'
+
+if _CELERY_PGSQL_HOST:
+    CELERY_RESULT_BACKEND = 'db+postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+        user=os.getenv('CELERY_PGSQL_USER'),
+        password=os.getenv('CELERY_PGSQL_PASSWORD'),
+        host=_CELERY_PGSQL_HOST,
+        port=os.getenv('CELERY_PGSQL_PORT', '5432'),
+        database=os.getenv('CELERY_PGSQL_DATABASE'),
+    )
+else:
+    CELERY_RESULT_BACKEND = 'cache+memory://'
 
 if DEBUG:  # Adjust based on your environment
     PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
