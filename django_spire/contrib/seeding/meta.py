@@ -21,17 +21,17 @@ class SeederMeta:
         elif self.speed_per_seed <= 0.001:
             return '\033[32mFast\033[0m'
         elif self.speed_per_seed <= 0.01:
-            return '\033[32mGood\033[0m'
+            return 'Good'
         elif self.speed_per_seed <= 0.02:
-            return 'Acceptable\033[0m'
+            return 'Acceptable'
         else:
-            return f'\033[31mSlow :(\n -> Recommendation ... Look into caching and optimizations\n -> Note {"."*13} If this is pre-caching, ignore this warning\033[0m'
+            return f'\033[31mSlow :(\n -> Recommendation ... Look into Caching and Optimizations\n -> Note {"."*13} If this is Pre-Caching, Ignore this Warning\033[0m'
 
     def print_overview(self) -> None:
         print(f'\n\033[4m\033[1m\033[34mSeeding Overview\033[0m')
         print(f' -> Speed ............ {self.speed_per_seed_verbose}')
-        print(f' -> Run Time ......... {self.run_time:9,.2f}s')
-        print(f' -> Seeds ............ {self.total_seed_count:9,}')
-        print(f'    -> Cached ........ {self.cached_seed_count:9,}')
-        print(f'    -> Fresh ......... {self.fresh_seed_count:9,}')
-        print(f'    -> Avg Speed ..... {self.speed_per_seed:9,.6f}s')
+        print(f' -> Run Time ......... {self.run_time:10,.2f}s')
+        print(f' -> Seeds ............ {self.total_seed_count:10,}')
+        print(f'    -> Cached ........ {self.cached_seed_count:10,}')
+        print(f'    -> Fresh ......... {self.fresh_seed_count:10,}')
+        print(f'    -> Avg Speed ..... {self.speed_per_seed:10,.8f}s')

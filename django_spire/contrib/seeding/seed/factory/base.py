@@ -70,8 +70,14 @@ class BaseSeedFactory(ABC):
         try:
             fresh_seeds = self._generate_seeds(count)
         except DandyRecoverableError:
-            self._print_retry()
-            fresh_seeds = self._generate_seeds(count)
+            try:
+                self._print_retry()
+
+                fresh_seeds = self._generate_seeds(count)
+            except DandyRecoverableError:
+                message = f'Failed to generate a seed with an LLM please try again'
+
+                raise DandyRecoverableError(message)
 
         if cache_enabled:
             cache.set(cache_key, fresh_seeds)
