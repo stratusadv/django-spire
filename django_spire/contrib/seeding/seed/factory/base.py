@@ -23,9 +23,10 @@ class BaseSeedFactory(ABC):
         futures = []
         seeds: list[Seed] = []
 
-        self._print_zero_progress()
-
         for i in range(count):
+            if i == 0:
+                self._run_init_seed()
+
             futures.append(
                 FieldSeedingBot().process_to_future(
                     seeder_name=self.seeder.name_verbose,
@@ -36,10 +37,8 @@ class BaseSeedFactory(ABC):
 
             self._print_progress(i, count)
 
-            if len(futures) >= 13 or i in [
-                count - 1,
-                0,
-            ]:  # NJ: Need to complete first future to populate seed class attributes (Not Perfect)
+
+            if len(futures) >= 13 or i == count - 1:
                 seeds.extend([future.get_result(timeout_seconds=10) for future in futures])
 
                 futures = []
@@ -62,6 +61,8 @@ class BaseSeedFactory(ABC):
             if cached_seeds:
                 self._print_cached()
 
+                self.seeder.meta.cached_seed_count += count
+
                 return cached_seeds
 
         self._print_fresh()
@@ -75,7 +76,18 @@ class BaseSeedFactory(ABC):
         if cache_enabled:
             cache.set(cache_key, fresh_seeds)
 
+        self.seeder.meta.fresh_seed_count += count
+
         return fresh_seeds
+
+    def _run_init_seed(self) -> None:
+        self._print_init()
+
+        FieldSeedingBot().process(
+            seeder_name=self.seeder.name_verbose,
+            fields_seeds=self.seeder.fields_seeds,
+            seed_index=-1,
+        )
 
     def _print_cached(self) -> None:
         if self.seeder.verbose:
@@ -100,9 +112,9 @@ class BaseSeedFactory(ABC):
             print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
             print('\033[31mRetry\033[0m ', end='', flush=True)
 
-    def _print_zero_progress(self) -> None:
+    def _print_init(self) -> None:
         if self.seeder.verbose:
-            print(f'{0:3}%', end='', flush=True)
+            print(f'Init', end='', flush=True)
 
     @abstractmethod
     def _validate(self) -> None:

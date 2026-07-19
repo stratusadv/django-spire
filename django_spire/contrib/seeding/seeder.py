@@ -19,6 +19,7 @@ from django_spire.contrib.seeding.field.seed.helper.random_helper import RandomF
 from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
+from django_spire.contrib.seeding.meta import SeederMeta
 from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
 from django_spire.contrib.seeding.seed.factory.model_factory import ModelSeedFactory
 
@@ -41,6 +42,8 @@ class Seeder:
 
     fields_seeds: dict[str, BaseFieldSeed]
 
+    _meta = SeederMeta()
+
     def __init__(self, count: int = 1, verbose: bool = True) -> None:
         self.seeds: list[Seed] = []
         self._model_object_ids: list[int | str] = []
@@ -61,6 +64,10 @@ class Seeder:
     @property
     def _cache_name(self) -> str:
         return f'{self.__class__.__name__.lower()}_cache'
+
+    @property
+    def meta(self) -> SeederMeta:
+        return self.__class__._meta
 
     @property
     def name_verbose(self) -> str:
@@ -90,6 +97,10 @@ class Seeder:
     def llm(cls, field_type: type, prompt: str | None = None) -> LlmFieldSeed:
         return LlmFieldSeed(field_type=field_type, prompt=prompt, locale=cls.locale)
 
+    @classmethod
+    def reset_meta(cls):
+        cls._meta = SeederMeta()
+
     def __post_seed__(self) -> None:
         pass
 
@@ -118,7 +129,7 @@ class Seeder:
 
             self.__post_seed__()
 
-            self._print_completed(start_time)
+            self._print_completed_and_update_meta(start_time)
 
     def seed_class(self, class_: type, count: int | None = None) -> list[type]:
         self.seed(count)
@@ -147,18 +158,26 @@ class Seeder:
 
         self.__post_seed_database__()
 
-        self._print_completed(start_time)
+        self._print_completed_and_update_meta(start_time)
 
         return self.queryset
 
-    def _print_completed(self, start_time: float) -> None:
+    def _print_completed_and_update_meta(self, start_time: float) -> None:
         if self.verbose:
             print('\b' * 4 + ' ' * 4 + '\b' * 4, end='', flush=True)
+
             completed_time = time.perf_counter() - start_time
+
+            self.meta.run_time += completed_time
+
             if completed_time >= 2.0:
                 print(f'Completed in \033[31m{completed_time:6.2f}s\033[0m')
             else:
                 print(f'Completed in {completed_time:6.2f}s')
+
+    @classmethod
+    def print_meta_overview(cls):
+        cls._meta.print_overview()
 
     def _print_post(self, spacing: int) -> None:
         if self.verbose:

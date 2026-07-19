@@ -2,6 +2,7 @@ import random
 from typing import Any
 
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
+from django_spire.contrib.seeding.field.seed.mutate.base import BaseMutateFieldSeed
 from django_spire.contrib.seeding.field.seed.mutate.choices import MutateSeverity
 
 from django_spire.contrib.seeding.field.seed.mutate.corrupt import datetime
@@ -10,7 +11,7 @@ from django_spire.contrib.seeding.field.seed.mutate.corrupt import string
 from django_spire.contrib.seeding.field.seed.mutate.corrupt import type_swap
 
 
-class CorruptMutateFieldSeed(BaseFieldSeed):
+class CorruptMutateFieldSeed(BaseMutateFieldSeed):
     def __init__(
         self, field_seed: BaseFieldSeed, corrupt_chance: float, severity: MutateSeverity
     ) -> None:
@@ -18,8 +19,7 @@ class CorruptMutateFieldSeed(BaseFieldSeed):
         self.corrupt_chance = corrupt_chance
         self.severity = severity
 
-    def generate_value(self, seed_index: int) -> Any:
-
+    def _mutate_value(self, seed_index: int) -> Any:
         value = self.field_seed.generate_value(seed_index=seed_index)
 
         if random.random() >= self.corrupt_chance:
