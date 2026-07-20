@@ -14,18 +14,19 @@ class SeederMeta:
 
     @property
     def speed_per_seed_verbose(self) -> str:
-        if self.speed_per_seed <= 0.00001:
-            return '\033[1m\033[32mDamn ... !\033[0m'
-        elif self.speed_per_seed <= 0.0001:
-            return '\033[32mHyper\033[0m'
-        elif self.speed_per_seed <= 0.001:
-            return '\033[32mFast\033[0m'
-        elif self.speed_per_seed <= 0.01:
-            return 'Good'
-        elif self.speed_per_seed <= 0.02:
-            return 'Acceptable'
-        else:
-            return f'\033[31mSlow :(\n -> Recommendation ... Look into Caching and Optimizations\n -> Note {"."*13} If this is Pre-Caching, Ignore this Warning\033[0m'
+        speeds_verbose_outputs = {
+            0.000001: '\033[1m\033[32mDamn ... !\033[0m',
+            0.00001: '\033[1m\033[32mOh Snap!\033[0m',
+            0.0001: '\033[32mHyper\033[0m',
+            0.001: '\033[32mFast\033[0m',
+            0.01: 'Good',
+            0.02: 'Acceptable',
+        }
+        for speed, verbose_output in speeds_verbose_outputs.items():
+            if self.speed_per_seed <= speed:
+                return verbose_output
+
+        return f'\033[31mSlow :(\n -> Recommendation ... Look into Caching and Optimizations\n -> Note {"."*13} If this is Pre-Caching, Ignore this Warning\033[0m'
 
     def print_overview(self) -> None:
         print(f'\n\033[4m\033[1m\033[34mSeeding Overview\033[0m')
