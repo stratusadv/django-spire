@@ -28,7 +28,6 @@
 
 - v1 Alpha Release ✅
 - Celery App ✅
-- Sync App ✅
 - Django Glue v1 Integration ✅
 - Templates Clean Up ✅
 

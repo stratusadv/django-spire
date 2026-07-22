@@ -55,11 +55,6 @@
 {% url 'django_spire:metric:domain:page:list' as domain_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Domains' link_icon='bi bi-collection' link_url=domain_url %}
 
-{% include 'django_spire/navigation/divider.html' with divider_text='Database Sync' %}
-
-{% url 'sync:page:dashboard' as sync_url %}
-{% include 'django_spire/navigation/link.html' with link_text='Sync' link_icon='bi bi-arrow-repeat' link_url=sync_url %}
-
 {% include 'django_spire/navigation/divider.html' with divider_text='Configuration' %}
 
 {% include 'django_spire/auth/group/navigation/accordion/permission_nav_accordion.html' %}
