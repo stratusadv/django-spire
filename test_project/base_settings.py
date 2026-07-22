@@ -92,7 +92,6 @@ INSTALLED_APPS += [
     'django_spire.core',
     'django_spire.file',
     'django_spire.contrib.form',
-    'django_spire.sync',
     'django_spire.help_desk',
     'django_spire.history',
     'django_spire.history.activity',
@@ -127,11 +126,8 @@ INSTALLED_APPS += [
     'test_project.app.notification',
     'test_project.app.model_and_service',
     'test_project.app.rest',
-    'test_project.app.sync',
     'test_project.app.task',
 ]
-
-INSTALLED_APPS += ['django_spire.sync.tests.apps.SyncTestsConfig']
 
 INSTALLED_APPS += ['django_glue']
 
