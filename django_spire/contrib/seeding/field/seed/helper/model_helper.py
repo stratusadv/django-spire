@@ -4,7 +4,7 @@ from django.db.models import Choices, QuerySet
 from django_spire.contrib.seeding.field.seed.helper.helper import FieldSeedHelper
 from django_spire.contrib.seeding.field.seed.model_seed import OrderedForeignKeyModelFieldSeed, \
     RandomForeignKeyModelFieldSeed
-from django_spire.contrib.seeding.field.seed.random_seed import RandomFieldSeed
+from django_spire.contrib.seeding.field.seed.random_seed import RandomEnumFieldSeed
 
 
 class ModelFieldSeedHelper(FieldSeedHelper):
@@ -25,5 +25,5 @@ class ModelFieldSeedHelper(FieldSeedHelper):
         return RandomForeignKeyModelFieldSeed(queryset=queryset)
 
     @staticmethod
-    def random_field_choice(choices: Choices) -> RandomFieldSeed:
-        return RandomFieldSeed(enum_=choices)
+    def random_field_choice(choices: Choices) -> RandomEnumFieldSeed:
+        return RandomEnumFieldSeed(enum_=choices)

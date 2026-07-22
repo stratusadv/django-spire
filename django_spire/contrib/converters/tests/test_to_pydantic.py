@@ -251,7 +251,7 @@ class TestDjangoToPydanticFieldConverter(TestCase):
 
         assert field_info.description == 'hello'
 
-    def test_integerfield_validators_become_constraints(self) -> None:
+    def test_integer_field_validators_become_constraints(self) -> None:
         # TODO(Nathan): test needs to be corrected.
 
         class Model5(models.Model):

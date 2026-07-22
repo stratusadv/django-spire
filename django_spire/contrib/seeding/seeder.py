@@ -19,7 +19,7 @@ from django_spire.contrib.seeding.field.seed.helper.random_helper import RandomF
 from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
-from django_spire.contrib.seeding.meta import SeederMeta
+from django_spire.contrib.seeding.meta import SeederMetaData
 from django_spire.contrib.seeding.seed.factory.factory import SeedFactory
 from django_spire.contrib.seeding.seed.factory.model_factory import ModelSeedFactory
 
@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 
 class Seeder:
+    # TODO: This does not work if you inherit it because of class body execution!
     locale: str | list[str] = 'en_CA'
 
     custom = CustomFieldSeedHelper(locale)
@@ -42,15 +43,13 @@ class Seeder:
 
     fields_seeds: dict[str, BaseFieldSeed]
 
-    _meta = SeederMeta()
+    _meta = SeederMetaData()
 
     def __init__(self, count: int = 1, verbose: bool = True) -> None:
         self.seeds: list[Seed] = []
         self._model_object_ids: list[int | str] = []
         self._count: int = count
         self.verbose: bool = verbose
-
-        self._validate()
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
@@ -66,7 +65,7 @@ class Seeder:
         return f'{self.__class__.__name__.lower()}_cache'
 
     @property
-    def meta(self) -> SeederMeta:
+    def meta(self) -> SeederMetaData:
         return self.__class__._meta
 
     @property
@@ -99,7 +98,7 @@ class Seeder:
 
     @classmethod
     def reset_meta(cls):
-        cls._meta = SeederMeta()
+        cls._meta = SeederMetaData()
 
     def __post_seed__(self) -> None:
         pass

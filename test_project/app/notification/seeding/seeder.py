@@ -12,7 +12,6 @@ from django_spire.notification.models import Notification
 
 class NotificationSeeder(Seeder):
     model_class = Notification
-    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -35,7 +34,6 @@ class NotificationSeeder(Seeder):
 
 class AppNotificationSeeder(Seeder):
     model_class = AppNotification
-    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),

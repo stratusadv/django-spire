@@ -7,7 +7,7 @@ from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
-from django_spire.contrib.seeding.field.seed.random_seed import RandomFieldSeed
+from django_spire.contrib.seeding.field.seed.random_seed import RandomEnumFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 
 

@@ -7,7 +7,6 @@ from test_project.app.task.models import Task, TaskUser
 
 class TaskModelSeeder(Seeder):
     model_class = Task
-    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -23,7 +22,6 @@ class TaskModelSeeder(Seeder):
 
 class SubTaskModelSeeder(Seeder):
     model_class = Task
-    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -39,7 +37,6 @@ class SubTaskModelSeeder(Seeder):
 
 class TaskUserModelSeeder(Seeder):
     model_class = TaskUser
-    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),

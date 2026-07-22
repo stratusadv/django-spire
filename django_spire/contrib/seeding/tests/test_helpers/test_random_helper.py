@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
-from django_spire.contrib.seeding.field.seed.random_seed import RandomFieldSeed
+from django_spire.contrib.seeding.field.seed.random_seed import RandomEnumFieldSeed
 
 
 class TestRandomFieldSeedHelper(TestCase):
@@ -42,7 +42,7 @@ class TestRandomFieldSeedHelper(TestCase):
             COMPLETED = 'completed'
 
         seed = Seeder.random.enum(Status)
-        assert isinstance(seed, RandomFieldSeed)
+        assert isinstance(seed, RandomEnumFieldSeed)
         assert seed.enum_ is Status
 
     def test_enum_generates_enum_value(self):

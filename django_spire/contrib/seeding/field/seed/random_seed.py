@@ -5,7 +5,8 @@ from typing import Any
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 
 
-class RandomFieldSeed(BaseFieldSeed):
+# MIGHT NOT BE USED
+class RandomEnumFieldSeed(BaseFieldSeed):
     def __init__(self, enum_: Enum | None = None) -> None:
         self.enum_ = enum_
 

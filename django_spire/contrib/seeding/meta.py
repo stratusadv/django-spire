@@ -1,4 +1,4 @@
-class SeederMeta:
+class SeederMetaData:
     def __init__(self) -> None:
         self.run_time = 0.0
         self.cached_seed_count = 0

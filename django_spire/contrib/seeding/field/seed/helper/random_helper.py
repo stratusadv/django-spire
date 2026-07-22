@@ -4,7 +4,7 @@ from typing import Sequence
 
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.helper.helper import FieldSeedHelper
-from django_spire.contrib.seeding.field.seed.random_seed import RandomFieldSeed
+from django_spire.contrib.seeding.field.seed.random_seed import RandomEnumFieldSeed
 
 
 class RandomFieldSeedHelper(FieldSeedHelper):
@@ -13,8 +13,8 @@ class RandomFieldSeedHelper(FieldSeedHelper):
         return CallableFieldSeed(random.choice, seq=sequence)
 
     @staticmethod
-    def enum(enum_: Enum) -> RandomFieldSeed:
-        return RandomFieldSeed(enum_=enum_)
+    def enum(enum_: Enum) -> RandomEnumFieldSeed:
+        return RandomEnumFieldSeed(enum_=enum_)
 
     @staticmethod
     def float(a: float = 0.0, b: float = 1.0) -> CallableFieldSeed:

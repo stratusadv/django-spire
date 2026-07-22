@@ -5,7 +5,7 @@ from django.test import TestCase
 from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.model_seed import OrderedForeignKeyModelFieldSeed
-from django_spire.contrib.seeding.field.seed.random_seed import RandomFieldSeed
+from django_spire.contrib.seeding.field.seed.random_seed import RandomEnumFieldSeed
 
 
 class TestModelFieldSeedHelper(TestCase):
@@ -16,7 +16,7 @@ class TestModelFieldSeedHelper(TestCase):
             COMPLETED = 'completed'
 
         seed = Seeder.model.random_field_choice(Status)
-        assert isinstance(seed, RandomFieldSeed)
+        assert isinstance(seed, RandomEnumFieldSeed)
         assert seed.enum_ is Status
 
     def test_random_field_choice_generates_enum_value(self):
@@ -37,6 +37,6 @@ class TestModelFieldSeedHelper(TestCase):
             COMPLETED = 'completed', 'Completed'
 
         seed = Seeder.model.random_field_choice(Status)
-        assert isinstance(seed, RandomFieldSeed)
+        assert isinstance(seed, RandomEnumFieldSeed)
         value = seed.generate_value(0)
         assert value in list(Status)
