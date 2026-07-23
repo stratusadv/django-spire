@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -18,6 +18,30 @@ from django_spire.metric.domain.navigation import DomainNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+
+@login_required
+def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
+    domain = get_object_or_null_obj(models.Domain, pk=pk)
+    
+    nav = DomainNavigation()
+    nav.set_page_title_to_form_action_from_model_instance(domain)
+
+    if pk:
+        nav.breadcrumbs.add(
+            name=str(domain),
+            view_name='django_spire:metric:domain:page:detail',
+            view_kwargs={'pk': domain.pk},
+        )
+
+    nav.breadcrumbs.add(f'{domain.name}' if domain.pk else 'New Domain (With Glue)')
+
+    form = forms.DomainForm(request.POST or None, instance=domain)
+
+    Glue.form(request, 'domain_form', form, Glue.Access.DELETE)
+
+    context = {**nav.as_context()}
+
+    return TemplateResponse(request=request, context=context, template='django_spire/metric/domain/page/form_page.html')
 
 
 @permission_required('metric_domain.add_domain')
