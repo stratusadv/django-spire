@@ -1,14 +1,24 @@
 {% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_content %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form_description }}
-
-        <div class="mt-2">
-            <button type="submit" class="btn btn-primary bi bi-eraser"> Delete</button>
-            <a class="btn btn-danger bi bi-x-circle"
-               href="{% url 'django_spire:metric:domain:page:detail' pk=domain_pk %}"> Cancel</a>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Delete Sub Domain</h5>
         </div>
-    </form>
+        <div class="card-body">
+            <p>Are you sure you want to <strong>{{ form_title }}</strong>?</p>
+            <p class="text-muted">This action cannot be undone.</p>
+        </div>
+        <div class="card-footer d-flex gap-2">
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </form>
+            <a href="{{ return_url }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i> Cancel
+            </a>
+        </div>
+    </div>
 {% endblock %}

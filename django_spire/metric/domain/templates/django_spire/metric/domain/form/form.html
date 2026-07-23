@@ -1,18 +1,26 @@
-<div class="row g-3 mb-3">
-    <div class="col-12">
-        <div class="form-label">Name</div>
-        {{ form.name }}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">{{ form_description }}</h5>
     </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="row g-3 mb-3">
+                <div class="col-12">
+                    <div class="form-label">Name</div>
+                    {{ form.name }}
+                </div>
 
-    <div class="col-12">
-        <div class="form-label">Description</div>
-        {{ form.description }}
-    </div>
+                <div class="col-12">
+                    <div class="form-label">Description</div>
+                    {{ form.description }}
+                </div>
 
-    <div class="col-12">
-        <div class="form-label">Sub Domain Description</div>
-        {{ form.sub_domain_description }}
+                <div class="col-12">
+                    <div class="form-label">Sub Domain Description</div>
+                    {{ form.sub_domain_description }}
+                </div>
+            </div>
+            {% include 'django_spire/form/button/submit_button.html' %}
+        </form>
     </div>
 </div>
-
-{% include 'django_spire/form/button/submit_button.html' %}
