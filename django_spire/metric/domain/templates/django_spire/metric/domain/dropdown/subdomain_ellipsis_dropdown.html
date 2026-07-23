@@ -1,0 +1,12 @@
+{% extends 'django_spire/dropdown/ellipsis_dropdown.html' %}
+{% block dropdown_content %}
+    <li><a class="dropdown-item d-flex align-items-center gap-2"
+           :href="`{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=0 pk=0 %}`.replace('0', item.domain).replace('0', item.id)"><i
+            class="bi bi-eye"></i>Detail</a></li>
+    <li><a class="dropdown-item d-flex align-items-center gap-2"
+           :href="`{% url 'django_spire:metric:domain:form:update_subdomain' domain_pk=0 pk=0 %}`.replace('0', item.domain).replace('0', item.id)"><i
+            class="bi bi-pencil"></i>Update</a></li>
+    <li><a class="dropdown-item d-flex align-items-center gap-2 text-danger"
+           :href="`{% url 'django_spire:metric:domain:form:delete_subdomain' domain_pk=0 pk=0 %}`.replace('0', item.domain).replace('0', item.id)"><i
+            class="bi bi-trash"></i>Delete</a></li>
+{% endblock %}

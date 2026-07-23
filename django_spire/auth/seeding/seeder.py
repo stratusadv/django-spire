@@ -5,7 +5,6 @@ from django_spire.contrib.seeding import Seeder
 
 class UserSeeder(Seeder):
     model_class = User
-    cache_seed = False
 
     fields_seeds = {
         'id': Seeder.exclude(),

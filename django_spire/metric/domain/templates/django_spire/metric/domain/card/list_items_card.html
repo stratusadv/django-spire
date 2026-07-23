@@ -1,5 +1,7 @@
 {% extends 'django_spire/card/title_card.html' %}
 
+{% load django_spire_pagination %}
+
 {% block card_title %}
     Domains
 {% endblock %}
@@ -16,10 +18,18 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% for domain in domains %}
-            {% include 'django_spire/metric/domain/item/item.html' %}
-        {% empty %}
-            No data to display
-        {% endfor %}
+        {% if domains %}
+            {% include 'django_spire/metric/domain/scroll/scroll.html' %}
+        {% else %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endif %}
     </div>
+
+    {#    <div class="card-body">#}
+    {#        {% for domain in domains %}#}
+    {#            {% include 'django_spire/metric/domain/item/item.html' %}#}
+    {#        {% empty %}#}
+    {#            No data to display#}
+    {#        {% endfor %}#}
+    {#    </div>#}
 {% endblock %}

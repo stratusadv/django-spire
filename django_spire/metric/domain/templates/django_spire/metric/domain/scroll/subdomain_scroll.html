@@ -1,0 +1,48 @@
+{% extends 'django_spire/glue/scroll/scroll.html' %}
+
+{% block scroll_queryset_order_by_field %}-created_datetime{% endblock %}
+{% block scroll_queryset_unique_name %}subdomains{% endblock %}
+{% block scroll_queryset_filter_field %}name{% endblock %}
+
+{% block scroll_header %}
+    <div class="row pb-3 align-items-center">
+        <div class="col-6">
+            <input class="form-control" placeholder="Search Sub Domains ..." type="search"
+                   x-model.debounce="searchQuery">
+        </div>
+        <div class="col text-end">
+            Sort by
+        </div>
+        <div class="col">
+            <select class="form-select form-select-md" x-model="orderBy">
+                <option value="name">Sub Domain</option>
+                <option value="created_datetime">Created</option>
+                <option value="description">Description</option>
+            </select>
+        </div>
+    </div>
+    <div class="card--bordered"></div>
+{% endblock %}
+
+{% block scroll_template_item %}
+    <div class="row border-bottom py-2">
+        <div class="col-3">
+            <div class="attribute-label">Sub Domain</div>
+            <a :href="`{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=0 pk=0 %}`.replace('0', item.domain).replace('0', item.id)">
+                <span x-text="item.name"></span>
+            </a>
+        </div>
+        <div class="col-4">
+            <div class="attribute-label">Domain</div>
+            <span x-text="item.domain"></span>
+        </div>
+        <div class="col-4">
+            <div class="attribute-label">Description</div>
+            <span x-text="item.description"></span>
+        </div>
+
+        <div class="col-1 text-end align-self-center">
+            {% include 'django_spire/metric/domain/dropdown/subdomain_ellipsis_dropdown.html' %}
+        </div>
+    </div>
+{% endblock %}

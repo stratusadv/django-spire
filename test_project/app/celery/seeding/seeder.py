@@ -4,7 +4,6 @@ from test_project.app.celery.models import CeleryStalk
 
 class CeleryStalkSeeder(Seeder):
     model_class = CeleryStalk
-    cache_enabled = True
 
     fields_seeds = {
         'id': Seeder.exclude(),
