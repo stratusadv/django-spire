@@ -4,7 +4,6 @@ from test_project.app.ordering.models import Duck
 
 class DuckSeeder(Seeder):
     model_class = Duck
-    cache_enabled = True
 
     fields_seeds = {
         'id': Seeder.exclude(),

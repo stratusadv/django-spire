@@ -4,7 +4,6 @@ from test_project.app.rest.models import Pirate
 
 class PirateModelSeeder(Seeder):
     model_class = Pirate
-    cache_enabled = True
 
     fields_seeds = {
         'id': Seeder.exclude(),

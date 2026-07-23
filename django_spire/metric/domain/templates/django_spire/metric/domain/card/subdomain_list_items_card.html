@@ -16,10 +16,18 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% for subdomain in subdomains %}
-            {% include 'django_spire/metric/domain/item/subdomain_item.html' %}
-        {% empty %}
-            No data to display
-        {% endfor %}
+        {% if subdomains %}
+            {% include 'django_spire/metric/domain/scroll/subdomain_scroll.html' %}
+        {% else %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endif %}
     </div>
+
+{#    <div class="card-body">#}
+{#        {% for subdomain in subdomains %}#}
+{#            {% include 'django_spire/metric/domain/item/subdomain_item.html' %}#}
+{#        {% empty %}#}
+{#            No data to display#}
+{#        {% endfor %}#}
+{#    </div>#}
 {% endblock %}

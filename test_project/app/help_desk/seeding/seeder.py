@@ -10,7 +10,6 @@ from django_spire.help_desk.models import HelpDeskTicket
 
 class HelpDeskTicketSeeder(Seeder):
     model_class = HelpDeskTicket
-    cache_enabled = True
 
     fields_seeds = {
         'id': Seeder.exclude(),

@@ -4,7 +4,6 @@ from test_project.app.comment.models import CommentExample
 
 class CommentExampleSeeder(Seeder):
     model_class = CommentExample
-    cache_enabled = True
 
     fields_seeds = {
         'id': Seeder.exclude(),
