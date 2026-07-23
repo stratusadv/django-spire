@@ -36,3 +36,4 @@ class SeederMetaData:
         print(f'    -> Cached ........ {self.cached_seed_count:10,}')
         print(f'    -> Fresh ......... {self.fresh_seed_count:10,}')
         print(f'    -> Avg Speed ..... {self.speed_per_seed:10,.8f}s')
+        print('\n')
