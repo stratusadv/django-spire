@@ -4,7 +4,6 @@ from django_spire.metric.domain.models import Domain, SubDomain
 
 class DomainSeeder(Seeder):
     model_class = Domain
-    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
@@ -19,7 +18,6 @@ class DomainSeeder(Seeder):
 
 class SubDomainSeeder(Seeder):
     model_class = SubDomain
-    cache_enabled = False
 
     fields_seeds = {
         'id': Seeder.exclude(),
