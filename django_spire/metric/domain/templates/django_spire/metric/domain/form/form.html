@@ -1,26 +1,19 @@
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">{{ form_description }}</h5>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            <div class="row g-3 mb-3">
-                <div class="col-12">
-                    <div class="form-label">Name</div>
-                    {{ form.name }}
-                </div>
+{% extends 'django_spire/glue/form/form.html' %}
 
-                <div class="col-12">
-                    <div class="form-label">Description</div>
-                    {{ form.description }}
-                </div>
+{% block glue_form_unique_name %}domain_form{% endblock %}
 
-                <div class="col-12">
-                    <div class="form-label">Sub Domain Description</div>
-                    {{ form.sub_domain_description }}
-                </div>
-            </div>
-            {% include 'django_spire/form/button/submit_button.html' %}
-        </form>
+{% block glue_form_content %}
+    <div class="row">
+        <div class="col-12 col-sm mb-3 mb-sm-0">
+            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.name' %}
+        </div>
+
+        <div class="col-12 mb-3 mb-sm-0">
+            {% include 'django_spire/glue/form/field/text_field.html' with glue_field='glue_form.$fields.description' %}
+        </div>
+
+        <div class="col-12 mb-3 mb-sm-0">
+            {% include 'django_spire/glue/form/field/text_field.html' with glue_field='glue_form.$fields.sub_domain_description' %}
+        </div>
     </div>
-</div>
+{% endblock %}

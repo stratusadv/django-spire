@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
+from django_glue import Glue
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
@@ -14,7 +16,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
     sub_domain_description = models.TextField(default='')
 
     objects = querysets.DomainQuerySet().as_manager()
-    services = DomainService()
+    services = Glue.attribute(DomainService(), access=Glue.Access.DELETE)
 
     def __str__(self) -> str:
         return self.name
@@ -24,6 +26,16 @@ class Domain(HistoryModelMixin, ActivityMixin):
 
         for subdomain in self.subdomains.all():
             subdomain.set_deleted()
+
+    @Glue.attribute(access=Glue.Access.CHANGE)
+    def complete(self, request: WSGIRequest) -> None:
+        self.services.save_model_obj(user=request.user, obj=self, status=self.status)
+
+    def user_initials(self) -> list[str]:
+        return [
+            f'{user_bridge.user.first_name} {user_bridge.user.id}'
+            for user_bridge in self.users.all()
+        ]
 
     class Meta:
         verbose_name = 'Domain'
