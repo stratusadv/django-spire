@@ -9,7 +9,6 @@ from django.urls import reverse
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
-from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.metric.domain import models
 
 if TYPE_CHECKING:
@@ -30,7 +29,7 @@ class DomainForm(ModelForm):
                 }
             )
 
-        return GlueResponse(messages=[GlueMessage.error('Hello')])
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
     class Meta:
         model = models.Domain
@@ -54,7 +53,7 @@ class SubDomainForm(ModelForm):
                 }
             )
 
-        return GlueResponse(messages=[GlueMessage.error('Hello')])
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
     class Meta:
         model = models.SubDomain

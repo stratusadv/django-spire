@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -10,9 +10,7 @@ from django.urls import reverse
 from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
-from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-from django_spire.history.activity.utils import add_form_activity
 from django_spire.metric.domain import forms, models
 from django_spire.metric.domain.navigation import DomainNavigation
 
@@ -104,7 +102,9 @@ def subdomain_form_view(
 
     nav.breadcrumbs.add(f'{subdomain.name}' if subdomain.pk else 'New Sub Domain (With Glue)')
     subdomain.domain_id = domain_pk
-    form = forms.SubDomainForm(request.POST or None, instance=subdomain, initial={'domain': domain_pk})
+    form = forms.SubDomainForm(
+        request.POST or None, instance=subdomain, initial={'domain': domain_pk}
+    )
 
     Glue.form(request, 'subdomain_form', form, Glue.Access.DELETE)
 
