@@ -1,4 +1,5 @@
 {% extends 'django_spire/glue/form/widget/widget.html' %}
+{% load django_spire_glue %}
 
 {% block widget_content %}
     {% include 'django_spire/glue/form/label/label.html' %}
@@ -26,7 +27,7 @@
         }"
     >
         <div class="row">
-            <template x-for="item in {{ glue_field }}?.choices || []" :key="item[0]">
+            <template x-for="item in {{ glue_field|glue_field_metadata_path }}?.choices || []" :key="item[0]">
                 <div class="col-{{ columns|default:'12' }}">
                     <div
                         class="p-2 mb-2 rounded cursor-pointer"
