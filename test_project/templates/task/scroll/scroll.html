@@ -1,136 +1,55 @@
 {% extends 'django_spire/glue/scroll/scroll.html' %}
 
 {% block scroll_queryset_order_by_field %}name{% endblock %}
-{% block scroll_queryset_unique_name %}tasks{% endblock %}
+{% block scroll_queryset_unique_name %}{{ task_queryset_name }}{% endblock %}
 {% block scroll_queryset_filter_field %}description{% endblock %}
+{% block scroll_container_class %}{% if is_nested %}ms-4 border-start ps-3{% endif %}{% endblock %}
 
 {% block scroll_header %}
-    <div class="row">
-        <div class="col">
-            <input class="form-control" placeholder="Search Tasks ..." type="search" x-model.debounce="searchQuery">
+    {% if not is_nested %}
+        <div class="row">
+            <div class="col">
+                <input class="form-control" placeholder="Search Tasks ..." type="search" x-model.debounce="searchQuery">
+            </div>
+            <div class="col">
+                <button class="btn btn-outline-secondary form-control" @click="toggleOrder()"> Sort By Name</button>
+            </div>
         </div>
-        <div class="col">
-            <button class="btn btn-outline-secondary form-control" @click="toggleOrder()"> Sort By Name</button>
-        </div>
-    </div>
 
-    <div class="row py-2">
-        <div class="col-6 fw-bold">
-            Name
+        <div class="row py-2">
+            <div class="col-6 fw-bold">
+                Name
+            </div>
+            <div class="col-2 fw-bold">
+                Status
+            </div>
+            <div class="col-2 fw-bold">
+                Created
+            </div>
+            <div class="col-2 fw-bold text-end">
+                Actions
+            </div>
         </div>
-        <div class="col-2 fw-bold">
-            Status
-        </div>
-        <div class="col-2 fw-bold">
-            Created
-        </div>
-        <div class="col-2 fw-bold text-end">
-            Actions
-        </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block scroll_template_item %}
     <div x-data="{
-        childTasks: null,
-        init() {
-            let c = Glue.querySet.child_tasks
-            this.childTasks = new GlueQuerySetProxy({
-                http: c.http,
-                name: c._name,
-                policy: c._policy,
-                state: c._state,
-                attributes: c._attributes,
-            })
-        },
         showChildTasks: false,
+        childTasksLoaded: false,
+        async toggleChildTasks() {
+            if (!this.showChildTasks && !this.childTasksLoaded) {
+                await Glue.view(`{% url 'task:page:child_list' pk=0 %}`.replace('0', item.id))
+                    .renderInnerHtml($refs.childTasks)
+                this.childTasksLoaded = true
+            }
+            this.showChildTasks = !this.showChildTasks
+        },
     }">
 
-        {% partialdef scroll_item inline %}
-            <div class="row border-bottom py-2" x-data="{
-                duplicateTask() {
-                    item.services.factory.duplicate().then(() => {
-                        items.refresh();
-                        this.$dispatch('notify', { type: 'success', message: `Task '${item.name}' duplicated successfully!` });
-                    });
-                }
-            }">
-                <div class="col-6">
-                    {% if child_task %}
-                        <span class="ms-5 text-end">
-                            <i class="bi bi-dot"></i>
-                        </span>
-                    {% else %}
-                        <span x-show="showChildTasks" @click="showChildTasks = !showChildTasks">
-                            <i class="bi bi-chevron-down"></i>
-                        </span>
-                        <span x-show="!showChildTasks" @click="showChildTasks = !showChildTasks">
-                            <i class="bi bi-chevron-right"></i>
-                        </span>
-                    {% endif %}
-                    <a :href="`{% url 'task:page:detail' pk=0 %}`.replace('0', item.id)">
-                        <span x-text="item.name"></span>
-                    </a>
-                </div>
-                <div class="col-2">
-                    <div class="dropdown">
-                        <button class="btn btn-sm dropdown-toggle text-white badge border-0"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                                :class="
-                            item.status === 'inp' ? 'bg-secondary' :
-                            item.status === 'com' ? 'bg-success' :
-                            item.status === 'can' ? 'bg-warning' :
-                            'bg-primary'
-                        "
-                                x-text="{new: 'New', inp: 'In Progress', com: 'Complete', can: 'Cancelled'}[item.status]"
-                        >
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"
-                                   @click.prevent="item.status = 'new'; item.save()">New</a></li>
-                            <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'inp'; item.save()">In
-                                Progress</a></li>
-                            <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'com'; item.save()">Complete</a>
-                            </li>
-                            <li><a class="dropdown-item" href="#" @click.prevent="item.status = 'can'; item.save()">Cancelled</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <span x-text="item.created_datetime"></span>
-                </div>
-                <div class="col-2 text-end">
-                    <button class="btn btn-sm btn-outline-success" @click="item.complete()"
-                            x-show="item.status !== 'com'">
-                        <i class="bi bi-check-lg"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-primary" @click="duplicateTask()" title="Duplicate Task">
-                        <i class="bi bi-copy"></i>
-                    </button>
-                    <a class="btn btn-sm btn-outline-secondary"
-                       :href="`{% url 'task:form:form' pk=0 %}`.replace('0', item.id)">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <a class="btn btn-sm btn-outline-danger"
-                       :href="`{% url 'task:form:delete' pk=0 %}`.replace('0', item.id)">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </div>
-            </div>
-        {% endpartialdef %}
+        {% include 'task/scroll/task_item.html' %}
 
-        <template x-if="showChildTasks">
-            <div>
-                <template x-for="item in childTasks.queryWithParams({filter: {parent: item.id}, order_by: 'name'})">
-                    {% with child_task=True %}
-                        {% partial scroll_item %}
-                    {% endwith %}
-                </template>
-            </div>
-        </template>
+        <div x-show="showChildTasks" x-ref="childTasks"></div>
 
     </div>
 

@@ -1,4 +1,5 @@
 {% extends 'django_spire/glue/form/widget/widget.html' %}
+{% load django_spire_glue %}
 
 {% block widget_content %}
     <div
@@ -11,13 +12,13 @@
             init() {
                 this.choice_verbose = this.placeholder;
                 this.update_choice();
-                $watch('{{ glue_field }}.value', () => this.update_choice());
-                $watch('{{ glue_field }}.choices', () => this.update_choice());
+                $watch('{{ glue_field|glue_field_value_path }}', () => this.update_choice());
+                $watch('{{ glue_field|glue_field_metadata_path }}.choices', () => this.update_choice());
             },
 
             update_choice() {
-                if (!{{ glue_field }}?.choices) return;
-                let match = {{ glue_field }}.choices.find(choice => String(choice[0]) === String({{ glue_field }}.value));
+                if (!{{ glue_field|glue_field_metadata_path }}?.choices) return;
+                let match = {{ glue_field|glue_field_metadata_path }}.choices.find(choice => String(choice[0]) === String({{ glue_field|glue_field_value_path }}));
                 this.choice_verbose = match ? match[1] : this.placeholder;
             }
         }"
@@ -43,12 +44,12 @@
             style="max-height: 300px; overflow-y: auto; z-index: 3;"
             @keydown.escape="show_dropdown = false"
         >
-            <template x-for="choice in {{ glue_field }}?.choices || []" :key="choice[0]">
+            <template x-for="choice in {{ glue_field|glue_field_metadata_path }}?.choices || []" :key="choice[0]">
                 <div
                     class="py-2 px-3 list-group-item"
-                    :class="{{ glue_field }}.disabled_choices?.includes(choice[0]) ? 'opacity-50' : ''"
-                    @click="{{ glue_field }}.disabled_choices?.includes(choice[0]) ? '' : {{ glue_field }}.value = choice[0]; show_dropdown = false"
-                    @keydown.enter.prevent="{{ glue_field }}.value = choice[0]; show_dropdown = false"
+                    :class="{{ glue_field|glue_field_metadata_path }}.disabled_choices?.includes(choice[0]) ? 'opacity-50' : ''"
+                    @click="{{ glue_field|glue_field_metadata_path }}.disabled_choices?.includes(choice[0]) ? '' : {{ glue_field|glue_field_value_path }} = choice[0]; show_dropdown = false"
+                    @keydown.enter.prevent="{{ glue_field|glue_field_value_path }} = choice[0]; show_dropdown = false"
                 >
                     <span x-text="choice[1]"></span>
                 </div>

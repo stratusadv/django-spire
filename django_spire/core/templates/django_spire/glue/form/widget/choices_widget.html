@@ -1,11 +1,12 @@
 {% extends "django_spire/glue/form/widget/widget.html" %}
+{% load django_spire_glue %}
 
 {% block widget_content %}
     <select
         {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' with form_class_type='select' %}
     >
         {% if include_empty %}<option value="">{{ empty_label|default:"Select..." }}</option>{% endif %}
-        <template x-for="choice in {{ glue_field }}?.choices || []" :key="choice[0]">
+        <template x-for="choice in {{ glue_field|glue_field_metadata_path }}?.choices || []" :key="choice[0]">
             <option :value="choice[0]" x-text="choice[1]"></option>
         </template>
     </select>

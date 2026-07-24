@@ -1,18 +1,19 @@
 {% extends 'django_spire/glue/form/widget/widget.html' %}
+{% load django_spire_glue %}
 
 {% block widget_content %}
     <div class="d-flex align-items-center">
         <input
             type="checkbox"
             class="form-check-input me-2"
-            :id="{{ glue_field }}.id"
-            :name="{{ glue_field }}.name"
-            x-model="{{ glue_field }}.value"
+            :id="{{ glue_field|glue_field_metadata_path }}.id"
+            :name="{{ glue_field|glue_field_metadata_path }}.name"
+            x-model="{{ glue_field|glue_field_value_path }}"
         >
         <label
             class="form-check-label"
-            :for="{{ glue_field }}.id"
-            x-text="{{ glue_field }}.label"
+            :for="{{ glue_field|glue_field_metadata_path }}.id"
+            x-text="{{ glue_field|glue_field_metadata_path }}.label"
         ></label>
     </div>
 {% endblock %}

@@ -18,20 +18,34 @@ if TYPE_CHECKING:
 
 @login_required()
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    # REMOVE SLICING AFTER GLUE IS FIXED
-    tasks = models.Task.objects.active().top_level().prefetch_users()
-    child_tasks = models.Task.objects.active().children().prefetch_users()
+    tasks = models.Task.objects.active().top_level().annotate_has_children().prefetch_users()
 
     Glue.queryset(request, 'tasks', tasks, Glue.Access.CHANGE)
-    Glue.queryset(request, 'child_tasks', child_tasks, Glue.Access.CHANGE)
 
     nav = TaskNavigation()
     nav.set_page_title_from_model_plural_name(models.Task)
 
     context = nav.as_context()
     context['task_count'] = tasks.count()
+    context['task_queryset_name'] = 'tasks'
 
     return TemplateResponse(request=request, context=context, template='task/page/list_page.html')
+
+
+@login_required()
+def child_list_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    parent = get_object_or_404(models.Task, pk=pk)
+    child_tasks = (
+        models.Task.objects.active().filter(parent=parent).annotate_has_children().prefetch_users()
+    )
+
+    Glue.queryset(request, 'child_tasks', child_tasks, Glue.Access.CHANGE)
+
+    return TemplateResponse(
+        request=request,
+        context={'task_queryset_name': 'child_tasks', 'is_nested': True},
+        template='task/scroll/scroll.html',
+    )
 
 
 @login_required()
