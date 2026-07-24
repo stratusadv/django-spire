@@ -8,7 +8,7 @@ from test_project.app.task.seeding.seeder import (
 )
 
 
-task_model_seeder = TaskModelSeeder(count=20)
+task_model_seeder = TaskModelSeeder(count=100)
 
 task_model_seeder.seed_database()
 

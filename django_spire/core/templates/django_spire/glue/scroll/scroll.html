@@ -6,19 +6,51 @@
             orderBy: '{% block scroll_queryset_order_by_field %}{% endblock %}',
             filterField: '{% block scroll_queryset_filter_field %}{% endblock %}',
             scrollQuerySet: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
+            items: [],
             isLoading: false,
             hasMore: true,
-            get scrollItems() {
-                const array = Array.from(
-                    this.scrollQuerySet
+            requestVersion: 0,
+            increment: 20,
+            init() {
+                this.$watch('searchQuery', () => this.resetAndLoad())
+                this.$watch('orderBy', () => this.resetAndLoad())
+                this.loadItems(true)
+            },
+            buildQuerySet() {
+                return this.scrollQuerySet
                     .filter({
                         [this.filterField + '__icontains']: this.searchQuery
                     })
                     .orderBy(this.orderBy)
                     .slice(this.sliceStart, this.sliceStop)
-                )
+            },
+            async loadItems(reset = false) {
+                const requestVersion = ++this.requestVersion
+                const previousCount = reset ? 0 : this.items.length
+                const querySet = this.buildQuerySet()
 
-                return array
+                await querySet.all()
+
+                if (requestVersion !== this.requestVersion) return
+
+                const nextItems = querySet.items
+                this.items = nextItems
+
+                if (reset) {
+                    this.hasMore = nextItems.length >= this.sliceStop - this.sliceStart
+                }
+                else {
+                    const additionalCount = nextItems.length - previousCount
+                    this.hasMore = additionalCount >= this.increment
+                }
+            },
+            async resetAndLoad() {
+                if (this.isLoading) return
+
+                this.sliceStart = 0
+                this.sliceStop = 30
+                this.hasMore = true
+                await this.loadItems(true)
             },
             toggleOrder() {
                 this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
@@ -27,23 +59,13 @@
                 if (this.isLoading || !this.hasMore) return
 
                 this.isLoading = true
-                this.sliceStop += 60
-                await this.$nextTick()
-
-                const querySet = this.scrollQuerySet
-                    .filter({
-                        [this.filterField + '__icontains']: this.searchQuery
-                    })
-                    .orderBy(this.orderBy)
-                    .slice(this.sliceStart, this.sliceStop)
-
-                querySet.items
-                while (querySet.loading) {
-                    await new Promise(resolve => setTimeout(resolve, 10))
+                this.sliceStop += this.increment
+                try {
+                    await this.loadItems()
                 }
-
-                this.hasMore = querySet.hasMore
-                this.isLoading = false
+                finally {
+                    this.isLoading = false
+                }
             }
         }"
         class="{% block scroll_container_class %}{% endblock %}"
@@ -61,7 +83,7 @@
 
             {% block scroll_content %}
 
-                <template x-for="item in scrollItems">
+                <template x-for="item in items">
                     {% block scroll_template_item %}
                     {% endblock %}
                 </template>
@@ -69,17 +91,8 @@
             {% endblock %}
 
             <div
-                    x-data="{
-                        init() {
-                            const observer = new IntersectionObserver((entries) => {
-                                if (entries.some(entry => entry.isIntersecting)) {
-                                    incrementSlice()
-                                }
-                            }, { threshold: 0.0 })
-                            observer.observe($el)
-                        }
-                    }"
-                    style=" height: 100vh; margin-top: -100vh; pointer-events: none; "
+                x-intersect="incrementSlice()"
+                style=" height: 100vh; margin-top: -100vh; pointer-events: none; "
             >
             </div>
         </div>
