@@ -24,7 +24,7 @@ class ApiKeySecurity(APIKeyBase):
 
         if api_access is not None:
             if self.permission_required is None:
-                return key
+                return api_access.name
 
             return api_access.permission >= self.permission_required
 
