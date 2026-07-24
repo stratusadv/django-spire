@@ -37,6 +37,15 @@ class Task(ActivityMixin, HistoryModelMixin):
     def __str__(self) -> str:
         return self.name
 
+    @Glue.attribute(access=Glue.Access.VIEW)
+    @property
+    def has_children(self) -> bool:
+        return getattr(
+            self,
+            '_has_children',
+            self.children.filter(is_active=True, is_deleted=False).exists()
+        )
+
     @Glue.attribute(access=Glue.Access.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
         self.status = TaskStatusChoices.DONE

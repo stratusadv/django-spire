@@ -1,3 +1,4 @@
+{% load django_spire_glue %}
 <div>
     {% if not hide_label %}
         {% block widget_label %}
@@ -7,6 +8,6 @@
 
     {% block widget_content %}
     {% endblock %}
-    <div class="invalid-feedback" x-text="{{ glue_field }}.errorText"></div>
-    <small class="text-muted d-block" x-show="{{ glue_field }}.help_text" x-text="{{ glue_field }}.help_text"></small>
+    <div class="invalid-feedback" x-text="{{ glue_field|glue_field_metadata_path }}.errorText"></div>
+    <small class="text-muted d-block" x-show="{{ glue_field|glue_field_metadata_path }}.help_text" x-text="{{ glue_field|glue_field_metadata_path }}.help_text"></small>
 </div>

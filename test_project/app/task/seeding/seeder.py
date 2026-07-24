@@ -35,6 +35,23 @@ class SubTaskModelSeeder(Seeder):
     }
 
 
+class SubSubTaskModelSeeder(Seeder):
+    model_class = Task
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'parent_id': Seeder.model.random_queryset_foreign_key(
+            Task.objects.filter(parent__isnull=False)
+        ),
+        'name': Seeder.fake.sentence(),
+        'description': Seeder.llm(str),
+        'status': Seeder.model.random_field_choice(TaskStatusChoices),
+        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
+    }
+
+
 class TaskUserModelSeeder(Seeder):
     model_class = TaskUser
 

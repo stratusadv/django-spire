@@ -99,6 +99,15 @@
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15.x/dist/cdn.min.js"></script>
             <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/sort@3.15.x/dist/cdn.min.js"></script>
             <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.x/dist/cdn.min.js"></script>
+
+            {% django_glue_init %}
+            <script type="application/javascript">
+                Glue.onMessage(({messages}) => {
+                    messages.forEach((message) => {
+                        Spire.notify.dispatch({type: message.level_tag, message: message.message})
+                    })
+                })
+            </script>
         {% endblock %}
 
         {% block base_head_additional_js %}
@@ -132,14 +141,6 @@
     {% block base_body_additional_bottom_js %}
     {% endblock %}
 
-    {% django_glue_init %}
-    <script type="application/javascript">
-        Glue.onMessage(({messages}) => {
-            messages.forEach((message) => {
-                Spire.notify.dispatch({type: message.level_tag, message: message.message})
-            })
-        })
-    </script>
 {% endblock %}
 </body>
 </html>

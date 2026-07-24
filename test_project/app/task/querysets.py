@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.db.models import Count, F, FloatField, Q, QuerySet, Value
+from django.db.models import Count, Exists, F, FloatField, OuterRef, Q, QuerySet, Value
 from django.db.models.functions import Cast
 
 from django_spire.history.querysets import HistoryQuerySet
@@ -19,6 +19,14 @@ class TaskQuerySet(HistoryQuerySet):
 
     def children(self) -> QuerySet:
         return self.filter(parent__isnull=False)
+
+    def annotate_has_children(self) -> QuerySet:
+        child_tasks = self.model.objects.filter(
+            parent_id=OuterRef('pk'),
+            is_active=True,
+            is_deleted=False,
+        )
+        return self.annotate(_has_children=Exists(child_tasks))
 
     def annotate_calculated_cost(self) -> QuerySet:
         return self.annotate(calculated_cost=Cast(F('id') * Value(100), FloatField()))

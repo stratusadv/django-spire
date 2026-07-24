@@ -4,22 +4,50 @@
             sliceStart: 0,
             sliceStop: 30,
             orderBy: '{% block scroll_queryset_order_by_field %}{% endblock %}',
-            items: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
-            get queryParams() {
-                return {
-                    filter: {{% block scroll_queryset_filter_field %}{% endblock %}__icontains: this.searchQuery},
-                    slice: {start: this.sliceStart, stop: this.sliceStop},
-                    order_by: this.orderBy,
-                };
+            filterField: '{% block scroll_queryset_filter_field %}{% endblock %}',
+            scrollQuerySet: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
+            isLoading: false,
+            hasMore: true,
+            get scrollItems() {
+                const array = Array.from(
+                    this.scrollQuerySet
+                    .filter({
+                        [this.filterField + '__icontains']: this.searchQuery
+                    })
+                    .orderBy(this.orderBy)
+                    .slice(this.sliceStart, this.sliceStop)
+                )
+
+                debugger 
+                return array
             },
             toggleOrder() {
                 this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
             },
-            incrementSlice() {
+            async incrementSlice() {
+                if (this.isLoading || !this.hasMore) return
+
+                this.isLoading = true
                 this.sliceStop += 60
+                await this.$nextTick()
+
+                const querySet = this.scrollQuerySet
+                    .filter({
+                        [this.filterField + '__icontains']: this.searchQuery
+                    })
+                    .orderBy(this.orderBy)
+                    .slice(this.sliceStart, this.sliceStop)
+
+                querySet.items
+                while (querySet.loading) {
+                    await new Promise(resolve => setTimeout(resolve, 10))
+                }
+
+                this.hasMore = querySet.hasMore
+                this.isLoading = false
             }
         }"
-        class=""
+        class="{% block scroll_container_class %}{% endblock %}"
 >
 
     <div class="row">
@@ -34,7 +62,7 @@
 
             {% block scroll_content %}
 
-                <template x-for="item in items.queryWithParams(queryParams)">
+                <template x-for="item in scrollItems">
                     {% block scroll_template_item %}
                     {% endblock %}
                 </template>
@@ -44,11 +72,11 @@
             <div
                     x-data="{
                         init() {
-                            const observer = new IntersectionObserver((entries) => {entries.forEach((entry) => {
-                                    if (entry.isIntersecting) {
-                                        incrementSlice()
-                                    }
-                                })}, { threshold: [0.0, 0.99, 1.0] })
+                            const observer = new IntersectionObserver((entries) => {
+                                if (entries.some(entry => entry.isIntersecting)) {
+                                    incrementSlice()
+                                }
+                            }, { threshold: 0.0 })
                             observer.observe($el)
                         }
                     }"

@@ -1,0 +1,67 @@
+<div class="row border-bottom py-2" x-data="{
+    duplicateTask() {
+        item.services.factory.duplicate().then(() => {
+            items.refresh();
+            this.$dispatch('notify', { type: 'success', message: `Task '${item.name}' duplicated successfully!` });
+        });
+    }
+}">
+    <div class="col-6">
+        <span x-show="item.has_children && showChildTasks" @click="toggleChildTasks()">
+            <i class="bi bi-chevron-down"></i>
+        </span>
+        <span x-show="item.has_children && !showChildTasks" @click="toggleChildTasks()">
+            <i class="bi bi-chevron-right"></i>
+        </span>
+        <a :href="`{% url 'task:page:detail' pk=0 %}`.replace('0', item.id)">
+            <span x-text="item.name"></span>
+        </a>
+    </div>
+    <div class="col-2">
+        <div class="dropdown">
+            <button class="btn btn-sm dropdown-toggle text-white badge border-0"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    :class="
+                item.status === 'inp' ? 'bg-secondary' :
+                item.status === 'com' ? 'bg-success' :
+                item.status === 'can' ? 'bg-warning' :
+                'bg-primary'
+            "
+                    x-text="{new: 'New', inp: 'In Progress', com: 'Complete', can: 'Cancelled'}[item.status]"
+            >
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#"
+                       @click.prevent="item.status = 'new'; item.save()">New</a></li>
+                <li><a class="dropdown-item" href="#"
+                       @click.prevent="item.status = 'inp'; item.save()">In Progress</a></li>
+                <li><a class="dropdown-item" href="#"
+                       @click.prevent="item.status = 'com'; item.save()">Complete</a></li>
+                <li><a class="dropdown-item" href="#"
+                       @click.prevent="item.status = 'can'; item.save()">Cancelled</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-2">
+        <span x-text="item.created_datetime"></span>
+    </div>
+    <div class="col-2 text-end">
+        <button class="btn btn-sm btn-outline-success" @click="item.complete()"
+                x-show="item.status !== 'com'">
+            <i class="bi bi-check-lg"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-primary" @click="duplicateTask()" title="Duplicate Task">
+            <i class="bi bi-copy"></i>
+        </button>
+        <a class="btn btn-sm btn-outline-secondary"
+           :href="`{% url 'task:form:form' pk=0 %}`.replace('0', item.id)">
+            <i class="bi bi-pencil"></i>
+        </a>
+        <a class="btn btn-sm btn-outline-danger"
+           :href="`{% url 'task:form:delete' pk=0 %}`.replace('0', item.id)">
+            <i class="bi bi-trash"></i>
+        </a>
+    </div>
+</div>

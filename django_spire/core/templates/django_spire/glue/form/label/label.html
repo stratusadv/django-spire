@@ -1,1 +1,2 @@
-<label class="form-label" x-text="{{ glue_field }}.label"></label>
+{% load django_spire_glue %}
+<label class="form-label" x-text="{{ glue_field|glue_field_metadata_path }}.label"></label>

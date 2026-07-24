@@ -1,0 +1,39 @@
+{% load django_spire_glue %}
+<div x-data="{
+    editing: false,
+    originalValue: null,
+    startEdit() {
+        this.originalValue = {{ glue_field|glue_field_value_path }}
+        this.editing = true
+        this.$nextTick(() => {
+            const input = this.$el.querySelector('input, textarea, select')
+            input?.focus()
+        })
+    },
+    async save() {
+        this.editing = false
+        if (this.originalValue !== {{ glue_field|glue_field_value_path }}) {
+            await {{ glue_field|glue_field_metadata_path }}.owner.save()
+        }
+    },
+    cancel() {
+        {{ glue_field|glue_field_value_path }} = this.originalValue
+        this.editing = false
+    }
+}" class="d-inline-block">
+    {# Display mode - click to edit #}
+    <div x-show="!editing" @click="startEdit()" @keydown.enter="startEdit()">
+        {% block display %}
+            {% include display_template|default:"django_spire/glue/inline/display/text.html" %}
+        {% endblock %}
+    </div>
+
+    {# Edit mode - input field #}
+    <div x-show="editing" x-cloak @click.outside="save()" @keydown.escape.prevent="cancel()" @keydown.enter.prevent="save()">
+        {% block edit %}
+            {% with hide_label=True %}
+                {% include edit_template|default:"django_spire/glue/form/field/char_field.html" %}
+            {% endwith %}
+        {% endblock %}
+    </div>
+</div>

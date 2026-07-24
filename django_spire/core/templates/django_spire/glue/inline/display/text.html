@@ -1,0 +1,13 @@
+{% load django_spire_glue %}
+<span
+    class="d-inline-flex align-items-center px-2 py-1 rounded user-select-none {{ display_class }}"
+    role="button"
+    tabindex="0"
+    title="Click to edit"
+    style="cursor: pointer;"
+    @mouseenter="$el.classList.add('bg-light')"
+    @mouseleave="$el.classList.remove('bg-light')"
+>
+    <span x-text="{{ glue_field|glue_field_value_path }} || '{{ placeholder|default:'-' }}'"></span>
+    <i class="bi bi-pencil ms-2 text-muted small opacity-0" :class="{'opacity-100': $el.parentElement.matches(':hover')}"></i>
+</span>
