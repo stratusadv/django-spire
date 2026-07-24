@@ -18,13 +18,6 @@ if TYPE_CHECKING:
 class DomainForm(ModelForm):
     @Glue.attribute(access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
-        if len(self.data['name']) < 2:
-            return GlueResponse(
-                messages=[
-                    GlueMessage.warning('Your domain name is not long enough ... but I do care!')
-                ]
-            )
-
         if self.is_valid():
             domain = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
 
@@ -36,7 +29,7 @@ class DomainForm(ModelForm):
                 }
             )
 
-        return GlueResponse(messages=[GlueMessage.error('Hello')])
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
     class Meta:
         model = models.Domain
@@ -45,8 +38,23 @@ class DomainForm(ModelForm):
 
 
 class SubDomainForm(ModelForm):
-    # field = forms.JSONField(required=False)
+    @Glue.attribute(access=Glue.Access.CHANGE)
+    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+        print(self.data)
+        if self.is_valid():
+            subdomain = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
+
+            return GlueResponse(
+                result={
+                    'redirect_url': reverse(
+                        viewname='django_spire:metric:domain:page:detail',
+                        kwargs={'pk': subdomain.domain.id},
+                    )
+                }
+            )
+
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
     class Meta:
         model = models.SubDomain
-        exclude: ClassVar = ['domain']
+        exclude: ClassVar = []
