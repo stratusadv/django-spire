@@ -1,4 +1,4 @@
-{% load django_spire_glue %}
+{% load django_glue %}
 name="{{ glue_field|glue_field_metadata_path }}.name"
 {% if not exclude_x_model %}
 x-model="{{ glue_field|glue_field_value_path }}"

@@ -90,7 +90,6 @@ INSTALLED_APPS += [
     'django_spire.celery',
     'django_spire.comment',
     'django_spire.core',
-    'django_spire.core.glue',
     'django_spire.file',
     'django_spire.contrib.form',
     'django_spire.help_desk',
