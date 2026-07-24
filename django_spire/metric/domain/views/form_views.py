@@ -19,10 +19,11 @@ from django_spire.metric.domain.navigation import DomainNavigation
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
+
 @login_required
 def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     domain = get_object_or_null_obj(models.Domain, pk=pk)
-    
+
     nav = DomainNavigation()
     nav.set_page_title_to_form_action_from_model_instance(domain)
 
@@ -41,56 +42,9 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseR
 
     context = {**nav.as_context()}
 
-    return TemplateResponse(request=request, context=context, template='django_spire/metric/domain/page/form_page.html')
-
-
-@permission_required('metric_domain.add_domain')
-def create_view(request: WSGIRequest) -> TemplateResponse:
-    return _form_view(request)
-
-
-@permission_required('metric_domain.change_domain')
-def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    return _form_view(request, pk)
-
-
-def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
-    domain = get_object_or_null_obj(models.Domain, pk=pk)
-
-    Glue.model(request, 'domain', domain, 'view')
-
-    if request.method == 'POST':
-        form = forms.DomainForm(request.POST, instance=domain)
-
-        if form.is_valid():
-            domain, _ = domain.services.save_model_obj(**form.cleaned_data)
-            add_form_activity(domain, pk, request.user)
-
-            return redirect(
-                request.GET.get('return_url', reverse('django_spire:metric:domain:page:list'))
-            )
-
-        show_form_errors(request, form)
-    else:
-        form = forms.DomainForm(instance=domain)
-
-    nav = DomainNavigation()
-    nav.page_title = str(domain._meta.verbose_name.title())
-
-    if pk:
-        nav.breadcrumbs.add(
-            name=str(domain),
-            view_name='django_spire:metric:domain:page:detail',
-            view_kwargs={'pk': pk},
-        )
-
-    nav.breadcrumbs.add('Edit' if domain.pk else 'Create', None)
-    context = nav.as_context()
-    context['form'] = form
-    context['form_title'] = str(domain._meta.verbose_name.title())
-    context['form_description'] = 'Edit' if domain.pk else 'Create'
-
-    return TemplateResponse(request, 'django_spire/metric/domain/page/form_page.html', context)
+    return TemplateResponse(
+        request=request, context=context, template='django_spire/metric/domain/page/form_page.html'
+    )
 
 
 @permission_required('metric_domain.delete_domain')
@@ -129,44 +83,14 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('metric_domain.add_subdomain')
-def create_subdomain_view(request: WSGIRequest, domain_pk: int) -> TemplateResponse:
-    return _subdomain_form_view(request, domain_pk)
-
-
-@permission_required('metric_domain.change_subdomain')
-def update_subdomain_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse:
-    return _subdomain_form_view(request, domain_pk, pk)
-
-
-def _subdomain_form_view(
-    request: WSGIRequest, domain_pk: int, pk: int = 0
+@login_required
+def subdomain_form_view(
+    request: WSGIRequest, domain_pk: int, pk: int
 ) -> TemplateResponse | HttpResponseRedirect:
     subdomain = get_object_or_null_obj(models.SubDomain, pk=pk)
 
-    Glue.model(request, 'subdomain', subdomain, 'view')
-
-    if request.method == 'POST':
-        form = forms.SubDomainForm(request.POST, instance=subdomain)
-
-        if form.is_valid():
-            subdomain.domain = get_object_or_404(models.Domain, pk=domain_pk)
-            subdomain, _ = subdomain.services.save_model_obj(**form.cleaned_data)
-            add_form_activity(subdomain, pk, request.user)
-
-            return redirect(
-                request.GET.get(
-                    'return_url',
-                    reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk}),
-                )
-            )
-
-        show_form_errors(request, form)
-    else:
-        form = forms.SubDomainForm(instance=subdomain)
-
     nav = DomainNavigation()
-    nav.page_title = str(subdomain._meta.verbose_name.title())
+    nav.set_page_title_to_form_action_from_model_instance(subdomain)
     nav.breadcrumbs.add(
         name=str(get_object_or_404(models.Domain, pk=domain_pk)),
         view_name='django_spire:metric:domain:page:detail',
@@ -178,22 +102,18 @@ def _subdomain_form_view(
         view_kwargs={'pk': domain_pk},
     )
 
-    if pk:
-        nav.breadcrumbs.add(
-            name=str(subdomain),
-            view_name='django_spire:metric:domain:page:detail',
-            view_kwargs={'pk': domain_pk},
-        )
+    nav.breadcrumbs.add(f'{subdomain.name}' if subdomain.pk else 'New Sub Domain (With Glue)')
+    subdomain.domain_id = domain_pk
+    form = forms.SubDomainForm(request.POST or None, instance=subdomain, initial={'domain': domain_pk})
 
-    nav.breadcrumbs.add('Edit' if subdomain.pk else 'Create', None)
-    context = nav.as_context()
-    context['form'] = form
-    context['form_title'] = str(subdomain._meta.verbose_name.title())
-    context['form_description'] = 'Edit' if subdomain.pk else 'Create'
-    context['domain_pk'] = domain_pk
+    Glue.form(request, 'subdomain_form', form, Glue.Access.DELETE)
+
+    context = {**nav.as_context()}
 
     return TemplateResponse(
-        request, 'django_spire/metric/domain/page/subdomain_form_page.html', context
+        request=request,
+        context=context,
+        template='django_spire/metric/domain/page/subdomain_form_page.html',
     )
 
 
