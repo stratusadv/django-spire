@@ -26,17 +26,13 @@
 
 {% block scroll_template_item %}
     <div class="row border-bottom py-2">
-        <div class="col-3">
+        <div class="col-4">
             <div class="attribute-label">Sub Domain</div>
             <a :href="`{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=0 pk=0 %}`.replace('0', item.domain).replace('0', item.id)">
                 <span x-text="item.name"></span>
             </a>
         </div>
-        <div class="col-4">
-            <div class="attribute-label">Domain</div>
-            <span x-text="item.domain"></span>
-        </div>
-        <div class="col-4">
+        <div class="col-7">
             <div class="attribute-label">Description</div>
             <span x-text="item.description"></span>
         </div>

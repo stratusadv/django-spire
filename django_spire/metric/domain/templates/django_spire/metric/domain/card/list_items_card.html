@@ -8,7 +8,7 @@
 
 {% block card_button %}
     {% if perms.metric_domain.add_domain %}
-        {% url 'django_spire:metric:domain:form:create' as new_domain_url %}
+        {% url 'django_spire:metric:domain:form:form' pk=0 as new_domain_url %}
         <a class="btn btn-sm btn-primary" href="{{ new_domain_url }}">
             <i class="bi bi-plus"></i>
             Add
@@ -24,12 +24,4 @@
             {% include 'django_spire/item/no_data_item.html' %}
         {% endif %}
     </div>
-
-    {#    <div class="card-body">#}
-    {#        {% for domain in domains %}#}
-    {#            {% include 'django_spire/metric/domain/item/item.html' %}#}
-    {#        {% empty %}#}
-    {#            No data to display#}
-    {#        {% endfor %}#}
-    {#    </div>#}
 {% endblock %}

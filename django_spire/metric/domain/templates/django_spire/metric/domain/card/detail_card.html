@@ -6,7 +6,7 @@
 
 {% block card_button %}
     {% if perms.metric_domain.change_domain %}
-        {% url 'django_spire:metric:domain:form:update' pk=domain.pk as domain_edit_url %}
+        {% url 'django_spire:metric:domain:form:form' pk=domain.pk as domain_edit_url %}
         <a class="btn btn-sm btn-primary" href="{{ domain_edit_url }}">
             <i class="bi bi-pencil"></i>
             Edit
