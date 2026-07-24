@@ -25,13 +25,6 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseR
     nav = DomainNavigation()
     nav.set_page_title_to_form_action_from_model_instance(domain)
 
-    if pk:
-        nav.breadcrumbs.add(
-            name=str(domain),
-            view_name='django_spire:metric:domain:page:detail',
-            view_kwargs={'pk': domain.pk},
-        )
-
     nav.breadcrumbs.add(f'{domain.name}' if domain.pk else 'New Domain (With Glue)')
 
     form = forms.DomainForm(request.POST or None, instance=domain)
@@ -101,7 +94,9 @@ def subdomain_form_view(
     )
 
     nav.breadcrumbs.add(f'{subdomain.name}' if subdomain.pk else 'New Sub Domain (With Glue)')
+
     subdomain.domain_id = domain_pk
+
     form = forms.SubDomainForm(
         request.POST or None, instance=subdomain, initial={'domain': domain_pk}
     )
