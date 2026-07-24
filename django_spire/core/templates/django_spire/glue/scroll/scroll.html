@@ -1,74 +1,74 @@
 <div
-        x-data="{
-            searchQuery: '',
-            sliceStart: 0,
-            sliceStop: 30,
-            orderBy: '{% block scroll_queryset_order_by_field %}{% endblock %}',
-            filterField: '{% block scroll_queryset_filter_field %}{% endblock %}',
-            scrollQuerySet: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
-            items: [],
-            isLoading: false,
-            hasMore: true,
-            requestVersion: 0,
-            increment: 20,
-            init() {
-                this.$watch('searchQuery', () => this.resetAndLoad())
-                this.$watch('orderBy', () => this.resetAndLoad())
-                this.loadItems(true)
-            },
-            buildQuerySet() {
-                return this.scrollQuerySet
-                    .filter({
-                        [this.filterField + '__icontains']: this.searchQuery
-                    })
-                    .orderBy(this.orderBy)
-                    .slice(this.sliceStart, this.sliceStop)
-            },
-            async loadItems(reset = false) {
-                const requestVersion = ++this.requestVersion
-                const previousCount = reset ? 0 : this.items.length
-                const querySet = this.buildQuerySet()
+    x-data="{
+        searchQuery: '',
+        sliceStart: 0,
+        sliceStop: 30,
+        orderBy: '{% block scroll_queryset_order_by_field %}{% endblock %}',
+        filterField: '{% block scroll_queryset_filter_field %}{% endblock %}',
+        scrollQuerySet: Glue.querySet.{% block scroll_queryset_unique_name %}{% endblock %},
+        items: [],
+        isLoading: false,
+        hasMore: true,
+        requestVersion: 0,
+        increment: {% block increment %}25{% endblock %},
+        init() {
+            this.$watch('searchQuery', () => this.resetAndLoad())
+            this.$watch('orderBy', () => this.resetAndLoad())
+            this.loadItems(true)
+        },
+        buildQuerySet() {
+            return this.scrollQuerySet
+                .filter({
+                    [this.filterField + '__icontains']: this.searchQuery
+                })
+                .orderBy(this.orderBy)
+                .slice(this.sliceStart, this.sliceStop)
+        },
+        async loadItems(reset = false) {
+            const requestVersion = ++this.requestVersion
+            const previousCount = reset ? 0 : this.items.length
+            const querySet = this.buildQuerySet()
 
-                await querySet.all()
+            await querySet.all()
 
-                if (requestVersion !== this.requestVersion) return
+            if (requestVersion !== this.requestVersion) return
 
-                const nextItems = querySet.items
-                this.items = nextItems
+            const nextItems = querySet.items
+            this.items = nextItems
 
-                if (reset) {
-                    this.hasMore = nextItems.length >= this.sliceStop - this.sliceStart
-                }
-                else {
-                    const additionalCount = nextItems.length - previousCount
-                    this.hasMore = additionalCount >= this.increment
-                }
-            },
-            async resetAndLoad() {
-                if (this.isLoading) return
-
-                this.sliceStart = 0
-                this.sliceStop = 30
-                this.hasMore = true
-                await this.loadItems(true)
-            },
-            toggleOrder() {
-                this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
-            },
-            async incrementSlice() {
-                if (this.isLoading || !this.hasMore) return
-
-                this.isLoading = true
-                this.sliceStop += this.increment
-                try {
-                    await this.loadItems()
-                }
-                finally {
-                    this.isLoading = false
-                }
+            if (reset) {
+                this.hasMore = nextItems.length >= this.sliceStop - this.sliceStart
             }
-        }"
-        class="{% block scroll_container_class %}{% endblock %}"
+            else {
+                const additionalCount = nextItems.length - previousCount
+                this.hasMore = additionalCount >= this.increment
+            }
+        },
+        async resetAndLoad() {
+            if (this.isLoading) return
+
+            this.sliceStart = 0
+            this.sliceStop = 30
+            this.hasMore = true
+            await this.loadItems(true)
+        },
+        toggleOrder() {
+            this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
+        },
+        async incrementSlice() {
+            if (this.isLoading || !this.hasMore) return
+
+            this.isLoading = true
+            this.sliceStop += this.increment
+            try {
+                await this.loadItems()
+            }
+            finally {
+                this.isLoading = false
+            }
+        }
+    }"
+    class="{% block scroll_container_class %}{% endblock %}"
 >
 
     <div class="row">
