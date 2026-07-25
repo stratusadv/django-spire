@@ -5,8 +5,10 @@
         this.is_processing = true;
         await this.glue_form.validate()
         let result = await this.glue_form.save_model_obj()
-        if(result?.redirect_url) {
-            window.location.href=result.redirect_url
+        debugger
+        if(result?.redirect) {
+            debugger
+            window.location.href=result.redirect.url
         }
         this.is_processing = false
     }
