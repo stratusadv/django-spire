@@ -21,5 +21,5 @@ class ModelSeedFactory(BaseSeedFactory):
         invalid_field_names = set(self.seeder.fields_seeds.keys()) - self._model_all_field_names
 
         if invalid_field_names:
-            message = f'Invalid field name(s): {", ".join(invalid_field_names)}'
+            message = f'Invalid field name(s): {", ".join(invalid_field_names)}. Valid choices are: {", ".join(self._model_all_field_names)}'
             raise ValueError(message)

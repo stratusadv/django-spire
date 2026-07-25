@@ -53,7 +53,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = DomainNavigation()
     context = nav.as_context()
-    # context['responsive_mode'] = 'scroll'
     context['domains'] = paginated_domains
     context['domain_count'] = domains.count()
 

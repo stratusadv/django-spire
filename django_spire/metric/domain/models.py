@@ -52,10 +52,20 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
     description = models.TextField(default='')
 
     objects = querysets.SubDomainQuerySet().as_manager()
-    services = SubDomainService()
+    services = Glue.attribute(SubDomainService(), access=Glue.Access.DELETE)
 
     def __str__(self) -> str:
         return self.name
+
+    @Glue.attribute(access=Glue.Access.CHANGE)
+    def complete(self, request: WSGIRequest) -> None:
+        self.services.save_model_obj(user=request.user, obj=self, status=self.status)
+
+    def user_initials(self) -> list[str]:
+        return [
+            f'{user_bridge.user.first_name} {user_bridge.user.id}'
+            for user_bridge in self.users.all()
+        ]
 
     class Meta:
         verbose_name = 'Sub Domain'

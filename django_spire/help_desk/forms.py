@@ -33,7 +33,7 @@ class HelpDeskTicketModelForm(ModelForm):
                 }
             )
 
-        return GlueResponse(messages=[GlueMessage.error('Hello')])
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
     class Meta:
         model = HelpDeskTicket
