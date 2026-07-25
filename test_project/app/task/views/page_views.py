@@ -33,7 +33,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
             'created_datetime',
             'description',
         ],
-        form_class=forms.TaskModelForm,
+        form=forms.TaskModelForm(),
     )
 
     Glue.model(
@@ -42,7 +42,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         models.Task(),
         Glue.Access.CHANGE,
         fields=['name', 'description', 'status'],
-        form_class=forms.TaskModelForm,
+        form=forms.TaskModelForm(),
     )
 
     nav = TaskNavigation()
@@ -64,7 +64,7 @@ def child_list_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     Glue.queryset(
         request,
-        'child_tasks',
+        f'task_{pk}_children',
         child_tasks,
         Glue.Access.CHANGE,
         fields=[
@@ -74,12 +74,12 @@ def child_list_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'created_datetime',
             'description',
         ],
-        form_class=forms.TaskModelForm,
+        form=forms.TaskModelForm(),
     )
 
     return TemplateResponse(
         request=request,
-        context={'task_queryset_name': 'child_tasks', 'is_nested': True},
+        context={'task_queryset_name': f'task_{pk}_children', 'is_nested': True},
         template='task/scroll/scroll.html',
     )
 
