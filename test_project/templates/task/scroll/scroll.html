@@ -12,7 +12,38 @@
                 <input class="form-control" placeholder="Search Tasks ..." type="search" x-model.debounce="searchQuery">
             </div>
             <div class="col">
-                <button class="btn btn-outline-secondary form-control" @click="toggleOrder()"> Sort By Name</button>
+                <div class="btn-group w-100">
+                    <button
+                        class="btn btn-outline-secondary text-start dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        x-text="{
+                            name: 'Sort by Name',
+                            status: 'Sort by Status',
+                            created_datetime: 'Sort by Created',
+                            description: 'Sort by Description'
+                        }[orderBy.replace('-', '')]"
+                    >
+                    </button>
+                    <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        @click="toggleOrder()"
+                        :aria-label="orderBy.startsWith('-') ? 'Sort descending' : 'Sort ascending'"
+                    >
+                        <i
+                            class="bi"
+                            :class="orderBy.startsWith('-') ? 'bi-sort-alpha-down-alt' : 'bi-sort-alpha-down'"
+                        ></i>
+                    </button>
+                    <ul class="dropdown-menu w-100">
+                        <li><button class="dropdown-item" type="button" @click="orderBy = `${orderBy.startsWith('-') ? '-' : ''}name`">Name</button></li>
+                        <li><button class="dropdown-item" type="button" @click="orderBy = `${orderBy.startsWith('-') ? '-' : ''}status`">Status</button></li>
+                        <li><button class="dropdown-item" type="button" @click="orderBy = `${orderBy.startsWith('-') ? '-' : ''}created_datetime`">Created</button></li>
+                        <li><button class="dropdown-item" type="button" @click="orderBy = `${orderBy.startsWith('-') ? '-' : ''}description`">Description</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -46,11 +77,8 @@
             this.showChildTasks = !this.showChildTasks
         },
     }">
-
         {% include 'task/scroll/task_item.html' %}
-
         <div x-show="showChildTasks" x-ref="childTasks"></div>
-
     </div>
 
 {% endblock %}

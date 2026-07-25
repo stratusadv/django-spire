@@ -27,7 +27,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     form = forms.TaskModelForm(request.POST or None, instance=task)
 
-    Glue.form(request, 'task_model_form', form, Glue.Access.DELETE)
+    Glue.form(request, 'new_task_form', form, Glue.Access.DELETE)
 
     context = {**nav.as_context()}
 
@@ -74,12 +74,19 @@ def update_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     task = get_object_or_null_obj(models.Task, pk=pk)
 
-    Glue.model(request, 'task', task)
+    Glue.model(
+        request,
+        'task',
+        task,
+        Glue.Access.CHANGE,
+        fields=['name', 'description', 'status'],
+        form_class=forms.TaskModelForm,
+    )
 
-    context = {'task': task}
+    context = {'task': task, 'glue_form': 'Glue.model.task.form'}
 
     return TemplateResponse(
-        request, context=context, template='task/modal/content/task_modal_content.html'
+        request, context=context, template='task/modal/content/task_form_modal_content.html'
     )
 
 

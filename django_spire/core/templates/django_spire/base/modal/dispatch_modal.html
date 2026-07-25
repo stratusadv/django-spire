@@ -1,39 +1,39 @@
 <div
-        x-data="{
-            eventData: {},
-            modal: null,
-            dialogClasses: '',
-            init() {
-                this.modal = bootstrap.Modal.getOrCreateInstance($el)
-                $el.addEventListener('show.bs.modal', () => $el.removeAttribute('inert'));
-                $el.addEventListener('hide.bs.modal', () => $el.setAttribute('inert', ''));
+    x-data="{
+        eventData: {},
+        modal: null,
+        dialogClasses: '',
+        init() {
+            this.modal = bootstrap.Modal.getOrCreateInstance($el)
+            $el.addEventListener('show.bs.modal', () => $el.removeAttribute('inert'));
+            $el.addEventListener('hide.bs.modal', () => $el.setAttribute('inert', ''));
 
-            },
-            setUp(event) {
-                this.hideModal()
+        },
+        setUp(event) {
+            this.hideModal()
 
-                this.dialogClasses = event.detail.dialogClasses || ''
-                this.eventData = event.detail.eventData
-                if(event.detail.renderToBody) {
-                    document.getElementById('baseDispatchModalBody').innerHTML = event.detail.htmlContent
-                } else {
-                    document.getElementById('baseDispatchModalContent').innerHTML = event.detail.htmlContent
-                }
-
-                this.showModal()
-            },
-            hideModal() {
-                this.modal.hide()
-            },
-            showModal() {
-                this.modal.show()
+            this.dialogClasses = event.detail.dialogClasses || ''
+            this.eventData = event.detail.eventData
+            if(event.detail.renderToBody) {
+                document.getElementById('baseDispatchModalBody').innerHTML = event.detail.htmlContent
+            } else {
+                document.getElementById('baseDispatchModalContent').innerHTML = event.detail.htmlContent
             }
-        }"
-        class="modal fade"
-        id="baseDispatchModal"
-        @dispatch-modal.window="setUp($event)"
-        tabindex="-1"
-        aria-hidden="true"
+
+            this.showModal()
+        },
+        hideModal() {
+            this.modal.hide()
+        },
+        showModal() {
+            this.modal.show()
+        }
+    }"
+    class="modal fade"
+    id="baseDispatchModal"
+    @dispatch-modal.window="setUp($event)"
+    tabindex="-1"
+    aria-hidden="true"
 >
     <div
             class="modal-dialog modal-dialog-centered modal-dialog-scrollable"

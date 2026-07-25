@@ -10,6 +10,7 @@ from django.urls import reverse
 from django_glue import Glue
 
 from test_project.app.task import models
+from test_project.app.task import forms
 from test_project.app.task.navigation import TaskNavigation
 
 if TYPE_CHECKING:
@@ -20,7 +21,29 @@ if TYPE_CHECKING:
 def list_view(request: WSGIRequest) -> TemplateResponse:
     tasks = models.Task.objects.active().top_level().annotate_has_children().prefetch_users()
 
-    Glue.queryset(request, 'tasks', tasks, Glue.Access.CHANGE)
+    Glue.queryset(
+        request,
+        'tasks',
+        tasks,
+        Glue.Access.CHANGE,
+        fields=[
+            'id',
+            'name',
+            'status',
+            'created_datetime',
+            'description',
+        ],
+        form_class=forms.TaskModelForm,
+    )
+
+    Glue.model(
+        request,
+        'new_task',
+        models.Task(),
+        Glue.Access.CHANGE,
+        fields=['name', 'description', 'status'],
+        form_class=forms.TaskModelForm,
+    )
 
     nav = TaskNavigation()
     nav.set_page_title_from_model_plural_name(models.Task)
@@ -39,7 +62,20 @@ def child_list_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         models.Task.objects.active().filter(parent=parent).annotate_has_children().prefetch_users()
     )
 
-    Glue.queryset(request, 'child_tasks', child_tasks, Glue.Access.CHANGE)
+    Glue.queryset(
+        request,
+        'child_tasks',
+        child_tasks,
+        Glue.Access.CHANGE,
+        fields=[
+            'id',
+            'name',
+            'status',
+            'created_datetime',
+            'description',
+        ],
+        form_class=forms.TaskModelForm,
+    )
 
     return TemplateResponse(
         request=request,
