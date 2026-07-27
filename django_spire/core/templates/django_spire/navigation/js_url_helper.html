@@ -1,0 +1,16 @@
+<script>
+window.Spire = window.Spire || {};
+Spire._urlPatterns = {{ patterns|safe }};
+
+Spire.url = function(name, kwargs = {}) {
+    let pattern = Spire._urlPatterns[name];
+    if (!pattern) {
+        console.error(`Unknown URL pattern: ${name}`);
+        return '#';
+    }
+    for (const [key, value] of Object.entries(kwargs)) {
+        pattern = pattern.replace(`\${${key}}`, value);
+    }
+    return pattern;
+};
+</script>

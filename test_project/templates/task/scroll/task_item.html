@@ -7,13 +7,10 @@
     }
 }">
     <div class="col-6">
-        <span x-show="item.has_children && showChildTasks" @click="toggleChildTasks()">
-            <i class="bi bi-chevron-down"></i>
+        <span x-show="item.has_children" @click="toggleChildTasks()">
+            <i :class="`bi bi-chevron-${showChildTasks ? 'down' : 'right'}`"></i>
         </span>
-        <span x-show="item.has_children && !showChildTasks" @click="toggleChildTasks()">
-            <i class="bi bi-chevron-right"></i>
-        </span>
-        <a :href="`{% url 'task:page:detail' pk=0 %}`.replace('0', item.id)">
+        <a :href="Spire.url('task:page:detail', {pk: item.id})">
             <span x-text="item.name"></span>
         </a>
     </div>
@@ -72,7 +69,7 @@
             </button>
         {% endif %}
         <a class="btn btn-sm btn-outline-danger"
-           :href="`{% url 'task:form:delete' pk=0 %}`.replace('0', item.id)">
+           :href="Spire.url('task:form:delete', {pk: item.id})">
             <i class="bi bi-trash"></i>
         </a>
     </div>
