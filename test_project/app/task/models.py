@@ -40,6 +40,9 @@ class Task(ActivityMixin, HistoryModelMixin):
     @Glue.attribute(access=Glue.Access.VIEW)
     @property
     def has_children(self) -> bool:
+        if self.pk is None:
+          return False
+
         return getattr(
             self,
             '_has_children',

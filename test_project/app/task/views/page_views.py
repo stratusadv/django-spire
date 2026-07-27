@@ -36,15 +36,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         form=forms.TaskModelForm(),
     )
 
-    Glue.model(
-        request,
-        'new_task',
-        models.Task(),
-        Glue.Access.CHANGE,
-        fields=['name', 'description', 'status'],
-        form=forms.TaskModelForm(),
-    )
-
     nav = TaskNavigation()
     nav.set_page_title_from_model_plural_name(models.Task)
 

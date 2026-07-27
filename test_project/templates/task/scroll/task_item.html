@@ -1,8 +1,17 @@
 <div class="row border-bottom py-2" x-data="{
+    openFormModal(item) {
+        Spire.modal.dispatchElementById(
+            'task-form-modal-content',
+            {eventData: {glueForm: item.form}}
+        )
+    },
     duplicateTask() {
-        item.services.factory.duplicate().then(() => {
-            items.refresh();
-            this.$dispatch('notify', { type: 'success', message: `Task '${item.name}' duplicated successfully!` });
+        item.services.factory.duplicate().then(result => {
+            $dispatch('updated-item', {
+                pk: result.new_task_id,
+            })
+
+            Spire.notify.success(`Task '${item.name}' duplicated successfully!`)
         });
     }
 }">
@@ -30,14 +39,17 @@
             >
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#"
-                       @click.prevent="item.status = 'new'; item.save()">New</a></li>
-                <li><a class="dropdown-item" href="#"
-                       @click.prevent="item.status = 'inp'; item.save()">In Progress</a></li>
-                <li><a class="dropdown-item" href="#"
-                       @click.prevent="item.status = 'com'; item.save()">Complete</a></li>
-                <li><a class="dropdown-item" href="#"
-                       @click.prevent="item.status = 'can'; item.save()">Cancelled</a></li>
+                <template x-for="[value, label] in item.$fields.status.choices.filter(([value, label]) => value != item.status)">
+                    <li>
+                        <a 
+                            class="dropdown-item" 
+                            href="#"
+                            @click.prevent="item.status = value; item.save()"
+                            x-text="label"
+                        >
+                        </a>
+                    </li>
+                </template>
             </ul>
         </div>
     </div>
@@ -60,10 +72,7 @@
         {% else %}
             <button
                 class="btn btn-sm btn-outline-secondary"
-                @click="Spire.modal.dispatchElementById(
-                    'task-form-modal-content',
-                    {eventData: {glueForm: item.form}}
-                )"
+                @click="openFormModal(item)"
             >
                 <i class="bi bi-pencil"></i>
             </button>

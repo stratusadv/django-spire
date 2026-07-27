@@ -9,7 +9,7 @@
             <a
                 onclick="Spire.modal.dispatchElementById(
                     'task-form-modal-content',
-                    {eventData: {glueForm: Glue.model.new_task.form}}
+                    {eventData: {glueForm: Glue.querySet.tasks.new().form}}
                 )"
                 class="btn btn-sm btn-primary text-light"
             >
@@ -17,6 +17,10 @@
             </a>
         </div>
     </div>
+
+    <template id="task-form-modal-content">
+        {% include 'task/modal/content/task_form_modal_content.html' with glue_form='eventData.glueForm' %}
+    </template>
 
     <template id="task-form-modal-content">
         {% include 'task/modal/content/task_form_modal_content.html' with glue_form='eventData.glueForm' %}
