@@ -5,26 +5,24 @@
 {% block full_page_content %}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="fs-1 fw-semi-bold">Tasks</h1>
-        <div>
-            <a
-                onclick="Spire.modal.dispatchElementById(
-                    'task-form-modal-content',
-                    {eventData: {glueForm: Glue.querySet.tasks.new().form}}
-                )"
-                class="btn btn-sm btn-primary text-light"
-            >
+        <div x-data="{
+            openNewTask() {
+                Glue.querySet.tasks.new().then(newTask => {
+                    Spire.modal.dispatchElementById(
+                        'task-form-modal-content',
+                        {eventData: {glueForm: newTask.form}}
+                    );
+                })
+            }
+        }">
+            <a class="btn btn-sm btn-primary text-light" @click="openNewTask()">
                 <i class="bi bi-plus"></i> New Task
             </a>
         </div>
+        <template id="task-form-modal-content">
+            {% include 'task/modal/content/task_form_modal_content.html' with glue_form='eventData.glueForm' %}
+        </template>
     </div>
-
-    <template id="task-form-modal-content">
-        {% include 'task/modal/content/task_form_modal_content.html' with glue_form='eventData.glueForm' %}
-    </template>
-
-    <template id="task-form-modal-content">
-        {% include 'task/modal/content/task_form_modal_content.html' with glue_form='eventData.glueForm' %}
-    </template>
 
     {% include 'task/scroll/scroll.html' %}
 {% endblock %}
