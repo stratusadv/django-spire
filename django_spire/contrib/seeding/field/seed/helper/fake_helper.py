@@ -25,7 +25,7 @@ class FakeFieldSeedHelper(FieldSeedHelper):
         )
 
     def date_time_between(
-        self, start_date: str = '-30d', end_date: str = '+30d'
+            self, start_date: str = '-30d', end_date: str = '+30d'
     ) -> CallableFieldSeed:
         return CallableFieldSeed(
             callable_=self.faker.date_time_between,
@@ -36,6 +36,9 @@ class FakeFieldSeedHelper(FieldSeedHelper):
 
     def email(self) -> CallableFieldSeed:
         return CallableFieldSeed(callable_=self.faker.email)
+
+    def file_name(self, category: str | None = None, extension: str | None = None) -> CallableFieldSeed:
+        return CallableFieldSeed(callable_=self.faker.file_name, category=category, extension=extension)
 
     def first_name(self) -> CallableFieldSeed:
         return CallableFieldSeed(callable_=self.faker.first_name)
@@ -50,7 +53,7 @@ class FakeFieldSeedHelper(FieldSeedHelper):
         return CallableFieldSeed(callable_=self.faker.paragraph, nb_sentences=nb_sentences)
 
     def provider(
-        self, provider_callable: str, wrapper: Callable | None = None, **kwargs
+            self, provider_callable: str, wrapper: Callable | None = None, **kwargs
     ) -> CallableFieldSeed:
         return CallableFieldSeed(
             callable_=getattr(self.faker, provider_callable), wrapper=wrapper, **kwargs
