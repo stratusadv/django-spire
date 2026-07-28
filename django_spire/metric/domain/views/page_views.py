@@ -21,18 +21,13 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
     subdomains = domain.subdomains.active()
 
-    paginated_subdomains = Paginator(subdomains.order_by('-created_datetime'), 10).get_page(
-        request.GET.get('page', 1)
-    )
-
-    Glue.model(request, 'subdomain', models.SubDomain())
-    Glue.queryset(request, 'subdomains', subdomains, Glue.Access.CHANGE)
+    Glue.queryset(request, 'subdomains', subdomains, Glue.Access.CHANGE, fields='__all__')
 
     nav = DomainNavigation()
     nav.breadcrumbs.add(str(domain), None)
     context = nav.as_context()
     context['domain'] = domain
-    context['subdomains'] = paginated_subdomains
+    context['subdomains'] = subdomains
     context['subdomain_count'] = subdomains.count()
 
     return TemplateResponse(
@@ -44,16 +39,11 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def list_view(request: WSGIRequest) -> TemplateResponse:
     domains = models.Domain.objects.active()
 
-    paginated_domains = Paginator(domains.order_by('-created_datetime'), 10).get_page(
-        request.GET.get('page', 1)
-    )
-
-    Glue.model(request, 'domain', models.Domain())
-    Glue.queryset(request, 'domains', domains, Glue.Access.CHANGE)
+    Glue.queryset(request, 'domains', domains, Glue.Access.CHANGE, fields='__all__')
 
     nav = DomainNavigation()
     context = nav.as_context()
-    context['domains'] = paginated_domains
+    context['domains'] = domains
     context['domain_count'] = domains.count()
 
     return TemplateResponse(

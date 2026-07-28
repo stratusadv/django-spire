@@ -19,19 +19,14 @@ if TYPE_CHECKING:
 def ticket_list_view(request: WSGIRequest) -> TemplateResponse:
     tickets = HelpDeskTicket.objects.active()
 
-    paginated_tickets = Paginator(tickets.order_by('-created_datetime'), 10).get_page(
-        request.GET.get('page', 1)
-    )
-
-    Glue.model(request, 'ticket', HelpDeskTicket())
-    Glue.queryset(request, 'tickets', tickets, Glue.Access.CHANGE)
+    Glue.queryset(request, 'tickets', tickets, Glue.Access.CHANGE, fields='__all__')
 
     nav = HelpDeskNavigation()
     nav.page_title = 'Ticket'
     nav.page_description = 'List View'
     nav.breadcrumbs.add('Tickets', 'django_spire:help_desk:page:list')
     context = nav.as_context()
-    context['tickets'] = paginated_tickets
+    context['tickets'] = tickets
     context['ticket_count'] = tickets.count()
     return TemplateResponse(
         request=request,
