@@ -94,8 +94,8 @@ class Seeder:
         return StaticFieldSeed(value)
 
     @staticmethod
-    def file() -> FileFieldSeed:
-        return FileFieldSeed()
+    def file(upload_to: str | None = None) -> FileFieldSeed:
+        return FileFieldSeed(upload_to)
 
     @classmethod
     def llm(cls, field_type: type, prompt: str | None = None) -> LlmFieldSeed:
