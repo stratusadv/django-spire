@@ -26,7 +26,7 @@ class SmsNotificationAdmin(admin.ModelAdmin):
                 + urlencode({"id": f"{sms_notification.notification_id}"})
         )
 
-        return format_html(f'<a href="{url}">{sms_notification.notification}</a>')
+        return format_html('<a href="{}">{}</a>', url, sms_notification.notification)
 
     view_notification_link.short_description = "Notification"
 

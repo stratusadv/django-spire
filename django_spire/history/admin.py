@@ -27,6 +27,6 @@ class HistoryEventAdmin(admin.ModelAdmin):
             args=[history_event.object_id]
         )
 
-        return format_html(f'<a href="{url}">{history_event.content_object}</a>')
+        return format_html('<a href="{}">{}</a>', url, history_event.content_object)
 
     content_object_link.short_description = 'Content Object'

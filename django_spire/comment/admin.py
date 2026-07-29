@@ -19,7 +19,7 @@ class CommentAdmin(admin.ModelAdmin):
 
     def user_link(self, comment: models.Comment) -> str:
         url = reverse('admin:auth_user_change', args=[comment.user.id])
-        return format_html(f'<a href="{url}">{comment.user.username}</a>')
+        return format_html('<a href="{}">{}</a>', url, comment.user.username)
 
     user_link.short_description = 'User'
 
@@ -31,7 +31,7 @@ class CommentAdmin(admin.ModelAdmin):
             )
         )
 
-        return format_html(f'<a href="{url}">{comment.content_object}</a>')
+        return format_html('<a href="{}">{}</a>', url, comment.content_object)
 
     content_object_link.short_description = 'Content Object'
 

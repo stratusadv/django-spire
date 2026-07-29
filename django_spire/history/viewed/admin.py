@@ -22,12 +22,12 @@ class ViewAdmin(admin.ModelAdmin):
             args=[view.object_id]
         )
 
-        return format_html(f'<a href="{url}">{view.content_object}</a>')
+        return format_html('<a href="{}">{}</a>', url, view.content_object)
 
     content_object_link.short_description = 'Content Object'
 
     def user_link(self, view: Viewed) -> str:
         url = reverse('admin:auth_user_change', args=[view.user.id])
-        return format_html(f'<a href="{url}">{view.user.get_full_name()}</a>')
+        return format_html('<a href="{}">{}</a>', url, view.user.get_full_name())
 
     user_link.short_description = 'User'
