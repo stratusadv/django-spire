@@ -26,4 +26,4 @@ class FileFieldSeed(BaseFieldSeed):
             if not default_storage.exists(path):
                 default_storage.save(path, ContentFile(b'Hello World'))
 
-        return self._seeding_file_path
+        return str(self._seeding_file_path)
