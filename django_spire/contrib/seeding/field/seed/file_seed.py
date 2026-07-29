@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import PurePath
 from typing import Any
 
-from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 
@@ -11,21 +12,18 @@ from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 class FileFieldSeed(BaseFieldSeed):
     def __init__(self, upload_to: str | None = None) -> None:
         if upload_to:
-            self._seeding_dir = Path(upload_to, '.seeding')
+            self._seeding_dir = PurePath(upload_to, '.seeding')
         else:
-            self._seeding_dir = '.seeding'
+            self._seeding_dir = PurePath('.seeding')
 
         self._seeding_txt_file = 'seeded_file.txt'
-
-        self._seeding_file_path = Path(self._seeding_dir, self._seeding_txt_file)
+        self._seeding_file_path = self._seeding_dir / self._seeding_txt_file
 
     def generate_value(self, seed_index: int) -> Any:
         if seed_index == -1:
-            seeder_dir = Path(settings.MEDIA_ROOT) / self._seeding_dir
-            seeder_dir.mkdir(parents=True, exist_ok=True)
+            path = str(self._seeding_file_path)
 
-            file_path = seeder_dir / 'seeded_file.txt'
-            if not file_path.exists():
-                file_path.write_text('Hello World')
+            if not default_storage.exists(path):
+                default_storage.save(path, ContentFile(b'Hello World'))
 
         return self._seeding_file_path

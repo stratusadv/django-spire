@@ -4,10 +4,23 @@ import shutil
 import tempfile
 from pathlib import Path
 
-import pytest
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.test import SimpleTestCase, override_settings
 
 from django_spire.contrib.seeding.field.seed.file_seed import FileFieldSeed
+
+
+def _storage_config(media_root: str) -> dict:
+    return {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+            'OPTIONS': {'location': media_root},
+        },
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
 
 
 class TestFileFieldSeed(SimpleTestCase):
@@ -17,56 +30,53 @@ class TestFileFieldSeed(SimpleTestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.temp_media_root)
 
-    def test_file_created_on_init_seed_index(self):
+    def _assert_seeding_file_exists(self, content: str = 'Hello World') -> None:
+        assert default_storage.exists('.seeding/seeded_file.txt')
+        with default_storage.open('.seeding/seeded_file.txt') as f:
+            assert f.read().decode() == content
+
+    def test_file_created_on_init_seed_index(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(MEDIA_ROOT=str(self.temp_media_root)):
+        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
             value = seed.generate_value(-1)
+            self._assert_seeding_file_exists()
 
-        assert value == '.seeder/seeded_file.txt'
-        assert (self.temp_media_root / '.seeder' / 'seeded_file.txt').exists()
-        assert (self.temp_media_root / '.seeder' / 'seeded_file.txt').read_text() == 'Hello World'
+        assert value == Path('.seeding/seeded_file.txt')
 
-    def test_returns_db_value_on_subsequent_calls(self):
+    def test_returns_db_value_on_subsequent_calls(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(MEDIA_ROOT=str(self.temp_media_root)):
+        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
             seed.generate_value(-1)
             value_0 = seed.generate_value(0)
             value_5 = seed.generate_value(5)
 
-        assert value_0 == '.seeder/seeded_file.txt'
-        assert value_5 == '.seeder/seeded_file.txt'
+        assert value_0 == Path('.seeding/seeded_file.txt')
+        assert value_5 == Path('.seeding/seeded_file.txt')
 
-    def test_error_when_media_root_is_none(self):
+    def test_file_not_created_on_non_init_index(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(MEDIA_ROOT=None), pytest.raises((TypeError, ValueError)):
-            seed.generate_value(-1)
-
-    def test_file_not_created_on_non_init_index(self):
-        seed = FileFieldSeed()
-        with override_settings(MEDIA_ROOT=str(self.temp_media_root)):
+        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
             value = seed.generate_value(0)
 
-        assert value == '.seeder/seeded_file.txt'
-        assert not (self.temp_media_root / '.seeder' / 'seeded_file.txt').exists()
+        assert value == Path('.seeding/seeded_file.txt')
+        assert not default_storage.exists('.seeding/seeded_file.txt')
 
-    def test_idempotent_init_file_creation(self):
+    def test_idempotent_init_file_creation(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(MEDIA_ROOT=str(self.temp_media_root)):
+        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
             seed.generate_value(-1)
             seed.generate_value(-1)
             seed.generate_value(-1)
 
-        assert (self.temp_media_root / '.seeder' / 'seeded_file.txt').exists()
-        assert (self.temp_media_root / '.seeder' / 'seeded_file.txt').read_text() == 'Hello World'
+        self._assert_seeding_file_exists()
 
-    def test_does_not_overwrite_existing_file(self):
-        seeder_dir = self.temp_media_root / '.seeder'
-        seeder_dir.mkdir(parents=True, exist_ok=True)
-        file_path = seeder_dir / 'seeded_file.txt'
-        file_path.write_text('Existing Content')
+    def test_does_not_overwrite_existing_file(self) -> None:
+        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
+            default_storage.save(
+                '.seeding/seeded_file.txt', ContentFile(b'Existing Content')
+            )
 
-        seed = FileFieldSeed()
-        with override_settings(MEDIA_ROOT=str(self.temp_media_root)):
+            seed = FileFieldSeed()
             seed.generate_value(-1)
 
-        assert file_path.read_text() == 'Existing Content'
+        self._assert_seeding_file_exists('Existing Content')
