@@ -30,6 +30,9 @@ class TestFileFieldSeed(SimpleTestCase):
     def tearDown(self) -> None:
         shutil.rmtree(self.temp_media_root)
 
+    def _override(self) -> override_settings:
+        return override_settings(STORAGES=_storage_config(str(self.temp_media_root)))
+
     def _assert_seeding_file_exists(self, content: str = 'Hello World') -> None:
         assert default_storage.exists('.seeding/seeded_file.txt')
         with default_storage.open('.seeding/seeded_file.txt') as f:
@@ -37,7 +40,7 @@ class TestFileFieldSeed(SimpleTestCase):
 
     def test_file_created_on_init_seed_index(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
+        with self._override():
             value = seed.generate_value(-1)
             self._assert_seeding_file_exists()
 
@@ -45,7 +48,7 @@ class TestFileFieldSeed(SimpleTestCase):
 
     def test_returns_db_value_on_subsequent_calls(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
+        with self._override():
             seed.generate_value(-1)
             value_0 = seed.generate_value(0)
             value_5 = seed.generate_value(5)
@@ -55,23 +58,22 @@ class TestFileFieldSeed(SimpleTestCase):
 
     def test_file_not_created_on_non_init_index(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
+        with self._override():
             value = seed.generate_value(0)
+            assert not default_storage.exists('.seeding/seeded_file.txt')
 
         assert value == Path('.seeding/seeded_file.txt')
-        assert not default_storage.exists('.seeding/seeded_file.txt')
 
     def test_idempotent_init_file_creation(self) -> None:
         seed = FileFieldSeed()
-        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
+        with self._override():
             seed.generate_value(-1)
             seed.generate_value(-1)
             seed.generate_value(-1)
-
-        self._assert_seeding_file_exists()
+            self._assert_seeding_file_exists()
 
     def test_does_not_overwrite_existing_file(self) -> None:
-        with override_settings(STORAGES=_storage_config(str(self.temp_media_root))):
+        with self._override():
             default_storage.save(
                 '.seeding/seeded_file.txt', ContentFile(b'Existing Content')
             )
@@ -79,4 +81,4 @@ class TestFileFieldSeed(SimpleTestCase):
             seed = FileFieldSeed()
             seed.generate_value(-1)
 
-        self._assert_seeding_file_exists('Existing Content')
+            self._assert_seeding_file_exists('Existing Content')
