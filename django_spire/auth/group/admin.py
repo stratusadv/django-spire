@@ -18,7 +18,7 @@ class PortalGroupAdmin(admin.ModelAdmin):
 
     def view_group_detail_link(self, group: models.AuthGroup) -> str:
         url = reverse('django_spire:auth:group:page:detail', kwargs={'pk': group.pk})
-        return format_html(f'<a href="{url}">View Details</a>')
+        return format_html('<a href="{}">View Details</a>', url)
 
     view_group_detail_link.short_description = 'Details Link'
 
@@ -43,7 +43,7 @@ class PortalUserAdmin(admin.ModelAdmin):
 
     def view_user_profile_link(self, user: django_spire.auth.user.models.AuthUser) -> str:
         url = reverse('django_spire:auth:user:page:detail', kwargs={'pk': user.pk})
-        return format_html(f'<a href="{url}">Profile</a>')
+        return format_html('<a href="{}">Profile</a>', url)
 
     view_user_profile_link.short_description = 'Profile Link'
 

@@ -23,20 +23,20 @@ class ActivityAdmin(admin.ModelAdmin):
             args=[activity.object_id]
         )
 
-        return format_html(f'<a href="{url}">{activity.content_object}</a>')
+        return format_html('<a href="{}">{}</a>', url, activity.content_object)
 
     content_object_link.short_description = 'Content Object'
 
     def user_link(self, activity: Activity) -> str:
         url = reverse('admin:auth_user_change', args=[activity.user.id])
-        return format_html(f'<a href="{url}">{activity.user.get_full_name()}</a>')
+        return format_html('<a href="{}">{}</a>', url, activity.user.get_full_name())
 
     user_link.short_description = 'User'
 
     def recipient_link(self, activity: Activity) -> str:
         if activity.recipient:
             url = reverse('admin:auth_user_change', args=[activity.recipient.id])
-            return format_html(f'<a href="{url}">{activity.recipient.get_full_name()}</a>')
+            return format_html('<a href="{}">{}</a>', url, activity.recipient.get_full_name())
 
         return 'No Recipient'
 

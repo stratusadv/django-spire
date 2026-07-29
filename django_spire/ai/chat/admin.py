@@ -27,7 +27,7 @@ class ChatAdmin(admin.ModelAdmin):
             + urlencode({"chat__id": f"{obj.id}"})
         )
 
-        return format_html(f'<a href="{url}">{count} Messages</a>')
+        return format_html('<a href="{}">{} Messages</a>', url, count)
 
     view_chat_messages_link.short_description = "Messages"
 

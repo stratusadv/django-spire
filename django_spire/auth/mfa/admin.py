@@ -18,6 +18,6 @@ class MfaCodeAdmin(admin.ModelAdmin):
 
     def user_link(self, mfa_code: models.MfaCode) -> str:
         url = reverse('admin:auth_user_change', args=[mfa_code.user.id])
-        return format_html(f'<a href="{url}">{mfa_code.user.username}</a>')
+        return format_html('<a href="{}">{}</a>', url, mfa_code.user.username)
 
     user_link.short_description = 'User'

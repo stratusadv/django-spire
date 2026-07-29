@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.32.11
+
+### Fixes
+- Fixed admin `format_html` calls that crash on Django 6.0 with `TypeError: args or kwargs must be provided.` by passing the url and label as arguments, which also escapes them correctly on all supported Django versions
+
 ## v0.32.10
 
 ### Changes
