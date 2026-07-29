@@ -1,7 +1,7 @@
 <form
     class="row g-2"
     x-data="{
-        task_form: {{ glue_form|default:'Glue.model.new_task.form' }},
+        task_form: {{ glue_form }},
         is_processing: false,
         async submit_form() {
             this.is_processing = true

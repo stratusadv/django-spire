@@ -50,7 +50,12 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 def child_list_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     parent = get_object_or_404(models.Task, pk=pk)
     child_tasks = (
-        models.Task.objects.active().filter(parent=parent).annotate_has_children().prefetch_users()
+        models.Task.objects
+        .active()
+        .filter(parent=parent)
+        .annotate_has_children()
+        .prefetch_users()
+        .select_related('parent')
     )
 
     Glue.queryset(
@@ -64,6 +69,7 @@ def child_list_view(request: WSGIRequest, pk: int) -> TemplateResponse:
             'status',
             'created_datetime',
             'description',
+            'parent'
         ],
         form=forms.TaskModelForm(),
     )
