@@ -4,6 +4,7 @@ from django.test import TestCase
 from django_spire.contrib.seeding import Seeder
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
+from django_spire.contrib.seeding.field.seed.file_seed import FileFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
 from django_spire.contrib.seeding.field.seed.static_seed import StaticFieldSeed
 
@@ -12,6 +13,10 @@ class TestSeederStaticMethods(TestCase):
     def test_exclude_returns_exclude_field_seed(self):
         seed = Seeder.exclude()
         assert isinstance(seed, ExcludeFieldSeed)
+
+    def test_file_returns_file_field_seed(self):
+        seed = Seeder.file()
+        assert isinstance(seed, FileFieldSeed)
 
     def test_static_with_string_value(self):
         seed = Seeder.static('hello')

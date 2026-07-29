@@ -11,6 +11,7 @@ from django.db.models import QuerySet
 from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
 from django_spire.contrib.seeding.field.seed.exclude_seed import ExcludeFieldSeed
+from django_spire.contrib.seeding.field.seed.file_seed import FileFieldSeed
 from django_spire.contrib.seeding.field.seed.helper.custom_helper import CustomFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.fake_helper import FakeFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.model_helper import ModelFieldSeedHelper
@@ -91,6 +92,10 @@ class Seeder:
     @staticmethod
     def static(value: Any) -> StaticFieldSeed:
         return StaticFieldSeed(value)
+
+    @staticmethod
+    def file() -> FileFieldSeed:
+        return FileFieldSeed()
 
     @classmethod
     def llm(cls, field_type: type, prompt: str | None = None) -> LlmFieldSeed:
