@@ -10,6 +10,7 @@ class TaskModelSeeder(Seeder):
 
     fields_seeds = {
         'id': Seeder.exclude(),
+        'attachment': Seeder.file(),
         'parent_id': Seeder.exclude(),
         'name': Seeder.fake.sentence(),
         'description': Seeder.fake.paragraph(3),

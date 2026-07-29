@@ -8,6 +8,6 @@ domain_seeder = DomainSeeder(count=5)
 domain_seeder.seed_database()
 
 
-subdomain_seeder = SubDomainSeeder(count=1000)
+subdomain_seeder = SubDomainSeeder(count=100)
 
 subdomain_seeder.seed_database()

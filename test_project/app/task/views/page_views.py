@@ -28,6 +28,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
         Glue.Access.CHANGE,
         fields=[
             'id',
+            'attachment',
             'name',
             'status',
             'created_datetime',

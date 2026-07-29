@@ -11,6 +11,9 @@ robit.log*
 .markdown
 .profile
 
+.seeder/
+.seeding/
+
 dev_tool.exe
 dev_tool*.exe
 dev_requirements.txt

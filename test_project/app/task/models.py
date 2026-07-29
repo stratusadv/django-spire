@@ -27,6 +27,8 @@ class Task(ActivityMixin, HistoryModelMixin):
         choices=TaskStatusChoices.choices, default=TaskStatusChoices.NEW, max_length=3
     )
 
+    attachment = models.FileField(blank=True, null=True)
+
     objects = TaskQuerySet().as_manager()
     services = Glue.attribute(TaskService(), access=Glue.Access.DELETE)
     class Meta:

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 class Seeder:
-    # TODO: This does not work if you inherit it because of class body execution!
+    # TODO: This locale does not work if you inherit it because of class body execution!
     locale: str | list[str] = 'en_CA'
 
     custom = CustomFieldSeedHelper(locale)
