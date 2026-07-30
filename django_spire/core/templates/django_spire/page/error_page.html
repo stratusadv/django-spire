@@ -1,16 +1,37 @@
-{% extends 'django_spire/base/base.html' %}
+<!doctype html>
 
-{% block base_body_content %}
+<html lang="en">
 
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <h1 class="display-1 fw-bold text-danger">{{ error_code|default:"500" }}</h1>
-                <h2 class="mb-3">{{ heading|default:"Something Went Wrong" }}</h2>
-                <p class="text-muted">{{ subheading|default:"An unexpected error occurred." }}</p>
-                <a href="/" class="btn btn-primary mt-3">Return Home</a>
-            </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet"
+          href="{% static 'django_spire/css/django-spire-bootstrap.css' %}?v={{ DJANGO_SPIRE_VERSION }}">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.x/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-1 fw-bold text-danger">{{ error_code|default:"500" }}</h1>
+            <h2 class="mb-3">{{ heading|default:"Something Went Wrong" }}</h2>
+            <p class="text-muted">{{ subheading|default:"An unexpected error occurred." }}</p>
+            <a href="/" class="btn btn-primary mt-3">Return Home</a>
         </div>
     </div>
+</div>
 
-{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
+

@@ -1,5 +1,5 @@
 <div
-    x-data="{
+        x-data="{
         searchQuery: '',
         sliceStart: 0,
         sliceStop: 0,
@@ -15,7 +15,6 @@
 
             this.$watch('searchQuery', () => this.resetAndLoad())
             this.$watch('orderBy', () => this.resetAndLoad())
-            this.loadMoreItems(true)
         },
         async loadMoreItems(reset = false) {
             if (this.isLoading || !this.hasMore) {
@@ -79,12 +78,12 @@
             this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
         }
     }"
-    @updated-item.window="
+        @updated-item.window="
         if (!$event.detail?.querysetName || $event.detail.querysetName === scrollQuerySet._name) {
             updateItem($event.detail.pk)
         }
     "
-    class="{% block scroll_container_class %}{% endblock %}"
+        class="{% block scroll_container_class %}{% endblock %}"
 >
 
     <div class="row">
@@ -107,12 +106,38 @@
             {% endblock %}
 
             <div
-                x-intersect="await loadMoreItems()"
-                style="height: 1200px; margin-top: -1200px; pointer-events: none;"
+                    x-data="{
+                        init() {
+                            const observer = new IntersectionObserver((entries) => {entries.forEach((entry) => {
+                                    if (entry.isIntersecting) {
+                                        if(hasMore) {
+                                            loadMoreItems()
+                                        }
+                                    }
+                                })}, { threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] })
+                            observer.observe($el)
+                        }
+                    }"
+                    style="height: 1200px; margin-top: -1200px; pointer-events: none;"
             >
             </div>
         </div>
-        <div x-text="`Showing ${items.length} items`"></div>
+    </div>
+
+    <div class="row">
+        <div class="col p-3">
+            <div x-text="`Showing ${items.length} items`"></div>
+        </div>
+        <div
+            x-show="hasMore"
+            x-cloak
+            class="col p-3 text-end"
+            aria-live="polite"
+        >
+                <span class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading more items...</span>
+                </span>
+        </div>
     </div>
 
     <div class="row">
