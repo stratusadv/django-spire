@@ -107,19 +107,8 @@
             {% endblock %}
 
             <div
-                x-show="isLoading"
-                x-cloak
-                class="d-flex justify-content-center py-3"
-                aria-live="polite"
-            >
-                <span class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Loading more items...</span>
-                </span>
-            </div>
-
-            <div
                 x-intersect="await loadMoreItems()"
-                style="height: 1px; pointer-events: none;"
+                style="height: 1200px; margin-top: -1200px; pointer-events: none;"
             >
             </div>
         </div>
@@ -127,7 +116,7 @@
     </div>
 
     <div class="row">
-        <div class="col pb-5">
+        <div class="col pb-4">
             {% block scroll_footer %}
             {% endblock %}
         </div>
