@@ -1,13 +1,36 @@
 {% load django_spire_form_widget_tweaks %}
 
 {% if field.is_hidden %}
+
     {{ field }}
+
+{% elif field.field.widget.input_type == 'checkbox' %}
+
+    <div class="form-check form-switch">
+        {{ field|add_class:"form-check-input"|attr:"role:switch" }}
+        <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+    </div>
+
+{% elif field.field.widget.input_type == 'radio' %}
+
+    <div class="form-check">
+        {{ field|add_class:"form-check-input" }}
+        <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+    </div>
+
 {% else %}
+
     <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
     {{ field|add_class:"form-control" }}
+
+{% endif %}
+
+{% if not field.is_hidden %}
+
     {% if field.errors %}
         <div class="invalid-feedback d-block">
             {{ field.errors }}
         </div>
     {% endif %}
+
 {% endif %}
