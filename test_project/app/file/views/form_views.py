@@ -32,7 +32,7 @@ def update_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 def _form_view(request: WSGIRequest, pk: int | None) -> TemplateResponse | HttpResponseRedirect:
     file_example = get_object_or_null_obj(models.FileExample, pk=pk)
 
-    Glue.model(request, 'file_example', file_example)
+    Glue.model(request, 'file_example', file_example, fields='__all__')
 
     if request.method == 'POST':
         form = forms.FileExampleForm(request.POST, files=request.FILES, instance=file_example)

@@ -94,7 +94,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('django_spire_auth_group.change_authgroup')
 def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     user = get_object_or_404(AuthUser, pk=pk)
-    Glue.queryset(request=request, unique_name='group_choices', target=AuthGroup.objects.all())
+    Glue.queryset(request=request, unique_name='group_choices', target=AuthGroup.objects.all(), fields='__all__')
 
     if request.method == 'POST':
         form = forms.UserGroupForm(request.POST)
