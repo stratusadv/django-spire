@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 
-
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required
@@ -40,17 +39,19 @@ def task_toast_view(request: WSGIRequest, task_id: str) -> TemplateResponse:
 
 @login_required
 def _list_view(
-    request: WSGIRequest, template: str, django_spire_celery_task_key_pairs: str
+        request: WSGIRequest, template: str
 ) -> TemplateResponse:
+    data = json.loads(request.body)
+
     reference_keys_model_keys = {}
 
-    for key_pair in django_spire_celery_task_key_pairs.split(','):
+    for key_pair in data.get('django_spire_celery_task_key_pairs').split(','):
         keys = key_pair.split('|')
         reference_keys_model_keys[keys[0]] = keys[1] if len(keys) == 2 else None
 
     celery_tasks = CeleryTask.objects.by_reference_keys_model_keys(reference_keys_model_keys)
 
-    if not request.GET.get('show_all', False):
+    if data.get('show_all') is None:
         celery_tasks = celery_tasks.by_unready()
 
     context = {'celery_tasks': celery_tasks}
@@ -60,15 +61,11 @@ def _list_view(
 
 @login_required
 def task_item_list_view(request: WSGIRequest) -> TemplateResponse:
-    data = json.loads(request.body)
-    django_spire_celery_task_key_pairs = data.get('django_spire_celery_task_key_pairs')
     template = 'django_spire/celery/item/task_item_list.html'
-    return _list_view(request, template, django_spire_celery_task_key_pairs)
+    return _list_view(request, template)
 
 
 @login_required
 def task_toast_list_view(request: WSGIRequest) -> TemplateResponse:
-    data = json.loads(request.body)
-    django_spire_celery_task_key_pairs = data.get('django_spire_celery_task_key_pairs')
     template = 'django_spire/celery/toast/task_toast_list.html'
-    return _list_view(request, template, django_spire_celery_task_key_pairs)
+    return _list_view(request, template)

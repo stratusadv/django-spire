@@ -1,7 +1,7 @@
 <div
     x-data="{
         reload_tasks() {
-            let task_toast_list_view = Glue.view(`{% url 'django_spire:celery:task:item_list' %}?show_all=True`)
+            let task_toast_list_view = Glue.view(`{% url 'django_spire:celery:task:item_list' %}`, {show_all:true})
             task_toast_list_view.renderInnerHtml($el, {django_spire_celery_task_key_pairs: '{{ django_spire_celery_task_key_pairs }}' })
         },
         init() {
