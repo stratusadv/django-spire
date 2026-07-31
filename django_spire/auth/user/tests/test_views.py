@@ -281,3 +281,73 @@ class UserFormViewsTestCase(BaseTestCase):
             },
         )
         assert response.status_code == 200
+
+
+class UserResetPasswordViewsTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.user = create_user(
+            username='resetuser', first_name='Reset', last_name='User', email='reset@example.com'
+        )
+
+    def test_reset_password_view_get_returns_200(self) -> None:
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': self.user.pk})
+        )
+        assert response.status_code == 200
+
+    def test_reset_password_view_get_shows_confirmation(self) -> None:
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': self.user.pk})
+        )
+        assert response.context['password_reset_complete'] is False
+
+    def test_reset_password_view_get_contains_user_in_context(self) -> None:
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': self.user.pk})
+        )
+        assert 'user' in response.context
+        assert response.context['user'].pk == self.user.pk
+
+    def test_reset_password_view_post_resets_password(self) -> None:
+        old_password_hash = self.user.password
+
+        response = self.client.post(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': self.user.pk})
+        )
+        assert response.status_code == 200
+
+        self.user.refresh_from_db()
+        assert self.user.password != old_password_hash
+
+    def test_reset_password_view_post_shows_new_password_in_context(self) -> None:
+        response = self.client.post(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': self.user.pk})
+        )
+        assert response.context['password_reset_complete'] is True
+        assert 'new_password' in response.context
+        assert len(response.context['new_password']) == 8
+
+    def test_reset_password_view_post_new_password_is_valid(self) -> None:
+        response = self.client.post(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': self.user.pk})
+        )
+        password = response.context['new_password']
+        assert any(c.isupper() for c in password)
+        assert any(c.islower() for c in password)
+        assert any(c.isdigit() for c in password)
+
+    def test_reset_password_view_requires_permission(self) -> None:
+        normal_user = create_user(username='normaluser')
+        self.client.force_login(normal_user)
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': self.user.pk})
+        )
+        assert response.status_code == 403
+
+    def test_reset_password_view_404_for_nonexistent_user(self) -> None:
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:reset_password', kwargs={'pk': 99999})
+        )
+        assert response.status_code == 404

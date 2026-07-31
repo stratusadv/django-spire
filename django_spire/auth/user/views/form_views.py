@@ -124,3 +124,32 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['form_title'] = f'Edit Groups for {user}'
     context['form_description'] = 'Manage group membership for this user.'
     return TemplateResponse(request, 'django_spire/auth/user/page/group_form_page.html', context)
+
+
+@permission_required('django_spire_auth_user.change_authuser')
+def reset_password_view(request: WSGIRequest, pk: int) -> TemplateResponse:
+    user = get_object_or_404(AuthUser, pk=pk)
+
+    nav = AuthUserNavigation()
+    nav.page_title = 'Reset Password'
+    nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
+    nav.breadcrumbs.add_model_instance_string(
+        user, view_name='django_spire:auth:user:page:detail', view_kwargs={'pk': user.pk}
+    )
+    nav.breadcrumbs.add('Reset Password')
+
+    context = nav.as_context()
+    context['user'] = user
+
+    if request.method == 'POST':
+        new_password = user.services.random_reset_password()
+        context['password_reset_complete'] = True
+        context['new_password'] = new_password
+    else:
+        context['password_reset_complete'] = False
+
+    return TemplateResponse(
+        request,
+        'django_spire/auth/user/page/reset_password_page.html',
+        context,
+    )

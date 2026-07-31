@@ -13,6 +13,12 @@
             <i class="bi bi-pencil-fill"></i>
             Edit
         </a>
+
+        {% url 'django_spire:auth:user:form:reset_password' pk=user.pk as reset_url %}
+        <a class="btn btn-sm btn-danger" href="{{ reset_url }}">
+            <i class="bi bi-key-fill"></i>
+            Reset Password
+        </a>
     {% endif %}
 {% endblock %}
 
@@ -34,6 +40,10 @@
             <div class="col-lg-3 col-sm-6 col-12">
                 <div class="attribute-label">Status</div>
                 {% include 'django_spire/auth/group/element/is_active_badge.html' with is_active=user.is_active %}
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="attribute-label">Login User Name</div>
+                <div class="fw-semibold">{{ user.username }}</div>
             </div>
             <div class="col-lg-3 col-sm-6 col-12">
                 <div class="attribute-label">Last Login</div>
