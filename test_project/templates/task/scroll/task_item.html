@@ -22,7 +22,7 @@
         <span x-show="item.has_children" @click="toggleChildTasks()">
             <i :class="`bi bi-chevron-${showChildTasks ? 'down' : 'right'}`"></i>
         </span>
-        <a :href="{% glue_url 'task:page:detail' pk='item.id' %}">
+        <a :href="{% js_url 'task:page:detail' pk='item.id' %}">
             <span x-text="item.name"></span>
         </a>
     </div>
@@ -86,7 +86,7 @@
             </button>
         {% endif %}
         <a class="btn btn-sm btn-outline-danger"
-           :href="{% glue_url 'task:form:delete' pk='item.id' %}">
+           :href="{% js_url 'task:form:delete' pk='item.id' %}">
             <i class="bi bi-trash"></i>
         </a>
     </div>
