@@ -6,6 +6,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django_glue import django_glue_urls
 
+from django_spire.shortcuts import django_spire_urls
+
 app_name = 'example'
 
 urlpatterns = [
@@ -24,11 +26,10 @@ urlpatterns = [
     path('test_model/', include('test_project.app.model_and_service.urls', namespace='test_model')),
 ]
 
-urlpatterns += [path('ds/', include('django_spire.urls', namespace='django_spire'))]
-
 urlpatterns += django_glue_urls()
+urlpatterns += django_spire_urls()
 
-urlpatterns += [path('admin/', admin.site.urls)]
+urlpatterns += [path('__dj__/admin/', admin.site.urls)]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
