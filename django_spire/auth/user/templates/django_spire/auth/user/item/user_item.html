@@ -4,7 +4,7 @@
 
 {% block item_title %}
     {% url 'django_spire:auth:user:page:detail' pk=user.pk as detail_url %}
-    <div class="attribute-label">User</div>
+    <div class="attribute-label">Full Name</div>
     <a href="{{ detail_url }}">{{ user.get_full_name }}</a>
 {% endblock %}
 
@@ -13,11 +13,15 @@
         <div class="attribute-label">Status</div>
         {% include 'django_spire/auth/group/element/is_active_badge.html' with is_active=user.is_active %}
     </div>
+    <div class="col-6">
+        <div class="attribute-label">Email / Username</div>
+        {{ user.username }}
+    </div>
     <div class="col">
         <div class="attribute-label">Groups</div>
         {% for group in user.groups.all %}
             <span class="badge bg-secondary text-white">{{ group.name }}</span>
-        {% empty %}
+            {% empty %}
             N/A
         {% endfor %}
 
