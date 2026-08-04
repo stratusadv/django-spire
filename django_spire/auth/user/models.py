@@ -8,7 +8,7 @@ from django_spire.history.activity.mixins import ActivityMixin
 
 
 class AuthUser(User, ActivityMixin):
-    objects = querysets.UserQuerySet().as_manager()
+    objects = querysets.AuthUserManager()
     services = AuthUserService()
 
     class Meta:

@@ -25,7 +25,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = AuthUserNavigation()
     nav.page_title = str(user)
-    nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
     nav.breadcrumbs.add_model_instance_string(
         user, view_name='django_spire:auth:user:page:detail', view_kwargs={'pk': user.pk}
     )
@@ -60,7 +59,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 
     nav = AuthUserNavigation()
     nav.page_title = 'Users'
-    nav.breadcrumbs.add('Users')
 
     context = nav.as_context()
     context['active_users'] = active_users
