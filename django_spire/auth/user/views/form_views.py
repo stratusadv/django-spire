@@ -70,8 +70,6 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = AuthUserNavigation()
     nav.page_title = 'User'
-    nav.page_description = 'Edit Groups'
-    nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
     nav.breadcrumbs.add_model_instance_string(
         user, view_name='django_spire:auth:user:page:detail', view_kwargs={'pk': user.pk}
     )
@@ -80,6 +78,4 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context = nav.as_context()
     context['user'] = user
     context['form'] = form
-    context['form_title'] = f'Edit Groups for {user}'
-    context['form_description'] = 'Manage group membership for this user.'
     return TemplateResponse(request, 'django_spire/auth/user/page/group_form_page.html', context)
