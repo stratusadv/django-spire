@@ -18,13 +18,10 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% for user in user_list %}
-            {% include 'django_spire/auth/user/item/user_item.html' %}
-        {% empty %}
+        {% if active_users or inactive_users %}
+            {% include 'django_spire/auth/user/scroll/scroll.html' %}
+        {% else %}
             {% include 'django_spire/item/no_data_item.html' %}
-        {% endfor %}
-    </div>
-    <div class="card-footer">
-        {% include 'django_spire/element/pagination_element.html' with paginated_list=user_list %}
+        {% endif %}
     </div>
 {% endblock %}

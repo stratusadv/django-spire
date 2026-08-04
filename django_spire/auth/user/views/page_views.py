@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django_glue import Glue
 
 from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.permissions.tools import generate_group_perm_data, generate_user_perm_data
@@ -24,7 +25,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = AuthUserNavigation()
     nav.page_title = str(user)
-    nav.page_description = 'Detail View'
     nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
     nav.breadcrumbs.add_model_instance_string(
         user, view_name='django_spire:auth:user:page:detail', view_kwargs={'pk': user.pk}
@@ -44,51 +44,29 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('django_spire_auth_user.view_authuser')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    active_user_list = (
+    active_users = (
         AuthUser.objects.filter(is_active=True)
         .prefetch_related('groups')
         .order_by('first_name', 'last_name')
     )
-    inactive_user_list = (
+    inactive_users = (
         AuthUser.objects.filter(is_active=False)
         .prefetch_related('groups')
         .order_by('first_name', 'last_name')
     )
 
-    paginated_active_user_list = Paginator(active_user_list, 10).get_page(
-        request.GET.get('page', 1)
-    )
-    paginated_inactive_user_list = Paginator(inactive_user_list, 10).get_page(
-        request.GET.get('page', 1)
-    )
+    Glue.queryset(request, 'active_users', active_users, Glue.Access.VIEW, fields='__all__')
+    Glue.queryset(request, 'inactive_users', inactive_users, Glue.Access.VIEW, fields='__all__')
 
     nav = AuthUserNavigation()
     nav.page_title = 'Users'
-    nav.page_description = 'List View'
     nav.breadcrumbs.add('Users')
 
     context = nav.as_context()
-    context['active_user_list'] = paginated_active_user_list
-    context['inactive_user_list'] = paginated_inactive_user_list
+    context['active_users'] = active_users
+    context['active_user_count'] = active_users.count()
+    context['inactive_users'] = inactive_users
+    context['inactive_user_count'] = inactive_users.count()
     return TemplateResponse(
         request, context=context, template='django_spire/auth/user/page/list_page.html'
-    )
-
-
-@permission_required('django_spire_auth_user.view_authuser')
-def access_list_view(request: WSGIRequest) -> TemplateResponse:
-    user_list = AuthUser.objects.filter(is_active=True).order_by('username')
-
-    paginated_user_list = Paginator(user_list, 25).get_page(request.GET.get('page', 1))
-
-    nav = AuthUserNavigation()
-    nav.page_title = 'API Access'
-    nav.page_description = 'Manage API access for users'
-    nav.breadcrumbs.add('Users', 'django_spire:auth:user:page:list')
-    nav.breadcrumbs.add('API Access')
-
-    context = nav.as_context()
-    context['user_list'] = paginated_user_list
-    return TemplateResponse(
-        request, context=context, template='django_spire/auth/user/page/access_list_page.html'
     )
