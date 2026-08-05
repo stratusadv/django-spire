@@ -1,8 +1,7 @@
 {% extends 'django_spire/glue/form/widget/widget.html' %}
 {% load django_glue %}
 
-{% block field_content %}
-    {% include 'django_spire/glue/form/label/label.html' %}
+{% block widget_content %}
     <div
         class="position-relative"
         x-data="{
@@ -13,19 +12,19 @@
             init() {
                 this.update_filtered_choices();
                 $watch('search_query', () => this.update_filtered_choices());
-                $watch('{{ glue_field|glue_field_metadata_path }}.choices', () => this.update_filtered_choices());
+                $watch('field.choices', () => this.update_filtered_choices());
             },
 
             update_filtered_choices() {
                 let query = this.search_query.toLowerCase();
-                this.filtered_choices = ({{ glue_field|glue_field_metadata_path }}?.choices || []).filter(
-                    choice => String(choice[1]).toLowerCase().includes(query) || String(choice[0]).toLowerCase().includes(query)
+                this.filtered_choices = (field?.choices || []).filter(
+                    choice => String(choice.label).toLowerCase().includes(query) || String(choice.value).toLowerCase().includes(query)
                 );
             },
 
             select_item(choice) {
-                if ({{ glue_field|glue_field_metadata_path }}.disabled_choices.includes(choice[0])) return;
-                {{ glue_field|glue_field_value_path }} = choice[0];
+                if (field.disabled_choices?.includes(choice.value)) return;
+                value = choice.value;
                 this.show_dropdown = false;
                 this.search_query = '';
             }
@@ -38,23 +37,24 @@
                 x-model="search_query"
                 @focus="show_dropdown = true"
                 @keydown.escape="show_dropdown = false; search_query = ''"
+                :disabled="field.disabled"
                 placeholder="{% block search_placeholder %}Search...{% endblock %}"
             >
             <div
                 x-cloak
-                x-show="show_dropdown && filtered_choices.length > 0"
+                x-show="show_dropdown"
                 @click.outside="show_dropdown = false"
                 class="shadow border rounded-2 mt-1 position-absolute w-100 list-group"
                 style="max-height: 250px; overflow-y: auto; z-index: 4;"
             >
-                <template x-for="choice in filtered_choices" :key="choice[0]">
+                <template x-for="choice in filtered_choices" :key="choice.value">
                     <div
                         class="py-2 px-3 list-group-item cursor-pointer"
-                        :class="{{ glue_field|glue_field_metadata_path }}.disabled_choices.includes(choice[0]) ? 'opacity-50' : ''"
+                        :class="field.disabled_choices?.includes(choice.value) ? 'opacity-50' : ''"
                         @click="select_item(choice)"
                     >
-                        <div x-text="choice[1]"></div>
-                        <small class="text-muted" x-text="choice[0]"></small>
+                        <div x-text="choice.label"></div>
+                        <small class="text-muted" x-text="choice.value"></small>
                     </div>
                 </template>
                 <template x-if="filtered_choices.length === 0 && search_query.length > 0">
