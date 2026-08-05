@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     api_access = get_object_or_null_obj(ApiAccess, pk=pk)
 
-    Glue.model(request, unique_name='api_access', target=api_access)
+    Glue.model(request, unique_name='api_access', target=api_access, fields='__all__')
 
     if request.method == 'POST':
         form = forms.ApiAccessCreateForm(request.POST)

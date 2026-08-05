@@ -15,6 +15,26 @@ if TYPE_CHECKING:
 class AuthUserService(BaseDjangoModelService['AuthUser']):
     obj: AuthUser
 
+    def save_model_obj(
+        self,
+        user: AuthUser,
+        email: str,
+        **field_data: dict
+    ) -> AuthUser:
+
+        obj, created = super().save_model_obj(
+            email=email,
+            username=email,
+            **field_data
+        )
+        verb = 'created' if created else 'updated'
+
+        obj.add_activity(
+            user=user, verb=verb, information=f'{user.get_full_name()} {verb} user {obj.username}.'
+        )
+
+        return obj
+
     def get_user_choices(self) -> list[list]:
         users = self.obj_class.objects.filter(is_active=True)
         return [[user.id, user.get_full_name()] for user in users]

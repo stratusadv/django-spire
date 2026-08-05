@@ -9,8 +9,7 @@ app_name = 'form'
 
 # Group
 urlpatterns = [
-    path('group/form', form_views.form_view, name='add'),
-    path('group/<int:pk>/form', form_views.form_view, name='update'),
+    path('group/<int:pk>/form', form_views.form_view, name='form'),
     path('group/<int:pk>/delete/form', form_views.delete_form_view, name='delete'),
 ]
 

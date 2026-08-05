@@ -8,7 +8,7 @@
 
 {% block card_button %}
     {% if perms.django_spire_auth_user.change_authuser %}
-        {% url 'django_spire:auth:user:form:update' pk=user.pk as form_url %}
+        {% url 'django_spire:auth:user:form:form' pk=user.pk as form_url %}
         <a class="btn btn-sm btn-primary" href="{{ form_url }}">
             <i class="bi bi-pencil-fill"></i>
             Edit

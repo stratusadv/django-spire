@@ -97,11 +97,15 @@
         <div class="col">
 
             {% block scroll_content %}
-
-                <template x-for="item in items">
-                    {% block scroll_template_item %}
-                    {% endblock %}
+                <template x-if="items.length > 0">
+                    <template x-for="(item, itemIndex) in items">
+                        {% block scroll_template_item %}
+                        {% endblock %}
+                    </template>
                 </template>
+                <div x-show="items.length === 0">
+                    {% include 'django_spire/item/no_data_item.html' %}
+                </div>
 
             {% endblock %}
 
