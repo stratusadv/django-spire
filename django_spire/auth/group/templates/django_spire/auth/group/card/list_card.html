@@ -1,29 +1,13 @@
-{% extends 'django_spire/card/title_card.html' %}
+{% extends 'django_spire/page/page.html' %}
 
-{% block card_class %}{{ block.super }} p-0{% endblock %}
-
-{% load django_spire_core %}
-
-{% block card_title %}
-    Group List
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_auth_group.change_authgroup %}
-        {% url 'django_spire:auth:group:form:add' as add_group_url %}
-        <a class="btn btn-sm btn-primary" href="{{ add_group_url }}">
-            <i class="bi bi-plus"></i>
-            Add
-        </a>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
-    <div class="card-body">
-        {% for group in group_list %}
-            {% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}
-        {% empty %}
-            {% include 'django_spire/item/no_data_item.html' %}
-        {% endfor %}
+{% block page_content %}
+    <div class="card">
+        <div class="card-body">
+            {% if group_list %}
+                {% include 'django_spire/auth/group/scroll/scroll.html'%}
+            {% else %}
+                {% include 'django_spire/item/no_data_item.html' %}
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

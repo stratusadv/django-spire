@@ -9,7 +9,6 @@ from django_glue.message import GlueMessage
 
 from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.user.models import AuthUser
-from django_spire.auth.user.factories import register_new_user
 
 
 class UserForm(forms.ModelForm):
@@ -40,5 +39,18 @@ class UserForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email', 'is_active']
 
 
-class UserGroupForm(forms.Form):
+class UserGroupForm(forms.ModelForm):
     group_list = forms.ModelMultipleChoiceField(queryset=AuthGroup.objects.all())
+
+    @Glue.attribute(access=Glue.Access.CHANGE)
+    def save_model_obj(self, request: HttpRequest) -> Glue.Response | None:
+        if self.is_valid():
+            user = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
+
+            return Glue.RedirectResponse(view_name='django_spire:auth:user:page:detail', pk=user.pk)
+
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+    class Meta:
+        model = AuthGroup
+        fields = ['group_list']

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.urls import reverse
+from django_glue import Glue
 
 from django_spire.auth.group import models
 from django_spire.auth.group.navigation import AuthGroupNavigation
@@ -33,8 +33,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = AuthGroupNavigation()
     nav.page_title = str(group)
-    nav.page_description = 'Detail View'
-    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
     nav.breadcrumbs.add_model_instance_string(
         group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
     )
@@ -53,13 +51,14 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def list_view(request: WSGIRequest) -> TemplateResponse:
     group_list = models.AuthGroup.objects.all().prefetch_related('permissions').order_by('name')
 
+    Glue.queryset(request, 'group_list', group_list, Glue.Access.VIEW, fields='__all__')
+
     nav = AuthGroupNavigation()
     nav.page_title = 'Groups'
-    nav.page_description = 'List View'
-    nav.breadcrumbs.add('Groups')
 
     context = nav.as_context()
     context['group_list'] = group_list
+    context['group_list_count'] = group_list.count()
     context['group_list_permission_data'] = [
         generate_group_perm_data(group) for group in group_list
     ]

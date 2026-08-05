@@ -48,6 +48,11 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 @permission_required('django_spire_auth_group.change_authgroup')
 def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     user = get_object_or_404(AuthUser, pk=pk)
+
+    form = forms.UserGroupForm(request.POST or None, instance=user)
+
+    Glue.form(request, unique_name='group_form', target=form, access=Glue.Access.CHANGE)
+
     Glue.queryset(
         request=request,
         unique_name='group_choices',
@@ -55,18 +60,18 @@ def group_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         fields='__all__',
     )
 
-    if request.method == 'POST':
-        form = forms.UserGroupForm(request.POST)
-
-        if form.is_valid():
-            user.groups.set(form.cleaned_data['group_list'])
-            return HttpResponseRedirect(
-                reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk})
-            )
-
-        show_form_errors(request, form)
-
-    form = forms.UserGroupForm()
+    # if request.method == 'POST':
+    #     form = forms.UserGroupForm(request.POST)
+    #
+    #     if form.is_valid():
+    #         user.groups.set(form.cleaned_data['group_list'])
+    #         return HttpResponseRedirect(
+    #             reverse('django_spire:auth:user:page:detail', kwargs={'pk': pk})
+    #         )
+    #
+    #     show_form_errors(request, form)
+    #
+    # form = forms.UserGroupForm()
 
     nav = AuthUserNavigation()
     nav.page_title = 'User'
