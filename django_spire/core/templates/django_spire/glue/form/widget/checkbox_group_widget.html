@@ -2,26 +2,29 @@
 {% load django_glue %}
 
 {% block widget_content %}
-    <div class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}" {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}>
+    <div
+        class="border rounded p-3{% if input_class %} {{ input_class }}{% endif %}"
+        {% if max_height %}style="max-height: {{ max_height }}; overflow-y: auto;"{% endif %}
+    >
         <div class="row">
-            <template x-for="choice in {{ glue_field|glue_field_metadata_path }}?.choices || []" :key="choice[0]">
+            <template x-for="choice in field?.choices || []" :key="choice.value">
                 <div class="col-md-{{ columns|default:'4' }} col-lg-{{ columns|default:'4' }}">
                     <div class="form-check">
                         <input
                             type="checkbox"
                             class="form-check-input"
-                            :id="{{ glue_field|glue_field_metadata_path }}.id + '-' + choice[0]"
-                            :value="choice[0]"
-                            :checked="value && value.includes(choice[0])"
+                            :id="field.id + '-' + choice.value"
+                            :value="choice.value"
+                            :checked="field.hasChoiceSelected(choice.value)"
                             @change="
                                 if ($event.target.checked) {
-                                    value = [...(value || []), choice[0]];
+                                    field.addChoice(choice.value);
                                 } else {
-                                    value = (value || []).filter(v => v !== choice[0]);
+                                    field.removeChoice(choice.value);
                                 }
                             "
-                            :disabled="{{ glue_field|glue_field_metadata_path }}.disabled">
-                        <label class="form-check-label" :for="{{ glue_field|glue_field_metadata_path }}.id + '-' + choice[0]" x-text="choice[1]"></label>
+                            :disabled="field.disabled">
+                        <label class="form-check-label" :for="field.id + '-' + choice.value" x-text="choice.label"></label>
                     </div>
                 </div>
             </template>

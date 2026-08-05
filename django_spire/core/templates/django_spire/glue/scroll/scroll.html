@@ -124,24 +124,19 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col p-3">
-            <div x-text="`Showing ${items.length} items`"></div>
-        </div>
+    <div x-show="hasMore" x-cloak class="row">
         <div
-            x-show="hasMore"
-            x-cloak
             class="col p-3 text-end"
             aria-live="polite"
         >
                 <span class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Loading more items...</span>
-                </span>
+                    <span class="visually-hidden">Loading items...</span>
+                </span>Loading items...
         </div>
     </div>
 
     <div class="row">
-        <div class="col pb-4">
+        <div class="col">
             {% block scroll_footer %}
             {% endblock %}
         </div>

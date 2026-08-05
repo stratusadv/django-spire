@@ -6,7 +6,7 @@
     <div x-data x-init="$nextTick(() => Alpine.store('theme') && Alpine.store('theme').init())">
     <nav class="navbar navbar-expand-lg navbar-{{ DJANGO_SPIRE_THEME_MODE }} bg-{{ DJANGO_SPIRE_THEME_MODE }} border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">Test Project</a>
+            <a class="navbar-brand" href="#">Testing Project</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -14,7 +14,8 @@
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item me-3">
                         <a href="#"
-                           class="btn btn-outline-dark"
+                           class="btn"
+                           :class="Alpine.store('theme').current === 'dark' ? 'btn-outline-light' : 'btn-outline-dark'"
                            @click="Alpine.store('theme').toggle()"
                            style="cursor: pointer;">
                             <i class="bi" :class="Alpine.store('theme').current === 'dark' ? 'bi-sun' : 'bi-moon'"></i>

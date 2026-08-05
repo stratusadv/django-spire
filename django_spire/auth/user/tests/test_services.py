@@ -189,3 +189,40 @@ class AuthUserServiceTestCase(BaseTestCase):
             assert len(choice) == 2
             assert isinstance(choice[0], int)
             assert isinstance(choice[1], str)
+
+
+class AuthUserServiceResetPasswordTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.user = create_user(
+            username='resetuser', first_name='Reset', last_name='User', email='reset@example.com'
+        )
+
+    def test_random_reset_password_returns_string_length_8(self) -> None:
+        password = self.user.services.random_reset_password()
+        assert isinstance(password, str)
+        assert len(password) == 8
+
+    def test_random_reset_password_contains_uppercase(self) -> None:
+        password = self.user.services.random_reset_password()
+        assert any(c.isupper() for c in password)
+
+    def test_random_reset_password_contains_lowercase(self) -> None:
+        password = self.user.services.random_reset_password()
+        assert any(c.islower() for c in password)
+
+    def test_random_reset_password_contains_digit(self) -> None:
+        password = self.user.services.random_reset_password()
+        assert any(c.isdigit() for c in password)
+
+    def test_random_reset_password_only_letters_and_digits(self) -> None:
+        password = self.user.services.random_reset_password()
+        assert all(c.isascii() and (c.isalpha() or c.isdigit()) for c in password)
+
+    def test_random_reset_password_changes_password(self) -> None:
+        old_password_hash = self.user.password
+        password = self.user.services.random_reset_password()
+        self.user.refresh_from_db()
+        assert self.user.password != old_password_hash
+        assert self.user.check_password(password)

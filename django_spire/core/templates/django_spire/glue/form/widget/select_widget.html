@@ -12,14 +12,19 @@
             init() {
                 this.choice_verbose = this.placeholder;
                 this.update_choice();
-                $watch('{{ glue_field|glue_field_value_path }}', () => this.update_choice());
-                $watch('{{ glue_field|glue_field_metadata_path }}.choices', () => this.update_choice());
+                $watch('value', () => this.update_choice());
+                $watch('field.choices', () => this.update_choice());
             },
 
             update_choice() {
-                if (!{{ glue_field|glue_field_metadata_path }}?.choices) return;
-                let match = {{ glue_field|glue_field_metadata_path }}.choices.find(choice => String(choice[0]) === String({{ glue_field|glue_field_value_path }}));
-                this.choice_verbose = match ? match[1] : this.placeholder;
+                let match = (field?.choices || []).find(choice => String(choice.value) === String(value));
+                this.choice_verbose = match ? match.label : this.placeholder;
+            },
+
+            select_choice(choice) {
+                if (field.disabled || field.disabled_choices?.includes(choice.value)) return;
+                value = choice.value;
+                this.show_dropdown = false;
             }
         }"
         x-effect="update_choice();"
@@ -28,6 +33,7 @@
             class="form-control text-start d-flex justify-content-between {{ select_padding|default:'pe-3' }}"
             type="button"
             @click="show_dropdown = !show_dropdown"
+            :disabled="field.disabled"
         >
             <span x-text="choice_verbose"></span>
             <span class="d-flex align-items-center">
@@ -44,14 +50,14 @@
             style="max-height: 300px; overflow-y: auto; z-index: 3;"
             @keydown.escape="show_dropdown = false"
         >
-            <template x-for="choice in {{ glue_field|glue_field_metadata_path }}?.choices || []" :key="choice[0]">
+            <template x-for="choice in field?.choices || []" :key="choice.value">
                 <div
                     class="py-2 px-3 list-group-item"
-                    :class="{{ glue_field|glue_field_metadata_path }}.disabled_choices?.includes(choice[0]) ? 'opacity-50' : ''"
-                    @click="{{ glue_field|glue_field_metadata_path }}.disabled_choices?.includes(choice[0]) ? '' : {{ glue_field|glue_field_value_path }} = choice[0]; show_dropdown = false"
-                    @keydown.enter.prevent="{{ glue_field|glue_field_value_path }} = choice[0]; show_dropdown = false"
+                    :class="field.disabled_choices?.includes(choice.value) ? 'opacity-50' : ''"
+                    @click="select_choice(choice)"
+                    @keydown.enter.prevent="select_choice(choice)"
                 >
-                    <span x-text="choice[1]"></span>
+                    <span x-text="choice.label"></span>
                 </div>
             </template>
         </div>
