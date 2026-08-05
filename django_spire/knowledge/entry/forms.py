@@ -12,5 +12,4 @@ class EntryForm(forms.ModelForm):
 
 
 class EntryFilesForm(forms.Form):
-    collection = forms.IntegerField(required=True)
     import_files = forms.FileField()

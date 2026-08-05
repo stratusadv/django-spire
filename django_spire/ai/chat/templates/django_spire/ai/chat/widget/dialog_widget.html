@@ -28,7 +28,7 @@
 
             load_messages() {
                 let load_messages_view = Glue.view(`/django_spire/ai/chat/message/load/chat/${this.chat_id}/`)
-                load_messages_view.renderInsertAdjacentHtmlBeforeEnd(this.$refs.target_div)
+                load_messages_view.renderInnerHtml(this.$refs.target_div)
             },
 
             smooth_scroll_to_bottom() {
@@ -57,7 +57,7 @@
                 if (message_body !== '') {
                     let was_new_chat = (this.chat_id === '0' || this.chat_id === 0 || this.chat_id === '')
 
-                    let response_html = await this.request_message_view.renderInsertAdjacentHtmlBeforeEnd(
+                    let response_html = await this.request_message_view.renderInnerHtml(
                         this.$refs.target_div,
                         {
                             chat_id: this.chat_id,

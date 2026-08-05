@@ -44,7 +44,6 @@ Spire.modal = {
      */
     async dispatchView(url, {payload = {}, eventData = {}, dialogClasses = '', renderToBody = true} = {}) {
         let htmlContent = await Glue.view(url).get(payload);
-        console.log(htmlContent);
         Spire.modal.dispatch(htmlContent, {eventData, dialogClasses, renderToBody});
     }
 };
