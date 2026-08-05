@@ -40,13 +40,11 @@ class UserForm(forms.ModelForm):
 
 
 class UserGroupForm(forms.ModelForm):
-    group_list = forms.ModelMultipleChoiceField(queryset=AuthGroup.objects.all())
-
     @Glue.attribute(access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> Glue.Response | None:
         if self.is_valid():
             user = self.instance
-            user.groups.set(self.cleaned_data['group_list'])
+            user.groups.set(self.cleaned_data['groups'])
 
             return Glue.RedirectResponse(view_name='django_spire:auth:user:page:detail', pk=user.pk)
 
@@ -54,4 +52,4 @@ class UserGroupForm(forms.ModelForm):
 
     class Meta:
         model = AuthUser
-        fields = ['group_list']
+        fields = ['groups']

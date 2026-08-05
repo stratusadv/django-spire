@@ -7,6 +7,14 @@
             'delete': 'bg-danger',
         }
     }"
-    :class="`badge bg-secondary text-white ${permissionLevelClassMap[{{ x_permission_level|lower }}]}`"
+    {% if x_permission_level %}
+    :class="`badge bg-secondary text-white ${permissionLevelClassMap[{{ x_permission_level }}.toLowerCase()]}`"
     x-text="{{ x_permission_level }}"
-></span>
+    {% elif permission_level %}
+    :class="`badge bg-secondary text-white ${permissionLevelClassMap['{{ permission_level|lower }}']}`"
+    {% endif %}
+>
+{% if permission_level %}
+    {{ permission_level|lower }}
+{% endif %}
+</span>
