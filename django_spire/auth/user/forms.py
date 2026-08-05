@@ -45,12 +45,13 @@ class UserGroupForm(forms.ModelForm):
     @Glue.attribute(access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> Glue.Response | None:
         if self.is_valid():
-            user = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
+            user = self.instance
+            user.groups.set(self.cleaned_data['group_list'])
 
             return Glue.RedirectResponse(view_name='django_spire:auth:user:page:detail', pk=user.pk)
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
     class Meta:
-        model = AuthGroup
+        model = AuthUser
         fields = ['group_list']

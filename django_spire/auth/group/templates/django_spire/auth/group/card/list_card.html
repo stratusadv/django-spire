@@ -2,12 +2,13 @@
 
 {% block page_content %}
     <div class="card">
-        <div class="card-body">
-            {% if group_list %}
-                {% include 'django_spire/auth/group/scroll/scroll.html'%}
-            {% else %}
-                {% include 'django_spire/item/no_data_item.html' %}
-            {% endif %}
+        <div 
+            class="card-body"
+            x-data="{
+                groupListPermissionData: {{ group_list_permission_data }}
+            }"
+        >
+            {% include 'django_spire/auth/group/scroll/scroll.html'%}
         </div>
     </div>
 {% endblock %}

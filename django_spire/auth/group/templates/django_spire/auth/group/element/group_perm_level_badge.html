@@ -1,11 +1,12 @@
-{% if permission_level|lower == 'view' %}
-    <span class="badge bg-primary text-white">{{ permission_level }}</span>
-{% elif permission_level|lower == 'add' %}
-    <span class="badge bg-primary text-white">{{ permission_level }}</span>
-{% elif permission_level|lower == 'change' %}
-    <span class="badge bg-success text-white">{{ permission_level }}</span>
-{% elif permission_level|lower == 'delete' %}
-    <span class="badge bg-danger text-white">{{ permission_level }}</span>
-{% else %}
-    <span class="badge bg-secondary text-white">{{ permission_level }}</span>
-{% endif %}
+<span 
+    x-data="{
+        permissionLevelClassMap: {
+            'view': 'bg-primary',
+            'add': 'bg-primary',
+            'change': 'bg-success',
+            'delete': 'bg-danger',
+        }
+    }"
+    :class="`badge bg-secondary text-white ${permissionLevelClassMap[{{ x_permission_level|lower }}]}`"
+    x-text="{{ x_permission_level }}"
+></span>

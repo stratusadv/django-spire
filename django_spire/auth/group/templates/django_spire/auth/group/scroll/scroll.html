@@ -21,13 +21,13 @@
             </select>
         </div>
         <div class="col-auto">
-            {% if perms.django_spire_auth_group.change_authgroup %}
+            <!-- {% if perms.django_spire_auth_group.change_authgroup %} -->
                 {% url 'django_spire:auth:group:form:form' pk=0 as add_group_url %}
                 <a class="btn btn-md btn-primary" href="{{ add_group_url }}">
                     <i class="bi bi-plus-"></i>
                     Add
                 </a>
-            {% endif %}
+            <!-- {% endif %} -->
         </div>
     </div>
     <div class="card--bordered"></div>
@@ -45,14 +45,21 @@
                 <span x-text="item.name"></span>
             {% endif %}
         </div>
-        <div class="col-7">
-            {% for perm in group_list_permission_data %}
-                <div class="col-lg-4 col-sm-3 col-4 mb-2">
-                    <div class="attribute-label">{{ perm.verbose_app_name|default:perm.app_name|title }}</div>
-                    {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with permission_level=perm.level_verbose|title %}
-                </div>
-            {% endfor %}
-        </div>
+        <div 
+            class="col-7"
+            x-data="{
+                groupPermissionData: groupListPermissionData[itemIndex] 
+            }"
+        >
+            <div class="col-lg-4 col-sm-3 col-4 mb-2">
+                <template x-for="perm in groupPermissionData">
+                    <div> 
+                        <div class="attribute-label" x-text="perm.verbose_app_name ?? perm.app_name"></div>
+                        {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with x_permission_level="perm.level_verbose" %}
+                    </div>
+                </template>
+            </div>
+        </div> 
         <div class="col-1 text-end align-self-center">
             {% include 'django_spire/auth/group/dropdown/ellipsis_dropdown.html' %}
         </div>
