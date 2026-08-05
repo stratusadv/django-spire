@@ -53,7 +53,7 @@
         >
             <div class="row g-2 flex-wrap">
                 <template x-for="perm in groupPermissionData">
-                    <div class="col-auto m-2">
+                    <div class="col-2 m-2">
                         <div class="attribute-label" x-text="perm.verbose_app_name ?? perm.app_name"></div>
                         {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with x_permission_level="perm.level_verbose" %}
                     </div>
