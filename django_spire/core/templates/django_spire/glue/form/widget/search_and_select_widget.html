@@ -4,60 +4,103 @@
 {% block widget_content %}
     <div
         class="position-relative"
+        @click.outside="showDropdown = false"
         x-data="{
-            show_dropdown: false,
-            search_query: '',
-            filtered_choices: [],
+            showDropdown: false,
+            searchQuery: '',
+            openUp: false,
 
-            init() {
-                this.update_filtered_choices();
-                $watch('search_query', () => this.update_filtered_choices());
-                $watch('field.choices', () => this.update_filtered_choices());
+            getClippingRect() {
+                let element = this.$refs.selectedInput.parentElement;
+
+                while (element) {
+                    let style = window.getComputedStyle(element);
+                    let overflowY = style.overflowY;
+
+                    if (['auto', 'scroll', 'hidden'].includes(overflowY)) {
+                        return element.getBoundingClientRect();
+                    }
+
+                    element = element.parentElement;
+                }
+
+                return {
+                    top: 0,
+                    bottom: window.innerHeight,
+                };
             },
 
-            update_filtered_choices() {
-                let query = this.search_query.toLowerCase();
-                this.filtered_choices = (field?.choices || []).filter(
-                    choice => String(choice.label).toLowerCase().includes(query) || String(choice.value).toLowerCase().includes(query)
+            openDropdown() {
+                this.searchQuery = '';
+                let rect = this.$refs.selectedInput.getBoundingClientRect();
+                let clippingRect = this.getClippingRect();
+                let spaceBelow = clippingRect.bottom - rect.bottom;
+                let spaceAbove = rect.top - clippingRect.top;
+
+                this.openUp = spaceBelow < 260 && spaceAbove > spaceBelow;
+                this.showDropdown = true;
+                this.$nextTick(() => this.$refs.searchInput?.focus());
+            },
+
+            get dropdownStyle() {
+                let verticalPosition = this.openUp ? 'bottom: 100%; margin-bottom: 0.25rem;' : 'top: 100%; margin-top: 0.25rem;';
+                return `max-height: 250px; overflow-y: auto; z-index: 1070; ${verticalPosition}`;
+            },
+
+            get filteredChoices() {
+                let query = this.searchQuery.toLowerCase();
+
+                return (field?.choices || []).filter(
+                    choice => String(choice.label).toLowerCase().includes(query)
+                        || String(choice.value).toLowerCase().includes(query)
                 );
             },
 
-            select_item(choice) {
-                if (field.disabled_choices?.includes(choice.value)) return;
+            selectItem(choice) {
+                if (field.disabled) return;
                 value = choice.value;
-                this.show_dropdown = false;
-                this.search_query = '';
+                this.showDropdown = false;
+                this.searchQuery = '';
             }
         }"
     >
         <div class="position-relative">
             <input
+                x-ref="selectedInput"
                 type="text"
                 class="form-control"
-                x-model="search_query"
-                @focus="show_dropdown = true"
-                @keydown.escape="show_dropdown = false; search_query = ''"
+                :value="field.selectedChoice?.label || ''"
+                @focus="openDropdown()"
+                @click="openDropdown()"
+                readonly
                 :disabled="field.disabled"
                 placeholder="{% block search_placeholder %}Search...{% endblock %}"
             >
             <div
                 x-cloak
-                x-show="show_dropdown"
-                @click.outside="show_dropdown = false"
-                class="shadow border rounded-2 mt-1 position-absolute w-100 list-group"
-                style="max-height: 250px; overflow-y: auto; z-index: 4;"
+                x-show="showDropdown"
+                class="shadow border rounded-2 position-absolute w-100 list-group bg-white"
+                :style="dropdownStyle"
             >
-                <template x-for="choice in filtered_choices" :key="choice.value">
+                <div class="p-2 border-bottom bg-white">
+                    <input
+                        x-ref="searchInput"
+                        type="text"
+                        class="form-control form-control-sm"
+                        x-model="searchQuery"
+                        @keydown.escape="showDropdown = false; searchQuery = ''"
+                        placeholder="Search..."
+                    >
+                </div>
+                <template x-for="choice in filteredChoices" :key="choice.value">
                     <div
                         class="py-2 px-3 list-group-item cursor-pointer"
-                        :class="field.disabled_choices?.includes(choice.value) ? 'opacity-50' : ''"
-                        @click="select_item(choice)"
+                        @click="selectItem(choice)"
                     >
                         <div x-text="choice.label"></div>
-                        <small class="text-muted" x-text="choice.value"></small>
                     </div>
                 </template>
-                <template x-if="filtered_choices.length === 0 && search_query.length > 0">
+                <template x-if="filteredChoices.length === 0 && searchQuery.length > 0">
                     <div class="py-3 px-3 text-center text-muted">
                         No results found
                     </div>
