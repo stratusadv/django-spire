@@ -58,7 +58,9 @@
         </div>
         <div class="col-5">
             <div class="attribute-label">Group</div>
-            <span x-text="item.groups.all"></span>
+            <template x-for="group in item.groups">
+                <span x-text="group" x-init="console.log(item.groups)"></span>
+            </template>
         </div>
         <div class="col-1 text-end align-self-center">
             {% include 'django_spire/auth/user/dropdown/ellipsis_dropdown.html' %}
