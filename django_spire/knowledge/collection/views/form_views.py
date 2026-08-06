@@ -12,6 +12,7 @@ from django_spire.auth.controller.controller import AppAuthController
 from django_spire.auth.group.models import AuthGroup
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
+from django_spire.knowledge.collection.breadcrumbs import add_collection_chain_breadcrumbs
 from django_spire.knowledge.collection.models import Collection, CollectionGroup
 from django_spire.knowledge.collection.forms import CollectionForm
 from django_spire.knowledge.collection.navigation import CollectionNavigation
@@ -33,20 +34,7 @@ def form_view(
     if collection.parent or parent_pk:
         parent_collection = get_object_or_null_obj(Collection, pk=parent_pk if parent_pk else collection.parent.pk)
 
-        breadcrumbs = []
-
-        while parent_collection:
-            breadcrumbs.append(
-                {
-                    'name': str(parent_collection),
-                    'view_name': 'django_spire:knowledge:collection:page:top_level',
-                    'view_kwargs': {'pk': parent_collection.pk},
-                }
-            )
-            parent_collection = parent_collection.parent
-
-        for crumb in reversed(breadcrumbs):
-            nav.breadcrumbs.add(**crumb)
+        add_collection_chain_breadcrumbs(nav.breadcrumbs, parent_collection)
 
     if pk:
         nav.breadcrumbs.add(
@@ -56,8 +44,6 @@ def form_view(
         )
 
     nav.breadcrumbs.add('Edit' if pk else 'Create')
-
-    context = nav.as_context()
 
     if request.method == 'POST':
         form = CollectionForm(request.POST, instance=collection)
@@ -88,14 +74,17 @@ def form_view(
             initial={'parent': collection.parent.pk if collection.parent else parent_pk},
         )
 
-    context['form'] = form
-    context['collection'] = collection
-    context['collection_parent_pk'] = parent_pk
-    context['group_ids'] = (
-        list(collection.groups.all().values_list('auth_group_id', flat=True))
-        if collection.id
-        else []
-    )
     return TemplateResponse(
-        request, context=context, template='django_spire/knowledge/collection/page/form_page.html'
+        request,
+        context=nav.as_context() | {
+            'form': form,
+            'collection': collection,
+            'collection_parent_pk': parent_pk,
+            'group_ids': (
+                list(collection.groups.all().values_list('auth_group_id', flat=True))
+                if collection.id
+                else []
+            ),
+        },
+        template='django_spire/knowledge/collection/page/form_page.html',
     )

@@ -26,9 +26,10 @@
                 }
             },
 
-            load_messages() {
-                let load_messages_view = Glue.view(`/django_spire/ai/chat/message/load/chat/${this.chat_id}/`)
-                load_messages_view.renderInsertAdjacentHtmlBeforeEnd(this.$refs.target_div)
+            async load_messages() {
+                let load_messages_view = Glue.view('{% url "django_spire:ai:chat:message:load_chat" chat_id=chat.id|default:0 %}')
+                let html = await load_messages_view.post()
+                this.$refs.target_div.innerHTML = html
             },
 
             smooth_scroll_to_bottom() {
@@ -57,14 +58,15 @@
                 if (message_body !== '') {
                     let was_new_chat = (this.chat_id === '0' || this.chat_id === 0 || this.chat_id === '')
 
-                    let response_html = await this.request_message_view.renderInsertAdjacentHtmlBeforeEnd(
-                        this.$refs.target_div,
+                    let response_html = await this.request_message_view.post(
                         {
                             chat_id: this.chat_id,
                             message_body: message_body,
                             synthesis_speech: synthesis_speech_for_response
                         }
                     )
+
+                    this.$refs.target_div.insertAdjacentHTML('beforeend', response_html)
 
                     if (was_new_chat) {
                         this.chat_name = message_body.length > 24 ? message_body.substring(0, 21) + '...' : message_body

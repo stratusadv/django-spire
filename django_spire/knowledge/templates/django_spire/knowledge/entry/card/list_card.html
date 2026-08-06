@@ -33,9 +33,9 @@
                 async reorder_entries({entry_id, order}){
                     let response = null
                     try {
-                        response = await Glue.fetch(
+                        response = await Glue.http.postJson(
                             '{% url "django_spire:knowledge:entry:json:reorder" %}',
-                            {body: {entry_id: entry_id, order: order, collection_id: {{ collection.id }}}}
+                            {entry_id: entry_id, order: order, collection_id: {{ collection.id }}}
                         )
                     } catch (e) {
                         window.location.reload()

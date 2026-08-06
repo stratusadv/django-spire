@@ -3,22 +3,30 @@
 {% block dropdown_position %}end-0 top-100{% endblock %}
 
 {% block dropdown_trigger %}
-    <span
-        class="bi bi-three-dots-vertical"
-        x-bind="trigger"
-    >
-    </span>
+    <span class="bi bi-three-dots-vertical"></span>
 {% endblock %}
 
 {% block dropdown_content %}
     {% if recent_chat %}
         <li>
-            <a class="dropdown-item text-start" x-on:click.prevent="enable_rename_chat(); toggle_dropdown()">
+            <a
+                class="dropdown-item text-start"
+                href="#"
+                @click.prevent="enable_rename_chat();"
+            >
                 Rename
             </a>
         </li>
 
         {% url 'django_spire:ai:chat:template:confirm_delete' pk=recent_chat.id as delete_url %}
-        {% include 'django_spire/dropdown/element/ellipsis_dropdown_modal_link_element.html' with view_url=delete_url link_text='Delete' link_css='text-app-danger text-start' %}
+        <li>
+            <a
+                class="dropdown-item text-start text-app-danger"
+                href="#"
+                @click.prevent="Spire.modal.dispatchView('{{ delete_url }}')"
+            >
+                Delete
+            </a>
+        </li>
     {% endif %}
 {% endblock %}

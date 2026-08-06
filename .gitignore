@@ -56,3 +56,6 @@ nul
 build/
 
 opencode.json
+
+.constellation/
+.claude/
