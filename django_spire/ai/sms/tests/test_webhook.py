@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.urls import reverse
 
+from django_spire.ai.sms.intel import SmsIntel
 from django_spire.ai.sms.models import SmsConversation
 from django_spire.core.tests.test_cases import BaseTestCase
 
@@ -139,3 +140,32 @@ class SmsWebhookTests(BaseTestCase):
         inbound_message = conversation.messages.filter(is_inbound=True).first()
 
         assert inbound_message.twilio_sid == 'SM_TEST_SID_123'
+
+    @patch('twilio.request_validator.RequestValidator.validate')
+    @patch('django_spire.ai.sms.views.webhook_views.sms_conversation_workflow')
+    def test_webhook_knowledge_path(self, mock_workflow, mock_validate) -> None:
+        mock_validate.return_value = True
+        mock_workflow.return_value = SmsIntel(body='Knowledge search result')
+
+        response = self.client.post(
+            self.webhook_url,
+            {
+                'From': '+15551234567',
+                'Body': 'Tell me about documentation',
+                'MessageSid': 'SM123456789',
+            },
+        )
+
+        assert response.status_code == 200
+        mock_workflow.assert_called_once()
+
+        conversation = SmsConversation.objects.get(phone_number='+15551234567')
+        assert conversation.messages.count() == 2
+
+        inbound_message = conversation.messages.filter(is_inbound=True).first()
+        assert inbound_message.is_processed
+
+        outbound_message = conversation.messages.filter(is_inbound=False).first()
+        assert outbound_message.body == 'Knowledge search result'
+
+        assert b'Knowledge search result' in response.content

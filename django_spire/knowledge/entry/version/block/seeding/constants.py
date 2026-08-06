@@ -1,382 +1,495 @@
 from __future__ import annotations
 
 from django_spire.knowledge.entry.version.block.data.heading_data import HeadingEditorBlockData
+from django_spire.knowledge.entry.version.block.data.list.choices import ListEditorBlockDataStyle
+from django_spire.knowledge.entry.version.block.data.list.data import ListEditorBlockData
 from django_spire.knowledge.entry.version.block.data.text_data import TextEditorBlockData
 
 
-LADDER_SAFETY_BLOCKS = [
-    HeadingEditorBlockData(text='Ladder Safety: A Journey Through the Heights', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Great Ladder Adventure Begins', level=2),
+ONBOARDING_ARTICLE = [
+    HeadingEditorBlockData(text='New Employee Onboarding', level=1),
     TextEditorBlockData(
-        text="Welcome to the thrilling world of ladder safety! Grab your hard hats and let's explore the wonderful dangers of working at heights."
+        text='This guide walks new team members through their first week, from equipment setup to meeting your manager. '
+        'It brings together everything you need to become productive quickly and connect with the people who will support you.'
+    ),
+    HeadingEditorBlockData(text='Before Your First Day', level=2),
+    TextEditorBlockData(
+        text='Your manager will reach out before your start date to confirm logistics, share the welcome agenda, and answer any questions. '
+        'In the meantime, complete the paperwork sent to your personal email so payroll and benefits are ready on day one.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {
+                'content': 'Confirm your start date and office location with your manager',
+                'items': [],
+            },
+            {'content': 'Complete tax, payroll, and benefits forms', 'items': []},
+            {'content': 'Add your personal email to your onboarding profile', 'items': []},
+            {'content': 'Review the employee handbook in the HR collection', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Equipment and Access', level=2),
+    TextEditorBlockData(
+        text='IT provisions your laptop and accounts within your first two days. You will receive a company email address, a badge for office access, '
+        'and VPN credentials if you work remotely. Do not share your password or badge with anyone.'
     ),
     TextEditorBlockData(
-        text="Whether you're a seasoned climber or a first-time ladder user, this guide will help you navigate the exciting landscape of aerial safety."
+        text='If your equipment has not arrived after two days, raise a ticket with IT through the help desk and copy your manager. '
+        'Equipment is provided based on your role and is yours for the duration of your employment.'
     ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='High vs. Low: The Ladder Tightrope', level=2),
-    TextEditorBlockData(
-        text='High ladders are like climbing Mount Everest - exciting but dangerous! Always double-check your footing and support.'
+    HeadingEditorBlockData(text='First Week Checklist', level=2),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.CHECKLIST,
+        items=[
+            {
+                'content': 'Set up your laptop and connect to the network',
+                'meta': {'checked': False},
+                'items': [],
+            },
+            {
+                'content': 'Complete the security awareness training',
+                'meta': {'checked': False},
+                'items': [],
+            },
+            {
+                'content': 'Meet your manager for a 1:1 and agree on goals',
+                'meta': {'checked': False},
+                'items': [],
+            },
+            {
+                'content': 'Join the team channels for your department',
+                'meta': {'checked': False},
+                'items': [],
+            },
+            {
+                'content': 'Book your 30-day check-in with HR',
+                'meta': {'checked': False},
+                'items': [],
+            },
+        ],
     ),
+    HeadingEditorBlockData(text='Where to Get Help', level=2),
     TextEditorBlockData(
-        text="Low ladders might seem harmless, but they're like slippery snakes waiting to trip you up! Keep them out of high-traffic areas."
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Ladder Safety Toolkit', level=2),
-    TextEditorBlockData(
-        text='Inspect your ladder like a detective looking for clues - check for cracks, rust, or missing rungs.'
-    ),
-    TextEditorBlockData(text='Remember: Three points of contact keeps you safe and sound!'),
-    TextEditorBlockData(
-        text='Never exceed the weight limit - your ladder has a maximum capacity just like you have a maximum capacity for pizza!'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency: The Ladder Rescue Mission', level=2),
-    TextEditorBlockData(
-        text='If you find yourself in a precarious situation, stay calm and follow the emergency protocols.'
-    ),
-    TextEditorBlockData(
-        text="First aid training is like having a superhero power - it's invaluable when you need it most!"
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Ladder Safety Certificate', level=2),
-    TextEditorBlockData(
-        text="Congratulations! You've completed your ladder safety course. Now go out there and climb with confidence!"
-    ),
-]
-
-KITCHEN_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Kitchen Safety: A Culinary Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Great Kitchen Escape', level=2),
-    TextEditorBlockData(
-        text='Welcome to the thrilling world of kitchen safety! Every chef needs to know how to navigate the kitchen without getting burned, cut, or startled by hot oil.'
+        text='HR is your primary contact for benefits, payroll, and policy questions. IT handles accounts, hardware, and software access. '
+        'Your manager is the best first stop for questions about your role and team.'
     ),
     TextEditorBlockData(
-        text="Whether you're a professional chef or a home cook, these safety tips will help you avoid kitchen disasters and keep your cooking adventures safe."
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Hot Oil: The Dangerous Dance', level=2),
-    TextEditorBlockData(
-        text='Hot oil is like a wild animal - it can splash and burn in seconds! Always use proper protective gear when handling hot oil.'
-    ),
-    TextEditorBlockData(
-        text="Never leave hot oil unattended, or you'll end up with a kitchen fire that's more exciting than your favorite TV show!"
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Knife Safety: The Sharp Edge of Responsibility', level=2),
-    TextEditorBlockData(
-        text="Knives are like any other tool - they're only as dangerous as the person using them."
-    ),
-    TextEditorBlockData(
-        text='Always cut away from your body and keep your knives sharp (dull knives are actually more dangerous than sharp ones).'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Kitchen Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a kitchen emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having a fire extinguisher in the kitchen is like having a superhero sidekick - it's always good to have backup!"
+        text='Keep this guide handy and reach out early if anything is unclear. A smooth onboarding sets '
+        'you up for a strong start, and everyone on the team is happy to help.'
     ),
 ]
 
-GARDEN_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Garden Safety: A Green Thumb Guide', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Garden Adventure Begins', level=2),
+IT_SECURITY_ARTICLE = [
+    HeadingEditorBlockData(text='IT and Security Policies', level=1),
     TextEditorBlockData(
-        text='Step into the wonderful world of gardening with safety as your companion! Every gardener should know how to protect themselves from thorns, chemicals, and unexpected wildlife.'
+        text='These policies protect company data, customer information, and the systems that keep our business running. '
+        'Every employee is responsible for following them, and the security team can answer questions at any time.'
+    ),
+    HeadingEditorBlockData(text='Passwords and Accounts', level=2),
+    TextEditorBlockData(
+        text='Use unique, strong passwords for every account and enable two-factor authentication wherever it is offered. '
+        'Never reuse a personal password for a company account, and do not write passwords down where others can see them.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Use a company-approved password manager', 'items': []},
+            {'content': 'Enable two-factor authentication on all accounts', 'items': []},
+            {'content': 'Report suspected compromise to IT within the hour', 'items': []},
+            {'content': 'Never share your account with a colleague or vendor', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Email and Phishing', level=2),
+    TextEditorBlockData(
+        text='Phishing is the most common way attackers gain access. Beware of unexpected attachments, urgent requests, and links that do not '
+        'match known domains. When in doubt, forward the message to the security team instead of clicking anything.'
     ),
     TextEditorBlockData(
-        text="Whether you're tending to a small potted plant or a large garden, these tips will keep you safe while you nurture your green thumb."
+        text='The security team runs regular simulated phishing tests. Failing a simulation is a learning opportunity, not a disciplinary matter; '
+        'reporting suspicions is always encouraged.'
     ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Chemical Safety: The Poisonous Garden', level=2),
+    HeadingEditorBlockData(text='Data Classification and Handling', level=2),
     TextEditorBlockData(
-        text='Gardening chemicals can be like hidden traps - they look harmless but can cause serious harm if not handled properly.'
+        text='Data is classified as public, internal, or confidential. Public data can be shared externally. Internal data is for employees only. '
+        'Confidential data, such as customer records and financial information, requires extra protection and must not be stored on personal devices.'
     ),
-    TextEditorBlockData(
-        text='Always read labels and wear protective gear when working with fertilizers, pesticides, or other garden chemicals.'
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Use the approved secure vault for confidential documents', 'items': []},
+            {'content': 'Encrypt confidential files before sending them by email', 'items': []},
+            {'content': 'Lock your screen whenever you leave your desk', 'items': []},
+            {
+                'content': 'Shred or securely delete confidential documents you no longer need',
+                'items': [],
+            },
+        ],
     ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text="Tool Safety: The Gardener's Arsenal", level=2),
+    HeadingEditorBlockData(text='Incident Reporting', level=2),
     TextEditorBlockData(
-        text="Gardening tools are like weapons - they're only as dangerous as the person wielding them."
-    ),
-    TextEditorBlockData(
-        text='Keep your tools sharp and clean to prevent accidents and ensure maximum efficiency in your garden work.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Garden Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a garden emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having a first aid kit in the garden is like having a superhero sidekick - it's always good to have backup!"
-    ),
-]
-
-OFFICE_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Office Safety: A Professional Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Office Escape', level=2),
-    TextEditorBlockData(
-        text='Welcome to the exciting world of office safety! Every professional should know how to navigate their workspace without tripping, falling, or getting distracted by a rogue cable.'
-    ),
-    TextEditorBlockData(
-        text="Whether you're working in a bustling office or a quiet cubicle, these safety tips will help you avoid workplace disasters and keep your productivity high."
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Cable Safety: The Hidden Danger', level=2),
-    TextEditorBlockData(
-        text="Office cables are like snakes waiting to strike - they can trip you up if you're not careful!"
-    ),
-    TextEditorBlockData(text='Always secure cables properly and keep walkways clear of obstacles.'),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Ergonomic Safety: The Comfort Zone', level=2),
-    TextEditorBlockData(
-        text='Proper ergonomics in the office are like having a personal assistant - they make everything easier and more comfortable.'
-    ),
-    TextEditorBlockData(
-        text='Adjust your chair, monitor, and keyboard to prevent strain and injury.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Office Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter an office emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having a fire extinguisher in the office is like having a superhero sidekick - it's always good to have backup!"
+        text='If you lose a device, see suspicious activity, or believe data may have been exposed, report it immediately. '
+        'Early reporting limits damage and is treated confidentially.'
     ),
 ]
 
-POOL_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Swimming Pool Safety: A Water Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Pool Party Begins', level=2),
+REMOTE_WORK_ARTICLE = [
+    HeadingEditorBlockData(text='Remote and Hybrid Work', level=1),
     TextEditorBlockData(
-        text='Dive into the exciting world of pool safety! Every swimmer should know how to protect themselves from drowning, sunburn, and unexpected water hazards.'
+        text='This policy outlines expectations for team members who work remotely, whether fully remote, hybrid, or occasionally from home. '
+        'It is meant to give you flexibility while keeping collaboration and productivity strong.'
+    ),
+    HeadingEditorBlockData(text='Work Hours and Availability', level=2),
+    TextEditorBlockData(
+        text='Most roles operate on a flexible schedule within core collaboration hours. Agree on availability with your manager, '
+        'and keep your calendar current so teammates know when to reach you.'
+    ),
+    HeadingEditorBlockData(text='Setting Up Your Workspace', level=2),
+    TextEditorBlockData(
+        text='Choose a quiet, well-lit space with a stable internet connection. Use a headset for calls to reduce background noise. '
+        'If you need equipment such as a monitor, webcam, or ergonomic chair, request it through IT.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Use a wired connection or strong Wi-Fi for calls', 'items': []},
+            {'content': 'Keep your workspace free from distractions', 'items': []},
+            {'content': 'Take scheduled breaks to protect your wellbeing', 'items': []},
+            {'content': 'Test your camera and microphone before meetings', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Communication Norms', level=2),
+    TextEditorBlockData(
+        text='Default to asynchronous communication for updates and questions. Use video for team meetings and important 1:1s, '
+        "and set expectations for response times with your team. Recording meetings is only permitted with everyone's consent."
     ),
     TextEditorBlockData(
-        text="Whether you're swimming in a backyard pool or a public facility, these tips will keep you safe while you enjoy the water."
+        text='When you are off work, respect your own boundaries and those of others. Messages sent outside working hours can wait until the next day '
+        'unless they are marked urgent.'
     ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Water Safety: The Deep End', level=2),
+    HeadingEditorBlockData(text='Travel and Reimbursement', level=2),
     TextEditorBlockData(
-        text='Pool water can be deceiving - it looks calm but can hide dangerous situations!'
-    ),
-    TextEditorBlockData(text='Always swim with a buddy and never dive into shallow water.'),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Sun Protection: The Beach Adventure', level=2),
-    TextEditorBlockData(text='Sun exposure is like a wild animal - it can burn you in seconds!'),
-    TextEditorBlockData(
-        text='Apply sunscreen regularly and wear protective clothing to avoid sunburn and skin damage.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Pool Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a pool emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having lifeguards on duty is like having a superhero sidekick - it's always good to have backup!"
-    ),
-]
-
-CONSTRUCTION_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Construction Safety: A Building Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Construction Zone', level=2),
-    TextEditorBlockData(
-        text='Step into the exciting world of construction safety! Every builder should know how to protect themselves from falling objects, electrical hazards, and unexpected structural issues.'
-    ),
-    TextEditorBlockData(
-        text="Whether you're working on a skyscraper or a small home renovation, these safety tips will keep you safe while you build your dreams."
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Falling Object Safety: The Sky is Falling', level=2),
-    TextEditorBlockData(
-        text='Construction sites are like a battlefield - falling objects can strike at any moment!'
-    ),
-    TextEditorBlockData(text='Always wear proper head protection and stay clear of work zones.'),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Electrical Safety: The Power Adventure', level=2),
-    TextEditorBlockData(text='Electricity is like a wild animal - it can shock you in seconds!'),
-    TextEditorBlockData(
-        text='Always check electrical equipment before use and never work on live circuits.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Construction Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a construction emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having safety officers on site is like having a superhero sidekick - it's always good to have backup!"
+        text='Your manager approves any travel before you book. Submit expense reports within thirty days using the expense tool, '
+        'and attach receipts for every claim.'
     ),
 ]
 
-CYCLING_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Bicycle Safety: A Cycling Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Road Ahead', level=2),
+HR_POLICIES_ARTICLE = [
+    HeadingEditorBlockData(text='HR Policies and Employee Handbook', level=1),
     TextEditorBlockData(
-        text='Ride into the exciting world of bicycle safety! Every cyclist should know how to protect themselves from traffic, weather hazards, and mechanical failures.'
+        text='The handbook sets out the rules, expectations, and benefits that shape working life at the company. '
+        'It applies to all employees and is reviewed annually, so check back for updates.'
+    ),
+    HeadingEditorBlockData(text='Code of Conduct', level=2),
+    TextEditorBlockData(
+        text='We expect honesty, respect, and fairness in every interaction. Harassment, discrimination, and retaliation are not tolerated '
+        'in any form, and all reports are investigated confidentially.'
+    ),
+    HeadingEditorBlockData(text='Paid Time Off', level=2),
+    TextEditorBlockData(
+        text='Full-time employees accrue paid time off each pay period. Submit time-off requests through the HR tool at least two weeks in advance '
+        'and receive manager approval before making travel plans.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.ORDERED,
+        meta={'start': 1},
+        items=[
+            {
+                'content': 'Open the HR tool and request your dates',
+                'items': [],
+                'meta': {'start': 1},
+            },
+            {'content': 'Add your manager as an approver', 'items': [], 'meta': {'start': 1}},
+            {
+                'content': 'Set an out-of-office message for your email',
+                'items': [],
+                'meta': {'start': 1},
+            },
+            {
+                'content': 'Hand off critical tasks to a colleague',
+                'items': [],
+                'meta': {'start': 1},
+            },
+        ],
+    ),
+    HeadingEditorBlockData(text='Leaves of Absence', level=2),
+    TextEditorBlockData(
+        text='Medical, family, and personal leaves are available to eligible employees. Speak with HR early, even if you are unsure of your '
+        'eligibility, so we can guide you through the process and protect your role.'
     ),
     TextEditorBlockData(
-        text="Whether you're commuting or going for a weekend ride, these tips will keep you safe while you enjoy the open road."
+        text='All leave-related conversations are kept confidential and are used only to support your needs and comply with applicable law.'
     ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Traffic Safety: The Highway Adventure', level=2),
+    HeadingEditorBlockData(text='Resignation and Offboarding', level=2),
     TextEditorBlockData(
-        text='Riding in traffic is like navigating a busy city - always stay alert and follow traffic rules!'
-    ),
-    TextEditorBlockData(
-        text='Always wear a helmet and make sure your bike is properly equipped with lights and reflectors.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Weather Safety: The Elements Adventure', level=2),
-    TextEditorBlockData(
-        text='Weather conditions can change quickly - always check the forecast before heading out!'
-    ),
-    TextEditorBlockData(text='Avoid riding in rain or snow without proper gear and equipment.'),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Bicycle Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a bicycle emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having a repair kit on hand is like having a superhero sidekick - it's always good to have backup!"
-    ),
-]
-
-FIRE_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Fire Safety: A Blaze Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Fire Escape', level=2),
-    TextEditorBlockData(
-        text='Enter the exciting world of fire safety! Every person should know how to protect themselves from flames, smoke, and unexpected fires.'
-    ),
-    TextEditorBlockData(
-        text="Whether you're at home or in a public building, these tips will keep you safe while you navigate fire hazards."
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Fire Prevention: The Prevention Adventure', level=2),
-    TextEditorBlockData(
-        text='Prevention is better than cure - always keep fire extinguishers accessible and never leave candles unattended!'
-    ),
-    TextEditorBlockData(
-        text='Keep flammable materials away from heat sources and maintain proper ventilation.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Evacuation Safety: The Escape Route', level=2),
-    TextEditorBlockData(
-        text="Knowing your escape routes is like having a superhero power - it's invaluable when you need it most!"
-    ),
-    TextEditorBlockData(
-        text='Always practice evacuation drills and keep emergency contact information handy.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Fire Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a fire emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having fire safety training is like having a superhero sidekick - it's always good to have backup!"
+        text='If you decide to leave, provide written notice to your manager and HR. We will hold an offboarding meeting to return equipment, '
+        'recover access, and discuss final pay.'
     ),
 ]
 
-HIKING_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Hiking Safety: A Mountain Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Trail Ahead', level=2),
+BENEFITS_ARTICLE = [
+    HeadingEditorBlockData(text='Employee Benefits', level=1),
     TextEditorBlockData(
-        text='Embark on the exciting world of hiking safety! Every hiker should know how to protect themselves from weather hazards, wildlife encounters, and unexpected terrain.'
+        text='Our benefits package is designed to support your health, finances, and future. This guide explains what is available and how to enrol, '
+        'so you can make the most of what the company offers.'
+    ),
+    HeadingEditorBlockData(text='Health and Dental Coverage', level=2),
+    TextEditorBlockData(
+        text='Eligible employees can enrol in medical, dental, and vision plans. Coverage starts on the first of the month after your '
+        'enrolment is confirmed by HR. Dependants can be added at enrolment or during annual open enrolment.'
+    ),
+    HeadingEditorBlockData(text='Retirement and Savings', level=2),
+    TextEditorBlockData(
+        text='The company offers a retirement savings plan with an employer match. You control your contribution rate, and matching is applied '
+        'to the first portion of your salary each pay period.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Choose your contribution rate in the benefits portal', 'items': []},
+            {'content': 'Confirm your investment allocation', 'items': []},
+            {'content': 'Review your match statement each quarter', 'items': []},
+            {'content': 'Update beneficiaries after major life changes', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Wellness and Time Off', level=2),
+    TextEditorBlockData(
+        text='Wellness benefits include an annual allowance for fitness, mental health support, and a health spending account. '
+        'Use the benefit to cover expenses that improve your wellbeing, from gym memberships to counselling sessions.'
     ),
     TextEditorBlockData(
-        text="Whether you're taking a short walk or a multi-day trek, these tips will keep you safe while you explore nature."
+        text='Paid time off, paid holidays, and paid parental leave are detailed in the HR policies. Contact the benefits team for '
+        'eligibility details and any questions about your specific situation.'
     ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Weather Safety: The Elements Adventure', level=2),
+    HeadingEditorBlockData(text='How to Enrol', level=2),
     TextEditorBlockData(
-        text='Weather conditions can change quickly in the wilderness - always check forecasts before heading out!'
-    ),
-    TextEditorBlockData(
-        text='Pack appropriate gear for all weather conditions and never hike alone in dangerous areas.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Wildlife Safety: The Animal Encounter', level=2),
-    TextEditorBlockData(
-        text='Wild animals are like wild cards - they can appear at any moment and behave unpredictably!'
-    ),
-    TextEditorBlockData(
-        text='Keep food stored properly and maintain a safe distance from wildlife.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Hiking Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a hiking emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having a first aid kit and emergency communication device is like having a superhero sidekick - it's always good to have backup!"
-    ),
-]
-
-BOATING_SAFETY_BLOCKS = [
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Boating Safety: A Water Adventure', level=1),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='The Ocean Escape', level=2),
-    TextEditorBlockData(
-        text='Set sail into the exciting world of boating safety! Every sailor should know how to protect themselves from water hazards, weather conditions, and unexpected emergencies.'
-    ),
-    TextEditorBlockData(
-        text="Whether you're on a small boat or a large vessel, these tips will keep you safe while you enjoy the water."
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Water Safety: The Ocean Adventure', level=2),
-    TextEditorBlockData(
-        text='Boating on water is like navigating a wild ocean - always stay alert and follow safety protocols!'
-    ),
-    TextEditorBlockData(
-        text='Always wear life jackets and check weather conditions before heading out.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Navigation Safety: The Compass Adventure', level=2),
-    TextEditorBlockData(
-        text="Proper navigation is like having a superhero power - it's invaluable when you need it most!"
-    ),
-    TextEditorBlockData(
-        text='Use proper navigation equipment and never navigate without a backup plan.'
-    ),
-    TextEditorBlockData(text=''),
-    HeadingEditorBlockData(text='Emergency Boating Procedures', level=2),
-    TextEditorBlockData(
-        text='If you encounter a boating emergency, stay calm and follow established protocols.'
-    ),
-    TextEditorBlockData(
-        text="Having safety equipment on board is like having a superhero sidekick - it's always good to have backup!"
+        text='New hires enrol within the first thirty days. Visit the benefits portal, review the available plans, and submit your choices. '
+        'HR confirms enrolment and answers questions at any point during the year.'
     ),
 ]
 
+SALES_ARTICLE = [
+    HeadingEditorBlockData(text='Sales Process and Best Practices', level=1),
+    TextEditorBlockData(
+        text='This guide describes the standard sales process, from prospecting to closing. Following it consistently helps our team move deals '
+        'forward efficiently and keeps our pipeline accurate.'
+    ),
+    HeadingEditorBlockData(text='The Sales Stages', level=2),
+    TextEditorBlockData(
+        text='Every opportunity moves through defined stages. Logging an accurate stage matters more than moving fast, because it keeps forecasts '
+        'reliable and makes it easy for teammates to pick up an account.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Qualify the account against our ideal customer profile', 'items': []},
+            {'content': 'Identify the decision maker and budget owner', 'items': []},
+            {'content': 'Run a discovery call to understand the need', 'items': []},
+            {'content': 'Propose a tailored solution and pricing', 'items': []},
+            {'content': 'Negotiate and close the deal', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Discovery Calls', level=2),
+    TextEditorBlockData(
+        text="Discovery is about listening more than talking. Ask open questions about the customer's goals, challenges, and timeline, "
+        'and take notes directly into the CRM so nothing is lost.'
+    ),
+    TextEditorBlockData(
+        text='A good discovery call ends with a clear next step, such as a product demo or a follow-up with the technical team. '
+        'Always confirm the decision-making process before investing more time.'
+    ),
+    HeadingEditorBlockData(text='Proposals and Pricing', level=2),
+    TextEditorBlockData(
+        text='Use the approved proposal template and pricing guidance. Obtain the necessary approvals before sharing a proposal, '
+        'and be clear about what is included, payment terms, and the validity period of the quote.'
+    ),
+    HeadingEditorBlockData(text='Managing Your Pipeline', level=2),
+    TextEditorBlockData(
+        text='Keep every account current. Update stages weekly, log calls and emails, and flag any deal that has stalled for more than two weeks '
+        'so leadership can help unblock it.'
+    ),
+]
 
-SAFETY_BLOCKS = [
-    LADDER_SAFETY_BLOCKS,
-    KITCHEN_SAFETY_BLOCKS,
-    GARDEN_SAFETY_BLOCKS,
-    OFFICE_SAFETY_BLOCKS,
-    POOL_SAFETY_BLOCKS,
-    CONSTRUCTION_SAFETY_BLOCKS,
-    CYCLING_SAFETY_BLOCKS,
-    FIRE_SAFETY_BLOCKS,
-    HIKING_SAFETY_BLOCKS,
-    BOATING_SAFETY_BLOCKS,
+MARKETING_ARTICLE = [
+    HeadingEditorBlockData(text='Marketing Guidelines', level=1),
+    TextEditorBlockData(
+        text='These guidelines ensure our marketing is consistent, accurate, and on brand across every channel. '
+        'They apply to campaigns, social media, email, and external communications.'
+    ),
+    HeadingEditorBlockData(text='Brand Voice and Tone', level=2),
+    TextEditorBlockData(
+        text='Our brand is clear, helpful, and confident. Write in plain language, avoid jargon, and put the customer first. '
+        'Always check spelling and grammar before anything goes live.'
+    ),
+    HeadingEditorBlockData(text='Approving Campaigns', level=2),
+    TextEditorBlockData(
+        text='All external campaigns require review by the marketing lead and, where relevant, legal and compliance. '
+        'Allow at least three business days for approvals and do not bypass the review workflow.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Use the approved brand assets and templates', 'items': []},
+            {'content': 'Include required disclaimers and unsubscribe links', 'items': []},
+            {'content': 'Verify claims and statistics before publishing', 'items': []},
+            {'content': 'Route sensitive campaigns through legal review', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Social Media', level=2),
+    TextEditorBlockData(
+        text='When posting on company channels, follow the content calendar and coordinate with the marketing team. '
+        'Customer information must never be shared without consent, and responses to complaints should be handled calmly and privately.'
+    ),
+    TextEditorBlockData(
+        text='If a post receives unexpected attention or negative feedback, pause and loop in the marketing lead before responding further.'
+    ),
+    HeadingEditorBlockData(text='Measuring Success', level=2),
+    TextEditorBlockData(
+        text='Agree on goals and metrics before launching a campaign. Review performance after the campaign and document what worked '
+        'so future efforts build on real results.'
+    ),
+]
+
+PROJECT_MANAGEMENT_ARTICLE = [
+    HeadingEditorBlockData(text='Project Management Standards', level=1),
+    TextEditorBlockData(
+        text='These standards describe how projects are planned, tracked, and delivered across the company. '
+        'Following a common approach keeps stakeholders informed and helps teams finish on time and on budget.'
+    ),
+    HeadingEditorBlockData(text='Planning a Project', level=2),
+    TextEditorBlockData(
+        text='Every project starts with a clear charter that defines the goal, scope, stakeholders, and success criteria. '
+        'Secure sign-off from the sponsor before committing resources.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.ORDERED,
+        meta={'start': 1},
+        items=[
+            {'content': 'Write and approve the project charter', 'items': [], 'meta': {'start': 1}},
+            {
+                'content': 'Break the work into milestones and tasks',
+                'items': [],
+                'meta': {'start': 1},
+            },
+            {'content': 'Estimate effort and assign owners', 'items': [], 'meta': {'start': 1}},
+            {
+                'content': 'Agree on reporting cadence with stakeholders',
+                'items': [],
+                'meta': {'start': 1},
+            },
+        ],
+    ),
+    HeadingEditorBlockData(text='Tracking and Reporting', level=2),
+    TextEditorBlockData(
+        text='Update the project tracker at least weekly with progress, risks, and decisions. Reports should state the current status clearly and '
+        'call out anything that needs attention rather than burying it in detail.'
+    ),
+    TextEditorBlockData(
+        text='Maintain a risk register and review it in every status meeting. Assign an owner to each open risk and a date to review or close it.'
+    ),
+    HeadingEditorBlockData(text='When Things Go Off Track', level=2),
+    TextEditorBlockData(
+        text='If a project slips, escalate early with options rather than surprises. Present the impact, the root cause, and at least two '
+        'recovery choices so the sponsor can decide quickly.'
+    ),
+    HeadingEditorBlockData(text='Closing a Project', level=2),
+    TextEditorBlockData(
+        text='A finished project should be formally closed with a lessons-learned review. Capture what went well and what to improve, '
+        'and archive the documentation so future teams can reference it.'
+    ),
+]
+
+CUSTOMER_SUPPORT_ARTICLE = [
+    HeadingEditorBlockData(text='Customer Support Standards', level=1),
+    TextEditorBlockData(
+        text='Our support team is the voice of the company for customers. These standards help us resolve issues quickly, '
+        'communicate clearly, and keep customers informed at every step.'
+    ),
+    HeadingEditorBlockData(text='Response and Resolution', level=2),
+    TextEditorBlockData(
+        text='Acknowledge every new ticket within one business hour and set a clear expectation for when the issue will be resolved. '
+        'If a fix will take longer than promised, update the customer before the deadline passes.'
+    ),
+    HeadingEditorBlockData(text='Communication Best Practices', level=2),
+    TextEditorBlockData(
+        text='Write in simple, direct language and avoid technical jargon unless the customer is technical. Confirm the problem in your own words '
+        'before proposing a fix, and always close the loop once the issue is resolved.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Confirm the exact error and impact', 'items': []},
+            {'content': 'Reproduce the issue if possible', 'items': []},
+            {'content': 'Apply the documented solution', 'items': []},
+            {'content': 'Verify with the customer before closing', 'items': []},
+            {'content': 'Log any new workaround for future reference', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Escalation', level=2),
+    TextEditorBlockData(
+        text='Escalate when a customer is at risk, an issue affects multiple accounts, or a resolution requires another team. '
+        'Include the full context so the receiving team can act without repeating the investigation.'
+    ),
+    TextEditorBlockData(
+        text='Keep the customer informed throughout an escalation and make sure the handover is smooth, with a named point of contact.'
+    ),
+    HeadingEditorBlockData(text='Knowledge Base Use', level=2),
+    TextEditorBlockData(
+        text='Search the knowledge base before starting an investigation. When you resolve a novel issue, document the solution so the '
+        'next person resolves it faster and the customer experience stays consistent.'
+    ),
+]
+
+TRAVEL_EXPENSE_ARTICLE = [
+    HeadingEditorBlockData(text='Travel and Expense Policy', level=1),
+    TextEditorBlockData(
+        text='This policy explains how to book business travel and claim expenses. It is designed to be fair to employees '
+        'while keeping spending within budget.'
+    ),
+    HeadingEditorBlockData(text='Booking Travel', level=2),
+    TextEditorBlockData(
+        text='Book flights, hotels, and car rentals through the approved travel tool to access negotiated rates. '
+        'Make bookings as far in advance as possible and choose the most cost-effective reasonable option.'
+    ),
+    HeadingEditorBlockData(text='Approvals', level=2),
+    TextEditorBlockData(
+        text='Travel requires manager approval before booking. Unapproved travel may not be reimbursed, so confirm your business need '
+        'and budget before making commitments.'
+    ),
+    ListEditorBlockData(
+        style=ListEditorBlockDataStyle.UNORDERED,
+        items=[
+            {'content': 'Obtain manager approval before booking', 'items': []},
+            {'content': 'Use the approved travel tool where possible', 'items': []},
+            {'content': 'Keep all receipts for every expense', 'items': []},
+            {'content': 'Submit claims within thirty days', 'items': []},
+        ],
+    ),
+    HeadingEditorBlockData(text='Expense Categories', level=2),
+    TextEditorBlockData(
+        text='Reimbursable expenses include transport, accommodation, meals, and business essentials such as internet and printing. '
+        'Personal items and upgrades beyond the standard rate are not reimbursed.'
+    ),
+    TextEditorBlockData(
+        text='If a receipt is lost, you may submit a declaration in the expense tool explaining the expense. These declarations are reviewed by finance.'
+    ),
+    HeadingEditorBlockData(text='Submitting a Claim', level=2),
+    TextEditorBlockData(
+        text='Create your expense report shortly after the trip, attach receipts, and route it to your manager and finance for approval. '
+        'Reimbursement is issued on the next scheduled payroll cycle after approval.'
+    ),
+]
+
+
+KB_ARTICLES = [
+    ONBOARDING_ARTICLE,
+    IT_SECURITY_ARTICLE,
+    REMOTE_WORK_ARTICLE,
+    HR_POLICIES_ARTICLE,
+    BENEFITS_ARTICLE,
+    SALES_ARTICLE,
+    MARKETING_ARTICLE,
+    PROJECT_MANAGEMENT_ARTICLE,
+    CUSTOMER_SUPPORT_ARTICLE,
+    TRAVEL_EXPENSE_ARTICLE,
 ]
