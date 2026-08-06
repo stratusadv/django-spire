@@ -72,9 +72,10 @@ class GroupPageViewsTestCase(BaseTestCase):
         assert 'active_user_list' in response.context
         assert 'inactive_user_list' in response.context
 
-    def test_list_view_contains_permission_data(self) -> None:
+    def test_list_view_registers_permission_data_computed_attribute(self) -> None:
         response = self.client.get(reverse('django_spire:auth:group:page:list'))
-        assert 'group_list_permission_data' in response.context
+        rendered = response.rendered_content
+        assert 'permission_data' in rendered
 
     def test_list_view_multiple_groups(self) -> None:
         AuthGroup.objects.create(name='Group 2')

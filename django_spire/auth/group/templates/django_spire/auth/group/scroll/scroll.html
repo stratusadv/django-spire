@@ -1,5 +1,7 @@
 {% extends 'django_spire/glue/scroll/scroll.html' %}
 
+{% load django_glue %}
+
 {% block scroll_queryset_order_by_field %}name{% endblock %}
 {% block scroll_queryset_unique_name %}group_list{% endblock %}
 {% block scroll_queryset_filter_field %}name{% endblock %}
@@ -38,21 +40,16 @@
         <div class="col-3">
             <div class="attribute-label">Name</div>
             {% if perms.django_spire_auth_group.view_authgroup %}
-                <a :href="`{% url 'django_spire:auth:group:page:detail' pk=0 %}`.replace('0', item.id)">
+                <a :href="{% js_url 'django_spire:auth:group:page:detail' pk='item.id' %}">
                     <span x-text="item.name"></span>
                 </a>
             {% else %}
                 <span x-text="item.name"></span>
             {% endif %}
         </div>
-        <div
-                class="col-8"
-                x-data="{
-                groupPermissionData: groupListPermissionData[itemIndex] 
-            }"
-        >
+        <div class="col-8">
             <div class="row g-2 flex-wrap">
-                <template x-for="perm in groupPermissionData">
+                <template x-for="perm in item.permission_data ?? []">
                     <div class="col-2 m-2">
                         <div class="attribute-label" x-text="perm.verbose_app_name ?? perm.app_name"></div>
                         {% include 'django_spire/auth/group/element/group_perm_level_badge.html' with x_permission_level="perm.level_verbose" %}
@@ -66,4 +63,3 @@
     </div>
 {% endblock %}
 
-{#{% include 'django_spire/auth/group/item/group_item.html' with perm_data=group_list_permission_data|index:forloop.counter0 location='group' %}#}

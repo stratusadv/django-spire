@@ -1,3 +1,10 @@
+## 1.0.1-rc1 - August 6, 2026
+
+#### Changes
+
+- Auth group list permission data now loads through Glue queryset computed attributes instead of a separately serialized template context payload
+- Domain and subdomain services are no longer exposed as Glue attributes, which was causing a bug
+
 ## 1.0.0 - July 31, 2026
 
 #### Breaking

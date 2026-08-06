@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING
 
 from django.core.paginator import Paginator
@@ -52,7 +51,16 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 def list_view(request: WSGIRequest) -> TemplateResponse:
     group_list = models.AuthGroup.objects.all().prefetch_related('permissions').order_by('name')
 
-    Glue.queryset(request, 'group_list', group_list, Glue.Access.VIEW, fields='__all__')
+    Glue.queryset(
+        request,
+        'group_list',
+        group_list,
+        Glue.Access.VIEW,
+        fields='__all__',
+        computed_attributes={
+            'permission_data': generate_group_perm_data,
+        },
+    )
 
     nav = AuthGroupNavigation()
     nav.page_title = 'Groups'
@@ -60,9 +68,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     context = nav.as_context()
     context['group_list'] = group_list
     context['group_list_count'] = group_list.count()
-    context['group_list_permission_data'] = json.dumps([
-        generate_group_perm_data(group) for group in group_list
-    ])
     return TemplateResponse(
         request, context=context, template='django_spire/auth/group/page/list_page.html'
     )
