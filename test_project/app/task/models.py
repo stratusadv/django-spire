@@ -31,6 +31,7 @@ class Task(ActivityMixin, HistoryModelMixin):
 
     objects = TaskQuerySet().as_manager()
     services = Glue.attribute(TaskService(), access=Glue.Access.DELETE)
+
     class Meta:
         verbose_name = 'Task'
         verbose_name_plural = 'Tasks'

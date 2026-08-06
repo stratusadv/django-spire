@@ -64,6 +64,8 @@
             }
 
             const item = await this.scrollQuerySet.get(pk)
+
+            // TODO: delete this, should happen inside .get()
             item.$collection = this.scrollQuerySet
             const itemIndex = this.items.findIndex(existingItem => existingItem.$pk === item.$pk)
 
