@@ -1,0 +1,31 @@
+{% extends 'django_spire/item/item.html' %}
+
+{% block item_title_col %}4{% endblock %}
+
+{% block item_title %}
+    <a href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=item.pk %}">
+        {{ item.name }}
+    </a>
+{% endblock %}
+
+{% block item_row_content %}
+    <div class="col-6 col-lg-3 text-start">
+        <div class="attribute-label">Domain</div>
+        <div>{{ item.domain }}</div>
+    </div>
+    <div class="col-6 col-lg-3 text-start">
+        <div class="attribute-label">Statistics</div>
+        <div>{{ item.statistics.active.not_deleted.count }}</div>
+    </div>
+    <div class="col-12 text-start">
+        <div class="attribute-label">Description</div>
+        <div>{{ item.description }}</div>
+    </div>
+{% endblock %}
+
+{% block item_button %}
+    {% url 'django_spire:metric:domain:statistic:page:group_detail' pk=item.pk as view_url %}
+    {% url 'django_spire:metric:domain:statistic:form:group_update' pk=item.pk as edit_url %}
+    {% url 'django_spire:metric:domain:statistic:form:group_delete' pk=item.pk as delete_url %}
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}
+{% endblock %}

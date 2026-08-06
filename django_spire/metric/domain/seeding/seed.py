@@ -11,3 +11,6 @@ domain_seeder.seed_database()
 subdomain_seeder = SubDomainSeeder(count=100)
 
 subdomain_seeder.seed_database()
+
+
+from django_spire.metric.domain.statistic.seeding.seed import *  # noqa

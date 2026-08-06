@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.domain_statistic.add_statistic %}
-        {% url 'metric:domain:statistic:form:create' as new_statistic_url %}
+    {% if perms.metric_domain.add_statistic %}
+        {% url 'django_spire:metric:domain:statistic:form:create' as new_statistic_url %}
         <a class="btn btn-sm btn-primary" href="{{ new_statistic_url }}">
             <i class="bi bi-plus"></i>
             Add
@@ -16,6 +16,10 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% include 'django_spire/metric/domain/statistic/container/list_container.html' with endpoint=statistic_items_endpoint %}
+        {% if statistics %}
+            {% include 'django_spire/metric/domain/statistic/item/list_items.html' %}
+        {% else %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endif %}
     </div>
 {% endblock %}

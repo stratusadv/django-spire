@@ -55,6 +55,9 @@
 {% url 'django_spire:metric:domain:page:list' as domain_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Domains' link_icon='bi bi-collection' link_url=domain_url %}
 
+{% url 'django_spire:metric:domain:statistic:page:group_list' as statistic_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Statistics' link_icon='bi bi-bar-chart' link_url=statistic_url %}
+
 {% include 'django_spire/navigation/divider.html' with divider_text='Configuration' %}
 
 {% include 'django_spire/auth/group/navigation/accordion/permission_nav_accordion.html' %}

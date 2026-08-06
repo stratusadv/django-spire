@@ -6,7 +6,11 @@
             {% include 'django_spire/metric/domain/statistic/card/detail_card.html' %}
         </div>
 
-        <div class="col-4">
+        <div class="col-12">
+            {% include 'django_spire/metric/domain/statistic/card/values_card.html' %}
+        </div>
+
+        <div class="col-12">
             {% include 'django_spire/activity/card/list_card.html' with activity_log=statistic.activity_log.prefetch_user %}
         </div>
     </div>

@@ -8,6 +8,9 @@ from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.metric.domain import querysets
 from django_spire.metric.domain.services.service import DomainService, SubDomainService
+from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
+
+__all__ = ['Domain', 'Statistic', 'StatisticGroup', 'StatisticValue', 'SubDomain']
 
 
 class Domain(HistoryModelMixin, ActivityMixin):
@@ -16,7 +19,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
     sub_domain_description = models.TextField(default='')
 
     objects = querysets.DomainQuerySet().as_manager()
-    services = Glue.attribute(DomainService(), access=Glue.Access.DELETE)
+    services = DomainService()
 
     def __str__(self) -> str:
         return self.name
@@ -52,7 +55,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
     description = models.TextField(default='')
 
     objects = querysets.SubDomainQuerySet().as_manager()
-    services = Glue.attribute(SubDomainService(), access=Glue.Access.DELETE)
+    services = SubDomainService()
 
     def __str__(self) -> str:
         return self.name

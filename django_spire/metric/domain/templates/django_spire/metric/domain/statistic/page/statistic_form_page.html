@@ -1,0 +1,9 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="card">
+        <div class="card-body">
+            {% include 'django_spire/metric/domain/statistic/form/statistic_form.html' %}
+        </div>
+    </div>
+{% endblock %}

@@ -7,14 +7,18 @@ from django_spire.metric.domain.services.factory_service import (
     DomainFactoryService,
     SubDomainFactoryService,
 )
-from django_spire.metric.domain.services.intelligence_service import DomainIntelligenceService, \
-    SubDomainIntelligenceService
+from django_spire.metric.domain.services.intelligence_service import (
+    DomainIntelligenceService,
+    SubDomainIntelligenceService,
+)
 from django_spire.metric.domain.services.processor_service import (
     DomainProcessorService,
     SubDomainProcessorService,
 )
-from django_spire.metric.domain.services.transformation_service import DomainTransformationService, \
-    SubDomainTransformationService
+from django_spire.metric.domain.services.transformation_service import (
+    DomainTransformationService,
+    SubDomainTransformationService,
+)
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
