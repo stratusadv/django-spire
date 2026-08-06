@@ -46,7 +46,7 @@
                 for (let file of new_files) {
                     if (file.size > this.maximum_filesize) continue;
                     let file_id = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    let file_obj = { id: file_id, name: file.name, size: file.size };
+                    let file_obj = { id: file_id, name: file.name, size: file.size, file: file };
                     if (file.type.startsWith('image/')) {
                         let reader = new FileReader();
                         reader.onload = (e) => { file_obj.preview = e.target.result; this.$forceUpdate(); };
@@ -66,7 +66,7 @@
             },
 
             update_value() {
-                this.value = this.files.length > 0 ? JSON.stringify(this.files) : null;
+                this.value = this.files.map(f => f.file).filter(f => f);
             }
         }"
     >

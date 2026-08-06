@@ -19,7 +19,7 @@
                         let response = await Glue.http.postJson(
                             '{% url "django_spire:knowledge:entry:json:update_files" %}',
                         )
-                        this.files_json = JSON.parse(response.files_json)
+                        this.files_json = JSON.parse(response.data.files_json)
                     }, 5000)
                 }
             }"

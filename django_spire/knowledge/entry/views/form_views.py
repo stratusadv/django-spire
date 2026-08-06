@@ -86,41 +86,19 @@ def import_form_view(
 ) -> TemplateResponse | HttpResponseRedirect:
     collection = get_object_or_null_obj(Collection, pk=collection_pk)
 
-    if request.method == 'POST':
-        file_form = EntryFilesForm(request.POST, request.FILES)
-
-        if file_form.is_valid():
-            factory = FileFactory(app_name='knowledge')
-
-            file_objects = factory.create_many(request.FILES.getlist('import_files'))
-
-            Entry.services.factory.create_from_files(
-                author=request.user,
-                collection=collection,
-                files=file_objects,
-            )
-
-            return HttpResponseRedirect(
-                reverse(
-                    'django_spire:knowledge:entry:template:file_list',
-                    kwargs={'collection_pk': collection_pk},
-                )
-            )
-
-        show_form_errors(request, file_form)
-
-    supported_file_types = ['.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())]
-
     nav = EntryNavigation()
     nav.page_title = 'Import Files'
     nav.page_description = 'Import Files'
-
     add_collection_chain_breadcrumbs(nav.breadcrumbs, collection)
-
     nav.breadcrumbs.add('Import Files')
 
-    Glue.form(request, 'import_file_form', EntryFilesForm())
+    Glue.form(
+        request,
+        'import_file_form',
+        EntryFilesForm(initial={'collection_pk': collection_pk}),
+    )
 
+    supported_file_types = ['.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())]
     return TemplateResponse(
         request,
         context=nav.as_context() | {
