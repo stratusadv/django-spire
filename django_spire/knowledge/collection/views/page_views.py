@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
+from django_spire.knowledge.collection.breadcrumbs import add_collection_chain_breadcrumbs
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.collection.navigation import CollectionNavigation
 
@@ -24,30 +25,17 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     nav.page_title = 'Knowledge Collection'
     nav.page_description = ''
 
-    temp_collection = collection
+    add_collection_chain_breadcrumbs(nav.breadcrumbs, collection)
 
-    breadcrumbs = []
-    
-    while temp_collection:
-        breadcrumbs.append(
-            {
-                'name': str(temp_collection),
-                'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.pk},
-            }
-        )
-        temp_collection = temp_collection.parent
-
-    for crumb in reversed(breadcrumbs):
-        nav.breadcrumbs.add(**crumb)
-
-    context = nav.as_context()
-    context['collection'] = collection
-    context['collection_tree_json'] = Collection.services.transformation.to_hierarchy_json(
-        request=request, parent_id=collection.id
-    )
     return TemplateResponse(
-        request, 'django_spire/knowledge/collection/page/display_page.html', context=context
+        request,
+        context=nav.as_context() | {
+            'collection': collection,
+            'collection_tree_json': Collection.services.transformation.to_hierarchy_json(
+                request=request, parent_id=collection.id
+            ),
+        },
+        template='django_spire/knowledge/collection/page/display_page.html',
     )
 
 
@@ -84,32 +72,18 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = CollectionNavigation()
     nav.page_title = 'Delete Collection'
 
-    temp_collection = collection
-
-    breadcrumbs = []
-
-    while temp_collection:
-        breadcrumbs.append(
-            {
-                'name': str(temp_collection),
-                'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.pk},
-            }
-        )
-        temp_collection = temp_collection.parent
-
-    for crumb in reversed(breadcrumbs):
-        nav.breadcrumbs.add(**crumb)
+    add_collection_chain_breadcrumbs(nav.breadcrumbs, collection)
 
     nav.breadcrumbs.add('Delete')
-    context = nav.as_context()
-    context['form'] = form
-    context['form_title'] = f'Delete {collection}'
-    context['form_description'] = (
-        f'Are you sure you would like to delete collection "{collection}"?'
-    )
+
     return TemplateResponse(
         request,
-        context=context,
+        context=nav.as_context() | {
+            'form': form,
+            'form_title': f'Delete {collection}',
+            'form_description': (
+                f'Are you sure you would like to delete collection "{collection}"?'
+            ),
+        },
         template='django_spire/knowledge/collection/form/delete_confirmation_form_page.html',
     )

@@ -12,6 +12,7 @@ from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.file.factory import FileFactory
+from django_spire.knowledge.collection.breadcrumbs import add_collection_chain_breadcrumbs
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
@@ -50,41 +51,31 @@ def form_view(
     nav.page_title = 'Entry'
     nav.page_description = 'Edit' if pk else 'Create'
 
-    temp_collection = collection
-
-    breadcrumbs = []
-
-    while temp_collection:
-        breadcrumbs.append(
-            {
-                'name': str(temp_collection),
-                'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.pk},
-            }
-        )
-        temp_collection = temp_collection.parent
-
-    for crumb in reversed(breadcrumbs):
-        nav.breadcrumbs.add(**crumb)
+    add_collection_chain_breadcrumbs(nav.breadcrumbs, collection)
 
     if entry.name:
         nav.breadcrumbs.add(str(entry))
 
     nav.breadcrumbs.add_model_instance_form_action(entry)
 
-    context = nav.as_context()
-    context['form'] = form
-    context['entry'] = entry
-    context['action_url'] = (
-        reverse('django_spire:knowledge:entry:form:create', kwargs={'collection_pk': collection_pk})
-        if not entry.pk
-        else reverse(
-            'django_spire:knowledge:entry:form:update',
-            kwargs={'collection_pk': collection_pk, 'pk': entry.pk},
-        )
-    )
     return TemplateResponse(
-        request, context=context, template='django_spire/knowledge/entry/page/form_page.html'
+        request,
+        context=nav.as_context() | {
+            'form': form,
+            'entry': entry,
+            'action_url': (
+                reverse(
+                    'django_spire:knowledge:entry:form:create',
+                    kwargs={'collection_pk': collection_pk},
+                )
+                if not entry.pk
+                else reverse(
+                    'django_spire:knowledge:entry:form:update',
+                    kwargs={'collection_pk': collection_pk, 'pk': entry.pk},
+                )
+            ),
+        },
+        template='django_spire/knowledge/entry/page/form_page.html',
     )
 
 
@@ -124,22 +115,7 @@ def import_form_view(
     nav.page_title = 'Import Files'
     nav.page_description = 'Import Files'
 
-    temp_collection = collection
-
-    breadcrumbs = []
-
-    while temp_collection:
-        breadcrumbs.append(
-            {
-                'name': str(temp_collection),
-                'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.pk},
-            }
-        )
-        temp_collection = temp_collection.parent
-
-    for crumb in reversed(breadcrumbs):
-        nav.breadcrumbs.add(**crumb)
+    add_collection_chain_breadcrumbs(nav.breadcrumbs, collection)
 
     nav.breadcrumbs.add('Import Files')
 

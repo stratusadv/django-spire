@@ -27,6 +27,6 @@ def file_list_view(request: WSGIRequest, collection_pk: int = 0) -> TemplateResp
 
     return TemplateResponse(
         request,
-        context={'files_json': Entry.services.tool.get_files_to_convert_json(), **nav.as_context()},
+        context=nav.as_context() | {'files_json': Entry.services.tool.get_files_to_convert_json()},
         template='django_spire/knowledge/entry/file/page/list_page.html',
     )

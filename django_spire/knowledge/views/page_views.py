@@ -16,10 +16,11 @@ if TYPE_CHECKING:
 def home_view(request: WSGIRequest) -> TemplateResponse:
     nav = KnowledgeNavigation()
     nav.page_description = 'List View'
-    context = nav.as_context()
-    context['collections'] = (
-        Collection.objects.active().parentless().request_user_has_access(request)
-    )
+
     return TemplateResponse(
-        request, context=context, template='django_spire/knowledge/page/home_page.html'
+        request,
+        context=nav.as_context() | {
+            'collections': Collection.objects.active().parentless().request_user_has_access(request)
+        },
+        template='django_spire/knowledge/page/home_page.html',
     )
