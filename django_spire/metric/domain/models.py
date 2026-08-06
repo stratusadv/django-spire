@@ -16,7 +16,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
     sub_domain_description = models.TextField(default='')
 
     objects = querysets.DomainQuerySet().as_manager()
-    services = Glue.attribute(DomainService(), access=Glue.Access.DELETE)
+    services = DomainService()
 
     def __str__(self) -> str:
         return self.name
@@ -52,7 +52,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
     description = models.TextField(default='')
 
     objects = querysets.SubDomainQuerySet().as_manager()
-    services = Glue.attribute(SubDomainService(), access=Glue.Access.DELETE)
+    services = SubDomainService()
 
     def __str__(self) -> str:
         return self.name
