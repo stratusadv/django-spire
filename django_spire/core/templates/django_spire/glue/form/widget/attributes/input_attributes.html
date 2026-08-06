@@ -1,11 +1,11 @@
 {% load django_glue %}
-name="{{ glue_field|glue_field_metadata_path }}.name"
+:name="field.name"
 {% if not exclude_x_model %}
-x-model="{{ glue_field|glue_field_value_path }}"
+x-model="value"
 {% endif %}
 {% if not exclude_class %}
 class="form-{{ form_class_type|default:'control' }} form-select-{{ size|default:'sm' }}{% if input_class %} {{ input_class }}{% endif %}"
 {% endif %}
-:class="{'is-invalid': {{ glue_field|glue_field_metadata_path }}.hasErrors}"
-:required="{{ glue_field|glue_field_metadata_path }}.required"
-:disabled="{{ glue_field|glue_field_metadata_path }}.disabled"
+:class="{'is-invalid': field.hasErrors}"
+:required="field.required"
+:disabled="field.disabled"

@@ -1,0 +1,69 @@
+{% extends 'django_spire/glue/scroll/scroll.html' %}
+
+{% block scroll_queryset_order_by_field %}username{% endblock %}
+{% block scroll_queryset_unique_name %}active_users{% endblock %}
+{% block scroll_queryset_filter_field %}username{% endblock %}
+
+{% block scroll_header %}
+    <div class="row pb-3 align-items-center">
+        <div class="col-6">
+            <input class="form-control" placeholder="Search Users ..." type="search"
+                   x-model.debounce="searchQuery">
+        </div>
+        <div class="col-auto" x-data="{ showActiveOnly: true }">
+            <button class="btn btn-md"
+                    :class="showActiveOnly ? 'btn-success' : 'btn-danger'"
+                    @click="showActiveOnly = !showActiveOnly;
+                            scrollQuerySet = showActiveOnly ? Glue.querySet.active_users : Glue.querySet.inactive_users;
+                            resetAndLoad();">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span x-text="showActiveOnly ? 'Active' : 'Inactive'"></span>
+            </button>
+        </div>
+        <div class="col text-end">
+            Sort by
+        </div>
+        <div class="col">
+            <select class="form-select form-select-md" x-model="orderBy">
+                <option value="username">User Name</option>
+                <option value="first_name">First Name</option>
+                <option value="last_name">Last Name</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            {% if perms.django_spire_auth_user.add_authuser %}
+                {% url 'django_spire:auth:user:form:form' pk=0 as register_user_url %}
+                <a class="btn btn-md btn-primary" href="{{ register_user_url }}">
+                    <i class="bi bi-plus-lg"></i>
+                    Add
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card--bordered"></div>
+{% endblock %}
+
+{% block scroll_template_item %}
+    <div class="row border-bottom py-2">
+        <div class="col-4">
+            <div class="attribute-label">User</div>
+            <a :href="`{% url 'django_spire:auth:user:page:detail' pk=0 %}`.replace('0', item.id)">
+                <span x-text="item.username"></span>
+            </a>
+        </div>
+        <div class="col-2">
+            <div class="attribute-label">Status</div>
+            <span class="badge bg-success text-white" x-show="item.is_active">Active</span>
+            <span class="badge bg-danger text-white" x-show="!item.is_active">Inactive</span>
+        </div>
+        <div class="col-5">
+            <div class="attribute-label">Group</div>
+            <template x-for="group in item.groups">
+                <span x-text="group" x-init="console.log(item.groups)"></span>
+            </template>
+        </div>
+        <div class="col-1 text-end align-self-center">
+            {% include 'django_spire/auth/user/dropdown/ellipsis_dropdown.html' %}
+        </div>
+    </div>
+{% endblock %}

@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django_glue import Glue
 

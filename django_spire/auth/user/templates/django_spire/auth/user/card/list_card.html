@@ -1,30 +1,13 @@
-{% extends 'django_spire/card/title_card.html' %}
+{% extends 'django_spire/page/page.html' %}
 
-{% load django_spire_core %}
-
-{% block card_title %}
-    User List
-{% endblock %}
-
-{% block card_button %}
-    {% if perms.django_spire_auth_user.add_authuser %}
-        {% url 'django_spire:auth:user:form:register' as register_user_url %}
-        <a class="btn btn-sm btn-primary" href="{{ register_user_url }}">
-            <i class="bi bi-plus-lg"></i>
-            Add
-        </a>
-    {% endif %}
-{% endblock %}
-
-{% block card_title_content %}
-    <div class="card-body">
-        {% for user in user_list %}
-            {% include 'django_spire/auth/user/item/user_item.html' %}
-        {% empty %}
-            {% include 'django_spire/item/no_data_item.html' %}
-        {% endfor %}
-    </div>
-    <div class="card-footer">
-        {% include 'django_spire/element/pagination_element.html' with paginated_list=user_list %}
+{% block page_content %}
+    <div class="card">
+        <div class="card-body">
+            {% if active_users or inactive_users %}
+                {% include 'django_spire/auth/user/scroll/scroll.html' %}
+            {% else %}
+                {% include 'django_spire/item/no_data_item.html' %}
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
