@@ -1,7 +1,9 @@
-## 1.0.1 - August 6, 2026
+## 1.0.1-rc1 - August 6, 2026
 
 #### Changes
 
+- Auth group list permission data now loads through Glue queryset computed attributes instead of a separately serialized template context payload
+- Domain and subdomain services are no longer exposed as Glue attributes, which was causing a bug
 - Updated `multi_file_field.html` to work with `django-glue` v1.0.0.
 
 #### Fixes

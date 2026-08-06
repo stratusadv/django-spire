@@ -2,12 +2,7 @@
 
 {% block page_content %}
     <div class="card">
-        <div 
-            class="card-body"
-            x-data="{
-                groupListPermissionData: {{ group_list_permission_data }}
-            }"
-        >
+        <div class="card-body">
             {% include 'django_spire/auth/group/scroll/scroll.html'%}
         </div>
     </div>
