@@ -1,3 +1,13 @@
+## 1.0.1 - August 6, 2026
+
+#### Changes
+
+- Updated `multi_file_field.html` to work with `django-glue` v1.0.0.
+
+#### Fixes
+
+- Refactored AI Chat and Knowledge system to work with v1.0.0 and `django-glue` v1.0.0.
+
 ## 1.0.0 - July 31, 2026
 
 #### Breaking
