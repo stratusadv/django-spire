@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.db.models import QuerySet, Sum
@@ -9,7 +10,6 @@ from django_spire.history.querysets import HistoryQuerySet
 
 if TYPE_CHECKING:
     from datetime import date
-    from decimal import Decimal
 
     from django_spire.metric.domain.statistic.models import (
         Statistic,
@@ -51,4 +51,4 @@ class StatisticValueQuerySet(QuerySet):
         return self.filter(reference=reference)
 
     def total(self) -> Decimal:
-        return self.aggregate(total=Sum('value'))['total'] or 0
+        return self.aggregate(total=Sum('value'))['total'] or Decimal(0)

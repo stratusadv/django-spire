@@ -1,60 +1,76 @@
 from __future__ import annotations
 
+from django.test import RequestFactory
 from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.domain import forms
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.tests.factories import create_test_domain, create_test_subdomain
 
 
-class DomainViewTestCase(BaseTestCase):
+class DomainFormViewTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
     def test_create_view(self):
-        domain = create_test_domain()
-        response = self.client.post(
-            reverse('django_spire:metric:domain:form:create'),
-            data={
-                'name': domain.name,
-                'description': domain.description,
-                'sub_domain_description': domain.sub_domain_description,
-            },
+        response = self.client.get(
+            path=reverse('django_spire:metric:domain:form:form', kwargs={'pk': 0})
         )
+        assert response.status_code == 200
+        self.assertTemplateUsed(response, 'django_spire/metric/domain/page/form_page.html')
 
-        domain_created = Domain.objects.first()
+    def test_create_save_model_obj(self):
+        request = RequestFactory().get('/')
+        request.user = self.super_user
 
-        assert response.status_code == 302
-        assert response.url == reverse('django_spire:metric:domain:page:list')
-        assert domain_created.name == domain.name
-        assert domain_created.description == domain.description
-        assert domain_created.sub_domain_description == domain.sub_domain_description
+        form = forms.DomainForm(
+            data={
+                'name': 'new domain',
+                'description': 'new domain description',
+                'sub_domain_description': 'new subdomain description',
+            }
+        )
+        assert form.is_valid()
+
+        response = form.save_model_obj(request)
+
+        domain = Domain.objects.get(name='new domain')
+        assert response.result['redirect_url'] == reverse(
+            'django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
+        )
 
     def test_update_view(self):
         domain = create_test_domain()
-        updated_domain = create_test_domain(
-            name='updated_domain',
-            description='updated_domain_description',
-            sub_domain_description='updated_sub_domain_description',
+        response = self.client.get(
+            path=reverse('django_spire:metric:domain:form:form', kwargs={'pk': domain.pk})
         )
+        assert response.status_code == 200
+        self.assertTemplateUsed(response, 'django_spire/metric/domain/page/form_page.html')
 
-        response = self.client.post(
-            reverse('django_spire:metric:domain:form:update', kwargs={'pk': domain.pk}),
+    def test_update_save_model_obj(self):
+        domain = create_test_domain()
+
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.DomainForm(
+            instance=domain,
             data={
-                'name': updated_domain.name,
-                'description': updated_domain.description,
-                'sub_domain_description': updated_domain.sub_domain_description,
+                'name': 'updated domain',
+                'description': 'updated description',
+                'sub_domain_description': 'updated subdomain description',
             },
-            kwargs={'pk': domain.pk},
         )
+        assert form.is_valid()
 
-        assert response.status_code == 302
-        assert response.url == reverse('django_spire:metric:domain:page:list')
+        response = form.save_model_obj(request)
 
         domain.refresh_from_db()
-        assert domain.name == updated_domain.name
-        assert domain.description == updated_domain.description
-        assert domain.sub_domain_description == updated_domain.sub_domain_description
+        assert domain.name == 'updated domain'
+        assert response.result['redirect_url'] == reverse(
+            'django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
+        )
 
     def test_delete_view(self):
         domain = create_test_domain()
@@ -67,105 +83,93 @@ class DomainViewTestCase(BaseTestCase):
 
         domain.refresh_from_db()
         assert Domain.objects.count() == 1
-        assert domain.is_deleted == True
-
-    def test_create_view_invalid_data(self):
-        invalid_data = {'name': '', 'description': '', 'sub_domain_description': ''}
-
-        response = self.client.post(
-            reverse('django_spire:metric:domain:form:create'), data=invalid_data
-        )
-
-        assert response.status_code == 200
-        assert Domain.objects.count() == 0
+        assert domain.is_deleted
 
 
-class SubDomainViewTestCase(BaseTestCase):
+class SubDomainFormViewTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
 
-    def test_create_subdomain_view(self):
-        domain = create_test_domain()
-        subdomain = create_test_subdomain(domain=domain)
-        response = self.client.post(
-            reverse(
-                'django_spire:metric:domain:form:create_subdomain', kwargs={'domain_pk': domain.pk}
-            ),
-            data={
-                'domain': domain.pk,
-                'name': subdomain.name,
-                'description': subdomain.description,
-            },
+        self.domain = create_test_domain()
+
+    def test_create_view(self):
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:form:subdomain_form',
+                kwargs={'domain_pk': self.domain.pk, 'pk': 0},
+            )
+        )
+        assert response.status_code == 200
+        self.assertTemplateUsed(
+            response, 'django_spire/metric/domain/page/subdomain_form_page.html'
         )
 
-        subdomain_created = SubDomain.objects.first()
+    def test_create_save_model_obj(self):
+        request = RequestFactory().get('/')
+        request.user = self.super_user
 
-        assert response.status_code == 302
-        assert response.url == reverse(
-            'django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
+        form = forms.SubDomainForm(
+            instance=SubDomain(domain=self.domain),
+            data={'name': 'new subdomain', 'description': 'new subdomain description'},
         )
-        assert subdomain_created.domain == subdomain.domain
-        assert subdomain_created.name == subdomain.name
-        assert subdomain_created.description == subdomain.description
+        assert form.is_valid()
 
-    def test_update_subdomain_view(self):
-        domain = create_test_domain()
-        subdomain = create_test_subdomain(domain=domain)
-        updated_subdomain = create_test_subdomain(
-            name='updated_subdomain', description='updated_subdomain_description', domain=domain
-        )
+        response = form.save_model_obj(request)
 
-        response = self.client.post(
-            reverse(
-                'django_spire:metric:domain:form:update_subdomain',
-                kwargs={'domain_pk': domain.pk, 'pk': subdomain.pk},
-            ),
-            data={
-                'domain': updated_subdomain.domain,
-                'name': updated_subdomain.name,
-                'description': updated_subdomain.description,
-            },
+        subdomain = SubDomain.objects.get(name='new subdomain')
+        assert subdomain.domain == self.domain
+        assert response.result['redirect_url'] == reverse(
+            'django_spire:metric:domain:page:detail', kwargs={'pk': self.domain.pk}
         )
 
-        assert response.status_code == 302
-        assert response.url == reverse(
-            'django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
+    def test_update_view(self):
+        subdomain = create_test_subdomain(domain=self.domain)
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:form:subdomain_form',
+                kwargs={'domain_pk': self.domain.pk, 'pk': subdomain.pk},
+            )
         )
+        assert response.status_code == 200
+        self.assertTemplateUsed(
+            response, 'django_spire/metric/domain/page/subdomain_form_page.html'
+        )
+
+    def test_update_save_model_obj(self):
+        subdomain = create_test_subdomain(domain=self.domain)
+
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.SubDomainForm(
+            instance=subdomain,
+            data={'name': 'updated subdomain', 'description': 'updated description'},
+        )
+        assert form.is_valid()
+
+        response = form.save_model_obj(request)
 
         subdomain.refresh_from_db()
-        assert subdomain.domain == updated_subdomain.domain
-        assert subdomain.name == updated_subdomain.name
-        assert subdomain.description == updated_subdomain.description
+        assert subdomain.name == 'updated subdomain'
+        assert subdomain.domain == self.domain
+        assert response.result['redirect_url'] == reverse(
+            'django_spire:metric:domain:page:detail', kwargs={'pk': self.domain.pk}
+        )
 
-    def test_delete_subdomain_view(self):
-        domain = create_test_domain()
-        subdomain = create_test_subdomain(domain=domain)
+    def test_delete_view(self):
+        subdomain = create_test_subdomain(domain=self.domain)
         response = self.client.post(
             reverse(
                 'django_spire:metric:domain:form:delete_subdomain',
-                kwargs={'domain_pk': domain.pk, 'pk': subdomain.pk},
+                kwargs={'domain_pk': self.domain.pk, 'pk': subdomain.pk},
             )
         )
 
         assert response.status_code == 302
         assert response.url == reverse(
-            'django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
+            'django_spire:metric:domain:page:detail', kwargs={'pk': self.domain.pk}
         )
 
         subdomain.refresh_from_db()
         assert SubDomain.objects.count() == 1
-        assert subdomain.is_deleted == True
-
-    def test_create_subdomain_view_invalid_data(self):
-        domain = create_test_domain()
-        invalid_data = {'domain': '', 'name': '', 'description': ''}
-
-        response = self.client.post(
-            reverse(
-                'django_spire:metric:domain:form:create_subdomain', kwargs={'domain_pk': domain.pk}
-            ),
-            data=invalid_data,
-        )
-
-        assert response.status_code == 200
-        assert SubDomain.objects.count() == 0
+        assert subdomain.is_deleted

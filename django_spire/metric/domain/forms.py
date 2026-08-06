@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-# from django import forms
 from django.forms import ModelForm
 from django.http import HttpRequest
 from django.urls import reverse
@@ -24,7 +23,8 @@ class DomainForm(ModelForm):
             return GlueResponse(
                 result={
                     'redirect_url': reverse(
-                        viewname='django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
+                        viewname='django_spire:metric:domain:page:detail',
+                        kwargs={'pk': domain.pk},
                     )
                 }
             )
@@ -40,7 +40,6 @@ class DomainForm(ModelForm):
 class SubDomainForm(ModelForm):
     @Glue.attribute(access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
-        print(self.data)
         if self.is_valid():
             subdomain = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
 
@@ -57,4 +56,4 @@ class SubDomainForm(ModelForm):
 
     class Meta:
         model = models.SubDomain
-        exclude: ClassVar = []
+        fields = ['name', 'description']

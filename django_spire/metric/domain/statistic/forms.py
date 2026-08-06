@@ -58,7 +58,3 @@ class StatisticForm(forms.ModelForm):
         model = models.Statistic
         fields = ['group', 'name', 'interval']
         exclude: ClassVar = []
-
-
-class StatisticListFilterForm(forms.Form):
-    search = forms.CharField(required=False)

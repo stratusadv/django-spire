@@ -8,7 +8,7 @@ from django_spire.history.querysets import HistoryQuerySet
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-    from django_spire.metric.domain.models import Domain
+    from django_spire.metric.domain.models import Domain, SubDomain
 
 
 class DomainQuerySet(HistoryQuerySet, SearchQuerySetMixin):
@@ -23,7 +23,7 @@ class DomainQuerySet(HistoryQuerySet, SearchQuerySetMixin):
 
 
 class SubDomainQuerySet(HistoryQuerySet, SearchQuerySetMixin):
-    def bulk_filter(self, filter_data: dict) -> QuerySet[Domain]:
+    def bulk_filter(self, filter_data: dict) -> QuerySet[SubDomain]:
         queryset = self
 
         search = filter_data.get('search', '')

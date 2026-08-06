@@ -4,12 +4,13 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django_glue import Glue
 
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
+from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.metric.domain import forms, models
 from django_spire.metric.domain.navigation import DomainNavigation
@@ -41,7 +42,9 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseR
 @permission_required('metric_domain.delete_domain')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
-    return_url = request.GET.get('return_url', reverse('django_spire:metric:domain:page:list'))
+    return_url = safe_redirect_url(
+        request, fallback=reverse('django_spire:metric:domain:page:list')
+    )
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(data=request.POST, obj=domain)
@@ -97,9 +100,7 @@ def subdomain_form_view(
 
     subdomain.domain_id = domain_pk
 
-    form = forms.SubDomainForm(
-        request.POST or None, instance=subdomain, initial={'domain': domain_pk}
-    )
+    form = forms.SubDomainForm(request.POST or None, instance=subdomain)
 
     Glue.form(request, 'subdomain_form', form, Glue.Access.DELETE)
 
@@ -112,12 +113,11 @@ def subdomain_form_view(
     )
 
 
-@permission_required('metric_domain.delete_domain')
+@permission_required('metric_domain.delete_subdomain')
 def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse:
     subdomain = get_object_or_404(models.SubDomain, domain_id=domain_pk, pk=pk)
-    return_url = request.GET.get(
-        'return_url', reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk})
-    )
+    domain_detail_url = reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk})
+    return_url = safe_redirect_url(request, fallback=domain_detail_url)
 
     if request.method == 'POST':
         form = DeleteConfirmationForm(data=request.POST, obj=subdomain)

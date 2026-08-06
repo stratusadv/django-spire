@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
 from django_spire.metric.domain.statistic import models
-from django_spire.metric.domain.statistic.forms import StatisticListFilterForm
 from django_spire.metric.domain.statistic.navigation import (
     StatisticGroupNavigation,
     StatisticNavigation,
@@ -92,7 +91,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     nav.page_description = 'List View'
     context = nav.as_context()
     context['statistics'] = statistics
-    context['form'] = StatisticListFilterForm(request.GET)
     return TemplateResponse(
         request,
         context=context,

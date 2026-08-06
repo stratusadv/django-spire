@@ -3,6 +3,7 @@
 - Always use `just` for running commands (loads `development.env`)
 - Run `just` to see all available commands
 - Do not comment code - write it so it doesn't need comments
+- Pull **current** project facts from the tools, not the reference lists below (which can drift): the constellation graph for code structure, `justfile` for commands, `pyproject.toml`/pytest for test config, and `django_spire/core/templates/django_spire/base/base.html` for frontend libraries.
 
 ## Commands
 
@@ -56,49 +57,12 @@ just docs-tests        # Build docs with strict mode
 
 ## Architecture
 
-```
-django_spire/          # Framework package (published to PyPI)
-├── ai/                # AI/LLM integration (chat router + intelligence, context, sms)
-├── api/               # django-ninja REST API (ApiAccess model, ApiKeySecurity, throttling)
-├── auth/              # Authentication (user, group, mfa, permissions, controller)
-├── celery/            # Celery task queue support
-├── comment/           # Comment system
-├── conf.py            # Settings wrapper (project settings + django_spire defaults)
-├── constants.py       # __VERSION__, BASE_URL_NAME
-├── contrib/           # Shared utilities (see Contrib Packages below)
-├── core/              # Core: tag, middleware, management commands, SCSS, templatetags, tests
-├── exceptions.py      # DjangoSpireConfigurationError, etc.
-├── file/              # Generic file management
-├── help_desk/         # Ticketing system
-├── history/           # History tracking (HistoryModelMixin, HistoryQuerySet, activity, viewed)
-├── knowledge/         # Knowledge base (collection, entry, intelligence)
-├── metric/            # Reporting framework (domain, report, visual)
-├── notification/      # App, email, SMS, push notifications (automations, processors)
-├── settings.py        # DJANGO_SPIRE_* default settings
-├── shortcuts.py
-├── sync/              # Data synchronization (core, database, django, file)
-├── testing/           # Testing utilities (playwright fixtures, pages, components)
-├── tools.py           # check_required_apps(), app_is_installed()
-└── urls.py            # Auto-discovers app URLs
+Two top-level packages:
 
-test_project/          # Test/demo Django project
-├── app/               # Example apps
-│   ├── ai/, celery/, comment/, core/, file/, help_desk/
-│   ├── history/, home/, knowledge/, landing/, model_and_service/
-│   ├── notification/, ordering/, rest/, sync/, task/
-├── base_settings.py   # Base configuration, loads development.env
-├── postgres_settings.py  # PostgreSQL database config
-├── dandy_settings.py  # Dandy-specific config
-├── sqlite_settings.py # SQLite config
-├── test_settings.py   # Test configuration (TEST_DATABASE_* env vars)
-├── seed.py            # Test data seeding
-├── celery.py, worker.py, asgi.py, wsgi.py  # Process entry points
-├── static_files/      # Static files + compiled SCSS output
-├── templates/         # Test project templates
-├── docs/              # MkDocs source
-├── docker-compose.test.yml  # CI test database
-└── playwright.config.py     # Playwright run config
-```
+- `django_spire/` — the framework package (published to PyPI). Apps (e.g. `ai`, `api`, `auth`, `core`, `file`, `help_desk`, `history`, `knowledge`, `metric`, `notification`, `sync`) follow the App Pattern below. `django_spire/urls.py` auto-discovers each app's `URLPATTERNS_INCLUDE`.
+- `test_project/` — the test/demo Django project: settings modules (`base_settings`, `postgres_settings`, `sqlite_settings`, `test_settings`, `dandy_settings`), `seed.py`, process entry points, and example apps under `test_project/app/`.
+
+For the live layout and Django surface, use the constellation tools (`files`, `overview`, `routes`) instead of trusting this summary as exhaustive.
 
 ## App Pattern
 
@@ -576,24 +540,9 @@ Key methods: `seed()`, `seed_database()`, `reseed_database()`, `to_list_of_dicts
 
 ## Contrib Packages
 
-| Package | Purpose | Key Files |
-|---------|---------|-----------|
-| `admin` | Admin utilities | `options/mixins.py` |
-| `constants` | Constants | |
-| `constructor` | Model construction & services | `service/django_model_service.py` |
-| `converters` | Type/data converters | `to_pydantic.py` |
-| `form` | Form utilities | `confirmation_forms.py`, `widgets.py`, `tools.py` |
-| `maps` | Lookup maps | `maps.py` |
-| `navigation` | Breadcrumbs & navigation | `navigation.py`, `breadcrumbs.py` |
-| `options` | Admin/field options | `mixins.py` |
-| `ordering` | Sort ordering | `mixins.py`, `services/` |
-| `redirects` | Safe redirect helpers | `redirects.py` |
-| `responses` | JSON responses | `json_response.py` |
-| `rest` | REST utilities | `connector/`, `schema/` |
-| `seeding` | Test data | `seeder.py`, `field/` |
-| `session` | Session controller | `templatetags/session_tags.py` |
-| `shortcuts` | View/model shortcuts | `shortcuts.py` |
-| `utils` | Misc utilities | `utils.py` |
+Reusable utilities under `django_spire/contrib/`. The most-used for building: `constructor` (services), `form` (`confirmation_forms.py`, `widgets.py`), `navigation` (`navigation.py`, `breadcrumbs.py`), `seeding` (`seeder.py`), `shortcuts` (`get_object_or_null_obj`), `redirects` (`safe_redirect_url`), `responses` (`json_response.py`), `rest` (`connector/`, `schema/`).
+
+For the full, current list use `constellation files contrib/` (or `ls django_spire/contrib/`) — it changes; don't trust this list as exhaustive.
 
 ## Settings
 
@@ -617,102 +566,60 @@ Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJAN
 - `DANDY_SETTINGS_MODULE` - Dandy config used alongside Django settings
 - `TEST_DATABASE_*` - Override test DB (name/user/password/host/port, 5439 default)
 
-## Frontend Libraries
+## Frontend
 
-The JS libraries are CDN-hosted or vendored in the base template (`django_spire/core/templates/django_spire/base/base.html`). Core Spire JS globals (`Spire`, plus `ajax`, `modal`, `notify`, `cookie`, `session`, `date`, `theme`, `ui`, `full-screen`, `pull-to-refresh`, `activity`) are served from `django_spire/core/static/django_spire/js/`.
+`django_spire/core/templates/django_spire/base/base.html` is the source of truth for loaded libraries and versions (read it rather than pinning CDN URLs by hand). Core Spire JS globals (`Spire`, `ajax`, `modal`, `notify`, `cookie`, `session`, `date`, `theme`, `ui`, `full-screen`, `pull-to-refresh`, `activity`) live in `django_spire/core/static/django_spire/js/`.
 
-### Alpine.js (Primary JS Framework)
+- **Alpine.js** is the primary reactivity framework; plugins (`@alpinejs/*`) are loaded as defer scripts from CDN in `base.html`.
+- **django_glue** (`Glue.model` / `Glue.queryset` / `Glue.form` with `Glue.Access` VIEW/CHANGE/DELETE) binds server state to Alpine. In `base.html`: `{% load django_glue %}` + `{% django_glue_init %}`; client-side objects are exposed on the `Glue` global (e.g. `Glue.querySet.tasks`).
+- **Bootstrap 5** CSS is compiled locally from SCSS (`just scss`, sources in `django_spire/core/static/django_spire/scss/`); Bootstrap JS and Bootstrap Icons load from CDN.
+- **Flatpickr, ECharts, Axios, pulltorefresh.js** load from CDN (see `base.html`).
+- **Theme**: cookie-driven, `light`/`dark` (`DJANGO_SPIRE_THEME_MODE`); colors/styles belong in SCSS (`_theme.scss`), not templates (see ZEN.md).
 
-Alpine.js is the primary frontend framework for reactivity. Plugins are loaded as defer scripts (3.15.x):
+## Constellation Code Intelligence (MCP)
 
-```html
-<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.15.x/dist/cdn.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.15.x/dist/cdn.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.15.x/dist/cdn.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.15.x/dist/cdn.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15.x/dist/cdn.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/sort@3.15.x/dist/cdn.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.x/dist/cdn.min.js"></script>
-```
+A pre-built cross-project knowledge graph of these Django codebases is served to the agent over MCP (`~/.config/opencode/opencode.jsonc` → `mcp.constellation`; `constellation serve --supervise`). Consult it **before** reaching for Grep/Read on any code-intelligence question (where a symbol lives, how it works, what calls/render/extends/relates to what, a model's effective schema, or the blast radius of a change). The graph resolves Django structure grep cannot: routes↔views, views↔templates (render/module kwargs), template extends/includes, model fields and foreign keys, return/attribute types, signal handlers, and third-party base/mixin inheritance.
 
-### Django Glue Integration
-
-`django_glue` provides server-side data binding with Alpine.js. Glue objects are created in views:
-
-```python
-from django_glue import Glue
-
-Glue.model(request, 'task', task, Glue.Access.CHANGE, fields=[...], form_class=forms.TaskModelForm)
-Glue.queryset(request, 'tasks', tasks, Glue.Access.CHANGE, fields=[...], form=forms.TaskModelForm())
-Glue.form(request, 'task_form', form, Glue.Access.CHANGE)
-```
-
-`Glue.Access`: `VIEW`, `CHANGE`, `DELETE` (cascade). In the base template call `{% load django_glue %}` + `{% django_glue_init %}`. Client-side, bound objects are exposed on the `Glue` global (e.g. `Glue.querySet.tasks`, `Glue.model.task.form`) and consumed by Alpine. Template tags: `{% django_glue_init %}`, `{% js_url 'task:page:detail' pk='item.id' %}`, plus filters `glue_field_value_path` / `glue_field_metadata_path`.
-
-### Bootstrap 5.3
-
-```html
-<link rel="stylesheet" href="{% static 'django_spire/css/django-spire-bootstrap.css' %}">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>
-```
-
-CSS is compiled locally from SCSS (not a CDN link). Bootstrap JS stays on the CDN. Custom overrides/extensions live in the SCSS (`_bootstrap_overrides.scss`, `_bootstrap_extensions.scss`).
-
-### Bootstrap Icons
-
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.x/font/bootstrap-icons.min.css">
-```
-
-### Flatpickr
-
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-```
-
-### ECharts
-
-```html
-<script defer src="https://cdn.jsdelivr.net/npm/echarts@5.4.x/dist/echarts.min.js"></script>
-```
-
-### Axios
-
-```html
-<script defer src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-```
-
-### Pulltorefresh.js
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pulltorefreshjs/0.1.22/index.umd.min.js"></script>
-```
-
-### Theme System
-
-Themes are cookie-driven with light/dark modes. The base template sets the theme mode:
-
-```html
-<html lang="en" data-bs-theme="{{ DJANGO_SPIRE_THEME_MODE }}">
-```
-
-- Mode is stored in cookie `django_spire-theme-mode`; default from `DJANGO_SPIRE_DEFAULT_THEME_MODE` (`'light'`)
-- Theme behavior is in `django_spire/core/static/django_spire/js/theme.js`; styles come from SCSS `_theme.scss` variables
-- Colors/styles belong in SCSS, not templates (see ZEN.md)
-
-### SCSS
-
-SCSS is compiled via a Django management command (uses the `libsass` Python package), not a JS toolchain:
+The tools are live only for indexed repos (a `.constellation/index.db`). If a tool reports "no constellation index for this working directory", index this repo first:
 
 ```bash
-just scss   # python manage.py spire_compile_scss
+constellation init                       # create and index .constellation/index.db here
+constellation link <db> <repo>...        # link multiple repos into one graph (companions: django-glue, dandy, robit)
+constellation sync                       # re-index every project and re-link
+constellation flows                      # trace and rank Django execution flows (used by flows/affected_flows)
+constellation history [--symbols]        # ingest git history (used by history/symbol_history/as_of)
 ```
 
-- Framework SCSS source: `django_spire/core/static/django_spire/scss/` (includes vendored `bootstrap/`)
-- Project overrides/theme: `<static>/django_spire/scss/_theme.scss` (e.g. `test_project/static_files/django_spire/scss/`)
-- Entry point: `_theme.scss`; output: `<static>/django_spire/css/django-spire-bootstrap.css`
-- Add new Bootstrap versions by updating the vendored `bootstrap/` sources
+### Key tools (by intent)
+
+| Tool | Purpose |
+|------|---------|
+| `explore` | PRIMARY, try first. Give one or two rare identifiers (e.g. `ArticleForm subtotal_amount`) and get relevant source grouped by file; name two symbols to trace the call path between them. `outline=true` for a signal-only survey. |
+| `overview` | Orient first when unfamiliar: per-project file/symbol counts, Django surface, largest packages, cross-project link total. |
+| `search` | Find a symbol by name (substring/fuzzy); returns locations only. |
+| `node` | One symbol: kind, signature, docstring, caller/callee counts. |
+| `model` | A Django model's effective schema (own + inherited fields, bases, relations) in one call. |
+| `callers` / `callees` | What references a symbol / what it references, including Django edges grep can't follow. |
+| `impact` | Transitive non-test callers (blast radius) before a change. |
+| `path` | Shortest call/flow path between two symbols. |
+| `at` | The symbol at a file:line (map a traceback frame or grep hit to its enclosing function). |
+| `files` | Project layout / package breakdown; faster than globbing. |
+| `flows` | Every Django execution flow ranked by criticality (needs `constellation flows`). |
+| `affected_flows` | Which user-facing flows a diff touches, ranked by criticality. |
+| `changed` | Symbols overlapping the working-tree diff, risk-ranked with a 0.00–1.00 score. |
+| `feature` | Vertical slice: route→view→template(s), model relations, services, signals as one digest. |
+| `tests` | Tests covering a symbol (or `(no covering tests)`). |
+| `subclasses` | Transitive subclasses of a base/mixin. |
+| `winnow` | Compose criteria (kind, relates_to, changed_since, tested, risk, ...) into one ANDed query. |
+| `status` | Index health and working-tree staleness. |
+| `history` / `symbol_history` / `as_of` | File/symbol change over time, or reconstruct the codebase as of a commit/date (needs `constellation history [--symbols]`). |
+| `links` / `orphans` | Cross-project import links / candidate dead code. |
+| `routes` | Full URL map: pattern → view → template. |
+
+### Caveats
+
+- Indexes are scoped to imports; some layers are known-dark (chained queryset methods, function-local imports, template/`__str__`/admin-only reach, string-reference FKs) — a low caller/impact count there is NOT "safe to change"; verify before deleting.
+- If a tool "requires X to have been run" (flows/history/symbol_history), run the corresponding `constellation` subcommand to populate that index.
 
 ## Reference Examples
 

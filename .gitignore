@@ -13,6 +13,8 @@ robit.log*
 
 .seeder/
 .seeding/
+.constellation/
+.claude/
 
 dev_tool.exe
 dev_tool*.exe

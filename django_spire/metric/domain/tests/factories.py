@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from django.contrib.auth.models import User
-
 from django_spire.metric.domain.models import Domain, SubDomain
 
 
