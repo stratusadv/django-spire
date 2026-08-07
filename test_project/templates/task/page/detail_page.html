@@ -1,8 +1,9 @@
 {% extends 'django_spire/page/full_page.html' %}
+{% load django_glue %}
 
 {% block full_page_content %}
     <div class="card">
-        <div class="card-header d-flex justify-content-between aEgn-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">{{ task.name }}</h5>
             <div>
                 <a href="{% url 'task:form:form' task.pk %}" class="btn btn-sm btn-outline-secondary">
@@ -28,8 +29,48 @@
                 <dd class="col-sm-9">{{ task.user_initials }}</dd>
 
                 <dt class="col-sm-3">Attachment</dt>
-                <dd class="col-sm-9">{{ task.attachment.url }}</dd>
+                {#<dd class="col-sm-9">{{ task.attachment.url }}</dd>#}
             </dl>
+        </div>
+    </div>
+
+    <!-- Children Tasks (Reverse FK Demo) -->
+    <div class="card mt-4" x-data="{ task: Glue.model.task }">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Child Tasks</h5>
+            <span class="badge bg-secondary" x-text="task.children?.items?.length ?? 0"></span>
+        </div>
+        <div class="card-body" x-init="() => {debugger; console.log(task)}">
+            <template x-if="task.children?.items?.length > 0">
+                <ul class="list-group">
+                    <template x-for="child in task.children.items" :key="child.id">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <a :href="{% js_url 'task:page:detail' pk='child.id' %}">
+                                    <strong x-text="child.name"></strong>
+                                </a>
+                                <br>
+                                <small class="text-muted">
+                                    Parent: <span x-text="child.parent?.name ?? 'N/A'"></span>
+                                </small>
+                            </div>
+                            <span
+                                class="badge"
+                                :class="
+                                    child.status === 'inp' ? 'bg-secondary' :
+                                    child.status === 'com' ? 'bg-success' :
+                                    child.status === 'can' ? 'bg-warning' :
+                                    'bg-primary'
+                                "
+                                x-text="{new: 'New', inp: 'In Progress', com: 'Complete', can: 'Cancelled'}[child.status]"
+                            ></span>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+            <template x-if="!task.children?.items?.length">
+                <p class="text-muted mb-0">No child tasks</p>
+            </template>
         </div>
     </div>
 {% endblock %}
