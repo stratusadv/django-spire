@@ -1,3 +1,10 @@
+## v1.0.1-rc2 - August 6, 2026
+
+#### Fixes
+
+- Fixed Glue form select widgets causing browser freezes with foreign key choice fields.
+- Improved search-and-select dropdown positioning and stacking inside modals.
+
 ## 1.0.1-rc1 - August 6, 2026
 
 #### Changes

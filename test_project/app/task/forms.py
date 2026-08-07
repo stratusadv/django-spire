@@ -30,4 +30,4 @@ class TaskModelForm(ModelForm):
 
     class Meta:
         model = Task
-        fields = ['name', 'description', 'status']
+        fields = ['name', 'description', 'status', 'parent']
