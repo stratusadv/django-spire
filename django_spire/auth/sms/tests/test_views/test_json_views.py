@@ -5,12 +5,12 @@ from unittest.mock import patch
 from django.core.cache import cache
 from django.urls import reverse
 
-from django_spire.ai.sms.models import SmsCodePurposeChoices, SmsPhoneNumber
+from django_spire.auth.sms.choices import SmsAuthCodePurposeChoices
+from django_spire.auth.sms.models import SmsAuth
 from django_spire.auth.user.models import AuthUser
 from django_spire.core.tests.test_cases import BaseTestCase
 
-
-MESSAGE_SEND_PATH = 'django_spire.ai.sms.views.enrollment_views.message_send'
+MESSAGE_SEND_PATH = 'django_spire.auth.sms.views.json_views.Client'
 
 
 class SmsEnrollmentTests(BaseTestCase):
@@ -19,9 +19,9 @@ class SmsEnrollmentTests(BaseTestCase):
 
         cache.clear()
 
-        self.confirm_url = reverse('django_spire:ai:sms:enrollment_confirm')
-        self.session_code_url = reverse('django_spire:ai:sms:session_code')
-        self.start_url = reverse('django_spire:ai:sms:enrollment_start')
+        self.confirm_url = reverse('django_spire:auth:sms:enrollment:confirm')
+        self.session_code_url = reverse('django_spire:auth:sms:session_code')
+        self.start_url = reverse('django_spire:auth:sms:enrollment:start')
 
     @patch(MESSAGE_SEND_PATH)
     def test_enrollment_start_creates_phone_number(self, mock_message_send) -> None:
@@ -31,14 +31,15 @@ class SmsEnrollmentTests(BaseTestCase):
 
         assert response.status_code == 200
 
-        phone_number = SmsPhoneNumber.objects.get(phone_number='+15551234567')
+        phone_number = SmsAuth.objects.get(phone_number='+15551234567')
         assert phone_number.user == self.super_user
         assert not phone_number.is_verified
 
         mock_message_send.assert_called_once()
 
-        send_args = mock_message_send.call_args.args
-        assert send_args[0] == '+15551234567'
+        create_call = mock_message_send.return_value.messages.create
+        create_call.assert_called_once()
+        assert create_call.call_args.kwargs['to'] == '+15551234567'
 
     @patch(MESSAGE_SEND_PATH)
     def test_enrollment_start_rejects_invalid_phone_number(self, mock_message_send) -> None:
@@ -53,7 +54,7 @@ class SmsEnrollmentTests(BaseTestCase):
     def test_enrollment_start_rejects_number_owned_by_other_user(self, mock_message_send) -> None:
         other_user = AuthUser.objects.create_user(username='other')
 
-        SmsPhoneNumber.objects.create(
+        SmsAuth.objects.create(
             user=other_user,
             phone_number='+15551234567',
             is_verified=True,
@@ -67,12 +68,12 @@ class SmsEnrollmentTests(BaseTestCase):
         mock_message_send.assert_not_called()
 
     def test_enrollment_confirm_verifies_phone_number(self) -> None:
-        phone_number = SmsPhoneNumber.objects.create(
+        phone_number = SmsAuth.objects.create(
             user=self.super_user,
             phone_number='+15551234567',
         )
 
-        code = phone_number.code_issue(SmsCodePurposeChoices.ENROLLMENT)
+        code = phone_number.services.code_issue(SmsAuthCodePurposeChoices.ENROLLMENT)
 
         post_data = {
             'code': code,
@@ -88,12 +89,12 @@ class SmsEnrollmentTests(BaseTestCase):
         assert phone_number.verified_datetime is not None
 
     def test_enrollment_confirm_rejects_wrong_code(self) -> None:
-        phone_number = SmsPhoneNumber.objects.create(
+        phone_number = SmsAuth.objects.create(
             user=self.super_user,
             phone_number='+15551234567',
         )
 
-        code = phone_number.code_issue(SmsCodePurposeChoices.ENROLLMENT)
+        code = phone_number.services.code_issue(SmsAuthCodePurposeChoices.ENROLLMENT)
         wrong_code = '000000' if code != '000000' else '111111'
 
         post_data = {
@@ -109,7 +110,7 @@ class SmsEnrollmentTests(BaseTestCase):
         assert not phone_number.is_verified
 
     def test_session_code_issued_for_verified_phone_number(self) -> None:
-        phone_number = SmsPhoneNumber.objects.create(
+        phone_number = SmsAuth.objects.create(
             user=self.super_user,
             phone_number='+15551234567',
             is_verified=True,
@@ -124,10 +125,10 @@ class SmsEnrollmentTests(BaseTestCase):
         phone_number.refresh_from_db()
 
         code = response.json()['code']
-        assert phone_number.code_confirm(code, SmsCodePurposeChoices.SESSION)
+        assert phone_number.services.code_confirm(code, SmsAuthCodePurposeChoices.SESSION)
 
     def test_session_code_rejected_for_unverified_phone_number(self) -> None:
-        SmsPhoneNumber.objects.create(
+        SmsAuth.objects.create(
             user=self.super_user,
             phone_number='+15551234567',
         )
@@ -146,3 +147,4 @@ class SmsEnrollmentTests(BaseTestCase):
         response = self.client.post(self.start_url, post_data)
 
         assert response.status_code == 302
+

@@ -85,6 +85,7 @@ INSTALLED_APPS += [
     'django_spire.api',
     'django_spire.auth',
     'django_spire.auth.mfa',
+    'django_spire.auth.sms',
     'django_spire.auth.group',
     'django_spire.auth.user',
     'django_spire.celery',

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-
 from typing import TYPE_CHECKING
 
 from django.http import HttpResponse, HttpResponseForbidden
@@ -9,18 +8,16 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from twilio.twiml.messaging_response import MessagingResponse
 
-from django_spire.ai.sms.decorators import twilio_auth_required
-from django_spire.ai.sms.intelligence.workflows.sms_conversation_workflow import (
-    sms_conversation_workflow,
-)
+from django_spire.ai.sms.intelligence.workflow import sms_conversation_workflow
 from django_spire.ai.sms.models import (
-    CODE_DIGIT_COUNT,
-    SmsCodePurposeChoices,
     SmsConversation,
     SmsMessage,
-    SmsPhoneNumber,
 )
-from django_spire.ai.sms.throttling import throttle_allowed
+from django_spire.auth.sms.choices import SmsAuthCodePurposeChoices
+from django_spire.auth.sms.constants import CODE_DIGIT_COUNT, PHONE_NUMBER_LENGTH_MIN
+from django_spire.auth.sms.decorators import twilio_auth_required
+from django_spire.auth.sms.models import SmsAuth
+from django_spire.auth.sms.throttling import throttle_allowed
 from django_spire.conf import settings
 
 if TYPE_CHECKING:
@@ -28,14 +25,6 @@ if TYPE_CHECKING:
 
 
 log = logging.getLogger(__name__)
-
-PHONE_NUMBER_LENGTH_MIN = 11
-
-REPLY_BODY_OVERSIZED = 'Your message is too long. Please send a shorter message.'
-REPLY_SESSION_LOCKED = (
-    'This session is locked. Generate an unlock code in the app, then text it here.'
-)
-REPLY_SESSION_UNLOCKED = 'Session unlocked. You can ask your questions now.'
 
 
 @csrf_exempt
@@ -57,60 +46,62 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
         log.warning('SMS throttle exceeded for %s', from_number)
         return _twiml_response(None)
 
-    phone_number = SmsPhoneNumber.objects.verified_by_phone_number(from_number).first()
+    sms_auth = SmsAuth.objects.verified_by_phone_number(from_number).first()
 
-    if phone_number is None:
+    if sms_auth is None:
         log.warning('SMS received from unregistered number %s', from_number)
         return _twiml_response(None)
 
     if len(body) > settings.DJANGO_SPIRE_AI_SMS_BODY_LENGTH_MAX:
-        return _twiml_response(REPLY_BODY_OVERSIZED)
+        return _twiml_response('Your message is too long. Please send a shorter message.')
 
-    if phone_number.session_is_active:
-        phone_number.session_touch()
-        return _conversation_response(request, phone_number, body, message_sid)
+    if sms_auth.services.session_is_active:
+        sms_auth.services.session_touch()
+        return _conversation_response(request, sms_auth, body, message_sid)
 
     body_stripped = body.strip()
 
     if len(body_stripped) == CODE_DIGIT_COUNT and body_stripped.isdigit():
-        code_valid = phone_number.code_confirm(
+        code_valid = sms_auth.services.code_confirm(
             body_stripped,
-            SmsCodePurposeChoices.SESSION,
+            SmsAuthCodePurposeChoices.SESSION,
         )
 
         if code_valid:
-            phone_number.session_open()
-            return _twiml_response(REPLY_SESSION_UNLOCKED)
+            sms_auth.services.session_open()
+            return _twiml_response('Session unlocked. You can ask your questions now.')
 
-    return _twiml_response(REPLY_SESSION_LOCKED)
+    return _twiml_response(
+        'This session is locked. Generate an unlock code in the app, then text it here.'
+    )
 
 
 def _conversation_response(
     request: WSGIRequest,
-    phone_number: SmsPhoneNumber,
+    sms_auth: SmsAuth,
     body: str,
     message_sid: str,
 ) -> HttpResponse:
-    conversation_defaults = {'user': phone_number.user}
+    conversation_defaults = {'user': sms_auth.user}
 
     conversation, _ = SmsConversation.objects.get_or_create(
-        phone_number=phone_number.phone_number,
+        phone_number=sms_auth.phone_number,
         defaults=conversation_defaults,
     )
 
     if conversation.user is None:
-        conversation.user = phone_number.user
+        conversation.user = sms_auth.user
         conversation.save()
 
     message = conversation.add_message(body=body, is_inbound=True, twilio_sid=message_sid)
 
-    request.user = phone_number.user
+    request.user = sms_auth.user
 
     sms_intel = sms_conversation_workflow(
         request=request,
         user_input=body,
         message_history=conversation.generate_message_history(),
-        actor=phone_number.phone_number,
+        actor=sms_auth.phone_number,
     )
 
     conversation.add_message(

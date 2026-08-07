@@ -5,12 +5,12 @@ from django.apps import AppConfig
 from django_spire.tools import check_required_apps
 
 
-class SmsConfig(AppConfig):
+class SmsAuthConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'django_spire.ai.sms'
-    label = 'django_spire_ai_sms'
+    name = 'django_spire.auth.sms'
+    label = 'django_spire_auth_sms'
 
-    REQUIRED_APPS = ('django_spire_ai', 'django_spire_ai_context', 'django_spire_auth_sms')
+    REQUIRED_APPS = ('django_spire_core', 'django_spire_auth')
 
     def ready(self) -> None:
         check_required_apps(self.label)

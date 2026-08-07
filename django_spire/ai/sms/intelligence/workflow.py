@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from dandy import recorder_to_html_file
 
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import chat_workflow
-from django_spire.ai.sms.intel import SmsIntel
+from django_spire.ai.sms.intelligence.intel import SmsIntel
 
 if TYPE_CHECKING:
     from dandy.llm.request.message import MessageHistory

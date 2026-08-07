@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django_spire.ai.sms.intel import SmsIntel
+from django_spire.ai.sms.intelligence.intel import SmsIntel
 from django_spire.core.tests.test_cases import BaseTestCase
 
 

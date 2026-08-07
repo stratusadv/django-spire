@@ -3,7 +3,6 @@ from __future__ import annotations
 import functools
 import logging
 import os
-
 from typing import TYPE_CHECKING, Callable
 
 from django.http import HttpResponseForbidden
