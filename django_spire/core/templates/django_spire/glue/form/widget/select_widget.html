@@ -5,10 +5,11 @@
     <select
         {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' with form_class_type='select' %}
     >
-        {% if include_empty %}<option value="">{{ empty_label|default:"Select..." }}</option>{% endif %}
+        {% if include_empty|default:True %}<option value="">{{ empty_label|default:"Select..." }}</option>{% endif %}
         <template x-for="choice in field?.choices || []" :key="choice.value">
             <option
                 :value="choice.value"
+                :selected="choice.value == value"
                 x-text="choice.label"
             ></option>
         </template>
