@@ -8,4 +8,5 @@ app_name = 'page'
 urlpatterns = [
     path('', page_views.home_view, name='home'),
     path('markdown/', page_views.markdown_demo_view, name='markdown_demo'),
+    path('chart/', page_views.chart_demo_view, name='chart_demo'),
 ]

@@ -1,37 +1,81 @@
-    <div x-data="{
+<div
+    x-data="{
         chart: null,
+        theme: {},
         init() {
-            this.chart = echarts.init($el)
+            this.theme = window.get_echarts_theme ? window.get_echarts_theme() : {};
+            const option = this._themed(JSON.parse(this.$el.querySelector('#chart-option').textContent));
+
+            this.chart = echarts.init($el);
+            this.chart.setOption(option);
+
+            window.addEventListener('resize', () => this.chart && this.chart.resize());
+
+            const glue_name = this.$el.dataset.chartGlueName;
+
+            if (glue_name) {
+                this._glue_name = glue_name;
+                this._schedule_update();
+            }
+        },
+        _themed(option) {
+            option = { ...(option || {}) };
+            const theme = this.theme;
+
+            option.textStyle = { color: theme.text };
+            option.color = option.color || [theme.primary, theme.success, theme.warning, theme.danger];
+            option.tooltip = option.tooltip || {};
+            option.tooltip.backgroundColor = theme.layer_two;
+            option.tooltip.textStyle = option.tooltip.textStyle || {};
+            option.tooltip.textStyle.color = theme.text;
+            option.tooltip.borderColor = theme.border;
+
+            return option;
+        },
+        async _update() {
+            const proxy = window.Glue?.function?.[this._glue_name];
+
+            if (!proxy) return;
+
+            try {
+                const response = await proxy.execute({'kwargs': {}});
+                const option = response?.result?.result ?? response?.result ?? response;
+
+                if (option) {
+                    this.chart.setOption(this._themed(option), { notMerge: true });
+                }
+            } catch (error) {
+                console.error('Chart update failed:', error);
+            }
+        },
+        _schedule_update() {
+            const base_interval = Number(this.$el.dataset.chartUpdateInterval) || 3;
+
+            const schedule = () => {
+                this._update_timer = setTimeout(async () => {
+                    await this._update();
+                    schedule();
+                }, (base_interval + Math.random() * 2) * 1000);
+            };
+
+            schedule();
+        },
+        destroy() {
+            if (this._update_timer) {
+                clearTimeout(this._update_timer);
+            }
         }
-    }">
-
-    </div>
-    <script type="text/javascript">
-      // Initialize the echarts instance based on the prepared dom
-      var myChart = echarts.init(document.getElementById('main'));
-
-      // Specify the configuration items and data for the chart
-      var option = {
-        title: {
-          text: 'ECharts Getting Started Example'
-        },
-        tooltip: {},
-        legend: {
-          data: ['sales']
-        },
-        xAxis: {
-          data: ['Shirts', 'Cardigans', 'Chiffons', 'Pants', 'Heels', 'Socks']
-        },
-        yAxis: {},
-        series: [
-          {
-            name: 'sales',
-            type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
-          }
-        ]
-      };
-
-      // Display the chart using the configuration and the data defined above.
-      myChart.setOption(option);
-    </script>
+    }"
+    role="img"
+    style="min-height: 300px; width: 100%;"
+    data-chart-glue-name="{{ chart_glue_name|default:'' }}"
+    data-chart-update-interval="{{ chart_update_interval|default:3 }}"
+>
+    {% block chart_option %}
+        {% if chart %}
+            {{ chart.to_option_dict|json_script:'chart-option' }}
+        {% else %}
+            {{ chart_option|json_script:'chart-option' }}
+        {% endif %}
+    {% endblock %}
+</div>
