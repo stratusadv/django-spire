@@ -1,0 +1,68 @@
+{% extends 'django_spire/page/page.html' %}
+
+{% block page_content %}
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .kiosk-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(10rem, auto);
+            gap: 1rem;
+        }
+    </style>
+
+    <div class="container-fluid py-3" x-data="{
+        index: 0,
+        count: {{ slide_count }},
+        delay: 10000,
+        init() {
+            if (this.count > 1) {
+                setInterval(() => {
+                    this.index = (this.index + 1) % this.count;
+                }, this.delay);
+            }
+        }
+    }">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <div class="fs-4 fw-semibold">{{ signage.name }}</div>
+                {% if slide_count == 0 %}
+                    <div class="text-muted">No slides configured.</div>
+                {% endif %}
+            </div>
+            <div class="badge text-bg-secondary fs-6" x-show="count > 0"
+                 x-text="(index + 1) + ' / ' + count"></div>
+        </div>
+
+        {% if slides %}
+            {% for item in slides %}
+                <div x-show="index === {{ forloop.counter0 }}" x-cloak>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="h5 mb-0">{{ item.presentation }} - {{ item.slide }}</div>
+                        <div class="small text-muted">
+                            {{ item.sections|length }} sections
+                        </div>
+                    </div>
+
+                    <div class="kiosk-grid">
+                        {% for section in item.sections %}
+                            {% if section.visual %}
+                                <div style="grid-column: {{ section.section.col }}; grid-row: {{ section.section.row }};">
+                                    {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition %}
+                                </div>
+                            {% else %}
+                                <div class="border rounded d-flex align-items-center justify-content-center text-muted"
+                                     style="grid-column: {{ section.section.col }}; grid-row: {{ section.section.row }};">
+                                    Empty
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

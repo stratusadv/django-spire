@@ -67,7 +67,7 @@ class Chart:
         if cls.title:
             option['title'] = {'text': cls.title}
 
-        if cls.chart_type != 'pie':
+        if cls.chart_type not in ('pie', 'gauge'):
             option['xAxis'] = {'type': 'category', 'data': []}
             option['yAxis'] = {'type': 'value'}
 
@@ -110,3 +110,26 @@ class AreaChart(Chart):
 class PieChart(Chart):
     chart_type = 'pie'
     default_tooltip = {'trigger': 'item'}
+
+
+class GaugeChart(Chart):
+    chart_type = 'gauge'
+    default_tooltip = {'trigger': 'item'}
+
+    min: float = 0
+    max: float = 100
+    detail_formatter: str = '{value}'
+
+    @classmethod
+    def build_option_body(cls, value: float, name: str = '', **_kwargs: Any) -> dict[str, Any]:
+        return {
+            'series': [
+                {
+                    'name': name,
+                    'min': cls.min,
+                    'max': cls.max,
+                    'detail': {'formatter': cls.detail_formatter},
+                    'data': [{'value': value, 'name': name}],
+                }
+            ]
+        }

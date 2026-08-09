@@ -6,7 +6,7 @@
 
 {% block card_button %}
     {% if perms.metric_visual.add_visual %}
-        {% url 'metric:visual:form:create' as new_visual_url %}
+        {% url 'django_spire:metric:visual:form:create' as new_visual_url %}
         <a class="btn btn-sm btn-primary" href="{{ new_visual_url }}">
             <i class="bi bi-plus"></i>
             Add
@@ -16,6 +16,6 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% include 'django_spire/metric/visual/container/list_container.html' with endpoint=visual_items_endpoint %}
+        {% include 'django_spire/metric/visual/scroll/scroll.html' %}
     </div>
 {% endblock %}

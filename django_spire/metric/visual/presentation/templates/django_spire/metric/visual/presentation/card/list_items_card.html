@@ -6,7 +6,7 @@
 
 {% block card_button %}
     {% if perms.visual_presentation.add_presentation %}
-        {% url 'metric:visual:presentation:form:create' as new_presentation_url %}
+        {% url 'django_spire:metric:visual:presentation:form:create' as new_presentation_url %}
         <a class="btn btn-sm btn-primary" href="{{ new_presentation_url }}">
             <i class="bi bi-plus"></i>
             Add
@@ -16,6 +16,6 @@
 
 {% block card_title_content %}
     <div class="card-body">
-        {% include 'django_spire/metric/visual/presentation/container/list_container.html' with endpoint=presentation_items_endpoint %}
+        {% include 'django_spire/metric/visual/presentation/scroll/scroll.html' %}
     </div>
 {% endblock %}

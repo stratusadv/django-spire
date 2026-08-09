@@ -4,7 +4,6 @@ from django.urls import path
 
 from django_spire.metric.visual.presentation.views import page_views
 
-
 app_name = 'page'
 
 urlpatterns = [

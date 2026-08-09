@@ -28,7 +28,6 @@
 
 {% url 'help_desk:home' as help_desk_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Help Desk' link_icon='bi bi-headset' link_url=help_desk_url %}
-
 {% url 'history:home' as history_url %}
 {% include 'django_spire/navigation/link.html' with link_text='History' link_icon='bi bi-clock-history' link_url=history_url %}
 
@@ -57,6 +56,15 @@
 
 {% url 'django_spire:metric:domain:statistic:page:group_list' as statistic_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Statistics' link_icon='bi bi-bar-chart' link_url=statistic_url %}
+
+{% url 'django_spire:metric:visual:page:list' as visual_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Visuals' link_icon='bi bi-clipboard-data' link_url=visual_url %}
+
+{% url 'django_spire:metric:visual:presentation:page:list' as visual_presentation_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Presentations' link_icon='bi bi-easel' link_url=visual_presentation_url %}
+
+{% url 'django_spire:metric:visual:signage:page:list' as visual_signage_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Signage' link_icon='bi bi-tv' link_url=visual_signage_url %}
 
 {% include 'django_spire/navigation/divider.html' with divider_text='Configuration' %}
 

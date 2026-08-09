@@ -1,0 +1,19 @@
+{% extends 'django_spire/glue/form/form.html' %}
+
+{% block glue_form_unique_name %}slide_form{% endblock %}
+
+{% block glue_form_content %}
+    <div class="row g-3">
+        <div class="col-md-6">
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.presentation' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'django_spire/glue/form/field/integer_field.html' with glue_field='glue_form.$fields.order' %}
+        </div>
+
+        <div class="col-12">
+            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.name' %}
+        </div>
+    </div>
+{% endblock %}

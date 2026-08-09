@@ -1,21 +1,31 @@
-<div
-    x-data="{
-        async init() {
-            await this.visual.get()
-        },
-        visual: new ModelObjectGlue('visual')
-    }"
->
+{% extends 'django_spire/glue/form/form.html' %}
 
-    <div class="row g-3 mb-3">
+{% block glue_form_unique_name %}visual_form{% endblock %}
+
+{% block glue_form_content %}
+    <div class="row g-3">
         <div class="col-12">
-            {% include 'django_spire/glue/form/field/char_field.html' with glue_model_field='visual.name' %}
+            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.name' %}
         </div>
 
         <div class="col-12">
-            {% include 'django_spire/glue/form/field/text_field.html' with glue_model_field='visual.description' %}
+            {% include 'django_spire/glue/form/field/text_field.html' with glue_field='glue_form.$fields.description' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.statistic' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.reference' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.kind' %}
+        </div>
+
+        <div class="col-md-6">
+            {% include 'django_spire/glue/form/field/date_field.html' with glue_field='glue_form.$fields.date' %}
         </div>
     </div>
-</div>
-
-{% include 'django_spire/form/button/submit_button.html' %}
+{% endblock %}

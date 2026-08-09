@@ -5,8 +5,16 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
-    from django_spire.metric.visual.presentation.models import Presentation
+    from django_spire.metric.visual.presentation.models import Presentation, Slide, SlideSection
 
 
 class PresentationProcessorService(BaseDjangoModelService['Presentation']):
     obj: Presentation
+
+
+class SlideProcessorService(BaseDjangoModelService['Slide']):
+    obj: Slide
+
+
+class SlideSectionProcessorService(BaseDjangoModelService['SlideSection']):
+    obj: SlideSection

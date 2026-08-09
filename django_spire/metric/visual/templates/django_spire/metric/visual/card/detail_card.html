@@ -6,10 +6,18 @@
 
 {% block card_button %}
     {% if perms.metric_visual.change_visual %}
-        {% url 'metric:visual:form:update' pk=visual.pk as visual_edit_url %}
+        {% url 'django_spire:metric:visual:form:update' pk=visual.pk as visual_edit_url %}
         <a class="btn btn-sm btn-primary" href="{{ visual_edit_url }}">
             <i class="bi bi-pencil"></i>
             Edit
+        </a>
+    {% endif %}
+
+    {% if perms.metric_visual.delete_visual %}
+        {% url 'django_spire:metric:visual:form:delete' pk=visual.pk as visual_delete_url %}
+        <a class="btn btn-sm btn-outline-danger" href="{{ visual_delete_url }}">
+            <i class="bi bi-eraser"></i>
+            Delete
         </a>
     {% endif %}
 {% endblock %}
@@ -17,14 +25,53 @@
 {% block card_title_content %}
     <div class="card-body">
         <div class="row g-3">
-            <div class="col-12">
-                <div class="attribute-label">Name</div>
-                <div>{{ visual.name }}</div>
+            <div class="col-lg-4">
+                {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition %}
             </div>
 
-            <div class="col-12">
-                <div class="attribute-label">Description</div>
-                <div>{{ visual.description|linebreaksbr }}</div>
+            <div class="col-lg-8">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="attribute-label">Name</div>
+                        <div>{{ visual.name }}</div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="attribute-label">Description</div>
+                        <div>{{ visual.description|linebreaksbr }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="attribute-label">Kind</div>
+                        <div>{{ visual.get_kind_display }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="attribute-label">Statistic</div>
+                        {% if visual.statistic %}
+                            <div>{{ visual.statistic }}</div>
+                        {% else %}
+                            <div class="text-muted">None</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="attribute-label">Reference</div>
+                        <div>{{ visual.reference|default:'All references' }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="attribute-label">Evaluation Date</div>
+                        <div>{{ visual.date }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="attribute-label">Period</div>
+                        <div>
+                            {{ period_start|date:'M j, Y' }} - {{ period_end|date:'M j, Y' }}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

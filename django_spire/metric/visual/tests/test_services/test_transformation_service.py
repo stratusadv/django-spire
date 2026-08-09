@@ -1,8 +1,212 @@
 from __future__ import annotations
 
+from datetime import date
+from decimal import Decimal
+
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.visual.charts import (
+    VisualAreaChart,
+    VisualBarChart,
+    VisualGaugeChart,
+    VisualLineChart,
+    VisualPieChart,
+)
+from django_spire.metric.visual.models import Visual, VisualCondition
+from django_spire.metric.visual.tests.factories import (
+    create_test_domain,
+    create_test_statistic,
+    create_test_statistic_group,
+    create_test_visual,
+)
 
 
 class VisualTransformationServiceTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+
+        self.domain = create_test_domain()
+        self.group = create_test_statistic_group(domain=self.domain)
+
+    def test_date_range_daily(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        assert visual.services.transformation.date_range() == (date(2026, 5, 15), date(2026, 5, 15))
+
+    def test_date_range_weekly(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        start_date, end_date = visual.services.transformation.date_range()
+        assert start_date == date(2026, 5, 11)
+        assert end_date == date(2026, 5, 17)
+
+    def test_date_range_monthly(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.MONTHLY
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        start_date, end_date = visual.services.transformation.date_range()
+        assert start_date == date(2026, 5, 1)
+        assert end_date == date(2026, 5, 31)
+
+    def test_current_value_monthly_total(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.MONTHLY
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(40), value_date=date(2026, 5, 5)
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(60), value_date=date(2026, 5, 20)
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(1000), value_date=date(2026, 6, 1)
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(100)
+
+    def test_current_value_filters_reference(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
+
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(10))
+        statistic.services.processor.add_value(reference='/dashboard/', value=Decimal(90))
+
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+    def test_current_value_without_statistic(self):
+        visual = Visual.objects.create(name='empty')
+        assert visual.services.transformation.current_value() == Decimal(0)
+
+    def test_current_condition_green(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
+
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(150))
+
+        condition = visual.services.transformation.current_condition()
+        assert condition.state == 'green'
+
+    def test_current_condition_yellow(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
+
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(95))
+
+        condition = visual.services.transformation.current_condition()
+        assert condition.state == 'yellow'
+
+    def test_current_condition_red(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
+
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(50))
+
+        condition = visual.services.transformation.current_condition()
+        assert condition.state == 'red'
+
+    def test_current_condition_none_when_no_match(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        VisualCondition.objects.create(
+            visual=visual, state='green', operator='gt', target=Decimal(100), order=0
+        )
+
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(50))
+
+        assert visual.services.transformation.current_condition() is None
+
+    def test_series_data_ordered_and_reference_filtered(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), value_date=date(2026, 5, 14)
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(20), value_date=date(2026, 5, 15)
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(200), value_date=date(2026, 5, 15)
+        )
+
+        points = visual.services.transformation.series_data()
+
+        assert points == [
+            {'date': date(2026, 5, 14), 'value': Decimal(10)},
+            {'date': date(2026, 5, 15), 'value': Decimal(20)},
+        ]
+
+    def test_series_data_without_statistic(self):
+        visual = Visual.objects.create(name='empty', kind='line')
+        assert visual.services.transformation.series_data() == []
+
+    def test_series_breakdown_groups_by_reference(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(30))
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(20))
+        statistic.services.processor.add_value(reference='/dashboard/', value=Decimal(50))
+
+        breakdown = visual.services.transformation.series_breakdown()
+
+        assert {'name': '/dashboard/', 'value': 50.0} in breakdown
+        assert {'name': '/home/', 'value': 50.0} in breakdown
+
+    def test_gauge_max_derived_from_conditions(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, target=Decimal(200), tolerance=Decimal(50))
+
+        assert visual.services.transformation.gauge_max() == 250
+
+    def test_gauge_max_falls_back_to_value(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(reference='/home/', value=Decimal(40))
+
+        assert visual.services.transformation.gauge_max() == 80
+
+    def test_chart_returns_none_for_indicator(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        assert visual.services.transformation.chart() is None
+
+    def test_chart_kind_mapping(self):
+        statistic = create_test_statistic(group=self.group)
+
+        cases = {
+            'line': VisualLineChart,
+            'bar': VisualBarChart,
+            'area': VisualAreaChart,
+            'pie': VisualPieChart,
+            'gauge': VisualGaugeChart,
+        }
+
+        for kind, chart_class in cases.items():
+            visual = create_test_visual(statistic=statistic, kind=kind, with_conditions=False)
+            chart = visual.services.transformation.chart()
+            assert isinstance(chart, chart_class)
+            assert chart.params == {'visual_pk': visual.pk}

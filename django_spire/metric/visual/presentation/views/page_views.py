@@ -5,52 +5,66 @@ from typing import TYPE_CHECKING
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.urls import reverse
-
-from django_spire.contrib.session.controller import SessionController
-from django_spire.core.table.enums import ResponsiveMode
+from django_glue import Glue
 
 from django_spire.metric.visual.presentation import models
-from django_spire.metric.visual.presentation.constants import LIST_FILTERING_SESSION_KEY
-from django_spire.metric.visual.presentation.forms import PresentationListFilterForm
 from django_spire.metric.visual.presentation.navigation import PresentationNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
+def _slide_data(request: WSGIRequest, slide: models.Slide) -> dict:
+    sections = []
+
+    for section in slide.sections.all():
+        section_data = {'section': section, **section.services.transformation.render_context()}
+
+        chart = section_data.get('chart')
+        if chart is not None:
+            chart.glue(request)
+
+        sections.append(section_data)
+
+    return {'slide': slide, 'sections': sections}
+
+
 @permission_required('visual_presentation.view_presentation')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    presentation = get_object_or_404(models.Presentation, pk=pk)
+    presentation = get_object_or_404(
+        models.Presentation.objects.with_slides().with_slide_count(), pk=pk
+    )
 
     nav = PresentationNavigation()
     nav.page_title = str(presentation)
-    nav.page_description = 'Detail View'
-    nav.breadcrumbs.add('Presentations', 'metric:visual:presentation:page:list')
+    nav.breadcrumbs.add('Presentations', 'django_spire:metric:visual:presentation:page:list')
     nav.breadcrumbs.add(str(presentation))
     context = nav.as_context()
     context['presentation'] = presentation
+    context['slides'] = [_slide_data(request, slide) for slide in presentation.slides.all()]
+
     return TemplateResponse(
-        request, context=context, template='metric/visual/presentation/page/detail_page.html'
+        request,
+        context=context,
+        template='django_spire/metric/visual/presentation/page/detail_page.html',
     )
 
 
 @permission_required('visual_presentation.view_presentation')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    models.Presentation.objects.process_session_filter(
-        request=request,
-        session_key=LIST_FILTERING_SESSION_KEY,
-        form_class=PresentationListFilterForm,
-    )
+    presentations = models.Presentation.objects.with_slide_count()
+
+    Glue.queryset(request, 'presentations', presentations, Glue.Access.CHANGE, fields='__all__')
 
     nav = PresentationNavigation()
-    nav.page_title = 'Presentation'
-    nav.page_description = 'List View'
+    nav.page_title = 'Presentations'
     nav.breadcrumbs.add('Presentations')
     context = nav.as_context()
-    context['responsive_mode'] = ResponsiveMode.SCROLL
-    context['presentation_items_endpoint'] = reverse('metric:visual:presentation:template:items')
-    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
+    context['presentations'] = presentations
+    context['presentation_count'] = presentations.count()
+
     return TemplateResponse(
-        request, context=context, template='metric/visual/presentation/page/list_page.html'
+        request,
+        context=context,
+        template='django_spire/metric/visual/presentation/page/list_page.html',
     )

@@ -4,4 +4,4 @@ from django_spire.contrib.navigation.navigation import Navigation
 class VisualNavigation(Navigation):
     def __init__(self) -> None:
         super().__init__()
-        self.icon_class = 'bi bi-image'
+        self.icon_class = 'bi bi-gauge'

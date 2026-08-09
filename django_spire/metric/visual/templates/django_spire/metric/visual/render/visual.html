@@ -1,0 +1,84 @@
+{% load django_spire_string_formatting %}
+
+{% if visual.is_chart %}
+    <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between mb-2">
+                <div>
+                    <div class="fs--1 text-uppercase text-secondary fw-semibold">
+                        {{ visual.name }}
+                    </div>
+                    {% if visual.statistic %}
+                        <div class="small text-muted">{{ visual.statistic }}</div>
+                    {% endif %}
+                </div>
+
+                {% if current_condition %}
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" title="{{ current_condition }}" style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
+                        <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
+                    </span>
+                {% else %}
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" title="No data" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
+                        <i class="bi bi-dash text-white fs-5"></i>
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if visual.statistic %}
+                {% if chart %}
+                    {% include 'django_spire/chart/chart.html' with chart=chart chart_glue_name=chart.glue_name chart_update_interval=chart_update_interval|default:3 %}
+                {% else %}
+                    <div class="text-muted">No data available.</div>
+                {% endif %}
+            {% else %}
+                <div class="text-muted">No statistic selected yet.</div>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <div class="card h-100 border-0 shadow-sm {% block visual_render_card_class %}{% endblock %}">
+        <div class="card-body {% block visual_render_body_class %}p-3{% endblock %}">
+            <div class="d-flex align-items-start justify-content-between mb-2">
+                <div>
+                    <div class="fs--1 text-uppercase text-secondary fw-semibold">
+                        {{ visual.name }}
+                    </div>
+                    {% if visual.statistic %}
+                        <div class="small text-muted">{{ visual.statistic }}</div>
+                    {% endif %}
+                </div>
+
+                {% if current_condition %}
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
+                        <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
+                    </span>
+                {% else %}
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
+                        <i class="bi bi-dash text-white fs-5"></i>
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if visual.statistic %}
+                <div class="fs-2 fw-bold lh-1 {% block visual_render_value_class %}{% endblock %}">
+                    {{ current_value|floatformat:'-2' }}
+                </div>
+                <div class="small text-muted">{{ visual.statistic.get_interval_display|title }} total</div>
+
+                <div class="mt-3">
+                    {% if current_condition %}
+                        <span class="badge" style="background-color: {{ current_condition.color }};">
+                            {{ current_condition.get_state_display }}
+                        </span>
+                        <span class="small text-muted ms-1">{{ current_condition }}</span>
+                    {% else %}
+                        <span class="badge text-bg-secondary">No Data</span>
+                        <span class="small text-muted ms-1">No condition matches the current value</span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-muted">No statistic selected yet.</div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

@@ -1,12 +1,15 @@
-{% extends 'django_spire/page/form_full_page.html' %}
+{% extends 'django_spire/page/full_page.html' %}
 
 {% block full_page_content %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="row g-3">
-            <div class="col-12">
-                {{ form }}
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+                <div class="fw-semibold">{{ form_title }}</div>
+                <div class="small text-muted">{{ form_description }}</div>
             </div>
         </div>
-    </form>
+        <div class="card-body">
+            {% include form_template %}
+        </div>
+    </div>
 {% endblock %}

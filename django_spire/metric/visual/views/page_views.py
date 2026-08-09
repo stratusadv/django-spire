@@ -4,52 +4,62 @@ from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
-
-from django.template.response import TemplateResponse
-from django_spire.core.table.enums import ResponsiveMode
-from django_spire.contrib.session.controller import SessionController
-
+from django_glue import Glue
 
 from django_spire.metric.visual import models
-from django_spire.metric.visual.forms import VisualListFilterForm
-from django_spire.metric.visual.constants import LIST_FILTERING_SESSION_KEY
 from django_spire.metric.visual.navigation import VisualNavigation
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-else:
-    from django.template.response import TemplateResponse
+
+from django.template.response import TemplateResponse
+
+
+def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
+    context = {
+        'visual': visual,
+        'current_value': visual.services.transformation.current_value(),
+        'current_condition': visual.services.transformation.current_condition(),
+    }
+
+    chart = visual.services.transformation.chart()
+    if chart is not None:
+        chart.glue(request)
+        context['chart'] = chart
+
+    return context
 
 
 @permission_required('metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    visual = get_object_or_404(models.Visual, pk=pk)
+    visual = get_object_or_404(models.Visual.objects.with_statistic().with_conditions(), pk=pk)
 
     nav = VisualNavigation()
     nav.page_title = str(visual)
-    nav.breadcrumbs.add('Visuals', 'metric:visual:page:list')
+    nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual))
     context = nav.as_context()
-    context['visual'] = visual
+    context.update(_visual_context(request, visual))
+    context['period_start'], context['period_end'] = visual.services.transformation.date_range()
 
     return TemplateResponse(
-        request, context=context, template='metric/visual/page/detail_page.html'
+        request, context=context, template='django_spire/metric/visual/page/detail_page.html'
     )
 
 
 @permission_required('metric_visual.view_visual')
 def list_view(request: WSGIRequest) -> TemplateResponse:
-    models.Visual.objects.process_session_filter(
-        request=request, session_key=LIST_FILTERING_SESSION_KEY, form_class=VisualListFilterForm
-    )
+    visuals = models.Visual.objects.with_statistic()
+
+    Glue.queryset(request, 'visuals', visuals, Glue.Access.CHANGE, fields='__all__')
 
     nav = VisualNavigation()
     nav.page_title = 'Visuals'
     nav.breadcrumbs.add('Visuals')
     context = nav.as_context()
-    context['responsive_mode'] = ResponsiveMode.SCROLL
-    context['visual_items_endpoint'] = reverse('metric:visual:template:items')
-    context['filter_session'] = SessionController(request, LIST_FILTERING_SESSION_KEY)
+    context['visuals'] = visuals
+    context['visual_count'] = visuals.count()
 
-    return TemplateResponse(request, context=context, template='metric/visual/page/list_page.html')
+    return TemplateResponse(
+        request, context=context, template='django_spire/metric/visual/page/list_page.html'
+    )
