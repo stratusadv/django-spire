@@ -4,7 +4,7 @@
 
 {% block full_page_content %}
     <div class="row g-3">
-        <div class="col-12">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="col-12">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
@@ -27,6 +27,33 @@
                 </div>
                 <div class="card-body p-0">
                     {% include 'django_spire/chart/chart.html' with chart=dynamic_chart chart_glue_name='monthly_sales_chart' chart_update_interval=3 %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-pie-chart"></i> Static Pie Chart
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% include 'django_spire/chart/chart.html' with chart=pie_chart %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="bi bi-graph-up"></i> Dynamic Area Chart
+                        <span class="badge text-bg-info align-middle">refreshes every ~3s</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% include 'django_spire/chart/chart.html' with chart=area_chart chart_glue_name='productivity_area_chart' chart_update_interval=3 %}
                 </div>
             </div>
         </div>

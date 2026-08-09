@@ -2,19 +2,20 @@
     x-data="{
         chart: null,
         theme: {},
+        _glue_name: '{{ chart_glue_name|default:'' }}',
+        _update_interval: {{ chart_update_interval|default:3 }},
+
         init() {
             this.theme = window.get_echarts_theme ? window.get_echarts_theme() : {};
             const option = this._themed(JSON.parse(this.$el.querySelector('#chart-option').textContent));
+            this._params = JSON.parse(this.$el.querySelector('#chart-params').textContent);
 
             this.chart = echarts.init($el);
             this.chart.setOption(option);
 
             window.addEventListener('resize', () => this.chart && this.chart.resize());
 
-            const glue_name = this.$el.dataset.chartGlueName;
-
-            if (glue_name) {
-                this._glue_name = glue_name;
+            if (this._glue_name) {
                 this._schedule_update();
             }
         },
@@ -38,7 +39,7 @@
             if (!proxy) return;
 
             try {
-                const response = await proxy.execute({'kwargs': {}});
+                const response = await proxy.execute({'kwargs': this._params || {}});
                 const option = response?.result?.result ?? response?.result ?? response;
 
                 if (option) {
@@ -49,13 +50,11 @@
             }
         },
         _schedule_update() {
-            const base_interval = Number(this.$el.dataset.chartUpdateInterval) || 3;
-
             const schedule = () => {
                 this._update_timer = setTimeout(async () => {
                     await this._update();
                     schedule();
-                }, (base_interval + Math.random() * 2) * 1000);
+                }, (this._update_interval + Math.random() * 2) * 1000);
             };
 
             schedule();
@@ -76,6 +75,15 @@
             {{ chart.to_option_dict|json_script:'chart-option' }}
         {% else %}
             {{ chart_option|json_script:'chart-option' }}
+        {% endif %}
+    {% endblock %}
+    {% block chart_params %}
+        {% if chart %}
+            {{ chart.params|json_script:'chart-params' }}
+        {% elif chart_params %}
+            {{ chart_params|json_script:'chart-params' }}
+        {% else %}
+            <script type="application/json" id="chart-params">{}</script>
         {% endif %}
     {% endblock %}
 </div>
