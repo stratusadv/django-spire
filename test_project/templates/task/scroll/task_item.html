@@ -29,16 +29,16 @@
     <div class="col-2">
         <div class="dropdown">
             <button class="btn btn-sm dropdown-toggle text-white badge border-0"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    :class="
-                item.status === 'inp' ? 'bg-secondary' :
-                item.status === 'com' ? 'bg-success' :
-                item.status === 'can' ? 'bg-warning' :
-                'bg-primary'
-            "
-                    x-text="{new: 'New', inp: 'In Progress', com: 'Complete', can: 'Cancelled'}[item.status]"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                :class="
+                    item.status === 'inp' ? 'bg-secondary' :
+                    item.status === 'com' ? 'bg-success' :
+                    item.status === 'can' ? 'bg-warning' :
+                    'bg-primary'
+                "
+                x-text="{new: 'New', inp: 'In Progress', com: 'Complete', can: 'Cancelled'}[item.status]"
             >
             </button>
             <ul class="dropdown-menu">

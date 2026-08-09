@@ -17,20 +17,25 @@ class EntryFactoryService(BaseDjangoModelService['Entry']):
     obj: Entry
 
     def create_from_files(
-        self, author: AuthUser, collection: Collection, files: list[File]
+        self,
+        author: AuthUser,
+        collection: Collection,
+        files: list[File]
     ) -> list[Entry]:
         entries = []
 
         for file in files:
             entry, _ = self.obj_class.services.save_model_obj(
-                name=file.name, author=author, collection=collection
+                name=file.name,
+                author=author,
+                collection=collection
             )
 
             entries.append(entry)
 
             file.content_type = ContentType.objects.get_for_model(entry.__class__)
             file.object_id = entry.id
-            file.related_field = None
+            file.related_field = 'content'
 
             entry.ordering_services.processor.move_to_position(
                 destination_objects=collection.entries.active(), position=0

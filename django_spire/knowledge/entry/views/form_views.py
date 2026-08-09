@@ -12,6 +12,7 @@ from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 from django_spire.file.factory import FileFactory
+from django_spire.knowledge.collection.breadcrumbs import add_collection_chain_breadcrumbs
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.forms import EntryForm, EntryFilesForm
@@ -50,103 +51,60 @@ def form_view(
     nav.page_title = 'Entry'
     nav.page_description = 'Edit' if pk else 'Create'
 
-    temp_collection = collection
-
-    breadcrumbs = []
-
-    while temp_collection:
-        breadcrumbs.append(
-            {
-                'name': str(temp_collection),
-                'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.pk},
-            }
-        )
-        temp_collection = temp_collection.parent
-
-    for crumb in reversed(breadcrumbs):
-        nav.breadcrumbs.add(**crumb)
+    add_collection_chain_breadcrumbs(nav.breadcrumbs, collection)
 
     if entry.name:
         nav.breadcrumbs.add(str(entry))
 
     nav.breadcrumbs.add_model_instance_form_action(entry)
 
-    context = nav.as_context()
-    context['form'] = form
-    context['entry'] = entry
-    context['action_url'] = (
-        reverse('django_spire:knowledge:entry:form:create', kwargs={'collection_pk': collection_pk})
-        if not entry.pk
-        else reverse(
-            'django_spire:knowledge:entry:form:update',
-            kwargs={'collection_pk': collection_pk, 'pk': entry.pk},
-        )
-    )
     return TemplateResponse(
-        request, context=context, template='django_spire/knowledge/entry/page/form_page.html'
+        request,
+        context=nav.as_context() | {
+            'form': form,
+            'entry': entry,
+            'action_url': (
+                reverse(
+                    'django_spire:knowledge:entry:form:create',
+                    kwargs={'collection_pk': collection_pk},
+                )
+                if not entry.pk
+                else reverse(
+                    'django_spire:knowledge:entry:form:update',
+                    kwargs={'collection_pk': collection_pk, 'pk': entry.pk},
+                )
+            ),
+        },
+        template='django_spire/knowledge/entry/page/form_page.html',
     )
 
 
 @AppAuthController('knowledge').permission_required('can_add')
 def import_form_view(
-    request: WSGIRequest, collection_pk: int
+    request: WSGIRequest,
+    collection_pk: int
 ) -> TemplateResponse | HttpResponseRedirect:
-    Glue.queryset(request, 'collections', Collection.objects.active(), fields=['name'])
-
     collection = get_object_or_null_obj(Collection, pk=collection_pk)
-
-    if request.method == 'POST':
-        file_form = EntryFilesForm(request.POST, request.FILES)
-
-        if file_form.is_valid():
-            factory = FileFactory(app_name='knowledge')
-
-            file_objects = factory.create_many(request.FILES.getlist('import_files'))
-
-            Entry.services.factory.create_from_files(
-                author=request.user,
-                collection=collection,
-                files=file_objects,
-            )
-
-            return HttpResponseRedirect(
-                reverse(
-                    'django_spire:knowledge:entry:template:file_list',
-                    kwargs={'collection_pk': collection_pk},
-                )
-            )
-
-        show_form_errors(request, file_form)
-
-    supported_file_types = ['.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())]
 
     nav = EntryNavigation()
     nav.page_title = 'Import Files'
     nav.page_description = 'Import Files'
-
-    temp_collection = collection
-
-    breadcrumbs = []
-
-    while temp_collection:
-        breadcrumbs.append(
-            {
-                'name': str(temp_collection),
-                'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.pk},
-            }
-        )
-        temp_collection = temp_collection.parent
-
-    for crumb in reversed(breadcrumbs):
-        nav.breadcrumbs.add(**crumb)
-
+    add_collection_chain_breadcrumbs(nav.breadcrumbs, collection)
     nav.breadcrumbs.add('Import Files')
-    context = nav.as_context()
-    context['collection_pk'] = collection_pk
-    context['supported_file_types'] = supported_file_types
-    context['supported_file_types_verbose'] = ', '.join(supported_file_types)
+
+    Glue.form(
+        request,
+        'import_file_form',
+        EntryFilesForm(initial={'collection_pk': collection_pk}),
+    )
+
+    supported_file_types = ['.' + file_type for file_type in list(FILE_TYPE_CONVERTER_MAP.keys())]
     return TemplateResponse(
-        request, 'django_spire/knowledge/entry/page/import_form_page.html', context=context
+        request,
+        context=nav.as_context() | {
+            'collection_pk': collection_pk,
+            'supported_file_types': supported_file_types,
+            'supported_file_types_verbose': ', '.join(supported_file_types),
+        },
+        template='django_spire/knowledge/entry/page/import_form_page.html',
     )

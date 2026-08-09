@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
+from django_spire.knowledge.collection.breadcrumbs import add_collection_chain_breadcrumbs
 from django_spire.knowledge.entry.models import Entry
 from django_spire.knowledge.entry.navigation import EntryNavigation
 
@@ -39,32 +40,18 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav = EntryNavigation()
     nav.page_title = 'Delete Entry'
 
-    temp_collection = entry.collection
-
-    breadcrumbs = []
-
-    while temp_collection:
-        breadcrumbs.append(
-            {
-                'name': str(temp_collection),
-                'view_name': 'django_spire:knowledge:collection:page:top_level',
-                'view_kwargs': {'pk': temp_collection.pk},
-            }
-        )
-        temp_collection = temp_collection.parent
-
-    for crumb in reversed(breadcrumbs):
-        nav.breadcrumbs.add(**crumb)
+    add_collection_chain_breadcrumbs(nav.breadcrumbs, entry.collection)
 
     nav.breadcrumbs.add(str(entry))
     nav.breadcrumbs.add('Delete')
-    context = nav.as_context()
-    context['form'] = form
-    context['form_title'] = f'Delete {entry}'
-    context['form_description'] = f'Are you sure you would like to delete entry "{entry}"?'
+
     return TemplateResponse(
         request,
-        context=context,
+        context=nav.as_context() | {
+            'form': form,
+            'form_title': f'Delete {entry}',
+            'form_description': f'Are you sure you would like to delete entry "{entry}"?',
+        },
         template='django_spire/knowledge/collection/form/delete_confirmation_form_page.html',
     )
 

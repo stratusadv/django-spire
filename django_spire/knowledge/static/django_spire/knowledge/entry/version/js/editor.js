@@ -38,15 +38,9 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
                 tunes: block?.tunes ?? {},
             }))
 
-           try {
-                await Glue.fetch(
-                    update_url,
-                    {
-                        body: parsed_editor_blocks,
-                    }
-                )
-            }
-            catch (e) {
+            try {
+                await Glue.http.postJson(update_url, parsed_editor_blocks)
+            } catch (e) {
                 console.error('Error saving editor blocks', e)
                 const event_detail = {
                     'id': Date.now(),

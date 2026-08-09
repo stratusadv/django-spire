@@ -23,4 +23,5 @@ class TaskFactoryService(BaseDjangoModelService['Task']):
             description=self.obj.description,
             status=TaskStatusChoices.NEW,
         )
+
         return {'success': True, 'new_task_id': new_task.id}

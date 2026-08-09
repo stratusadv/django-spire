@@ -2,16 +2,16 @@
     class="text-center"
     x-data="{
         async delete_chat() {
-            let response = await Glue.fetch(
+            let response = await Glue.http.postJson(
                 '{% url "django_spire:ai:chat:json:delete" pk=chat.pk %}',
             )
 
-            let type = response.type
+            let type = response.data.type
             if (type === 'success') {
-                close_modal()
+                hideModal()
                 $dispatch('deleted_chat', {{ chat.pk }})
             }
-            $dispatch('notify', {'type': type, 'message': response.message})
+            $dispatch('notify', {'type': type, 'message': response.data.message})
         }
     }"
 >

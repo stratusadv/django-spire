@@ -1,44 +1,33 @@
-<form
+<div
     class="row"
-    method="post"
-    enctype="multipart/form-data"
-    action="{% url 'django_spire:knowledge:entry:form:import' collection_pk=collection_pk|default:0 %}"
     x-data="{
-        collection: new GlueIntegerField(
-            'collection',
-            {
-                label: 'Collection',
-                value: {{ collection_pk|default:0 }}
-            }
-        ),
-        collection_query_set: new QuerySetGlue('collections'),
-        import_files: new GlueCharField('import_files'),
+        import_file_form: Glue.form.import_file_form,
         support_file_types: {{ supported_file_types }},
+        is_processing: false,
 
-        async init() {
-            this.import_files.hide_label()
-            this.collection.choices = await this.collection_query_set.to_choices()
+        init() {
+            $watch('import_file_form.$fields.import_files.value', (files) => {
+                if (!files) return;
 
-            $watch('import_files', () => {
-                let files = JSON.parse(this.import_files.value)
-
-                let send_warning = files.some(
-                    file => !this.support_file_types.some(
-                        supported => file.name.endsWith(supported)
-                    )
+                let sendWarning = files.some(
+                    file => !this.support_file_types.some(supported => file.name.endsWith(supported))
                 )
 
-                if (send_warning) {
-                    $dispatch('notify', {type: 'warning', message: 'Unsupported file type detected.'})
+                if (sendWarning) {
+                    Spire.notify.warning('Unsupported file type detected.');
                 }
             })
+        },
+        async submit_form() {
+            this.is_processing = true;
+            let result = await this.import_file_form.save_model_obj()
+            if(result?.redirect) {
+                window.location.href=result.redirect.url
+            }
+            this.is_processing = false
         }
     }"
 >
-    {% csrf_token %}
-    <div class="col-12">
-{#        {% include 'django_spire/glue/field/search_and_select_field.html' with glue_field='collection' %}#}
-    </div>
     <div class="col-12 mt-2">
         <div class="d-flex justify-content-between">
             <span>
@@ -46,9 +35,9 @@
             </span>
             <span class="fs--1">*Supported file types: {{ supported_file_types_verbose }}</span>
         </div>
-        {% include 'django_spire/file/form/field/multi_file_field.html' with glue_field='import_files' accept=supported_file_types_verbose disable_camera=True %}
+        {% include 'django_spire/file/form/field/multi_file_field.html' with glue_field='import_file_form.$fields.import_files' accept=supported_file_types_verbose disable_camera=True %}
     </div>
     <div class="col-12 mt-2">
-        {% include 'django_spire/form/button/submit_button.html' %}
+        {% include 'django_spire/glue/form/button/submit_button.html' %}
     </div>
-</form>
+</div>

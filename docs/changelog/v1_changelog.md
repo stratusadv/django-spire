@@ -1,3 +1,22 @@
+## v1.0.1-rc2 - August 6, 2026
+
+#### Fixes
+
+- Fixed Glue form select widgets causing browser freezes with foreign key choice fields.
+- Improved search-and-select dropdown positioning and stacking inside modals.
+
+## 1.0.1-rc1 - August 6, 2026
+
+#### Changes
+
+- Auth group list permission data now loads through Glue queryset computed attributes instead of a separately serialized template context payload
+- Domain and subdomain services are no longer exposed as Glue attributes, which was causing a bug
+- Updated `multi_file_field.html` to work with `django-glue` v1.0.0.
+
+#### Fixes
+
+- Refactored AI Chat and Knowledge system to work with v1.0.0 and `django-glue` v1.0.0.
+
 ## 1.0.0 - July 31, 2026
 
 #### Breaking

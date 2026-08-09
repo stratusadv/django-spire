@@ -31,7 +31,7 @@
         @deleted_chat.window="load_chat(0)"
         @load-chat.window="load_chat($event.detail.chat_id); if (is_narrow_viewport) show_history = false"
     >
-        <div class="d-flex align-items-center px-4 border-bottom border-primary flex-shrink-0 bg-layer-one" style="height: 52px;">
+        <div class="d-flex align-items-center px-4 border-bottom border-primary flex-shrink-0 bg-body" style="height: 52px;">
             <div class="d-flex align-items-center gap-2">
                 <a
                     @click="show_history = !show_history"
@@ -49,12 +49,12 @@
 
         <div class="d-flex flex-grow-1 overflow-hidden">
             <div
-                class="flex-shrink-0 bg-layer-one overflow-hidden"
-                :class="is_narrow_viewport ? '' : ''"
+                class="flex-shrink-0 bg-body overflow-hidden"
+                :class="show_history && is_narrow_viewport ? '' : 'border-end border-primary'"
                 :style="show_history
                     ? (is_narrow_viewport
                         ? 'position: fixed; width: 100vw; height: 100vh; left: 0; top: 0; z-index: 1050;'
-                        : 'width: 320px; border-right: 1px solid var(--app-primary);')
+                        : 'width: 320px;')
                     : (is_narrow_viewport
                         ? 'display: none;'
                         : 'width: 0;')"
