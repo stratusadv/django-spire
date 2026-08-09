@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@permission_required('metric_visual.delete_visual')
+@permission_required('django_spire_metric_visual.delete_visual')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     visual = get_object_or_404(models.Visual, pk=pk)
     return_url = request.GET.get('return_url', reverse('django_spire:metric:visual:page:list'))
@@ -55,12 +55,12 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
     )
 
 
-@permission_required('metric_visual.add_visual')
+@permission_required('django_spire_metric_visual.add_visual')
 def create_view(request: WSGIRequest) -> TemplateResponse:
     return _form_view(request)
 
 
-@permission_required('metric_visual.change_visual')
+@permission_required('django_spire_metric_visual.change_visual')
 def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
@@ -85,7 +85,7 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     return TemplateResponse(request, 'django_spire/metric/visual/page/form_page.html', context)
 
 
-@permission_required('metric_visual.change_visual')
+@permission_required('django_spire_metric_visual.change_visual')
 def set_default_conditions_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect:
     visual = get_object_or_404(models.Visual, pk=pk)
 
@@ -102,12 +102,12 @@ def set_default_conditions_view(request: WSGIRequest, pk: int) -> HttpResponseRe
     )
 
 
-@permission_required('metric_visual.add_visual')
+@permission_required('django_spire_metric_visual.add_visual')
 def create_condition_view(request: WSGIRequest) -> TemplateResponse:
     return _condition_form_view(request)
 
 
-@permission_required('metric_visual.change_visual')
+@permission_required('django_spire_metric_visual.change_visual')
 def update_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _condition_form_view(request, pk)
 
@@ -142,7 +142,7 @@ def _condition_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     )
 
 
-@permission_required('metric_visual.delete_visual')
+@permission_required('django_spire_metric_visual.delete_visual')
 def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     condition = get_object_or_404(models.VisualCondition.objects.select_related('visual'), pk=pk)
     visual = condition.visual

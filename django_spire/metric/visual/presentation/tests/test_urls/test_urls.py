@@ -7,12 +7,12 @@ from django_spire.metric.visual.presentation.apps import PresentationConfig
 
 class PresentationAppTestCase:
     def test_app_config(self):
-        assert PresentationConfig.label == 'visual_presentation'
+        assert PresentationConfig.label == 'django_spire_metric_visual_presentation'
         assert PresentationConfig.name == 'django_spire.metric.visual.presentation'
         assert PresentationConfig.REQUIRED_APPS == (
             'django_spire_core',
-            'metric_domain',
-            'metric_visual',
+            'django_spire_metric_domain',
+            'django_spire_metric_visual',
         )
 
     def test_list_page_url(self):

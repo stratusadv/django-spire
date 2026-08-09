@@ -32,7 +32,7 @@ class Presentation(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Presentation'
         verbose_name_plural = 'Presentations'
-        db_table = 'metric_visual_presentation'
+        db_table = 'django_spire_metric_visual_presentation'
 
 
 class Slide(HistoryModelMixin, ActivityMixin):
@@ -57,7 +57,7 @@ class Slide(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Slide'
         verbose_name_plural = 'Slides'
-        db_table = 'metric_visual_slide'
+        db_table = 'django_spire_metric_visual_slide'
         ordering = ('order',)
         constraints = [
             models.UniqueConstraint(
@@ -71,7 +71,7 @@ class SlideSection(HistoryModelMixin, ActivityMixin):
         Slide, on_delete=models.CASCADE, related_name='sections', related_query_name='section'
     )
     visual = models.ForeignKey(
-        'metric_visual.Visual',
+        'django_spire_metric_visual.Visual',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -93,5 +93,5 @@ class SlideSection(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Slide Section'
         verbose_name_plural = 'Slide Sections'
-        db_table = 'metric_visual_slide_section'
+        db_table = 'django_spire_metric_visual_slide_section'
         ordering = ('row', 'col')

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.metric_domain.add_subdomain %}
+    {% if perms.django_spire_metric_domain.add_subdomain %}
         {% url 'django_spire:metric:domain:form:subdomain_form' domain_pk=domain.pk pk=0 as new_subdomain_url %}
         <a class="btn btn-sm btn-primary" href="{{ new_subdomain_url }}">
             <i class="bi bi-plus"></i>

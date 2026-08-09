@@ -30,7 +30,7 @@ def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
     return context
 
 
-@permission_required('metric_visual.view_visual')
+@permission_required('django_spire_metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     visual = get_object_or_404(models.Visual.objects.with_statistic().with_conditions(), pk=pk)
 
@@ -47,7 +47,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('metric_visual.view_visual')
+@permission_required('django_spire_metric_visual.view_visual')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     visuals = models.Visual.objects.with_statistic()
 

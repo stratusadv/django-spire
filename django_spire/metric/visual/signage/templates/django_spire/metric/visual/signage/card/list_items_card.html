@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.visual_signage.add_signage %}
+    {% if perms.django_spire_metric_visual_signage.add_signage %}
         {% url 'django_spire:metric:visual:signage:form:create' as new_signage_url %}
         <a class="btn btn-sm btn-primary" href="{{ new_signage_url }}">
             <i class="bi bi-plus"></i>

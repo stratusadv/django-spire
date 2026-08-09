@@ -20,7 +20,7 @@ class Signage(HistoryModelMixin, ActivityMixin):
     key = models.UUIDField(default=uuid4, unique=True, editable=False)
 
     presentations = models.ManyToManyField(
-        'visual_presentation.Presentation',
+        'django_spire_metric_visual_presentation.Presentation',
         through='SignagePresentation',
         through_fields=('signage', 'presentation'),
         related_name='signages',
@@ -43,7 +43,7 @@ class Signage(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Signage'
         verbose_name_plural = 'Signages'
-        db_table = 'metric_visual_signage'
+        db_table = 'django_spire_metric_visual_signage'
 
 
 class SignagePresentation(HistoryModelMixin, ActivityMixin):
@@ -54,7 +54,7 @@ class SignagePresentation(HistoryModelMixin, ActivityMixin):
         related_query_name='signage_presentation',
     )
     presentation = models.ForeignKey(
-        'visual_presentation.Presentation',
+        'django_spire_metric_visual_presentation.Presentation',
         on_delete=models.CASCADE,
         related_name='presentation_links',
         related_query_name='presentation_link',
@@ -70,7 +70,7 @@ class SignagePresentation(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Signage Presentation'
         verbose_name_plural = 'Signage Presentations'
-        db_table = 'metric_visual_signage_presentation'
+        db_table = 'django_spire_metric_visual_signage_presentation'
         ordering = ('order',)
         constraints = [
             models.UniqueConstraint(

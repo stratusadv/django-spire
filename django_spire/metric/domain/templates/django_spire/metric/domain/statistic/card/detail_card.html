@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.metric_domain.change_statistic %}
+    {% if perms.django_spire_metric_domain.change_statistic %}
         {% url 'django_spire:metric:domain:statistic:form:update' pk=statistic.pk as statistic_edit_url %}
         <a class="btn btn-sm btn-primary" href="{{ statistic_edit_url }}">
             <i class="bi bi-pencil"></i>
@@ -13,7 +13,7 @@
         </a>
     {% endif %}
 
-    {% if perms.metric_domain.delete_statistic %}
+    {% if perms.django_spire_metric_domain.delete_statistic %}
         {% url 'django_spire:metric:domain:statistic:form:delete' pk=statistic.pk as statistic_delete_url %}
         <a class="btn btn-sm btn-primary" href="{{ statistic_delete_url }}">
             <i class="bi bi-eraser"></i>

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@permission_required('visual_signage.view_signage')
+@permission_required('django_spire_metric_visual_signage.view_signage')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     signage = get_object_or_404(models.Signage, pk=pk)
 
@@ -33,7 +33,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('visual_signage.view_signage')
+@permission_required('django_spire_metric_visual_signage.view_signage')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     signages = models.Signage.objects.all()
 

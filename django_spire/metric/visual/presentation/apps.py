@@ -7,7 +7,7 @@ from django_spire.tools import check_required_apps
 
 class PresentationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'visual_presentation'
+    label = 'django_spire_metric_visual_presentation'
     name = 'django_spire.metric.visual.presentation'
     verbose_name = 'DJANGO_SPIRE_METRIC_VISUAL_PRESENTATION'
 
@@ -20,7 +20,11 @@ class PresentationConfig(AppConfig):
         },
     )
 
-    REQUIRED_APPS = ('django_spire_core', 'metric_domain', 'metric_visual')
+    REQUIRED_APPS = (
+        'django_spire_core',
+        'django_spire_metric_domain',
+        'django_spire_metric_visual',
+    )
 
     def ready(self) -> None:
         check_required_apps(self.label)

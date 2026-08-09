@@ -7,13 +7,13 @@ from django_spire.metric.visual.signage.apps import SignageConfig
 
 class SignageAppTestCase:
     def test_app_config(self):
-        assert SignageConfig.label == 'visual_signage'
+        assert SignageConfig.label == 'django_spire_metric_visual_signage'
         assert SignageConfig.name == 'django_spire.metric.visual.signage'
         assert SignageConfig.REQUIRED_APPS == (
             'django_spire_core',
-            'metric_domain',
-            'metric_visual',
-            'visual_presentation',
+            'django_spire_metric_domain',
+            'django_spire_metric_visual',
+            'django_spire_metric_visual_presentation',
         )
 
     def test_list_page_url(self):

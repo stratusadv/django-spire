@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 from django.template.response import TemplateResponse
 
 
-@permission_required('metric_domain.view_domain')
+@permission_required('django_spire_metric_domain.view_domain')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
     subdomains = domain.subdomains.active()
@@ -34,7 +34,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('metric_domain.view_domain')
+@permission_required('django_spire_metric_domain.view_domain')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     domains = models.Domain.objects.active()
 
@@ -50,7 +50,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-@permission_required('metric_domain.view_subdomain')
+@permission_required('django_spire_metric_domain.view_subdomain')
 def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse:
     subdomain = get_object_or_404(models.SubDomain, domain_id=domain_pk, pk=pk)
 

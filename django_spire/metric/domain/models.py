@@ -31,7 +31,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Domain'
         verbose_name_plural = 'Domains'
-        db_table = 'metric_domain'
+        db_table = 'django_spire_metric_domain'
 
 
 class SubDomain(HistoryModelMixin, ActivityMixin):
@@ -51,4 +51,4 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Sub Domain'
         verbose_name_plural = 'Sub Domains'
-        db_table = 'metric_sub_domain'
+        db_table = 'django_spire_metric_sub_domain'

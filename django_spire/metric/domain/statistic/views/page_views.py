@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@permission_required('metric_domain.view_statisticgroup')
+@permission_required('django_spire_metric_domain.view_statisticgroup')
 def group_list_view(request: WSGIRequest) -> TemplateResponse:
     groups = (
         models.StatisticGroup.objects.active()
@@ -35,7 +35,7 @@ def group_list_view(request: WSGIRequest) -> TemplateResponse:
     )
 
 
-@permission_required('metric_domain.view_statisticgroup')
+@permission_required('django_spire_metric_domain.view_statisticgroup')
 def group_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.StatisticGroup, pk=pk)
 
@@ -53,7 +53,7 @@ def group_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('metric_domain.view_statistic')
+@permission_required('django_spire_metric_domain.view_statistic')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     statistic = get_object_or_404(models.Statistic, pk=pk)
 
@@ -77,7 +77,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('metric_domain.view_statistic')
+@permission_required('django_spire_metric_domain.view_statistic')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     statistics = (
         models.Statistic.objects.active()

@@ -7,7 +7,7 @@ from django_spire.tools import check_required_apps
 
 class DomainConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'metric_domain'
+    label = 'django_spire_metric_domain'
     name = 'django_spire.metric.domain'
     verbose_name = 'DJANGO_SPIRE_METRIC_DOMAIN'
 

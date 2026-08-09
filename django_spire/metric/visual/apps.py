@@ -7,7 +7,7 @@ from django_spire.tools import check_required_apps
 
 class VisualConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'metric_visual'
+    label = 'django_spire_metric_visual'
     name = 'django_spire.metric.visual'
     verbose_name = 'DJANGO_SPIRE_METRIC_VISUAL'
 
@@ -55,7 +55,7 @@ class VisualConfig(AppConfig):
         },
     )
 
-    REQUIRED_APPS = ('django_spire_core', 'metric_domain')
+    REQUIRED_APPS = ('django_spire_core', 'django_spire_metric_domain')
     URLPATTERNS_INCLUDE = 'django_spire.metric.visual.urls'
     URLPATTERNS_NAMESPACE = 'visual'
 

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.metric_domain.change_subdomain %}
+    {% if perms.django_spire_metric_domain.change_subdomain %}
         {% url 'django_spire:metric:domain:form:subdomain_form' domain_pk=domain_pk pk=subdomain.pk as subdomain_edit_url %}
         <a class="btn btn-sm btn-primary" href="{{ subdomain_edit_url }}">
             <i class="bi bi-pencil"></i>
@@ -13,7 +13,7 @@
         </a>
     {% endif %}
 
-    {% if perms.metric_domain.delete_subdomain %}
+    {% if perms.django_spire_metric_domain.delete_subdomain %}
         {% url 'django_spire:metric:domain:form:delete_subdomain' domain_pk=domain_pk pk=subdomain.pk as subdomain_delete_url %}
         <a class="btn btn-sm btn-primary" href="{{ subdomain_delete_url }}">
             <i class="bi bi-eraser"></i>

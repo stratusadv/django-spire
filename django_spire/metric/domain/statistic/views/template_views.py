@@ -6,7 +6,7 @@ from django.template.response import TemplateResponse
 from django_spire.metric.domain.statistic import models
 
 
-@permission_required('metric_domain.view_statistic')
+@permission_required('django_spire_metric_domain.view_statistic')
 def items_view(request) -> TemplateResponse:  # noqa: ANN001
     sort_field = request.GET.get('sort', 'name')
     sort_direction = request.GET.get('direction', 'asc')

@@ -7,7 +7,7 @@ from django_spire.tools import check_required_apps
 
 class MetricConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'metric'
+    label = 'django_spire_metric'
     name = 'django_spire.metric'
 
     REQUIRED_APPS = ('django_spire_core',)

@@ -7,7 +7,7 @@ from django_spire.tools import check_required_apps
 
 class SignageConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    label = 'visual_signage'
+    label = 'django_spire_metric_visual_signage'
     name = 'django_spire.metric.visual.signage'
     verbose_name = 'DJANGO_SPIRE_METRIC_VISUAL_SIGNAGE'
 
@@ -20,7 +20,12 @@ class SignageConfig(AppConfig):
         },
     )
 
-    REQUIRED_APPS = ('django_spire_core', 'metric_domain', 'metric_visual', 'visual_presentation')
+    REQUIRED_APPS = (
+        'django_spire_core',
+        'django_spire_metric_domain',
+        'django_spire_metric_visual',
+        'django_spire_metric_visual_presentation',
+    )
 
     def ready(self) -> None:
         check_required_apps(self.label)

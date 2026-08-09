@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.metric_visual.change_visual %}
+    {% if perms.django_spire_metric_visual.change_visual %}
         {% url 'django_spire:metric:visual:form:update' pk=visual.pk as visual_edit_url %}
         <a class="btn btn-sm btn-primary" href="{{ visual_edit_url }}">
             <i class="bi bi-pencil"></i>
@@ -13,7 +13,7 @@
         </a>
     {% endif %}
 
-    {% if perms.metric_visual.delete_visual %}
+    {% if perms.django_spire_metric_visual.delete_visual %}
         {% url 'django_spire:metric:visual:form:delete' pk=visual.pk as visual_delete_url %}
         <a class="btn btn-sm btn-outline-danger" href="{{ visual_delete_url }}">
             <i class="bi bi-eraser"></i>

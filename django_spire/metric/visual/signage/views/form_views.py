@@ -31,7 +31,7 @@ def _signage_breadcrumbs(nav: SignageNavigation, signage: models.Signage) -> Non
     nav.breadcrumbs.add(str(signage), SIGNAGE_DETAIL_URL, {'pk': signage.pk})
 
 
-@permission_required('visual_signage.delete_signage')
+@permission_required('django_spire_metric_visual_signage.delete_signage')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     signage = get_object_or_404(models.Signage, pk=pk)
     return_url = request.GET.get(
@@ -69,12 +69,12 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
     )
 
 
-@permission_required('visual_signage.add_signage')
+@permission_required('django_spire_metric_visual_signage.add_signage')
 def create_view(request: WSGIRequest) -> TemplateResponse:
     return _form_view(request)
 
 
-@permission_required('visual_signage.change_signage')
+@permission_required('django_spire_metric_visual_signage.change_signage')
 def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
@@ -101,12 +101,12 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     )
 
 
-@permission_required('visual_signage.add_signagepresentation')
+@permission_required('django_spire_metric_visual_signage.add_signagepresentation')
 def create_link_view(request: WSGIRequest) -> TemplateResponse:
     return _link_form_view(request)
 
 
-@permission_required('visual_signage.change_signagepresentation')
+@permission_required('django_spire_metric_visual_signage.change_signagepresentation')
 def update_link_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _link_form_view(request, pk)
 
@@ -141,7 +141,7 @@ def _link_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | Htt
     )
 
 
-@permission_required('visual_signage.delete_signagepresentation')
+@permission_required('django_spire_metric_visual_signage.delete_signagepresentation')
 def delete_link_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     link = get_object_or_404(
         models.SignagePresentation.objects.select_related('signage', 'presentation'), pk=pk

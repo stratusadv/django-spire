@@ -43,7 +43,7 @@ class Visual(HistoryModelMixin, ActivityMixin):
     description = models.TextField(default='')
 
     statistic = models.ForeignKey(
-        'metric_domain.Statistic',
+        'django_spire_metric_domain.Statistic',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -86,7 +86,7 @@ class Visual(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Visual'
         verbose_name_plural = 'Visuals'
-        db_table = 'metric_visual'
+        db_table = 'django_spire_metric_visual'
 
 
 class IndicatorVisual(Visual):
@@ -237,7 +237,7 @@ class VisualCondition(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Visual Condition'
         verbose_name_plural = 'Visual Conditions'
-        db_table = 'metric_visual_condition'
+        db_table = 'django_spire_metric_visual_condition'
         ordering = ('order',)
         constraints = [
             models.UniqueConstraint(

@@ -11,7 +11,7 @@
         Display
     </a>
 
-    {% if perms.visual_signage.change_signage %}
+    {% if perms.django_spire_metric_visual_signage.change_signage %}
         {% url 'django_spire:metric:visual:signage:form:update' pk=signage.pk as signage_edit_url %}
         <a class="btn btn-sm btn-primary" href="{{ signage_edit_url }}">
             <i class="bi bi-pencil"></i>
@@ -19,7 +19,7 @@
         </a>
     {% endif %}
 
-    {% if perms.visual_signage.delete_signage %}
+    {% if perms.django_spire_metric_visual_signage.delete_signage %}
         {% url 'django_spire:metric:visual:signage:form:delete' pk=signage.pk as signage_delete_url %}
         <a class="btn btn-sm btn-outline-danger" href="{{ signage_delete_url }}">
             <i class="bi bi-eraser"></i>

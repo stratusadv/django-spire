@@ -29,7 +29,7 @@ def _slide_data(request: WSGIRequest, slide: models.Slide) -> dict:
     return {'slide': slide, 'sections': sections}
 
 
-@permission_required('visual_presentation.view_presentation')
+@permission_required('django_spire_metric_visual_presentation.view_presentation')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     presentation = get_object_or_404(
         models.Presentation.objects.with_slides().with_slide_count(), pk=pk
@@ -50,7 +50,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('visual_presentation.view_presentation')
+@permission_required('django_spire_metric_visual_presentation.view_presentation')
 def list_view(request: WSGIRequest) -> TemplateResponse:
     presentations = models.Presentation.objects.with_slide_count()
 

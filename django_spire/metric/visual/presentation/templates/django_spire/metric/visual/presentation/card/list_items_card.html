@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if perms.visual_presentation.add_presentation %}
+    {% if perms.django_spire_metric_visual_presentation.add_presentation %}
         {% url 'django_spire:metric:visual:presentation:form:create' as new_presentation_url %}
         <a class="btn btn-sm btn-primary" href="{{ new_presentation_url }}">
             <i class="bi bi-plus"></i>

@@ -26,7 +26,7 @@ def _presentation_detail_url(presentation_pk: int) -> str:
     return reverse(PRESENTATION_DETAIL_URL, kwargs={'pk': presentation_pk})
 
 
-@permission_required('visual_presentation.delete_presentation')
+@permission_required('django_spire_metric_visual_presentation.delete_presentation')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     presentation = get_object_or_404(models.Presentation, pk=pk)
     return_url = request.GET.get(
@@ -68,12 +68,12 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
     )
 
 
-@permission_required('visual_presentation.add_presentation')
+@permission_required('django_spire_metric_visual_presentation.add_presentation')
 def create_view(request: WSGIRequest) -> TemplateResponse:
     return _form_view(request)
 
 
-@permission_required('visual_presentation.change_presentation')
+@permission_required('django_spire_metric_visual_presentation.change_presentation')
 def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
@@ -100,12 +100,12 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     )
 
 
-@permission_required('visual_presentation.add_slide')
+@permission_required('django_spire_metric_visual_presentation.add_slide')
 def create_slide_view(request: WSGIRequest) -> TemplateResponse:
     return _slide_form_view(request)
 
 
-@permission_required('visual_presentation.change_slide')
+@permission_required('django_spire_metric_visual_presentation.change_slide')
 def update_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _slide_form_view(request, pk)
 
@@ -142,7 +142,7 @@ def _slide_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | Ht
     )
 
 
-@permission_required('visual_presentation.delete_slide')
+@permission_required('django_spire_metric_visual_presentation.delete_slide')
 def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     slide = get_object_or_404(models.Slide.objects.select_related('presentation'), pk=pk)
     presentation = slide.presentation
@@ -183,12 +183,12 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
     )
 
 
-@permission_required('visual_presentation.add_slidesection')
+@permission_required('django_spire_metric_visual_presentation.add_slidesection')
 def create_section_view(request: WSGIRequest) -> TemplateResponse:
     return _section_form_view(request)
 
 
-@permission_required('visual_presentation.change_slidesection')
+@permission_required('django_spire_metric_visual_presentation.change_slidesection')
 def update_section_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _section_form_view(request, pk)
 
@@ -230,7 +230,7 @@ def _section_form_view(
     )
 
 
-@permission_required('visual_presentation.delete_slidesection')
+@permission_required('django_spire_metric_visual_presentation.delete_slidesection')
 def delete_section_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     section = get_object_or_404(
         models.SlideSection.objects.select_related('slide__presentation'), pk=pk

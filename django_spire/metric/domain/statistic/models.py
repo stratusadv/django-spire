@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 class StatisticGroup(HistoryModelMixin, ActivityMixin):
     domain = models.ForeignKey(
-        'metric_domain.Domain',
+        'django_spire_metric_domain.Domain',
         on_delete=models.CASCADE,
         related_name='statistic_groups',
         related_query_name='statistic_group',
@@ -40,7 +40,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Statistic Group'
         verbose_name_plural = 'Statistics Group'
-        db_table = 'metric_domain_statistic_group'
+        db_table = 'django_spire_metric_domain_statistic_group'
 
     def subdomains_qs(self) -> QuerySet[SubDomain]:
         return self.domain.subdomains.active()
@@ -72,7 +72,7 @@ class Statistic(HistoryModelMixin, ActivityMixin):
     class Meta:
         verbose_name = 'Statistic'
         verbose_name_plural = 'Statistics'
-        db_table = 'metric_domain_statistic'
+        db_table = 'django_spire_metric_domain_statistic'
 
     def __str__(self) -> str:
         return self.name
@@ -95,7 +95,7 @@ class StatisticValue(models.Model):
     class Meta:
         verbose_name = 'Statistic Value'
         verbose_name_plural = 'Statistic Values'
-        db_table = 'metric_domain_statistic_value'
+        db_table = 'django_spire_metric_domain_statistic_value'
         constraints = [
             models.UniqueConstraint(
                 fields=('statistic', 'reference', 'date'),

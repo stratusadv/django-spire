@@ -39,7 +39,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseR
     )
 
 
-@permission_required('metric_domain.delete_domain')
+@permission_required('django_spire_metric_domain.delete_domain')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
     return_url = safe_redirect_url(
@@ -113,7 +113,7 @@ def subdomain_form_view(
     )
 
 
-@permission_required('metric_domain.delete_subdomain')
+@permission_required('django_spire_metric_domain.delete_subdomain')
 def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) -> TemplateResponse:
     subdomain = get_object_or_404(models.SubDomain, domain_id=domain_pk, pk=pk)
     domain_detail_url = reverse('django_spire:metric:domain:page:detail', kwargs={'pk': domain_pk})

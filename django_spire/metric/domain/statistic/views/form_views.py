@@ -22,17 +22,17 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@permission_required('metric_domain.add_statisticgroup')
+@permission_required('django_spire_metric_domain.add_statisticgroup')
 def group_create_view(request: WSGIRequest) -> TemplateResponse:
     return _group_form_view(request)
 
 
-@permission_required('metric_domain.change_statisticgroup')
+@permission_required('django_spire_metric_domain.change_statisticgroup')
 def group_update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _group_form_view(request, pk)
 
 
-@permission_required('metric_domain.delete_statisticgroup')
+@permission_required('django_spire_metric_domain.delete_statisticgroup')
 def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     group = get_object_or_404(models.StatisticGroup, pk=pk)
     return_url = safe_redirect_url(
@@ -71,17 +71,17 @@ def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     )
 
 
-@permission_required('metric_domain.add_statistic')
+@permission_required('django_spire_metric_domain.add_statistic')
 def create_view(request: WSGIRequest) -> TemplateResponse:
     return _form_view(request)
 
 
-@permission_required('metric_domain.change_statistic')
+@permission_required('django_spire_metric_domain.change_statistic')
 def update_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _form_view(request, pk)
 
 
-@permission_required('metric_domain.delete_statistic')
+@permission_required('django_spire_metric_domain.delete_statistic')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     statistic = get_object_or_404(models.Statistic, pk=pk)
     return_url = safe_redirect_url(
