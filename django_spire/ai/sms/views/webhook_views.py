@@ -68,7 +68,8 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
 
         if code_valid:
             sms_auth.services.processor.open_session()
-            return _twiml_response('Session unlocked. You can ask your questions now.')
+            persona_name = getattr(settings, 'DJANGO_SPIRE_AI_PERSONA_NAME', 'AI Assistant')
+            return _twiml_response(f'{persona_name} Chat Unlocked! You can ask your questions now.')
 
     return _twiml_response(
         'This session is locked. Generate an unlock code in the app, then text it here.'

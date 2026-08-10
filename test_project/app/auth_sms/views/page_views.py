@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
 
 from django_spire.auth.sms.models import AuthSms
+from django_spire.auth.sms.utils import phone_number_format_display
 from django_spire.conf import settings
 
 from test_project.app.auth_sms.navigation import AuthSmsNavigation
@@ -25,6 +26,7 @@ def phone_verification_view(request: WSGIRequest) -> TemplateResponse:
     context = nav.as_context()
     context['sms_auth'] = sms_auth
     context['code_expiry_minutes'] = settings.DJANGO_SPIRE_AUTH_SMS_CODE_EXPIRY_MINUTES
+    context['sender_phone_number'] = phone_number_format_display(settings.TWILIO_PHONE_NUMBER)
 
     return TemplateResponse(
         request, context=context, template='auth_sms/page/phone_verification_page.html'

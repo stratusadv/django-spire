@@ -1,7 +1,5 @@
 {% load django_spire_core %}
 
-{% with enrollment_start_url='django_spire:auth:sms:enrollment:start' enrollment_confirm_url='django_spire:auth:sms:enrollment:confirm' session_code_url='django_spire:auth:sms:session_code' %}
-
 <div
     class="card"
     x-data="{
@@ -40,7 +38,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url enrollment_start_url %}',
+                '{% url "django_spire:auth:sms:enrollment:start" %}',
                 {phone_number: this.phone_number}
             );
 
@@ -62,7 +60,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url enrollment_confirm_url %}',
+                '{% url "django_spire:auth:sms:enrollment:confirm" %}',
                 {phone_number: this.current_phone_number, code: this.code}
             );
 
@@ -84,7 +82,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url session_code_url %}',
+                '{% url "django_spire:auth:sms:session_code" %}',
                 {phone_number: this.current_phone_number}
             );
 
@@ -99,22 +97,24 @@
         }
     }"
 >
-    <div class="card-header">
-        <div class="row">
-            <div class="col card-title">
-                <i class="bi bi-phone-fill"></i>
-                Phone Number
-            </div>
-            <div class="col-auto">
-                <template x-if="is_verified">
-                    <span class="badge text-bg-success">Verified</span>
-                </template>
-                <template x-if="!is_verified">
-                    <span class="badge text-bg-secondary">Not Verified</span>
-                </template>
+    {% if not hide_card_header %}
+        <div class="card-header">
+            <div class="row">
+                <div class="col card-title">
+                    <i class="bi bi-phone-fill"></i>
+                    Phone Number
+                </div>
+                <div class="col-auto">
+                    <template x-if="is_verified">
+                        <span class="badge text-bg-success">Verified</span>
+                    </template>
+                    <template x-if="!is_verified">
+                        <span class="badge text-bg-secondary">Not Verified</span>
+                    </template>
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 
     <div class="card-body">
         <template x-if="error_message">
@@ -187,20 +187,20 @@
                         <span class="badge text-bg-success">Verified</span>
                     </div>
                     <div class="text-muted small">
-                        This phone number can be used to unlock an SMS AI session.
+                        Your phone number is ready to get a chat code.
                     </div>
                 </div>
                 <div class="col-12">
                     <button class="btn btn-primary" type="button" @click="generate_session_code" :disabled="loading">
                         <i class="bi bi-unlock-fill"></i>
-                        Generate Session Code
+                        Get My Code
                     </button>
                 </div>
 
                 <template x-if="session_code">
                     <div class="col-12">
                         <div class="alert alert-info">
-                            <div class="fw-semibold">Your session code:</div>
+                            <div class="fw-semibold">Your code:</div>
                             <div class="display-6 text-center fw-bold" x-text="session_code"></div>
                             <div class="small text-muted">
                                 Text this code to your SMS number. It expires in
@@ -213,5 +213,3 @@
         </template>
     </div>
 </div>
-
-{% endwith %}

@@ -1,0 +1,120 @@
+<template x-if="error_message">
+    <div class="alert alert-danger py-2" x-text="error_message"></div>
+</template>
+
+<template x-if="!is_verified && step === 'pending'">
+    <div class="row g-2">
+        <div class="col-12 p-0 mt-0">
+            <div class="alert alert-info small text-muted mb-0">
+                Only trust a reply that comes from <strong>{{ sender_phone_number|default:'our number' }}</strong>. We'll never message you from any other number.
+            </div>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Phone Number</label>
+            <input
+                class="form-control"
+                type="tel"
+                x-model="phone_number"
+                placeholder="e.g. 555-123-4567"
+                 @keydown.enter.prevent="send_code"
+            />
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="button" @click="send_code" :disabled="loading">
+                <i class="bi bi-send-fill"></i>
+                Send Verification Code
+            </button>
+        </div>
+    </div>
+</template>
+
+<template x-if="!is_verified && step === 'code'">
+    <div class="row g-2">
+        <div class="col-12">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-semibold" x-text="masked_phone_number()"></span>
+                <button class="btn btn-link btn-sm p-0" type="button" @click="switch_to('pending')">
+                    Change
+                </button>
+            </div>
+            <div class="text-muted small">
+                Enter the 6-digit code we texted you from
+                <strong>{{ sender_phone_number|default:'our number' }}</strong>.
+                It expires after {{ code_expiry_minutes }} minutes.
+            </div>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Verification Code</label>
+            <input
+                class="form-control text-center"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                x-model="code"
+                x-init="$el.focus(); $el.select()"
+                placeholder="000000"
+                @keydown.enter.prevent="confirm_code"
+            />
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="button" @click="confirm_code" :disabled="loading">
+                <i class="bi bi-check2-circle"></i>
+                Verify Phone Number
+            </button>
+            <a class="btn btn-link" @click.prevent="resend_code">
+                Resend Code
+            </a>
+        </div>
+    </div>
+</template>
+
+<template x-if="is_verified">
+    <div class="row g-2">
+        <div class="col-12 p-0 mt-0 mb-2">
+            <div class="alert alert-info small text-muted mb-0">
+                Only trust a reply that comes from <strong>{{ sender_phone_number|default:'our number' }}</strong>. We'll never message you from any other number.
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-semibold" x-text="masked_phone_number()"></span>
+                <span class="badge text-bg-success">Verified</span>
+            </div>
+            <div class="text-muted small">
+                Your phone number is ready to get a chat code from<br>
+                <strong>{{ sender_phone_number|default:'our number' }}</strong>.
+            </div>
+        </div>
+        <div class="col-12 mb-2">
+            <button class="btn btn-primary" type="button" @click="generate_session_code" :disabled="loading">
+                <i class="bi bi-unlock-fill"></i>
+                Get My Code
+            </button>
+        </div>
+
+        <template x-if="session_code">
+            <div class="col-12">
+                <div class="alert alert-info mb-0">
+                    <div class="fw-semibold">Your code:</div>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <div class="display-6 fw-bold" x-text="session_code"></div>
+                        <i
+                            class="bi bi-copy fs-4 ms-2 fw-bold cursor-pointer"
+                            @click="navigator.clipboard.writeText(session_code); notify_success = true; setTimeout(() => notify_success = false, 1500)"
+                        ></i>
+                    </div>
+                    <div x-show="notify_success" class="text-center text-success small">
+                        Code copied to clipboard
+                    </div>
+                    <div class="small text-muted">
+                        Text this code from your verified phone number to
+                        <strong>{{ sender_phone_number|default:'our number' }}</strong>.
+                        It expires in
+                        <span x-text="session_expiry_minutes"></span> minutes.
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>
