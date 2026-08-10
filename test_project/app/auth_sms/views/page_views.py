@@ -29,5 +29,7 @@ def phone_verification_view(request: WSGIRequest) -> TemplateResponse:
     context['sender_phone_number'] = phone_number_format_display(settings.TWILIO_PHONE_NUMBER)
 
     return TemplateResponse(
-        request, context=context, template='auth_sms/page/phone_verification_page.html'
+        request,
+        context=context,
+        template='auth/sms/page/phone_verification_page.html'
     )
