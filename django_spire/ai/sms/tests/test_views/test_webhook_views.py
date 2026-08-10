@@ -10,8 +10,8 @@ from django.utils.timezone import now
 
 from django_spire.ai.sms.intelligence.intel import SmsIntel
 from django_spire.ai.sms.models import SmsConversation
-from django_spire.auth.sms.choices import SmsAuthCodePurposeChoices
-from django_spire.auth.sms.models import SmsAuth
+from django_spire.auth.sms.choices import AuthSmsCodePurposeChoices
+from django_spire.auth.sms.models import AuthSms
 from django_spire.core.tests.test_cases import BaseTestCase
 
 WORKFLOW_PATH = 'django_spire.ai.sms.views.webhook_views.sms_conversation_workflow'
@@ -26,13 +26,13 @@ class SmsWebhookTests(BaseTestCase):
 
         self.webhook_url = reverse('django_spire:ai:sms:webhook')
 
-        self.phone_number = SmsAuth.objects.create(
+        self.phone_number = AuthSms.objects.create(
             user=self.super_user,
             phone_number='+15551234567',
             is_verified=True,
         )
 
-        self.phone_number.services.session_open()
+        self.phone_number.services.processor.open_session()
 
     def _post_webhook(self, body: str, from_number: str = '+15551234567', sid: str = 'SM123456789'):
         post_data = {
@@ -80,7 +80,7 @@ class SmsWebhookTests(BaseTestCase):
     def test_webhook_unverified_number_is_silent(self, mock_validate, mock_workflow) -> None:
         mock_validate.return_value = True
 
-        SmsAuth.objects.create(
+        AuthSms.objects.create(
             user=self.super_user,
             phone_number='+15558888888',
             is_verified=False,
@@ -97,7 +97,7 @@ class SmsWebhookTests(BaseTestCase):
     def test_webhook_locked_session_prompts_unlock(self, mock_validate, mock_workflow) -> None:
         mock_validate.return_value = True
 
-        self.phone_number.services.session_close()
+        self.phone_number.services.processor.close_session()
 
         response = self._post_webhook('What is our Q3 revenue?')
 
@@ -110,9 +110,9 @@ class SmsWebhookTests(BaseTestCase):
     def test_webhook_unlock_code_opens_session(self, mock_validate) -> None:
         mock_validate.return_value = True
 
-        self.phone_number.services.session_close()
+        self.phone_number.services.processor.close_session()
 
-        code = self.phone_number.services.code_issue(SmsAuthCodePurposeChoices.SESSION)
+        code = self.phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.SESSION)
 
         response = self._post_webhook(code)
 
@@ -120,15 +120,15 @@ class SmsWebhookTests(BaseTestCase):
         assert b'unlocked' in response.content
 
         self.phone_number.refresh_from_db()
-        assert self.phone_number.services.session_is_active
+        assert self.phone_number.session_is_active
 
     @patch('twilio.request_validator.RequestValidator.validate')
     def test_webhook_wrong_code_stays_locked(self, mock_validate) -> None:
         mock_validate.return_value = True
 
-        self.phone_number.services.session_close()
+        self.phone_number.services.processor.close_session()
 
-        code = self.phone_number.services.code_issue(SmsAuthCodePurposeChoices.SESSION)
+        code = self.phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.SESSION)
         wrong_code = '000000' if code != '000000' else '111111'
 
         response = self._post_webhook(wrong_code)
@@ -137,16 +137,16 @@ class SmsWebhookTests(BaseTestCase):
         assert b'locked' in response.content
 
         self.phone_number.refresh_from_db()
-        assert not self.phone_number.services.session_is_active
+        assert not self.phone_number.session_is_active
         assert self.phone_number.code_attempt_count == 1
 
     @patch('twilio.request_validator.RequestValidator.validate')
     def test_webhook_expired_code_stays_locked(self, mock_validate) -> None:
         mock_validate.return_value = True
 
-        self.phone_number.services.session_close()
+        self.phone_number.services.processor.close_session()
 
-        code = self.phone_number.services.code_issue(SmsAuthCodePurposeChoices.SESSION)
+        code = self.phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.SESSION)
 
         self.phone_number.code_expiration_datetime = now() - timedelta(minutes=1)
         self.phone_number.save()
@@ -157,15 +157,15 @@ class SmsWebhookTests(BaseTestCase):
         assert b'locked' in response.content
 
         self.phone_number.refresh_from_db()
-        assert not self.phone_number.services.session_is_active
+        assert not self.phone_number.session_is_active
 
     @patch('twilio.request_validator.RequestValidator.validate')
     def test_webhook_attempt_limit_blocks_code(self, mock_validate) -> None:
         mock_validate.return_value = True
 
-        self.phone_number.services.session_close()
+        self.phone_number.services.processor.close_session()
 
-        code = self.phone_number.services.code_issue(SmsAuthCodePurposeChoices.SESSION)
+        code = self.phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.SESSION)
 
         self.phone_number.code_attempt_count = 5
         self.phone_number.save()

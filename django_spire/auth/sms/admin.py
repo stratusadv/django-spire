@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-from django_spire.auth.sms.models import SmsAuth
+from django_spire.auth.sms.models import AuthSms
 
 
-@admin.register(SmsAuth)
-class SmsAuthAdmin(admin.ModelAdmin):
+@admin.register(AuthSms)
+class AuthSmsAdmin(admin.ModelAdmin):
     list_display = ('phone_number', 'user', 'is_verified', 'verified_datetime')
     list_filter = ('is_verified',)
     search_fields = ('phone_number', 'user__username', 'user__email')

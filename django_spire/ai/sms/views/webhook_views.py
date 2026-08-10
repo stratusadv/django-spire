@@ -13,11 +13,10 @@ from django_spire.ai.sms.models import (
     SmsConversation,
     SmsMessage,
 )
-from django_spire.auth.sms.choices import SmsAuthCodePurposeChoices
+from django_spire.auth.sms.choices import AuthSmsCodePurposeChoices
 from django_spire.auth.sms.constants import CODE_DIGIT_COUNT, PHONE_NUMBER_LENGTH_MIN
 from django_spire.auth.sms.decorators import twilio_auth_required
-from django_spire.auth.sms.models import SmsAuth
-from django_spire.auth.sms.throttling import throttle_allowed
+from django_spire.auth.sms.models import AuthSms
 from django_spire.conf import settings
 
 if TYPE_CHECKING:
@@ -42,33 +41,33 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
         log.info('Duplicate SMS webhook delivery ignored for sid %s', message_sid)
         return _twiml_response(None)
 
-    if not throttle_allowed(from_number):
-        log.warning('SMS throttle exceeded for %s', from_number)
-        return _twiml_response(None)
-
-    sms_auth = SmsAuth.objects.verified_by_phone_number(from_number).first()
+    sms_auth = AuthSms.objects.verified_by_phone_number(from_number).first()
 
     if sms_auth is None:
         log.warning('SMS received from unregistered number %s', from_number)
         return _twiml_response(None)
 
+    if not sms_auth.throttle_allowed():
+        log.warning('SMS throttle exceeded for %s', from_number)
+        return _twiml_response(None)
+
     if len(body) > settings.DJANGO_SPIRE_AI_SMS_BODY_LENGTH_MAX:
         return _twiml_response('Your message is too long. Please send a shorter message.')
 
-    if sms_auth.services.session_is_active:
-        sms_auth.services.session_touch()
+    if sms_auth.session_is_active:
+        sms_auth.services.processor.touch_session()
         return _conversation_response(request, sms_auth, body, message_sid)
 
     body_stripped = body.strip()
 
     if len(body_stripped) == CODE_DIGIT_COUNT and body_stripped.isdigit():
-        code_valid = sms_auth.services.code_confirm(
+        code_valid = sms_auth.services.processor.confirm_code(
             body_stripped,
-            SmsAuthCodePurposeChoices.SESSION,
+            AuthSmsCodePurposeChoices.SESSION,
         )
 
         if code_valid:
-            sms_auth.services.session_open()
+            sms_auth.services.processor.open_session()
             return _twiml_response('Session unlocked. You can ask your questions now.')
 
     return _twiml_response(
@@ -78,7 +77,7 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
 
 def _conversation_response(
     request: WSGIRequest,
-    sms_auth: SmsAuth,
+    sms_auth: AuthSms,
     body: str,
     message_sid: str,
 ) -> HttpResponse:

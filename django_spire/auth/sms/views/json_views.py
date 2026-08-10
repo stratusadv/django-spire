@@ -6,9 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from twilio.rest import Client
 
-from django_spire.auth.sms.choices import SmsAuthCodePurposeChoices
-from django_spire.auth.sms.models import SmsAuth
-from django_spire.auth.sms.throttling import throttle_allowed
+from django_spire.auth.sms.choices import AuthSmsCodePurposeChoices
+from django_spire.auth.sms.models import AuthSms
 from django_spire.auth.sms.utils import phone_number_normalize
 from django_spire.conf import settings
 from django_spire.contrib.decorators import valid_ajax_request_required
@@ -42,26 +41,24 @@ def enrollment_start_view(request: WSGIRequest) -> JsonResponse:
             'That phone number is not valid. Please check it and try again.'
         )
 
-    if not throttle_allowed(phone_number_normalized):
-        return error_json_response(
-            'You have requested too many codes. Please wait a moment and try again.'
-        )
+    auth_sms = AuthSms.objects.filter(phone_number=phone_number_normalized).first()
 
-    sms_auth = SmsAuth.objects.filter(phone_number=phone_number_normalized).first()
-
-    if sms_auth is not None and sms_auth.user_id != request.user.id:
+    if auth_sms is not None and auth_sms.user_id != request.user.id:
         return error_json_response(
             'That phone number is already in use by another account.'
         )
 
-    if sms_auth is None:
-        phone_number = SmsAuth.objects.create(
+    if auth_sms is None:
+        auth_sms = AuthSms.objects.create(
             user=request.user, phone_number=phone_number_normalized
         )
-    else:
-        phone_number = sms_auth
 
-    code = phone_number.services.code_issue(SmsAuthCodePurposeChoices.ENROLLMENT)
+    if not auth_sms.throttle_allowed():
+        return error_json_response(
+            'You have requested too many codes. Please wait a moment and try again.'
+        )
+
+    code = auth_sms.services.processor.issue_code(AuthSmsCodePurposeChoices.ENROLLMENT)
     expiry_minutes = settings.DJANGO_SPIRE_AUTH_SMS_CODE_EXPIRY_MINUTES
 
     twilio_client = Client(account_sid, auth_token)
@@ -88,7 +85,7 @@ def enrollment_confirm_view(request: WSGIRequest) -> JsonResponse:
             'That phone number is not valid. Please check it and try again.'
         )
 
-    phone_number = SmsAuth.objects.filter(
+    phone_number = AuthSms.objects.filter(
         phone_number=phone_number_normalized, user=request.user
     ).first()
 
@@ -97,14 +94,16 @@ def enrollment_confirm_view(request: WSGIRequest) -> JsonResponse:
             'We could not find a verification request for that phone number.'
         )
 
-    code_valid = phone_number.services.code_confirm(code, SmsAuthCodePurposeChoices.ENROLLMENT)
+    code_valid = phone_number.services.processor.confirm_code(
+        code, AuthSmsCodePurposeChoices.ENROLLMENT
+    )
 
     if not code_valid:
         return error_json_response(
             'That code is not valid or has expired. Please try again.'
         )
 
-    phone_number.services.verified_mark()
+    phone_number.services.processor.mark_verified()
 
     return success_json_response('Your phone number has been verified.')
 
@@ -119,7 +118,7 @@ def session_code_view(request: WSGIRequest) -> JsonResponse:
         return error_json_response('That phone number is not valid. Please check it and try again.')
 
     phone_number = (
-        SmsAuth.objects.verified_by_phone_number(phone_number_normalized)
+        AuthSms.objects.verified_by_phone_number(phone_number_normalized)
         .filter(user=request.user)
         .first()
     )
@@ -129,7 +128,9 @@ def session_code_view(request: WSGIRequest) -> JsonResponse:
 
     return JsonResponse(
         {
-            'code': phone_number.services.code_issue(SmsAuthCodePurposeChoices.SESSION),
+            'code': phone_number.services.processor.issue_code(
+                AuthSmsCodePurposeChoices.SESSION
+            ),
             'expiry_minutes': settings.DJANGO_SPIRE_AUTH_SMS_CODE_EXPIRY_MINUTES
         }
     )
