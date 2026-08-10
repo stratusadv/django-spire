@@ -16,6 +16,7 @@ from django_spire.contrib.seeding.field.seed.helper.custom_helper import CustomF
 from django_spire.contrib.seeding.field.seed.helper.fake_helper import FakeFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.model_helper import ModelFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.mutate_helper import MutateFieldSeedHelper
+from django_spire.contrib.seeding.field.seed.helper.ordered_helper import OrderedFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.helper.random_helper import RandomFieldSeedHelper
 from django_spire.contrib.seeding.field.seed.index_seed import IndexFieldSeed
 from django_spire.contrib.seeding.field.seed.llm_seed import LlmFieldSeed
@@ -36,6 +37,7 @@ class Seeder:
     fake = FakeFieldSeedHelper(locale)
     model = ModelFieldSeedHelper(locale)
     mutate = MutateFieldSeedHelper(locale)
+    ordered = OrderedFieldSeedHelper(locale)
     random = RandomFieldSeedHelper(locale)
 
     cache_enabled = True

@@ -5,6 +5,7 @@ from typing import Any
 from django.db.models import QuerySet
 
 from django_spire.contrib.seeding.field.seed.base import BaseFieldSeed
+from django_spire.contrib.seeding.field.seed.tools import resolve_ordered_index
 
 
 class BaseForeignKeyModelFieldSeed(BaseFieldSeed, ABC):
@@ -24,8 +25,14 @@ class BaseForeignKeyModelFieldSeed(BaseFieldSeed, ABC):
 
 
 class OrderedForeignKeyModelFieldSeed(BaseForeignKeyModelFieldSeed):
+    def __init__(self, queryset: QuerySet, wrap: bool = False) -> None:
+        super().__init__(queryset=queryset)
+        self.wrap = wrap
+
     def generate_value(self, seed_index: int) -> Any:
-        return self.model_foreign_keys(seed_index)[seed_index]
+        foreign_keys = self.model_foreign_keys(seed_index)
+        index = resolve_ordered_index(seed_index, len(foreign_keys), self.wrap, 'foreign keys')
+        return foreign_keys[index]
 
 
 class RandomForeignKeyModelFieldSeed(BaseForeignKeyModelFieldSeed):

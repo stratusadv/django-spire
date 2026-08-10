@@ -1,6 +1,8 @@
+import pytest
 from django.test import TestCase
 
 from django_spire.auth.user.models import AuthUser
+from django_spire.contrib.seeding.exceptions import DjangoSpireSeederError
 from django_spire.contrib.seeding.field.seed.model_seed import (
     BaseForeignKeyModelFieldSeed,
     OrderedForeignKeyModelFieldSeed,
@@ -20,6 +22,14 @@ class TestOrderedForeignKeyModelFieldSeed(TestCase):
         assert seed.queryset is self.queryset
         assert seed.queryset_key == str(self.queryset.query)
 
+    def test_init_default_wrap_is_false(self):
+        seed = OrderedForeignKeyModelFieldSeed(queryset=self.queryset)
+        assert seed.wrap is False
+
+    def test_init_with_wrap_true(self):
+        seed = OrderedForeignKeyModelFieldSeed(queryset=self.queryset, wrap=True)
+        assert seed.wrap is True
+
     def test_model_foreign_keys_caches_ids_by_queryset_key(self):
         seed = OrderedForeignKeyModelFieldSeed(queryset=self.queryset)
         assert seed.model_foreign_keys(0) == [self.user_one.pk, self.user_two.pk]
@@ -37,6 +47,18 @@ class TestOrderedForeignKeyModelFieldSeed(TestCase):
         seed = OrderedForeignKeyModelFieldSeed(queryset=self.queryset)
         assert seed.generate_value(0) == self.user_one.pk
         assert seed.generate_value(1) == self.user_two.pk
+
+    def test_generate_value_out_of_range_raises_seeder_error(self):
+        seed = OrderedForeignKeyModelFieldSeed(queryset=self.queryset)
+        with pytest.raises(DjangoSpireSeederError):
+            seed.generate_value(2)
+
+    def test_generate_value_with_wrap_cycles(self):
+        seed = OrderedForeignKeyModelFieldSeed(queryset=self.queryset, wrap=True)
+        assert seed.generate_value(0) == self.user_one.pk
+        assert seed.generate_value(1) == self.user_two.pk
+        assert seed.generate_value(2) == self.user_one.pk
+        assert seed.generate_value(3) == self.user_two.pk
 
 
 class TestRandomForeignKeyModelFieldSeed(TestCase):

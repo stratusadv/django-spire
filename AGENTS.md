@@ -527,9 +527,12 @@ Key methods: `seed()`, `seed_database()`, `reseed_database()`, `to_list_of_dicts
 | `Seeder.fake.<faker>` | `Seeder.fake.sentence()`, `Seeder.fake.paragraph(3)`, `Seeder.fake.date_time_between(...)` |
 | `Seeder.model.random_foreign_key(Model)` | Random FK to any instance of a model |
 | `Seeder.model.random_queryset_foreign_key(qs)` | Random FK filtered by a queryset |
-| `Seeder.model.ordered_foreign_key(Model)` / `ordered_queryset_foreign_key(qs)` | Sequential FKs |
+| `Seeder.model.ordered_foreign_key(Model)` / `ordered_queryset_foreign_key(qs)` | Sequential FKs (`wrap=True` cycles instead of erroring past the FK count) |
+| `Seeder.model.ordered_field_choice(Choices)` | Rotates through a TextChoices/Choices in declared order |
 | `Seeder.model.random_field_choice(Choices)` | Random choice from a TextChoices/Choices |
 | `Seeder.random.choice(seq)` / `int(a, b)` / `float(a, b)` | Random values |
+| `Seeder.ordered.choice(seq)` | Rotates through a custom list of values (`wrap=True` to cycle, default raises out of range) |
+| `Seeder.ordered.datetime(start, step)` | Ascending datetime per seed (`start` + `seed_index * step`) |
 | `Seeder.static(value)` | Static values |
 | `Seeder.exclude()` | Skip a field |
 | `Seeder.file(upload_to=None)` | File upload |
