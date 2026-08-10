@@ -128,6 +128,7 @@ INSTALLED_APPS += [
     'test_project.app.model_and_service',
     'test_project.app.rest',
     'test_project.app.task',
+    'test_project.app.auth_sms',
 ]
 
 INSTALLED_APPS += ['django_glue']

@@ -54,11 +54,7 @@ class AuthSmsEnrollmentTests(BaseTestCase):
     def test_enrollment_start_rejects_number_owned_by_other_user(self, mock_message_send) -> None:
         other_user = AuthUser.objects.create_user(username='other')
 
-        AuthSms.objects.create(
-            user=other_user,
-            phone_number='+15551234567',
-            is_verified=True,
-        )
+        AuthSms.objects.create(user=other_user, phone_number='+15551234567', is_verified=True)
 
         post_data = {'phone_number': '+15551234567'}
 
@@ -68,17 +64,11 @@ class AuthSmsEnrollmentTests(BaseTestCase):
         mock_message_send.assert_not_called()
 
     def test_enrollment_confirm_verifies_phone_number(self) -> None:
-        phone_number = AuthSms.objects.create(
-            user=self.super_user,
-            phone_number='+15551234567',
-        )
+        phone_number = AuthSms.objects.create(user=self.super_user, phone_number='+15551234567')
 
         code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.ENROLLMENT)
 
-        post_data = {
-            'code': code,
-            'phone_number': '+15551234567',
-        }
+        post_data = {'code': code, 'phone_number': '+15551234567'}
 
         response = self.client.post(self.confirm_url, post_data)
 
@@ -88,19 +78,43 @@ class AuthSmsEnrollmentTests(BaseTestCase):
         assert phone_number.is_verified
         assert phone_number.verified_datetime is not None
 
-    def test_enrollment_confirm_rejects_wrong_code(self) -> None:
-        phone_number = AuthSms.objects.create(
-            user=self.super_user,
-            phone_number='+15551234567',
+    @patch(MESSAGE_SEND_PATH)
+    def test_enrollment_start_accepts_json_body(self, mock_message_send) -> None:
+        post_data = {'phone_number': '555-123-4567'}
+
+        response = self.client.post(self.start_url, data=post_data, content_type='application/json')
+
+        assert response.status_code == 200
+
+        phone_number = AuthSms.objects.get(phone_number='+15551234567')
+        assert phone_number.user == self.super_user
+        assert not phone_number.is_verified
+
+        mock_message_send.assert_called_once()
+
+    def test_enrollment_confirm_accepts_json_body(self) -> None:
+        phone_number = AuthSms.objects.create(user=self.super_user, phone_number='+15551234567')
+
+        code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.ENROLLMENT)
+
+        post_data = {'code': code, 'phone_number': '+15551234567'}
+
+        response = self.client.post(
+            self.confirm_url, data=post_data, content_type='application/json'
         )
+
+        assert response.status_code == 200
+
+        phone_number.refresh_from_db()
+        assert phone_number.is_verified
+
+    def test_enrollment_confirm_rejects_wrong_code(self) -> None:
+        phone_number = AuthSms.objects.create(user=self.super_user, phone_number='+15551234567')
 
         code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.ENROLLMENT)
         wrong_code = '000000' if code != '000000' else '111111'
 
-        post_data = {
-            'code': wrong_code,
-            'phone_number': '+15551234567',
-        }
+        post_data = {'code': wrong_code, 'phone_number': '+15551234567'}
 
         response = self.client.post(self.confirm_url, post_data)
 
@@ -111,9 +125,7 @@ class AuthSmsEnrollmentTests(BaseTestCase):
 
     def test_session_code_issued_for_verified_phone_number(self) -> None:
         phone_number = AuthSms.objects.create(
-            user=self.super_user,
-            phone_number='+15551234567',
-            is_verified=True,
+            user=self.super_user, phone_number='+15551234567', is_verified=True
         )
 
         post_data = {'phone_number': '+15551234567'}
@@ -128,10 +140,7 @@ class AuthSmsEnrollmentTests(BaseTestCase):
         assert phone_number.services.processor.confirm_code(code, AuthSmsCodePurposeChoices.SESSION)
 
     def test_session_code_rejected_for_unverified_phone_number(self) -> None:
-        AuthSms.objects.create(
-            user=self.super_user,
-            phone_number='+15551234567',
-        )
+        AuthSms.objects.create(user=self.super_user, phone_number='+15551234567')
 
         post_data = {'phone_number': '+15551234567'}
 
@@ -147,4 +156,3 @@ class AuthSmsEnrollmentTests(BaseTestCase):
         response = self.client.post(self.start_url, post_data)
 
         assert response.status_code == 302
-

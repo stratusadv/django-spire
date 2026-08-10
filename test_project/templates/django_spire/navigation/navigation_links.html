@@ -44,6 +44,9 @@
 {% url 'rest:page:list' as rest_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Rest Clients' link_icon='bi bi-arrow-down-up' link_url=rest_url %}
 
+{% url 'auth_sms:page:phone_verification' as auth_sms_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Phone Verification' link_icon='bi bi-phone-fill' link_url=auth_sms_url %}
+
 {% include 'django_spire/navigation/divider.html' with divider_text='Metrics' %}
 
 {% url 'django_spire:api:page:list' as api_list_url %}
