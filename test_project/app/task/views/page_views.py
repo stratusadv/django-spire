@@ -33,6 +33,7 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
             'status',
             'created_datetime',
             'description',
+            'children',
         ],
         form=forms.TaskModelForm(),
     )

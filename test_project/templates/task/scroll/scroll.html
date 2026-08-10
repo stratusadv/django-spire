@@ -65,20 +65,16 @@
 {% endblock %}
 
 {% block scroll_template_item %}
-    <div x-data="{
-        showChildTasks: false,
-        childTasksLoaded: false,
-        async toggleChildTasks() {
-            if (!this.showChildTasks && !this.childTasksLoaded) {
-                await Glue.view(`{% url 'task:page:child_list' pk=0 %}`.replace('0', item.id))
-                    .renderInnerHtml($refs.childTasks)
-                this.childTasksLoaded = true
+    <children-tree
+        x-props="{
+            item: item,
+            getChildren: async (item) => {
+                if (!item?.children) return [];
+                const result = await item.children.filter({is_active: true, is_deleted: false}).all();
+                return result.items;
             }
-            this.showChildTasks = !this.showChildTasks
-        },
-    }">
+        }"
+    >
         {% include 'task/scroll/task_item.html' %}
-        <div x-show="showChildTasks" x-ref="childTasks"></div>
-    </div>
-
+    </children-tree>
 {% endblock %}

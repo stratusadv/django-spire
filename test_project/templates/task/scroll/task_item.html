@@ -18,9 +18,10 @@
         });
     }
 }">
-    <div class="col-6">
-        <span x-show="item.has_children" @click="toggleChildTasks()">
-            <i :class="`bi bi-chevron-${showChildTasks ? 'down' : 'right'}`"></i>
+    <div class="col-6" x-data="{ expanded: false }" @children-expanded.window="if ($event.target === $el.closest('children-tree')) expanded = $event.detail.expanded">
+        <span x-show="item.has_children" @click="$dispatch('toggle-children')" style="cursor: pointer; display: inline-block; transition: transform 0.2s;" class="me-1"
+              :style="expanded && 'transform: rotate(90deg)'">
+            <i class="bi bi-chevron-right"></i>
         </span>
         <a :href="{% js_url 'task:page:detail' pk='item.id' %}">
             <span x-text="item.name"></span>
@@ -42,13 +43,13 @@
             >
             </button>
             <ul class="dropdown-menu">
-                <template x-for="[value, label] in item.$fields.status.choices.filter(([value, label]) => value != item.status)">
+                <template x-for="choice in (item.$fields?.status?.choices || []).filter(c => c.value != item.status)">
                     <li>
-                        <a 
-                            class="dropdown-item" 
+                        <a
+                            class="dropdown-item"
                             href="#"
-                            @click.prevent="item.status = value; item.save()"
-                            x-text="label"
+                            @click.prevent="item.status = choice.value; item.save()"
+                            x-text="choice.label"
                         >
                         </a>
                     </li>
@@ -72,19 +73,12 @@
         <button class="btn btn-sm btn-outline-primary" @click="duplicateTask()" title="Duplicate Task">
             <i class="bi bi-copy"></i>
         </button>
-        {% if is_nested %}
-            <a class="btn btn-sm btn-outline-secondary"
-               :href="`{% url 'task:form:form' pk=0 %}`.replace('0', item.id)">
-                <i class="bi bi-pencil"></i>
-            </a>
-        {% else %}
-            <button
-                class="btn btn-sm btn-outline-secondary"
-                @click="openFormModal(item)"
-            >
-                <i class="bi bi-pencil"></i>
-            </button>
-        {% endif %}
+        <button
+            class="btn btn-sm btn-outline-secondary"
+            @click="openFormModal(item)"
+        >
+            <i class="bi bi-pencil"></i>
+        </button>
         <a class="btn btn-sm btn-outline-danger"
            :href="{% js_url 'task:form:delete' pk='item.id' %}">
             <i class="bi bi-trash"></i>

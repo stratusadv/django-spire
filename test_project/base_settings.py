@@ -107,6 +107,7 @@ INSTALLED_APPS += [
     'django_spire.notification.push',
     'django_spire.contrib.options',
     'django_spire.contrib.ordering',
+    'django_spire.lit',
 ]
 
 DJANGO_SPIRE_AUTH_CONTROLLERS = {
@@ -141,6 +142,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
+    'django_spire.lit.middleware.LitComponentsMiddleware',
 ]
 
 KALEIDOSCOPE_IGNORE_PATHS = [
