@@ -41,13 +41,15 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
         log.info('Duplicate SMS webhook delivery ignored for sid %s', message_sid)
         return _twiml_response(None)
 
-    sms_auth = AuthSms.objects.verified_by_phone_number(from_number).first()
+    sms_auth = AuthSms.objects.is_verified().by_phone_number(from_number).first()
 
     if sms_auth is None:
         log.warning('SMS received from unregistered number %s', from_number)
         return _twiml_response(None)
 
-    if not sms_auth.throttle_allowed():
+    sms_auth.record_attempt()
+
+    if sms_auth.is_throttled():
         log.warning('SMS throttle exceeded for %s', from_number)
         return _twiml_response(None)
 

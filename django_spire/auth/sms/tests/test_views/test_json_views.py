@@ -19,9 +19,9 @@ class AuthSmsEnrollmentTests(BaseTestCase):
 
         cache.clear()
 
-        self.confirm_url = reverse('django_spire:auth:sms:enrollment:confirm')
+        self.confirm_url = reverse('django_spire:auth:sms:json:verification_confirm')
         self.session_code_url = reverse('django_spire:auth:sms:session_code')
-        self.start_url = reverse('django_spire:auth:sms:enrollment:start')
+        self.start_url = reverse('django_spire:auth:sms:json:verification_start')
 
     @patch(MESSAGE_SEND_PATH)
     def test_enrollment_start_creates_phone_number(self, mock_message_send) -> None:
@@ -66,7 +66,7 @@ class AuthSmsEnrollmentTests(BaseTestCase):
     def test_enrollment_confirm_verifies_phone_number(self) -> None:
         phone_number = AuthSms.objects.create(user=self.super_user, phone_number='+15551234567')
 
-        code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.ENROLLMENT)
+        code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.VERIFICATION)
 
         post_data = {'code': code, 'phone_number': '+15551234567'}
 
@@ -95,7 +95,7 @@ class AuthSmsEnrollmentTests(BaseTestCase):
     def test_enrollment_confirm_accepts_json_body(self) -> None:
         phone_number = AuthSms.objects.create(user=self.super_user, phone_number='+15551234567')
 
-        code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.ENROLLMENT)
+        code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.VERIFICATION)
 
         post_data = {'code': code, 'phone_number': '+15551234567'}
 
@@ -111,7 +111,7 @@ class AuthSmsEnrollmentTests(BaseTestCase):
     def test_enrollment_confirm_rejects_wrong_code(self) -> None:
         phone_number = AuthSms.objects.create(user=self.super_user, phone_number='+15551234567')
 
-        code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.ENROLLMENT)
+        code = phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.VERIFICATION)
         wrong_code = '000000' if code != '000000' else '111111'
 
         post_data = {'code': wrong_code, 'phone_number': '+15551234567'}

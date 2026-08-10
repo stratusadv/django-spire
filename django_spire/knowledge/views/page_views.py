@@ -25,7 +25,7 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
                 .parentless()
                 .request_user_has_access(request)
             ),
-            'sms_auth': AuthSms.objects.filter(user=request.user).first(),
+            'sms_auth': AuthSms.objects.by_user(request.user).first(),
             'code_expiry_minutes': settings.DJANGO_SPIRE_AUTH_SMS_CODE_EXPIRY_MINUTES,
             'sender_phone_number': phone_number_format_display(settings.TWILIO_PHONE_NUMBER),
         },

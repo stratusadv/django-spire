@@ -4,6 +4,6 @@ from django.db import models
 
 
 class AuthSmsCodePurposeChoices(models.TextChoices):
-    ENROLLMENT = 'enro', 'Enrollment'
+    VERIFICATION = 'veri', 'Verification'
     SESSION = 'sess', 'Session'
 

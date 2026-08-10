@@ -38,7 +38,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url "django_spire:auth:sms:enrollment:start" %}',
+                '{% url "django_spire:auth:sms:json:verification_start" %}',
                 {phone_number: this.phone_number}
             );
 
@@ -60,7 +60,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url "django_spire:auth:sms:enrollment:confirm" %}',
+                '{% url "django_spire:auth:sms:json:verification_confirm" %}',
                 {phone_number: this.current_phone_number, code: this.code}
             );
 

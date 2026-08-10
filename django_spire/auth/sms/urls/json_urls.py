@@ -2,14 +2,19 @@ from __future__ import annotations
 
 from django.urls import path
 
-from django_spire.auth.sms.views.json_views import (
-    enrollment_confirm_view,
-    enrollment_start_view,
-)
+from django_spire.auth.sms.views import json_views
 
-app_name = 'enrollment'
+app_name = 'json'
 
 urlpatterns = [
-    path('confirm/', enrollment_confirm_view, name='confirm'),
-    path('start/', enrollment_start_view, name='start'),
+    path(
+        'verification-confirm/',
+        json_views.verification_confirm_view,
+        name='verification_confirm'
+    ),
+    path(
+        'verification-start/',
+        json_views.verification_start_view,
+        name='verification_start'
+    ),
 ]

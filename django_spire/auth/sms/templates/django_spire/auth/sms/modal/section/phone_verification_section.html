@@ -1,6 +1,7 @@
 <div
     class="modal-body"
     x-data="{
+        current_phone_number: '{{ sms_auth.phone_number }}',
         phone_number: '',
         code: '',
         clicked: false,
@@ -33,7 +34,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url "django_spire:auth:sms:json:verification_start" %}',
+                '{% url "django_spire:auth:sms:enrollment:start" %}',
                 {phone_number: this.phone_number}
             );
 
@@ -55,7 +56,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url "django_spire:auth:sms:json:verification_confirm" %}',
+                '{% url "django_spire:auth:sms:enrollment:confirm" %}',
                 {phone_number: this.current_phone_number, code: this.code}
             );
 
@@ -66,7 +67,7 @@
 
             this.code = '';
             this.loading = false;
-            this.is_verified = true;
+            this.switch_to('verified');
             Spire.notify.success(response.data.message);
         }
     }"

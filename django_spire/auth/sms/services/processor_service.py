@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.hashers import check_password, make_password
-from django.utils.timezone import localtime
+from django.utils.timezone import now
 
 from django_spire.auth.sms.choices import AuthSmsCodePurposeChoices
 from django_spire.auth.sms.constants import CODE_DIGIT_COUNT
@@ -42,7 +42,7 @@ class AuthSmsProcessorService(BaseDjangoModelService['AuthSms']):
         ):
             return False
 
-        if localtime() > self.obj.code_expiration_datetime:
+        if now() > self.obj.code_expiration_datetime:
             self.clear_code()
             return False
 
@@ -73,17 +73,17 @@ class AuthSmsProcessorService(BaseDjangoModelService['AuthSms']):
         self.obj.services.save_model_obj(
             code_hash=make_password(code),
             code_purpose=purpose,
-            code_expiration_datetime=localtime() + timedelta(minutes=expiry_minutes),
+            code_expiration_datetime=now() + timedelta(minutes=expiry_minutes),
             code_attempt_count=0,
         )
 
         return code
 
     def mark_verified(self) -> None:
-        self.obj.services.save_model_obj(is_verified=True, verified_datetime=localtime())
+        self.obj.services.save_model_obj(is_verified=True, verified_datetime=now())
 
     def open_session(self) -> None:
-        current_datetime = localtime()
+        current_datetime = now()
 
         self.obj.services.save_model_obj(
             session_started_datetime=current_datetime,
@@ -91,4 +91,4 @@ class AuthSmsProcessorService(BaseDjangoModelService['AuthSms']):
         )
 
     def touch_session(self) -> None:
-        self.obj.services.save_model_obj(session_last_activity_datetime=localtime())
+        self.obj.services.save_model_obj(session_last_activity_datetime=now())

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 @login_required()
 def phone_verification_view(request: WSGIRequest) -> TemplateResponse:
-    sms_auth = AuthSms.objects.filter(user=request.user).first()
+    sms_auth = AuthSms.objects.by_user(request.user).first()
 
     nav = AuthSmsNavigation()
     nav.page_title = 'Phone Verification'
