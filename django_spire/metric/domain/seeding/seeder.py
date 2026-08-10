@@ -1,5 +1,6 @@
 from django_spire.contrib.seeding import Seeder
 from django_spire.metric.domain.models import Domain, SubDomain
+from django_spire.metric.domain.seeding.constants import DOMAIN_SEEDS, SUBDOMAIN_SEEDS
 
 
 class DomainSeeder(Seeder):
@@ -8,9 +9,13 @@ class DomainSeeder(Seeder):
     fields_seeds = {
         'id': Seeder.exclude(),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-        'name': Seeder.fake.sentence(),
-        'description': Seeder.llm(str),
-        'sub_domain_description': Seeder.llm(str),
+        'name': Seeder.ordered.choice([seed['name'] for seed in DOMAIN_SEEDS], wrap=True),
+        'description': Seeder.ordered.choice(
+            [seed['description'] for seed in DOMAIN_SEEDS], wrap=True
+        ),
+        'sub_domain_description': Seeder.ordered.choice(
+            [seed['sub_domain_description'] for seed in DOMAIN_SEEDS], wrap=True
+        ),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
@@ -22,9 +27,11 @@ class SubDomainSeeder(Seeder):
     fields_seeds = {
         'id': Seeder.exclude(),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-        'domain_id': Seeder.model.random_foreign_key(Domain),
-        'name': Seeder.fake.sentence(),
-        'description': Seeder.llm(str),
+        'domain_id': Seeder.model.ordered_queryset_foreign_key(Domain.objects.active(), wrap=True),
+        'name': Seeder.ordered.choice([seed['name'] for seed in SUBDOMAIN_SEEDS], wrap=True),
+        'description': Seeder.ordered.choice(
+            [seed['description'] for seed in SUBDOMAIN_SEEDS], wrap=True
+        ),
         'is_active': Seeder.static(True),
-        'is_deleted': Seeder.fake.boolean(),
+        'is_deleted': Seeder.static(False),
     }
