@@ -40,7 +40,7 @@ class HelpDeskTicket(ActivityMixin, HistoryModelMixin):
     description = models.TextField()
 
     objects = HelpDeskTicketQuerySet.as_manager()
-    services = Glue.attribute(HelpDeskTicketService(), access=Glue.Access.DELETE)
+    services = HelpDeskTicketService()
 
     @Glue.attribute(access=GlueAccess.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
