@@ -52,6 +52,7 @@ class SmsWebhookTests(BaseTestCase):
         response = self._post_webhook('Hello')
 
         assert response.status_code == 200
+        assert b'<Response>' in response.content
         assert b'Answer' in response.content
 
         conversation = SmsConversation.objects.get(phone_number='+15551234567')
@@ -102,6 +103,7 @@ class SmsWebhookTests(BaseTestCase):
         response = self._post_webhook('What is our Q3 revenue?')
 
         assert response.status_code == 200
+        assert b'<Response>' in response.content
         assert b'locked' in response.content
         assert SmsConversation.objects.filter(phone_number='+15551234567').count() == 0
         mock_workflow.assert_not_called()
@@ -117,6 +119,7 @@ class SmsWebhookTests(BaseTestCase):
         response = self._post_webhook(code)
 
         assert response.status_code == 200
+        assert b'<Response>' in response.content
         assert b'unlocked' in response.content
 
         self.phone_number.refresh_from_db()
@@ -134,6 +137,7 @@ class SmsWebhookTests(BaseTestCase):
         response = self._post_webhook(wrong_code)
 
         assert response.status_code == 200
+        assert b'<Response>' in response.content
         assert b'locked' in response.content
 
         self.phone_number.refresh_from_db()

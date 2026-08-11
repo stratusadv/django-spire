@@ -59,12 +59,11 @@ class AuthSmsProcessorService(BaseDjangoModelService['AuthSms']):
             return False
 
         self.clear_code()
-
         return True
 
     def issue_code(self, purpose: str) -> str:
         if purpose not in AuthSmsCodePurposeChoices.values:
-            message = f'unknown sms auth purpose: {purpose}'
+            message = f'Unknown SMS auth purpose: {purpose}'
             raise ValueError(message)
 
         code = f'{secrets.randbelow(10 ** CODE_DIGIT_COUNT):0{CODE_DIGIT_COUNT}d}'
@@ -76,7 +75,6 @@ class AuthSmsProcessorService(BaseDjangoModelService['AuthSms']):
             code_expiration_datetime=now() + timedelta(minutes=expiry_minutes),
             code_attempt_count=0,
         )
-
         return code
 
     def mark_verified(self) -> None:

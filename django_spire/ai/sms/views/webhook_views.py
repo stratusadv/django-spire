@@ -14,16 +14,26 @@ from django_spire.ai.sms.models import (
     SmsMessage,
 )
 from django_spire.auth.sms.choices import AuthSmsCodePurposeChoices
-from django_spire.auth.sms.constants import CODE_DIGIT_COUNT, PHONE_NUMBER_LENGTH_MIN
+from django_spire.auth.sms.constants import PHONE_NUMBER_LENGTH_MIN
 from django_spire.auth.sms.decorators import twilio_auth_required
 from django_spire.auth.sms.models import AuthSms
 from django_spire.conf import settings
+
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
 log = logging.getLogger(__name__)
+
+
+def _twiml_response(body: str | None) -> HttpResponse:
+    twiml_response = MessagingResponse()
+
+    if body is not None:
+        twiml_response.message(body)
+
+    return HttpResponse(twiml_response, content_type='text/xml')
 
 
 @csrf_exempt
@@ -35,17 +45,21 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
     message_sid = request.POST.get('MessageSid', '')
 
     if len(from_number) < PHONE_NUMBER_LENGTH_MIN:
+        log.warning('SMS authentication denied for short phone number %r', from_number)
         return HttpResponseForbidden()
 
     if message_sid and SmsMessage.objects.inbound_by_twilio_sid(message_sid).exists():
         log.info('Duplicate SMS webhook delivery ignored for sid %s', message_sid)
         return _twiml_response(None)
 
+    if len(body) > settings.DJANGO_SPIRE_AI_SMS_BODY_LENGTH_MAX:
+        return _twiml_response('Your message is too long. Please send a shorter message.')
+
     sms_auth = AuthSms.objects.is_verified().by_phone_number(from_number).first()
 
     if sms_auth is None:
         log.warning('SMS received from unregistered number %s', from_number)
-        return _twiml_response(None)
+        return HttpResponseForbidden()
 
     sms_auth.record_attempt()
 
@@ -53,37 +67,23 @@ def webhook_view(request: WSGIRequest) -> HttpResponse:
         log.warning('SMS throttle exceeded for %s', from_number)
         return _twiml_response(None)
 
-    if len(body) > settings.DJANGO_SPIRE_AI_SMS_BODY_LENGTH_MAX:
-        return _twiml_response('Your message is too long. Please send a shorter message.')
-
-    if sms_auth.session_is_active:
-        sms_auth.services.processor.touch_session()
-        return _conversation_response(request, sms_auth, body, message_sid)
-
-    body_stripped = body.strip()
-
-    if len(body_stripped) == CODE_DIGIT_COUNT and body_stripped.isdigit():
+    if not sms_auth.session_is_active:
         code_valid = sms_auth.services.processor.confirm_code(
-            body_stripped,
-            AuthSmsCodePurposeChoices.SESSION,
+            body.strip(),
+            AuthSmsCodePurposeChoices.SESSION
         )
 
-        if code_valid:
-            sms_auth.services.processor.open_session()
-            persona_name = getattr(settings, 'DJANGO_SPIRE_AI_PERSONA_NAME', 'AI Assistant')
-            return _twiml_response(f'{persona_name} Chat Unlocked! You can ask your questions now.')
+        if not code_valid:
+            return _twiml_response(
+                'This session is locked. Generate an unlock code in the app, then text it here.'
+            )
 
-    return _twiml_response(
-        'This session is locked. Generate an unlock code in the app, then text it here.'
-    )
+        sms_auth.services.processor.open_session()
+        persona_name = getattr(settings, 'DJANGO_SPIRE_AI_PERSONA_NAME', 'AI Assistant')
+        return _twiml_response(f'{persona_name} Chat Unlocked! You can ask your questions now.')
 
+    sms_auth.services.processor.touch_session()
 
-def _conversation_response(
-    request: WSGIRequest,
-    sms_auth: AuthSms,
-    body: str,
-    message_sid: str,
-) -> HttpResponse:
     conversation_defaults = {'user': sms_auth.user}
 
     conversation, _ = SmsConversation.objects.get_or_create(
@@ -102,8 +102,7 @@ def _conversation_response(
     sms_intel = sms_conversation_workflow(
         request=request,
         user_input=body,
-        message_history=conversation.generate_message_history(),
-        actor=sms_auth.phone_number,
+        message_history=conversation.generate_message_history()
     )
 
     conversation.add_message(
@@ -116,13 +115,4 @@ def _conversation_response(
     message.is_processed = True
     message.save()
 
-    return _twiml_response(sms_intel.body)
-
-
-def _twiml_response(body: str | None) -> HttpResponse:
-    twiml_response = MessagingResponse()
-
-    if body is not None:
-        twiml_response.message(body)
-
-    return HttpResponse(twiml_response, content_type='text/xml')
+    return _twiml_response(sms_intel.body or None)

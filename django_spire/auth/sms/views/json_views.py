@@ -32,7 +32,7 @@ def session_code_view(request: WSGIRequest) -> JsonResponse:
 
     auth_sms = (
         AuthSms.objects
-        .verified()
+        .is_verified()
         .by_phone_number(phone_number_normalized)
         .by_user(request.user)
         .first()

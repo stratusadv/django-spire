@@ -12,7 +12,7 @@ class AuthSmsQuerySet(HistoryQuerySet):
         return self.filter(phone_number=phone_number)
 
     def by_user(self, user: User) -> Self:
-        return self.filter(is_verified=True, user=user)
+        return self.filter(user=user)
 
     def is_verified(self) -> Self:
         return self.filter(is_verified=True)

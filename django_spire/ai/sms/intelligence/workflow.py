@@ -17,10 +17,7 @@ def sms_conversation_workflow(
     request: WSGIRequest,
     user_input: str,
     message_history: MessageHistory | None = None,
-    actor: str | None = None,
 ) -> SmsIntel:
-    _ = actor
-
     message_intel = chat_workflow(request, user_input=user_input, message_history=message_history)
 
     return SmsIntel(body=message_intel.render_to_str())

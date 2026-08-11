@@ -52,7 +52,7 @@ class AuthSms(HistoryModelMixin):
         return f'{self.phone_number} ({self.user})'
 
     def _build_throttle_keys(self) -> tuple[str, str]:
-        current_datetime = now()
+        current_datetime = localtime()
         minute_window = current_datetime.strftime('%Y%m%d%H%M')
         day_window = current_datetime.strftime('%Y%m%d')
 
