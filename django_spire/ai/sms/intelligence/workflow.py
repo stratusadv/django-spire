@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from dandy import recorder_to_html_file
 
 from django_spire.ai.chat.intelligence.workflows.chat_workflow import chat_workflow
+from django_spire.ai.sms.intelligence.bot import SmsConversationBot
 from django_spire.ai.sms.intelligence.intel import SmsIntel
 
 if TYPE_CHECKING:
@@ -19,5 +20,4 @@ def sms_conversation_workflow(
     message_history: MessageHistory | None = None,
 ) -> SmsIntel:
     message_intel = chat_workflow(request, user_input=user_input, message_history=message_history)
-
-    return SmsIntel(body=message_intel.render_to_str())
+    return SmsConversationBot().process(message_intel.render_to_str())
