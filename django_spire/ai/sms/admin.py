@@ -32,7 +32,7 @@ class SmsConversationAdmin(admin.ModelAdmin):
             + urlencode({'sms_conversation__id': f'{obj.id}'})
         )
 
-        return format_html('<a href="%s">%s Messages</a>' % (url, count))
+        return format_html('<a href="{}">{} Messages</a>', url, count)
 
     view_sms_messages_link.short_description = 'Messages'
 

@@ -7,7 +7,15 @@
 {% block full_page_sub_navigation %}{% endblock %}
 
 {% block full_page_content %}
-    <div class="row">
+    <div class="row g-3">
+        <div class="col-12">
+            {% include 'django_spire/knowledge/card/ai_chat_card.html' %}
+        </div>
+
+        <div class="col-12">
+            {% include 'django_spire/knowledge/card/phone_chat_card.html' %}
+        </div>
+
         <div class="col-12">
             {% include 'django_spire/knowledge/collection/card/top_level_list_card.html' %}
         </div>

@@ -21,8 +21,8 @@ from test_project.app.celery.seeding.seed import * # noqa
 
 from test_project.app.help_desk.seeding.seed import * # noqa
 
-# print('Seeding Knowledge Data...')
-# from django_spire.knowledge.seeding.seed import * # noqa
+print('Seeding Knowledge Data...')
+from django_spire.knowledge.seeding.seed import *  # noqa: E402, F403
 
 # print('Seeding AI Context Data...')
 # from django_spire.ai.context.seeding.seed import * # noqa

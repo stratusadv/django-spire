@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django_spire.ai.sms.intel import SmsIntel
+from django_spire.ai.sms.intelligence.intel import SmsIntel
 from test_project.app.ai.chat.intelligence.workflows.chat_workflow import ChatWorkflow
 
 if TYPE_CHECKING:

@@ -1,3 +1,10 @@
+## v1.0.1-rc3 - August 12, 2026
+
+#### Features
+
+- Knowledge base SMS integration complete — AI SMS conversations can query the knowledge base via SMS, with webhook handling, conversation/message models, admin panels, and intent routing to the `KnowledgeSearchRouter`
+- New `DJANGO_SPIRE_AUTH_SMS_` settings to configure SMS integration behavior (throttling, body character lengths, max attempts, expiry, and session duration/idle limits)
+
 ## v1.0.1-rc2 - August 6, 2026
 
 #### Fixes

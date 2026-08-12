@@ -1,0 +1,39 @@
+{% extends 'django_spire/modal/title_modal.html' %}
+
+{% block modal_trigger %}
+    {% if sms_auth.is_verified %}
+        <button class="btn btn-primary" type="button">
+            <i class="bi bi-shield-lock-fill me-1"></i>
+            Get a Code
+        </button>
+    {% else %}
+        <button class="btn btn-primary" type="button">
+            <i class="bi bi-shield-lock-fill me-1"></i>
+            Verify Phone Number
+        </button>
+    {% endif %}
+{% endblock %}
+
+{% block modal_title %}
+    {% if sms_auth.is_verified %}
+        Chat From Your Phone
+    {% else %}
+        Verify Phone Number
+    {% endif %}
+{% endblock %}
+
+{% block modal_title_content %}
+    <div
+        x-data="{
+            is_verified: {{ sms_auth.is_verified|yesno:'true,false' }},
+            current_phone_number: '{{ sms_auth.phone_number }}',
+        }"
+    >
+        <template x-if="!is_verified">
+            {% include 'django_spire/auth/sms/section/phone_verification_section.html' %}
+        </template>
+        <template x-if="is_verified">
+            {% include 'django_spire/auth/sms/section/sms_code_session_section.html' %}
+        </template>
+    </div>
+{% endblock %}
