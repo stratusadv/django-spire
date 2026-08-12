@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from django_spire.ai.sms.intelligence.intel import SmsIntel
-from django_spire.ai.sms.models import SmsConversation
+from django_spire.ai.sms.models import SmsConversation, SmsMessage
 from django_spire.auth.sms.choices import AuthSmsCodePurposeChoices
 from django_spire.auth.sms.models import AuthSms
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -279,4 +279,50 @@ class SmsWebhookTests(BaseTestCase):
         assert outbound_message.body == 'Knowledge search result'
 
         assert b'Knowledge search result' in response.content
+
+
+@override_settings(TWILIO_AUTH_TOKEN='twilio-test-token')
+class SmsWebhookFallbackTests(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.fallback_url = reverse('django_spire:ai:sms:webhook_failed')
+
+    def _post_fallback(
+        self, from_number: str = '+15551234567', sid: str = 'SM123456789'
+    ):
+        return self.client.post(
+            self.fallback_url,
+            {'From': from_number, 'Body': 'Hello', 'MessageSid': sid},
+        )
+
+    @patch('twilio.request_validator.RequestValidator.validate')
+    def test_fallback_acknowledges_inbound_message(self, mock_validate) -> None:
+        mock_validate.return_value = True
+
+        response = self._post_fallback()
+
+        assert response.status_code == 200
+        assert b'<Message>' not in response.content
+        assert SmsConversation.objects.count() == 0
+        assert SmsMessage.objects.count() == 0
+
+    @patch('twilio.request_validator.RequestValidator.validate')
+    def test_fallback_invalid_signature_is_forbidden(self, mock_validate) -> None:
+        mock_validate.return_value = False
+
+        response = self._post_fallback()
+
+        assert response.status_code == 403
+
+    @override_settings(TWILIO_AUTH_TOKEN=None)
+    @patch.dict('os.environ', {'TWILIO_AUTH_TOKEN': ''})
+    @patch('twilio.request_validator.RequestValidator.validate')
+    def test_fallback_missing_token_is_forbidden(self, mock_validate) -> None:
+        mock_validate.return_value = True
+
+        response = self._post_fallback()
+
+        assert response.status_code == 403
+        mock_validate.assert_not_called()
 

@@ -39,6 +39,22 @@ def _twiml_response(body: str | None) -> HttpResponse:
 @csrf_exempt
 @require_POST
 @twilio_auth_required
+def webhook_fallback_view(request: WSGIRequest) -> HttpResponse:
+    from_number = request.POST.get('From', '')
+    message_sid = request.POST.get('MessageSid', '')
+
+    log.warning(
+        'SMS primary handler failed; fallback acknowledged from %s sid %s',
+        from_number,
+        message_sid,
+    )
+
+    return _twiml_response(None)
+
+
+@csrf_exempt
+@require_POST
+@twilio_auth_required
 def webhook_view(request: WSGIRequest) -> HttpResponse:
     from_number = request.POST.get('From', '')
     body = request.POST.get('Body', '')

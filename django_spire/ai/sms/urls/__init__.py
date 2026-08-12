@@ -8,4 +8,5 @@ app_name = 'sms'
 
 urlpatterns = [
     path('webhook/', webhook_views.webhook_view, name='webhook'),
+    path('webhook/failed/', webhook_views.webhook_fallback_view, name='webhook_failed'),
 ]
