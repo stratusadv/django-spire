@@ -40,7 +40,7 @@
             <h5 class="mb-0">Child Tasks</h5>
             <span class="badge bg-secondary" x-text="task.children?.items?.length ?? 0"></span>
         </div>
-        <div class="card-body" x-init="() => {debugger; console.log(task)}">
+        <div class="card-body">
             <template x-if="task.children?.items?.length > 0">
                 <ul class="list-group">
                     <template x-for="child in task.children.items" :key="child.id">

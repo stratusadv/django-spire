@@ -1,30 +1,40 @@
 from __future__ import annotations
 
 import functools
+import logging
 import os
-
 from typing import TYPE_CHECKING, Callable
 
 from django.http import HttpResponseForbidden
 from twilio.request_validator import RequestValidator
+
+from django_spire.conf import settings
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
     from django.http import HttpResponse
 
 
+log = logging.getLogger(__name__)
+
+
 def twilio_auth_required(func: Callable[..., HttpResponse]) -> Callable[..., HttpResponse]:
     @functools.wraps(func)
     def decorated_function(request: WSGIRequest, *args, **kwargs) -> HttpResponse:
-        request_validator = RequestValidator(os.environ.get('TWILIO_AUTH_TOKEN', ''))
+        auth_token = settings.TWILIO_AUTH_TOKEN or os.environ.get('TWILIO_AUTH_TOKEN')
 
-        absolute_uri = request.build_absolute_uri()
+        if not auth_token:
+            log.error('TWILIO_AUTH_TOKEN is not configured; rejecting webhook request')
+            return HttpResponseForbidden()
 
-        if absolute_uri[:5] == 'http:':
-            absolute_uri = 'https' + absolute_uri[4:]
+        request_validator = RequestValidator(auth_token)
+
+        absolute_uri = request.build_absolute_uri().replace('http:', 'https:', 1)
 
         request_valid = request_validator.validate(
-            absolute_uri, request.POST, request.META.get('HTTP_X_TWILIO_SIGNATURE', '')
+            absolute_uri,
+            request.POST,
+            request.META.get('HTTP_X_TWILIO_SIGNATURE', ''),
         )
 
         if request_valid:

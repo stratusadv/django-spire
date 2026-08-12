@@ -85,6 +85,7 @@ INSTALLED_APPS += [
     'django_spire.api',
     'django_spire.auth',
     'django_spire.auth.mfa',
+    'django_spire.auth.sms',
     'django_spire.auth.group',
     'django_spire.auth.user',
     'django_spire.celery',
@@ -127,6 +128,7 @@ INSTALLED_APPS += [
     'test_project.app.model_and_service',
     'test_project.app.rest',
     'test_project.app.task',
+    'test_project.app.auth_sms',
 ]
 
 INSTALLED_APPS += ['django_glue']

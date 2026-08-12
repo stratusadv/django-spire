@@ -3,11 +3,14 @@
 #### Features
 
 - Added code blocks to the Knowledge editor, including Editor.js support and fenced-code rendering in generated text.
+- Knowledge base SMS integration complete — AI SMS conversations can query the knowledge base via SMS, with webhook handling, conversation/message models, admin panels, and intent routing to the `KnowledgeSearchRouter`
+- New `DJANGO_SPIRE_AUTH_SMS_` settings to configure SMS integration behavior (throttling, body character lengths, max attempts, expiry, and session duration/idle limits)
 
 #### Fixes
 
 - Decimal Glue form fields now accept arbitrary decimal precision instead of using the browser's default whole-number step.
 - Help desk ticket services are no longer exposed as a deletable Glue attribute.
+
 
 ## v1.0.1-rc2 - August 6, 2026
 

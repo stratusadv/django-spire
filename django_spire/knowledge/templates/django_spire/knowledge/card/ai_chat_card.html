@@ -1,0 +1,22 @@
+<div class="card border-0 bg-primary bg-gradient text-white shadow-sm">
+    <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center gap-3">
+        <div class="display-6 d-none d-md-flex">
+            <i class="bi bi-chat-dots-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h5 class="mb-1"><i class="bi bi-chat-dots-fill d-md-none me-1"></i>AI Chat</h5>
+            <p class="mb-0 opacity-75">
+                Ask questions and get answers powered by the knowledge base.
+            </p>
+        </div>
+        {% if AuthController.ai_chat.can_delete %}
+            <a
+                class="btn btn-light d-flex align-items-center gap-2 flex-shrink-0"
+                href="{% url 'django_spire:ai:chat:page:home' %}"
+            >
+                Start a Chat
+                <i class="bi bi-arrow-right"></i>
+            </a>
+        {% endif %}
+    </div>
+</div>

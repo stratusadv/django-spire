@@ -24,6 +24,7 @@ urlpatterns = [
     path('rest/', include('test_project.app.rest.urls', namespace='rest')),
     path('task/', include('test_project.app.task.urls', namespace='task')),
     path('test_model/', include('test_project.app.model_and_service.urls', namespace='test_model')),
+    path('auth_sms/', include('test_project.app.auth_sms.urls', namespace='auth_sms')),
 ]
 
 urlpatterns += django_glue_urls()

@@ -1,0 +1,9 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="row">
+        <div class="col-lg-6 col-12 mx-auto">
+            {% include 'auth/sms/card/phone_verification_card.html' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+<div class="card">
+    <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center gap-3">
+        {% if sms_auth.is_verified %}
+            <div class="display-6 d-none d-md-flex text-muted">
+                <i class="bi bi-phone-fill"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h5 class="mb-1"><i class="bi bi-phone-fill d-md-none me-1"></i>Chat From Your Phone</h5>
+                <p class="mb-0 text-muted">
+                    Get a code to chat with AI from your phone.
+                </p>
+            </div>
+        {% else %}
+            <div class="display-6 d-none d-md-flex text-muted">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h5 class="mb-1"><i class="bi bi-shield-check d-md-none me-1"></i>Verify Your Phone Number</h5>
+                <p class="mb-0 text-muted">
+                    Verify your phone number to get a code for chatting with AI on your phone.
+                </p>
+            </div>
+        {% endif %}
+        <div class="flex-shrink-0">
+            {% include 'django_spire/auth/sms/modal/phone_verification_modal.html' with modal_id='knowledgePhoneVerification' %}
+        </div>
+    </div>
+</div>
