@@ -108,3 +108,40 @@ class AuthSmsProcessorTests(BaseTestCase):
         self.phone_number.refresh_from_db()
 
         assert timezone.is_aware(self.phone_number.verified_datetime)
+
+    def test_confirm_code_rejects_wrong_purpose(self) -> None:
+        code = self.phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.SESSION)
+
+        assert not self.phone_number.services.processor.confirm_code(
+            code, AuthSmsCodePurposeChoices.VERIFICATION
+        )
+
+    def test_confirm_code_is_single_use(self) -> None:
+        code = self.phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.SESSION)
+
+        assert self.phone_number.services.processor.confirm_code(
+            code, AuthSmsCodePurposeChoices.SESSION
+        )
+        assert not self.phone_number.services.processor.confirm_code(
+            code, AuthSmsCodePurposeChoices.SESSION
+        )
+
+    def test_code_is_stored_hashed(self) -> None:
+        code = self.phone_number.services.processor.issue_code(AuthSmsCodePurposeChoices.SESSION)
+
+        assert code not in self.phone_number.code_hash
+
+    def test_issue_code_rejects_unknown_purpose(self) -> None:
+        try:
+            self.phone_number.services.processor.issue_code('nonsense')
+        except ValueError:
+            return
+
+        message = 'issue_code accepted an unknown purpose'
+        raise AssertionError(message)
+
+    def test_close_session(self) -> None:
+        self.phone_number.services.processor.open_session()
+        self.phone_number.services.processor.close_session()
+
+        assert not self.phone_number.session_is_active

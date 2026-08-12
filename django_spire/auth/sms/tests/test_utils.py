@@ -25,8 +25,8 @@ class SMSUtilsTests(BaseTestCase):
 
     @staticmethod
     def test_phone_number_format_display() -> None:
-        assert phone_number_format_display('+15878004122') == '+1 (587)800-4122'
-        assert phone_number_format_display('+1 (587) 800-4122') == '+1 (587)800-4122'
+        assert phone_number_format_display('+15878004122') == '(587) 800-4122'
+        assert phone_number_format_display('+1 (587) 800-4122') == '(587) 800-4122'
 
     @staticmethod
     def test_phone_number_format_display_invalid_returns_original() -> None:

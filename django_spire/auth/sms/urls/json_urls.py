@@ -7,6 +7,7 @@ from django_spire.auth.sms.views import json_views
 app_name = 'json'
 
 urlpatterns = [
+    path('session/code/', json_views.session_code_view, name='session_code'),
     path(
         'verification-confirm/',
         json_views.verification_confirm_view,

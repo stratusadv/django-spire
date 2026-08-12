@@ -12,12 +12,8 @@ def info_json_response(message: str | None = None, **kwargs) -> JsonResponse:
 
 
 def json_response(
-    type: ResponseTypeChoices | str,
-    message: str | None = None,
-    **kwargs,
+    type: ResponseTypeChoices | str, message: str | None = None, **kwargs,
 ) -> JsonResponse:
-    status = kwargs.pop('status', None)
-
     response_choices = [choice.value for choice in ResponseTypeChoices]
 
     if isinstance(type, ResponseTypeChoices):
@@ -41,12 +37,7 @@ def json_response(
     if message is not None:
         return_data['message'] = message
 
-    response = JsonResponse(return_data)
-
-    if status is not None:
-        response.status_code = status
-
-    return response
+    return JsonResponse(return_data)
 
 
 def success_json_response(message: str | None = None, **kwargs) -> JsonResponse:

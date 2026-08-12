@@ -20,7 +20,7 @@
 
             let response = await Spire.ajax.request(
                 'POST',
-                '{% url "django_spire:auth:sms:session_code" %}',
+                '{% url "django_spire:auth:sms:json:session_code" %}',
                 {phone_number: this.current_phone_number}
             );
 
