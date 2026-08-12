@@ -1,3 +1,14 @@
+## v1.0.1-rc3 - August 12, 2026
+
+#### Features
+
+- Added code blocks to the Knowledge editor, including Editor.js support and fenced-code rendering in generated text.
+
+#### Fixes
+
+- Decimal Glue form fields now accept arbitrary decimal precision instead of using the browser's default whole-number step.
+- Help desk ticket services are no longer exposed as a deletable Glue attribute.
+
 ## v1.0.1-rc2 - August 6, 2026
 
 #### Fixes
