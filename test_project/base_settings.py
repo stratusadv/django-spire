@@ -272,3 +272,5 @@ else:
 
 if DEBUG:  # Adjust based on your environment
     PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+    SESSION_COOKIE_NAME = 'django_spire_test_sessionid'
+    CSRF_COOKIE_NAME = 'django_spire_test_csrftoken'

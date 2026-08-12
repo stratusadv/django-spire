@@ -24,6 +24,10 @@ function create_editorjs_instance({holder_id, update_url, initial_editor_blocks}
                     defaultStyle: 'unordered'
                 },
             },
+            code: {
+                class: CodeTool,
+                inlineToolbar: true,
+            },
             paragraph: NullParagraph
         },
         defaultBlock: 'text',
