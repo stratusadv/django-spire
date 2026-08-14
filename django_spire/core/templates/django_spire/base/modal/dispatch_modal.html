@@ -3,6 +3,7 @@
         eventData: {},
         modal: null,
         dialogClasses: '',
+        removeContentScope: null,
         init() {
             this.modal = bootstrap.Modal.getOrCreateInstance($el)
             $el.addEventListener('show.bs.modal', () => $el.removeAttribute('inert'));
@@ -14,10 +15,20 @@
 
             this.dialogClasses = event.detail.dialogClasses || ''
             this.eventData = event.detail.eventData
-            if(event.detail.renderToBody) {
-                document.getElementById('baseDispatchModalBody').innerHTML = event.detail.htmlContent
+            const contentElement = document.getElementById(
+                event.detail.renderToBody ? 'baseDispatchModalBody' : 'baseDispatchModalContent'
+            )
+
+            this.removeContentScope?.()
+            contentElement.innerHTML = event.detail.htmlContent
+
+            if (event.detail.scopeData) {
+                this.removeContentScope = Alpine.addScopeToNode(
+                    contentElement,
+                    event.detail.scopeData
+                )
             } else {
-                document.getElementById('baseDispatchModalContent').innerHTML = event.detail.htmlContent
+                this.removeContentScope = null
             }
 
             this.showModal()
