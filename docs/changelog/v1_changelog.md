@@ -1,3 +1,10 @@
+## v1.0.1-rc4 - August 14, 2026
+
+#### Features
+
+- Glue form widgets now emit standardized `field-input`, `field-change`, `field-focus`, and `field-blur` events with current and previous field values.
+
+
 ## v1.0.1-rc3 - August 12, 2026
 
 #### Features
