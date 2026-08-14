@@ -8,7 +8,26 @@
         set value(newValue) {
             {{ glue_field|glue_field_value_path }} = newValue;
         },
+        committedValue: undefined,
+        init() {
+            this.committedValue = this.value;
+        },
+        dispatchFieldEvent(name) {
+            this.$dispatch(name, {
+                field: this.field,
+                value: this.value,
+                previousValue: this.committedValue,
+            });
+
+            if (name === 'field-change') {
+                this.committedValue = this.value;
+            }
+        },
     }"
+    @input="dispatchFieldEvent('field-input')"
+    @change="dispatchFieldEvent('field-change')"
+    @focusin="if (!$el.contains($event.relatedTarget)) dispatchFieldEvent('field-focus')"
+    @focusout="if (!$el.contains($event.relatedTarget)) dispatchFieldEvent('field-blur')"
 >
     {% if not hide_label %}
         {% block widget_label %}

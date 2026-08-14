@@ -61,6 +61,10 @@
                 value = choice.value;
                 this.showDropdown = false;
                 this.searchQuery = '';
+                this.$nextTick(() => {
+                    this.$refs.selectedInput.dispatchEvent(new Event('input', {bubbles: true}));
+                    this.$refs.selectedInput.dispatchEvent(new Event('change', {bubbles: true}));
+                });
             }
         }"
     >
