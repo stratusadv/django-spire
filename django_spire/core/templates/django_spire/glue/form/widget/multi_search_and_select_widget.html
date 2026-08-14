@@ -1,0 +1,136 @@
+{% extends 'django_spire/glue/form/widget/widget.html' %}
+
+{% block widget_content %}
+    <div
+        class="position-relative"
+        x-data="{
+            isOpen: false,
+            search: '',
+            get selectedChoices() {
+                return field?.selectedChoices || [];
+            },
+            get filteredChoices() {
+                const selectedValues = new Set(this.selectedChoices.map(choice => String(choice.value)));
+                const query = this.search.trim().toLowerCase();
+                return (field?.choices || []).filter(choice =>
+                    !selectedValues.has(String(choice.value))
+                    && String(choice.label).toLowerCase().includes(query)
+                );
+            },
+            open() {
+                if (field.disabled) return;
+                this.search = '';
+                this.isOpen = true;
+                this.$nextTick(() => this.$refs.searchInput?.focus());
+            },
+            isChoiceDisabled(choice) {
+                return field.disabled || field.disabled_choices?.some(
+                    value => String(value) === String(choice.value)
+                );
+            },
+            addChoice(choice) {
+                if (!choice || this.isChoiceDisabled(choice)) return;
+                field.addChoice(choice.value);
+                this.search = '';
+                this.dispatchValueEvents();
+                this.$nextTick(() => this.$refs.searchInput?.focus());
+            },
+            removeChoice(choice) {
+                if (this.isChoiceDisabled(choice)) return;
+                field.removeChoice(choice.value);
+                this.dispatchValueEvents();
+            },
+            dispatchValueEvents() {
+                this.$nextTick(() => {
+                    // The trigger button can be gone by the time this fires (e.g. the
+                    // modal holding this widget was closed/replaced before the tick
+                    // ran) -- guard the same way $refs.searchInput already does above,
+                    // instead of throwing on a stale ref.
+                    this.$refs.trigger?.dispatchEvent(new Event('input', {bubbles: true}));
+                    this.$refs.trigger?.dispatchEvent(new Event('change', {bubbles: true}));
+                });
+            },
+        }"
+        @click.outside="isOpen = false"
+        @keydown.escape="isOpen = false"
+    >
+        <button
+            x-ref="trigger"
+            class="form-control text-start d-flex align-items-center justify-content-between gap-2"
+            :class="{'is-invalid': field.hasErrors}"
+            type="button"
+            :disabled="field.disabled"
+            @click="isOpen ? isOpen = false : open()"
+        >
+            <span class="d-flex flex-wrap align-items-center gap-1 overflow-hidden">
+                <template x-for="choice in selectedChoices" :key="choice.value">
+                    <span
+                        class="badge rounded-pill text-bg-light border fw-normal text-truncate"
+                        :class="{'opacity-50': isChoiceDisabled(choice)}"
+                        style="max-width: 15rem;"
+                        @click.stop="removeChoice(choice)"
+                        x-text="choice.label"
+                    ></span>
+                </template>
+                <span class="text-body-secondary" x-show="selectedChoices.length === 0">
+                    {{ empty_label|default:'Select...' }}
+                </span>
+            </span>
+            <i class="bi bi-chevron-down flex-shrink-0"></i>
+        </button>
+
+        <div
+            class="position-absolute top-100 start-0 z-3 mt-1 w-100 rounded border bg-body shadow"
+            x-cloak
+            x-show="isOpen"
+            x-trap.inert="isOpen"
+        >
+            <div class="border-bottom p-2">
+                <input
+                    class="form-control form-control-sm"
+                    type="search"
+                    x-ref="searchInput"
+                    x-model="search"
+                    @input.stop
+                    @change.stop
+                    @keydown.enter.prevent="addChoice(filteredChoices[0])"
+                    placeholder="{{ search_placeholder|default:'Search...' }}"
+                >
+            </div>
+            <div class="overflow-auto" style="max-height: {{ max_height|default:'18rem' }};">
+                <template x-for="choice in selectedChoices" :key="`selected-${choice.value}`">
+                    <button
+                        class="btn btn-sm d-flex w-100 align-items-center rounded-0 border-0 px-2 py-1 text-start"
+                        type="button"
+                        :disabled="isChoiceDisabled(choice)"
+                        @click="removeChoice(choice)"
+                    >
+                        {% include 'django_spire/glue/form/widget/item/multi_search_and_select_choice_item.html' with is_selected=True %}
+                    </button>
+                </template>
+                <div
+                    class="border-top px-2 py-1 small text-body-secondary"
+                    x-show="selectedChoices.length > 0 && filteredChoices.length > 0"
+                >
+                    Choices
+                </div>
+                <template x-for="choice in filteredChoices" :key="choice.value">
+                    <button
+                        class="btn btn-sm d-flex w-100 align-items-center rounded-0 border-0 px-2 py-1 text-start"
+                        type="button"
+                        :disabled="isChoiceDisabled(choice)"
+                        @click="addChoice(choice)"
+                    >
+                        {% include 'django_spire/glue/form/widget/item/multi_search_and_select_choice_item.html' %}
+                    </button>
+                </template>
+                <div
+                    class="p-3 text-center text-body-secondary"
+                    x-show="filteredChoices.length === 0 && selectedChoices.length === 0"
+                >
+                    No available choices
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

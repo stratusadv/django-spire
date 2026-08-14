@@ -58,8 +58,13 @@
             this.items = []
             await this.loadMoreItems(true)
         },
-        async updateItem(pk) {
+        async updateItem(pk, removed = false) {
             if (!pk) {
+                return
+            }
+
+            if (removed) {
+                await this.resetAndLoad()
                 return
             }
 
@@ -70,7 +75,7 @@
             const itemIndex = this.items.findIndex(existingItem => existingItem.$pk === item.$pk)
 
             if (itemIndex === -1) {
-                this.items.unshift(item)    
+                this.items.unshift(item)
             }
             else {
                 this.items[itemIndex] = item
@@ -82,7 +87,7 @@
     }"
         @updated-item.window="
         if (!$event.detail?.querysetName || $event.detail.querysetName === scrollQuerySet._name) {
-            updateItem($event.detail.pk)
+            updateItem($event.detail.pk, $event.detail.removed)
         }
     "
         class="{% block scroll_container_class %}{% endblock %}"
