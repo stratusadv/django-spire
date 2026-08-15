@@ -27,7 +27,7 @@ class CeleryTaskServiceUpdateResultTestCase(TestCase):
 
         self.service.update_result(mock_result)
 
-        self.assertEqual(self.celery_task.state, states.SUCCESS)
+        assert self.celery_task.state == states.SUCCESS
 
     def test_update_result_sets_completed_datetime(self) -> None:
         completed_time = now()
@@ -38,7 +38,7 @@ class CeleryTaskServiceUpdateResultTestCase(TestCase):
 
         self.service.update_result(mock_result)
 
-        self.assertIsNotNone(self.celery_task.completed_datetime)
+        assert self.celery_task.completed_datetime is not None
 
     def test_update_result_with_naive_datetime_makes_aware(self) -> None:
         naive_datetime = now()
@@ -49,7 +49,7 @@ class CeleryTaskServiceUpdateResultTestCase(TestCase):
 
         self.service.update_result(mock_result)
 
-        self.assertTrue(self.celery_task.completed_datetime.tzinfo is not None)
+        assert self.celery_task.completed_datetime.tzinfo is not None
 
 
 class CeleryTaskServiceUpdateFromAsyncResultTestCase(TestCase):
@@ -83,4 +83,4 @@ class CeleryTaskServiceUpdateFromAsyncResultTestCase(TestCase):
 
         self.service.update_from_async_result_and_save_if_change()
 
-        self.assertEqual(self.celery_task.state, states.STARTED)
+        assert self.celery_task.state == states.STARTED

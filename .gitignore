@@ -55,6 +55,8 @@ nul
 
 build/
 
+test-results/
+
 opencode.json
 
 .constellation/

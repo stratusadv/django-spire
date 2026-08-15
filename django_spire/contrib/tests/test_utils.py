@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 from django.test import TestCase
 
 from django_spire.contrib.utils import truncate_string, format_duration
@@ -39,7 +37,7 @@ class TestTruncateString(TestCase):
         assert result == ''
 
 
-class HumanizeSecondsDurationTestCase(unittest.TestCase):
+class HumanizeSecondsDurationTestCase(TestCase):
     def test_format_duration(self):
         test_value = 65250367
         expected_result = '2 years, 3 weeks, 4 days, 5 hours, 6 minutes, 7 seconds'

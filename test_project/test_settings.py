@@ -12,3 +12,6 @@ DATABASES['default'] = {
     'PORT': os.getenv('TEST_DATABASE_PORT', '5439'),
     'ATOMIC_REQUESTS': os.getenv('TEST_ATOMIC_REQUESTS', False),
 }
+
+CELERY_BROKER_URL = 'memory://'
+CELERY_RESULT_BACKEND = 'cache+memory://'

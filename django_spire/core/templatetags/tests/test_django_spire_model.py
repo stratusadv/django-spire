@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-import unittest
-
 from django.contrib.auth.models import User
 from django.template import Context, Template
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_model import model_app_label, model_name
 
 
-class TestModelAppLabel(unittest.TestCase):
+class TestModelAppLabel(TestCase):
     def test_returns_app_label(self) -> None:
         class DummyModel:
             class _meta:  # noqa: N801
@@ -33,7 +32,7 @@ class TestModelAppLabel(unittest.TestCase):
         assert result == 'custom_app'
 
 
-class TestModelName(unittest.TestCase):
+class TestModelName(TestCase):
     def test_returns_model_name_lowercase(self) -> None:
         class DummyModel:
             class _meta:  # noqa: N801
@@ -58,7 +57,7 @@ class TestModelName(unittest.TestCase):
         assert result == 'SomeModel'
 
 
-class TestModelTemplateRendering(unittest.TestCase):
+class TestModelTemplateRendering(TestCase):
     def test_render_model_app_label_filter(self) -> None:
         template_code = """
             {% load django_spire_model %}

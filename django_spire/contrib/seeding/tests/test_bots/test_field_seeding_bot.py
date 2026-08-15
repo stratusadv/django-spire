@@ -1,3 +1,5 @@
+import pytest
+
 from django.test import TestCase
 
 from django_spire.contrib.seeding.field.seed.callable_seed import CallableFieldSeed
@@ -13,6 +15,7 @@ class TestFieldSeedingBot(TestCase):
         bot = FieldSeedingBot()
         assert bot is not None
 
+    @pytest.mark.ai
     def test_process_returns_seed_object(self):
         bot = FieldSeedingBot()
         fields_seeds = {
@@ -27,6 +30,7 @@ class TestFieldSeedingBot(TestCase):
         assert isinstance(result, Seed)
         assert hasattr(result, 'to_dict')
 
+    @pytest.mark.ai
     def test_process_includes_non_llm_fields(self):
         bot = FieldSeedingBot()
         fields_seeds = {
@@ -71,6 +75,7 @@ class TestFieldSeedingBot(TestCase):
         assert result['name'] == 'Test'
         assert result['value'] == 42
 
+    @pytest.mark.ai
     def test_process_with_multiple_llm_fields(self):
         bot = FieldSeedingBot()
         fields_seeds = {
@@ -87,6 +92,7 @@ class TestFieldSeedingBot(TestCase):
         assert isinstance(result, Seed)
         assert result['name'] == 'Test'
 
+    @pytest.mark.ai
     def test_process_preserves_static_values(self):
         bot = FieldSeedingBot()
         fields_seeds = {
@@ -104,6 +110,7 @@ class TestFieldSeedingBot(TestCase):
         assert result['count'] == 100
         assert result['status'] == 'complete'
 
+    @pytest.mark.ai
     def test_process_callable_field_seeds(self):
         bot = FieldSeedingBot()
         fields_seeds = {
@@ -130,6 +137,7 @@ class TestFieldSeedingBot(TestCase):
         )
         assert result is not None
 
+    @pytest.mark.ai
     def test_llm_field_gets_filled_by_bot(self):
         bot = FieldSeedingBot()
         fields_seeds = {
@@ -144,6 +152,7 @@ class TestFieldSeedingBot(TestCase):
         assert result['name'] == 'Test'
         assert 'description' in result.to_dict() or hasattr(result, 'description')
 
+    @pytest.mark.ai
     def test_process_with_prompt_field(self):
         bot = FieldSeedingBot()
         fields_seeds = {

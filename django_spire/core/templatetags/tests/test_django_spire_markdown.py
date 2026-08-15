@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import unittest
 from pathlib import Path
 
 from django.conf import settings
 from django.template import Context, Template
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_markdown import (
     _render_markdown_cached,
@@ -14,7 +14,7 @@ from django_spire.core.templatetags.django_spire_markdown import (
 )
 
 
-class MarkdownTestCase(unittest.TestCase):
+class MarkdownTestCase(TestCase):
     markdown_content = '# Hello\n\nThis is **bold** text.'
 
     def setUp(self) -> None:

@@ -1,19 +1,20 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django import forms
 from django.contrib import admin
-from django.urls import reverse
+from django.db.models import Count, Q
 from django.utils.html import format_html
-from django.utils.http import urlencode
 
 from django_spire.ai import models
 from django_spire.ai.mixins import AiUsageAdminMixin
+from django_spire.contrib.admin.links import admin_changelist_url
 from django_spire.contrib.form.widgets import JsonTreeWidget
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django.db.models import Model
-    from django.core.handlers.wsgi import WSGIRequest
+    from django.db.models import Model, QuerySet
+    from django.http import HttpRequest
 
 
 @admin.register(models.AiUsage)
@@ -28,46 +29,66 @@ class AiUsageAdmin(AiUsageAdminMixin):
         'view_successful_interactions_link',
         'view_failed_interactions_link',
     )
-    search_fields = ('recorded_date',)
     ordering = ('-recorded_date',)
+    search_fields = ('recorded_date',)
 
-    def get_readonly_fields(self, request: WSGIRequest, obj: Model|None=None) -> list[str]:
+    def _interactions_link(
+        self,
+        ai_usage: models.AiUsage,
+        count: int,
+        was_successful: bool | None = None,
+    ) -> str:
+        filters = {'ai_usage__id': str(ai_usage.id)}
+
+        if was_successful is not None:
+            filters['was_successful__exact'] = str(int(was_successful))
+
+        url = admin_changelist_url(models.AiInteraction, **filters)
+
+        return format_html('<a href="{}">{} Interactions</a>', url, count)
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[models.AiUsage]:
+        queryset = super().get_queryset(request)
+
+        return queryset.annotate(
+            _interaction_count=Count('interaction', distinct=True),
+            _successful_interaction_count=Count(
+                'interaction',
+                filter=Q(interaction__was_successful=True),
+                distinct=True,
+            ),
+            _failed_interaction_count=Count(
+                'interaction',
+                filter=Q(interaction__was_successful=False),
+                distinct=True,
+            ),
+        )
+
+    def get_readonly_fields(self, request: HttpRequest, obj: Model | None = None) -> list[str]:
         return [field.name for field in self.model._meta.fields]
 
-    def view_interactions_link(
-        self, ai_usage: models.AiUsage, was_successful: bool | None = None
-    ) -> str:
-        was_successful_filter = (
-            '' if was_successful is None else f'&was_successful__exact={int(was_successful)}'
-        )
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        return False
 
-        url = (
-            reverse('admin:django_spire_ai_aiinteraction_changelist')
-            + '?'
-            + urlencode({'ai_usage__id': f'{ai_usage.id}'})
-            + was_successful_filter
-        )
-
-        if was_successful is None:
-            interactions_count = ai_usage.interactions.count()
-        elif was_successful:
-            interactions_count = ai_usage.interactions.filter(was_successful=True).count()
-        else:
-            interactions_count = ai_usage.interactions.filter(was_successful=False).count()
-
-        return format_html(f'<a href="{url}">{interactions_count} Interactions</a>')
-
-    view_interactions_link.short_description = 'All'
-
-    def view_successful_interactions_link(self, ai_usage: models.AiUsage) -> str:
-        return self.view_interactions_link(ai_usage, was_successful=True)
-
-    view_successful_interactions_link.short_description = 'Successful'
-
+    @admin.display(description='Failed', ordering='_failed_interaction_count')
     def view_failed_interactions_link(self, ai_usage: models.AiUsage) -> str:
-        return self.view_interactions_link(ai_usage, was_successful=False)
+        return self._interactions_link(
+            ai_usage,
+            ai_usage._failed_interaction_count,
+            was_successful=False,
+        )
 
-    view_failed_interactions_link.short_description = 'Failed'
+    @admin.display(description='All', ordering='_interaction_count')
+    def view_interactions_link(self, ai_usage: models.AiUsage) -> str:
+        return self._interactions_link(ai_usage, ai_usage._interaction_count)
+
+    @admin.display(description='Successful', ordering='_successful_interaction_count')
+    def view_successful_interactions_link(self, ai_usage: models.AiUsage) -> str:
+        return self._interactions_link(
+            ai_usage,
+            ai_usage._successful_interaction_count,
+            was_successful=True,
+        )
 
 
 class AiInteractionModelForm(forms.ModelForm):
@@ -92,6 +113,7 @@ class AiInteractionAdmin(AiUsageAdminMixin):
         'created_datetime',
     )
     list_filter = ('module_name', 'callable_name', 'was_successful')
+    ordering = ('-created_datetime',)
     search_fields = (
         'actor',
         'user_email',
@@ -100,9 +122,8 @@ class AiInteractionAdmin(AiUsageAdminMixin):
         'module_name',
         'callable_name',
     )
-    ordering = ('-created_datetime',)
 
-    readonly_fields = [
+    readonly_fields = (
         'actor',
         'created_datetime',
         'module_name',
@@ -114,8 +135,8 @@ class AiInteractionAdmin(AiUsageAdminMixin):
         'user_last_name',
         'exception',
         'stack_trace',
-    ]
-    fields = [
+    )
+    fields = (
         'actor',
         'user',
         'created_datetime',
@@ -128,4 +149,7 @@ class AiInteractionAdmin(AiUsageAdminMixin):
         'user_last_name',
         'exception',
         'stack_trace',
-    ]
+    )
+
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        return False
