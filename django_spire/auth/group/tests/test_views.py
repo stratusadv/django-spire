@@ -111,36 +111,40 @@ class GroupFormViewsTestCase(BaseTestCase):
         self.group = AuthGroup.objects.create(name='Test Group')
 
     def test_add_form_view_get(self) -> None:
-        response = self.client.get(reverse('django_spire:auth:group:form:add'))
+        response = self.client.get(reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}))
         assert response.status_code == 200
 
     def test_add_form_view_post_creates_group(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'), data={'name': 'New Group'}
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}),
+            data={'name': 'New Group'},
         )
         assert response.status_code == 302
         assert AuthGroup.objects.filter(name='New Group').exists()
 
     def test_add_form_view_post_invalid_name(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'), data={'name': 'All Users'}
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}),
+            data={'name': 'All Users'},
         )
         assert response.status_code == 200
         assert not AuthGroup.objects.filter(name='All Users').exists()
 
     def test_add_form_view_post_empty_name(self) -> None:
-        response = self.client.post(reverse('django_spire:auth:group:form:add'), data={'name': ''})
+        response = self.client.post(
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}), data={'name': ''}
+        )
         assert response.status_code == 200
 
     def test_update_form_view_get(self) -> None:
         response = self.client.get(
-            reverse('django_spire:auth:group:form:update', kwargs={'pk': self.group.pk})
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': self.group.pk})
         )
         assert response.status_code == 200
 
     def test_update_form_view_post_updates_group(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:update', kwargs={'pk': self.group.pk}),
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': self.group.pk}),
             data={'name': 'Updated Group'},
         )
         assert response.status_code == 302
@@ -149,7 +153,7 @@ class GroupFormViewsTestCase(BaseTestCase):
 
     def test_update_form_view_nonexistent_group_returns_200(self) -> None:
         response = self.client.get(
-            reverse('django_spire:auth:group:form:update', kwargs={'pk': 99999})
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': 99999})
         )
         assert response.status_code == 200
 
@@ -180,14 +184,14 @@ class GroupFormViewsTestCase(BaseTestCase):
     def test_add_form_requires_permission(self) -> None:
         user = create_user(username='normaluser')
         self.client.force_login(user)
-        response = self.client.get(reverse('django_spire:auth:group:form:add'))
+        response = self.client.get(reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}))
         assert response.status_code == 403
 
     def test_update_form_requires_permission(self) -> None:
         user = create_user(username='normaluser')
         self.client.force_login(user)
         response = self.client.get(
-            reverse('django_spire:auth:group:form:update', kwargs={'pk': self.group.pk})
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': self.group.pk})
         )
         assert response.status_code == 403
 
@@ -209,13 +213,14 @@ class GroupFormViewsTestCase(BaseTestCase):
 
     def test_add_form_view_post_duplicate_name(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'), data={'name': 'Test Group'}
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}),
+            data={'name': 'Test Group'},
         )
         assert response.status_code == 200
 
     def test_update_form_view_post_to_reserved_name(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:update', kwargs={'pk': self.group.pk}),
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': self.group.pk}),
             data={'name': 'All Users'},
         )
         assert response.status_code == 200
@@ -224,14 +229,16 @@ class GroupFormViewsTestCase(BaseTestCase):
 
     def test_add_form_view_post_unicode_name(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'), data={'name': 'Tëst Grøup 日本語'}
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}),
+            data={'name': 'Tëst Grøup 日本語'},
         )
         assert response.status_code == 302
         assert AuthGroup.objects.filter(name='Tëst Grøup 日本語').exists()
 
     def test_add_form_view_post_special_characters(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:group:form:add'), data={'name': 'Group & Co <Test>'}
+            reverse('django_spire:auth:group:form:form', kwargs={'pk': 0}),
+            data={'name': 'Group & Co <Test>'},
         )
         assert response.status_code == 302
 

@@ -17,7 +17,10 @@ class TestAddFormActivity(TestCase):
     def test_add_form_activity_created(self) -> None:
         pk = 0
         user = get_object_or_null_obj(AuthUser, pk=pk)
-        user.services.save_model_obj(username='newuser', first_name='New', last_name='User')
+        user.username = 'newuser'
+        user.first_name = 'New'
+        user.last_name = 'User'
+        user.save()
 
         add_form_activity(user, pk=pk, user=self.super_user)
 
@@ -31,7 +34,10 @@ class TestAddFormActivity(TestCase):
 
     def test_add_form_activity_updated(self) -> None:
         user = get_object_or_null_obj(AuthUser, pk=0)
-        user.services.save_model_obj(username='updateuser', first_name='Update', last_name='User')
+        user.username = 'updateuser'
+        user.first_name = 'Update'
+        user.last_name = 'User'
+        user.save()
 
         add_form_activity(user, pk=user.pk, user=self.super_user)
 
@@ -46,10 +52,16 @@ class TestAddFormActivity(TestCase):
     def test_add_form_activity_multiple_calls(self) -> None:
         pk = 0
         user_1 = get_object_or_null_obj(AuthUser, pk=pk)
-        user_1.services.save_model_obj(username='user1', first_name='First', last_name='User')
+        user_1.username = 'user1'
+        user_1.first_name = 'First'
+        user_1.last_name = 'User'
+        user_1.save()
 
         user_2 = get_object_or_null_obj(AuthUser, pk=pk)
-        user_2.services.save_model_obj(username='user2', first_name='Second', last_name='User')
+        user_2.username = 'user2'
+        user_2.first_name = 'Second'
+        user_2.last_name = 'User'
+        user_2.save()
 
         add_form_activity(user_1, pk=pk, user=self.super_user)
         add_form_activity(user_2, pk=user_2.pk, user=self.super_user)

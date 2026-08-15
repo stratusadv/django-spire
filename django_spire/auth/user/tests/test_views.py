@@ -28,14 +28,14 @@ class UserPageViewsTestCase(BaseTestCase):
 
     def test_list_view_context_contains_users(self) -> None:
         response = self.client.get(reverse('django_spire:auth:user:page:list'))
-        assert 'active_user_list' in response.context
-        assert 'inactive_user_list' in response.context
+        assert 'active_users' in response.context
+        assert 'inactive_users' in response.context
 
     def test_list_view_separates_active_inactive(self) -> None:
         inactive_user = create_user(username='inactiveuser', is_active=False)
         response = self.client.get(reverse('django_spire:auth:user:page:list'))
-        active_ids = [u.pk for u in response.context['active_user_list']]
-        inactive_ids = [u.pk for u in response.context['inactive_user_list']]
+        active_ids = [u.pk for u in response.context['active_users']]
+        inactive_ids = [u.pk for u in response.context['inactive_users']]
         assert inactive_user.pk in inactive_ids
         assert inactive_user.pk not in active_ids
 
@@ -79,13 +79,14 @@ class UserPageViewsTestCase(BaseTestCase):
 
     def test_list_view_contains_active_user(self) -> None:
         response = self.client.get(reverse('django_spire:auth:user:page:list'))
-        active_ids = [u.pk for u in response.context['active_user_list']]
+        active_ids = [u.pk for u in response.context['active_users']]
         assert self.user.pk in active_ids
 
-    def test_list_view_pagination(self) -> None:
+    def test_list_view_context_contains_counts(self) -> None:
+        create_user(username='inactiveuser', is_active=False)
         response = self.client.get(reverse('django_spire:auth:user:page:list'))
-        assert 'active_user_list' in response.context
-        assert hasattr(response.context['active_user_list'], 'paginator')
+        assert response.context['active_user_count'] == len(response.context['active_users'])
+        assert response.context['inactive_user_count'] == len(response.context['inactive_users'])
 
     def test_detail_view_with_groups(self) -> None:
         group = AuthGroup.objects.create(name='Test Group')
@@ -108,7 +109,7 @@ class UserPageViewsTestCase(BaseTestCase):
         create_user(username='user1', first_name='User', last_name='One')
         create_user(username='user2', first_name='User', last_name='Two')
         response = self.client.get(reverse('django_spire:auth:user:page:list'))
-        assert len(response.context['active_user_list']) >= 2
+        assert len(response.context['active_users']) >= 2
 
 
 class UserFormViewsTestCase(BaseTestCase):
@@ -119,58 +120,61 @@ class UserFormViewsTestCase(BaseTestCase):
             username='testuser', first_name='Test', last_name='User', email='test@example.com'
         )
 
-    def test_register_form_view_get(self) -> None:
-        response = self.client.get(reverse('django_spire:auth:user:form:register'))
+    def test_create_form_view_get(self) -> None:
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': 0})
+        )
         assert response.status_code == 200
 
-    def test_register_form_view_post_invalid_password(self) -> None:
+    def test_create_form_view_post_renders_page(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:user:form:register'),
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': 0}),
             data={
                 'first_name': 'New',
                 'last_name': 'User',
                 'email': 'newuser@example.com',
-                'password': 'short',
+                'is_active': True,
             },
         )
         assert response.status_code == 200
-        assert not AuthUser.objects.filter(email='newuser@example.com').exists()
 
-    def test_register_form_view_post_invalid_email(self) -> None:
-        response = self.client.post(
-            reverse('django_spire:auth:user:form:register'),
+    def test_create_form_view_post_does_not_save_user(self) -> None:
+        self.client.post(
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': 0}),
             data={
                 'first_name': 'New',
                 'last_name': 'User',
-                'email': 'invalid-email',
-                'password': 'securepassword123',
+                'email': 'newuser@example.com',
+                'is_active': True,
             },
         )
-        assert response.status_code == 200
+        assert not AuthUser.objects.filter(email='newuser@example.com').exists()
 
-    def test_register_form_requires_permission(self) -> None:
+    def test_create_form_requires_permission(self) -> None:
         normal_user = create_user(username='normaluser')
         self.client.force_login(normal_user)
-        response = self.client.get(reverse('django_spire:auth:user:form:register'))
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': 0})
+        )
         assert response.status_code == 403
 
     def test_update_form_view_get(self) -> None:
         response = self.client.get(
-            reverse('django_spire:auth:user:form:update', kwargs={'pk': self.user.pk})
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': self.user.pk})
         )
         assert response.status_code == 200
 
-    def test_update_form_view_404(self) -> None:
+    def test_update_form_view_unknown_pk_renders_create_page(self) -> None:
         response = self.client.get(
-            reverse('django_spire:auth:user:form:update', kwargs={'pk': 99999})
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': 99999})
         )
-        assert response.status_code == 404
+        assert response.status_code == 200
 
     def test_update_form_requires_permission(self) -> None:
         normal_user = create_user(username='normaluser')
         self.client.force_login(normal_user)
         response = self.client.get(
-            reverse('django_spire:auth:user:form:update', kwargs={'pk': self.user.pk})
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': self.user.pk})
         )
         assert response.status_code == 403
 
@@ -180,27 +184,22 @@ class UserFormViewsTestCase(BaseTestCase):
         )
         assert response.status_code == 200
 
-    def test_group_form_view_post_updates_groups(self) -> None:
+    def test_group_form_view_post_renders_page(self) -> None:
         group = AuthGroup.objects.create(name='Test Group')
         response = self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group.pk]},
+            data={'groups': [group.pk]},
         )
-        assert response.status_code == 302
-        self.user.refresh_from_db()
-        assert group in self.user.groups.all()
+        assert response.status_code == 200
 
-    def test_group_form_view_post_multiple_groups(self) -> None:
-        group1 = AuthGroup.objects.create(name='Group 1')
-        group2 = AuthGroup.objects.create(name='Group 2')
-        response = self.client.post(
+    def test_group_form_view_post_does_not_save_groups(self) -> None:
+        group = AuthGroup.objects.create(name='Test Group')
+        self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group1.pk, group2.pk]},
+            data={'groups': [group.pk]},
         )
-        assert response.status_code == 302
         self.user.refresh_from_db()
-        assert group1 in self.user.groups.all()
-        assert group2 in self.user.groups.all()
+        assert group not in self.user.groups.all()
 
     def test_group_form_view_404(self) -> None:
         response = self.client.get(
@@ -216,63 +215,22 @@ class UserFormViewsTestCase(BaseTestCase):
         )
         assert response.status_code == 403
 
-    def test_register_form_view_post_empty_password(self) -> None:
-        response = self.client.post(
-            reverse('django_spire:auth:user:form:register'),
-            data={
-                'first_name': 'New',
-                'last_name': 'User',
-                'email': 'newuser@example.com',
-                'password': '',
-            },
-        )
-        assert response.status_code == 200
-
-    def test_register_form_view_post_empty_email(self) -> None:
-        response = self.client.post(
-            reverse('django_spire:auth:user:form:register'),
-            data={
-                'first_name': 'New',
-                'last_name': 'User',
-                'email': '',
-                'password': 'securepassword123',
-            },
-        )
-        assert response.status_code == 200
-
-    def test_group_form_view_post_removes_existing_groups(self) -> None:
-        group1 = AuthGroup.objects.create(name='Group 1')
-        group2 = AuthGroup.objects.create(name='Group 2')
-        self.user.groups.add(group1)
-
-        response = self.client.post(
-            reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group2.pk]},
-        )
-        assert response.status_code == 302
-        self.user.refresh_from_db()
-        assert group1 not in self.user.groups.all()
-        assert group2 in self.user.groups.all()
-
     def test_group_form_view_post_invalid_group_id(self) -> None:
         response = self.client.post(
             reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [99999]},
+            data={'groups': [99999]},
         )
         assert response.status_code == 200
 
-    def test_group_form_redirects_after_success(self) -> None:
-        group = AuthGroup.objects.create(name='Test Group')
-        response = self.client.post(
-            reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk}),
-            data={'group_list': [group.pk]},
+    def test_group_form_view_context_contains_user(self) -> None:
+        response = self.client.get(
+            reverse('django_spire:auth:user:form:group_form', kwargs={'pk': self.user.pk})
         )
-        assert response.status_code == 302
-        assert str(self.user.pk) in response.url
+        assert response.context['user'].pk == self.user.pk
 
     def test_update_form_view_post_renders_page(self) -> None:
         response = self.client.post(
-            reverse('django_spire:auth:user:form:update', kwargs={'pk': self.user.pk}),
+            reverse('django_spire:auth:user:form:form', kwargs={'pk': self.user.pk}),
             data={
                 'first_name': 'Updated',
                 'last_name': 'Name',

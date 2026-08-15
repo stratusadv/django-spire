@@ -18,8 +18,11 @@ class BlockTypeChoicesTests(BaseTestCase):
     def test_list_value(self):
         assert BlockTypeChoices.LIST == 'list'
 
+    def test_code_value(self):
+        assert BlockTypeChoices.CODE == 'code'
+
     def test_choices_count(self):
-        assert len(BlockTypeChoices.choices) == 3
+        assert len(BlockTypeChoices.choices) == 4
 
 
 class ListEditorBlockDataStyleTests(BaseTestCase):

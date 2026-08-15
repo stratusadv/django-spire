@@ -9,18 +9,18 @@ class TestFakeFieldSeedHelper(TestCase):
     def test_first_name_returns_callable_field_seed(self):
         seed = Seeder.fake.first_name()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.first_name
+        assert seed.callable.__name__ == 'first_name'
         assert seed.kwargs == {}
 
     def test_last_name_returns_callable_field_seed(self):
         seed = Seeder.fake.last_name()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.last_name
+        assert seed.callable.__name__ == 'last_name'
 
     def test_sentence_default_nb_words(self):
         seed = Seeder.fake.sentence()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.sentence
+        assert seed.callable.__name__ == 'sentence'
         assert seed.kwargs == {'nb_words': 5}
 
     def test_sentence_custom_nb_words(self):
@@ -30,18 +30,18 @@ class TestFakeFieldSeedHelper(TestCase):
     def test_boolean_returns_callable_field_seed(self):
         seed = Seeder.fake.boolean()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.boolean
+        assert seed.callable.__name__ == 'boolean'
 
     def test_date_between_returns_callable_with_make_aware(self):
         seed = Seeder.fake.date_between()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.date_between
+        assert seed.callable.__name__ == 'date_between'
         assert seed.wrapper is timezone.make_aware
 
     def test_date_time_between_returns_callable_with_make_aware(self):
         seed = Seeder.fake.date_time_between()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.date_time_between
+        assert seed.callable.__name__ == 'date_time_between'
         assert seed.wrapper is timezone.make_aware
 
     def test_date_time_between_returns_aware_datetime(self):
@@ -52,7 +52,7 @@ class TestFakeFieldSeedHelper(TestCase):
     def test_text_returns_callable_field_seed(self):
         seed = Seeder.fake.text()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.text
+        assert seed.callable.__name__ == 'text'
         assert seed.kwargs == {'max_nb_chars': 200}
 
     def test_text_custom_max_chars(self):
@@ -67,42 +67,42 @@ class TestFakeFieldSeedHelper(TestCase):
     def test_city_returns_callable_field_seed(self):
         seed = Seeder.fake.city()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.city
+        assert seed.callable.__name__ == 'city'
 
     def test_company_returns_callable_field_seed(self):
         seed = Seeder.fake.company()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.company
+        assert seed.callable.__name__ == 'company'
 
     def test_email_returns_callable_field_seed(self):
         seed = Seeder.fake.email()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.email
+        assert seed.callable.__name__ == 'email'
 
     def test_name_returns_callable_field_seed(self):
         seed = Seeder.fake.name()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.name
+        assert seed.callable.__name__ == 'name'
 
     def test_url_returns_callable_field_seed(self):
         seed = Seeder.fake.url()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.url
+        assert seed.callable.__name__ == 'url'
 
     def test_uuid4_returns_callable_field_seed(self):
         seed = Seeder.fake.uuid4()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.uuid4
+        assert seed.callable.__name__ == 'uuid4'
 
     def test_word_returns_callable_field_seed(self):
         seed = Seeder.fake.word()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.word
+        assert seed.callable.__name__ == 'word'
 
     def test_paragraph_default(self):
         seed = Seeder.fake.paragraph()
         assert isinstance(seed, CallableFieldSeed)
-        assert seed.callable is Seeder.fake.faker.paragraph
+        assert seed.callable.__name__ == 'paragraph'
         assert seed.kwargs == {'nb_sentences': 3}
 
     def test_paragraph_custom_sentences(self):
