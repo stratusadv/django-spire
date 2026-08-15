@@ -22,10 +22,10 @@ class Viewed(models.Model):
 
     created_datetime = models.DateTimeField(default=localtime, editable=False)
 
-    def __str__(self):
-        return f'{self.user} viewed {self.content_object} at {self.created_datetime}'
-
     class Meta:
         db_table = 'django_spire_history_viewed'
         verbose_name = 'Viewed'
         verbose_name_plural = 'Views'
+
+    def __str__(self) -> str:
+        return f'{self.user} viewed {self.content_object} at {self.created_datetime}'

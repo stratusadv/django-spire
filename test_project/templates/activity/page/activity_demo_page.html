@@ -1,0 +1,247 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="fs-1 fw-semi-bold mb-0">Activity Demo</h1>
+            <p class="text-muted mb-0">
+                Every button below runs a plain ORM operation. No view calls
+                <code>add_activity</code> — the feed on the right fills in from the
+                middleware, signals, and queryset hooks alone.
+            </p>
+        </div>
+        <form method="post" action="{% url 'activity:reset' %}">
+            {% csrf_token %}
+            <button id="demo-reset" type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset Demo
+            </button>
+        </form>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-auto">
+            <span class="badge bg-secondary fs-6" id="demo-task-count">
+                Demo Tasks: {{ task_count }}
+            </span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-secondary fs-6" id="demo-task-deleted-count">
+                Soft Deleted: {{ task_deleted_count }}
+            </span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-secondary fs-6" id="demo-group-member-count">
+                Group Members: {{ group_member_count }}
+            </span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-secondary fs-6" id="demo-activity-count">
+                Activities: {{ activity_count }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header fw-semi-bold">
+                    Single Object &mdash; <code>save()</code> / <code>delete()</code> signals
+                </div>
+                <div class="card-body d-flex flex-wrap gap-2">
+                    <form method="post" action="{% url 'activity:create' %}">
+                        {% csrf_token %}
+                        <button id="demo-create" type="submit" class="btn btn-success">
+                            Create Task
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:update' %}">
+                        {% csrf_token %}
+                        <button id="demo-update" type="submit" class="btn btn-primary">
+                            Update Latest
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:soft_delete' %}">
+                        {% csrf_token %}
+                        <button id="demo-soft-delete" type="submit" class="btn btn-warning">
+                            Soft Delete Oldest
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:restore' %}">
+                        {% csrf_token %}
+                        <button id="demo-restore" type="submit" class="btn btn-outline-warning">
+                            Restore Oldest Deleted
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:hard_delete' %}">
+                        {% csrf_token %}
+                        <button id="demo-hard-delete" type="submit" class="btn btn-danger">
+                            Hard Delete Latest
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer text-muted small">
+                    Soft delete flips <code>is_deleted</code> and logs a <em>deleted</em>
+                    activity; restoring it is an ordinary <em>updated</em>. A real
+                    <code>delete()</code> removes the row, cascades the object's earlier
+                    activities, and leaves one <em>deleted</em> tombstone.
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header fw-semi-bold">
+                    Cascades &mdash; related rows deleted with their parent
+                </div>
+                <div class="card-body d-flex flex-wrap gap-2">
+                    <form method="post" action="{% url 'activity:child_create' %}">
+                        {% csrf_token %}
+                        <button id="demo-child-create" type="submit" class="btn btn-outline-success">
+                            Add Child Task
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:cascade_delete' %}">
+                        {% csrf_token %}
+                        <button id="demo-cascade-delete" type="submit" class="btn btn-outline-danger">
+                            Cascade Delete Oldest Parent
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer text-muted small">
+                    Django's collector sends <code>post_delete</code> for every cascaded row,
+                    so the child is logged as well as the parent.
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header fw-semi-bold">
+                    Bulk Operations &mdash; <code>HistoryQuerySet</code> hooks
+                </div>
+                <div class="card-body d-flex flex-wrap gap-2">
+                    <form method="post" action="{% url 'activity:bulk_create' %}">
+                        {% csrf_token %}
+                        <button id="demo-bulk-create" type="submit" class="btn btn-outline-success">
+                            Bulk Create &times;3
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:bulk_update' %}">
+                        {% csrf_token %}
+                        <button id="demo-bulk-update" type="submit" class="btn btn-outline-primary">
+                            Bulk Update Latest 3
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:queryset_update' %}">
+                        {% csrf_token %}
+                        <button id="demo-queryset-update" type="submit" class="btn btn-outline-primary">
+                            Queryset Update All
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:queryset_delete' %}">
+                        {% csrf_token %}
+                        <button id="demo-queryset-delete" type="submit" class="btn btn-outline-danger">
+                            Queryset Delete Latest 3
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer text-muted small">
+                    These bypass Django signals entirely; the queryset overrides log one
+                    activity per affected row.
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header fw-semi-bold">
+                    Many-to-Many &mdash; <code>m2m_changed</code> signal
+                </div>
+                <div class="card-body d-flex flex-wrap gap-2 align-items-center">
+                    <form method="post" action="{% url 'activity:member_add' %}">
+                        {% csrf_token %}
+                        <button id="demo-member-add" type="submit" class="btn btn-info">
+                            Add Member to Group
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:member_add_many' %}">
+                        {% csrf_token %}
+                        <button id="demo-member-add-many" type="submit" class="btn btn-outline-info">
+                            Add 3 More Members
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:member_remove' %}">
+                        {% csrf_token %}
+                        <button id="demo-member-remove" type="submit" class="btn btn-outline-info">
+                            Remove Member from Group
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'activity:member_clear' %}">
+                        {% csrf_token %}
+                        <button id="demo-member-clear" type="submit" class="btn btn-outline-warning">
+                            Clear All Members
+                        </button>
+                    </form>
+                    {% if member_in_group %}
+                        <span class="badge bg-info" id="demo-member-status">Member is in group</span>
+                    {% else %}
+                        <span class="badge bg-secondary" id="demo-member-status">Member not in group</span>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-muted small">
+                    The first add also creates the demo group, which logs its own
+                    <em>created</em> activity. Adding or clearing several rows at once
+                    produces a single counted activity, not one per row.
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header fw-semi-bold">
+                    Attribution &mdash; no acting user, no activity
+                </div>
+                <div class="card-body d-flex flex-wrap gap-2">
+                    <form method="post" action="{% url 'activity:unattributed_create' %}">
+                        {% csrf_token %}
+                        <button id="demo-unattributed-create" type="submit" class="btn btn-outline-secondary">
+                            Create Without a User
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer text-muted small">
+                    This writes inside <code>activity_user(None)</code>, the way a job or a
+                    management command runs. The task count rises and the feed does not.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semi-bold">Activity Feed</span>
+                    <span class="text-muted small">newest first, latest {{ activities|length }}</span>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for activity in activities %}
+                        <li class="list-group-item activity-feed-row d-flex align-items-center gap-3">
+                            {% if activity.verb == 'created' %}
+                                <span class="badge bg-success" data-verb="created">created</span>
+                            {% elif activity.verb == 'updated' %}
+                                <span class="badge bg-primary" data-verb="updated">updated</span>
+                            {% elif activity.verb == 'deleted' %}
+                                <span class="badge bg-danger" data-verb="deleted">deleted</span>
+                            {% elif activity.verb == 'added' %}
+                                <span class="badge bg-info" data-verb="added">added</span>
+                            {% elif activity.verb == 'removed' %}
+                                <span class="badge bg-warning text-dark" data-verb="removed">removed</span>
+                            {% else %}
+                                <span class="badge bg-secondary" data-verb="{{ activity.verb }}">{{ activity.verb }}</span>
+                            {% endif %}
+                            <span class="flex-grow-1">{{ activity.information }}</span>
+                            <span class="text-muted small text-nowrap">
+                                {{ activity.user.username }} &middot; {{ activity.created_datetime|time:'H:i:s' }}
+                            </span>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted" id="demo-feed-empty">
+                            No activity yet. Click an action on the left to see the feed fill in.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -6,6 +6,7 @@ from django.utils.timezone import localdate, now
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.history.querysets import HistoryQuerySet
 from test_project.app.model_and_service.services.adult_service import AdultService
 from test_project.app.model_and_service.services.kid_service import KidService
 
@@ -28,6 +29,7 @@ class Adult(ActivityMixin, HistoryModelMixin):
     bed_time = models.TimeField(default='20:00')
     likes_to_party = models.BooleanField(default=True)
 
+    objects = HistoryQuerySet.as_manager()
     services = AdultService()
 
     def __str__(self) -> str:
@@ -52,6 +54,7 @@ class Kid(ActivityMixin, HistoryModelMixin):
     first_name = models.CharField(max_length=32)
     last_name = models.CharField(max_length=32)
 
+    objects = HistoryQuerySet.as_manager()
     services = KidService()
 
     class Meta:

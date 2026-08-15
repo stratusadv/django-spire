@@ -12,7 +12,6 @@ from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-from django_spire.history.activity.utils import add_form_activity
 
 from django_glue import Glue
 
@@ -36,11 +35,6 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                presentation.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=f'{request.user.get_full_name()} deleted a presentation.',
-                )
                 presentation.set_deleted()
 
             return HttpResponseRedirect(return_url)
@@ -74,13 +68,6 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
         if form.is_valid():
             if form.cleaned_data['should_delete']:
                 presentation.set_deleted()
-                presentation.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} deleted presentation "{presentation}".'
-                    ),
-                )
 
             return HttpResponseRedirect(return_url)
     else:
@@ -146,7 +133,6 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResp
 
         if form.is_valid():
             presentation, _ = presentation.services.save_model_obj(**form.cleaned_data)
-            add_form_activity(presentation, pk, request.user)
 
             return redirect(
                 request.GET.get('return_url', reverse('metric:visual:presentation:page:list'))

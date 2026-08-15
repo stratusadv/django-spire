@@ -43,12 +43,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
     if request.method == 'POST':
         task.set_deleted()
 
-        task.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted task {task.name}.',
-        )
-
         return redirect(return_url)
 
     nav = TaskNavigation()
@@ -97,12 +91,6 @@ def delete_modal_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     if request.method == 'POST':
         task.set_deleted()
-
-        task.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted task {task.name}.',
-        )
 
         return redirect(return_url)
 

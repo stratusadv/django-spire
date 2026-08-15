@@ -75,7 +75,7 @@ class TaskQuerySet(HistoryQuerySet):
         return self.order_by(order_by)
 
 
-class TaskUserQuerySet(QuerySet):
+class TaskUserQuerySet(HistoryQuerySet):
     def annotate_calculated_cost(self) -> QuerySet:
         return self.annotate(calculated_cost=Cast(Value(50) + F('task_id'), FloatField()))
 

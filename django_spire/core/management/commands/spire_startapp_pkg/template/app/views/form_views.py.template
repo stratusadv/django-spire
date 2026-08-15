@@ -11,7 +11,6 @@ from django.urls import reverse
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-from django_spire.history.activity.utils import add_form_activity
 
 from django_glue import Glue
 
@@ -34,13 +33,6 @@ def ${delete_view_name}(request: WSGIRequest, pk: int) -> TemplateResponse:
         if form.is_valid():
             if form.cleaned_data['should_delete']:
                 ${context_single_var}.set_deleted()
-                ${context_single_var}.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} deleted a ${model_instance_name}.'
-                    ),
-                )
 
             return HttpResponseRedirect(return_url)
     else:
@@ -94,7 +86,6 @@ def _form_view(
 
         if form.is_valid():
             ${context_single_var}, _ = ${context_single_var}.services.save_model_obj(**form.cleaned_data)
-            add_form_activity(${context_single_var}, pk, request.user)
 
             return redirect(
                 request.GET.get(

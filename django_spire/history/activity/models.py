@@ -40,23 +40,23 @@ class Activity(models.Model):
     )
 
     verb = models.CharField(max_length=64)
-    information = models.TextField(null=True, blank=True)
+    information = models.TextField(null=True, blank=True)  # noqa: DJ001
 
     created_datetime = models.DateTimeField(default=localtime)
 
     objects = ActivityQuerySet.as_manager()
-
-    def __str__(self):
-        return f'{self.user} - {self.verb}'
-
-    def add_subscriber(self, subscriber: User) -> None:
-        self.subscribers.create(subscriber=subscriber)
 
     class Meta:
         db_table = 'django_spire_history_activity'
         verbose_name = 'Activities'
         verbose_name_plural = 'Activities'
         ordering = ['-created_datetime']
+
+    def __str__(self) -> str:
+        return f'{self.user} - {self.verb}'
+
+    def add_subscriber(self, subscriber: User) -> None:
+        self.subscribers.create(subscriber=subscriber)
 
 
 class ActivitySubscriber(models.Model):
@@ -77,11 +77,11 @@ class ActivitySubscriber(models.Model):
 
     created_datetime = models.DateTimeField(default=localtime)
 
-    def __str__(self):
-        return f'{self.activity} - {self.subscriber}'
-
     class Meta:
         db_table = 'django_spire_history_activity_subscriber'
         verbose_name = 'Activity Subscriber'
         verbose_name_plural = 'Activity Subscribers'
         ordering = ['-created_datetime']
+
+    def __str__(self) -> str:
+        return f'{self.activity} - {self.subscriber}'
