@@ -66,19 +66,19 @@ class SmsWebhookTests(BaseTestCase):
 
     @patch(WORKFLOW_PATH)
     @patch('twilio.request_validator.RequestValidator.validate')
-    def test_webhook_unregistered_number_is_silent(self, mock_validate, mock_workflow) -> None:
+    def test_webhook_unregistered_number_is_forbidden(self, mock_validate, mock_workflow) -> None:
         mock_validate.return_value = True
 
         response = self._post_webhook('Hello', from_number='+15559999999', sid='SM999')
 
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert b'<Message>' not in response.content
         assert SmsConversation.objects.filter(phone_number='+15559999999').count() == 0
         mock_workflow.assert_not_called()
 
     @patch(WORKFLOW_PATH)
     @patch('twilio.request_validator.RequestValidator.validate')
-    def test_webhook_unverified_number_is_silent(self, mock_validate, mock_workflow) -> None:
+    def test_webhook_unverified_number_is_forbidden(self, mock_validate, mock_workflow) -> None:
         mock_validate.return_value = True
 
         AuthSms.objects.create(
@@ -89,7 +89,7 @@ class SmsWebhookTests(BaseTestCase):
 
         response = self._post_webhook('Hello', from_number='+15558888888', sid='SM888')
 
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert b'<Message>' not in response.content
         mock_workflow.assert_not_called()
 
@@ -120,7 +120,7 @@ class SmsWebhookTests(BaseTestCase):
 
         assert response.status_code == 200
         assert b'<Response>' in response.content
-        assert b'unlocked' in response.content
+        assert b'Unlocked' in response.content
 
         self.phone_number.refresh_from_db()
         assert self.phone_number.session_is_active

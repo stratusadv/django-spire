@@ -44,7 +44,7 @@ class TestFileFieldSeed(SimpleTestCase):
             value = seed.generate_value(-1)
             self._assert_seeding_file_exists()
 
-        assert value == Path('.seeding/seeded_file.txt')
+        assert value == str(Path('.seeding/seeded_file.txt'))
 
     def test_returns_db_value_on_subsequent_calls(self) -> None:
         seed = FileFieldSeed()
@@ -53,8 +53,8 @@ class TestFileFieldSeed(SimpleTestCase):
             value_0 = seed.generate_value(0)
             value_5 = seed.generate_value(5)
 
-        assert value_0 == Path('.seeding/seeded_file.txt')
-        assert value_5 == Path('.seeding/seeded_file.txt')
+        assert value_0 == str(Path('.seeding/seeded_file.txt'))
+        assert value_5 == str(Path('.seeding/seeded_file.txt'))
 
     def test_file_not_created_on_non_init_index(self) -> None:
         seed = FileFieldSeed()
@@ -62,7 +62,7 @@ class TestFileFieldSeed(SimpleTestCase):
             value = seed.generate_value(0)
             assert not default_storage.exists('.seeding/seeded_file.txt')
 
-        assert value == Path('.seeding/seeded_file.txt')
+        assert value == str(Path('.seeding/seeded_file.txt'))
 
     def test_idempotent_init_file_creation(self) -> None:
         seed = FileFieldSeed()

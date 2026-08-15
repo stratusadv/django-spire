@@ -18,7 +18,7 @@ class DomainViewTestCase(BaseTestCase):
         assert response.status_code == 200
         self.assertTemplateUsed(response, 'django_spire/metric/domain/page/list_page.html')
         assert self.domain in response.context['domains']
-        assert 'scroll' in response.context['responsive_mode']
+        assert response.context['domain_count'] == 1
 
     def test_detail_view(self):
         response = self.client.get(

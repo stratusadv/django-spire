@@ -218,12 +218,16 @@ class TaskItemListViewTestCase(TestCase):
 
     def test_task_item_list_view_with_show_all_parameter(self) -> None:
         request = self.factory.post(
-            '/celery/task/item_list/?show_all=true',
-            data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
+            '/celery/task/item_list/',
+            data=json.dumps(
+                {
+                    'django_spire_celery_task_key_pairs': self.reference_key,
+                    'show_all': True,
+                }
+            ),
             content_type='application/json',
         )
         request.user = self.super_user
-        request.GET = {'show_all': 'true'}
 
         response = task_item_list_view(request)
 
@@ -320,11 +324,15 @@ class TaskToastListViewTestCase(TestCase):
     def test_task_toast_list_view_with_show_all_parameter(self) -> None:
         request = self.factory.post(
             '/celery/task/toast_list/',
-            data=json.dumps({'django_spire_celery_task_key_pairs': self.reference_key}),
+            data=json.dumps(
+                {
+                    'django_spire_celery_task_key_pairs': self.reference_key,
+                    'show_all': True,
+                }
+            ),
             content_type='application/json',
         )
         request.user = self.super_user
-        request.GET = {'show_all': 'true'}
 
         response = task_toast_list_view(request)
 
