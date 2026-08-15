@@ -40,7 +40,7 @@ class UserFormTestCase(BaseTestCase):
             instance=self.user,
         )
         assert form.is_valid()
-        user = self.user.services.save_model_obj(self.super_user, **form.cleaned_data)
+        user = self.user.services.save_model_obj(**form.cleaned_data)
         assert user.username == 'newemail@example.com'
 
     def test_empty_first_name(self) -> None:
@@ -215,7 +215,7 @@ class UserFormTestCase(BaseTestCase):
             instance=self.user,
         )
         assert form.is_valid()
-        user = self.user.services.save_model_obj(self.super_user, **form.cleaned_data)
+        user = self.user.services.save_model_obj(**form.cleaned_data)
         assert user.email == 'Test@Example.COM'
         assert user.username == 'Test@Example.COM'
 

@@ -38,13 +38,6 @@ def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
                 api_access.set_deleted()
-                api_access.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} deleted API access "{api_access}".'
-                    ),
-                )
 
             return HttpResponseRedirect(return_url)
     else:

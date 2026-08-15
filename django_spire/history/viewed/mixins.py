@@ -14,11 +14,11 @@ if TYPE_CHECKING:
 class ViewedModelMixin(models.Model):
     views = GenericRelation(Viewed, related_query_name='views', editable=False)
 
+    class Meta:
+        abstract = True
+
     def add_view(self, user: User) -> None:
         self.views.create(user=user)
 
     def is_viewed(self, user: User) -> bool:
         return self.views.filter(user=user).exists()
-
-    class Meta:
-        abstract = True

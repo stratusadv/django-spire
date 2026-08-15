@@ -116,9 +116,6 @@ class AuthUserModelTestCase(BaseTestCase):
 
         assert issubclass(AuthUser, User)
 
-    def test_activity_mixin(self) -> None:
-        assert hasattr(self.user, 'add_activity')
-
     def test_user_get_short_name(self) -> None:
         assert self.user.get_short_name() == 'Test'
 

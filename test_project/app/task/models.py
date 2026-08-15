@@ -55,7 +55,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     @Glue.attribute(access=Glue.Access.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
         self.status = TaskStatusChoices.DONE
-        self.services.save_model_obj(user=request.user, obj=self, status=self.status)
+        self.services.save_model_obj(obj=self, status=self.status)
 
 
     def user_initials(self) -> list[str]:

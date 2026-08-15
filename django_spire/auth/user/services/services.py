@@ -17,20 +17,14 @@ class AuthUserService(BaseDjangoModelService['AuthUser']):
 
     def save_model_obj(
         self,
-        user: AuthUser,
         email: str,
         **field_data: dict
     ) -> AuthUser:
 
-        obj, created = super().save_model_obj(
+        obj, _created = super().save_model_obj(
             email=email,
             username=email,
             **field_data
-        )
-        verb = 'created' if created else 'updated'
-
-        obj.add_activity(
-            user=user, verb=verb, information=f'{user.get_full_name()} {verb} user {obj.username}.'
         )
 
         return obj

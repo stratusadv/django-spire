@@ -17,6 +17,9 @@
 
 {% include 'django_spire/navigation/divider.html' with divider_text='Examples' %}
 
+{% url 'activity:demo' as activity_demo_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Activity' link_icon='bi bi-activity' link_url=activity_demo_url %}
+
 {% url 'celery:home' as celery_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Celery' link_icon='bi bi-ui-checks' link_url=celery_url %}
 

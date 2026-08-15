@@ -17,8 +17,6 @@ from django_spire.metric.domain.services.transformation_service import DomainTra
     SubDomainTransformationService
 
 if TYPE_CHECKING:
-    from django.contrib.auth.models import User
-
     from django_spire.metric.domain.models import Domain, SubDomain
 
 
@@ -30,16 +28,6 @@ class DomainService(BaseDjangoModelService['Domain']):
     factory = DomainFactoryService()
     transformation = DomainTransformationService()
 
-    def save_model_obj(self, user: User, **field_data: dict) -> Domain:
-        obj, created = super().save_model_obj(**field_data)
-        verb = 'created' if created else 'updated'
-
-        obj.add_activity(
-            user=user, verb=verb, information=f'{user.get_full_name()} {verb} task {obj.name}.'
-        )
-
-        return obj
-
 
 class SubDomainService(BaseDjangoModelService['SubDomain']):
     obj: SubDomain
@@ -48,13 +36,3 @@ class SubDomainService(BaseDjangoModelService['SubDomain']):
     processor = SubDomainProcessorService()
     factory = SubDomainFactoryService()
     transformation = SubDomainTransformationService()
-
-    def save_model_obj(self, user: User, **field_data: dict) -> SubDomain:
-        obj, created = super().save_model_obj(**field_data)
-        verb = 'created' if created else 'updated'
-
-        obj.add_activity(
-            user=user, verb=verb, information=f'{user.get_full_name()} {verb} task {obj.name}.'
-        )
-
-        return obj
