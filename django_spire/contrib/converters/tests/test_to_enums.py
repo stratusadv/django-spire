@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from enum import Enum
-from unittest import TestCase
+
+from django.test import TestCase
 
 from django_spire.contrib.converters.to_enums import django_choices_to_enums
 

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import unittest
-
 from django.template import Context, Template
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_string_formatting import (
     dashes_and_spaces_to_underscore,
@@ -15,7 +14,7 @@ from django_spire.core.templatetags.django_spire_string_formatting import (
 )
 
 
-class TestDashesToUnderscore(unittest.TestCase):
+class TestDashesToUnderscore(TestCase):
     def test_multiple_dashes(self) -> None:
         assert dashes_to_underscore('hello-world-test') == 'hello_world_test'
 
@@ -26,7 +25,7 @@ class TestDashesToUnderscore(unittest.TestCase):
         assert dashes_to_underscore('hello-world') == 'hello_world'
 
 
-class TestDashesAndSpacesToUnderscore(unittest.TestCase):
+class TestDashesAndSpacesToUnderscore(TestCase):
     def test_dashes_and_spaces(self) -> None:
         assert dashes_and_spaces_to_underscore('hello-world test') == 'hello_world_test'
 
@@ -40,7 +39,7 @@ class TestDashesAndSpacesToUnderscore(unittest.TestCase):
         assert dashes_and_spaces_to_underscore('hello world') == 'hello_world'
 
 
-class TestSpacesToUnderscore(unittest.TestCase):
+class TestSpacesToUnderscore(TestCase):
     def test_multiple_spaces(self) -> None:
         assert spaces_to_underscore('hello world test') == 'hello_world_test'
 
@@ -51,7 +50,7 @@ class TestSpacesToUnderscore(unittest.TestCase):
         assert spaces_to_underscore('hello world') == 'hello_world'
 
 
-class TestUnderscoresToSpaces(unittest.TestCase):
+class TestUnderscoresToSpaces(TestCase):
     def test_multiple_underscores(self) -> None:
         assert underscores_to_spaces('hello_world_test') == 'hello world test'
 
@@ -62,7 +61,7 @@ class TestUnderscoresToSpaces(unittest.TestCase):
         assert underscores_to_spaces('hello_world') == 'hello world'
 
 
-class TestToSnakeCaseFilter(unittest.TestCase):
+class TestToSnakeCaseFilter(TestCase):
     def test_already_snake_case(self) -> None:
         assert to_snake_case('hello_world') == 'hello_world'
 
@@ -88,7 +87,7 @@ class TestToSnakeCaseFilter(unittest.TestCase):
         assert to_snake_case('') == ''
 
 
-class TestToCamelCase(unittest.TestCase):
+class TestToCamelCase(TestCase):
     def test_simple_words(self) -> None:
         assert to_camel_case('hello world') == 'helloWorld'
 
@@ -120,7 +119,7 @@ class TestToCamelCase(unittest.TestCase):
         assert to_camel_case('userId123') == 'userid123'
 
 
-class TestToCamelCaseJavascriptSafe(unittest.TestCase):
+class TestToCamelCaseJavascriptSafe(TestCase):
     def test_simple_conversion(self) -> None:
         assert to_camel_case_javascript_safe('hello world') == 'helloWorld'
 
@@ -144,7 +143,7 @@ class TestToCamelCaseJavascriptSafe(unittest.TestCase):
         assert result == 'helloworld'
 
 
-class TestStringFormattingTemplateRendering(unittest.TestCase):
+class TestStringFormattingTemplateRendering(TestCase):
     def test_render_to_snake_case_filter(self) -> None:
         template_code = """
             {% load django_spire_string_formatting %}

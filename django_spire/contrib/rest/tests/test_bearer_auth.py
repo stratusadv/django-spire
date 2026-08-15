@@ -23,12 +23,12 @@ class TestBearerAuth(TestCase):
         # Apply auth
         result = auth(mock_request)
 
-        self.assertEqual(mock_request.headers['Authorization'], 'Bearer my-secret-token')
-        self.assertIs(result, mock_request)
+        assert mock_request.headers['Authorization'] == 'Bearer my-secret-token'
+        assert result is mock_request
 
     def test_bearer_auth_default_header_name(self):
         """Test that default header name is 'Authorization'."""
-        self.assertEqual(BearerAuth.auth_header_name, 'Authorization')
+        assert BearerAuth.auth_header_name == 'Authorization'
 
     def test_bearer_auth_custom_header_name(self):
         """Test that custom header name can be used."""
@@ -43,8 +43,8 @@ class TestBearerAuth(TestCase):
 
         auth(mock_request)
 
-        self.assertIn('X-Auth-Token', mock_request.headers)
-        self.assertEqual(mock_request.headers['X-Auth-Token'], 'Bearer my-secret-token')
+        assert 'X-Auth-Token' in mock_request.headers
+        assert mock_request.headers['X-Auth-Token'] == 'Bearer my-secret-token'
 
     def test_bearer_auth_preserves_existing_headers(self):
         """Test that existing headers are preserved."""
@@ -55,5 +55,5 @@ class TestBearerAuth(TestCase):
 
         auth(mock_request)
 
-        self.assertEqual(mock_request.headers['Content-Type'], 'application/json')
-        self.assertEqual(mock_request.headers['Authorization'], 'Bearer token')
+        assert mock_request.headers['Content-Type'] == 'application/json'
+        assert mock_request.headers['Authorization'] == 'Bearer token'

@@ -27,6 +27,7 @@ def browser_type_launch_args(browser_type_launch_args: dict[str, Any]) -> dict[s
 @pytest.fixture
 def authenticated_page(page: Page, live_server: _LiveServer, transactional_db: None) -> Page:
     from django.contrib.auth import get_user_model
+    from django.urls import reverse
 
     User = get_user_model()
 
@@ -34,10 +35,13 @@ def authenticated_page(page: Page, live_server: _LiveServer, transactional_db: N
         username='testuser', password='testpass123', is_staff=True, is_superuser=True
     )
 
-    page.goto(f'{live_server.url}/admin/login/')
+    login_url = reverse('admin:login')
+    index_url = reverse('admin:index')
+
+    page.goto(f'{live_server.url}{login_url}')
     page.fill('input[name="username"]', 'testuser')
     page.fill('input[name="password"]', 'testpass123')
     page.click('input[type="submit"]')
-    page.wait_for_url(f'{live_server.url}/admin/')
+    page.wait_for_url(f'{live_server.url}{index_url}')
 
     return page

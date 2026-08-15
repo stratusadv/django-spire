@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import datetime
 
-from unittest import TestCase
 from uuid import UUID
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.test import TestCase
 
 from django_spire.contrib.converters.to_data import DjangoFieldToFakerData, fake_model_field_value
 

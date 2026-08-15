@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
-import unittest
+
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_json import to_json
 
 
-class TestToJson(unittest.TestCase):
+class TestToJson(TestCase):
     def test_dict(self) -> None:
         result = to_json({'key': 'value'})
         assert result == '{"key": "value"}'
