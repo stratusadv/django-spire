@@ -72,6 +72,7 @@ class ModifiedSeeder(Seeder):
             seed['value'] = 'modified_value'
 
 
+@pytest.mark.ai
 class TestFullIntegration(TestCase):
     def test_all_field_types_populated(self):
         seeder = FullTestSeeder(count=2, verbose=False)

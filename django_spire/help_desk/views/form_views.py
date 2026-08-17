@@ -56,12 +56,6 @@ def ticket_delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redi
     if request.method == 'POST':
         ticket.set_deleted()
 
-        ticket.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted ticket "{ticket}".',
-        )
-
         return redirect(return_url)
 
     nav = HelpDeskNavigation()

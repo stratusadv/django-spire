@@ -1,0 +1,31 @@
+{% extends 'django_spire/glue/form/form.html' %}
+
+{# {% include 'django_spire/glue/form/modal_form.html' %} isn't valid on its own --  #}
+{# always {% extends %} it from a per-model form partial, which should override:     #}
+{#   {% block entity_label %}                                                        #}
+{# with the name of the thing being saved, for the toast (e.g. "Solution",           #}
+{# "Company Representative") -- this belongs to the form partial itself since it's   #}
+{# always the same model, not something callers should have to pass in each time.    #}
+{# Also pass glue_form as a context variable when including this form partial from a #}
+{# modal content template: the JS expression for this modal's glue form instance     #}
+{# (e.g. 'glueForm', matching what the caller passed into Spire.modal.open's         #}
+{# scopeData). Override glue_form_content as usual for the actual fields.            #}
+{#                                                                                    #}
+{# On save, closes the modal and either calls scopeData.onSaved(pk) if the opener    #}
+{# passed one, or dispatches window 'updated-item' with {pk} -- matching             #}
+{# core/modal/content/delete_modal_content.html's same onSaved/updated-item          #}
+{# convention for delete.                                                            #}
+
+{% block glue_form_binding %}glue_form: {{ glue_form }},{% endblock %}
+
+{% block glue_form_on_saved %}
+    if (result?.pk) {
+        if (typeof onSaved === 'function') {
+            onSaved(result.pk)
+        } else {
+            $dispatch('updated-item', { pk: result.pk })
+        }
+        Spire.notify.success(`{% block entity_label %}{% endblock %} ${this.glue_form.$pk ? 'updated' : 'added'} successfully!`)
+        hideModal()
+    }
+{% endblock %}

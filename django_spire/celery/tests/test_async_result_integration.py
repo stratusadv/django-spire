@@ -18,14 +18,14 @@ class AsyncResultPropertyTestCase(TestCase):
 
         result = task.async_result
 
-        self.assertIsInstance(result, AsyncResult)
+        assert isinstance(result, AsyncResult)
 
     def test_async_result_uses_task_id_as_id(self) -> None:
         task = create_test_celery_task()
 
         result = task.async_result
 
-        self.assertEqual(result.id, str(task.task_id))
+        assert result.id == str(task.task_id)
 
     def test_async_result_id_matches_task_uuid(self) -> None:
         task_id = uuid4()
@@ -33,38 +33,38 @@ class AsyncResultPropertyTestCase(TestCase):
 
         result = task.async_result
 
-        self.assertEqual(result.id, str(task_id))
+        assert result.id == str(task_id)
 
 
 class AsyncResultStatesTestCase(TestCase):
     def test_celery_states_exist(self) -> None:
-        self.assertTrue(len(states.ALL_STATES) > 0)
+        assert len(states.ALL_STATES) > 0
 
 
 class AsyncResultModelStateMappingTestCase(TestCase):
     def test_is_processing_for_pending(self) -> None:
         task = create_test_celery_task(state=states.PENDING)
-        self.assertTrue(task.is_processing)
+        assert task.is_processing
 
     def test_is_processing_for_started(self) -> None:
         task = create_test_celery_task(state=states.STARTED)
-        self.assertTrue(task.is_processing)
+        assert task.is_processing
 
     def test_is_processing_for_received(self) -> None:
         task = create_test_celery_task(state=states.RECEIVED)
-        self.assertTrue(task.is_processing)
+        assert task.is_processing
 
     def test_is_processing_false_for_success(self) -> None:
         task = create_test_celery_task(state=states.SUCCESS)
-        self.assertFalse(task.is_processing)
+        assert not task.is_processing
 
     def test_is_processing_false_for_failure(self) -> None:
         task = create_test_celery_task(state=states.FAILURE)
-        self.assertFalse(task.is_processing)
+        assert not task.is_processing
 
     def test_is_processing_false_for_revoked(self) -> None:
         task = create_test_celery_task(state=states.REVOKED)
-        self.assertFalse(task.is_processing)
+        assert not task.is_processing
 
 
 class AsyncResultServiceIntegrationTestCase(TestCase):
@@ -83,7 +83,7 @@ class AsyncResultServiceIntegrationTestCase(TestCase):
         self.service.update_from_async_result_and_save_if_change()
 
         self.celery_task.refresh_from_db()
-        self.assertEqual(self.celery_task.state, states.FAILURE)
+        assert self.celery_task.state == states.FAILURE
 
 
 class AsyncResultResultHandlingTestCase(TestCase):
@@ -95,7 +95,7 @@ class AsyncResultResultHandlingTestCase(TestCase):
 
         task.refresh_from_db()
         raw_result = pickle.loads(task._result)
-        self.assertEqual(raw_result, test_data)
+        assert raw_result == test_data
 
 
 class AsyncResultWithMockedCeleryBackendTestCase(TestCase):
@@ -111,8 +111,8 @@ class AsyncResultWithMockedCeleryBackendTestCase(TestCase):
 
         async_result = task.async_result
 
-        self.assertFalse(async_result.ready())
-        self.assertFalse(async_result.successful())
+        assert not async_result.ready()
+        assert not async_result.successful()
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
     def test_async_result_get_returns_value(self, mock_async_result) -> None:
@@ -127,7 +127,7 @@ class AsyncResultWithMockedCeleryBackendTestCase(TestCase):
         async_result = task.async_result
         result = async_result.get()
 
-        self.assertEqual(result, expected_value)
+        assert result == expected_value
 
     @patch.object(CeleryTask, 'async_result', new_callable=PropertyMock)
     def test_async_result_wait_for_result(self, mock_async_result) -> None:
@@ -143,4 +143,4 @@ class AsyncResultWithMockedCeleryBackendTestCase(TestCase):
         with patch('time.sleep'):
             result = async_result.get(timeout=1)
 
-        self.assertEqual(result, 'completed')
+        assert result == 'completed'

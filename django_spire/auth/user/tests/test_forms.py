@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from django.test import RequestFactory
+
 from django_spire.auth.group.models import AuthGroup
 from django_spire.auth.user.forms import UserForm, UserGroupForm
+from django_spire.auth.user.models import AuthUser
 from django_spire.auth.user.tests.factories import create_user
 from django_spire.core.tests.test_cases import BaseTestCase
 
@@ -26,7 +29,7 @@ class UserFormTestCase(BaseTestCase):
         )
         assert form.is_valid()
 
-    def test_save_updates_username_to_email(self) -> None:
+    def test_save_model_obj_updates_username_to_email(self) -> None:
         form = UserForm(
             data={
                 'first_name': 'Test',
@@ -37,7 +40,7 @@ class UserFormTestCase(BaseTestCase):
             instance=self.user,
         )
         assert form.is_valid()
-        user = form.save()
+        user = self.user.services.save_model_obj(**form.cleaned_data)
         assert user.username == 'newemail@example.com'
 
     def test_empty_first_name(self) -> None:
@@ -212,8 +215,81 @@ class UserFormTestCase(BaseTestCase):
             instance=self.user,
         )
         assert form.is_valid()
-        user = form.save()
-        assert user.username == 'test@example.com'
+        user = self.user.services.save_model_obj(**form.cleaned_data)
+        assert user.email == 'Test@Example.COM'
+        assert user.username == 'Test@Example.COM'
+
+
+class UserFormSaveModelObjTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.request = RequestFactory().post('/')
+        self.request.user = self.super_user
+
+    def test_save_model_obj_creates_user(self) -> None:
+        form = UserForm(
+            data={
+                'first_name': 'New',
+                'last_name': 'User',
+                'email': 'newuser@example.com',
+                'is_active': True,
+            }
+        )
+        response = form.save_model_obj(self.request)
+
+        user = AuthUser.objects.get(email='newuser@example.com')
+        assert user.username == 'newuser@example.com'
+        assert str(user.pk) in response.result['redirect']['url']
+
+    def test_save_model_obj_updates_user(self) -> None:
+        user = create_user(
+            username='testuser', first_name='Test', last_name='User', email='test@example.com'
+        )
+        form = UserForm(
+            data={
+                'first_name': 'Updated',
+                'last_name': 'Name',
+                'email': 'updated@example.com',
+                'is_active': True,
+            },
+            instance=user,
+        )
+        form.save_model_obj(self.request)
+
+        user.refresh_from_db()
+        assert user.first_name == 'Updated'
+        assert user.email == 'updated@example.com'
+
+    def test_save_model_obj_invalid_email_returns_error(self) -> None:
+        form = UserForm(
+            data={
+                'first_name': 'New',
+                'last_name': 'User',
+                'email': 'invalid-email',
+                'is_active': True,
+            }
+        )
+        response = form.save_model_obj(self.request)
+
+        assert response.result is None
+        assert not AuthUser.objects.filter(first_name='New').exists()
+
+    def test_save_model_obj_duplicate_email_returns_error(self) -> None:
+        create_user(username='taken', email='taken@example.com')
+
+        form = UserForm(
+            data={
+                'first_name': 'New',
+                'last_name': 'User',
+                'email': 'taken@example.com',
+                'is_active': True,
+            }
+        )
+        response = form.save_model_obj(self.request)
+
+        assert response.result is None
+        assert AuthUser.objects.filter(email='taken@example.com').count() == 1
 
 
 class UserGroupFormTestCase(BaseTestCase):
@@ -224,78 +300,134 @@ class UserGroupFormTestCase(BaseTestCase):
         self.group3 = AuthGroup.objects.create(name='Group 3')
 
     def test_valid_form(self) -> None:
-        form = UserGroupForm(data={'group_list': [self.group1.pk, self.group2.pk]})
+        form = UserGroupForm(data={'groups': [self.group1.pk, self.group2.pk]})
         assert form.is_valid()
 
     def test_cleaned_data_contains_groups(self) -> None:
-        form = UserGroupForm(data={'group_list': [self.group1.pk]})
+        form = UserGroupForm(data={'groups': [self.group1.pk]})
         assert form.is_valid()
-        assert self.group1 in form.cleaned_data['group_list']
+        assert self.group1 in form.cleaned_data['groups']
 
     def test_single_group(self) -> None:
-        form = UserGroupForm(data={'group_list': [self.group1.pk]})
+        form = UserGroupForm(data={'groups': [self.group1.pk]})
         assert form.is_valid()
-        assert len(form.cleaned_data['group_list']) == 1
+        assert len(form.cleaned_data['groups']) == 1
 
     def test_multiple_groups(self) -> None:
-        form = UserGroupForm(data={'group_list': [self.group1.pk, self.group2.pk, self.group3.pk]})
+        form = UserGroupForm(data={'groups': [self.group1.pk, self.group2.pk, self.group3.pk]})
         assert form.is_valid()
-        assert len(form.cleaned_data['group_list']) == 3
+        assert len(form.cleaned_data['groups']) == 3
 
     def test_invalid_group_id(self) -> None:
-        form = UserGroupForm(data={'group_list': [99999]})
+        form = UserGroupForm(data={'groups': [99999]})
         assert not form.is_valid()
 
     def test_mixed_valid_invalid_groups(self) -> None:
-        form = UserGroupForm(data={'group_list': [self.group1.pk, 99999]})
+        form = UserGroupForm(data={'groups': [self.group1.pk, 99999]})
         assert not form.is_valid()
 
-    def test_empty_group_list_fails(self) -> None:
-        form = UserGroupForm(data={'group_list': []})
-        assert not form.is_valid()
+    def test_empty_group_list_clears_groups(self) -> None:
+        form = UserGroupForm(data={'groups': []})
+        assert form.is_valid()
+        assert len(form.cleaned_data['groups']) == 0
 
-    def test_no_data_fails(self) -> None:
+    def test_no_data_clears_groups(self) -> None:
         form = UserGroupForm(data={})
-        assert not form.is_valid()
+        assert form.is_valid()
+        assert len(form.cleaned_data['groups']) == 0
 
     def test_duplicate_group_ids(self) -> None:
-        form = UserGroupForm(data={'group_list': [self.group1.pk, self.group1.pk]})
+        form = UserGroupForm(data={'groups': [self.group1.pk, self.group1.pk]})
         assert form.is_valid()
-        assert len(form.cleaned_data['group_list']) == 1
+        assert len(form.cleaned_data['groups']) == 1
 
     def test_negative_group_id(self) -> None:
-        form = UserGroupForm(data={'group_list': [-1]})
+        form = UserGroupForm(data={'groups': [-1]})
         assert not form.is_valid()
 
     def test_zero_group_id(self) -> None:
-        form = UserGroupForm(data={'group_list': [0]})
+        form = UserGroupForm(data={'groups': [0]})
         assert not form.is_valid()
 
     def test_string_group_id(self) -> None:
-        form = UserGroupForm(data={'group_list': ['invalid']})
+        form = UserGroupForm(data={'groups': ['invalid']})
         assert not form.is_valid()
 
     def test_form_queryset(self) -> None:
         form = UserGroupForm()
-        queryset = form.fields['group_list'].queryset
+        queryset = form.fields['groups'].queryset
         assert self.group1 in queryset
         assert self.group2 in queryset
         assert self.group3 in queryset
 
     def test_all_groups_selectable(self) -> None:
-        form = UserGroupForm(data={'group_list': [self.group1.pk, self.group2.pk, self.group3.pk]})
+        form = UserGroupForm(data={'groups': [self.group1.pk, self.group2.pk, self.group3.pk]})
         assert form.is_valid()
-        groups = form.cleaned_data['group_list']
+        groups = form.cleaned_data['groups']
         assert self.group1 in groups
         assert self.group2 in groups
         assert self.group3 in groups
 
-    def test_group_list_field_required(self) -> None:
+    def test_groups_field_is_not_required(self) -> None:
         form = UserGroupForm()
-        assert form.fields['group_list'].required
+        assert not form.fields['groups'].required
 
     def test_form_with_deleted_group(self) -> None:
         group_pk = self.group3.pk
         self.group3.delete()
-        form = UserGroupForm(data={'group_list': [group_pk]})
+        form = UserGroupForm(data={'groups': [group_pk]})
         assert not form.is_valid()
+
+
+class UserGroupFormSaveModelObjTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.user = create_user(
+            username='testuser', first_name='Test', last_name='User', email='test@example.com'
+        )
+        self.group1 = AuthGroup.objects.create(name='Group 1')
+        self.group2 = AuthGroup.objects.create(name='Group 2')
+
+        self.request = RequestFactory().post('/')
+        self.request.user = self.super_user
+
+    def test_save_model_obj_sets_single_group(self) -> None:
+        form = UserGroupForm(data={'groups': [self.group1.pk]}, instance=self.user)
+        form.save_model_obj(self.request)
+
+        self.user.refresh_from_db()
+        assert self.group1 in self.user.groups.all()
+
+    def test_save_model_obj_sets_multiple_groups(self) -> None:
+        form = UserGroupForm(
+            data={'groups': [self.group1.pk, self.group2.pk]}, instance=self.user
+        )
+        form.save_model_obj(self.request)
+
+        self.user.refresh_from_db()
+        assert self.group1 in self.user.groups.all()
+        assert self.group2 in self.user.groups.all()
+
+    def test_save_model_obj_removes_existing_groups(self) -> None:
+        self.user.groups.add(self.group1)
+
+        form = UserGroupForm(data={'groups': [self.group2.pk]}, instance=self.user)
+        form.save_model_obj(self.request)
+
+        self.user.refresh_from_db()
+        assert self.group1 not in self.user.groups.all()
+        assert self.group2 in self.user.groups.all()
+
+    def test_save_model_obj_redirects_to_user_detail(self) -> None:
+        form = UserGroupForm(data={'groups': [self.group1.pk]}, instance=self.user)
+        response = form.save_model_obj(self.request)
+
+        assert str(self.user.pk) in response.result['redirect']['url']
+
+    def test_save_model_obj_invalid_group_returns_error(self) -> None:
+        form = UserGroupForm(data={'groups': [99999]}, instance=self.user)
+        response = form.save_model_obj(self.request)
+
+        assert response.result is None
+        assert self.user.groups.count() == 0

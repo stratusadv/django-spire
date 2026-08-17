@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import unittest
-
 from django.template import Context, Template
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_humanize import (
     humanize_duration,
@@ -11,7 +10,7 @@ from django_spire.core.templatetags.django_spire_humanize import (
 )
 
 
-class TestHumanizeDurationSimple(unittest.TestCase):
+class TestHumanizeDurationSimple(TestCase):
     def test_zero_amount_returns_na(self) -> None:
         result = humanize_duration_simple(0)
         assert result == 'N/A'
@@ -49,7 +48,7 @@ class TestHumanizeDurationSimple(unittest.TestCase):
         assert result == '1 day'
 
 
-class TestHumanizeDuration(unittest.TestCase):
+class TestHumanizeDuration(TestCase):
     def test_full_duration(self) -> None:
         result = humanize_duration(3661)
         assert '1 hour' in result
@@ -86,7 +85,7 @@ class TestHumanizeDuration(unittest.TestCase):
         assert '1 year' in result
 
 
-class TestHumanizeDurationCompact(unittest.TestCase):
+class TestHumanizeDurationCompact(TestCase):
     def test_compact_format(self) -> None:
         result = humanize_duration_compact(3661)
         assert '1h' in result
@@ -109,7 +108,7 @@ class TestHumanizeDurationCompact(unittest.TestCase):
         assert result == 'Unknown'
 
 
-class TestHumanizeDurationTemplateRendering(unittest.TestCase):
+class TestHumanizeDurationTemplateRendering(TestCase):
     def test_render_humanize_duration_simple(self) -> None:
         template_code = """
             {% load django_spire_humanize %}

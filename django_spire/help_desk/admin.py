@@ -9,6 +9,7 @@ from django_spire.help_desk.models import HelpDeskTicket
 class HelpDeskTicketAdmin(admin.ModelAdmin):
     list_display = ('pk', 'purpose', 'priority', 'status', 'created_by', 'created_datetime')
     list_filter = ('priority', 'purpose', 'status', 'is_active', 'is_deleted')
+    list_select_related = ('created_by',)
     ordering = ('-created_datetime',)
     raw_id_fields = ('created_by',)
     readonly_fields = ('created_by', 'created_datetime', 'is_active', 'is_deleted')

@@ -24,14 +24,14 @@ class HistoryEvent(models.Model):
 
     created_datetime = models.DateTimeField(default=localtime)
 
+    class Meta:
+        db_table = 'django_spire_history_event'
+        verbose_name = 'History Event'
+        verbose_name_plural = 'History Events'
+
     def __str__(self) -> str:
         return f'{self.content_object} - {self.event_verbose}'
 
     @property
     def event_verbose(self) -> str:
         return dict(HistoryEventChoices.choices)[self.event]
-
-    class Meta:
-        db_table = 'django_spire_history_event'
-        verbose_name = 'History Event'
-        verbose_name_plural = 'History Events'

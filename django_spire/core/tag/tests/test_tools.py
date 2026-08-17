@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest import TestCase
+from django.test import TestCase
 
 from django_spire.core.tag.tools import (
     get_matching_a_percentage_from_tag_sets,

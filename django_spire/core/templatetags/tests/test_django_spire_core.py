@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import re
 import string
-import unittest
 from unittest.mock import patch
 
 from django.template import Context, Template
 from django.template import RequestContext
-from django.test import RequestFactory
+from django.test import RequestFactory, TestCase
 
 from django_spire.core.templatetags.django_spire_core import (
     add_str,
@@ -24,7 +23,7 @@ from django_spire.core.templatetags.django_spire_core import (
 )
 
 
-class TestAddStr(unittest.TestCase):
+class TestAddStr(TestCase):
     def test_concatenates_strings(self) -> None:
         assert add_str('Hello', 'World') == 'HelloWorld'
 
@@ -35,7 +34,7 @@ class TestAddStr(unittest.TestCase):
         assert add_str('Hello ', 'World') == 'Hello World'
 
 
-class TestContentTypeUrl(unittest.TestCase):
+class TestContentTypeUrl(TestCase):
     def test_constructs_url_with_metadata(self) -> None:
         class Dummy:
             pass
@@ -56,7 +55,7 @@ class TestContentTypeUrl(unittest.TestCase):
             assert url == 'http://example.com/dummy'
 
 
-class TestGenerateId(unittest.TestCase):
+class TestGenerateId(TestCase):
     def test_generates_8_characters(self) -> None:
         identifier = generate_id()
         assert len(identifier) == 8
@@ -70,7 +69,7 @@ class TestGenerateId(unittest.TestCase):
         assert len(ids) == 100
 
 
-class TestInList(unittest.TestCase):
+class TestInList(TestCase):
     def test_empty_list(self) -> None:
         assert in_list('a', '') is False
 
@@ -81,7 +80,7 @@ class TestInList(unittest.TestCase):
         assert in_list('d', 'a,b,c') is False
 
 
-class TestIndex(unittest.TestCase):
+class TestIndex(TestCase):
     def test_index_out_of_bounds(self) -> None:
         items = [10, 20, 30]
         assert index(items, 5) == items
@@ -95,7 +94,7 @@ class TestIndex(unittest.TestCase):
         assert index(items, 1) == 20
 
 
-class TestIsPath(unittest.TestCase):
+class TestIsPath(TestCase):
     def test_empty_current(self) -> None:
         assert is_path('', '/test') is False
 
@@ -112,7 +111,7 @@ class TestIsPath(unittest.TestCase):
         assert is_path('/test/page', '/test') is True
 
 
-class TestNotInList(unittest.TestCase):
+class TestNotInList(TestCase):
     def test_empty_list(self) -> None:
         assert not_in_list('a', '') is True
 
@@ -123,7 +122,7 @@ class TestNotInList(unittest.TestCase):
         assert not_in_list('x', 'a,b,c') is True
 
 
-class TestSafeDictItems(unittest.TestCase):
+class TestSafeDictItems(TestCase):
     def test_dict_with_items_key(self) -> None:
         d = {'items': 'value', 'other': 'data'}
         result = list(safe_dict_items(d))
@@ -142,7 +141,7 @@ class TestSafeDictItems(unittest.TestCase):
         assert result == [('key', 'value')]
 
 
-class TestToSnakeCaseCore(unittest.TestCase):
+class TestToSnakeCaseCore(TestCase):
     def test_already_snake_case(self) -> None:
         assert core_to_snake_case('hello_world') == 'hello_world'
 
@@ -153,7 +152,7 @@ class TestToSnakeCaseCore(unittest.TestCase):
         assert core_to_snake_case('Hello World') == 'hello_world'
 
 
-class TestQueryParamUrl(unittest.TestCase):
+class TestQueryParamUrl(TestCase):
     def setUp(self) -> None:
         self.factory = RequestFactory()
 
@@ -185,7 +184,7 @@ class TestQueryParamUrl(unittest.TestCase):
             assert url == 'http://example.com/dummy?'
 
 
-class TestDjangoSpireCoreTemplateRendering(unittest.TestCase):
+class TestDjangoSpireCoreTemplateRendering(TestCase):
     def test_render_add_str_filter(self) -> None:
         template_code = """
             {% load django_spire_core %}
@@ -284,7 +283,7 @@ class TestDjangoSpireCoreTemplateRendering(unittest.TestCase):
         assert 'other:data' in rendered
 
 
-class TestNavigationNamespaceIsActive(unittest.TestCase):
+class TestNavigationNamespaceIsActive(TestCase):
     @staticmethod
     def _request(namespaces: list[str] | None):
         request = RequestFactory().get('/')
