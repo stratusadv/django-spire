@@ -15,28 +15,28 @@ class TestRestSchema(TestCase):
         """Test that .objects returns a RestSchemaSet."""
         qs = UserSchema.objects
 
-        self.assertIsInstance(qs, RestSchemaSet)
+        assert isinstance(qs, RestSchemaSet)
 
     def test_objects_first_returns_schema(self):
         """Test that .objects.first() returns a UserSchema instance."""
         user = UserSchema.objects.first()
 
-        self.assertIsInstance(user, UserSchema)
-        self.assertEqual(user.id, 1)
-        self.assertEqual(user.firstName, 'Emily')
-        self.assertEqual(user.lastName, 'Johnson')
-        self.assertEqual(user.username, 'emilys')
+        assert isinstance(user, UserSchema)
+        assert user.id == 1
+        assert user.firstName == 'Emily'
+        assert user.lastName == 'Johnson'
+        assert user.username == 'emilys'
 
     def test_objects_limit(self):
         """Test that .objects.limit() limits results."""
         users = list(UserSchema.objects.limit(5))
 
-        self.assertEqual(len(users), 5)
-        self.assertTrue(all(isinstance(u, UserSchema) for u in users))
+        assert len(users) == 5
+        assert all(isinstance(u, UserSchema) for u in users)
 
     def test_objects_iteration(self):
         """Test that .objects can be iterated."""
         users = list(UserSchema.objects.limit(3))
 
-        self.assertEqual(len(users), 3)
-        self.assertIsInstance(users[0], UserSchema)
+        assert len(users) == 3
+        assert isinstance(users[0], UserSchema)

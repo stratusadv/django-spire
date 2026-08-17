@@ -19,7 +19,7 @@ class DomainForm(ModelForm):
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
-            domain = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
+            domain, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
                 result={
@@ -42,7 +42,7 @@ class SubDomainForm(ModelForm):
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         print(self.data)
         if self.is_valid():
-            subdomain = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
+            subdomain, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
                 result={

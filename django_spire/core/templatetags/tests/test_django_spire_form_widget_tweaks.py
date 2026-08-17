@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import unittest
-
 from django import forms
 from django.forms import CharField, IntegerField, Textarea
 from django.template import Context, Template
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_form_widget_tweaks import (
     add_class,
@@ -21,7 +20,7 @@ from django_spire.core.templatetags.django_spire_form_widget_tweaks import (
 )
 
 
-class TestSetAttr(unittest.TestCase):
+class TestSetAttr(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -41,7 +40,7 @@ class TestSetAttr(unittest.TestCase):
         assert 'id="test-id"' in str(result)
 
 
-class TestAddErrorAttr(unittest.TestCase):
+class TestAddErrorAttr(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -64,7 +63,7 @@ class TestAddErrorAttr(unittest.TestCase):
         assert 'error-field' not in str(result)
 
 
-class TestAppendAttr(unittest.TestCase):
+class TestAppendAttr(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -85,7 +84,7 @@ class TestAppendAttr(unittest.TestCase):
         assert 'data-test="value"' in str(result)
 
 
-class TestAddClass(unittest.TestCase):
+class TestAddClass(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -108,7 +107,7 @@ class TestAddClass(unittest.TestCase):
         assert 'new-class' in output
 
 
-class TestAddLabelClass(unittest.TestCase):
+class TestAddLabelClass(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -122,7 +121,7 @@ class TestAddLabelClass(unittest.TestCase):
         assert 'custom-label' in result
 
 
-class TestAddErrorClass(unittest.TestCase):
+class TestAddErrorClass(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -145,7 +144,7 @@ class TestAddErrorClass(unittest.TestCase):
         assert 'is-invalid' not in str(result)
 
 
-class TestAddRequiredClass(unittest.TestCase):
+class TestAddRequiredClass(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField(required=True)
@@ -166,7 +165,7 @@ class TestAddRequiredClass(unittest.TestCase):
         assert 'required-field' not in str(result)
 
 
-class TestSetData(unittest.TestCase):
+class TestSetData(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -186,7 +185,7 @@ class TestSetData(unittest.TestCase):
         assert 'data-custom-key="custom-value"' in str(result)
 
 
-class TestFieldType(unittest.TestCase):
+class TestFieldType(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             text = CharField()
@@ -211,7 +210,7 @@ class TestFieldType(unittest.TestCase):
         assert field_type(FakeBoundField()) == ''
 
 
-class TestWidgetType(unittest.TestCase):
+class TestWidgetType(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             text = CharField()
@@ -232,7 +231,7 @@ class TestWidgetType(unittest.TestCase):
         assert widget_type(FakeBoundField()) == ''
 
 
-class TestRemoveAttr(unittest.TestCase):
+class TestRemoveAttr(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField()
@@ -253,7 +252,7 @@ class TestRemoveAttr(unittest.TestCase):
         assert result is not None
 
 
-class TestRenderFieldTag(unittest.TestCase):
+class TestRenderFieldTag(TestCase):
     def setUp(self) -> None:
         class TestForm(forms.Form):
             name = CharField(required=True)

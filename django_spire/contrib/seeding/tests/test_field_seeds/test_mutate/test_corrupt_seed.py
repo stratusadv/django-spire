@@ -120,6 +120,30 @@ class TestCorruptMutateFieldSeed(TestCase):
         for _ in range(50):
             assert seed.generate_value(0) == 'never_corrupt'
 
+    def test_chaos_corruption_of_string_does_not_error(self):
+        wrapped = StaticFieldSeed('abcdefghij')
+        seed = CorruptMutateFieldSeed(
+            field_seed=wrapped, corrupt_chance=1.0, severity=MutateSeverity.CHAOS
+        )
+        for _ in range(200):
+            seed.generate_value(0)
+
+    def test_chaos_corruption_of_integer_does_not_error(self):
+        wrapped = StaticFieldSeed(42)
+        seed = CorruptMutateFieldSeed(
+            field_seed=wrapped, corrupt_chance=1.0, severity=MutateSeverity.CHAOS
+        )
+        for _ in range(200):
+            seed.generate_value(0)
+
+    def test_chaos_corruption_of_datetime_does_not_error(self):
+        wrapped = StaticFieldSeed(timezone.make_aware(datetime(2026, 8, 14, 12, 30)))
+        seed = CorruptMutateFieldSeed(
+            field_seed=wrapped, corrupt_chance=1.0, severity=MutateSeverity.CHAOS
+        )
+        for _ in range(200):
+            seed.generate_value(0)
+
     def test_one_corrupt_chance_can_corrupt(self):
         wrapped = StaticFieldSeed('maybe_corrupt')
         seed = CorruptMutateFieldSeed(

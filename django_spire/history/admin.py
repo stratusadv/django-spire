@@ -1,10 +1,15 @@
 from __future__ import annotations
 
-from django.contrib import admin
-from django.urls import reverse
-from django.utils.html import format_html
+from typing_extensions import TYPE_CHECKING
 
+from django.contrib import admin
+
+from django_spire.contrib.admin.links import admin_change_link
 from django_spire.history import models
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from django.http import HttpRequest
 
 
 @admin.register(models.HistoryEvent)
@@ -16,17 +21,16 @@ class HistoryEventAdmin(admin.ModelAdmin):
         'created_datetime',
         'event_verbose',
     )
-
     list_filter = ('event', 'created_datetime')
-    search_fields = ('id', 'content_type__model')
+    list_select_related = ('content_type',)
     ordering = ('-created_datetime',)
+    search_fields = ('id', 'content_type__model')
 
+    @admin.display(description='Content Object')
     def content_object_link(self, history_event: models.HistoryEvent) -> str:
-        url = reverse(
-            f'admin:{history_event.content_type.app_label}_{history_event.content_type.model}_change',
-            args=[history_event.object_id],
-        )
+        return admin_change_link(history_event.content_object, empty_text='No Related Object')
 
-        return format_html(f'<a href="{url}">{history_event.content_object}</a>')
+    def get_queryset(self, request: HttpRequest) -> QuerySet[models.HistoryEvent]:
+        queryset = super().get_queryset(request)
 
-    content_object_link.short_description = 'Content Object'
+        return queryset.prefetch_related('content_object')

@@ -115,6 +115,7 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
 }
 
 INSTALLED_APPS += [
+    'test_project.app.activity',
     'test_project.app.ai',
     'test_project.app.celery',
     'test_project.app.comment',
@@ -140,6 +141,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_spire.history.activity.middleware.ActivityUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',

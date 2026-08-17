@@ -16,8 +16,7 @@ class PirateFactoryService(BaseDjangoModelService['Pirate']):
 
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def duplicate(self, request: WSGIRequest) -> dict:
-        new_pirate = self.obj_class.services.save_model_obj(
-            user=request.user,
+        new_pirate, _created = self.obj_class.services.save_model_obj(
             first_name=self.obj.first_name,
             last_name=self.obj.last_name,
             email=self.obj.email,

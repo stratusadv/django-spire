@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.contrib.auth.models import GroupManager
+
 from django_spire.core.querysets import SearchQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
@@ -23,3 +25,7 @@ class GroupQuerySet(HistoryQuerySet, SearchQuerySetMixin):
     #         queryset = queryset.search(search)
     #
     #     return queryset
+
+
+class AuthGroupManager(GroupManager.from_queryset(GroupQuerySet)):
+    use_in_migrations = False

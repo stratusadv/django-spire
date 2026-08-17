@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import unittest
-
 from django.template import Context, Template
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_variable_types import (
     is_dict,
@@ -16,7 +15,7 @@ from django_spire.core.templatetags.django_spire_variable_types import (
 )
 
 
-class TestIsDict(unittest.TestCase):
+class TestIsDict(TestCase):
     def test_dict(self) -> None:
         assert is_dict({'key': 'value'}) is True
 
@@ -30,7 +29,7 @@ class TestIsDict(unittest.TestCase):
         assert is_dict('string') is False
 
 
-class TestIsNotDict(unittest.TestCase):
+class TestIsNotDict(TestCase):
     def test_dict(self) -> None:
         assert is_not_dict({'key': 'value'}) is False
 
@@ -41,7 +40,7 @@ class TestIsNotDict(unittest.TestCase):
         assert is_not_dict('string') is True
 
 
-class TestIsList(unittest.TestCase):
+class TestIsList(TestCase):
     def test_dict(self) -> None:
         assert is_list({}) is False
 
@@ -55,7 +54,7 @@ class TestIsList(unittest.TestCase):
         assert is_list((1, 2, 3)) is False
 
 
-class TestIsNotList(unittest.TestCase):
+class TestIsNotList(TestCase):
     def test_dict(self) -> None:
         assert is_not_list({}) is True
 
@@ -66,7 +65,7 @@ class TestIsNotList(unittest.TestCase):
         assert is_not_list((1, 2, 3)) is True
 
 
-class TestIsListOrTuple(unittest.TestCase):
+class TestIsListOrTuple(TestCase):
     def test_dict(self) -> None:
         assert is_list_or_tuple({}) is False
 
@@ -80,7 +79,7 @@ class TestIsListOrTuple(unittest.TestCase):
         assert is_list_or_tuple((1, 2, 3)) is True
 
 
-class TestIsNotListOrTuple(unittest.TestCase):
+class TestIsNotListOrTuple(TestCase):
     def test_dict(self) -> None:
         assert is_not_list_or_tuple({}) is True
 
@@ -94,7 +93,7 @@ class TestIsNotListOrTuple(unittest.TestCase):
         assert is_not_list_or_tuple((1, 2, 3)) is False
 
 
-class TestIsTuple(unittest.TestCase):
+class TestIsTuple(TestCase):
     def test_list(self) -> None:
         assert is_tuple([1, 2, 3]) is False
 
@@ -108,7 +107,7 @@ class TestIsTuple(unittest.TestCase):
         assert is_tuple(()) is True
 
 
-class TestIsNotTuple(unittest.TestCase):
+class TestIsNotTuple(TestCase):
     def test_list(self) -> None:
         assert is_not_tuple([1, 2, 3]) is True
 
@@ -119,7 +118,7 @@ class TestIsNotTuple(unittest.TestCase):
         assert is_not_tuple('string') is True
 
 
-class TestVariableTypesTemplateRendering(unittest.TestCase):
+class TestVariableTypesTemplateRendering(TestCase):
     def test_render_is_dict_filter(self) -> None:
         template_code = """
             {% load django_spire_variable_types %}

@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 class ActivityMixin(models.Model):
     activities = GenericRelation(Activity, related_query_name='activity', editable=False)
 
+    class Meta:
+        abstract = True
+
     def add_activity(
         self,
         user: User,
@@ -24,12 +27,16 @@ class ActivityMixin(models.Model):
     ) -> Activity:
 
         activity = self.activities.create(
-            user=user, verb=verb, information=information, recipient=recipient
+            user=user,
+            verb=verb,
+            information=information,
+            recipient=recipient,
         )
 
         if subscribers:
             subscriber_list = [
-                ActivitySubscriber(user=subscriber, activity=activity) for subscriber in subscribers
+                ActivitySubscriber(activity=activity, subscriber=subscriber)
+                for subscriber in subscribers
             ]
 
             ActivitySubscriber.objects.bulk_create(subscriber_list)
@@ -38,7 +45,4 @@ class ActivityMixin(models.Model):
 
     @property
     def creator(self) -> User:
-        return self.activities.earliest('date_time_entered').user
-
-    class Meta:
-        abstract = True
+        return self.activities.earliest('created_datetime').user

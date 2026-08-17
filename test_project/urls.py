@@ -12,6 +12,7 @@ app_name = 'example'
 
 urlpatterns = [
     path('', include('test_project.app.landing.urls', namespace='landing')),
+    path('activity/', include('test_project.app.activity.urls', namespace='activity')),
     path('ai/', include('test_project.app.ai.urls', namespace='ai')),
     path('celery/', include('test_project.app.celery.urls', namespace='celery')),
     path('comment/', include('test_project.app.comment.urls', namespace='comment')),

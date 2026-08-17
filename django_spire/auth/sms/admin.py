@@ -9,7 +9,10 @@ from django_spire.auth.sms.models import AuthSms
 class AuthSmsAdmin(admin.ModelAdmin):
     list_display = ('phone_number', 'user', 'is_verified', 'verified_datetime')
     list_filter = ('is_verified',)
+    list_select_related = ('user',)
+    ordering = ('phone_number',)
     search_fields = ('phone_number', 'user__username', 'user__email')
+
     readonly_fields = (
         'code_attempt_count',
         'code_expiration_datetime',
@@ -20,6 +23,3 @@ class AuthSmsAdmin(admin.ModelAdmin):
         'session_started_datetime',
         'verified_datetime',
     )
-
-    class Meta:
-        ordering = ('phone_number',)

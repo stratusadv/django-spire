@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from django.contrib import admin
-from django.utils.html import format_html
 
+from django_spire.contrib.admin.links import external_link
 from django_spire.notification import models
 
 
@@ -25,17 +25,16 @@ class NotificationAdmin(admin.ModelAdmin):
         'is_deleted',
     )
     list_filter = ('type',)
+    list_select_related = ('user', 'content_type')
     search_fields = ('id', 'title', 'type')
 
-    def view_body_snippet(self, notification: models.Notification) -> str:
-        return notification.body[:20] + '...' if len(notification.body) > 20 else notification.body
-
-    view_body_snippet.short_description = 'Body Snippet'
-
+    @admin.display(description='Notification URL')
     def url_link(self, notification: models.Notification) -> str:
-        if notification.url:
-            return format_html('<a href="{}" target="_blank">Link</a>', notification.url)
+        return external_link(notification.url, 'Link', empty_text='No URL')
 
-        return 'No URL'
+    @admin.display(description='Body Snippet')
+    def view_body_snippet(self, notification: models.Notification) -> str:
+        if len(notification.body) > 20:
+            return notification.body[:20] + '...'
 
-    url_link.short_description = 'Notification URL'
+        return notification.body

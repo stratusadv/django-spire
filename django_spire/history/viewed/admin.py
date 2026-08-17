@@ -1,31 +1,34 @@
 from __future__ import annotations
 
-from django.contrib import admin
-from django.urls.base import reverse
-from django.utils.html import format_html
+from typing_extensions import TYPE_CHECKING
 
+from django.contrib import admin
+
+from django_spire.contrib.admin.links import admin_change_link
 from django_spire.history.viewed.models import Viewed
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from django.http import HttpRequest
 
 
 @admin.register(Viewed)
 class ViewAdmin(admin.ModelAdmin):
     list_display = ('id', 'content_object_link', 'user_link', 'created_datetime')
     list_filter = ('created_datetime',)
-    search_fields = ('id', 'user__first_name', 'user__last_name', 'content_type__model')
+    list_select_related = ('content_type', 'user')
     ordering = ('-created_datetime',)
+    search_fields = ('id', 'user__first_name', 'user__last_name', 'content_type__model')
 
+    @admin.display(description='Content Object')
     def content_object_link(self, view: Viewed) -> str:
-        url = reverse(
-            f'admin:{view.content_type.app_label}_{view.content_type.model}_change',
-            args=[view.object_id],
-        )
+        return admin_change_link(view.content_object, empty_text='No Related Object')
 
-        return format_html(f'<a href="{url}">{view.content_object}</a>')
+    def get_queryset(self, request: HttpRequest) -> QuerySet[Viewed]:
+        queryset = super().get_queryset(request)
 
-    content_object_link.short_description = 'Content Object'
+        return queryset.prefetch_related('content_object')
 
+    @admin.display(description='User')
     def user_link(self, view: Viewed) -> str:
-        url = reverse('admin:auth_user_change', args=[view.user.id])
-        return format_html(f'<a href="{url}">{view.user.get_full_name()}</a>')
-
-    user_link.short_description = 'User'
+        return admin_change_link(view.user)
