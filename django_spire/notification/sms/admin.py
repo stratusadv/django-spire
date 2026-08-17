@@ -21,16 +21,16 @@ class SmsNotificationAdmin(admin.ModelAdmin):
         ('temporary_media', admin.EmptyFieldListFilter),
         ('media_url', admin.EmptyFieldListFilter),
     )
-    list_select_related = ('notification',)
+    list_select_related = ('notification', 'temporary_media')
 
-    def view_notification_link(self, sms_notification: SmsNotification):
+    def view_notification_link(self, sms_notification: SmsNotification) -> str:
         url = (
             reverse('admin:django_spire_notification_notification_changelist')
             + '?'
             + urlencode({'id': f'{sms_notification.notification_id}'})
         )
 
-        return format_html(f'<a href="{url}">{sms_notification.notification}</a>')
+        return format_html('<a href="{}">{}</a>', url, sms_notification.notification)
 
     view_notification_link.short_description = 'Notification'
 

@@ -3,12 +3,12 @@ from __future__ import annotations
 import enum
 
 from typing import get_args, get_origin, Union
-from unittest import TestCase
 
 from pydantic import BaseModel
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.test import TestCase
 
 from django_spire.contrib.converters.to_pydantic import (
     DjangoToPydanticFieldConverter,

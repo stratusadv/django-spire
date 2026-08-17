@@ -16,7 +16,7 @@ class TaskModelForm(ModelForm):
             ])
 
         if self.is_valid():
-            task = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
+            task, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
                 result={'redirect_url': reverse('task:page:detail', kwargs={'pk': task.pk})}

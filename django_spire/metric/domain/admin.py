@@ -11,13 +11,14 @@ class DomainAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'is_deleted')
     ordering = ('-created_datetime',)
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')
-    search_fields = ('description', 'created_by__username', 'created_by__email')
+    search_fields = ('name', 'description')
 
 
 @admin.register(SubDomain)
 class SubDomainAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'domain_id', 'name', 'description', 'created_datetime')
+    list_display = ('pk', 'domain', 'name', 'description', 'created_datetime')
     list_filter = ('is_active', 'is_deleted')
+    list_select_related = ('domain',)
     ordering = ('-created_datetime',)
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')
-    search_fields = ('description', 'created_by__username', 'created_by__email')
+    search_fields = ('name', 'description', 'domain__name')

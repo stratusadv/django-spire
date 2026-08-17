@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from unittest import TestCase
+from django.test import TestCase
 
 from django_spire.core.tag.intelligence.tag_set_bot import TagSetBot
 

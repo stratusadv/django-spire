@@ -38,7 +38,7 @@ def _zero_time(value: Any) -> Any:
         return value
     try:
         return value.replace(hour=0, minute=0, second=0, microsecond=0)
-    except AttributeError:
+    except (AttributeError, TypeError):
         return value
 
 
@@ -47,7 +47,7 @@ def _end_of_day(value: Any) -> Any:
         return value
     try:
         return value.replace(hour=23, minute=59, second=59, microsecond=999999)
-    except AttributeError:
+    except (AttributeError, TypeError):
         return value
 
 

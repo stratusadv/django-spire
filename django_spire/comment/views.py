@@ -9,12 +9,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.urls import reverse
 
 from django_spire.auth.group.utils import has_app_permission_or_404
 from django_spire.comment import models
 from django_spire.comment.forms import CommentForm
 from django_spire.comment.navigation import CommentNavigation
+from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj, model_object_from_app_label
@@ -85,26 +85,31 @@ def comment_modal_delete_form_view(
     has_app_permission_or_404(request.user, app_label, model_name, 'change')
 
     comment = get_object_or_404(models.Comment, pk=comment_pk)
-    obj = model_object_from_app_label(app_label, model_name, obj_pk)
     return_url = safe_redirect_url(request)
 
     if comment.user != request.user:
         messages.warning(request, 'You can only delete your comments.')
         return HttpResponseRedirect(return_url)
 
-    form_action = reverse(
-        'django_spire:comment:delete_form',
-        kwargs={
-            'comment_pk': comment_pk,
-            'obj_pk': obj_pk,
-            'app_label': app_label,
-            'model_name': model_name,
-        },
-    )
+    if request.method == 'POST':
+        form = DeleteConfirmationForm(data=request.POST, obj=comment)
 
-    def add_activity() -> None:
-        obj.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted a comment on "{obj}".',
-        )
+        if form.is_valid():
+            if form.cleaned_data['should_delete']:
+                comment.set_deleted()
+
+            return HttpResponseRedirect(return_url)
+    else:
+        form = DeleteConfirmationForm(obj=comment)
+
+    context = {
+        'form': form,
+        'form_description': 'Are you sure you would like to delete this comment?',
+        'form_title': 'Delete Comment',
+    }
+
+    return TemplateResponse(
+        request,
+        'django_spire/form/card/delete_confirmation_form_card.html',
+        context=context,
+    )

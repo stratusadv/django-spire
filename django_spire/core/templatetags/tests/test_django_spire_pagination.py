@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import unittest
-
 from unittest.mock import MagicMock
 
 from django.template import Context, Template
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_pagination import (
     get_elided_page_range,
@@ -12,7 +11,7 @@ from django_spire.core.templatetags.django_spire_pagination import (
 )
 
 
-class TestPaginationUrl(unittest.TestCase):
+class TestPaginationUrl(TestCase):
     def test_builds_query_string_with_single_param(self) -> None:
         class DummyContext:
             class request:  # noqa: N801
@@ -80,7 +79,7 @@ class TestPaginationUrl(unittest.TestCase):
         assert 'search=hello+world' in result
 
 
-class TestGetElidedPageRange(unittest.TestCase):
+class TestGetElidedPageRange(TestCase):
     def test_returns_iterator(self) -> None:
         mock_page = MagicMock()
         mock_page.number = 5
@@ -113,7 +112,7 @@ class TestGetElidedPageRange(unittest.TestCase):
         )
 
 
-class TestPaginationTemplateRendering(unittest.TestCase):
+class TestPaginationTemplateRendering(TestCase):
     def test_render_pagination_url(self) -> None:
         template_code = """
             {% load django_spire_pagination %}

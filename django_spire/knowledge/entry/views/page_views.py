@@ -27,11 +27,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
         if form.is_valid():
             entry.set_deleted()
-            entry.add_activity(
-                user=request.user,
-                verb='deleted',
-                information=f'{request.user.get_full_name()} deleted entry "{entry}".',
-            )
 
             return HttpResponseRedirect(return_url)
     else:
