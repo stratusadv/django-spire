@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class DomainForm(ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             domain = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
@@ -38,7 +38,7 @@ class DomainForm(ModelForm):
 
 
 class SubDomainForm(ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         print(self.data)
         if self.is_valid():

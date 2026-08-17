@@ -26,7 +26,7 @@ class EntryFilesForm(forms.Form):
     import_files = forms.FileField()
     collection_pk = forms.IntegerField()
 
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         files = self.files.getlist('import_files.value')
 

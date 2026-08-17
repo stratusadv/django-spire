@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class TaskService(BaseDjangoModelService['Task']):
     obj: Task
 
-    factory = Glue.attribute(TaskFactoryService(), access=Glue.Access.DELETE)
+    factory = Glue.attr(TaskFactoryService(), required_access=Glue.Access.DELETE)
 
     def save_model_obj(self, user: User, **field_data: dict) -> Task:
         obj, created = super().save_model_obj(**field_data)

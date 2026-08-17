@@ -25,7 +25,7 @@ class UserForm(forms.ModelForm):
 
         return email
 
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> Glue.Response | None:
         if self.is_valid():
             user = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
@@ -40,7 +40,7 @@ class UserForm(forms.ModelForm):
 
 
 class UserGroupForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> Glue.Response | None:
         if self.is_valid():
             user = self.instance

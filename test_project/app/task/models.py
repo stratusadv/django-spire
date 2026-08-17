@@ -30,7 +30,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     attachment = models.FileField(blank=True, null=True)
 
     objects = TaskQuerySet().as_manager()
-    services = Glue.attribute(TaskService(), access=Glue.Access.DELETE)
+    services = Glue.attr(TaskService(), required_access=Glue.Access.DELETE)
 
     class Meta:
         verbose_name = 'Task'
@@ -40,8 +40,7 @@ class Task(ActivityMixin, HistoryModelMixin):
     def __str__(self) -> str:
         return self.name
 
-    @Glue.attribute(access=Glue.Access.VIEW)
-    @property
+    @Glue.property
     def has_children(self) -> bool:
         if self.pk is None:
           return False
@@ -52,7 +51,7 @@ class Task(ActivityMixin, HistoryModelMixin):
             self.children.filter(is_active=True, is_deleted=False).exists()
         )
 
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
         self.status = TaskStatusChoices.DONE
         self.services.save_model_obj(user=request.user, obj=self, status=self.status)
