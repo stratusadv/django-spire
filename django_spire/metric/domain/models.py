@@ -27,7 +27,7 @@ class Domain(HistoryModelMixin, ActivityMixin):
         for subdomain in self.subdomains.all():
             subdomain.set_deleted()
 
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
         self.services.save_model_obj(obj=self, status=self.status)
 
@@ -57,7 +57,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
     def __str__(self) -> str:
         return self.name
 
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def complete(self, request: WSGIRequest) -> None:
         self.services.save_model_obj(obj=self, status=self.status)
 
