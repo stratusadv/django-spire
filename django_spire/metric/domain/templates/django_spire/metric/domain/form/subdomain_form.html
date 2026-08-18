@@ -5,11 +5,11 @@
 {% block glue_form_content %}
     <div class="row">
         <div class="col-12 col-sm mb-3 mb-sm-0">
-            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.name' %}
+            {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.name' %}
         </div>
 
         <div class="col-12 mb-3 mb-sm-0">
-            {% include 'django_spire/glue/form/field/text_field.html' with glue_field='glue_form.$fields.description' %}
+            {% include 'django_spire/glue/form/field/text/field.html' with glue_field='glue_form.$fields.description' %}
         </div>
     </div>
 {% endblock %}
