@@ -4,7 +4,7 @@
 x-model="value"
 {% endif %}
 {% if not exclude_class %}
-class="form-{{ form_class_type|default:'control' }} form-select-{{ size|default:'sm' }}{% if input_class %} {{ input_class }}{% endif %}"
+class="form-{{ form_class_type|default:'control' }} {{ input_class }}"
 {% endif %}
 :class="{'is-invalid': field.hasErrors}"
 :required="field.required"
