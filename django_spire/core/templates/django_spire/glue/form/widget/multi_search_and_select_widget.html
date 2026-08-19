@@ -41,14 +41,8 @@
                 this.dispatchValueEvents();
             },
             dispatchValueEvents() {
-                this.$nextTick(() => {
-                    // The trigger button can be gone by the time this fires (e.g. the
-                    // modal holding this widget was closed/replaced before the tick
-                    // ran) -- guard the same way $refs.searchInput already does above,
-                    // instead of throwing on a stale ref.
-                    this.$refs.trigger?.dispatchEvent(new Event('input', {bubbles: true}));
-                    this.$refs.trigger?.dispatchEvent(new Event('change', {bubbles: true}));
-                });
+                this.$refs.trigger?.dispatchEvent(new Event('input', {bubbles: true}));
+                this.$refs.trigger?.dispatchEvent(new Event('change', {bubbles: true}));
             },
         }"
         @click.outside="isOpen = false"
