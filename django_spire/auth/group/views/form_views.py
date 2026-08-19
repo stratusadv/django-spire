@@ -40,7 +40,10 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpRespo
     nav = AuthGroupNavigation()
     nav.set_page_title_from_model_name(group)
     nav.page_description = 'Edit' if group.pk else 'Create'
-    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
+    if group.pk:
+        nav.breadcrumbs.add_model_instance_string(
+            group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
+        )
     nav.breadcrumbs.add('Edit' if group.pk else 'Create')
 
     context = nav.as_context()
@@ -77,7 +80,6 @@ def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResp
     nav = AuthGroupNavigation()
     nav.page_title = 'Group'
     nav.page_description = 'Edit Users'
-    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
     nav.breadcrumbs.add_model_instance_string(
         group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
     )

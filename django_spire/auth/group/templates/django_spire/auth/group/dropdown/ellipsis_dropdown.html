@@ -1,29 +1,30 @@
 {% extends 'django_spire/dropdown/ellipsis_dropdown.html' %}
+
+{% load django_glue %}
+
 {% block dropdown_content %}
-    <li><a class="dropdown-item d-flex align-items-center gap-2"
-           :href="`{% url 'django_spire:auth:user:page:detail' pk=0 %}`.replace('0', item.id)"><i
-            class="bi bi-eye"></i>Detail</a></li>
-{#    <li><a class="dropdown-item d-flex align-items-center gap-2"#}
-{#           :href="`{% url 'django_spire:auth:user:form:form' pk=0 %}`.replace('0', item.id)"><i#}
-{#            class="bi bi-pencil"></i>Update</a></li>#}
-{#    <li><a class="dropdown-item d-flex align-items-center gap-2 text-danger"#}
-{#           :href="`{% url 'django_spire:auth:user:form:delete' pk=0 %}`.replace('0', item.id)"><i#}
-{#            class="bi bi-trash"></i>Delete</a></li>#}
+    {% if perms.django_spire_auth_group.view_authgroup %}
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2"
+               :href="{% js_url 'django_spire:auth:group:page:detail' pk='item.id' %}">
+                <i class="bi bi-eye"></i>Detail
+            </a>
+        </li>
+    {% endif %}
+    {% if perms.django_spire_auth_group.change_authgroup %}
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2"
+               :href="{% js_url 'django_spire:auth:group:form:form' pk='item.id' %}">
+                <i class="bi bi-pencil"></i>Edit
+            </a>
+        </li>
+    {% endif %}
+    {% if perms.django_spire_auth_group.delete_authgroup %}
+        <li>
+            <a class="dropdown-item d-flex align-items-center gap-2 text-danger"
+               :href="{% js_url 'django_spire:auth:group:form:delete' pk='item.id' %}">
+                <i class="bi bi-trash"></i>Delete
+            </a>
+        </li>
+    {% endif %}
 {% endblock %}
-
-
-
-
-
-{#{% block item_button %}#}
-{#    {% if location == 'group' and group.name != 'All Users' %}#}
-{#        {% if perms.django_spire_auth_group.change_authgroup %}#}
-{#            {% url 'django_spire:auth:group:page:detail' pk=group.pk as view_url %}#}
-{#            {% url 'django_spire:auth:group:form:update' pk=group.pk as edit_url %}#}
-{#            {% if perms.django_spire_auth_group.delete_authgroup %}#}
-{#                {% url 'django_spire:auth:group:form:delete' pk=group.pk as delete_url %}#}
-{#            {% endif %}#}
-{#            {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}#}
-{#        {% endif %}#}
-{#    {% endif %}#}
-{#{% endblock %}#}

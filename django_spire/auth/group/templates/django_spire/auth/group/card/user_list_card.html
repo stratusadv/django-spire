@@ -9,7 +9,7 @@
 {% block card_button %}
     {% if perms.django_spire_auth_group.change_authgroup %}
         {% url 'django_spire:auth:group:form:user' pk=group.pk as group_user_form %}
-        <a class="btn btn-sm btn-primary" href="{{ group_user_form }}">
+        <a class="btn btn-sm btn-primary text-white" href="{{ group_user_form }}">
             <i class="bi bi-pencil"></i>
         </a>
     {% endif %}
