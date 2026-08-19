@@ -37,6 +37,6 @@
 
     {% block widget_content %}
     {% endblock %}
-    <div class="invalid-feedback" x-text="field.errorText"></div>
+    <div class="invalid-feedback" x-show="field.hasErrors" x-text="field.errorText"></div>
     <small class="text-muted d-block" x-show="field.help_text" x-text="field.help_text"></small>
 </div>

@@ -73,6 +73,7 @@
                 x-ref="selectedInput"
                 type="text"
                 class="form-control"
+                :class="{'is-invalid': field.hasErrors}"
                 :value="field.selectedChoice?.label || ''"
                 @focus="openDropdown()"
                 @click="openDropdown()"

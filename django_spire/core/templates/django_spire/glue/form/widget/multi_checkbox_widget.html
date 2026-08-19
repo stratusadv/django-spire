@@ -11,6 +11,7 @@
                 <input
                     type="checkbox"
                     class="form-check-input"
+                    :class="{'is-invalid': field.hasErrors}"
                     :id="field.id + '_' + choice.value"
                     :name="field.name"
                     :value="choice.value"
