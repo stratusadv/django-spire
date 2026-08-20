@@ -4,7 +4,9 @@ from django.urls import path
 
 from django_spire.ai.sms.views import webhook_views
 
-
 app_name = 'sms'
 
-urlpatterns = [path('webhook/', webhook_views.webhook_view, name='webhook')]
+urlpatterns = [
+    path('webhook/', webhook_views.webhook_view, name='webhook'),
+    path('webhook/failed/', webhook_views.webhook_fallback_view, name='webhook_failed'),
+]

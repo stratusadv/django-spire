@@ -11,6 +11,9 @@ class SmsConversationQuerySet(HistoryQuerySet):
 
 
 class SmsMessageQuerySet(HistoryQuerySet):
+    def inbound_by_twilio_sid(self, twilio_sid: str) -> Self:
+        return self.filter(is_inbound=True, twilio_sid=twilio_sid)
+
     def newest_by_count(self, count: int = 20) -> Self:
         return self.order_by('-created_datetime')[:count]
 

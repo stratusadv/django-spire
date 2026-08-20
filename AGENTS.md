@@ -144,7 +144,77 @@ class MyModel(ActivityMixin, HistoryModelMixin):
     ...
 ```
 
-See `django_spire/history/activity/mixins.py`.
+Activity records are created automatically. `ActivityUserMiddleware` stores the
+request user in a context variable, and `post_save`/`post_delete` signal
+receivers (connected per `ActivityMixin` model at app startup, so other models
+keep Django's fast-delete path) create a `created`/`updated`/`deleted` activity
+for any `ActivityMixin` model saved or deleted during the request.
+`set_deleted()` logs `deleted`, not `updated`; `update(is_deleted=True)` and
+`bulk_update` with `is_deleted` in its fields do the same for rows that were
+not already deleted, so soft deletes carry the `deleted` verb on every path.
+The automatic verbs come from the `ActivityVerb` enum
+(`django_spire/history/activity/enums.py`); `Activity.verb` stays a plain
+`CharField` because `add_activity` accepts custom verbs. Bulk operations are
+covered when the model's default manager derives from `HistoryQuerySet`:
+`bulk_create`, `bulk_update`, `update`, and `delete` bulk-insert activities,
+capped at `BULK_ACTIVITY_COUNT_MAX` rows per call with a logged warning on
+truncation (`bulk_create(ignore_conflicts=True)` cannot recover primary keys,
+and `bulk_create(update_conflicts=True)` cannot distinguish created rows from
+updated rows, so each logs a warning instead of activities). Each bulk
+operation wraps the write and its activity insert in one transaction, so a
+failed audit insert rolls the write back rather than leaving unaudited rows;
+a bulk delete that removes the acting user's own row skips its activity
+records with a logged warning instead of violating the `Activity.user`
+foreign key. `update()` snapshots target primary keys without locking, so
+under concurrent writes the audit can include rows the update did not modify;
+it logs a warning when the updated row count falls short of the snapshot. An
+`m2m_changed` receiver logs `added`/`removed` activities for `add`, `remove`,
+`clear`, and `set` on `ActivityMixin` instances, counting only rows actually
+added or removed and naming up to `ACTIVITY_M2M_NAMED_COUNT_MAX` affected
+rows in the information text, with an `and N more` suffix beyond the cap. The
+activity attaches to the instance whose manager is called, so mutate a
+relation from the side whose log matters: `group.user_set.remove(user)` logs
+on the group, `user.groups.remove(group)` logs on the user, and nothing is
+logged when that side is not an `ActivityMixin` model. Self-referential m2m
+fields log from both sides; the signal's `reverse` flag resolves which
+through column is the source when both columns point at the same model.
+Two cascade behaviors are not logged: `on_delete=SET_NULL`/`SET_DEFAULT`
+nulls the child column through the delete collector's raw UPDATE, which
+bypasses querysets and signals, so only the parent's `deleted` activity
+records the change; and deleting a multi-table-inheritance child logs
+`deleted` once per table row, so an MTI model produces two entries for one
+logical object.
+Outside a request (Celery tasks, management commands, cron) no user is in
+context and nothing is logged; wrap the work in
+`django_spire.history.activity.context.activity_user(user)` at the entry
+point to attribute it. That entry-point wrap is the ONLY manual step the
+system has: attribution is automatic everywhere else, so services must not
+take a `user` argument for activity purposes, must not wrap their saves in
+`activity_user(...)`, and callers must not pass a user for attribution. A
+`user` parameter on a service is legitimate only when it is real field data
+(for example `HelpDeskTicketService` setting `created_by`).
+Hard-deleting an instance cascades its existing activity rows (the
+`GenericRelation` on `ActivityMixin`); only the final `deleted` activity
+survives as a tombstone, so soft delete is the path that preserves history.
+Do not call `add_activity` for those verbs in views or services; call it
+directly only for custom verbs or when a recipient/subscribers are needed.
+System checks cover the two silent failure modes:
+`django_spire_history_activity.W001`/`W002` warn when the middleware is
+missing or misordered, and `W003` warns when an `ActivityMixin` model's
+default manager does not use a `HistoryQuerySet`, because instance saves
+would still log while bulk operations silently would not. The middleware must
+be listed in `MIDDLEWARE` after `AuthenticationMiddleware`:
+
+```python
+MIDDLEWARE = [
+    ...
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_spire.history.activity.middleware.ActivityUserMiddleware',
+    ...
+]
+```
+
+See `django_spire/history/activity/mixins.py`, `signals.py`, and `middleware.py`.
 
 ## Service Layer
 
@@ -386,7 +456,8 @@ def form_view(request, pk):
     return TemplateResponse(request, context={**nav.as_context()}, template='task/page/form_page.html')
 ```
 
-Delete view (soft delete + activity):
+Delete view (soft delete; the save signal logs a `deleted` activity when
+`set_deleted()` flips the flag):
 
 ```python
 @login_required()
@@ -396,11 +467,6 @@ def delete_view(request, pk):
 
     if request.method == 'POST':
         task.set_deleted()
-        task.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted task {task.name}.',
-        )
         return redirect(return_url)
 
     nav = TaskNavigation()
@@ -463,7 +529,7 @@ context = nav.as_context()
 
 ### Confirmation Forms
 
-Both forms require an `obj` and expose `save(user, verbs, ...)`:
+Both forms require an `obj` and expose `save(user, ...)`:
 
 ```python
 from django_spire.contrib.form.confirmation_forms import (
@@ -476,14 +542,15 @@ form = DeleteConfirmationForm(request.POST or None, obj=task)
 if form.is_valid():
     form.save(
         user=request.user,
-        verbs=('delete', 'deleted'),
         delete_func=task.set_deleted,       # Optional; defaults to obj.set_deleted()
-        activity_func=None,                  # Optional custom activity
-        auto_add_activity=True,              # Adds activity unless activity_func given
     )
 ```
 
 `ConfirmationForm` is the same with `confirmation_func` instead of `delete_func`.
+Activity records come from the activity signals, not from these forms. The
+legacy `verbs` and `auto_add_activity` arguments are accepted for backwards
+compatibility but ignored with a `DeprecationWarning`; `activity_func` is
+still invoked for its side effects, also with a `DeprecationWarning`.
 
 ## Test Base
 

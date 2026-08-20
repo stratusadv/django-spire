@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
 from django.test import RequestFactory
 from django.urls import reverse
+from django.utils.datastructures import MultiValueDict
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.knowledge.collection.tests.factories import create_test_collection
@@ -22,9 +23,7 @@ class EntryFilesFormTests(BaseTestCase):
         self.factory = RequestFactory()
 
     def _build_request(self, uploaded_files: list[UploadedFile]) -> HttpRequest:
-        request = self.factory.post(
-            '/', data={'import_files': uploaded_files}, files={'import_files': uploaded_files}
-        )
+        request = self.factory.post('/', data={'import_files': uploaded_files})
         request.user = self.super_user
         return request
 
@@ -37,7 +36,7 @@ class EntryFilesFormTests(BaseTestCase):
 
         form = EntryFilesForm(
             data={'import_files': uploaded, 'collection_pk': str(self.collection.pk)},
-            files={'import_files': uploaded},
+            files=MultiValueDict({'import_files.value': uploaded}),
         )
         response = form.save_model_obj(request)
 
@@ -59,7 +58,8 @@ class EntryFilesFormTests(BaseTestCase):
         request = self._build_request([])
 
         form = EntryFilesForm(
-            data={'collection_pk': str(self.collection.pk)}, files={'import_files': []}
+            data={'collection_pk': str(self.collection.pk)},
+            files=MultiValueDict({'import_files.value': []}),
         )
         response = form.save_model_obj(request)
 

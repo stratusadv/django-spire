@@ -1,5 +1,6 @@
 {% load static %}
 {% load django_glue %}
+{% load django_spire_modal %}
 
 <!doctype html>
 <html lang="en" data-bs-theme="{{ DJANGO_SPIRE_THEME_MODE }}">
@@ -128,6 +129,7 @@
     {% endblock %}
 
     {% include 'django_spire/base/modal/dispatch_modal.html' %}
+    {% render_static_modals %}
 
     {% block base_body_bottom_js %}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.x/dist/js/bootstrap.bundle.min.js"></script>

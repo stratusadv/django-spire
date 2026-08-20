@@ -15,13 +15,11 @@ if TYPE_CHECKING:
 def test_model_detail_view(request: WSGIRequest) -> TemplateResponse:
     test_model = generate_test_model()
 
-    user, _ = User.objects.get_or_create(
+    _user, _created = User.objects.get_or_create(
         username='test_user', defaults={'password': 'test_password'}
     )
 
     fields = {field.name: getattr(test_model, field.name) for field in test_model._meta.fields}
-
-    test_model.add_activity(user=user, verb='created', information=f'{request.user} added a model.')
 
     context_data = {'adult': test_model, 'fields': fields}
     context_data['page_title'] = 'Test Model'

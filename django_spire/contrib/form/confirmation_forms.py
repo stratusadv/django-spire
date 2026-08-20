@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 from typing import Callable, TYPE_CHECKING
 
 from django import forms
@@ -22,23 +24,18 @@ class ConfirmationForm(forms.Form):
 
     def save(
         self,
-        user: User,
-        verbs: tuple,
+        user: User | None = None,
+        verbs: tuple | None = None,
         confirmation_func: Callable | None = None,
         activity_func: Callable | None = None,
-        auto_add_activity: bool = True,
-    ):
+        auto_add_activity: bool | None = None,
+    ) -> None:
+        _warn_removed_activity_arguments(verbs, auto_add_activity)
+
         if confirmation_func is not None:
             confirmation_func()
 
-        if activity_func is not None:
-            activity_func()
-        elif hasattr(self.obj, 'add_activity') and auto_add_activity:
-            self.obj.add_activity(
-                user=user,
-                verb=verbs[1],
-                information=f'{user.get_full_name()} {verbs[1].lower()} {self.obj._meta.verbose_name} "{self.obj}".',
-            )
+        _call_deprecated_activity_func(activity_func)
 
 
 class DeleteConfirmationForm(forms.Form):
@@ -55,22 +52,47 @@ class DeleteConfirmationForm(forms.Form):
 
     def save(
         self,
-        user: User,
-        verbs: tuple,
+        user: User | None = None,
+        verbs: tuple | None = None,
         delete_func: Callable | None = None,
         activity_func: Callable | None = None,
-        auto_add_activity: bool = True,
+        auto_add_activity: bool | None = None,
     ) -> None:
+        _warn_removed_activity_arguments(verbs, auto_add_activity)
+
         if delete_func is not None:
             delete_func()
         else:
             self.obj.set_deleted()
 
-        if activity_func is not None:
-            activity_func()
-        elif hasattr(self.obj, 'add_activity') and auto_add_activity:
-            self.obj.add_activity(
-                user=user,
-                verb=verbs[1],
-                information=f'{user.get_full_name()} {verbs[1].lower()} {self.obj._meta.verbose_name} "{self.obj}".',
-            )
+        _call_deprecated_activity_func(activity_func)
+
+
+def _call_deprecated_activity_func(activity_func: Callable | None) -> None:
+    if activity_func is None:
+        return
+
+    warnings.warn(
+        'The activity_func argument is deprecated; standard activity records '
+        'are created by the activity signals. activity_func was still invoked '
+        'for its side effects.',
+        DeprecationWarning,
+        stacklevel=3,
+    )
+
+    activity_func()
+
+
+def _warn_removed_activity_arguments(
+    verbs: tuple | None,
+    auto_add_activity: bool | None,
+) -> None:
+    if verbs is None and auto_add_activity is None:
+        return
+
+    warnings.warn(
+        'The verbs and auto_add_activity arguments are ignored; activity '
+        'records are created by the activity signals.',
+        DeprecationWarning,
+        stacklevel=3,
+    )

@@ -42,13 +42,13 @@
             >
             </button>
             <ul class="dropdown-menu">
-                <template x-for="[value, label] in item.$fields.status.choices.filter(([value, label]) => value != item.status)">
+                <template x-for="choice in item.$fields.status.choices.filter(choice => choice.value != item.status)">
                     <li>
                         <a 
                             class="dropdown-item" 
                             href="#"
-                            @click.prevent="item.status = value; item.save()"
-                            x-text="label"
+                            @click.prevent="item.status = choice.value; item.save()"
+                            x-text="choice.label"
                         >
                         </a>
                     </li>

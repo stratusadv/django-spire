@@ -8,7 +8,7 @@ from test_project.app.task.models import Task
 
 
 class TaskModelForm(ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest, time_of_day: str | None = None) -> GlueResponse:
         if len(self.data['name']) < 10:
             return GlueResponse(messages=[
@@ -16,7 +16,7 @@ class TaskModelForm(ModelForm):
             ])
 
         if self.is_valid():
-            task = self.instance.services.save_model_obj(request.user, **self.cleaned_data)
+            task, _created = self.instance.services.save_model_obj(**self.cleaned_data)
 
             return GlueResponse(
                 result={'redirect_url': reverse('task:page:detail', kwargs={'pk': task.pk})}

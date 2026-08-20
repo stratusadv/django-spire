@@ -10,6 +10,7 @@
                         <input
                             type="radio"
                             class="form-check-input"
+                            :class="{'is-invalid': field.hasErrors}"
                             :id="`${field.name}-${choice.value}`"
                             :name="field.name"
                             :value="choice.value"

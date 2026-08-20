@@ -2,6 +2,8 @@
 Tests for BaseRestHttpConnector.
 """
 
+import pytest
+
 from unittest.mock import patch, Mock
 
 from django.core.exceptions import ImproperlyConfigured
@@ -15,25 +17,25 @@ class TestBaseRestHttpConnector(TestCase):
 
     def test_base_url_required(self):
         """Test that base_url is required."""
-        with self.assertRaises(ImproperlyConfigured) as context:
+        with pytest.raises(ImproperlyConfigured) as exc_info:
 
             class InvalidConnector(BaseRestHttpConnector):
                 pass
 
-        self.assertIn('base_url', str(context.exception))
+        assert 'base_url' in str(exc_info.value)
 
     def test_url_validation_invalid_url(self):
         """Test that invalid URLs raise ValueError."""
-        with self.assertRaises(ValueError) as context:
+        with pytest.raises(ValueError, match='Invalid URL') as exc_info:
 
             class InvalidUrlConnector(BaseRestHttpConnector):
                 base_url = 'not-a-valid-url'
 
-        self.assertIn('Invalid URL', str(context.exception))
+        assert 'Invalid URL' in str(exc_info.value)
 
     def test_url_validation_missing_scheme(self):
         """Test that URLs without scheme raise ValueError."""
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError, match='Invalid URL'):
 
             class NoSchemeConnector(BaseRestHttpConnector):
                 base_url = 'example.com/api'
@@ -45,7 +47,7 @@ class TestBaseRestHttpConnector(TestCase):
             base_url = 'https://api.example.com'
 
         connector = ValidConnector()
-        self.assertEqual(connector.base_url, 'https://api.example.com')
+        assert connector.base_url == 'https://api.example.com'
 
     def test_build_url_base_only(self):
         """Test URL building with base_url only."""
@@ -56,7 +58,7 @@ class TestBaseRestHttpConnector(TestCase):
         connector = TestConnector()
         url = connector._build_url()
 
-        self.assertEqual(url, 'https://api.example.com')
+        assert url == 'https://api.example.com'
 
     def test_build_url_with_path(self):
         """Test URL building with path."""
@@ -67,7 +69,7 @@ class TestBaseRestHttpConnector(TestCase):
         connector = TestConnector()
         url = connector._build_url('users')
 
-        self.assertEqual(url, 'https://api.example.com/users')
+        assert url == 'https://api.example.com/users'
 
     def test_build_url_with_base_path(self):
         """Test URL building with base_path."""
@@ -79,7 +81,7 @@ class TestBaseRestHttpConnector(TestCase):
         connector = TestConnector()
         url = connector._build_url('users')
 
-        self.assertEqual(url, 'https://api.example.com/v1/users')
+        assert url == 'https://api.example.com/v1/users'
 
     def test_build_url_strips_slashes(self):
         """Test that path slashes are stripped."""
@@ -90,7 +92,7 @@ class TestBaseRestHttpConnector(TestCase):
         connector = TestConnector()
         url = connector._build_url('/users/')
 
-        self.assertEqual(url, 'https://api.example.com/users')
+        assert url == 'https://api.example.com/users'
 
     def test_default_timeout(self):
         """Test default timeout value."""
@@ -100,7 +102,7 @@ class TestBaseRestHttpConnector(TestCase):
 
         connector = TestConnector()
 
-        self.assertEqual(connector.timeout, 30)
+        assert connector.timeout == 30
 
     def test_custom_timeout(self):
         """Test custom timeout value."""
@@ -111,7 +113,7 @@ class TestBaseRestHttpConnector(TestCase):
 
         connector = TestConnector()
 
-        self.assertEqual(connector.timeout, 60)
+        assert connector.timeout == 60
 
     def test_default_auth_returns_none(self):
         """Test that default auth property returns None."""
@@ -121,7 +123,7 @@ class TestBaseRestHttpConnector(TestCase):
 
         connector = TestConnector()
 
-        self.assertIsNone(connector.auth)
+        assert connector.auth is None
 
     @patch('requests.request')
     def test_get_request(self, mock_request):
@@ -138,8 +140,8 @@ class TestBaseRestHttpConnector(TestCase):
 
         mock_request.assert_called_once()
         call_kwargs = mock_request.call_args
-        self.assertEqual(call_kwargs.kwargs['method'], 'GET')
-        self.assertEqual(call_kwargs.kwargs['url'], 'https://api.example.com/users')
+        assert call_kwargs.kwargs['method'] == 'GET'
+        assert call_kwargs.kwargs['url'] == 'https://api.example.com/users'
 
     @patch('requests.request')
     def test_request_with_custom_headers(self, mock_request):
@@ -157,8 +159,8 @@ class TestBaseRestHttpConnector(TestCase):
 
         call_kwargs = mock_request.call_args
         headers = call_kwargs.kwargs['headers']
-        self.assertEqual(headers['X-Api-Key'], 'test-key')
-        self.assertEqual(headers['X-Custom'], 'value')
+        assert headers['X-Api-Key'] == 'test-key'
+        assert headers['X-Custom'] == 'value'
 
     @patch('requests.request')
     def test_post_request(self, mock_request):
@@ -174,5 +176,5 @@ class TestBaseRestHttpConnector(TestCase):
         connector.post('users', json={'name': 'test'})
 
         call_kwargs = mock_request.call_args
-        self.assertEqual(call_kwargs.kwargs['method'], 'POST')
-        self.assertEqual(call_kwargs.kwargs['json'], {'name': 'test'})
+        assert call_kwargs.kwargs['method'] == 'POST'
+        assert call_kwargs.kwargs['json'] == {'name': 'test'}

@@ -51,11 +51,6 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
         if form.is_valid():
             domain.set_deleted()
-            domain.add_activity(
-                user=request.user,
-                verb='deleted',
-                information=f'{request.user.get_full_name()} deleted domain "{domain}".',
-            )
 
             return HttpResponseRedirect(return_url)
     else:
@@ -124,11 +119,6 @@ def delete_subdomain_form_view(request: WSGIRequest, domain_pk: int, pk: int) ->
 
         if form.is_valid():
             subdomain.set_deleted()
-            subdomain.add_activity(
-                user=request.user,
-                verb='deleted',
-                information=f'{request.user.get_full_name()} deleted sub domain "{subdomain}".',
-            )
 
             return HttpResponseRedirect(return_url)
     else:

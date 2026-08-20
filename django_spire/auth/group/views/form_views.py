@@ -15,7 +15,6 @@ from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-from django_spire.history.activity.utils import add_form_activity
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -30,7 +29,6 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpRespo
 
         if form.is_valid():
             group = form.save()
-            add_form_activity(group, pk, request.user)
 
             return_url = reverse('django_spire:auth:group:page:list')
             return HttpResponseRedirect(return_url)
@@ -42,7 +40,10 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpRespo
     nav = AuthGroupNavigation()
     nav.set_page_title_from_model_name(group)
     nav.page_description = 'Edit' if group.pk else 'Create'
-    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
+    if group.pk:
+        nav.breadcrumbs.add_model_instance_string(
+            group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
+        )
     nav.breadcrumbs.add('Edit' if group.pk else 'Create')
 
     context = nav.as_context()
@@ -69,15 +70,6 @@ def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResp
             user_list = form.cleaned_data.get('users')
             set_group_users(group, user_list)
 
-            group.add_activity(
-                user=request.user,
-                verb='added',
-                information=(
-                    f'{request.user.get_full_name()} added {len(user_list)} users to '
-                    f'the group "{group.name}".'
-                ),
-            )
-
             return_url = reverse('django_spire:auth:group:page:detail', kwargs={'pk': pk})
             return HttpResponseRedirect(return_url)
 
@@ -88,7 +80,6 @@ def user_form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResp
     nav = AuthGroupNavigation()
     nav.page_title = 'Group'
     nav.page_description = 'Edit Users'
-    nav.breadcrumbs.add('Groups', 'django_spire:auth:group:page:list')
     nav.breadcrumbs.add_model_instance_string(
         group, view_name='django_spire:auth:group:page:detail', view_kwargs={'pk': group.pk}
     )
@@ -150,16 +141,7 @@ def group_remove_user_form_view(
         form = DeleteConfirmationForm(request.POST, obj=user)
 
         if form.is_valid():
-            user.groups.remove(group)
-
-            group.add_activity(
-                user=request.user,
-                verb='removed',
-                information=(
-                    f'{request.user.get_full_name()} removed {user.get_full_name()} '
-                    f'from the group "{group.name}".'
-                ),
-            )
+            group.user_set.remove(user)
 
             return HttpResponseRedirect(
                 reverse('django_spire:auth:group:page:detail', kwargs={'pk': group_pk})

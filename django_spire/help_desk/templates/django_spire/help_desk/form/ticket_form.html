@@ -5,19 +5,19 @@
 {% block glue_form_content %}
     <div class="row">
         <div class="col-12 col-sm mb-3 mb-sm-0">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.purpose' %}
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.purpose' %}
         </div>
 
         <div class="col-12 col-sm mb-3 mb-sm-0">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.priority' %}
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.priority' %}
         </div>
 
         <div class="col-12 col-sm mb-3 mb-sm-0">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.status' %}
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.status' %}
         </div>
 
         <div class="col-12 mb-1 mt-3">
-            {% include 'django_spire/glue/form/field/text_field.html' with glue_field='glue_form.$fields.description' %}
+            {% include 'django_spire/glue/form/field/text/field.html' with glue_field='glue_form.$fields.description' %}
         </div>
     </div>
 {% endblock %}

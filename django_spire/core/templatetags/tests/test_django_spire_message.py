@@ -3,14 +3,14 @@ from __future__ import annotations
 import json
 import string
 
-import unittest
-
 from unittest.mock import MagicMock
+
+from django.test import TestCase
 
 from django_spire.core.templatetags.django_spire_message import django_messages_to_json
 
 
-class TestDjangoMessagesToJson(unittest.TestCase):
+class TestDjangoMessagesToJson(TestCase):
     def test_empty_messages(self) -> None:
         result = django_messages_to_json([])
         assert json.loads(result) == []

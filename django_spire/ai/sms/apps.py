@@ -10,7 +10,7 @@ class SmsConfig(AppConfig):
     name = 'django_spire.ai.sms'
     label = 'django_spire_ai_sms'
 
-    REQUIRED_APPS = ('django_spire_ai', 'django_spire_ai_context')
+    REQUIRED_APPS = ('django_spire_ai', 'django_spire_ai_context', 'django_spire_auth_sms')
 
     def ready(self) -> None:
         check_required_apps(self.label)

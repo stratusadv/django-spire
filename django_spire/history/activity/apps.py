@@ -14,3 +14,9 @@ class HistoryActivityConfig(AppConfig):
 
     def ready(self) -> None:
         check_required_apps(self.label)
+
+        import django_spire.history.activity.checks  # noqa: F401, PLC0415
+
+        from django_spire.history.activity.signals import connect_activity_signals  # noqa: PLC0415
+
+        connect_activity_signals()

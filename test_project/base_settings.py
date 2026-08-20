@@ -85,6 +85,7 @@ INSTALLED_APPS += [
     'django_spire.api',
     'django_spire.auth',
     'django_spire.auth.mfa',
+    'django_spire.auth.sms',
     'django_spire.auth.group',
     'django_spire.auth.user',
     'django_spire.celery',
@@ -117,6 +118,7 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
 }
 
 INSTALLED_APPS += [
+    'test_project.app.activity',
     'test_project.app.ai',
     'test_project.app.celery',
     'test_project.app.comment',
@@ -130,6 +132,7 @@ INSTALLED_APPS += [
     'test_project.app.model_and_service',
     'test_project.app.rest',
     'test_project.app.task',
+    'test_project.app.auth_sms',
 ]
 
 INSTALLED_APPS += ['django_glue']
@@ -141,6 +144,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_spire.history.activity.middleware.ActivityUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',
@@ -273,3 +277,5 @@ else:
 
 if DEBUG:  # Adjust based on your environment
     PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+    SESSION_COOKIE_NAME = 'django_spire_test_sessionid'
+    CSRF_COOKIE_NAME = 'django_spire_test_csrftoken'

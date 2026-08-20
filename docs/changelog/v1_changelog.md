@@ -1,3 +1,57 @@
+## v1.0.1-rc4 - August 14, 2026
+
+#### Breaking
+
+- `PortalUserAdmin` moved from `django_spire.auth.group.admin` to `django_spire.auth.user.admin` and renamed `AuthUserAdmin`. It now extends `django.contrib.auth.admin.UserAdmin`.
+- `ApiAccess` can no longer be added through the admin. Keys must be created through the API access form so a raw key is generated and hashed.
+- `MfaCode` is read-only in the admin. Codes can be deleted but no longer created or edited.
+- `SpireModelAdmin` populates `list_select_related` rather than adding foreign keys to `list_filter`, because a foreign key filter loads every related row into the sidebar.
+
+#### Features
+
+- Glue form widgets emit `field-input`, `field-change`, `field-focus`, and `field-blur` events carrying the current and previous field values.
+- New `django_spire.contrib.admin.links` helpers: `admin_change_link`, `admin_change_url`, `admin_changelist_url`, `external_link`, and `is_safe_link_url`.
+- `SpireModelAdmin` keeps password, secret, token, and key fields out of auto-generated `list_display` and `search_fields`.
+- Admin tests cover every registered admin: changelists, searches, filter and sort links, add forms, and change forms. A query-count test fails when a changelist issues one query per row, so a missing `select_related` or `prefetch_related` breaks the build. Rows are built generically, so a newly registered admin needs no fixture.
+- Playwright walkthrough of every admin changelist and change form, runnable headed as a demo.
+
+#### Security
+
+- The `AuthUser` admin no longer renders `password` as a plain text input. Editing a user through the admin previously stored the typed value unhashed, locking the account out.
+- MFA codes no longer appear in the `MfaCode` admin list or in admin search, so a staff user cannot read a live code.
+- `ApiAccess.permission` is editable again. It was listed in `readonly_fields`, so keys were stuck at the `VIEW` default.
+- Notification URLs pointing at `javascript:` or `data:` render as text rather than links, and external links carry `rel="noopener noreferrer"` so the opened page cannot reach `window.opener`.
+
+#### Fixes
+
+- Admin `format_html` calls pass the url and label as arguments. A pre-formatted string raises `TypeError: args or kwargs must be provided.` on Django 6.0, and passing arguments escapes both on every supported version.
+- Generic foreign key columns in the comment, file, history, activity, and viewed admins no longer raise `NoReverseMatch` and return a 500 when the related model is not registered in the admin.
+- `ChatMessage` admin search referenced a nonexistent `content` field, and `Domain` and `SubDomain` search referenced a nonexistent `created_by` field. Both raised `FieldError`.
+- The SMS conversation message link filtered on `sms_conversation__id` when the field is named `conversation`, so it returned an unfiltered list.
+- `SpireModelAdmin` subclasses configure themselves from their own `model_class` rather than inheriting a parent subclass's generated columns, raise `ValueError` when `model_class` is missing, and no longer override an explicit `list_per_page = 100`.
+- Per-row `count()` queries in the AI usage, chat, SMS, knowledge, and auth group admins replaced with queryset annotations.
+- Added `list_select_related` to admins rendering foreign key columns, including `temporary_media` on `SmsNotificationAdmin`.
+- Generic foreign key columns in the comment, file, history, activity, and viewed admins prefetch `content_object`. `list_select_related` covers only `content_type`, so resolving the object cost one query per row.
+- `ChatMessage.intel` falls back to `DefaultMessageIntel` for a malformed `_intel_class_name`. The fallback caught only `ImportError` and `ValidationError`, so a message saved without an intel made `__str__` raise and returned a 500 for the whole changelist.
+- The `authenticated_page` Playwright fixture resolves admin URLs with `reverse` rather than assuming `/admin/`, so it works wherever the admin is mounted.
+- Bulk tagging actions in the knowledge admins refuse selections above 25 rows. Tagging runs inline, so a larger selection exceeded the request timeout.
+- Admins whose fields are entirely read-only no longer offer an add form that would create blank rows.
+
+
+## v1.0.1-rc3 - August 12, 2026
+
+#### Features
+
+- Added code blocks to the Knowledge editor, including Editor.js support and fenced-code rendering in generated text.
+- Knowledge base SMS integration complete — AI SMS conversations can query the knowledge base via SMS, with webhook handling, conversation/message models, admin panels, and intent routing to the `KnowledgeSearchRouter`
+- New `DJANGO_SPIRE_AUTH_SMS_` settings to configure SMS integration behavior (throttling, body character lengths, max attempts, expiry, and session duration/idle limits)
+
+#### Fixes
+
+- Decimal Glue form fields now accept arbitrary decimal precision instead of using the browser's default whole-number step.
+- Help desk ticket services are no longer exposed as a deletable Glue attribute.
+
+
 ## v1.0.1-rc2 - August 6, 2026
 
 #### Fixes

@@ -1,54 +1,46 @@
 from __future__ import annotations
 
+from django_spire.contrib.seeding import Seeder
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry import models
-
-from django_spire.contrib.seeding import DjangoModelSeeder
 from django_spire.knowledge.entry.version.seeding.seeder import EntryVersionSeeder
 
 
-class EntrySeeder(DjangoModelSeeder):
+class EntrySeeder(Seeder):
     model_class = models.Entry
-    cache_name = 'entry_seeder'
-    fields = {
-        'id': 'exclude',
-        'current_version': 'exclude',
-        'collection_id': ('custom', 'fk_random', {'model_class': Collection}),
-        'name': ('llm', 'A name for a document. Make it fun and give it a theme'),
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'current_version_id': Seeder.exclude(),
+        'collection_id': Seeder.model.random_foreign_key(Collection),
+        'name': Seeder.llm(
+            str, 'A name for a document in a company knowledge base: a policy or process article.'
+        ),
     }
 
-    @classmethod
-    def _correct_order(cls, entries: list[models.Entry]) -> list[models.Entry]:
+    def __post_seed_database__(self) -> None:
+        self._correct_order()
+        self._set_current_version()
+
+        for entry in self.queryset:
+            entry.services.tag.process_and_set_tags()
+
+    def _correct_order(self) -> None:
         for collection in Collection.objects.all():
             collection_entries = collection.entries.all()
 
             for idx, entry in enumerate(collection_entries):
                 entry.order = idx
 
-            cls.model_class.objects.bulk_update(collection_entries, ['order'])
+            self.model_class.objects.bulk_update(collection_entries, ['order'])
 
-        return entries
+    def _set_current_version(self) -> None:
+        entries = list(self.queryset)
 
-    @classmethod
-    def seed_database(cls, count: int = 1, fields: dict | None = None) -> list[models.Entry]:
-        entries = super().seed_database(count=count, fields=fields)
-
-        cls._correct_order(entries)
-        entries = cls._set_current_version(entries=entries, count=count)
-
-        for entry in entries:
-            entry.services.tag.process_and_set_tags()
-
-        return entries
-
-    @classmethod
-    def _set_current_version(cls, entries: list[models.Entry], count: int = 1):
-        entry_versions = EntryVersionSeeder.seed_database(count=count)
+        entry_version_seeder = EntryVersionSeeder(count=len(entries))
+        entry_versions = entry_version_seeder.seed_for_entries(entries=entries)
 
         for entry, entry_version in zip(entries, entry_versions, strict=False):
-            entry_version.entry = entry
             entry.current_version = entry_version
 
-        cls.model_class.objects.bulk_update(entries, ['current_version'])
-        EntryVersionSeeder.model_class.objects.bulk_update(entry_versions, ['entry'])
-        return entries
+        self.model_class.objects.bulk_update(entries, ['current_version'])

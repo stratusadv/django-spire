@@ -1,38 +1,42 @@
 from __future__ import annotations
 
-from typing import ClassVar, Any
+from typing_extensions import TYPE_CHECKING
 
 from django.contrib import admin
-from django.shortcuts import reverse
+from django.db.models import Count
 from django.utils.html import format_html
-from django.utils.http import urlencode
 
 from django_spire.ai.chat import models
+from django_spire.contrib.admin.links import admin_changelist_url
+
+if TYPE_CHECKING:
+    from django.db.models import Model, QuerySet
+    from django.http import HttpRequest
 
 
 @admin.register(models.Chat)
 class ChatAdmin(admin.ModelAdmin):
     list_display = ('name', 'user', 'view_chat_messages_link', 'created_datetime')
+    list_select_related = ('user',)
+    ordering = ('-id',)
     search_fields = ('id', 'name')
-    ordering: ClassVar = ['-id']
 
-    def get_readonly_fields(self, request, obj=None) -> list[str]:
+    def get_queryset(self, request: HttpRequest) -> QuerySet[models.Chat]:
+        queryset = super().get_queryset(request)
+
+        return queryset.annotate(_message_count=Count('message', distinct=True))
+
+    def get_readonly_fields(self, request: HttpRequest, obj: Model | None = None) -> list[str]:
         return [field.name for field in self.model._meta.fields]
 
-    def view_chat_messages_link(self, obj) -> str:
-        count = obj.messages.count()
-        url = (
-            reverse('admin:django_spire_ai_chat_chatmessage_changelist')
-            + '?'
-            + urlencode({'chat__id': f'{obj.id}'})
-        )
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        return False
 
-        return format_html(f'<a href="{url}">{count} Messages</a>')
+    @admin.display(description='Messages', ordering='_message_count')
+    def view_chat_messages_link(self, chat: models.Chat) -> str:
+        url = admin_changelist_url(models.ChatMessage, chat__id=str(chat.id))
 
-    view_chat_messages_link.short_description = 'Messages'
-
-    class Meta:
-        ordering = ('id',)
+        return format_html('<a href="{}">{} Messages</a>', url, chat._message_count)
 
 
 @admin.register(models.ChatMessage)
@@ -45,13 +49,16 @@ class ChatMessageAdmin(admin.ModelAdmin):
         'is_viewed',
         'created_datetime',
     )
-    search_fields = ('id', 'content')
-    ordering: ClassVar = ['-id']
+    list_select_related = ('chat', 'chat__user')
+    ordering = ('-id',)
+    search_fields = ('id', 'sender', 'chat__name')
 
-    def content_body(self, obj: Any) -> str:
-        return str(obj)
+    @admin.display(description='Body')
+    def content_body(self, chat_message: models.ChatMessage) -> str:
+        return str(chat_message)
 
-    content_body.short_description = 'Body'
-
-    def get_readonly_fields(self, request, obj: Any | None = None) -> list[str]:
+    def get_readonly_fields(self, request: HttpRequest, obj: Model | None = None) -> list[str]:
         return [field.name for field in self.model._meta.fields]
+
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        return False

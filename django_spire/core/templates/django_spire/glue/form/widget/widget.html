@@ -8,16 +8,35 @@
         set value(newValue) {
             {{ glue_field|glue_field_value_path }} = newValue;
         },
+        committedValue: undefined,
+        init() {
+            this.committedValue = this.value;
+        },
+        dispatchFieldEvent(name) {
+            this.$dispatch(name, {
+                field: this.field,
+                value: this.value,
+                previousValue: this.committedValue,
+            });
+
+            if (name === 'field-change') {
+                this.committedValue = this.value;
+            }
+        },
     }"
+    @input="dispatchFieldEvent('field-input')"
+    @change="dispatchFieldEvent('field-change')"
+    @focusin="if (!$el.contains($event.relatedTarget)) dispatchFieldEvent('field-focus')"
+    @focusout="if (!$el.contains($event.relatedTarget)) dispatchFieldEvent('field-blur')"
 >
     {% if not hide_label %}
         {% block widget_label %}
-            <label class="form-label" x-text="field.label"></label>
+            <label :for="field.id" class="form-label" x-text="field.label"></label>
         {% endblock %}
     {% endif %}
 
     {% block widget_content %}
     {% endblock %}
-    <div class="invalid-feedback" x-text="field.errorText"></div>
+    <div class="invalid-feedback" x-show="field.hasErrors" x-text="field.errorText"></div>
     <small class="text-muted d-block" x-show="field.help_text" x-text="field.help_text"></small>
 </div>

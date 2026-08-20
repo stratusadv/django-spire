@@ -1,13 +1,17 @@
+{% with glue_form_property_name=glue_form_property_name|default:'glue_form' %}
 <div x-data="{
-    glue_form: Glue.form.{% block glue_form_unique_name %}{% endblock %},
+    {% block glue_form_binding %}{{ glue_form_property_name }}: {% block glue_form %}Glue.form.{% block glue_form_unique_name %}{% endblock %}{% endblock %},{% endblock %}
     is_processing: false,
     async submit_form() {
         this.is_processing = true;
-        await this.glue_form.validate()
-        let result = await this.glue_form.save_model_obj()
+        await this.{{ glue_form_property_name }}.validate()
+        let result = await this.{{ glue_form_property_name }}.save_model_obj({% block glue_form_save_kwargs %}{}{% endblock %})
+        {# TODO: Dispatch onsaved and onerror events with the Glue form in event.detail for ergonomic JavaScript hooks. #}
+        {% block glue_form_on_saved %}
         if(result?.redirect) {
             window.location.href=result.redirect.url
         }
+        {% endblock %}
         this.is_processing = false
     }
 }">
@@ -22,3 +26,4 @@
     </div>
 
 </div>
+{% endwith %}

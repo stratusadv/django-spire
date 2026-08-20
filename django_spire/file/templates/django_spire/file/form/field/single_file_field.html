@@ -37,7 +37,7 @@
             }
         }"
     >
-        {% include 'django_spire/glue/form/label/label.html' %}
+        <label class="form-label" x-text="NEED TO PUT THE VALUE HERE"></label>
         <div class="mb-2" x-show="preview || value?.url || current_file?.preview">
             <img :src="preview || value?.url || current_file?.preview" alt="" class="img-fluid rounded" style="max-height: {{ max_preview_height|default:'200px' }};">
         </div>

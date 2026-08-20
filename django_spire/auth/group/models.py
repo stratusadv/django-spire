@@ -7,7 +7,7 @@ from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.auth.group import querysets
 
 class AuthGroup(Group, ActivityMixin):
-    # objects = querysets.AuthGroupManager()
+    objects = querysets.AuthGroupManager()
     service = AuthGroupService()
 
     class Meta:

@@ -40,11 +40,6 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
 
     if request.method == 'POST':
         pirate.set_deleted()
-        pirate.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted pirate {pirate}.',
-        )
         return redirect(return_url)
 
     nav = RestNavigation()

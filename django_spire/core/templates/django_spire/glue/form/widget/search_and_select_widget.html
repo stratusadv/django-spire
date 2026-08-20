@@ -61,6 +61,10 @@
                 value = choice.value;
                 this.showDropdown = false;
                 this.searchQuery = '';
+                this.$nextTick(() => {
+                    this.$refs.selectedInput.dispatchEvent(new Event('input', {bubbles: true}));
+                    this.$refs.selectedInput.dispatchEvent(new Event('change', {bubbles: true}));
+                });
             }
         }"
     >
@@ -69,12 +73,13 @@
                 x-ref="selectedInput"
                 type="text"
                 class="form-control"
+                :class="{'is-invalid': field.hasErrors}"
                 :value="field.selectedChoice?.label || ''"
                 @focus="openDropdown()"
                 @click="openDropdown()"
                 readonly
                 :disabled="field.disabled"
-                placeholder="{% block search_placeholder %}Search...{% endblock %}"
+                placeholder="{% block search_placeholder %}Search ...{% endblock %}"
             >
             <div
                 x-cloak
@@ -88,6 +93,8 @@
                         type="text"
                         class="form-control form-control-sm"
                         x-model="searchQuery"
+                        @input.stop
+                        @change.stop
                         @keydown.escape="showDropdown = false; searchQuery = ''"
                         placeholder="Search..."
                     >

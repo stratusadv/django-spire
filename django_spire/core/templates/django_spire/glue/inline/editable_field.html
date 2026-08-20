@@ -32,7 +32,7 @@
     <div x-show="editing" x-cloak @click.outside="save()" @keydown.escape.prevent="cancel()" @keydown.enter.prevent="save()">
         {% block edit %}
             {% with hide_label=True %}
-                {% include edit_template|default:"django_spire/glue/form/field/char_field.html" %}
+                {% include edit_template|default:"django_spire/glue/form/field/char/field.html" %}
             {% endwith %}
         {% endblock %}
     </div>

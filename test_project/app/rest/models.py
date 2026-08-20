@@ -39,7 +39,7 @@ class Pirate(ActivityMixin, HistoryModelMixin):
     objects = PirateQuerySet().as_manager()
     services = PirateService()
 
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def duplicate(self, request: WSGIRequest) -> dict:
         return self.services.factory.duplicate(request)
 

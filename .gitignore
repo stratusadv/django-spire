@@ -58,7 +58,10 @@ nul
 
 build/
 
+test-results/
+
 opencode.json
 
 .constellation/
 .claude/
+.opencode/plugins/

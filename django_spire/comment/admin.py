@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing_extensions import TYPE_CHECKING
+
 from django.contrib import admin
-from django.urls import reverse
-from django.utils.html import format_html
 
 from django_spire.comment import models
+from django_spire.contrib.admin.links import admin_change_link
+
+if TYPE_CHECKING:
+    from django.db.models import QuerySet
+    from django.http import HttpRequest
 
 
 @admin.register(models.Comment)
@@ -18,30 +23,26 @@ class CommentAdmin(admin.ModelAdmin):
         'is_edited',
     )
     list_filter = ('created_datetime', 'is_edited')
-    search_fields = ('id', 'user__username', 'information')
+    list_select_related = ('user', 'content_type')
     ordering = ('-created_datetime',)
+    search_fields = ('id', 'user__username', 'information')
 
-    def user_link(self, comment: models.Comment) -> str:
-        url = reverse('admin:auth_user_change', args=[comment.user.id])
-        return format_html(f'<a href="{url}">{comment.user.username}</a>')
-
-    user_link.short_description = 'User'
-
+    @admin.display(description='Content Object')
     def content_object_link(self, comment: models.Comment) -> str:
-        url = reverse(
-            f'admin:{comment.content_type.app_label}_{comment.content_type.model}_change',
-            args=[comment.object_id],
-        )
+        return admin_change_link(comment.content_object, empty_text='No Related Object')
 
-        return format_html(f'<a href="{url}">{comment.content_object}</a>')
+    def get_queryset(self, request: HttpRequest) -> QuerySet[models.Comment]:
+        queryset = super().get_queryset(request)
 
-    content_object_link.short_description = 'Content Object'
+        return queryset.prefetch_related('content_object')
 
+    @admin.display(description='Comment Snippet')
     def information_snippet(self, comment: models.Comment) -> str:
-        return (
-            comment.information[:20] + '...'
-            if len(comment.information) > 20
-            else comment.information
-        )
+        if len(comment.information) > 20:
+            return comment.information[:20] + '...'
 
-    information_snippet.short_description = 'Comment Snippet'
+        return comment.information
+
+    @admin.display(description='User')
+    def user_link(self, comment: models.Comment) -> str:
+        return admin_change_link(comment.user)
