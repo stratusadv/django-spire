@@ -6,6 +6,6 @@ app_name = 'metric'
 
 urlpatterns = [
     path('report/', include('django_spire.metric.report.urls', namespace='report')),
-    path('domain/', include('django_spire.metric.domain.urls', namespace='domain')),
-    path('visual/', include('django_spire.metric.visual.urls', namespace='visual')),
+    # path('domain/', include('django_spire.metric.domain.urls', namespace='domain')),
+    # path('visual/', include('django_spire.metric.visual.urls', namespace='visual')),
 ]
