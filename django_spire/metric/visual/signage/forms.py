@@ -19,7 +19,7 @@ def _signage_detail_url(kwargs_pk: int) -> str:
 
 
 class SignageModelForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             signage, _ = self.instance.services.save_model_obj(**self.cleaned_data)
@@ -35,7 +35,7 @@ class SignageModelForm(forms.ModelForm):
 
 
 class SignagePresentationModelForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             link, _ = self.instance.services.save_model_obj(**self.cleaned_data)

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class StatisticGroupForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             group, _ = self.instance.services.save_model_obj(**self.cleaned_data)
@@ -38,7 +38,7 @@ class StatisticGroupForm(forms.ModelForm):
 
 
 class StatisticForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             statistic, _ = self.instance.services.save_model_obj(**self.cleaned_data)
