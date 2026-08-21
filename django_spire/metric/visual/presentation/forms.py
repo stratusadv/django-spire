@@ -19,7 +19,7 @@ def _presentation_detail_url(kwargs_pk: int) -> str:
 
 
 class PresentationModelForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             presentation, _ = self.instance.services.save_model_obj(**self.cleaned_data)
@@ -37,7 +37,7 @@ class PresentationModelForm(forms.ModelForm):
 
 
 class SlideModelForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             slide, _ = self.instance.services.save_model_obj(**self.cleaned_data)
@@ -56,7 +56,7 @@ class SlideModelForm(forms.ModelForm):
 
 
 class SlideSectionModelForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             section, _ = self.instance.services.save_model_obj(**self.cleaned_data)

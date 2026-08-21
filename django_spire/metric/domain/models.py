@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from django.core.handlers.wsgi import WSGIRequest
 from django.db import models
+from django_glue import Glue
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
