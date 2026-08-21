@@ -18,7 +18,7 @@ New support tickets need to reach the right people immediately. **The Help Desk 
 
 ## How It Works
 
-When `ticket.services.create()` is called, `HelpDeskTicketNotificationService.create_new_ticket_notifications()` runs automatically. It identifies two recipient groups and creates the appropriate `Notification` and channel records for each.
+When `ticket.services.save_model_obj()` is called, `HelpDeskTicketNotificationService.create_new_ticket_notifications()` runs automatically. It identifies two recipient groups and creates the appropriate `Notification` and channel records for each.
 
 The notifications are created in bulk and then processed in the background by the standard notification automations. See the [Notification Automations](../notification/automations.md) guide for setup details.
 
@@ -35,7 +35,7 @@ The notifications are created in bulk and then processed in the background by th
 
 ### `HelpDeskTicketNotificationService`
 
-Accessed on any ticket instance via `ticket.services.notification`. Called automatically by `HelpDeskTicketService.create()` — you do not need to call it directly.
+Accessed on any ticket instance via `ticket.services.notification`. Called automatically by `HelpDeskTicketService.save_model_obj()` — you do not need to call it directly.
 
 ```python
 from django_spire.help_desk.services.notification_service import HelpDeskTicketNotificationService
@@ -54,8 +54,8 @@ Priority: High - Purpose: App
 
 ### URL Generation
 
-- **App notifications** use a relative URL (`/help_desk/page/<pk>/detail/`)
-- **Email notifications** use an absolute URL with the current `Site` domain (`https://example.com/help_desk/page/<pk>/detail/`)
+- **App notifications** use a relative URL (`/help_desk/page/detail/<pk>/`)
+- **Email notifications** use an absolute URL with the current `Site` domain (`https://example.com/help_desk/page/detail/<pk>/`)
 
 ---
 
@@ -68,8 +68,8 @@ Notifications fire automatically when you use the service layer to create a tick
 ```python
 ticket = HelpDeskTicket()
 
-ticket.services.create(
-    created_by=request.user,
+ticket.services.save_model_obj(
+    user=request.user,
     purpose=HelpDeskTicketPurposeChoices.APP,
     priority=HelpDeskTicketPriorityChoices.HIGH,
     description='Login page throws a 500 error for SSO users.',

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
+
+from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
@@ -17,8 +19,15 @@ from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
     create_test_statistic_group,
+    create_test_subdomain,
     create_test_visual,
 )
+
+
+def aware(value_date: date, hour: int = 12) -> datetime:
+    return timezone.make_aware(
+        datetime(value_date.year, value_date.month, value_date.day, hour)  # noqa: DTZ001
+    )
 
 
 class VisualTransformationServiceTestCase(BaseTestCase):
@@ -26,6 +35,7 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         super().setUp()
 
         self.domain = create_test_domain()
+        self.sub_domain = create_test_subdomain(domain=self.domain)
         self.group = create_test_statistic_group(domain=self.domain)
 
     def test_date_range_daily(self):
@@ -45,8 +55,8 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         visual.save()
 
         start_date, end_date = visual.services.transformation.date_range()
-        assert start_date == date(2026, 5, 11)
-        assert end_date == date(2026, 5, 17)
+        assert start_date == date(2026, 5, 10)
+        assert end_date == date(2026, 5, 16)
 
     def test_date_range_monthly(self):
         statistic = create_test_statistic(
@@ -69,13 +79,22 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         visual.save()
 
         statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(40), value_date=date(2026, 5, 5)
+            reference='/home/',
+            value=Decimal(40),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 5)),
         )
         statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(60), value_date=date(2026, 5, 20)
+            reference='/home/',
+            value=Decimal(60),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 20)),
         )
         statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(1000), value_date=date(2026, 6, 1)
+            reference='/home/',
+            value=Decimal(1000),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 6, 1)),
         )
 
         assert visual.services.transformation.current_value() == Decimal(100)
@@ -84,8 +103,12 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
 
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(10))
-        statistic.services.processor.add_value(reference='/dashboard/', value=Decimal(90))
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(90), sub_domain=self.sub_domain
+        )
 
         assert visual.services.transformation.current_value() == Decimal(10)
 
@@ -97,7 +120,9 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
 
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(150))
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(150), sub_domain=self.sub_domain
+        )
 
         condition = visual.services.transformation.current_condition()
         assert condition.state == 'green'
@@ -106,7 +131,9 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
 
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(95))
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(95), sub_domain=self.sub_domain
+        )
 
         condition = visual.services.transformation.current_condition()
         assert condition.state == 'yellow'
@@ -115,7 +142,9 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
 
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(50))
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
+        )
 
         condition = visual.services.transformation.current_condition()
         assert condition.state == 'red'
@@ -128,7 +157,9 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             visual=visual, state='green', operator='gt', target=Decimal(100), order=0
         )
 
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(50))
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
+        )
 
         assert visual.services.transformation.current_condition() is None
 
@@ -141,20 +172,29 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         visual.save()
 
         statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(10), value_date=date(2026, 5, 14)
+            reference='/home/',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14), 10),
         )
         statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(20), value_date=date(2026, 5, 15)
+            reference='/home/',
+            value=Decimal(20),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 11),
         )
         statistic.services.processor.add_value(
-            reference='/dashboard/', value=Decimal(200), value_date=date(2026, 5, 15)
+            reference='/dashboard/',
+            value=Decimal(200),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 12),
         )
 
         points = visual.services.transformation.series_data()
 
         assert points == [
-            {'date': date(2026, 5, 14), 'value': Decimal(10)},
-            {'date': date(2026, 5, 15), 'value': Decimal(20)},
+            {'timestamp': aware(date(2026, 5, 14), 10), 'value': Decimal(10)},
+            {'timestamp': aware(date(2026, 5, 15), 11), 'value': Decimal(20)},
         ]
 
     def test_series_data_without_statistic(self):
@@ -165,9 +205,15 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, with_conditions=False)
 
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(30))
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(20))
-        statistic.services.processor.add_value(reference='/dashboard/', value=Decimal(50))
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(30), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(20), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(50), sub_domain=self.sub_domain
+        )
 
         breakdown = visual.services.transformation.series_breakdown()
 
@@ -184,7 +230,9 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, with_conditions=False)
 
-        statistic.services.processor.add_value(reference='/home/', value=Decimal(40))
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(40), sub_domain=self.sub_domain
+        )
 
         assert visual.services.transformation.gauge_max() == 80
 

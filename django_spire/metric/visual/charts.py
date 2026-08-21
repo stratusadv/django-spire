@@ -24,8 +24,15 @@ class VisualLineChart(LineChart):
         points = visual.services.transformation.series_data()
 
         return {
-            'xAxis': {'type': 'category', 'data': [point['date'].isoformat() for point in points]},
-            'series': [{'name': visual.name, 'data': [float(point['value']) for point in points]}],
+            'xAxis': {'type': 'time'},
+            'series': [
+                {
+                    'name': visual.name,
+                    'data': [
+                        [point['timestamp'].isoformat(), float(point['value'])] for point in points
+                    ],
+                }
+            ],
         }
 
 
@@ -39,8 +46,15 @@ class VisualBarChart(BarChart):
         points = visual.services.transformation.series_data()
 
         return {
-            'xAxis': {'type': 'category', 'data': [point['date'].isoformat() for point in points]},
-            'series': [{'name': visual.name, 'data': [float(point['value']) for point in points]}],
+            'xAxis': {'type': 'time'},
+            'series': [
+                {
+                    'name': visual.name,
+                    'data': [
+                        [point['timestamp'].isoformat(), float(point['value'])] for point in points
+                    ],
+                }
+            ],
         }
 
 
@@ -54,8 +68,15 @@ class VisualAreaChart(AreaChart):
         points = visual.services.transformation.series_data()
 
         return {
-            'xAxis': {'type': 'category', 'data': [point['date'].isoformat() for point in points]},
-            'series': [{'name': visual.name, 'data': [float(point['value']) for point in points]}],
+            'xAxis': {'type': 'time'},
+            'series': [
+                {
+                    'name': visual.name,
+                    'data': [
+                        [point['timestamp'].isoformat(), float(point['value'])] for point in points
+                    ],
+                }
+            ],
         }
 
 

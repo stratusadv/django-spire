@@ -2,11 +2,11 @@
 
 ## Purpose
 
-This app provides an easy way to create an SMS conversation for end users to interface with the project.
+This app gives end users an SMS conversation to interface with your project — messages are routed through the same AI chat pipeline as the web chat.
 
 ## Installation
 
-Simple add the ai application to your `INSTALLED_APPS` and the workflow class with module name to your settings:
+Add the applications to your `INSTALLED_APPS`:
 
 ```python title="settings.py"
 INSTALLED_APPS = [
@@ -16,48 +16,58 @@ INSTALLED_APPS = [
     'django_spire.auth.sms',
     ...
 ]
-
-# this is the class and module that will handle the chat interactions
-AI_SMS_CONVERSATION_WORKFLOW_CLASS = 'example.ai.sms.intelligence.sms_conversation_workflow.SmsConversationWorkflow'
 ```
 
-You also need to add django spire to your projects `urls.py`:
+URLs are auto-discovered — make sure your project includes the Spire URL conf:
 
 ```python title="urls.py"
-from django.urls import path, include
+from django_spire.shortcuts import django_spire_urls
 
-urlpatterns = [
-    path('django_spire/', include('django_spire.urls', namespace='django_spire')),
-]
+urlpatterns += django_spire_urls()
 ```
+
+The SMS webhook is mounted at `django_spire/ai/sms/webhook/` (route name `django_spire:ai:sms:webhook`).
 
 !!! warning
 
-    Properly configure Dandy install is required for more information see the [documentation](https://dandy.stratusadv.com/){:target="_blank"}.
+    A properly configured [Dandy](https://dandy.stratusadv.com/){:target="_blank"} install is required.
 
-## Env Variable
+## Environment Variables
 
-You must have a `TWILIO_AUTH_TOKEN` env variable setup and in your django `settings.py` for your project
+Twilio credentials must be available in your environment and settings:
+
+```python
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+```
+
+Optional: cap the accepted inbound message length (default 1000 characters):
+
+```python
+DJANGO_SPIRE_AI_SMS_BODY_LENGTH_MAX = 1000
+```
 
 ## Usage
 
-Your AI Sms Conversation will need a workflow class that will be the place that all messages are sent to be processed.
+Inbound Twilio deliveries hit `webhook_view`, which:
 
-The function you use will need to take 3 arguments:
+1. validates the sender against a verified `AuthSms` record (unregistered numbers are rejected)
+2. guards against duplicate deliveries by Twilio message sid
+3. enforces per-user throttling
+4. manages the **session lock** — if the session is locked, the user must text back the unlock code generated in the app before chatting; the first valid code unlocks the conversation
+5. passes the message to the framework's `sms_conversation_workflow`
 
-- `request` - the request object: `django.core.handlers.wsgiWSGIRequest`
-- `user_input` - the message from the user: `str`
-- `message_history` - the message history of the chat: `dandy.llm.MessageHistory`
+The workflow runs the message through the [chat router](../chat/overview.md), then `SmsConversationBot` re-prompts the result into a concise, plain-text `SmsIntel` reply suitable for SMS. To customise what the SMS conversation does, point `DJANGO_SPIRE_AI_CHAT_ROUTERS` at your own router — both the web chat and the SMS conversation share it.
 
-```python title="apps/ai/sms/intelligence/sms_conversation_workflow.py"
---8<-- "test_project/apps/ai/sms/intelligence/sms_conversation_workflow.py"
+Point your Twilio number's webhook at:
+
+```
+https://yourproject.com/django_spire/ai/sms/webhook/
 ```
 
-Once this is setup you can now add the webhook end point to your phone number management in Twilio.
-
-https://myproject.com/django_spire/ai/sms/webhook/
+with a failure webhook at `django_spire/ai/sms/webhook/failed/` if you want an acknowledgement for failed deliveries.
 
 !!! tip
 
-    Since this application uses a center point to process messages make sure to fully utilize dandy.
-    This will allow you to direct people from a central point to different areas of information.
+    Since this application uses a center point to process messages, make sure to fully utilize Dandy. This lets you route people from a central point to different areas of your application.

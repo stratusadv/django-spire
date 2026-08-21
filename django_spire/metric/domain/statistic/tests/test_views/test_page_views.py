@@ -7,6 +7,7 @@ from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
     create_test_statistic,
     create_test_statistic_group,
+    create_test_subdomain,
 )
 
 
@@ -48,6 +49,7 @@ class StatisticPageViewTestCase(BaseTestCase):
         super().setUp()
 
         self.domain = create_test_domain()
+        self.sub_domain = create_test_subdomain(domain=self.domain)
         self.group = create_test_statistic_group(domain=self.domain)
         self.statistic = create_test_statistic(group=self.group)
 
@@ -60,7 +62,9 @@ class StatisticPageViewTestCase(BaseTestCase):
         assert self.statistic in response.context['statistics']
 
     def test_detail_view(self):
-        self.statistic.services.processor.add_value(reference='/home/', value=1)
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=1, sub_domain=self.sub_domain
+        )
         response = self.client.get(
             path=reverse(
                 'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': self.statistic.pk}

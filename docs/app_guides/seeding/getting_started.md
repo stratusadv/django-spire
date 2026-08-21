@@ -1,272 +1,177 @@
-from django_spire.seeding import DjangoModelSeeder
+# Seeding: Getting Started
 
-# Getting Started
-
-Let’s make your database feel alive!
-This module helps you quickly populate Django models with meaningful, contextual data — without tedious boilerplate or repetitive scripts.
+> **Purpose:** build a working seeder for a Django model with the current `Seeder` API — from a minimal example to full per-field control.
 
 ---
 
 ## Example Model
 
 ```python
+from django.db import models
+
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     price = models.DecimalField(max_digits=6, decimal_places=2)
     in_stock = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    supplier = models.ForeignKey('Supplier', on_delete=models.CASCADE)
+    created_datetime = models.DateTimeField(auto_now_add=True)
 ```
 
 ---
 
-## Controlling Defaults with `default_to`
+## A Minimal Seeder
 
-By default, the system will fill any missing fields using a Large Language Model (LLM). But you can customize this behavior using the `default_to` class variable on your `ModelSeeding` subclass.
+Subclass `Seeder`, set `model_class`, and define `fields_seeds` for every field (use `Seeder.exclude()` for auto-managed ones):
 
 ```python
-from django_spire.contrib.seeding import DjangoModelSeeder
+from django_spire.contrib.seeding import Seeder
 
 
-class ProductSeeder(DjangoModelSeeder):
+class ProductSeeder(Seeder):
     model_class = Product
-    default_to = "llm"  # Options: 'llm', 'faker', 'included'
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'name': Seeder.fake.sentence(3),
+        'description': Seeder.llm(str, 'A short product description for a sales catalog.'),
+        'price': Seeder.random.int(1, 500),
+        'in_stock': Seeder.static(True),
+        'supplier_id': Seeder.model.random_foreign_key(Supplier),
+    }
 ```
 
-### Available Options
-
-| `default_to` Value | What It Does                                                                 |
-|--------------------|------------------------------------------------------------------------------|
-| `"llm"` *(default)*     | Fills any unspecified fields using LLM-generated content                |
-| `"faker"`               | Fills unspecified fields using faker-based defaults                     |
-| `"included"`            | Only seeds the fields you explicitly define in the `fields` dictionary  |
+`fields_seeds` is required on every seeder subclass — the class validates it at definition time.
 
 ---
 
-## Basic Usage (LLM Defaults)
+## Running a Seeder
 
-If you don’t define any fields, the system defaults to using LLMs for all fields (unless excluded):
+Instantiate with a count and call the output method you need:
 
 ```python
-from django_spire.contrib.seeding import DjangoModelSeeder
+seeder = ProductSeeder(count=100)
 
+seeder.seed_database()        # bulk_create 100 rows, returns the queryset
+seeder.to_model_instances()   # 100 unsaved model instances
+seeder.to_list_of_dicts()     # 100 plain dicts
+```
 
-class ProductSeeder(DjangoModelSeeder):
-    model_class = Product
-    fields = {
-        "id": "exclude"
+Or re-seed (reset + seed) in one call:
+
+```python
+seeder.reseed_database(count=50)
+```
+
+Check the generated rows after seeding:
+
+```python
+products = seeder.queryset  # Product.objects.filter(pk__in=seeded_ids)
+```
+
+---
+
+## LLM-Generated Fields
+
+Use `Seeder.llm(field_type, prompt)` for rich, contextual text. The `field_type` constrains the generated output:
+
+```python
+'name': Seeder.llm(str, 'A name for a product in a grocery store catalog.'),
+```
+
+---
+
+## Foreign Keys
+
+Point fields at real instances instead of random integers:
+
+```python
+'supplier_id': Seeder.model.random_foreign_key(Supplier),           # any instance
+'supplier_id': Seeder.model.random_queryset_foreign_key(            # filtered
+    Supplier.objects.active()
+),
+'supplier_id': Seeder.model.ordered_foreign_key(Supplier),          # sequential (wraps around)
+'status': Seeder.model.ordered_field_choice(ProductStatusChoices),  # rotate choices in order
+'status': Seeder.model.random_field_choice(ProductStatusChoices),   # random choice
+```
+
+---
+
+## Deterministic & Random Value Helpers
+
+```python
+# Rotates through a custom list per row (wrap=True cycles instead of raising)
+'badge': Seeder.ordered.choice(['bronze', 'silver', 'gold']),
+
+# Ascending datetime per row: start + index * step
+'published_at': Seeder.ordered.datetime(start, step=timedelta(hours=1)),
+
+# Sequential index values
+'sort_order': Seeder.index(index_start=0, index_step=1),
+
+# Random values
+'rating': Seeder.random.int(1, 5),
+'weight': Seeder.random.float(0.5, 10.0),
+'tag': Seeder.random.choice(['sale', 'new', 'clearance']),
+```
+
+---
+
+## Custom Callables & Files
+
+Any callable works via `Seeder.custom.callable`:
+
+```python
+'updated_at': Seeder.custom.callable(lambda: timezone.now()),
+```
+
+File fields:
+
+```python
+'attachment': Seeder.file(upload_to='product_attachments/'),
+```
+
+---
+
+## Mutating Default Generation
+
+`Seeder.mutate` wraps another field seed and changes its behaviour — handy for generating edge cases:
+
+```python
+'name': Seeder.mutate.corrupt(Seeder.fake.sentence(3)),   # corrupted data
+'name': Seeder.mutate.nullable(Seeder.fake.sentence(3)),  # randomly nullified
+'name': Seeder.mutate.value(Seeder.fake.sentence(3), 'Fixed name')  # forced value
+```
+
+---
+
+## Post-Seed Hooks
+
+Override the class hooks to fix up cross-field or cross-model invariants after seeding:
+
+```python
+class EntrySeeder(Seeder):
+    model_class = Entry
+
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'name': Seeder.llm(str, 'A name for a document in a company knowledge base.'),
     }
 
-
-ProductSeeder.seed_to_list(count=5)  # Initialized model objects
-
-# or
-
-ProductSeeder.seed_database(count=5)  # Insert objects into the database
+    def __post_seed_database__(self) -> None:
+        # runs after rows are saved — e.g. link related records
+        for entry in self.queryset:
+            entry.services.tag.process_and_set_tags()
 ```
 
-> This is ideal for prototyping, testing, or generating rich placeholder content fast.
+`__post_seed__` runs after in-memory seeding; `__post_seed_database__` runs after the `bulk_create`.
 
 ---
 
-## Advanced Usage (All Field Types)
-
-Use a mix of `faker`, `llm`, `static`, `callable`, and `custom` seed types for full control:
+## Inspecting Run Stats
 
 ```python
-import random
-from django.utils import timezone
-
-supplier_ids = [101, 102, 103, 104, 105]
-
-class ProductSeeder(ModelSeeding):
-    model_class = Product
-    fields = {
-        "id": "exclude",
-        "name": ("faker", "word"),
-        "description": ("llm", "Describe this product for a sales catalog."),
-        "price": ("faker", "pydecimal", {"left_digits": 2, "right_digits": 2, "positive": True}),
-        "in_stock": True,
-        "created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"}),
-        "updated_at": lambda: timezone.now(),
-        "supplier_id": ("custom", "in_order", {"values": supplier_ids})
-    }
-
-
-ProductSeeder.seed_database(count=5)
-```
-
-> This gives you total control over how each field is generated for testing or development environments.
-
----
-
-## Overriding Fields
-
-You can override fields on any call to `.seed()` or `.seed_database()`:
-
-```python
-ProductSeeder.seed_to_list(
-    count=1,
-    fields={"in_stock": ("static", False)}
-)
-```
-
-This is useful for:
-
-- Creating edge-case records
-- Seeding specific rules
-- Overriding random behavior
-
----
-
-## Full Database Seeding
-
-```python
-ProductSeeder.seed_database(count=100)
-```
-
-This will generate and insert 100 Product instances directly into your database.
-
----
-
-## Supported Field Types
-
-This module supports five field types to control how data is seeded:
-
-### Faker
-
-Use `faker` when you want realistic-looking data like names, addresses, dates, and numbers.
-
-```python
-"name": ("faker", "name")
-"key": ("faker", "uuid4")
-"barcode": ("faker", "ean13")
-"created_at": ("faker", "date_time_between", {"start_date": "-30d", "end_date": "now"})
-"random_int": ("faker", "random_int", {"min": 10, "max": 100})
-"random_element": ("faker", "random_element", {"elements": ["a", "b", "c"]})
-"random_elements": ("faker", "random_elements", {"elements": ["abc", "def", "ghi"], "length": 3})
-```
-
-**Common Faker Methods**
-
-- `name`
-- `word`
-- `email`
-- `date_time_between` (with `start_date`, `end_date`)
-- `pydecimal` (with `left_digits`, `right_digits`, `positive`)
-- `random_element` (with `elements`) - selects a random element from a list
-- `random_elements` (with `elements`, `length`) - selects a specified number of random elements from a list
----
-
-### LLM
-
-Use `llm` to generate rich, human-like content based on a prompt. Great for descriptions, summaries, etc.
-
-```python
-"description": ("llm", "Describe this product for a catalog.")
-```
-
-If you don’t provide a field type, the system defaults to `llm` unless excluded — unless you set `default_to = "included"`.
-
----
-
-### Static
-
-Use `static` when you want the same value every time.
-
-```python
-"in_stock": ("static", True)
-```
-
-Or simply pass the value directly:
-
-```python
-"in_stock": True
-```
-
-Great for controlled values like feature flags or known test conditions.
-
----
-
-### Callable
-
-Use `callable` for dynamic behavior like random logic, timestamps, or context-aware generation.
-
-```python
-"updated_at": ("callable", lambda: timezone.now())
-```
-
-Or simply pass the function directly:
-
-```python
-"updated_at": lambda: timezone.now()
-```
-
-Callables are evaluated at runtime and must return the field's expected value.
-
----
-
-### Custom
-
-Use `custom` when you want to reference a reusable method inside the seeding system.
-This is especially useful for indexing ordered values or setting foreign keys.
-
-```python
-"supplier_id": ("custom", "in_order", {"values": [101, 102, 103]})
-```
-
-This calls the built-in `in_order` method, which assigns values from the list one by one based on row index.
-
-#### Built-in Custom Methods
-
-| Method Name         | Parameters                               | Use Case                                                                                                | Example                                                                                    |
-|---------------------|------------------------------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| `in_order`          | `values: list`, `index` (auto-injected)  | Assigns values sequentially by row — great for linking foreign keys like `user_id`, `supplier_id`, etc. | `'id': ('custom', 'in_order', {'values': [list_of_ids]})`                                  |
-| `date_time_between` | `start_date: str`, `end_date: str`       | Randomly generates a datetime between `start_date` and `end_date`.                                      | `'created_at': ('custom', 'date_time_between', {'start_date': '-30d', 'end_date': 'now'})` |
-| `fk_random`         | `model_class`                            | Randomly selects a foreign key from the model_class                                                     | `'supplier_id': ('custom', 'fk_random', {'model_class': Supplier})`                        |
-| `fk_in_order`       | `model_class`                            | Selects foreign key values sequentially from the model_class                                            | `'supplier_id': ('custom', 'fk_in_order', {'model_class': Supplier})`                      |
-
-Each type works independently or combined with others. Fields not declared in `fields` will default to `llm` or `faker` — unless `default_to` is set to `"included"`.
-
-
-### Full implementation
-
-A sample seeder file might look like this:
-
-```python
-from django_spire.contrib.seeding import DjangoModelSeeder
-from application.models import Product
-
-
-class ProductSeeder(DjangoModelSeeder):
-    model_class = Product
-    default_to = 'faker'
-    cache_name = 'product_seeder'
-    cache_seed = True
-    fields = {
-        'id': 'exclude',
-        'name': ('llm', 'A product name that is found in a catalog.'),
-        'description': ('llm', 'A product description for a catalog.'),
-        'price': ('faker', 'pydecimal', {'left_digits': 2, 'right_digits': 2, 'positive': True}),
-        'in_stock': True,
-        'created_at': ('faker', 'date_time_between', {'start_date': "-30d", 'end_date': 'now'}),
-        'updated_at': lambda: timezone.now(),
-        'supplier_id': ('custom', 'in_order', {'values': supplier_ids})
-    }
-
-    @classmethod
-    def seed_grocery_product(cls, count: int = 1):
-        cls.seed_database(
-            count=count,
-            fields=cls.fields | {
-                'name': ('llm', 'A product name that is found in a grocery store.'),
-                'description': ('llm', 'A product description for a grocery store.'),
-                'price': ('faker', "pydecimal", {'left_digits': 2, 'right_digits': 2, 'positive': True}),
-            }
-        )
-
-
-ProductSeeder.seed_to_list(count=5)
-ProductSeeder.seed_grocery_product(count=5)
+print(ProductSeeder.meta)          # per-seeder stats
+ProductSeeder.print_meta_overview()
 ```

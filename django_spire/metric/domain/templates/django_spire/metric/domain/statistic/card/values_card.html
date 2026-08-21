@@ -1,7 +1,7 @@
 {% extends 'django_spire/card/title_card.html' %}
 
 {% block card_title %}
-    Today's Values
+    {{ statistic.get_interval_display }} Values
 {% endblock %}
 
 {% block card_title_content %}
@@ -12,7 +12,8 @@
                     <thead>
                         <tr>
                             <th>Reference</th>
-                            <th>Date</th>
+                            <th>Sub Domain</th>
+                            <th>Timestamp</th>
                             <th>Value</th>
                         </tr>
                     </thead>
@@ -20,7 +21,8 @@
                         {% for value in values %}
                             <tr>
                                 <td>{{ value.reference }}</td>
-                                <td>{{ value.date }}</td>
+                                <td>{{ value.sub_domain }}</td>
+                                <td>{{ value.timestamp }}</td>
                                 <td>{{ value.value }}</td>
                             </tr>
                         {% endfor %}

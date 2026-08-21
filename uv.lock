@@ -3,8 +3,8 @@ revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
-    "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform != 'win32'",
+    "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform != 'win32'",
     "python_full_version < '3.13' and sys_platform == 'win32'",
     "python_full_version < '3.13' and sys_platform != 'win32'",
@@ -716,19 +716,6 @@ wheels = [
 ]
 
 [[package]]
-name = "crispy-bootstrap5"
-version = "2024.10"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-    { name = "django-crispy-forms" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/04/9f/28326c4d35062fdb4ed228c555525da482bbb408cb1c2665a932a5a19880/crispy_bootstrap5-2024.10.tar.gz", hash = "sha256:55b442fe675dd95ad280123c7fe464f454186e90b8e5642e751f436c87627c44", size = 23645, upload-time = "2024-10-05T12:09:02.347Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bf/3f/bc3bdbda8a6acc1d6b89b63ddd8b82a55a27b5828742716fefca0384e3be/crispy_bootstrap5-2024.10-py3-none-any.whl", hash = "sha256:59e91dac5e45a8c954af3fbcaa6804cd5aef4402f027af2f99a352b096c4016f", size = 24454, upload-time = "2024-10-05T12:09:00.863Z" },
-]
-
-[[package]]
 name = "cryptography"
 version = "50.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -830,18 +817,6 @@ wheels = [
 ]
 
 [[package]]
-name = "django-crispy-forms"
-version = "2.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "django" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/04/f6/5bce7ae3512171c7c0ca3de31689e2a1ced8b030f156fcf13d2870e5468e/django_crispy_forms-2.3.tar.gz", hash = "sha256:2db17ae08527201be1273f0df789e5f92819e23dd28fec69cffba7f3762e1a38", size = 278849, upload-time = "2024-07-19T13:08:16.264Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4c/3b/5dc3faf8739d1ce7a73cedaff508b4af8f6aa1684120ded6185ca0c92734/django_crispy_forms-2.3-py3-none-any.whl", hash = "sha256:efc4c31e5202bbec6af70d383a35e12fc80ea769d464fb0e7fe21768bb138a20", size = 31411, upload-time = "2024-07-19T13:08:14.498Z" },
-]
-
-[[package]]
 name = "django-glue"
 version = "1.0.0"
 source = { git = "https://github.com/stratusadv/django-glue.git?rev=master#788b3cdb4c529e5de38ada00a22b9fc94a5fe9c9" }
@@ -902,10 +877,8 @@ dependencies = [
     { name = "botocore" },
     { name = "celery" },
     { name = "celery-types" },
-    { name = "crispy-bootstrap5" },
     { name = "dandy" },
     { name = "django" },
-    { name = "django-crispy-forms" },
     { name = "django-glue" },
     { name = "django-ninja" },
     { name = "django-sendgrid-v5" },
@@ -966,11 +939,9 @@ requires-dist = [
     { name = "build", marker = "extra == 'development'" },
     { name = "celery", specifier = "==5.6.3" },
     { name = "celery-types", specifier = "==0.26.0" },
-    { name = "crispy-bootstrap5", specifier = "==2024.10" },
     { name = "dandy", specifier = ">=2.2.0" },
     { name = "django", specifier = ">=6.0.6" },
     { name = "django-browser-reload", marker = "extra == 'development'" },
-    { name = "django-crispy-forms", specifier = "==2.3" },
     { name = "django-glue", git = "https://github.com/stratusadv/django-glue.git?rev=master" },
     { name = "django-kaleidoscope", marker = "extra == 'development'" },
     { name = "django-ninja", specifier = "==1.6.2" },

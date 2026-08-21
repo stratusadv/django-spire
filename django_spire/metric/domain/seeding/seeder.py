@@ -1,6 +1,10 @@
 from django_spire.contrib.seeding import Seeder
 from django_spire.metric.domain.models import Domain, SubDomain
-from django_spire.metric.domain.seeding.constants import DOMAIN_SEEDS, SUBDOMAIN_SEEDS
+from django_spire.metric.domain.seeding.constants import (
+    DOMAIN_SEEDS,
+    SUB_DOMAIN_KEYS,
+    SUBDOMAIN_SEEDS,
+)
 
 
 class DomainSeeder(Seeder):
@@ -32,6 +36,7 @@ class SubDomainSeeder(Seeder):
         'description': Seeder.ordered.choice(
             [seed['description'] for seed in SUBDOMAIN_SEEDS], wrap=True
         ),
+        'key': Seeder.ordered.choice(SUB_DOMAIN_KEYS, wrap=True),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }

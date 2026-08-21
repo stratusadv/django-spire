@@ -16,4 +16,4 @@ child_collection_seeder.seed_database()
 grandchild_collection_seeder = GrandchildCollectionSeeder(count=3)
 grandchild_collection_seeder.seed_database()
 
-from django_spire.knowledge.entry.seeding.seed import *  # noqa: E402, F403
+from django_spire.knowledge.entry.seeding.seed import *  # noqa

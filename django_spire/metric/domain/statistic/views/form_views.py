@@ -43,11 +43,6 @@ def group_delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     if request.method == 'POST' and form.is_valid():
         group.set_deleted()
-        group.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted statistic group "{group}".',
-        )
         return HttpResponseRedirect(return_url)
 
     nav = StatisticGroupNavigation()
@@ -92,11 +87,6 @@ def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     if request.method == 'POST' and form.is_valid():
         statistic.set_deleted()
-        statistic.add_activity(
-            user=request.user,
-            verb='deleted',
-            information=f'{request.user.get_full_name()} deleted statistic "{statistic}".',
-        )
         return HttpResponseRedirect(return_url)
 
     nav = StatisticNavigation()

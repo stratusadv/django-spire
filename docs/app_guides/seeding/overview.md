@@ -1,50 +1,67 @@
-# Welcome to Your Django Seeding Toolkit!
+# Seeding Overview
 
-### Purpose: Make seeding fast, simple, and full of context!
+> **Purpose:** seed Django models quickly with realistic, contextual data — for testing, demoing, and onboarding — without tedious boilerplate or repetitive scripts.
 
-Whether you're testing, demoing, or onboarding new developers — filling your database with realistic data shouldn't be a chore. This module is designed to help you **seed Django models quickly** using a smart combo of techniques:
-
---- 
+---
 
 ## How It Works
 
-We combine different **data generators** to give you flexible and meaningful seed data:
+Seeders are subclasses of `django_spire.contrib.seeding.Seeder`. Each seeder declares its target model (`model_class`) and a `fields_seeds` dict mapping every field to a **field seed**:
 
-| Type      | What It Does                                                            |
-|-----------|-------------------------------------------------------------------------|
-| `faker`     | Generates realistic fake data (names, dates, etc.)                 |
-| `llm`      | Uses large language models to generate rich text                  |
-| `static`   | Uses a fixed value for consistent results                          |
-| `callable` | Runs a function to generate custom dynamic values                 |
-| `custom`   | Calls a reusable method defined in your seeding class             |
+| Field Seed | What It Does |
+|---|---|
+| `Seeder.fake.<faker>()` | Generates realistic fake data via the [faker](https://faker.readthedocs.io/en/master/) library (`sentence()`, `paragraph()`, `date_time_between()`, ...) |
+| `Seeder.llm(field_type, prompt)` | Uses a large language model to generate rich, contextual content |
+| `Seeder.static(value)` | Uses a fixed value for consistent results |
+| `Seeder.custom.callable(fn, ...)` | Runs a function to generate custom dynamic values |
+| `Seeder.model.<helper>(...)` | Model-aware generation — foreign keys to real instances, random/ordered field choices |
+| `Seeder.ordered.<helper>(...)` | Deterministic per-row values (rotating choices, ascending datetimes) |
+| `Seeder.random.<helper>(...)` | Random values (choices, ints, floats) |
+| `Seeder.mutate.<helper>(...)` | Mutates the default generation for a field (corrupt, exclude, nullable, type, value) |
+| `Seeder.exclude()` | Skip a field entirely (typically `id`) |
+| `Seeder.file(upload_to)` | Generates a file upload |
+| `Seeder.index(index_start, index_step)` | Sequential index values |
+
+See [Getting Started](getting_started.md) for a full walkthrough and [Faker](faker.md) for field-to-faker defaults.
 
 ---
 
 ## Fast Rebuilds with Caching
 
-We store seed results in a local SQLite cache table — so if you’ve seeded once, you can rebuild your database instantly the next time. Perfect for:
+Seed results are stored in a local cache so re-seeding the same count is instant on the next run. Enable/disable per seeder with the `cache_enabled` class variable; the cache name is derived from the seeder class name automatically:
+
+```python
+class TaskModelSeeder(Seeder):
+    model_class = Task
+    cache_enabled = True
+```
+
+Perfect for:
 
 - Rapid development
 - Restoring known states
 - Testing edge cases
 
-|Class Variables|Description|Example|
-|---------------|-----------|--------|
-|`cache_name`|The name of the cache table|`cache_name = 'item_seeder'`
-|`cache_seed`|Whether to cache seed results|`cache_seed = True`
-    
 ---
 
-## Why You'll Love It
+## Output Options
 
-- **Context-aware** data for better realism
-- **Cached results** = faster rebuilds
-- **Modular generators** let you mix faker, LLMs, and functions
+A seeder can produce data several ways:
+
+| Method | Returns |
+|---|---|
+| `seed(count)` | Populates the seeder's internal seed list (no DB writes) |
+| `seed_database(count)` | Seeds and `bulk_create`s the rows, returns the resulting `QuerySet` |
+| `reseed_database(count)` | Resets then `seed_database`s |
+| `to_list_of_dicts(count)` | Seeds as plain dicts |
+| `to_model_instances(count)` | Seeds as unsaved model instances |
+| `to_json(count)` | Seeds serialized as JSON |
+
+Track run stats with `seeder.meta` and `Seeder.print_meta_overview()`.
 
 ---
 
 ## Next Steps
+
 - [Getting Started](getting_started.md)
-- [Using Faker and Custom Methods](faker.md)
-
-
+- [Faker Field Defaults](faker.md)

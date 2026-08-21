@@ -5,23 +5,23 @@
 {% block glue_form_content %}
     <div class="row g-3">
         <div class="col-md-4">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.state' %}
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.state' %}
         </div>
 
         <div class="col-md-4">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.operator' %}
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.operator' %}
         </div>
 
         <div class="col-md-4">
-            {% include 'django_spire/glue/form/field/integer_field.html' with glue_field='glue_form.$fields.order' %}
+            {% include 'django_spire/glue/form/field/integer/field.html' with glue_field='glue_form.$fields.order' %}
         </div>
 
         <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/number_field.html' with glue_field='glue_form.$fields.target' %}
+            {% include 'django_spire/glue/form/field/decimal/field.html' with glue_field='glue_form.$fields.target' %}
         </div>
 
         <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/number_field.html' with glue_field='glue_form.$fields.tolerance' %}
+            {% include 'django_spire/glue/form/field/decimal/field.html' with glue_field='glue_form.$fields.tolerance' %}
         </div>
     </div>
 {% endblock %}

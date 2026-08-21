@@ -1,91 +1,85 @@
-# Breadcrumbs
+# Navigation & Breadcrumbs
 
-> **Purpose:** Provide a composable breadcrumb system that builds navigation trails from model objects, form states, and manual entries — keeping breadcrumb logic close to the models that own it.
+> **Purpose:** Provide a composable breadcrumb system plus a `Navigation` helper that carries page titles, icons, and home links — keeping navigation logic close to the views that own it.
 
 ---
 
-## Why Breadcrumbs?
+## Why Navigation & Breadcrumbs?
 
-Navigation context matters for deep page hierarchies. **The Breadcrumbs system** provides:
+Spire pages share a common chrome: a page title, an icon, a home link, and a breadcrumb trail. **The Navigation system** provides:
 
-- A simple `Breadcrumbs` class that acts as an ordered collection of items
-- Model-driven breadcrumbs via `base_breadcrumb()` and `breadcrumbs()` methods on your models
-- Automatic create/edit labelling for form views
-- Composable trails by combining multiple `Breadcrumbs` instances
+- A `Navigation` class that bundles page-level metadata (title, icon, help template, home URL) with a `Breadcrumbs` instance
+- A simple `Breadcrumbs` class that acts as an ordered collection of crumbs
+- Model-aware helpers that build crumbs from a model's `verbose_name` or instance string
+- Composable trails by combining multiple `Breadcrumbs` instances with `+`
 
 ---
 
 ## Quick Start
 
-### 1. Add `breadcrumbs()` to Your Model
+### 1. Create a `Navigation` Subclass
 
 ```python
-from django.urls import reverse
-from django_spire.contrib.breadcrumb import Breadcrumbs
+# myapp/navigation.py
+from django_spire.contrib.navigation.navigation import Navigation
 
 
-class Project(models.Model):
-    name = models.CharField(max_length=255)
-
-    @staticmethod
-    def base_breadcrumb() -> Breadcrumbs:
-        breadcrumbs = Breadcrumbs()
-        breadcrumbs.add(name='Projects', href=reverse('projects:page:list'))
-        return breadcrumbs
-
-    def breadcrumbs(self) -> Breadcrumbs:
-        breadcrumbs = self.base_breadcrumb()
-        breadcrumbs.add(name=self.name, href=reverse('projects:page:detail', kwargs={'pk': self.pk}))
-        return breadcrumbs
+class ProjectNavigation(Navigation):
+    def __init__(self) -> None:
+        super().__init__()
+        self.icon_class = 'bi bi-kanban'
+        self.breadcrumbs.add('Projects', view_name='projects:page:list')
 ```
 
 ### 2. Build Breadcrumbs in a View
 
 ```python
-from django_spire.contrib.breadcrumb import Breadcrumbs
+from django.template.response import TemplateResponse
+
+from myapp.navigation import ProjectNavigation
+
 
 def project_detail_view(request, pk):
     project = Project.objects.get(pk=pk)
 
-    breadcrumbs = Breadcrumbs()
-    breadcrumbs.add_obj_breadcrumbs(project)
+    nav = ProjectNavigation()
+    nav.page_title = str(project)
+    nav.breadcrumbs.add_model_instance_string(project, view_name='projects:page:detail', view_kwargs={'pk': project.pk})
 
-    return render(request, 'project/detail.html', {'breadcrumbs': breadcrumbs})
+    return TemplateResponse(request, context=nav.as_context(), template='project/page/detail_page.html')
 ```
+
+`nav.as_context()` returns a dict keyed `django_spire_navigation` containing `page_title`, `home_href`, `icon_class`, `help_template`, and the breadcrumb items — the base templates pick it up automatically.
 
 ---
 
 ## Core Concepts
 
-### `BreadcrumbItem`
+### `Navigation`
 
-Represents a single crumb with a display name and an optional link.
-
-```python
-from django_spire.contrib.breadcrumb.breadcrumbs import BreadcrumbItem
-```
+Page-level navigation metadata. Import from `django_spire.contrib.navigation.navigation`.
 
 | Attribute | Type | Description |
 |---|---|---|
-| `name` | `str` | Display text for this breadcrumb |
-| `href` | `str \| None` | Link URL — `None` for the current (non-linked) crumb |
+| `page_title` | `str \| None` | The page's heading |
+| `icon_class` | `str \| None` | Bootstrap icon class shown next to the title |
+| `help_template` | `str \| None` | Optional help template to render |
+| `home_url` | `str \| None` | View name of the home link (defaults to `DJANGO_SPIRE_NAVIGATION_HOME_URL`) |
+| `breadcrumbs` | `Breadcrumbs` | The breadcrumb trail for this page |
+
+Page title helpers:
+
+| Method | Result |
+|---|---|
+| `nav.set_page_title_from_model_plural_name(Model)` | `verbose_name_plural` (e.g. `Projects`) |
+| `nav.set_page_title_from_model_name(Model)` | `verbose_name` (e.g. `Project`) |
+| `nav.set_page_title_to_form_action_from_model_instance(instance)` | `Create Project` / `Edit Project` based on whether the instance has a pk |
 
 ### `Breadcrumbs`
 
-An ordered collection of `BreadcrumbItem` objects. Supports iteration, `len()`, and combining two instances with `+`.
+An ordered collection of breadcrumb items. Import from `django_spire.contrib.navigation.breadcrumbs`. Supports iteration (yielding `{'name': ..., 'href': ...}` dicts), `len()`, and combining two instances with `+`.
 
-```python
-from django_spire.contrib.breadcrumb import Breadcrumbs
-```
-
-Iterating a `Breadcrumbs` instance yields each item as a `BreadcrumbDict` — a plain `{'name': ..., 'href': ...}` dict — making it straightforward to render in templates.
-
-### Model Integration
-
-The breadcrumb system is model-driven. Models implement two methods:
-
-- **`base_breadcrumb()`** — a static method returning the root trail for the model's section (e.g. a "Projects" list link). Used to give any model's breadcrumbs a consistent starting point.
-- **`breadcrumbs()`** — an instance method returning the full trail up to and including the current object.
+A crumb takes a `name` and either a `view_name` (with optional `view_kwargs`) **or** a raw `href` — not both.
 
 ---
 
@@ -94,38 +88,17 @@ The breadcrumb system is model-driven. Models implement two methods:
 ### Adding a Manual Breadcrumb
 
 ```python
-breadcrumbs = Breadcrumbs()
 breadcrumbs.add(name='Dashboard', href='/dashboard/')
 breadcrumbs.add(name='Current Page')  # No href — renders as plain text
 ```
 
-### Building from a Model Object
+### Model-Aware Helpers
 
 ```python
-breadcrumbs = Breadcrumbs()
-breadcrumbs.add_obj_breadcrumbs(project)
-# Calls project.breadcrumbs() and appends the result
-```
-
-### Adding Only the Base Breadcrumb
-
-Useful when you want the section root without the object-level crumb:
-
-```python
-breadcrumbs = Breadcrumbs()
-breadcrumbs.add(Project)
-# Calls Project.base_breadcrumb() if it exists
-```
-
-### Form Breadcrumbs
-
-Automatically appends the correct label depending on whether the object is being created or edited:
-
-```python
-breadcrumbs = Breadcrumbs()
-breadcrumbs.add_form_breadcrumbs(project)
-# New object (pk is None):  ... > Project > Create
-# Existing object:          ... > Project Name > Edit
+breadcrumbs.add_model_plural_name(Project, view_name='projects:page:list')  # 'Projects'
+breadcrumbs.add_model_name(Project, view_name='projects:page:detail', view_kwargs={'pk': project.pk})  # 'Project'
+breadcrumbs.add_model_instance_string(project, view_name='projects:page:detail', view_kwargs={'pk': project.pk})  # str(project)
+breadcrumbs.add_model_instance_form_action(project)  # 'Create' or 'Edit' depending on pk
 ```
 
 ### Combining Two Breadcrumb Trails

@@ -1,5 +1,7 @@
 {% extends 'django_spire/glue/scroll/scroll.html' %}
 
+{% load django_glue %}
+
 {% block scroll_queryset_order_by_field %}-created_datetime{% endblock %}
 {% block scroll_queryset_unique_name %}subdomains{% endblock %}
 {% block scroll_queryset_filter_field %}name{% endblock %}
@@ -28,7 +30,7 @@
     <div class="row border-bottom py-2">
         <div class="col-4">
             <div class="attribute-label">Sub Domain</div>
-            <a :href="`{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=0 pk=0 %}`.replace('0', item.domain).replace('0', item.id)">
+            <a :href="{% js_url 'django_spire:metric:domain:page:subdomain_detail' domain_pk='item.domain_id' pk='item.id' %}">
                 <span x-text="item.name"></span>
             </a>
         </div>

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class VisualModelForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             visual, _ = self.instance.services.save_model_obj(**self.cleaned_data)
@@ -59,7 +59,7 @@ class VisualModelForm(forms.ModelForm):
 
 
 class VisualConditionModelForm(forms.ModelForm):
-    @Glue.attribute(access=Glue.Access.CHANGE)
+    @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
             condition, _ = self.instance.services.save_model_obj(**self.cleaned_data)

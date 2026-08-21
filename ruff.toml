@@ -123,6 +123,9 @@ quote-style = "single"
 indent-style = "space"
 skip-magic-trailing-comma = true
 
+[lint.flake8-boolean-trap]
+extend-allowed-calls = ["django_spire.contrib.seeding.Seeder.static"]
+
 [lint.isort]
 known-first-party = ["system", "app"]
 

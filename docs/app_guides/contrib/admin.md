@@ -9,7 +9,7 @@
 Django's admin interface requires manual configuration of `list_display`, `list_filter`, `search_fields`, and more for each model. **SpireModelAdmin** eliminates this boilerplate by analyzing your model's fields and automatically generating sensible defaults:
 
 - Discovers searchable text fields (CharField, TextField)
-- Identifies filterable fields (BooleanField, DateField, ForeignKey, choices)
+- Identifies filterable fields (BooleanField, DateField, DateTimeField, CharField with choices)
 - Generates appropriate list display columns
 - Sets readonly fields for audit fields (`created_datetime`, `is_active`, `is_deleted`)
 - Enables pagination and ordering out of the box
@@ -40,7 +40,7 @@ That's it! The admin interface is now fully configured with intelligent defaults
 Navigate to `/admin/myapp/task/` and you'll see:
 - All model fields displayed in the list view (up to 10 columns)
 - Search boxes for text-based fields
-- Filter sidebar for boolean, date, and foreign key fields
+- Filter sidebar for boolean, date, and choices fields
 - Readonly display for audit fields
 - 25 items per page with newest-first ordering
 
@@ -52,7 +52,7 @@ Navigate to `/admin/myapp/task/` and you'll see:
 |---|---|---|
 | **List Display** | All non-relational fields except M2M | 10 columns |
 | **Search Fields** | CharField and TextField fields | 5 fields |
-| **List Filter** | BooleanField, DateField, ForeignKey, CharField with choices | Unlimited |
+| **List Filter** | BooleanField, DateField, DateTimeField, CharField with choices | 6 fields |
 | **Readonly Fields** | `created_datetime`, `is_active`, `is_deleted` | Auto-detected |
 | **Ordering** | Newest first (`-id`) | Single direction |
 | **Pagination** | 25 items per page | Fixed |
@@ -130,11 +130,14 @@ You can adjust the limits for auto-discovery to suit your models:
 class TaskAdmin(SpireModelAdmin):
     model_class = Task
 
-    # Maximum text fields to include in search
-    max_search_fields = 3
-
     # Maximum columns to display in list view
     max_list_display = 8
+
+    # Maximum fields to include in the filter sidebar
+    max_list_filter = 3
+
+    # Maximum text fields to include in search
+    max_search_fields = 3
 ```
 
 ---
@@ -149,7 +152,7 @@ SpireModelAdmin uses Python's `__init_subclass__` hook to automatically configur
 4. **Configuration**: Populates list_display, search_fields, list_filter, etc.
 5. **Trailing Fields**: Audit fields (`is_active`, `is_deleted`) always appear at the end
 
-The configuration only runs once via `_spire_configured` flag to avoid redundant setup.
+Each option is only auto-configured when it is not explicitly declared on the class, so your declarations always win.
 
 ---
 
@@ -181,7 +184,7 @@ class Task(models.Model):
 SpireModelAdmin automatically:
 
 - Adds `name` and `description` to search
-- Adds `assigned_to` and `status` to filters
+- Adds `status` to filters
 - Displays `name`, `description`, `assigned_to`, `status`, `created_datetime`
 
 ### Model with Activity Tracking
@@ -246,7 +249,7 @@ SpireModelAdmin recognizes these field types for auto-configuration:
 | BooleanField | ✗ | ✓ | ✓ |
 | DateField | ✗ | ✓ | ✓ |
 | DateTimeField | ✗ | ✓ | ✓ |
-| ForeignKey | ✗ | ✓ | ✓ |
+| ForeignKey | ✗ | ✗ | ✓ |
 | DecimalField | ✗ | ✗ | ✓ |
 | EmailField | ✓ | ✗ | ✓ |
 
@@ -259,11 +262,11 @@ Fields starting with `_` are skipped. ManyToMany and reverse relations are exclu
 Here's a real-world example from the test project:
 
 ```python
-# test_project/apps/model_and_service/admin.py
+# test_project/app/model_and_service/admin.py
 from django.contrib import admin
 
 from django_spire.contrib.admin.admin import SpireModelAdmin
-from test_project.apps.model_and_service.models import Adult, Kid
+from test_project.app.model_and_service.models import Adult, Kid
 
 
 @admin.register(Adult)
@@ -298,9 +301,9 @@ class Adult(ActivityMixin, HistoryModelMixin):
 
 The automatically configured `AdultAdmin` will have:
 
-- **Search**: `first_name`, `last_name`, `description`, `email` (4 out of 5 max)
-- **Filters**: `personality_type`, `birth_date`, `best_friend`
-- **Display**: `first_name`, `last_name`, `description`, `personality_type`, `email`, `favorite_number`, `birth_date`, `weight_lbs`, `best_friend`, `is_active` (10 columns)
+- **Search**: `first_name`, `last_name`, `description`, `personality_type`, `email` (5 out of 5 max)
+- **Filters**: `personality_type`, `birth_date`, `created_datetime`, `is_active`, `is_deleted` (5 out of 6 max)
+- **Display**: `first_name`, `last_name`, `description`, `personality_type`, `email`, `favorite_number`, `birth_date`, `weight_lbs`, `is_active`, `is_deleted` (10 columns)
 - **Readonly**: `created_datetime`, `is_active`, `is_deleted`
 - **Ordering**: Newest first (`-id`)
 - **Pagination**: 25 per page

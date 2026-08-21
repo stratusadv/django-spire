@@ -45,6 +45,12 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
     def subdomains_qs(self) -> QuerySet[SubDomain]:
         return self.domain.subdomains.active()
 
+    def set_deleted(self) -> None:
+        super().set_deleted()
+
+        for statistic in self.statistics.all():
+            statistic.set_deleted()
+
     def __str__(self) -> str:
         return self.name
 
@@ -83,11 +89,16 @@ class StatisticValue(models.Model):
         Statistic, on_delete=models.CASCADE, related_name='values', related_query_name='value'
     )
 
-    reference = models.CharField(max_length=255)
-    date = models.DateField(default=timezone.localdate)
-    value = models.DecimalField(default=0, max_digits=16, decimal_places=4)
+    sub_domain = models.ForeignKey(
+        'django_spire_metric_domain.subdomain',
+        on_delete=models.CASCADE,
+        related_name='values',
+        related_query_name='value',
+    )
 
-    updated_datetime = models.DateTimeField(auto_now=True)
+    reference = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(default=timezone.now)
+    value = models.DecimalField(default=0, max_digits=16, decimal_places=4)
 
     objects = querysets.StatisticValueQuerySet().as_manager()
     services = StatisticValueService()
@@ -96,11 +107,11 @@ class StatisticValue(models.Model):
         verbose_name = 'Statistic Value'
         verbose_name_plural = 'Statistic Values'
         db_table = 'django_spire_metric_domain_statistic_value'
-        constraints = [
-            models.UniqueConstraint(
-                fields=('statistic', 'reference', 'date'),
-                name='unique_statistic_value_reference_date',
-            )
+        indexes = [
+            models.Index(fields=['statistic', 'timestamp'], name='ix_statistic_timestamp'),
+            models.Index(
+                fields=['statistic', 'sub_domain', 'timestamp'], name='ix_statistic_subdomain_ts'
+            ),
         ]
 
     def __str__(self) -> str:

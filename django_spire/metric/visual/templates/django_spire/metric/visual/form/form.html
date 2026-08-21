@@ -5,27 +5,27 @@
 {% block glue_form_content %}
     <div class="row g-3">
         <div class="col-12">
-            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.name' %}
+            {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.name' %}
         </div>
 
         <div class="col-12">
-            {% include 'django_spire/glue/form/field/text_field.html' with glue_field='glue_form.$fields.description' %}
+            {% include 'django_spire/glue/form/field/text/field.html' with glue_field='glue_form.$fields.description' %}
         </div>
 
         <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.statistic' %}
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.statistic' %}
         </div>
 
         <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/char_field.html' with glue_field='glue_form.$fields.reference' %}
+            {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.reference' %}
         </div>
 
         <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/select_field.html' with glue_field='glue_form.$fields.kind' %}
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.kind' %}
         </div>
 
         <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/date_field.html' with glue_field='glue_form.$fields.date' %}
+            {% include 'django_spire/glue/form/field/datetime/date_field.html' with glue_field='glue_form.$fields.date' %}
         </div>
     </div>
 {% endblock %}

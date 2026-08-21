@@ -73,4 +73,3 @@ print(fake_date)
 - If the field has `choices`, a random choice key is used automatically.
 - If no faker_method is provided, sensible defaults are used for each field type.
 - Context must be passed as a tuple: `('method_name', {kwargs})`
-- Use `fake_field_value(model_instance, field_name, faker_method)` to simplify usage

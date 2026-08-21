@@ -5,7 +5,9 @@ from typing import TYPE_CHECKING
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
+from django.urls import reverse
 
+from django_spire.constants import BASE_URL_NAME
 from django_spire.metric.domain.statistic import models
 from django_spire.metric.domain.statistic.navigation import (
     StatisticGroupNavigation,
@@ -41,7 +43,6 @@ def group_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = StatisticGroupNavigation()
     nav.page_title = str(group)
-    nav.page_description = 'Detail View'
     nav.breadcrumbs.add(str(group))
     context = nav.as_context()
     context['group'] = group
@@ -59,17 +60,22 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     nav = StatisticNavigation()
     nav.page_title = str(statistic)
-    nav.page_description = 'Detail View'
     nav.breadcrumbs.add(
         name=str(statistic.group),
         view_name='django_spire:metric:domain:statistic:page:group_detail',
         view_kwargs={'pk': statistic.group.pk},
     )
     nav.breadcrumbs.add(str(statistic))
+    record_path = reverse(
+        f'{BASE_URL_NAME}:api_v1:record_value', kwargs={'statistic_key': str(statistic.key)}
+    )
+
     context = nav.as_context()
     context['statistic'] = statistic
-    context['today_total'] = statistic.services.transformation.total_for_date()
-    context['values'] = statistic.services.transformation.values_for_date()
+    context['sub_domains'] = statistic.group.domain.subdomains.active().order_by('name')
+    context['record_path'] = record_path
+    context['today_total'] = statistic.services.transformation.total_for_interval()
+    context['values'] = statistic.services.transformation.values_for_interval()
     return TemplateResponse(
         request,
         context=context,

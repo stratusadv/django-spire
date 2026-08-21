@@ -34,12 +34,14 @@ nav:
   - Getting Started:
       - Welcome: index.md
       - Installation: getting_started/installation.md
+      - Zen: getting_started/zen.md
   - App Guides:
       - AI:
           - Usage & Interactions: app_guides/ai/overview.md
           - Chat Assistant: app_guides/ai/chat/overview.md
           - SMS Conversation: app_guides/ai/sms/overview.md
       - Comment:
+          - Basics: app_guides/comment/basics.md
           - Comments: app_guides/comment/comments.md
           - Tagging: app_guides/comment/tagging.md
       - Help Desk:
@@ -69,11 +71,7 @@ nav:
       - Breadcrumbs: app_guides/contrib/breadcrumbs.md
       - Choices: app_guides/contrib/choices.md
       - JSON Responses: app_guides/contrib/json_responses.md
-      - Changelog: app_guides/contrib/changelog.md
       - SCSS Customization: app_guides/contrib/scss_customization.md
-      - HTML Renderer: app_guides/contrib/html_renderer.md
-      - Pagination: app_guides/contrib/pagination.md
-      - Progress: app_guides/contrib/progress.md
       - QuerySet Utilities: app_guides/contrib/queryset.md
       - REST:
           - Overview: app_guides/rest/overview.md
@@ -82,7 +80,6 @@ nav:
           - SchemaSets: app_guides/rest/schemaset.md
   - Core:
       - Filtering: app_guides/core/filtering.md
-      - Glue Helpers: app_guides/core/glue_helpers.md
       - PWA Installation: app_guides/core/pwa_installation.md
       - Shortcuts: app_guides/core/shortcuts.md
   - Components:
@@ -106,6 +103,7 @@ nav:
   - API Reference: reference/
   - Roadmap:
       - 2025: roadmap/2025_roadmap.md
+      - 2026: roadmap/2026_roadmap.md
       - Legend: roadmap/legend.md
   - Changelog:
       - Current: changelog/changelog.md
@@ -165,8 +163,8 @@ theme:
     - navigation.tabs
     - navigation.footer
     - navigation.sections
-  logo: 'static/img/django_spire_logo_white_256.png'
-  favicon: 'favicon.png'
+  logo: 'static/img/django-spire-logo-256.png'
+  favicon: 'static/img/django-spire-logo-512.png'
 
 watch:
   - django_spire

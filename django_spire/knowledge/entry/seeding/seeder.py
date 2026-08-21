@@ -37,7 +37,7 @@ class EntrySeeder(Seeder):
     def _set_current_version(self) -> None:
         entries = list(self.queryset)
 
-        entry_version_seeder = EntryVersionSeeder(count=len(entries))
+        entry_version_seeder = EntryVersionSeeder(count=len(entries), verbose=False)
         entry_versions = entry_version_seeder.seed_for_entries(entries=entries)
 
         for entry, entry_version in zip(entries, entry_versions, strict=False):

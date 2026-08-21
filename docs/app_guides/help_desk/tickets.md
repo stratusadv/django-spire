@@ -48,8 +48,8 @@ from django_spire.help_desk.choices import (
 
 ticket = HelpDeskTicket()
 
-ticket.services.create(
-    created_by=request.user,
+ticket.services.save_model_obj(
+    user=request.user,
     purpose=HelpDeskTicketPurposeChoices.APP,
     priority=HelpDeskTicketPriorityChoices.HIGH,
     description='The dashboard fails to load when filtering by date range.',
@@ -109,7 +109,7 @@ Key fields:
 Accessed on any `HelpDeskTicket` instance via `ticket.services`. The service layer is the recommended way to create tickets — it sets `created_by`, saves the ticket, and fires notifications in one call.
 
 ```python
-ticket.services.create(created_by=user, **kwargs) -> HelpDeskTicket
+ticket.services.save_model_obj(user=user, **field_data) -> HelpDeskTicket
 ```
 
 ---
@@ -118,7 +118,7 @@ ticket.services.create(created_by=user, **kwargs) -> HelpDeskTicket
 
 ### Creating a Ticket
 
-Always use `ticket.services.create()` rather than `HelpDeskTicket.objects.create()` directly. The service ensures `created_by` is set and notifications are dispatched.
+Always use `ticket.services.save_model_obj()` rather than `HelpDeskTicket.objects.create()` directly. The service ensures `created_by` is set and notifications are dispatched.
 
 ```python
 from django_spire.help_desk.models import HelpDeskTicket
@@ -129,8 +129,8 @@ from django_spire.help_desk.choices import (
 
 ticket = HelpDeskTicket()
 
-ticket.services.create(
-    created_by=request.user,
+ticket.services.save_model_obj(
+    user=request.user,
     purpose=HelpDeskTicketPurposeChoices.COMPANY,
     priority=HelpDeskTicketPriorityChoices.URGENT,
     description='Payroll data is not syncing with the accounting system.',
@@ -185,7 +185,8 @@ The help desk app registers its own URLs automatically when included via `URLPAT
 | View | URL Pattern | Name |
 |---|---|---|
 | Ticket list | `help_desk/page/list/` | `django_spire:help_desk:page:list` |
-| Ticket detail | `help_desk/page/<pk>/detail/` | `django_spire:help_desk:page:detail` |
-| Ticket delete | `help_desk/page/<pk>/delete/` | `django_spire:help_desk:page:delete` |
-| Create form | `help_desk/form/create/` | `django_spire:help_desk:form:create` |
-| Update form | `help_desk/form/<pk>/update/` | `django_spire:help_desk:form:update` |
+| Ticket detail | `help_desk/page/detail/<pk>/` | `django_spire:help_desk:page:detail` |
+| Create / update form | `help_desk/form/<pk>/form/` | `django_spire:help_desk:form:form` |
+| Ticket delete | `help_desk/form/<pk>/delete/` | `django_spire:help_desk:form:delete` |
+
+The create/update form is a single view using the `get_object_or_null_obj` pattern — pass a new (unsaved) ticket's placeholder `pk` to create and an existing ticket's `pk` to update.

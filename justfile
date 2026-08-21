@@ -5,15 +5,16 @@ set dotenv-filename := "development.env"
 
 export PYTHONPATH := if os() == "linux" { env_var_or_default("PYTHONPATH_APPEND", "") + ":." } else { env_var_or_default("PYTHONPATH_APPEND", "") + ";." }
 PYTHON := if os() == "linux" { ".venv/bin/python" } else { ".venv/Scripts/python.exe" }
+MKDOCS := if os() == "linux" { ".venv/bin/mkdocs" } else { ".venv/Scripts/mkdocs.exe" }
 
 default:
     just --list
 celery:
     {{ PYTHON }} -m celery -A test_project worker -l info --pool=threads
 docs:
-    mkdocs serve
+    {{ MKDOCS }} serve
 docs-tests:
-    mkdocs build --strict
+    {{ MKDOCS }} build --strict
 make-migrations:
     {{ PYTHON }} ./manage.py makemigrations
 migrate:

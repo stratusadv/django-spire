@@ -1,35 +1,68 @@
-# SpireTextChoices
+# Choices
 
-> **Purpose:** Extend Django's TextChoices with a JSON serialization method for easy frontend integration and API responses.
-
----
-
-## Why SpireTextChoices?
-
-Django's `TextChoices` is perfect for defining field choices, but frontend code often needs choices in JSON format for dropdowns, filters, and form population. **SpireTextChoices** adds a single method that converts your choices to JSON automatically, eliminating serialization boilerplate.
+> **Purpose:** how Django Spire models define field choices — using Django's built-in `TextChoices` and `IntegerChoices` with project conventions for short values, readable labels, and per-app organization.
 
 ---
 
-## Quick Start
+## Why Choices?
 
-### 1. Define Your Choices
+Status fields, priorities, and permission levels need a closed set of valid values. Spire uses Django's `TextChoices` / `IntegerChoices` directly — no custom base class — so models, admin, forms, and queries all get the standard Django behaviour for free.
+
+---
+
+## Conventions
+
+| Convention | Example |
+|---|---|
+| Short values (typically 3 characters) | `NEW = 'new', 'New'` |
+| Readable, title-cased labels | `IN_PROGRESS = 'inp', 'In Progress'` |
+| One `choices.py` per app | `django_spire/help_desk/choices.py` |
+| `CharField(max_length=3, choices=...)` for text choices | see below |
+| `IntegerChoices` ordered least → most restrictive for permission levels | `ApiPermissionChoices` |
+
+---
+
+## Defining Choices
+
+### TextChoices
 
 ```python
-from django_spire.contrib.choices import SpireTextChoices
+# task/choices.py
+from django.db import models
 
 
-class TaskStatusChoices(SpireTextChoices):
+class TaskStatusChoices(models.TextChoices):
     NEW = 'new', 'New'
     IN_PROGRESS = 'inp', 'In Progress'
     DONE = 'com', 'Complete'
     CANCELLED = 'can', 'Cancelled'
 ```
 
-### 2. Use in Models
+### IntegerChoices
+
+Use for permission levels or any numeric hierarchy:
+
+```python
+# django_spire/api/choices.py
+from django.db import models
+
+
+class ApiPermissionChoices(models.IntegerChoices):
+    """Choices for API access levels are required to be in order of least to most restrictive."""
+
+    VIEW = 1, 'View'
+    ADD = 2, 'Add'
+    CHANGE = 3, 'Change'
+    DELETE = 4, 'Delete'
+```
+
+---
+
+## Using Choices in Models
 
 ```python
 from django.db import models
-from myapp.choices import TaskStatusChoices
+from task.choices import TaskStatusChoices
 
 
 class Task(models.Model):
@@ -39,52 +72,29 @@ class Task(models.Model):
         choices=TaskStatusChoices.choices,
         default=TaskStatusChoices.NEW,
     )
-
-    def __str__(self):
-        return self.name
 ```
 
-### 3. Get JSON for Frontend
+Everything Django gives you for choice fields comes along:
 
-```python
-# Python
-json_choices = TaskStatusChoices.to_glue_choices()
-# Returns: '[["new", "New"], ["inp", "In Progress"], ["com", "Complete"], ["can", "Cancelled"]]'
-
-# In an API view
-from django.http import JsonResponse
-from myapp.choices import TaskStatusChoices
-
-
-def task_choices_api(request):
-    return JsonResponse({
-        'status_choices': TaskStatusChoices.to_glue_choices(),
-    })
-```
-
-Frontend receives:
-```json
-{
-  "status_choices": [
-    ["new", "New"],
-    ["inp", "In Progress"],
-    ["com", "Complete"],
-    ["can", "Cancelled"]
-  ]
-}
-```
+| Feature | Example |
+|---|---|
+| Named constants | `TaskStatusChoices.NEW` |
+| `.choices` | `TaskStatusChoices.choices` |
+| `.names` | `TaskStatusChoices.names` |
+| `.values` | `TaskStatusChoices.values` |
+| `.labels` | `TaskStatusChoices.labels` |
+| Human-readable on instances | `task.get_status_display()` |
+| Queryset filtering | `Task.objects.filter(status=TaskStatusChoices.DONE)` |
 
 ---
 
-## What You Get
+## Frontend Integration
 
-`SpireTextChoices` inherits everything from Django's `TextChoices`:
+You do **not** need a custom JSON endpoint to expose choices to the client. When a model form with a choices field is bound through [django-glue](https://django-glue.stratusadv.com/) (`Glue.form` / `Glue.model`), the client-side glue field receives the choices automatically, so select dropdowns and filters populate without extra wiring.
 
-| Feature | Available? | Example |
-|---|---|---|
-| Named constants | ✓ | `TaskStatusChoices.NEW` |
-| `.choices` property | ✓ | `TaskStatusChoices.choices` |
-| `.names` property | ✓ | `TaskStatusChoices.names` |
-| `.values` property | ✓ | `TaskStatusChoices.values` |
-| `.labels` property | ✓ | `TaskStatusChoices.labels` |
-| `.to_glue_choices()` method | ✓ | **New! JSON output** |
+For seeding, the seeding helpers understand choice enums directly:
+
+```python
+'status': Seeder.model.random_field_choice(TaskStatusChoices),
+'status': Seeder.model.ordered_field_choice(TaskStatusChoices),
+```

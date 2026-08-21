@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from uuid import uuid4
+
 from django.db import models
 
 from django_spire.history.activity.mixins import ActivityMixin
@@ -28,16 +30,6 @@ class Domain(HistoryModelMixin, ActivityMixin):
         for subdomain in self.subdomains.all():
             subdomain.set_deleted()
 
-    @Glue.attr(required_access=Glue.Access.CHANGE)
-    def complete(self, request: WSGIRequest) -> None:
-        self.services.save_model_obj(obj=self, status=self.status)
-
-    def user_initials(self) -> list[str]:
-        return [
-            f'{user_bridge.user.first_name} {user_bridge.user.id}'
-            for user_bridge in self.users.all()
-        ]
-
     class Meta:
         verbose_name = 'Domain'
         verbose_name_plural = 'Domains'
@@ -49,6 +41,8 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
         Domain, on_delete=models.CASCADE, related_name='subdomains', related_query_name='subdomain'
     )
 
+    key = models.UUIDField(default=uuid4, unique=True, editable=False)
+
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
@@ -57,16 +51,6 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
 
     def __str__(self) -> str:
         return self.name
-
-    @Glue.attr(required_access=Glue.Access.CHANGE)
-    def complete(self, request: WSGIRequest) -> None:
-        self.services.save_model_obj(obj=self, status=self.status)
-
-    def user_initials(self) -> list[str]:
-        return [
-            f'{user_bridge.user.first_name} {user_bridge.user.id}'
-            for user_bridge in self.users.all()
-        ]
 
     class Meta:
         verbose_name = 'Sub Domain'

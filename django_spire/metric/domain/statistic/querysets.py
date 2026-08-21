@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -7,9 +8,12 @@ from django.db.models import QuerySet, Sum
 
 from django_spire.core.querysets import SearchQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
+from django_spire.metric.domain.statistic.interval import local_day_start
 
 if TYPE_CHECKING:
-    from datetime import date
+    from uuid import UUID
+
+    from django_spire.metric.domain.models import SubDomain
 
     from django_spire.metric.domain.statistic.models import (
         Statistic,
@@ -30,6 +34,9 @@ class StatisticGroupQuerySet(HistoryQuerySet, SearchQuerySetMixin):
 
 
 class StatisticQuerySet(HistoryQuerySet, SearchQuerySetMixin):
+    def for_key(self, key: str | UUID) -> QuerySet[Statistic]:
+        return self.filter(key=key)
+
     def bulk_filter(self, filter_data: dict) -> QuerySet[Statistic]:
         queryset = self
 
@@ -42,13 +49,22 @@ class StatisticQuerySet(HistoryQuerySet, SearchQuerySetMixin):
 
 class StatisticValueQuerySet(QuerySet):
     def for_date(self, value_date: date) -> QuerySet[StatisticValue]:
-        return self.filter(date=value_date)
+        return self.filter(
+            timestamp__gte=local_day_start(value_date),
+            timestamp__lt=local_day_start(value_date + timedelta(days=1)),
+        )
 
     def date_range(self, start_date: date, end_date: date) -> QuerySet[StatisticValue]:
-        return self.filter(date__gte=start_date, date__lte=end_date)
+        return self.filter(
+            timestamp__gte=local_day_start(start_date),
+            timestamp__lt=local_day_start(end_date + timedelta(days=1)),
+        )
 
     def for_reference(self, reference: str) -> QuerySet[StatisticValue]:
         return self.filter(reference=reference)
+
+    def for_sub_domain(self, sub_domain: SubDomain) -> QuerySet[StatisticValue]:
+        return self.filter(sub_domain=sub_domain)
 
     def total(self) -> Decimal:
         return self.aggregate(total=Sum('value'))['total'] or Decimal(0)

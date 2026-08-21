@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
+
+from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
@@ -11,8 +13,15 @@ from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
     create_test_statistic_group,
+    create_test_subdomain,
     create_test_visual,
 )
+
+
+def aware(value_date: date, hour: int = 12) -> datetime:
+    return timezone.make_aware(
+        datetime(value_date.year, value_date.month, value_date.day, hour)  # noqa: DTZ001
+    )
 
 
 class VisualChartOptionTestCase(BaseTestCase):
@@ -20,6 +29,7 @@ class VisualChartOptionTestCase(BaseTestCase):
         super().setUp()
 
         domain = create_test_domain()
+        self.sub_domain = create_test_subdomain(domain=domain)
         group = create_test_statistic_group(domain=domain)
         self.statistic = create_test_statistic(
             group=group, interval=StatisticIntervalChoices.WEEKLY
@@ -33,16 +43,28 @@ class VisualChartOptionTestCase(BaseTestCase):
         visual.save()
 
         self.statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(10), value_date=date(2026, 5, 14)
+            reference='/home/',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14), 10),
         )
         self.statistic.services.processor.add_value(
-            reference='/home/', value=Decimal(20), value_date=date(2026, 5, 15)
+            reference='/home/',
+            value=Decimal(20),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 11),
         )
         self.statistic.services.processor.add_value(
-            reference='/dashboard/', value=Decimal(50), value_date=date(2026, 5, 15)
+            reference='/dashboard/',
+            value=Decimal(50),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 11),
         )
         self.statistic.services.processor.add_value(
-            reference='/dashboard/', value=Decimal(130), value_date=date(2026, 5, 14)
+            reference='/dashboard/',
+            value=Decimal(130),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14), 12),
         )
 
         chart = visual.services.transformation.chart()
@@ -53,9 +75,14 @@ class VisualChartOptionTestCase(BaseTestCase):
 
         assert chart.glue_name == 'visual_line_chart'
         assert chart.data_function_path.endswith('visual_line_chart_data')
-        assert option['xAxis']['data'] == ['2026-05-14', '2026-05-15']
+        assert option['xAxis'] == {'type': 'time'}
         assert option['series'][0]['type'] == 'line'
-        assert option['series'][0]['data'] == [10.0, 20.0]
+        points = option['series'][0]['data']
+        assert len(points) == 2
+        assert datetime.fromisoformat(points[0][0]) == aware(date(2026, 5, 14), 10)
+        assert points[0][1] == 10.0
+        assert datetime.fromisoformat(points[1][0]) == aware(date(2026, 5, 15), 11)
+        assert points[1][1] == 20.0
 
     def test_area_chart_option_has_area_style(self):
         _, option = self._chart_option('area', reference='/home/')
@@ -80,7 +107,9 @@ class VisualChartOptionTestCase(BaseTestCase):
             tolerance=Decimal(0),
             with_conditions=True,
         )
-        self.statistic.services.processor.add_value(reference='/home/', value=Decimal(50))
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(50), sub_domain=self.sub_domain
+        )
 
         chart = visual.services.transformation.chart()
 

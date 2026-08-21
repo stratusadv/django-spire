@@ -155,7 +155,7 @@ AppNotification.objects.create(
 )
 ```
 
-In your template, access these variables directly — for example, `{ notification.context_data.first_name }`.
+In your template, access these variables directly — for example, `{{ notification.context_data.first_name }}`.
 
 ### Querying Notifications for a User
 
@@ -178,14 +178,15 @@ ordered = AppNotification.objects.by_user(user).is_sent().ordered_by_priority_an
 # Search by title or body
 results = AppNotification.objects.by_user(user).search('shipment')
 
-# Filter by priority
-results = AppNotification.objects.bulk_filter({'priority': 'high'})
+# Filter by priority (the priority lives on the base Notification)
+results = Notification.objects.by_user(user).high_priority()
 
 # Combine search and priority filter
-results = AppNotification.objects.bulk_filter({
-    'priority': 'high',
-    'search': 'order',
-})
+results = (
+    AppNotification.objects.by_user(user)
+    .filter(notification__priority=NotificationPriorityChoices.HIGH)
+    .search('order')
+)
 ```
 
 ### Serializing a Notification

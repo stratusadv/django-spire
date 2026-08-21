@@ -31,7 +31,7 @@ comments are attached to as `obj`:
 ```html title="blog_post/container/detail_container.html"
 <!-- Other stuff -->
 <div class="col-12 col-xl-6">
-    {% include 'django_spire/comment/card/comment_list_card.html' with obj=blog_post
+    { % include 'django_spire/comment/card/comment_list_card.html' with obj=blog_post % }
 </div>
 <!-- Other stuff -->
 ```

@@ -7,11 +7,12 @@ Key features include:
 
 ## Installation
 
-Simple add the `django_spire.metric.report` application to your `INSTALLED_APPS` and the `DJANGO_SPIRE_REPORT_REGISTRIES` to your settings:
+Simply add the `django_spire.metric.report` application to your `INSTALLED_APPS` and configure `DJANGO_SPIRE_REPORT_REGISTRIES` in your settings:
 
 ```python title="settings.py"
 INSTALLED_APPS = [
     ...
+    'django_spire.metric',
     'django_spire.metric.report',
     ...
 ]
@@ -20,38 +21,36 @@ INSTALLED_APPS = [
 DJANGO_SPIRE_REPORT_REGISTRIES = []
 ```
 
-You also need to add django spire to your projects `urls.py`:
+URLs are auto-discovered — make sure your project includes the Spire URL conf:
 
 ```python title="urls.py"
-from django.urls import path, include
+from django_spire.shortcuts import django_spire_urls
 
-urlpatterns = [
-    path('django_spire/', include('django_spire.urls', namespace='django_spire')),
-]
+urlpatterns += django_spire_urls()
 ```
 
 ## Usage
 
 Create a link to the report app in your project's navigation or menu using the url `django_spire:metric:report:page:report`.
 
-Next create the report you want to generate. 
-This can be done by defining a report class that inherits from `django_spire.metric.report.report.BaseReport` and implementing the necessary methods for data retrieval and report generation.
+Next create the report you want to generate.
+This can be done by defining a report class that inherits from `django_spire.metric.report.BaseReport` and implementing the necessary methods for data retrieval and report generation.
 
 Example:
 
-```python title="test_project/apps/queryset_filtering/reports/task_counting_monthly_report.py"
+```python title="test_project/app/task/reports/task_counting_monthly_report.py"
 
---8<-- "test_project/apps/queryset_filtering/reports/task_counting_monthly_report.py"
+--8<-- "test_project/app/task/reports/task_counting_monthly_report.py"
 
 ```
 
-After we complete our report we want to create a registry so all reports in this app are together
+After we complete our report we want to create a registry so all reports in this app are together.
 
 Example:
 
-```python title="test_project/apps/queryset_filtering/reports/task_report_registry.py"
+```python title="test_project/app/task/reports/task_report_registry.py"
 
---8<-- "test_project/apps/queryset_filtering/reports/task_report_registry.py"
+--8<-- "test_project/app/task/reports/task_report_registry.py"
 
 ```
 
@@ -61,7 +60,7 @@ The final step is to add the registry to our settings file so it automatically a
 
 # Report Registry
 DJANGO_SPIRE_REPORT_REGISTRIES = [
-    'test_project.apps.queryset_filtering.reports.task_report_registry.TaskReportRegistry'
+    'test_project.app.task.reports.task_report_registry.TaskReportRegistry'
 ]
 
 ```

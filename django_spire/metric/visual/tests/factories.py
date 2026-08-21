@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from django_spire.metric.domain.models import Domain
+from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup
 from django_spire.metric.visual.models import Visual, VisualCondition
@@ -10,6 +10,10 @@ from django_spire.metric.visual.models import Visual, VisualCondition
 
 def create_test_domain(name: str = 'test_domain') -> Domain:
     return Domain.objects.create(name=name)
+
+
+def create_test_subdomain(domain: Domain, name: str = 'test_subdomain') -> SubDomain:
+    return domain.subdomains.create(name=name)
 
 
 def create_test_statistic_group(

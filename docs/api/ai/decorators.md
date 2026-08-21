@@ -1,1 +1,0 @@
-::: django_spire.ai.decorators.log_ai_interaction_from_recorder

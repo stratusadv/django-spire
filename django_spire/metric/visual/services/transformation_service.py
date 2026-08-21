@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from datetime import timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.interval import interval_range
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
 
 if TYPE_CHECKING:
@@ -23,19 +22,10 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         interval = self.obj.statistic.interval if self.obj.statistic_id else None
 
-        if not interval or interval == StatisticIntervalChoices.DAILY:
+        if not interval:
             return value_date, value_date
 
-        if interval == StatisticIntervalChoices.WEEKLY:
-            start_date = value_date - timedelta(days=value_date.weekday())
-            return start_date, start_date + timedelta(days=6)
-
-        if interval == StatisticIntervalChoices.MONTHLY:
-            start_date = value_date.replace(day=1)
-            next_month_date = (start_date.replace(day=28) + timedelta(days=4)).replace(day=1)
-            return start_date, next_month_date - timedelta(days=1)
-
-        return value_date, value_date
+        return interval_range(interval, value_date)
 
     def current_value(self, value_date: date | None = None) -> Decimal:
         if not self.obj.statistic_id:
@@ -70,7 +60,10 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if self.obj.reference:
             values = values.for_reference(self.obj.reference)
 
-        return [{'date': value.date, 'value': value.value} for value in values.order_by('date')]
+        return [
+            {'timestamp': value.timestamp, 'value': value.value}
+            for value in values.order_by('timestamp')
+        ]
 
     def series_breakdown(self, value_date: date | None = None) -> list[dict]:
         if not self.obj.statistic_id:

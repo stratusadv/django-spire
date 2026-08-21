@@ -154,7 +154,7 @@ Once both elements are in place, users will see an **Install App** button on the
 
 #### iOS Install
 
-1. Comment out the `hidden` attribute in the `django_spire/auth/button/ios_install_button.html` file.
+1. Comment out the `hidden` attribute in the `django_spire/auth/button/pwa_install_button.html` file.
 2. Click the install app button and ensure the information, colors, and images on the modal are correct.
 3. Using an iOS device, install the app via the safari browser. Ensure the app icon is correct.
-4. Uncomment the `hidden` attribute in the `django_spire/auth/button/ios_install_button.html` file.
+4. Uncomment the `hidden` attribute in the `django_spire/auth/button/pwa_install_button.html` file.

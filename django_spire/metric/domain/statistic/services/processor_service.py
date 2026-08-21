@@ -3,13 +3,15 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from django.db.models import F
 from django.utils import timezone
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
+from django_spire.contrib.constructor.service.exceptions import ServiceError
 
 if TYPE_CHECKING:
-    from datetime import date
+    from datetime import datetime
+
+    from django_spire.metric.domain.models import SubDomain
 
     from django_spire.metric.domain.statistic.models import (
         Statistic,
@@ -26,30 +28,57 @@ class StatisticProcessorService(BaseDjangoModelService['Statistic']):
     obj: Statistic
 
     def add_value(
-        self, reference: str, value: Decimal = Decimal(1), value_date: date | None = None
+        self,
+        reference: str,
+        sub_domain: SubDomain,
+        value: float | str | Decimal = 1,
+        *,
+        value_timestamp: datetime | None = None,
     ) -> StatisticValue:
-        value_date = value_date or timezone.localdate()
+        if sub_domain.domain_id != self.obj.group.domain_id:
+            message = (
+                f"Sub-domain '{sub_domain}' does not belong to domain "
+                f"'{self.obj.group.domain}'"
+            )
+            raise ServiceError(message)
 
-        statistic_value, was_created = self.obj.values.get_or_create(
-            reference=reference, date=value_date, defaults={'value': value}
+        value = Decimal(value)
+        stamp = value_timestamp or timezone.now()
+        if timezone.is_naive(stamp):
+            stamp = timezone.make_aware(stamp)
+
+        statistic_value = self.obj.values.create(
+            sub_domain=sub_domain, reference=reference, timestamp=stamp, value=value
         )
-
-        if not was_created:
-            self.obj.values.filter(pk=statistic_value.pk).update(value=F('value') + value)
-            statistic_value.refresh_from_db()
+        statistic_value.value = statistic_value.value.quantize(self._value_precision())
 
         return statistic_value
 
+    def _value_precision(self) -> Decimal:
+        decimal_places = self.obj.values.model._meta.get_field('value').decimal_places
+        return Decimal(1).scaleb(-decimal_places)
+
     def subtract_value(
-        self, reference: str, value: Decimal = Decimal(1), value_date: date | None = None
+        self,
+        reference: str,
+        sub_domain: SubDomain,
+        value: float | str | Decimal = 1,
+        *,
+        value_timestamp: datetime | None = None,
     ) -> StatisticValue:
-        return self.add_value(reference, -value, value_date)
+        return self.add_value(
+            reference, sub_domain, -Decimal(value), value_timestamp=value_timestamp
+        )
 
-    def increment(self, reference: str, value_date: date | None = None) -> StatisticValue:
-        return self.add_value(reference, Decimal(1), value_date)
+    def increment(
+        self, reference: str, sub_domain: SubDomain, *, value_timestamp: datetime | None = None
+    ) -> StatisticValue:
+        return self.add_value(reference, sub_domain, Decimal(1), value_timestamp=value_timestamp)
 
-    def decrement(self, reference: str, value_date: date | None = None) -> StatisticValue:
-        return self.add_value(reference, Decimal(-1), value_date)
+    def decrement(
+        self, reference: str, sub_domain: SubDomain, *, value_timestamp: datetime | None = None
+    ) -> StatisticValue:
+        return self.add_value(reference, sub_domain, Decimal(-1), value_timestamp=value_timestamp)
 
 
 class StatisticValueProcessorService(BaseDjangoModelService['StatisticValue']):

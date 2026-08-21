@@ -644,7 +644,7 @@ Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJAN
 - **django_glue** (`Glue.model` / `Glue.queryset` / `Glue.form` with `Glue.Access` VIEW/CHANGE/DELETE) binds server state to Alpine. In `base.html`: `{% load django_glue %}` + `{% django_glue_init %}`; client-side objects are exposed on the `Glue` global (e.g. `Glue.querySet.tasks`).
 - **Bootstrap 5** CSS is compiled locally from SCSS (`just scss`, sources in `django_spire/core/static/django_spire/scss/`); Bootstrap JS and Bootstrap Icons load from CDN.
 - **Flatpickr, ECharts, Axios, pulltorefresh.js** load from CDN (see `base.html`).
-- **Theme**: cookie-driven, `light`/`dark` (`DJANGO_SPIRE_THEME_MODE`); colors/styles belong in SCSS (`_theme.scss`), not templates (see ZEN.md).
+- **Theme**: cookie-driven, `light`/`dark` (`DJANGO_SPIRE_THEME_MODE`); colors/styles belong in SCSS (`_theme.scss`), not templates (see `docs/getting_started/zen.md`).
 
 ## Constellation Code Intelligence (MCP)
 

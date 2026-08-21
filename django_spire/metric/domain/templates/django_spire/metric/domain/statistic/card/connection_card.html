@@ -1,0 +1,60 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Connection
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="attribute-label">Connection Key</div>
+                <div class="alert alert-info d-inline-flex align-items-center">
+                    <code>{{ statistic.key }}</code>
+                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=statistic.key %}
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="attribute-label">Sub Domains</div>
+                {% if sub_domains %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sub Domain</th>
+                                    <th>Key</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sub_domain in sub_domains %}
+                                    <tr>
+                                        <td>{{ sub_domain.name }}</td>
+                                        <td><code>{{ sub_domain.key }}</code></td>
+                                        <td class="text-end">
+                                            {% include 'django_spire/element/copy_to_clipboard_element.html' with value=sub_domain.key %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    {% include 'django_spire/item/no_data_item.html' %}
+                {% endif %}
+            </div>
+
+            <div class="col-12">
+                <div class="attribute-label">Example Request</div>
+                <div class="alert alert-info" role="alert">
+                    <pre class="mb-0"><code>POST {{ record_path }}
+X-API-Key: &lt;your API key&gt;
+Content-Type: application/json
+
+{"reference": "/marketing/clicks/", "sub_domain_key": "&lt;sub domain key&gt;", "value": 1}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

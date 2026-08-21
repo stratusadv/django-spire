@@ -1,7 +1,14 @@
-from django.db.models.query import QuerySet
+from datetime import timedelta
+
+from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.metric.domain.models import Domain
+from django_spire.metric.domain.seeding.constants import (
+    GROUP_SEEDS,
+    STATISTIC_KEYS,
+    STATISTIC_SEEDS,
+)
 from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
 
@@ -12,9 +19,11 @@ class StatisticGroupSeeder(Seeder):
     fields_seeds = {
         'id': Seeder.exclude(),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-        'domain_id': Seeder.model.random_foreign_key(Domain),
-        'name': Seeder.fake.company(),
-        'description': Seeder.fake.paragraph(2),
+        'domain_id': Seeder.model.ordered_queryset_foreign_key(Domain.objects.all(), wrap=True),
+        'name': Seeder.ordered.choice([seed['name'] for seed in GROUP_SEEDS], wrap=True),
+        'description': Seeder.ordered.choice(
+            [seed['description'] for seed in GROUP_SEEDS], wrap=True
+        ),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
@@ -26,40 +35,45 @@ class StatisticSeeder(Seeder):
     fields_seeds = {
         'id': Seeder.exclude(),
         'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-        'group_id': Seeder.model.random_foreign_key(StatisticGroup),
-        'name': Seeder.fake.word(),
+        'group_id': Seeder.model.ordered_queryset_foreign_key(
+            StatisticGroup.objects.all(), wrap=True
+        ),
+        'name': Seeder.ordered.choice(STATISTIC_SEEDS, wrap=True),
         'interval': Seeder.model.random_field_choice(StatisticIntervalChoices),
+        'key': Seeder.ordered.choice(STATISTIC_KEYS, wrap=True),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
 
 
-class StatisticValueSeeder(Seeder):
-    model_class = StatisticValue
+VALUE_REFERENCES = ['/home/', '/dashboard/', '/contact/', '/pricing/']
 
-    fields_seeds = {
-        'id': Seeder.exclude(),
-        'statistic_id': Seeder.model.random_foreign_key(Statistic),
-        'reference': Seeder.random.choice(['/home/', '/dashboard/', '/contact/', '/pricing/']),
-        'date': Seeder.fake.provider('date_between', start_date='-30d', end_date='now'),
-        'value': Seeder.random.int(1, 100),
-        'updated_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-    }
 
-    def seed_database(self, count: int | None = None) -> QuerySet:
-        self.seed(count)
+def seed_statistic_values(count: int = 1000) -> None:
+    options = []
+    for statistic in (
+        Statistic.objects.active().not_deleted().select_related('group__domain').order_by('pk')
+    ):
+        sub_domains = list(statistic.group.domain.subdomains.active().order_by('pk'))
+        if sub_domains:
+            options.append((statistic, sub_domains))
 
-        model_objects = []
+    if not options:
+        return
 
-        for fields_values in self.to_list_of_dicts():
-            statistic_value, _ = StatisticValue.objects.update_or_create(
-                statistic_id=fields_values['statistic_id'],
-                reference=fields_values['reference'],
-                date=fields_values['date'],
-                defaults={'value': fields_values['value']},
+    now = timezone.now()
+    rows = []
+
+    for index in range(count):
+        statistic, sub_domains = options[index % len(options)]
+        rows.append(
+            StatisticValue(
+                statistic=statistic,
+                sub_domain=sub_domains[index % len(sub_domains)],
+                reference=VALUE_REFERENCES[index % len(VALUE_REFERENCES)],
+                timestamp=now - timedelta(minutes=(index * 137) % (30 * 24 * 60)),
+                value=(index % 100) + 1,
             )
-            model_objects.append(statistic_value)
+        )
 
-        self._model_object_ids = [model_object.id for model_object in model_objects]
-
-        return self.queryset
+    StatisticValue.objects.bulk_create(rows, batch_size=500)
