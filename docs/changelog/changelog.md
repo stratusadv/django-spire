@@ -1,3 +1,10 @@
+## v1.0.1 - August 26, 2026
+
+#### Features
+
+- Glue form widgets display a red asterisk beside labels for required fields.
+
+
 ## v1.0.1-rc4 - August 14, 2026
 
 #### Breaking

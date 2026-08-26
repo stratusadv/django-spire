@@ -15,7 +15,8 @@
         <label
             class="form-check-label"
             :for="field.id"
-            x-text="field.label"
-        ></label>
+        >
+            <span x-text="field.label"></span><span x-show="field.required" class="text-danger" aria-hidden="true"> *</span>
+        </label>
     </div>
 {% endblock %}

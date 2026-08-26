@@ -31,7 +31,9 @@
 >
     {% if not hide_label %}
         {% block widget_label %}
-            <label :for="field.id" class="form-label" x-text="field.label"></label>
+            <label :for="field.id" class="form-label">
+                <span x-text="field.label"></span><span x-show="field.required" class="text-danger" aria-hidden="true"> *</span>
+            </label>
         {% endblock %}
     {% endif %}
 

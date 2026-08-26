@@ -12,6 +12,8 @@
                 :id="field.id"
                 {% include 'django_spire/glue/form/widget/attributes/input_attributes.html' with exclude_class=True %}>
         {{ block.super }}
-        <label :for="field.id" class="form-check-label" x-text="field.label"></label>
+        <label :for="field.id" class="form-check-label">
+            <span x-text="field.label"></span><span x-show="field.required" class="text-danger" aria-hidden="true"> *</span>
+        </label>
     </div>
 {% endblock %}
