@@ -95,16 +95,16 @@ GROUP_SEEDS = [
 
 
 STATISTIC_SEEDS = [
-    'New Leads',
-    'Clicks',
-    'Revenue',
-    'Headcount',
-    'Tickets Resolved',
-    'Closed Deals',
-    'Page Views',
-    'Invoices Paid',
-    'New Hires',
-    'Production Units',
+    {'name': 'New Leads', 'value_type': 'number'},
+    {'name': 'Clicks', 'value_type': 'number'},
+    {'name': 'Revenue', 'value_type': 'currency'},
+    {'name': 'Headcount', 'value_type': 'number'},
+    {'name': 'Tickets Resolved', 'value_type': 'number'},
+    {'name': 'Closed Deals', 'value_type': 'number'},
+    {'name': 'Page Views', 'value_type': 'number'},
+    {'name': 'Invoices Paid', 'value_type': 'currency'},
+    {'name': 'New Hires', 'value_type': 'number'},
+    {'name': 'Production Units', 'value_type': 'number'},
 ]
 
 
@@ -201,4 +201,16 @@ SUBDOMAIN_SEEDS = [
         'name': 'Tickets',
         'description': 'Monitors support and service tickets by status, priority, and resolution.',
     },
+]
+
+# The statistic and sub-domain the internal page-click tracking middleware records against.
+# They must land in the same domain under the current seeding (see seed.py seeder counts).
+TRACKING_STATISTIC_NAME = 'Clicks'
+TRACKING_SUB_DOMAIN_NAME = 'Opportunities'
+
+INTERNAL_TRACKING_STATISTIC_KEY = STATISTIC_KEYS[
+    [seed['name'] for seed in STATISTIC_SEEDS].index(TRACKING_STATISTIC_NAME)
+]
+INTERNAL_TRACKING_SUB_DOMAIN_KEY = SUB_DOMAIN_KEYS[
+    [seed['name'] for seed in SUBDOMAIN_SEEDS].index(TRACKING_SUB_DOMAIN_NAME)
 ]

@@ -50,12 +50,12 @@
                     <div class="kiosk-grid">
                         {% for section in item.sections %}
                             {% if section.visual %}
-                                <div style="grid-column: {{ section.section.col }}; grid-row: {{ section.section.row }};">
+                                <div style="grid-column: 1 / -1; grid-row: auto;">
                                     {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition %}
                                 </div>
                             {% else %}
                                 <div class="border rounded d-flex align-items-center justify-content-center text-muted"
-                                     style="grid-column: {{ section.section.col }}; grid-row: {{ section.section.row }};">
+                                     style="grid-column: 1 / -1; grid-row: auto;">
                                     Empty
                                 </div>
                             {% endif %}

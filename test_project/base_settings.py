@@ -10,6 +10,11 @@ from typing import TYPE_CHECKING
 
 from dotenv import load_dotenv
 
+from django_spire.metric.domain.seeding.constants import (
+    INTERNAL_TRACKING_STATISTIC_KEY,
+    INTERNAL_TRACKING_SUB_DOMAIN_KEY,
+)
+
 if TYPE_CHECKING:
     from django.http import HttpRequest
 
@@ -36,6 +41,12 @@ BASE_FOLDER_NAME = 'test_project'
 
 # Notification Settings
 DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
+
+# Metric Internal Tracking Settings
+# The statistic + sub-domain the metric click-tracking middleware records against.
+# Both keys come from the seeded metric data (django_spire/metric/domain/seeding).
+DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY = INTERNAL_TRACKING_STATISTIC_KEY
+DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY = INTERNAL_TRACKING_SUB_DOMAIN_KEY
 
 # Email Settings
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
@@ -145,6 +156,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django_spire.history.activity.middleware.ActivityUserMiddleware',
+    'django_spire.metric.domain.statistic.middleware.StatisticClickMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_spire.core.middleware.MaintenanceMiddleware',

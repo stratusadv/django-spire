@@ -9,6 +9,7 @@ from django.urls import reverse
 
 from django_spire.constants import BASE_URL_NAME
 from django_spire.metric.domain.statistic import models
+from django_spire.metric.domain.statistic.constants import STATISTIC_VALUE_COUNT_MAX
 from django_spire.metric.domain.statistic.navigation import (
     StatisticGroupNavigation,
     StatisticNavigation,
@@ -75,7 +76,9 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context['sub_domains'] = statistic.group.domain.subdomains.active().order_by('name')
     context['record_path'] = record_path
     context['today_total'] = statistic.services.transformation.total_for_interval()
-    context['values'] = statistic.services.transformation.values_for_interval()
+    context['values'] = statistic.services.transformation.values_for_interval().order_by(
+        '-timestamp'
+    )[:STATISTIC_VALUE_COUNT_MAX]
     return TemplateResponse(
         request,
         context=context,

@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.db import models
 
 LIST_FILTERING_SESSION_KEY = 'statistic_list_filter'
+STATISTIC_VALUE_COUNT_MAX = 100
 
 
 class StatisticIntervalChoices(models.TextChoices):

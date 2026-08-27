@@ -15,7 +15,7 @@
                             <th>Reference</th>
                             <th>Sub Domain</th>
                             <th>Timestamp</th>
-                            <th>Value</th>
+                            <th class="text-end">Value</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -24,7 +24,7 @@
                                 <td>{{ value.reference }}</td>
                                 <td>{{ value.sub_domain }}</td>
                                 <td>{{ value.timestamp }}</td>
-                                <td class="{{ value.value|statistic_value_class:statistic.value_type }}">{{ value.value|statistic_value:statistic.value_type }}</td>
+                                <td class="{{ value.value|statistic_value_class:statistic.value_type }} text-end">{{ value.value|statistic_value:statistic.value_type }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

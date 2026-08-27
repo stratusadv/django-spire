@@ -18,6 +18,7 @@ from django_spire.metric.domain.statistic.services.processor_service import (
     StatisticProcessorService,
     StatisticValueProcessorService,
 )
+from django_spire.metric.domain.statistic.services.tracking_service import StatisticTrackingService
 from django_spire.metric.domain.statistic.services.transformation_service import (
     StatisticGroupTransformationService,
     StatisticTransformationService,
@@ -38,6 +39,7 @@ class StatisticService(BaseDjangoModelService['Statistic']):
     intelligence = StatisticIntelligenceService()
     processor = StatisticProcessorService()
     factory = StatisticFactoryService()
+    tracking = StatisticTrackingService()
     transformation = StatisticTransformationService()
 
 

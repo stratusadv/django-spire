@@ -9,10 +9,7 @@ from django_spire.metric.domain.seeding.constants import (
     STATISTIC_KEYS,
     STATISTIC_SEEDS,
 )
-from django_spire.metric.domain.statistic.constants import (
-    StatisticIntervalChoices,
-    StatisticValueTypeChoices,
-)
+from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
 
 
@@ -41,16 +38,23 @@ class StatisticSeeder(Seeder):
         'group_id': Seeder.model.ordered_queryset_foreign_key(
             StatisticGroup.objects.all(), wrap=True
         ),
-        'name': Seeder.ordered.choice(STATISTIC_SEEDS, wrap=True),
+        'name': Seeder.ordered.choice([seed['name'] for seed in STATISTIC_SEEDS], wrap=True),
         'interval': Seeder.model.random_field_choice(StatisticIntervalChoices),
-        'value_type': Seeder.model.random_field_choice(StatisticValueTypeChoices),
+        'value_type': Seeder.ordered.choice(
+            [seed['value_type'] for seed in STATISTIC_SEEDS], wrap=True
+        ),
         'key': Seeder.ordered.choice(STATISTIC_KEYS, wrap=True),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
     }
 
 
-VALUE_REFERENCES = ['/home/', '/dashboard/', '/contact/', '/pricing/']
+VALUE_REFERENCES = [
+    'django_spire:metric:domain:statistic:page:list',
+    'django_spire:metric:domain:statistic:page:detail',
+    'django_spire:metric:domain:page:list',
+    'django_spire:metric:domain:page:detail',
+]
 
 
 def seed_statistic_values(count: int = 1000) -> None:
