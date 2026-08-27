@@ -37,8 +37,7 @@ class StatisticProcessorService(BaseDjangoModelService['Statistic']):
     ) -> StatisticValue:
         if sub_domain.domain_id != self.obj.group.domain_id:
             message = (
-                f"Sub-domain '{sub_domain}' does not belong to domain "
-                f"'{self.obj.group.domain}'"
+                f"Sub-domain '{sub_domain}' does not belong to domain '{self.obj.group.domain}'"
             )
             raise ServiceError(message)
 

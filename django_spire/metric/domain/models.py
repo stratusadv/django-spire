@@ -41,7 +41,7 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
         Domain, on_delete=models.CASCADE, related_name='subdomains', related_query_name='subdomain'
     )
 
-    key = models.UUIDField(default=uuid4, unique=True, editable=False)
+    key = models.UUIDField(default=uuid4, unique=True)
 
     name = models.CharField(max_length=255)
     description = models.TextField(default='')

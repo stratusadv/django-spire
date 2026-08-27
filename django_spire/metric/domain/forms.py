@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django import forms
 from django.forms import ModelForm
 from django.http import HttpRequest
 from django.urls import reverse
@@ -12,6 +13,7 @@ from django_spire.metric.domain import models
 
 if TYPE_CHECKING:
     from typing import ClassVar
+    from uuid import UUID
 
 
 class DomainForm(ModelForm):
@@ -23,8 +25,7 @@ class DomainForm(ModelForm):
             return GlueResponse(
                 result={
                     'redirect_url': reverse(
-                        viewname='django_spire:metric:domain:page:detail',
-                        kwargs={'pk': domain.pk},
+                        viewname='django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
                     )
                 }
             )
@@ -38,6 +39,31 @@ class DomainForm(ModelForm):
 
 
 class SubDomainForm(ModelForm):
+    key = forms.UUIDField(
+        required=False,
+        help_text='Must be a UUID4. Leave blank to automatically use a UUID4.',
+        error_messages={'invalid': 'Enter a valid UUID4.'},
+    )
+
+    def clean_key(self) -> UUID:
+        key = self.cleaned_data.get('key')
+
+        if key is None:
+            key = self.instance.key
+        elif key.version != 4:
+            message = 'Key must be a UUID4.'
+            raise forms.ValidationError(message)
+
+        queryset = models.SubDomain.objects.filter(key=key)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            message = 'A sub domain with this key already exists.'
+            raise forms.ValidationError(message)
+
+        return key
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -56,4 +82,4 @@ class SubDomainForm(ModelForm):
 
     class Meta:
         model = models.SubDomain
-        fields = ['name', 'description']
+        fields = ['key', 'name', 'description']

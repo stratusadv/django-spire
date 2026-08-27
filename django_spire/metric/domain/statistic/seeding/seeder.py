@@ -9,7 +9,10 @@ from django_spire.metric.domain.seeding.constants import (
     STATISTIC_KEYS,
     STATISTIC_SEEDS,
 )
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
 
 
@@ -40,6 +43,7 @@ class StatisticSeeder(Seeder):
         ),
         'name': Seeder.ordered.choice(STATISTIC_SEEDS, wrap=True),
         'interval': Seeder.model.random_field_choice(StatisticIntervalChoices),
+        'value_type': Seeder.model.random_field_choice(StatisticValueTypeChoices),
         'key': Seeder.ordered.choice(STATISTIC_KEYS, wrap=True),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),

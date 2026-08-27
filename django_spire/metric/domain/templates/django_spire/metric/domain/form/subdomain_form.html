@@ -4,6 +4,10 @@
 
 {% block glue_form_content %}
     <div class="row">
+        <div class="col-12 mb-3 mb-sm-0">
+            {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.key' %}
+        </div>
+
         <div class="col-12 col-sm mb-3 mb-sm-0">
             {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.name' %}
         </div>

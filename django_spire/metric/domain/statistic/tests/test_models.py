@@ -8,7 +8,10 @@ from django.utils import timezone
 import pytest
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.domain.statistic.models import StatisticValue
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
@@ -64,6 +67,9 @@ class StatisticModelTestCase(BaseTestCase):
 
     def test_default_interval(self):
         assert self.statistic.interval == StatisticIntervalChoices.DAILY
+
+    def test_default_value_type(self):
+        assert self.statistic.value_type == StatisticValueTypeChoices.NUMBER
 
     def test_group_relation(self):
         assert self.statistic.group == self.group

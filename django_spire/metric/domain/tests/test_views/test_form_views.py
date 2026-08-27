@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -155,6 +157,118 @@ class SubDomainFormViewTestCase(BaseTestCase):
         assert response.result['redirect_url'] == reverse(
             'django_spire:metric:domain:page:detail', kwargs={'pk': self.domain.pk}
         )
+
+    def test_create_save_model_obj_with_custom_key(self):
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.SubDomainForm(
+            instance=SubDomain(domain=self.domain),
+            data={
+                'key': '11111111-2222-4333-8444-555555555501',
+                'name': 'new subdomain',
+                'description': 'new subdomain description',
+            },
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(request)
+
+        subdomain = SubDomain.objects.get(name='new subdomain')
+        assert subdomain.key == uuid.UUID('11111111-2222-4333-8444-555555555501')
+
+    def test_create_save_model_obj_blank_key_uses_uuid4(self):
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.SubDomainForm(
+            instance=SubDomain(domain=self.domain),
+            data={'key': '', 'name': 'new subdomain', 'description': 'new subdomain description'},
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(request)
+
+        subdomain = SubDomain.objects.get(name='new subdomain')
+        assert subdomain.key is not None
+        assert subdomain.key.version == 4
+
+    def test_create_save_model_obj_duplicate_key_is_invalid(self):
+        existing = SubDomain.objects.create(
+            domain=self.domain,
+            name='existing subdomain',
+            key=uuid.UUID('11111111-2222-4333-8444-555555555501'),
+        )
+
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.SubDomainForm(
+            instance=SubDomain(domain=self.domain),
+            data={
+                'key': '11111111-2222-4333-8444-555555555501',
+                'name': 'new subdomain',
+                'description': 'new subdomain description',
+            },
+        )
+        assert not form.is_valid()
+        assert 'key' in form.errors
+        assert SubDomain.objects.filter(key=existing.key).count() == 1
+
+    def test_create_save_model_obj_non_uuid4_key_is_invalid(self):
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.SubDomainForm(
+            instance=SubDomain(domain=self.domain),
+            data={
+                'key': '123e4567-e89b-12d3-a456-426614174000',
+                'name': 'new subdomain',
+                'description': 'new subdomain description',
+            },
+        )
+        assert not form.is_valid()
+        assert 'key' in form.errors
+        assert SubDomain.objects.count() == 0
+
+    def test_update_save_model_obj_blank_key_preserves_existing_key(self):
+        subdomain = create_test_subdomain(domain=self.domain)
+        original_key = subdomain.key
+
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.SubDomainForm(
+            instance=subdomain,
+            data={'key': '', 'name': 'updated subdomain', 'description': 'updated description'},
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(request)
+
+        subdomain.refresh_from_db()
+        assert subdomain.key == original_key
+
+    def test_update_save_model_obj_custom_key_changes_key(self):
+        subdomain = create_test_subdomain(domain=self.domain)
+
+        request = RequestFactory().get('/')
+        request.user = self.super_user
+
+        form = forms.SubDomainForm(
+            instance=subdomain,
+            data={
+                'key': '11111111-2222-4333-8444-555555555502',
+                'name': 'updated subdomain',
+                'description': 'updated description',
+            },
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(request)
+
+        subdomain.refresh_from_db()
+        assert subdomain.key == uuid.UUID('11111111-2222-4333-8444-555555555502')
 
     def test_delete_view(self):
         subdomain = create_test_subdomain(domain=self.domain)

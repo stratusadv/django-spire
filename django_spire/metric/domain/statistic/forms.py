@@ -12,6 +12,7 @@ from django_spire.metric.domain.statistic import models
 
 if TYPE_CHECKING:
     from typing import ClassVar
+    from uuid import UUID
 
 
 class StatisticGroupForm(forms.ModelForm):
@@ -38,6 +39,31 @@ class StatisticGroupForm(forms.ModelForm):
 
 
 class StatisticForm(forms.ModelForm):
+    key = forms.UUIDField(
+        required=False,
+        help_text='Must be a UUID4. Leave blank to automatically use a UUID4.',
+        error_messages={'invalid': 'Enter a valid UUID4.'},
+    )
+
+    def clean_key(self) -> UUID:
+        key = self.cleaned_data.get('key')
+
+        if key is None:
+            key = self.instance.key
+        elif key.version != 4:
+            message = 'Key must be a UUID4.'
+            raise forms.ValidationError(message)
+
+        queryset = models.Statistic.objects.filter(key=key)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            message = 'A statistic with this key already exists.'
+            raise forms.ValidationError(message)
+
+        return key
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -56,5 +82,5 @@ class StatisticForm(forms.ModelForm):
 
     class Meta:
         model = models.Statistic
-        fields = ['group', 'name', 'interval']
+        fields = ['key', 'group', 'name', 'interval', 'value_type']
         exclude: ClassVar = []

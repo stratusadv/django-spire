@@ -1,4 +1,5 @@
 {% extends 'django_spire/card/title_card.html' %}
+{% load django_spire_metric_statistic %}
 
 {% block card_title %}
     {{ statistic.get_interval_display }} Values
@@ -23,7 +24,7 @@
                                 <td>{{ value.reference }}</td>
                                 <td>{{ value.sub_domain }}</td>
                                 <td>{{ value.timestamp }}</td>
-                                <td>{{ value.value }}</td>
+                                <td class="{{ value.value|statistic_value_class:statistic.value_type }}">{{ value.value|statistic_value:statistic.value_type }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

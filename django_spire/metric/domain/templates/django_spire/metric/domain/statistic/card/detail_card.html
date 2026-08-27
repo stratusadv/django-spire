@@ -1,4 +1,5 @@
 {% extends 'django_spire/card/title_card.html' %}
+{% load django_spire_metric_statistic %}
 
 {% block card_title %}
     Statistic
@@ -43,13 +44,18 @@
             </div>
 
             <div class="col-12">
+                <div class="attribute-label">Value Type</div>
+                <div>{{ statistic.get_value_type_display }}</div>
+            </div>
+
+            <div class="col-12">
                 <div class="attribute-label">Domain</div>
                 <div>{{ statistic.group.domain }}</div>
             </div>
 
             <div class="col-12">
                 <div class="attribute-label">{{ statistic.get_interval_display }} Total</div>
-                <div>{{ today_total }}</div>
+                <div class="{{ today_total|statistic_value_class:statistic.value_type }}">{{ today_total|statistic_value:statistic.value_type }}</div>
             </div>
         </div>
     </div>

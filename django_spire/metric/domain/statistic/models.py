@@ -10,7 +10,10 @@ from django.utils import timezone
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.metric.domain.statistic import querysets
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.domain.statistic.services.service import (
     StatisticGroupService,
     StatisticService,
@@ -56,7 +59,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
 
 class Statistic(HistoryModelMixin, ActivityMixin):
-    key = models.UUIDField(default=uuid4, editable=False, unique=True)
+    key = models.UUIDField(default=uuid4, unique=True)
 
     group = models.ForeignKey(
         StatisticGroup,
@@ -70,6 +73,12 @@ class Statistic(HistoryModelMixin, ActivityMixin):
         max_length=20,
         choices=StatisticIntervalChoices.choices,
         default=StatisticIntervalChoices.DAILY,
+    )
+    value_type = models.CharField(
+        max_length=20,
+        choices=StatisticValueTypeChoices.choices,
+        blank=True,
+        default=StatisticValueTypeChoices.NUMBER,
     )
 
     objects = querysets.StatisticQuerySet().as_manager()
