@@ -61,3 +61,7 @@ class SignageTransformationServiceTestCase(BaseTestCase):
         assert len(slides) == 2
         assert all('presentation' in slide and 'slide' in slide for slide in slides)
         assert all(slide['sections'][0]['visual'] is not None for slide in slides)
+        assert all(
+            slide['sections'][0]['grid_style'] == 'grid-column: 1 / span 12; grid-row: 2;'
+            for slide in slides
+        )

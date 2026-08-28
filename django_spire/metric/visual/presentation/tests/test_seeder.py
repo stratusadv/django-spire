@@ -53,8 +53,12 @@ class PresentationSeederTestCase(BaseTestCase):
                 sections = list(slide.sections.select_related('visual').order_by('row', 'col'))
 
                 assert len(sections) == len(SLIDE_SECTION_VISUALS[slide.name])
-                assert [section.row for section in sections] == list(range(1, len(sections) + 1))
-                assert all(section.col == 1 for section in sections)
+                assert [section.row for section in sections] == [
+                    (index // 2) + 1 for index in range(len(sections))
+                ]
+                assert [section.col for section in sections] == [
+                    (index % 2) + 1 for index in range(len(sections))
+                ]
                 assert all(section.visual_id for section in sections)
 
                 for section in sections:

@@ -26,15 +26,15 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="slide-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(8rem, auto); gap: 1rem;">
+        <div class="slide-grid" style="display: grid; grid-template-columns: repeat({{ grid_columns }}, 1fr); grid-auto-rows: minmax(8rem, auto); gap: 1rem;">
             {% for item in sections %}
                 {% if item.visual %}
-                    <div style="grid-column: 1 / -1; grid-row: auto;">
+                    <div style="{{ item.grid_style }}">
                         {% include 'django_spire/metric/visual/render/visual.html' with visual=item.visual current_value=item.current_value current_condition=item.current_condition chart=item.chart period_start=item.period_start period_end=item.period_end %}
                     </div>
                 {% else %}
                     <div class="border rounded d-flex align-items-center justify-content-center text-muted"
-                         style="grid-column: 1 / -1; grid-row: auto;">
+                         style="{{ item.grid_style }}">
                         Empty
                     </div>
                 {% endif %}

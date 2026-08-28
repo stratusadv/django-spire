@@ -5,6 +5,9 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 from django_spire.metric.visual.presentation.models import Presentation
+from django_spire.metric.visual.presentation.services.transformation_service import (
+    SlideSectionTransformationService,
+)
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -40,12 +43,21 @@ class SignageTransformationService(BaseDjangoModelService['Signage']):
             presentation = link.presentation
 
             for slide in presentation.slides.filter(is_deleted=False).order_by('order'):
-                sections = [
-                    {'section': section, **section.services.transformation.render_context()}
-                    for section in slide.sections.select_related('visual')
+                section_sections = (
+                    slide.sections.select_related('visual')
                     .prefetch_related('visual__conditions')
                     .filter(is_deleted=False, visual__is_deleted=False)
-                    .order_by('row', 'col')
+                )
+                grid_styles = SlideSectionTransformationService.section_grid_styles(
+                    section_sections
+                )
+                sections = [
+                    {
+                        'section': section,
+                        'grid_style': grid_styles[section.pk],
+                        **section.services.transformation.render_context(),
+                    }
+                    for section in section_sections.order_by('row', 'col')
                 ]
                 slides.append({'presentation': presentation, 'slide': slide, 'sections': sections})
 

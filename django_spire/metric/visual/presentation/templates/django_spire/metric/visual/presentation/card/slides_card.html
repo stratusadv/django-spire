@@ -20,7 +20,7 @@
             <div class="row g-3">
                 {% for item in slides %}
                     <div class="col-12">
-                        {% include 'django_spire/metric/visual/presentation/render/slide.html' with slide=item.slide sections=item.sections %}
+                        {% include 'django_spire/metric/visual/presentation/render/slide.html' with slide=item.slide sections=item.sections grid_columns=item.grid_columns %}
                     </div>
                 {% endfor %}
             </div>

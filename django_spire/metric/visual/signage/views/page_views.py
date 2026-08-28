@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django_glue import Glue
 
+from django_spire.metric.visual.presentation.constants import SLIDE_GRID_COLUMNS
 from django_spire.metric.visual.signage import models
 from django_spire.metric.visual.signage.navigation import SignageNavigation
 
@@ -70,8 +71,9 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
         'signage': signage,
         'slides': slides,
         'slide_count': len(slides),
+        'grid_columns': SLIDE_GRID_COLUMNS,
         'chart_update_interval': 15,
-        **nav.as_context()
+        **nav.as_context(),
     }
 
     return TemplateResponse(

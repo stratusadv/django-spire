@@ -71,7 +71,7 @@ class PresentationSeeder(Seeder):
             visual = visuals_by_name.get(visual_name) or visuals[order % len(visuals)]
             models.SlideSection.objects.get_or_create(
                 slide=slide,
-                row=order + 1,
-                col=1,
+                row=(order // 2) + 1,
+                col=(order % 2) + 1,
                 defaults={'visual': visual, 'is_active': True, 'is_deleted': False},
             )
