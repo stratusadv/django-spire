@@ -36,6 +36,7 @@ class SlideSectionTransformationService(BaseDjangoModelService['SlideSection']):
 
         visual = self.obj.visual
         current_value = visual.services.transformation.current_value()
+        period_start, period_end = visual.services.transformation.date_range()
 
         return {
             'visual': visual,
@@ -44,4 +45,6 @@ class SlideSectionTransformationService(BaseDjangoModelService['SlideSection']):
                 value=current_value
             ),
             'chart': visual.services.transformation.chart(),
+            'period_start': period_start,
+            'period_end': period_end,
         }

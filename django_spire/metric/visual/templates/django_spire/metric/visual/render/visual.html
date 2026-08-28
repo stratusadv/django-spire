@@ -1,3 +1,4 @@
+{% load django_spire_metric_statistic %}
 {% load django_spire_string_formatting %}
 
 {% if visual.is_chart %}
@@ -12,18 +13,26 @@
                 {% endif %}
             </div>
 
-            {% if current_condition %}
-                <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
-                      title="{{ current_condition }}"
-                      style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
+            <div class="d-flex align-items-center gap-3">
+                {% if visual.statistic %}
+                    <div class="text-end">
+                        <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
+                        <div class="fs-5 fw-semibold lh-1">{{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                    </div>
+                {% endif %}
+                {% if current_condition %}
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                          title="{{ current_condition }}"
+                          style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
                         <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
                     </span>
-            {% else %}
-                <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
-                      title="No data" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
+                {% else %}
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                          title="No data" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
                         <i class="bi bi-dash text-white fs-5"></i>
                     </span>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
 
         {% if visual.statistic %}
@@ -49,17 +58,25 @@
                     {% endif %}
                 </div>
 
-                {% if current_condition %}
-                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
-                          style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
-                        <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
-                    </span>
-                {% else %}
-                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
-                          style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
-                        <i class="bi bi-dash text-white fs-5"></i>
-                    </span>
-                {% endif %}
+                <div class="d-flex align-items-center gap-3">
+                    {% if visual.statistic %}
+                        <div class="text-end">
+                            <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
+                            <div class="fs-5 fw-semibold lh-1">{{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                        </div>
+                    {% endif %}
+                    {% if current_condition %}
+                        <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                              style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
+                            <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
+                        </span>
+                    {% else %}
+                        <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                              style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
+                            <i class="bi bi-dash text-white fs-5"></i>
+                        </span>
+                    {% endif %}
+                </div>
             </div>
 
             {% if visual.statistic %}

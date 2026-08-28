@@ -20,6 +20,8 @@ def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
         'visual': visual,
         'current_value': visual.services.transformation.current_value(),
         'current_condition': visual.services.transformation.current_condition(),
+        'period_start': visual.services.transformation.date_range()[0],
+        'period_end': visual.services.transformation.date_range()[1],
     }
 
     chart = visual.services.transformation.chart()
