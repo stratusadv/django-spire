@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from datetime import timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
+from django_spire.metric.domain.statistic.constants import (
+    StatisticValueTypeChoices,
+    percentage_moving_window_days,
+)
 from django_spire.metric.domain.statistic.interval import interval_range
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
 
@@ -27,18 +32,33 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return interval_range(interval, value_date)
 
-    def current_value(self, value_date: date | None = None) -> Decimal:
-        if not self.obj.statistic_id:
-            return Decimal(0)
+    def _is_percentage(self) -> bool:
+        return (
+            self.obj.statistic_id
+            and self.obj.statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
+        )
 
-        start_date, end_date = self.date_range(value_date)
-
-        values = self.obj.statistic.values.date_range(start_date, end_date)
+    def _statistic_values(self) -> Any:
+        values = self.obj.statistic.values
 
         if self.obj.reference:
             values = values.for_reference(self.obj.reference)
 
-        return values.total()
+        return values
+
+    def current_value(self, value_date: date | None = None) -> Decimal:
+        if not self.obj.statistic_id:
+            return Decimal(0)
+
+        value_date = value_date or self.obj.date
+        values = self._statistic_values()
+
+        if self._is_percentage():
+            window_days = percentage_moving_window_days(self.obj.statistic.interval)
+            return values.moving_window_average(value_date, window_days)
+
+        start_date, end_date = self.date_range(value_date)
+        return values.date_range(start_date, end_date).total()
 
     def current_condition(
         self, value_date: date | None = None, *, value: Decimal | None = None
@@ -52,16 +72,46 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return None
 
+    def _percentage_series(self, value_date: date, window_days: int) -> list[dict]:
+        start_date = value_date - timedelta(days=window_days - 1)
+        fetch_start = start_date - timedelta(days=window_days - 1)
+
+        daily_averages = dict(
+            self._statistic_values().daily_averages(fetch_start, value_date)
+        )
+
+        points = []
+        for day_offset in range(window_days):
+            day = start_date + timedelta(days=day_offset)
+
+            window_total = Decimal(0)
+            window_count = 0
+            for back in range(window_days):
+                d = day - timedelta(days=back)
+                if d in daily_averages:
+                    window_total += daily_averages[d]
+                    window_count += 1
+
+            if window_count == 0:
+                continue
+
+            points.append({'timestamp': day, 'value': float(window_total / window_count)})
+
+        return points
+
     def series_data(self, value_date: date | None = None) -> list[dict]:
         if not self.obj.statistic_id:
             return []
 
+        value_date = value_date or self.obj.date
+
+        if self._is_percentage():
+            window_days = percentage_moving_window_days(self.obj.statistic.interval)
+            return self._percentage_series(value_date, window_days)
+
         start_date, end_date = self.date_range(value_date)
 
-        values = self.obj.statistic.values.date_range(start_date, end_date)
-
-        if self.obj.reference:
-            values = values.for_reference(self.obj.reference)
+        values = self._statistic_values().date_range(start_date, end_date)
 
         return [
             {'timestamp': value.timestamp, 'value': value.value}
@@ -74,10 +124,21 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         start_date, end_date = self.date_range(value_date)
 
-        values = self.obj.statistic.values.date_range(start_date, end_date)
+        values = self._statistic_values().date_range(start_date, end_date)
 
-        if self.obj.reference:
-            values = values.for_reference(self.obj.reference)
+        if self._is_percentage():
+            sums: dict[str, Decimal] = {}
+            counts: dict[str, int] = {}
+
+            for value in values:
+                reference = value.reference or 'Unassigned'
+                sums[reference] = sums.get(reference, Decimal(0)) + value.value
+                counts[reference] = counts.get(reference, 0) + 1
+
+            return [
+                {'name': reference, 'value': float(sums[reference] / counts[reference])}
+                for reference in sorted(sums)
+            ]
 
         totals: dict[str, Decimal] = {}
 

@@ -6,7 +6,10 @@ from decimal import Decimal
 from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.visual.charts import (
     VisualAreaChart,
     VisualBarChart,
@@ -219,6 +222,84 @@ class VisualTransformationServiceTestCase(BaseTestCase):
 
         assert {'name': '/dashboard/', 'value': 50.0} in breakdown
         assert {'name': '/home/', 'value': 50.0} in breakdown
+
+    def test_current_value_percentage_is_moving_average(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(4),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(6),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(100),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 1)),
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(5)
+
+    def test_series_data_percentage_rolling_average(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(4),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(6),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15)),
+        )
+
+        points = visual.services.transformation.series_data()
+
+        assert points == [
+            {'timestamp': date(2026, 5, 14), 'value': 4.0},
+            {'timestamp': date(2026, 5, 15), 'value': 5.0},
+        ]
+
+    def test_series_breakdown_percentage_averages_reference(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(20), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(30), sub_domain=self.sub_domain
+        )
+
+        breakdown = visual.services.transformation.series_breakdown()
+
+        assert {'name': '/dashboard/', 'value': 30.0} in breakdown
+        assert {'name': '/home/', 'value': 15.0} in breakdown
 
     def test_gauge_max_derived_from_conditions(self):
         statistic = create_test_statistic(group=self.group)

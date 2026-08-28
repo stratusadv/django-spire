@@ -3,7 +3,10 @@ from __future__ import annotations
 from decimal import Decimal
 
 from django_spire.metric.domain.models import Domain, SubDomain
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup
 from django_spire.metric.visual.models import Visual, VisualCondition
 
@@ -26,8 +29,11 @@ def create_test_statistic(
     group: StatisticGroup,
     name: str = 'test_statistic',
     interval: str = StatisticIntervalChoices.DAILY,
+    value_type: str = StatisticValueTypeChoices.NUMBER,
 ) -> Statistic:
-    return Statistic.objects.create(group=group, name=name, interval=interval)
+    return Statistic.objects.create(
+        group=group, name=name, interval=interval, value_type=value_type
+    )
 
 
 def create_test_visual(

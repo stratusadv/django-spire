@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
+from django_spire.metric.domain.statistic.constants import StatisticValueTypeChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticValue
 from django_spire.metric.domain.statistic.seeding.seeder import VALUE_REFERENCES
 from django_spire.metric.visual import models
@@ -71,8 +72,13 @@ class VisualSeeder(Seeder):
             )
 
             if not visual.conditions.exists():
+                target = (
+                    Decimal(50)
+                    if statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
+                    else Decimal(100)
+                )
                 visual.services.factory.create_default_conditions(
-                    target=Decimal(100), tolerance=Decimal(10)
+                    target=target, tolerance=Decimal(10)
                 )
 
             self._seed_visual_values(visual)

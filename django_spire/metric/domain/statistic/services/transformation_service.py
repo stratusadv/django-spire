@@ -4,10 +4,14 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Avg, Sum
 from django.db.models.functions import TruncDate
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
+from django_spire.metric.domain.statistic.constants import (
+    StatisticValueTypeChoices,
+    percentage_moving_window_days,
+)
 from django_spire.metric.domain.statistic.interval import interval_range
 
 if TYPE_CHECKING:
@@ -37,6 +41,12 @@ class StatisticTransformationService(BaseDjangoModelService['Statistic']):
             queryset = queryset.for_sub_domain(sub_domain)
         return queryset
 
+    def aggregate(self, queryset: QuerySet[StatisticValue]) -> Decimal:
+        if self.obj.value_type == StatisticValueTypeChoices.PERCENTAGE:
+            return queryset.average()
+
+        return queryset.total()
+
     def values_for_date(
         self, value_date: date_type | None = None, *, sub_domain: SubDomain | None = None
     ) -> QuerySet[StatisticValue]:
@@ -46,17 +56,21 @@ class StatisticTransformationService(BaseDjangoModelService['Statistic']):
     def total_for_date(
         self, value_date: date_type | None = None, *, sub_domain: SubDomain | None = None
     ) -> Decimal:
-        return self.values_for_date(value_date, sub_domain=sub_domain).total()
+        return self.aggregate(self.values_for_date(value_date, sub_domain=sub_domain))
 
     def daily_summary(
         self, start_date: date_type, end_date: date_type, *, sub_domain: SubDomain | None = None
     ) -> dict[date_type, Decimal]:
+        aggregate = (
+            Avg if self.obj.value_type == StatisticValueTypeChoices.PERCENTAGE else Sum
+        )
+
         rows = (
             self.value_queryset(sub_domain)
             .date_range(start_date, end_date)
             .annotate(day=TruncDate('timestamp', tzinfo=timezone.get_current_timezone()))
             .values('day')
-            .annotate(total=Sum('value'))
+            .annotate(total=aggregate('value'))
             .order_by('day')
         )
 
@@ -65,7 +79,8 @@ class StatisticTransformationService(BaseDjangoModelService['Statistic']):
     def total_between(
         self, start_date: date_type, end_date: date_type, *, sub_domain: SubDomain | None = None
     ) -> Decimal:
-        return self.value_queryset(sub_domain).date_range(start_date, end_date).total()
+        queryset = self.value_queryset(sub_domain).date_range(start_date, end_date)
+        return self.aggregate(queryset)
 
     def interval_bounds(self, value_date: date_type | None = None) -> tuple[date_type, date_type]:
         value_date = value_date or timezone.localdate()
@@ -82,19 +97,38 @@ class StatisticTransformationService(BaseDjangoModelService['Statistic']):
     def total_for_interval(
         self, value_date: date_type | None = None, *, sub_domain: SubDomain | None = None
     ) -> Decimal:
+        if self.obj.value_type == StatisticValueTypeChoices.PERCENTAGE:
+            value_date = value_date or timezone.localdate()
+            window_days = percentage_moving_window_days(self.obj.interval)
+            return self.value_queryset(sub_domain).moving_window_average(
+                value_date, window_days
+            )
+
         return self.values_for_interval(value_date, sub_domain=sub_domain).total()
 
     def interval_summary(
         self, start_date: date_type, end_date: date_type, *, sub_domain: SubDomain | None = None
     ) -> dict[date_type, Decimal]:
-        summary: dict[date_type, Decimal] = {}
+        totals: dict[date_type, Decimal] = {}
+        counts: dict[date_type, int] = {}
+        is_percentage = self.obj.value_type == StatisticValueTypeChoices.PERCENTAGE
 
         for value in self.value_queryset(sub_domain).date_range(start_date, end_date):
             day = timezone.localtime(value.timestamp).date()
             bucket_start, _ = interval_range(self.obj.interval, day)
-            summary[bucket_start] = summary.get(bucket_start, Decimal(0)) + value.value
+            totals[bucket_start] = totals.get(bucket_start, Decimal(0)) + value.value
 
-        return dict(sorted(summary.items()))
+            if is_percentage:
+                counts[bucket_start] = counts.get(bucket_start, 0) + 1
+
+        if is_percentage:
+            return dict(
+                sorted(
+                    (start, totals[start] / counts[start]) for start in totals
+                )
+            )
+
+        return dict(sorted(totals.items()))
 
 
 class StatisticValueTransformationService(BaseDjangoModelService['StatisticValue']):

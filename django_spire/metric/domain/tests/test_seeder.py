@@ -116,7 +116,7 @@ class MetricSeedingIdempotencyTestCase(TransactionTestCase):
         DomainSeeder(count=len(DOMAIN_SEEDS), verbose=False).seed_database()
         SubDomainSeeder(count=len(SUBDOMAIN_SEEDS), verbose=False).seed_database()
         StatisticGroupSeeder(count=5, verbose=False).seed_database()
-        StatisticSeeder(count=10, verbose=False).seed_database()
+        StatisticSeeder(count=12, verbose=False).seed_database()
         seed_statistic_values(count=1000)
         VisualSeeder(verbose=False).seed_database()
         PresentationSeeder(verbose=False).seed_database()

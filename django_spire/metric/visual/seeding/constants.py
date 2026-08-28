@@ -15,7 +15,7 @@ VISUAL_SEEDS = [
         'name': 'Conversion Rate',
         'description': 'Measures the share of sessions that convert to purchases.',
         'kind': 'gauge',
-        'statistic': 'New Leads',
+        'statistic': 'Conversion Rate',
     },
     {
         'name': 'New Customers',
@@ -57,6 +57,6 @@ VISUAL_SEEDS = [
         'name': 'Gross Margin',
         'description': 'Tracks gross margin as a percentage of revenue.',
         'kind': 'area',
-        'statistic': 'Revenue',
+        'statistic': 'Gross Margin',
     },
 ]

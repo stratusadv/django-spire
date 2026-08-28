@@ -4,7 +4,9 @@ from datetime import date, timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from django.db.models import QuerySet, Sum
+from django.db.models import Avg, QuerySet, Sum
+from django.db.models.functions import TruncDate
+from django.utils import timezone
 
 from django_spire.core.querysets import SearchQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
@@ -68,3 +70,33 @@ class StatisticValueQuerySet(QuerySet):
 
     def total(self) -> Decimal:
         return self.aggregate(total=Sum('value'))['total'] or Decimal(0)
+
+    def average(self) -> Decimal:
+        return self.aggregate(total=Avg('value'))['total'] or Decimal(0)
+
+    def daily_averages(self, start_date: date, end_date: date) -> list[tuple[date, Decimal]]:
+        rows = (
+            self.date_range(start_date, end_date)
+            .annotate(day=TruncDate('timestamp', tzinfo=timezone.get_current_timezone()))
+            .values('day')
+            .annotate(total=Avg('value'))
+            .order_by('day')
+        )
+
+        return [(row['day'], Decimal(row['total'])) for row in rows]
+
+    def moving_window_average(self, end_date: date, window_days: int) -> Decimal:
+        start_date = end_date - timedelta(days=window_days - 1)
+
+        rows = (
+            self.date_range(start_date, end_date)
+            .annotate(day=TruncDate('timestamp', tzinfo=timezone.get_current_timezone()))
+            .values('day')
+            .annotate(total=Avg('value'))
+        )
+
+        values = [row['total'] for row in rows]
+        if not values:
+            return Decimal(0)
+
+        return sum(values, Decimal(0)) / len(values)

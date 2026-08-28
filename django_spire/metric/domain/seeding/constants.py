@@ -105,6 +105,8 @@ STATISTIC_SEEDS = [
     {'name': 'Invoices Paid', 'value_type': 'currency'},
     {'name': 'New Hires', 'value_type': 'number'},
     {'name': 'Production Units', 'value_type': 'number'},
+    {'name': 'Conversion Rate', 'value_type': 'percentage'},
+    {'name': 'Gross Margin', 'value_type': 'percentage'},
 ]
 
 
@@ -147,6 +149,8 @@ STATISTIC_KEYS = [
     '22222222-3333-4444-8555-666666666608',
     '22222222-3333-4444-8555-666666666609',
     '22222222-3333-4444-8555-66666666660A',
+    '22222222-3333-4444-8555-66666666660B',
+    '22222222-3333-4444-8555-66666666660C',
 ]
 
 

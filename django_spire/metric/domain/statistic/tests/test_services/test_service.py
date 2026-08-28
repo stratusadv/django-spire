@@ -9,7 +9,10 @@ import pytest
 
 from django_spire.contrib.constructor.service.exceptions import ServiceError
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.domain.statistic.models import StatisticValue
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
@@ -337,6 +340,62 @@ class StatisticIntervalTransformationServiceTestCase(BaseTestCase):
 
         assert statistic.services.transformation.total_for_interval(date(2026, 1, 15)) == Decimal(5)
         assert statistic.services.transformation.total_for_interval(date(2026, 2, 15)) == Decimal(5)
+
+    def test_total_for_interval_percentage_is_moving_average(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(4),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 23)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(6),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 24)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(100),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 1)),
+        )
+
+        assert statistic.services.transformation.total_for_interval(date(2026, 8, 24)) == Decimal(5)
+
+    def test_total_for_interval_percentage_averages_daily_before_window(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(6),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 23)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(2),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 24), 10),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 24), 14),
+        )
+
+        assert statistic.services.transformation.total_for_interval(date(2026, 8, 24)) == Decimal(6)
+
+    def test_total_for_interval_percentage_without_data_is_zero(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        assert statistic.services.transformation.total_for_interval(date(2026, 8, 24)) == Decimal(0)
 
     def test_interval_summary_weekly_groups_by_bucket_start(self):
         statistic = create_test_statistic(
