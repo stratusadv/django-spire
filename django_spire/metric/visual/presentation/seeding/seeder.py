@@ -29,8 +29,13 @@ class PresentationSeeder(Seeder):
         model_objects = []
 
         for presentation_index, seed in enumerate(PRESENTATION_SEEDS):
-            presentation = models.Presentation.objects.create(
-                name=seed['name'], description=seed['description'], is_active=True, is_deleted=False
+            presentation, _ = models.Presentation.objects.get_or_create(
+                name=seed['name'],
+                defaults={
+                    'description': seed['description'],
+                    'is_active': True,
+                    'is_deleted': False,
+                },
             )
             self._seed_slides(presentation, presentation_index)
             model_objects.append(presentation)
@@ -45,8 +50,10 @@ class PresentationSeeder(Seeder):
 
         for order in range(SLIDE_COUNT):
             slide_title = SLIDE_TITLES[(start + order) % len(SLIDE_TITLES)]
-            slide = models.Slide.objects.create(
-                presentation=presentation, name=slide_title, order=order
+            slide, _ = models.Slide.objects.get_or_create(
+                presentation=presentation,
+                order=order,
+                defaults={'name': slide_title, 'is_active': True, 'is_deleted': False},
             )
             cls._seed_sections(slide)
 
@@ -62,4 +69,9 @@ class PresentationSeeder(Seeder):
 
         for order, visual_name in enumerate(visual_names):
             visual = visuals_by_name.get(visual_name) or visuals[order % len(visuals)]
-            models.SlideSection.objects.create(slide=slide, visual=visual, row=order + 1, col=1)
+            models.SlideSection.objects.get_or_create(
+                slide=slide,
+                row=order + 1,
+                col=1,
+                defaults={'visual': visual, 'is_active': True, 'is_deleted': False},
+            )

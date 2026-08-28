@@ -33,7 +33,7 @@ class BaseReportAuthControllerTests(BaseTestCase):
             codename='delete_reportrun', content_type=content_type
         )
 
-    def _refresh_user_and_request(self):
+    def _refresh_user_and_request(self) -> None:
         self.user = type(self.user).objects.get(pk=self.user.pk)
         self.request.user = self.user
 

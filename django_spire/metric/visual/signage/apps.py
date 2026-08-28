@@ -18,6 +18,12 @@ class SignageConfig(AppConfig):
             'model_class_path': 'django_spire.metric.visual.signage.models.Signage',
             'is_proxy_model': False,
         },
+        {
+            'name': 'visual_signage_presentation',
+            'verbose_name': 'Visual Signage Presentation',
+            'model_class_path': 'django_spire.metric.visual.signage.models.SignagePresentation',
+            'is_proxy_model': False,
+        },
     )
 
     REQUIRED_APPS = (

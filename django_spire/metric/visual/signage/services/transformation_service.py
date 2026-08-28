@@ -43,7 +43,8 @@ class SignageTransformationService(BaseDjangoModelService['Signage']):
                 sections = [
                     {'section': section, **section.services.transformation.render_context()}
                     for section in slide.sections.select_related('visual')
-                    .filter(is_deleted=False)
+                    .prefetch_related('visual__conditions')
+                    .filter(is_deleted=False, visual__is_deleted=False)
                     .order_by('row', 'col')
                 ]
                 slides.append({'presentation': presentation, 'slide': slide, 'sections': sections})

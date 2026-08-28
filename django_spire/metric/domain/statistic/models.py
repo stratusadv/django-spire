@@ -42,7 +42,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
     class Meta:
         verbose_name = 'Statistic Group'
-        verbose_name_plural = 'Statistics Group'
+        verbose_name_plural = 'Statistics Groups'
         db_table = 'django_spire_metric_domain_statistic_group'
 
     def subdomains_qs(self) -> QuerySet[SubDomain]:
@@ -50,9 +50,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
     def set_deleted(self) -> None:
         super().set_deleted()
-
-        for statistic in self.statistics.all():
-            statistic.set_deleted()
+        self.statistics.all().update(is_deleted=True)
 
     def __str__(self) -> str:
         return self.name

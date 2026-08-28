@@ -37,3 +37,4 @@ class PresentationPageViewsTestCase(BaseTestCase):
         assert response.context_data['presentation'] == self.presentation
         assert len(response.context_data['slides']) == 1
         assert len(response.context_data['slides'][0]['sections']) == 1
+        assert 'chart' in response.context_data['slides'][0]['sections'][0]

@@ -35,15 +35,15 @@ class Helper:
 
     @property
     def end_of_current_week(self) -> datetime:
-        return self.start_of_week + timedelta(days=6)
+        return self.start_of_current_week + timedelta(days=6)
 
     @property
     def start_of_last_week(self) -> datetime:
-        return self.start_of_week - timedelta(days=6)
+        return self.start_of_current_week - timedelta(days=6)
 
     @property
     def end_of_last_week(self) -> datetime:
-        return self.end_of_week - timedelta(days=6)
+        return self.end_of_current_week - timedelta(days=6)
 
     @property
     def start_of_current_month(self) -> datetime:
@@ -82,7 +82,7 @@ class Helper:
         return self.today.replace(year=self.today.year - 1, month=12, day=31)
 
     @staticmethod
-    def _add_months(datetime_, months):
+    def _add_months(datetime_: datetime, months: int) -> datetime:
         month = datetime_.month - 1 + months
         year = datetime_.year + month // 12
         month = month % 12 + 1

@@ -15,7 +15,7 @@
         </div>
 
         <div class="col-12">
-            {% include 'django_spire/activity/card/list_card.html' with activity_log=statistic.activity_log.prefetch_user %}
+            {% include 'django_spire/activity/card/list_card.html' with activity_log=statistic.activities.prefetch_user %}
         </div>
     </div>
 {% endblock %}

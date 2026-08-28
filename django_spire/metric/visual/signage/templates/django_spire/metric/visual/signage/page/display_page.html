@@ -1,9 +1,10 @@
 {% extends 'django_spire/page/page.html' %}
 
-{% block page_content %}
+{% block base_head_additional_css %}
     <style>
-        [x-cloak] {
-            display: none !important;
+        body {
+            overflow: hidden;
+            height: 1076px;
         }
 
         .kiosk-grid {
@@ -13,37 +14,62 @@
             gap: 1rem;
         }
     </style>
+{% endblock %}
 
-    <div class="container-fluid py-3" x-data="{
-        index: 0,
-        count: {{ slide_count }},
-        delay: 10000,
-        init() {
-            if (this.count > 1) {
-                setInterval(() => {
-                    this.index = (this.index + 1) % this.count;
-                }, this.delay);
-            }
-        }
-    }">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <div class="fs-4 fw-semibold">{{ signage.name }}</div>
-                {% if slide_count == 0 %}
-                    <div class="text-muted">No slides configured.</div>
-                {% endif %}
-            </div>
-            <div class="badge text-bg-secondary fs-6" x-show="count > 0"
-                 x-text="(index + 1) + ' / ' + count"></div>
-        </div>
+{% block base_body_class %}bg-primary{% endblock %}
+
+{% block page_content %}
+    <div
+            class="container-fluid py-3"
+            x-data="{
+                index: 0,
+                count: {{ slide_count }},
+                delay: 10000,
+                init() {
+                    if (this.count > 1) {
+                        setInterval(() => {
+                            this.next_slide()
+                        }, this.delay);
+                    }
+                    document.addEventListener('keydown', (event) => {
+                        if (event.key === 'ArrowLeft') {
+                            this.previous_slide()
+                        }
+                        if (event.key === 'ArrowRight') {
+                            this.next_slide()
+                        }
+                    })
+                },
+                next_slide() {
+                    this.index = (this.index + 1) % this.count
+                },
+                previous_slide() {
+                    this.index = (this.index - 1)
+                    if (this.index < 0) {
+                        this.index = this.count - 1
+                    }
+                }
+            }"
+    >
 
         {% if slides %}
             {% for item in slides %}
-                <div x-show="index === {{ forloop.counter0 }}" x-cloak>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="h5 mb-0">{{ item.presentation }} - {{ item.slide }}</div>
-                        <div class="small text-muted">
-                            {{ item.sections|length }} sections
+                <div x-show="index === {{ forloop.counter0 }}">
+
+                    <div class="row mb-3">
+                        <div class="col">
+
+                            <div class="card shadow px-3 py-2">
+                                <div class="row">
+                                    <div class="col fs-4 fw-semibold">
+                                        {{ signage.name }}
+                                    </div>
+                                    <div class="col fs-4 fw-semibold text-end">
+                                        {{ item.presentation }} - {{ item.slide }}
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -51,7 +77,7 @@
                         {% for section in item.sections %}
                             {% if section.visual %}
                                 <div style="grid-column: 1 / -1; grid-row: auto;">
-                                    {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition %}
+                                    {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition chart=section.chart %}
                                 </div>
                             {% else %}
                                 <div class="border rounded d-flex align-items-center justify-content-center text-muted"
@@ -63,6 +89,9 @@
                     </div>
                 </div>
             {% endfor %}
+        {% else %}
+            <div class="text-muted">No slides configured.</div>
         {% endif %}
+
     </div>
 {% endblock %}

@@ -18,6 +18,12 @@ class VisualConfig(AppConfig):
             'is_proxy_model': False,
         },
         {
+            'name': 'metric_visual_condition',
+            'verbose_name': 'Metric Visual Condition',
+            'model_class_path': 'django_spire.metric.visual.models.VisualCondition',
+            'is_proxy_model': False,
+        },
+        {
             'name': 'indicator_visual',
             'verbose_name': 'Indicator Visual',
             'model_class_path': 'django_spire.metric.visual.models.IndicatorVisual',
@@ -56,8 +62,6 @@ class VisualConfig(AppConfig):
     )
 
     REQUIRED_APPS = ('django_spire_core', 'django_spire_metric_domain')
-    URLPATTERNS_INCLUDE = 'django_spire.metric.visual.urls'
-    URLPATTERNS_NAMESPACE = 'visual'
 
     def ready(self) -> None:
         check_required_apps(self.label)

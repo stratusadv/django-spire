@@ -4,14 +4,14 @@ from django_spire.auth.controller.controller import BaseAuthController
 
 
 class BaseReportAuthController(BaseAuthController):
-    def can_add(self):
+    def can_add(self) -> bool:
         return self.request.user.has_perm('django_spire_metric_report.add_reportrun')
 
-    def can_change(self):
+    def can_change(self) -> bool:
         return self.request.user.has_perm('django_spire_metric_report.change_reportrun')
 
-    def can_delete(self):
+    def can_delete(self) -> bool:
         return self.request.user.has_perm('django_spire_metric_report.delete_reportrun')
 
-    def can_view(self):
+    def can_view(self) -> bool:
         return self.request.user.has_perm('django_spire_metric_report.view_reportrun')

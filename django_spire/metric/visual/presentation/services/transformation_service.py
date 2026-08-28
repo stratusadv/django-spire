@@ -24,21 +24,24 @@ class SlideTransformationService(BaseDjangoModelService['Slide']):
     obj: Slide
 
     def sections(self) -> QuerySet[SlideSection]:
-        return self.obj.sections.select_related('visual').filter(is_deleted=False)
+        return self.obj.sections.filter(is_deleted=False, visual__is_deleted=False)
 
 
 class SlideSectionTransformationService(BaseDjangoModelService['SlideSection']):
     obj: SlideSection
 
     def render_context(self) -> dict:
-        if not self.obj.visual_id:
+        if not self.obj.visual_id or self.obj.visual.is_deleted:
             return {'visual': None, 'current_value': None, 'current_condition': None, 'chart': None}
 
         visual = self.obj.visual
+        current_value = visual.services.transformation.current_value()
 
         return {
             'visual': visual,
-            'current_value': visual.services.transformation.current_value(),
-            'current_condition': visual.services.transformation.current_condition(),
+            'current_value': current_value,
+            'current_condition': visual.services.transformation.current_condition(
+                value=current_value
+            ),
             'chart': visual.services.transformation.chart(),
         }

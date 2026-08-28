@@ -43,12 +43,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                signage.set_deleted()
-                signage.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=f'{request.user.get_full_name()} deleted signage "{signage}".',
-                )
+                form.save(user=request.user, delete_func=signage.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -154,15 +149,7 @@ def delete_link_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRe
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                link.set_deleted()
-                link.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} removed presentation '
-                        f'"{link.presentation}" from signage "{signage}".'
-                    ),
-                )
+                form.save(user=request.user, delete_func=link.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:

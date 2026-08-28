@@ -40,8 +40,11 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return values.total()
 
-    def current_condition(self, value_date: date | None = None) -> VisualCondition | None:
-        value = self.current_value(value_date)
+    def current_condition(
+        self, value_date: date | None = None, *, value: Decimal | None = None
+    ) -> VisualCondition | None:
+        if value is None:
+            value = self.current_value(value_date)
 
         for condition in self.obj.conditions.all():
             if condition.matches(value):

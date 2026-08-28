@@ -22,6 +22,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     nav.page_title = str(signage)
     nav.breadcrumbs.add('Signages', 'django_spire:metric:visual:signage:page:list')
     nav.breadcrumbs.add(str(signage))
+
     context = nav.as_context()
     context['signage'] = signage
     context['presentation_links'] = signage.services.transformation.presentation_links()
@@ -54,6 +55,9 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
 def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
     signage = get_object_or_404(models.Signage.objects.for_key(key), key=key)
 
+    nav = SignageNavigation()
+    nav.page_title = str(signage)
+
     slides = signage.services.transformation.display_slides()
 
     for slide in slides:
@@ -67,6 +71,7 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
         'slides': slides,
         'slide_count': len(slides),
         'chart_update_interval': 15,
+        **nav.as_context()
     }
 
     return TemplateResponse(

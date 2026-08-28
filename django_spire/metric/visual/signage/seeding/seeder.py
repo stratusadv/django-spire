@@ -26,12 +26,14 @@ class SignageSeeder(Seeder):
         model_objects = []
 
         for seed in SIGNAGE_SEEDS:
-            signage = models.Signage.objects.create(
-                name=seed['name'],
-                description=seed['description'],
+            signage, _ = models.Signage.objects.update_or_create(
                 key=seed['key'],
-                is_active=True,
-                is_deleted=False,
+                defaults={
+                    'name': seed['name'],
+                    'description': seed['description'],
+                    'is_active': True,
+                    'is_deleted': False,
+                },
             )
             self._seed_links(signage)
             model_objects.append(signage)
@@ -57,6 +59,12 @@ class SignageSeeder(Seeder):
                 presentations_by_name.get(presentation_name)
                 or presentations[order % len(presentations)]
             )
-            models.SignagePresentation.objects.create(
-                signage=signage, presentation=presentation, order=order
+            models.SignagePresentation.objects.get_or_create(
+                signage=signage,
+                order=order,
+                defaults={
+                    'presentation': presentation,
+                    'is_active': True,
+                    'is_deleted': False,
+                },
             )

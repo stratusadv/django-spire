@@ -20,11 +20,33 @@ class DomainConfig(AppConfig):
             'model_class_path': 'django_spire.metric.domain.models.Domain',
             'is_proxy_model': False,
         },
+        {
+            'name': 'metric_sub_domain',
+            'verbose_name': 'Metric Sub Domain',
+            'model_class_path': 'django_spire.metric.domain.models.SubDomain',
+            'is_proxy_model': False,
+        },
+        {
+            'name': 'metric_statistic_group',
+            'verbose_name': 'Metric Statistic Group',
+            'model_class_path': 'django_spire.metric.domain.statistic.models.StatisticGroup',
+            'is_proxy_model': False,
+        },
+        {
+            'name': 'metric_statistic',
+            'verbose_name': 'Metric Statistic',
+            'model_class_path': 'django_spire.metric.domain.statistic.models.Statistic',
+            'is_proxy_model': False,
+        },
+        {
+            'name': 'metric_statistic_value',
+            'verbose_name': 'Metric Statistic Value',
+            'model_class_path': 'django_spire.metric.domain.statistic.models.StatisticValue',
+            'is_proxy_model': False,
+        },
     )
 
     REQUIRED_APPS = ('django_spire_core',)
-    URLPATTERNS_INCLUDE = 'django_spire.metric.domain.urls'
-    URLPATTERNS_NAMESPACE = 'domain'
 
     def ready(self) -> None:
         check_required_apps(self.label)

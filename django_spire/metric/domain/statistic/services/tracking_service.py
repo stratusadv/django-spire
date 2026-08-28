@@ -37,14 +37,27 @@ class StatisticTrackingService(BaseDjangoModelService['Statistic']):
             self._apply_write_timeout()
 
             with transaction.atomic():
-                return self.obj.services.processor.increment(
+                statistic_value = self.obj.services.processor.increment(
                     reference=reference, sub_domain=sub_domain
                 )
+                self._trim_values(sub_domain, reference)
+
+                return statistic_value
         except Exception:
             logger.warning('Statistic tracking failed', exc_info=True)
             return None
         finally:
             self._reset_write_timeout()
+
+    def _trim_values(self, sub_domain: SubDomain, reference: str) -> None:
+        max_values = getattr(settings, 'DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX', 1000)
+        values = self.obj.values.filter(sub_domain=sub_domain, reference=reference)
+
+        if values.count() <= max_values * 2:
+            return
+
+        retained_pks = list(values.order_by('-timestamp').values_list('pk', flat=True)[:max_values])
+        values.exclude(pk__in=retained_pks).delete()
 
     @classmethod
     def track_configured(cls, *, reference: str = 'page_click') -> StatisticValue | None:

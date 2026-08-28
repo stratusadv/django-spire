@@ -25,9 +25,7 @@ class Presentation(HistoryModelMixin, ActivityMixin):
 
     def set_deleted(self) -> None:
         super().set_deleted()
-
-        for slide in self.slides.all():
-            slide.set_deleted()
+        self.slides.all().update(is_deleted=True)
 
     class Meta:
         verbose_name = 'Presentation'
@@ -50,9 +48,7 @@ class Slide(HistoryModelMixin, ActivityMixin):
 
     def set_deleted(self) -> None:
         super().set_deleted()
-
-        for section in self.sections.all():
-            section.set_deleted()
+        self.sections.all().update(is_deleted=True)
 
     class Meta:
         verbose_name = 'Slide'

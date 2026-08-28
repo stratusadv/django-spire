@@ -7,6 +7,22 @@ from django.test import TransactionTestCase
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.seeding.constants import DOMAIN_SEEDS, SUBDOMAIN_SEEDS
 from django_spire.metric.domain.seeding.seeder import DomainSeeder, SubDomainSeeder
+from django_spire.metric.domain.statistic.models import (
+    Statistic,
+    StatisticGroup,
+    StatisticValue,
+)
+from django_spire.metric.domain.statistic.seeding.seeder import (
+    StatisticGroupSeeder,
+    StatisticSeeder,
+    seed_statistic_values,
+)
+from django_spire.metric.visual.models import Visual, VisualCondition
+from django_spire.metric.visual.presentation.models import Presentation, Slide, SlideSection
+from django_spire.metric.visual.presentation.seeding.seeder import PresentationSeeder
+from django_spire.metric.visual.seeding.seeder import VisualSeeder
+from django_spire.metric.visual.signage.models import Signage, SignagePresentation
+from django_spire.metric.visual.signage.seeding.seeder import SignageSeeder
 from django_spire.contrib.seeding.field.seed.model_seed import BaseForeignKeyModelFieldSeed
 
 if TYPE_CHECKING:
@@ -93,3 +109,40 @@ class SubDomainSeederTestCase(TransactionTestCase):
 
         active_domain_ids = set(Domain.objects.active().values_list('id', flat=True))
         assert set(subdomains.values_list('domain_id', flat=True)) == active_domain_ids
+
+
+class MetricSeedingIdempotencyTestCase(TransactionTestCase):
+    def _run_full_seed(self) -> None:
+        DomainSeeder(count=len(DOMAIN_SEEDS), verbose=False).seed_database()
+        SubDomainSeeder(count=len(SUBDOMAIN_SEEDS), verbose=False).seed_database()
+        StatisticGroupSeeder(count=5, verbose=False).seed_database()
+        StatisticSeeder(count=10, verbose=False).seed_database()
+        seed_statistic_values(count=1000)
+        VisualSeeder(verbose=False).seed_database()
+        PresentationSeeder(verbose=False).seed_database()
+        SignageSeeder(verbose=False).seed_database()
+
+    def _snapshot(self) -> dict[str, int]:
+        return {
+            'Domain': Domain.objects.count(),
+            'SubDomain': SubDomain.objects.count(),
+            'StatisticGroup': StatisticGroup.objects.count(),
+            'Statistic': Statistic.objects.count(),
+            'StatisticValue': StatisticValue.objects.count(),
+            'Visual': Visual.objects.count(),
+            'VisualCondition': VisualCondition.objects.count(),
+            'Presentation': Presentation.objects.count(),
+            'Slide': Slide.objects.count(),
+            'SlideSection': SlideSection.objects.count(),
+            'Signage': Signage.objects.count(),
+            'SignagePresentation': SignagePresentation.objects.count(),
+        }
+
+    def test_double_seed_does_not_duplicate_or_crash(self):
+        self._run_full_seed()
+        first = self._snapshot()
+
+        self._run_full_seed()
+        second = self._snapshot()
+
+        assert first == second

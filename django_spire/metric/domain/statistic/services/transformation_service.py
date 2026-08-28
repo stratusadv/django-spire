@@ -4,6 +4,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.utils import timezone
+from django.db.models import Sum
+from django.db.models.functions import TruncDate
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.metric.domain.statistic.interval import interval_range
@@ -49,15 +51,16 @@ class StatisticTransformationService(BaseDjangoModelService['Statistic']):
     def daily_summary(
         self, start_date: date_type, end_date: date_type, *, sub_domain: SubDomain | None = None
     ) -> dict[date_type, Decimal]:
-        summary: dict[date_type, Decimal] = {}
+        rows = (
+            self.value_queryset(sub_domain)
+            .date_range(start_date, end_date)
+            .annotate(day=TruncDate('timestamp', tzinfo=timezone.get_current_timezone()))
+            .values('day')
+            .annotate(total=Sum('value'))
+            .order_by('day')
+        )
 
-        for value in (
-            self.value_queryset(sub_domain).date_range(start_date, end_date).order_by('timestamp')
-        ):
-            day = timezone.localtime(value.timestamp).date()
-            summary[day] = summary.get(day, Decimal(0)) + value.value
-
-        return dict(sorted(summary.items()))
+        return {row['day']: row['total'] for row in rows}
 
     def total_between(
         self, start_date: date_type, end_date: date_type, *, sub_domain: SubDomain | None = None

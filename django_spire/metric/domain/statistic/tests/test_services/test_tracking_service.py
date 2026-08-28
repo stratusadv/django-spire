@@ -107,3 +107,27 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
 
             assert value is None
             assert not StatisticValue.objects.exists()
+
+    def test_track_trims_old_values_beyond_retention_cap(self) -> None:
+        with override_settings(DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX=3):
+            for _ in range(7):
+                self.statistic.services.tracking.track(self.sub_domain, reference='click')
+
+            assert StatisticValue.objects.count() == 3
+
+    def test_track_keeps_values_within_retention_cap(self) -> None:
+        with override_settings(DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX=10):
+            for _ in range(5):
+                self.statistic.services.tracking.track(self.sub_domain, reference='click')
+
+            assert StatisticValue.objects.count() == 5
+
+    def test_track_trims_only_values_for_tracked_key(self) -> None:
+        with override_settings(DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX=2):
+            for _ in range(5):
+                self.statistic.services.tracking.track(self.sub_domain, reference='click')
+
+            self.statistic.services.tracking.track(self.sub_domain, reference='other')
+
+            assert StatisticValue.objects.filter(reference='click').count() == 2
+            assert StatisticValue.objects.filter(reference='other').count() == 1

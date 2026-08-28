@@ -58,19 +58,22 @@ class VisualSeeder(Seeder):
                 else VALUE_REFERENCES[index % len(VALUE_REFERENCES)]
             )
 
-            visual = visual_class.objects.create(
+            visual, _ = visual_class.objects.get_or_create(
                 name=seed['name'],
-                description=seed['description'],
-                statistic=statistic,
-                reference=reference,
-                date=timezone.localdate(),
-                is_active=True,
-                is_deleted=False,
+                defaults={
+                    'description': seed['description'],
+                    'statistic': statistic,
+                    'reference': reference,
+                    'date': timezone.localdate(),
+                    'is_active': True,
+                    'is_deleted': False,
+                },
             )
 
-            visual.services.factory.create_default_conditions(
-                target=Decimal(100), tolerance=Decimal(10)
-            )
+            if not visual.conditions.exists():
+                visual.services.factory.create_default_conditions(
+                    target=Decimal(100), tolerance=Decimal(10)
+                )
 
             self._seed_visual_values(visual)
 
@@ -100,16 +103,26 @@ class VisualSeeder(Seeder):
 
         start_date, end_date = visual.services.transformation.date_range()
 
-        rows = [
-            StatisticValue(
-                statistic=visual.statistic,
-                sub_domain=sub_domain,
-                reference=reference,
-                timestamp=_visual_timestamp(start_date, end_date, index, VISUAL_VALUE_POINTS),
-                value=_visual_value(index, VISUAL_VALUE_POINTS),
-            )
-            for reference in references
-            for index in range(VISUAL_VALUE_POINTS)
-        ]
+        existing = set(
+            StatisticValue.objects.filter(
+                statistic=visual.statistic, sub_domain=sub_domain
+            ).values_list('reference', 'timestamp')
+        )
+
+        rows = []
+        for reference in references:
+            for index in range(VISUAL_VALUE_POINTS):
+                timestamp = _visual_timestamp(start_date, end_date, index, VISUAL_VALUE_POINTS)
+                if (reference, timestamp) in existing:
+                    continue
+                rows.append(
+                    StatisticValue(
+                        statistic=visual.statistic,
+                        sub_domain=sub_domain,
+                        reference=reference,
+                        timestamp=timestamp,
+                        value=_visual_value(index, VISUAL_VALUE_POINTS),
+                    )
+                )
 
         StatisticValue.objects.bulk_create(rows)

@@ -38,14 +38,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                presentation.set_deleted()
-                presentation.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} deleted presentation "{presentation}".'
-                    ),
-                )
+                form.save(user=request.user, delete_func=presentation.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -153,15 +146,7 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                slide.set_deleted()
-                slide.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} deleted slide "{slide}" from '
-                        f'presentation "{presentation}".'
-                    ),
-                )
+                form.save(user=request.user, delete_func=slide.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -244,15 +229,7 @@ def delete_section_view(request: WSGIRequest, pk: int) -> TemplateResponse | Htt
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                section.set_deleted()
-                section.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=(
-                        f'{request.user.get_full_name()} deleted section "{section}" from '
-                        f'slide "{slide}".'
-                    ),
-                )
+                form.save(user=request.user, delete_func=section.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:

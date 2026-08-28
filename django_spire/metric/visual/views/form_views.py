@@ -29,12 +29,7 @@ def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpRespons
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                visual.set_deleted()
-                visual.add_activity(
-                    user=request.user,
-                    verb='deleted',
-                    information=f'{request.user.get_full_name()} deleted visual "{visual}".',
-                )
+                form.save(user=request.user, delete_func=visual.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
@@ -155,7 +150,7 @@ def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
 
         if form.is_valid():
             if form.cleaned_data['should_delete']:
-                condition.delete()
+                form.save(user=request.user, delete_func=condition.set_deleted)
 
             return HttpResponseRedirect(return_url)
     else:
