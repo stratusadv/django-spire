@@ -3,41 +3,28 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django_glue import Glue
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.template.response import TemplateResponse
-from django.urls import reverse
 
-# from django_spire.contrib.generic_views.page_views import infinite_scrolling_view
-from django_spire.contrib.session.controller import SessionController
-from django_spire.notification.app.constants import NOTIFICATION_FILTERING_SESSION_KEY_NAME
-from django_spire.notification.app.forms import NotificationListFilterForm
 from django_spire.notification.app.models import AppNotification
-from django_spire.notification.choices import NotificationPriorityChoices, NotificationStatusChoices
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-    from django.db.models import QuerySet
-
-
-def _infinite_scroll_view(
-    request: WSGIRequest, notification_queryset: QuerySet[AppNotification]
-) -> TemplateResponse:
-    body_data = json.loads(request.body.decode('utf-8'))
-
-    # return infinite_scrolling_view(
-    #     request,
-    #     queryset=notification_queryset,
-    #     queryset_name='notifications',
-    #     context_data={'app_notification_list_url': body_data.get('app_notification_list_url')},
-    #     template='django_spire/notification/app/scroll/item/items.html',
-    # )
 
 
 @login_required()
-def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
+def dropdown_content_view(request: WSGIRequest) -> TemplateResponse:
+    body_data = json.loads(request.body.decode('utf-8'))
+
+
     if isinstance(request.user, AnonymousUser):
         notifications = AppNotification.objects.none()
+
     else:
         notifications = (
             AppNotification.objects.active()
@@ -46,56 +33,46 @@ def notification_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
             .select_related('notification')
             .distinct()
             .ordered_by_priority_and_sent_datetime()
-            .process_session_filter(
-                request=request,
-                session_key=NOTIFICATION_FILTERING_SESSION_KEY_NAME,
-                form_class=NotificationListFilterForm,
-            )
         )
 
-    filter_session = SessionController(request, NOTIFICATION_FILTERING_SESSION_KEY_NAME)
-
-    view = _infinite_scroll_view(request=request, notification_queryset=notifications)
-    view.context_data.update(
-        {
-            'filter_session': filter_session,
-            'statuses': NotificationStatusChoices,
-            'priorities': NotificationPriorityChoices,
-        }
+    Glue.queryset(
+        request=request,
+        target=notifications,
+        unique_name='notifications',
+        fields='__all__',
+        access=Glue.Access.CHANGE
     )
-    return view
-
-
-@login_required()
-def dropdown_infinite_scroll_view(request: WSGIRequest) -> TemplateResponse:
-    if isinstance(request.user, AnonymousUser):
-        notifications = AppNotification.objects.none()
-    else:
-        notifications = (
-            AppNotification.objects.active()
-            .is_sent()
-            .annotate_is_viewed_by_user(request.user)
-            .select_related('notification')
-            .distinct()
-            .ordered_by_priority_and_sent_datetime()
-        )
-
-    view = _infinite_scroll_view(request=request, notification_queryset=notifications)
-    view.context_data.update({'is_dropdown_item': True})
-    return view
-
-
-@login_required()
-def notification_dropdown_template_view(request: WSGIRequest) -> TemplateResponse:
-    body_data = json.loads(request.body.decode('utf-8'))
 
     return TemplateResponse(
         request,
         context={
             'app_notification_list_url': body_data.get('app_notification_list_url'),
-            'notification_endpoint': reverse(
-                'django_spire:notification:app:template:dropdown_scroll_items'
-            ),
         },
         template='django_spire/notification/app/dropdown/notification_dropdown_content.html',
     )
+
+@login_required()
+def notification_template_render_view(request: WSGIRequest) -> JsonResponse:
+    body_data = json.loads(request.body.decode('utf-8'))
+    ids = body_data.get('ids', [])
+
+    if isinstance(request.user, AnonymousUser) or not ids:
+        return JsonResponse({})
+
+    notifications = (
+        AppNotification.objects.active()
+        .is_sent()
+        .annotate_is_viewed_by_user(request.user)
+        .select_related('notification')
+        .distinct()
+        .ordered_by_priority_and_sent_datetime()
+    )
+
+    print(notifications)
+
+    rendered = {
+        notification.pk: render_to_string(notification.template, {'item': notification})
+        for notification in notifications
+    }
+
+    return JsonResponse(rendered)

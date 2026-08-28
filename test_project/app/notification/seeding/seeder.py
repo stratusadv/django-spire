@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django_spire.auth.user.models import AuthUser
 
 from django_spire.contrib.seeding import Seeder
 from django_spire.notification.app.models import AppNotification
@@ -9,13 +9,24 @@ from django_spire.notification.choices import (
 )
 from django_spire.notification.models import Notification
 
+super_user, created_ = AuthUser.objects.get_or_create(
+    username='stratus',
+    defaults={
+        'email': 'bobert@stratusadv.com',
+        'first_name': 'stratus',
+        'last_name': 'stratus',
+        'is_superuser': True,
+        'is_staff': True,
+    }
+)
+
 
 class NotificationSeeder(Seeder):
     model_class = Notification
 
     fields_seeds = {
         'id': Seeder.exclude(),
-        'user_id': Seeder.model.random_foreign_key(User),
+        'user_id': Seeder.static(super_user.pk),
         'type': Seeder.model.random_field_choice(NotificationTypeChoices),
         'title': Seeder.fake.sentence(nb_words=1),
         'body': Seeder.fake.sentence(),

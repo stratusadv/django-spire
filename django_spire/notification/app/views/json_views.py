@@ -14,20 +14,27 @@ if TYPE_CHECKING:
 
 
 @login_required()
-def check_new_notifications_ajax_view(request: WSGIRequest) -> JsonResponse:
+def check_for_new_notifications_view(request: WSGIRequest) -> JsonResponse:
     notifications = AppNotification.objects.active().is_sent().exclude_viewed_by_user(request.user)
 
     return JsonResponse({'status': 200, 'has_new_notifications': bool(notifications)})
 
 
 @login_required()
-def set_notifications_as_viewed_ajax(request: WSGIRequest) -> JsonResponse:
+def set_notifications_as_viewed_view(request: WSGIRequest) -> JsonResponse:
+    print('Viewed!')
     notification_list = (
         AppNotification.objects.active()
         .is_sent()
         .by_user(request.user)
         .exclude_viewed_by_user(request.user)
     )
+
+    print(notification_list)
+
+    for notification in notification_list:
+        print(notification.views)
+
     ctype = ContentType.objects.get_for_model(AppNotification)
     viewed_model_objects = [
         Viewed(user=request.user, object_id=notification.id, content_type=ctype)
@@ -36,4 +43,4 @@ def set_notifications_as_viewed_ajax(request: WSGIRequest) -> JsonResponse:
 
     Viewed.objects.bulk_create(viewed_model_objects)
 
-    return JsonResponse({'status': 200, 'message': 'Notifications succesfully marked as viewed.'})
+    return JsonResponse({'status': 200, 'message': 'Notifications successfully marked as viewed.'})

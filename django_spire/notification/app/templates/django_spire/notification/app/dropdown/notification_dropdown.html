@@ -1,60 +1,80 @@
 {% extends "django_spire/dropdown/dropdown.html" %}
 
 {% block dropdown_trigger %}
-    <div x-data="{
-        new_notification: false,
+    <div
+    x-data="{
+        hasNewNotification: false,
         isLoading: false,
 
-        async init(){
-            await this.check_new_notifications();
-            setInterval(await this.check_new_notifications, 30000);
+        async init() {
+            await this.checkForNewNotifications();
+            setInterval(() => this.checkForNewNotifications(), 30000);
         },
 
-        async check_new_notifications(){
-            let url = '{% url "django_spire:notification:app:json:check_new" %}';
-            let response = await Glue.fetch(url);
-            this.new_notification = response.has_new_notifications;
+        async checkForNewNotifications() {
+            let response = await Glue.fetch('{% url "django_spire:notification:app:json:check_new" %}');
+            this.hasNewNotification = response.has_new_notifications;
         },
 
-        async render_dropdown(){
+        async renderDropdown() {
+            if (this.isLoading) {
+                return;
+            }
+
             this.isLoading = true;
-            let dropdown_content = Glue.view(
-                url='{% url "django_spire:notification:app:template:notification_dropdown" %}',
-                shared_payload={app_notification_list_url: '{{ app_notification_list_url|default:"" }}'}
-            );
-            let element = document.querySelector(`[x-ref='spire_notification_dropdown_content']`);
-            await dropdown_content.renderInnerHtml(element);
-            await this.mark_notifications_as_viewed();
-            this.isLoading = false;
-            $dispatch('content-loaded');
+
+            try {
+                let dropdownContent = Glue.view(
+                    '{% url "django_spire:notification:app:template:notification_dropdown" %}',
+                    {app_notification_list_url: `{{ app_notification_list_url|default:'' }}`}
+                );
+
+                await dropdownContent.renderInnerHtml(document.querySelector(`[x-ref='appNotificationDropdownContent']`));
+                await this.markNotificationsAsViewed();
+                this.$dispatch('content-loaded');
+            }
+            finally {
+                this.isLoading = false;
+            }
         },
 
-        async mark_notifications_as_viewed(){
-            let response = await Glue.fetch('{% url "django_spire:notification:app:json:set_viewed" %}');
+        async markNotificationsAsViewed() {
+            await Glue.fetch('{% url "django_spire:notification:app:json:set_viewed" %}');
             this.new_notification = false;
         }
-
     }"
     class="position-relative">
-        <span @click='await render_dropdown()'>
+        <span @click="renderDropdown()">
             {% block notification_dropdown_trigger %}
-                <i class="bi bi-bell-fill fs-4 cursor-pointer position-absolute"></i>
-                <span x-show="new_notification"  x-cloak style="width: 10px; height: 10px; top: -1px; right: -24px;" class="bg-danger rounded-circle position-absolute"></span>
-            {% endblock  %}
+                {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-bell-fill' icon_class='mx-2' x_icon_click="await renderDropdown()" %}
+                <span
+                    x-show="hasNewNotification"
+                    x-cloak
+                    x-transition
+                    style="width: 10px; height: 10px; top: 8px; right: 10px; position: absolute;"
+                    class="bg-danger rounded-circle"
+                ></span>
+                <span x-show="isLoading" x-transition x-cloak class="text-primary position-absolute top-50 start-50 translate-middle">
+                    <span class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </span>
+                </span>
+            {% endblock %}
         </span>
     </div>
-
 {% endblock %}
 
 {% block dropdown_content %}
-    <div
-        x-data="{ hasContent: false }"
-        x-show="hasContent"
-        x-transition
-        x-cloak
-        @content-loaded.window="hasContent = true"
-        :style="{ width: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px' }"
-    >
-        <div x-ref="spire_notification_dropdown_content"></div>
-    </div>
+    <li>
+        <div
+            x-data="{ hasContent: false }"
+            x-show="hasContent"
+            x-transition
+            x-cloak
+            @content-loaded.window="hasContent = true"
+            :style="{ width: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px' }"
+        >
+            <div x-ref="appNotificationDropdownContent"></div>
+        </div>
+    </li>
 {% endblock %}

@@ -1,1 +1,16 @@
-{% include 'django_spire/notification/app/scroll/container/dropdown_container.html' with endpoint=notification_endpoint container_height='300px' batch_size=10 %}
+{% extends 'django_spire/notification/app/scroll/scroll.html' %}
+
+{% block scroll_queryset_unique_name %}notifications{% endblock %}
+
+{% block increment %}50{% endblock %}
+
+{% block scroll_footer %}
+    <div class="row text-center border-top border-dark-subtle m-0">
+        <div class="col-12 fs-7 text-center py-1">
+            {% if not app_notification_list_url %}
+                {% url "django_spire:notification:app:page:list" as app_notification_list_url %}
+            {% endif %}
+            <a href='{{ app_notification_list_url }}' class="text-decoration-none text-secondary my-2">View All</a>
+        </div>
+    </div>
+{% endblock %}

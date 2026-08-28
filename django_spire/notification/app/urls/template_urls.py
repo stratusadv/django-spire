@@ -4,23 +4,17 @@ from django.urls import path
 
 from django_spire.notification.app.views import template_views
 
-
-app_name = 'django_spire_notification'
+app_name = 'template'
 
 urlpatterns = [
     path(
-        'notficiation/scroll/items',
-        template_views.notification_infinite_scroll_view,
-        name='scroll_items',
-    ),
-    path(
-        'notficiation/dropdown/scroll/items',
-        template_views.dropdown_infinite_scroll_view,
-        name='dropdown_scroll_items',
-    ),
-    path(
         'notficiation/dropdown/template/',
-        template_views.notification_dropdown_template_view,
+        template_views.dropdown_content_view,
         name='notification_dropdown',
+    ),
+    path(
+        'notifications/render-templates/',
+        template_views.notification_template_render_view,
+        name='render_templates',
     ),
 ]

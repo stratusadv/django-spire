@@ -25,7 +25,7 @@ class AppNotificationQuerySet(
             )
         )
 
-    def ordered_by_priority_and_sent_datetime(self):
+    def ordered_by_priority_and_sent_datetime(self) -> QuerySet:
         priority_order = Case(
             When(notification__priority=NotificationPriorityChoices.LOW, then=Value(3)),
             When(notification__priority=NotificationPriorityChoices.MEDIUM, then=Value(2)),
@@ -39,7 +39,7 @@ class AppNotificationQuerySet(
     def by_user(self, user: User) -> QuerySet:
         return self.filter(notification__user=user)
 
-    def by_users(self, users: list[User]):
+    def by_users(self, users: list[User]) -> QuerySet:
         return self.filter(notification__user__in=users)
 
     def exclude_viewed_by_user(self, user: User) -> QuerySet:
@@ -48,9 +48,10 @@ class AppNotificationQuerySet(
     def is_sent(self) -> QuerySet:
         return self.filter(notification__status=NotificationStatusChoices.SENT)
 
-    def search(self, search_value: str) -> QuerySet:
-        if search_value is None:
+    def search(self, search_value: str | None) -> QuerySet:
+        if search_value in [None, '']:
             return self
+
         return self.filter(
             Q(notification__title__icontains=search_value)
             | Q(notification__body__icontains=search_value)

@@ -4,7 +4,7 @@
 {% endif %}
 
 {% if request.user.is_authenticated %}
-    {% include 'django_spire/notification/app/element/notification_bell.html' %}
+    {% include "django_spire/notification/app/dropdown/notification_dropdown.html" %}
 {% endif %}
 
 {% if request.user.is_authenticated %}

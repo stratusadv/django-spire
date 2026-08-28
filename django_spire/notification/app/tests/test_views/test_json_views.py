@@ -11,7 +11,7 @@ class AppNotificationJsonViewsTests(BaseTestCase):
         super().setUp()
         self.app_notification = create_test_app_notification(user=self.super_user)
 
-    def test_check_new_notifications_ajax_view(self):
+    def test_check_for_new_notifications_view(self):
         response = self.client.get(reverse('django_spire:notification:app:json:check_new'))
 
         assert response.status_code == 200
@@ -23,7 +23,7 @@ class AppNotificationJsonViewsTests(BaseTestCase):
         data = response.json()
         assert data['has_new_notifications'] is True
 
-    def test_set_notifications_as_viewed_ajax_view(self):
+    def test_set_notifications_as_viewed_view_view(self):
         response = self.client.get(reverse('django_spire:notification:app:json:set_viewed'))
 
         assert response.status_code == 200

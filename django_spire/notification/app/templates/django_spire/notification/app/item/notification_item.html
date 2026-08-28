@@ -1,34 +1,31 @@
-{# Renaming this file means a production admin action must be created to update notification objects with template `notification_item.html`. #}
-
-<div class="border-bottom lh-sm py-{% if is_dropdown_item %}1{% else %}2{% endif %}">
-    {% if app_notification.notification.url %}
-    <a href="{{ app_notification.notification.url }}"
-    {% else %}
-    <div
-    {% endif %}
-        class="row bg-layer-two-hover rounded m-0 align-items-center"
-    >
-        {% if is_dropdown_item %}
-        <div class="col-12">
-        {% else %}
+<div
+    x-data="{
+        notificationObject: item.notification,
+        viewed: item.viewed,
+        time: item.notification.verbose_time_since_delivered,
+        priority: item.notification.priority,
+        priorityLabel: item.notification.priority.charAt(0).toUpperCase() + item.notification.priority.slice(1)
+    }"
+    class="border-bottom lh-sm py-1"
+>
+    <div class="row m-0">
         <div class="col-9">
-        {% endif %}
-            <span class="fs-7 fw-semibold">{{ app_notification.notification.title }}</span><br>
-            {% if not app_notification.viewed %}
-                <span class="badge bg-primary text-white">New</span>
-            {% endif %}
-            <span class="fs--1">{{ app_notification.notification.body }}</span><br>
-            <span class="text-secondary text-muted fs--2">{{ app_notification.verbose_time_since_delivered }}</span>
+            <span class="fs-7 fw-semibold" x-text="notificationObject.title"></span><br>
+            <span x-show="!viewed" class="badge bg-primary text-white">New</span>
+            <span class="fs--1" x-text="notificationObject.body"></span><br>
+            <span class="text-secondary text-muted fs--2" x-text="time"></span>
         </div>
-        {% if not is_dropdown_item %}
-        <div  class="col-3">
+        <div class="col-3">
             <div class="attribute-label">Priority</div>
-            {% include 'django_spire/notification/app/badge/priority_badge.html' %}
+            <span
+                class="badge text-white"
+                :class="{
+                    'bg-secondary': priority === 'low',
+                    'bg-warning': priority === 'medium',
+                    'bg-danger': priority === 'high'
+                }"
+                x-text="priorityLabel"
+            ></span>
         </div>
-        {% endif %}
-    {% if app_notification.notification.url %}
-    </a>
-    {% else %}
     </div>
-    {% endif %}
 </div>
