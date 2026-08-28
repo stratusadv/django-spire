@@ -26,7 +26,7 @@ class SeededStatisticTrackingServiceTestCase(BaseTestCase):
             group=group, name='Clicks', key=INTERNAL_TRACKING_STATISTIC_KEY
         )
         SubDomain.objects.create(
-            domain=domain, name='Opportunities', key=INTERNAL_TRACKING_SUB_DOMAIN_KEY
+            domain=domain, name='Website Traffic', key=INTERNAL_TRACKING_SUB_DOMAIN_KEY
         )
 
         with override_settings(

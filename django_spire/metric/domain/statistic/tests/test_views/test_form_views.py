@@ -108,6 +108,8 @@ class StatisticFormViewTestCase(BaseTestCase):
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/statistic/page/statistic_form_page.html'
         )
+        html = response.content.decode()
+        assert 'glue_form.$fields.value_type' in html
 
     def test_create_save_model_obj(self):
         form = forms.StatisticForm(
@@ -133,6 +135,8 @@ class StatisticFormViewTestCase(BaseTestCase):
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/statistic/page/statistic_form_page.html'
         )
+        html = response.content.decode()
+        assert 'glue_form.$fields.value_type' in html
 
     def test_update_save_model_obj(self):
         form = forms.StatisticForm(

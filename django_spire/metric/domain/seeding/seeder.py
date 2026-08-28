@@ -24,8 +24,8 @@ class DomainSeeder(Seeder):
         'description': Seeder.ordered.choice(
             [seed['description'] for seed in DOMAIN_SEEDS], wrap=True
         ),
-        'sub_domain_description': Seeder.ordered.choice(
-            [seed['sub_domain_description'] for seed in DOMAIN_SEEDS], wrap=True
+        'sub_domain_name': Seeder.ordered.choice(
+            [seed['sub_domain_name'] for seed in DOMAIN_SEEDS], wrap=True
         ),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
@@ -45,7 +45,7 @@ class DomainSeeder(Seeder):
                 name=fields['name'],
                 defaults={
                     'description': fields['description'],
-                    'sub_domain_description': fields['sub_domain_description'],
+                    'sub_domain_name': fields['sub_domain_name'],
                     'created_datetime': fields['created_datetime'],
                     'is_active': fields['is_active'],
                     'is_deleted': fields['is_deleted'],
@@ -76,13 +76,17 @@ class SubDomainSeeder(Seeder):
     def seed_database(self, count: int | None = None) -> QuerySet:
         self.seed(count)
 
-        domains = list(Domain.objects.active().order_by('pk'))
+        domains = {domain.name: domain for domain in Domain.objects.active()}
         if not domains:
             return self.queryset
 
         model_objects = []
         for index, fields in enumerate(self.to_list_of_dicts()):
-            domain = domains[index % len(domains)]
+            seed = SUBDOMAIN_SEEDS[index % len(SUBDOMAIN_SEEDS)]
+            domain = domains.get(seed['domain'])
+            if domain is None:
+                continue
+
             obj, _ = SubDomain.objects.update_or_create(
                 key=fields['key'],
                 defaults={

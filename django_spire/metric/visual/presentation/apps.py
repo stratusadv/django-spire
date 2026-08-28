@@ -13,21 +13,9 @@ class PresentationConfig(AppConfig):
 
     MODEL_PERMISSIONS = (
         {
-            'name': 'visual_presentation',
-            'verbose_name': 'Visual Presentation',
+            'name': 'metric_visual_presentation',
+            'verbose_name': 'Metric Presentation',
             'model_class_path': 'django_spire.metric.visual.presentation.models.Presentation',
-            'is_proxy_model': False,
-        },
-        {
-            'name': 'visual_presentation_slide',
-            'verbose_name': 'Visual Presentation Slide',
-            'model_class_path': 'django_spire.metric.visual.presentation.models.Slide',
-            'is_proxy_model': False,
-        },
-        {
-            'name': 'visual_presentation_slide_section',
-            'verbose_name': 'Visual Presentation Slide Section',
-            'model_class_path': 'django_spire.metric.visual.presentation.models.SlideSection',
             'is_proxy_model': False,
         },
     )

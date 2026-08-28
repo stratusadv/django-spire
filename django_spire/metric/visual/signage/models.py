@@ -17,6 +17,7 @@ from django_spire.metric.visual.signage.services.service import (
 class Signage(HistoryModelMixin, ActivityMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
+    slide_display_seconds = models.PositiveSmallIntegerField(default=30)
     key = models.UUIDField(default=uuid4, unique=True, editable=False)
 
     presentations = models.ManyToManyField(

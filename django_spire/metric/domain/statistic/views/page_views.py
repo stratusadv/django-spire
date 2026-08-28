@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.decorators import permission_required
-from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django_glue import Glue
 
 from django_spire.constants import BASE_URL_NAME
 from django_spire.metric.domain.statistic import models
@@ -22,18 +22,9 @@ if TYPE_CHECKING:
 
 @permission_required('django_spire_metric_domain.view_statisticgroup')
 def group_list_view(request: WSGIRequest) -> TemplateResponse:
-    groups = (
-        models.StatisticGroup.objects.active()
-        .not_deleted()
-        .bulk_filter(filter_data=request.GET.dict())
-        .select_related('domain')
-        .annotate(
-            statistic_count=Count(
-                'statistic', filter=Q(statistic__is_active=True, statistic__is_deleted=False)
-            )
-        )
-        .order_by('name')
-    )
+    groups = models.StatisticGroup.objects.active().not_deleted().select_related('domain')
+
+    Glue.queryset(request, 'groups', groups, Glue.Access.CHANGE, fields='__all__')
 
     nav = StatisticGroupNavigation()
     context = nav.as_context()
@@ -64,9 +55,7 @@ def group_detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 @permission_required('django_spire_metric_domain.view_statistic')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    statistic = get_object_or_404(
-        models.Statistic.objects.select_related('group__domain'), pk=pk
-    )
+    statistic = get_object_or_404(models.Statistic.objects.select_related('group__domain'), pk=pk)
 
     nav = StatisticNavigation()
     nav.page_title = str(statistic)

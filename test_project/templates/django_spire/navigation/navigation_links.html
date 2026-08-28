@@ -43,16 +43,18 @@
 {% url 'notification:page:list' as notification_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Notification' link_icon='bi bi-bell' link_url=notification_url %}
 
-{% url 'rest:page:list' as rest_url %}
-{% include 'django_spire/navigation/link.html' with link_text='Rest Clients' link_icon='bi bi-arrow-down-up' link_url=rest_url %}
-
 {% url 'auth_sms:page:phone_verification' as auth_sms_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Phone Verification' link_icon='bi bi-phone-fill' link_url=auth_sms_url %}
 
-{% include 'django_spire/navigation/divider.html' with divider_text='Metrics' %}
+{% include 'django_spire/navigation/divider.html' with divider_text='Rest API' %}
+
+{% url 'rest:page:list' as rest_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Rest Clients' link_icon='bi bi-arrow-down-up' link_url=rest_url %}
 
 {% url 'django_spire:api:page:list' as api_list_url %}
 {% include 'django_spire/navigation/link.html' with link_text='API Access' link_icon='bi bi-key' link_url=api_list_url %}
+
+{% include 'django_spire/navigation/divider.html' with divider_text='Metrics' %}
 
 {% url 'django_spire:metric:report:page:report' as report_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Reports' link_icon='bi bi-list-columns' link_url=report_url %}

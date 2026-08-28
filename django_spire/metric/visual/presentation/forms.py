@@ -74,6 +74,6 @@ class SlideSectionModelForm(forms.ModelForm):
         fields = ['slide', 'visual', 'row', 'col']
         exclude: ClassVar = []
         widgets = {
-            'row': forms.NumberInput(attrs={'min': 1}),
-            'col': forms.NumberInput(attrs={'min': 1, 'max': 12}),
+            'row': forms.NumberInput(attrs={'min': 0}),
+            'col': forms.NumberInput(attrs={'min': 0, 'max': 11}),
         }

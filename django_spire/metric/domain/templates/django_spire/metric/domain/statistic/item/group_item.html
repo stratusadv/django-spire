@@ -9,13 +9,9 @@
 {% endblock %}
 
 {% block item_row_content %}
-    <div class="col-6 col-lg-3 text-start">
+    <div class="col-6 col-lg-6 text-start">
         <div class="attribute-label">Domain</div>
-        <div>{{ item.domain }}</div>
-    </div>
-    <div class="col-6 col-lg-3 text-start">
-        <div class="attribute-label">Statistics</div>
-        <div>{{ item.statistic_count }}</div>
+        <div>{{ item.domain }} / {{ item.domain.sub_domain_name }}</div>
     </div>
     <div class="col-12 text-start">
         <div class="attribute-label">Description</div>

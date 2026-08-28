@@ -30,7 +30,7 @@ class DomainFormViewTestCase(BaseTestCase):
             data={
                 'name': 'new domain',
                 'description': 'new domain description',
-                'sub_domain_description': 'new subdomain description',
+                'sub_domain_name': 'new subdomain description',
             }
         )
         assert form.is_valid()
@@ -61,7 +61,7 @@ class DomainFormViewTestCase(BaseTestCase):
             data={
                 'name': 'updated domain',
                 'description': 'updated description',
-                'sub_domain_description': 'updated subdomain description',
+                'sub_domain_name': 'updated subdomain description',
             },
         )
         assert form.is_valid()

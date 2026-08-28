@@ -71,6 +71,7 @@ def display_view(request: WSGIRequest, key: str) -> TemplateResponse:
         'signage': signage,
         'slides': slides,
         'slide_count': len(slides),
+        'slide_timer_seconds': signage.slide_display_seconds,
         'grid_columns': SLIDE_GRID_COLUMNS,
         'chart_update_interval': 15,
         **nav.as_context(),

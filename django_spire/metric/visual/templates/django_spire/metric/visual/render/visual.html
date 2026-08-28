@@ -17,7 +17,8 @@
                 {% if visual.statistic %}
                     <div class="text-end">
                         <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
-                        <div class="fs-5 fw-semibold lh-1">{{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                        <div class="fs-5 fw-semibold lh-1">
+                            {{ current_value|statistic_value:visual.statistic.value_type }}</div>
                     </div>
                 {% endif %}
                 {% if current_condition %}
@@ -62,7 +63,8 @@
                     {% if visual.statistic %}
                         <div class="text-end">
                             <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
-                            <div class="fs-5 fw-semibold lh-1">{{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                            <div class="fs-5 fw-semibold lh-1">
+                                {{ current_value|statistic_value:visual.statistic.value_type }}</div>
                         </div>
                     {% endif %}
                     {% if current_condition %}
@@ -80,12 +82,15 @@
             </div>
 
             {% if visual.statistic %}
-                <div class="fs-2 fw-bold lh-1 {% block visual_render_value_class %}{% endblock %}">
-                    {{ current_value|floatformat:'-2' }}
+                <div class="mt-5 text-center">
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                          style="width: 13.0rem; height: 13.0rem; background-color: {{ current_condition.color }};">
+                        <i class="bi {{ current_condition.icon }} text-white" style="font-size: 7rem;"></i>
+                    </span>
                 </div>
-                <div class="small text-muted">{{ visual.statistic.get_interval_display|title }} total</div>
+                <div class="mt-6 text-center">
 
-                <div class="mt-3">
+
                     {% if current_condition %}
                         <span class="badge" style="background-color: {{ current_condition.color }};">
                             {{ current_condition.get_state_display }}

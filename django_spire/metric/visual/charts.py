@@ -29,7 +29,7 @@ class VisualLineChart(LineChart):
                 {
                     'name': visual.name,
                     'data': [
-                        [point['timestamp'].isoformat(), float(point['value'])] for point in points
+                        [point['timestamp'].isoformat(), round(float(point['value']), 2)] for point in points
                     ],
                 }
             ],
@@ -51,7 +51,7 @@ class VisualBarChart(BarChart):
                 {
                     'name': visual.name,
                     'data': [
-                        [point['timestamp'].isoformat(), float(point['value'])] for point in points
+                        [point['timestamp'].isoformat(), round(float(point['value']), 2)] for point in points
                     ],
                 }
             ],
@@ -73,7 +73,7 @@ class VisualAreaChart(AreaChart):
                 {
                     'name': visual.name,
                     'data': [
-                        [point['timestamp'].isoformat(), float(point['value'])] for point in points
+                        [point['timestamp'].isoformat(), round(float(point['value']), 2)] for point in points
                     ],
                 }
             ],
@@ -99,7 +99,7 @@ class VisualGaugeChart(GaugeChart):
     def build_option_body(cls, visual_pk: int, **_kwargs: Any) -> dict:
         visual = _visual_for(visual_pk)
 
-        value = float(visual.services.transformation.current_value())
+        value = round(float(visual.services.transformation.current_value()), 2)
         ceiling = visual.services.transformation.gauge_max()
 
         return {

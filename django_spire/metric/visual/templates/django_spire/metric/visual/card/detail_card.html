@@ -25,11 +25,11 @@
 {% block card_title_content %}
     <div class="card-body">
         <div class="row g-3">
-            <div class="col-lg-4">
+            <div class="col-lg-6">
                 {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition period_start=period_start period_end=period_end %}
             </div>
 
-            <div class="col-lg-8">
+            <div class="col-lg-6">
                 <div class="row g-3">
                     <div class="col-12">
                         <div class="attribute-label">Name</div>

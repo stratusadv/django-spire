@@ -21,6 +21,14 @@ class SignageModelTestCase(BaseTestCase):
     def test_key_auto_generated(self):
         assert self.signage.key is not None
 
+    def test_slide_display_seconds_default(self):
+        assert self.signage.slide_display_seconds == 30
+
+    def test_slide_display_seconds_custom(self):
+        signage = Signage.objects.create(name='custom', slide_display_seconds=45)
+
+        assert signage.slide_display_seconds == 45
+
     def test_key_unique(self):
         with pytest.raises(IntegrityError):
             Signage.objects.create(name='dup', key=self.signage.key)

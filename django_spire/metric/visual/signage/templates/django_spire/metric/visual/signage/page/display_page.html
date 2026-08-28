@@ -18,27 +18,59 @@
 
 {% block base_body_class %}bg-primary{% endblock %}
 
+{% block base_body %}
+    {% if request.GET.scale == 'high' %}
+        <div style=" transform-origin: top left; transform: scale(1.98, 1.93); width: 50%; height: 50%; ">
+            <div class="row">
+                <div class="col m-0 mt-1 ms-2 ps-3">
+                    {{ block.super }}
+                </div>
+            </div>
+        </div>
+    {% elif request.GET.scale == 'medium' %}
+        <div style=" transform-origin: top left; transform: scale(1.5, 1.43); width: 66.4%; height: 66.4%; ">
+            <div class="row">
+                <div class="col m-0 ps-3">
+                    {{ block.super }}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
 {% block page_content %}
     <div
             class="container-fluid py-3"
             x-data="{
                 index: 0,
                 count: {{ slide_count }},
-                delay: 10000,
+                delay: {{ slide_timer_seconds }} * 1000,
                 init() {
                     if (this.count > 1) {
-                        setInterval(() => {
+                        this.rotation = setInterval(() => {
                             this.next_slide()
                         }, this.delay);
                     }
                     document.addEventListener('keydown', (event) => {
                         if (event.key === 'ArrowLeft') {
                             this.previous_slide()
+                            this.reset_timer()
                         }
                         if (event.key === 'ArrowRight') {
                             this.next_slide()
+                            this.reset_timer()
                         }
                     })
+                },
+                reset_timer() {
+                    clearInterval(this.rotation)
+                    if (this.count > 1) {
+                        this.rotation = setInterval(() => {
+                            this.next_slide()
+                        }, this.delay)
+                    }
                 },
                 next_slide() {
                     this.index = (this.index + 1) % this.count

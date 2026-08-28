@@ -16,7 +16,7 @@ __all__ = ['Domain', 'Statistic', 'StatisticGroup', 'StatisticValue', 'SubDomain
 class Domain(HistoryModelMixin, ActivityMixin):
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
-    sub_domain_description = models.TextField(default='')
+    sub_domain_name = models.CharField(max_length=128)
 
     objects = querysets.DomainQuerySet().as_manager()
     services = DomainService()

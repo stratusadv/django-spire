@@ -46,3 +46,19 @@ class SignagePageViewsTestCase(BaseTestCase):
         assert response.status_code == 200
         assert response.context_data['signage'] == self.signage
         assert response.context_data['slide_count'] == 2
+        assert response.context_data['slide_timer_seconds'] == 30
+
+    def test_display_view_uses_signage_slide_timer(self):
+        self.signage.slide_display_seconds = 45
+        self.signage.save()
+        create_test_signage_links(self.signage, count=2)
+
+        response = self.client.get(
+            reverse(
+                'django_spire:metric:visual:signage:page:display', kwargs={'key': self.signage.key}
+            )
+        )
+
+        assert response.status_code == 200
+        assert response.context_data['slide_timer_seconds'] == 45
+        assert 'delay: 45 * 1000' in response.content.decode()

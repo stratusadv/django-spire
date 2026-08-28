@@ -7,11 +7,7 @@ from django.test import TransactionTestCase
 from django_spire.metric.domain.models import Domain, SubDomain
 from django_spire.metric.domain.seeding.constants import DOMAIN_SEEDS, SUBDOMAIN_SEEDS
 from django_spire.metric.domain.seeding.seeder import DomainSeeder, SubDomainSeeder
-from django_spire.metric.domain.statistic.models import (
-    Statistic,
-    StatisticGroup,
-    StatisticValue,
-)
+from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
 from django_spire.metric.domain.statistic.seeding.seeder import (
     StatisticGroupSeeder,
     StatisticSeeder,
@@ -42,7 +38,7 @@ class DomainSeederTestCase(TransactionTestCase):
         for domain, seed in zip(domains, DOMAIN_SEEDS, strict=True):
             assert domain.name == seed['name']
             assert domain.description == seed['description']
-            assert domain.sub_domain_description == seed['sub_domain_description']
+            assert domain.sub_domain_name == seed['sub_domain_name']
 
         assert all(domain.is_active for domain in domains)
         assert all(not domain.is_deleted for domain in domains)
@@ -51,8 +47,8 @@ class DomainSeederTestCase(TransactionTestCase):
         domain = next(iter(self._seed_domains(count=1)))
 
         assert domain.description
-        assert domain.sub_domain_description
-        assert '' not in (domain.name, domain.description, domain.sub_domain_description)
+        assert domain.sub_domain_name
+        assert '' not in (domain.name, domain.description, domain.sub_domain_name)
 
     def test_seeding_more_domains_than_constant_data_wraps(self):
         domains = list(self._seed_domains(count=len(DOMAIN_SEEDS) * 2).order_by('pk'))
@@ -80,13 +76,16 @@ class SubDomainSeederTestCase(TransactionTestCase):
         return domains, subdomains
 
     def test_seeds_sub_domains_with_realistic_constant_data(self):
-        self._seed_domains_and_subdomains(domain_count=1, subdomain_count=len(SUBDOMAIN_SEEDS))
+        self._seed_domains_and_subdomains(
+            domain_count=len(DOMAIN_SEEDS), subdomain_count=len(SUBDOMAIN_SEEDS)
+        )
         subdomains = SubDomain.objects.order_by('pk')
 
         assert subdomains.count() == len(SUBDOMAIN_SEEDS)
         for subdomain, seed in zip(subdomains, SUBDOMAIN_SEEDS, strict=True):
             assert subdomain.name == seed['name']
             assert subdomain.description == seed['description']
+            assert subdomain.domain.name == seed['domain']
 
         assert all(subdomain.is_active for subdomain in subdomains)
         assert all(not subdomain.is_deleted for subdomain in subdomains)

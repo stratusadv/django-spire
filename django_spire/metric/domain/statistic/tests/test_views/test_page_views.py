@@ -32,6 +32,20 @@ class StatisticGroupPageViewTestCase(BaseTestCase):
         )
         assert self.group in response.context['groups']
 
+    def test_group_list_view_uses_glue_groups_scroll(self):
+        response = self.client.get(
+            path=reverse('django_spire:metric:domain:statistic:page:group_list')
+        )
+        assert response.status_code == 200
+
+        html = response.content.decode()
+        href = (
+            f'`'
+            f'{reverse("django_spire:metric:domain:statistic:page:group_detail", kwargs={"pk": 0})}'
+            f"`.replace('0', item.id)"
+        )
+        assert f':href="{href}"' in html
+
     def test_group_detail_view(self):
         statistic = create_test_statistic(group=self.group)
         response = self.client.get(
@@ -125,3 +139,17 @@ class StatisticPageViewTestCase(BaseTestCase):
         content = response.content.decode()
         assert '<th class="text-end">Value</th>' in content
         assert 'text-end' in content
+
+    def test_detail_view_links_sub_domains_to_subdomain_detail(self):
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': self.statistic.pk}
+            )
+        )
+        assert response.status_code == 200
+
+        href = reverse(
+            'django_spire:metric:domain:page:subdomain_detail',
+            kwargs={'domain_pk': self.domain.pk, 'pk': self.sub_domain.pk},
+        )
+        assert f'href="{href}"' in response.content.decode()

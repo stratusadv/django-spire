@@ -34,7 +34,7 @@ class DomainForm(ModelForm):
 
     class Meta:
         model = models.Domain
-        fields = ['name', 'description', 'sub_domain_description']
+        fields = ['name', 'description', 'sub_domain_name']
         exclude: ClassVar = []
 
 

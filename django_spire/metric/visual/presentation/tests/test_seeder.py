@@ -54,10 +54,10 @@ class PresentationSeederTestCase(BaseTestCase):
 
                 assert len(sections) == len(SLIDE_SECTION_VISUALS[slide.name])
                 assert [section.row for section in sections] == [
-                    (index // 2) + 1 for index in range(len(sections))
+                    index // 2 for index in range(len(sections))
                 ]
                 assert [section.col for section in sections] == [
-                    (index % 2) + 1 for index in range(len(sections))
+                    index % 2 for index in range(len(sections))
                 ]
                 assert all(section.visual_id for section in sections)
 

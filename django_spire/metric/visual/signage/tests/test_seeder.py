@@ -41,6 +41,16 @@ class SignageSeederTestCase(BaseTestCase):
         assert [signage.name for signage in signages] == [seed['name'] for seed in SIGNAGE_SEEDS]
         assert [str(signage.key) for signage in signages] == [seed['key'] for seed in SIGNAGE_SEEDS]
 
+    def test_seeds_slide_display_seconds(self) -> None:
+        SignageSeeder(verbose=False).seed_database()
+
+        signages = list(Signage.objects.order_by('pk'))
+
+        assert [signage.slide_display_seconds for signage in signages] == [
+            seed['slide_display_seconds'] for seed in SIGNAGE_SEEDS
+        ]
+        assert all(10 <= signage.slide_display_seconds <= 60 for signage in signages)
+
     def test_seeded_links_flow_from_presentations(self) -> None:
         SignageSeeder(verbose=False).seed_database()
 

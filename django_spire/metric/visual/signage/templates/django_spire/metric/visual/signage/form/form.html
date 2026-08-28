@@ -11,5 +11,9 @@
         <div class="col-12">
             {% include 'django_spire/glue/form/field/text/field.html' with glue_field='glue_form.$fields.description' %}
         </div>
+
+        <div class="col-md-6">
+            {% include 'django_spire/glue/form/field/integer/field.html' with glue_field='glue_form.$fields.slide_display_seconds' %}
+        </div>
     </div>
 {% endblock %}

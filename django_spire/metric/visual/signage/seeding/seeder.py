@@ -31,6 +31,7 @@ class SignageSeeder(Seeder):
                 defaults={
                     'name': seed['name'],
                     'description': seed['description'],
+                    'slide_display_seconds': seed['slide_display_seconds'],
                     'is_active': True,
                     'is_deleted': False,
                 },
@@ -62,9 +63,5 @@ class SignageSeeder(Seeder):
             models.SignagePresentation.objects.get_or_create(
                 signage=signage,
                 order=order,
-                defaults={
-                    'presentation': presentation,
-                    'is_active': True,
-                    'is_deleted': False,
-                },
+                defaults={'presentation': presentation, 'is_active': True, 'is_deleted': False},
             )

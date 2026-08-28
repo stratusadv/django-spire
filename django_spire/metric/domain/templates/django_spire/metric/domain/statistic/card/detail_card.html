@@ -26,36 +26,41 @@
 {% block card_title_content %}
     <div class="card-body">
         <div class="row g-3">
-            <div class="col-12">
+            <div class="col-6 col-lg-3">
                 <div class="attribute-label">Name</div>
                 <div>{{ statistic.name }}</div>
             </div>
 
-            <div class="col-12">
+            <div class="col-6 col-lg-3">
                 <div class="attribute-label">Group</div>
                 <a href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk %}">
                     {{ statistic.group }}
                 </a>
             </div>
 
-            <div class="col-12">
+            <div class="col-6 col-lg-3">
                 <div class="attribute-label">Interval</div>
                 <div>{{ statistic.get_interval_display }}</div>
             </div>
 
-            <div class="col-12">
+            <div class="col-6 col-lg-3">
                 <div class="attribute-label">Value Type</div>
                 <div>{{ statistic.get_value_type_display }}</div>
             </div>
 
-            <div class="col-12">
+            <div class="col-6 col-lg-3">
                 <div class="attribute-label">Domain</div>
                 <div>{{ statistic.group.domain }}</div>
             </div>
 
-            <div class="col-12">
+            <div class="col-6 col-lg-3">
                 <div class="attribute-label">{{ statistic.get_interval_display }} Total</div>
                 <div class="{{ today_total|statistic_value_class:statistic.value_type }}">{{ today_total|statistic_value:statistic.value_type }}</div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="attribute-label">Key</div>
+                    <code>{{ statistic.key }}</code>
+                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=statistic.key %}
             </div>
         </div>
     </div>
