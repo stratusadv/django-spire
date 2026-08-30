@@ -1,5 +1,8 @@
-from django_spire.auth.user.models import AuthUser
+from datetime import timedelta
 
+from django.utils.timezone import now
+
+from django_spire.auth.user.models import AuthUser
 from django_spire.contrib.seeding import Seeder
 from django_spire.notification.app.models import AppNotification
 from django_spire.notification.choices import (
@@ -8,6 +11,7 @@ from django_spire.notification.choices import (
     NotificationTypeChoices,
 )
 from django_spire.notification.models import Notification
+
 
 super_user, created_ = AuthUser.objects.get_or_create(
     username='stratus',
@@ -20,6 +24,24 @@ super_user, created_ = AuthUser.objects.get_or_create(
     }
 )
 
+APP_NOTIFICATION_TEMPLATES = [
+    'django_spire/notification/app/item/notification_item.html',
+    'notification/item/app_alert_item.html',
+    'notification/item/app_compact_item.html',
+    'notification/item/app_media_item.html',
+]
+
+APP_NOTIFICATION_CONTEXT_DATA = [
+    {},
+    {'action_label': 'Review Now', 'action_url': '#'},
+    {},
+    {'action_label': 'Open', 'action_url': '#', 'category': 'System'},
+]
+
+SENT_DATETIME_START = now() - timedelta(days=30)
+
+SENT_DATETIME_STEP = timedelta(hours=12)
+
 
 class NotificationSeeder(Seeder):
     model_class = Notification
@@ -27,15 +49,21 @@ class NotificationSeeder(Seeder):
     fields_seeds = {
         'id': Seeder.exclude(),
         'user_id': Seeder.static(super_user.pk),
-        'type': Seeder.model.random_field_choice(NotificationTypeChoices),
-        'title': Seeder.fake.sentence(nb_words=1),
+        'type': Seeder.static(NotificationTypeChoices.APP),
+        'title': Seeder.fake.sentence(nb_words=4),
         'body': Seeder.fake.sentence(),
         'url': Seeder.llm(field_type=str, prompt='url'),
-        'status': Seeder.model.random_field_choice(NotificationStatusChoices),
+        'status': Seeder.static(NotificationStatusChoices.SENT),
         'status_message': Seeder.fake.sentence(),
         'priority': Seeder.model.random_field_choice(NotificationPriorityChoices),
-        'publish_datetime': Seeder.fake.date_time_between(start_date='now', end_date='now'),
-        'sent_datetime': Seeder.fake.date_time_between(start_date='now', end_date='now'),
+        'publish_datetime': Seeder.ordered.datetime(
+            start=SENT_DATETIME_START,
+            step=SENT_DATETIME_STEP,
+        ),
+        'sent_datetime': Seeder.ordered.datetime(
+            start=SENT_DATETIME_START,
+            step=SENT_DATETIME_STEP,
+        ),
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
         'created_datetime': Seeder.exclude(),
@@ -54,6 +82,6 @@ class AppNotificationSeeder(Seeder):
         'is_active': Seeder.static(True),
         'is_deleted': Seeder.static(False),
         'created_datetime': Seeder.exclude(),
-        'template': Seeder.static('django_spire/notification/app/item/notification_item.html'),
-        'context_data': Seeder.static({}),
+        'template': Seeder.ordered.choice(APP_NOTIFICATION_TEMPLATES, wrap=True),
+        'context_data': Seeder.ordered.choice(APP_NOTIFICATION_CONTEXT_DATA, wrap=True),
     }

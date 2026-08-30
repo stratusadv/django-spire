@@ -1,31 +1,14 @@
-<div
-    x-data="{
-        notificationObject: item.notification,
-        viewed: item.viewed,
-        time: item.notification.verbose_time_since_delivered,
-        priority: item.notification.priority,
-        priorityLabel: item.notification.priority.charAt(0).toUpperCase() + item.notification.priority.slice(1)
-    }"
-    class="border-bottom lh-sm py-1"
->
+<div class="border-bottom lh-sm py-1">
     <div class="row m-0">
         <div class="col-9">
-            <span class="fs-7 fw-semibold" x-text="notificationObject.title"></span><br>
-            <span x-show="!viewed" class="badge bg-primary text-white">New</span>
-            <span class="fs--1" x-text="notificationObject.body"></span><br>
-            <span class="text-secondary text-muted fs--2" x-text="time"></span>
+            <span class="fs-7 fw-semibold" x-text="item.notification.title"></span><br>
+            {% include 'django_spire/notification/app/badge/new_badge.html' %}
+            <span class="fs--1" x-text="item.notification.body"></span><br>
+            <span class="text-secondary text-muted fs--2" x-text="item.time_since_delivered"></span>
         </div>
         <div class="col-3">
             <div class="attribute-label">Priority</div>
-            <span
-                class="badge text-white"
-                :class="{
-                    'bg-secondary': priority === 'low',
-                    'bg-warning': priority === 'medium',
-                    'bg-danger': priority === 'high'
-                }"
-                x-text="priorityLabel"
-            ></span>
+            {% include 'django_spire/notification/app/badge/priority_badge.html' %}
         </div>
     </div>
 </div>

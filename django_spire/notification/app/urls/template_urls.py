@@ -8,12 +8,12 @@ app_name = 'template'
 
 urlpatterns = [
     path(
-        'notficiation/dropdown/template/',
+        'dropdown/',
         template_views.dropdown_content_view,
         name='notification_dropdown',
     ),
     path(
-        'notifications/render-templates/',
+        'render-templates/',
         template_views.notification_template_render_view,
         name='render_templates',
     ),

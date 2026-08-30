@@ -1,7 +1,10 @@
-{% if app_notification.notification.priority == priorities.LOW %}
-    <span class="badge bg-secondary text-white">Low</span>
-{% elif app_notification.notification.priority == priorities.MEDIUM %}
-    <span class="badge bg-warning text-white">Med</span>
-{% elif app_notification.notification.priority == priorities.HIGH %}
-    <span class="badge bg-danger text-white">High</span>
-{% endif %}
+<span
+    x-data="{ priority: item.notification.priority }"
+    class="badge text-white"
+    :class="{
+        'bg-secondary': priority === 'low',
+        'bg-warning': priority === 'medium',
+        'bg-danger': priority === 'high'
+    }"
+    x-text="({low: 'Low', medium: 'Medium', high: 'High'})[priority]"
+></span>

@@ -1,0 +1,30 @@
+<div
+    class="d-flex align-items-center gap-2 px-2 py-1"
+    style="background-color: #0d1117; border-bottom: 1px solid #21262d; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.75rem;"
+>
+    <span style="color: #3fb950;">&gt;</span>
+
+    <span
+        class="rounded-circle flex-shrink-0"
+        style="width: 6px; height: 6px;"
+        :style="{
+            backgroundColor: item.notification.priority === 'high' ? '#f85149'
+                : item.notification.priority === 'medium' ? '#d29922'
+                : '#8b949e'
+        }"
+    ></span>
+
+    <span
+        class="text-truncate flex-grow-1"
+        :style="{ color: item.viewed ? '#8b949e' : '#e6edf3' }"
+        x-text="item.notification.title"
+    ></span>
+
+    <span
+        x-show="!item.viewed"
+        x-cloak
+        style="color: #3fb950;"
+    >[new]</span>
+
+    <span class="flex-shrink-0" style="color: #6e7681;" x-text="item.time_since_delivered"></span>
+</div>

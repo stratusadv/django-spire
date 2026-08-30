@@ -1,0 +1,32 @@
+{% extends 'django_spire/notification/app/scroll/scroll.html' %}
+
+{% block scroll_queryset_unique_name %}notifications{% endblock %}
+{% block scroll_queryset_filter_field %}notification__title{% endblock %}
+{% block scroll_queryset_order_by_field %}-notification__sent_datetime{% endblock %}
+
+{% block increment %}25{% endblock %}
+
+{% block scroll_header %}
+    <div class="row pb-3 align-items-center">
+        <div class="col-12 col-md-6">
+            <input
+                class="form-control"
+                placeholder="Search Notifications ..."
+                type="search"
+                x-model.debounce="searchQuery"
+            >
+        </div>
+        <div class="col-auto text-end">
+            Sort by
+        </div>
+        <div class="col">
+            <select class="form-select form-select-md" x-model="orderBy">
+                <option value="-notification__sent_datetime">Newest</option>
+                <option value="notification__sent_datetime">Oldest</option>
+                <option value="notification__priority">Priority</option>
+                <option value="notification__title">Title</option>
+            </select>
+        </div>
+    </div>
+    <div class="card--bordered"></div>
+{% endblock %}

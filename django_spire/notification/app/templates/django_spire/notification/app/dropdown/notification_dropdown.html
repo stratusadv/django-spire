@@ -40,7 +40,7 @@
 
         async markNotificationsAsViewed() {
             await Glue.fetch('{% url "django_spire:notification:app:json:set_viewed" %}');
-            this.new_notification = false;
+            this.hasNewNotification = false;
         }
     }"
     class="position-relative">
