@@ -23,11 +23,18 @@ class BaseForeignKeyModelFieldSeed(BaseFieldSeed, ABC):
 
         return self.__class__._model_foreign_keys[self.queryset_key]
 
+    def generate_cache_key(self) -> str:
+        params = getattr(self.queryset.query, 'params', None)
+        return f'{self.queryset.model._meta.label}:{self.queryset_key}:{params}'
+
 
 class OrderedForeignKeyModelFieldSeed(BaseForeignKeyModelFieldSeed):
     def __init__(self, queryset: QuerySet, wrap: bool = False) -> None:
         super().__init__(queryset=queryset)
         self.wrap = wrap
+
+    def generate_cache_key(self) -> str:
+        return f'{super().generate_cache_key()}:{self.wrap}'
 
     def generate_value(self, seed_index: int) -> Any:
         foreign_keys = self.model_foreign_keys(seed_index)
