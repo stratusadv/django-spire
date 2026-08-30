@@ -1,3 +1,14 @@
+## v1.0.2 - August 26, 2026
+
+#### Fixes
+
+- Fixed broken app notifications
+- Fixed broken dropdowns
+
+#### Changes
+
+- Added ability to override and leave empty ordering and filtering for django-glue base `scroll`
+
 ## v1.0.1 - August 26, 2026
 
 #### Features
