@@ -13,6 +13,7 @@ from django_spire.metric.domain.statistic.tests.factories import (
     create_test_statistic_group,
     create_test_subdomain,
 )
+from django_spire.metric.visual.tests.factories import create_test_visual
 
 
 class StatisticGroupPageViewTestCase(BaseTestCase):
@@ -152,4 +153,18 @@ class StatisticPageViewTestCase(BaseTestCase):
             'django_spire:metric:domain:page:subdomain_detail',
             kwargs={'domain_pk': self.domain.pk, 'pk': self.sub_domain.pk},
         )
+        assert f'href="{href}"' in response.content.decode()
+
+    def test_detail_view_lists_tied_visuals(self):
+        visual = create_test_visual(statistic=self.statistic)
+
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': self.statistic.pk}
+            )
+        )
+        assert response.status_code == 200
+        assert visual in list(response.context['visuals'])
+
+        href = reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
         assert f'href="{href}"' in response.content.decode()

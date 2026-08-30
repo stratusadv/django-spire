@@ -22,7 +22,7 @@ from django_spire.metric.visual.services.transformation_service import (
 )
 
 if TYPE_CHECKING:
-    from django_spire.metric.visual.models import Visual, VisualCondition
+    from django_spire.metric.visual.models import Visual, VisualCondition, VisualReference
 
 
 class VisualService(BaseDjangoModelService['Visual']):
@@ -65,3 +65,7 @@ class VisualConditionService(BaseDjangoModelService['VisualCondition']):
     processor = VisualConditionProcessorService()
     factory = VisualConditionFactoryService()
     transformation = VisualConditionTransformationService()
+
+
+class VisualReferenceService(BaseDjangoModelService['VisualReference']):
+    obj: VisualReference

@@ -40,12 +40,20 @@ def create_test_visual(
     statistic: Statistic,
     name: str = 'test_visual',
     reference: str = '',
+    *,
+    references: list[str] | None = None,
+    labels: list[str] | None = None,
     kind: str = 'indicator',
     with_conditions: bool = True,
     target: Decimal = Decimal(100),
     tolerance: Decimal = Decimal(10),
 ) -> Visual:
-    visual = Visual.objects.create(name=name, statistic=statistic, reference=reference, kind=kind)
+    visual = Visual.objects.create(name=name, statistic=statistic, kind=kind)
+
+    references = references if references is not None else ([reference] if reference else [])
+
+    for order, ref in enumerate(references):
+        visual.references.create(reference=ref, label=labels[order] if labels else '', order=order)
 
     if with_conditions:
         visual.services.factory.create_default_conditions(target=target, tolerance=tolerance)

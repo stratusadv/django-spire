@@ -46,4 +46,5 @@ class VisualSeederTestCase(BaseTestCase):
                 assert len(visual.services.transformation.series_breakdown()) > 1
             else:
                 assert visual.services.transformation.current_value() > 0
-                assert len(visual.services.transformation.series_data()) > 1
+                assert len(visual.services.transformation.series_data()) >= 1
+                assert len(visual.services.transformation.series_datasets()) >= 1

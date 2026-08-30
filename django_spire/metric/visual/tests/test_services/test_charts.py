@@ -35,9 +35,15 @@ class VisualChartOptionTestCase(BaseTestCase):
             group=group, interval=StatisticIntervalChoices.WEEKLY
         )
 
-    def _chart_option(self, kind: str, reference: str = '') -> tuple[Any, dict[str, Any]]:
+    def _chart_option(
+        self, kind: str, reference: str = '', references: list[str] | None = None
+    ) -> tuple[Any, dict[str, Any]]:
         visual = create_test_visual(
-            statistic=self.statistic, kind=kind, reference=reference, with_conditions=False
+            statistic=self.statistic,
+            kind=kind,
+            reference=reference,
+            references=references,
+            with_conditions=False,
         )
         visual.date = date(2026, 5, 15)
         visual.save()
@@ -77,12 +83,22 @@ class VisualChartOptionTestCase(BaseTestCase):
         assert chart.data_function_path.endswith('visual_line_chart_data')
         assert option['xAxis'] == {'type': 'time'}
         assert option['series'][0]['type'] == 'line'
+
         points = option['series'][0]['data']
         assert len(points) == 2
-        assert datetime.fromisoformat(points[0][0]) == aware(date(2026, 5, 14), 10)
-        assert points[0][1] == 10.0
-        assert datetime.fromisoformat(points[1][0]) == aware(date(2026, 5, 15), 11)
-        assert points[1][1] == 20.0
+        assert points[0] == ['2026-05-14', 10.0]
+        assert points[1] == ['2026-05-15', 20.0]
+
+    def test_line_chart_option_multiple_datasets(self):
+        chart, option = self._chart_option('line', references=['/home/', '/dashboard/'])
+
+        series = option['series']
+
+        assert [item['name'] for item in series] == ['/home/', '/dashboard/']
+        assert series[0]['data'] == [['2026-05-14', 10.0], ['2026-05-15', 20.0]]
+        assert series[1]['data'] == [['2026-05-14', 130.0], ['2026-05-15', 50.0]]
+
+        assert isinstance(chart, VisualLineChart)
 
     def test_area_chart_option_has_area_style(self):
         _, option = self._chart_option('area', reference='/home/')

@@ -25,9 +25,11 @@ class PresentationQuerySet(HistoryQuerySet, SearchQuerySetMixin):
         return queryset
 
     def with_slides(self) -> QuerySet[Presentation]:
-        sections = models.SlideSection.objects.filter(is_deleted=False).select_related(
-            'visual__statistic'
-        ).prefetch_related('visual__conditions')
+        sections = (
+            models.SlideSection.objects.filter(is_deleted=False)
+            .select_related('visual__statistic')
+            .prefetch_related('visual__conditions')
+        )
         slides = models.Slide.objects.filter(is_deleted=False).prefetch_related(
             Prefetch('sections', queryset=sections)
         )
@@ -44,9 +46,11 @@ class SlideQuerySet(HistoryQuerySet):
         return self.filter(presentation=presentation)
 
     def with_sections(self) -> QuerySet:
-        sections = models.SlideSection.objects.filter(is_deleted=False).select_related(
-            'visual__statistic'
-        ).prefetch_related('visual__conditions')
+        sections = (
+            models.SlideSection.objects.filter(is_deleted=False)
+            .select_related('visual__statistic')
+            .prefetch_related('visual__conditions')
+        )
         return self.prefetch_related(Prefetch('sections', queryset=sections))
 
 

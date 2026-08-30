@@ -19,4 +19,7 @@ urlpatterns = [
     path('condition/create/', form_views.create_condition_view, name='create_condition'),
     path('condition/<int:pk>/update/', form_views.update_condition_view, name='update_condition'),
     path('condition/<int:pk>/delete/', form_views.delete_condition_view, name='delete_condition'),
+    path('reference/create/', form_views.create_reference_view, name='create_reference'),
+    path('reference/<int:pk>/update/', form_views.update_reference_view, name='update_reference'),
+    path('reference/<int:pk>/delete/', form_views.delete_reference_view, name='delete_reference'),
 ]

@@ -196,8 +196,118 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         points = visual.services.transformation.series_data()
 
         assert points == [
-            {'timestamp': aware(date(2026, 5, 14), 10), 'value': Decimal(10)},
-            {'timestamp': aware(date(2026, 5, 15), 11), 'value': Decimal(20)},
+            {'timestamp': date(2026, 5, 14), 'value': 10.0},
+            {'timestamp': date(2026, 5, 15), 'value': 20.0},
+        ]
+
+    def test_series_datasets_multiple_references(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        visual = create_test_visual(
+            statistic=statistic,
+            references=['/home/', '/dashboard/'],
+            labels=['Home', 'Dashboard'],
+            with_conditions=False,
+        )
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14), 10),
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/',
+            value=Decimal(55),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 12),
+        )
+
+        datasets = visual.services.transformation.series_datasets()
+
+        assert datasets == [
+            {'label': 'Home', 'points': [{'timestamp': date(2026, 5, 14), 'value': 10.0}]},
+            {'label': 'Dashboard', 'points': [{'timestamp': date(2026, 5, 15), 'value': 55.0}]},
+        ]
+
+    def test_series_datasets_wildcard_prefix(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        visual = create_test_visual(
+            statistic=statistic,
+            references=['helpdesk:page:%'],
+            labels=['Helpdesk Pages'],
+            with_conditions=False,
+        )
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='helpdesk:page:view',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14), 10),
+        )
+        statistic.services.processor.add_value(
+            reference='helpdesk:page:detail',
+            value=Decimal(20),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 11),
+        )
+        statistic.services.processor.add_value(
+            reference='helpdesk:ticket:view',
+            value=Decimal(99),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 12),
+        )
+
+        datasets = visual.services.transformation.series_datasets()
+
+        assert datasets == [
+            {
+                'label': 'Helpdesk Pages',
+                'points': [
+                    {'timestamp': date(2026, 5, 14), 'value': 10.0},
+                    {'timestamp': date(2026, 5, 15), 'value': 20.0},
+                ],
+            }
+        ]
+
+    def test_current_value_uses_first_dataset_only(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(
+            statistic=statistic, references=['/home/', '/dashboard/'], with_conditions=False
+        )
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(90), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+    def test_dataset_values_for_gauge(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(
+            statistic=statistic, references=['/home/', '/dashboard/'], with_conditions=False
+        )
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(90), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.dataset_values() == [
+            {'label': '/home/', 'value': Decimal(10)},
+            {'label': '/dashboard/', 'value': Decimal(90)},
         ]
 
     def test_series_data_without_statistic(self):

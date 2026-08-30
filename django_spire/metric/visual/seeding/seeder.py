@@ -11,6 +11,7 @@ from django.utils import timezone
 from django_spire.contrib.seeding import Seeder
 from django_spire.metric.domain.statistic.constants import StatisticValueTypeChoices
 from django_spire.metric.domain.statistic.models import Statistic, StatisticValue
+from django_spire.metric.domain.statistic.querysets import contains_wildcard, reference_matches
 from django_spire.metric.domain.statistic.seeding.seeder import VALUE_REFERENCES
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualKindChoices
@@ -53,10 +54,10 @@ class VisualSeeder(Seeder):
                 continue
 
             visual_class = models.Visual.kind_model(seed['kind'])
-            reference = (
-                ''
+            references = (
+                []
                 if seed['kind'] == VisualKindChoices.PIE
-                else VALUE_REFERENCES[index % len(VALUE_REFERENCES)]
+                else [VALUE_REFERENCES[index % len(VALUE_REFERENCES)]]
             )
 
             visual, _ = visual_class.objects.get_or_create(
@@ -64,7 +65,6 @@ class VisualSeeder(Seeder):
                 defaults={
                     'description': seed['description'],
                     'statistic': statistic,
-                    'reference': reference,
                     'date': timezone.localdate(),
                     'is_active': True,
                     'is_deleted': False,
@@ -80,6 +80,10 @@ class VisualSeeder(Seeder):
                 visual.services.factory.create_default_conditions(
                     target=target, tolerance=Decimal(10)
                 )
+
+            if not visual.references.exists():
+                for order, reference in enumerate(references):
+                    visual.references.create(reference=reference, order=order)
 
             self._seed_visual_values(visual)
 
@@ -105,7 +109,19 @@ class VisualSeeder(Seeder):
         if sub_domain is None:
             return
 
-        references = [visual.reference] if visual.reference else VALUE_REFERENCES
+        patterns = list(visual.references.values_list('reference', flat=True))
+
+        references = set()
+        for pattern in patterns:
+            matched = [
+                reference for reference in VALUE_REFERENCES if reference_matches(pattern, reference)
+            ]
+            if matched:
+                references.update(matched)
+            elif not contains_wildcard(pattern):
+                references.add(pattern)
+
+        references = list(references) if references else VALUE_REFERENCES
 
         start_date, end_date = visual.services.transformation.date_range()
 

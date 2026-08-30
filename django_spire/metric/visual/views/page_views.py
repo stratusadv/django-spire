@@ -34,7 +34,9 @@ def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
 
 @permission_required('django_spire_metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    visual = get_object_or_404(models.Visual.objects.with_statistic().with_conditions(), pk=pk)
+    visual = get_object_or_404(
+        models.Visual.objects.with_statistic().with_conditions().with_references(), pk=pk
+    )
 
     nav = VisualNavigation()
     nav.page_title = str(visual)

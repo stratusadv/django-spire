@@ -36,6 +36,19 @@ class VisualPageViewsTestCase(BaseTestCase):
         assert response.context_data['current_condition'] is not None
         assert 'chart' not in response.context_data
 
+    def test_detail_view_links_statistic(self):
+        statistic_href = reverse(
+            'django_spire:metric:domain:statistic:page:detail',
+            kwargs={'pk': self.visual.statistic.pk},
+        )
+
+        response = self.client.get(
+            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': self.visual.pk})
+        )
+
+        assert response.status_code == 200
+        assert f'href="{statistic_href}"' in response.content.decode()
+
     def test_detail_view_with_chart_kind(self):
         domain = create_test_domain()
         group = create_test_statistic_group(domain=domain)

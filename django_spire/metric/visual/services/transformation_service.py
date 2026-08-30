@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from datetime import date
     from typing import Any
 
-    from django_spire.metric.visual.models import Visual, VisualCondition
+    from django_spire.metric.visual.models import Visual, VisualCondition, VisualReference
 
 
 class VisualTransformationService(BaseDjangoModelService['Visual']):
@@ -38,20 +38,34 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
             and self.obj.statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
         )
 
+    def _datasets(self) -> list[VisualReference]:
+        return list(self.obj.references.all())
+
+    def _values_for(self, reference: str) -> Any:
+        return self.obj.statistic.values.for_reference_pattern(reference)
+
+    def _all_values(self) -> Any:
+        patterns = [ref.reference for ref in self._datasets()]
+
+        return self.obj.statistic.values.for_reference_patterns(patterns)
+
     def _statistic_values(self) -> Any:
-        values = self.obj.statistic.values
+        datasets = self._datasets()
 
-        if self.obj.reference:
-            values = values.for_reference(self.obj.reference)
+        if not datasets:
+            return self.obj.statistic.values
 
-        return values
+        return self._values_for(datasets[0].reference)
 
-    def current_value(self, value_date: date | None = None) -> Decimal:
+    def current_value(
+        self, value_date: date | None = None, *, reference: str | None = None
+    ) -> Decimal:
         if not self.obj.statistic_id:
             return Decimal(0)
 
         value_date = value_date or self.obj.date
-        values = self._statistic_values()
+
+        values = self._values_for(reference) if reference is not None else self._statistic_values()
 
         if self._is_percentage():
             window_days = percentage_moving_window_days(self.obj.statistic.interval)
@@ -72,13 +86,11 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return None
 
-    def _percentage_series(self, value_date: date, window_days: int) -> list[dict]:
+    def _percentage_series(self, value_date: date, window_days: int, values: Any) -> list[dict]:
         start_date = value_date - timedelta(days=window_days - 1)
         fetch_start = start_date - timedelta(days=window_days - 1)
 
-        daily_averages = dict(
-            self._statistic_values().daily_averages(fetch_start, value_date)
-        )
+        daily_averages = dict(values.daily_averages(fetch_start, value_date))
 
         points = []
         for day_offset in range(window_days):
@@ -99,24 +111,49 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return points
 
-    def series_data(self, value_date: date | None = None) -> list[dict]:
+    def _series_points(self, value_date: date, values: Any) -> list[dict]:
+        if self._is_percentage():
+            window_days = percentage_moving_window_days(self.obj.statistic.interval)
+            return self._percentage_series(value_date, window_days, values)
+
+        start_date, end_date = self.date_range(value_date)
+
+        return [
+            {'timestamp': day, 'value': float(total)}
+            for day, total in values.series_points(start_date, end_date)
+        ]
+
+    def series_datasets(self, value_date: date | None = None) -> list[dict]:
         if not self.obj.statistic_id:
             return []
 
         value_date = value_date or self.obj.date
 
-        if self._is_percentage():
-            window_days = percentage_moving_window_days(self.obj.statistic.interval)
-            return self._percentage_series(value_date, window_days)
+        datasets = self._datasets()
 
-        start_date, end_date = self.date_range(value_date)
-
-        values = self._statistic_values().date_range(start_date, end_date)
+        if not datasets:
+            return [
+                {
+                    'label': self.obj.name,
+                    'points': self._series_points(value_date, self._statistic_values()),
+                }
+            ]
 
         return [
-            {'timestamp': value.timestamp, 'value': value.value}
-            for value in values.order_by('timestamp')
+            {
+                'label': str(dataset),
+                'points': self._series_points(value_date, self._values_for(dataset.reference)),
+            }
+            for dataset in datasets
         ]
+
+    def series_data(self, value_date: date | None = None) -> list[dict]:
+        datasets = self.series_datasets(value_date)
+
+        if not datasets:
+            return []
+
+        return datasets[0]['points']
 
     def series_breakdown(self, value_date: date | None = None) -> list[dict]:
         if not self.obj.statistic_id:
@@ -124,31 +161,32 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         start_date, end_date = self.date_range(value_date)
 
-        values = self._statistic_values().date_range(start_date, end_date)
+        values = self._all_values()
 
         if self._is_percentage():
-            sums: dict[str, Decimal] = {}
-            counts: dict[str, int] = {}
+            breakdown = values.breakdown(start_date, end_date, average=True)
+        else:
+            breakdown = values.breakdown(start_date, end_date)
 
-            for value in values:
-                reference = value.reference or 'Unassigned'
-                sums[reference] = sums.get(reference, Decimal(0)) + value.value
-                counts[reference] = counts.get(reference, 0) + 1
+        return [{'name': reference, 'value': float(total)} for reference, total in breakdown]
 
-            return [
-                {'name': reference, 'value': float(sums[reference] / counts[reference])}
-                for reference in sorted(sums)
-            ]
+    def dataset_values(self, value_date: date | None = None) -> list[dict]:
+        if not self.obj.statistic_id:
+            return []
 
-        totals: dict[str, Decimal] = {}
+        value_date = value_date or self.obj.date
 
-        for value in values:
-            reference = value.reference or 'Unassigned'
-            totals[reference] = totals.get(reference, Decimal(0)) + value.value
+        datasets = self._datasets()
+
+        if not datasets:
+            return [{'label': self.obj.name, 'value': self.current_value(value_date)}]
 
         return [
-            {'name': reference, 'value': float(total)}
-            for reference, total in sorted(totals.items())
+            {
+                'label': str(dataset),
+                'value': self.current_value(value_date, reference=dataset.reference),
+            }
+            for dataset in datasets
         ]
 
     def gauge_max(self) -> int:

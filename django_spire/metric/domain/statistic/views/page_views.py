@@ -71,6 +71,7 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
     context = nav.as_context()
     context['statistic'] = statistic
+    context['visuals'] = statistic.visuals.active().not_deleted().order_by('name')
     context['sub_domains'] = statistic.group.domain.subdomains.active().order_by('name')
     context['record_path'] = record_path
     context['today_total'] = statistic.services.transformation.total_for_interval()

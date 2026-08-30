@@ -14,6 +14,19 @@ def _visual_for(visual_pk: int) -> Visual:
     return Visual.objects.get(pk=visual_pk)
 
 
+def _series_option(visual: Visual) -> list[dict]:
+    return [
+        {
+            'name': dataset['label'],
+            'data': [
+                [point['timestamp'].isoformat(), round(float(point['value']), 2)]
+                for point in dataset['points']
+            ],
+        }
+        for dataset in visual.services.transformation.series_datasets()
+    ]
+
+
 class VisualLineChart(LineChart):
     glue_name = 'visual_line_chart'
 
@@ -21,19 +34,7 @@ class VisualLineChart(LineChart):
     def build_option_body(cls, visual_pk: int, **_kwargs: Any) -> dict:
         visual = _visual_for(visual_pk)
 
-        points = visual.services.transformation.series_data()
-
-        return {
-            'xAxis': {'type': 'time'},
-            'series': [
-                {
-                    'name': visual.name,
-                    'data': [
-                        [point['timestamp'].isoformat(), round(float(point['value']), 2)] for point in points
-                    ],
-                }
-            ],
-        }
+        return {'xAxis': {'type': 'time'}, 'series': _series_option(visual)}
 
 
 class VisualBarChart(BarChart):
@@ -43,19 +44,7 @@ class VisualBarChart(BarChart):
     def build_option_body(cls, visual_pk: int, **_kwargs: Any) -> dict:
         visual = _visual_for(visual_pk)
 
-        points = visual.services.transformation.series_data()
-
-        return {
-            'xAxis': {'type': 'time'},
-            'series': [
-                {
-                    'name': visual.name,
-                    'data': [
-                        [point['timestamp'].isoformat(), round(float(point['value']), 2)] for point in points
-                    ],
-                }
-            ],
-        }
+        return {'xAxis': {'type': 'time'}, 'series': _series_option(visual)}
 
 
 class VisualAreaChart(AreaChart):
@@ -65,19 +54,7 @@ class VisualAreaChart(AreaChart):
     def build_option_body(cls, visual_pk: int, **_kwargs: Any) -> dict:
         visual = _visual_for(visual_pk)
 
-        points = visual.services.transformation.series_data()
-
-        return {
-            'xAxis': {'type': 'time'},
-            'series': [
-                {
-                    'name': visual.name,
-                    'data': [
-                        [point['timestamp'].isoformat(), round(float(point['value']), 2)] for point in points
-                    ],
-                }
-            ],
-        }
+        return {'xAxis': {'type': 'time'}, 'series': _series_option(visual)}
 
 
 class VisualPieChart(PieChart):
@@ -99,8 +76,8 @@ class VisualGaugeChart(GaugeChart):
     def build_option_body(cls, visual_pk: int, **_kwargs: Any) -> dict:
         visual = _visual_for(visual_pk)
 
-        value = round(float(visual.services.transformation.current_value()), 2)
         ceiling = visual.services.transformation.gauge_max()
+        datasets = visual.services.transformation.dataset_values()
 
         return {
             'series': [
@@ -109,7 +86,10 @@ class VisualGaugeChart(GaugeChart):
                     'min': 0,
                     'max': ceiling,
                     'detail': {'formatter': '{value}'},
-                    'data': [{'value': value, 'name': visual.name}],
+                    'data': [
+                        {'value': round(float(dataset['value']), 2), 'name': dataset['label']}
+                        for dataset in datasets
+                    ],
                 }
             ]
         }

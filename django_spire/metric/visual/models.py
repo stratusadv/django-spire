@@ -23,6 +23,7 @@ from django_spire.metric.visual.services.service import (
     LineChartVisualService,
     PieChartVisualService,
     VisualConditionService,
+    VisualReferenceService,
     VisualService,
 )
 
@@ -50,7 +51,6 @@ class Visual(HistoryModelMixin, ActivityMixin):
         related_name='visuals',
         related_query_name='visual',
     )
-    reference = models.CharField(max_length=255, blank=True, default='')
     date = models.DateField(default=timezone.localdate)
     kind = models.CharField(
         max_length=20, choices=VisualKindChoices.choices, default=VisualKindChoices.INDICATOR
@@ -219,7 +219,9 @@ class VisualCondition(HistoryModelMixin, ActivityMixin):
     def color(self) -> str:
         return {
             VisualConditionStateChoices.GREEN: '#198754',
+            VisualConditionStateChoices.BLUE: '#0d6efd',
             VisualConditionStateChoices.YELLOW: '#ffc107',
+            VisualConditionStateChoices.GREY: '#6c757d',
             VisualConditionStateChoices.RED: '#dc3545',
         }[self.state]
 
@@ -227,7 +229,9 @@ class VisualCondition(HistoryModelMixin, ActivityMixin):
     def icon(self) -> str:
         return {
             VisualConditionStateChoices.GREEN: 'bi-check-circle-fill',
+            VisualConditionStateChoices.BLUE: 'bi-info-circle-fill',
             VisualConditionStateChoices.YELLOW: 'bi-exclamation-triangle-fill',
+            VisualConditionStateChoices.GREY: 'bi-circle-fill',
             VisualConditionStateChoices.RED: 'bi-x-circle-fill',
         }[self.state]
 
@@ -242,5 +246,32 @@ class VisualCondition(HistoryModelMixin, ActivityMixin):
         constraints = [
             models.UniqueConstraint(
                 fields=('visual', 'order'), name='unique_visual_condition_order'
+            )
+        ]
+
+
+class VisualReference(HistoryModelMixin, ActivityMixin):
+    visual = models.ForeignKey(
+        Visual, on_delete=models.CASCADE, related_name='references', related_query_name='reference'
+    )
+
+    reference = models.CharField(max_length=255)
+    label = models.CharField(max_length=255, blank=True, default='')
+    order = models.PositiveSmallIntegerField(default=0)
+
+    objects = querysets.VisualReferenceQuerySet().as_manager()
+    services = VisualReferenceService()
+
+    def __str__(self) -> str:
+        return self.label or self.reference
+
+    class Meta:
+        verbose_name = 'Visual Reference'
+        verbose_name_plural = 'Visual References'
+        db_table = 'django_spire_metric_visual_reference'
+        ordering = ('order',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('visual', 'order'), name='unique_visual_reference_order'
             )
         ]

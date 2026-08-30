@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import re
 from datetime import date, timedelta
 from decimal import Decimal
+from functools import reduce
+from operator import or_
 from typing import TYPE_CHECKING
 
-from django.db.models import Avg, QuerySet, Sum
+from django.db.models import Avg, Q, QuerySet, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 
@@ -22,6 +25,37 @@ if TYPE_CHECKING:
         StatisticGroup,
         StatisticValue,
     )
+
+
+def contains_wildcard(pattern: str) -> bool:
+    return '%' in pattern or '_' in pattern
+
+
+def pattern_to_regex(pattern: str) -> str:
+    return re.escape(pattern).replace(r'%', '.*').replace(r'_', '.')
+
+
+def reference_matches(pattern: str, reference: str) -> bool:
+    if not contains_wildcard(pattern):
+        return pattern == reference
+
+    return re.fullmatch(pattern_to_regex(pattern), reference) is not None
+
+
+def reference_pattern_q(pattern: str) -> Q:
+    if not contains_wildcard(pattern):
+        return Q(reference=pattern)
+
+    if pattern.endswith('%') and not contains_wildcard(pattern[:-1]):
+        return Q(reference__startswith=pattern[:-1])
+
+    if pattern.startswith('%') and not contains_wildcard(pattern[1:]):
+        return Q(reference__endswith=pattern[1:])
+
+    if pattern.startswith('%') and pattern.endswith('%') and not contains_wildcard(pattern[1:-1]):
+        return Q(reference__contains=pattern[1:-1])
+
+    return Q(reference__regex=f'^{pattern_to_regex(pattern)}$')
 
 
 class StatisticGroupQuerySet(HistoryQuerySet, SearchQuerySetMixin):
@@ -65,6 +99,23 @@ class StatisticValueQuerySet(QuerySet):
     def for_reference(self, reference: str) -> QuerySet[StatisticValue]:
         return self.filter(reference=reference)
 
+    def for_reference_pattern(self, pattern: str) -> QuerySet[StatisticValue]:
+        if pattern == '':
+            return self
+
+        return self.filter(reference_pattern_q(pattern))
+
+    def for_reference_patterns(self, patterns: list[str]) -> QuerySet[StatisticValue]:
+        if not patterns:
+            return self
+
+        filters = [reference_pattern_q(pattern) for pattern in patterns if pattern != '']
+
+        if not filters:
+            return self
+
+        return self.filter(reduce(or_, filters))
+
     def for_sub_domain(self, sub_domain: SubDomain) -> QuerySet[StatisticValue]:
         return self.filter(sub_domain=sub_domain)
 
@@ -73,6 +124,31 @@ class StatisticValueQuerySet(QuerySet):
 
     def average(self) -> Decimal:
         return self.aggregate(total=Avg('value'))['total'] or Decimal(0)
+
+    def series_points(self, start_date: date, end_date: date) -> list[tuple[date, Decimal]]:
+        rows = (
+            self.date_range(start_date, end_date)
+            .annotate(day=TruncDate('timestamp', tzinfo=timezone.get_current_timezone()))
+            .values('day')
+            .annotate(total=Sum('value'))
+            .order_by('day')
+        )
+
+        return [(row['day'], Decimal(row['total'])) for row in rows]
+
+    def breakdown(
+        self, start_date: date, end_date: date, *, average: bool = False
+    ) -> list[tuple[str, Decimal]]:
+        aggregate = Avg('value') if average else Sum('value')
+
+        rows = (
+            self.date_range(start_date, end_date)
+            .values('reference')
+            .annotate(total=aggregate)
+            .order_by('reference')
+        )
+
+        return [(row['reference'] or 'Unassigned', Decimal(row['total'])) for row in rows]
 
     def daily_averages(self, start_date: date, end_date: date) -> list[tuple[date, Decimal]]:
         rows = (
