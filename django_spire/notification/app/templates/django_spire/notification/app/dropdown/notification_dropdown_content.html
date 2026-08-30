@@ -2,7 +2,12 @@
 
 {% block scroll_queryset_unique_name %}notifications{% endblock %}
 
-{% block increment %}50{% endblock %}
+{% block increment %}25{% endblock %}
+
+{% block scroll_sentinel_height %}160{% endblock %}
+{% block scroll_sentinel_offset %}160{% endblock %}
+
+{% block scroll_content_style %}max-height: 40vh; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;{% endblock %}
 
 {% block scroll_footer %}
     <div class="row text-center border-top border-dark-subtle m-0">

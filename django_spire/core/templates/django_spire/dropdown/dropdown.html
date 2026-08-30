@@ -3,7 +3,7 @@
         {% block dropdown_trigger %}
         {% endblock %}
     </div>
-    <ul class="dropdown-menu">
+    <ul class="dropdown-menu {% block dropdown_menu_class %}{% endblock %}">
         {% block dropdown_content %}
         {% endblock %}
     </ul>

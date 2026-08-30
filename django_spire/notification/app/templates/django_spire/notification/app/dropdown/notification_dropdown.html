@@ -64,6 +64,8 @@
     </div>
 {% endblock %}
 
+{% block dropdown_menu_class %}dropdown-menu-end overflow-hidden p-0{% endblock %}
+
 {% block dropdown_content %}
     <li>
         <div
@@ -72,7 +74,7 @@
             x-transition
             x-cloak
             @content-loaded.window="hasContent = true"
-            :style="{ width: window.innerWidth < 768 ? (window.innerWidth / 2).toFixed(0) + 'px' : '350px' }"
+            style="width: min(380px, calc(100vw - 2rem)); max-height: 70vh;"
         >
             <div x-ref="appNotificationDropdownContent"></div>
         </div>

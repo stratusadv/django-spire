@@ -154,40 +154,50 @@
 
     <div class="row">
         <div class="col">
-            {% block scroll_content %}
-                <template x-if="items.length > 0">
-                    <template x-for="(item, itemIndex) in items" :key="item.id ?? itemIndex">
-                        {% block scroll_template_item %}
-                            <div x-html="item.renderedTemplate"></div>
-                        {% endblock %}
-                    </template>
-                </template>
-                <div x-show="items.length === 0" x-cloak>
-                    {% include 'django_spire/item/no_data_item.html' %}
-                </div>
-            {% endblock %}
             <div
-                x-data="{
-                    init() {
-                        const observer = new IntersectionObserver((entries) => {entries.forEach((entry) => {
-                            if (entry.isIntersecting) {
-                                if(hasMore) {
-                                    loadMoreItems()
-                                }
-                            }
-                        })}, { threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] })
-                        observer.observe($el)
-                    }
-                }"
-                style="height: 1200px; margin-top: -1200px; pointer-events: none;"
+                class="{% block scroll_content_class %}{% endblock %}"
+                style="{% block scroll_content_style %}{% endblock %}"
             >
+                {% block scroll_content %}
+                    <template x-if="items.length > 0">
+                        <template x-for="(item, itemIndex) in items" :key="item.id ?? itemIndex">
+                            {% block scroll_template_item %}
+                                <div x-html="item.renderedTemplate"></div>
+                            {% endblock %}
+                        </template>
+                    </template>
+                    <div x-show="(items.length === 0) && !isLoading" x-cloak>
+                        <div
+                            class="col p-3 text-center"
+                            aria-live="polite"
+                        >
+                            You have no notifications...
+                        </div>
+                    </div>
+                {% endblock %}
+                <div
+                    x-data="{
+                        init() {
+                            const observer = new IntersectionObserver((entries) => {entries.forEach((entry) => {
+                                if (entry.isIntersecting) {
+                                    if(hasMore) {
+                                        loadMoreItems()
+                                    }
+                                }
+                            })}, { threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] })
+                            observer.observe($el)
+                        }
+                    }"
+                    style="height: {% block scroll_sentinel_height %}1200{% endblock %}px; margin-top: -{% block scroll_sentinel_offset %}1200{% endblock %}px; pointer-events: none;"
+                >
+                </div>
             </div>
         </div>
     </div>
 
-    <div x-show="hasMore" x-cloak class="row">
+    <div x-show="hasMore && isLoading" x-cloak class="row">
         <div
-            class="col p-3 text-end"
+            class="col p-3 text-center"
             aria-live="polite"
         >
                 <span class="spinner-border spinner-border-sm" role="status">
