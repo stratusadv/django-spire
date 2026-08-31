@@ -10,7 +10,10 @@ from django_spire.auth.controller.exceptions import (
     AuthControllerNotFoundError,
     AuthControllerRequestError
 )
-from django_spire.auth.permissions.decorators import permission_required_decorator_function
+from django_spire.auth.permissions.decorators import (
+    permission_required_decorator_function,
+    SpireGate,
+)
 from django_spire.conf import settings
 from django_spire.core.utils import get_object_from_module_string
 
@@ -73,6 +76,30 @@ class BaseAuthController:
                     all_required=all_required,
                     **kwargs
                 )
+
+            # A permission naming a callable on this controller is classified
+            # at decoration time: the controller instance already exists when
+            # its permission_required method runs, so getattr resolves the
+            # same attribute the wrapper will call per request. A callable
+            # check marks the gate opaque because its outcome cannot be
+            # predicted from permission labels alone.
+            permissions_callable = tuple(
+                permission
+                for permission in permissions
+                if callable(getattr(self, permission, None))
+            )
+
+            permissions_label = tuple(
+                permission
+                for permission in permissions
+                if permission not in permissions_callable
+            )
+
+            wrapper.__spire_gate__ = SpireGate(
+                all_required=all_required,
+                opaque=bool(permissions_callable),
+                permissions=permissions_label,
+            )
 
             return wrapper
 
