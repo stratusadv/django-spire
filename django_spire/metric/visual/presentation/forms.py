@@ -48,6 +48,24 @@ class SlideModelForm(forms.ModelForm):
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
+
+        presentation = cleaned_data.get('presentation')
+        order = cleaned_data.get('order')
+
+        if presentation is not None and order is not None:
+            queryset = models.Slide.objects.filter(presentation=presentation, order=order)
+            if self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+
+            if queryset.exists():
+                self.add_error(
+                    'order', 'A slide with this order already exists in this presentation.'
+                )
+
+        return cleaned_data
+
     class Meta:
         model = models.Slide
         fields = ['presentation', 'name', 'order']
