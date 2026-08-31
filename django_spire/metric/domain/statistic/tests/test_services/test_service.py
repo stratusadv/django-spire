@@ -175,6 +175,24 @@ class StatisticTransformationServiceTestCase(BaseTestCase):
         values = self.statistic.services.transformation.values_for_date()
         assert values.count() == 2
 
+    def test_deleted_statistic_value_queryset_is_empty(self):
+        self.seed_values()
+        self.statistic.set_deleted()
+
+        assert self.statistic.services.transformation.value_queryset().count() == 0
+        assert self.statistic.services.transformation.values_for_date(self.today).count() == 0
+        assert self.statistic.services.transformation.daily_summary(self.today, self.today) == {}
+        assert self.statistic.services.transformation.interval_summary(self.today, self.today) == {}
+
+    def test_deleted_statistic_total_for_date_is_zero(self):
+        self.seed_values()
+        self.statistic.set_deleted()
+
+        assert self.statistic.services.transformation.total_for_date(self.today) == Decimal(0)
+        assert self.statistic.services.transformation.total_between(
+            self.today, self.today
+        ) == Decimal(0)
+
     def test_total_for_date_sums_all_references(self):
         self.seed_values()
         total = self.statistic.services.transformation.total_for_date(self.today)
@@ -446,3 +464,98 @@ class StatisticIntervalTransformationServiceTestCase(BaseTestCase):
             date(2026, 1, 1), date(2026, 2, 28)
         )
         assert summary == {date(2026, 1, 1): Decimal(1), date(2026, 2, 1): Decimal(2)}
+
+    def test_interval_summary_daily_matches_daily_summary(self):
+        statistic = create_test_statistic(group=self.group, interval=StatisticIntervalChoices.DAILY)
+        value_dates = [date(2026, 8, 16), date(2026, 8, 16), date(2026, 8, 19), date(2026, 8, 23)]
+        for idx, value_date in enumerate(value_dates, start=1):
+            statistic.services.processor.add_value(
+                reference='/home/',
+                value=Decimal(idx),
+                sub_domain=self.sub_domain,
+                value_timestamp=aware(value_date),
+            )
+
+        start_date, end_date = date(2026, 8, 10), date(2026, 8, 31)
+        summary = statistic.services.transformation.interval_summary(start_date, end_date)
+        assert summary == statistic.services.transformation.daily_summary(start_date, end_date)
+
+    def test_interval_summary_daily_groups_by_day(self):
+        statistic = create_test_statistic(group=self.group, interval=StatisticIntervalChoices.DAILY)
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(1),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 16)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(2),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 16)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(4),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 19)),
+        )
+
+        summary = statistic.services.transformation.interval_summary(
+            date(2026, 8, 10), date(2026, 8, 31)
+        )
+        assert summary == {date(2026, 8, 16): Decimal(3), date(2026, 8, 19): Decimal(4)}
+
+    def test_interval_summary_percentage_averages_raw_rows_not_daily_means(self):
+        statistic = create_test_statistic(
+            group=self.group,
+            interval=StatisticIntervalChoices.WEEKLY,
+            value_type=StatisticValueTypeChoices.PERCENTAGE,
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(3),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 19)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(1),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 20)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(1),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 20), 14),
+        )
+
+        summary = statistic.services.transformation.interval_summary(
+            date(2026, 8, 10), date(2026, 8, 31)
+        )
+        assert summary == {date(2026, 8, 16): Decimal(5) / Decimal(3)}
+
+    def test_interval_summary_is_empty_without_values(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        assert (
+            statistic.services.transformation.interval_summary(date(2026, 8, 10), date(2026, 8, 31))
+            == {}
+        )
+
+    def test_interval_summary_is_empty_outside_range(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(1),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 8, 16)),
+        )
+        assert (
+            statistic.services.transformation.interval_summary(date(2026, 9, 1), date(2026, 9, 30))
+            == {}
+        )

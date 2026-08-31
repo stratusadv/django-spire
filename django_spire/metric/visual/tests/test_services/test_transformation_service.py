@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 
+from django.core.cache import cache
 from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -36,6 +37,7 @@ def aware(value_date: date, hour: int = 12) -> datetime:
 class VisualTransformationServiceTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+        cache.clear()
 
         self.domain = create_test_domain()
         self.sub_domain = create_test_subdomain(domain=self.domain)
@@ -427,6 +429,33 @@ class VisualTransformationServiceTestCase(BaseTestCase):
 
         assert visual.services.transformation.gauge_max() == 80
 
+    def test_current_value_is_cached(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+        with self.assertNumQueries(2):
+            assert visual.services.transformation.current_value() == Decimal(10)
+
+    def test_current_value_cache_invalidated_by_new_value(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(5), sub_domain=self.sub_domain
+        )
+        assert visual.services.transformation.current_value() == Decimal(15)
+
     def test_chart_returns_none_for_indicator(self):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, with_conditions=False)
@@ -489,10 +518,41 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         assert context['current_condition'] is None
         assert context['chart'] is None
 
+    def test_aggregates_are_empty_for_deleted_statistic(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.set_deleted()
+
+        assert visual.services.transformation.current_value() == Decimal(0)
+        assert visual.services.transformation.series_datasets() == []
+        assert visual.services.transformation.series_breakdown() == []
+        assert visual.services.transformation.dataset_values() == []
+
+    def test_render_context_is_empty_for_deleted_statistic(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, kind='line', with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.set_deleted()
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] is None
+        assert context['current_value'] is None
+        assert context['current_condition'] is None
+        assert context['chart'] is None
+
 
 class VisualRegionTransformationServiceTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+        cache.clear()
 
         domain = create_test_domain()
         group = create_test_statistic_group(domain=domain)

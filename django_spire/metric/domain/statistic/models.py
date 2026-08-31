@@ -4,11 +4,12 @@ from uuid import uuid4
 
 from typing import TYPE_CHECKING
 
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.history.utils import soft_delete_queryset
 from django_spire.metric.domain.statistic import querysets
 from django_spire.metric.domain.statistic.constants import (
     StatisticIntervalChoices,
@@ -49,8 +50,9 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
         return self.domain.subdomains.active()
 
     def set_deleted(self) -> None:
-        super().set_deleted()
-        self.statistics.all().update(is_deleted=True)
+        with transaction.atomic():
+            super().set_deleted()
+            soft_delete_queryset(self.statistics.all())
 
     def __str__(self) -> str:
         return self.name
@@ -118,6 +120,9 @@ class StatisticValue(models.Model):
             models.Index(fields=['statistic', 'timestamp'], name='ix_statistic_timestamp'),
             models.Index(
                 fields=['statistic', 'sub_domain', 'timestamp'], name='ix_statistic_subdomain_ts'
+            ),
+            models.Index(
+                fields=['statistic', 'reference', 'timestamp'], name='ix_statistic_reference_ts'
             ),
         ]
 

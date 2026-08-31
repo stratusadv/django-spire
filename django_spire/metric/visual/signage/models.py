@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from django.db import models
+from django.db import models, transaction
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.history.utils import soft_delete_queryset
 
 from django_spire.metric.visual.signage import querysets
 from django_spire.metric.visual.signage.services.service import (
@@ -37,10 +38,9 @@ class Signage(HistoryModelMixin, ActivityMixin):
         return self.name
 
     def set_deleted(self) -> None:
-        super().set_deleted()
-
-        for signage_presentation in self.signage_presentations.all():
-            signage_presentation.set_deleted()
+        with transaction.atomic():
+            super().set_deleted()
+            soft_delete_queryset(self.signage_presentations.all())
 
     class Meta:
         verbose_name = 'Signage'

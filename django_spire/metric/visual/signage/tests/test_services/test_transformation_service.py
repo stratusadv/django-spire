@@ -1,6 +1,13 @@
 from __future__ import annotations
 
+from django.core.cache import cache
+
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.visual.presentation.tests.factories import (
+    create_test_presentation,
+    create_test_section,
+    create_test_slide,
+)
 from django_spire.metric.visual.signage.tests.factories import (
     create_test_link,
     create_test_signage,
@@ -11,6 +18,7 @@ from django_spire.metric.visual.signage.tests.factories import (
 class SignageTransformationServiceTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+        cache.clear()
 
         self.signage = create_test_signage()
 
@@ -74,3 +82,31 @@ class SignageTransformationServiceTestCase(BaseTestCase):
             slide['sections'][0]['grid_style'] == 'grid-column: 1 / span 12; grid-row: 2;'
             for slide in slides
         )
+
+    def test_display_slides_query_count_does_not_scale_with_slides(self):
+        presentation = create_test_presentation(name='multi_slide')
+        for order in range(3):
+            slide = create_test_slide(presentation, order=order)
+            create_test_section(slide, row=1, col=1)
+
+        create_test_link(self.signage, presentation=presentation, order=0)
+
+        self.signage.services.transformation.display_slides()
+
+        with self.assertNumQueries(10):
+            slides = self.signage.services.transformation.display_slides()
+
+        assert len(slides) == 3
+
+    def test_display_slides_excludes_deleted_sections(self):
+        presentation = create_test_presentation(name='mixed')
+        slide = create_test_slide(presentation, order=0)
+        section = create_test_section(slide, row=1, col=1)
+        create_test_section(slide, row=1, col=2, with_visual=False)
+
+        section.visual.set_deleted()
+        create_test_link(self.signage, presentation=presentation, order=0)
+
+        slides = self.signage.services.transformation.display_slides()
+
+        assert slides[0]['sections'] == []

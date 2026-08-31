@@ -7,7 +7,7 @@ from decimal import Decimal
 
 from django.http import HttpRequest
 from django.http import Http404
-from ninja import Router
+from ninja import Query, Router
 from pydantic import BaseModel, Field
 
 from django_spire.metric.domain.models import SubDomain
@@ -17,7 +17,7 @@ router = Router()
 
 
 class StatisticValueIn(BaseModel):
-    reference: str = Field(..., min_length=1)
+    reference: str = Field(..., min_length=1, max_length=255)
     sub_domain_key: uuid.UUID
     value: Decimal = Decimal(1)
 
@@ -127,12 +127,14 @@ def values_for_interval(
     statistic_key: str,
     value_date: date_type | None = None,
     sub_domain_key: uuid.UUID | None = None,
+    limit: int = Query(1000, ge=1, le=5000),
+    offset: int = Query(0, ge=0),
 ) -> list[StatisticValueOut]:
     statistic = _get_statistic(statistic_key)
     sub_domain = _get_sub_domain(statistic, sub_domain_key)
     values = statistic.services.transformation.values_for_interval(
         value_date, sub_domain=sub_domain
-    )
+    )[offset : offset + limit]
     return [
         StatisticValueOut(
             statistic_key=statistic.key,

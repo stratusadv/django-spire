@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import threading
 from typing import TYPE_CHECKING
 
-from django.db import connections
-
 from django_spire.conf import settings
+from django_spire.metric.domain.statistic.queue import tracking_queue
 from django_spire.metric.domain.statistic.services.tracking_service import StatisticTrackingService
 
 if TYPE_CHECKING:
@@ -15,13 +13,6 @@ if TYPE_CHECKING:
 
 _ADMIN_PATHS = ('/admin/',)
 _API_PATHS = ('/api/',)
-
-
-def _track_click_in_background(reference: str) -> None:
-    try:
-        StatisticTrackingService.track_configured(reference=reference)
-    finally:
-        connections.close_all()
 
 
 class StatisticClickMiddleware:
@@ -66,12 +57,6 @@ class StatisticClickMiddleware:
         reference = view_name or request.path
 
         if self.threaded:
-            thread = threading.Thread(
-                target=_track_click_in_background,
-                kwargs={'reference': reference},
-                daemon=True,
-                name='django-spire-statistic-click',
-            )
-            thread.start()
+            tracking_queue.enqueue(reference)
         else:
             StatisticTrackingService.track_configured(reference=reference)

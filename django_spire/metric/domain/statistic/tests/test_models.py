@@ -8,6 +8,7 @@ from django.utils import timezone
 import pytest
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.history.choices import HistoryEventChoices
 from django_spire.metric.domain.statistic.constants import (
     StatisticIntervalChoices,
     StatisticValueTypeChoices,
@@ -51,6 +52,16 @@ class StatisticGroupModelTestCase(BaseTestCase):
 
         assert self.group.is_deleted is True
         assert statistic.is_deleted is True
+
+    def test_set_deleted_backfills_history_events_for_statistics(self):
+        statistic = create_test_statistic(group=self.group, name='history_statistic')
+
+        self.group.set_deleted()
+
+        statistic.refresh_from_db()
+
+        assert statistic.is_deleted is True
+        assert statistic.history_events.filter(event=HistoryEventChoices.DELETED).exists()
 
 
 class StatisticModelTestCase(BaseTestCase):

@@ -41,6 +41,14 @@ class StatisticProcessorService(BaseDjangoModelService['Statistic']):
             )
             raise ServiceError(message)
 
+        reference_max_length = self.obj.values.model._meta.get_field('reference').max_length
+        if len(reference) > reference_max_length:
+            message = (
+                f"Reference '{reference}' exceeds the maximum length "
+                f'of {reference_max_length} characters'
+            )
+            raise ServiceError(message)
+
         value = Decimal(value)
         stamp = value_timestamp or timezone.now()
         if timezone.is_naive(stamp):

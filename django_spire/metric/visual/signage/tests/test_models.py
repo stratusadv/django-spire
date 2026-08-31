@@ -5,6 +5,7 @@ from django.db import IntegrityError
 import pytest
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.history.choices import HistoryEventChoices
 from django_spire.metric.visual.signage.models import Signage, SignagePresentation
 from django_spire.metric.visual.signage.tests.factories import create_test_link, create_test_signage
 
@@ -51,6 +52,16 @@ class SignageModelTestCase(BaseTestCase):
 
         assert self.signage.is_deleted is True
         assert link.is_deleted is True
+
+    def test_set_deleted_backfills_history_events_for_links(self):
+        link = create_test_link(self.signage)
+
+        self.signage.set_deleted()
+
+        link.refresh_from_db()
+
+        assert link.is_deleted is True
+        assert link.history_events.filter(event=HistoryEventChoices.DELETED).exists()
 
 
 class SignagePresentationModelTestCase(BaseTestCase):

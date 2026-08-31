@@ -46,15 +46,13 @@ class SignageTransformationService(BaseDjangoModelService['Signage']):
     def display_slides(self) -> list[dict]:
         slides = []
 
-        for link in self.presentation_links():
-            presentation = link.presentation
-
-            for slide in presentation.slides.filter(is_deleted=False).order_by('order'):
-                section_sections = (
-                    slide.sections.select_related('visual')
-                    .prefetch_related('visual__conditions')
-                    .filter(is_deleted=False, visual__is_deleted=False)
-                )
+        for presentation in self.presentations():
+            for slide in presentation.slides.all():
+                section_sections = [
+                    section
+                    for section in slide.sections.all()
+                    if section.visual_id and not section.visual.is_deleted
+                ]
                 grid_styles = SlideSectionTransformationService.section_grid_styles(
                     section_sections
                 )
@@ -64,7 +62,9 @@ class SignageTransformationService(BaseDjangoModelService['Signage']):
                         'grid_style': grid_styles[section.pk],
                         **section.services.transformation.render_context(),
                     }
-                    for section in section_sections.order_by('row', 'col')
+                    for section in sorted(
+                        section_sections, key=lambda section: (section.row, section.col)
+                    )
                 ]
                 slides.append({'presentation': presentation, 'slide': slide, 'sections': sections})
 

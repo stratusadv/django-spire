@@ -4,6 +4,9 @@ from datetime import timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
+from django.core.cache import cache
+from django.db.models import Max
+
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 from django_spire.metric.domain.statistic.constants import (
     StatisticValueTypeChoices,
@@ -24,8 +27,50 @@ if TYPE_CHECKING:
     )
 
 
+VISUAL_AGGREGATE_CACHE_TTL_SECONDS = 120
+
+
 class VisualTransformationService(BaseDjangoModelService['Visual']):
     obj: Visual
+
+    def _value_revision(self) -> str:
+        if not self.obj.statistic_id:
+            return 'none'
+
+        latest = self.obj.statistic.values.aggregate(latest=Max('timestamp'))['latest']
+        return str(latest).replace(':', '-').replace(' ', '_') if latest is not None else 'none'
+
+    def _cache_key(
+        self,
+        kind: str,
+        *,
+        value_date: date | None = None,
+        reference: str | None = None,
+        include_conditions: bool = False,
+    ) -> str:
+        value_date = value_date or self.obj.date
+
+        parts = [
+            'metric:visual',
+            self.obj.pk,
+            self.obj.statistic_id or 'none',
+            kind,
+            value_date.isoformat(),
+            self._value_revision(),
+            reference or '-',
+        ]
+        if reference is None:
+            datasets = self._datasets()
+            parts.append('|'.join(dataset.reference for dataset in datasets) if datasets else '-')
+        if include_conditions:
+            parts.append(
+                '|'.join(
+                    f'{condition.target}-{condition.tolerance}'
+                    for condition in self.obj.conditions.all()
+                )
+            )
+
+        return ':'.join(str(part) for part in parts)
 
     def date_range(self, value_date: date | None = None) -> tuple[date, date]:
         value_date = value_date or self.obj.date
@@ -42,6 +87,9 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
             self.obj.statistic_id
             and self.obj.statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
         )
+
+    def _statistic_deleted(self) -> bool:
+        return bool(self.obj.statistic_id and self.obj.statistic.is_deleted)
 
     def _datasets(self) -> list[VisualReference]:
         return list(self.obj.references.all())
@@ -68,16 +116,27 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if not self.obj.statistic_id:
             return Decimal(0)
 
+        if self._statistic_deleted():
+            return Decimal(0)
+
+        key = self._cache_key('value', value_date=value_date, reference=reference)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+
         value_date = value_date or self.obj.date
 
         values = self._values_for(reference) if reference is not None else self._statistic_values()
 
         if self._is_percentage():
             window_days = percentage_moving_window_days(self.obj.statistic.interval)
-            return values.moving_window_average(value_date, window_days)
+            result = values.moving_window_average(value_date, window_days)
+        else:
+            start_date, end_date = self.date_range(value_date)
+            result = values.date_range(start_date, end_date).total()
 
-        start_date, end_date = self.date_range(value_date)
-        return values.date_range(start_date, end_date).total()
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
 
     def current_condition(
         self, value_date: date | None = None, *, value: Decimal | None = None
@@ -132,25 +191,36 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if not self.obj.statistic_id:
             return []
 
+        if self._statistic_deleted():
+            return []
+
+        key = self._cache_key('series', value_date=value_date)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+
         value_date = value_date or self.obj.date
 
         datasets = self._datasets()
 
         if not datasets:
-            return [
+            result = [
                 {
                     'label': self.obj.name,
                     'points': self._series_points(value_date, self._statistic_values()),
                 }
             ]
+        else:
+            result = [
+                {
+                    'label': str(dataset),
+                    'points': self._series_points(value_date, self._values_for(dataset.reference)),
+                }
+                for dataset in datasets
+            ]
 
-        return [
-            {
-                'label': str(dataset),
-                'points': self._series_points(value_date, self._values_for(dataset.reference)),
-            }
-            for dataset in datasets
-        ]
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
 
     def series_data(self, value_date: date | None = None) -> list[dict]:
         datasets = self.series_datasets(value_date)
@@ -164,6 +234,14 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if not self.obj.statistic_id:
             return []
 
+        if self._statistic_deleted():
+            return []
+
+        key = self._cache_key('breakdown', value_date=value_date)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+
         start_date, end_date = self.date_range(value_date)
 
         values = self._all_values()
@@ -173,28 +251,46 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         else:
             breakdown = values.breakdown(start_date, end_date)
 
-        return [{'name': reference, 'value': float(total)} for reference, total in breakdown]
+        result = [{'name': reference, 'value': float(total)} for reference, total in breakdown]
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
 
     def dataset_values(self, value_date: date | None = None) -> list[dict]:
         if not self.obj.statistic_id:
             return []
+
+        if self._statistic_deleted():
+            return []
+
+        key = self._cache_key('dataset-values', value_date=value_date)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
 
         value_date = value_date or self.obj.date
 
         datasets = self._datasets()
 
         if not datasets:
-            return [{'label': self.obj.name, 'value': self.current_value(value_date)}]
+            result = [{'label': self.obj.name, 'value': self.current_value(value_date)}]
+        else:
+            result = [
+                {
+                    'label': str(dataset),
+                    'value': self.current_value(value_date, reference=dataset.reference),
+                }
+                for dataset in datasets
+            ]
 
-        return [
-            {
-                'label': str(dataset),
-                'value': self.current_value(value_date, reference=dataset.reference),
-            }
-            for dataset in datasets
-        ]
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
 
     def gauge_max(self) -> int:
+        key = self._cache_key('gauge', include_conditions=True)
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+
         ceiling = Decimal(0)
 
         for condition in self.obj.conditions.all():
@@ -207,7 +303,9 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         if ceiling <= 0:
             ceiling = Decimal(100)
 
-        return int(ceiling)
+        result = int(ceiling)
+        cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
+        return result
 
     def chart(self) -> Any | None:
         from django_spire.metric.visual.charts import VISUAL_CHART_CLASSES  # noqa: PLC0415
@@ -220,7 +318,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         return chart_class(params={'visual_pk': self.obj.pk})
 
     def render_context(self) -> dict:
-        if self.obj.is_deleted:
+        if self.obj.is_deleted or self._statistic_deleted():
             return self.empty_render_context()
 
         current_value = self.current_value()

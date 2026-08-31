@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from django.urls import reverse
 from django.utils import timezone
@@ -152,6 +152,22 @@ class RecordValueApiTestCase(BaseStatisticApiTestCase):
         total = float(sum(v.value for v in self.statistic.values.all()))
         assert total >= 4.0
 
+    def test_record_value_rejects_reference_over_max_length(self):
+        response = self.post_record(
+            self.record_url(), self.record_payload(reference='x' * 256), extra=self.api_extra()
+        )
+
+        assert response.status_code == 422
+        self.assertQuerySetEqual(self.statistic.values.all(), [], transform=str)
+
+    def test_record_value_accepts_reference_at_max_length(self):
+        response = self.post_record(
+            self.record_url(), self.record_payload(reference='x' * 255), extra=self.api_extra()
+        )
+
+        assert response.status_code == 200
+        assert response.json()['reference'] == 'x' * 255
+
     def test_record_soft_deleted_statistic_returns_404(self):
         self.statistic.set_deleted()
 
@@ -238,7 +254,7 @@ class TotalForIntervalApiTestCase(BaseStatisticApiTestCase):
         assert response.status_code == 200
         assert float(response.json()['total']) == 5.0
 
-    def test_total_still_works_on_soft_deleted_statistic(self):
+    def test_total_is_zero_on_soft_deleted_statistic(self):
         self.statistic.services.processor.add_value(
             reference='client_site', sub_domain=self.sub_domain, value=5
         )
@@ -247,7 +263,7 @@ class TotalForIntervalApiTestCase(BaseStatisticApiTestCase):
         response = self.client.get(self.total_url(), **self.api_extra())
 
         assert response.status_code == 200
-        assert float(response.json()['total']) == 5.0
+        assert float(response.json()['total']) == 0.0
 
 
 class ValuesForIntervalApiTestCase(BaseStatisticApiTestCase):
@@ -304,6 +320,27 @@ class ValuesForIntervalApiTestCase(BaseStatisticApiTestCase):
         )
 
         assert response.status_code == 404
+
+    def test_values_respects_limit_and_offset(self):
+        for index in range(5):
+            self.statistic.services.processor.add_value(
+                reference='client_site',
+                sub_domain=self.sub_domain,
+                value=index,
+                value_timestamp=timezone.now() + timedelta(seconds=index),
+            )
+
+        response = self.client.get(self.values_url() + '?limit=2&offset=1', **self.api_extra())
+
+        assert response.status_code == 200
+        body = response.json()
+        assert len(body) == 2
+        assert [float(row['value']) for row in body] == [1.0, 2.0]
+
+    def test_values_rejects_limit_over_max(self):
+        response = self.client.get(self.values_url() + '?limit=5001', **self.api_extra())
+
+        assert response.status_code == 422
 
 
 class IntervalSummaryApiTestCase(BaseStatisticApiTestCase):

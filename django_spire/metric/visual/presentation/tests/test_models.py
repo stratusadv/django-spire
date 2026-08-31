@@ -4,6 +4,7 @@ import pytest
 from django.db import IntegrityError
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.history.choices import HistoryEventChoices
 from django_spire.metric.visual.presentation.models import SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
@@ -31,6 +32,28 @@ class PresentationModelTestCase(BaseTestCase):
 
         assert self.presentation.is_deleted is True
         assert slide.is_deleted is True
+
+    def test_set_deleted_cascades_to_sections(self):
+        slide = create_test_slide(self.presentation)
+        section = create_test_section(slide)
+
+        self.presentation.set_deleted()
+
+        slide.refresh_from_db()
+        section.refresh_from_db()
+
+        assert slide.is_deleted is True
+        assert section.is_deleted is True
+
+    def test_set_deleted_backfills_history_events(self):
+        slide = create_test_slide(self.presentation)
+
+        self.presentation.set_deleted()
+
+        slide.refresh_from_db()
+
+        assert slide.is_deleted is True
+        assert slide.history_events.filter(event=HistoryEventChoices.DELETED).exists()
 
 
 class SlideModelTestCase(BaseTestCase):

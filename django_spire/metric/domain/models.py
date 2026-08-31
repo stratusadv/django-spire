@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from django.db import models
+from django.db import models, transaction
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.history.utils import soft_delete_queryset
 from django_spire.metric.domain import querysets
 from django_spire.metric.domain.services.service import DomainService, SubDomainService
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
@@ -25,10 +26,14 @@ class Domain(HistoryModelMixin, ActivityMixin):
         return self.name
 
     def set_deleted(self) -> None:
-        super().set_deleted()
+        with transaction.atomic():
+            super().set_deleted()
 
-        for subdomain in self.subdomains.all():
-            subdomain.set_deleted()
+            for subdomain in self.subdomains.all():
+                subdomain.set_deleted()
+
+            soft_delete_queryset(self.statistic_groups.all())
+            soft_delete_queryset(Statistic.objects.filter(group__domain_id=self.pk))
 
     class Meta:
         verbose_name = 'Domain'

@@ -7,10 +7,7 @@ from django.http import HttpRequest, HttpResponse
 from django.test import RequestFactory, override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.middleware import (
-    StatisticClickMiddleware,
-    _track_click_in_background,
-)
+from django_spire.metric.domain.statistic.middleware import StatisticClickMiddleware
 from django_spire.metric.domain.statistic.models import StatisticValue
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
@@ -120,7 +117,7 @@ class StatisticClickMiddlewareTestCase(BaseTestCase):
 
         assert not StatisticValue.objects.exists()
 
-    def test_threaded_mode_dispatches_in_daemon_thread(self) -> None:
+    def test_threaded_mode_enqueues_reference(self) -> None:
         request = RequestFactory().get('/some/path/')
         request.resolver_match = SimpleNamespace(view_name='django_spire:metric:page:detail')
         response = HttpResponse(content_type='text/html')
@@ -128,12 +125,20 @@ class StatisticClickMiddlewareTestCase(BaseTestCase):
         with (
             self._tracking_settings(),
             patch(
-                'django_spire.metric.domain.statistic.middleware.threading.Thread'
-            ) as thread_mock,
+                'django_spire.metric.domain.statistic.middleware.tracking_queue.enqueue'
+            ) as enqueue_mock,
         ):
             self._run(request, response, threaded=True)
 
-        thread_mock.assert_called_once()
-        assert thread_mock.call_args.kwargs['target'] is _track_click_in_background
-        assert thread_mock.call_args.kwargs['daemon'] is True
-        assert thread_mock.call_args.kwargs['name'] == 'django-spire-statistic-click'
+        enqueue_mock.assert_called_once_with('django_spire:metric:page:detail')
+
+    def test_sync_mode_writes_immediately(self) -> None:
+        request = RequestFactory().get('/some/path/')
+        request.resolver_match = SimpleNamespace(view_name='django_spire:metric:page:detail')
+        response = HttpResponse(content_type='text/html')
+
+        with self._tracking_settings():
+            self._run(request, response, threaded=False)
+
+        value = StatisticValue.objects.latest('pk')
+        assert value.reference == 'django_spire:metric:page:detail'

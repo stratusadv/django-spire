@@ -114,7 +114,7 @@
                         {% for section in item.sections %}
                             {% if section.visual %}
                                 <div class="kiosk-section" style="{{ section.grid_style }}">
-                                    {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition chart=section.chart period_start=section.period_start period_end=section.period_end %}
+                                    {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition chart=section.chart period_start=section.period_start period_end=section.period_end chart_update_interval=chart_update_interval %}
                                 </div>
                             {% else %}
                                 <div class="border rounded d-flex align-items-center justify-content-center text-muted"
