@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block card_button %}
-    {% if AuthController.api.can_add %}
+    {% if perms.django_spire_api.add_apiaccess %}
         <div class="col text-end mb-1">
             {% url 'django_spire:api:page:list' as list_url %}
             <a class="btn btn-sm btn-danger" href="{{ list_url }}">

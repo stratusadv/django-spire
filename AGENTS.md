@@ -359,44 +359,22 @@ class ApiPermissionChoices(models.IntegerChoices):
 
 Path: `django_spire/api/choices.py`
 
-## Auth Controllers
+## Access Control
 
-Define in `auth/controller.py` for access control:
-
-```python
-from django_spire.auth.controller.controller import BaseAuthController
-
-class BaseAppAuthController(BaseAuthController):
-    def can_add(self) -> bool:
-        return self.request.user.has_perm('django_spire_app.add_model')
-```
-
-Use in views (also validates the `can_*` methods exist):
+Guard views with the permission decorator (redirects anonymous users to login, raises `PermissionDenied` otherwise; supports `all_required=False`):
 
 ```python
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 
-@AppAuthController('app_name').permission_required('can_view')
+@permission_required('django_spire_app.view_model')
 def model_list_view(request):
     ...
-
-@AppAuthController('app_name').permission_required('can_delete', all_required=False)
-def some_view(request):
-    # any of the permissions required
 ```
 
-Controllers can be registered globally so they are exposed to templates:
-
-```python
-DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'app_name': 'path.to.KnowledgeAuthController',
-}
-```
-
-Defaults live in `django_spire/settings.py`. The context processor then injects `AuthController` for use in templates:
+Use Django's built-in `perms` context variable in templates:
 
 ```html
-{% if AuthController.app_name.can_add %}
+{% if perms.django_spire_app.add_model %}
 ```
 
 ## Views
@@ -624,9 +602,9 @@ For the full, current list use `constellation files contrib/` (or `ls django_spi
 | `dandy_settings.py` | Dandy-specific config |
 | `sqlite_settings.py` | SQLite config |
 | `django_spire/settings.py` | `DJANGO_SPIRE_*` default settings |
-| `django_spire/conf.py` | `settings` wrapper (project + default values, merges `DJANGO_SPIRE_AUTH_CONTROLLERS`) |
+| `django_spire/conf.py` | `settings` wrapper (project + default values) |
 
-Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_AUTH_CONTROLLERS`, `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`.
+Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`.
 
 ## Environment
 

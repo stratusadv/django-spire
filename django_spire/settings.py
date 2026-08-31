@@ -1,15 +1,6 @@
 from __future__ import annotations
 
 
-DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'ai_chat': 'django_spire.ai.chat.auth.controller.BaseAiChatAuthController',
-    'api': 'django_spire.api.auth.controller.BaseApiAuthController',
-    'help_desk': 'django_spire.help_desk.auth.controller.BaseHelpDeskAuthController',
-    'knowledge': 'django_spire.knowledge.auth.controller.BaseKnowledgeAuthController',
-    'metric': 'django_spire.metric.auth.controller.BaseMetricAuthController',
-    'report': 'django_spire.metric.report.auth.controller.BaseReportAuthController',
-}
-
 DJANGO_SPIRE_CHANGELOG_MODULE = 'changelog.changelog'
 
 # AI Settings

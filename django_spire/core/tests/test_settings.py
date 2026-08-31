@@ -25,17 +25,5 @@ class TestDefaultSettings(TestCase):
     def test_ai_persona_name(self) -> None:
         assert settings.DJANGO_SPIRE_AI_PERSONA_NAME == 'AI Assistant'
 
-    def test_auth_controllers_contains_ai_chat(self) -> None:
-        assert 'ai_chat' in settings.DJANGO_SPIRE_AUTH_CONTROLLERS
-
-    def test_auth_controllers_contains_help_desk(self) -> None:
-        assert 'help_desk' in settings.DJANGO_SPIRE_AUTH_CONTROLLERS
-
-    def test_auth_controllers_contains_knowledge(self) -> None:
-        assert 'knowledge' in settings.DJANGO_SPIRE_AUTH_CONTROLLERS
-
-    def test_auth_controllers_is_dict(self) -> None:
-        assert isinstance(settings.DJANGO_SPIRE_AUTH_CONTROLLERS, dict)
-
     def test_default_theme_mode(self) -> None:
         assert settings.DJANGO_SPIRE_DEFAULT_THEME_MODE == 'light'

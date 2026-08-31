@@ -1,4 +1,4 @@
-{% if AuthController.help_desk.can_view %}
+{% if perms.django_spire_help_desk.view_helpdeskticket %}
     {% url 'django_spire:help_desk:page:list' as help_desk_url %}
     {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='mx-1' %}
 {% endif %}

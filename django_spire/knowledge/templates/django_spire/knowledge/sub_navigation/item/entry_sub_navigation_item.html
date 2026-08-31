@@ -4,7 +4,7 @@
 >
     <a
         class="col d-flex align-items-center overflow-hidden text-decoration-none text-default-text-color"
-        {% if AuthController.knowledge.can_view %}
+        {% if perms.django_spire_knowledge.view_collection %}
             :href="'{% url "django_spire:knowledge:entry:version:page:editor" pk=0 %}'.replace(0, entry.version_id)"
         {% endif %}
         data-closes-nav
@@ -13,7 +13,7 @@
         <span class="text-truncate ms-1" x-text="entry.name"></span>
     </a>
 
-    {% if AuthController.knowledge.can_view %}
+    {% if perms.django_spire_knowledge.view_collection %}
         <div class="col-auto">
             {% include 'django_spire/knowledge/sub_navigation/element/entry_sub_navigation_ellipsis_dropdown.html' %}
         </div>

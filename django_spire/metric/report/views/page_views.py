@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template.response import TemplateResponse
 from django.utils.dateparse import parse_datetime
 
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.utils import get_object_from_module_string
 from django_spire.metric.domain.navigation import DomainNavigation
 from django_spire.metric.report.models import ReportRun
@@ -87,7 +87,7 @@ def _report_argument_value(
     return _coerce_argument_value(run_argument['annotation_class'], value)
 
 
-@AppAuthController('report').permission_required('can_view')
+@permission_required('django_spire_metric_report.view_reportrun')
 def report_view(request: WSGIRequest) -> TemplateResponse:
     nav = DomainNavigation()
     nav.page_title = 'Reports'

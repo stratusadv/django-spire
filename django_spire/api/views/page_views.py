@@ -9,14 +9,14 @@ from django.urls import reverse
 
 from django_spire.api.models import ApiAccess
 from django_spire.api.navigation import ApiNavigation
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('api').permission_required('can_view')
+@permission_required('django_spire_api.view_apiaccess')
 def access_list_view(request: WSGIRequest) -> TemplateResponse:
     nav = ApiNavigation()
     nav.page_title = 'Api Access'
@@ -27,7 +27,7 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
     return TemplateResponse(request, 'django_spire/api/page/access_list_page.html', context=context)
 
 
-@AppAuthController('api').permission_required('can_delete')
+@permission_required('django_spire_api.delete_apiaccess')
 def access_delete_view(request: WSGIRequest, pk: int) -> HttpResponseRedirect | TemplateResponse:
     api_access = get_object_or_404(ApiAccess, pk=pk)
     return_url = request.GET.get('return_url', reverse('django_spire:api:page:list'))

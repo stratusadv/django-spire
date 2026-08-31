@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
 
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.knowledge.collection.breadcrumbs import add_collection_chain_breadcrumbs
 from django_spire.knowledge.collection.models import Collection
 from django_spire.knowledge.entry.models import Entry
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('knowledge').permission_required('can_view')
+@permission_required('django_spire_knowledge.view_collection')
 def file_list_view(request: WSGIRequest, collection_pk: int = 0) -> TemplateResponse:
     nav = EntryNavigation()
     nav.page_title = 'Importing Files'

@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block item_button %}
-    {% if AuthController.api.can_delete %}
+    {% if perms.django_spire_api.delete_apiaccess %}
         {% url 'django_spire:api:page:delete' pk=api_access.pk as delete_url %}
     {% endif %}
     {% include 'django_spire/dropdown/ellipsis_dropdown.html' with delete_url=delete_url %}

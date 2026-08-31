@@ -124,10 +124,6 @@ INSTALLED_APPS += [
     'django_spire.contrib.ordering',
 ]
 
-DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'knowledge': 'test_project.app.knowledge.auth.controller.KnowledgeAuthController'
-}
-
 DJANGO_SPIRE_METRIC_VISUAL_REGIONS = ['home:dashboard:hero', 'home:dashboard:conversion']
 
 INSTALLED_APPS += [
