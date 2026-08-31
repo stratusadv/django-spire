@@ -16,8 +16,6 @@ from django_spire.history.querysets import HistoryQuerySet
 from django_spire.metric.domain.statistic.interval import local_day_start
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from django_spire.metric.domain.models import SubDomain
 
     from django_spire.metric.domain.statistic.models import (
@@ -70,7 +68,7 @@ class StatisticGroupQuerySet(HistoryQuerySet, SearchQuerySetMixin):
 
 
 class StatisticQuerySet(HistoryQuerySet, SearchQuerySetMixin):
-    def for_key(self, key: str | UUID) -> QuerySet[Statistic]:
+    def for_key(self, key: str) -> QuerySet[Statistic]:
         return self.filter(key=key)
 
     def bulk_filter(self, filter_data: dict) -> QuerySet[Statistic]:

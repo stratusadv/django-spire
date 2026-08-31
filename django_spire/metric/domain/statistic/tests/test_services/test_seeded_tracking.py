@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from uuid import UUID
-
 from django.test import override_settings
 
 from django_spire.core.tests.test_cases import BaseTestCase
@@ -37,6 +35,6 @@ class SeededStatisticTrackingServiceTestCase(BaseTestCase):
 
         assert value is not None
         assert value.statistic == statistic
-        assert value.statistic.key == UUID(INTERNAL_TRACKING_STATISTIC_KEY)
-        assert value.sub_domain.key == UUID(INTERNAL_TRACKING_SUB_DOMAIN_KEY)
+        assert value.statistic.key == INTERNAL_TRACKING_STATISTIC_KEY
+        assert value.sub_domain.key == INTERNAL_TRACKING_SUB_DOMAIN_KEY
         assert value.reference == 'page_click'

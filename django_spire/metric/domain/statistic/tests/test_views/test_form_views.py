@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import uuid
-
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -157,7 +155,7 @@ class StatisticFormViewTestCase(BaseTestCase):
     def test_create_save_model_obj_with_custom_key(self):
         form = forms.StatisticForm(
             data={
-                'key': '22222222-3333-4444-8555-666666666601',
+                'key': 'new-leads',
                 'group': self.group.pk,
                 'name': 'new statistic',
                 'interval': 'daily',
@@ -168,9 +166,21 @@ class StatisticFormViewTestCase(BaseTestCase):
         form.save_model_obj(RequestFactory().get('/'))
 
         statistic = Statistic.objects.get(name='new statistic')
-        assert statistic.key == uuid.UUID('22222222-3333-4444-8555-666666666601')
+        assert statistic.key == 'new-leads'
 
-    def test_create_save_model_obj_blank_key_uses_uuid4(self):
+    def test_create_save_model_obj_invalid_slug_key_is_invalid(self):
+        form = forms.StatisticForm(
+            data={
+                'key': 'not a valid slug!',
+                'group': self.group.pk,
+                'name': 'new statistic',
+                'interval': 'daily',
+            }
+        )
+        assert not form.is_valid()
+        assert 'key' in form.errors
+
+    def test_create_save_model_obj_blank_key_slugs_from_name(self):
         form = forms.StatisticForm(
             data={'key': '', 'group': self.group.pk, 'name': 'new statistic', 'interval': 'daily'}
         )
@@ -179,19 +189,16 @@ class StatisticFormViewTestCase(BaseTestCase):
         form.save_model_obj(RequestFactory().get('/'))
 
         statistic = Statistic.objects.get(name='new statistic')
-        assert statistic.key is not None
-        assert statistic.key.version == 4
+        assert statistic.key == 'new-statistic'
 
     def test_create_save_model_obj_duplicate_key_is_invalid(self):
         existing = Statistic.objects.create(
-            group=self.group,
-            name='existing statistic',
-            key=uuid.UUID('22222222-3333-4444-8555-666666666601'),
+            group=self.group, name='existing statistic', key='new-leads'
         )
 
         form = forms.StatisticForm(
             data={
-                'key': '22222222-3333-4444-8555-666666666601',
+                'key': 'new-leads',
                 'group': self.group.pk,
                 'name': 'new statistic',
                 'interval': 'daily',
@@ -200,18 +207,6 @@ class StatisticFormViewTestCase(BaseTestCase):
         assert not form.is_valid()
         assert 'key' in form.errors
         assert Statistic.objects.filter(key=existing.key).count() == 1
-
-    def test_create_save_model_obj_non_uuid4_key_is_invalid(self):
-        form = forms.StatisticForm(
-            data={
-                'key': '123e4567-e89b-12d3-a456-426614174000',
-                'group': self.group.pk,
-                'name': 'new statistic',
-                'interval': 'daily',
-            }
-        )
-        assert not form.is_valid()
-        assert 'key' in form.errors
 
     def test_update_save_model_obj_blank_key_preserves_existing_key(self):
         original_key = self.statistic.key
@@ -236,7 +231,7 @@ class StatisticFormViewTestCase(BaseTestCase):
         form = forms.StatisticForm(
             instance=self.statistic,
             data={
-                'key': '22222222-3333-4444-8555-666666666602',
+                'key': 'clicks',
                 'group': self.group.pk,
                 'name': 'updated statistic',
                 'interval': 'weekly',
@@ -247,7 +242,7 @@ class StatisticFormViewTestCase(BaseTestCase):
         form.save_model_obj(RequestFactory().get('/'))
 
         self.statistic.refresh_from_db()
-        assert self.statistic.key == uuid.UUID('22222222-3333-4444-8555-666666666602')
+        assert self.statistic.key == 'clicks'
 
     def test_create_save_model_obj_with_value_type(self):
         form = forms.StatisticForm(

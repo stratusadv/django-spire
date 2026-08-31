@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import uuid
 from datetime import UTC, datetime, timedelta
 
 from django.urls import reverse
@@ -47,7 +46,7 @@ class BaseStatisticApiTestCase(BaseTestCase):
     def api_extra(self) -> dict:
         return {'HTTP_X_API_KEY': self.raw_api_key}
 
-    def record_url(self, statistic_key: str | uuid.UUID | None = None) -> str:
+    def record_url(self, statistic_key: str | None = None) -> str:
         if statistic_key is None:
             statistic_key = self.statistic.key
 
@@ -117,7 +116,7 @@ class RecordValueApiTestCase(BaseStatisticApiTestCase):
     def test_record_value_with_malformed_sub_domain_key_is_invalid(self):
         response = self.post_record(
             self.record_url(),
-            self.record_payload(sub_domain_key='not-a-uuid'),
+            self.record_payload(sub_domain_key='not a uuid!'),
             extra=self.api_extra(),
         )
 
@@ -134,14 +133,14 @@ class RecordValueApiTestCase(BaseStatisticApiTestCase):
         self.assertQuerySetEqual(self.statistic.values.all(), [], transform=str)
 
     def test_record_unknown_statistic_key_returns_404(self):
-        response = self.post_record(self.record_url(uuid.uuid4()), extra=self.api_extra())
+        response = self.post_record(self.record_url('missing-statistic'), extra=self.api_extra())
 
         assert response.status_code == 404
 
-    def test_record_malformed_statistic_key_returns_404(self):
-        response = self.post_record(self.record_url('not-a-uuid'), extra=self.api_extra())
+    def test_record_malformed_statistic_key_is_invalid(self):
+        response = self.post_record(self.record_url('not a uuid!'), extra=self.api_extra())
 
-        assert response.status_code == 404
+        assert response.status_code == 422
 
     def test_record_value_is_raw_append(self):
         self.post_record(self.record_url(), extra=self.api_extra())

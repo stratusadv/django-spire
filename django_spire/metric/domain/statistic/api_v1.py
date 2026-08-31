@@ -1,42 +1,39 @@
 from __future__ import annotations
 
-import uuid
 from datetime import date as date_type  # noqa: TC003
 from datetime import datetime as datetime_type  # noqa: TC003
 from decimal import Decimal
+from typing import Annotated
 
 from django.http import HttpRequest
 from django.http import Http404
 from ninja import Query, Router
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
 
 from django_spire.metric.domain.models import SubDomain
 from django_spire.metric.domain.statistic import models
+
+MetricKey = Annotated[str, StringConstraints(max_length=64, pattern=r'^[-a-zA-Z0-9_]+$')]
 
 router = Router()
 
 
 class StatisticValueIn(BaseModel):
     reference: str = Field(..., min_length=1, max_length=255)
-    sub_domain_key: uuid.UUID
+    sub_domain_key: MetricKey
     value: Decimal = Decimal(1)
 
 
 class StatisticValueOut(BaseModel):
-    statistic_key: uuid.UUID
+    statistic_key: str
     reference: str
-    sub_domain_key: uuid.UUID
+    sub_domain_key: str
     timestamp: datetime_type
     value: Decimal
 
 
 def _get_statistic(statistic_key: str, active_required: bool = False) -> models.Statistic:
-    try:
-        key = uuid.UUID(str(statistic_key))
-    except ValueError:
-        raise Http404 from None
-
-    queryset = models.Statistic.objects.for_key(key)
+    queryset = models.Statistic.objects.for_key(statistic_key)
     if active_required:
         queryset = queryset.active().not_deleted()
 
@@ -48,7 +45,7 @@ def _get_statistic(statistic_key: str, active_required: bool = False) -> models.
 
 
 def _get_sub_domain(
-    statistic: models.Statistic, sub_domain_key: uuid.UUID | None, active_required: bool = False
+    statistic: models.Statistic, sub_domain_key: str | None, active_required: bool = False
 ) -> SubDomain | None:
     if sub_domain_key is None:
         return None
@@ -66,7 +63,7 @@ def _get_sub_domain(
 
 @router.post('{statistic_key}/record')
 def record_value(
-    request: HttpRequest, statistic_key: str, payload: StatisticValueIn
+    request: HttpRequest, statistic_key: MetricKey, payload: StatisticValueIn
 ) -> StatisticValueOut:
     statistic = _get_statistic(statistic_key, active_required=True)
     sub_domain = _get_sub_domain(statistic, payload.sub_domain_key, active_required=True)
@@ -85,9 +82,9 @@ def record_value(
 @router.get('{statistic_key}/total')
 def total_for_interval(
     request: HttpRequest,
-    statistic_key: str,
+    statistic_key: MetricKey,
     value_date: date_type | None = None,
-    sub_domain_key: uuid.UUID | None = None,
+    sub_domain_key: MetricKey | None = None,
 ) -> dict:
     statistic = _get_statistic(statistic_key)
     sub_domain = _get_sub_domain(statistic, sub_domain_key)
@@ -104,10 +101,10 @@ def total_for_interval(
 @router.get('{statistic_key}/summary')
 def interval_summary(
     request: HttpRequest,
-    statistic_key: str,
+    statistic_key: MetricKey,
     start_date: date_type,
     end_date: date_type,
-    sub_domain_key: uuid.UUID | None = None,
+    sub_domain_key: MetricKey | None = None,
 ) -> dict:
     statistic = _get_statistic(statistic_key)
     sub_domain = _get_sub_domain(statistic, sub_domain_key)
@@ -124,9 +121,9 @@ def interval_summary(
 @router.get('{statistic_key}/values')
 def values_for_interval(
     request: HttpRequest,
-    statistic_key: str,
+    statistic_key: MetricKey,
     value_date: date_type | None = None,
-    sub_domain_key: uuid.UUID | None = None,
+    sub_domain_key: MetricKey | None = None,
     limit: int = Query(1000, ge=1, le=5000),
     offset: int = Query(0, ge=0),
 ) -> list[StatisticValueOut]:

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
 from typing import TYPE_CHECKING
 
 from django.db import models, transaction
@@ -10,6 +8,7 @@ from django.utils import timezone
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.utils import soft_delete_queryset
+from django_spire.metric.domain.key_utils import unique_key_from_name
 from django_spire.metric.domain.statistic import querysets
 from django_spire.metric.domain.statistic.constants import (
     StatisticIntervalChoices,
@@ -59,7 +58,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
 
 
 class Statistic(HistoryModelMixin, ActivityMixin):
-    key = models.UUIDField(default=uuid4, unique=True)
+    key = models.SlugField(max_length=64, unique=True, blank=True)
 
     group = models.ForeignKey(
         StatisticGroup,
@@ -83,6 +82,11 @@ class Statistic(HistoryModelMixin, ActivityMixin):
 
     objects = querysets.StatisticQuerySet().as_manager()
     services = StatisticService()
+
+    def save(self, *args, **kwargs) -> None:
+        if self.pk is None and not self.key:
+            self.key = unique_key_from_name(self)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Statistic'

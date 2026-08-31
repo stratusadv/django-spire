@@ -85,6 +85,23 @@ class StatisticModelTestCase(BaseTestCase):
     def test_group_relation(self):
         assert self.statistic.group == self.group
 
+    def test_key_slugs_from_name_on_create(self):
+        statistic = create_test_statistic(group=self.group, name='Page Views')
+        assert statistic.key == 'page-views'
+
+    def test_key_not_regenerated_on_update(self):
+        key = self.statistic.key
+        self.statistic.name = 'Renamed Statistic'
+        self.statistic.save()
+        self.statistic.refresh_from_db()
+        assert self.statistic.key == key
+        assert self.statistic.name == 'Renamed Statistic'
+
+    def test_key_collision_appends_suffix(self):
+        create_test_statistic(group=self.group, name='Revenue')
+        second = create_test_statistic(group=self.group, name='Revenue')
+        assert second.key == 'revenue-2'
+
     def test_values_relation(self):
         self.statistic.services.processor.add_value(reference='/home/', sub_domain=self.sub_domain)
         assert self.statistic.values.count() == 1

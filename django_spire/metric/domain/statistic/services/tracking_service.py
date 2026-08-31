@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import uuid
 from datetime import timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -14,8 +13,6 @@ from django_spire.conf import settings
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from django_spire.metric.domain.statistic.models import Statistic, StatisticValue
 
     from django_spire.metric.domain.models import SubDomain
@@ -68,14 +65,10 @@ class StatisticTrackingService(BaseDjangoModelService['Statistic']):
             StatisticValue,
         )
 
-        statistic_key = cls._parse_key(
-            settings.DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY, 'statistic'
-        )
-        sub_domain_key = cls._parse_key(
-            settings.DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY, 'sub domain'
-        )
+        statistic_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY
+        sub_domain_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY
 
-        if statistic_key is None or sub_domain_key is None:
+        if (not statistic_key) or (not sub_domain_key):
             return
 
         statistic = (
@@ -112,14 +105,10 @@ class StatisticTrackingService(BaseDjangoModelService['Statistic']):
         from django_spire.metric.domain.models import SubDomain  # noqa: PLC0415
         from django_spire.metric.domain.statistic.models import Statistic  # noqa: PLC0415
 
-        statistic_key = cls._parse_key(
-            settings.DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY, 'statistic'
-        )
-        sub_domain_key = cls._parse_key(
-            settings.DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY, 'sub domain'
-        )
+        statistic_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY
+        sub_domain_key = settings.DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY
 
-        if statistic_key is None or sub_domain_key is None:
+        if (not statistic_key) or (not sub_domain_key):
             return None
 
         statistic = Statistic.objects.for_key(statistic_key).active().not_deleted().first()
@@ -186,14 +175,6 @@ class StatisticTrackingService(BaseDjangoModelService['Statistic']):
             total += deleted
 
         return total
-
-    @staticmethod
-    def _parse_key(key: str, label: str) -> UUID | None:
-        try:
-            return uuid.UUID(str(key))
-        except ValueError:
-            logger.debug('Invalid %s key %r', label, key)
-            return None
 
     @staticmethod
     def _apply_write_timeout() -> None:

@@ -12,7 +12,6 @@ from django_spire.metric.domain.statistic import models
 
 if TYPE_CHECKING:
     from typing import ClassVar
-    from uuid import UUID
 
 
 class StatisticGroupForm(forms.ModelForm):
@@ -39,20 +38,17 @@ class StatisticGroupForm(forms.ModelForm):
 
 
 class StatisticForm(forms.ModelForm):
-    key = forms.UUIDField(
-        required=False,
-        help_text='Must be a UUID4. Leave blank to automatically use a UUID4.',
-        error_messages={'invalid': 'Enter a valid UUID4.'},
+    key = forms.SlugField(
+        required=False, help_text='Leave blank to automatically generate a slug from the name.'
     )
 
-    def clean_key(self) -> UUID:
+    def clean_key(self) -> str:
         key = self.cleaned_data.get('key')
 
-        if key is None:
+        if not key and self.instance.pk:
             key = self.instance.key
-        elif key.version != 4:
-            message = 'Key must be a UUID4.'
-            raise forms.ValidationError(message)
+        elif not key:
+            return ''
 
         queryset = models.Statistic.objects.filter(key=key)
         if self.instance.pk:

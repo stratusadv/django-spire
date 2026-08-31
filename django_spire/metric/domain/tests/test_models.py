@@ -58,6 +58,23 @@ class SubDomainModelTestCase(BaseTestCase):
     def test_key_assigned_on_create(self):
         assert self.subdomain.key is not None
 
+    def test_key_slugs_from_name_on_create(self):
+        subdomain = create_test_subdomain(domain=self.domain, name='Website Traffic')
+        assert subdomain.key == 'website-traffic'
+
+    def test_key_not_regenerated_on_update(self):
+        key = self.subdomain.key
+        self.subdomain.name = 'Renamed Subdomain'
+        self.subdomain.save()
+        self.subdomain.refresh_from_db()
+        assert self.subdomain.key == key
+        assert self.subdomain.name == 'Renamed Subdomain'
+
+    def test_key_collision_appends_suffix(self):
+        create_test_subdomain(domain=self.domain, name='Clients')
+        second = create_test_subdomain(domain=self.domain, name='Clients')
+        assert second.key == 'clients-2'
+
     def test_key_is_unique(self):
         duplicate = SubDomain(domain=self.domain, name='duplicate', key=self.subdomain.key)
         with pytest.raises(IntegrityError):

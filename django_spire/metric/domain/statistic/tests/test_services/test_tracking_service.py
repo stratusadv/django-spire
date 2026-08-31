@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import timedelta
 from decimal import Decimal
-from uuid import uuid4
 
 from django.test import override_settings
 from django.utils import timezone
@@ -71,8 +70,8 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
 
     def test_track_configured_is_noop_for_missing_target(self) -> None:
         with override_settings(
-            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY=str(uuid4()),
-            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=str(uuid4()),
+            DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY='missing-statistic',
+            DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY='missing-sub-domain',
         ):
             value = StatisticTrackingService.track_configured(reference='page_click')
 
@@ -97,7 +96,7 @@ class StatisticTrackingServiceTestCase(BaseTestCase):
             assert value is None
             assert not StatisticValue.objects.exists()
 
-    def test_track_configured_is_noop_for_invalid_key(self) -> None:
+    def test_track_configured_is_noop_for_unknown_key(self) -> None:
         with override_settings(
             DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY='not-a-uuid',
             DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY=str(self.sub_domain.key),

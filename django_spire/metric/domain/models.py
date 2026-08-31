@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from uuid import uuid4
-
 from django.db import models, transaction
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
 from django_spire.history.utils import soft_delete_queryset
 from django_spire.metric.domain import querysets
+from django_spire.metric.domain.key_utils import unique_key_from_name
 from django_spire.metric.domain.services.service import DomainService, SubDomainService
 from django_spire.metric.domain.statistic.models import Statistic, StatisticGroup, StatisticValue
 
@@ -46,13 +45,18 @@ class SubDomain(HistoryModelMixin, ActivityMixin):
         Domain, on_delete=models.CASCADE, related_name='subdomains', related_query_name='subdomain'
     )
 
-    key = models.UUIDField(default=uuid4, unique=True)
+    key = models.SlugField(max_length=64, unique=True, blank=True)
 
     name = models.CharField(max_length=255)
     description = models.TextField(default='')
 
     objects = querysets.SubDomainQuerySet().as_manager()
     services = SubDomainService()
+
+    def save(self, *args, **kwargs) -> None:
+        if self.pk is None and not self.key:
+            self.key = unique_key_from_name(self)
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.name
