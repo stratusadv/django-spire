@@ -1,5 +1,5 @@
 <div
-        x-data="{
+    x-data="{
         searchQuery: '',
         sliceStart: 0,
         sliceStop: 0,
@@ -10,15 +10,59 @@
         isLoading: false,
         hasMore: true,
         increment: {% block increment %}25{% endblock %},
+        templateCache: {},
         init() {
+            localStorage.setItem('notificationTemplateCache', JSON.stringify({}))
             this.sliceStop = this.increment
+            this.templateCache = this.loadTemplateCache()
 
             this.$watch('searchQuery', () => this.resetAndLoad())
             this.$watch('orderBy', () => this.resetAndLoad())
         },
+        loadTemplateCache() {
+            try {
+                return JSON.parse(localStorage.getItem('notificationTemplateCache')) || {}
+            } catch {
+                return {}
+            }
+        },
+        saveTemplateCache() {
+            try {
+                localStorage.setItem('notificationTemplateCache', JSON.stringify(this.templateCache))
+            } catch {
+                console.error('Template failed to cache')
+            }
+        },
+        cacheKey(item) {
+            return `${item.$pk}:${item.updated_datetime}`
+        },
+        async hydrateTemplates(items) {
+            const idsToFetch = items
+                .filter(item => !(this.cacheKey(item) in this.templateCache))
+                .map(item => item.$pk)
+
+            if (idsToFetch.length > 0) {
+                let html = await Glue.fetch('{% url "django_spire:notification:app:template:render_templates" %}', {
+                    body: JSON.stringify({ ids: idsToFetch }),
+                    method: 'POST',
+                })
+
+                items
+                    .filter(item => idsToFetch.includes(item.$pk))
+                    .forEach(item => {
+                        this.templateCache[this.cacheKey(item)] = html[item.$pk]
+                    })
+
+                this.saveTemplateCache()
+            }
+
+            items.forEach(item => {
+                item.renderedTemplate = this.templateCache[this.cacheKey(item)]
+            })
+        },
         async loadMoreItems(reset = false) {
             if (this.isLoading || !this.hasMore) {
-                return 
+                return
             }
 
             this.isLoading = true
@@ -42,6 +86,8 @@
                 await this.scrollQuerySet.all()
 
                 const nextItems = this.scrollQuerySet.items
+                await this.hydrateTemplates(nextItems)
+
                 if (reset) {
                     this.items = nextItems
                 } else {
@@ -74,6 +120,7 @@
             }
 
             const item = await this.scrollQuerySet.get(pk)
+            await this.hydrateTemplates([item])
 
             // TODO: delete this, should happen inside .get()
             item.$collection = this.scrollQuerySet
@@ -88,14 +135,14 @@
         },
         toggleOrder() {
             this.orderBy = this.orderBy.startsWith('-') ? this.orderBy.slice(1) : '-' + this.orderBy
-        }
+        },
     }"
         @updated-item.window="
         if (!$event.detail?.querysetName || $event.detail.querysetName === scrollQuerySet._name) {
             updateItem($event.detail.pk, $event.detail.removed)
         }
     "
-        class="{% block scroll_container_class %}{% endblock %}"
+    class="{% block scroll_container_class %}{% endblock %}"
 >
 
     <div class="row">
@@ -107,47 +154,55 @@
 
     <div class="row">
         <div class="col">
-
-            {% block scroll_content %}
-                <template x-if="items.length > 0">
-                    <template x-for="(item, itemIndex) in items">
-                        {% block scroll_template_item %}
-                        {% endblock %}
-                    </template>
-                </template>
-                <div x-show="items.length === 0">
-                    {% include 'django_spire/item/no_data_item.html' %}
-                </div>
-
-            {% endblock %}
-
             <div
+                class="{% block scroll_content_class %}{% endblock %}"
+                style="{% block scroll_content_style %}{% endblock %}"
+            >
+                {% block scroll_content %}
+                    <template x-if="items.length > 0">
+                        <template x-for="(item, itemIndex) in items" :key="item.id ?? itemIndex">
+                            {% block scroll_template_item %}
+                                <div x-html="item.renderedTemplate"></div>
+                            {% endblock %}
+                        </template>
+                    </template>
+                    <div x-show="(items.length === 0) && !isLoading" x-cloak>
+                        <div
+                            class="col p-3 text-center"
+                            aria-live="polite"
+                        >
+                            You have no notifications...
+                        </div>
+                    </div>
+                {% endblock %}
+                <div
                     x-data="{
                         init() {
                             const observer = new IntersectionObserver((entries) => {entries.forEach((entry) => {
-                                    if (entry.isIntersecting) {
-                                        if(hasMore) {
-                                            loadMoreItems()
-                                        }
+                                if (entry.isIntersecting) {
+                                    if(hasMore) {
+                                        loadMoreItems()
                                     }
-                                })}, { threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] })
+                                }
+                            })}, { threshold: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] })
                             observer.observe($el)
                         }
                     }"
-                    style="height: 1200px; margin-top: -1200px; pointer-events: none;"
-            >
+                    style="height: {% block scroll_sentinel_height %}1200{% endblock %}px; margin-top: -{% block scroll_sentinel_offset %}1200{% endblock %}px; pointer-events: none;"
+                >
+                </div>
             </div>
         </div>
     </div>
 
-    <div x-show="hasMore" x-cloak class="row">
+    <div x-show="hasMore && isLoading" x-cloak class="row">
         <div
-            class="col p-3 text-end"
+            class="col p-3 text-center"
             aria-live="polite"
         >
-                <span class="spinner-border spinner-border-sm" role="status">
-                    <span class="visually-hidden">Loading items...</span>
-                </span>Loading items...
+            <span class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading items...</span>
+            </span>Loading items...
         </div>
     </div>
 
@@ -157,6 +212,4 @@
             {% endblock %}
         </div>
     </div>
-
-
 </div>

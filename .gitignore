@@ -37,6 +37,7 @@ __snapshots__/
 __pycache__/
 .python-version
 .vscode/
+.vscode
 .venv*/
 venv/
 venv*/

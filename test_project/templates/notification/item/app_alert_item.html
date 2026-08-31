@@ -1,0 +1,42 @@
+<div
+    class="text-white rounded-3 shadow-sm my-2 p-3"
+    style="background: linear-gradient(135deg, #b02a37 0%, #dc3545 55%, #e35d6a 100%);"
+>
+    <div class="d-flex align-items-center gap-3">
+        <div
+            class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+            style="width: 48px; height: 48px; background-color: rgba(255, 255, 255, 0.2);"
+        >
+            <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+        </div>
+
+        <div class="flex-grow-1" style="min-width: 0;">
+            <div class="d-flex align-items-center gap-2">
+                <span
+                    class="fw-bold text-uppercase"
+                    style="letter-spacing: 0.08em; font-size: 0.7rem; opacity: 0.85;"
+                >Critical Alert</span>
+                <span
+                    x-show="!item.viewed"
+                    x-cloak
+                    class="rounded-circle bg-white"
+                    style="width: 8px; height: 8px;"
+                ></span>
+            </div>
+            <div class="fw-bold fs-5 text-truncate" x-text="item.notification.title"></div>
+            <div style="opacity: 0.9;" x-text="item.notification.body"></div>
+            <div class="mt-1" style="opacity: 0.75; font-size: 0.75rem;">
+                <i class="bi bi-clock"></i>
+                <span x-text="item.time_since_delivered"></span>
+            </div>
+        </div>
+
+        <a
+            x-show="item.context_data.action_label"
+            x-cloak
+            class="btn btn-light btn-sm fw-semibold flex-shrink-0 px-3"
+            :href="item.context_data.action_url || '#'"
+            x-text="item.context_data.action_label"
+        ></a>
+    </div>
+</div>

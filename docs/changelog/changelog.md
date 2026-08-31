@@ -1,3 +1,21 @@
+## v1.0.2 - August 29, 2026
+
+#### Fixes
+
+- Fixed broken app notifications
+- Fixed broken dropdowns
+
+#### Changes
+
+- Added ability to override and leave empty ordering and filtering for django-glue base `scroll`
+
+## v1.0.1 - August 26, 2026
+
+#### Features
+
+- Glue form widgets display a red asterisk beside labels for required fields.
+
+
 ## v1.0.1-rc4 - August 14, 2026
 
 #### Breaking

@@ -3,8 +3,8 @@
     {% include 'django_spire/icon/responsive_icon.html' with icon_href=help_desk_url icon='bi bi-headset' icon_class='mx-1' %}
 {% endif %}
 
-{% if request.user.is_authenticated %}
-    {% include 'django_spire/notification/app/element/notification_bell.html' %}
+{% if request.user.is_authenticated and not hide_notification_dropdown %}
+    {% include "django_spire/notification/app/dropdown/notification_dropdown.html" %}
 {% endif %}
 
 {% if request.user.is_authenticated %}
