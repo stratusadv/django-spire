@@ -18,6 +18,12 @@ class VisualConfig(AppConfig):
             'model_class_path': 'django_spire.metric.visual.models.Visual',
             'is_proxy_model': False,
         },
+        {
+            'name': 'metric_visual_region',
+            'verbose_name': 'Metric Visual Region',
+            'model_class_path': 'django_spire.metric.visual.models.VisualRegion',
+            'is_proxy_model': False,
+        },
     )
 
     REQUIRED_APPS = ('django_spire_core', 'django_spire_metric_domain')

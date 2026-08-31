@@ -1,0 +1,5 @@
+{% if visual %}
+    {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition chart=chart chart_glue_name=chart_glue_name chart_update_interval=chart_update_interval period_start=period_start period_end=period_end display_title=display_title %}
+{% else %}
+    {% include 'django_spire/metric/visual/render/region_unassigned.html' with key=display_title %}
+{% endif %}

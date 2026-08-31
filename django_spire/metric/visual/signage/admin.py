@@ -14,11 +14,11 @@ class SignagePresentationInline(admin.TabularInline):
 @admin.register(Signage)
 class SignageAdmin(admin.ModelAdmin):
     inlines = (SignagePresentationInline,)
-    list_display = ('pk', 'name', 'key', 'slide_display_seconds', 'created_datetime')
+    list_display = ('pk', 'name', 'title', 'key', 'slide_display_seconds', 'created_datetime')
     list_filter = ('is_active', 'is_deleted')
     ordering = ('-created_datetime',)
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted', 'key')
-    search_fields = ('name', 'description')
+    search_fields = ('name', 'title', 'description')
 
 
 @admin.register(SignagePresentation)

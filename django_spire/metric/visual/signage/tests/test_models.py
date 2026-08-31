@@ -24,6 +24,14 @@ class SignageModelTestCase(BaseTestCase):
     def test_slide_display_seconds_default(self):
         assert self.signage.slide_display_seconds == 30
 
+    def test_title_default_blank(self):
+        assert self.signage.title == ''
+
+    def test_title_custom(self):
+        signage = Signage.objects.create(name='custom', title='Display Title')
+
+        assert signage.title == 'Display Title'
+
     def test_slide_display_seconds_custom(self):
         signage = Signage.objects.create(name='custom', slide_display_seconds=45)
 

@@ -123,3 +123,26 @@ class VisualReferenceModelForm(forms.ModelForm):
         model = models.VisualReference
         fields = ['reference', 'label', 'order']
         exclude: ClassVar = []
+
+
+class VisualRegionModelForm(forms.ModelForm):
+    @Glue.attr(required_access=Glue.Access.CHANGE)
+    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+        if self.is_valid():
+            region, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if region.visual_id:
+                redirect_url = reverse(
+                    'django_spire:metric:visual:page:detail', kwargs={'pk': region.visual_id}
+                )
+            else:
+                redirect_url = reverse('django_spire:metric:visual:page:list')
+
+            return GlueResponse(result={'redirect': {'url': redirect_url}})
+
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+    class Meta:
+        model = models.VisualRegion
+        fields = ['title', 'is_live_updated']
+        exclude: ClassVar = []

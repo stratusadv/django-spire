@@ -128,6 +128,8 @@ DJANGO_SPIRE_AUTH_CONTROLLERS = {
     'knowledge': 'test_project.app.knowledge.auth.controller.KnowledgeAuthController'
 }
 
+DJANGO_SPIRE_METRIC_VISUAL_REGIONS = ['home:dashboard:hero', 'home:dashboard:conversion']
+
 INSTALLED_APPS += [
     'test_project.app.activity',
     'test_project.app.ai',

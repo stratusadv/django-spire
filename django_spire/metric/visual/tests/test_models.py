@@ -16,6 +16,7 @@ from django_spire.metric.visual.models import (
     Visual,
     VisualCondition,
     VisualReference,
+    VisualRegion,
 )
 from django_spire.metric.visual.tests.factories import (
     create_test_statistic,
@@ -230,3 +231,57 @@ class VisualReferenceModelTestCase(BaseTestCase):
 
         with pytest.raises(IntegrityError):
             VisualReference.objects.create(visual=self.visual, reference='/b/', order=9)
+
+
+class VisualRegionModelTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        statistic = create_test_statistic(group=group)
+        self.visual = create_test_visual(statistic=statistic)
+        self.region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+
+    def test_str_uses_title_when_present(self):
+        self.region.title = 'Hero'
+        self.region.save()
+        assert str(self.region) == 'Hero'
+
+    def test_str_falls_back_to_key(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+        assert str(region) == 'dashboard:empty'
+
+    def test_defaults(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+        assert region.visual_id is None
+        assert region.is_live_updated is False
+        assert region.title == ''
+
+    def test_visual_related_name(self):
+        assert list(self.visual.regions.all()) == [self.region]
+        assert self.region.visual == self.visual
+
+    def test_key_unique(self):
+        with pytest.raises(IntegrityError):
+            VisualRegion.objects.create(key='home:dashboard:hero')
+
+    def test_services_is_region_service(self):
+        assert type(self.region.services).__name__ == 'VisualRegionService'
+
+    def test_assign_creates(self):
+        region = VisualRegion.objects.assign('dashboard:new', self.visual)
+        assert region.visual == self.visual
+        assert VisualRegion.objects.filter(key='dashboard:new').count() == 1
+
+    def test_assign_updates_existing(self):
+        VisualRegion.objects.assign('home:dashboard:hero', None)
+        region = VisualRegion.objects.assign('home:dashboard:hero', self.visual)
+        assert region.visual == self.visual
+        assert VisualRegion.objects.filter(key='home:dashboard:hero').count() == 1
+
+    def test_disconnect(self):
+        self.region.services.factory.disconnect()
+        self.region.refresh_from_db()
+        assert self.region.visual_id is None
+        assert VisualRegion.objects.filter(key='home:dashboard:hero').count() == 1

@@ -10,7 +10,7 @@ from django_spire.metric.visual.choices import (
 )
 
 if TYPE_CHECKING:
-    from django_spire.metric.visual.models import Visual, VisualCondition
+    from django_spire.metric.visual.models import Visual, VisualCondition, VisualRegion
 
 
 class VisualFactoryService(BaseDjangoModelService['Visual']):
@@ -44,3 +44,12 @@ class VisualFactoryService(BaseDjangoModelService['Visual']):
 
 class VisualConditionFactoryService(BaseDjangoModelService['VisualCondition']):
     obj: VisualCondition
+
+
+class VisualRegionFactoryService(BaseDjangoModelService['VisualRegion']):
+    obj: VisualRegion
+
+    def disconnect(self) -> VisualRegion:
+        self.obj.visual = None
+        self.obj.save(update_fields=['visual'])
+        return self.obj

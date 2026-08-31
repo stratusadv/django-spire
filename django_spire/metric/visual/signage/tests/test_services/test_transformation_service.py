@@ -14,6 +14,15 @@ class SignageTransformationServiceTestCase(BaseTestCase):
 
         self.signage = create_test_signage()
 
+    def test_display_title_falls_back_to_name(self):
+        assert self.signage.services.transformation.display_title == self.signage.name
+
+    def test_display_title_uses_title_when_set(self):
+        self.signage.title = 'Lobby Display'
+        self.signage.save()
+
+        assert self.signage.services.transformation.display_title == 'Lobby Display'
+
     def test_presentation_links_ordered(self):
         create_test_link(self.signage, order=2)
         create_test_link(self.signage, order=0)

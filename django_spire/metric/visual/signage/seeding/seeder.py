@@ -30,6 +30,7 @@ class SignageSeeder(Seeder):
                 key=seed['key'],
                 defaults={
                     'name': seed['name'],
+                    'title': seed['title'],
                     'description': seed['description'],
                     'slide_display_seconds': seed['slide_display_seconds'],
                     'is_active': True,

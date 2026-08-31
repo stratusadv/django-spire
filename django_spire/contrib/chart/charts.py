@@ -17,8 +17,8 @@ def _snake_case(name: str) -> str:
 class Chart:
     chart_type: str = ''
 
-    default_grid: dict[str, Any] = {'left': 50, 'right': 20, 'top': 20, 'bottom': 70}
-    default_legend: dict[str, Any] = {'bottom': 10}
+    default_grid: dict[str, Any] = {'left': 50, 'right': 20, 'top': 20, 'bottom': 80}
+    default_legend: dict[str, Any] = {'bottom': 30}
     default_tooltip: dict[str, Any] = {'trigger': 'axis'}
 
     title: str | None = None

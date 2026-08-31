@@ -24,6 +24,7 @@ from django_spire.metric.visual.services.service import (
     PieChartVisualService,
     VisualConditionService,
     VisualReferenceService,
+    VisualRegionService,
     VisualService,
 )
 
@@ -275,3 +276,29 @@ class VisualReference(HistoryModelMixin, ActivityMixin):
                 fields=('visual', 'order'), name='unique_visual_reference_order'
             )
         ]
+
+
+class VisualRegion(HistoryModelMixin, ActivityMixin):
+    key = models.CharField(max_length=255, unique=True)
+    visual = models.ForeignKey(
+        Visual,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='regions',
+        related_query_name='region',
+    )
+    is_live_updated = models.BooleanField(default=False)
+    title = models.CharField(max_length=255, blank=True, default='')
+
+    objects = querysets.VisualRegionQuerySet().as_manager()
+    services = VisualRegionService()
+
+    def __str__(self) -> str:
+        return self.title or self.key
+
+    class Meta:
+        verbose_name = 'Visual Region'
+        verbose_name_plural = 'Visual Regions'
+        db_table = 'django_spire_metric_visual_region'
+        ordering = ('key',)

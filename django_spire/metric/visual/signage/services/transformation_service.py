@@ -18,6 +18,13 @@ if TYPE_CHECKING:
 class SignageTransformationService(BaseDjangoModelService['Signage']):
     obj: Signage
 
+    @property
+    def display_title(self) -> str:
+        if self.obj.title:
+            return self.obj.title
+
+        return self.obj.name
+
     def presentation_links(self) -> QuerySet[SignagePresentation]:
         return (
             self.obj.signage_presentations.select_related('presentation')

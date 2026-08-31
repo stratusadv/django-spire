@@ -17,7 +17,7 @@ from django_spire.metric.visual.charts import (
     VisualLineChart,
     VisualPieChart,
 )
-from django_spire.metric.visual.models import Visual, VisualCondition
+from django_spire.metric.visual.models import Visual, VisualCondition, VisualRegion
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -449,3 +449,84 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             chart = visual.services.transformation.chart()
             assert isinstance(chart, chart_class)
             assert chart.params == {'visual_pk': visual.pk}
+
+    def test_render_context_indicator(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(150), sub_domain=self.sub_domain
+        )
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] == visual
+        assert context['current_value'] == Decimal(150)
+        assert context['current_condition'] is not None
+        assert context['chart'] is None
+        assert context['period_start'] == context['period_end']
+
+    def test_render_context_chart(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, kind='line', with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] == visual
+        assert isinstance(context['chart'], VisualLineChart)
+
+    def test_render_context_for_deleted_visual_is_empty(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.set_deleted()
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] is None
+        assert context['current_value'] is None
+        assert context['current_condition'] is None
+        assert context['chart'] is None
+
+
+class VisualRegionTransformationServiceTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        statistic = create_test_statistic(group=group)
+        self.visual = create_test_visual(statistic=statistic)
+
+    def test_display_title_uses_title(self):
+        region = VisualRegion.objects.create(
+            key='home:dashboard:hero', visual=self.visual, title='Hero'
+        )
+        assert region.services.transformation.display_title == 'Hero'
+
+    def test_display_title_falls_back_to_visual_name(self):
+        region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+        assert region.services.transformation.display_title == self.visual.name
+
+    def test_display_title_falls_back_to_key(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+        assert region.services.transformation.display_title == 'dashboard:empty'
+
+    def test_render_context_with_visual(self):
+        region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+
+        context = region.services.transformation.render_context()
+
+        assert context['visual'] == self.visual
+        assert context['display_title'] == self.visual.name
+        assert 'current_value' in context
+
+    def test_render_context_without_visual(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+
+        context = region.services.transformation.render_context()
+
+        assert context['visual'] is None
+        assert context['current_value'] is None
+        assert context['display_title'] == 'dashboard:empty'

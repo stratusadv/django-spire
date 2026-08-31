@@ -15,7 +15,7 @@ from django_spire.metric.domain.statistic.querysets import contains_wildcard, re
 from django_spire.metric.domain.statistic.seeding.seeder import VALUE_REFERENCES
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualKindChoices
-from django_spire.metric.visual.seeding.constants import VISUAL_SEEDS
+from django_spire.metric.visual.seeding.constants import VISUAL_REGION_SEEDS, VISUAL_SEEDS
 
 if TYPE_CHECKING:
     from typing import ClassVar
@@ -148,3 +148,34 @@ class VisualSeeder(Seeder):
                 )
 
         StatisticValue.objects.bulk_create(rows)
+
+
+class VisualRegionSeeder(Seeder):
+    model_class = models.VisualRegion
+
+    fields_seeds: ClassVar = {}
+
+    def seed_database(self, count: int | None = None) -> QuerySet:  # noqa: ARG002
+        model_objects = []
+
+        for seed in VISUAL_REGION_SEEDS:
+            visual = models.Visual.objects.active().filter(name=seed['visual_name']).first()
+            if visual is None:
+                continue
+
+            region, _ = models.VisualRegion.objects.update_or_create(
+                key=seed['key'],
+                defaults={
+                    'visual': visual,
+                    'title': seed.get('title', ''),
+                    'is_live_updated': seed.get('is_live_updated', False),
+                    'is_active': True,
+                    'is_deleted': False,
+                },
+            )
+
+            model_objects.append(region)
+
+        self._model_object_ids = [model_object.id for model_object in model_objects]
+
+        return self.queryset

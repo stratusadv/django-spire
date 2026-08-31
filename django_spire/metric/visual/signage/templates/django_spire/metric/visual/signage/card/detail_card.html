@@ -26,8 +26,8 @@
     <div class="card-body">
         <div class="row g-3">
             <div class="col-12 col-md-8">
-                <div class="attribute-label">Description</div>
-                <div>{{ signage.description|linebreaksbr }}</div>
+                <div class="attribute-label">Display Title</div>
+                <div>{{ signage.services.transformation.display_title }}</div>
             </div>
 
             <div class="col-12 col-md-4">
@@ -66,6 +66,12 @@
                     {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
                 {% endwith %}
             </div>
+
+            <div class="col-12">
+                <div class="attribute-label">Description</div>
+                <div>{{ signage.description|linebreaksbr }}</div>
+            </div>
+
 
         </div>
     </div>

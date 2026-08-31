@@ -16,7 +16,12 @@ if TYPE_CHECKING:
     from datetime import date
     from typing import Any
 
-    from django_spire.metric.visual.models import Visual, VisualCondition, VisualReference
+    from django_spire.metric.visual.models import (
+        Visual,
+        VisualCondition,
+        VisualReference,
+        VisualRegion,
+    )
 
 
 class VisualTransformationService(BaseDjangoModelService['Visual']):
@@ -214,6 +219,26 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
 
         return chart_class(params={'visual_pk': self.obj.pk})
 
+    def render_context(self) -> dict:
+        if self.obj.is_deleted:
+            return self.empty_render_context()
+
+        current_value = self.current_value()
+        period_start, period_end = self.date_range()
+
+        return {
+            'visual': self.obj,
+            'current_value': current_value,
+            'current_condition': self.current_condition(value=current_value),
+            'chart': self.chart(),
+            'period_start': period_start,
+            'period_end': period_end,
+        }
+
+    @staticmethod
+    def empty_render_context() -> dict:
+        return {'visual': None, 'current_value': None, 'current_condition': None, 'chart': None}
+
 
 class VisualConditionTransformationService(BaseDjangoModelService['VisualCondition']):
     obj: VisualCondition
@@ -232,3 +257,26 @@ class VisualConditionTransformationService(BaseDjangoModelService['VisualConditi
         }
 
         return comparisons.get(self.obj.operator, False)
+
+
+class VisualRegionTransformationService(BaseDjangoModelService['VisualRegion']):
+    obj: VisualRegion
+
+    @property
+    def display_title(self) -> str:
+        if self.obj.title:
+            return self.obj.title
+
+        if self.obj.visual_id:
+            return self.obj.visual.name
+
+        return self.obj.key
+
+    def render_context(self) -> dict:
+        if not self.obj.visual_id or self.obj.visual.is_deleted:
+            context = VisualTransformationService.empty_render_context()
+        else:
+            context = self.obj.visual.services.transformation.render_context()
+
+        context['display_title'] = self.display_title
+        return context

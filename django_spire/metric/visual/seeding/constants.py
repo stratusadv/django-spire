@@ -60,3 +60,18 @@ VISUAL_SEEDS = [
         'statistic': 'Gross Margin',
     },
 ]
+
+VISUAL_REGION_SEEDS = [
+    {
+        'key': 'home:dashboard:hero',
+        'title': '',
+        'visual_name': 'Site Sessions',
+        'is_live_updated': False,
+    },
+    {
+        'key': 'home:dashboard:conversion',
+        'title': 'Conversion Rate',
+        'visual_name': 'Conversion Rate',
+        'is_live_updated': True,
+    },
+]

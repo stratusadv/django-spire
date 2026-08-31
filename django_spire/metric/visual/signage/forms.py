@@ -30,7 +30,7 @@ class SignageModelForm(forms.ModelForm):
 
     class Meta:
         model = models.Signage
-        fields = ['name', 'description', 'slide_display_seconds']
+        fields = ['name', 'title', 'description', 'slide_display_seconds']
         exclude: ClassVar = []
         widgets = {'slide_display_seconds': forms.NumberInput(attrs={'min': 1})}
 

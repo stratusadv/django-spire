@@ -10,7 +10,7 @@ from django_spire.metric.visual.choices import VisualKindChoices
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
-    from django_spire.metric.visual.models import Visual, VisualReference
+    from django_spire.metric.visual.models import Visual, VisualReference, VisualRegion
 
 
 class VisualQuerySet(HistoryQuerySet, SearchQuerySetMixin):
@@ -50,3 +50,15 @@ class VisualConditionQuerySet(HistoryQuerySet):
 class VisualReferenceQuerySet(HistoryQuerySet):
     def for_visual(self, visual: Visual) -> QuerySet[VisualReference]:
         return self.filter(visual=visual)
+
+
+class VisualRegionQuerySet(HistoryQuerySet):
+    def for_key(self, key: str) -> QuerySet[VisualRegion]:
+        return self.filter(key=key)
+
+    def for_visual(self, visual: Visual) -> QuerySet[VisualRegion]:
+        return self.filter(visual=visual)
+
+    def assign(self, key: str, visual: Visual) -> VisualRegion:
+        region, _ = self.update_or_create(key=key, defaults={'visual': visual})
+        return region

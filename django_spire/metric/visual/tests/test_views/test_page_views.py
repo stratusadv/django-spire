@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.visual.charts import VisualLineChart
+from django_spire.metric.visual.models import VisualRegion
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -61,3 +62,15 @@ class VisualPageViewsTestCase(BaseTestCase):
 
         assert response.status_code == 200
         assert isinstance(response.context_data['chart'], VisualLineChart)
+
+    def test_detail_view_lists_regions(self):
+        region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+
+        response = self.client.get(
+            reverse('django_spire:metric:visual:page:detail', kwargs={'pk': self.visual.pk})
+        )
+
+        assert response.status_code == 200
+        assert region in response.context_data['visual'].regions.all()
+        assert 'Assigned Regions' in response.content.decode()
+        assert 'home:dashboard:hero' in response.content.decode()

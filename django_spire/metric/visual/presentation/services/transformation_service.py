@@ -58,17 +58,4 @@ class SlideSectionTransformationService(BaseDjangoModelService['SlideSection']):
         if not self.obj.visual_id or self.obj.visual.is_deleted:
             return {'visual': None, 'current_value': None, 'current_condition': None, 'chart': None}
 
-        visual = self.obj.visual
-        current_value = visual.services.transformation.current_value()
-        period_start, period_end = visual.services.transformation.date_range()
-
-        return {
-            'visual': visual,
-            'current_value': current_value,
-            'current_condition': visual.services.transformation.current_condition(
-                value=current_value
-            ),
-            'chart': visual.services.transformation.chart(),
-            'period_start': period_start,
-            'period_end': period_end,
-        }
+        return self.obj.visual.services.transformation.render_context()
