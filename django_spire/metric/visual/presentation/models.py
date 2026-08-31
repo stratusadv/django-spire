@@ -95,3 +95,8 @@ class SlideSection(HistoryModelMixin, ActivityMixin):
         verbose_name_plural = 'Slide Sections'
         db_table = 'django_spire_metric_visual_slide_section'
         ordering = ('row', 'col')
+        constraints = [
+            models.UniqueConstraint(
+                fields=('slide', 'row', 'col'), name='unique_slide_section_cell'
+            )
+        ]

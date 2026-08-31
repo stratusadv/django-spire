@@ -54,12 +54,12 @@ class StatisticProcessorService(BaseDjangoModelService['Statistic']):
         if timezone.is_naive(stamp):
             stamp = timezone.make_aware(stamp)
 
-        statistic_value = self.obj.values.create(
-            sub_domain=sub_domain, reference=reference, timestamp=stamp, value=value
+        return self.obj.values.create(
+            sub_domain=sub_domain,
+            reference=reference,
+            timestamp=stamp,
+            value=value.quantize(self._value_precision()),
         )
-        statistic_value.value = statistic_value.value.quantize(self._value_precision())
-
-        return statistic_value
 
     def _value_precision(self) -> Decimal:
         decimal_places = self.obj.values.model._meta.get_field('value').decimal_places

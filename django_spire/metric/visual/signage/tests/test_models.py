@@ -76,7 +76,11 @@ class SignagePresentationModelTestCase(BaseTestCase):
 
     def test_signage_relation(self):
         assert self.link.signage == self.signage
-        assert self.signage.presentations.filter(pk=self.link.presentation.pk).exists()
+        assert (
+            self.signage.services.transformation.presentation_links()
+            .filter(pk=self.link.pk)
+            .exists()
+        )
 
     def test_unique_order_per_signage(self):
         with pytest.raises(IntegrityError):

@@ -97,7 +97,7 @@ class SlideSectionModelTestCase(BaseTestCase):
         assert str(self.section) == f'{self.slide} - {self.section.visual}'
 
     def test_str_without_visual(self):
-        section = create_test_section(self.slide, with_visual=False)
+        section = create_test_section(self.slide, row=1, col=2, with_visual=False)
 
         assert str(section) == f'{self.slide} - Empty'
 
@@ -105,10 +105,14 @@ class SlideSectionModelTestCase(BaseTestCase):
         assert self.section.slide == self.slide
 
     def test_visual_nullable(self):
-        section = create_test_section(self.slide, with_visual=False)
+        section = create_test_section(self.slide, row=1, col=2, with_visual=False)
 
         assert section.visual is None
         assert section.visual_id is None
+
+    def test_unique_cell_per_slide(self):
+        with pytest.raises(IntegrityError):
+            create_test_section(self.slide, row=1, col=1)
 
     def test_ordering(self):
         create_test_section(self.slide, row=2, col=3)

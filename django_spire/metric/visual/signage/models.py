@@ -22,6 +22,8 @@ class Signage(HistoryModelMixin, ActivityMixin):
     slide_display_seconds = models.PositiveSmallIntegerField(default=30)
     key = models.UUIDField(default=uuid4, unique=True, editable=False)
 
+    # This M2M accessor does not filter soft-deleted through rows; use
+    # SignageTransformationService.presentations()/presentation_links() instead.
     presentations = models.ManyToManyField(
         'django_spire_metric_visual_presentation.Presentation',
         through='SignagePresentation',
