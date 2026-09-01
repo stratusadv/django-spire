@@ -1,14 +1,6 @@
 from __future__ import annotations
 
 
-DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'ai_chat': 'django_spire.ai.chat.auth.controller.BaseAiChatAuthController',
-    'api': 'django_spire.api.auth.controller.BaseApiAuthController',
-    'help_desk': 'django_spire.help_desk.auth.controller.BaseHelpDeskAuthController',
-    'knowledge': 'django_spire.knowledge.auth.controller.BaseKnowledgeAuthController',
-    'report': 'django_spire.metric.report.auth.controller.BaseReportAuthController',
-}
-
 DJANGO_SPIRE_CHANGELOG_MODULE = 'changelog.changelog'
 
 # AI Settings
@@ -48,3 +40,14 @@ DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE = 100
 
 DJANGO_SPIRE_METRIC_TRACKING_END_POINT = ''
 DJANGO_SPIRE_METRIC_TRACKING_KEY = ''
+
+DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX = 1000
+
+DJANGO_SPIRE_METRIC_RETENTION_DAYS = 90
+
+DJANGO_SPIRE_METRIC_TRACKING_QUEUE_MAXSIZE = 1000
+
+DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY = ''
+DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY = ''
+
+DJANGO_SPIRE_METRIC_VISUAL_REGIONS = []

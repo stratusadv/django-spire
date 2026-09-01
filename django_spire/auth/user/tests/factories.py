@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from django.utils import timezone
+
 from django_spire.auth.user.models import AuthUser
 
 
@@ -16,6 +18,7 @@ def create_super_user(password: str = 'stratus', **kwargs) -> AuthUser:
         'last_name': 'Robertson',
         'is_superuser': True,
         'is_staff': True,
+        'last_login': timezone.now(),
         **kwargs,
     }
 

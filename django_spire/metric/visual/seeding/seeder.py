@@ -1,44 +1,180 @@
 from __future__ import annotations
 
+import math
+import random
+from datetime import date, datetime, time as datetime_time, timedelta
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
-from django.db.models import QuerySet
+from django.utils import timezone
 
 from django_spire.contrib.seeding import Seeder
-from django_spire.metric.domain.statistic.models import Statistic
+from django_spire.metric.domain.statistic.constants import StatisticValueTypeChoices
+from django_spire.metric.domain.statistic.models import Statistic, StatisticValue
+from django_spire.metric.domain.statistic.querysets import contains_wildcard, reference_matches
+from django_spire.metric.domain.statistic.seeding.seeder import VALUE_REFERENCES
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualKindChoices
+from django_spire.metric.visual.seeding.constants import VISUAL_REGION_SEEDS, VISUAL_SEEDS
+
+if TYPE_CHECKING:
+    from typing import ClassVar
+
+    from django.db.models import QuerySet
+
+VISUAL_VALUE_POINTS = 30
+
+
+def _visual_value(index: int, points: int) -> Decimal:
+    progress = (index + 1) / points
+    wave = math.sin(progress * math.tau * 2 + math.pi)
+    return Decimal(str(round(3 + 2 * wave + random.uniform(-0.5, 0.5), 2)))
+
+
+def _visual_timestamp(start_date: date, end_date: date, index: int, points: int) -> datetime:
+    current_tz = timezone.get_current_timezone()
+    start_dt = datetime.combine(start_date, datetime_time.min, tzinfo=current_tz)
+    end_dt = datetime.combine(end_date, datetime_time.max, tzinfo=current_tz)
+    total_seconds = int((end_dt - start_dt).total_seconds())
+    offset = total_seconds * index // max(points - 1, 1)
+    return start_dt + timedelta(seconds=offset)
 
 
 class VisualSeeder(Seeder):
     model_class = models.Visual
 
-    fields_seeds = {
-        'id': Seeder.exclude(),
-        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-        'statistic_id': Seeder.model.random_foreign_key(Statistic),
-        'name': Seeder.fake.sentence(),
-        'description': Seeder.fake.paragraph(2),
-        'reference': Seeder.random.choice(['', '/home/', '/dashboard/', '/pricing/']),
-        'kind': Seeder.model.random_field_choice(VisualKindChoices),
-        'date': Seeder.fake.provider('date_this_month'),
-        'is_active': Seeder.static(True),
-        'is_deleted': Seeder.static(False),
-    }
+    fields_seeds: ClassVar = {}
 
-    def seed_database(self, count: int | None = None) -> QuerySet:
-        self.seed(count)
-
+    def seed_database(self, count: int | None = None) -> QuerySet:  # noqa: ARG002
         model_objects = []
 
-        for fields_values in self.to_list_of_dicts():
-            visual = models.Visual.objects.create(**fields_values)
+        for index, seed in enumerate(VISUAL_SEEDS):
+            statistic = self._statistic_for(seed)
+            if statistic is None:
+                continue
 
-            visual.services.factory.create_default_conditions(
-                target=Decimal(100), tolerance=Decimal(10)
+            visual_class = models.Visual.kind_model(seed['kind'])
+            references = (
+                []
+                if seed['kind'] == VisualKindChoices.PIE
+                else [VALUE_REFERENCES[index % len(VALUE_REFERENCES)]]
             )
 
+            visual, _ = visual_class.objects.get_or_create(
+                name=seed['name'],
+                defaults={
+                    'description': seed['description'],
+                    'statistic': statistic,
+                    'date': timezone.localdate(),
+                    'is_active': True,
+                    'is_deleted': False,
+                },
+            )
+
+            if not visual.conditions.exists():
+                target = (
+                    Decimal(50)
+                    if statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
+                    else Decimal(100)
+                )
+                visual.services.factory.create_default_conditions(
+                    target=target, tolerance=Decimal(10)
+                )
+
+            if not visual.references.exists():
+                for order, reference in enumerate(references):
+                    visual.references.create(reference=reference, order=order)
+
+            self._seed_visual_values(visual)
+
             model_objects.append(visual)
+
+        self._model_object_ids = [model_object.id for model_object in model_objects]
+
+        return self.queryset
+
+    @staticmethod
+    def _statistic_for(seed: dict) -> Statistic | None:
+        queryset = Statistic.objects.active().not_deleted()
+        statistic_name = seed.get('statistic')
+        if statistic_name:
+            statistic = queryset.filter(name=statistic_name).first()
+            if statistic is not None:
+                return statistic
+        return queryset.first()
+
+    @staticmethod
+    def _seed_visual_values(visual: models.Visual) -> None:
+        sub_domain = visual.statistic.group.domain.subdomains.active().first()
+        if sub_domain is None:
+            return
+
+        patterns = list(visual.references.values_list('reference', flat=True))
+
+        references = set()
+        for pattern in patterns:
+            matched = [
+                reference for reference in VALUE_REFERENCES if reference_matches(pattern, reference)
+            ]
+            if matched:
+                references.update(matched)
+            elif not contains_wildcard(pattern):
+                references.add(pattern)
+
+        references = list(references) if references else VALUE_REFERENCES
+
+        start_date, end_date = visual.services.transformation.date_range()
+
+        existing = set(
+            StatisticValue.objects.filter(
+                statistic=visual.statistic, sub_domain=sub_domain
+            ).values_list('reference', 'timestamp')
+        )
+
+        rows = []
+        for reference in references:
+            for index in range(VISUAL_VALUE_POINTS):
+                timestamp = _visual_timestamp(start_date, end_date, index, VISUAL_VALUE_POINTS)
+                if (reference, timestamp) in existing:
+                    continue
+                rows.append(
+                    StatisticValue(
+                        statistic=visual.statistic,
+                        sub_domain=sub_domain,
+                        reference=reference,
+                        timestamp=timestamp,
+                        value=_visual_value(index, VISUAL_VALUE_POINTS),
+                    )
+                )
+
+        StatisticValue.objects.bulk_create(rows)
+
+
+class VisualRegionSeeder(Seeder):
+    model_class = models.VisualRegion
+
+    fields_seeds: ClassVar = {}
+
+    def seed_database(self, count: int | None = None) -> QuerySet:  # noqa: ARG002
+        model_objects = []
+
+        for seed in VISUAL_REGION_SEEDS:
+            visual = models.Visual.objects.active().filter(name=seed['visual_name']).first()
+            if visual is None:
+                continue
+
+            region, _ = models.VisualRegion.objects.update_or_create(
+                key=seed['key'],
+                defaults={
+                    'visual': visual,
+                    'title': seed.get('title', ''),
+                    'is_live_updated': seed.get('is_live_updated', False),
+                    'is_active': True,
+                    'is_deleted': False,
+                },
+            )
+
+            model_objects.append(region)
 
         self._model_object_ids = [model_object.id for model_object in model_objects]
 

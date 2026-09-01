@@ -13,6 +13,13 @@
             this.chart = echarts.init($el);
             this.chart.setOption(option);
 
+            this._resize_observer = new ResizeObserver(() => {
+                if (this.chart) {
+                    this.chart.resize();
+                }
+            });
+            this._resize_observer.observe($el);
+
             window.addEventListener('resize', () => this.chart && this.chart.resize());
 
             if (this._glue_name) {
@@ -63,10 +70,13 @@
             if (this._update_timer) {
                 clearTimeout(this._update_timer);
             }
+            if (this._resize_observer) {
+                this._resize_observer.disconnect();
+            }
         }
     }"
     role="img"
-    style="min-height: 300px; width: 100%;"
+    style="flex: 1 1 auto; min-height: 400px; width: 100%;"
     data-chart-glue-name="{{ chart_glue_name|default:'' }}"
     data-chart-update-interval="{{ chart_update_interval|default:3 }}"
 >

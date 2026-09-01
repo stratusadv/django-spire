@@ -1,13 +1,13 @@
 <template x-component="collection-navigation">
     <div
-        {% if AuthController.knowledge.can_change %}
+        {% if perms.django_spire_knowledge.change_collection %}
             x-sort="await move_collection({collection: $item, order: $position, new_parent: data.id})"
             x-sort:group="collection"
         {% endif %}
     >
         <template x-for="collection in data.items" :key="collection.id">
             <div
-                {% if AuthController.knowledge.can_change %}
+                {% if perms.django_spire_knowledge.change_collection %}
                     x-sort:item="collection"
                     @dragstart="toggle_dragging(true)"
                     @dragend="toggle_dragging(false)"
@@ -22,7 +22,7 @@
                     <x-collection-navigation :data="{items: collection.children, id: collection.id}"></x-collection-navigation>
                     <div class="ms-4">
                         <div
-                            {% if AuthController.knowledge.can_change %}
+                            {% if perms.django_spire_knowledge.change_collection %}
                                 x-sort="await move_entry({entry: $item, collection: collection, order: $position})"
                                 x-sort:group="entry"
                             {% endif %}
@@ -30,7 +30,7 @@
                             <template x-for="entry in collection.entries" :key="entry.version_id">
                                 <div
                                     class="mb-1 entry"
-                                    {% if AuthController.knowledge.can_change %}
+                                    {% if perms.django_spire_knowledge.change_collection %}
                                         x-sort:item="entry"
                                         @dragstart="toggle_dragging(true)"
                                         @dragend="toggle_dragging(false)"

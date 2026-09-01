@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+import pytest
+from django.db import IntegrityError
+
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.visual.models import (
     AreaChartVisual,
@@ -12,6 +15,8 @@ from django_spire.metric.visual.models import (
     PieChartVisual,
     Visual,
     VisualCondition,
+    VisualReference,
+    VisualRegion,
 )
 from django_spire.metric.visual.tests.factories import (
     create_test_statistic,
@@ -61,7 +66,7 @@ class VisualModelTestCase(BaseTestCase):
         group = create_test_statistic_group(domain=domain)
         statistic = create_test_statistic(group=group)
 
-        line_visual = LineChartVisual.objects.create(name='line', statistic=statistic, reference='')
+        line_visual = LineChartVisual.objects.create(name='line', statistic=statistic)
 
         assert line_visual.kind == 'line'
         assert line_visual not in IndicatorVisual.objects.all()
@@ -166,14 +171,117 @@ class VisualConditionModelTestCase(BaseTestCase):
         green = VisualCondition.objects.create(
             visual=self.visual, state='green', operator='gt', target=Decimal(100), order=0
         )
+        blue = VisualCondition.objects.create(
+            visual=self.visual, state='blue', operator='gt', target=Decimal(100), order=1
+        )
         red = VisualCondition.objects.create(
-            visual=self.visual, state='red', operator='lt', target=Decimal(100), order=1
+            visual=self.visual, state='red', operator='lt', target=Decimal(100), order=2
+        )
+        grey = VisualCondition.objects.create(
+            visual=self.visual, state='grey', operator='lt', target=Decimal(100), order=3
         )
         assert green.color == '#198754'
+        assert blue.color == '#0d6efd'
         assert red.color == '#dc3545'
+        assert grey.color == '#6c757d'
 
     def test_icon_mapping(self):
         condition = VisualCondition.objects.create(
             visual=self.visual, state='yellow', operator='between', target=Decimal(100), order=0
         )
         assert condition.icon == 'bi-exclamation-triangle-fill'
+
+    def test_icon_mapping_blue_and_grey(self):
+        blue = VisualCondition.objects.create(
+            visual=self.visual, state='blue', operator='gt', target=Decimal(100), order=0
+        )
+        grey = VisualCondition.objects.create(
+            visual=self.visual, state='grey', operator='lt', target=Decimal(100), order=1
+        )
+        assert blue.icon == 'bi-info-circle-fill'
+        assert grey.icon == 'bi-circle-fill'
+
+
+class VisualReferenceModelTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        statistic = create_test_statistic(group=group)
+        self.visual = create_test_visual(statistic=statistic, references=['/home/', '/dashboard/'])
+
+    def test_references_relation_ordered(self):
+        assert [ref.reference for ref in self.visual.references.all()] == ['/home/', '/dashboard/']
+
+    def test_str_uses_label_when_present(self):
+        reference = VisualReference.objects.create(
+            visual=self.visual, reference='helpdesk:page:%', label='Helpdesk Pages', order=5
+        )
+        assert str(reference) == 'Helpdesk Pages'
+
+    def test_str_falls_back_to_reference(self):
+        reference = VisualReference.objects.create(
+            visual=self.visual, reference='/contact/', order=5
+        )
+        assert str(reference) == '/contact/'
+
+    def test_order_unique_per_visual(self):
+        VisualReference.objects.create(visual=self.visual, reference='/a/', order=9)
+
+        with pytest.raises(IntegrityError):
+            VisualReference.objects.create(visual=self.visual, reference='/b/', order=9)
+
+
+class VisualRegionModelTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        statistic = create_test_statistic(group=group)
+        self.visual = create_test_visual(statistic=statistic)
+        self.region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+
+    def test_str_uses_title_when_present(self):
+        self.region.title = 'Hero'
+        self.region.save()
+        assert str(self.region) == 'Hero'
+
+    def test_str_falls_back_to_key(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+        assert str(region) == 'dashboard:empty'
+
+    def test_defaults(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+        assert region.visual_id is None
+        assert region.is_live_updated is False
+        assert region.title == ''
+
+    def test_visual_related_name(self):
+        assert list(self.visual.regions.all()) == [self.region]
+        assert self.region.visual == self.visual
+
+    def test_key_unique(self):
+        with pytest.raises(IntegrityError):
+            VisualRegion.objects.create(key='home:dashboard:hero')
+
+    def test_services_is_region_service(self):
+        assert type(self.region.services).__name__ == 'VisualRegionService'
+
+    def test_assign_creates(self):
+        region = VisualRegion.objects.assign('dashboard:new', self.visual)
+        assert region.visual == self.visual
+        assert VisualRegion.objects.filter(key='dashboard:new').count() == 1
+
+    def test_assign_updates_existing(self):
+        VisualRegion.objects.assign('home:dashboard:hero', None)
+        region = VisualRegion.objects.assign('home:dashboard:hero', self.visual)
+        assert region.visual == self.visual
+        assert VisualRegion.objects.filter(key='home:dashboard:hero').count() == 1
+
+    def test_disconnect(self):
+        self.region.services.factory.disconnect()
+        self.region.refresh_from_db()
+        assert self.region.visual_id is None
+        assert VisualRegion.objects.filter(key='home:dashboard:hero').count() == 1

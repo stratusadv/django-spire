@@ -4,6 +4,7 @@ import pytest
 from django.db import IntegrityError
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.history.choices import HistoryEventChoices
 from django_spire.metric.visual.presentation.models import SlideSection
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
@@ -31,6 +32,28 @@ class PresentationModelTestCase(BaseTestCase):
 
         assert self.presentation.is_deleted is True
         assert slide.is_deleted is True
+
+    def test_set_deleted_cascades_to_sections(self):
+        slide = create_test_slide(self.presentation)
+        section = create_test_section(slide)
+
+        self.presentation.set_deleted()
+
+        slide.refresh_from_db()
+        section.refresh_from_db()
+
+        assert slide.is_deleted is True
+        assert section.is_deleted is True
+
+    def test_set_deleted_backfills_history_events(self):
+        slide = create_test_slide(self.presentation)
+
+        self.presentation.set_deleted()
+
+        slide.refresh_from_db()
+
+        assert slide.is_deleted is True
+        assert slide.history_events.filter(event=HistoryEventChoices.DELETED).exists()
 
 
 class SlideModelTestCase(BaseTestCase):
@@ -74,7 +97,7 @@ class SlideSectionModelTestCase(BaseTestCase):
         assert str(self.section) == f'{self.slide} - {self.section.visual}'
 
     def test_str_without_visual(self):
-        section = create_test_section(self.slide, with_visual=False)
+        section = create_test_section(self.slide, row=1, col=2, with_visual=False)
 
         assert str(section) == f'{self.slide} - Empty'
 
@@ -82,10 +105,14 @@ class SlideSectionModelTestCase(BaseTestCase):
         assert self.section.slide == self.slide
 
     def test_visual_nullable(self):
-        section = create_test_section(self.slide, with_visual=False)
+        section = create_test_section(self.slide, row=1, col=2, with_visual=False)
 
         assert section.visual is None
         assert section.visual_id is None
+
+    def test_unique_cell_per_slide(self):
+        with pytest.raises(IntegrityError):
+            create_test_section(self.slide, row=1, col=1)
 
     def test_ordering(self):
         create_test_section(self.slide, row=2, col=3)

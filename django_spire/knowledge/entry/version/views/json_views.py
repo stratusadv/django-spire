@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.decorators import valid_ajax_request_required
 from django_spire.knowledge.entry.version.models import EntryVersion
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @valid_ajax_request_required
-@AppAuthController('knowledge').permission_required('can_change')
+@permission_required('django_spire_knowledge.change_collection')
 def update_blocks_view(request: WSGIRequest, pk: int) -> JsonResponse:
     entry_version = get_object_or_404(EntryVersion.objects.prefetch_blocks(), pk=pk)
 
@@ -28,7 +28,7 @@ def update_blocks_view(request: WSGIRequest, pk: int) -> JsonResponse:
 
 
 @valid_ajax_request_required
-@AppAuthController('knowledge').permission_required('can_change')
+@permission_required('django_spire_knowledge.change_collection')
 def update_entry_from_version_view(request: WSGIRequest, pk: int) -> JsonResponse:
     entry_version = get_object_or_404(EntryVersion, pk=pk)
 

@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.group.models import AuthGroup
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('knowledge').permission_required('can_add')
+@permission_required('django_spire_knowledge.add_collection')
 def form_view(
     request: WSGIRequest, pk: int = 0, parent_pk: int | None = None
 ) -> TemplateResponse | HttpResponseRedirect:

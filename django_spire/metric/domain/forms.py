@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django import forms
 from django.forms import ModelForm
 from django.http import HttpRequest
 from django.urls import reverse
@@ -23,8 +24,7 @@ class DomainForm(ModelForm):
             return GlueResponse(
                 result={
                     'redirect_url': reverse(
-                        viewname='django_spire:metric:domain:page:detail',
-                        kwargs={'pk': domain.pk},
+                        viewname='django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
                     )
                 }
             )
@@ -33,11 +33,33 @@ class DomainForm(ModelForm):
 
     class Meta:
         model = models.Domain
-        fields = ['name', 'description', 'sub_domain_description']
+        fields = ['name', 'description', 'sub_domain_name']
         exclude: ClassVar = []
 
 
 class SubDomainForm(ModelForm):
+    key = forms.SlugField(
+        required=False, help_text='Leave blank to automatically generate a slug from the name.'
+    )
+
+    def clean_key(self) -> str:
+        key = self.cleaned_data.get('key')
+
+        if not key and self.instance.pk:
+            key = self.instance.key
+        elif not key:
+            return ''
+
+        queryset = models.SubDomain.objects.filter(key=key)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            message = 'A sub domain with this key already exists.'
+            raise forms.ValidationError(message)
+
+        return key
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -56,4 +78,4 @@ class SubDomainForm(ModelForm):
 
     class Meta:
         model = models.SubDomain
-        fields = ['name', 'description']
+        fields = ['key', 'name', 'description']

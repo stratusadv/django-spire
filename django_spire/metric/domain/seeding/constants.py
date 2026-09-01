@@ -5,9 +5,7 @@ DOMAIN_SEEDS = [
             'The Sales domain tracks revenue generation, deal progression, and account '
             'performance across the organization.'
         ),
-        'sub_domain_description': (
-            'Sales sub domains cover leads, opportunities, quotes, and revenue reporting.'
-        ),
+        'sub_domain_name': 'Clients',
     },
     {
         'name': 'Marketing',
@@ -15,10 +13,7 @@ DOMAIN_SEEDS = [
             'The Marketing domain measures campaign effectiveness, brand reach, and demand '
             'generation across channels.'
         ),
-        'sub_domain_description': (
-            'Marketing sub domains include campaigns, website traffic, social media, and email '
-            'engagement.'
-        ),
+        'sub_domain_name': 'Audiences',
     },
     {
         'name': 'Finance',
@@ -26,18 +21,14 @@ DOMAIN_SEEDS = [
             'The Finance domain monitors profitability, cash flow, and budget performance across '
             'the organization.'
         ),
-        'sub_domain_description': (
-            'Finance sub domains cover revenue, expenses, accounts receivable, and budget variance.'
-        ),
+        'sub_domain_name': 'Organizations',
     },
     {
         'name': 'Human Resources',
         'description': (
             'The Human Resources domain tracks workforce metrics, hiring, and employee retention.'
         ),
-        'sub_domain_description': (
-            'Human Resources sub domains include headcount, hiring, attendance, and turnover.'
-        ),
+        'sub_domain_name': 'Employees',
     },
     {
         'name': 'Operations',
@@ -45,9 +36,7 @@ DOMAIN_SEEDS = [
             'The Operations domain measures production efficiency, quality, and supply chain '
             'performance.'
         ),
-        'sub_domain_description': (
-            'Operations sub domains cover production, inventory, quality, and logistics.'
-        ),
+        'sub_domain_name': 'Processes',
     },
     {
         'name': 'Information Technology',
@@ -55,10 +44,7 @@ DOMAIN_SEEDS = [
             'The Information Technology domain monitors infrastructure uptime, service delivery, '
             'and technology spend.'
         ),
-        'sub_domain_description': (
-            'Information Technology sub domains include infrastructure, applications, support '
-            'tickets, and security incidents.'
-        ),
+        'sub_domain_name': 'Systems',
     },
     {
         'name': 'Customer Service',
@@ -66,10 +52,7 @@ DOMAIN_SEEDS = [
             'The Customer Service domain measures support performance, customer satisfaction, and '
             'resolution efficiency.'
         ),
-        'sub_domain_description': (
-            'Customer Service sub domains cover tickets, satisfaction, response time, and '
-            'escalations.'
-        ),
+        'sub_domain_name': 'Customers',
     },
 ]
 
@@ -93,112 +76,130 @@ GROUP_SEEDS = [
     },
 ]
 
-
 STATISTIC_SEEDS = [
-    'New Leads',
-    'Clicks',
-    'Revenue',
-    'Headcount',
-    'Tickets Resolved',
-    'Closed Deals',
-    'Page Views',
-    'Invoices Paid',
-    'New Hires',
-    'Production Units',
+    {'name': 'New Leads', 'value_type': 'number'},
+    {'name': 'Clicks', 'value_type': 'number'},
+    {'name': 'Revenue', 'value_type': 'currency'},
+    {'name': 'Headcount', 'value_type': 'number'},
+    {'name': 'Tickets Resolved', 'value_type': 'number'},
+    {'name': 'Closed Deals', 'value_type': 'number'},
+    {'name': 'Page Views', 'value_type': 'number'},
+    {'name': 'Invoices Paid', 'value_type': 'currency'},
+    {'name': 'New Hires', 'value_type': 'number'},
+    {'name': 'Production Units', 'value_type': 'number'},
+    {'name': 'Conversion Rate', 'value_type': 'percentage'},
+    {'name': 'Gross Margin', 'value_type': 'percentage'},
 ]
-
 
 SUB_DOMAIN_KEYS = [
-    '11111111-2222-4333-8444-555555555501',
-    '11111111-2222-4333-8444-555555555502',
-    '11111111-2222-4333-8444-555555555503',
-    '11111111-2222-4333-8444-555555555504',
-    '11111111-2222-4333-8444-555555555505',
-    '11111111-2222-4333-8444-555555555506',
-    '11111111-2222-4333-8444-555555555507',
-    '11111111-2222-4333-8444-555555555508',
-    '11111111-2222-4333-8444-555555555509',
-    '11111111-2222-4333-8444-55555555550A',
-    '11111111-2222-4333-8444-55555555550B',
-    '11111111-2222-4333-8444-55555555550C',
-    '11111111-2222-4333-8444-55555555550D',
-    '11111111-2222-4333-8444-55555555550E',
-    '11111111-2222-4333-8444-55555555550F',
-    '11111111-2222-4333-8444-555555555510',
-    '11111111-2222-4333-8444-555555555511',
-    '11111111-2222-4333-8444-555555555512',
-    '11111111-2222-4333-8444-555555555513',
-    '11111111-2222-4333-8444-555555555514',
-    '11111111-2222-4333-8444-555555555515',
-    '11111111-2222-4333-8444-555555555516',
-    '11111111-2222-4333-8444-555555555517',
-    '11111111-2222-4333-8444-555555555518',
+    'leads',
+    'opportunities',
+    'quotes',
+    'campaigns',
+    'website-traffic',
+    'social-media',
+    'revenue',
+    'invoices',
+    'headcount',
+    'attendance',
+    'production',
+    'incidents',
+    'tickets',
 ]
-
 
 STATISTIC_KEYS = [
-    '22222222-3333-4444-8555-666666666601',
-    '22222222-3333-4444-8555-666666666602',
-    '22222222-3333-4444-8555-666666666603',
-    '22222222-3333-4444-8555-666666666604',
-    '22222222-3333-4444-8555-666666666605',
-    '22222222-3333-4444-8555-666666666606',
-    '22222222-3333-4444-8555-666666666607',
-    '22222222-3333-4444-8555-666666666608',
-    '22222222-3333-4444-8555-666666666609',
-    '22222222-3333-4444-8555-66666666660A',
+    'new-leads',
+    'clicks',
+    'revenue',
+    'headcount',
+    'tickets-resolved',
+    'closed-deals',
+    'page-views',
+    'invoices-paid',
+    'new-hires',
+    'production-units',
+    'conversion-rate',
+    'gross-margin',
 ]
-
 
 SUBDOMAIN_SEEDS = [
     {
+        'domain': 'Sales',
         'name': 'Leads',
         'description': (
             'Tracks potential customers and their progression through the sales pipeline.'
         ),
     },
     {
+        'domain': 'Sales',
         'name': 'Opportunities',
         'description': 'Monitors open deals, win rates, and the value of the sales pipeline.',
     },
     {
+        'domain': 'Sales',
         'name': 'Quotes',
         'description': 'Tracks quote creation, approval status, and conversion to closed deals.',
     },
     {
-        'name': 'Revenue',
-        'description': 'Tracks total income, recurring revenue, and revenue growth over time.',
-    },
-    {
+        'domain': 'Marketing',
         'name': 'Campaigns',
         'description': 'Measures marketing campaign reach, engagement, and conversion performance.',
     },
     {
+        'domain': 'Marketing',
         'name': 'Website Traffic',
         'description': 'Tracks website visits, sessions, and audience engagement.',
     },
     {
+        'domain': 'Marketing',
         'name': 'Social Media',
         'description': 'Measures social media followers, engagement, and campaign performance.',
     },
     {
+        'domain': 'Finance',
+        'name': 'Revenue',
+        'description': 'Tracks total income, recurring revenue, and revenue growth over time.',
+    },
+    {
+        'domain': 'Finance',
         'name': 'Invoices',
         'description': 'Monitors invoice issuance, payment status, and outstanding balances.',
     },
     {
+        'domain': 'Human Resources',
         'name': 'Headcount',
         'description': 'Tracks employee count, hiring, and departures across the organization.',
     },
     {
+        'domain': 'Human Resources',
         'name': 'Attendance',
         'description': 'Monitors employee attendance, absenteeism, and on-time rates.',
     },
     {
+        'domain': 'Operations',
         'name': 'Production',
         'description': 'Measures manufacturing output, throughput, and production efficiency.',
     },
     {
+        'domain': 'Information Technology',
+        'name': 'Incidents',
+        'description': 'Tracks infrastructure and application incidents, response, and resolution.',
+    },
+    {
+        'domain': 'Customer Service',
         'name': 'Tickets',
         'description': 'Monitors support and service tickets by status, priority, and resolution.',
     },
+]
+
+# The statistic and sub-domain the internal page-click tracking middleware records against.
+# They must land in the same domain under the current seeding (see seed.py seeder counts).
+TRACKING_STATISTIC_NAME = 'Clicks'
+TRACKING_SUB_DOMAIN_NAME = 'Website Traffic'
+
+INTERNAL_TRACKING_STATISTIC_KEY = STATISTIC_KEYS[
+    [seed['name'] for seed in STATISTIC_SEEDS].index(TRACKING_STATISTIC_NAME)
+]
+INTERNAL_TRACKING_SUB_DOMAIN_KEY = SUB_DOMAIN_KEYS[
+    [seed['name'] for seed in SUBDOMAIN_SEEDS].index(TRACKING_SUB_DOMAIN_NAME)
 ]

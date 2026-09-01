@@ -1,0 +1,41 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Visuals
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body p-2">
+        {% if visuals %}
+            <div class="table-responsive">
+                <table class="table table-light table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Kind</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for visual in visuals %}
+                            {% url 'django_spire:metric:visual:page:detail' pk=visual.pk as visual_detail_url %}
+                            <tr>
+                                <td>
+                                    <a href="{{ visual_detail_url }}">{{ visual.name }}</a>
+                                </td>
+                                <td>{{ visual.get_kind_display }}</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary" href="{{ visual_detail_url }}">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endif %}
+    </div>
+{% endblock %}

@@ -11,6 +11,9 @@ class LlmFieldSeed(BaseFieldSeed):
         self.prompt = prompt
         self.locale = locale
 
+    def generate_cache_key(self) -> str:
+        return f'{self.field_type}:{self.prompt}:{self.locale}'
+
     def generate_value(self, seed_index: int) -> Any:
         # COMMENT THIS
         _ = seed_index

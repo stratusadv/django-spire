@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from django.db import models
+from django.db import models, transaction
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.history.utils import soft_delete_queryset
 
 from django_spire.metric.visual.signage import querysets
 from django_spire.metric.visual.signage.services.service import (
@@ -16,9 +17,13 @@ from django_spire.metric.visual.signage.services.service import (
 
 class Signage(HistoryModelMixin, ActivityMixin):
     name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, blank=True, default='')
     description = models.TextField(default='')
+    slide_display_seconds = models.PositiveSmallIntegerField(default=30)
     key = models.UUIDField(default=uuid4, unique=True, editable=False)
 
+    # This M2M accessor does not filter soft-deleted through rows; use
+    # SignageTransformationService.presentations()/presentation_links() instead.
     presentations = models.ManyToManyField(
         'django_spire_metric_visual_presentation.Presentation',
         through='SignagePresentation',
@@ -35,10 +40,9 @@ class Signage(HistoryModelMixin, ActivityMixin):
         return self.name
 
     def set_deleted(self) -> None:
-        super().set_deleted()
-
-        for signage_presentation in self.signage_presentations.all():
-            signage_presentation.set_deleted()
+        with transaction.atomic():
+            super().set_deleted()
+            soft_delete_queryset(self.signage_presentations.all())
 
     class Meta:
         verbose_name = 'Signage'

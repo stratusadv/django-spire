@@ -1,8 +1,9 @@
 {% extends 'django_spire/page/full_page.html' %}
 {% load django_spire_markdown %}
+{% load django_spire_metric_region %}
 
 {% block full_page_content %}
-    <div class="row mb-4">
+    <div class="row mb-3">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
@@ -20,7 +21,16 @@
         </div>
     </div>
 
-    <div class="row mb-4">
+    <div class="row mb-3 g-3">
+        <div class="col-lg-6">
+            {% render_visual_region 'home:dashboard:hero' %}
+        </div>
+        <div class="col-lg-6">
+            {% render_visual_region 'home:dashboard:conversion' %}
+        </div>
+    </div>
+
+    <div class="row mb-3">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
@@ -29,7 +39,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    {% render_markdown "docs/changelog/v1_changelog.md" as changelog %}
+                    {% render_markdown "docs/changelog/changelog.md" as changelog %}
                     {% if changelog %}
                         {{ changelog|safe }}
                     {% else %}

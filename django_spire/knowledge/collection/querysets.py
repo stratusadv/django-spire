@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from django.db.models import Count
 
-from django_spire.auth.controller.controller import AppAuthController
 from django_spire.contrib.ordering.querysets import OrderingQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
@@ -48,7 +47,7 @@ class CollectionQuerySet(HistoryQuerySet, OrderingQuerySetMixin):
 
         if (
             user.is_superuser
-            or AppAuthController('knowledge', request).can_access_all_collections()
+            or user.has_perm('django_spire_knowledge.can_access_all_collections')
         ):
             return self.all()
 

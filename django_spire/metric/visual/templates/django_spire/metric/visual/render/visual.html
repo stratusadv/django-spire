@@ -1,71 +1,97 @@
+{% load django_spire_metric_statistic %}
 {% load django_spire_string_formatting %}
 
 {% if visual.is_chart %}
-    <div class="card h-100 border-0 shadow-sm">
-        <div class="card-body">
-            <div class="d-flex align-items-start justify-content-between mb-2">
-                <div>
-                    <div class="fs--1 text-uppercase text-secondary fw-semibold">
-                        {{ visual.name }}
-                    </div>
-                    {% if visual.statistic %}
-                        <div class="small text-muted">{{ visual.statistic }}</div>
-                    {% endif %}
+    <div class="card h-100 px-3 pt-3">
+        <div class="d-flex align-items-start justify-content-between">
+            <div>
+                <div class="fs--1 text-uppercase text-secondary fw-semibold">
+                    {{ display_title|default:visual.name }}
                 </div>
+                {% if visual.statistic %}
+                    <div class="small text-muted">{{ visual.statistic }}</div>
+                {% endif %}
+            </div>
 
+            <div class="d-flex align-items-center gap-3">
+                {% if visual.statistic %}
+                    <div class="text-end">
+                        <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
+                        <div class="fs-5 fw-semibold lh-1">
+                            {{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                    </div>
+                {% endif %}
                 {% if current_condition %}
-                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" title="{{ current_condition }}" style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                          title="{{ current_condition }}"
+                          style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
                         <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
                     </span>
                 {% else %}
-                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" title="No data" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                          title="No data" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
                         <i class="bi bi-dash text-white fs-5"></i>
                     </span>
                 {% endif %}
             </div>
-
-            {% if visual.statistic %}
-                {% if chart %}
-                    {% include 'django_spire/chart/chart.html' with chart=chart chart_glue_name=chart.glue_name chart_update_interval=chart_update_interval|default:3 %}
-                {% else %}
-                    <div class="text-muted">No data available.</div>
-                {% endif %}
-            {% else %}
-                <div class="text-muted">No statistic selected yet.</div>
-            {% endif %}
         </div>
+
+        {% if visual.statistic %}
+            {% if chart %}
+                {% include 'django_spire/chart/chart.html' with chart=chart chart_glue_name=chart_glue_name|default:chart.glue_name chart_update_interval=chart_update_interval|default:3 %}
+            {% else %}
+                <div class="text-muted">No data available.</div>
+            {% endif %}
+        {% else %}
+            <div class="text-muted">No statistic selected yet.</div>
+        {% endif %}
     </div>
 {% else %}
-    <div class="card h-100 border-0 shadow-sm {% block visual_render_card_class %}{% endblock %}">
+    <div class="card h-100 {% block visual_render_card_class %}{% endblock %}">
         <div class="card-body {% block visual_render_body_class %}p-3{% endblock %}">
-            <div class="d-flex align-items-start justify-content-between mb-2">
+            <div class="d-flex align-items-start justify-content-between">
                 <div>
                     <div class="fs--1 text-uppercase text-secondary fw-semibold">
-                        {{ visual.name }}
+                        {{ display_title|default:visual.name }}
                     </div>
                     {% if visual.statistic %}
                         <div class="small text-muted">{{ visual.statistic }}</div>
                     {% endif %}
                 </div>
 
-                {% if current_condition %}
-                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
-                        <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
-                    </span>
-                {% else %}
-                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
-                        <i class="bi bi-dash text-white fs-5"></i>
-                    </span>
-                {% endif %}
+                <div class="d-flex align-items-center gap-3">
+                    {% if visual.statistic %}
+                        <div class="text-end">
+                            <div class="small text-muted">{% include 'django_spire/metric/visual/render/period_range.html' with interval=visual.statistic.interval %}</div>
+                            <div class="fs-5 fw-semibold lh-1">
+                                {{ current_value|statistic_value:visual.statistic.value_type }}</div>
+                        </div>
+                    {% endif %}
+                    {% if current_condition %}
+                        <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                              style="width: 2.5rem; height: 2.5rem; background-color: {{ current_condition.color }};">
+                            <i class="bi {{ current_condition.icon }} text-white fs-5"></i>
+                        </span>
+                    {% else %}
+                        <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                              style="width: 2.5rem; height: 2.5rem; background-color: var(--bs-secondary);">
+                            <i class="bi bi-dash text-white fs-5"></i>
+                        </span>
+                    {% endif %}
+                </div>
             </div>
 
             {% if visual.statistic %}
-                <div class="fs-2 fw-bold lh-1 {% block visual_render_value_class %}{% endblock %}">
-                    {{ current_value|floatformat:'-2' }}
+                <div class="mt-5 text-center">
+                    <span class="badge rounded-pill p-2 d-inline-flex align-items-center justify-content-center"
+                          style="width: {{ indicator_size|default:'13.0rem' }}; height: {{ indicator_size|default:'13.0rem' }}; background-color: {{ current_condition.color }};">
+                        <i class="bi {{ current_condition.icon }} text-white"
+                           style="font-size: {{ indicator_icon_size|default:'7rem' }};"></i>
+                    </span>
                 </div>
-                <div class="small text-muted">{{ visual.statistic.get_interval_display|title }} total</div>
+                <div class="mt-6 text-center">
 
-                <div class="mt-3">
+
                     {% if current_condition %}
                         <span class="badge" style="background-color: {{ current_condition.color }};">
                             {{ current_condition.get_state_display }}

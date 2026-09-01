@@ -39,6 +39,7 @@ class VisualFormViewsTestCase(BaseTestCase):
         assert response.status_code == 302
         self.visual.refresh_from_db()
         assert self.visual.is_deleted is True
+        assert self.visual.activities.filter(verb='deleted').count() == 1
 
     def test_create_condition_view(self):
         response = self.client.get(
@@ -66,7 +67,8 @@ class VisualFormViewsTestCase(BaseTestCase):
         )
 
         assert response.status_code == 302
-        assert self.visual.conditions.filter(pk=condition.pk).count() == 0
+        condition.refresh_from_db()
+        assert condition.is_deleted is True
 
     def test_set_default_conditions_view(self):
         self.visual.conditions.all().delete()

@@ -8,7 +8,11 @@ from django.template.response import TemplateResponse
 from django_glue import Glue
 
 from django_spire.metric.visual.presentation import models
+from django_spire.metric.visual.presentation.constants import SLIDE_GRID_COLUMNS
 from django_spire.metric.visual.presentation.navigation import PresentationNavigation
+from django_spire.metric.visual.presentation.services.transformation_service import (
+    SlideSectionTransformationService,
+)
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -16,9 +20,15 @@ if TYPE_CHECKING:
 
 def _slide_data(request: WSGIRequest, slide: models.Slide) -> dict:
     sections = []
+    section_sections = slide.sections.all()
+    grid_styles = SlideSectionTransformationService.section_grid_styles(section_sections)
 
-    for section in slide.sections.all():
-        section_data = {'section': section, **section.services.transformation.render_context()}
+    for section in section_sections:
+        section_data = {
+            'section': section,
+            'grid_style': grid_styles[section.pk],
+            **section.services.transformation.render_context(),
+        }
 
         chart = section_data.get('chart')
         if chart is not None:
@@ -26,7 +36,7 @@ def _slide_data(request: WSGIRequest, slide: models.Slide) -> dict:
 
         sections.append(section_data)
 
-    return {'slide': slide, 'sections': sections}
+    return {'slide': slide, 'sections': sections, 'grid_columns': SLIDE_GRID_COLUMNS}
 
 
 @permission_required('django_spire_metric_visual_presentation.view_presentation')

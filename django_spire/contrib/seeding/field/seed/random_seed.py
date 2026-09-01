@@ -10,6 +10,9 @@ class RandomEnumFieldSeed(BaseFieldSeed):
     def __init__(self, enum_: Enum | None = None) -> None:
         self.enum_ = enum_
 
+    def generate_cache_key(self) -> str:
+        return str(self.enum_)
+
     def generate_value(self, seed_index: int) -> Any:
         _ = seed_index
 

@@ -125,14 +125,6 @@ LOGIN_REDIRECT_URL = 'django_spire:auth:redirect:login'
 LOGOUT_REDIRECT_URL = 'django_spire:auth:admin:login'
 ```
 
-Per-app access control is wired through auth controllers registered in `DJANGO_SPIRE_AUTH_CONTROLLERS`:
-
-```python
-DJANGO_SPIRE_AUTH_CONTROLLERS = {
-    'my_app': 'my_app.auth.controller.MyAppAuthController',
-}
-```
-
 ---
 
 ## Optional Features

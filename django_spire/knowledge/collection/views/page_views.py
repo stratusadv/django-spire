@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.form.confirmation_forms import DeleteConfirmationForm
 from django_spire.knowledge.collection.breadcrumbs import add_collection_chain_breadcrumbs
 from django_spire.knowledge.collection.models import Collection
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('knowledge').permission_required('can_view')
+@permission_required('django_spire_knowledge.view_collection')
 def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 
@@ -39,7 +39,7 @@ def top_level_collection_view(request: WSGIRequest, pk: int) -> TemplateResponse
     )
 
 
-@AppAuthController('knowledge').permission_required('can_delete')
+@permission_required('django_spire_knowledge.delete_collection')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     collection = get_object_or_404(Collection, pk=pk)
 

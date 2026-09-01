@@ -5,6 +5,7 @@ from django.db import IntegrityError
 import pytest
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.history.choices import HistoryEventChoices
 from django_spire.metric.visual.signage.models import Signage, SignagePresentation
 from django_spire.metric.visual.signage.tests.factories import create_test_link, create_test_signage
 
@@ -21,6 +22,22 @@ class SignageModelTestCase(BaseTestCase):
     def test_key_auto_generated(self):
         assert self.signage.key is not None
 
+    def test_slide_display_seconds_default(self):
+        assert self.signage.slide_display_seconds == 30
+
+    def test_title_default_blank(self):
+        assert self.signage.title == ''
+
+    def test_title_custom(self):
+        signage = Signage.objects.create(name='custom', title='Display Title')
+
+        assert signage.title == 'Display Title'
+
+    def test_slide_display_seconds_custom(self):
+        signage = Signage.objects.create(name='custom', slide_display_seconds=45)
+
+        assert signage.slide_display_seconds == 45
+
     def test_key_unique(self):
         with pytest.raises(IntegrityError):
             Signage.objects.create(name='dup', key=self.signage.key)
@@ -36,6 +53,16 @@ class SignageModelTestCase(BaseTestCase):
         assert self.signage.is_deleted is True
         assert link.is_deleted is True
 
+    def test_set_deleted_backfills_history_events_for_links(self):
+        link = create_test_link(self.signage)
+
+        self.signage.set_deleted()
+
+        link.refresh_from_db()
+
+        assert link.is_deleted is True
+        assert link.history_events.filter(event=HistoryEventChoices.DELETED).exists()
+
 
 class SignagePresentationModelTestCase(BaseTestCase):
     def setUp(self) -> None:
@@ -49,7 +76,11 @@ class SignagePresentationModelTestCase(BaseTestCase):
 
     def test_signage_relation(self):
         assert self.link.signage == self.signage
-        assert self.signage.presentations.filter(pk=self.link.presentation.pk).exists()
+        assert (
+            self.signage.services.transformation.presentation_links()
+            .filter(pk=self.link.pk)
+            .exists()
+        )
 
     def test_unique_order_per_signage(self):
         with pytest.raises(IntegrityError):

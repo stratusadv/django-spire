@@ -21,7 +21,7 @@
         ></i>
         <span class="text-truncate ms-1" x-text="collection.name"></span>
     </div>
-    {% if AuthController.knowledge.can_view %}
+    {% if perms.django_spire_knowledge.view_collection %}
         <div class="col-auto">
             {% include 'django_spire/knowledge/sub_navigation/element/collection_sub_navigation_ellipsis_dropdown.html' %}
         </div>

@@ -3,10 +3,14 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 
+from django.core.cache import cache
 from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.visual.charts import (
     VisualAreaChart,
     VisualBarChart,
@@ -14,7 +18,7 @@ from django_spire.metric.visual.charts import (
     VisualLineChart,
     VisualPieChart,
 )
-from django_spire.metric.visual.models import Visual, VisualCondition
+from django_spire.metric.visual.models import Visual, VisualCondition, VisualRegion
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -33,6 +37,7 @@ def aware(value_date: date, hour: int = 12) -> datetime:
 class VisualTransformationServiceTestCase(BaseTestCase):
     def setUp(self) -> None:
         super().setUp()
+        cache.clear()
 
         self.domain = create_test_domain()
         self.sub_domain = create_test_subdomain(domain=self.domain)
@@ -193,8 +198,118 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         points = visual.services.transformation.series_data()
 
         assert points == [
-            {'timestamp': aware(date(2026, 5, 14), 10), 'value': Decimal(10)},
-            {'timestamp': aware(date(2026, 5, 15), 11), 'value': Decimal(20)},
+            {'timestamp': date(2026, 5, 14), 'value': 10.0},
+            {'timestamp': date(2026, 5, 15), 'value': 20.0},
+        ]
+
+    def test_series_datasets_multiple_references(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        visual = create_test_visual(
+            statistic=statistic,
+            references=['/home/', '/dashboard/'],
+            labels=['Home', 'Dashboard'],
+            with_conditions=False,
+        )
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14), 10),
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/',
+            value=Decimal(55),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 12),
+        )
+
+        datasets = visual.services.transformation.series_datasets()
+
+        assert datasets == [
+            {'label': 'Home', 'points': [{'timestamp': date(2026, 5, 14), 'value': 10.0}]},
+            {'label': 'Dashboard', 'points': [{'timestamp': date(2026, 5, 15), 'value': 55.0}]},
+        ]
+
+    def test_series_datasets_wildcard_prefix(self):
+        statistic = create_test_statistic(
+            group=self.group, interval=StatisticIntervalChoices.WEEKLY
+        )
+        visual = create_test_visual(
+            statistic=statistic,
+            references=['helpdesk:page:%'],
+            labels=['Helpdesk Pages'],
+            with_conditions=False,
+        )
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='helpdesk:page:view',
+            value=Decimal(10),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14), 10),
+        )
+        statistic.services.processor.add_value(
+            reference='helpdesk:page:detail',
+            value=Decimal(20),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 11),
+        )
+        statistic.services.processor.add_value(
+            reference='helpdesk:ticket:view',
+            value=Decimal(99),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 12),
+        )
+
+        datasets = visual.services.transformation.series_datasets()
+
+        assert datasets == [
+            {
+                'label': 'Helpdesk Pages',
+                'points': [
+                    {'timestamp': date(2026, 5, 14), 'value': 10.0},
+                    {'timestamp': date(2026, 5, 15), 'value': 20.0},
+                ],
+            }
+        ]
+
+    def test_current_value_uses_first_dataset_only(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(
+            statistic=statistic, references=['/home/', '/dashboard/'], with_conditions=False
+        )
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(90), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+    def test_dataset_values_for_gauge(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(
+            statistic=statistic, references=['/home/', '/dashboard/'], with_conditions=False
+        )
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(90), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.dataset_values() == [
+            {'label': '/home/', 'value': Decimal(10)},
+            {'label': '/dashboard/', 'value': Decimal(90)},
         ]
 
     def test_series_data_without_statistic(self):
@@ -220,6 +335,84 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         assert {'name': '/dashboard/', 'value': 50.0} in breakdown
         assert {'name': '/home/', 'value': 50.0} in breakdown
 
+    def test_current_value_percentage_is_moving_average(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(4),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(6),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(100),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 1)),
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(5)
+
+    def test_series_data_percentage_rolling_average(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(statistic=statistic, reference='/home/', with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(4),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 14)),
+        )
+        statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(6),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15)),
+        )
+
+        points = visual.services.transformation.series_data()
+
+        assert points == [
+            {'timestamp': date(2026, 5, 14), 'value': 4.0},
+            {'timestamp': date(2026, 5, 15), 'value': 5.0},
+        ]
+
+    def test_series_breakdown_percentage_averages_reference(self):
+        statistic = create_test_statistic(
+            group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE
+        )
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(20), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(30), sub_domain=self.sub_domain
+        )
+
+        breakdown = visual.services.transformation.series_breakdown()
+
+        assert {'name': '/dashboard/', 'value': 30.0} in breakdown
+        assert {'name': '/home/', 'value': 15.0} in breakdown
+
     def test_gauge_max_derived_from_conditions(self):
         statistic = create_test_statistic(group=self.group)
         visual = create_test_visual(statistic=statistic, target=Decimal(200), tolerance=Decimal(50))
@@ -235,6 +428,33 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         )
 
         assert visual.services.transformation.gauge_max() == 80
+
+    def test_current_value_is_cached(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+        with self.assertNumQueries(2):
+            assert visual.services.transformation.current_value() == Decimal(10)
+
+    def test_current_value_cache_invalidated_by_new_value(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        assert visual.services.transformation.current_value() == Decimal(10)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(5), sub_domain=self.sub_domain
+        )
+        assert visual.services.transformation.current_value() == Decimal(15)
 
     def test_chart_returns_none_for_indicator(self):
         statistic = create_test_statistic(group=self.group)
@@ -258,3 +478,115 @@ class VisualTransformationServiceTestCase(BaseTestCase):
             chart = visual.services.transformation.chart()
             assert isinstance(chart, chart_class)
             assert chart.params == {'visual_pk': visual.pk}
+
+    def test_render_context_indicator(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, target=Decimal(100), tolerance=Decimal(10))
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(150), sub_domain=self.sub_domain
+        )
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] == visual
+        assert context['current_value'] == Decimal(150)
+        assert context['current_condition'] is not None
+        assert context['chart'] is None
+        assert context['period_start'] == context['period_end']
+
+    def test_render_context_chart(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, kind='line', with_conditions=False)
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] == visual
+        assert isinstance(context['chart'], VisualLineChart)
+
+    def test_render_context_for_deleted_visual_is_empty(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+        visual.set_deleted()
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] is None
+        assert context['current_value'] is None
+        assert context['current_condition'] is None
+        assert context['chart'] is None
+
+    def test_aggregates_are_empty_for_deleted_statistic(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.set_deleted()
+
+        assert visual.services.transformation.current_value() == Decimal(0)
+        assert visual.services.transformation.series_datasets() == []
+        assert visual.services.transformation.series_breakdown() == []
+        assert visual.services.transformation.dataset_values() == []
+
+    def test_render_context_is_empty_for_deleted_statistic(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(statistic=statistic, kind='line', with_conditions=False)
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(10), sub_domain=self.sub_domain
+        )
+        statistic.set_deleted()
+
+        context = visual.services.transformation.render_context()
+
+        assert context['visual'] is None
+        assert context['current_value'] is None
+        assert context['current_condition'] is None
+        assert context['chart'] is None
+
+
+class VisualRegionTransformationServiceTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        cache.clear()
+
+        domain = create_test_domain()
+        group = create_test_statistic_group(domain=domain)
+        statistic = create_test_statistic(group=group)
+        self.visual = create_test_visual(statistic=statistic)
+
+    def test_display_title_uses_title(self):
+        region = VisualRegion.objects.create(
+            key='home:dashboard:hero', visual=self.visual, title='Hero'
+        )
+        assert region.services.transformation.display_title == 'Hero'
+
+    def test_display_title_falls_back_to_visual_name(self):
+        region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+        assert region.services.transformation.display_title == self.visual.name
+
+    def test_display_title_falls_back_to_key(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+        assert region.services.transformation.display_title == 'dashboard:empty'
+
+    def test_render_context_with_visual(self):
+        region = VisualRegion.objects.create(key='home:dashboard:hero', visual=self.visual)
+
+        context = region.services.transformation.render_context()
+
+        assert context['visual'] == self.visual
+        assert context['display_title'] == self.visual.name
+        assert 'current_value' in context
+
+    def test_render_context_without_visual(self):
+        region = VisualRegion.objects.create(key='dashboard:empty')
+
+        context = region.services.transformation.render_context()
+
+        assert context['visual'] is None
+        assert context['current_value'] is None
+        assert context['display_title'] == 'dashboard:empty'

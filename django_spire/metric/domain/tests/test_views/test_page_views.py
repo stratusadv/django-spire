@@ -4,6 +4,10 @@ from django.urls import reverse
 from django_glue.templatetags.django_glue import js_url
 
 from django_spire.core.tests.test_cases import BaseTestCase
+from django_spire.metric.domain.statistic.tests.factories import (
+    create_test_statistic,
+    create_test_statistic_group,
+)
 from django_spire.metric.domain.tests.factories import create_test_domain, create_test_subdomain
 
 
@@ -62,3 +66,21 @@ class SubDomainViewTestCase(BaseTestCase):
         assert response.status_code == 200
         assert self.subdomain == response.context['subdomain']
         assert self.subdomain.domain.pk == response.context['domain_pk']
+
+    def test_subdomain_detail_view_lists_domain_statistics(self):
+        group = create_test_statistic_group(domain=self.domain)
+        statistic = create_test_statistic(group=group)
+
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:page:subdomain_detail',
+                kwargs={'pk': self.subdomain.pk, 'domain_pk': self.domain.pk},
+            )
+        )
+        assert response.status_code == 200
+        assert statistic in response.context['statistics']
+
+        href = reverse(
+            'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': statistic.pk}
+        )
+        assert f'href="{href}"' in response.content.decode()

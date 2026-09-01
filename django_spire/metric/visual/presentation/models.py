@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from django.db import models
+from django.db import models, transaction
 
 from django_spire.history.activity.mixins import ActivityMixin
 from django_spire.history.mixins import HistoryModelMixin
+from django_spire.history.utils import soft_delete_queryset
 
 from django_spire.metric.visual.presentation import querysets
 from django_spire.metric.visual.presentation.services.service import (
@@ -24,10 +25,10 @@ class Presentation(HistoryModelMixin, ActivityMixin):
         return self.name
 
     def set_deleted(self) -> None:
-        super().set_deleted()
-
-        for slide in self.slides.all():
-            slide.set_deleted()
+        with transaction.atomic():
+            super().set_deleted()
+            slide_pks = soft_delete_queryset(self.slides.all())
+            soft_delete_queryset(SlideSection.objects.filter(slide_id__in=slide_pks))
 
     class Meta:
         verbose_name = 'Presentation'
@@ -49,10 +50,9 @@ class Slide(HistoryModelMixin, ActivityMixin):
         return self.name
 
     def set_deleted(self) -> None:
-        super().set_deleted()
-
-        for section in self.sections.all():
-            section.set_deleted()
+        with transaction.atomic():
+            super().set_deleted()
+            soft_delete_queryset(self.sections.all())
 
     class Meta:
         verbose_name = 'Slide'
@@ -95,3 +95,8 @@ class SlideSection(HistoryModelMixin, ActivityMixin):
         verbose_name_plural = 'Slide Sections'
         db_table = 'django_spire_metric_visual_slide_section'
         ordering = ('row', 'col')
+        constraints = [
+            models.UniqueConstraint(
+                fields=('slide', 'row', 'col'), name='unique_slide_section_cell'
+            )
+        ]

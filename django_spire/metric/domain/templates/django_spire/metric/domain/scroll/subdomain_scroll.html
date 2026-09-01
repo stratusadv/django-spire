@@ -9,7 +9,7 @@
 {% block scroll_header %}
     <div class="row pb-3 align-items-center">
         <div class="col-6">
-            <input class="form-control" placeholder="Search Sub Domains ..." type="search"
+            <input class="form-control" placeholder="Search ..." type="search"
                    x-model.debounce="searchQuery">
         </div>
         <div class="col text-end">
@@ -17,7 +17,7 @@
         </div>
         <div class="col">
             <select class="form-select form-select-md" x-model="orderBy">
-                <option value="name">Sub Domain</option>
+                <option value="name">Name</option>
                 <option value="created_datetime">Created</option>
                 <option value="description">Description</option>
             </select>
@@ -29,7 +29,7 @@
 {% block scroll_template_item %}
     <div class="row border-bottom py-2">
         <div class="col-4">
-            <div class="attribute-label">Sub Domain</div>
+            <div class="attribute-label">Name</div>
             <a :href="{% js_url 'django_spire:metric:domain:page:subdomain_detail' domain_pk='item.domain_id' pk='item.id' %}">
                 <span x-text="item.name"></span>
             </a>

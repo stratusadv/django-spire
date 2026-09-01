@@ -25,11 +25,11 @@
 {% block card_title_content %}
     <div class="card-body">
         <div class="row g-3">
-            <div class="col-lg-4">
-                {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition %}
+            <div class="col-lg-6">
+                {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition period_start=period_start period_end=period_end %}
             </div>
 
-            <div class="col-lg-8">
+            <div class="col-lg-6">
                 <div class="row g-3">
                     <div class="col-12">
                         <div class="attribute-label">Name</div>
@@ -41,31 +41,30 @@
                         <div>{{ visual.description|linebreaksbr }}</div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="attribute-label">Kind</div>
                         <div>{{ visual.get_kind_display }}</div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="attribute-label">Statistic</div>
                         {% if visual.statistic %}
-                            <div>{{ visual.statistic }}</div>
+                            <div>
+                                <a href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=visual.statistic.pk %}">
+                                    {{ visual.statistic.group }} - {{ visual.statistic }}
+                                </a>
+                            </div>
                         {% else %}
                             <div class="text-muted">None</div>
                         {% endif %}
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="attribute-label">Reference</div>
-                        <div>{{ visual.reference|default:'All references' }}</div>
-                    </div>
-
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="attribute-label">Evaluation Date</div>
                         <div>{{ visual.date }}</div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="attribute-label">Period</div>
                         <div>
                             {{ period_start|date:'M j, Y' }} - {{ period_end|date:'M j, Y' }}

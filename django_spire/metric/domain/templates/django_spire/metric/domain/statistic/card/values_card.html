@@ -1,31 +1,33 @@
 {% extends 'django_spire/card/title_card.html' %}
+{% load django_spire_metric_statistic %}
 
 {% block card_title %}
     {{ statistic.get_interval_display }} Values
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="card-body">
+    <div class="card-body p-2">
         {% if values %}
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-light table-hover">
                     <thead>
-                        <tr>
-                            <th>Reference</th>
-                            <th>Sub Domain</th>
-                            <th>Timestamp</th>
-                            <th>Value</th>
-                        </tr>
+                    <tr>
+                        <th>Reference</th>
+                        <th>{{ statistic.group.domain.sub_domain_name }}</th>
+                        <th>Timestamp</th>
+                        <th class="text-end">Value</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for value in values %}
-                            <tr>
-                                <td>{{ value.reference }}</td>
-                                <td>{{ value.sub_domain }}</td>
-                                <td>{{ value.timestamp }}</td>
-                                <td>{{ value.value }}</td>
-                            </tr>
-                        {% endfor %}
+                    {% for value in values %}
+                        <tr>
+                            <td>{{ value.reference }}</td>
+                            <td>{{ value.sub_domain }}</td>
+                            <td>{{ value.timestamp }}</td>
+                            <td class="{{ value.value|statistic_value_class:statistic.value_type }} text-end">
+                                {{ value.value|statistic_value:statistic.value_type }}</td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>

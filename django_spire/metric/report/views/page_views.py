@@ -1,22 +1,93 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
+from django.template.response import TemplateResponse
+from django.utils.dateparse import parse_datetime
 
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.utils import get_object_from_module_string
 from django_spire.metric.domain.navigation import DomainNavigation
 from django_spire.metric.report.models import ReportRun
 from django_spire.metric.report.registry import ReportRegistry
-from django.template.response import TemplateResponse
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('report').permission_required('can_view')
+_UNSET = object()
+
+
+def _coerce_argument_value(annotation_class: type, value: str) -> object:
+    try:
+        return annotation_class(value)
+    except (TypeError, ValueError):
+        return _UNSET
+
+
+def _bool_argument_value(request: WSGIRequest, argument: str) -> bool:
+    return request.GET.get(argument, '').lower() == 'true'
+
+
+def _date_argument_value(request: WSGIRequest, argument: str) -> object:
+    date_str = request.GET.get(argument, None)
+
+    if not date_str:
+        return None
+
+    parsed = parse_datetime(date_str)
+
+    if not parsed:
+        return _UNSET
+
+    return parsed.date()
+
+
+def _datetime_argument_value(request: WSGIRequest, argument: str) -> object:
+    datetime_str = request.GET.get(argument, None)
+
+    if not datetime_str:
+        return None
+
+    parsed = parse_datetime(datetime_str)
+
+    if parsed is None:
+        return _UNSET
+
+    return parsed
+
+
+def _multi_select_argument_value(request: WSGIRequest, argument: str) -> list[str]:
+    return request.GET.getlist(argument, [])
+
+
+def _report_argument_value(
+    request: WSGIRequest, argument: str, run_argument: dict[str, Any]
+) -> object:
+    annotation = run_argument['annotation']
+
+    if annotation == 'bool':
+        return _bool_argument_value(request, argument)
+
+    if annotation == 'date':
+        return _date_argument_value(request, argument)
+
+    if annotation == 'datetime':
+        return _datetime_argument_value(request, argument)
+
+    if annotation == 'multi_select':
+        return _multi_select_argument_value(request, argument)
+
+    value = request.GET.get(argument, None)
+
+    if not value:
+        return None
+
+    return _coerce_argument_value(run_argument['annotation_class'], value)
+
+
+@permission_required('django_spire_metric_report.view_reportrun')
 def report_view(request: WSGIRequest) -> TemplateResponse:
     nav = DomainNavigation()
     nav.page_title = 'Reports'
@@ -31,7 +102,7 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
         page_report_registry.add_registry(report_registry_class())
 
-    context = {}
+    context: dict[str, Any] = {}
 
     context['registry'] = page_report_registry
 
@@ -49,48 +120,27 @@ def report_view(request: WSGIRequest) -> TemplateResponse:
 
                 context['report_run_arguments_values'] = {}
 
-                for argument in context['report_run_arguments']:
-                    if context['report_run_arguments'][argument]['annotation'] == 'bool':
-                        get_request_value = request.GET.get(argument, False)
+                for argument, run_argument in context['report_run_arguments'].items():
+                    get_request_value = _report_argument_value(request, argument, run_argument)
 
-                    elif context['report_run_arguments'][argument]['annotation'] == 'date':
-                        date_str = request.GET.get(argument, None)
-
-                        if date_str:
-                            get_request_value = datetime.strptime(date_str, '%Y-%m-%d').date()
-                        else:
-                            get_request_value = date_str
-
-                    elif context['report_run_arguments'][argument]['annotation'] == 'datetime':
-                        datetime_str = request.GET.get(argument, None)
-
-                        if datetime_str:
-                            get_request_value = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S')
-                        else:
-                            get_request_value = datetime_str
-
-                    elif context['report_run_arguments'][argument]['annotation'] == 'multi_select':
-                        get_request_value = request.GET.getlist(argument, [])
-
-                    else:
-                        value = request.GET.get(argument, None)
-
-                        if value:
-                            get_request_value = context['report_run_arguments'][argument][
-                                'annotation_class'
-                            ](value)
-                        else:
-                            get_request_value = value
+                    if get_request_value is _UNSET:
+                        context.setdefault('report_invalid_arguments', []).append(argument)
+                        get_request_value = None
 
                     context['report_run_arguments_values'][argument] = get_request_value
 
                 if request.GET.get('report_should_run', 'false').lower() == 'true':
-                    for argument, value in context['report_run_arguments_values'].items():
-                        if value is None:
-                            break
-                    else:
+                    missing_arguments = [
+                        argument
+                        for argument, value in context['report_run_arguments_values'].items()
+                        if value is None and context['report_run_arguments'][argument]['required']
+                    ]
+
+                    if not missing_arguments:
                         ReportRun.objects.create(report_key_stack=report_key_stack)
                         report.run(**context['report_run_arguments_values'])
+                    else:
+                        context['report_missing_arguments'] = missing_arguments
 
                 context['report'] = report
                 context['report_run_count'] = ReportRun.objects.run_count(report_key_stack)

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 if TYPE_CHECKING:
-    from django_spire.metric.visual.models import Visual, VisualCondition
+    from django_spire.metric.visual.models import Visual, VisualCondition, VisualRegion
 
 
 class VisualProcessorService(BaseDjangoModelService['Visual']):
@@ -14,3 +14,7 @@ class VisualProcessorService(BaseDjangoModelService['Visual']):
 
 class VisualConditionProcessorService(BaseDjangoModelService['VisualCondition']):
     obj: VisualCondition
+
+
+class VisualRegionProcessorService(BaseDjangoModelService['VisualRegion']):
+    obj: VisualRegion

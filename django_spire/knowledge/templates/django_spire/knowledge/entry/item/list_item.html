@@ -31,13 +31,13 @@
 {% endblock %}
 
 {% block item_button %}
-    {% if AuthController.knowledge.can_view %}
+    {% if perms.django_spire_knowledge.view_collection %}
         {% url 'django_spire:knowledge:entry:version:page:editor' pk=entry.current_version_id as entry_detail_url %}
     {% endif %}
-    {% if AuthController.knowledge.can_change %}
+    {% if perms.django_spire_knowledge.change_collection %}
         {% url 'django_spire:knowledge:entry:form:update' pk=entry.pk collection_pk=collection.pk as entry_edit_url %}
     {% endif %}
-    {% if AuthController.knowledge.can_delete %}
+    {% if perms.django_spire_knowledge.delete_collection %}
         {% url 'django_spire:knowledge:entry:page:delete' pk=entry.pk as entry_delete_url %}
     {% endif %}
     {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=entry_detail_url edit_url=entry_edit_url delete_url=entry_delete_url %}

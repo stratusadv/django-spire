@@ -13,8 +13,8 @@ class SignageConfig(AppConfig):
 
     MODEL_PERMISSIONS = (
         {
-            'name': 'visual_signage',
-            'verbose_name': 'Visual Signage',
+            'name': 'metric_visual_signage',
+            'verbose_name': 'Metric Signage',
             'model_class_path': 'django_spire.metric.visual.signage.models.Signage',
             'is_proxy_model': False,
         },

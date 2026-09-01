@@ -5,6 +5,9 @@ from typing import TYPE_CHECKING
 from django_spire.contrib.constructor.service import BaseDjangoModelService
 
 from django_spire.metric.visual.presentation.models import Presentation
+from django_spire.metric.visual.presentation.services.transformation_service import (
+    SlideSectionTransformationService,
+)
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -14,6 +17,13 @@ if TYPE_CHECKING:
 
 class SignageTransformationService(BaseDjangoModelService['Signage']):
     obj: Signage
+
+    @property
+    def display_title(self) -> str:
+        if self.obj.title:
+            return self.obj.title
+
+        return self.obj.name
 
     def presentation_links(self) -> QuerySet[SignagePresentation]:
         return (
@@ -36,15 +46,25 @@ class SignageTransformationService(BaseDjangoModelService['Signage']):
     def display_slides(self) -> list[dict]:
         slides = []
 
-        for link in self.presentation_links():
-            presentation = link.presentation
-
-            for slide in presentation.slides.filter(is_deleted=False).order_by('order'):
+        for presentation in self.presentations():
+            for slide in presentation.slides.all():
+                section_sections = [
+                    section
+                    for section in slide.sections.all()
+                    if section.visual_id and not section.visual.is_deleted
+                ]
+                grid_styles = SlideSectionTransformationService.section_grid_styles(
+                    section_sections
+                )
                 sections = [
-                    {'section': section, **section.services.transformation.render_context()}
-                    for section in slide.sections.select_related('visual')
-                    .filter(is_deleted=False)
-                    .order_by('row', 'col')
+                    {
+                        'section': section,
+                        'grid_style': grid_styles[section.pk],
+                        **section.services.transformation.render_context(),
+                    }
+                    for section in sorted(
+                        section_sections, key=lambda section: (section.row, section.col)
+                    )
                 ]
                 slides.append({'presentation': presentation, 'slide': slide, 'sections': sections})
 

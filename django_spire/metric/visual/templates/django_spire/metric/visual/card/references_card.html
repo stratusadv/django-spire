@@ -1,0 +1,57 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    References
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.django_spire_metric_visual.add_visual %}
+        {% url 'django_spire:metric:visual:form:create_reference' as add_reference_url %}
+        <a class="btn btn-sm btn-primary" href="{{ add_reference_url }}?visual={{ visual.pk }}">
+            <i class="bi bi-plus"></i>
+            Add
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body p-2">
+        {% if visual.references.all %}
+            <div class="table-responsive">
+                <table class="table table-light table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Reference Pattern</th>
+                            <th>Label</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reference in visual.references.all %}
+                            <tr>
+                                <td class="align-middle">{{ reference.order }}</td>
+                                <td class="align-middle">
+                                    <code>{{ reference.reference }}</code>
+                                </td>
+                                <td class="align-middle">{{ reference.label|default:'—' }}</td>
+                                <td class="text-end align-middle">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{% url 'django_spire:metric:visual:form:update_reference' pk=reference.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       href="{% url 'django_spire:metric:visual:form:delete_reference' pk=reference.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endif %}
+    </div>
+{% endblock %}

@@ -7,7 +7,7 @@ from django_spire.metric.domain.models import Domain, SubDomain
 
 @admin.register(Domain)
 class DomainAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'description', 'sub_domain_description', 'created_datetime')
+    list_display = ('pk', 'name', 'description', 'sub_domain_name', 'created_datetime')
     list_filter = ('is_active', 'is_deleted')
     ordering = ('-created_datetime',)
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')

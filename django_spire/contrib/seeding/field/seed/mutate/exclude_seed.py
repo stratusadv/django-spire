@@ -10,11 +10,11 @@ class ExcludeMutateFieldSeed(BaseMutateFieldSeed):
         self.field_seed = field_seed
         self.exclude_chance = exclude_chance
 
+    def generate_cache_key(self) -> str:
+        return f'{super().generate_cache_key()}:{self.exclude_chance}'
+
     def _mutate_value(self, seed_index: int) -> BaseFieldSeed | None:
         if random.random() < self.exclude_chance:
             return None
 
         return self.field_seed
-
-
-

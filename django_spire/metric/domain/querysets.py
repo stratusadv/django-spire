@@ -6,8 +6,6 @@ from django_spire.core.querysets import SearchQuerySetMixin
 from django_spire.history.querysets import HistoryQuerySet
 
 if TYPE_CHECKING:
-    from uuid import UUID
-
     from django.db.models import QuerySet
 
     from django_spire.metric.domain.models import Domain, SubDomain
@@ -25,7 +23,7 @@ class DomainQuerySet(HistoryQuerySet, SearchQuerySetMixin):
 
 
 class SubDomainQuerySet(HistoryQuerySet, SearchQuerySetMixin):
-    def for_key(self, key: str | UUID) -> QuerySet[SubDomain]:
+    def for_key(self, key: str) -> QuerySet[SubDomain]:
         return self.filter(key=key)
 
     def bulk_filter(self, filter_data: dict) -> QuerySet[SubDomain]:
