@@ -223,7 +223,10 @@ DJANGO_SPIRE_REPORT_REGISTRIES = [
 ]
 
 # Search Registry
-DJANGO_SPIRE_SEARCH_REGISTRY = {'TASK': 'test_project.app.task.search.TaskSearch'}
+DJANGO_SPIRE_SEARCH_REGISTRY = {
+    'TASK': 'test_project.app.task.search.TaskSearch',
+    'ENTRY': 'django_spire.knowledge.entry.search.EntrySearch',
+}
 
 # Storages - We are using Digital Ocean, which uses AWS S3 service
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')

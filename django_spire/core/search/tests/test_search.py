@@ -4,7 +4,7 @@ import pytest
 from django.test import TestCase
 
 from django_spire.core.search.result import SearchResult
-from django_spire.core.search.search import BaseSearch
+from django_spire.core.search.search import Search
 from test_project.app.task import models
 from test_project.app.task.search import TaskSearch
 
@@ -55,7 +55,7 @@ class TestTaskSearch(TestCase):
         assert result.name == 'Tasks'
         assert result.icon == 'bi-list-task'
         assert result.label == 'Alpha Report'
-        assert result.description is None
+        assert result.description == 'first'
         assert result.url == f'/task/page/detail/{self.matching_name.pk}/'
 
     def test_result_from_search(self) -> None:
@@ -64,6 +64,7 @@ class TestTaskSearch(TestCase):
         assert result.search_key == 'TASK'
         assert result.name == 'Tasks'
         assert result.label == 'Alpha Report'
+        assert result.description == 'first'
         assert result.url == f'/task/page/detail/{self.matching_name.pk}/'
 
     def test_section_name(self) -> None:
@@ -76,34 +77,93 @@ class TestTaskSearch(TestCase):
         results = self.search.search('Bulk')
         assert len(list(results)) == self.search.result_limit
 
+    def test_searchable_commands_defined(self) -> None:
+        assert [command.name for command in TaskSearch.searchable_commands] == ['New Task']
+
+    def test_commands_for_query_matches_name(self) -> None:
+        commands = self.search.commands_for_query('new')
+
+        assert [command.name for command in commands] == ['New Task']
+
+    def test_commands_for_query_matches_multi_word(self) -> None:
+        commands = self.search.commands_for_query('new task')
+
+        assert [command.name for command in commands] == ['New Task']
+
+    def test_commands_for_query_no_match(self) -> None:
+        assert self.search.commands_for_query('zzzz') == []
+
+    def test_commands_for_query_blank_returns_empty(self) -> None:
+        assert self.search.commands_for_query('') == []
+        assert self.search.commands_for_query('   ') == []
+
+    def test_command_url(self) -> None:
+        command = TaskSearch.searchable_commands[0]
+
+        assert command.url == '/task/form/0/form/'
+        assert command.description == 'Create a new task'
+
+    def test_command_result(self) -> None:
+        command = TaskSearch.searchable_commands[0]
+        result = self.search.command_result(command)
+
+        assert result.search_key == 'TASK'
+        assert result.name == 'Tasks'
+        assert result.icon == 'bi-plus-lg'
+        assert result.label == 'New Task'
+        assert result.description == 'Create a new task'
+        assert result.url == '/task/form/0/form/'
+
+    def test_list_url(self) -> None:
+        assert self.search.generate_list_url() == '/task/page/list/'
+
+    def test_list_result_matches_section_keyword(self) -> None:
+        result = self.search.list_result('task')
+
+        assert result is not None
+        assert result.label == 'Tasks'
+        assert result.icon == 'bi-list-task'
+        assert result.url == '/task/page/list/'
+
+    def test_list_result_matches_case_insensitive(self) -> None:
+        assert self.search.list_result('Task') is not None
+        assert self.search.list_result('TASKS') is not None
+        assert self.search.list_result('task management') is None
+
+    def test_list_result_none_for_unrelated_query(self) -> None:
+        assert self.search.list_result('report') is None
+        assert self.search.list_result('new') is None
+        assert self.search.list_result('') is None
+        assert self.search.list_result('   ') is None
+
 
 class TestBaseSearchValidation(TestCase):
     def test_missing_model_class_raises(self) -> None:
         with pytest.raises(ValueError, match='model_class is None and must be defined'):
 
-            class InvalidSearch(BaseSearch):
+            class InvalidSearch(Search):
                 searchable_fields = ['name']
                 search_key = 'INVALID'
 
-                def generate_url(self, _obj: models.Task) -> str:
+                def generate_detail_url(self, _obj: models.Task) -> str:
                     return ''
 
     def test_missing_searchable_fields_raises(self) -> None:
         with pytest.raises(ValueError, match='searchable_fields is None and must be defined'):
 
-            class InvalidSearch(BaseSearch):
+            class InvalidSearch(Search):
                 model_class = models.Task
                 search_key = 'INVALID'
 
-                def generate_url(self, _obj: models.Task) -> str:
+                def generate_detail_url(self, _obj: models.Task) -> str:
                     return ''
 
     def test_missing_search_key_raises(self) -> None:
         with pytest.raises(ValueError, match='search_key is None and must be defined'):
 
-            class InvalidSearch(BaseSearch):
+            class InvalidSearch(Search):
                 model_class = models.Task
                 searchable_fields = ['name']
 
-                def generate_url(self, _obj: models.Task) -> str:
+                def generate_detail_url(self, _obj: models.Task) -> str:
                     return ''

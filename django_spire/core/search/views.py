@@ -10,11 +10,12 @@ from django_spire.core.search.registry import get_search_registry
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
-    from django_spire.core.search.search import BaseSearch
+    from django_spire.core.search.command import SearchCommand
+    from django_spire.core.search.search import Search
 
 
-def _user_search_instances(request: WSGIRequest) -> list[BaseSearch]:
-    search_instances: list[BaseSearch] = []
+def _user_search_instances(request: WSGIRequest) -> list[Search]:
+    search_instances: list[Search] = []
 
     for search_class in get_search_registry().values():
         search = search_class()
@@ -27,20 +28,42 @@ def _user_search_instances(request: WSGIRequest) -> list[BaseSearch]:
     return search_instances
 
 
-def _sections(search_instances: list[BaseSearch]) -> list[dict]:
+def _user_commands(search: Search, request: WSGIRequest, query_string: str) -> list[SearchCommand]:
+    return [
+        command
+        for command in search.commands_for_query(query_string)
+        if not command.permission or request.user.has_perm(command.permission)
+    ]
+
+
+def _sections(search_instances: list[Search]) -> list[dict]:
     return [
         {'search_key': search.search_key, 'name': search.section_name, 'icon': search.icon}
         for search in search_instances
     ]
 
 
-def _run_searches(search_instances: list[BaseSearch], query_string: str) -> list[dict]:
+def _run_searches(
+    search_instances: list[Search], request: WSGIRequest, query_string: str
+) -> list[dict]:
     results_by_section: list[dict] = []
 
     for search in search_instances:
-        obj_list = list(search.search(query_string) or [])
+        results = []
 
-        results = [search.to_result(obj) for obj in obj_list]
+        list_result = search.list_result(query_string)
+
+        if list_result:
+            results.append(list_result)
+
+        results.extend(
+            search.command_result(command)
+            for command in _user_commands(search, request, query_string)
+        )
+
+        obj_list = list(search.search(request, query_string) or [])
+
+        results.extend(search.to_result(obj) for obj in obj_list)
 
         if results:
             results_by_section.append(
@@ -61,7 +84,7 @@ def _search_context(request: WSGIRequest, query_string: str) -> dict:
     context = {'query': query_string, 'sections': _sections(search_instances)}
 
     if query_string:
-        context['results_by_section'] = _run_searches(search_instances, query_string)
+        context['results_by_section'] = _run_searches(search_instances, request, query_string)
 
     return context
 

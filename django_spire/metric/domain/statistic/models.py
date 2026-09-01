@@ -45,6 +45,7 @@ class StatisticGroup(HistoryModelMixin, ActivityMixin):
         verbose_name_plural = 'Statistics Groups'
         db_table = 'django_spire_metric_domain_statistic_group'
 
+    # TODO: Move to queryset
     def subdomains_qs(self) -> QuerySet[SubDomain]:
         return self.domain.subdomains.active()
 

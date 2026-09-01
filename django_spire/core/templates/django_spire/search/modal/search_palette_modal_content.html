@@ -1,14 +1,14 @@
-    <div
+<div
         x-data="searchPalette"
         data-results-url="{% url 'django_spire:core:search:results' %}"
         @keydown="refocusForTyping($event)"
         @keydown.arrow-down.prevent="focusNextResult(1)"
         @keydown.arrow-up.prevent="focusNextResult(-1)"
         @keydown.enter.prevent="activateFocusedResult()"
-    >
-        <div class="input-group mb-3">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input
+>
+    <div class="input-group mb-3">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input
                 x-ref="input"
                 x-model="query"
                 @input="onInput()"
@@ -16,13 +16,20 @@
                 class="form-control"
                 placeholder="Search..."
                 autocomplete="off"
-            >
-        </div>
-        <div
+        >
+        <span
+                class="input-group-text d-block d-lg-none"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+        >
+            <i class="bi bi-x-lg"></i>
+        </span>
+    </div>
+    <div
             x-ref="results"
             class="search-palette-results"
             style="max-height: 60vh; overflow-y: auto;"
-        >
-            {% include 'django_spire/search/element/search_element.html' %}
-        </div>
+    >
+        {% include 'django_spire/search/element/search_element.html' %}
     </div>
+</div>

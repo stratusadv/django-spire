@@ -1,13 +1,14 @@
 {% load static %}
 
 <div class="d-lg-none" x-data="{ collapsed: false, show_mobile_nav: false }">
+
     <div class="d-flex align-items-center">
         {% if request.user.is_authenticated %}
-            {% include "django_spire/notification/app/dropdown/notification_dropdown.html" %}
+            {% include 'django_spire/icon/responsive_icon.html' with icon='bi bi-search' icon_class='ms-2' x_icon_click='Spire.searchPalette.open()' %}
         {% endif %}
 
         <i
-            class="bi bi-list fs-2 cursor-pointer me-2 text-primary"
+            class="bi bi-list fs-1 cursor-pointer ms-2 text-primary"
             @click.stop="show_mobile_nav = !show_mobile_nav; setTimeout(() => { let active = $refs.mobile_nav.querySelector('a.active'); if (active) { active.scrollIntoView({ block: 'center' }); document.activeElement.blur(); } }, 50)"
         ></i>
     </div>
@@ -31,7 +32,7 @@
         style="z-index: 1050; height: 100vh; height: 100dvh; overscroll-behavior: contain; padding-bottom: env(safe-area-inset-bottom, 0px);"
     >
         <div class="d-flex justify-content-between align-items-center px-3" style="height: 64px;">
-            {% include 'django_spire/navigation/top/menu/buttons.html' with hide_notification_dropdown=True %}
+            {% include 'django_spire/navigation/top/menu/buttons.html' %}
             <i
                 class="bi bi-x-lg fs-2 cursor-pointer"
                 @click.prevent="show_mobile_nav = false"

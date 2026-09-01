@@ -3,13 +3,18 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from django.db import models
+from django.http.request import HttpRequest
 
+from django_spire.core.search.command import SearchCommand
 from django_spire.core.search.result import SearchResult
 
 
-class BaseSearch(ABC):
+class Search(ABC):
+    Command: type[SearchCommand] = SearchCommand
+
     model_class: type[models.Model]
     searchable_fields: list[str]
+    searchable_commands: list[SearchCommand] = []
     search_key: str
     name: str | None = None
     icon: str | None = None
@@ -37,24 +42,26 @@ class BaseSearch(ABC):
         return self.search_key
 
     @abstractmethod
-    def generate_url(self, obj: models.Model) -> str:
+    def base_queryset(self, request: HttpRequest) -> models.QuerySet:
         raise NotImplementedError
 
-    def result_description(self, obj: models.Model) -> str | None:  # noqa: ARG002
-        return None
+    @abstractmethod
+    def generate_list_url(self) -> str:
+        raise NotImplementedError
 
+    @abstractmethod
+    def generate_detail_url(self, obj: models.Model) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def result_description(self, obj: models.Model) -> str | None:
+        raise NotImplementedError
+
+    @abstractmethod
     def result_name(self, obj: models.Model) -> str:
-        return str(obj)
+        raise NotImplementedError
 
-    def base_queryset(self) -> models.QuerySet:
-        manager = self.model_class.objects
-
-        if hasattr(manager, 'not_deleted'):
-            return manager.not_deleted()
-
-        return manager.all()
-
-    def search(self, query_string: str | None) -> models.QuerySet | None:
+    def search(self, request: HttpRequest, query_string: str | None) -> models.QuerySet | None:
         query_string = (query_string or '').strip()
 
         if not query_string:
@@ -65,7 +72,7 @@ class BaseSearch(ABC):
 
         words = query_string.split(' ')
 
-        queryset = self.base_queryset()
+        queryset = self.base_queryset(request)
 
         for word in words:
             conditions = models.Q()
@@ -79,3 +86,40 @@ class BaseSearch(ABC):
 
     def to_result(self, obj: models.Model) -> SearchResult:
         return SearchResult.from_search(self, obj)
+
+    def commands_for_query(self, query_string: str) -> list[SearchCommand]:
+        query = (query_string or '').strip().lower()
+
+        if not query:
+            return []
+
+        words = query.split(' ')
+
+        return [
+            command
+            for command in self.searchable_commands
+            if all(word in command.name.lower() for word in words)
+        ]
+
+    def list_result(self, query_string: str) -> SearchResult | None:
+        query = (query_string or '').strip().lower()
+
+        if not query:
+            return None
+
+        keywords = (self.search_key, self.name)
+
+        if self.model_class is not None:
+            keywords = (
+                *keywords,
+                self.model_class._meta.verbose_name,
+                self.model_class._meta.verbose_name_plural,
+            )
+
+        if not any(keyword and query in keyword.lower() for keyword in keywords):
+            return None
+
+        return SearchResult.from_list(self, self.generate_list_url())
+
+    def command_result(self, command: SearchCommand) -> SearchResult:
+        return SearchResult.from_command(self, command)
