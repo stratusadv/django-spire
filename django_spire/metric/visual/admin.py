@@ -28,6 +28,7 @@ class VisualAdmin(admin.ModelAdmin):
     inlines = (VisualReferenceInline, VisualConditionInline, VisualRegionInline)
     list_display = ('pk', 'name', 'statistic', 'date', 'created_datetime')
     list_filter = ('is_active', 'is_deleted')
+    list_select_related = ('statistic',)
     ordering = ('-created_datetime',)
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')
     search_fields = ('name', 'description')
@@ -37,6 +38,7 @@ class VisualAdmin(admin.ModelAdmin):
 class VisualRegionAdmin(admin.ModelAdmin):
     list_display = ('pk', 'key', 'visual', 'is_live_updated', 'title', 'created_datetime')
     list_filter = ('is_live_updated', 'is_active', 'is_deleted')
+    list_select_related = ('visual',)
     ordering = ('key',)
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')
     search_fields = ('key', 'title', 'visual__name')
@@ -46,6 +48,7 @@ class VisualRegionAdmin(admin.ModelAdmin):
 class VisualConditionAdmin(admin.ModelAdmin):
     list_display = ('pk', 'visual', 'state', 'operator', 'target', 'tolerance', 'order')
     list_filter = ('state', 'operator')
+    list_select_related = ('visual',)
     ordering = ('visual', 'order')
     search_fields = ('visual__name',)
 
@@ -53,5 +56,6 @@ class VisualConditionAdmin(admin.ModelAdmin):
 @admin.register(VisualReference)
 class VisualReferenceAdmin(admin.ModelAdmin):
     list_display = ('pk', 'visual', 'reference', 'label', 'order')
+    list_select_related = ('visual',)
     ordering = ('visual', 'order')
     search_fields = ('visual__name', 'reference', 'label')

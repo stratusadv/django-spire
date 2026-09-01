@@ -7,6 +7,9 @@ from django_spire.contrib.seeding.field.seed.tools import resolve_ordered_index
 
 class OrderedSequenceFieldSeed(BaseFieldSeed):
     def __init__(self, sequence: Sequence, wrap: bool = False) -> None:
+        if not sequence:
+            message = 'OrderedSequenceFieldSeed requires a non-empty sequence.'
+            raise ValueError(message)
         self.sequence = list(sequence)
         self.wrap = wrap
 

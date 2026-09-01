@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from django.template import Context, Template
 from django.test import TestCase
@@ -13,11 +13,15 @@ from django_spire.celery.templatetags.django_spire_celery import (
 
 
 class TestCeleryTaskManager(BaseCeleryTaskManager):
+    __test__ = False
+
     task_name = 'test_task'
     display_name = 'Test Task'
 
 
 class TestCeleryTaskManagerWithModel(BaseCeleryTaskManager):
+    __test__ = False
+
     task_name = 'test_task_with_model'
     display_name = 'Test Task With Model'
 
@@ -64,7 +68,7 @@ class DjangoSpireCeleryTaskToastWidgetTestCase(TestCase):
         assert result is None
 
     @patch('django_spire.celery.templatetags.django_spire_celery.get_template')
-    def test_tag_renders_correct_template(self, mock_get_template) -> None:
+    def test_tag_renders_correct_template(self, mock_get_template: Mock) -> None:
         mock_template = MagicMock()
         mock_template.render.return_value = '<div>test</div>'
         mock_get_template.return_value = mock_template
@@ -77,7 +81,7 @@ class DjangoSpireCeleryTaskToastWidgetTestCase(TestCase):
         )
 
     @patch('django_spire.celery.templatetags.django_spire_celery.get_template')
-    def test_tag_passes_key_pairs_to_context(self, mock_get_template) -> None:
+    def test_tag_passes_key_pairs_to_context(self, mock_get_template: Mock) -> None:
         mock_template = MagicMock()
         mock_template.render.return_value = '<div>test</div>'
         mock_get_template.return_value = mock_template
@@ -130,7 +134,7 @@ class DjangoSpireCeleryTaskItemBlockTestCase(TestCase):
         assert result is None
 
     @patch('django_spire.celery.templatetags.django_spire_celery.get_template')
-    def test_tag_renders_correct_template(self, mock_get_template) -> None:
+    def test_tag_renders_correct_template(self, mock_get_template: Mock) -> None:
         mock_template = MagicMock()
         mock_template.render.return_value = '<div>test</div>'
         mock_get_template.return_value = mock_template
@@ -141,7 +145,7 @@ class DjangoSpireCeleryTaskItemBlockTestCase(TestCase):
         mock_get_template.assert_called_once_with('django_spire/celery/item/task_item_block.html')
 
     @patch('django_spire.celery.templatetags.django_spire_celery.get_template')
-    def test_tag_passes_key_pairs_to_context(self, mock_get_template) -> None:
+    def test_tag_passes_key_pairs_to_context(self, mock_get_template: Mock) -> None:
         mock_template = MagicMock()
         mock_template.render.return_value = '<div>test</div>'
         mock_get_template.return_value = mock_template
