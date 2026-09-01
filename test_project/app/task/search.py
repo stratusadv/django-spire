@@ -20,10 +20,14 @@ class TaskSearch(Search):
             name='New Task',
             icon='bi-plus-lg',
             url=reverse('task:form:form', kwargs={'pk': 0}),
+            action=Search.Command.Action.OPEN_URL_CURRENT_TAB,
             description='Create a new task',
             permission='test_project_task.add_task',
         )
     ]
+
+    def base_queryset(self, request: HttpRequest) -> QuerySet:
+        return self.model_class.objects.active().filter(user__user=request.user)
 
     def generate_list_url(self) -> str:
         return reverse('task:page:list')
@@ -37,5 +41,3 @@ class TaskSearch(Search):
     def result_description(self, obj: models.Task) -> str:
         return obj.description
 
-    def base_queryset(self, request: HttpRequest) -> QuerySet:
-        return self.model_class.objects.active().filter(user__user=request.user)
