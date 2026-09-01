@@ -222,6 +222,9 @@ DJANGO_SPIRE_REPORT_REGISTRIES = [
     'test_project.app.task.reports.task_report_registry.TaskReportRegistry'
 ]
 
+# Search Registry
+DJANGO_SPIRE_SEARCH_REGISTRY = {'TASK': 'test_project.app.task.search.TaskSearch'}
+
 # Storages - We are using Digital Ocean, which uses AWS S3 service
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')

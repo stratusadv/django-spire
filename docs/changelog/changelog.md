@@ -1,3 +1,46 @@
+## v1.1.0 - August 31, 2026
+
+#### Features
+
+- **Metric App** — the `django_spire.metric` application is now feature-complete across domains, statistics, visual metrics, presentations, and signage. (The report module is not part of this release.)
+
+##### Domain
+
+- Domain and sub-domain CRUD pages with admin panels, infinite scrolling, and seeding.
+- Sub-domains generate unique, auto-slugged keys on creation.
+- Soft-deleting a domain cascades through its sub-domains, statistic groups, and statistics.
+
+##### Statistics
+
+- Statistics organized into groups under a domain, with daily, weekly, and monthly intervals and number, percentage, or currency value types.
+- `StatisticValue` rows recorded per reference, sub-domain, and timestamp, indexed for interval and reference lookups and supporting wildcard reference patterns.
+- Page-view/click tracking through `StatisticClickMiddleware`, written asynchronously by a background queue worker.
+- REST API (`metric/domain/statistic`) to record values and read per-interval totals, summaries, and value lists.
+- Aggregations: daily/interval summaries, moving-window averages for percentages, series points, and reference breakdowns.
+- `prune_metric_statistic_values` management command enforces retention windows and per-reference tracking caps.
+- New settings: `DJANGO_SPIRE_INTERNAL_METRIC_STATISTIC_KEY`, `DJANGO_SPIRE_INTERNAL_METRIC_SUB_DOMAIN_KEY`, `DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, and `DJANGO_SPIRE_METRIC_TRACKING_QUEUE_MAXSIZE`.
+
+##### Visual
+
+- Visuals rendered as indicator, line, bar, area, pie, and gauge ECharts, each as a dedicated model sub-class.
+- Threshold conditions with state colors (green, blue, yellow, grey, red) and comparison operators including "at or near target" with tolerance.
+- References define dataset series per visual.
+- Visual regions: named, optionally live-updating (10-second interval) regions rendered on any page via the `render_visual_region` template tag, with connect, update, and disconnect management views.
+- New setting: `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`.
+- Seeding for domains, statistics, visuals, presentations, and signage.
+
+##### Presentation
+
+- Slide-based presentations with ordered slides and grid-positioned sections that render visuals.
+
+##### Signage
+
+- Signage displays with ordered presentation links, configurable slide display timing and title, and a public display view.
+
+#### Changes
+
+- `statistic_value` and `statistic_value_class` template filters format statistic values by type (number, percentage, currency).
+
 ## v1.0.2 - August 29, 2026
 
 #### Fixes

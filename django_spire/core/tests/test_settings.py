@@ -27,3 +27,6 @@ class TestDefaultSettings(TestCase):
 
     def test_default_theme_mode(self) -> None:
         assert settings.DJANGO_SPIRE_DEFAULT_THEME_MODE == 'light'
+
+    def test_search_registry_default_empty(self) -> None:
+        assert settings.DJANGO_SPIRE_SEARCH_REGISTRY == {}
