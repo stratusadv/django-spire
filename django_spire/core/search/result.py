@@ -3,10 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from django_spire.core.search.command import SearchCommand
+
 if TYPE_CHECKING:
     from django.db import models
 
-    from django_spire.core.search.command import SearchCommand
     from django_spire.core.search.search import Search
 
 
@@ -18,6 +19,7 @@ class SearchResult:
     label: str = ''
     description: str | None = None
     url: str = ''
+    action: SearchCommand.Action = SearchCommand.Action.OPEN_URL_CURRENT_TAB
 
     @classmethod
     def from_search(cls, search: Search, obj: models.Model) -> SearchResult:
@@ -39,6 +41,7 @@ class SearchResult:
             label=command.name,
             description=command.description,
             url=command.url,
+            action=command.action,
         )
 
     @classmethod
@@ -50,3 +53,13 @@ class SearchResult:
             label=search.section_name,
             url=url,
         )
+
+    def generate_tag_attributes(self) -> str:
+        if self.action == SearchCommand.Action.OPEN_URL_CURRENT_TAB:
+            return f'href="{self.url}"'
+        elif self.action == SearchCommand.Action.OPEN_URL_NEW_TAB:
+            return f'href="{self.url}" target="_blank"'
+        elif self.action == SearchCommand.Action.DISPATCH_MODAL:
+            return f'href="#" @click="Spire.modal.dispatchView(\'{self.url}\')"'
+        else:
+            return f'href="{self.url}"'

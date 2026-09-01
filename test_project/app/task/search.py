@@ -19,8 +19,8 @@ class TaskSearch(Search):
         Search.Command(
             name='New Task',
             icon='bi-plus-lg',
-            url=reverse('task:form:form', kwargs={'pk': 0}),
-            action=Search.Command.Action.OPEN_URL_CURRENT_TAB,
+            url=reverse('task:modal:form', kwargs={'pk': 0}),
+            action=Search.Command.Action.DISPATCH_MODAL,
             description='Create a new task',
             permission='test_project_task.add_task',
         )

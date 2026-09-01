@@ -8,11 +8,11 @@
                     {% endif %}
                     <span>{{ section.name }}</span>
                 </div>
-                <div class="list-group px-1">
+                <div x-data class="list-group px-1">
                     {% for result in section.results %}
                         <a
                                 class="text-primary list-group-item text-nowrap list-group-item-action search-palette-result d-flex align-items-center gap-3 text-truncate"
-                                href="{{ result.url }}"
+                                {{ result.generate_tag_attributes|safe }}
                         >
                             {% if result.icon %}
                                 <i class="bi {{ result.icon }}"></i>
