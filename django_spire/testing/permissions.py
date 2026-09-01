@@ -20,6 +20,12 @@ unless it was declared with `raise_exception` (403). A route in
 `routes_object_gated` also accepts 404, because an object-level decorator stacked
 above the gate fetches its object before the permission check runs and the
 matrix fires synthetic URL kwargs that match nothing.
+
+The request fired follows the view too. A decorator that answers requests of
+the wrong shape before the gate runs, such as `valid_ajax_request_required`,
+stamps a `SpireRequest` onto its wrapper as `__spire_request__`, and the
+matrix fires that method and content type from the start so the gate below
+it is the one that answers.
 """
 
 from __future__ import annotations
@@ -45,6 +51,8 @@ if TYPE_CHECKING:
 
     from django.http import HttpResponse
     from django.urls.resolvers import RegexPattern, RoutePattern
+
+    from django_spire.core.decorators import SpireRequest
 
 
     RouteWalkEntry = tuple[URLPattern, tuple[str, ...], str, tuple[tuple[str, str], ...]]
@@ -78,6 +86,7 @@ class RouteGate:
     :param opaque: Whether the gate includes a check the matrix cannot predict.
     :param pattern: The full URL pattern from the resolver root.
     :param permissions: The declared permission labels in `app_label.codename` form.
+    :param request_shape: The request shape a decorator above the gate demands, or None for a GET.
     :param statuses_denied: The statuses an authenticated user lacking the permissions may receive.
     """
 
@@ -87,6 +96,7 @@ class RouteGate:
     opaque: bool
     pattern: str
     permissions: tuple[str, ...]
+    request_shape: SpireRequest | None
     statuses_denied: frozenset[int]
 
 
@@ -284,9 +294,11 @@ def _route_fire(
     """
     A function that fires one request at a route with synthetic URL kwargs.
 
-    The request is a GET. A view that only accepts other methods answers 405
-    and names them in its Allow header, so the request is refired with the
-    first method the view accepts, and no method decorator is inspected.
+    The request is a GET unless the route declares a request shape, in which
+    case the declared method and content type are fired from the start. A
+    view that only accepts other methods answers 405 and names them in its
+    Allow header, so the request is refired with the first method the view
+    accepts, and no method decorator is inspected.
 
     :param client: The client carrying the actor under test.
     :param route: The route to fire.
@@ -307,7 +319,17 @@ def _route_fire(
 
     url = reverse(route.name, kwargs=url_kwargs)
 
-    response = client.get(url)
+    if route.request_shape is None:
+        response = client.get(url)
+    else:
+        # A decorator above the gate answers any other shape itself, before
+        # the gate runs, so the declared shape is what reaches the gate.
+        response = client.generic(
+            route.request_shape.method,
+            url,
+            data='{}',
+            content_type=route.request_shape.content_type,
+        )
 
     if response.status_code == HTTPStatus.METHOD_NOT_ALLOWED:
         # The Allow header lists what the view accepts, such as 'POST,
@@ -348,6 +370,7 @@ def _route_gate_build(
 
     spire_gate = getattr(callback, '__spire_gate__', None)
     django_gate = _django_gate_extract(callback)
+    request_shape = getattr(callback, '__spire_request__', None)
 
     statuses_denied: set[int] = set()
     opaque = False
@@ -377,6 +400,7 @@ def _route_gate_build(
         opaque=opaque,
         pattern=pattern,
         permissions=tuple(permissions),
+        request_shape=request_shape,
         statuses_denied=frozenset(statuses_denied),
     )
 

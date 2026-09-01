@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import (
 
 from django_spire.auth.controller.controller import BaseAuthController
 from django_spire.auth.permissions.decorators import permission_required
+from django_spire.core.decorators import valid_ajax_request_required
 from django_spire.testing.permissions import _django_gate_extract, matrix_suite
 
 if TYPE_CHECKING:
@@ -104,6 +105,25 @@ def test_gate_attribute_survives_wrapping_decorator() -> None:
     assert gate.all_required is False
     assert gate.opaque is False
     assert gate.permissions == ('test_project_home.view_homeexample',)
+
+
+def test_request_shape_stamp_stacks_over_gate_stamp() -> None:
+    """
+    A test that fails when a request-shape decorator drops the gate stamp
+    below it or fails to stamp its own shape.
+    """
+
+    @valid_ajax_request_required
+    @permission_required('test_project_home.change_homeexample')
+    def view(request: WSGIRequest) -> HttpResponse:
+        raise NotImplementedError
+
+    gate = view.__spire_gate__
+    shape = view.__spire_request__
+
+    assert gate.permissions == ('test_project_home.change_homeexample',)
+    assert shape.content_type == 'application/json'
+    assert shape.method == 'POST'
 
 
 TestHomePermissionMatrix = matrix_suite(

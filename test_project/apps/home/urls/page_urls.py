@@ -14,6 +14,7 @@ urlpatterns = [
         name='restricted_detail',
     ),
     path('restricted/submit/', page_views.restricted_submit_view, name='restricted_submit'),
+    path('restricted/json/', page_views.restricted_json_view, name='restricted_json'),
     path(
         'restricted/django/login/',
         page_views.restricted_django_login_view,

@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from django_spire.auth.permissions.decorators import permission_required
+from django_spire.core.decorators import valid_ajax_request_required
 
 from test_project.apps.home.models import HomeExample
 
@@ -52,7 +53,8 @@ def home_view(request: WSGIRequest) -> TemplateResponse:
 # The restricted views below are the permission matrix's self-test surface,
 # audited by django_spire/testing/tests/test_permissions.py. Each one covers
 # a gate shape: a plain spire gate, an object decorator over a spire gate, a
-# POST-only spire gate, a Django login gate, and a Django permission gate.
+# POST-only spire gate, a JSON-only spire gate, a Django login gate, and a
+# Django permission gate.
 @permission_required('test_project_home.view_homeexample')
 def restricted_view(_request: WSGIRequest) -> HttpResponse:
     return HttpResponse('restricted')
@@ -68,6 +70,12 @@ def restricted_detail_view(_request: WSGIRequest, pk: int) -> HttpResponse:
 @permission_required('test_project_home.change_homeexample')
 def restricted_submit_view(_request: WSGIRequest) -> HttpResponse:
     return HttpResponse('restricted submit')
+
+
+@valid_ajax_request_required
+@permission_required('test_project_home.change_homeexample')
+def restricted_json_view(_request: WSGIRequest) -> HttpResponse:
+    return HttpResponse('restricted json')
 
 
 @django_login_required
