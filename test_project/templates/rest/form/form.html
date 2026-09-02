@@ -7,8 +7,8 @@
             this.is_processing = true
             this.pirate_form.validate()
             let result = await this.pirate_form.process()
-            if(result?.redirect_url) {
-                window.location.href = result.redirect_url
+            if(result?.redirect.url) {
+                window.location.href = result.redirect.url
             }
             this.is_processing = false
         }

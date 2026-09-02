@@ -5,12 +5,9 @@ from typing import TYPE_CHECKING
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-
 from django_glue import Glue
 
-from django_spire.contrib.redirects import safe_redirect_url
 from django_spire.contrib.shortcuts import get_object_or_null_obj
-
 from test_project.app.rest import forms, models
 from test_project.app.rest.navigation import RestNavigation
 
@@ -36,7 +33,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | redirect:
     pirate = get_object_or_404(models.Pirate, pk=pk)
-    return_url = safe_redirect_url(request, fallback=reverse('rest:page:list'))
+    return_url = request.GET.get('return_url', reverse('rest:page:list'))
 
     if request.method == 'POST':
         pirate.set_deleted()

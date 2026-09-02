@@ -80,4 +80,4 @@ class SubDomainForm(ModelForm):
 
     class Meta:
         model = models.SubDomain
-        fields = ['key', 'name', 'description']
+        fields = ['domain', 'key', 'name', 'description']
