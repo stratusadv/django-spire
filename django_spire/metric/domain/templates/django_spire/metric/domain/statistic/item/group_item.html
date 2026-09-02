@@ -23,5 +23,6 @@
     {% url 'django_spire:metric:domain:statistic:page:group_detail' pk=item.pk as view_url %}
     {% url 'django_spire:metric:domain:statistic:form:group_update' pk=item.pk as edit_url %}
     {% url 'django_spire:metric:domain:statistic:form:group_delete' pk=item.pk as delete_url %}
-    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url %}
+    {% url 'django_spire:metric:domain:statistic:page:group_list' as group_list_url %}
+    {% include 'django_spire/dropdown/ellipsis_dropdown.html' with view_url=view_url edit_url=edit_url delete_url=delete_url|add:'?return_url='|add:group_list_url %}
 {% endblock %}
