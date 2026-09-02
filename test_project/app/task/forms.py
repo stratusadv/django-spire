@@ -23,7 +23,9 @@ class TaskModelForm(ModelForm):
             task.users.create(user=request.user)
 
             return GlueResponse(
-                result={'redirect_url': reverse('task:page:detail', kwargs={'pk': task.pk})}
+                result={'redirect': {
+                    'url': reverse('task:page:detail', kwargs={'pk': task.pk})}
+                }
             )
 
         return GlueResponse(
