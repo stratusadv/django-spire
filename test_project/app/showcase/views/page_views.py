@@ -69,7 +69,5 @@ def form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     nav.page_title = 'Widget Showcase'
 
     return TemplateResponse(
-        request=request,
-        context=nav.as_context(),
-        template='showcase/page/form_page.html',
+        request=request, context=nav.as_context(), template='showcase/page/form_page.html'
     )

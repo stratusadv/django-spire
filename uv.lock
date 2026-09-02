@@ -3,8 +3,8 @@ revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
-    "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform != 'win32'",
+    "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform != 'win32'",
     "python_full_version < '3.13' and sys_platform == 'win32'",
     "python_full_version < '3.13' and sys_platform != 'win32'",
@@ -950,7 +950,7 @@ requires-dist = [
     { name = "faker" },
     { name = "hypothesis", marker = "extra == 'development'" },
     { name = "libsass", specifier = "==0.23.0" },
-    { name = "limelight", extras = ["django", "pytest"], marker = "extra == 'development'", git = "https://github.com/stratusadv/limelight.git?rev=main" },
+    { name = "limelight", extras = ["django", "pytest"], marker = "extra == 'development'", git = "https://github.com/stratusadv/limelight.git?rev=v0.2.0" },
     { name = "markdown-exec", extras = ["ansi"], marker = "extra == 'documentation'" },
     { name = "markitdown", extras = ["docx", "pdf"], specifier = "==0.1.2" },
     { name = "marko", specifier = "==2.1.4" },
@@ -1480,16 +1480,16 @@ wheels = [
 
 [[package]]
 name = "limelight"
-version = "0.1.0"
-source = { git = "https://github.com/stratusadv/limelight.git?rev=main#b2e384eea03e8cfd338a13c0c7e734ea6932b5ef" }
+version = "0.2.0"
+source = { git = "https://github.com/stratusadv/limelight.git?rev=v0.2.0#5f94f2965b3e15eacd0ea6f1f163863c279dee8b" }
 dependencies = [
     { name = "playwright" },
-    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
 django = [
     { name = "django" },
+    { name = "pytest-django" },
 ]
 pytest = [
     { name = "pytest" },

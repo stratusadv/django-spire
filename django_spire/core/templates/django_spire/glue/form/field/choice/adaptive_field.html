@@ -1,0 +1,36 @@
+{% load django_glue %}
+
+<div
+    x-data="{
+        adaptiveChoiceField: {{ glue_field|glue_field_metadata_path }},
+
+        get isMultipleChoice() {
+            return [
+                'ManyToManyField',
+                'ModelMultipleChoiceField',
+                'MultipleChoiceField',
+                'TypedMultipleChoiceField',
+            ].includes(this.adaptiveChoiceField?.type)
+                || ['CheckboxSelectMultiple', 'SelectMultiple'].includes(
+                    this.adaptiveChoiceField?.widget
+                )
+                || Array.isArray(this.adaptiveChoiceField?.value);
+        },
+    }"
+>
+    <template x-if="!isMultipleChoice && adaptiveChoiceField?.choices_searchable">
+        <div>
+            {% include 'django_spire/glue/form/widget/search_and_select_widget.html' %}
+        </div>
+    </template>
+    <template x-if="!isMultipleChoice && !adaptiveChoiceField?.choices_searchable">
+        <div>
+            {% include 'django_spire/glue/form/widget/select_widget.html' %}
+        </div>
+    </template>
+    <template x-if="isMultipleChoice">
+        <div>
+            {% include 'django_spire/glue/form/widget/multi_search_and_select_widget.html' %}
+        </div>
+    </template>
+</div>

@@ -20,6 +20,9 @@
 {% url 'activity:demo' as activity_demo_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Activity' link_icon='bi bi-activity' link_url=activity_demo_url %}
 
+{% url 'showcase:page:form' as showcase_url %}
+{% include 'django_spire/navigation/link.html' with link_text='Widget Showcase' link_icon='bi bi-palette' link_url=showcase_url %}
+
 {% url 'celery:home' as celery_url %}
 {% include 'django_spire/navigation/link.html' with link_text='Celery' link_icon='bi bi-ui-checks' link_url=celery_url %}
 

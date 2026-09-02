@@ -140,6 +140,7 @@ INSTALLED_APPS += [
     'test_project.app.notification',
     'test_project.app.model_and_service',
     'test_project.app.rest',
+    'test_project.app.showcase',
     'test_project.app.task',
     'test_project.app.auth_sms',
 ]

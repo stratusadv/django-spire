@@ -497,7 +497,7 @@ def create_modal_view(request):
     task = get_object_or_null_obj(models.Task)
 
     Glue.model(request, 'task', task, Glue.Access.CHANGE,
-               fields=['name', 'description', 'status'], form_class=forms.TaskModelForm)
+               fields=['name', 'description', 'status'], form=forms.TaskModelForm)
 
     return TemplateResponse(request, context={'task': task, 'glue_form': 'Glue.model.task.form'},
                             template='task/modal/content/task_form_modal_content.html')

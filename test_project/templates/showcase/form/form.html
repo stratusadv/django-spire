@@ -69,25 +69,25 @@
 
         <div class="col-12 mt-4"><h5>Choice</h5></div>
         <div class="col-12 col-md-6">
-            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.select_choice' %}
-        </div>
-        <div class="col-12 col-md-6">
             {% include 'django_spire/glue/form/field/choice/radio_field.html' with glue_field='glue_form.radio_choice' %}
         </div>
         <div class="col-12 col-md-6">
-            {% include 'django_spire/glue/form/field/choice/multiple_field.html' with glue_field='glue_form.checkbox_tags' %}
+            {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.select_choice' %}
         </div>
         <div class="col-12 col-md-6">
-            {% include 'django_spire/glue/form/field/choice/multiple_search_field.html' with glue_field='glue_form.search_tags' %}
+            {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.checkbox_tags' %}
         </div>
         <div class="col-12 col-md-6">
-            {% include 'django_spire/glue/form/field/choice/search_field.html' with glue_field='glue_form.category' %}
+            {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.search_tags' %}
         </div>
         <div class="col-12 col-md-6">
-            {% include 'django_spire/glue/form/field/choice/user/search_field.html' with glue_field='glue_form.assigned_user' %}
+            {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.category' %}
         </div>
         <div class="col-12 col-md-6">
-            {% include 'django_spire/glue/form/field/choice/user/multiple_search_field.html' with glue_field='glue_form.watchers' %}
+            {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.assigned_user' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/adaptive_field.html' with glue_field='glue_form.watchers' %}
         </div>
 
         <div class="col-12 mt-4"><h5>Datetime</h5></div>

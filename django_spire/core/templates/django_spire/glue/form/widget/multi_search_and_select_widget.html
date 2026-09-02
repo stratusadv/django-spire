@@ -10,16 +10,22 @@
                 return field?.selectedChoices || [];
             },
             get filteredChoices() {
+                if (field?.choices_searchable && field.isSearchingChoices) return [];
+
                 const selectedValues = new Set(this.selectedChoices.map(choice => String(choice.value)));
                 const query = this.search.trim().toLowerCase();
                 return (field?.choices || []).filter(choice =>
                     !selectedValues.has(String(choice.value))
-                    && String(choice.label).toLowerCase().includes(query)
+                    && (
+                        field?.choices_searchable
+                        || String(choice.label).toLowerCase().includes(query)
+                    )
                 );
             },
             open() {
                 if (field.disabled) return;
                 this.search = '';
+                field.clearSearch?.();
                 this.isOpen = true;
                 this.$nextTick(() => this.$refs.searchInput?.focus());
             },
@@ -32,8 +38,14 @@
                 if (!choice || this.isChoiceDisabled(choice)) return;
                 field.addChoice(choice.value);
                 this.search = '';
+                field.clearSearch?.();
                 this.dispatchValueEvents();
                 this.$nextTick(() => this.$refs.searchInput?.focus());
+            },
+            close() {
+                this.isOpen = false;
+                this.search = '';
+                field.clearSearch?.();
             },
             removeChoice(choice) {
                 if (this.isChoiceDisabled(choice)) return;
@@ -44,9 +56,13 @@
                 this.$refs.trigger?.dispatchEvent(new Event('input', {bubbles: true}));
                 this.$refs.trigger?.dispatchEvent(new Event('change', {bubbles: true}));
             },
+            async searchChoices() {
+                if (!field?.choices_searchable) return;
+                await field.searchChoices(this.search.trim());
+            },
         }"
-        @click.outside="isOpen = false"
-        @keydown.escape="isOpen = false"
+        @click.outside="close()"
+        @keydown.escape="close()"
     >
         <button
             x-ref="trigger"
@@ -54,7 +70,7 @@
             :class="{'is-invalid': field.hasErrors}"
             type="button"
             :disabled="field.disabled"
-            @click="isOpen ? isOpen = false : open()"
+            @click="isOpen ? close() : open()"
         >
             <span class="d-flex flex-wrap align-items-center gap-1 overflow-hidden">
                 <template x-for="choice in selectedChoices" :key="choice.value">
@@ -79,19 +95,25 @@
             x-show="isOpen"
             x-trap.inert="isOpen"
         >
-            <div class="border-bottom p-2">
+            <div class="border-bottom p-2" x-show="field?.choices_searchable">
                 <input
                     class="form-control form-control-sm"
                     type="search"
                     x-ref="searchInput"
                     x-model="search"
-                    @input.stop
+                    @input.stop.debounce.200ms="searchChoices()"
                     @change.stop
                     @keydown.enter.prevent="addChoice(filteredChoices[0])"
                     placeholder="{{ search_placeholder|default:'Search...' }}"
                 >
             </div>
             <div class="overflow-auto" style="max-height: {{ max_height|default:'18rem' }};">
+                <div
+                    class="p-3 text-center text-body-secondary"
+                    x-show="field.choices_searchable && field.isSearchingChoices"
+                >
+                    Searching...
+                </div>
                 <template x-for="choice in selectedChoices" :key="`selected-${choice.value}`">
                     <button
                         class="btn btn-sm d-flex w-100 align-items-center rounded-0 border-0 px-2 py-1 text-start"
@@ -120,9 +142,15 @@
                 </template>
                 <div
                     class="p-3 text-center text-body-secondary"
-                    x-show="filteredChoices.length === 0 && selectedChoices.length === 0"
+                    x-show="!field.isSearchingChoices && filteredChoices.length === 0 && (!field.choices_searchable || search.length > 0)"
                 >
                     No available choices
+                </div>
+                <div
+                    class="p-3 text-center text-body-secondary"
+                    x-show="field.choices_searchable && !field.isSearchingChoices && search.length === 0"
+                >
+                    Start typing to search
                 </div>
             </div>
         </div>
