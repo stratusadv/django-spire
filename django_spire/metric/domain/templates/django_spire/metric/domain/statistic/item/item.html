@@ -3,7 +3,7 @@
 {% block item_title_col %}4{% endblock %}
 
 {% block item_title %}
-    <a href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=item.pk %}">
+    <a class='text-decoration-none' href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=item.pk %}">
         {{ item.name }}
     </a>
 {% endblock %}
