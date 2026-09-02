@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+from datetime import timedelta
+from decimal import Decimal
+
 from django.urls import reverse
+from django.utils import timezone
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.domain.statistic.tests.factories import (
@@ -9,6 +13,7 @@ from django_spire.metric.domain.statistic.tests.factories import (
     create_test_statistic_group,
     create_test_subdomain,
 )
+from django_spire.metric.visual.tests.factories import create_test_visual
 
 
 class StatisticGroupPageViewTestCase(BaseTestCase):
@@ -27,6 +32,20 @@ class StatisticGroupPageViewTestCase(BaseTestCase):
             response, 'django_spire/metric/domain/statistic/page/group_list_page.html'
         )
         assert self.group in response.context['groups']
+
+    def test_group_list_view_uses_glue_groups_scroll(self):
+        response = self.client.get(
+            path=reverse('django_spire:metric:domain:statistic:page:group_list')
+        )
+        assert response.status_code == 200
+
+        html = response.content.decode()
+        href = (
+            f'`'
+            f'{reverse("django_spire:metric:domain:statistic:page:group_detail", kwargs={"pk": 0})}'
+            f"`.replace('0', item.id)"
+        )
+        assert f':href="{href}"' in html
 
     def test_group_detail_view(self):
         statistic = create_test_statistic(group=self.group)
@@ -63,7 +82,19 @@ class StatisticPageViewTestCase(BaseTestCase):
 
     def test_detail_view(self):
         self.statistic.services.processor.add_value(
-            reference='/home/', value=1, sub_domain=self.sub_domain
+            reference='/home/',
+            value=1,
+            sub_domain=self.sub_domain,
+            value_timestamp=timezone.now() - timedelta(hours=2),
+        )
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=2, sub_domain=self.sub_domain
+        )
+        self.statistic.services.processor.add_value(
+            reference='/home/',
+            value=3,
+            sub_domain=self.sub_domain,
+            value_timestamp=timezone.now() - timedelta(hours=5),
         )
         response = self.client.get(
             path=reverse(
@@ -75,4 +106,65 @@ class StatisticPageViewTestCase(BaseTestCase):
             response, 'django_spire/metric/domain/statistic/page/detail_page.html'
         )
         assert self.statistic == response.context['statistic']
-        assert response.context['values'].count() == 1
+        values = response.context['values']
+        assert [value.value for value in values] == [Decimal(2), Decimal(1), Decimal(3)]
+
+    def test_detail_view_caps_values(self):
+        for index in range(150):
+            self.statistic.services.processor.add_value(
+                reference='/home/',
+                value=Decimal(index),
+                sub_domain=self.sub_domain,
+                value_timestamp=timezone.now() - timedelta(seconds=index),
+            )
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': self.statistic.pk}
+            )
+        )
+        assert response.status_code == 200
+        values = list(response.context['values'])
+        assert len(values) == 100
+        assert values[0].value == 0
+        assert values[-1].value == 99
+
+    def test_detail_view_renders_right_aligned_values(self):
+        self.statistic.services.processor.add_value(
+            reference='/home/', value=1, sub_domain=self.sub_domain
+        )
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': self.statistic.pk}
+            )
+        )
+        content = response.content.decode()
+        assert '<th class="text-end">Value</th>' in content
+        assert 'text-end' in content
+
+    def test_detail_view_links_sub_domains_to_subdomain_detail(self):
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': self.statistic.pk}
+            )
+        )
+        assert response.status_code == 200
+
+        href = reverse(
+            'django_spire:metric:domain:page:subdomain_detail',
+            kwargs={'domain_pk': self.domain.pk, 'pk': self.sub_domain.pk},
+        )
+        assert f'href="{href}"' in response.content.decode()
+
+    def test_detail_view_lists_tied_visuals(self):
+        visual = create_test_visual(statistic=self.statistic)
+
+        response = self.client.get(
+            path=reverse(
+                'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': self.statistic.pk}
+            )
+        )
+        assert response.status_code == 200
+        assert visual in list(response.context['visuals'])
+
+        href = reverse('django_spire:metric:visual:page:detail', kwargs={'pk': visual.pk})
+        assert f'href="{href}"' in response.content.decode()

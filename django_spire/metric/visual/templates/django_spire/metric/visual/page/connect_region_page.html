@@ -1,0 +1,65 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+                <div class="fw-semibold">Connect to Region</div>
+                <div class="small text-muted">Choose a region to associate with "{{ visual }}".</div>
+            </div>
+            <a class="btn btn-sm btn-outline-secondary"
+               href="{% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
+                <i class="bi bi-arrow-left"></i>
+                Back to Visual
+            </a>
+        </div>
+        <div class="card-body p-2">
+            {% if region_rows %}
+                <div class="table-responsive">
+                    <table class="table table-light table-hover">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in region_rows %}
+                                <tr>
+                                    <td class="align-middle"><code>{{ row.key }}</code></td>
+                                    <td class="align-middle">
+                                        {% if row.status == 'connected' %}
+                                            <span class="badge text-bg-success">Connected</span>
+                                        {% elif row.status == 'taken' %}
+                                            <span class="badge text-bg-warning">Reassign</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">Unassigned</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end align-middle">
+                                        <form method="post"
+                                              action="{% url 'django_spire:metric:visual:form:connect_region_save' %}"
+                                              class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="visual" value="{{ visual.pk }}">
+                                            <input type="hidden" name="key" value="{{ row.key }}">
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-primary"
+                                                    {% if row.status == 'connected' %}disabled{% endif %}>
+                                                <i class="bi bi-link-45deg"></i>
+                                                Connect
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                {% include 'django_spire/item/no_data_item.html' %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

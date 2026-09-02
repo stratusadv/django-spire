@@ -11,7 +11,7 @@ from django_glue import Glue
 from django_spire.api import forms
 from django_spire.api.models import ApiAccess
 from django_spire.api.navigation import ApiNavigation
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.contrib.form.tools import show_form_errors
 from django_spire.contrib.shortcuts import get_object_or_null_obj
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('api').permission_required('can_add')
+@permission_required('django_spire_api.add_apiaccess')
 def access_create_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     api_access = get_object_or_null_obj(ApiAccess, pk=pk)
 

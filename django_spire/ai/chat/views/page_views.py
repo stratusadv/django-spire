@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
 
-from django_spire.auth.controller.controller import AppAuthController
 from django_spire.auth.group.navigation import AuthGroupNavigation
+from django_spire.auth.permissions.decorators import permission_required
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('ai_chat').permission_required('can_delete')
+@permission_required('django_spire_ai_chat.delete_chat')
 def chat_view(request: WSGIRequest) -> TemplateResponse:
     nav = AuthGroupNavigation()
     nav.page_title = 'AI Chat'

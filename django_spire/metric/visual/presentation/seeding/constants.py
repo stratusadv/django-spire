@@ -24,3 +24,12 @@ PRESENTATION_SEEDS = [
 ]
 
 SLIDE_TITLES = ['Overview', 'Key Metrics', 'Trends', 'Highlights', 'Risks', 'Next Steps']
+
+SLIDE_SECTION_VISUALS = {
+    'Overview': ['Site Sessions'],
+    'Key Metrics': ['Conversion Rate', 'Average Order Value', 'Gross Margin'],
+    'Trends': ['Site Sessions', 'Revenue by Channel', 'Support Ticket Volume'],
+    'Highlights': ['New Customers', 'Customer Satisfaction Score'],
+    'Risks': ['Cart Abandonment Rate', 'Support Ticket Volume'],
+    'Next Steps': ['New Customers', 'Average Order Value'],
+}

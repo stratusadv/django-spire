@@ -1,0 +1,39 @@
+<div class="d-flex gap-3 align-items-start bg-body border rounded-3 my-2 p-3" style="border-left-width: 4px !important; border-left-color: #0d6efd !important;">
+    <div
+        class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold flex-shrink-0"
+        style="width: 56px; height: 56px; font-size: 1.5rem; background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);"
+        x-text="item.notification.title.charAt(0).toUpperCase()"
+    ></div>
+
+    <div class="flex-grow-1" style="min-width: 0;">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span
+                x-show="item.context_data.category"
+                x-cloak
+                class="badge rounded-pill bg-primary-subtle text-primary-emphasis"
+                x-text="item.context_data.category"
+            ></span>
+            {% include 'django_spire/notification/app/badge/priority_badge.html' with priority='item.notification.priority' %}
+            <span x-show="!item.viewed" x-cloak class="badge rounded-pill bg-success">New</span>
+        </div>
+
+        <div class="fw-semibold fs-6" x-text="item.notification.title"></div>
+        <div class="text-muted" style="font-size: 0.875rem;" x-text="item.notification.body"></div>
+
+        <div class="d-flex align-items-center gap-3 mt-2 text-muted" style="font-size: 0.75rem;">
+            <span>
+                <i class="bi bi-clock-history"></i>
+                <span x-text="item.time_since_delivered"></span>
+            </span>
+            <a
+                x-show="item.context_data.action_label"
+                x-cloak
+                class="text-decoration-none"
+                :href="item.context_data.action_url || '#'"
+            >
+                <span x-text="item.context_data.action_label"></span>
+                <i class="bi bi-arrow-right-short"></i>
+            </a>
+        </div>
+    </div>
+</div>

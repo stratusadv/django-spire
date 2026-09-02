@@ -27,12 +27,17 @@
             const stop = this.sliceStop
 
             try {
-                this.scrollQuerySet = this.scrollQuerySet
-                    .filter({
+                if (this.filterField !== '') {
+                    this.scrollQuerySet = this.scrollQuerySet.filter({
                         [this.filterField + '__icontains']: this.searchQuery
                     })
-                    .orderBy(this.orderBy)
-                    .slice(start, stop)
+                }
+
+                if (this.orderBy !== '') {
+                    this.scrollQuerySet = this.scrollQuerySet.orderBy(this.orderBy)
+                }
+
+                this.scrollQuerySet = this.scrollQuerySet.slice(start, stop)
 
                 await this.scrollQuerySet.all()
 

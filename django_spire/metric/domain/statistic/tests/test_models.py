@@ -8,7 +8,11 @@ from django.utils import timezone
 import pytest
 
 from django_spire.core.tests.test_cases import BaseTestCase
-from django_spire.metric.domain.statistic.constants import StatisticIntervalChoices
+from django_spire.history.choices import HistoryEventChoices
+from django_spire.metric.domain.statistic.constants import (
+    StatisticIntervalChoices,
+    StatisticValueTypeChoices,
+)
 from django_spire.metric.domain.statistic.models import StatisticValue
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
@@ -49,6 +53,16 @@ class StatisticGroupModelTestCase(BaseTestCase):
         assert self.group.is_deleted is True
         assert statistic.is_deleted is True
 
+    def test_set_deleted_backfills_history_events_for_statistics(self):
+        statistic = create_test_statistic(group=self.group, name='history_statistic')
+
+        self.group.set_deleted()
+
+        statistic.refresh_from_db()
+
+        assert statistic.is_deleted is True
+        assert statistic.history_events.filter(event=HistoryEventChoices.DELETED).exists()
+
 
 class StatisticModelTestCase(BaseTestCase):
     def setUp(self) -> None:
@@ -65,8 +79,28 @@ class StatisticModelTestCase(BaseTestCase):
     def test_default_interval(self):
         assert self.statistic.interval == StatisticIntervalChoices.DAILY
 
+    def test_default_value_type(self):
+        assert self.statistic.value_type == StatisticValueTypeChoices.NUMBER
+
     def test_group_relation(self):
         assert self.statistic.group == self.group
+
+    def test_key_slugs_from_name_on_create(self):
+        statistic = create_test_statistic(group=self.group, name='Page Views')
+        assert statistic.key == 'page-views'
+
+    def test_key_not_regenerated_on_update(self):
+        key = self.statistic.key
+        self.statistic.name = 'Renamed Statistic'
+        self.statistic.save()
+        self.statistic.refresh_from_db()
+        assert self.statistic.key == key
+        assert self.statistic.name == 'Renamed Statistic'
+
+    def test_key_collision_appends_suffix(self):
+        create_test_statistic(group=self.group, name='Revenue')
+        second = create_test_statistic(group=self.group, name='Revenue')
+        assert second.key == 'revenue-2'
 
     def test_values_relation(self):
         self.statistic.services.processor.add_value(reference='/home/', sub_domain=self.sub_domain)

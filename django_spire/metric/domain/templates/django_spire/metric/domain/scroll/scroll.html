@@ -18,7 +18,7 @@
                 <option value="name">Domain</option>
                 <option value="created_datetime">Created</option>
                 <option value="description">Description</option>
-                <option value="sub_domain_description">Sub Domain Description</option>
+                <option value="sub_domain_name">Sub Domain Name</option>
             </select>
         </div>
     </div>
@@ -33,13 +33,13 @@
                 <span x-text="item.name"></span>
             </a>
         </div>
-        <div class="col-4">
+        <div class="col-2">
+            <div class="attribute-label">Sub Domain Name</div>
+            <span x-text="item.sub_domain_name"></span>
+        </div>
+        <div class="col-6">
             <div class="attribute-label">Description</div>
             <span x-text="item.description"></span>
-        </div>
-        <div class="col-4">
-            <div class="attribute-label">Sub Domain Description</div>
-            <span x-text="item.sub_domain_description"></span>
         </div>
         <div class="col-1 text-end align-self-center">
             {% include 'django_spire/metric/domain/dropdown/ellipsis_dropdown.html' %}

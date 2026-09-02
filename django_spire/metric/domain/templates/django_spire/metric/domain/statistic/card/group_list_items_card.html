@@ -17,11 +17,7 @@
 {% block card_title_content %}
     <div class="card-body">
         {% if groups %}
-            <div class="row g-2">
-                {% for group in groups %}
-                    {% include 'django_spire/metric/domain/statistic/item/group_item.html' with item=group %}
-                {% endfor %}
-            </div>
+            {% include 'django_spire/metric/domain/statistic/scroll/group_scroll.html' %}
         {% else %}
             {% include 'django_spire/item/no_data_item.html' %}
         {% endif %}

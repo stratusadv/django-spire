@@ -1,0 +1,7 @@
+{% if interval == 'monthly' %}
+    {{ period_start|date:'F' }}
+{% elif interval == 'daily' %}
+    {{ period_start|date:'M j' }}
+{% else %}
+    {{ period_start|date:'M j' }} - {{ period_end|date:'M j' }}
+{% endif %}

@@ -14,8 +14,6 @@ class MetricConfig(AppConfig):
 
     URLPATTERNS_INCLUDE = 'django_spire.metric.urls'
     URLPATTERNS_NAMESPACE = 'metric'
-    API_V1_ROUTER = 'django_spire.metric.api_v1.router'
-    API_V1_ROUTER_PREFIX = 'metric'
 
     def ready(self) -> None:
         check_required_apps(self.label)

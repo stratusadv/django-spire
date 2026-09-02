@@ -1,0 +1,66 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}
+    Assigned Regions
+{% endblock %}
+
+{% block card_button %}
+    {% if perms.django_spire_metric_visual.add_visualregion %}
+        {% url 'django_spire:metric:visual:form:connect_region' as connect_region_url %}
+        <a class="btn btn-sm btn-primary" href="{{ connect_region_url }}?visual={{ visual.pk }}">
+            <i class="bi bi-link-45deg"></i>
+            Connect
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% block card_title_content %}
+    <div class="card-body p-2">
+        {% if visual.regions.all %}
+            <div class="table-responsive">
+                <table class="table table-light table-hover">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Title</th>
+                            <th>Update</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for region in visual.regions.all %}
+                            <tr>
+                                <td class="align-middle"><code>{{ region.key }}</code></td>
+                                <td class="align-middle">{{ region.services.transformation.display_title }}</td>
+                                <td class="align-middle">
+                                    {% if region.is_live_updated %}
+                                        <span class="badge text-bg-success">Live</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">Static</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end align-middle">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{% url 'django_spire:metric:visual:form:update_region' pk=region.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="post"
+                                          action="{% url 'django_spire:metric:visual:form:disconnect_region' pk=region.pk %}?return_url={% url 'django_spire:metric:visual:page:detail' pk=visual.pk %}"
+                                          class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                title="Disconnect visual from this region">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            {% include 'django_spire/item/no_data_item.html' %}
+        {% endif %}
+    </div>
+{% endblock %}

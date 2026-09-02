@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
 from django.test import RequestFactory, TestCase, override_settings
 
 from django_spire.core.context_processors import django_spire, theme_context
@@ -13,27 +11,11 @@ class TestDjangoSpireContextProcessor(TestCase):
 
         self.factory = RequestFactory()
 
-    @override_settings(DJANGO_SPIRE_AUTH_CONTROLLERS=[])
-    def test_empty_auth_controllers(self) -> None:
+    def test_returns_version(self) -> None:
         request = self.factory.get('/')
         result = django_spire(request)
 
         assert 'DJANGO_SPIRE_VERSION' in result
-        assert 'AuthController' in result
-        assert result['AuthController'] == {}
-
-    @override_settings(DJANGO_SPIRE_AUTH_CONTROLLERS=['test_app'])
-    @patch('django_spire.core.context_processors.AppAuthController')
-    def test_with_auth_controllers(self, mock_controller: MagicMock) -> None:
-        mock_instance = MagicMock()
-        mock_controller.return_value = mock_instance
-
-        request = self.factory.get('/')
-        result = django_spire(request)
-
-        assert 'AuthController' in result
-        assert 'test_app' in result['AuthController']
-        mock_controller.assert_called_once_with('test_app', request=request)
 
 
 class TestThemeContextProcessor(TestCase):

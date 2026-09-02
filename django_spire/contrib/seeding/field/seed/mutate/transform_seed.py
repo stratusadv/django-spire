@@ -13,6 +13,10 @@ class TransformMutateFieldSeed(BaseMutateFieldSeed):
         self.transform = transform
         self.change_chance = change_chance
 
+    def generate_cache_key(self) -> str:
+        transform_key = f'{self.transform.__module__}.{self.transform.__qualname__}'
+        return f'{super().generate_cache_key()}:{self.change_chance}:{transform_key}'
+
     def _mutate_value(self, seed_index: int) -> Any:
         value = self.field_seed.generate_value(seed_index=seed_index)
 
@@ -29,6 +33,9 @@ class TypeCoercionMutateFieldSeed(BaseMutateFieldSeed):
         self.field_seed = field_seed
         self.target_type = target_type
         self.change_chance = change_chance
+
+    def generate_cache_key(self) -> str:
+        return f'{super().generate_cache_key()}:{self.change_chance}:{self.target_type}'
 
     def _mutate_value(self, seed_index: int) -> Any:
         value = self.field_seed.generate_value(seed_index=seed_index)

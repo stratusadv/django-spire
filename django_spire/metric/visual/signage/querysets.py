@@ -22,7 +22,7 @@ class SignageQuerySet(HistoryQuerySet, SearchQuerySetMixin):
         return queryset
 
     def for_key(self, key: str) -> QuerySet[Signage]:
-        return self.filter(key=key)
+        return self.filter(key=key, is_deleted=False)
 
     def with_presentations(self) -> QuerySet[Signage]:
         return self.prefetch_related(

@@ -19,6 +19,9 @@ class CorruptMutateFieldSeed(BaseMutateFieldSeed):
         self.corrupt_chance = corrupt_chance
         self.severity = severity
 
+    def generate_cache_key(self) -> str:
+        return f'{super().generate_cache_key()}:{self.corrupt_chance}:{self.severity.value}'
+
     def _mutate_value(self, seed_index: int) -> Any:
         value = self.field_seed.generate_value(seed_index=seed_index)
 

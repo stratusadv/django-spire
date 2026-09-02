@@ -1,0 +1,39 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_class %}h-100{% endblock %}
+
+{% block card_style %}{{ grid_style }}{% endblock %}
+
+{% block card_title %}
+    Row {{ section.row }}, Col {{ section.col }}
+{% endblock %}
+
+{% block card_button %}
+    <div class="d-flex gap-2">
+        {% if perms.django_spire_metric_visual_presentation.change_slidesection %}
+            {% url 'django_spire:metric:visual:presentation:form:update_section' pk=section.pk as section_edit_url %}
+            <a class="btn btn-sm btn-outline-secondary" href="{{ section_edit_url }}" title="Edit section">
+                <i class="bi bi-pencil"></i>
+            </a>
+        {% endif %}
+
+        {% if perms.django_spire_metric_visual_presentation.delete_slidesection %}
+            {% url 'django_spire:metric:visual:presentation:form:delete_section' pk=section.pk as section_delete_url %}
+            <a class="btn btn-sm btn-outline-danger"
+               href="{{ section_delete_url }}?return_url={{ request.get_full_path }}"
+               title="Delete section">
+                <i class="bi bi-trash"></i>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block card_title_body %}
+    {% if visual %}
+        {% include 'django_spire/metric/visual/render/visual.html' with visual=visual current_value=current_value current_condition=current_condition chart=chart period_start=period_start period_end=period_end %}
+    {% else %}
+        <div class="d-flex align-items-center justify-content-center text-muted" style="min-height: 8rem;">
+            Empty
+        </div>
+    {% endif %}
+{% endblock %}

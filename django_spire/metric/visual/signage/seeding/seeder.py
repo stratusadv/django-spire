@@ -1,39 +1,42 @@
 from __future__ import annotations
 
-import random
 from typing import TYPE_CHECKING
-
-from django.db.models import QuerySet
 
 from django_spire.contrib.seeding import Seeder
 
 from django_spire.metric.visual.presentation.models import Presentation
 from django_spire.metric.visual.signage import models
+from django_spire.metric.visual.signage.seeding.constants import (
+    SIGNAGE_PRESENTATION_LINKS,
+    SIGNAGE_SEEDS,
+)
 
 if TYPE_CHECKING:
     from typing import ClassVar
+
+    from django.db.models import QuerySet
 
 
 class SignageSeeder(Seeder):
     model_class = models.Signage
 
-    fields_seeds: ClassVar = {
-        'id': Seeder.exclude(),
-        'created_datetime': Seeder.fake.date_time_between(start_date='-30d', end_date='now'),
-        'name': Seeder.fake.sentence(),
-        'description': Seeder.fake.paragraph(2),
-        'key': Seeder.exclude(),
-        'is_active': Seeder.static(True),
-        'is_deleted': Seeder.static(False),
-    }
+    fields_seeds: ClassVar = {}
 
-    def seed_database(self, count: int | None = None) -> QuerySet:
-        self.seed(count)
-
+    def seed_database(self, count: int | None = None) -> QuerySet:  # noqa: ARG002
         model_objects = []
 
-        for fields_values in self.to_list_of_dicts():
-            signage = models.Signage.objects.create(**fields_values)
+        for seed in SIGNAGE_SEEDS:
+            signage, _ = models.Signage.objects.update_or_create(
+                key=seed['key'],
+                defaults={
+                    'name': seed['name'],
+                    'title': seed['title'],
+                    'description': seed['description'],
+                    'slide_display_seconds': seed['slide_display_seconds'],
+                    'is_active': True,
+                    'is_deleted': False,
+                },
+            )
             self._seed_links(signage)
             model_objects.append(signage)
 
@@ -41,15 +44,25 @@ class SignageSeeder(Seeder):
 
         return self.queryset
 
-    def _seed_links(self, signage: models.Signage) -> None:
-        presentation_ids = list(Presentation.objects.active().values_list('id', flat=True))
+    @staticmethod
+    def _seed_links(signage: models.Signage) -> None:
+        presentations = list(Presentation.objects.active())
 
-        if not presentation_ids:
+        if not presentations:
             return
 
-        for order, presentation_id in enumerate(
-            random.sample(presentation_ids, min(3, len(presentation_ids)))
-        ):
-            models.SignagePresentation.objects.create(
-                signage=signage, presentation_id=presentation_id, order=order
+        presentations_by_name = {presentation.name: presentation for presentation in presentations}
+        presentation_names = SIGNAGE_PRESENTATION_LINKS.get(
+            signage.name, [presentation.name for presentation in presentations]
+        )
+
+        for order, presentation_name in enumerate(presentation_names):
+            presentation = (
+                presentations_by_name.get(presentation_name)
+                or presentations[order % len(presentations)]
+            )
+            models.SignagePresentation.objects.get_or_create(
+                signage=signage,
+                order=order,
+                defaults={'presentation': presentation, 'is_active': True, 'is_deleted': False},
             )

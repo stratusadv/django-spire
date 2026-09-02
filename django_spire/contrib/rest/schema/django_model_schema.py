@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Self, Generic
-
-from django.db import models
+from typing import TYPE_CHECKING, TypeVar, Self, Generic
 
 from django_spire.contrib.rest.schema.schema import RestSchema
+
+if TYPE_CHECKING:
+    from django.db import models
 
 TModel = TypeVar('TModel', bound='models.Model')
 
 
-class DjangoModelRestSchema(RestSchema, Generic[TModel], ABC):
+class DjangoModelRestSchema(RestSchema, ABC, Generic[TModel]):
     @classmethod
     @abstractmethod
     def from_django_model(cls, model: type[TModel]) -> Self:

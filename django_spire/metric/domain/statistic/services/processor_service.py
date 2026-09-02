@@ -37,8 +37,15 @@ class StatisticProcessorService(BaseDjangoModelService['Statistic']):
     ) -> StatisticValue:
         if sub_domain.domain_id != self.obj.group.domain_id:
             message = (
-                f"Sub-domain '{sub_domain}' does not belong to domain "
-                f"'{self.obj.group.domain}'"
+                f"Sub-domain '{sub_domain}' does not belong to domain '{self.obj.group.domain}'"
+            )
+            raise ServiceError(message)
+
+        reference_max_length = self.obj.values.model._meta.get_field('reference').max_length
+        if len(reference) > reference_max_length:
+            message = (
+                f"Reference '{reference}' exceeds the maximum length "
+                f'of {reference_max_length} characters'
             )
             raise ServiceError(message)
 
@@ -47,12 +54,12 @@ class StatisticProcessorService(BaseDjangoModelService['Statistic']):
         if timezone.is_naive(stamp):
             stamp = timezone.make_aware(stamp)
 
-        statistic_value = self.obj.values.create(
-            sub_domain=sub_domain, reference=reference, timestamp=stamp, value=value
+        return self.obj.values.create(
+            sub_domain=sub_domain,
+            reference=reference,
+            timestamp=stamp,
+            value=value.quantize(self._value_precision()),
         )
-        statistic_value.value = statistic_value.value.quantize(self._value_precision())
-
-        return statistic_value
 
     def _value_precision(self) -> Decimal:
         decimal_places = self.obj.values.model._meta.get_field('value').decimal_places

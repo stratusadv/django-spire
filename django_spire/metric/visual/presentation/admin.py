@@ -32,6 +32,7 @@ class SlideAdmin(admin.ModelAdmin):
     inlines = (SlideSectionInline,)
     list_display = ('pk', 'presentation', 'name', 'order')
     list_filter = ('is_active', 'is_deleted')
+    list_select_related = ('presentation',)
     ordering = ('presentation', 'order')
     readonly_fields = ('created_datetime', 'is_active', 'is_deleted')
     search_fields = ('name', 'presentation__name')
@@ -41,5 +42,6 @@ class SlideAdmin(admin.ModelAdmin):
 class SlideSectionAdmin(admin.ModelAdmin):
     list_display = ('pk', 'slide', 'visual', 'row', 'col')
     list_filter = ('is_active', 'is_deleted')
+    list_select_related = ('slide', 'visual')
     ordering = ('slide', 'row', 'col')
     search_fields = ('slide__name', 'visual__name')

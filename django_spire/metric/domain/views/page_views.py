@@ -70,6 +70,14 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
     context = nav.as_context()
     context['subdomain'] = subdomain
     context['domain_pk'] = domain_pk
+    context['show_group_prefix'] = True
+    context['statistics'] = (
+        models.Statistic.objects.select_related('group')
+        .active()
+        .not_deleted()
+        .filter(group__domain=subdomain.domain)
+        .order_by('name')
+    )
 
     return TemplateResponse(
         request,

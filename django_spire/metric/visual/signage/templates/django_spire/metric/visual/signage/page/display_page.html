@@ -1,61 +1,124 @@
 {% extends 'django_spire/page/page.html' %}
 
-{% block page_content %}
+{% block base_head_additional_css %}
     <style>
-        [x-cloak] {
-            display: none !important;
+        body {
+            overflow: hidden;
+            height: 1076px;
         }
 
         .kiosk-grid {
             display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            grid-auto-rows: minmax(10rem, auto);
+            grid-template-columns: repeat({{ grid_columns }}, 1fr);
+            grid-auto-rows: minmax(0, 1fr);
             gap: 1rem;
+            height: 900px;
+        }
+
+        .kiosk-section {
+            container-type: size;
         }
     </style>
+{% endblock %}
 
-    <div class="container-fluid py-3" x-data="{
-        index: 0,
-        count: {{ slide_count }},
-        delay: 10000,
-        init() {
-            if (this.count > 1) {
-                setInterval(() => {
-                    this.index = (this.index + 1) % this.count;
-                }, this.delay);
-            }
-        }
-    }">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <div class="fs-4 fw-semibold">{{ signage.name }}</div>
-                {% if slide_count == 0 %}
-                    <div class="text-muted">No slides configured.</div>
-                {% endif %}
+{% block base_body_class %}bg-primary{% endblock %}
+
+{% block base_body %}
+    {% if request.GET.scale == 'high' %}
+        <div style=" transform-origin: top left; transform: scale(1.98, 1.93); width: 50%; height: 50%; ">
+            <div class="row">
+                <div class="col m-0 mt-1 ms-2 ps-3">
+                    {{ block.super }}
+                </div>
             </div>
-            <div class="badge text-bg-secondary fs-6" x-show="count > 0"
-                 x-text="(index + 1) + ' / ' + count"></div>
         </div>
+    {% elif request.GET.scale == 'medium' %}
+        <div style=" transform-origin: top left; transform: scale(1.5, 1.43); width: 66.4%; height: 66.4%; ">
+            <div class="row">
+                <div class="col m-0 ps-3">
+                    {{ block.super }}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block page_content %}
+    <div
+            class="container-fluid py-3"
+            x-data="{
+                index: 0,
+                count: {{ slide_count }},
+                delay: {{ slide_timer_seconds }} * 1000,
+                init() {
+                    if (this.count > 1) {
+                        this.rotation = setInterval(() => {
+                            this.next_slide()
+                        }, this.delay);
+                    }
+                    document.addEventListener('keydown', (event) => {
+                        if (event.key === 'ArrowLeft') {
+                            this.previous_slide()
+                            this.reset_timer()
+                        }
+                        if (event.key === 'ArrowRight') {
+                            this.next_slide()
+                            this.reset_timer()
+                        }
+                    })
+                },
+                reset_timer() {
+                    clearInterval(this.rotation)
+                    if (this.count > 1) {
+                        this.rotation = setInterval(() => {
+                            this.next_slide()
+                        }, this.delay)
+                    }
+                },
+                next_slide() {
+                    this.index = (this.index + 1) % this.count
+                },
+                previous_slide() {
+                    this.index = (this.index - 1)
+                    if (this.index < 0) {
+                        this.index = this.count - 1
+                    }
+                }
+            }"
+    >
 
         {% if slides %}
             {% for item in slides %}
-                <div x-show="index === {{ forloop.counter0 }}" x-cloak>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="h5 mb-0">{{ item.presentation }} - {{ item.slide }}</div>
-                        <div class="small text-muted">
-                            {{ item.sections|length }} sections
+                <div x-show="index === {{ forloop.counter0 }}">
+
+                    <div class="row mb-3">
+                        <div class="col">
+
+                            <div class="card shadow px-3 py-2">
+                                <div class="row">
+                                    <div class="col fs-4 fw-semibold">
+                                        {{ signage.services.transformation.display_title }}
+                                    </div>
+                                    <div class="col fs-4 fw-semibold text-end">
+                                        {{ item.presentation }} - {{ item.slide }}
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
                     <div class="kiosk-grid">
                         {% for section in item.sections %}
                             {% if section.visual %}
-                                <div style="grid-column: {{ section.section.col }}; grid-row: {{ section.section.row }};">
-                                    {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition %}
+                                <div class="kiosk-section" style="{{ section.grid_style }}">
+                                    {% include 'django_spire/metric/visual/render/visual.html' with visual=section.visual current_value=section.current_value current_condition=section.current_condition chart=section.chart period_start=section.period_start period_end=section.period_end chart_update_interval=chart_update_interval %}
                                 </div>
                             {% else %}
                                 <div class="border rounded d-flex align-items-center justify-content-center text-muted"
-                                     style="grid-column: {{ section.section.col }}; grid-row: {{ section.section.row }};">
+                                     style="{{ section.grid_style }}">
                                     Empty
                                 </div>
                             {% endif %}
@@ -63,6 +126,9 @@
                     </div>
                 </div>
             {% endfor %}
+        {% else %}
+            <div class="text-muted">No slides configured.</div>
         {% endif %}
+
     </div>
 {% endblock %}

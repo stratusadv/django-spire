@@ -1,7 +1,7 @@
 {% extends 'django_spire/dropdown/ellipsis_dropdown.html' %}
 
 {% block dropdown_content %}
-    {% if AuthController.knowledge.can_change %}
+    {% if perms.django_spire_knowledge.change_collection %}
         <li>
             <a class="dropdown-item d-flex align-items-center gap-2" x-on:click.prevent="location.href = entry.edit_url">
                 <i class="bi bi-input-cursor-text"></i>Rename
@@ -13,7 +13,7 @@
             </a>
         </li>
     {% endif %}
-    {% if AuthController.knowledge.can_delete %}
+    {% if perms.django_spire_knowledge.delete_collection %}
         <li>
             <a class="dropdown-item d-flex align-items-center gap-2 text-app-danger" x-on:click.prevent="location.href = entry.delete_url">
                 <i class="bi bi-trash3"></i>Delete

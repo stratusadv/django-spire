@@ -9,5 +9,9 @@ class BaseFieldSeed(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def generate_cache_key(self) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
     def generate_value(self, seed_index: int) -> Any:
         raise NotImplementedError

@@ -15,10 +15,10 @@
 {% endblock %}
 
 {% block card_title_content %}
-    <div class="card-body">
+    <div class="card-body p-2">
         {% if statistics %}
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-light table-hover">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -31,7 +31,7 @@
                             <tr>
                                 <td>
                                     <a href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
-                                        {{ statistic.name }}
+                                        {% if show_group_prefix %}{{ statistic.group }} / {% endif %}{{ statistic.name }}
                                     </a>
                                 </td>
                                 <td>{{ statistic.get_interval_display }}</td>

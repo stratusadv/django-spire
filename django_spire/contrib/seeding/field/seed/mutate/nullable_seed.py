@@ -10,10 +10,11 @@ class NullableMutateFieldSeed(BaseMutateFieldSeed):
         self.field_seed = field_seed
         self.nullify_chance = nullify_chance
 
+    def generate_cache_key(self) -> str:
+        return f'{super().generate_cache_key()}:{self.nullify_chance}'
+
     def _mutate_value(self, seed_index: int) -> Any:
         if random.random() < self.nullify_chance:
             return None
 
         return self.field_seed.generate_value(seed_index=seed_index)
-
-

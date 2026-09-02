@@ -27,15 +27,6 @@ class TestSettings(TestCase):
 
         assert result == 'dark'
 
-    @override_settings(DJANGO_SPIRE_AUTH_CONTROLLERS={'custom_app': 'custom.path.Controller'})
-    def test_auth_controllers_merges_dicts(self) -> None:
-        fresh_settings = Settings()
-
-        result = fresh_settings.DJANGO_SPIRE_AUTH_CONTROLLERS
-
-        assert 'custom_app' in result
-        assert 'ai_chat' in result
-
     def test_settings_instance_exists(self) -> None:
         assert settings is not None
         assert isinstance(settings, Settings)

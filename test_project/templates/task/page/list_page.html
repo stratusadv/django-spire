@@ -7,12 +7,13 @@
         <h1 class="fs-1 fw-semi-bold">Tasks</h1>
         <div x-data="{
             openNewTask() {
-                Glue.querySet.tasks.new().then(newTask => {
-                    Spire.modal.dispatchElementById(
-                        'task-form-modal-content',
-                        {eventData: {glueForm: newTask.form}}
-                    );
-                })
+                Spire.modal.dispatchView(`{% url 'task:modal:form' pk=0 %}`)
+{#                Glue.querySet.tasks.new().then(newTask => {#}
+{#                    Spire.modal.dispatchElementById(#}
+{#                        'task-form-modal-content',#}
+{#                        {eventData: {glueForm: newTask.form}}#}
+{#                    );#}
+{#                })#}
             }
         }">
             <a class="btn btn-sm btn-primary text-light" @click="openNewTask()">

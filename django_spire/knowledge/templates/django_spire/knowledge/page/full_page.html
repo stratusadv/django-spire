@@ -20,7 +20,7 @@
 {% block full_page_sub_navigation_buttons %}{% endblock %}
 
 {% block full_page_sub_navigation %}
-    {% if AuthController.knowledge.can_add %}
+    {% if perms.django_spire_knowledge.add_collection %}
         <div class="px-3 py-3 flex-shrink-0">
             {% block knowledge_sub_navigation_add_button %}
 {#                {% url 'django_spire:knowledge:collection:form:create' as create_url %}#}

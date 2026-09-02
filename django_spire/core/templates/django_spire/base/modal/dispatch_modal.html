@@ -11,8 +11,6 @@
 
         },
         setUp(event) {
-            this.hideModal()
-
             this.dialogClasses = event.detail.dialogClasses || ''
             this.eventData = event.detail.eventData
             const contentElement = document.getElementById(
@@ -47,7 +45,7 @@
     aria-hidden="true"
 >
     <div
-            class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+            class="modal-dialog modal-dialog-scrollable"
             :class="dialogClasses"
     >
         <div id="baseDispatchModalContent" class="modal-content">

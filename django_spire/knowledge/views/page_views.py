@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.template.response import TemplateResponse
-from django_spire.auth.controller.controller import AppAuthController
+from django_spire.auth.permissions.decorators import permission_required
 from django_spire.auth.sms.models import AuthSms
 from django_spire.auth.sms.utils import phone_number_format_display
 from django_spire.conf import settings
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
 
 
-@AppAuthController('knowledge').permission_required('can_view')
+@permission_required('django_spire_knowledge.view_collection')
 def home_view(request: WSGIRequest) -> TemplateResponse:
     return TemplateResponse(
         request,

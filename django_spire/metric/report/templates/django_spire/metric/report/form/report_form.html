@@ -45,7 +45,7 @@
                                    value="{{ params.default }}">
                         {% elif params.annotation == 'bool' %}
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" {% if params.default %}checked{% endif %} id="flexSwitchCheckDefault">
+                                <input class="form-check-input" type="checkbox" role="switch" name="{{ argument }}" value="true" {% if params.default %}checked{% endif %} id="flexSwitchCheckDefault">
                             </div>
                         {% elif params.annotation == 'multi_select' %}
                             <select class="form-select" multiple size="8" name="{{ argument }}" aria-selected="{{ params.default }}">

@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.visual.charts import VisualLineChart
+from django_spire.metric.visual.presentation.services.transformation_service import (
+    SlideSectionTransformationService,
+)
 from django_spire.metric.visual.presentation.tests.factories import (
     create_test_presentation,
     create_test_section,
@@ -101,3 +104,39 @@ class SlideSectionTransformationServiceTestCase(BaseTestCase):
         assert context['current_value'] is None
         assert context['current_condition'] is None
         assert context['chart'] is None
+
+    def test_section_grid_styles_alone_fills_row(self):
+        section = create_test_section(self.slide, row=0, col=0, with_visual=False)
+
+        styles = SlideSectionTransformationService.section_grid_styles([section])
+
+        assert styles[section.pk] == 'grid-column: 1 / span 12; grid-row: 1;'
+
+    def test_section_grid_styles_same_row_split_evenly(self):
+        first = create_test_section(self.slide, row=0, col=0, with_visual=False)
+        second = create_test_section(self.slide, row=0, col=1, with_visual=False)
+
+        styles = SlideSectionTransformationService.section_grid_styles([first, second])
+
+        assert styles[first.pk] == 'grid-column: 1 / span 6; grid-row: 1;'
+        assert styles[second.pk] == 'grid-column: 7 / span 6; grid-row: 1;'
+
+    def test_section_grid_styles_three_same_row(self):
+        sections = [
+            create_test_section(self.slide, row=3, col=index, with_visual=False)
+            for index in range(3)
+        ]
+
+        styles = SlideSectionTransformationService.section_grid_styles(sections)
+
+        for index, section in enumerate(sections):
+            assert styles[section.pk] == f'grid-column: {index * 4 + 1} / span 4; grid-row: 4;'
+
+    def test_section_grid_styles_distinct_rows_stack(self):
+        first = create_test_section(self.slide, row=0, col=0, with_visual=False)
+        second = create_test_section(self.slide, row=1, col=0, with_visual=False)
+
+        styles = SlideSectionTransformationService.section_grid_styles([first, second])
+
+        assert styles[first.pk] == 'grid-column: 1 / span 12; grid-row: 1;'
+        assert styles[second.pk] == 'grid-column: 1 / span 12; grid-row: 2;'

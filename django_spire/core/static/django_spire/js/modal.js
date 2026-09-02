@@ -61,7 +61,7 @@ Spire.modal = {
      * @param {string} [options.dialogClasses='']
      * @param {boolean} [options.renderToBody=true]
      */
-    async dispatchView(url, {payload = {}, eventData = {}, dialogClasses = '', renderToBody = true} = {}) {
+    async dispatchView(url, {payload = {}, eventData = {}, dialogClasses = 'modal-dialog-centered', renderToBody = true} = {}) {
         let htmlContent = await Glue.view(url).get(payload);
         Spire.modal.dispatch(htmlContent, {eventData, dialogClasses, renderToBody});
     }

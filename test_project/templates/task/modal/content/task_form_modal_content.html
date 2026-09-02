@@ -1,9 +1,10 @@
 {% extends 'django_spire/modal/content/title_modal_content.html' %}
 
 {% block modal_title %}
-    <span x-text="!!glueForm?.$pk ? `Edit Task` : 'New Task'"></span>
+
+    <span x-data="{task_form: Glue.form.task_form}" x-text="!!task_form?.$pk ? `Edit Task` : 'New Task'"></span>
 {% endblock %}
 
 {% block modal_body %}
-    {% include 'task/form/form.html' with glue_form='glueForm' %}
+    {% include 'task/form/form.html' with glue_form='Glue.form.task_form' %}
 {% endblock %}

@@ -10,7 +10,7 @@ statistic_group_seeder = StatisticGroupSeeder(count=5)
 
 statistic_group_seeder.seed_database()
 
-statistic_seeder = StatisticSeeder(count=10)
+statistic_seeder = StatisticSeeder(count=12)
 
 statistic_seeder.seed_database()
 

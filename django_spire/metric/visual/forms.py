@@ -33,27 +33,9 @@ class VisualModelForm(forms.ModelForm):
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
-    def clean(self) -> dict:
-        cleaned_data = super().clean()
-
-        statistic = cleaned_data.get('statistic')
-        reference = cleaned_data.get('reference', '')
-
-        if (
-            statistic
-            and reference
-            and statistic.values.exists()
-            and not statistic.values.for_reference(reference).exists()
-        ):
-            self.add_error(
-                'reference', 'That reference is not a valid value for the selected statistic.'
-            )
-
-        return cleaned_data
-
     class Meta:
         model = models.Visual
-        fields = ['name', 'description', 'statistic', 'reference', 'kind', 'date']
+        fields = ['name', 'description', 'statistic', 'kind', 'date']
         exclude: ClassVar = []
         widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
 
@@ -98,3 +80,69 @@ class VisualConditionModelForm(forms.ModelForm):
             'target': forms.NumberInput(attrs={'step': '0.0001'}),
             'tolerance': forms.NumberInput(attrs={'step': '0.0001'}),
         }
+
+
+class VisualReferenceModelForm(forms.ModelForm):
+    @Glue.attr(required_access=Glue.Access.CHANGE)
+    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+        if self.is_valid():
+            reference_obj, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            return GlueResponse(
+                result={
+                    'redirect': {
+                        'url': reverse(
+                            'django_spire:metric:visual:page:detail',
+                            kwargs={'pk': reference_obj.visual_id},
+                        )
+                    }
+                }
+            )
+
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
+
+        pattern = cleaned_data.get('reference', '')
+        statistic = self.instance.visual.statistic if self.instance.visual_id else None
+
+        if (
+            statistic
+            and statistic.values.exists()
+            and not statistic.values.for_reference_pattern(pattern).exists()
+        ):
+            self.add_error(
+                'reference',
+                'That reference pattern does not match any values for the selected statistic.',
+            )
+
+        return cleaned_data
+
+    class Meta:
+        model = models.VisualReference
+        fields = ['reference', 'label', 'order']
+        exclude: ClassVar = []
+
+
+class VisualRegionModelForm(forms.ModelForm):
+    @Glue.attr(required_access=Glue.Access.CHANGE)
+    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+        if self.is_valid():
+            region, _ = self.instance.services.save_model_obj(**self.cleaned_data)
+
+            if region.visual_id:
+                redirect_url = reverse(
+                    'django_spire:metric:visual:page:detail', kwargs={'pk': region.visual_id}
+                )
+            else:
+                redirect_url = reverse('django_spire:metric:visual:page:list')
+
+            return GlueResponse(result={'redirect': {'url': redirect_url}})
+
+        return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+    class Meta:
+        model = models.VisualRegion
+        fields = ['title', 'is_live_updated']
+        exclude: ClassVar = []

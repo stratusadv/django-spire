@@ -38,6 +38,28 @@ class StatisticGroupForm(forms.ModelForm):
 
 
 class StatisticForm(forms.ModelForm):
+    key = forms.SlugField(
+        required=False, help_text='Leave blank to automatically generate a slug from the name.'
+    )
+
+    def clean_key(self) -> str:
+        key = self.cleaned_data.get('key')
+
+        if not key and self.instance.pk:
+            key = self.instance.key
+        elif not key:
+            return ''
+
+        queryset = models.Statistic.objects.filter(key=key)
+        if self.instance.pk:
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            message = 'A statistic with this key already exists.'
+            raise forms.ValidationError(message)
+
+        return key
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self, request: HttpRequest) -> GlueResponse:
         if self.is_valid():
@@ -56,5 +78,5 @@ class StatisticForm(forms.ModelForm):
 
     class Meta:
         model = models.Statistic
-        fields = ['group', 'name', 'interval']
+        fields = ['key', 'group', 'name', 'interval', 'value_type']
         exclude: ClassVar = []

@@ -10,6 +10,9 @@ class BaseMutateFieldSeed(BaseFieldSeed, ABC):
         self.field_seed = field_seed
         raise NotImplementedError
 
+    def generate_cache_key(self) -> str:
+        return f'{self.__class__.__name__}:{self.field_seed.generate_cache_key()}'
+
     def generate_value(self, seed_index: int) -> Any:
         if seed_index == -1:
             return self.field_seed

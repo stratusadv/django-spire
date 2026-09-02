@@ -9,7 +9,7 @@
                 Ask questions and get answers powered by the knowledge base.
             </p>
         </div>
-        {% if AuthController.ai_chat.can_delete %}
+        {% if perms.django_spire_ai_chat.delete_chat %}
             <a
                 class="btn btn-light d-flex align-items-center gap-2 flex-shrink-0"
                 href="{% url 'django_spire:ai:chat:page:home' %}"

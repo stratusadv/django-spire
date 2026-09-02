@@ -1,1 +1,0 @@
-NOTIFICATION_FILTERING_SESSION_KEY_NAME = 'notification_list_filter'

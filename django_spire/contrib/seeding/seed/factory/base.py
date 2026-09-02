@@ -37,7 +37,6 @@ class BaseSeedFactory(ABC):
 
             self._print_progress(i, count)
 
-
             if len(futures) >= 13 or i == count - 1:
                 seeds.extend([future.get_result(timeout_seconds=10) for future in futures])
 
@@ -51,9 +50,16 @@ class BaseSeedFactory(ABC):
 
     def generate_seeds(self, count: int, cache_enabled: bool, cache_name: str) -> list[Seed]:
         if cache_enabled:
-            cache_key = generate_cache_key(
-                self._generate_seeds, self.seeder.fields_seeds, count=count
-            )
+            fields_cache_keys = [
+                (
+                    field_name,
+                    field_seed.__class__.__name__,
+                    field_seed.generate_cache_key()
+                )
+                for field_name, field_seed in self.seeder.fields_seeds.items()
+            ]
+
+            cache_key = generate_cache_key(self._generate_seeds, fields_cache_keys, count=count)
 
             cache = SqliteCache(cache_name=cache_name, limit=100)
             cached_seeds: list[Seed] | None = cache.get(cache_key)

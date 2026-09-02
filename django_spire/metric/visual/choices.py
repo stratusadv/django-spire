@@ -3,7 +3,9 @@ from django.db import models
 
 class VisualConditionStateChoices(models.TextChoices):
     GREEN = 'green', 'Green'
+    BLUE = 'blue', 'Blue'
     YELLOW = 'yellow', 'Yellow'
+    GREY = 'grey', 'Grey'
     RED = 'red', 'Red'
 
 

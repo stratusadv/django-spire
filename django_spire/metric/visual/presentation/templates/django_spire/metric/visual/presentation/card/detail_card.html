@@ -26,18 +26,8 @@
     <div class="card-body">
         <div class="row g-3">
             <div class="col-12">
-                <div class="attribute-label">Name</div>
-                <div>{{ presentation.name }}</div>
-            </div>
-
-            <div class="col-12">
                 <div class="attribute-label">Description</div>
                 <div>{{ presentation.description|linebreaksbr }}</div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="attribute-label">Slides</div>
-                <div>{{ presentation.slide_count|default:presentation.slides.count }}</div>
             </div>
         </div>
     </div>

@@ -106,6 +106,8 @@ class StatisticFormViewTestCase(BaseTestCase):
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/statistic/page/statistic_form_page.html'
         )
+        html = response.content.decode()
+        assert 'glue_form.$fields.value_type' in html
 
     def test_create_save_model_obj(self):
         form = forms.StatisticForm(
@@ -131,6 +133,8 @@ class StatisticFormViewTestCase(BaseTestCase):
         self.assertTemplateUsed(
             response, 'django_spire/metric/domain/statistic/page/statistic_form_page.html'
         )
+        html = response.content.decode()
+        assert 'glue_form.$fields.value_type' in html
 
     def test_update_save_model_obj(self):
         form = forms.StatisticForm(
@@ -147,6 +151,114 @@ class StatisticFormViewTestCase(BaseTestCase):
         assert response.result['redirect_url'] == reverse(
             'django_spire:metric:domain:statistic:page:group_detail', kwargs={'pk': self.group.pk}
         )
+
+    def test_create_save_model_obj_with_custom_key(self):
+        form = forms.StatisticForm(
+            data={
+                'key': 'new-leads',
+                'group': self.group.pk,
+                'name': 'new statistic',
+                'interval': 'daily',
+            }
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(RequestFactory().get('/'))
+
+        statistic = Statistic.objects.get(name='new statistic')
+        assert statistic.key == 'new-leads'
+
+    def test_create_save_model_obj_invalid_slug_key_is_invalid(self):
+        form = forms.StatisticForm(
+            data={
+                'key': 'not a valid slug!',
+                'group': self.group.pk,
+                'name': 'new statistic',
+                'interval': 'daily',
+            }
+        )
+        assert not form.is_valid()
+        assert 'key' in form.errors
+
+    def test_create_save_model_obj_blank_key_slugs_from_name(self):
+        form = forms.StatisticForm(
+            data={'key': '', 'group': self.group.pk, 'name': 'new statistic', 'interval': 'daily'}
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(RequestFactory().get('/'))
+
+        statistic = Statistic.objects.get(name='new statistic')
+        assert statistic.key == 'new-statistic'
+
+    def test_create_save_model_obj_duplicate_key_is_invalid(self):
+        existing = Statistic.objects.create(
+            group=self.group, name='existing statistic', key='new-leads'
+        )
+
+        form = forms.StatisticForm(
+            data={
+                'key': 'new-leads',
+                'group': self.group.pk,
+                'name': 'new statistic',
+                'interval': 'daily',
+            }
+        )
+        assert not form.is_valid()
+        assert 'key' in form.errors
+        assert Statistic.objects.filter(key=existing.key).count() == 1
+
+    def test_update_save_model_obj_blank_key_preserves_existing_key(self):
+        original_key = self.statistic.key
+
+        form = forms.StatisticForm(
+            instance=self.statistic,
+            data={
+                'key': '',
+                'group': self.group.pk,
+                'name': 'updated statistic',
+                'interval': 'weekly',
+            },
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(RequestFactory().get('/'))
+
+        self.statistic.refresh_from_db()
+        assert self.statistic.key == original_key
+
+    def test_update_save_model_obj_custom_key_changes_key(self):
+        form = forms.StatisticForm(
+            instance=self.statistic,
+            data={
+                'key': 'clicks',
+                'group': self.group.pk,
+                'name': 'updated statistic',
+                'interval': 'weekly',
+            },
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(RequestFactory().get('/'))
+
+        self.statistic.refresh_from_db()
+        assert self.statistic.key == 'clicks'
+
+    def test_create_save_model_obj_with_value_type(self):
+        form = forms.StatisticForm(
+            data={
+                'group': self.group.pk,
+                'name': 'new statistic',
+                'interval': 'daily',
+                'value_type': 'currency',
+            }
+        )
+        assert form.is_valid()
+
+        form.save_model_obj(RequestFactory().get('/'))
+
+        statistic = Statistic.objects.get(name='new statistic')
+        assert statistic.value_type == 'currency'
 
     def test_delete_view(self):
         response = self.client.post(

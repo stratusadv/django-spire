@@ -7,6 +7,9 @@ class ExcludeFieldSeed(BaseFieldSeed):
     def __init__(self) -> None:
         pass
 
+    def generate_cache_key(self) -> str:
+        return self.__class__.__name__
+
     def generate_value(self, seed_index: int) -> Any:
         # COMMENT THIS
         _ = seed_index

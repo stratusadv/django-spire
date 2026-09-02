@@ -1,10 +1,10 @@
-<div class="card h-100 shadow-sm">
-    <div class="card-header d-flex align-items-center justify-content-between">
-        <div class="fw-semibold">{{ slide }}</div>
+<div class="card shadow">
+    <div class="card-header bg-primary d-flex align-items-center justify-content-between">
+        <div class="fs-5 fw-semibold text-light">{{ slide }}</div>
         <div class="d-flex gap-2">
             {% if perms.django_spire_metric_visual_presentation.add_slidesection %}
                 {% url 'django_spire:metric:visual:presentation:form:create_section' as add_section_url %}
-                <a class="btn btn-sm btn-primary" href="{{ add_section_url }}?slide={{ slide.pk }}">
+                <a class="btn btn-sm btn-light" href="{{ add_section_url }}?slide={{ slide.pk }}">
                     <i class="bi bi-plus"></i>
                     Section
                 </a>
@@ -12,32 +12,23 @@
 
             {% if perms.django_spire_metric_visual_presentation.change_slide %}
                 {% url 'django_spire:metric:visual:presentation:form:update_slide' pk=slide.pk as slide_edit_url %}
-                <a class="btn btn-sm btn-outline-secondary" href="{{ slide_edit_url }}">
+                <a class="btn btn-sm btn-outline-light" href="{{ slide_edit_url }}">
                     <i class="bi bi-pencil"></i>
                 </a>
             {% endif %}
 
             {% if perms.django_spire_metric_visual_presentation.delete_slide %}
                 {% url 'django_spire:metric:visual:presentation:form:delete_slide' pk=slide.pk as slide_delete_url %}
-                <a class="btn btn-sm btn-outline-danger" href="{{ slide_delete_url }}">
+                <a class="btn btn-sm btn-danger" href="{{ slide_delete_url }}">
                     <i class="bi bi-trash"></i>
                 </a>
             {% endif %}
         </div>
     </div>
-    <div class="card-body">
-        <div class="slide-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: minmax(8rem, auto); gap: 1rem;">
+    <div class="card-body bg-primary">
+        <div class="slide-grid" style="display: grid; grid-template-columns: repeat({{ grid_columns }}, 1fr); grid-auto-rows: minmax(8rem, auto); gap: 1rem;">
             {% for item in sections %}
-                {% if item.visual %}
-                    <div style="grid-column: {{ item.section.col }}; grid-row: {{ item.section.row }};">
-                        {% include 'django_spire/metric/visual/render/visual.html' with visual=item.visual current_value=item.current_value current_condition=item.current_condition %}
-                    </div>
-                {% else %}
-                    <div class="border rounded d-flex align-items-center justify-content-center text-muted"
-                         style="grid-column: {{ item.section.col }}; grid-row: {{ item.section.row }};">
-                        Empty
-                    </div>
-                {% endif %}
+                {% include 'django_spire/metric/visual/presentation/card/section_card.html' with section=item.section grid_style=item.grid_style visual=item.visual current_value=item.current_value current_condition=item.current_condition chart=item.chart period_start=item.period_start period_end=item.period_end %}
             {% endfor %}
         </div>
     </div>

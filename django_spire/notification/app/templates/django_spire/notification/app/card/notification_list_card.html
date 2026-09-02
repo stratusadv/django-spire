@@ -1,0 +1,7 @@
+{% extends 'django_spire/card/title_card.html' %}
+
+{% block card_title %}Notifications{% endblock %}
+
+{% block card_title_body %}
+    {% include 'django_spire/notification/app/scroll/list_scroll.html' %}
+{% endblock %}

@@ -19,6 +19,9 @@ class FileFieldSeed(BaseFieldSeed):
         self._seeding_txt_file = 'seeded_file.txt'
         self._seeding_file_path = self._seeding_dir / self._seeding_txt_file
 
+    def generate_cache_key(self) -> str:
+        return str(self._seeding_file_path)
+
     def generate_value(self, seed_index: int) -> Any:
         if seed_index == -1:
             path = str(self._seeding_file_path)

@@ -20,6 +20,8 @@ def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
         'visual': visual,
         'current_value': visual.services.transformation.current_value(),
         'current_condition': visual.services.transformation.current_condition(),
+        'period_start': visual.services.transformation.date_range()[0],
+        'period_end': visual.services.transformation.date_range()[1],
     }
 
     chart = visual.services.transformation.chart()
@@ -32,7 +34,9 @@ def _visual_context(request: WSGIRequest, visual: models.Visual) -> dict:
 
 @permission_required('django_spire_metric_visual.view_visual')
 def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
-    visual = get_object_or_404(models.Visual.objects.with_statistic().with_conditions(), pk=pk)
+    visual = get_object_or_404(
+        models.Visual.objects.with_statistic().with_conditions().with_references(), pk=pk
+    )
 
     nav = VisualNavigation()
     nav.page_title = str(visual)

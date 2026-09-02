@@ -5,12 +5,6 @@
 {% endblock %}
 
 {% block card_button %}
-    {% url 'django_spire:metric:visual:signage:page:display' key=signage.key as signage_display_url %}
-    <a class="btn btn-sm btn-outline-primary" href="{{ signage_display_url }}" target="_blank">
-        <i class="bi bi-play-circle"></i>
-        Display
-    </a>
-
     {% if perms.django_spire_metric_visual_signage.change_signage %}
         {% url 'django_spire:metric:visual:signage:form:update' pk=signage.pk as signage_edit_url %}
         <a class="btn btn-sm btn-primary" href="{{ signage_edit_url }}">
@@ -31,9 +25,46 @@
 {% block card_title_content %}
     <div class="card-body">
         <div class="row g-3">
-            <div class="col-12">
-                <div class="attribute-label">Name</div>
-                <div>{{ signage.name }}</div>
+            <div class="col-12 col-md-8">
+                <div class="attribute-label">Display Title</div>
+                <div>{{ signage.services.transformation.display_title }}</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="attribute-label">Slide Display Seconds</div>
+                <div>{{ signage.slide_display_seconds }} seconds</div>
+            </div>
+
+            {% url 'django_spire:metric:visual:signage:page:display' key=signage.key as signage_display_url %}
+
+            <div class="col-6 col-lg-4">
+                <div class="attribute-label">Regular Scale (720p or Lower)</div>
+                {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url as display_url %}
+                    <a class="me-2" href="{{ display_url }}" target="_blank">
+                        Playback Link
+                    </a>
+                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                {% endwith %}
+            </div>
+
+            <div class="col-6 col-lg-4">
+                <div class="attribute-label">Medium Scale (1080p to 1440p)</div>
+                {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=medium" as display_url %}
+                    <a class="me-2" href="{{ display_url }}" target="_blank">
+                        Playback Link
+                    </a>
+                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                {% endwith %}
+            </div>
+
+            <div class="col-6 col-lg-4">
+                <div class="attribute-label">High Scale (2160p or Higher)</div>
+                {% with request.scheme|add:'://'|add:request.get_host|add:signage_display_url|add:"?scale=high" as display_url %}
+                    <a class="me-2" href="{{ display_url }}" target="_blank">
+                        Playback Link
+                    </a>
+                    {% include 'django_spire/element/copy_to_clipboard_element.html' with value=display_url %}
+                {% endwith %}
             </div>
 
             <div class="col-12">
@@ -41,15 +72,7 @@
                 <div>{{ signage.description|linebreaksbr }}</div>
             </div>
 
-            <div class="col-md-6">
-                <div class="attribute-label">Display Key</div>
-                <div class="text-break">{{ signage.key }}</div>
-            </div>
 
-            <div class="col-md-6">
-                <div class="attribute-label">Presentations</div>
-                <div>{{ presentation_links|length }}</div>
-            </div>
         </div>
     </div>
 {% endblock %}

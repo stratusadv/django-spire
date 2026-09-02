@@ -16,13 +16,6 @@ class Settings:
         if hasattr(django_spire_default_settings, name):
             django_spire_value = getattr(django_spire_default_settings, name)
 
-        if (
-            name == 'DJANGO_SPIRE_AUTH_CONTROLLERS'
-            and isinstance(django_value, dict)
-            and isinstance(django_spire_value, dict)
-        ):
-            return {**django_spire_value, **django_value}
-
         if django_value is not None:
             return django_value
 
