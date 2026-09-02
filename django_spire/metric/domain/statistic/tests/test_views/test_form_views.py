@@ -43,7 +43,7 @@ class StatisticGroupFormViewTestCase(BaseTestCase):
 
         group = StatisticGroup.objects.get(name='new group')
         assert group.domain == self.domain
-        assert response.result['redirect.url'] == reverse(
+        assert response.result['redirect']['url'] == reverse(
             'django_spire:metric:domain:statistic:page:group_detail', kwargs={'pk': group.pk}
         )
 
@@ -74,7 +74,7 @@ class StatisticGroupFormViewTestCase(BaseTestCase):
 
         self.group.refresh_from_db()
         assert self.group.name == 'updated group'
-        assert response.result['redirect.url'] == reverse(
+        assert response.result['redirect']['url'] == reverse(
             'django_spire:metric:domain:statistic:page:group_detail', kwargs={'pk': self.group.pk}
         )
 
@@ -119,7 +119,7 @@ class StatisticFormViewTestCase(BaseTestCase):
 
         statistic = Statistic.objects.get(name='new statistic')
         assert statistic.group == self.group
-        assert response.result['redirect.url'] == reverse(
+        assert response.result['redirect']['url'] == reverse(
             'django_spire:metric:domain:statistic:page:group_detail', kwargs={'pk': self.group.pk}
         )
 
@@ -148,7 +148,7 @@ class StatisticFormViewTestCase(BaseTestCase):
         self.statistic.refresh_from_db()
         assert self.statistic.name == 'updated statistic'
         assert self.statistic.interval == 'weekly'
-        assert response.result['redirect.url'] == reverse(
+        assert response.result['redirect']['url'] == reverse(
             'django_spire:metric:domain:statistic:page:group_detail', kwargs={'pk': self.group.pk}
         )
 
