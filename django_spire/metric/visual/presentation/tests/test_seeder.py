@@ -8,6 +8,7 @@ from django_spire.metric.visual.presentation.seeding.constants import (
     SLIDE_TITLES,
 )
 from django_spire.metric.visual.presentation.seeding.seeder import PresentationSeeder
+from django_spire.metric.visual.seeding.constants import VISUAL_SEEDS
 from django_spire.metric.visual.seeding.seeder import VisualSeeder
 from django_spire.metric.visual.tests.factories import (
     create_test_domain,
@@ -31,7 +32,7 @@ class PresentationSeederTestCase(BaseTestCase):
             )
 
     def test_seeds_curated_presentations(self) -> None:
-        PresentationSeeder(verbose=False).seed_database()
+        PresentationSeeder(count=len(PRESENTATION_SEEDS), verbose=False).seed_database()
 
         presentations = list(Presentation.objects.order_by('pk'))
 
@@ -46,7 +47,7 @@ class PresentationSeederTestCase(BaseTestCase):
         )
 
     def test_seeded_sections_flow_from_visuals(self) -> None:
-        PresentationSeeder(verbose=False).seed_database()
+        PresentationSeeder(count=len(PRESENTATION_SEEDS), verbose=False).seed_database()
 
         for presentation in Presentation.objects.all():
             for slide in presentation.slides.order_by('order'):
@@ -68,8 +69,8 @@ class PresentationSeederTestCase(BaseTestCase):
                     assert context['current_value'] is not None or context['chart'] is not None
 
     def test_seeded_sections_use_curated_visuals(self) -> None:
-        VisualSeeder(verbose=False).seed_database()
-        PresentationSeeder(verbose=False).seed_database()
+        VisualSeeder(count=len(VISUAL_SEEDS), verbose=False).seed_database()
+        PresentationSeeder(count=len(PRESENTATION_SEEDS), verbose=False).seed_database()
 
         for presentation in Presentation.objects.all():
             for slide in presentation.slides.all():

@@ -3,10 +3,7 @@ from __future__ import annotations
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.visual.presentation.tests.factories import create_test_presentation
 from django_spire.metric.visual.signage.models import SignagePresentation
-from django_spire.metric.visual.signage.tests.factories import (
-    create_test_link,
-    create_test_signage,
-)
+from django_spire.metric.visual.signage.tests.factories import create_test_link, create_test_signage
 
 
 class SignagePresentationServiceTestCase(BaseTestCase):
@@ -19,10 +16,7 @@ class SignagePresentationServiceTestCase(BaseTestCase):
     def _add_link(self, **kwargs) -> SignagePresentation:
         presentation = create_test_presentation()
         link = SignagePresentation(signage=self.signage)
-        link.services.save_model_obj(
-            presentation=presentation,
-            **kwargs,
-        )
+        link.services.save_model_obj(presentation=presentation, **kwargs)
         link.refresh_from_db()
         return link
 

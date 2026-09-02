@@ -4,7 +4,6 @@ import math
 import random
 from datetime import date, datetime, time as datetime_time, timedelta
 from decimal import Decimal
-from typing import TYPE_CHECKING
 
 from django.utils import timezone
 
@@ -16,11 +15,6 @@ from django_spire.metric.domain.statistic.seeding.seeder import VALUE_REFERENCES
 from django_spire.metric.visual import models
 from django_spire.metric.visual.choices import VisualKindChoices
 from django_spire.metric.visual.seeding.constants import VISUAL_REGION_SEEDS, VISUAL_SEEDS
-
-if TYPE_CHECKING:
-    from typing import ClassVar
-
-    from django.db.models import QuerySet
 
 VISUAL_VALUE_POINTS = 30
 
@@ -41,57 +35,42 @@ def _visual_timestamp(start_date: date, end_date: date, index: int, points: int)
 
 
 class VisualSeeder(Seeder):
+    cache_enabled = False
     model_class = models.Visual
 
-    fields_seeds: ClassVar = {}
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'name': Seeder.ordered.choice([seed['name'] for seed in VISUAL_SEEDS], wrap=True),
+        'description': Seeder.ordered.choice(
+            [seed['description'] for seed in VISUAL_SEEDS], wrap=True
+        ),
+        'kind': Seeder.ordered.choice([seed['kind'] for seed in VISUAL_SEEDS], wrap=True),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
+    }
 
-    def seed_database(self, count: int | None = None) -> QuerySet:  # noqa: ARG002
-        model_objects = []
+    def __post_seed_database__(self) -> None:
+        visuals_by_name = {visual.name: visual for visual in self.queryset}
+        statistic_updates = []
 
         for index, seed in enumerate(VISUAL_SEEDS):
+            visual = visuals_by_name.get(seed['name'])
+            if visual is None:
+                continue
+
             statistic = self._statistic_for(seed)
             if statistic is None:
                 continue
 
-            visual_class = models.Visual.kind_model(seed['kind'])
-            references = (
-                []
-                if seed['kind'] == VisualKindChoices.PIE
-                else [VALUE_REFERENCES[index % len(VALUE_REFERENCES)]]
-            )
+            if visual.statistic_id != statistic.pk:
+                visual.statistic = statistic
+                statistic_updates.append(visual)
 
-            visual, _ = visual_class.objects.get_or_create(
-                name=seed['name'],
-                defaults={
-                    'description': seed['description'],
-                    'statistic': statistic,
-                    'date': timezone.localdate(),
-                    'is_active': True,
-                    'is_deleted': False,
-                },
-            )
+            self._seed_visual_conditions(visual, statistic)
+            self._seed_visual_references(visual, index, seed)
+            self._seed_visual_values(visual, statistic)
 
-            if not visual.conditions.exists():
-                target = (
-                    Decimal(50)
-                    if statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
-                    else Decimal(100)
-                )
-                visual.services.factory.create_default_conditions(
-                    target=target, tolerance=Decimal(10)
-                )
-
-            if not visual.references.exists():
-                for order, reference in enumerate(references):
-                    visual.references.create(reference=reference, order=order)
-
-            self._seed_visual_values(visual)
-
-            model_objects.append(visual)
-
-        self._model_object_ids = [model_object.id for model_object in model_objects]
-
-        return self.queryset
+        models.Visual.objects.bulk_update(statistic_updates, ['statistic'])
 
     @staticmethod
     def _statistic_for(seed: dict) -> Statistic | None:
@@ -104,8 +83,28 @@ class VisualSeeder(Seeder):
         return queryset.first()
 
     @staticmethod
-    def _seed_visual_values(visual: models.Visual) -> None:
-        sub_domain = visual.statistic.group.domain.subdomains.active().first()
+    def _seed_visual_conditions(visual: models.Visual, statistic: Statistic) -> None:
+        target = (
+            Decimal(50)
+            if statistic.value_type == StatisticValueTypeChoices.PERCENTAGE
+            else Decimal(100)
+        )
+        visual.services.factory.create_default_conditions(target=target, tolerance=Decimal(10))
+
+    @staticmethod
+    def _seed_visual_references(visual: models.Visual, index: int, seed: dict) -> None:
+        references = (
+            []
+            if seed['kind'] == VisualKindChoices.PIE
+            else [VALUE_REFERENCES[index % len(VALUE_REFERENCES)]]
+        )
+
+        for order, reference in enumerate(references):
+            visual.references.create(reference=reference, order=order)
+
+    @staticmethod
+    def _seed_visual_values(visual: models.Visual, statistic: Statistic) -> None:
+        sub_domain = statistic.group.domain.subdomains.active().first()
         if sub_domain is None:
             return
 
@@ -126,9 +125,9 @@ class VisualSeeder(Seeder):
         start_date, end_date = visual.services.transformation.date_range()
 
         existing = set(
-            StatisticValue.objects.filter(
-                statistic=visual.statistic, sub_domain=sub_domain
-            ).values_list('reference', 'timestamp')
+            StatisticValue.objects.filter(statistic=statistic, sub_domain=sub_domain).values_list(
+                'reference', 'timestamp'
+            )
         )
 
         rows = []
@@ -139,7 +138,7 @@ class VisualSeeder(Seeder):
                     continue
                 rows.append(
                     StatisticValue(
-                        statistic=visual.statistic,
+                        statistic=statistic,
                         sub_domain=sub_domain,
                         reference=reference,
                         timestamp=timestamp,
@@ -151,31 +150,35 @@ class VisualSeeder(Seeder):
 
 
 class VisualRegionSeeder(Seeder):
+    cache_enabled = False
     model_class = models.VisualRegion
 
-    fields_seeds: ClassVar = {}
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'key': Seeder.ordered.choice([seed['key'] for seed in VISUAL_REGION_SEEDS], wrap=True),
+        'title': Seeder.ordered.choice([seed['title'] for seed in VISUAL_REGION_SEEDS], wrap=True),
+        'is_live_updated': Seeder.ordered.choice(
+            [seed['is_live_updated'] for seed in VISUAL_REGION_SEEDS], wrap=True
+        ),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
+    }
 
-    def seed_database(self, count: int | None = None) -> QuerySet:  # noqa: ARG002
-        model_objects = []
+    def __post_seed_database__(self) -> None:
+        visuals_by_name = {visual.name: visual for visual in models.Visual.objects.active()}
+        seeds_by_key = {seed['key']: seed for seed in VISUAL_REGION_SEEDS}
+        updates = []
 
-        for seed in VISUAL_REGION_SEEDS:
-            visual = models.Visual.objects.active().filter(name=seed['visual_name']).first()
-            if visual is None:
+        for region in self.queryset:
+            seed = seeds_by_key.get(region.key)
+            if seed is None:
                 continue
 
-            region, _ = models.VisualRegion.objects.update_or_create(
-                key=seed['key'],
-                defaults={
-                    'visual': visual,
-                    'title': seed.get('title', ''),
-                    'is_live_updated': seed.get('is_live_updated', False),
-                    'is_active': True,
-                    'is_deleted': False,
-                },
-            )
+            visual = visuals_by_name.get(seed['visual_name'])
+            if visual is None or visual.pk == region.visual_id:
+                continue
 
-            model_objects.append(region)
+            region.visual = visual
+            updates.append(region)
 
-        self._model_object_ids = [model_object.id for model_object in model_objects]
-
-        return self.queryset
+        models.VisualRegion.objects.bulk_update(updates, ['visual'])

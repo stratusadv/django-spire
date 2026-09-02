@@ -44,8 +44,9 @@ def _region_status_rows(visual: Visual) -> list[dict]:
 
 
 @permission_required('django_spire_metric_visual.add_visualregion')
-def connect_region_view(request: WSGIRequest) -> TemplateResponse | HttpResponseRedirect:
-    visual_pk = request.GET.get('visual', 0)
+def connect_region_view(
+    request: WSGIRequest, visual_pk: int
+) -> TemplateResponse | HttpResponseRedirect:
     visual = get_object_or_404(models.Visual, pk=visual_pk)
 
     nav = VisualNavigation()
@@ -64,8 +65,8 @@ def connect_region_view(request: WSGIRequest) -> TemplateResponse | HttpResponse
 
 @require_POST
 @permission_required('django_spire_metric_visual.add_visualregion')
-def connect_view(request: WSGIRequest) -> HttpResponseRedirect:
-    visual = get_object_or_404(models.Visual, pk=request.POST.get('visual'))
+def connect_view(request: WSGIRequest, visual_pk: int) -> HttpResponseRedirect:
+    visual = get_object_or_404(models.Visual, pk=visual_pk)
     key = request.POST.get('key', '')
 
     if key not in settings.DJANGO_SPIRE_METRIC_VISUAL_REGIONS:

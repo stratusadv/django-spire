@@ -46,8 +46,10 @@ class PresentationFormViewsTestCase(BaseTestCase):
 
     def test_create_slide_view(self):
         response = self.client.get(
-            reverse('django_spire:metric:visual:presentation:form:create_slide'),
-            data={'presentation': self.presentation.pk},
+            reverse(
+                'django_spire:metric:visual:presentation:form:create_slide',
+                kwargs={'presentation_pk': self.presentation.pk},
+            )
         )
 
         assert response.status_code == 200
@@ -81,8 +83,10 @@ class PresentationFormViewsTestCase(BaseTestCase):
         slide = create_test_slide(self.presentation)
 
         response = self.client.get(
-            reverse('django_spire:metric:visual:presentation:form:create_section'),
-            data={'slide': slide.pk},
+            reverse(
+                'django_spire:metric:visual:presentation:form:create_section',
+                kwargs={'slide_pk': slide.pk},
+            )
         )
 
         assert response.status_code == 200

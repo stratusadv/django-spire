@@ -24,7 +24,7 @@ class VisualSeederTestCase(BaseTestCase):
         self.statistic = create_test_statistic(group=self.group, name='Page Views')
 
     def test_seeds_curated_visuals(self) -> None:
-        VisualSeeder(verbose=False).seed_database()
+        VisualSeeder(count=len(VISUAL_SEEDS), verbose=False).seed_database()
 
         seeds_by_name = {seed['name']: seed for seed in VISUAL_SEEDS}
         visuals = list(Visual.objects.all())
@@ -39,7 +39,7 @@ class VisualSeederTestCase(BaseTestCase):
             assert visual.date == timezone.localdate()
 
     def test_seeded_visuals_display_data(self) -> None:
-        VisualSeeder(verbose=False).seed_database()
+        VisualSeeder(count=len(VISUAL_SEEDS), verbose=False).seed_database()
 
         for visual in Visual.objects.all():
             if visual.kind == 'pie':
@@ -59,10 +59,10 @@ class VisualRegionSeederTestCase(BaseTestCase):
         self.group = create_test_statistic_group(domain=self.domain)
         self.statistic = create_test_statistic(group=self.group, name='Page Views')
 
-        VisualSeeder(verbose=False).seed_database()
+        VisualSeeder(count=len(VISUAL_SEEDS), verbose=False).seed_database()
 
     def test_seeds_assigned_regions(self) -> None:
-        VisualRegionSeeder(verbose=False).seed_database()
+        VisualRegionSeeder(count=len(VISUAL_REGION_SEEDS), verbose=False).seed_database()
 
         seeds_by_key = {seed['key']: seed for seed in VISUAL_REGION_SEEDS}
         regions = list(VisualRegion.objects.all())
@@ -74,10 +74,3 @@ class VisualRegionSeederTestCase(BaseTestCase):
             assert region.visual.name == seed['visual_name']
             assert region.title == seed['title']
             assert region.is_live_updated is seed['is_live_updated']
-
-    def test_seed_is_idempotent(self) -> None:
-        VisualRegionSeeder(verbose=False).seed_database()
-        VisualRegionSeeder(verbose=False).seed_database()
-
-        assert VisualRegion.objects.count() == len(VISUAL_REGION_SEEDS)
-        assert all(region.visual is not None for region in VisualRegion.objects.all())

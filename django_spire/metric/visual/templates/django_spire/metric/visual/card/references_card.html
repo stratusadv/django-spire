@@ -6,8 +6,8 @@
 
 {% block card_button %}
     {% if perms.django_spire_metric_visual.add_visual %}
-        {% url 'django_spire:metric:visual:form:create_reference' as add_reference_url %}
-        <a class="btn btn-sm btn-primary" href="{{ add_reference_url }}?visual={{ visual.pk }}">
+        {% url 'django_spire:metric:visual:form:create_reference' visual_pk=visual.pk as add_reference_url %}
+        <a class="btn btn-sm btn-primary" href="{{ add_reference_url }}">
             <i class="bi bi-plus"></i>
             Add
         </a>

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from django_spire.contrib.seeding import Seeder
 
 from django_spire.metric.visual.models import Visual
@@ -12,37 +10,26 @@ from django_spire.metric.visual.presentation.seeding.constants import (
     SLIDE_TITLES,
 )
 
-if TYPE_CHECKING:
-    from typing import ClassVar
-
-    from django.db.models import QuerySet
-
 SLIDE_COUNT = 3
 
 
 class PresentationSeeder(Seeder):
+    cache_enabled = False
     model_class = models.Presentation
 
-    fields_seeds: ClassVar = {}
+    fields_seeds = {
+        'id': Seeder.exclude(),
+        'name': Seeder.ordered.choice([seed['name'] for seed in PRESENTATION_SEEDS], wrap=True),
+        'description': Seeder.ordered.choice(
+            [seed['description'] for seed in PRESENTATION_SEEDS], wrap=True
+        ),
+        'is_active': Seeder.static(True),
+        'is_deleted': Seeder.static(False),
+    }
 
-    def seed_database(self, count: int | None = None) -> QuerySet:  # noqa: ARG002
-        model_objects = []
-
-        for presentation_index, seed in enumerate(PRESENTATION_SEEDS):
-            presentation, _ = models.Presentation.objects.get_or_create(
-                name=seed['name'],
-                defaults={
-                    'description': seed['description'],
-                    'is_active': True,
-                    'is_deleted': False,
-                },
-            )
-            self._seed_slides(presentation, presentation_index)
-            model_objects.append(presentation)
-
-        self._model_object_ids = [model_object.id for model_object in model_objects]
-
-        return self.queryset
+    def __post_seed_database__(self) -> None:
+        for index, presentation in enumerate(self.queryset.order_by('pk')):
+            self._seed_slides(presentation, index)
 
     @classmethod
     def _seed_slides(cls, presentation: models.Presentation, presentation_index: int) -> None:
@@ -50,10 +37,12 @@ class PresentationSeeder(Seeder):
 
         for order in range(SLIDE_COUNT):
             slide_title = SLIDE_TITLES[(start + order) % len(SLIDE_TITLES)]
-            slide, _ = models.Slide.objects.get_or_create(
+            slide = models.Slide.objects.create(
                 presentation=presentation,
+                name=slide_title,
                 order=order,
-                defaults={'name': slide_title, 'is_active': True, 'is_deleted': False},
+                is_active=True,
+                is_deleted=False,
             )
             cls._seed_sections(slide)
 
@@ -69,9 +58,11 @@ class PresentationSeeder(Seeder):
 
         for order, visual_name in enumerate(visual_names):
             visual = visuals_by_name.get(visual_name) or visuals[order % len(visuals)]
-            models.SlideSection.objects.get_or_create(
+            models.SlideSection.objects.create(
                 slide=slide,
                 row=order // 2,
                 col=order % 2,
-                defaults={'visual': visual, 'is_active': True, 'is_deleted': False},
+                visual=visual,
+                is_active=True,
+                is_deleted=False,
             )

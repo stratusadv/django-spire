@@ -10,7 +10,7 @@ urlpatterns = [
     path('create/', form_views.create_view, name='create'),
     path('<int:pk>/update/', form_views.update_view, name='update'),
     path('<int:pk>/delete/', form_views.delete_view, name='delete'),
-    path('link/create/', form_views.create_link_view, name='create_link'),
+    path('link/<int:signage_pk>/create/', form_views.create_link_view, name='create_link'),
     path('link/<int:pk>/update/', form_views.update_link_view, name='update_link'),
     path('link/<int:pk>/delete/', form_views.delete_link_view, name='delete_link'),
 ]

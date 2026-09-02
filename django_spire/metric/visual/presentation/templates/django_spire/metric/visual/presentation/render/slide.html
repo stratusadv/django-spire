@@ -3,8 +3,8 @@
         <div class="fs-5 fw-semibold text-light">{{ slide }}</div>
         <div class="d-flex gap-2">
             {% if perms.django_spire_metric_visual_presentation.add_slidesection %}
-                {% url 'django_spire:metric:visual:presentation:form:create_section' as add_section_url %}
-                <a class="btn btn-sm btn-light" href="{{ add_section_url }}?slide={{ slide.pk }}">
+                {% url 'django_spire:metric:visual:presentation:form:create_section' slide_pk=slide.pk as add_section_url %}
+                <a class="btn btn-sm btn-light" href="{{ add_section_url }}">
                     <i class="bi bi-plus"></i>
                     Section
                 </a>

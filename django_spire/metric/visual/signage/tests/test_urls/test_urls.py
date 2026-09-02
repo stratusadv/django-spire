@@ -40,6 +40,6 @@ class SignageAppTestCase:
 
     def test_create_link_form_url(self):
         assert (
-            reverse('django_spire:metric:visual:signage:form:create_link')
-            == '/django_spire/metric/visual/signage/form/link/create/'
+            reverse('django_spire:metric:visual:signage:form:create_link', kwargs={'signage_pk': 1})
+            == '/django_spire/metric/visual/signage/form/link/1/create/'
         )

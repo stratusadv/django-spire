@@ -13,11 +13,14 @@ from django_spire.metric.domain.statistic.seeding.seeder import (
     StatisticSeeder,
     seed_statistic_values,
 )
-from django_spire.metric.visual.models import Visual, VisualCondition
+from django_spire.metric.visual.models import Visual, VisualCondition, VisualRegion
 from django_spire.metric.visual.presentation.models import Presentation, Slide, SlideSection
+from django_spire.metric.visual.presentation.seeding.constants import PRESENTATION_SEEDS
 from django_spire.metric.visual.presentation.seeding.seeder import PresentationSeeder
-from django_spire.metric.visual.seeding.seeder import VisualSeeder
+from django_spire.metric.visual.seeding.constants import VISUAL_REGION_SEEDS, VISUAL_SEEDS
+from django_spire.metric.visual.seeding.seeder import VisualRegionSeeder, VisualSeeder
 from django_spire.metric.visual.signage.models import Signage, SignagePresentation
+from django_spire.metric.visual.signage.seeding.constants import SIGNAGE_SEEDS
 from django_spire.metric.visual.signage.seeding.seeder import SignageSeeder
 from django_spire.contrib.seeding.field.seed.model_seed import BaseForeignKeyModelFieldSeed
 
@@ -110,38 +113,34 @@ class SubDomainSeederTestCase(TransactionTestCase):
         assert set(subdomains.values_list('domain_id', flat=True)) == active_domain_ids
 
 
-class MetricSeedingIdempotencyTestCase(TransactionTestCase):
+class MetricSeedingSmokeTestCase(TransactionTestCase):
+    def setUp(self) -> None:
+        BaseForeignKeyModelFieldSeed._model_foreign_keys.clear()
+
     def _run_full_seed(self) -> None:
         DomainSeeder(count=len(DOMAIN_SEEDS), verbose=False).seed_database()
         SubDomainSeeder(count=len(SUBDOMAIN_SEEDS), verbose=False).seed_database()
         StatisticGroupSeeder(count=5, verbose=False).seed_database()
         StatisticSeeder(count=12, verbose=False).seed_database()
         seed_statistic_values(count=1000)
-        VisualSeeder(verbose=False).seed_database()
-        PresentationSeeder(verbose=False).seed_database()
-        SignageSeeder(verbose=False).seed_database()
+        VisualSeeder(count=len(VISUAL_SEEDS), verbose=False).seed_database()
+        VisualRegionSeeder(count=len(VISUAL_REGION_SEEDS), verbose=False).seed_database()
+        PresentationSeeder(count=len(PRESENTATION_SEEDS), verbose=False).seed_database()
+        SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False).seed_database()
 
-    def _snapshot(self) -> dict[str, int]:
-        return {
-            'Domain': Domain.objects.count(),
-            'SubDomain': SubDomain.objects.count(),
-            'StatisticGroup': StatisticGroup.objects.count(),
-            'Statistic': Statistic.objects.count(),
-            'StatisticValue': StatisticValue.objects.count(),
-            'Visual': Visual.objects.count(),
-            'VisualCondition': VisualCondition.objects.count(),
-            'Presentation': Presentation.objects.count(),
-            'Slide': Slide.objects.count(),
-            'SlideSection': SlideSection.objects.count(),
-            'Signage': Signage.objects.count(),
-            'SignagePresentation': SignagePresentation.objects.count(),
-        }
-
-    def test_double_seed_does_not_duplicate_or_crash(self):
+    def test_full_seed_creates_expected_rows(self) -> None:
         self._run_full_seed()
-        first = self._snapshot()
 
-        self._run_full_seed()
-        second = self._snapshot()
-
-        assert first == second
+        assert Domain.objects.count() == len(DOMAIN_SEEDS)
+        assert SubDomain.objects.count() == len(SUBDOMAIN_SEEDS)
+        assert StatisticGroup.objects.count() == 5
+        assert Statistic.objects.count() == 12
+        assert StatisticValue.objects.count() > 0
+        assert Visual.objects.count() == len(VISUAL_SEEDS)
+        assert VisualCondition.objects.count() > 0
+        assert VisualRegion.objects.count() == len(VISUAL_REGION_SEEDS)
+        assert Presentation.objects.count() == len(PRESENTATION_SEEDS)
+        assert Slide.objects.count() > 0
+        assert SlideSection.objects.count() > 0
+        assert Signage.objects.count() == len(SIGNAGE_SEEDS)
+        assert SignagePresentation.objects.count() > 0

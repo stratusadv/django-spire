@@ -97,8 +97,8 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
 
 @permission_required('django_spire_metric_visual_signage.add_signagepresentation')
-def create_link_view(request: WSGIRequest) -> TemplateResponse:
-    return _link_form_view(request)
+def create_link_view(request: WSGIRequest, signage_pk: int) -> TemplateResponse:
+    return _link_form_view(request, signage_pk=signage_pk)
 
 
 @permission_required('django_spire_metric_visual_signage.change_signagepresentation')
@@ -106,13 +106,15 @@ def update_link_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _link_form_view(request, pk)
 
 
-def _link_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
+def _link_form_view(
+    request: WSGIRequest, pk: int = 0, signage_pk: int = 0
+) -> TemplateResponse | HttpResponseRedirect:
     link = get_object_or_null_obj(models.SignagePresentation, pk=pk)
 
     if link.pk:
         signage = link.signage
     else:
-        signage = get_object_or_404(models.Signage, pk=request.GET.get('signage', 0))
+        signage = get_object_or_404(models.Signage, pk=signage_pk)
         link.signage_id = signage.pk
 
     form = forms.SignagePresentationModelForm(request.POST or None, instance=link)

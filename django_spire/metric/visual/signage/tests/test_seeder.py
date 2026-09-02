@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django_spire.core.tests.test_cases import BaseTestCase
 from django_spire.metric.visual.presentation.models import Presentation
+from django_spire.metric.visual.presentation.seeding.constants import PRESENTATION_SEEDS
 from django_spire.metric.visual.presentation.seeding.seeder import PresentationSeeder
 from django_spire.metric.visual.signage.models import Signage, SignagePresentation
 from django_spire.metric.visual.signage.seeding.constants import (
@@ -30,10 +31,10 @@ class SignageSeederTestCase(BaseTestCase):
                 statistic=statistic, name=f'visual {order}', kind='line', with_conditions=False
             )
 
-        PresentationSeeder(verbose=False).seed_database()
+        PresentationSeeder(count=len(PRESENTATION_SEEDS), verbose=False).seed_database()
 
     def test_seeds_curated_signages(self) -> None:
-        SignageSeeder(verbose=False).seed_database()
+        SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False).seed_database()
 
         signages = list(Signage.objects.order_by('pk'))
 
@@ -42,7 +43,7 @@ class SignageSeederTestCase(BaseTestCase):
         assert [str(signage.key) for signage in signages] == [seed['key'] for seed in SIGNAGE_SEEDS]
 
     def test_seeds_slide_display_seconds(self) -> None:
-        SignageSeeder(verbose=False).seed_database()
+        SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False).seed_database()
 
         signages = list(Signage.objects.order_by('pk'))
 
@@ -52,14 +53,14 @@ class SignageSeederTestCase(BaseTestCase):
         assert all(10 <= signage.slide_display_seconds <= 60 for signage in signages)
 
     def test_seeds_display_title(self) -> None:
-        SignageSeeder(verbose=False).seed_database()
+        SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False).seed_database()
 
         signages = list(Signage.objects.order_by('pk'))
 
         assert [signage.title for signage in signages] == [seed['title'] for seed in SIGNAGE_SEEDS]
 
     def test_seeded_links_flow_from_presentations(self) -> None:
-        SignageSeeder(verbose=False).seed_database()
+        SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False).seed_database()
 
         for signage in Signage.objects.all():
             presentation_names = SIGNAGE_PRESENTATION_LINKS[signage.name]
@@ -73,6 +74,6 @@ class SignageSeederTestCase(BaseTestCase):
 
     def test_seeded_links_skip_without_presentations(self) -> None:
         Presentation.objects.all().delete()
-        SignageSeeder(verbose=False).seed_database()
+        SignageSeeder(count=len(SIGNAGE_SEEDS), verbose=False).seed_database()
 
         assert SignagePresentation.objects.count() == 0

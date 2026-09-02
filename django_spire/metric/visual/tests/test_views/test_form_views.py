@@ -47,8 +47,10 @@ class VisualFormViewsTestCase(BaseTestCase):
 
     def test_create_condition_view(self):
         response = self.client.get(
-            reverse('django_spire:metric:visual:form:create_condition'),
-            data={'visual': self.visual.pk},
+            reverse(
+                'django_spire:metric:visual:form:create_condition',
+                kwargs={'visual_pk': self.visual.pk},
+            )
         )
         assert response.status_code == 200
 
@@ -97,8 +99,10 @@ class VisualFormViewsTestCase(BaseTestCase):
         )
 
         response = self.client.get(
-            reverse('django_spire:metric:visual:form:create_reference'),
-            data={'visual': self.visual.pk},
+            reverse(
+                'django_spire:metric:visual:form:create_reference',
+                kwargs={'visual_pk': self.visual.pk},
+            )
         )
 
         assert response.status_code == 200

@@ -23,8 +23,10 @@ class VisualRegionFormViewsTestCase(BaseTestCase):
 
     def test_connect_region_view_lists_registry(self):
         response = self.client.get(
-            reverse('django_spire:metric:visual:form:connect_region'),
-            data={'visual': self.visual.pk},
+            reverse(
+                'django_spire:metric:visual:form:connect_region',
+                kwargs={'visual_pk': self.visual.pk},
+            )
         )
 
         assert response.status_code == 200
@@ -33,13 +35,18 @@ class VisualRegionFormViewsTestCase(BaseTestCase):
         assert 'home:dashboard:conversion' in content
 
     def test_connect_region_view_requires_visual(self):
-        response = self.client.get(reverse('django_spire:metric:visual:form:connect_region'))
+        response = self.client.get(
+            reverse('django_spire:metric:visual:form:connect_region', kwargs={'visual_pk': 999})
+        )
         assert response.status_code == 404
 
     def test_connect_view_creates_region(self):
         response = self.client.post(
-            reverse('django_spire:metric:visual:form:connect_region_save'),
-            data={'visual': self.visual.pk, 'key': 'home:dashboard:hero'},
+            reverse(
+                'django_spire:metric:visual:form:connect_region_save',
+                kwargs={'visual_pk': self.visual.pk},
+            ),
+            data={'key': 'home:dashboard:hero'},
         )
 
         assert response.status_code == 302
@@ -55,8 +62,11 @@ class VisualRegionFormViewsTestCase(BaseTestCase):
         VisualRegion.objects.create(key='home:dashboard:hero', visual=other_visual)
 
         response = self.client.post(
-            reverse('django_spire:metric:visual:form:connect_region_save'),
-            data={'visual': self.visual.pk, 'key': 'home:dashboard:hero'},
+            reverse(
+                'django_spire:metric:visual:form:connect_region_save',
+                kwargs={'visual_pk': self.visual.pk},
+            ),
+            data={'key': 'home:dashboard:hero'},
         )
 
         assert response.status_code == 302
@@ -66,8 +76,11 @@ class VisualRegionFormViewsTestCase(BaseTestCase):
 
     def test_connect_view_rejects_unknown_key(self):
         response = self.client.post(
-            reverse('django_spire:metric:visual:form:connect_region_save'),
-            data={'visual': self.visual.pk, 'key': 'unknown:region'},
+            reverse(
+                'django_spire:metric:visual:form:connect_region_save',
+                kwargs={'visual_pk': self.visual.pk},
+            ),
+            data={'key': 'unknown:region'},
         )
 
         assert response.status_code == 302

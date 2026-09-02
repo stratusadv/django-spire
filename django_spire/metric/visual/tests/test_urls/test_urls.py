@@ -28,3 +28,27 @@ class VisualAppTestCase:
             reverse('django_spire:metric:visual:form:create')
             == '/django_spire/metric/visual/form/create/'
         )
+
+    def test_condition_create_form_url(self):
+        assert (
+            reverse('django_spire:metric:visual:form:create_condition', kwargs={'visual_pk': 1})
+            == '/django_spire/metric/visual/form/condition/1/create/'
+        )
+
+    def test_reference_create_form_url(self):
+        assert (
+            reverse('django_spire:metric:visual:form:create_reference', kwargs={'visual_pk': 1})
+            == '/django_spire/metric/visual/form/reference/1/create/'
+        )
+
+    def test_connect_region_url(self):
+        assert (
+            reverse('django_spire:metric:visual:form:connect_region', kwargs={'visual_pk': 1})
+            == '/django_spire/metric/visual/form/region/1/connect/'
+        )
+
+    def test_connect_region_save_url(self):
+        assert (
+            reverse('django_spire:metric:visual:form:connect_region_save', kwargs={'visual_pk': 1})
+            == '/django_spire/metric/visual/form/region/1/connect/save/'
+        )

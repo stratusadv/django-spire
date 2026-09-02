@@ -40,8 +40,10 @@ class SignageFormViewsTestCase(BaseTestCase):
 
     def test_create_link_view(self):
         response = self.client.get(
-            reverse('django_spire:metric:visual:signage:form:create_link'),
-            data={'signage': self.signage.pk},
+            reverse(
+                'django_spire:metric:visual:signage:form:create_link',
+                kwargs={'signage_pk': self.signage.pk},
+            )
         )
 
         assert response.status_code == 200

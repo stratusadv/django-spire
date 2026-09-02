@@ -98,8 +98,8 @@ def set_default_conditions_view(request: WSGIRequest, pk: int) -> HttpResponseRe
 
 
 @permission_required('django_spire_metric_visual.add_visual')
-def create_condition_view(request: WSGIRequest) -> TemplateResponse:
-    return _condition_form_view(request)
+def create_condition_view(request: WSGIRequest, visual_pk: int) -> TemplateResponse:
+    return _condition_form_view(request, visual_pk=visual_pk)
 
 
 @permission_required('django_spire_metric_visual.change_visual')
@@ -107,13 +107,13 @@ def update_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _condition_form_view(request, pk)
 
 
-def _condition_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
+def _condition_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) -> TemplateResponse:
     condition = get_object_or_null_obj(models.VisualCondition, pk=pk)
 
     if condition.pk:
         visual = condition.visual
     else:
-        visual = get_object_or_404(models.Visual, pk=request.GET.get('visual', 0))
+        visual = get_object_or_404(models.Visual, pk=visual_pk)
         condition.visual = visual
 
     form = forms.VisualConditionModelForm(request.POST or None, instance=condition)
@@ -172,8 +172,8 @@ def delete_condition_view(request: WSGIRequest, pk: int) -> TemplateResponse | H
 
 
 @permission_required('django_spire_metric_visual.add_visual')
-def create_reference_view(request: WSGIRequest) -> TemplateResponse:
-    return _reference_form_view(request)
+def create_reference_view(request: WSGIRequest, visual_pk: int) -> TemplateResponse:
+    return _reference_form_view(request, visual_pk=visual_pk)
 
 
 @permission_required('django_spire_metric_visual.change_visual')
@@ -196,13 +196,13 @@ def _reference_choices(visual: models.Visual) -> list[str]:
     return sorted(choice_set)
 
 
-def _reference_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
+def _reference_form_view(request: WSGIRequest, pk: int = 0, visual_pk: int = 0) -> TemplateResponse:
     reference_obj = get_object_or_null_obj(models.VisualReference, pk=pk)
 
     if reference_obj.pk:
         visual = reference_obj.visual
     else:
-        visual = get_object_or_404(models.Visual, pk=request.GET.get('visual', 0))
+        visual = get_object_or_404(models.Visual, pk=visual_pk)
         reference_obj.visual = visual
 
     form = forms.VisualReferenceModelForm(request.POST or None, instance=reference_obj)
@@ -210,10 +210,12 @@ def _reference_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     Glue.form(request, 'visual_reference_form', form, Glue.Access.DELETE)
 
     nav = VisualNavigation()
+
     nav.page_title = 'Edit Reference' if reference_obj.pk else 'Add Reference'
     nav.breadcrumbs.add('Visuals', 'django_spire:metric:visual:page:list')
     nav.breadcrumbs.add(str(visual), 'django_spire:metric:visual:page:detail', {'pk': visual.pk})
     nav.breadcrumbs.add(nav.page_title)
+
     context = nav.as_context()
     context['form'] = form
     context['form_title'] = nav.page_title

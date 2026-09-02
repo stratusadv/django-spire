@@ -35,12 +35,18 @@ class PresentationAppTestCase:
 
     def test_slide_create_form_url(self):
         assert (
-            reverse('django_spire:metric:visual:presentation:form:create_slide')
-            == '/django_spire/metric/visual/presentation/form/slide/create/'
+            reverse(
+                'django_spire:metric:visual:presentation:form:create_slide',
+                kwargs={'presentation_pk': 1},
+            )
+            == '/django_spire/metric/visual/presentation/form/slide/1/create/'
         )
 
     def test_section_create_form_url(self):
         assert (
-            reverse('django_spire:metric:visual:presentation:form:create_section')
-            == '/django_spire/metric/visual/presentation/form/section/create/'
+            reverse(
+                'django_spire:metric:visual:presentation:form:create_section',
+                kwargs={'slide_pk': 1},
+            )
+            == '/django_spire/metric/visual/presentation/form/section/1/create/'
         )

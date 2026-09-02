@@ -6,8 +6,8 @@
 
 {% block card_button %}
     {% if perms.django_spire_metric_visual.add_visualregion %}
-        {% url 'django_spire:metric:visual:form:connect_region' as connect_region_url %}
-        <a class="btn btn-sm btn-primary" href="{{ connect_region_url }}?visual={{ visual.pk }}">
+        {% url 'django_spire:metric:visual:form:connect_region' visual_pk=visual.pk as connect_region_url %}
+        <a class="btn btn-sm btn-primary" href="{{ connect_region_url }}">
             <i class="bi bi-link-45deg"></i>
             Connect
         </a>

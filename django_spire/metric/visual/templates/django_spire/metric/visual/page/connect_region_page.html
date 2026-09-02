@@ -39,10 +39,9 @@
                                     </td>
                                     <td class="text-end align-middle">
                                         <form method="post"
-                                              action="{% url 'django_spire:metric:visual:form:connect_region_save' %}"
+                                              action="{% url 'django_spire:metric:visual:form:connect_region_save' visual_pk=visual.pk %}"
                                               class="d-inline">
                                             {% csrf_token %}
-                                            <input type="hidden" name="visual" value="{{ visual.pk }}">
                                             <input type="hidden" name="key" value="{{ row.key }}">
                                             <button type="submit"
                                                     class="btn btn-sm btn-primary"

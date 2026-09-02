@@ -102,8 +102,8 @@ def _form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
 
 
 @permission_required('django_spire_metric_visual_presentation.add_slide')
-def create_slide_view(request: WSGIRequest) -> TemplateResponse:
-    return _slide_form_view(request)
+def create_slide_view(request: WSGIRequest, presentation_pk: int) -> TemplateResponse:
+    return _slide_form_view(request, presentation_pk=presentation_pk)
 
 
 @permission_required('django_spire_metric_visual_presentation.change_slide')
@@ -111,11 +111,12 @@ def update_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _slide_form_view(request, pk)
 
 
-def _slide_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse | HttpResponseRedirect:
+def _slide_form_view(
+    request: WSGIRequest, pk: int = 0, presentation_pk: int = 0
+) -> TemplateResponse | HttpResponseRedirect:
     slide = get_object_or_null_obj(models.Slide, pk=pk)
 
     if not slide.pk:
-        presentation_pk = request.GET.get('presentation', 0)
         presentation = get_object_or_404(models.Presentation, pk=presentation_pk)
         slide.presentation_id = presentation.pk
     else:
@@ -177,8 +178,8 @@ def delete_slide_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpR
 
 
 @permission_required('django_spire_metric_visual_presentation.add_slidesection')
-def create_section_view(request: WSGIRequest) -> TemplateResponse:
-    return _section_form_view(request)
+def create_section_view(request: WSGIRequest, slide_pk: int) -> TemplateResponse:
+    return _section_form_view(request, slide_pk=slide_pk)
 
 
 @permission_required('django_spire_metric_visual_presentation.change_slidesection')
@@ -187,14 +188,14 @@ def update_section_view(request: WSGIRequest, pk: int) -> TemplateResponse:
 
 
 def _section_form_view(
-    request: WSGIRequest, pk: int = 0
+    request: WSGIRequest, pk: int = 0, slide_pk: int = 0
 ) -> TemplateResponse | HttpResponseRedirect:
     section = get_object_or_null_obj(models.SlideSection, pk=pk)
 
     if section.pk:
         slide = section.slide
     else:
-        slide = get_object_or_404(models.Slide, pk=request.GET.get('slide', 0))
+        slide = get_object_or_404(models.Slide, pk=slide_pk)
         section.slide_id = slide.pk
 
     presentation = slide.presentation
