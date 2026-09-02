@@ -53,13 +53,14 @@ just docs-tests        # Build docs with strict mode
 
 - **Linter**: `ruff` (config in `ruff.toml`) - `select = ["ALL"]` with ignores (docstrings `D*`, `C901` complexity, etc.), max complexity 6
 - **Format**: `ruff format` - single quotes, 100 char lines, 4 space indent
+- **Type checker**: `pyrefly` is available (dev extra) with config in `ty.toml` (`invalid-argument-type` = warn). Not wired into `just` or CI - run it manually if you want type checking.
 - **CI order**: linting → tests → security (lint must pass first)
 
 ## Architecture
 
 Two top-level packages:
 
-- `django_spire/` — the framework package (published to PyPI). Apps (e.g. `ai`, `api`, `auth`, `core`, `file`, `help_desk`, `history`, `knowledge`, `metric`, `notification`, `sync`) follow the App Pattern below. `django_spire/urls.py` auto-discovers each app's `URLPATTERNS_INCLUDE`.
+- `django_spire/` — the framework package (published to PyPI). Apps (`ai`, `api`, `auth`, `celery`, `comment`, `core`, `file`, `help_desk`, `history`, `knowledge`, `metric`, `notification`) follow the App Pattern below. `django_spire/urls.py` auto-discovers each app's `URLPATTERNS_INCLUDE`. `metric` is a single app with an internal `domain`/`visual`/`report` structure rather than one app per concern.
 - `test_project/` — the test/demo Django project: settings modules (`base_settings`, `postgres_settings`, `sqlite_settings`, `test_settings`, `dandy_settings`), `seed.py`, process entry points, and example apps under `test_project/app/`.
 
 For the live layout and Django surface, use the constellation tools (`files`, `overview`, `routes`) instead of trusting this summary as exhaustive.
@@ -96,7 +97,7 @@ class AppConfig(AppConfig):
         check_required_apps(self.label)
 ```
 
-`URLPATTERNS_INCLUDE` + `URLPATTERNS_NAMESPACE` are auto-discovered by `django_spire/urls.py`.
+`URLPATTERNS_INCLUDE` + `URLPATTERNS_NAMESPACE` are auto-discovered by `django_spire/urls.py`. Other management commands: `spire_flush` (wipe DB + reseed), `spire_remove_migration <app>` (delete a migration), and `metric/domain/... prune_metric_statistic_values` (cleanup old metric values).
 
 ## Models
 
@@ -359,6 +360,41 @@ class ApiPermissionChoices(models.IntegerChoices):
 
 Path: `django_spire/api/choices.py`
 
+## Search Palette
+
+`django_spire/core/search/` powers the Ctrl/Cmd-K search palette. Apps register a `Search` subclass per model in `DJANGO_SPIRE_SEARCH_REGISTRY` (dict of `search_key` → module string, e.g. `'TASK': 'test_project.app.task.search.TaskSearch'` in `base_settings.py`). Adds an `icon`/`action` entry in the nav automatically via the registry - no URL wiring needed.
+
+```python
+from django_spire.core.search import Search
+
+class TaskSearch(Search):
+    model_class = models.Task
+    searchable_fields = ['name', 'description']   # OR'd per whitespace-separated word
+    search_key = 'TASK'                            # REQUIRED, must match registry key
+    name = 'Tasks'
+    icon = 'bi-list-task'
+    permission = 'test_project_task.add_task'      # Optional
+
+    searchable_commands = [
+        Search.Command(
+            name='New Task',
+            icon='bi-plus-lg',
+            url=reverse('task:modal:form', kwargs={'pk': 0}),
+            action=Search.Command.Action.DISPATCH_MODAL,
+            description='Create a new task',
+            permission='test_project_task.add_task',
+        )
+    ]
+
+    def base_queryset(self, request: HttpRequest) -> QuerySet: ...      # REQUIRED
+    def generate_list_url(self) -> str: ...                              # REQUIRED
+    def generate_detail_url(self, obj) -> str: ...                       # REQUIRED
+    def result_name(self, obj) -> str: ...                               # REQUIRED
+    def result_description(self, obj) -> str | None: ...                 # REQUIRED
+```
+
+Required attributes (`model_class`, `searchable_fields`, `search_key`) raise `ValueError` in `__init_subclass__` if unset. `search_key` must match the registry key or the registry raises `ValueError`. Reference implementations: `django_spire/knowledge/entry/search.py` (`EntrySearch`) and `test_project/app/task/search.py` (`TaskSearch`). Registry logic in `core/search/registry.py`, palette view in `core/search/views.py`, client JS in `core/static/django_spire/js/search_palette.js`.
+
 ## Access Control
 
 Guard views with the permission decorator (redirects anonymous users to login, raises `PermissionDenied` otherwise; supports `all_required=False`):
@@ -604,7 +640,7 @@ For the full, current list use `constellation files contrib/` (or `ls django_spi
 | `django_spire/settings.py` | `DJANGO_SPIRE_*` default settings |
 | `django_spire/conf.py` | `settings` wrapper (project + default values) |
 
-Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`.
+Common `DJANGO_SPIRE_*` settings (defaults in `django_spire/settings.py`): `DJANGO_SPIRE_NAVIGATION_HOME_URL`, `DJANGO_SPIRE_DEFAULT_THEME_MODE`, `DJANGO_SPIRE_AI_PERSONA_NAME`, `DJANGO_SPIRE_NOTIFICATION_THROTTLE_RATE_PER_MINUTE`, `DJANGO_SPIRE_CHANGELOG_MODULE`, `DJANGO_SPIRE_REPORT_REGISTRIES`, `DJANGO_SPIRE_SEARCH_REGISTRY` (search palette class mapping), and a metric/remote group (`DJANGO_SPIRE_METRIC_TRACKING_VALUES_MAX`, `DJANGO_SPIRE_METRIC_RETENTION_DAYS`, `DJANGO_SPIRE_METRIC_VISUAL_REGIONS`, `DJANGO_SPIRE_INTERNAL_METRIC_*`, `DJANGO_SPIRE_REMOTE_API_URL`/`KEY`).
 
 ## Environment
 
