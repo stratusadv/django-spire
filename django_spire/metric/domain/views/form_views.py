@@ -45,6 +45,7 @@ def form_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseR
 @permission_required('django_spire_metric_domain.delete_domain')
 def delete_form_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     domain = get_object_or_404(models.Domain, pk=pk)
+
     return_url = safe_redirect_url(
         request, fallback=reverse('django_spire:metric:domain:page:list')
     )
