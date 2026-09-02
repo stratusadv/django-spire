@@ -1,0 +1,14 @@
+{% extends 'django_spire/page/full_page.html' %}
+
+{% block full_page_content %}
+    <h1 class="fs-1 fw-semi-bold mb-3">Widget Showcase</h1>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            {% include 'showcase/form/form.html' %}
+        </div>
+        <div class="col-12 col-lg-5">
+            {% include 'showcase/card/live_model_card.html' %}
+        </div>
+    </div>
+{% endblock %}

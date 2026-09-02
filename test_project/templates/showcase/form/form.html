@@ -1,0 +1,141 @@
+{% extends 'django_spire/glue/form/form.html' %}
+
+{% block glue_form_binding %}glue_form: {{ glue_form|default:'Glue.model.widget_showcase_model.form' }},{% endblock %}
+
+{% block glue_form_on_saved %}
+    if (result?.pk) {
+        if (!Glue.model.widget_showcase_model.$pk) {
+            // This page loaded as a fresh, unsaved create (pk=0). The outer
+            // model proxy's own identity is still the unsaved one -- saving
+            // through the nested form never updates it, so load_state()
+            // on it would just refetch nothing. Move to the real record's
+            // URL instead, same as Deal and Task redirect after a create.
+            // $pk (not .id/.pk) is the proxy's built-in identity property --
+            // it reflects the server-side instance.pk regardless of whether
+            // 'id' is in this model's exposed fields list.
+            window.location.href = window.location.pathname + result.pk + '/'
+        } else {
+            // Editing an existing record: the outer model's identity was
+            // already correct from page load, so a live, no-reload refresh
+            // works. The live panel lives in a separate x-data scope, a
+            // separate Alpine and Vue reactive wrapper around the same glue
+            // object, so mutating widget_showcase_model's state here does
+            // not by itself trigger a re-render there. $dispatch plus
+            // .window is the same cross-component pattern
+            // django_spire glue scroll scroll.html uses for updated-item.
+            this.$dispatch('widget-showcase-saved')
+        }
+    }
+{% endblock %}
+
+{% block glue_form_content %}
+    <div class="row g-3">
+        <div class="col-12"><h5>Boolean</h5></div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/boolean/field.html' with glue_field='glue_form.boolean_field' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Char</h5></div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.char_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/color_field.html' with glue_field='glue_form.color_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/email_field.html' with glue_field='glue_form.email_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/password_field.html' with glue_field='glue_form.password_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/postal_code_field.html' with glue_field='glue_form.postal_code_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/search_field.html' with glue_field='glue_form.search_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/slug_field.html' with glue_field='glue_form.slug_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/telephone_field.html' with glue_field='glue_form.telephone_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/url_field.html' with glue_field='glue_form.url_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/char/uuid_field.html' with glue_field='glue_form.uuid_field' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Choice</h5></div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.select_choice' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/radio_field.html' with glue_field='glue_form.radio_choice' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/multiple_field.html' with glue_field='glue_form.checkbox_tags' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/multiple_search_field.html' with glue_field='glue_form.search_tags' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/search_field.html' with glue_field='glue_form.category' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/user/search_field.html' with glue_field='glue_form.assigned_user' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/choice/user/multiple_search_field.html' with glue_field='glue_form.watchers' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Datetime</h5></div>
+        <div class="col-12 col-md-4">
+            {% include 'django_spire/glue/form/field/datetime/date_field.html' with glue_field='glue_form.date_field' %}
+        </div>
+        <div class="col-12 col-md-4">
+            {% include 'django_spire/glue/form/field/datetime/field.html' with glue_field='glue_form.datetime_field' %}
+        </div>
+        <div class="col-12 col-md-4">
+            {% include 'django_spire/glue/form/field/datetime/time_field.html' with glue_field='glue_form.time_field' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Decimal</h5></div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/decimal/currency_field.html' with glue_field='glue_form.currency_field' %}
+        </div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/decimal/field.html' with glue_field='glue_form.decimal_field' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Float</h5></div>
+        <div class="col-12 col-md-6">
+            {% include 'django_spire/glue/form/field/float/field.html' with glue_field='glue_form.float_field' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Hidden</h5></div>
+        <div class="col-12">
+            {% include 'django_spire/glue/form/field/hidden_field.html' with glue_field='glue_form.hidden_field' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Integer</h5></div>
+        <div class="col-12 col-md-3">
+            {% include 'django_spire/glue/form/field/integer/big_field.html' with glue_field='glue_form.big_integer_field' %}
+        </div>
+        <div class="col-12 col-md-3">
+            {% include 'django_spire/glue/form/field/integer/field.html' with glue_field='glue_form.integer_field' %}
+        </div>
+        <div class="col-12 col-md-3">
+            {% include 'django_spire/glue/form/field/integer/positive_field.html' with glue_field='glue_form.positive_integer_field' %}
+        </div>
+        <div class="col-12 col-md-3">
+            {% include 'django_spire/glue/form/field/integer/small_field.html' with glue_field='glue_form.small_integer_field' %}
+        </div>
+
+        <div class="col-12 mt-4"><h5>Text</h5></div>
+        <div class="col-12">
+            {% include 'django_spire/glue/form/field/text/field.html' with glue_field='glue_form.text_field' %}
+        </div>
+    </div>
+{% endblock %}
