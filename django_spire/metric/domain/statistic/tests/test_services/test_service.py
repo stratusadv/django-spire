@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 import pytest
@@ -13,7 +15,8 @@ from django_spire.metric.domain.statistic.constants import (
     StatisticIntervalChoices,
     StatisticValueTypeChoices,
 )
-from django_spire.metric.domain.statistic.models import StatisticValue
+from django_spire.metric.domain.statistic.models import Statistic, StatisticValue
+from django_spire.metric.domain.statistic.services.service import StatisticService
 from django_spire.metric.domain.statistic.tests.factories import (
     create_test_domain,
     create_test_statistic,
@@ -559,3 +562,59 @@ class StatisticIntervalTransformationServiceTestCase(BaseTestCase):
             statistic.services.transformation.interval_summary(date(2026, 9, 1), date(2026, 9, 30))
             == {}
         )
+
+
+class StatisticRecordServiceTestCase(BaseTestCase):
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.domain = create_test_domain()
+        self.sub_domain = create_test_subdomain(domain=self.domain)
+        self.group = create_test_statistic_group(domain=self.domain)
+        self.statistic = create_test_statistic(group=self.group)
+
+    def test_record_creates_value(self):
+        statistic_value = StatisticService.record(
+            self.statistic.key, self.sub_domain.key, '/home/', value=Decimal(5)
+        )
+
+        assert statistic_value.statistic == self.statistic
+        assert statistic_value.sub_domain == self.sub_domain
+        assert statistic_value.reference == '/home/'
+        assert statistic_value.value == Decimal(5)
+        assert StatisticValue.objects.count() == 1
+
+    def test_record_default_value_is_one(self):
+        statistic_value = StatisticService.record(self.statistic.key, self.sub_domain.key, '/home/')
+
+        assert statistic_value.value == Decimal(1)
+
+    def test_record_unknown_statistic_raises(self):
+        with pytest.raises(ServiceError):
+            StatisticService.record('missing-statistic', self.sub_domain.key, '/home/')
+
+    def test_record_unknown_sub_domain_raises(self):
+        with pytest.raises(ServiceError):
+            StatisticService.record(self.statistic.key, 'missing-sub-domain', '/home/')
+
+    def test_record_sub_domain_foreign_domain_raises(self):
+        foreign_domain = create_test_domain(name='foreign_domain')
+        foreign_sub_domain = create_test_subdomain(domain=foreign_domain, name='foreign')
+
+        with pytest.raises(ServiceError):
+            StatisticService.record(self.statistic.key, foreign_sub_domain.key, '/home/')
+
+    def test_record_model_classmethod_delegates(self):
+        statistic_value = Statistic.record(self.statistic.key, self.sub_domain.key, '/home/')
+
+        assert statistic_value.value == Decimal(1)
+        assert StatisticValue.objects.count() == 1
+
+    def test_record_inserts_blind_in_single_statement(self):
+        with CaptureQueriesContext(connection) as context:
+            StatisticService.record(self.statistic.key, self.sub_domain.key, '/home/')
+
+        insert = context.captured_queries[0]
+        assert insert['sql'].startswith('INSERT')
+        assert 'SELECT' in insert['sql']
+        assert len(context) == 2

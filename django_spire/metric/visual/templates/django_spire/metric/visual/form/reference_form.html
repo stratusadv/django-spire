@@ -5,7 +5,12 @@
 {% block glue_form_content %}
     <div class="row g-3">
         <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/char/field.html' with glue_field='glue_form.$fields.reference' %}
+            {% include 'django_spire/metric/visual/form/widget/reference_input_widget.html' with glue_field='glue_form.$fields.reference' %}
+            <datalist id="reference-datalist">
+                {% for choice in reference_choices %}
+                    <option value="{{ choice }}"></option>
+                {% endfor %}
+            </datalist>
         </div>
 
         <div class="col-md-6">

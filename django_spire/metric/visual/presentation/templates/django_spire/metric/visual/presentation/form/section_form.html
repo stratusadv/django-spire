@@ -1,23 +1,57 @@
 {% extends 'django_spire/glue/form/form.html' %}
+{% load django_glue %}
 
 {% block glue_form_unique_name %}section_form{% endblock %}
 
 {% block glue_form_content %}
-    <div class="row g-3">
-        <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.slide' %}
-        </div>
+    <div x-data="{
+        occupied: JSON.parse($el.querySelector('#section-occupied-cells').textContent),
+        rowDisabled(row) {
+            return [0, 1, 2].every(col => this.occupied.some(([r, c]) => r === row && c === col));
+        },
+        colDisabled(col) {
+            const row = Number(glue_form.row ?? 0);
+            return this.occupied.some(([r, c]) => r === row && c === col);
+        },
+    }">
+        {{ occupied_cells|json_script:'section-occupied-cells' }}
 
-        <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.visual' %}
-        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.slide' %}
+            </div>
 
-        <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/integer/field.html' with glue_field='glue_form.$fields.row' %}
-        </div>
+            <div class="col-md-6">
+                {% include 'django_spire/glue/form/field/choice/field.html' with glue_field='glue_form.$fields.visual' %}
+            </div>
 
-        <div class="col-md-6">
-            {% include 'django_spire/glue/form/field/integer/field.html' with glue_field='glue_form.$fields.col' %}
+            <div class="col-md-6">
+                <label class="form-label" for="section-row">Row</label>
+                <select id="section-row" class="form-select" x-model="glue_form.row"
+                        :class="{'is-invalid': glue_form.$fields.row.hasErrors}">
+                    {% for value, label in row_choices %}
+                        <option value="{{ value }}"
+                                :selected="String(glue_form.row) === '{{ value }}'"
+                                :disabled="rowDisabled({{ value }})">
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label" for="section-col">Column</label>
+                <select id="section-col" class="form-select" x-model="glue_form.col"
+                        :class="{'is-invalid': glue_form.$fields.col.hasErrors}">
+                    {% for value, label in col_choices %}
+                        <option value="{{ value }}"
+                                :selected="String(glue_form.col) === '{{ value }}'"
+                                :disabled="colDisabled({{ value }})">
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
     </div>
 {% endblock %}

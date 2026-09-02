@@ -335,6 +335,27 @@ class VisualTransformationServiceTestCase(BaseTestCase):
         assert {'name': '/dashboard/', 'value': 50.0} in breakdown
         assert {'name': '/home/', 'value': 50.0} in breakdown
 
+    def test_series_breakdown_uses_reference_labels(self):
+        statistic = create_test_statistic(group=self.group)
+        visual = create_test_visual(
+            statistic=statistic,
+            references=['/home/', '/dashboard/'],
+            labels=['Home', 'Dashboard'],
+            with_conditions=False,
+        )
+
+        statistic.services.processor.add_value(
+            reference='/home/', value=Decimal(30), sub_domain=self.sub_domain
+        )
+        statistic.services.processor.add_value(
+            reference='/dashboard/', value=Decimal(50), sub_domain=self.sub_domain
+        )
+
+        breakdown = visual.services.transformation.series_breakdown()
+
+        assert {'name': 'Home', 'value': 30.0} in breakdown
+        assert {'name': 'Dashboard', 'value': 50.0} in breakdown
+
     def test_current_value_percentage_is_moving_average(self):
         statistic = create_test_statistic(
             group=self.group, value_type=StatisticValueTypeChoices.PERCENTAGE

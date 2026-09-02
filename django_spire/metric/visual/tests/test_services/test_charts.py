@@ -115,6 +115,38 @@ class VisualChartOptionTestCase(BaseTestCase):
         assert {'name': '/dashboard/', 'value': 180.0} in slices
         assert {'name': '/home/', 'value': 30.0} in slices
 
+    def test_pie_chart_option_uses_reference_labels(self):
+        visual = create_test_visual(
+            statistic=self.statistic,
+            kind='pie',
+            references=['/home/', '/dashboard/'],
+            labels=['Home', 'Dashboard'],
+            with_conditions=False,
+        )
+        visual.date = date(2026, 5, 15)
+        visual.save()
+
+        self.statistic.services.processor.add_value(
+            reference='/home/',
+            value=Decimal(30),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 11),
+        )
+        self.statistic.services.processor.add_value(
+            reference='/dashboard/',
+            value=Decimal(180),
+            sub_domain=self.sub_domain,
+            value_timestamp=aware(date(2026, 5, 15), 11),
+        )
+
+        chart = visual.services.transformation.chart()
+        _, option = chart, chart.to_option_dict()
+
+        slices = option['series'][0]['data']
+
+        assert {'name': 'Home', 'value': 30.0} in slices
+        assert {'name': 'Dashboard', 'value': 180.0} in slices
+
     def test_gauge_chart_option(self):
         visual = create_test_visual(
             statistic=self.statistic,

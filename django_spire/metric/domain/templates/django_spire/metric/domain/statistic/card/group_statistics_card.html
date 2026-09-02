@@ -31,7 +31,7 @@
                             <tr>
                                 <td>
                                     <a href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
-                                        {{ statistic.name }}
+                                        {% if show_group_prefix %}{{ statistic.group }} / {% endif %}{{ statistic.name }}
                                     </a>
                                 </td>
                                 <td>{{ statistic.get_interval_display }}</td>

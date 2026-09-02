@@ -13,6 +13,7 @@ from django_spire.metric.domain.statistic.constants import (
     percentage_moving_window_days,
 )
 from django_spire.metric.domain.statistic.interval import interval_range
+from django_spire.metric.domain.statistic.querysets import reference_matches
 from django_spire.metric.visual.choices import VisualConditionOperatorChoices
 
 if TYPE_CHECKING:
@@ -61,7 +62,7 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         ]
         if reference is None:
             datasets = self._datasets()
-            parts.append('|'.join(dataset.reference for dataset in datasets) if datasets else '-')
+            parts.append('|'.join(f'{d.reference}->{d}' for d in datasets) if datasets else '-')
         if include_conditions:
             parts.append(
                 '|'.join(
@@ -251,7 +252,18 @@ class VisualTransformationService(BaseDjangoModelService['Visual']):
         else:
             breakdown = values.breakdown(start_date, end_date)
 
-        result = [{'name': reference, 'value': float(total)} for reference, total in breakdown]
+        labels = {dataset.reference: str(dataset) for dataset in self._datasets()}
+
+        result = [
+            {
+                'name': next(
+                    (label for pattern, label in labels.items() if reference_matches(pattern, ref)),
+                    ref,
+                ),
+                'value': float(total),
+            }
+            for ref, total in breakdown
+        ]
         cache.set(key, result, VISUAL_AGGREGATE_CACHE_TTL_SECONDS)
         return result
 

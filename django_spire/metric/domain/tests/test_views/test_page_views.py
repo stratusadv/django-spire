@@ -84,3 +84,4 @@ class SubDomainViewTestCase(BaseTestCase):
             'django_spire:metric:domain:statistic:page:detail', kwargs={'pk': statistic.pk}
         )
         assert f'href="{href}"' in response.content.decode()
+        assert f'{group.name} / {statistic.name}' in response.content.decode()

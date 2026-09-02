@@ -49,6 +49,14 @@ class VisualReferenceServiceTestCase(BaseTestCase):
 
         assert reference.order == 1
 
+    def test_create_many_references_assigns_unique_orders(self):
+        for index in range(5):
+            reference = self._add_reference()
+
+            assert reference.order == index + 1
+
+        assert set(self.visual.references.values_list('order', flat=True)) == {0, 1, 2, 3, 4, 5}
+
     def test_update_keeps_explicit_order(self):
         first = self.visual.references.first()
         first.services.save_model_obj(reference='/a/', order=5)

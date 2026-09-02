@@ -181,6 +181,21 @@ def update_reference_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     return _reference_form_view(request, pk)
 
 
+def _reference_choices(visual: models.Visual) -> list[str]:
+    choice_set: set[str] = set(
+        visual.references.order_by('reference').values_list('reference', flat=True)
+    )
+
+    if visual.statistic_id:
+        choice_set.update(
+            visual.statistic.values.order_by('reference')
+            .values_list('reference', flat=True)
+            .distinct()
+        )
+
+    return sorted(choice_set)
+
+
 def _reference_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     reference_obj = get_object_or_null_obj(models.VisualReference, pk=pk)
 
@@ -205,6 +220,7 @@ def _reference_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
     context['form_description'] = f'References for visual "{visual}".'
     context['visual'] = visual
     context['reference'] = reference_obj
+    context['reference_choices'] = _reference_choices(visual)
 
     return TemplateResponse(
         request, 'django_spire/metric/visual/page/reference_form_page.html', context

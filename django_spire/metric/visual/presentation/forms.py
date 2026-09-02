@@ -87,11 +87,37 @@ class SlideSectionModelForm(forms.ModelForm):
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        for name, context in (('row', 'Row'), ('col', 'Column')):
+            value = getattr(self.instance, name, 0)
+            choices = [(str(index), f'{context} {index + 1}') for index in range(3)]
+
+            if value not in range(3):
+                choices.append((str(value), f'{context} {value + 1}'))
+
+            self.fields[name] = forms.ChoiceField(choices=choices)
+
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
+
+        row = cleaned_data.get('row')
+        col = cleaned_data.get('col')
+        slide = cleaned_data.get('slide')
+
+        if row is not None and col is not None and slide is not None:
+            queryset = models.SlideSection.objects.filter(slide=slide, row=row, col=col)
+            if self.instance.pk:
+                queryset = queryset.exclude(pk=self.instance.pk)
+
+            if queryset.exists():
+                self.add_error('col', 'That cell is already occupied on this slide.')
+
+        return cleaned_data
+
     class Meta:
         model = models.SlideSection
         fields = ['slide', 'visual', 'row', 'col']
         exclude: ClassVar = []
-        widgets = {
-            'row': forms.NumberInput(attrs={'min': 0}),
-            'col': forms.NumberInput(attrs={'min': 0, 'max': 11}),
-        }
+        widgets = {'row': forms.Select(), 'col': forms.Select()}

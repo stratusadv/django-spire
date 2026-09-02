@@ -51,7 +51,13 @@
                 </table>
             </div>
         {% else %}
-            {% include 'django_spire/item/no_data_item.html' %}
+            {% if visual.statistic %}
+                <div class="alert alert-info mb-0">
+                    No references selected yet. The visual will aggregate all values for the statistic.
+                </div>
+            {% else %}
+                {% include 'django_spire/item/no_data_item.html' %}
+            {% endif %}
         {% endif %}
     </div>
 {% endblock %}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.db import transaction
 from django.db.models import Max
 
 from django_spire.contrib.constructor.service import BaseDjangoModelService
@@ -81,9 +82,18 @@ class VisualConditionService(BaseDjangoModelService['VisualCondition']):
 
     def save_model_obj(self, **field_data: dict | None) -> tuple[VisualCondition, bool]:
         if self.obj.pk is None and self.obj.visual_id:
-            field_data = self._next_available_order(self.obj.visual.conditions, field_data)
+            with transaction.atomic():
+                locked_visual = self._locked_visual()
+                field_data = self._next_available_order(locked_visual.conditions, field_data)
+
+                return super().save_model_obj(**field_data)
 
         return super().save_model_obj(**field_data)
+
+    def _locked_visual(self) -> Visual:
+        from django_spire.metric.visual.models import Visual  # noqa: PLC0415
+
+        return Visual.objects.select_for_update().get(pk=self.obj.visual_id)
 
     def _next_available_order(
         self, related: QuerySet[VisualCondition], field_data: dict | None
@@ -104,9 +114,18 @@ class VisualReferenceService(BaseDjangoModelService['VisualReference']):
 
     def save_model_obj(self, **field_data: dict | None) -> tuple[VisualReference, bool]:
         if self.obj.pk is None and self.obj.visual_id:
-            field_data = self._next_available_order(self.obj.visual.references, field_data)
+            with transaction.atomic():
+                locked_visual = self._locked_visual()
+                field_data = self._next_available_order(locked_visual.references, field_data)
+
+                return super().save_model_obj(**field_data)
 
         return super().save_model_obj(**field_data)
+
+    def _locked_visual(self) -> Visual:
+        from django_spire.metric.visual.models import Visual  # noqa: PLC0415
+
+        return Visual.objects.select_for_update().get(pk=self.obj.visual_id)
 
     def _next_available_order(
         self, related: QuerySet[VisualReference], field_data: dict | None

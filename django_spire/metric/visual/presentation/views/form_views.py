@@ -26,6 +26,14 @@ def _presentation_detail_url(presentation_pk: int) -> str:
     return reverse(PRESENTATION_DETAIL_URL, kwargs={'pk': presentation_pk})
 
 
+def _occupied_cells(slide: models.Slide, *, exclude_pk: int | None = None) -> list[list[int]]:
+    sections = slide.sections.filter(is_deleted=False)
+    if exclude_pk:
+        sections = sections.exclude(pk=exclude_pk)
+
+    return [[section['row'], section['col']] for section in sections.values('row', 'col')]
+
+
 @permission_required('django_spire_metric_visual_presentation.delete_presentation')
 def delete_view(request: WSGIRequest, pk: int) -> TemplateResponse | HttpResponseRedirect:
     presentation = get_object_or_404(models.Presentation, pk=pk)
@@ -209,6 +217,9 @@ def _section_form_view(
     context['presentation'] = presentation
     context['slide'] = slide
     context['section'] = section
+    context['row_choices'] = form.fields['row'].choices
+    context['col_choices'] = form.fields['col'].choices
+    context['occupied_cells'] = _occupied_cells(slide, exclude_pk=section.pk)
 
     return TemplateResponse(
         request, 'django_spire/metric/visual/presentation/page/form_page.html', context

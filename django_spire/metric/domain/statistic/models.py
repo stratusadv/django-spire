@@ -21,6 +21,8 @@ from django_spire.metric.domain.statistic.services.service import (
 )
 
 if TYPE_CHECKING:
+    from decimal import Decimal
+
     from django.db.models import QuerySet
 
     from django_spire.metric.domain.models import SubDomain
@@ -88,6 +90,26 @@ class Statistic(HistoryModelMixin, ActivityMixin):
         if self.pk is None and not self.key:
             self.key = unique_key_from_name(self)
         super().save(*args, **kwargs)
+
+    @classmethod
+    def record(
+        cls,
+        statistic_key: str,
+        sub_domain_key: str,
+        reference: str,
+        value: float | str | Decimal = 1,
+    ) -> StatisticValue:
+        return cls.services.record(statistic_key, sub_domain_key, reference, value)
+
+    @classmethod
+    def remote_record(
+        cls,
+        statistic_key: str,
+        sub_domain_key: str,
+        reference: str,
+        value: float | str | Decimal = 1,
+    ) -> dict | None:
+        return cls.services.remote_record(statistic_key, sub_domain_key, reference, value)
 
     class Meta:
         verbose_name = 'Statistic'
