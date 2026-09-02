@@ -1,0 +1,87 @@
+{% load django_glue %}
+<div
+    class="card sticky-top"
+    style="top: 1rem;"
+    x-data="{
+        // Bind straight to the model proxy -- no need to copy fields into a
+        // local values object. Alpine's reactivity wraps the shared
+        // singleton Glue.model.widget_showcase_model instance once and
+        // memoizes that wrapper by object identity, so this component and
+        // the form's component both read through the same reactive proxy.
+        // load_state() refreshes fields by mutating the proxy's internal
+        // state key-by-key (see _mergeState in django-glue's base.js) rather
+        // than replacing the whole state object, which is what lets that
+        // mutation reach Alpine's dependency tracking and re-render this
+        // table -- even though load_state() is called from the form's
+        // separate x-data scope via the widget-showcase-saved event, not
+        // from this one. Verified directly: the live-update e2e test fails
+        // if load_state() here is skipped, and passes with a bare
+        // model.<field> binding and no copy step.
+        model: Glue.model.widget_showcase_model,
+        async onSaved() {
+            await this.model.load_state()
+        },
+        async init() {
+            await this.model.load_state()
+        },
+    }"
+    @widget-showcase-saved.window="await onSaved()"
+>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semi-bold">Live Model Values</span>
+        <span class="badge text-bg-secondary">Updates after Save</span>
+    </div>
+    <div class="card-body p-0" style="max-height: 80vh; overflow-y: auto;">
+        <table class="table table-sm table-striped mb-0">
+            <tbody>
+                <tr><th colspan="2" class="bg-body-secondary">Boolean</th></tr>
+                <tr><th>Boolean field</th><td x-text="model.boolean_field"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Char</th></tr>
+                <tr><th>Char field</th><td x-text="model.char_field"></td></tr>
+                <tr><th>Color field</th><td x-text="model.color_field"></td></tr>
+                <tr><th>Email field</th><td x-text="model.email_field"></td></tr>
+                <tr><th>Password field</th><td x-text="model.password_field"></td></tr>
+                <tr><th>Postal code field</th><td x-text="model.postal_code_field"></td></tr>
+                <tr><th>Search field</th><td x-text="model.search_field"></td></tr>
+                <tr><th>Slug field</th><td x-text="model.slug_field"></td></tr>
+                <tr><th>Telephone field</th><td x-text="model.telephone_field"></td></tr>
+                <tr><th>Url field</th><td x-text="model.url_field"></td></tr>
+                <tr><th>Uuid field</th><td x-text="model.uuid_field"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Choice</th></tr>
+                <tr><th>Select choice</th><td x-text="model.select_choice"></td></tr>
+                <tr><th>Radio choice</th><td x-text="model.radio_choice"></td></tr>
+                <tr><th>Checkbox tags</th><td x-text="model.checkbox_tags_display"></td></tr>
+                <tr><th>Search tags</th><td x-text="model.search_tags_display"></td></tr>
+                <tr><th>Category</th><td x-text="model.category_display"></td></tr>
+                <tr><th>Assigned user</th><td x-text="model.assigned_user_display"></td></tr>
+                <tr><th>Watchers</th><td x-text="model.watchers_display"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Datetime</th></tr>
+                <tr><th>Date field</th><td x-text="model.date_field"></td></tr>
+                <tr><th>Datetime field</th><td x-text="model.datetime_field"></td></tr>
+                <tr><th>Time field</th><td x-text="model.time_field"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Decimal</th></tr>
+                <tr><th>Currency field</th><td x-text="model.currency_field"></td></tr>
+                <tr><th>Decimal field</th><td x-text="model.decimal_field"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Float</th></tr>
+                <tr><th>Float field</th><td x-text="model.float_field"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Hidden</th></tr>
+                <tr><th>Hidden field</th><td x-text="model.hidden_field"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Integer</th></tr>
+                <tr><th>Big integer field</th><td x-text="model.big_integer_field"></td></tr>
+                <tr><th>Integer field</th><td x-text="model.integer_field"></td></tr>
+                <tr><th>Positive integer field</th><td x-text="model.positive_integer_field"></td></tr>
+                <tr><th>Small integer field</th><td x-text="model.small_integer_field"></td></tr>
+
+                <tr><th colspan="2" class="bg-body-secondary">Text</th></tr>
+                <tr><th>Text field</th><td x-text="model.text_field"></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
