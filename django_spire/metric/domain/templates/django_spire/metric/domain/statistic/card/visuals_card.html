@@ -21,7 +21,7 @@
                             {% url 'django_spire:metric:visual:page:detail' pk=visual.pk as visual_detail_url %}
                             <tr>
                                 <td>
-                                    <a href="{{ visual_detail_url }}">{{ visual.name }}</a>
+                                    <a class='text-decoration-none' href="{{ visual_detail_url }}">{{ visual.name }}</a>
                                 </td>
                                 <td>{{ visual.get_kind_display }}</td>
                                 <td class="text-end">

@@ -30,7 +30,7 @@
     <div class="row border-bottom py-2">
         <div class="col-4">
             <div class="attribute-label">Name</div>
-            <a :href="{% js_url 'django_spire:metric:domain:page:subdomain_detail' domain_pk='item.domain_id' pk='item.id' %}">
+            <a class='text-decoration-none' :href="{% js_url 'django_spire:metric:domain:page:subdomain_detail' domain_pk='item.domain_id' pk='item.id' %}">
                 <span x-text="item.name"></span>
             </a>
         </div>

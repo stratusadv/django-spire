@@ -30,7 +30,7 @@
                         {% for statistic in statistics %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
+                                    <a class='text-decoration-none' href="{% url 'django_spire:metric:domain:statistic:page:detail' pk=statistic.pk %}">
                                         {% if show_group_prefix %}{{ statistic.group }} / {% endif %}{{ statistic.name }}
                                     </a>
                                 </td>

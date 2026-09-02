@@ -7,6 +7,6 @@
            :href="`{% url 'django_spire:metric:domain:form:form' pk=0 %}`.replace('0', item.id)"><i
             class="bi bi-pencil"></i>Update</a></li>
     <li><a class="dropdown-item d-flex align-items-center gap-2 text-danger"
-           :href="`{% url 'django_spire:metric:domain:form:delete' pk=0 %}`.replace('0', item.id)"><i
+           :href="`{% url 'django_spire:metric:domain:form:delete' pk=0 %}?return_url={% url 'django_spire:metric:domain:page:list' %}`.replace('0', item.id)"><i
             class="bi bi-trash"></i>Delete</a></li>
 {% endblock %}

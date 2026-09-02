@@ -8,7 +8,7 @@
             const isUpdate = Boolean(this.task_form.$pk)
             await this.task_form.validate()
             let result = await this.task_form.save_model_obj({time_of_day: 'Noon'})
-            if(result?.redirect_url) {
+            if(result?.redirect.url) {
                 $dispatch('updated-item', {
                     pk: this.task_form.$pk,
                 })

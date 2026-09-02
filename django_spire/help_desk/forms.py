@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import ClassVar
 
-from django import forms
 from django.forms import ModelForm
 from django.http import HttpRequest
 from django.urls import reverse
@@ -27,9 +26,11 @@ class HelpDeskTicketModelForm(ModelForm):
 
             return GlueResponse(
                 result={
-                    'redirect_url': reverse(
-                        'django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk}
-                    )
+                    'redirect': {
+                        'url': reverse(
+                            'django_spire:help_desk:page:detail', kwargs={'pk': ticket.pk}
+                        )
+                    }
                 }
             )
 

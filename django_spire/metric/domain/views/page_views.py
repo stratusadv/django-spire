@@ -27,7 +27,6 @@ def detail_view(request: WSGIRequest, pk: int) -> TemplateResponse:
     context = nav.as_context()
     context['domain'] = domain
     context['subdomains'] = subdomains
-    context['subdomain_count'] = subdomains.count()
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/domain/page/detail_page.html'
@@ -43,7 +42,6 @@ def list_view(request: WSGIRequest) -> TemplateResponse:
     nav = DomainNavigation()
     context = nav.as_context()
     context['domains'] = domains
-    context['domain_count'] = domains.count()
 
     return TemplateResponse(
         request, context=context, template='django_spire/metric/domain/page/list_page.html'
@@ -60,11 +58,6 @@ def subdomain_detail_view(request: WSGIRequest, domain_pk: int, pk: int) -> Temp
         name=str(subdomain.domain),
         view_name='django_spire:metric:domain:page:detail',
         view_kwargs={'pk': subdomain.domain.pk},
-    )
-    nav.breadcrumbs.add(
-        name='Sub Domains',
-        view_name='django_spire:metric:domain:page:detail',
-        view_kwargs={'pk': domain_pk},
     )
     nav.breadcrumbs.add(str(subdomain), None)
     context = nav.as_context()

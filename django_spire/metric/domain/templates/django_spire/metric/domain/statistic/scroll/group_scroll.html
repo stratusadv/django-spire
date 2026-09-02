@@ -28,7 +28,7 @@
     <div class="row border-bottom py-2">
         <div class="col-3">
             <div class="attribute-label">Group</div>
-            <a :href="`{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=0 %}`.replace('0', item.id)">
+            <a class='text-decoration-none' :href="`{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=0 %}`.replace('0', item.id)">
                 <span x-text="item.name"></span>
             </a>
         </div>
