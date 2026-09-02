@@ -3,7 +3,7 @@
 {% block item_title_col %}{% endblock %}
 
 {% block item_row_content %}
-    <a class="col-12 col-sm-6 mb-2 mb-sm-0">
+    <a class="col-12 col-sm-4 mb-2 mb-sm-0">
         {{ api_access.name }}
         {% if api_access.has_super_access %}
             <span class="badge text-bg-warning">Super Access</span>
@@ -12,6 +12,14 @@
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
         <div class="attribute-label">Permission</div>
         <div>{{ api_access.get_permission_display }}</div>
+    </div>
+    <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
+        <div class="attribute-label">User</div>
+        {% if api_access.user %}
+            <div>{{ api_access.user.get_full_name|title|default:api_access.user.username }}</div>
+        {% else %}
+            <div>No User</div>
+        {% endif %}
     </div>
     <div class="col-6 col-sm-2 mb-2 mb-sm-0 text-start">
         <div class="attribute-label">Key Hint</div>

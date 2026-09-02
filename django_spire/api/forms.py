@@ -17,7 +17,8 @@ class ApiAccessCreateForm(forms.ModelForm):
 
     def __init__(self, *args: object, user: User | None = None, **kwargs: object) -> None:
         super().__init__(*args, **kwargs)
-        self.user = user
+        self.requesting_user = user
+        self.fields['user'].empty_label = 'No User'
 
         if user is None or not user.is_superuser:
             self.fields.pop('has_super_access')
@@ -25,7 +26,9 @@ class ApiAccessCreateForm(forms.ModelForm):
     def clean_has_super_access(self) -> bool:
         has_super_access = self.cleaned_data['has_super_access']
 
-        if has_super_access and (self.user is None or not self.user.is_superuser):
+        if has_super_access and (
+            self.requesting_user is None or not self.requesting_user.is_superuser
+        ):
             message = 'Only super users may grant super access.'
             raise forms.ValidationError(message)
 

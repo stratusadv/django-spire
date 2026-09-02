@@ -34,6 +34,13 @@ class ApiFormViewsTestCase(BaseTestCase):
         response = self.client.get(path=reverse('django_spire:api:form:create'))
         assert 'has_super_access' in response.context['form'].fields
 
+    def test_access_create_form_view_includes_optional_user_field(self):
+        response = self.client.get(path=reverse('django_spire:api:form:create'))
+        user_field = response.context['form'].fields['user']
+        assert not user_field.required
+        assert user_field.empty_label == 'No User'
+        assert 'No User' in response.content.decode()
+
     def test_access_create_form_view_superuser_can_grant_super_access(self):
         response = self.client.post(
             path=reverse('django_spire:api:form:create'),

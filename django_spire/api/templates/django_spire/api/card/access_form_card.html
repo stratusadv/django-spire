@@ -15,6 +15,11 @@
             </div>
             <div class="row mb-3">
                 <div class="col-12">
+                    {% include 'django_spire/form/field/field.html' with field=form.user %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
                     {% include 'django_spire/form/field/field.html' with field=form.permission %}
                 </div>
             </div>

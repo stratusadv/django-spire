@@ -51,3 +51,26 @@ class ApiAccessCreateFormTestCase(BaseTestCase):
         api_access = form.save()
         assert not api_access.has_super_access
         assert ApiAccess.objects.filter(pk=api_access.pk, name='Key').exists()
+
+    def test_form_can_assign_user(self) -> None:
+        form = ApiAccessCreateForm(
+            {'name': 'Key', 'permission': ApiPermissionChoices.VIEW, 'user': self.regular_user.pk},
+            user=self.super_user,
+        )
+        assert 'user' in form.fields
+        assert form.fields['user'].empty_label == 'No User'
+        assert form.is_valid()
+
+        api_access = form.save()
+        assert api_access.user == self.regular_user
+
+    def test_form_user_is_optional(self) -> None:
+        form = ApiAccessCreateForm(
+            {'name': 'Key', 'permission': ApiPermissionChoices.VIEW, 'user': ''},
+            user=self.super_user,
+        )
+        assert not form.fields['user'].required
+        assert form.is_valid()
+
+        api_access = form.save()
+        assert api_access.user is None
