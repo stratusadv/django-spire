@@ -41,7 +41,7 @@ class DemoReport(BaseReport):
         )
         self.add_column(
             title='Amount',
-            column_type=self.ColumnType.DOLLAR_2,
+            type=self.ColumnType.DOLLAR_2,
             sub_type=self.ColumnType.NUMBER_2,
         )
         self.add_row(cell_values=[1.5], cell_sub_values=[2.5])
@@ -68,7 +68,7 @@ class DemoReportRegistry(ReportRegistry):
 class ReportFrameworkTestCase(TestCase):
     def test_add_column_with_column_type(self):
         report = DemoReport()
-        report.add_column(title='Amount', column_type=ColumnType.DOLLAR_2)
+        report.add_column(title='Amount', type=ColumnType.DOLLAR_2)
 
         assert report.columns[0].title == 'Amount'
         assert report.columns[0].type == ColumnType.DOLLAR_2

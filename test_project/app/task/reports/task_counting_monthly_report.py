@@ -31,13 +31,13 @@ class TaskCountingMonthlyReport(BaseReport):
         sleep(1.0)  # Simulate loading!
 
         self.add_column('People', sub_title=str(end_datetime))
-        self.add_column('Type', column_type=self.ColumnType.CHOICE)
-        self.add_column('Quality', column_type=self.ColumnType.PERCENT)
-        self.add_column('Tasks', column_type=self.ColumnType.NUMBER)
-        self.add_column('Hours', column_type=self.ColumnType.NUMBER_1)
-        self.add_column('Days', column_type=self.ColumnType.NUMBER_2)
-        self.add_column('Weeks', column_type=self.ColumnType.NUMBER_3)
-        self.add_column('Value', column_type=self.ColumnType.DOLLAR)
+        self.add_column('Type', type=self.ColumnType.CHOICE)
+        self.add_column('Quality', type=self.ColumnType.PERCENT)
+        self.add_column('Tasks', type=self.ColumnType.NUMBER)
+        self.add_column('Hours', type=self.ColumnType.NUMBER_1)
+        self.add_column('Days', type=self.ColumnType.NUMBER_2)
+        self.add_column('Weeks', type=self.ColumnType.NUMBER_3)
+        self.add_column('Value', type=self.ColumnType.DOLLAR)
 
         types = ['bug', 'feature', 'enhancement', 'documentation']
 

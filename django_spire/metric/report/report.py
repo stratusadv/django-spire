@@ -156,11 +156,11 @@ class BaseReport(ABC):
         self,
         title: str,
         sub_title: str | None = None,
-        column_type: ColumnType = ColumnType.TEXT,
+        type: ColumnType = ColumnType.TEXT,
         sub_type: ColumnType = ColumnType.TEXT,
     ) -> None:
         self.columns.append(
-            ReportColumn(title=title, sub_title=sub_title, type=column_type, sub_type=sub_type)
+            ReportColumn(title=title, sub_title=sub_title, type=type, sub_type=sub_type)
         )
 
     def add_divider_row(
