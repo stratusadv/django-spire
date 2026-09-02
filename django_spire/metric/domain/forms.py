@@ -23,9 +23,9 @@ class DomainForm(ModelForm):
 
             return GlueResponse(
                 result={
-                    'redirect_url': reverse(
-                        viewname='django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
-                    )
+                    'redirect': {
+                        'url': reverse(viewname='django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk})
+                    }
                 }
             )
 
