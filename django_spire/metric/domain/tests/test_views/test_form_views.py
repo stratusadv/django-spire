@@ -36,7 +36,7 @@ class DomainFormViewTestCase(BaseTestCase):
         response = form.save_model_obj(request)
 
         domain = Domain.objects.get(name='new domain')
-        assert response.result['redirect_url'] == reverse(
+        assert response.result['redirect.url'] == reverse(
             'django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
         )
 
@@ -68,7 +68,7 @@ class DomainFormViewTestCase(BaseTestCase):
 
         domain.refresh_from_db()
         assert domain.name == 'updated domain'
-        assert response.result['redirect_url'] == reverse(
+        assert response.result['redirect.url'] == reverse(
             'django_spire:metric:domain:page:detail', kwargs={'pk': domain.pk}
         )
 
@@ -118,7 +118,7 @@ class SubDomainFormViewTestCase(BaseTestCase):
 
         subdomain = SubDomain.objects.get(name='new subdomain')
         assert subdomain.domain == self.domain
-        assert response.result['redirect_url'] == reverse(
+        assert response.result['redirect.url'] == reverse(
             'django_spire:metric:domain:page:detail', kwargs={'pk': self.domain.pk}
         )
 
@@ -152,7 +152,7 @@ class SubDomainFormViewTestCase(BaseTestCase):
         subdomain.refresh_from_db()
         assert subdomain.name == 'updated subdomain'
         assert subdomain.domain == self.domain
-        assert response.result['redirect_url'] == reverse(
+        assert response.result['redirect.url'] == reverse(
             'django_spire:metric:domain:page:detail', kwargs={'pk': self.domain.pk}
         )
 

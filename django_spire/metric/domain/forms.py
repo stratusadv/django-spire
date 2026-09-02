@@ -67,10 +67,12 @@ class SubDomainForm(ModelForm):
 
             return GlueResponse(
                 result={
-                    'redirect_url': reverse(
-                        viewname='django_spire:metric:domain:page:detail',
-                        kwargs={'pk': subdomain.domain.id},
-                    )
+                    'redirect': {
+                        'url': reverse(
+                            viewname='django_spire:metric:domain:page:detail',
+                            kwargs={'pk': subdomain.domain.id},
+                        )
+                    }
                 }
             )
 
