@@ -72,6 +72,7 @@ development = [
     "django-kaleidoscope",
     "django-watchfiles",
     "hypothesis",
+    "limelight[django,pytest] @ git+https://github.com/stratusadv/limelight.git@main",
     "pip",
     "playwright",
     "pyinstrument",
@@ -198,6 +199,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 markers = [
     "ai: AI/LLM tests",
+    "demo: Narrated browser demo walkthroughs",
     "playwright: Playwright tests",
     "simulation: Deterministic simulation tests",
     "slow: Fuzz tests",
