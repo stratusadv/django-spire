@@ -17,6 +17,7 @@ from django_spire.testing.playwright.components.dropdown import (
     EllipsisModalDropdown,
     EllipsisTableDropdown,
 )
+from django_spire.testing.playwright.components.glue_scroll import GlueScroll
 from django_spire.testing.playwright.components.infinite_scroll import (
     InfiniteScroll,
     InfiniteScrollList,
@@ -53,6 +54,7 @@ __all__ = [
     'FilterForm',
     'FormCard',
     'FormModal',
+    'GlueScroll',
     'InfiniteScroll',
     'InfiniteScrollCard',
     'InfiniteScrollList',
