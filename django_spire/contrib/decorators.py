@@ -22,7 +22,7 @@ class SpireRequest:
     A frozen record of the request shape a decorator demands before the view runs.
 
     This record is stamped onto the decorator's wrapper as `__spire_request__`
-    so the permission matrix in `django_spire.testing.permissions` can fire a
+    so the permission tests in `django_spire.testing.permissions` can fire a
     request the decorator lets through, rather than one it answers itself
     before any permission gate below it runs. The stamp lives in the wrapper's
     `__dict__`, and `functools.wraps` copies `__dict__` upward, so any

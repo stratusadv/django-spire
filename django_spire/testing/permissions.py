@@ -1,705 +1,470 @@
 """
-A permission matrix that audits every named route in a project's URL conf.
+Permission tests for every named route in a project's URL conf.
 
-This module walks the URL resolver, reads the permission gate declared on
-each view, and generates a pytest suite from what it finds: guard tests that
-fail when a route escapes the audit, and per-route tests that fire real
-requests as anonymous, denied, granted, and superuser actors.
+A project subclasses `PermissionTests` and sets three class attributes:
 
-A gate is read from two sources. A spire decorator stamps a `SpireGate` onto
-its wrapper, and `functools.wraps` carries the stamp to the outermost wrapper
-of any decorator stack, so detection is a single attribute read. A Django
-auth decorator (`login_required`, `permission_required`, `user_passes_test`)
-stamps nothing, so its gate is recovered by inspecting the closure of the
-`user_passes_test` wrapper it is built from. A route with neither shows as
-ungated and must be ledgered in `routes_ungated_accepted` to pass the guard test.
+    class TestPermissions(PermissionTests):
+        namespaces = {'sales', 'home'}
+        object_routes = {'sales:deal:page:detail'}
+        public_routes = {'home:page:home'}
 
-The expected denial status follows the gate: a spire gate raises
-PermissionDenied (403), a Django gate redirects to the login page (302)
-unless it was declared with `raise_exception` (403). A route in
-`routes_object_gated` also accepts 404, because an object-level decorator stacked
-above the gate fetches its object before the permission check runs and the
-matrix fires synthetic URL kwargs that match nothing.
+The subclass fires a real request at every route as four users: anonymous, a
+user without the permission, a user with the permission, and a superuser.
+Three one-shot tests guard the surface: every route is named, every route is
+protected or listed in `public_routes`, and every declared permission exists.
 
-The request fired follows the view too. A decorator that answers requests of
-the wrong shape before the gate runs, such as `valid_ajax_request_required`,
-stamps a `SpireRequest` onto its wrapper as `__spire_request__`, and the
-matrix fires that method and content type from the start so the gate below
-it is the one that answers.
+A view is protected when it carries a spire decorator (`permission_required`,
+or a controller's `permission_required`), which stamps a `SpireGate` on the
+view, or a Django decorator (`login_required`, `permission_required`,
+`user_passes_test`), which is recognised from the closure of the wrapper it
+creates. A route in `object_routes` loads its object before the permission
+check runs, so a 404 for the fake id is accepted where the gate would answer.
 """
 
 from __future__ import annotations
 
 import inspect
-
-from http import HTTPStatus
+import sysconfig
+import traceback
 
 import pytest
 
 from dataclasses import dataclass
+from http import HTTPStatus
 from typing_extensions import TYPE_CHECKING
 
+from django.conf import settings
 from django.contrib.auth.models import Permission
+from django.shortcuts import resolve_url
 from django.test import Client
 from django.urls import URLPattern, URLResolver, get_resolver, reverse
-from django.urls.converters import get_converters
+from django.urls.converters import UUIDConverter
 
 from django_spire.auth.user.tests.factories import create_super_user, create_user
 
 if TYPE_CHECKING:
-    from typing_extensions import Callable, Iterable, Iterator
+    from types import TracebackType
+    from typing_extensions import Callable, Iterable
 
     from django.http import HttpResponse
     from django.urls.resolvers import RegexPattern, RoutePattern
 
-    from django_spire.contrib.decorators import SpireRequest
 
+NAMESPACES_SKIPPED = frozenset({'admin', 'django_glue', 'django_spire'})
 
-    RouteWalkEntry = tuple[URLPattern, tuple[str, ...], str, tuple[tuple[str, str], ...]]
+PATH_PREFIXES_THIRD_PARTY = tuple(
+    sysconfig.get_paths()[name]
+    for name in ('platlib', 'purelib', 'stdlib')
+)
 
+ROUTE_COUNT_MAX = 10000
 
-NAMESPACE_ROOTS_EXCLUDED = frozenset({'admin', 'django_glue', 'django_spire'})
-
-ROUTE_WALK_ENTRY_COUNT_MAX = 10000
-
-KWARG_VALUES_SYNTHETIC = {
-    'int': 999999,
-    'path': 'synthetic',
-    'slug': 'synthetic',
-    'str': 'synthetic',
-    'uuid': '00000000-0000-0000-0000-000000000000',
-}
-
-WRAPPER_CHAIN_LENGTH_MAX = 20
-
-_DJANGO_WRAPPER_FREE_VARIABLES = {'_redirect_to_login', 'test_func'}
+URL_VALUE = '999999'
+URL_VALUE_UUID = '00000000-0000-0000-0000-000000000000'
 
 
 @dataclass(frozen=True)
-class RouteGate:
-    """
-    A frozen record of one named route and its effective permission gate.
-
-    :param gated: Whether any gate was detected on the view.
-    :param kwargs_specification: The URL kwargs as `(name, converter)` pairs.
-    :param name: The fully namespaced route name.
-    :param opaque: Whether the gate includes a check the matrix cannot predict.
-    :param pattern: The full URL pattern from the resolver root.
-    :param permissions: The declared permission labels in `app_label.codename` form.
-    :param request_shape: The request shape a decorator above the gate demands, or None for a GET.
-    :param statuses_denied: The statuses an authenticated user lacking the permissions may receive.
-    """
-
-    gated: bool
-    kwargs_specification: tuple[tuple[str, str], ...]
-    name: str
-    opaque: bool
-    pattern: str
+class Gate:
+    has_custom_check: bool
     permissions: tuple[str, ...]
-    request_shape: SpireRequest | None
-    statuses_denied: frozenset[int]
+    statuses_rejected: frozenset[int]
 
+    @classmethod
+    def from_django_view(cls, view: Callable) -> Gate | None:
+        function = view
 
-@dataclass(frozen=True)
-class _DjangoGate:
-    """
-    A frozen record of the gate recovered from Django's auth decorators.
-    """
+        while function is not None:
+            closure = {}
 
-    opaque: bool
-    permissions: tuple[str, ...]
-    statuses_denied: frozenset[int]
+            if inspect.isfunction(function):
+                closure = inspect.getclosurevars(function).nonlocals
 
+            # Every Django auth decorator wraps the view with user_passes_test,
+            # whose wrapper closes over the check it runs as `test_func`. The
+            # check's qualname says which decorator created it.
+            if 'test_func' in closure and '_redirect_to_login' in closure:
+                test_function = closure['test_func']
+                test_function_name = getattr(test_function, '__qualname__', '')
 
-def _client_with_permissions(username: str, permission_labels: tuple[str, ...]) -> Client:
-    """
-    A function that builds a logged-in client holding exactly the given permissions.
+                if test_function_name.startswith('login_required.'):
+                    return cls(
+                        has_custom_check=False,
+                        permissions=(),
+                        statuses_rejected=frozenset(),
+                    )
 
-    :param username: The username for the created user.
-    :param permission_labels: The permission labels in `app_label.codename` form.
-    :return: The client with the user logged in.
-    """
+                if test_function_name.startswith('permission_required.'):
+                    test_closure = inspect.getclosurevars(test_function).nonlocals
+                    status = HTTPStatus.FOUND
 
-    user = create_user(username)
+                    if test_closure['raise_exception']:
+                        status = HTTPStatus.FORBIDDEN
 
-    # A label reads 'app_label.codename', the same form the decorators use.
-    for label in permission_labels:
-        app_label, codename = label.split('.', 1)
+                    return cls(
+                        has_custom_check=False,
+                        permissions=tuple(test_closure['perms']),
+                        statuses_rejected=frozenset({status}),
+                    )
 
-        permission = Permission.objects.get(
-            codename=codename,
-            content_type__app_label=app_label,
-        )
+                return cls(
+                    has_custom_check=True,
+                    permissions=(),
+                    statuses_rejected=frozenset()
+                )
 
-        user.user_permissions.add(permission)
+            function = getattr(function, '__wrapped__', None)
 
-    client = Client()
-    client.force_login(user)
-
-    return client
-
-
-def _converter_names_by_type() -> dict[type, str]:
-    """
-    A function that inverts Django's converter registry into type -> name.
-
-    :return: The mapping from converter class to its registered name.
-    """
-
-    # get_converters() holds every converter, custom registered ones
-    # included, keyed by the name written inside <name:kwarg> patterns.
-    return {type(converter): name for name, converter in get_converters().items()}
-
-
-def _django_gate_extract(view: Callable) -> _DjangoGate | None:
-    """
-    A function that recovers the gate declared with Django's auth decorators.
-
-    A Django auth decorator is a `user_passes_test` wrapper, and
-    `functools.wraps` overwrites the wrapper's qualname with the view's own,
-    so the wrapper is recognized by its closure variables instead: only
-    `user_passes_test` produces a function closing over both `test_function` and
-    `_redirect_to_login`. The test function's qualname then classifies the
-    gate. A `login_required` lambda is a plain login gate, a
-    `permission_required` check carries `perms` and `raise_exception` in its
-    closure, and any other test function marks the gate opaque because its
-    predicate cannot be evaluated from permission labels.
-
-    :param view: The resolved view callable from the URL pattern.
-    :return: The recovered gate, or None if no Django auth wrapper is present.
-    """
-
-    function = view
-    statuses_denied: set[int] = set()
-    login_gated = False
-    opaque = False
-    permissions: list[str] = []
-
-    for _ in range(WRAPPER_CHAIN_LENGTH_MAX):
-        if function is None:
-            break
-
-        free_variables = (
-            set(function.__code__.co_freevars)
-            if inspect.isfunction(function)
-            else set()
-        )
-
-        # Every Django auth decorator wraps the view with user_passes_test.
-        # The wrapper's own name is hidden by functools.wraps, but its
-        # closure always holds these two variables, so match on those.
-        if _DJANGO_WRAPPER_FREE_VARIABLES.issubset(free_variables):
-            login_gated = True
-
-            # test_func is the check the decorator runs on each request.
-            # Its qualname says which decorator created it.
-            test_function = inspect.getclosurevars(function).nonlocals.get('test_func')
-            test_function_qualname = getattr(test_function, '__qualname__', '')
-
-            is_login_check = test_function_qualname.startswith('login_required.')
-            is_permission_check = test_function_qualname.startswith('permission_required.')
-
-            if is_permission_check:
-                # The declared permissions sit in the check's closure:
-                # `perms` on current Django, `perm` on older releases.
-                test_closure = inspect.getclosurevars(test_function).nonlocals
-                declared = test_closure.get('perms') or test_closure.get('perm') or ()
-
-                # The decorator accepts one label or a list of labels.
-                if isinstance(declared, str):
-                    permissions.append(declared)
-                else:
-                    permissions.extend(declared)
-
-                # raise_exception=True answers 403; the default redirects
-                # to the login page (302).
-                if test_closure.get('raise_exception'):
-                    statuses_denied.add(HTTPStatus.FORBIDDEN)
-                else:
-                    statuses_denied.add(HTTPStatus.FOUND)
-
-            if not is_login_check and not is_permission_check:
-                # A custom check we cannot predict, so only the anonymous
-                # test runs against this route.
-                opaque = True
-
-        function = getattr(function, '__wrapped__', None)
-
-    if not login_gated:
         return None
 
-    return _DjangoGate(
-        opaque=opaque,
-        permissions=tuple(permissions),
-        statuses_denied=frozenset(statuses_denied),
-    )
+    @classmethod
+    def from_spire_view(cls, view: Callable) -> Gate | None:
+        stamp = getattr(view, '__spire_gate__', None)
 
+        if stamp is None:
+            return None
 
-def _namespace_audited(
-    namespace_parts: tuple[str, ...],
-    namespaces: frozenset[str] | None,
-) -> bool:
-    """
-    A function that decides whether a route's namespace is inside the audit.
-
-    :param namespace_parts: The namespace chain from the resolver root.
-    :param namespaces: The audited root namespaces, or None for all but the exclusions.
-    :return: True if the route is audited, False otherwise.
-    """
-
-    root = namespace_parts[0] if namespace_parts else ''
-
-    if namespaces is None:
-        return root not in NAMESPACE_ROOTS_EXCLUDED
-
-    return root in namespaces
-
-
-def _pattern_kwargs_read(
-    pattern: RegexPattern | RoutePattern,
-    converter_names: dict[type, str],
-) -> tuple[tuple[str, str], ...]:
-    """
-    A function that reads a pattern's URL kwargs from Django's own data.
-
-    Django stores each path() kwarg with its converter on the pattern
-    object, so no string parsing is needed. A re_path() kwarg is a plain
-    regex group with no converter and defaults to `str`.
-
-    :param pattern: The pattern object from a URL entry or resolver.
-    :param converter_names: The mapping from converter class to registered name.
-    :return: The `(name, converter)` pairs.
-    """
-
-    # Every path() kwarg sits in pattern.converters with its converter.
-    kwargs = [
-        (kwarg_name, converter_names.get(type(converter), 'str'))
-        for kwarg_name, converter in pattern.converters.items()
-    ]
-
-    # A re_path() kwarg only appears as a named group in the regex.
-    for kwarg_name in pattern.regex.groupindex:
-        if kwarg_name not in pattern.converters:
-            kwarg = (kwarg_name, 'str')
-            kwargs.append(kwarg)
-
-    return tuple(kwargs)
-
-
-def _route_fire(
-    client: Client,
-    route: RouteGate,
-    kwarg_values: dict[str, object] | None = None,
-) -> HttpResponse:
-    """
-    A function that fires one request at a route with synthetic URL kwargs.
-
-    The request is a GET unless the route declares a request shape, in which
-    case the declared method and content type are fired from the start. A
-    view that only accepts other methods answers 405 and names them in its
-    Allow header, so the request is refired with the first method the view
-    accepts, and no method decorator is inspected.
-
-    :param client: The client carrying the actor under test.
-    :param route: The route to fire.
-    :param kwarg_values: The synthetic value per converter name, defaulting
-        to `KWARG_VALUES_SYNTHETIC`.
-    :return: The response from the view.
-    """
-
-    if kwarg_values is None:
-        kwarg_values = KWARG_VALUES_SYNTHETIC
-
-    # Every URL kwarg gets a throwaway value matching its converter, so the
-    # URL reverses cleanly and points at a record that does not exist.
-    url_kwargs = {
-        name: kwarg_values.get(converter, 'synthetic')
-        for name, converter in route.kwargs_specification
-    }
-
-    url = reverse(route.name, kwargs=url_kwargs)
-
-    if route.request_shape is None:
-        response = client.get(url)
-    else:
-        # A decorator above the gate answers any other shape itself, before
-        # the gate runs, so the declared shape is what reaches the gate.
-        response = client.generic(
-            route.request_shape.method,
-            url,
-            data='{}',
-            content_type=route.request_shape.content_type,
+        statuses_rejected = (
+            frozenset({HTTPStatus.FORBIDDEN})
+            if stamp.permissions else frozenset()
         )
 
-    if response.status_code == HTTPStatus.METHOD_NOT_ALLOWED:
-        # The Allow header lists what the view accepts, such as 'POST,
-        # OPTIONS'. Pick the first real method from it.
-        methods = [
-            method.strip()
-            for method in response.headers.get('Allow', 'POST').split(',')
+        return cls(
+            has_custom_check=stamp.has_custom_check,
+            permissions=tuple(stamp.permissions),
+            statuses_rejected=statuses_rejected,
+        )
+
+
+@dataclass(frozen=True)
+class Route:
+    name: str
+    url: str
+    method: str
+    content_type: str
+    requires_login: bool
+    permissions: tuple[str, ...]
+    has_custom_check: bool
+    statuses_rejected: frozenset[int]
+
+    @classmethod
+    def from_view(cls, name: str, url: str, view: Callable) -> Route:
+        gates = [
+            gate
+            for gate in (Gate.from_spire_view(view), Gate.from_django_view(view))
+            if gate is not None
         ]
-        method = next(
-            (method for method in methods if method not in ('HEAD', 'OPTIONS')),
-            'POST',
+
+        request = getattr(view, '__spire_request__', None)
+
+        return cls(
+            name=name,
+            url=url,
+            method='GET' if request is None else request.method,
+            content_type='' if request is None else request.content_type,
+            requires_login=gates != [],
+            permissions=tuple(label for gate in gates for label in gate.permissions),
+            has_custom_check=any(gate.has_custom_check for gate in gates),
+            statuses_rejected=frozenset().union(*(gate.statuses_rejected for gate in gates)),
         )
 
-        response = client.generic(method, url)
 
-    return response
+class Clients:
+    @staticmethod
+    def anonymous() -> Client:
+        return Client(raise_request_exception=False)
 
+    @staticmethod
+    def superuser() -> Client:
+        client = Client(raise_request_exception=False)
+        client.force_login(create_super_user())
 
-def _route_gate_build(
-    callback: Callable,
-    kwargs_specification: tuple[tuple[str, str], ...],
-    name: str,
-    pattern: str,
-) -> RouteGate:
-    """
-    A function that merges a view's spire and Django gates into one record.
+        return client
 
-    A view can carry both gates at once, such as `login_required` stacked
-    over a spire `permission_required`, so the denied statuses are the union
-    of what each gate produces and the permissions concatenate.
+    @staticmethod
+    def with_permissions(username: str, permission_labels: tuple[str, ...]) -> Client:
+        user = create_user(username)
 
-    :param callback: The resolved view callable from the URL pattern.
-    :param kwargs_specification: The URL kwargs as `(name, converter)` pairs.
-    :param name: The fully namespaced route name.
-    :param pattern: The full URL pattern from the resolver root.
-    :return: The merged route record.
-    """
+        for label in permission_labels:
+            app_label, _, codename = label.partition('.')
 
-    spire_gate = getattr(callback, '__spire_gate__', None)
-    django_gate = _django_gate_extract(callback)
-    request_shape = getattr(callback, '__spire_request__', None)
+            permission = Permission.objects.filter(
+                codename=codename,
+                content_type__app_label=app_label,
+            ).first()
 
-    statuses_denied: set[int] = set()
-    opaque = False
-    permissions: list[str] = []
+            if permission is None:
+                pytest.fail(f'{label} is not a permission in the database')
 
-    # A spire gate always answers 403 when permissions are missing.
-    if spire_gate is not None:
-        opaque = opaque or spire_gate.opaque
+            user.user_permissions.add(permission)
 
-        permissions.extend(spire_gate.permissions)
+        client = Client(raise_request_exception=False)
+        client.force_login(user)
 
-        if spire_gate.permissions:
-            statuses_denied.add(HTTPStatus.FORBIDDEN)
-
-    # A Django gate brings its own denial status: 302 in redirect mode,
-    # 403 when declared with raise_exception.
-    if django_gate is not None:
-        statuses_denied |= django_gate.statuses_denied
-        opaque = opaque or django_gate.opaque
-
-        permissions.extend(django_gate.permissions)
-
-    return RouteGate(
-        gated=spire_gate is not None or django_gate is not None,
-        kwargs_specification=kwargs_specification,
-        name=name,
-        opaque=opaque,
-        pattern=pattern,
-        permissions=tuple(permissions),
-        request_shape=request_shape,
-        statuses_denied=frozenset(statuses_denied),
-    )
+        return client
 
 
-def _routes_collect(
-    namespaces: frozenset[str] | None,
-) -> tuple[tuple[RouteGate, ...], tuple[tuple[str, str], ...]]:
-    """
-    A function that collects every audited route and every unnamed pattern.
+class RouteCollector:
+    def __init__(self, namespaces: Iterable[str] | None) -> None:
+        self.namespaces = None if namespaces is None else frozenset(namespaces)
 
-    :param namespaces: The audited root namespaces, or None for all but the exclusions.
-    :return: The sorted routes and the sorted `(namespace, pattern)` pairs lacking a name.
-    """
+    def collect(self) -> tuple[list[Route], list[str]]:
+        routes: list[Route] = []
+        patterns_unnamed: list[str] = []
 
-    routes: list[RouteGate] = []
-    patterns_unnamed: list[tuple[str, str]] = []
+        stack = [(entry, '', {}) for entry in get_resolver().url_patterns]
+        entry_count = 0
 
-    for entry, namespace_parts, pattern_prefix, kwargs_specification in _url_patterns_walk():
-        # A route outside the audited namespaces is someone else's problem.
-        if not _namespace_audited(namespace_parts, namespaces):
-            continue
+        while stack:
+            entry_count += 1
 
-        pattern_full = pattern_prefix + str(entry.pattern)
+            if entry_count > ROUTE_COUNT_MAX:
+                message = f'url conf walk exceeded {ROUTE_COUNT_MAX} entries'
+                raise RuntimeError(message)
 
-        # A route without a name cannot be reversed or tested, so it goes
-        # to the guard test that demands every route be named.
-        if not entry.name:
-            pattern_unnamed = (':'.join(namespace_parts), pattern_full)
+            entry, namespace, url_kwargs = stack.pop()
+            url_kwargs = {**url_kwargs, **self._pattern_url_kwargs(entry.pattern)}
 
-            patterns_unnamed.append(pattern_unnamed)
+            if isinstance(entry, URLResolver):
+                if entry.namespace:
+                    namespace = f'{namespace}{entry.namespace}:'
 
-            continue
+                stack.extend((child, namespace, url_kwargs) for child in entry.url_patterns)
 
-        route = _route_gate_build(
-            entry.callback,
-            kwargs_specification,
-            ':'.join((*namespace_parts, entry.name)),
-            pattern_full,
+                continue
+
+            if not isinstance(entry, URLPattern):
+                continue
+
+            if not self._namespace_included(namespace):
+                continue
+
+            if not entry.name:
+                patterns_unnamed.append(f'{namespace}{entry.pattern}')
+
+                continue
+
+            name = f'{namespace}{entry.name}'
+            url = reverse(name, kwargs=url_kwargs)
+
+            route = Route.from_view(name, url, entry.callback)
+            routes.append(route)
+
+        routes.sort(key=lambda route: route.name)
+        patterns_unnamed.sort()
+
+        return routes, patterns_unnamed
+
+    def _namespace_included(self, namespace: str) -> bool:
+        root = namespace.partition(':')[0]
+
+        if self.namespaces is None:
+            return root not in NAMESPACES_SKIPPED
+
+        return root in self.namespaces
+
+    @staticmethod
+    def _pattern_url_kwargs(pattern: RegexPattern | RoutePattern) -> dict[str, str]:
+        url_kwargs = dict.fromkeys(pattern.regex.groupindex, URL_VALUE)
+
+        for name, converter in pattern.converters.items():
+            if isinstance(converter, UUIDConverter):
+                url_kwargs[name] = URL_VALUE_UUID
+
+        return url_kwargs
+
+
+class RouteRequest:
+    def __init__(self, client: Client, route: Route, user: str) -> None:
+        self.client = client
+        self.route = route
+        self.user = user
+        self.response = self._fire()
+
+    def describe(self) -> str:
+        request = self.response.wsgi_request
+        gate = ', '.join(self.route.permissions) if self.route.permissions else 'login only'
+
+        description = (
+            f'{self.route.name} ({request.method} {request.get_full_path()}) as {self.user} '
+            f'answered {self.response.status_code}; gate: {gate}'
         )
 
-        routes.append(route)
+        if self.response.exc_info is None:
+            return description
 
-    routes_sorted = tuple(sorted(routes, key=lambda route: route.name))
+        exception_type, exception, exception_traceback = self.response.exc_info
+        frame = self._frame_describe(exception_traceback)
+
+        return f'{description}; view raised {exception_type.__name__}: {exception} at {frame}'
 
-    return routes_sorted, tuple(sorted(patterns_unnamed))
+    def verify_allowed(self, login_urls: frozenset[str]) -> None:
+        description = self.describe()
 
+        if self.response.exc_info is not None:
+            raise AssertionError(description) from self.response.exc_info[1]
+
+        assert self.response.status_code != HTTPStatus.FORBIDDEN, description
+        assert self.response.status_code < HTTPStatus.INTERNAL_SERVER_ERROR, description
 
-def _superuser_client() -> Client:
-    """
-    A function that builds a logged-in superuser client.
+        if self.response.status_code == HTTPStatus.FOUND:
+            redirect_url = self.response.url.partition('?')[0]
+            assert redirect_url not in login_urls, f'{description}; sent to the login page'
 
-    :return: The client with the superuser logged in.
-    """
+    def verify_rejected(self, statuses_expected: set[int]) -> None:
+        description = self.describe()
+        expected = ', '.join(str(status) for status in sorted(statuses_expected))
 
-    user = create_super_user()
+        if self.response.exc_info is not None:
+            raise AssertionError(description) from self.response.exc_info[1]
 
-    client = Client()
-    client.force_login(user)
+        assert self.response.status_code in statuses_expected, (
+            f'{description}; expected one of {expected}'
+        )
 
-    return client
+    def _fire(self) -> HttpResponse:
+        body = '{}' if self.route.content_type == 'application/json' else ''
 
+        response = self.client.generic(
+            self.route.method,
+            self.route.url,
+            data=body,
+            content_type=self.route.content_type,
+        )
 
-def _url_patterns_walk() -> Iterator[RouteWalkEntry]:
-    """
-    A function that walks the URL resolver tree iteratively.
+        # A view that only accepts other methods answers 405 and names them in
+        # its Allow header, so the request is refired with the first one.
+        if response.status_code == HTTPStatus.METHOD_NOT_ALLOWED:
+            header = response.headers.get('Allow', 'POST')
+            allowed = [method.strip() for method in header.split(',')]
+            methods = [method for method in allowed if method not in ('HEAD', 'OPTIONS')]
+            method = methods[0] if methods else 'POST'
 
-    The walk is bounded by `ROUTE_WALK_ENTRY_COUNT_MAX` so a cyclic or
-    pathological resolver fails loudly instead of hanging the collection.
-    Each yielded route carries the URL kwargs gathered along its whole path,
-    because an include prefix can declare kwargs of its own.
+            response = self.client.generic(method, self.route.url)
 
-    :return: An iterator of `(pattern, namespace_parts, pattern_prefix, kwargs)` tuples.
-    :raises RuntimeError: If the walk exceeds its entry bound.
-    """
-
-    stack: list[tuple[object, tuple[str, ...], str, tuple[tuple[str, str], ...]]] = [
-        (entry, (), '', ())
-        for entry in get_resolver().url_patterns
-    ]
-
-    converter_names = _converter_names_by_type()
-    entry_count = 0
-
-    while stack:
-        entry_count += 1
-
-        if entry_count > ROUTE_WALK_ENTRY_COUNT_MAX:
-            message = f'route walk exceeded bound of {ROUTE_WALK_ENTRY_COUNT_MAX} entries'
-            raise RuntimeError(message)
-
-        entry, namespace_parts, pattern_prefix, kwargs_inherited = stack.pop()
+        return response
 
-        # An include: push its children and keep walking. The children
-        # inherit any kwargs the include's own prefix declares, such as an
-        # include mounted at 'company/<slug:company_slug>/'.
-        if isinstance(entry, URLResolver):
-            namespace_parts_next = (
-                (*namespace_parts, entry.namespace)
-                if entry.namespace
-                else namespace_parts
-            )
-            kwargs_next = kwargs_inherited + _pattern_kwargs_read(entry.pattern, converter_names)
-
-            stack.extend(
-                (child, namespace_parts_next, pattern_prefix + str(entry.pattern), kwargs_next)
-                for child in entry.url_patterns
-            )
+    @staticmethod
+    def _frame_describe(exception_traceback: TracebackType) -> str:
+        frames = traceback.extract_tb(exception_traceback)
 
-            continue
-
-        if isinstance(entry, URLPattern):
-            kwargs_full = kwargs_inherited + _pattern_kwargs_read(entry.pattern, converter_names)
+        frames_project = [
+            frame
+            for frame in frames
+            if not frame.filename.startswith(PATH_PREFIXES_THIRD_PARTY)
+            and 'site-packages' not in frame.filename
+        ]
 
-            yield entry, namespace_parts, pattern_prefix, kwargs_full
-
-
-def matrix_suite(
-    namespaces: Iterable[str] | None = None,
-    routes_ungated_accepted: Iterable[str] = frozenset(),
-    routes_object_gated: Iterable[str] = frozenset(),
-    kwarg_values: dict[str, object] | None = None,
-) -> type:
-    """
-    A function that builds the permission matrix suite for the project's URL conf.
+        frame = frames_project[-1] if frames_project else frames[-1]
+        return f'{frame.filename}:{frame.lineno} in {frame.name}'
 
-    This function collects the audited routes at import time and returns a
-    pytest class whose tests are parametrized per route. A project adopts the
-    matrix by assigning the result to a `Test`-prefixed name in a test module:
 
-        TestPermissionMatrix = matrix_suite(namespaces={'sales', 'home'})
+@pytest.mark.django_db
+class PermissionTests:
+    namespaces: Iterable[str] | None = None
+    object_routes: Iterable[str] = frozenset()
+    public_routes: Iterable[str] = frozenset()
 
-    :param namespaces: The root namespaces to audit, or None for every namespace
-        except `NAMESPACE_ROOTS_EXCLUDED`.
-    :param routes_ungated_accepted: The route names accepted without a detectable gate,
-        such as public pages or views gated by a custom decorator in the view body.
-    :param routes_object_gated: The gated route names whose outermost decorator fetches
-        an object before the permission check, so a 404 is accepted where the
-        gate would otherwise answer.
-    :param kwarg_values: The synthetic URL value per converter name, merged over
-        `KWARG_VALUES_SYNTHETIC`; a project with a custom path converter supplies
-        a value its regex accepts, keyed by the converter's registered name.
-    :return: The pytest suite class.
-    """
-
-    namespaces_audited = None if namespaces is None else frozenset(namespaces)
-    ledger_ungated = frozenset(routes_ungated_accepted)
-    ledger_object = frozenset(routes_object_gated)
-    kwarg_values_effective = {**KWARG_VALUES_SYNTHETIC, **(kwarg_values or {})}
+    def __init_subclass__(cls, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
 
-    routes, patterns_unnamed = _routes_collect(namespaces_audited)
-
-    # Three shrinking partitions decide which tests a route receives.
-    # Gated routes get the anonymous test. Transparent routes (no check the
-    # matrix cannot predict) also get the superuser test. Enforced routes
-    # (transparent, with declared permissions) get the denied and granted
-    # tests as well.
-    routes_gated = tuple(route for route in routes if route.gated)
-    routes_transparent = tuple(route for route in routes_gated if not route.opaque)
-    routes_enforced = tuple(route for route in routes_transparent if route.permissions)
+        cls.routes, cls.patterns_unnamed = RouteCollector(cls.namespaces).collect()
+        cls.routes_object = frozenset(cls.object_routes)
+        cls.routes_public = frozenset(cls.public_routes)
 
-    route_ids_gated = [route.name for route in routes_gated]
-    route_ids_transparent = [route.name for route in routes_transparent]
-    route_ids_enforced = [route.name for route in routes_enforced]
+        cls.routes_protected = [route for route in cls.routes if route.requires_login]
 
-    @pytest.mark.django_db
-    class Suite:
-        """
-        A pytest suite auditing route permissions for one URL conf.
-        """
+        cls.routes_checkable = [
+            route
+            for route in cls.routes_protected
+            if not route.has_custom_check
+        ]
 
-        def test_declared_permissions_exist(self) -> None:
-            """
-            A test that fails when a view declares a permission missing from the database.
-            """
+        cls.routes_with_permissions = [
+            route
+            for route in cls.routes_checkable
+            if route.permissions
+        ]
 
-            declared = {
-                label
-                for route in routes_gated
-                for label in route.permissions
-            }
+        cls.login_urls = frozenset({
+            resolve_url(settings.LOGIN_URL),
+            reverse('django_spire:auth:admin:login'),
+        })
 
-            known_rows = Permission.objects.values_list('content_type__app_label', 'codename')
-            known = {f'{app_label}.{codename}' for app_label, codename in known_rows}
+        cls._parametrize('test_anonymous_user_is_rejected', cls.routes_protected)
+        cls._parametrize('test_superuser_is_allowed', cls.routes_checkable)
+        cls._parametrize('test_user_with_permission_is_allowed', cls.routes_with_permissions)
+        cls._parametrize('test_user_without_permission_is_rejected', cls.routes_with_permissions)
 
-            unknown = declared - known
+    @classmethod
+    def _parametrize(cls, name: str, routes: list[Route]) -> None:
+        method = getattr(cls, name)
 
-            assert unknown == set(), (
-                f'views require permissions that do not exist; the decorator app '
-                f'label or codename is wrong: {sorted(unknown)}'
-            )
+        # Each subclass gets its own copy of the method, so the parametrize
+        # mark holds that subclass's routes and never leaks to a sibling.
+        def method_copy(self: PermissionTests, route: Route) -> None:
+            method(self, route)
 
-        def test_gated_routes_exist(self) -> None:
-            """
-            A test that fails when the collection finds no gated routes at all.
-            """
+        method_copy.__name__ = name
+        method_copy.__qualname__ = f'{cls.__qualname__}.{name}'
 
-            assert routes_gated != (), 'no gated routes collected; the matrix audits nothing'
+        ids = [route.name for route in routes]
+        setattr(cls, name, pytest.mark.parametrize('route', routes, ids=ids)(method_copy))
 
-        def test_object_routes_ledgered_are_gated(self) -> None:
-            """
-            A test that fails when the object ledger names a route without a gate.
-            """
+    def test_anonymous_user_is_rejected(self, route: Route) -> None:
+        expected = {HTTPStatus.FOUND}
 
-            stale = ledger_object - {route.name for route in routes_gated}
+        if route.has_custom_check:
+            expected.add(HTTPStatus.FORBIDDEN)
 
-            assert stale == set(), (
-                f'object routes are not gated routes; remove them from the '
-                f'object ledger: {sorted(stale)}'
-            )
+        if route.name in self.routes_object:
+            expected.add(HTTPStatus.FORBIDDEN)
+            expected.add(HTTPStatus.NOT_FOUND)
 
-        @pytest.mark.parametrize('route', routes_transparent, ids=route_ids_transparent)
-        def test_route_admits_superuser(self, route: RouteGate) -> None:
-            """
-            A test that fails when a superuser is forbidden or the view errors.
-            """
+        RouteRequest(Clients.anonymous(), route, 'anonymous').verify_rejected(expected)
 
-            response = _route_fire(_superuser_client(), route, kwarg_values_effective)
+    def test_declared_permissions_exist(self) -> None:
+        declared = {label for route in self.routes_protected for label in route.permissions}
 
-            assert response.status_code != HTTPStatus.FORBIDDEN
-            assert response.status_code < HTTPStatus.INTERNAL_SERVER_ERROR
+        known_rows = Permission.objects.values_list('content_type__app_label', 'codename')
+        known = {f'{app_label}.{codename}' for app_label, codename in known_rows}
 
-        @pytest.mark.parametrize('route', routes_enforced, ids=route_ids_enforced)
-        def test_route_admits_user_with_declared_permissions(self, route: RouteGate) -> None:
-            """
-            A test that fails when the route's own permissions are not enough to enter.
-            """
+        unknown = sorted(declared - known)
 
-            client = _client_with_permissions('matrix_granted', route.permissions)
+        assert unknown == [], f'views require permissions that do not exist: {unknown}'
 
-            response = _route_fire(client, route, kwarg_values_effective)
+    def test_every_route_has_a_name(self) -> None:
+        unnamed = self.patterns_unnamed
 
-            assert response.status_code != HTTPStatus.FORBIDDEN
-            assert response.status_code < HTTPStatus.INTERNAL_SERVER_ERROR
+        assert unnamed == [], f'unnamed routes cannot be tested: {unnamed}'
 
-        @pytest.mark.parametrize('route', routes_gated, ids=route_ids_gated)
-        def test_route_rejects_anonymous(self, route: RouteGate) -> None:
-            """
-            A test that fails when a gated route answers an anonymous request.
-            """
+    def test_every_route_is_protected_or_public(self) -> None:
+        assert self.routes != [], 'no routes found; check the namespaces'
 
-            response = _route_fire(Client(), route, kwarg_values_effective)
+        unprotected = {route.name for route in self.routes if not route.requires_login}
 
-            expected = {HTTPStatus.FOUND}
+        missing = sorted(unprotected - self.routes_public)
+        stale = sorted(self.routes_public - unprotected)
 
-            if route.opaque:
-                expected.add(HTTPStatus.FORBIDDEN)
+        assert missing == [], f'routes without a permission decorator: {missing}'
+        assert stale == [], f'public_routes entries that are now protected or gone: {stale}'
 
-            if route.name in ledger_object:
-                expected.add(HTTPStatus.FORBIDDEN)
-                expected.add(HTTPStatus.NOT_FOUND)
+    def test_object_routes_are_protected(self) -> None:
+        stale = sorted(self.routes_object - {route.name for route in self.routes_protected})
 
-            assert response.status_code in expected
+        assert stale == [], f'object_routes entries that are not protected routes: {stale}'
 
-        @pytest.mark.parametrize('route', routes_enforced, ids=route_ids_enforced)
-        def test_route_rejects_user_without_permissions(self, route: RouteGate) -> None:
-            """
-            A test that fails when a permissionless user is not denied.
-            """
+    def test_superuser_is_allowed(self, route: Route) -> None:
+        RouteRequest(Clients.superuser(), route, 'superuser').verify_allowed(self.login_urls)
 
-            client = _client_with_permissions('matrix_denied', ())
+    def test_user_with_permission_is_allowed(self, route: Route) -> None:
+        client = Clients.with_permissions('with_permission', route.permissions)
+        RouteRequest(client, route, 'user with permission').verify_allowed(self.login_urls)
 
-            response = _route_fire(client, route, kwarg_values_effective)
+    def test_user_without_permission_is_rejected(self, route: Route) -> None:
+        client = Clients.with_permissions('without_permission', ())
+        expected = set(route.statuses_rejected)
 
-            expected = set(route.statuses_denied)
+        if route.name in self.routes_object:
+            expected.add(HTTPStatus.NOT_FOUND)
 
-            if route.name in ledger_object:
-                expected.add(HTTPStatus.NOT_FOUND)
-
-            assert response.status_code in expected
-
-        def test_routes_gated_or_ledgered(self) -> None:
-            """
-            A test that fails when a route has no detectable gate and no ledger entry.
-            """
-
-            ungated = {route.name for route in routes if not route.gated}
-
-            missing = ungated - ledger_ungated
-            stale = ledger_ungated - ungated
-
-            assert missing == set(), (
-                f'routes without a detectable gate; gate them or ledger them in '
-                f'routes_ungated_accepted: {sorted(missing)}'
-            )
-
-            assert stale == set(), (
-                f'ledgered routes are now gated or gone; remove them from '
-                f'routes_ungated_accepted: {sorted(stale)}'
-            )
-
-        def test_routes_named(self) -> None:
-            """
-            A test that fails when an audited pattern has no route name.
-            """
-
-            formatted = [f'{namespace}: {pattern}' for namespace, pattern in patterns_unnamed]
-
-            assert formatted == [], (
-                f'unnamed routes escape the permission matrix; name them: {formatted}'
-            )
-
-    return Suite
+        RouteRequest(client, route, 'user without permission').verify_rejected(expected)

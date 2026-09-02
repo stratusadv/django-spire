@@ -19,19 +19,19 @@ class SpireGate:
     A frozen record of the permission gate a decorator placed on a view.
 
     This record is stamped onto the decorator's wrapper as `__spire_gate__` so
-    the permission matrix in `django_spire.testing.permissions` can read a
+    the permission tests in `django_spire.testing.permissions` can read a
     route's declared gate without inspecting closures. The stamp lives in the
     wrapper's `__dict__`, and `functools.wraps` copies `__dict__` upward, so
     any wraps-using decorator stacked above the gate carries the stamp to the
     outermost wrapper on its own.
 
     :param all_required: Whether every permission is required, rather than any one.
-    :param opaque: Whether the gate includes a callable check the matrix cannot predict.
+    :param has_custom_check: Whether the gate includes a callable check the tests cannot predict.
     :param permissions: The declared permission labels in `app_label.codename` form.
     """
 
     all_required: bool
-    opaque: bool
+    has_custom_check: bool
     permissions: tuple[str, ...]
 
 
@@ -91,7 +91,7 @@ def permission_required(*permissions: str, all_required: bool = True):
         # inner decorator is overwritten by this, the outermost, gate.
         wrapper.__spire_gate__ = SpireGate(
             all_required=all_required,
-            opaque=False,
+            has_custom_check=False,
             permissions=tuple(permissions),
         )
 

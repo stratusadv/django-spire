@@ -73,7 +73,7 @@ class BaseAuthController:
             # at decoration time: the controller instance already exists when
             # its permission_required method runs, so getattr resolves the
             # same attribute the wrapper will call per request. A callable
-            # check marks the gate opaque because its outcome cannot be
+            # check marks the gate as a custom check because its outcome cannot be
             # predicted from permission labels alone.
             permissions_callable = tuple(
                 permission
@@ -89,7 +89,7 @@ class BaseAuthController:
 
             wrapper.__spire_gate__ = SpireGate(
                 all_required=all_required,
-                opaque=bool(permissions_callable),
+                has_custom_check=bool(permissions_callable),
                 permissions=permissions_label,
             )
 
