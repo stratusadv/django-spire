@@ -16,17 +16,18 @@ class ApiKeySecurity(APIKeyBase):
         self.permission_required = permission_required
         super().__init__()
 
-    def authenticate(self, request: HttpRequest, key: str | None) -> bool | str:
+    def authenticate(self, request: HttpRequest, key: str | None) -> bool | ApiAccess:
+        del request
         if key is None:
             return False
 
         api_access = ApiAccess.objects.get_by_key_or_none(key)
 
-        if api_access is not None:
-            if self.permission_required is None:
-                return api_access.name
+        if api_access is None:
+            return False
 
-            return api_access.permission >= self.permission_required
+        if self.permission_required is None or api_access.permission >= self.permission_required:
+            return api_access
 
         return False
 

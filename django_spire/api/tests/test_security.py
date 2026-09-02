@@ -15,9 +15,19 @@ class ApiKeySecurityTestCase(BaseTestCase):
         )
         self.access.set_key_and_save(self.key)
 
-    def test_authenticate_success(self) -> None:
+    def test_authenticate_success_returns_api_access(self) -> None:
         security = ApiKeySecurity()
-        assert security.authenticate(None, self.key)
+        result = security.authenticate(None, self.key)
+        assert result == self.access
+        assert result.name == 'Security Test'
+        assert result.permission == ApiPermissionChoices.ADD
+
+    def test_authenticate_returns_user_for_limiting_access(self) -> None:
+        security = ApiKeySecurity()
+        self.access.user = self.super_user
+        self.access.save()
+        result = security.authenticate(None, self.key)
+        assert result.user == self.super_user
 
     def test_authenticate_fail_wrong_key(self) -> None:
         security = ApiKeySecurity()
@@ -28,13 +38,13 @@ class ApiKeySecurityTestCase(BaseTestCase):
         assert not security.authenticate(None, None)
 
     def test_authenticate_level_required_success(self) -> None:
-        # Access is ADD (2), level required is VIEW (1) -> True
+        # Access is ADD (2), level required is VIEW (1) -> True, returns instance
         security = ApiKeySecurity(permission_required=ApiPermissionChoices.VIEW)
-        assert security.authenticate(None, self.key)
+        assert security.authenticate(None, self.key) == self.access
 
-        # Access is ADD (2), level required is ADD (2) -> True
+        # Access is ADD (2), level required is ADD (2) -> True, returns instance
         security = ApiKeySecurity(permission_required=ApiPermissionChoices.ADD)
-        assert security.authenticate(None, self.key)
+        assert security.authenticate(None, self.key) == self.access
 
     def test_authenticate_level_required_fail(self) -> None:
         # Access is ADD (2), level required is CHANGE (3) -> False
