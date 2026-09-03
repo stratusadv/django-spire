@@ -3,8 +3,8 @@ revision = 3
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'win32'",
-    "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version >= '3.14' and sys_platform != 'win32'",
+    "python_full_version == '3.13.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform != 'win32'",
     "python_full_version < '3.13' and sys_platform == 'win32'",
     "python_full_version < '3.13' and sys_platform != 'win32'",
@@ -897,7 +897,7 @@ dependencies = [
     { name = "twilio" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 development = [
     { name = "build" },
     { name = "django-browser-reload" },
@@ -935,58 +935,64 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.14.2" },
     { name = "boto3", specifier = "==1.34.0" },
     { name = "botocore", specifier = "==1.34.0" },
-    { name = "build", marker = "extra == 'development'" },
     { name = "celery", specifier = "==5.6.3" },
     { name = "celery-types", specifier = "==0.26.0" },
     { name = "dandy", specifier = ">=2.2.0" },
     { name = "django", specifier = ">=6.0.6" },
-    { name = "django-browser-reload", marker = "extra == 'development'" },
     { name = "django-glue", git = "https://github.com/stratusadv/django-glue.git?rev=master" },
-    { name = "django-kaleidoscope", marker = "extra == 'development'" },
     { name = "django-ninja", specifier = "==1.6.2" },
     { name = "django-sendgrid-v5" },
     { name = "django-storages", specifier = "==1.14.6" },
-    { name = "django-watchfiles", marker = "extra == 'development'" },
     { name = "docutils" },
     { name = "faker" },
-    { name = "hypothesis", marker = "extra == 'development'" },
     { name = "libsass", specifier = "==0.23.0" },
-    { name = "limelight", extras = ["django", "pytest"], marker = "extra == 'development'", git = "https://github.com/stratusadv/limelight.git?rev=v0.2.0" },
-    { name = "markdown-exec", extras = ["ansi"], marker = "extra == 'documentation'" },
     { name = "markitdown", extras = ["docx", "pdf"], specifier = "==0.1.2" },
     { name = "marko", specifier = "==2.1.4" },
-    { name = "mkdocs", marker = "extra == 'documentation'" },
-    { name = "mkdocs-gen-files", marker = "extra == 'documentation'" },
-    { name = "mkdocs-include-markdown-plugin", marker = "extra == 'documentation'" },
-    { name = "mkdocs-literate-nav", marker = "extra == 'documentation'" },
-    { name = "mkdocs-material", marker = "extra == 'documentation'" },
-    { name = "mkdocs-section-index", marker = "extra == 'documentation'" },
-    { name = "mkdocs-table-reader-plugin", marker = "extra == 'documentation'" },
-    { name = "mkdocstrings-python", marker = "extra == 'documentation'" },
-    { name = "openpyxl", marker = "extra == 'documentation'" },
     { name = "paramiko", specifier = "==4.0.0" },
     { name = "pillow", specifier = "==11.2.1" },
-    { name = "pip", marker = "extra == 'development'" },
-    { name = "playwright", marker = "extra == 'development'" },
     { name = "psycopg2" },
     { name = "pydantic" },
     { name = "pygments" },
-    { name = "pyinstrument", marker = "extra == 'development'" },
-    { name = "pyrefly", marker = "extra == 'development'" },
-    { name = "pytest", marker = "extra == 'development'" },
-    { name = "pytest-django", marker = "extra == 'development'" },
-    { name = "pytest-playwright", marker = "extra == 'development'" },
-    { name = "pytest-xdist", marker = "extra == 'development'" },
     { name = "python-dateutil" },
     { name = "robit", specifier = "==0.4.9" },
-    { name = "ruff", marker = "extra == 'development'" },
-    { name = "setuptools", marker = "extra == 'development'" },
     { name = "sqlalchemy", specifier = "==2.0.49" },
     { name = "statistic", specifier = ">=0.1.6" },
     { name = "twilio" },
-    { name = "twine", marker = "extra == 'development'" },
 ]
-provides-extras = ["development", "documentation"]
+provides-extras = ["production", "development", "documentation"]
+
+[package.metadata.requires-dev]
+development = [
+    { name = "build" },
+    { name = "django-browser-reload" },
+    { name = "django-kaleidoscope" },
+    { name = "django-watchfiles" },
+    { name = "hypothesis" },
+    { name = "limelight", extras = ["django", "pytest"], git = "https://github.com/stratusadv/limelight.git?rev=v0.2.0" },
+    { name = "pip" },
+    { name = "playwright" },
+    { name = "pyinstrument" },
+    { name = "pyrefly" },
+    { name = "pytest" },
+    { name = "pytest-django" },
+    { name = "pytest-playwright" },
+    { name = "pytest-xdist" },
+    { name = "ruff" },
+    { name = "setuptools" },
+    { name = "twine" },
+]
+documentation = [
+    { name = "markdown-exec", extras = ["ansi"] },
+    { name = "mkdocs" },
+    { name = "mkdocs-gen-files" },
+    { name = "mkdocs-include-markdown-plugin" },
+    { name = "mkdocs-literate-nav" },
+    { name = "mkdocs-material" },
+    { name = "mkdocs-section-index" },
+    { name = "mkdocs-table-reader-plugin" },
+    { name = "mkdocstrings-python" },
+    { name = "openpyxl" },
+]
 
 [[package]]
 name = "django-storages"
