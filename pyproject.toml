@@ -75,7 +75,7 @@ development = [
     "django-kaleidoscope",
     "django-watchfiles",
     "hypothesis",
-    "limelight[django,pytest] @ git+https://github.com/stratusadv/limelight.git@main",
+    "limelight[django,pytest] @ git+https://github.com/stratusadv/limelight.git@v0.2.0",
     "pip",
     "playwright",
     "pyinstrument",

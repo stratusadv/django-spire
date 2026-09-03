@@ -66,26 +66,16 @@ class WidgetShowcase(ActivityMixin, HistoryModelMixin):
     checkbox_tags = models.ManyToManyField(
         ShowcaseTag, blank=True, related_name='checkbox_showcases'
     )
-    search_tags = models.ManyToManyField(
-        ShowcaseTag, blank=True, related_name='search_showcases'
-    )
+    search_tags = models.ManyToManyField(ShowcaseTag, blank=True, related_name='search_showcases')
     radio_choice = models.CharField(
         max_length=4, choices=PriorityChoices.choices, default=PriorityChoices.MEDIUM
     )
     category = models.ForeignKey(
-        ShowcaseCategory,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='showcases',
+        ShowcaseCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='showcases'
     )
     watchers = models.ManyToManyField(User, blank=True, related_name='watched_showcases')
     assigned_user = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='assigned_showcases',
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_showcases'
     )
 
     # datetime/*

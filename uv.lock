@@ -951,7 +951,7 @@ requires-dist = [
     { name = "faker" },
     { name = "hypothesis", marker = "extra == 'development'" },
     { name = "libsass", specifier = "==0.23.0" },
-    { name = "limelight", extras = ["django", "pytest"], marker = "extra == 'development'", git = "https://github.com/stratusadv/limelight.git?rev=main" },
+    { name = "limelight", extras = ["django", "pytest"], marker = "extra == 'development'", git = "https://github.com/stratusadv/limelight.git?rev=v0.2.0" },
     { name = "markdown-exec", extras = ["ansi"], marker = "extra == 'documentation'" },
     { name = "markitdown", extras = ["docx", "pdf"], specifier = "==0.1.2" },
     { name = "marko", specifier = "==2.1.4" },
@@ -1483,7 +1483,7 @@ wheels = [
 [[package]]
 name = "limelight"
 version = "0.2.0"
-source = { git = "https://github.com/stratusadv/limelight.git?rev=main#fc0b7f3bfcaba40044f52173d36ed52575141745" }
+source = { git = "https://github.com/stratusadv/limelight.git?rev=v0.2.0#5f94f2965b3e15eacd0ea6f1f163863c279dee8b" }
 dependencies = [
     { name = "playwright" },
 ]

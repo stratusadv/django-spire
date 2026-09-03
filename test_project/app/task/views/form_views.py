@@ -74,7 +74,7 @@ def _modal_form_view(request: WSGIRequest, pk: int = 0) -> TemplateResponse:
         task,
         Glue.Access.CHANGE,
         fields=['name', 'description', 'status'],
-        form_class=forms.TaskModelForm,
+        form=forms.TaskModelForm,
     )
 
     context = {'task': task, 'glue_form': 'Glue.model.task.form'}

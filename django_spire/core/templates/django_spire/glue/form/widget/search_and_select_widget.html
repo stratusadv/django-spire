@@ -4,7 +4,7 @@
 {% block widget_content %}
     <div
         class="position-relative"
-        @click.outside="showDropdown = false"
+        @click.outside="closeDropdown()"
         x-data="{
             showDropdown: false,
             searchQuery: '',
@@ -32,10 +32,11 @@
 
             openDropdown() {
                 this.searchQuery = '';
-                let rect = this.$refs.selectedInput.getBoundingClientRect();
-                let clippingRect = this.getClippingRect();
-                let spaceBelow = clippingRect.bottom - rect.bottom;
-                let spaceAbove = rect.top - clippingRect.top;
+                field.clearSearch?.();
+                const rect = this.$refs.selectedInput.getBoundingClientRect();
+                const clippingRect = this.getClippingRect();
+                const spaceBelow = clippingRect.bottom - rect.bottom;
+                const spaceAbove = rect.top - clippingRect.top;
 
                 this.openUp = spaceBelow < 260 && spaceAbove > spaceBelow;
                 this.showDropdown = true;
@@ -43,12 +44,16 @@
             },
 
             get dropdownStyle() {
-                let verticalPosition = this.openUp ? 'bottom: 100%; margin-bottom: 0.25rem;' : 'top: 100%; margin-top: 0.25rem;';
+                const verticalPosition = this.openUp ? 'bottom: 100%; margin-bottom: 0.25rem;' : 'top: 100%; margin-top: 0.25rem;';
                 return `max-height: 250px; overflow-y: auto; z-index: 1070; ${verticalPosition}`;
             },
 
             get filteredChoices() {
-                let query = this.searchQuery.toLowerCase();
+                if (field?.choices_searchable) {
+                    return field.isSearchingChoices ? [] : field?.choices || [];
+                }
+
+                const query = this.searchQuery.toLowerCase();
 
                 return (field?.choices || []).filter(
                     choice => String(choice.label).toLowerCase().includes(query)
@@ -56,14 +61,24 @@
                 );
             },
 
+            closeDropdown() {
+                this.showDropdown = false;
+                this.searchQuery = '';
+                field.clearSearch?.();
+            },
+
+            async searchChoices() {
+                if (!field?.choices_searchable) return;
+                await field.searchChoices(this.searchQuery.trim());
+            },
+
             selectItem(choice) {
                 if (field.disabled) return;
                 value = choice.value;
-                this.showDropdown = false;
-                this.searchQuery = '';
+                this.closeDropdown();
                 this.$nextTick(() => {
-                    this.$refs.selectedInput.dispatchEvent(new Event('input', {bubbles: true}));
-                    this.$refs.selectedInput.dispatchEvent(new Event('change', {bubbles: true}));
+                    this.$refs.selectedInput?.dispatchEvent(new Event('input', {bubbles: true}));
+                    this.$refs.selectedInput?.dispatchEvent(new Event('change', {bubbles: true}));
                 });
             }
         }"
@@ -93,11 +108,17 @@
                         type="text"
                         class="form-control form-control-sm"
                         x-model="searchQuery"
-                        @input.stop
+                        @input.stop.debounce.200ms="searchChoices()"
                         @change.stop
-                        @keydown.escape="showDropdown = false; searchQuery = ''"
+                        @keydown.escape="closeDropdown()"
                         placeholder="Search..."
                     >
+                </div>
+                <div
+                    class="py-3 px-3 text-center text-muted"
+                    x-show="field.choices_searchable && field.isSearchingChoices"
+                >
+                    Searching...
                 </div>
                 <template x-for="choice in filteredChoices" :key="choice.value">
                     <div
@@ -107,11 +128,17 @@
                         <div x-text="choice.label"></div>
                     </div>
                 </template>
-                <template x-if="filteredChoices.length === 0 && searchQuery.length > 0">
+                <template x-if="!field.isSearchingChoices && filteredChoices.length === 0 && searchQuery.length > 0">
                     <div class="py-3 px-3 text-center text-muted">
                         No results found
                     </div>
                 </template>
+                <div
+                    class="py-3 px-3 text-center text-muted"
+                    x-show="field.choices_searchable && !field.isSearchingChoices && searchQuery.length === 0"
+                >
+                    Start typing to search
+                </div>
             </div>
         </div>
     </div>

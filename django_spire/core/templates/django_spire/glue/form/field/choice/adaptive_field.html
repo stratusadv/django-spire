@@ -1,0 +1,51 @@
+{% load django_glue %}
+
+{# Picks one glue choice widget from field metadata alone. Opt in with:        #}
+{#   {% include 'django_spire/glue/form/field/choice/adaptive_field.html'       #}
+{#            with glue_field='glue_form.company' %}                            #}
+{#                                                                             #}
+{# cardinality x choices_searchable -> widget:                                 #}
+{#   single   + not searchable  -> select_widget.html                          #}
+{#   single   + searchable      -> search_and_select_widget.html               #}
+{#   multiple + either          -> multi_search_and_select_widget.html         #}
+{#                                 (its search box self-gates on searchable)   #}
+{#                                                                             #}
+{# The three widget templates {% extends %} widget.html; {% include %} renders  #}
+{# them fully resolved, and the current context (glue_field included) flows in #}
+{# with no `with`, so each widget resolves its own field metadata -- do not    #}
+{# pass glue_field explicitly.                                                 #}
+
+<div
+    x-data="{
+        adaptiveChoiceField: {{ glue_field|glue_field_metadata_path }},
+
+        get isMultipleChoice() {
+            return [
+                'ManyToManyField',
+                'ModelMultipleChoiceField',
+                'MultipleChoiceField',
+                'TypedMultipleChoiceField',
+            ].includes(this.adaptiveChoiceField?.type)
+                || ['CheckboxSelectMultiple', 'SelectMultiple'].includes(
+                    this.adaptiveChoiceField?.widget
+                )
+                || Array.isArray(this.adaptiveChoiceField?.value);
+        },
+    }"
+>
+    <template x-if="!isMultipleChoice && adaptiveChoiceField?.choices_searchable">
+        <div>
+            {% include 'django_spire/glue/form/widget/search_and_select_widget.html' %}
+        </div>
+    </template>
+    <template x-if="!isMultipleChoice && !adaptiveChoiceField?.choices_searchable">
+        <div>
+            {% include 'django_spire/glue/form/widget/select_widget.html' %}
+        </div>
+    </template>
+    <template x-if="isMultipleChoice">
+        <div>
+            {% include 'django_spire/glue/form/widget/multi_search_and_select_widget.html' %}
+        </div>
+    </template>
+</div>
