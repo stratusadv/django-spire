@@ -49,7 +49,7 @@ class SearchResult:
         return cls(
             search_key=search.search_key,
             name=search.section_name,
-            icon='bi-list-columns',
+            icon=search.icon or 'bi-list-columns',
             label=search.section_name,
             description='list',
             url=url,
