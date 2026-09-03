@@ -12,18 +12,18 @@ from django_spire.core.search.result import SearchResult
 class Search(ABC):
     Command: type[SearchCommand] = SearchCommand
 
-    model_class: type[models.Model]
+    model_class: type[models.Model] | None
     searchable_fields: list[str] | None
     searchable_commands: list[SearchCommand] = []
-    name: str | None = None
-    icon: str | None = None
+    name: str
+    icon: str
     permission_required: str | None = None
     result_limit: int = 10
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
-        required_attributes = 'model_class', 'search_key'
+        required_attributes = 'model_class', 'name', 'icon'
 
         for attribute in required_attributes:
             if getattr(cls, attribute, None) is None:
@@ -32,13 +32,7 @@ class Search(ABC):
 
     @property
     def section_name(self) -> str:
-        if self.name:
-            return self.name
-
-        if self.model_class is not None:
-            return self.model_class._meta.verbose_name_plural
-
-        return self.search_key
+        return self.name
 
     @abstractmethod
     def base_queryset(self, request: HttpRequest) -> models.QuerySet:
@@ -109,11 +103,9 @@ class Search(ABC):
         if not query:
             return None
 
-        keywords = (self.search_key, self.name)
-
         if self.model_class is not None:
             keywords = (
-                *keywords,
+                self.name,
                 self.model_class._meta.verbose_name,
                 self.model_class._meta.verbose_name_plural,
             )
