@@ -12829,8 +12829,8 @@ textarea.form-control-lg {
 }
 
 .list-group-item-action.search-palette-result:focus {
-  background-color: var(--bs-primary-bg-subtle);
-  outline: calc(var(--bs-border-width) * 2) solid var(--bs-primary);
+  box-shadow: 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+  outline: var(--bs-border-width) solid var(--bs-primary);
   outline-offset: -1px;
 }
 

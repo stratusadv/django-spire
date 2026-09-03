@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
 from django_spire.knowledge.entry.search import EntrySearch
@@ -10,6 +10,7 @@ from django_spire.knowledge.entry.tests.factories import create_test_collection,
 class TestEntrySearch(TestCase):
     def setUp(self) -> None:
         self.search = EntrySearch()
+        self.request = RequestFactory().get('/')
         self.collection = create_test_collection(name='Guides')
         self.matching_name = create_test_entry(
             collection=self.collection, name='Installation Guide', _search_text='setup basics'
@@ -22,30 +23,29 @@ class TestEntrySearch(TestCase):
         self.deleted.set_deleted()
 
     def test_search_matches_name(self) -> None:
-        results = self.search.search('Guide')
+        results = self.search.search(self.request, 'Guide')
         assert set(results.values_list('pk', flat=True)) == {self.matching_name.pk}
 
     def test_search_matches_search_text(self) -> None:
-        results = self.search.search('database')
+        results = self.search.search(self.request, 'database')
         assert set(results.values_list('pk', flat=True)) == {self.matching_text.pk}
 
     def test_search_matches_multiple_words_across_fields(self) -> None:
-        results = self.search.search('installation basics')
+        results = self.search.search(self.request, 'installation basics')
         assert set(results.values_list('pk', flat=True)) == {self.matching_name.pk}
 
     def test_search_excludes_deleted(self) -> None:
-        results = self.search.search('Archive')
+        results = self.search.search(self.request, 'Archive')
         assert results is not None
         assert not results.exists()
 
     def test_search_blank_returns_none(self) -> None:
-        assert self.search.search(None) is None
-        assert self.search.search('   ') is None
+        assert self.search.search(self.request, None) is None
+        assert self.search.search(self.request, '   ') is None
 
     def test_to_result(self) -> None:
         result = self.search.to_result(self.matching_name)
 
-        assert result.search_key == 'ENTRY'
         assert result.name == 'Knowledge Entries'
         assert result.icon == 'bi-book'
         assert result.label == 'Installation Guide'
@@ -55,7 +55,7 @@ class TestEntrySearch(TestCase):
         )
 
     def test_to_result_prefetches_collection(self) -> None:
-        entry = next(iter(self.search.search('Guide')))
+        entry = next(iter(self.search.search(self.request, 'Guide')))
 
         with self.assertNumQueries(0):
             result = self.search.to_result(entry)

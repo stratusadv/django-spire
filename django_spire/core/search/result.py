@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 @dataclass
 class SearchResult:
-    search_key: str
     name: str
     icon: str | None = None
     label: str = ''
@@ -23,19 +22,23 @@ class SearchResult:
 
     @classmethod
     def from_search(cls, search: Search, obj: models.Model) -> SearchResult:
+        url = search.generate_detail_url(obj)
+
+        if url is None:
+            message = f'{search.__class__.__name__} does not have a detail url for search results.'
+            raise ValueError(message)
+
         return cls(
-            search_key=search.search_key,
             name=search.section_name,
             icon=search.icon,
             label=search.result_name(obj),
             description=search.result_description(obj),
-            url=search.generate_detail_url(obj),
+            url=url,
         )
 
     @classmethod
     def from_command(cls, search: Search, command: SearchCommand) -> SearchResult:
         return cls(
-            search_key=search.search_key,
             name=search.section_name,
             icon=command.icon,
             label=command.name,
@@ -47,11 +50,10 @@ class SearchResult:
     @classmethod
     def from_list(cls, search: Search, url: str) -> SearchResult:
         return cls(
-            search_key=search.search_key,
             name=search.section_name,
             icon='bi-list-columns',
             label=search.section_name,
-            description='list',
+            description='List Page',
             url=url,
         )
 

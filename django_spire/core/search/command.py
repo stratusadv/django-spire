@@ -13,11 +13,11 @@ class SearchCommand:
             url: str,
             action: Action,
             description: str | None = None,
-            permission: str | None = None,
+            permission_required: str | None = None,
     ):
         self.name = name
         self.icon = icon
         self.url = url
         self.action = action
         self.description = description
-        self.permission = permission
+        self.permission_required = permission_required
