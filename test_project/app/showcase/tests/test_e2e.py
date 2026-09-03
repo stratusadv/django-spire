@@ -8,9 +8,6 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from playwright.sync_api import expect
 
-from limelight import Demo
-from limelight.django import DjangoApplication
-
 from test_project.app.showcase.choices import PriorityChoices
 from test_project.app.showcase.models import WidgetShowcase
 from test_project.app.showcase.tests.factories import (
@@ -20,11 +17,13 @@ from test_project.app.showcase.tests.factories import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from limelight import Demo
     from playwright.sync_api import Locator, Page
-    from pytest_django.live_server_helper import LiveServer
 
 
-pytestmark = [pytest.mark.demo, pytest.mark.playwright]
+pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
 # One label per field, matching the auto-generated verbose name for each
 # model field showcase/form/form.html renders. Covers all 29 templates under
@@ -129,24 +128,23 @@ def close_multi_picker(widget: Locator) -> None:
 
 
 def open_showcase_form(demo: Demo, page: Page, pk: int = 0) -> None:
-    demo.goto('showcase:page:form', pk=pk) if pk else demo.goto('showcase:page:form')
+    if pk:
+        demo.goto('showcase:page:form', pk=pk)
+    else:
+        demo.goto('showcase:page:form')
+
     page.wait_for_function('window.Glue && window.Alpine')
-
-
-def start_demo(page: Page, live_server: LiveServer, name: str) -> Demo:
-    user = get_user_model().objects.create_superuser(username='limelight')
-    application = DjangoApplication(live_server=live_server)
-    return Demo(page, application, name=name, user=user)
 
 
 class TestWidgetShowcaseRenders:
     def test_every_widget_renders_with_its_label(
-        self, page: Page, live_server: LiveServer, transactional_db: None
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """Smoke test: all 29 field templates render and are visible."""
         del transactional_db
 
-        demo = start_demo(page, live_server, 'django-spire-widget-showcase-render')
+        demo = demo_start()
+
         demo.title(
             'Every Glue Form Widget, One Page',
             kicker='django-spire',
@@ -164,7 +162,7 @@ class TestWidgetShowcaseRenders:
 
 class TestWidgetShowcaseRoundTrip:
     def test_filling_every_field_type_and_saving_persists_them_all(
-        self, page: Page, live_server: LiveServer, transactional_db: None
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """
         The showcase proof: fill one distinct value into every widget type,
@@ -181,7 +179,8 @@ class TestWidgetShowcaseRoundTrip:
         watcher_one = user_model.objects.create_user(username='watcher-one')
         watcher_two = user_model.objects.create_user(username='watcher-two')
 
-        demo = start_demo(page, live_server, 'django-spire-widget-showcase-round-trip')
+        demo = demo_start()
+
         demo.title(
             'Filling And Saving Every Widget',
             kicker='django-spire',
@@ -301,7 +300,7 @@ class TestWidgetShowcaseRoundTrip:
         assert showcase.text_field == 'A longer showcase description.'
 
     def test_editing_an_existing_showcase_hydrates_every_field(
-        self, page: Page, live_server: LiveServer, transactional_db: None
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """An update form arrives with every widget already bound to server
         state, including the search-and-select widgets, the multiselect, and
@@ -311,8 +310,7 @@ class TestWidgetShowcaseRoundTrip:
 
         category = create_test_showcase_category(name='Operations')
         tag = create_test_showcase_tag(name='Existing Tag')
-        user_model = get_user_model()
-        assignee = user_model.objects.create_user(username='existing-assignee')
+        assignee = get_user_model().objects.create_user(username='existing-assignee')
 
         showcase = create_test_widget_showcase(
             char_field='Already Saved',
@@ -324,7 +322,8 @@ class TestWidgetShowcaseRoundTrip:
         )
         showcase.checkbox_tags.add(tag)
 
-        demo = start_demo(page, live_server, 'django-spire-widget-showcase-hydrate')
+        demo = demo_start()
+
         demo.title(
             'Hydrating An Existing Record',
             kicker='django-spire',
@@ -347,7 +346,7 @@ class TestWidgetShowcaseRoundTrip:
         demo.spotlight(field_widget(page, 'Category'), label='FK hydrated')
 
     def test_editing_an_existing_showcase_updates_the_live_panel_without_reloading(
-        self, page: Page, live_server: LiveServer, transactional_db: None
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """
         The actual live-update proof: editing and saving an *existing*
@@ -363,7 +362,8 @@ class TestWidgetShowcaseRoundTrip:
 
         showcase = create_test_widget_showcase(char_field='Before Edit', integer_field=1)
 
-        demo = start_demo(page, live_server, 'django-spire-widget-showcase-live')
+        demo = demo_start()
+
         demo.title(
             'Live Updates, No Reload',
             kicker='django-spire',

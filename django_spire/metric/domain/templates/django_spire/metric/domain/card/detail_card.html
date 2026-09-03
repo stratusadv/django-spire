@@ -15,7 +15,8 @@
 
     {% if perms.django_spire_metric_domain.delete_domain %}
         {% url 'django_spire:metric:domain:form:delete' pk=domain.pk as domain_delete_url %}
-        <a class="btn btn-sm btn-primary" href="{{ domain_delete_url }}">
+        <a class="btn btn-sm btn-primary"
+           href="{{ domain_delete_url }}?return_url={% url 'django_spire:metric:domain:page:list' %}">
             <i class="bi bi-eraser"></i>
             Delete
         </a>

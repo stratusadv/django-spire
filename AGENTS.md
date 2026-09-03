@@ -22,7 +22,7 @@ just scss              # Compile SCSS to django-spire-bootstrap.css
 just python <args>     # Run venv python
 
 # Testing
-just test                    # pytest . --reuse-db (-n 12, excludes ai & playwright)
+just test                    # pytest . --reuse-db (-n 12, excludes ai, playwright & e2e)
 just test-app <app>          # Tests for a specific app or directory
 just test-coverage           # Coverage of django_spire
 just test-coverage-app <app> # Coverage of a specific app
@@ -43,11 +43,12 @@ just docs-tests        # Build docs with strict mode
 
 - `pytest` with `DJANGO_SETTINGS_MODULE=test_project.test_settings`
 - Test DB uses PostgreSQL on localhost port **5439** (database `django_spire_test`, overridable via `TEST_DATABASE_*` env vars)
-- Markers: `ai`, `playwright`, `simulation`, `slow`, `postgres_only`
-- Default addopts in `pyproject.toml`: `-v --tb=short -n 12 --ds=test_project.test_settings -m 'not ai and not playwright'` (both AI **and** Playwright tests are excluded by default)
+- Markers: `ai`, `demo`, `e2e`, `playwright`, `simulation`, `slow`, `postgres_only`
+- Default addopts in `pyproject.toml`: `-v --tb=short -n 12 --ds=test_project.test_settings -m 'not ai and not playwright and not e2e'` (AI, Playwright, and browser e2e tests are excluded by default)
 - `just test*` recipes add `--reuse-db`
-- Playwright tests live under `test_playwright/` directories (skipped by `norecursedirs`); run config in `test_project/playwright.config.py`, reusable fixtures/pages/components in `django_spire/testing/playwright/`
-- CI (`.github/workflows/ci.yml`): boots Postgres via `test_project/docker-compose.test.yml`, runs pytest excluding `test_playwright`
+- Browser end-to-end tests (Playwright / limelight) are marked `e2e` (usually alongside `playwright`/`demo`) so the default run and CI skip them — they need a real browser. Run them explicitly with `pytest -m e2e` after `playwright install`.
+- Playwright tests may also live under `test_playwright/` directories (skipped by `norecursedirs`); run config in `test_project/playwright.config.py`, reusable fixtures/pages/components in `django_spire/testing/playwright/`
+- CI (`.github/workflows/ci.yml`): boots Postgres via `test_project/docker-compose.test.yml`, runs pytest; the `e2e` marker exclusion (via addopts) keeps browser tests out of that job
 
 ## Code Quality
 

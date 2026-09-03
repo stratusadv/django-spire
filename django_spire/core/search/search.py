@@ -46,7 +46,7 @@ class Search(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def generate_list_url(self) -> str:
+    def generate_list_url(self) -> str | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -119,7 +119,12 @@ class Search(ABC):
         if not any(keyword and query in keyword.lower() for keyword in keywords):
             return None
 
-        return SearchResult.from_list(self, self.generate_list_url())
+        list_url = self.generate_list_url()
+
+        if list_url is None:
+            return None
+
+        return SearchResult.from_list(self, list_url)
 
     def command_result(self, command: SearchCommand) -> SearchResult:
         return SearchResult.from_command(self, command)

@@ -7,9 +7,6 @@ from typing import TYPE_CHECKING
 from django.contrib.auth import get_user_model
 from playwright.sync_api import expect
 
-from limelight import Demo
-from limelight.django import DjangoApplication
-
 from test_project.app.showcase.choices import PriorityChoices
 from test_project.app.showcase.tests.factories import (
     create_test_showcase_category,
@@ -25,15 +22,17 @@ from test_project.app.showcase.tests.test_e2e import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from limelight import Demo
     from playwright.sync_api import Locator, Page
-    from pytest_django.live_server_helper import LiveServer
 
 
-pytestmark = [pytest.mark.demo, pytest.mark.playwright]
+pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
 
 def test_adaptive_choice_widgets_demo(
-    page: Page, live_server: LiveServer, transactional_db: None
+    page: Page, demo_start: Callable[..., Demo], transactional_db: None
 ) -> None:
     """
     The adaptive choice template picks a widget from field metadata alone:
@@ -50,16 +49,13 @@ def test_adaptive_choice_widgets_demo(
     create_test_showcase_category(name='Infrastructure')
     create_test_showcase_tag(name='Alpha Tag')
     create_test_showcase_tag(name='Beta Tag')
-    user_model = get_user_model()
     # `quill` is found by searching its first name only -- its label
     # (the username) does not contain the query.
-    user_model.objects.create_user(
+    get_user_model().objects.create_user(
         username='quill', first_name='Zephyr', last_name='Kestrel', email='quill@example.com'
     )
 
-    host = user_model.objects.create_superuser(username='limelight')
-    application = DjangoApplication(live_server=live_server)
-    demo = Demo(page, application, name='django-spire-adaptive-choice', user=host)
+    demo = demo_start()
 
     demo.goto('showcase:page:form')
     expect(page.get_by_role('heading', name='Widget Showcase')).to_be_visible()

@@ -63,7 +63,7 @@
             </a>
             <a
                 class="btn btn-sm btn-outline-danger"
-                :href="`{% url 'rest:form:delete' pk=0 %}`.replace('0', item.id)"
+                :href="`{% url 'rest:form:delete' pk=0 %}?return_url={% url 'rest:page:list' %}`.replace('0', item.id)"
                 title="Delete"
             >
                 <i class="bi bi-trash"></i>

@@ -16,7 +16,8 @@
 
     {% if perms.django_spire_metric_domain.delete_statistic %}
         {% url 'django_spire:metric:domain:statistic:form:delete' pk=statistic.pk as statistic_delete_url %}
-        <a class="btn btn-sm btn-primary" href="{{ statistic_delete_url }}">
+        <a class="btn btn-sm btn-primary"
+           href="{{ statistic_delete_url }}?return_url={% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk %}">
             <i class="bi bi-eraser"></i>
             Delete
         </a>
@@ -33,7 +34,7 @@
 
             <div class="col-6 col-lg-3">
                 <div class="attribute-label">Group</div>
-                <a href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk %}">
+                <a class='text-decoration-none' href="{% url 'django_spire:metric:domain:statistic:page:group_detail' pk=statistic.group.pk %}">
                     {{ statistic.group }}
                 </a>
             </div>

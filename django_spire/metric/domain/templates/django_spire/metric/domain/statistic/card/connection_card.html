@@ -19,7 +19,7 @@
                     {% for sub_domain in sub_domains %}
                         <tr>
                             <td>
-                                <a href="{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=sub_domain.domain.pk pk=sub_domain.pk %}">
+                                <a class='text-decoration-none' href="{% url 'django_spire:metric:domain:page:subdomain_detail' domain_pk=sub_domain.domain.pk pk=sub_domain.pk %}">
                                     {{ sub_domain.name }}
                                 </a>
                             </td>

@@ -27,6 +27,8 @@ class ApiAccess(ActivityMixin, HistoryModelMixin):
         blank=True,
     )
 
+    has_super_access = models.BooleanField(default=False)
+
     objects = ApiAccessQuerySet.as_manager()  # ty:ignore[missing-argument]
 
     def __str__(self) -> str:

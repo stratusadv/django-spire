@@ -46,8 +46,8 @@ class JsonResponseTestCase(TestCase):
     def test_extra_kwargs_included(self):
         response = json_response(ResponseTypeChoices.SUCCESS, 'Created', redirect_url='/home/')
         data = json.loads(response.content)
-        assert data['redirect_url'] == '/home/', (
-            f"Expected '/home/', got {data.get('redirect_url')}"
+        assert data['redirect.url'] == '/home/', (
+            f"Expected '/home/', got {data.get('redirect.url')}"
         )
 
     def test_multiple_extra_kwargs(self):

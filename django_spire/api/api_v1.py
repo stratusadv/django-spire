@@ -14,7 +14,7 @@ api_v1 = NinjaAPI(
     title='API',
     version='1.0',
     urls_namespace='django_spire:api_v1',
-    auth=[ApiKeySecurity(permission_required=ApiPermissionChoices.DELETE)],
+    auth=[ApiKeySecurity(api_permission_required=ApiPermissionChoices.DELETE)],
     throttle=[AnonRateThrottle('1/s'), AuthRateThrottle('150/s')],
 )
 

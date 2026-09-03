@@ -23,7 +23,7 @@ def access_list_view(request: WSGIRequest) -> TemplateResponse:
     nav.page_description = 'List View'
     nav.breadcrumbs.add('API Access')
     context = nav.as_context()
-    context['api_accesses'] = ApiAccess.objects.active()
+    context['api_accesses'] = ApiAccess.objects.active().select_related('user')
     return TemplateResponse(request, 'django_spire/api/page/access_list_page.html', context=context)
 
 

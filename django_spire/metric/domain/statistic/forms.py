@@ -22,10 +22,12 @@ class StatisticGroupForm(forms.ModelForm):
 
             return GlueResponse(
                 result={
-                    'redirect_url': reverse(
-                        viewname='django_spire:metric:domain:statistic:page:group_detail',
-                        kwargs={'pk': group.pk},
-                    )
+                    'redirect': {
+                        'url': reverse(
+                            viewname='django_spire:metric:domain:statistic:page:group_detail',
+                            kwargs={'pk': group.pk},
+                        )
+                    }
                 }
             )
 
@@ -67,10 +69,12 @@ class StatisticForm(forms.ModelForm):
 
             return GlueResponse(
                 result={
-                    'redirect_url': reverse(
-                        viewname='django_spire:metric:domain:statistic:page:group_detail',
-                        kwargs={'pk': statistic.group.pk},
-                    )
+                    'redirect': {
+                        'url': reverse(
+                            viewname='django_spire:metric:domain:statistic:page:group_detail',
+                            kwargs={'pk': statistic.group.pk},
+                        )
+                    }
                 }
             )
 

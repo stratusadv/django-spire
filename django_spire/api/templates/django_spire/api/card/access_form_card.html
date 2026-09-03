@@ -15,9 +15,21 @@
             </div>
             <div class="row mb-3">
                 <div class="col-12">
+                    {% include 'django_spire/form/field/field.html' with field=form.user %}
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
                     {% include 'django_spire/form/field/field.html' with field=form.permission %}
                 </div>
             </div>
+            {% if form.has_super_access %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {% include 'django_spire/form/field/field.html' with field=form.has_super_access %}
+                    </div>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col-12">
                     {% include 'django_spire/form/button/submit_button.html' %}

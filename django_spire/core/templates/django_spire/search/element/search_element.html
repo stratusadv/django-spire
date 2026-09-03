@@ -11,7 +11,7 @@
                 <div x-data class="list-group px-1">
                     {% for result in section.results %}
                         <a
-                                class="text-primary list-group-item text-nowrap list-group-item-action search-palette-result d-flex align-items-center gap-3 text-truncate"
+                                class="text-primary py-1 list-group-item text-nowrap list-group-item-action search-palette-result d-flex align-items-center gap-3 text-truncate"
                                 {{ result.generate_tag_attributes|safe }}
                         >
                             {% if result.icon %}
@@ -37,6 +37,6 @@
     {% endif %}
 {% else %}
     <div class="text-center text-muted rounded py-3 border">
-        Nothing to show yet ... start your typing!
+        Nothing to show ... type into the search to fix this!
     </div>
 {% endif %}

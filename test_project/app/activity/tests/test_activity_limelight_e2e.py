@@ -4,37 +4,26 @@ import pytest
 
 from typing import TYPE_CHECKING
 
-from django.contrib.auth import get_user_model
 from playwright.sync_api import expect
 
-from limelight import Demo
-from limelight.django import DjangoApplication
-
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from limelight import Demo
     from playwright.sync_api import Page
-    from pytest_django.live_server_helper import LiveServer
 
 
-pytestmark = [pytest.mark.demo, pytest.mark.playwright]
+pytestmark = [pytest.mark.e2e, pytest.mark.demo, pytest.mark.playwright]
 
 
 def test_activity_lifecycle_demo(
     page: Page,
-    live_server: LiveServer,
+    demo_start: Callable[..., Demo],
     transactional_db: None,
 ) -> None:
     del transactional_db
 
-    user = get_user_model().objects.create_superuser(
-        username='limelight',
-    )
-    application = DjangoApplication(live_server=live_server)
-    demo = Demo(
-        page,
-        application,
-        name='django-spire-activity-lifecycle',
-        user=user,
-    )
+    demo = demo_start(name='django-spire-activity-lifecycle')
 
     demo.goto('activity:demo')
     expect(page.get_by_role('heading', name='Activity Demo')).to_be_visible()
@@ -92,7 +81,6 @@ def test_activity_lifecycle_demo(
     demo.narrate(
         'The complete audit trail',
         body='Every change is attributed to the authenticated user and visible in the feed.',
-        step='Complete',
     )
     activity_feed = page.locator('.card').filter(has_text='Activity Feed')
     expect(activity_feed).to_be_visible()
