@@ -15,10 +15,13 @@ from test_project.app.showcase.tests.factories import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from limelight import Demo
     from playwright.sync_api import Locator, Page
 
 
-pytestmark = pytest.mark.e2e
+pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
 # One label per field, matching the auto-generated verbose name for each
 # model field showcase/form/form.html renders. Covers all 29 templates under
@@ -68,7 +71,7 @@ def field_widget(scope: Locator | Page, label: str) -> Locator:
     )
 
 
-def open_showcase_form(demo, page: Page, pk: int = 0) -> None:
+def open_showcase_form(demo: Demo, page: Page, pk: int = 0) -> None:
     if pk:
         demo.goto('showcase:page:form', pk=pk)
     else:
@@ -81,7 +84,7 @@ class TestWidgetShowcaseRenders:
     def test_every_widget_renders_with_its_label(
         self,
         page: Page,
-        demo_start,
+        demo_start: Callable[..., Demo],
         transactional_db: None,
     ) -> None:
         """Smoke test: all 29 field templates render and are visible."""
@@ -89,7 +92,7 @@ class TestWidgetShowcaseRenders:
 
         demo = demo_start()
 
-        demo.title_card(
+        demo.title(
             'Every Glue Form Widget, One Page',
             kicker='django-spire',
             subtitle='One model field per template under glue/form/field/.',
@@ -130,7 +133,7 @@ class TestWidgetShowcaseRoundTrip:
     def test_filling_every_field_type_and_saving_persists_them_all(
         self,
         page: Page,
-        demo_start,
+        demo_start: Callable[..., Demo],
         transactional_db: None,
         django_user_model,
     ) -> None:
@@ -150,7 +153,7 @@ class TestWidgetShowcaseRoundTrip:
 
         demo = demo_start()
 
-        demo.title_card(
+        demo.title(
             'Filling And Saving Every Widget',
             kicker='django-spire',
             subtitle='One save_model_obj() call round-trips all 29 field types.',
@@ -275,7 +278,7 @@ class TestWidgetShowcaseRoundTrip:
     def test_editing_an_existing_showcase_hydrates_every_field(
         self,
         page: Page,
-        demo_start,
+        demo_start: Callable[..., Demo],
         transactional_db: None,
         django_user_model,
     ) -> None:
@@ -300,7 +303,7 @@ class TestWidgetShowcaseRoundTrip:
 
         demo = demo_start()
 
-        demo.title_card(
+        demo.title(
             'Hydrating An Existing Record',
             kicker='django-spire',
             subtitle='Every widget arrives with server state already bound, not just text inputs.',
@@ -320,7 +323,7 @@ class TestWidgetShowcaseRoundTrip:
     def test_editing_an_existing_showcase_updates_the_live_panel_without_reloading(
         self,
         page: Page,
-        demo_start,
+        demo_start: Callable[..., Demo],
         transactional_db: None,
     ) -> None:
         """
@@ -339,7 +342,7 @@ class TestWidgetShowcaseRoundTrip:
 
         demo = demo_start()
 
-        demo.title_card(
+        demo.title(
             'Live Updates, No Reload',
             kicker='django-spire',
             subtitle='Saving an existing record refreshes the read-only panel in place.',

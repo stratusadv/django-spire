@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from pytest_django.plugin import _LiveServer
 
 
-pytestmark = pytest.mark.playwright
+pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
 DEMO_ROW_COUNT = 3
 ERROR_TITLE_PREFIXES = ('Server Error', 'Page not found', 'Forbidden')

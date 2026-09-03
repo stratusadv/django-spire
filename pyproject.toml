@@ -200,10 +200,11 @@ python_functions = ["test_*"]
 markers = [
     "ai: AI/LLM tests",
     "demo: Narrated browser demo walkthroughs",
+    "e2e: End-to-end browser tests (Playwright/limelight); need a browser, excluded from the default run",
     "playwright: Playwright tests",
     "simulation: Deterministic simulation tests",
     "slow: Fuzz tests",
     "postgres_only: Skip when the default database is not Postgres",
 ]
 norecursedirs = [".*", "atlassian", "test_playwright"]
-addopts = "-v --tb=short -n 12 --ds=test_project.test_settings -m 'not ai and not playwright'"
+addopts = "-v --tb=short -n 12 --ds=test_project.test_settings -m 'not ai and not playwright and not e2e'"
