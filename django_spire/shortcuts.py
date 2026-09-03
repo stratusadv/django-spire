@@ -10,3 +10,4 @@ def django_spire_urls() -> list:
             include('django_spire.urls', namespace=BASE_URL_NAME),
         )
     ]
+

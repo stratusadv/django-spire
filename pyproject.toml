@@ -5,7 +5,9 @@ readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE.md" }
 authors = [
     { name = "Brayden Carlson", email = "braydenc@stratusadv.com" },
+    { name = "Chase Mossing", email = "chasem@stratusadv.com" },
     { name = "Nathan Johnson", email = "nathanj@stratusadv.com" },
+    { name = "Tyrell Martens", email = "tyrellm@stratusadv.com"},
 ]
 keywords = [
     "portal",
@@ -63,6 +65,7 @@ dependencies = [
     "robit==0.4.9",
     "sqlalchemy==2.0.49",
     "twilio",
+    "statistic>=0.1.6",
 ]
 
 [project.optional-dependencies]
