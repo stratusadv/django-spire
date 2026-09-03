@@ -14,13 +14,11 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <div class="col-12">
-                    {% include 'django_spire/form/field/field.html' with field=form.user %}
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-12">
+                <div class="col-12 col-md-6">
                     {% include 'django_spire/form/field/field.html' with field=form.permission %}
+                </div>
+                <div class="col-12 col-md-6">
+                    {% include 'django_spire/form/field/field.html' with field=form.user %}
                 </div>
             </div>
             {% if form.has_super_access %}

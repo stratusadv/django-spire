@@ -10,12 +10,12 @@ from django_spire.history.mixins import HistoryModelMixin
 
 class ApiAccess(ActivityMixin, HistoryModelMixin):
 
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, verbose_name='Key Name')
     hashed_key = models.CharField(max_length=128, editable=False)
     key_hint = models.CharField(max_length=16, editable=False)
 
     permission = models.PositiveSmallIntegerField(
-        default=ApiPermissionChoices.VIEW, choices=ApiPermissionChoices
+        default=ApiPermissionChoices.VIEW, choices=ApiPermissionChoices, verbose_name='Base Permission'
     )
 
     user = models.ForeignKey(
@@ -25,9 +25,10 @@ class ApiAccess(ActivityMixin, HistoryModelMixin):
         related_query_name='api_access',
         null=True,
         blank=True,
+        verbose_name='User Access'
     )
 
-    has_super_access = models.BooleanField(default=False)
+    has_super_access = models.BooleanField(default=False, verbose_name='Super Access (Overrides Base Permission & User Access)')
 
     objects = ApiAccessQuerySet.as_manager()  # ty:ignore[missing-argument]
 

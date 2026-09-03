@@ -28,3 +28,11 @@ def create_super_user(password: str = 'stratus', **kwargs) -> AuthUser:
     user.save()
 
     return user
+
+def get_default_super_user() -> AuthUser:
+    super_user = AuthUser.objects.filter(username='stratus', email='bobert@stratusadv.com', is_superuser=True).first()
+
+    if super_user is None:
+        super_user = create_super_user()
+
+    return super_user
