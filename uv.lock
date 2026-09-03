@@ -816,10 +816,14 @@ wheels = [
 [[package]]
 name = "django-glue"
 version = "1.0.0"
-source = { git = "https://github.com/stratusadv/django-glue.git?rev=master#7b0f185fcae930530ab9d08d81d44867b24a8ddf" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/13/fd/3fc7a428f4800fece8c8c9e56b94526f41560a1fc0fd966a44cde7cb0f12/django_glue-1.0.0.tar.gz", hash = "sha256:ed01398bfb0106f5524472943ddcb1f832f777b43caa3313b3f81384967c938a", size = 131273, upload-time = "2026-09-03T22:43:55.684Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/49/b50219f9f1eacfe7b1c394ce2d61d4a19e2a9d1896cff1f59310c7b8a8e2/django_glue-1.0.0-py3-none-any.whl", hash = "sha256:d3e351614487845ad1ee06b9e557b1e21983e519c5f3e816ba2fdf02a8a6f865", size = 167352, upload-time = "2026-09-03T22:43:54.459Z" },
 ]
 
 [[package]]
@@ -898,7 +902,7 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-development = [
+dev = [
     { name = "build" },
     { name = "django-browser-reload" },
     { name = "django-kaleidoscope" },
@@ -939,7 +943,7 @@ requires-dist = [
     { name = "celery-types", specifier = "==0.26.0" },
     { name = "dandy", specifier = ">=2.2.0" },
     { name = "django", specifier = ">=6.0.6" },
-    { name = "django-glue", git = "https://github.com/stratusadv/django-glue.git?rev=master" },
+    { name = "django-glue", specifier = "==1.0.0" },
     { name = "django-ninja", specifier = "==1.6.2" },
     { name = "django-sendgrid-v5" },
     { name = "django-storages", specifier = "==1.14.6" },
@@ -962,7 +966,7 @@ requires-dist = [
 provides-extras = ["production", "development", "documentation"]
 
 [package.metadata.requires-dev]
-development = [
+dev = [
     { name = "build" },
     { name = "django-browser-reload" },
     { name = "django-kaleidoscope" },

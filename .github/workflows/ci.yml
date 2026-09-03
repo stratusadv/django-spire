@@ -62,7 +62,7 @@ jobs:
         with:
           version: latest
       - run: uv python install ${{ env.PYTHON_VERSION }}
-      - run: uv sync --group development
+      - run: uv sync --group dev
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
