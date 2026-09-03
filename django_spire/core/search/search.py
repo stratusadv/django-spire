@@ -12,8 +12,8 @@ from django_spire.core.search.result import SearchResult
 class Search(ABC):
     Command: type[SearchCommand] = SearchCommand
 
-    model_class: type[models.Model] | None
-    searchable_fields: list[str] | None
+    model_class: type[models.Model] | None = None
+    searchable_fields: list[str] | None = None
     searchable_commands: list[SearchCommand] = []
     name: str
     icon: str
@@ -23,7 +23,7 @@ class Search(ABC):
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
-        required_attributes = 'model_class', 'name', 'icon'
+        required_attributes = 'name', 'icon'
 
         for attribute in required_attributes:
             if getattr(cls, attribute, None) is None:
