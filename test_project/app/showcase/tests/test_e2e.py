@@ -4,10 +4,12 @@ import pytest
 
 from typing import TYPE_CHECKING
 
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from playwright.sync_api import expect
 
 from test_project.app.showcase.choices import PriorityChoices
+from test_project.app.showcase.models import WidgetShowcase
 from test_project.app.showcase.tests.factories import (
     create_test_showcase_category,
     create_test_showcase_tag,
@@ -63,12 +65,77 @@ def field_widget(scope: Locator | Page, label: str) -> Locator:
     """
     Scope down to a field's own widget.html div by its label text, rather
     than a bare input/select -- several widgets (search-and-select, radio,
-    checkbox group) render no id on their actual input elements, only on
+    multiselect) render no id on their actual trigger element, only on
     individual choice items, so `get_by_label()` can't find them.
     """
-    return scope.locator(
-        f'xpath=.//label[.//span[normalize-space(text())="{label}"]]/parent::div'
-    )
+    label_locator = f'xpath=.//label[.//span[normalize-space(text())="{label}"]]/parent::div'
+    return scope.locator(label_locator)
+
+
+def single_select_trigger(scope: Locator | Page, label: str) -> Locator:
+    """The readonly input that opens a single search-and-select dropdown."""
+    return field_widget(scope, label).locator('input[type="text"]').first
+
+
+def choose_single_search(
+    scope: Locator | Page, label: str, query: str, choice_text: str
+) -> Locator:
+    """Open a searchable single-select dropdown, run a backend search, and pick a result."""
+    widget = field_widget(scope, label)
+    widget.locator('input[type="text"]').first.click()
+    widget.locator('input.form-control-sm').fill(query)
+    result = widget.locator('.list-group-item', has_text=choice_text)
+    expect(result).to_be_visible()
+    result.click()
+    return widget
+
+
+def open_multi_picker(widget: Locator) -> None:
+    """Open a multiselect dropdown via its chevron. The trigger button's centre
+    fills with selected-choice badges, so clicking the button itself lands on a
+    badge (removing it) once anything is selected -- the chevron never is.
+    """
+    search = widget.locator('input[type="search"]')
+    if not search.is_visible():
+        widget.locator('.bi-chevron-down').click()
+        expect(search).to_be_visible()
+
+
+def choose_multi_search(scope: Locator | Page, label: str, query: str, choice_text: str) -> Locator:
+    """Open a searchable multi-select dropdown, run a backend search, and add a result."""
+    widget = field_widget(scope, label)
+    open_multi_picker(widget)
+    widget.locator('input[type="search"]').fill(query)
+    result = widget.locator('button', has_text=choice_text).last
+    expect(result).to_be_visible()
+    result.click()
+    close_multi_picker(widget)
+    return widget
+
+
+def choose_multi_static(scope: Locator | Page, label: str, choice_text: str) -> Locator:
+    """Open a static multi-select dropdown, narrow it with the local label
+    filter, and add a result.
+    """
+    widget = field_widget(scope, label)
+    open_multi_picker(widget)
+    widget.locator('input[type="search"]').fill(choice_text)
+    result = widget.locator('button', has_text=choice_text).last
+    expect(result).to_be_visible()
+    result.click()
+    close_multi_picker(widget)
+    return widget
+
+
+def close_multi_picker(widget: Locator) -> None:
+    """Close a multiselect dropdown with Escape. The widget stays open after each
+    pick on purpose so several choices can be added in a row; picking leaves focus
+    on the search box, whose Escape handler closes the dropdown.
+    """
+    search = widget.locator('input[type="search"]')
+    if search.is_visible():
+        search.press('Escape')
+        expect(search).not_to_be_visible()
 
 
 def open_showcase_form(demo: Demo, page: Page, pk: int = 0) -> None:
@@ -82,10 +149,7 @@ def open_showcase_form(demo: Demo, page: Page, pk: int = 0) -> None:
 
 class TestWidgetShowcaseRenders:
     def test_every_widget_renders_with_its_label(
-        self,
-        page: Page,
-        demo_start: Callable[..., Demo],
-        transactional_db: None,
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """Smoke test: all 29 field templates render and are visible."""
         del transactional_db
@@ -106,36 +170,65 @@ class TestWidgetShowcaseRenders:
 
         demo.spotlight(field_widget(page, 'Search tags'), label='Multi search-and-select')
 
+    def test_static_multiselect_filters_its_choices_locally(
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
+    ) -> None:
+        """A static multi field ('Checkbox tags' -- a plain M2M, not backend
+        searchable) still narrows its loaded choices as you type, same as the
+        static single search-and-select widget does.
+        """
+        del transactional_db
 
-def open_single_select(scope: Locator, label: str) -> Locator:
-    """search_and_select_widget.html: a readonly text input opens the
-    dropdown; the widget itself carries no id, so scope by label first.
-    The dropdown's own search box is also input[type="text"], so .first
-    is what targets the readonly trigger rather than that search box."""
-    widget = field_widget(scope, label)
-    widget.locator('input[type="text"]').first.click()
-    return widget
+        create_test_showcase_tag(name='Alpha Tag')
+        create_test_showcase_tag(name='Beta Tag')
 
+        demo = demo_start()
+        open_showcase_form(demo, page)
 
-def single_select_trigger(scope: Locator, label: str) -> Locator:
-    return field_widget(scope, label).locator('input[type="text"]').first
+        widget = field_widget(page, 'Checkbox tags')
+        open_multi_picker(widget)
 
+        alpha = widget.locator('button', has_text='Alpha Tag')
+        beta = widget.locator('button', has_text='Beta Tag')
+        expect(alpha).to_be_visible()
+        expect(beta).to_be_visible()
 
-def open_multi_select(scope: Locator, label: str) -> Locator:
-    """multi_search_and_select_widget.html: a <button> trigger, not an
-    input -- distinct from the single-select widget above."""
-    widget = field_widget(scope, label)
-    widget.locator('button').first.click()
-    return widget
+        widget.locator('input[type="search"]').fill('beta')
+        expect(alpha).not_to_be_visible()
+        expect(beta).to_be_visible()
+
+        widget.locator('input[type="search"]').fill('')
+        expect(alpha).to_be_visible()
+        expect(beta).to_be_visible()
+
+    def test_plain_multiplechoicefield_uses_the_multiselect_widget(
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
+    ) -> None:
+        """A plain forms.MultipleChoiceField ('Plain multi choice' -- not a
+        relation, so glued as ManyChoiceFieldGlue) routes through the same
+        adaptive multiselect: local filter, pick, and a badge for the choice.
+        """
+        del transactional_db
+
+        demo = demo_start()
+        open_showcase_form(demo, page)
+
+        widget = field_widget(page, 'Plain multi choice')
+        open_multi_picker(widget)
+
+        widget.locator('input[type="search"]').fill('gre')
+        expect(widget.locator('button', has_text='Red')).not_to_be_visible()
+        green = widget.locator('button', has_text='Green')
+        expect(green).to_be_visible()
+        green.click()
+        close_multi_picker(widget)
+
+        expect(widget.locator('button.form-control .badge')).to_have_text('Green')
 
 
 class TestWidgetShowcaseRoundTrip:
     def test_filling_every_field_type_and_saving_persists_them_all(
-        self,
-        page: Page,
-        demo_start: Callable[..., Demo],
-        transactional_db: None,
-        django_user_model,
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """
         The showcase proof: fill one distinct value into every widget type,
@@ -147,9 +240,10 @@ class TestWidgetShowcaseRoundTrip:
         category = create_test_showcase_category(name='Infrastructure')
         tag_alpha = create_test_showcase_tag(name='Alpha Tag')
         tag_beta = create_test_showcase_tag(name='Beta Tag')
-        assignee = django_user_model.objects.create_user(username='assignee-user')
-        watcher_one = django_user_model.objects.create_user(username='watcher-one')
-        watcher_two = django_user_model.objects.create_user(username='watcher-two')
+        user_model = get_user_model()
+        assignee = user_model.objects.create_user(username='assignee-user')
+        watcher_one = user_model.objects.create_user(username='watcher-one')
+        watcher_two = user_model.objects.create_user(username='watcher-two')
 
         demo = demo_start()
 
@@ -180,26 +274,16 @@ class TestWidgetShowcaseRoundTrip:
         demo.narrate('Filling the choice-family widgets, including both FK and M2M', step='2')
         field_widget(page, 'Select choice').locator('select').select_option(PriorityChoices.HIGH)
         demo.click(field_widget(page, 'Radio choice').get_by_label('Low'))
-        demo.click(field_widget(page, 'Checkbox tags').get_by_label('Alpha Tag'))
+        choose_multi_static(page, 'Checkbox tags', 'Alpha Tag')
 
-        search_tags_widget = open_multi_select(page, 'Search tags')
-        demo.click(search_tags_widget.get_by_text('Alpha Tag', exact=True))
-        demo.click(search_tags_widget.get_by_text('Beta Tag', exact=True))
-        # multi_search_and_select_widget.html deliberately leaves its
-        # dropdown open after each pick (so several items can be added in a
-        # row) -- close it before moving on, same as a real user would.
-        page.keyboard.press('Escape')
+        choose_multi_search(page, 'Search tags', 'Alpha', 'Alpha Tag')
+        choose_multi_search(page, 'Search tags', 'Beta', 'Beta Tag')
 
-        category_widget = open_single_select(page, 'Category')
-        demo.click(category_widget.get_by_text('Infrastructure', exact=True))
+        choose_single_search(page, 'Category', 'Infra', 'Infrastructure')
+        choose_single_search(page, 'Assigned user', 'assignee', 'assignee-user')
 
-        assigned_user_widget = open_single_select(page, 'Assigned user')
-        demo.click(assigned_user_widget.get_by_text('assignee-user', exact=True))
-
-        watchers_widget = open_multi_select(page, 'Watchers')
-        demo.click(watchers_widget.get_by_text('watcher-one', exact=True))
-        demo.click(watchers_widget.get_by_text('watcher-two', exact=True))
-        page.keyboard.press('Escape')
+        choose_multi_search(page, 'Watchers', 'watcher-one', 'watcher-one')
+        choose_multi_search(page, 'Watchers', 'watcher-two', 'watcher-two')
 
         demo.narrate('Filling datetime, decimal, float, and integer widgets', step='3')
         field_widget(page, 'Date field').locator('input').fill('2027-03-15')
@@ -212,7 +296,9 @@ class TestWidgetShowcaseRoundTrip:
         demo.fill(field_widget(page, 'Integer field').locator('input'), '42')
         demo.fill(field_widget(page, 'Positive integer field').locator('input'), '7')
         demo.fill(field_widget(page, 'Small integer field').locator('input'), '3')
-        demo.fill(field_widget(page, 'Text field').locator('textarea'), 'A longer showcase description.')
+        demo.fill(
+            field_widget(page, 'Text field').locator('textarea'), 'A longer showcase description.'
+        )
 
         demo.narrate('Saving redirects to the new record -- same as Deal/Task on create', step='4')
         with page.expect_navigation():
@@ -236,8 +322,6 @@ class TestWidgetShowcaseRoundTrip:
         demo.spotlight(live_panel, label='Live panel, post-save')
 
         demo.narrate('Every field persisted -- text, choice, FK, and M2M alike', step='6')
-        from test_project.app.showcase.models import WidgetShowcase
-
         showcase = WidgetShowcase.objects.get()
         demo.spotlight(page.locator('button.btn-primary'), label='Saved')
 
@@ -245,7 +329,7 @@ class TestWidgetShowcaseRoundTrip:
         assert showcase.char_field == 'Sample text'
         assert showcase.color_field == '#ff0000'
         assert showcase.email_field == 'showcase@example.com'
-        assert showcase.password_field == 'sup3rSecret!'
+        assert showcase.password_field == 'sup3rSecret!'  # noqa: S105
         assert showcase.postal_code_field == '90210'
         assert showcase.search_field == 'search term'
         assert showcase.slug_field == 'my-slug-value'
@@ -259,12 +343,18 @@ class TestWidgetShowcaseRoundTrip:
         assert set(showcase.search_tags.values_list('pk', flat=True)) == {tag_alpha.pk, tag_beta.pk}
         assert showcase.category_id == category.pk
         assert showcase.assigned_user_id == assignee.pk
-        assert set(showcase.watchers.values_list('pk', flat=True)) == {watcher_one.pk, watcher_two.pk}
+        assert set(showcase.watchers.values_list('pk', flat=True)) == {
+            watcher_one.pk,
+            watcher_two.pk,
+        }
 
         assert str(showcase.date_field) == '2027-03-15'
         # datetime-local input has no timezone; the browser sends it as
         # local time, stored server-side as UTC -- compare in local time.
-        assert timezone.localtime(showcase.datetime_field).strftime('%Y-%m-%dT%H:%M') == '2027-03-15T10:30'
+        assert (
+            timezone.localtime(showcase.datetime_field).strftime('%Y-%m-%dT%H:%M')
+            == '2027-03-15T10:30'
+        )
         assert showcase.time_field.strftime('%H:%M') == '14:45'
         assert str(showcase.currency_field) == '1234.56'
         assert str(showcase.decimal_field) == '99.99'
@@ -276,20 +366,17 @@ class TestWidgetShowcaseRoundTrip:
         assert showcase.text_field == 'A longer showcase description.'
 
     def test_editing_an_existing_showcase_hydrates_every_field(
-        self,
-        page: Page,
-        demo_start: Callable[..., Demo],
-        transactional_db: None,
-        django_user_model,
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """An update form arrives with every widget already bound to server
-        state, including both search-and-select widgets and the radio/
-        checkbox-group widgets -- not just plain text inputs."""
+        state, including the search-and-select widgets, the multiselect, and
+        the radio/checkbox-group widgets -- not just plain text inputs.
+        """
         del transactional_db
 
         category = create_test_showcase_category(name='Operations')
         tag = create_test_showcase_tag(name='Existing Tag')
-        assignee = django_user_model.objects.create_user(username='existing-assignee')
+        assignee = get_user_model().objects.create_user(username='existing-assignee')
 
         showcase = create_test_widget_showcase(
             char_field='Already Saved',
@@ -313,18 +400,19 @@ class TestWidgetShowcaseRoundTrip:
 
         demo.narrate('Plain, choice, and relation widgets all hydrate', step='1')
         expect(field_widget(page, 'Char field').locator('input')).to_have_value('Already Saved')
-        expect(field_widget(page, 'Select choice').locator('select')).to_have_value(PriorityChoices.LOW)
+        expect(field_widget(page, 'Select choice').locator('select')).to_have_value(
+            PriorityChoices.LOW
+        )
         expect(field_widget(page, 'Radio choice').get_by_label('High')).to_be_checked()
-        expect(field_widget(page, 'Checkbox tags').get_by_label('Existing Tag')).to_be_checked()
+        expect(
+            field_widget(page, 'Checkbox tags').locator('button.form-control .badge')
+        ).to_have_text('Existing Tag')
         expect(single_select_trigger(page, 'Category')).to_have_value('Operations')
         expect(single_select_trigger(page, 'Assigned user')).to_have_value('existing-assignee')
         demo.spotlight(field_widget(page, 'Category'), label='FK hydrated')
 
     def test_editing_an_existing_showcase_updates_the_live_panel_without_reloading(
-        self,
-        page: Page,
-        demo_start: Callable[..., Demo],
-        transactional_db: None,
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
     ) -> None:
         """
         The actual live-update proof: editing and saving an *existing*

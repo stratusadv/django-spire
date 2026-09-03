@@ -1,20 +1,39 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from django import forms
+from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django_glue import Glue, GlueResponse
 from django_glue.message import GlueMessage
 
-from test_project.app.showcase.models import WidgetShowcase
+from test_project.app.showcase.models import ShowcaseCategory, ShowcaseTag, WidgetShowcase
 
 if TYPE_CHECKING:
-    from django.http import HttpRequest
+    from django.db.models import QuerySet
+
+
+def _user_choice_queryset() -> QuerySet[User]:
+    return Glue.choices(
+        User.objects.order_by('username'),
+        search_fields=['username', 'first_name', 'last_name'],
+        fields=['username', 'first_name', 'last_name'],
+    )
 
 
 class WidgetShowcaseForm(ModelForm):
+    # A plain (non-relation) MultipleChoiceField -- glued as ManyChoiceFieldGlue,
+    # not ManyRelationFieldGlue. Form-only, not persisted; here so the adaptive
+    # multiselect widget is exercised against a static choice source too.
+    plain_multi_choice = forms.MultipleChoiceField(
+        choices=[('red', 'Red'), ('green', 'Green'), ('blue', 'Blue')],
+        required=False,
+        label='Plain multi choice',
+    )
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
-    def save_model_obj(self, request: HttpRequest) -> GlueResponse:
+    def save_model_obj(self) -> GlueResponse:
         if self.is_valid():
             showcase = self.save()
 
@@ -24,6 +43,18 @@ class WidgetShowcaseForm(ModelForm):
             )
 
         return GlueResponse(messages=[GlueMessage.error('Invalid Fields')])
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.fields['search_tags'].queryset = Glue.choices(
+            ShowcaseTag.objects.order_by('name'), search_fields=['name'], fields=['name']
+        )
+        self.fields['category'].queryset = Glue.choices(
+            ShowcaseCategory.objects.order_by('name'), search_fields=['name'], fields=['name']
+        )
+        self.fields['assigned_user'].queryset = _user_choice_queryset()
+        self.fields['watchers'].queryset = _user_choice_queryset()
 
     class Meta:
         model = WidgetShowcase
