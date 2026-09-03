@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pytest_django.plugin import _LiveServer
 
 
-pytestmark = pytest.mark.playwright
+pytestmark = [pytest.mark.e2e, pytest.mark.playwright]
 
 
 def activity_rows(page: Page) -> Locator:
