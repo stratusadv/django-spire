@@ -51,7 +51,7 @@ class SearchResult:
     def from_list(cls, search: Search, url: str) -> SearchResult:
         return cls(
             name=search.section_name,
-            icon=search.icon or 'bi-list-columns',
+            icon='bi-list-columns',
             label=search.section_name,
             description='List Page',
             url=url,
