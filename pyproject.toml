@@ -69,6 +69,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+production = []
+development = []
+documentation = []
+
+[dependency-groups]
 development = [
     "build",
     "django-browser-reload",
