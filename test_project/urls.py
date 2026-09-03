@@ -23,6 +23,7 @@ urlpatterns = [
     path('notification/', include('test_project.app.notification.urls', namespace='notification')),
     path('order/', include('test_project.app.ordering.urls', namespace='order')),
     path('rest/', include('test_project.app.rest.urls', namespace='rest')),
+    path('showcase/', include('test_project.app.showcase.urls', namespace='showcase')),
     path('task/', include('test_project.app.task.urls', namespace='task')),
     path('test_model/', include('test_project.app.model_and_service.urls', namespace='test_model')),
     path('auth_sms/', include('test_project.app.auth_sms.urls', namespace='auth_sms')),
