@@ -15,15 +15,6 @@ def _resolve_search_class(module_string: str) -> type[Search]:
     return search_class
 
 
-def get_search_class(search_key: str) -> type[Search] | None:
-    module_string = settings.DJANGO_SPIRE_SEARCH_REGISTRY.get(search_key)
-
-    if module_string is None:
-        return None
-
-    return _resolve_search_class(module_string)
-
-
 def get_search_registry() -> dict[str, type[Search]]:
     search_registry: dict[str, type[Search]] = {}
 

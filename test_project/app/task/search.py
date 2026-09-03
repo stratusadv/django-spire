@@ -9,8 +9,8 @@ from test_project.app.task import models
 
 
 class TaskSearch(Search):
-    model_class = models.Task
-    searchable_fields = ['name', 'description']
+    # model_class = models.Task
+    # searchable_fields = ['name', 'description']
     search_key = 'TASK'
     name = 'Tasks'
     icon = 'bi-list-task'

@@ -109,6 +109,8 @@ class Search(ABC):
                 self.model_class._meta.verbose_name,
                 self.model_class._meta.verbose_name_plural,
             )
+        else:
+            keywords = (self.name,)
 
         if not any(keyword and query in keyword.lower() for keyword in keywords):
             return None
