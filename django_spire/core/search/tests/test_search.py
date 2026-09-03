@@ -158,22 +158,30 @@ class TestTaskSearch(TestCase):
 
 
 class TestBaseSearchValidation(TestCase):
-    def test_missing_model_class_raises(self) -> None:
-        with pytest.raises(ValueError, match='model_class is None and must be defined'):
+    def test_missing_name_raises(self) -> None:
+        with pytest.raises(ValueError, match=r'InvalidSearch\.name is None and must be defined'):
 
             class InvalidSearch(Search):
-                searchable_fields = ['name']
-                search_key = 'INVALID'
+                icon = 'bi-list-task'
 
                 def generate_detail_url(self, _obj: models.Task) -> str:
                     return ''
 
-    def test_missing_search_key_raises(self) -> None:
-        with pytest.raises(ValueError, match='search_key is None and must be defined'):
+    def test_missing_icon_raises(self) -> None:
+        with pytest.raises(ValueError, match=r'InvalidSearch\.icon is None and must be defined'):
 
             class InvalidSearch(Search):
-                model_class = models.Task
-                searchable_fields = ['name']
+                name = 'Tasks'
 
                 def generate_detail_url(self, _obj: models.Task) -> str:
                     return ''
+
+    def test_optional_attributes_are_not_required(self) -> None:
+        class OptionalSearch(Search):
+            name = 'Tasks'
+            icon = 'bi-list-task'
+
+            def generate_detail_url(self, _obj: models.Task) -> str:
+                return ''
+
+        assert OptionalSearch.model_class is None
