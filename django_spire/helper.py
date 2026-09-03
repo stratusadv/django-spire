@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+# All helper functions need to be loaded as lazily as possible to prevent Django startup errors.
 
 class Spire:
     class Metric:
