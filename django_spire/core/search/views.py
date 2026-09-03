@@ -20,7 +20,7 @@ def _user_search_instances(request: WSGIRequest) -> list[Search]:
     for search_class in get_search_registry().values():
         search = search_class()
 
-        if search.permission and not request.user.has_perm(search.permission):
+        if search.permission_required and not request.user.has_perm(search.permission_required):
             continue
 
         search_instances.append(search)
@@ -32,13 +32,13 @@ def _user_commands(search: Search, request: WSGIRequest, query_string: str) -> l
     return [
         command
         for command in search.commands_for_query(query_string)
-        if not command.permission or request.user.has_perm(command.permission)
+        if not command.permission_required or request.user.has_perm(command.permission_required)
     ]
 
 
 def _sections(search_instances: list[Search]) -> list[dict]:
     return [
-        {'search_key': search.search_key, 'name': search.section_name, 'icon': search.icon}
+        {'name': search.section_name, 'icon': search.icon}
         for search in search_instances
     ]
 
@@ -68,7 +68,6 @@ def _run_searches(
         if results:
             results_by_section.append(
                 {
-                    'search_key': search.search_key,
                     'name': search.section_name,
                     'icon': search.icon,
                     'results': results,

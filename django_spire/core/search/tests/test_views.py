@@ -10,7 +10,7 @@ from test_project.app.task.search import TaskSearch
 
 
 class PermissionedTaskSearch(TaskSearch):
-    permission = 'test_project.view_task'
+    permission_required = 'test_project.view_task'
 
 
 SEARCH_REGISTRY = {'TASK': 'test_project.app.task.search.TaskSearch'}

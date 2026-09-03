@@ -110,7 +110,11 @@ class SubDomainFormViewTestCase(BaseTestCase):
 
         form = forms.SubDomainForm(
             instance=SubDomain(domain=self.domain),
-            data={'name': 'new subdomain', 'description': 'new subdomain description'},
+            data={
+                'domain': self.domain.pk,
+                'name': 'new subdomain',
+                'description': 'new subdomain description',
+            },
         )
         assert form.is_valid()
 
@@ -143,7 +147,11 @@ class SubDomainFormViewTestCase(BaseTestCase):
 
         form = forms.SubDomainForm(
             instance=subdomain,
-            data={'name': 'updated subdomain', 'description': 'updated description'},
+            data={
+                'domain': self.domain.pk,
+                'name': 'updated subdomain',
+                'description': 'updated description',
+            },
         )
         assert form.is_valid()
 
@@ -163,6 +171,7 @@ class SubDomainFormViewTestCase(BaseTestCase):
         form = forms.SubDomainForm(
             instance=SubDomain(domain=self.domain),
             data={
+                'domain': self.domain.pk,
                 'key': 'core-clients',
                 'name': 'new subdomain',
                 'description': 'new subdomain description',
@@ -181,7 +190,12 @@ class SubDomainFormViewTestCase(BaseTestCase):
 
         form = forms.SubDomainForm(
             instance=SubDomain(domain=self.domain),
-            data={'key': 'not a valid slug!', 'name': 'new subdomain', 'description': ''},
+            data={
+                'domain': self.domain.pk,
+                'key': 'not a valid slug!',
+                'name': 'new subdomain',
+                'description': '',
+            },
         )
         assert not form.is_valid()
         assert 'key' in form.errors
@@ -192,7 +206,12 @@ class SubDomainFormViewTestCase(BaseTestCase):
 
         form = forms.SubDomainForm(
             instance=SubDomain(domain=self.domain),
-            data={'key': '', 'name': 'new subdomain', 'description': 'new subdomain description'},
+            data={
+                'domain': self.domain.pk,
+                'key': '',
+                'name': 'new subdomain',
+                'description': 'new subdomain description',
+            },
         )
         assert form.is_valid()
 
@@ -212,6 +231,7 @@ class SubDomainFormViewTestCase(BaseTestCase):
         form = forms.SubDomainForm(
             instance=SubDomain(domain=self.domain),
             data={
+                'domain': self.domain.pk,
                 'key': 'core-clients',
                 'name': 'new subdomain',
                 'description': 'new subdomain description',
@@ -230,7 +250,12 @@ class SubDomainFormViewTestCase(BaseTestCase):
 
         form = forms.SubDomainForm(
             instance=subdomain,
-            data={'key': '', 'name': 'updated subdomain', 'description': 'updated description'},
+            data={
+                'domain': self.domain.pk,
+                'key': '',
+                'name': 'updated subdomain',
+                'description': 'updated description',
+            },
         )
         assert form.is_valid()
 
@@ -248,6 +273,7 @@ class SubDomainFormViewTestCase(BaseTestCase):
         form = forms.SubDomainForm(
             instance=subdomain,
             data={
+                'domain': self.domain.pk,
                 'key': 'core-clients-2',
                 'name': 'updated subdomain',
                 'description': 'updated description',

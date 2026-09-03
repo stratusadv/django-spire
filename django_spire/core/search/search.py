@@ -12,19 +12,18 @@ from django_spire.core.search.result import SearchResult
 class Search(ABC):
     Command: type[SearchCommand] = SearchCommand
 
-    model_class: type[models.Model]
-    searchable_fields: list[str]
+    model_class: type[models.Model] | None = None
+    searchable_fields: list[str] | None = None
     searchable_commands: list[SearchCommand] = []
-    search_key: str
-    name: str | None = None
-    icon: str | None = None
-    permission: str | None = None
+    name: str
+    icon: str
+    permission_required: str | None = None
     result_limit: int = 10
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
 
-        required_attributes = 'model_class', 'searchable_fields', 'search_key'
+        required_attributes = 'name', 'icon'
 
         for attribute in required_attributes:
             if getattr(cls, attribute, None) is None:
@@ -33,13 +32,7 @@ class Search(ABC):
 
     @property
     def section_name(self) -> str:
-        if self.name:
-            return self.name
-
-        if self.model_class is not None:
-            return self.model_class._meta.verbose_name_plural
-
-        return self.search_key
+        return self.name
 
     @abstractmethod
     def base_queryset(self, request: HttpRequest) -> models.QuerySet:
@@ -50,7 +43,7 @@ class Search(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def generate_detail_url(self, obj: models.Model) -> str:
+    def generate_detail_url(self, obj: models.Model) -> str | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -62,6 +55,9 @@ class Search(ABC):
         raise NotImplementedError
 
     def search(self, request: HttpRequest, query_string: str | None) -> models.QuerySet | None:
+        if self.searchable_fields is None:
+            return None
+
         query_string = (query_string or '').strip()
 
         if not query_string:
@@ -107,14 +103,14 @@ class Search(ABC):
         if not query:
             return None
 
-        keywords = (self.search_key, self.name)
-
         if self.model_class is not None:
             keywords = (
-                *keywords,
+                self.name,
                 self.model_class._meta.verbose_name,
                 self.model_class._meta.verbose_name_plural,
             )
+        else:
+            keywords = (self.name,)
 
         if not any(keyword and query in keyword.lower() for keyword in keywords):
             return None

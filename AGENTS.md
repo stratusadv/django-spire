@@ -368,13 +368,14 @@ Path: `django_spire/api/choices.py`
 ```python
 from django_spire.core.search import Search
 
+
 class TaskSearch(Search):
     model_class = models.Task
-    searchable_fields = ['name', 'description']   # OR'd per whitespace-separated word
-    search_key = 'TASK'                            # REQUIRED, must match registry key
+    searchable_fields = ['name', 'description']  # OR'd per whitespace-separated word
+    search_key = 'TASK'  # REQUIRED, must match registry key
     name = 'Tasks'
     icon = 'bi-list-task'
-    permission = 'test_project_task.add_task'      # Optional
+    permission_required = 'test_project_task.add_task'  # Optional
 
     searchable_commands = [
         Search.Command(
@@ -383,15 +384,19 @@ class TaskSearch(Search):
             url=reverse('task:modal:form', kwargs={'pk': 0}),
             action=Search.Command.Action.DISPATCH_MODAL,
             description='Create a new task',
-            permission='test_project_task.add_task',
+            permission_required='test_project_task.add_task',
         )
     ]
 
-    def base_queryset(self, request: HttpRequest) -> QuerySet: ...      # REQUIRED
-    def generate_list_url(self) -> str: ...                              # REQUIRED
-    def generate_detail_url(self, obj) -> str: ...                       # REQUIRED
-    def result_name(self, obj) -> str: ...                               # REQUIRED
-    def result_description(self, obj) -> str | None: ...                 # REQUIRED
+    def base_queryset(self, request: HttpRequest) -> QuerySet: ...  # REQUIRED
+
+    def generate_list_url(self) -> str: ...  # REQUIRED
+
+    def generate_detail_url(self, obj) -> str: ...  # REQUIRED
+
+    def result_name(self, obj) -> str: ...  # REQUIRED
+
+    def result_description(self, obj) -> str | None: ...  # REQUIRED
 ```
 
 Required attributes (`model_class`, `searchable_fields`, `search_key`) raise `ValueError` in `__init_subclass__` if unset. `search_key` must match the registry key or the registry raises `ValueError`. Reference implementations: `django_spire/knowledge/entry/search.py` (`EntrySearch`) and `test_project/app/task/search.py` (`TaskSearch`). Registry logic in `core/search/registry.py`, palette view in `core/search/views.py`, client JS in `core/static/django_spire/js/search_palette.js`.

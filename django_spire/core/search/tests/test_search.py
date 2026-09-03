@@ -74,7 +74,6 @@ class TestTaskSearch(TestCase):
     def test_to_result(self) -> None:
         result = self.search.to_result(self.matching_name)
 
-        assert result.search_key == 'TASK'
         assert result.name == 'Tasks'
         assert result.icon == 'bi-list-task'
         assert result.label == 'Alpha Report'
@@ -84,7 +83,6 @@ class TestTaskSearch(TestCase):
     def test_result_from_search(self) -> None:
         result = SearchResult.from_search(self.search, self.matching_name)
 
-        assert result.search_key == 'TASK'
         assert result.name == 'Tasks'
         assert result.label == 'Alpha Report'
         assert result.description == 'first'
@@ -130,7 +128,6 @@ class TestTaskSearch(TestCase):
         command = TaskSearch.searchable_commands[0]
         result = self.search.command_result(command)
 
-        assert result.search_key == 'TASK'
         assert result.name == 'Tasks'
         assert result.icon == 'bi-plus-lg'
         assert result.label == 'New Task'
@@ -145,7 +142,7 @@ class TestTaskSearch(TestCase):
 
         assert result is not None
         assert result.label == 'Tasks'
-        assert result.icon == 'bi-list-task'
+        assert result.icon == 'bi-list-columns'
         assert result.url == '/task/page/list/'
 
     def test_list_result_matches_case_insensitive(self) -> None:
@@ -166,16 +163,6 @@ class TestBaseSearchValidation(TestCase):
 
             class InvalidSearch(Search):
                 searchable_fields = ['name']
-                search_key = 'INVALID'
-
-                def generate_detail_url(self, _obj: models.Task) -> str:
-                    return ''
-
-    def test_missing_searchable_fields_raises(self) -> None:
-        with pytest.raises(ValueError, match='searchable_fields is None and must be defined'):
-
-            class InvalidSearch(Search):
-                model_class = models.Task
                 search_key = 'INVALID'
 
                 def generate_detail_url(self, _obj: models.Task) -> str:

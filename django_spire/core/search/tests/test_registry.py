@@ -31,9 +31,11 @@ class TestSearchRegistry(TestCase):
     @override_settings(
         DJANGO_SPIRE_SEARCH_REGISTRY={'OTHER': 'test_project.app.task.search.TaskSearch'}
     )
-    def test_search_key_mismatch_raises(self) -> None:
-        with pytest.raises(ValueError, match='does not match registry key'):
-            get_search_registry()
+    def test_search_key_does_not_need_to_match(self) -> None:
+        registry = get_search_registry()
+
+        assert 'OTHER' in registry
+        assert registry['OTHER'].search_key == 'TASK'
 
 
 @override_settings(DJANGO_SPIRE_SEARCH_REGISTRY={})

@@ -22,7 +22,7 @@ class TaskSearch(Search):
             url=reverse('task:modal:form', kwargs={'pk': 0}),
             action=Search.Command.Action.DISPATCH_MODAL,
             description='Create a new task',
-            permission='test_project_task.add_task',
+            permission_required='test_project_task.add_task',
         )
     ]
 

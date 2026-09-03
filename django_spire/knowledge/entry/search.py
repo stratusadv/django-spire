@@ -18,10 +18,10 @@ class EntrySearch(Search):
     search_key = 'ENTRY'
     name = 'Knowledge Entries'
     icon = 'bi-book'
-    permission = 'django_spire_knowledge.view_collection'
+    permission_required = 'django_spire_knowledge.view_collection'
 
     def base_queryset(self, request: HttpRequest) -> QuerySet[Entry]:
-        return self.model_class.objects.active()
+        return self.model_class.objects.active().select_related('collection')
 
     def generate_list_url(self) -> str:
         return reverse('django_spire:knowledge:page:home')

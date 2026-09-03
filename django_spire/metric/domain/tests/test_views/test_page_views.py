@@ -43,10 +43,29 @@ class DomainViewTestCase(BaseTestCase):
         for url_name in (
             'django_spire:metric:domain:page:subdomain_detail',
             'django_spire:metric:domain:form:subdomain_form',
-            'django_spire:metric:domain:form:delete_subdomain',
         ):
             href = str(js_url(url_name, domain_pk='item.domain_id', pk='item.id'))
             assert f':href="{href}"' in html
+
+        delete_link = (
+            str(
+                js_url(
+                    'django_spire:metric:domain:form:delete_subdomain',
+                    domain_pk='item.domain_id',
+                    pk='item.id',
+                    template_literal=True,
+                )
+            )
+            + '?return_url='
+            + str(
+                js_url(
+                    'django_spire:metric:domain:page:detail',
+                    pk='item.domain_id',
+                    template_literal=True,
+                )
+            )
+        )
+        assert f':href="`{delete_link}`"' in html
 
 
 class SubDomainViewTestCase(BaseTestCase):
