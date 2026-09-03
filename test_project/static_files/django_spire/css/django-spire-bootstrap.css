@@ -12828,6 +12828,12 @@ textarea.form-control-lg {
   outline-offset: 2px;
 }
 
+.list-group-item-action.search-palette-result:focus {
+  background-color: var(--bs-primary-bg-subtle);
+  outline: calc(var(--bs-border-width) * 2) solid var(--bs-primary);
+  outline-offset: -1px;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;
