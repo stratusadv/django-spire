@@ -11,7 +11,7 @@ class SearchCommand:
             name: str,
             icon: str,
             url: str,
-            action: Action,
+            action: Action = Action.OPEN_URL_CURRENT_TAB,
             description: str | None = None,
             permission_required: str | None = None,
     ):
