@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from django import forms
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 from django_glue import Glue, GlueResponse
@@ -22,6 +23,15 @@ def _user_choice_queryset() -> QuerySet[User]:
 
 
 class WidgetShowcaseForm(ModelForm):
+    # A plain (non-relation) MultipleChoiceField -- glued as ManyChoiceFieldGlue,
+    # not ManyRelationFieldGlue. Form-only, not persisted; here so the adaptive
+    # multiselect widget is exercised against a static choice source too.
+    plain_multi_choice = forms.MultipleChoiceField(
+        choices=[('red', 'Red'), ('green', 'Green'), ('blue', 'Blue')],
+        required=False,
+        label='Plain multi choice',
+    )
+
     @Glue.attr(required_access=Glue.Access.CHANGE)
     def save_model_obj(self) -> GlueResponse:
         if self.is_valid():

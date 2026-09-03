@@ -90,14 +90,22 @@ def choose_single_search(
     return widget
 
 
+def open_multi_picker(widget: Locator) -> None:
+    """Open a multiselect dropdown via its chevron. The trigger button's centre
+    fills with selected-choice badges, so clicking the button itself lands on a
+    badge (removing it) once anything is selected -- the chevron never is.
+    """
+    search = widget.locator('input[type="search"]')
+    if not search.is_visible():
+        widget.locator('.bi-chevron-down').click()
+        expect(search).to_be_visible()
+
+
 def choose_multi_search(scope: Locator | Page, label: str, query: str, choice_text: str) -> Locator:
     """Open a searchable multi-select dropdown, run a backend search, and add a result."""
     widget = field_widget(scope, label)
-    search = widget.locator('input[type="search"]')
-    if not search.is_visible():
-        widget.locator('button').first.click()
-        expect(search).to_be_visible()
-    search.fill(query)
+    open_multi_picker(widget)
+    widget.locator('input[type="search"]').fill(query)
     result = widget.locator('button', has_text=choice_text).last
     expect(result).to_be_visible()
     result.click()
@@ -106,25 +114,28 @@ def choose_multi_search(scope: Locator | Page, label: str, query: str, choice_te
 
 
 def choose_multi_static(scope: Locator | Page, label: str, choice_text: str) -> Locator:
-    """Open a static multi-select dropdown (no search box) and add a result."""
+    """Open a static multi-select dropdown, narrow it with the local label
+    filter, and add a result.
+    """
     widget = field_widget(scope, label)
+    open_multi_picker(widget)
+    widget.locator('input[type="search"]').fill(choice_text)
     result = widget.locator('button', has_text=choice_text).last
-    if not result.is_visible():
-        widget.locator('button').first.click()
-        expect(result).to_be_visible()
+    expect(result).to_be_visible()
     result.click()
     close_multi_picker(widget)
     return widget
 
 
 def close_multi_picker(widget: Locator) -> None:
-    """Close a multiselect dropdown via its trigger. The widget stays open
-    after each pick on purpose so several choices can be added in a row,
-    and Escape only lands while focus is still inside the dropdown -- the
-    act of picking removes the clicked option from the DOM, dropping focus
-    to the page, so the trigger toggle is the reliable way to close.
+    """Close a multiselect dropdown with Escape. The widget stays open after each
+    pick on purpose so several choices can be added in a row; picking leaves focus
+    on the search box, whose Escape handler closes the dropdown.
     """
-    widget.locator('button').first.click()
+    search = widget.locator('input[type="search"]')
+    if search.is_visible():
+        search.press('Escape')
+        expect(search).not_to_be_visible()
 
 
 def open_showcase_form(demo: Demo, page: Page, pk: int = 0) -> None:
@@ -158,6 +169,61 @@ class TestWidgetShowcaseRenders:
             expect(field_widget(page, label)).to_be_visible()
 
         demo.spotlight(field_widget(page, 'Search tags'), label='Multi search-and-select')
+
+    def test_static_multiselect_filters_its_choices_locally(
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
+    ) -> None:
+        """A static multi field ('Checkbox tags' -- a plain M2M, not backend
+        searchable) still narrows its loaded choices as you type, same as the
+        static single search-and-select widget does.
+        """
+        del transactional_db
+
+        create_test_showcase_tag(name='Alpha Tag')
+        create_test_showcase_tag(name='Beta Tag')
+
+        demo = demo_start()
+        open_showcase_form(demo, page)
+
+        widget = field_widget(page, 'Checkbox tags')
+        open_multi_picker(widget)
+
+        alpha = widget.locator('button', has_text='Alpha Tag')
+        beta = widget.locator('button', has_text='Beta Tag')
+        expect(alpha).to_be_visible()
+        expect(beta).to_be_visible()
+
+        widget.locator('input[type="search"]').fill('beta')
+        expect(alpha).not_to_be_visible()
+        expect(beta).to_be_visible()
+
+        widget.locator('input[type="search"]').fill('')
+        expect(alpha).to_be_visible()
+        expect(beta).to_be_visible()
+
+    def test_plain_multiplechoicefield_uses_the_multiselect_widget(
+        self, page: Page, demo_start: Callable[..., Demo], transactional_db: None
+    ) -> None:
+        """A plain forms.MultipleChoiceField ('Plain multi choice' -- not a
+        relation, so glued as ManyChoiceFieldGlue) routes through the same
+        adaptive multiselect: local filter, pick, and a badge for the choice.
+        """
+        del transactional_db
+
+        demo = demo_start()
+        open_showcase_form(demo, page)
+
+        widget = field_widget(page, 'Plain multi choice')
+        open_multi_picker(widget)
+
+        widget.locator('input[type="search"]').fill('gre')
+        expect(widget.locator('button', has_text='Red')).not_to_be_visible()
+        green = widget.locator('button', has_text='Green')
+        expect(green).to_be_visible()
+        green.click()
+        close_multi_picker(widget)
+
+        expect(widget.locator('button.form-control .badge')).to_have_text('Green')
 
 
 class TestWidgetShowcaseRoundTrip:

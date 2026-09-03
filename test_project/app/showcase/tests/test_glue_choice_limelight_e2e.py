@@ -74,7 +74,7 @@ def test_adaptive_choice_widgets_demo(
     demo.select(single_static, 'High')
     expect(single_static).to_have_value(PriorityChoices.HIGH)
 
-    demo.narrate('Static multiple choice renders a non-searchable multiselect', step='2')
+    demo.narrate('Static multiple choice renders a locally-filtered multiselect', step='2')
     checkbox_tags_widget = choose_multi_static(page, 'Checkbox tags', 'Alpha Tag')
     choose_multi_static(page, 'Checkbox tags', 'Beta Tag')
     expect(checkbox_tags_widget.locator('button.form-control .badge')).to_have_text(
