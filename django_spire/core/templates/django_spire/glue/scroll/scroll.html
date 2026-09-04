@@ -61,6 +61,14 @@
             this.sliceStop = this.increment
             this.hasMore = true
             this.items = []
+
+            // scrollQuerySet retains its own query cache for the life of this component, so a
+            // plain reload can still serve stale cached pages (e.g. after an edit moves a row
+            // out of this scroll's filter). Bust it before reloading.
+            if (typeof this.scrollQuerySet.refresh === 'function') {
+                await this.scrollQuerySet.refresh()
+            }
+
             await this.loadMoreItems(true)
         },
         async updateItem(pk, removed = false) {
