@@ -64,7 +64,7 @@
             <div class="progress mt-1" style="height: 3px;">
                 <div class="progress-bar bg-primary" role="progressbar"
                      :style="{ width: progress + '%' }"
-                     aria-valuenow="{{ celery_task.progress_hundred }}" aria-valuemin="0"
+                     aria-valuenow="{{ celery_task.estimated_progress_hundred }}" aria-valuemin="0"
                      aria-valuemax="100"></div>
             </div>
 

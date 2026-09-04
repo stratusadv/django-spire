@@ -36,7 +36,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 self.obj.completed_datetime = date_done_aware
 
                 if self.obj.started_datetime is None:
-                    self.obj.started_datetime = self.obj.queued_datetime # noqa: django field null unreachable lsp error
+                    self.obj.started_datetime = self.obj.queued_datetime
 
                 self.obj.state = states.SUCCESS
 
@@ -62,7 +62,7 @@ class CeleryTaskService(BaseDjangoModelService['CeleryTask']):
                 self.obj.meta_as_dict = new_meta_dict
 
             if self.obj.started_datetime is None and self.obj.meta.started_datetime:
-                self.obj.started_datetime = self.obj.meta.started_datetime # noqa: django field null unreachable lsp error
+                self.obj.started_datetime = self.obj.meta.started_datetime
 
             has_changed = True
 

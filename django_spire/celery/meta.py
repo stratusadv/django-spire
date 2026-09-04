@@ -86,7 +86,7 @@ class CeleryTaskMeta(BaseModel):
     @property
     def estimated_run_time_seconds(self) -> float | None:
         if self.started_time and self.estimated_completed_time:
-            return self.estimated_completed_time - self.estimated_completed_time
+            return self.estimated_completed_time - self.started_time
 
         return None
 

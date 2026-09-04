@@ -12,12 +12,13 @@ def _sleep(task: Task, length: int) -> None:
         tracker.set_started_and_completing_soon()
     else:
         tracker.set_started()
+        tracker.set_cumulative_progress_target_value(length)
 
     for i in range(length):
         sleep(1)
 
         if length > 5:
-            tracker.update_cumulative_progress(1, length)
+            tracker.update_cumulative_progress(1)
             tracker.update_state('MAKING NOISES')
 
     tracker.set_completed()

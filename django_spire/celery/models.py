@@ -118,7 +118,7 @@ class CeleryTask(models.Model):
         self._task_meta = task_meta.model_dump()
 
     @property
-    def meta_as_dict(self) -> CeleryTaskMeta:
+    def meta_as_dict(self) -> dict | None:
         return self._task_meta
 
     @meta_as_dict.setter

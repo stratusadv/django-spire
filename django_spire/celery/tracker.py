@@ -79,7 +79,7 @@ class CeleryTaskTracker:
                 self._celery_task.backend,
                 self._celery_task.request.id,
                 self._state,
-                **self.meta.model_dump(),
+                self.meta.model_dump(),
             )
 
     def update_state(self, state: str = states.PENDING) -> None:
